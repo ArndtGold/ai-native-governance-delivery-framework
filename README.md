@@ -1,42 +1,85 @@
 # AI-native Governance & Delivery Framework
 
-Ein Deutsch-first Framework für agentisches Software Engineering, kontrollierbare KI-gestützte Delivery und auditierbare Weiterentwicklung bestehender Softwarelandschaften.
+Ein Deutsch-first Framework für agentisches Software Engineering, kontrollierbare KI-gestützte Delivery und die nachvollziehbare Weiterentwicklung bestehender Softwarelandschaften.
 
-> Von Prompt-getriebener Umsetzung zu nachvollziehbarer, gate-basierter Software Delivery.
+> Von schnellen KI-Ergebnissen zu belastbarer, gate-basierter Software Delivery.
 
 ## Status
 
 Dieses Repository ist ein öffentlicher Diskussionsentwurf.
 
-Ziel ist nicht, sofort ein fertiges Tool oder einen starren Prozess zu liefern. Ziel ist, gemeinsam ein Framework zu schärfen, das KI-gestützte und agentische Softwarearbeit nachvollziehbarer, prüfbarer und verantwortbarer macht.
+Es geht hier nicht darum, sofort ein fertiges Tool oder einen neuen Pflichtprozess vorzugeben. Der erste Schritt ist einfacher: Wir wollen gemeinsam herausarbeiten, welche Struktur Softwareteams brauchen, wenn KI-Agenten nicht mehr nur assistieren, sondern aktiv an Analyse, Planung, Umsetzung und Qualitätssicherung beteiligt sind.
 
 ## Warum dieses Projekt existiert
 
-Agentisches Software Engineering verändert, wie Software geplant, entworfen, getestet und umgesetzt wird.
+Agentisches Software Engineering verändert gerade, wie Software geplant, entworfen, getestet und umgesetzt wird.
 
-Viele Debatten konzentrieren sich auf Coding Agents, Produktivitätsgewinne und Automatisierung. Dieses Projekt setzt früher an:
+Viele Diskussionen drehen sich um Coding Agents, Produktivität und Automatisierung. Das ist verständlich. Wer sieht, wie schnell KI heute lauffähigen Code erzeugen kann, landet schnell bei der Frage, wie viel schneller Entwicklung dadurch wird.
 
-**Wie stellen wir sicher, dass KI-Agenten nicht nur schnell Code erzeugen, sondern innerhalb eines überprüfbaren Delivery-Rahmens arbeiten?**
+Dieses Projekt setzt an einer anderen Stelle an:
 
-Wenn KI-Agenten Anforderungen interpretieren, Solution Designs ableiten, Tests planen oder Implementierungsvorschläge erzeugen, braucht es klare Regeln für:
+**Wie sorgen wir dafür, dass KI-Agenten nicht nur schnell liefern, sondern im richtigen fachlichen Rahmen arbeiten?**
 
-- Scope
-- Freigabe
-- Traceability
-- Qualitätsnachweise
-- Rollen und Verantwortung
-- Change Control
-- Grenzen zwischen Design und Code
+In vielen Teams versucht man, den roten Faden über Jira, Azure DevOps, GitHub Issues oder ähnliche Ticket- und Planungssysteme zu halten. Diese Werkzeuge sind wichtig. Sie zeigen, woran gearbeitet wird, wer beteiligt ist und wie weit ein Vorgang fortgeschritten ist.
+
+Sie beantworten aber nicht automatisch die Governance-Frage.
+
+Ein typischer Satz aus der Praxis lautet:
+
+> „Wir haben in Jira zu diesem Thema über 1000 Tickets, aber wir wissen nicht, was davon tatsächlich umgesetzt wurde."
+
+Das ist kein reines Tool-Problem. Es zeigt eine Lücke zwischen Aktivität und fachlicher Nachvollziehbarkeit.
+
+Ein Board zeigt, woran gearbeitet wird.
+Dieses Framework erklärt, warum daran gearbeitet werden darf.
+
+Wenn KI-Agenten Anforderungen interpretieren, Solution Designs ableiten, Tasks vorschlagen, Tests planen oder Implementierungsvorschläge erzeugen, braucht es klare Regeln für Scope, Freigabe, Traceability, Qualitätsnachweise, Rollen, Verantwortung, Change Control und die Grenze zwischen Design und Code.
+
+## Ursprung
+
+Dieses Framework ist aus praktischen Experimenten und einem Vortrag zu **„KI als Junior-Dev-Teammitglied“** entstanden — zu einer Zeit, in der in vielen Teams noch die Frage im Vordergrund stand: „KI, was haben wir konkret davon?"
+
+Sam Altman schrieb Anfang 2025 in seinem Blogpost **„Reflections“**:
+
+> “We believe that, in 2025, we may see the first AI agents ‘join the workforce’ …”
+
+Der ursprüngliche Impuls war pragmatisch: Was passiert, wenn diese Einschätzung zutrifft? Was passiert, wenn KI nicht nur Texte erklärt oder Code vervollständigt, sondern als agentisches Teammitglied an realen Delivery-Schritten beteiligt wird?
+
+*Frühes Experiment aus der Phase „KI als Junior-Dev-Teammitglied“: schnelle MVP-Erzeugung machte sichtbar, dass Geschwindigkeit allein nicht reicht. Entscheidend wird, ob Scope, Entscheidungen, Tests und Freigaben nachvollziehbar bleiben.*
+
+![Frühes Experiment: agentische MVP-Erzeugung mit KI](assets/experiment-nova-sphere.png)
+
+Die spannendere Frage zeigte sich aber erst danach:
+
+> Was passiert, wenn jeder erfahrene Entwickler zum Produzenten wird, mit KI als Entwicklungsteam?
+
+In dieser Perspektive schreibt ein erfahrener Entwickler nicht mehr nur Code. Er formuliert Ziele, stabilisiert Scope, trifft Architekturentscheidungen, zerlegt Arbeit, bewertet Vorschläge, prüft Qualität, priorisiert Risiken und entscheidet über Freigaben.
+
+KI-Agenten können sehr schnell lauffähige Ergebnisse erzeugen. Entscheidend wird aber, ob Anforderungen, Scope, Architekturentscheidungen, Arbeitspakete, Tests, Freigaben und Änderungen nachvollziehbar bleiben.
+
+Das vorliegende Framework ist der Versuch, diese Beobachtung zu formalisieren:
+
+> Wenn erfahrene Entwickler mit KI-Agenten wie mit einem Entwicklungsteam arbeiten, brauchen sie nicht nur Prompts und Tools, sondern einen nachvollziehbaren Governance- und Delivery-Rahmen.
+
+## Leitthese
+
+KI-Agenten machen erfahrene Entwickler nicht überflüssig. Sie verändern ihre Rolle.
+
+Der erfahrene Entwickler wird stärker zum Produzenten. Er setzt Ziele, gibt Kontext, hält Scope stabil, trifft Architekturentscheidungen, bewertet Vorschläge, prüft Qualität und entscheidet, wann etwas weitergehen darf.
+
+Genau deshalb braucht agentisches Software Engineering nicht nur bessere Coding Agents. Es braucht eine Governance- und Delivery-Schicht, die diese neue Arbeitsweise kontrollierbar macht.
 
 ## Kernidee
 
 Das Framework schlägt eine gate-basierte Governance- und Delivery-Struktur für agentisches Software Engineering vor.
 
-Der zentrale Gedanke:
+Der zentrale Gedanke ist bewusst einfach:
 
 > Keine Implementierung ohne freigegebenen Produktvertrag.
 
-Ein stabiler Produktvertrag, zum Beispiel ein `PRD.contract`, dient als verbindliche Quelle für Scope, Akzeptanzkriterien, Non-Goals, Constraints und Erfolgsmessung. Nachgelagerte Artefakte wie Solution Design, Test Plan und Implementierung dürfen diesen Vertrag nicht stillschweigend uminterpretieren.
+Ein stabiler Produktvertrag, zum Beispiel ein `PRD.contract`, beschreibt verbindlich, was gelten soll: Scope, Akzeptanzkriterien, Non-Goals, Constraints und Erfolgsmessung.
+
+Nachgelagerte Artefakte wie Solution Design, Task & Test Plan und Implementierung dürfen diesen Vertrag nicht stillschweigend uminterpretieren.
 
 ## Deutsch-first
 
@@ -44,26 +87,19 @@ Dieses Projekt ist bewusst Deutsch-first.
 
 Governance, Verantwortung, Freigabe, Nachweisführung, Akzeptanzkriterien, Nicht-Ziele, Änderungssteuerung und Auditierbarkeit sind keine rein technischen Begriffe. Sie berühren Organisation, Haftung, Zusammenarbeit, Regulierung und Entscheidungsverantwortung.
 
-Gerade im deutschsprachigen Raum — in Unternehmen, Mittelstand, öffentlicher Verwaltung, regulierten Branchen und europäischen Governance-Kontexten — müssen diese Fragen präzise und anschlussfähig diskutiert werden können.
+Gerade im deutschsprachigen Raum (in Unternehmen, Mittelstand, öffentlicher Verwaltung, regulierten Branchen und europäischen Governance-Kontexten) müssen diese Fragen präzise und anschlussfähig diskutiert werden können.
 
-Englische Fachbegriffe wie `AI-native`, `Delivery`, `Gate`, `Traceability`, `PRD.contract` oder `Agentic Software Engineering` werden dort verwendet, wo sie als etablierte Fachanker hilfreich sind.
+Englische Fachbegriffe wie `AI-native`, `Delivery`, `Gate`, `Traceability`, `PRD.contract` oder `Agentic Software Engineering` werden dort verwendet, wo sie als Fachanker hilfreich sind.
 
 ## Brownfield als Hauptanwendungsfall
 
 Dieses Framework betrachtet Brownfield-Projekte nicht als Sonderfall, sondern als zentrale Realität agentischer Software Delivery.
 
-Viele relevante KI-gestützte Softwarevorhaben entstehen nicht auf der grünen Wiese. Sie finden in bestehenden Systemlandschaften statt:
-
-- gewachsene Codebasen
-- historische Architekturentscheidungen
-- unvollständige Dokumentation
-- bestehende Schnittstellen
-- regulatorische Anforderungen
-- technische Schulden
-- laufender Betrieb
-- fehlende oder lückenhafte Tests
+Viele relevante KI-gestützte Softwarevorhaben entstehen nicht auf der grünen Wiese. Sie finden in bestehenden Systemlandschaften statt: gewachsene Codebasen, historische Architekturentscheidungen, unvollständige Dokumentation, bestehende Schnittstellen, regulatorische Anforderungen, technische Schulden, laufender Betrieb und oft auch lückenhafte Tests.
 
 Gerade dort reicht schnelle Code-Erzeugung nicht aus. Agentische Softwarearbeit muss kontrolliert, nachvollziehbar und reversibel bleiben.
+
+Brownfield-Delivery bedeutet deshalb nicht nur, neuen Code schneller zu erzeugen. Es bedeutet, bestehendes Verhalten zu verstehen, Risiken sichtbar zu machen, Änderungen sauber zu begründen, Tests gezielt nachzuziehen und Rückbau oder Rollback mitzudenken.
 
 ## Grundprinzipien
 
@@ -81,11 +117,11 @@ Solution Design beschreibt Architektur, Verantwortlichkeiten, Schnittstellen und
 
 ### 4. Traceability statt Bauchgefühl
 
-Jede relevante Entscheidung soll auf Anforderungen, Artefakte, Freigaben oder Qualitätsnachweise zurückführbar sein.
+Wichtige Entscheidungen sollen auf Anforderungen, Artefakte, Freigaben oder Qualitätsnachweise zurückführbar sein.
 
 ### 5. Qualität braucht Nachweise
 
-Build-, Test-, Review- und Risikoaussagen müssen sichtbar gemacht werden. Nicht verifizierte Aussagen werden als solche markiert.
+Build-, Test-, Review- und Risikoaussagen müssen sichtbar gemacht werden. Was nicht verifiziert wurde, sollte auch nicht so dargestellt werden, als sei es verifiziert.
 
 ### 6. Änderungen müssen explizit sein
 
@@ -95,13 +131,13 @@ Scope-Änderungen, geänderte Akzeptanzkriterien, Non-Goal-Anpassungen sowie sic
 
 Das Framework arbeitet mit klaren Gates:
 
-| Gate                       | Zweck                                                           |
-|----------------------------|-----------------------------------------------------------------|
-| G-00 User Request          | Problemverständnis, Scope-Rahmen, Risiken, Entscheidungsvorlage |
-| G-01 Product Requirements  | Anforderungen und stabiler Produktvertrag                       |
-| G-02 Solution Design       | Lösungskonzept, Architektur, Schnittstellen, Datenflüsse        |
-| G-03 Test Plan             | Teststrategie, Abdeckung der Akzeptanzkriterien                 |
-| G-04 Code / Implementation | Implementierung, Tests, Qualitätsnachweise                      |
+| Gate                       | Zweck                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| G-00 User Request          | Problemverständnis, Scope-Rahmen, Risiken, Entscheidungsvorlage              |
+| G-01 Product Requirements  | Anforderungen und stabiler Produktvertrag                                    |
+| G-02 Solution Design       | Lösungskonzept, Architektur, Schnittstellen, Datenflüsse                     |
+| G-03 Task & Test Plan      | Ableitung umsetzbarer Arbeitspakete und Validierung gegen Akzeptanzkriterien |
+| G-04 Code / Implementation | Implementierung, Tests, Qualitätsnachweise                                   |
 
 Die detaillierte Gate-Matrix wird in den Framework-Dokumenten ausgearbeitet.
 
@@ -121,7 +157,7 @@ Die detaillierte Gate-Matrix wird in den Framework-Dokumenten ausgearbeitet.
 │  ├─ user-requirement.md
 │  ├─ prd-contract.md
 │  ├─ solution-design.md
-│  ├─ test-plan.md
+│  ├─ task-test-plan.md
 │  └─ qa-report.md
 ├─ examples/
 │  └─ sample-delivery-flow.md
@@ -135,29 +171,16 @@ Die detaillierte Gate-Matrix wird in den Framework-Dokumenten ausgearbeitet.
 Empfohlene Reihenfolge:
 
 1. [`docs/00-manifest.md`](docs/00-manifest.md) lesen
-2. Offene Fragen in den GitHub Discussions kommentieren
-3. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
-4. Verbesserungsvorschläge als Pull Request einreichen
+2. [`docs/01-framework-ueberblick.md`](docs/01-framework-ueberblick.md) lesen
+3. Offene Fragen in den GitHub Discussions kommentieren
+4. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
+5. Verbesserungsvorschläge als Pull Request einreichen
 
 ## Aktueller Arbeitsstand
 
-Die erste öffentliche Version konzentriert sich auf:
+Die erste öffentliche Version konzentriert sich auf Manifest und Positionierung, Ursprung und praktische Motivation, Begriffsklärung, Gate-Modell, Artefaktmodell, `PRD.contract` als Produktvertrag, Task & Test Plan als Brücke zur Umsetzung, Brownfield-Relevanz und offene Diskussionsfragen.
 
-- Manifest und Positionierung
-- Begriffsklärung
-- Gate-Modell
-- Artefaktmodell
-- PRD.contract als Produktvertrag
-- Brownfield-Relevanz
-- offene Diskussionsfragen
-
-Noch nicht im Fokus:
-
-- fertiges Tooling
-- Agent Runtime
-- IDE-Integration
-- vollständige Automatisierung
-- organisationsspezifische Compliance-Profile
+Noch nicht im Fokus stehen fertiges Tooling, Agent Runtime, IDE-Integration, vollständige Automatisierung oder organisationsspezifische Compliance-Profile.
 
 ## Diskussion erwünscht
 
@@ -165,24 +188,19 @@ Dieses Projekt lebt von Kritik und Gegenbeispielen.
 
 Besonders interessant sind Fragen wie:
 
-- Wie viel Governance ist hilfreich, bevor sie zu schwergewichtig wird?
-- Ist ein Produktvertrag der richtige Anker für agentische Delivery?
-- Wo endet Design und wo beginnt Implementierung?
-- Welche Qualitätsnachweise sind für Vertrauen notwendig?
-- Wie lässt sich das Framework in Brownfield-Projekten anwenden?
-- Welche Teile sollten durch Tooling unterstützt werden?
-- Was muss menschliches Review und menschliche Verantwortung bleiben?
+* Wie verändert sich die Rolle erfahrener Entwickler, wenn KI-Agenten Teile eines Entwicklungsteams übernehmen?
+* Wie viel Governance ist hilfreich, bevor sie zu schwergewichtig wird?
+* Ist ein Produktvertrag der richtige Anker für agentische Delivery?
+* Wo endet Design und wo beginnt Implementierung?
+* Wie lassen sich Tickets, Boards und PRs mit fachlicher Traceability verbinden?
+* Welche Qualitätsnachweise sind für Vertrauen notwendig?
+* Wie lässt sich das Framework in Brownfield-Projekten anwenden?
+* Welche Teile sollten durch Tooling unterstützt werden?
+* Was muss menschliches Review und menschliche Verantwortung bleiben?
 
 ## Mitwirken
 
-Beiträge sind willkommen in Form von:
-
-- Diskussionen
-- Issues
-- Verbesserungsvorschlägen
-- Gegenargumenten
-- Beispielen aus realen Brownfield-Projekten
-- Pull Requests für Dokumentation, Templates oder Beispiele
+Beiträge sind willkommen: Diskussionen, Issues, Verbesserungsvorschläge, Gegenargumente, Beispiele aus realen Brownfield-Projekten oder Pull Requests für Dokumentation, Templates und Beispiele.
 
 Bitte beachte: Dieses Repository ist zunächst ein Framework- und Diskussionsprojekt. Implementierungsdetails und Tooling werden erst später ergänzt.
 
@@ -191,4 +209,3 @@ Bitte beachte: Dieses Repository ist zunächst ein Framework- und Diskussionspro
 Die Lizenz ist noch festzulegen.
 
 Bis zur Entscheidung sollte das Repository als Diskussionsentwurf behandelt werden.
-

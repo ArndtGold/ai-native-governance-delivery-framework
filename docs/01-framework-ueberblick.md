@@ -72,7 +72,35 @@ Am Anfang steht nicht sofort ein Requirements-Dokument, sondern ein gemeinsames 
 
 In G-00 geht es darum, das Problem, das Ziel, die betroffenen Nutzer, erkennbare Constraints und die wichtigsten Unsicherheiten zu verstehen. Auch eine erste Einschätzung von Größe, Machbarkeit und Risiko gehört hierher.
 
-G-00 ist noch kein Design- oder Umsetzungs-Gate. Es geht um Orientierung und Entscheidungsvorbereitung.
+In Brownfield-Kontexten gehört zu G-00 zusätzlich ein früher Brownfield Review.
+
+Dieser Review ist noch keine Implementierungsanalyse. Er soll klären, ob der Wunsch bestehende Systemlogik, Schnittstellen, Datenmodelle, Ownership, technische Schulden, Produktsemantik oder Betriebsabhängigkeiten berührt.
+
+Gerade in bestehenden Systemen ist ein User Request selten isoliert. Ein scheinbar kleiner Wunsch kann vorhandenes Verhalten verändern, alte Annahmen brechen oder eine fachliche Entscheidung betreffen, die im Code nur noch implizit sichtbar ist.
+
+Der Brownfield Review prüft deshalb früh:
+
+- Welche bestehenden Systeme, Module oder Prozesse könnten betroffen sein?
+- Gibt es bestehendes Verhalten, das geschützt werden muss?
+- Gibt es bekannte technische Schulden oder fragile Bereiche?
+- Ist unklar, welche Produktsemantik aktuell wirklich gilt?
+- Gibt es Hinweise auf Drift zwischen Dokumentation, Runtime-Verhalten und gewünschter Produktsemantik?
+- Muss vor dem PRD eine fachliche Richtungsentscheidung getroffen werden?
+
+Warum dieser Brownfield Review bei KI-Agenten wichtig ist:
+
+Ein LLM neigt ohne klaren Bestandskontext dazu, Aufgaben wie Greenfield-Probleme zu behandeln. Es erzeugt dann häufig neue Strukturen, neue Hilfspfade oder neue Verantwortlichkeiten, weil diese im aktuellen Kontext plausibel und schnell umsetzbar wirken.
+
+![Warum Brownfield Review schon in G-00 wichtig ist](../assets/brownfield-review-in-g00.png)
+
+In bestehenden Systemen ist genau das riskant. Ein neuer Service, ein neuer Endpoint, ein neuer Wrapper oder ein zusätzlicher State-Owner kann kurzfristig sauber aussehen, aber langfristig Parallelstrukturen, Drift und spätere Rückbauarbeit erzeugen.
+
+Der frühe Brownfield Review soll deshalb verhindern, dass bereits der `PRD.contract` auf einer falschen Greenfield-Annahme basiert. Er zwingt die erste Klärung: Welche bestehende Logik, Ownership, Produktsemantik oder Systemgrenze müssen wir verstehen, bevor wir Anforderungen formulieren?
+
+
+Das Ergebnis fließt in den späteren `PRD.contract` ein. Es hilft, Scope, Non-Goals, Risiken, Annahmen und Akzeptanzkriterien realistischer zu formulieren.
+
+G-00 ist noch kein Design- oder Umsetzungs-Gate. Es geht um Orientierung, Entscheidungsvorbereitung und darum, in Brownfield-Kontexten nicht mit einer Greenfield-Annahme zu starten.
 
 ### G-01 — Product Requirements
 
@@ -135,8 +163,52 @@ Dafür müssen die harten Voraussetzungen erfüllt sein:
 - der `PRD.contract` ist freigegeben
 - das Solution Design ist abgeschlossen
 - der Task & Test Plan ist abgeschlossen
+- in Brownfield-Kontexten wurde geprüft, welche bestehenden Artefakte betroffen sind und welche Reuse-Strategie sinnvoll ist
 
 In G-04 entstehen Code, Tests und Qualitätsnachweise. Aussagen wie „fertig“, „getestet“ oder „grün“ müssen belegbar sein. Wenn Prüfungen nicht ausgeführt wurden, muss das sichtbar bleiben.
+
+Nach der Umsetzung sollte nicht direkt zur finalen QA gesprungen werden. Zuerst braucht es einen Task Plan Review.
+
+Der Task Plan Review prüft, ob die Umsetzung den genehmigten Task & Test Plan tatsächlich erfüllt. 
+
+![Plausibel ist nicht gleich fertig](../assets/task-review-and-comparison-process-flow.png)
+
+
+Dabei wird jede relevante `task_id` einzeln betrachtet:
+
+- Wurde die Aufgabe vollständig, teilweise oder nicht erledigt?
+- Welche Acceptance Criteria sind erfüllt, teilweise erfüllt, offen oder nicht verifizierbar?
+- Welche Dateien, Tests, Build-Ergebnisse oder UI-/Runtime-Evidenz stützen die Bewertung?
+- Gibt es Abweichungen vom Task Plan?
+- Sind Out-of-Scope-Änderungen entstanden?
+- Welche Lücken müssen an das spätere QA-Gate übergeben werden?
+
+Der Task Plan Review ist damit keine finale QA-Entscheidung. Er liefert die belastbare TP-Coverage als Eingabe für QA.
+
+Gerade bei KI-gestützter Umsetzung ist dieser Schritt wichtig: Ein Build kann grün sein, obwohl ein Task nur teilweise umgesetzt wurde. Ebenso kann Code plausibel aussehen, ohne die vereinbarten Acceptance Criteria wirklich abzudecken.
+
+#### Warum nach der Implementierung ein Task Plan Review nötig ist
+
+Bei KI-gestützter Umsetzung entsteht leicht der Eindruck, ein Task sei erledigt, sobald Code vorhanden ist und die naheliegenden Prüfungen grün sind.
+
+Das reicht nicht.
+
+Ein LLM erzeugt Ergebnisse entlang von Kontext, Mustern und plausiblen nächsten Schritten. Es besitzt aber kein belastbares eigenes Verständnis davon, ob ein genehmigter Task Plan vollständig erfüllt wurde. Besonders bei mehreren Acceptance Criteria, UI-/Runtime-Verhalten, Brownfield-Abhängigkeiten oder stillen Scope-Verschiebungen kann eine Umsetzung fertig wirken, obwohl sie nur teilweise fertig ist.
+
+Deshalb braucht es nach der Implementierung einen getrennten Review-Schritt.
+
+Der Task Plan Review prüft nicht, ob der Code plausibel aussieht. Er prüft, ob jede relevante `task_id` aus dem genehmigten Task & Test Plan tatsächlich erfüllt wurde — vollständig, teilweise oder gar nicht.
+
+Dabei gilt:
+
+- Ein grüner Build beweist keine vollständige Task-Erfüllung.
+- Fehlende Evidenz darf nicht durch Annahmen ersetzt werden.
+- Sichtbares UI-, State-, Render- oder Runtime-Verhalten braucht sichtbare Evidenz.
+- Teilumsetzung muss als Teilumsetzung sichtbar bleiben.
+- Out-of-Scope-Änderungen müssen dokumentiert werden.
+- Bei unklarer Evidenz wird nicht auf „fertig“ entschieden.
+
+Der Task Plan Review ist deshalb keine Bürokratie. Er ist der Moment, in dem aus einer plausiblen KI-Umsetzung eine überprüfbare Delivery-Aussage wird.
 
 ## Der Produktvertrag als Anker
 
@@ -151,17 +223,21 @@ Wenn sich Scope, Akzeptanzkriterien oder Non-Goals ändern, ist das keine beilä
 Der typische Fluss sieht so aus:
 
 ```text
-User Request
+G-00 User Request
    ↓
-PRD.contract
+Brownfield Analysis
    ↓
-Solution Design
+G-01 PRD.contract
    ↓
-Task & Test Plan
+G-02 Solution Design
    ↓
-Code / Implementation
+G-03 Task & Test Plan
    ↓
-QA Report
+G-04 Code / Implementation
+   ↓
+Task Plan Review
+   ↓
+QA
 ```
 
 Jedes Artefakt sollte zeigen, worauf es basiert, welche Version zugrunde liegt, welche Annahmen bestehen und welche Risiken offen geblieben sind.

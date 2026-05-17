@@ -1,5 +1,3 @@
-# AI-native Governance & Delivery Framework
-
 ![Intro : AI-native Governance & Delivery Framework](assets/intro.png)
 
 

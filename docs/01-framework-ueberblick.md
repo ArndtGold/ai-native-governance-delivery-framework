@@ -238,7 +238,7 @@ kann eine Umsetzung fertig wirken, obwohl sie nur teilweise fertig ist.
 Deshalb braucht es nach der Implementierung einen getrennten Review-Schritt.
 
 Der Task Plan Review prüft nicht, ob der Code plausibel aussieht. Er prüft, ob jede relevante `task_id` aus dem 
-genehmigten Task & Test Plan tatsächlich erfüllt wurde — vollständig, teilweise oder gar nicht.
+genehmigten Task & Test Plan tatsächlich erfüllt wurde: vollständig, teilweise oder gar nicht.
 
 Dabei gilt:
 
@@ -478,5 +478,4 @@ Als nächstes sollten die Gates detaillierter beschrieben werden.
 
 Das nächste Dokument ist daher:
 
-```text
-docs/02-gates.md
+[`02-gates.md`](docs/01-framework-ueberblick.md)

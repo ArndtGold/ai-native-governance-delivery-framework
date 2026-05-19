@@ -61,7 +61,7 @@ nur Texte erklärt oder Code vervollständigt, sondern als agentisches Teammitgl
 dass Geschwindigkeit allein nicht reicht. Entscheidend wird, ob Scope, Entscheidungen, Tests und Freigaben nachvollziehbar 
 bleiben.*
 
-![Frühes Experiment: agentische MVP-Erzeugung mit KI](assets/experiment-nova-sphere.png)
+![Frühes Experiment: agentische MVP-Erzeugung mit KI](assets/experiment-specforge-ai.png)
 
 Die spannendere Frage zeigte sich aber erst danach:
 
@@ -206,6 +206,7 @@ Empfohlene Reihenfolge:
 
 1. [`docs/00-manifest.md`](docs/00-manifest.md) lesen
 2. [`docs/01-framework-ueberblick.md`](docs/01-framework-ueberblick.md) lesen
+3. [`docs/02-gates.md`](...) lesen
 3. Offene Fragen in den GitHub Discussions kommentieren
 4. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
 5. Verbesserungsvorschläge als Pull Request einreichen

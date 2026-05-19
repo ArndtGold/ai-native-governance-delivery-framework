@@ -206,7 +206,7 @@ Empfohlene Reihenfolge:
 
 1. [`docs/00-manifest.md`](docs/00-manifest.md) lesen
 2. [`docs/01-framework-ueberblick.md`](docs/01-framework-ueberblick.md) lesen
-3. [`docs/02-gates.md`](...) lesen
+3. [`docs/02-gates.md`](docs/02-gates.md) lesen
 3. Offene Fragen in den GitHub Discussions kommentieren
 4. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
 5. Verbesserungsvorschläge als Pull Request einreichen

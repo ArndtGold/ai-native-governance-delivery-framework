@@ -57,6 +57,39 @@ Implementierungsvorschläge erzeugen, braucht es klare Regeln für Scope, Freiga
 Rollen,
 Verantwortung, Change Control und die Grenze zwischen Design und Code.
 
+
+## Abgrenzung zu Coding-Agent-Tools
+
+![Agentic Coding Tools vs Governance Framework](assets/coding-agent-tools-vs-framework.png)
+
+Tools wie Claude Code, Cursor, GitHub Copilot oder ähnliche agentische Entwicklungsumgebungen helfen dabei, Code zu verstehen, Änderungen vorzuschlagen, Dateien zu bearbeiten, Tests auszuführen oder Git-Workflows zu unterstützen.
+
+Dieses Framework ist kein Ersatz für solche Werkzeuge.
+
+Es beantwortet eine andere Frage:
+
+> Nicht: Welcher Agent kann Code erzeugen?
+> Sondern: Unter welchen Voraussetzungen darf ein Agent Anforderungen interpretieren, Designs ableiten, Tasks planen,
+> Code ändern oder Ergebnisse als fertig darstellen?
+
+Coding-Agent-Tools liefern Ausführungskraft. Dieses Framework liefert den Governance- und Delivery-Rahmen dafür.
+
+Der Unterschied ist wichtig:
+
+| Coding-Agent-Tool                           | Dieses Framework                                  |
+|---------------------------------------------|---------------------------------------------------|
+| arbeitet in Codebase, IDE, Terminal oder PR | definiert Gates, Freigaben und Entscheidungslogik |
+| kann Code ändern oder Tests ausführen       | klärt, wann Codeänderung überhaupt erlaubt ist    |
+| optimiert Entwicklungsfluss                 | schützt Scope, Traceability und Verantwortung     |
+| unterstützt Umsetzung                       | erzwingt Produktvertrag, Nachweise und QA         |
+| kann sehr schnell liefern                   | sorgt dafür, dass Lieferung prüfbar bleibt        |
+
+Kurz gesagt:
+
+> Claude Code ist ein leistungsfähiges Werkzeug im Maschinenraum.  
+> Dieses Framework beschreibt Cockpit, Checklisten, Freigaben und Not-Aus.
+
+
 ## Ursprung
 
 Dieses Framework ist aus praktischen Experimenten und einem Vortrag zu **„KI als Junior-Dev-Teammitglied“** entstanden.

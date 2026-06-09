@@ -14,6 +14,11 @@ verstärkt Entwicklung mit KI-Agenten, ohne Kontrolle, Nachvollziehbarkeit und V
 Bildlich gesprochen: Nicht Autopilot, sondern Iron-Man-Anzug. Der Entwickler bleibt Pilot; das Framework liefert HUD,
 Schutzmechanismen, Gate-Checks und Nachweise.
 
+**Arbeitsname: A.E.G.I.S. — Artifacts Enable Governed Intelligent Software Delivery.**
+
+A.E.G.I.S. beschreibt die Steuerungsschicht um das Modell herum: Artefakte machen Arbeitsstände sichtbar, Gates prüfen
+ihre Tragfähigkeit, und der Mensch bleibt verantwortlich.
+
 ## Status
 
 Dieses Repository ist ein öffentlicher Diskussionsentwurf.
@@ -21,48 +26,54 @@ Dieses Repository ist ein öffentlicher Diskussionsentwurf.
 Es geht hier nicht darum, sofort ein fertiges Tool oder einen neuen Pflichtprozess vorzugeben. Der erste Schritt ist
 einfacher:
 Wir wollen gemeinsam herausarbeiten, welche Struktur Softwareteams brauchen, wenn KI-Agenten nicht mehr nur assistieren,
-sondern
-aktiv an Analyse, Planung, Umsetzung und Qualitätssicherung beteiligt sind.
+sondern  aktiv an Analyse, Planung, Umsetzung und Qualitätssicherung beteiligt sind.
 
 ## Warum dieses Projekt existiert
 
-Agentisches Software Engineering verändert gerade, wie Software geplant, entworfen, getestet und umgesetzt wird.
+Agentisches Software Engineering verändert, wie Software geplant, entworfen, getestet und umgesetzt wird.
 
-Viele Diskussionen drehen sich um Coding Agents, Produktivität und Automatisierung. Das ist verständlich. Wer sieht, wie
-schnell KI heute lauffähigen Code erzeugen kann, landet schnell bei der Frage, wie viel schneller Entwicklung dadurch
-wird.
+Viele Diskussionen drehen sich dabei um Coding Agents, Produktivität und Automatisierung. Das ist verständlich: Wer
+sieht, wie schnell KI heute lauffähigen Code erzeugen kann, landet schnell bei der Frage, wie viel schneller Entwicklung
+dadurch wird.
 
 Dieses Projekt setzt an einer anderen Stelle an:
 
-**Wie sorgen wir dafür, dass KI-Agenten nicht nur schnell liefern, sondern im richtigen fachlichen Rahmen arbeiten?**
+> Wie sorgen wir dafür, dass KI-Agenten nicht nur schnell liefern, sondern im richtigen fachlichen Rahmen arbeiten?
+
+Eine einfache Analogie ist ein Haus-Party-Protokoll:
+
+Nur weil jemand Gäste einladen kann, heißt das noch nicht, dass die Party kontrolliert abläuft. Es braucht Regeln:
+besonders dann, wenn nicht vollständig transparent ist, mit welchen Systemanweisungen, Voreinstellungen oder internen
+Prioritäten ein LLM tatsächlich arbeitet.
+
+Ähnlich ist es bei KI-Agenten in der Softwareentwicklung. Ein Coding Agent kann schnell Änderungen vorschlagen oder
+erzeugen. Ohne klare Artefakte, Gates und Verantwortlichkeiten bleibt aber unklar, ob diese Änderungen fachlich erlaubt,
+technisch tragfähig und ausreichend geprüft sind.
 
 In vielen Teams versucht man, den roten Faden über Jira, Azure DevOps, GitHub Issues oder ähnliche Ticket- und
-Planungssysteme
-zu halten. Diese Werkzeuge sind wichtig. Sie zeigen, woran gearbeitet wird, wer beteiligt ist und wie weit ein Vorgang
-fortgeschritten ist.
+Planungssysteme zu halten. Diese Werkzeuge sind wichtig. Sie zeigen, woran gearbeitet wird, wer beteiligt ist und wie
+weit ein Vorgang fortgeschritten ist.
 
 Sie beantworten aber nicht automatisch die Governance-Frage.
-
-Ein typischer Satz aus der Praxis lautet:
-
-> „Wir haben in Jira zu diesem Thema über 1000 Tickets, aber wir wissen nicht, was davon tatsächlich umgesetzt wurde."
-
-Das ist kein reines Tool-Problem. Es zeigt eine Lücke zwischen Aktivität und fachlicher Nachvollziehbarkeit.
 
 Ein Board zeigt, woran gearbeitet wird.
 Dieses Framework erklärt, warum daran gearbeitet werden darf.
 
 Wenn KI-Agenten Anforderungen interpretieren, Solution Designs ableiten, Tasks vorschlagen, Tests planen oder
 Implementierungsvorschläge erzeugen, braucht es klare Regeln für Scope, Freigabe, Traceability, Qualitätsnachweise,
-Rollen,
-Verantwortung, Change Control und die Grenze zwischen Design und Code.
+Rollen, Verantwortung, Change Control und die Grenze zwischen Design und Code.
 
+Kurz gesagt:
+
+Coding Agents liefern Ausführungskraft.
+Dieses Framework beschreibt die Hausregeln für verantwortbare KI-gestützte Delivery.
 
 ## Abgrenzung zu Coding-Agent-Tools
 
 ![Agentic Coding Tools vs Governance Framework](assets/coding-agent-tools-vs-framework.png)
 
-Tools wie Claude Code, Cursor, GitHub Copilot oder ähnliche agentische Entwicklungsumgebungen helfen dabei, Code zu verstehen, Änderungen vorzuschlagen, Dateien zu bearbeiten, Tests auszuführen oder Git-Workflows zu unterstützen.
+Tools wie Claude Code, Cursor, GitHub Copilot oder ähnliche agentische Entwicklungsumgebungen helfen dabei, Code zu
+verstehen, Änderungen vorzuschlagen, Dateien zu bearbeiten, Tests auszuführen oder Git-Workflows zu unterstützen.
 
 Dieses Framework ist kein Ersatz für solche Werkzeuge.
 
@@ -88,7 +99,6 @@ Kurz gesagt:
 
 > Claude Code ist ein leistungsfähiges Werkzeug im Maschinenraum.  
 > Dieses Framework beschreibt Cockpit, Checklisten, Freigaben und Not-Aus.
-
 
 ## Ursprung
 

@@ -257,7 +257,7 @@ verbindliche Kontrollpunkte, sobald ihr Kontext zutrifft.
 
 ---
 
-# 8. Gate-Kriterien
+# Gate-Kriterien
 
 ## G-00 — User Requirement
 
@@ -566,9 +566,7 @@ auch, warum es getan werden soll und wie später geprüft wird, ob es erledigt i
 ### Next action
 
 Bei `pass`: Task-level Brownfield Analysis durchführen, falls bestehender Systemkontext betroffen ist; sonst G-04
-prüfen.  
-Bei `revise`: Task & Test Plan nachschärfen.  
-Bei `block`: Scope-, Design- oder Brownfield-Entscheidung klären.
+prüfen. Bei `revise`: Task & Test Plan nachschärfen. Bei `block`: Scope-, Design- oder Brownfield-Entscheidung klären.
 
 ---
 
@@ -890,7 +888,7 @@ Tool-Integrationen müssen governance-fähig sein:
 
 ---
 
-## 10. Kurzform für die Anwendung
+## Kurzform für die Anwendung
 
 Diese Kurzform kann als Operator-Checkliste verwendet werden.
 

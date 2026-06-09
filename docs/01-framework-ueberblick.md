@@ -11,25 +11,21 @@ Es verbindet das Manifest mit den späteren Detaildokumenten. Im Kern geht es um
 > prüfbar und verantwortbar bleibt?
 
 Der Überblick beschreibt noch kein Tool, keine Agent Runtime und keinen fertigen Implementierungsprozess. Er skizziert
-das Arbeitsmodell, die Gates,
-die wichtigsten Artefakte und die offenen Fragen.
+das Arbeitsmodell, die Gates, die wichtigsten Artefakte und die offenen Fragen.
 
 ---
 
 ## Ausgangspunkt
 
 KI-Agenten können heute schon viele Tätigkeiten unterstützen, die bisher klar bei einzelnen Personen oder einem ganzen
-Team lagen:
-Anforderungen zusammenfassen, Lösungsansätze formulieren, Architekturvorschläge machen, Arbeitspakete ableiten,
-Testfälle
-planen oder Code erzeugen.
+Team lagen:Anforderungen zusammenfassen, Lösungsansätze formulieren, Architekturvorschläge machen, Arbeitspakete ableiten,
+Testfälle planen oder Code erzeugen.
 
 ![Der rote Faden in KI-gestützter Software Delivery](../assets/der-rote-faden-ai-delivery.png)
 
 Viele Teams versuchen, den roten Faden über Werkzeuge wie Jira, Azure DevOps, GitHub Issues oder ähnliche Ticket- und
 Planungssysteme zu halten. Diese Werkzeuge sind wichtig: Sie helfen dabei, Arbeit zu strukturieren, Zuständigkeiten
-sichtbar
-zu machen und Fortschritt zu verfolgen.
+sichtbar zu machen und Fortschritt zu verfolgen.
 
 In der Praxis zeigt sich aber oft ein anderes Bild. Ein typischer Dialog zwischen Product Owner und Entwicklung lautet:
 
@@ -37,8 +33,7 @@ In der Praxis zeigt sich aber oft ein anderes Bild. Ein typischer Dialog zwische
 
 Dieser Satz beschreibt das Problem sehr präzise. Das Ticket-System enthält Aktivität, Historie und Statusinformationen.
 Aber es beantwortet nicht automatisch, welche fachlichen Anforderungen wirklich umgesetzt wurden, welche
-Akzeptanzkriterien
-erfüllt sind, welche Entscheidungen noch gelten und welche Änderungen später wieder verworfen wurden.
+Akzeptanzkriterien erfüllt sind, welche Entscheidungen noch gelten und welche Änderungen später wieder verworfen wurden.
 
 Ein Board zeigt Fortschritt. Es zeigt aber nicht zwingend fachliche Nachvollziehbarkeit.
 
@@ -73,17 +68,14 @@ Das ist der Kern von `fail closed`.
 Agentisches Software Engineering verändert nicht nur Werkzeuge, sondern Rollen.
 
 Erfahrene Entwickler schreiben nicht mehr nur Code. Sie werden stärker zu Produzenten: Sie geben Ziele vor,
-stabilisieren
-Scope, treffen Architekturentscheidungen, zerlegen Arbeit, bewerten Vorschläge, prüfen Qualität und entscheiden über
+stabilisieren Scope, treffen Architekturentscheidungen, zerlegen Arbeit, bewerten Vorschläge, prüfen Qualität und entscheiden über
 Freigaben.
 
 KI-Agenten können dabei Teile eines Entwicklungsteams übernehmen oder simulieren: Analyse, Planung,
-Implementierungsvorschläge,
-Testableitung und Dokumentation.
+Implementierungsvorschläge, Testableitung und Dokumentation.
 
 Damit steigt aber auch der Bedarf an einem klaren Rahmen. Wenn KI wie ein Entwicklungsteam arbeitet, muss
-nachvollziehbar bleiben,
-warum etwas gebaut wird, worauf es basiert, wie es geprüft wird und wann es weitergehen darf.
+nachvollziehbar bleiben, warum etwas gebaut wird, worauf es basiert, wie es geprüft wird und wann es weitergehen darf.
 
 ## Die Gates im Überblick
 
@@ -92,18 +84,15 @@ warum etwas gebaut wird, worauf es basiert, wie es geprüft wird und wann es wei
 Am Anfang steht nicht sofort ein Requirements-Dokument, sondern ein gemeinsames Verständnis des Anliegens.
 
 In G-00 geht es darum, das Problem, das Ziel, die betroffenen Nutzer, erkennbare Constraints und die wichtigsten
-Unsicherheiten
-zu verstehen. Auch eine erste Einschätzung von Größe, Machbarkeit und Risiko gehört hierher.
+Unsicherheiten zu verstehen. Auch eine erste Einschätzung von Größe, Machbarkeit und Risiko gehört hierher.
 
 In Brownfield-Kontexten gehört zu G-00 zusätzlich ein früher Brownfield Review.
 
 Dieser Review ist noch keine Implementierungsanalyse. Er soll klären, ob der Wunsch bestehende Systemlogik,
-Schnittstellen,
-Datenmodelle, Ownership, technische Schulden, Produktsemantik oder Betriebsabhängigkeiten berührt.
+Schnittstellen, Datenmodelle, Ownership, technische Schulden, Produktsemantik oder Betriebsabhängigkeiten berührt.
 
 Gerade in bestehenden Systemen ist ein User Requirement selten isoliert. Ein scheinbar kleiner Wunsch kann vorhandenes
-Verhalten
-verändern, alte Annahmen brechen oder eine fachliche Entscheidung betreffen, die im Code nur noch implizit sichtbar ist.
+Verhalten verändern, alte Annahmen brechen oder eine fachliche Entscheidung betreffen, die im Code nur noch implizit sichtbar ist.
 
 Ein früher Review des bestehenden Systemkontexts ist gerade im Zusammenhang mit LLMs wichtig.
 
@@ -133,13 +122,11 @@ zusätzlicher State-Owner kann kurzfristig sauber aussehen, aber langfristig Par
 Rückbauarbeit erzeugen.
 
 Der frühe Brownfield Review soll deshalb verhindern, dass bereits das `Product Requirements Doc` auf einer falschen
-Greenfield-Annahme basiert.
-Er zwingt die erste Klärung: Welche bestehende Logik, Ownership, Produktsemantik oder Systemgrenze müssen wir verstehen,
+Greenfield-Annahme basiert. Er zwingt die erste Klärung: Welche bestehende Logik, Ownership, Produktsemantik oder Systemgrenze müssen wir verstehen,
 bevor wir Anforderungen formulieren?
 
 Das Ergebnis fließt in das spätere `Product Requirements Doc` ein. Es hilft, Scope, Non-Goals, Risiken, Annahmen und
-Akzeptanzkriterien
-realistischer zu formulieren.
+Akzeptanzkriterien realistischer zu formulieren.
 
 G-00 ist noch kein Design- oder Umsetzungs-Gate. Es geht um Orientierung, Entscheidungsvorbereitung und darum, in
 Brownfield-Kontexten nicht mit einer Greenfield-Annahme zu starten.
@@ -161,8 +148,7 @@ Er beschreibt, was tatsächlich gelten soll:
 - Annahmen
 
 Der Produktvertrag ist der zentrale Anker des Frameworks. Er verhindert, dass sich Anforderungen im weiteren Verlauf
-unbemerkt
-verschieben.
+unbemerkt verschieben.
 
 Ohne freigegebenen Produktvertrag sollte keine Implementierung beginnen.
 
@@ -171,8 +157,7 @@ Ohne freigegebenen Produktvertrag sollte keine Implementierung beginnen.
 In G-02 wird beschrieben, wie die Lösung grundsätzlich aussehen soll.
 
 Dabei geht es um Architektur, Komponenten, Verantwortlichkeiten, Schnittstellen auf konzeptioneller Ebene, Datenflüsse,
-Sequenzen
-sowie Sicherheits-, Datenschutz- und Observability-Aspekte.
+Sequenzen sowie Sicherheits-, Datenschutz- und Observability-Aspekte.
 
 Wichtig ist die Grenze zwischen Design und Code.
 
@@ -198,11 +183,9 @@ Der Task & Test Plan beschreibt unter anderem:
 - welche Risiken oder Review-Punkte bestehen
 
 Ein Task sollte nicht einfach nur technisch plausibel klingen. Er sollte nachvollziehbar machen, welche fachliche,
-technische
-oder risikobezogene Begründung hinter ihm steht.
+technische oder risikobezogene Begründung hinter ihm steht.
 In Brownfield-Kontexten gehört zur Vorbereitung der Umsetzung eine explizite Brownfield-Analyse. Sie prüft, welche
-bestehenden
-Artefakte betroffen sind, welche Teile bereits vorhanden sind, welche Reuse-Strategie sinnvoll ist und ob neue
+bestehenden Artefakte betroffen sind, welche Teile bereits vorhanden sind, welche Reuse-Strategie sinnvoll ist und ob neue
 Parallelstrukturen drohen.
 
 G-03 verhindert damit, dass nach dem Design direkt „irgendwie gebaut“ wird. Stattdessen entsteht ein prüfbarer Plan:
@@ -221,8 +204,7 @@ Dafür müssen die harten Voraussetzungen erfüllt sein:
   ist
 
 In G-04 entstehen Code, Tests und Qualitätsnachweise. Aussagen wie „fertig“, „getestet“ oder „grün“ müssen belegbar
-sein.
-Wenn Prüfungen nicht ausgeführt wurden, muss das sichtbar bleiben.
+sein. Wenn Prüfungen nicht ausgeführt wurden, muss das sichtbar bleiben.
 
 Nach der Umsetzung sollte nicht direkt zur finalen QA gesprungen werden. Zuerst braucht es einen Task Plan Review.
 
@@ -385,8 +367,7 @@ Vor der Implementierung braucht es deshalb eine Brownfield-Analyse:
 Wichtig ist dabei die Unterscheidung zwischen einem kleinen technischen Diff und einem sauberen fachlichen Schnitt.
 
 Der kleinste technische Eingriff ist nicht automatisch die beste Lösung. Wenn er neue Zustandsvermischung, falsche
-Ownership,
-stille Parallelstrukturen oder spätere Rückbauarbeit erzeugt, ist er nicht minimal-invasiv im Sinne dieses Frameworks.
+Ownership, stille Parallelstrukturen oder spätere Rückbauarbeit erzeugt, ist er nicht minimal-invasiv im Sinne dieses Frameworks.
 
 Minimal-invasiv bedeutet: so wenig Änderung wie möglich, aber so viel Struktur wie nötig, damit die Lösung
 dauerhaft tragfähig bleibt.
@@ -400,12 +381,10 @@ wo bestehende Systeme kontrolliert, nachvollziehbar und verantwortbar weiterentw
 Qualität ist keine Behauptung.
 
 Wenn ein Ergebnis als fertig, getestet oder freigabereif gilt, braucht es Nachweise. Je nach Kontext können das
-Formatierung,
-Linting, Typprüfung, Build, Unit Tests, Integration Tests, End-to-End Tests, Reviews oder Risiko-Einschätzungen sein.
+Formatierung, Linting, Typprüfung, Build, Unit Tests, Integration Tests, End-to-End Tests, Reviews oder Risiko-Einschätzungen sein.
 
 Nicht alles lässt sich in jedem Umfeld automatisch prüfen. Aber was nicht geprüft wurde, sollte auch nicht so
-dargestellt werden,
-als sei es geprüft.
+dargestellt werden, als sei es geprüft.
 
 ## Change Control
 
@@ -463,8 +442,7 @@ Für die weitere Arbeit sind vor allem diese Fragen spannend:
 Viele KI-gestützte Vorhaben beginnen wie ein Greenfield-Experiment.
 
 Am Anfang gibt es eine Idee, einen erstes User Requirement und vielleicht noch keine gewachsene Architektur. Ein LLM
-kann in
-dieser Phase sehr schnell helfen, einen ersten Prototyp, eine UI, einen Ablauf oder eine technische Struktur zu
+kann in dieser Phase sehr schnell helfen, einen ersten Prototyp, eine UI, einen Ablauf oder eine technische Struktur zu
 erzeugen.
 
 Das ist wertvoll, aber es bleibt nicht lange Greenfield.
@@ -480,14 +458,11 @@ schnell Drift.
 Wenn man die Gates befolgt, verändert sich der Ablauf.
 
 Das nächste User Requirement wird nicht einfach als neuer Umsetzungsauftrag behandelt. In G-00 wird zuerst geprüft, ob
-der
-Wunsch bereits bestehenden Systemkontext berührt. Der frühe Brownfield Review klärt, welche Logik, Ownership,
-Produktsemantik
-oder Systemgrenze verstanden werden muss, bevor Anforderungen formuliert werden.
+der Wunsch bereits bestehenden Systemkontext berührt. Der frühe Brownfield Review klärt, welche Logik, Ownership,
+Produktsemantik oder Systemgrenze verstanden werden muss, bevor Anforderungen formuliert werden.
 
 Erst danach entsteht das `Product Requirements Doc`. Darauf folgen Solution Design, Task & Test Plan, Brownfield
-Analysis, Implementierung,
-Task Plan Review und QA-Nachweis.
+Analysis, Implementierung, Task Plan Review und QA-Nachweis.
 
 So bleibt der rote Faden erhalten: Das Projekt darf schnell starten, aber es entwickelt sich nicht unkontrolliert
 weiter.
@@ -511,6 +486,6 @@ Als nächstes sollten die Gates detaillierter beschrieben werden.
 
 Das nächste Dokument ist daher:
 
-[`02-gates.md`](docs/01-framework-ueberblick.md)
+[`02-gates.md`](docs/02-gates.md)
 
 

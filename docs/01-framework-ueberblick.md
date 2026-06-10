@@ -486,6 +486,6 @@ Als nächstes sollten die Gates detaillierter beschrieben werden.
 
 Das nächste Dokument ist daher:
 
-[`02-gates.md`](docs/02-gates.md)
+[`02-gates.md`](02-gates.md)
 
 

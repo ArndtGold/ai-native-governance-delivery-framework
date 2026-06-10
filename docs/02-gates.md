@@ -923,4 +923,4 @@ Als nächstes sollten die Artefakte detaillierter beschrieben werden.
 
 Das nächste Dokument ist daher:
 
-[`03-artefakte.md`](docs/03-artefakte.md)
+[`03-artefakte.md`](03-artefakte.md)

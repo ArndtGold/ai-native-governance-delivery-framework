@@ -270,9 +270,10 @@ Empfohlene Reihenfolge:
 2. [`docs/01-framework-ueberblick.md`](docs/01-framework-ueberblick.md) lesen
 3. [`docs/02-gates.md`](docs/02-gates.md) lesen
 4. [`docs/03-artefakte.md`](docs/03-artefakte.md) lesen
-5. Offene Fragen in den GitHub Discussions kommentieren
-6. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
-7. Verbesserungsvorschläge als Pull Request einreichen
+5. [`docs/04-wissen-nutzbar-halten.md`](docs/04-wissen-nutzbar-halten.md) lesen
+6. Offene Fragen in den GitHub Discussions kommentieren
+7. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
+8. Verbesserungsvorschläge als Pull Request einreichen
 
 ## Aktueller Arbeitsstand
 

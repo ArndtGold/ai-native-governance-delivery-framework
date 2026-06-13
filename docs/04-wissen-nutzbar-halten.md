@@ -63,7 +63,8 @@ Das relevante Wissen entsteht und verändert sich nahe am Projekt:
 Wenn dieses Wissen in [`Artefakten`](03-artefakte.md) nahe am Projekt liegt, bleibt es versionierbar, prüfbar und
 unabhängiger von einer einzelnen Toolplattform.
 
-Gerade um nicht auf einen Toolhersteller angewiesen zu sein, legt dieses Framework das Gedächtnis nahe an das Projekt und
+Gerade um nicht auf einen Toolhersteller angewiesen zu sein, legt dieses Framework das Gedächtnis nahe an das Projekt
+und
 seine [`Artefakte`](03-artefakte.md).
 
 ## Artefakte als Gedächtnis
@@ -114,54 +115,76 @@ Artefakte verdichten Wissen auf das Wesentliche:
 
 So bleibt relevantes Wissen nutzbar, ohne dass Agenten denselben Kontext immer wieder vollständig analysieren müssen.
 
-## Kontextgraph 
+## Kontextgraph
 
 Ein einzelnes [`Artefakt`](03-artefakte.md) beantwortet selten alle Fragen.
 
-Mit der Zeit entstehen immer mehr Anforderungen, Designs, Tests, Nachweise und Änderungen.
+Mit der Zeit entstehen immer mehr Anforderungen, Designs, Tests, Nachweise, Risiken und Änderungen.
 
 Die Herausforderung besteht dann nicht mehr darin, einzelne Informationen zu speichern.
 
-Die größere Herausforderung besteht darin, ihre Zusammenhänge nachvollziehen zu können.
+Die größere Herausforderung besteht darin, vorhandenes Wissen richtig einzuordnen und seine Zusammenhänge
+nachvollziehbar zu halten.
 
 ![Kontextgraph: Artefakte und Beziehungen](../assets/kontextgraph-artefakte-beziehungen.png)
 
-Beispiele:
+Ein Kontextgraph macht diese Zusammenhänge sichtbar.
 
-* Welche Anforderung begründet diese Entscheidung?
-* Welches Design setzt diese Anforderung um?
-* Welcher Test prüft dieses Akzeptanzkriterium?
-* Welche Module sind von einer Änderung betroffen?
-* Welche Nachweise stützen die Freigabe?
+Er zeigt zum Beispiel:
 
-Dadurch wird nicht mehr nur das einzelne Artefakt wichtig, sondern auch die Beziehung zwischen Artefakten.
+* welche Anforderung eine Entscheidung begründet
+* welches Design eine Anforderung umsetzt
+* welcher Test ein Akzeptanzkriterium prüft
+* welche Module von einer Änderung betroffen sind
+* welche Nachweise eine Freigabe stützen
 
-Ein [`Produktvertrag`](03-artefakte.md) verweist auf Anforderungen.
+Der Kontextgraph entsteht nicht durch zusätzliche Dokumentation.
+
+Er entsteht durch die Referenzen zwischen vorhandenen Artefakten.
+
+Ein [`UserRequirement`](03-artefakte.md) beschreibt den Bedarf.
+
+Ein [`Produktvertrag`](03-artefakte.md) verweist auf das UserRequirement.
 
 Ein [`Design`](03-artefakte.md) verweist auf den Produktvertrag.
 
-Ein [`Task/Testplan`](03-artefakte.md) verweist auf Design und Anforderungen.
+Ein [`TaskTestPlan`](03-artefakte.md) verweist auf Produktvertrag und Design.
 
-Ein [`QA-Report`](03-artefakte.md) verweist auf Nachweise.
+Ein [`QA-Report`](03-artefakte.md) verweist auf Tests, Nachweise und Umsetzung.
 
-So entsteht fast schon automatisch ein Kontextgraph.
+So entsteht Schritt für Schritt ein Wissensnetz des Projekts.
 
-Mit wachsender Systemgröße werden jedoch nicht nur Beziehungen zwischen Artefakten wichtig.
+Mit wachsender Systemgröße werden jedoch nicht nur Artefakte wichtig.
 
 Auch bestehende Module, Schnittstellen, Tests, Risiken, Verantwortlichkeiten und Nachweise werden zu relevanten Knoten
-im Wissensnetz des Projekts.
+in diesem Netz.
 
-Die **Brownfield-Analyse** kann dabei als Knotenfinder dienen.
+Eine [`Brownfield-Analyse`](01-framework-ueberblick.md) dient deshalb nicht nur der Risikoerkennung.
 
-Sie identifiziert bestehende Module, Schnittstellen, Tests, Risiken, Owner und Nachweise, die im Kontextgraphen sichtbar
-werden sollten.
+Sie hilft auch dabei, neue Knoten zu finden, fehlende Beziehungen sichtbar zu machen und bestehendes Projektwissen neu
+einzuordnen.
 
-Nach einer Brownfield-Analyse sollte das Gedächtnis der Delivery aktualisiert werden.
+**Nach einer Brownfield-Analyse sollte der Kontextgraph aktualisiert werden.**
 
-Neue Erkenntnisse werden nicht ungeordnet abgelegt, sondern mit bestehenden Artefakten, Entscheidungen, Risiken und
-Nachweisen verbunden.
+![Mit Brownfield zu besserem Projektgedächtnis](../assets/brownfield-zu-besseren-projektgedaechnis.png)
+
+Neue Erkenntnisse werden nicht ungeordnet abgelegt.
+
+Sie werden mit bestehenden Artefakten, Entscheidungen, Risiken und Nachweisen verbunden.
 
 So bleibt der Kontextgraph aktuell und nutzbar.
+
+In Teams sollte das Projektgedächtnis jedoch nicht stillschweigend durch einzelne Agentenläufe verändert werden.
+
+Wenn Artefakte und Referenzen im Repository liegen, können Änderungen wie Code behandelt werden:
+
+* als Diff
+* mit Review
+* mit Historie
+* mit Freigabe
+* mit Rollback-Möglichkeit
+
+So kann der Kontextgraph kontrolliert wachsen, ohne dass unklare oder ungeprüfte Erkenntnisse automatisch gültig werden.
 
 Mit jeder Nutzung kann er genauer werden.
 
@@ -173,17 +196,53 @@ Jedes [`Gate`](02-gates.md) prüft, ob der aktuelle Stand noch tragfähig ist.
 
 **So entsteht ein lernender Kontextgraph.**
 
-Das Delivery-Gedächtnis wird mit jeder Nutzung nicht nur größer, sondern besser: genauer, aktueller und besser
-wiederverwendbar.
+Das Projektwissen wird mit jeder Nutzung nicht nur größer.
+
+Es wird besser: genauer, aktueller und leichter wiederverwendbar.
+
+### Was den Kontextgraphen unterscheidet zu gängigen KI-Werkzeugen
+
+Ein Kontextgraph im Sinne dieses Frameworks ist kein klassisches Memory-System.
+
+Memory-Funktionen von KI-Werkzeugen speichern Informationen, damit ein Modell oder Agent bei späteren Aufgaben darauf
+zurückgreifen kann.
+
+Der Kontextgraph diese Frameworks verfolgt ein anderes Ziel.
+
+Er speichert Wissen nicht für eine einzelne KI, sondern macht Projektwissen für Menschen, Agenten und zukünftige
+Entscheidungen nachvollziehbar.
+
+Er beantwortet nicht nur:
+
+Was soll die KI wissen?
+
+Sondern auch:
+
+* Warum wurde diese Entscheidung getroffen?
+* Worauf basiert sie?
+* Welche Artefakte sind betroffen?
+* Welche Nachweise liegen vor?
+* Welche Auswirkungen hat eine Änderung?
+
+Der Kontextgraph gehört deshalb nicht einer Plattform oder einem Modell.
+
+Er gehört dem Projekt und das ist ein fundamentaler Unterschied.
 
 ## Kernaussage
 
-Die Herausforderung moderner Agentensysteme ist nicht nur die Erzeugung von Ergebnissen.
+Die Herausforderung moderner Agentensysteme ist nicht nur, Ergebnisse zu erzeugen.
 
-Die größere Herausforderung besteht darin, vorhandenes Wissen langfristig nahe im Projekt nutzbar zu halten.
+Die größere Herausforderung besteht darin, vorhandenes Projektwissen langfristig gültig, auffindbar und wiederverwendbar
+zu halten.
 
-Artefakte bilden das Gedächtnis.
+Dieses Wissen sollte nicht allein in einer Toolplattform oder im aktuellen Modellkontext liegen.
 
-Kontextgraphen verbinden dieses Wissen.
+Es gehört nahe an das Projekt.
 
-Gates schützen seine Qualität.
+[`Artefakte`](03-artefakte.md) halten belastbare Arbeitsstände fest.
+
+Der Kontextgraph macht ihre Beziehungen sichtbar.
+
+[`Gates`](02-gates.md) prüfen, ob auf diesem Wissen verantwortbar aufgebaut werden darf.
+
+So entsteht ein projektnahes Delivery-Gedächtnis, das mit jeder Nutzung nicht nur größer, sondern besser werden kann.

@@ -168,9 +168,16 @@ einzuordnen.
 
 ![Mit Brownfield zu besserem Projektgedächtnis](../assets/brownfield-zu-besseren-projektgedaechnis.png)
 
-Neue Erkenntnisse werden nicht ungeordnet abgelegt.
+Neue Erkenntnisse werden nicht automatisch Teil des Projektgedächtnisses.
 
-Sie werden mit bestehenden Artefakten, Entscheidungen, Risiken und Nachweisen verbunden.
+Sie durchlaufen dieselben Mechanismen wie andere Änderungen:
+
+* Artefakte
+* Reviews
+* Gates
+* Nachweise
+
+Erst danach werden sie Teil des Kontextgraphen.
 
 So bleibt der Kontextgraph aktuell und nutzbar.
 

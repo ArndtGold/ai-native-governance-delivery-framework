@@ -11,6 +11,9 @@ Weiterentwicklung bestehender Softwarelandschaften.
 Dieses Framework ist kein Ersatz für erfahrene Entwickler. Es ist ein Exoskelett für agentische Software Delivery: Es
 verstärkt Entwicklung mit KI-Agenten, ohne Kontrolle, Nachvollziehbarkeit und Verantwortung aufzugeben.
 
+Gleichzeitig behandelt es Projektwissen als eigenständigen Vermögenswert: versionierbar, reviewbar und nahe am Projekt
+statt ausschließlich in Toolplattformen oder Modellkontexten gespeichert.
+
 Bildlich gesprochen: Nicht Autopilot, sondern Iron-Man-Anzug. Der Entwickler bleibt Pilot; das Framework liefert HUD,
 Schutzmechanismen, Gate-Checks und Nachweise.
 
@@ -26,7 +29,7 @@ Dieses Repository ist ein öffentlicher Diskussionsentwurf.
 Es geht hier nicht darum, sofort ein fertiges Tool oder einen neuen Pflichtprozess vorzugeben. Der erste Schritt ist
 einfacher:
 Wir wollen gemeinsam herausarbeiten, welche Struktur Softwareteams brauchen, wenn KI-Agenten nicht mehr nur assistieren,
-sondern  aktiv an Analyse, Planung, Umsetzung und Qualitätssicherung beteiligt sind.
+sondern aktiv an Analyse, Planung, Umsetzung und Qualitätssicherung beteiligt sind.
 
 ## Warum dieses Projekt existiert
 
@@ -95,10 +98,43 @@ Der Unterschied ist wichtig:
 | unterstützt Umsetzung                       | erzwingt Produktvertrag, Nachweise und QA         |
 | kann sehr schnell liefern                   | sorgt dafür, dass Lieferung prüfbar bleibt        |
 
-Kurz gesagt:
+> KI Werkzeuge wir Claude Code oder Codex helfen beim Arbeiten.
+>
+> Dieses Framework beschreibt, woran gearbeitet werden darf, wie Entscheidungen nachvollziehbar bleiben und wie
+> Projektwissen erhalten wird.
 
-> Claude Code ist ein leistungsfähiges Werkzeug im Maschinenraum.  
-> Dieses Framework beschreibt Cockpit, Checklisten, Freigaben und Not-Aus.
+## Projektwissen als eigener Vermögenswert
+
+Mit zunehmender Nutzung von KI-Agenten entsteht eine neue Herausforderung:
+
+Nicht die Erzeugung von Ergebnissen wird zum Engpass.
+
+Der Engpass wird das langfristige Management von Projektwissen.
+
+Anforderungen, Entscheidungen, Designs, Tests, Nachweise und Brownfield-Erkenntnisse entstehen über Monate oder Jahre.
+
+Viele Teams adressieren dieses Problem heute über Wikis, Developer Guides und Projektdokumentation.
+
+Aktuelle KI-Werkzeuge ergänzen diese Ansätze durch Memory-Funktionen, Projektwissen und Kontextverdichtung.
+
+Diese Ansätze können wertvoll sein.
+
+Sie beantworten jedoch nicht automatisch die Frage, wie Projektwissen versionierbar, nachvollziehbar und langfristig mit
+Anforderungen, Entscheidungen, Tests und Nachweisen verbunden bleibt.
+
+Dieses Framework verfolgt einen anderen Ansatz.
+
+Projektwissen soll nicht primär einer Toolplattform gehören.
+
+Es soll nahe am Projekt liegen, gemeinsam mit Code, Artefakten und Nachweisen.
+
+Artefakte halten dieses Wissen fest.
+
+Kontextgraphen machen Zusammenhänge sichtbar.
+
+Gates prüfen, welche Erkenntnisse belastbar genug sind, um Teil des Projektgedächtnisses zu werden.
+
+So entsteht ein versionierbares, reviewbares und kontinuierlich verbessertes Projektgedächtnis.
 
 ## Ursprung
 
@@ -155,11 +191,15 @@ Der zentrale Gedanke ist bewusst einfach:
 > Keine Implementierung ohne freigegebenen Produktvertrag.
 
 Ein stabiler Produktvertrag, zum Beispiel ein `Product Requirements Doc`, beschreibt verbindlich, was gelten soll:
-Scope,
-Akzeptanzkriterien, Non-Goals, Constraints und Erfolgsmessung.
+Scope, Akzeptanzkriterien, Non-Goals, Constraints und Erfolgsmessung.
 
 Nachgelagerte Artefakte wie Solution Design, Task & Test Plan und Implementierung dürfen diesen Vertrag nicht
 stillschweigend uminterpretieren.
+
+Gleichzeitig betrachtet das Framework Artefakte nicht nur als Dokumentation.
+
+Sie bilden gemeinsam ein projektnahes Gedächtnis, das durch Brownfield-Analysen, Reviews und Gates kontrolliert
+weiterentwickelt werden kann.
 
 ## Deutsch-first
 

@@ -4,7 +4,7 @@ Ein Deutsch-first Framework für agentisches Software Engineering, kontrollierba
 nachvollziehbare
 Weiterentwicklung bestehender Softwarelandschaften.
 
-> Von schnellen KI-Ergebnissen zu belastbarer, gate-basierter Software Delivery.
+> Von schnellen KI-Ergebnissen zu stabiler, nachvollziehbarer und gate-basierter Software Delivery.
 
 ## In einem Satz
 
@@ -68,8 +68,9 @@ Rollen, Verantwortung, Change Control und die Grenze zwischen Design und Code.
 
 Kurz gesagt:
 
-Coding Agents liefern Ausführungskraft.
-Dieses Framework beschreibt die Hausregeln für verantwortbare KI-gestützte Delivery.
+Die eigentliche Herausforderung entsteht nicht beim ersten guten Ergebnis.
+
+Sie entsteht, wenn KI-Agenten über längere Zeit an demselben Projekt arbeiten sollen.
 
 ## Abgrenzung zu Coding-Agent-Tools
 
@@ -354,3 +355,47 @@ Tooling werden erst später ergänzt.
 Die Lizenz ist noch festzulegen.
 
 Bis zur Entscheidung sollte das Repository als Diskussionsentwurf behandelt werden.
+
+## FAQ
+
+### Was ist das Ziel ?
+
+Das unmittelbare Ziel ist nicht die Einführung eines neuen Prozesses, Tools oder Organisationsmodells.
+
+Der Entwurf entstand aus der Beobachtung, dass mit zunehmender Nutzung von KI-Agenten die Herausforderungen rund um
+Projektwissen, Nachvollziehbarkeit, Freigaben und langfristige Stabilität zunehmen.
+
+Die erste Frage sollte deshalb nicht lauten:
+
+* Wer soll das einsetzen?
+* Wem gehört das?
+* Wie wird es eingeführt?
+
+Die erste Frage lautet:
+
+> Ist die zugrunde liegende Beobachtung fachlich richtig?
+
+Erst wenn diese Beobachtung trägt, lohnt sich die Diskussion über Einführung, Rollen, Prozesse oder organisatorische
+Verankerung.
+
+### Brauchen wir das noch, wenn Coding-Agenten immer besser werden?
+
+Vielleicht sogar dann erst recht.
+
+Eine größere KI, mehr Kontext oder noch autonomere Code-Generierung mit oder ohne Plan-Modus löst nicht jedes Problem.
+
+Ein Moped wird auch nicht zur Formel 1, nur weil man Formel-1-Benzin einfüllt.
+
+Mit steigender Leistung werden andere Faktoren zum Engpass:
+
+* Struktur
+* Steuerung
+* Nachvollziehbarkeit
+* Projektwissen
+
+Für agentische Software Delivery gilt möglicherweise dasselbe.
+
+Je leistungsfähiger Coding-Agenten werden, desto wichtiger wird die Frage, worauf sie aufbauen dürfen, wann sie stoppen
+müssen und welche Nachweise vorliegen.
+
+Dieses Framework adressiert genau diese Ebene.

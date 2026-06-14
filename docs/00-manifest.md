@@ -32,6 +32,54 @@ Dieses Framework erklärt, warum daran gearbeitet werden darf.
 Agentisches Software Engineering braucht deshalb mehr als bessere Tools. Es braucht einen Delivery-Rahmen, der Scope,
 Freigabe, Traceability, Qualitätsnachweise, Rollen, Verantwortung und Änderungen sichtbar macht.
 
+## Eine Analogie
+
+![Komplexitaet durch Struktur beherrschbar machen](../assets/komplexitaet-durch-struktur-beherrschbar-machen.png)
+
+Komplexe Systeme werden oft nicht dadurch beherrschbar, dass immer mehr Informationen gesammelt werden.
+
+Sie werden beherrschbar, wenn eine einfachere Struktur entsteht, die diese Informationen ordnet.
+
+Eine historische Analogie ist die Entwicklung von Schriftsystemen: Statt immer mehr einzelne Zeichen (Keilschrift) zu verwalten,
+entstanden einfachere Strukturen, mit denen Wissen leichter erfassbar, vermittelbar und wiederverwendbar wurde.
+
+Agentische Software Delivery steht möglicherweise vor einer ähnlichen Herausforderung.
+
+Nicht die Menge der erzeugbaren Ergebnisse wird zum Engpass.
+
+Der Engpass wird die Fähigkeit, Wissen nachvollziehbar zu organisieren, wiederzufinden und verantwortbar
+weiterzuentwickeln.
+
+## Worum es in diesem Entwurf zunächst geht
+
+Dieser Entwurf ist zunächst kein Produkt, kein Tool und kein Rollout-Vorschlag.
+
+Er beschreibt Beobachtungen:
+
+Je mehr Verantwortung KI-Agenten in der Software Delivery übernehmen, desto wichtiger werden Nachvollziehbarkeit,
+Freigabe, Projektwissen und kontrollierte Entscheidungen.
+
+Die erste Frage lautet deshalb nicht:
+
+* Wer besitzt das Framework?
+* Wie wird es eingeführt?
+* Wie wird es bewertet?
+* Wie wird es vermarktet?
+
+Die erste Frage lautet:
+
+* Ist die Beobachtung fachlich richtig?
+
+Wenn agentische Software Delivery zunimmt:
+
+* Entstehen dann tatsächlich neue Anforderungen an Governance?
+* Werden Produktverträge wichtiger?
+* Werden Brownfield-Fragen wichtiger?
+* Brauchen Teams ein belastbares Projektgedächtnis?
+* Reichen bestehende Delivery-Modelle dafür aus?
+
+Dieses Repository versteht sich zunächst als Beitrag zu dieser Diskussion.
+
 ## Sprache und Kontext
 
 Dieses Projekt ist bewusst Deutsch-first.

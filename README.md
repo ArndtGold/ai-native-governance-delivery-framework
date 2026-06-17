@@ -288,8 +288,8 @@ Die detaillierte Gate-Matrix wird in den Framework-Dokumenten ausgearbeitet.
 │  ├─ 01-framework-ueberblick.md
 │  ├─ 02-gates.md
 │  ├─ 03-artefakte.md
-│  ├─ 04-governance-regeln.md
-│  └─ 05-offene-fragen.md
+│  ├─ 04-wissen-nutzbar-halten.md
+│  └─ 05-ausfuehrbare-qualitaetsvertraege.md
 ├─ templates/
 │  ├─ user-requirement.md
 │  ├─ prd-contract.md
@@ -312,9 +312,10 @@ Empfohlene Reihenfolge:
 3. [`docs/02-gates.md`](docs/02-gates.md) lesen
 4. [`docs/03-artefakte.md`](docs/03-artefakte.md) lesen
 5. [`docs/04-wissen-nutzbar-halten.md`](docs/04-wissen-nutzbar-halten.md) lesen
-6. Offene Fragen in den GitHub Discussions kommentieren
-7. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
-8. Verbesserungsvorschläge als Pull Request einreichen
+6. [`docs/05-vom-mythos-zur-pruefung`](docs/05-vom-mythos-zur-pruefung) lesen
+7. Offene Fragen in den GitHub Discussions kommentieren
+8. Issues zu Begriffen, Gates, Artefakten oder Brownfield-Anwendungsfällen anlegen
+9. Verbesserungsvorschläge als Pull Request einreichen
 
 ## Aktueller Arbeitsstand
 

@@ -253,3 +253,10 @@ Der Kontextgraph macht ihre Beziehungen sichtbar.
 [`Gates`](02-gates.md) prüfen, ob auf diesem Wissen verantwortbar aufgebaut werden darf.
 
 So entsteht ein projektnahes Delivery-Gedächtnis, das mit jeder Nutzung nicht nur größer, sondern besser werden kann.
+
+## Nächster Schritt
+
+Das nächste Dokument beschreibt, wie Regeln aus Artefakten, Gates und Projektwissen als wiederholbare
+Qualitätsverträge prüfbar werden:
+
+[`05 - Ausführbare Qualitätsverträge`](05-vom-mythos-zur-pruefung)

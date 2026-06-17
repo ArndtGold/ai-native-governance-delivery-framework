@@ -2,9 +2,10 @@
 
 Dieses Dokument beschreibt einen weiteren Baustein für die Arbeit mit KI-Agenten.
 
-Je mehr KI-Agenten nicht nur Code schreiben, sondern auch planen, prüfen, ändern und zusammenfassen, desto wichtiger wird eine neue Frage:
+Das vorherige Kapitel hat beschrieben, wie Projektwissen auffindbar und wiederverwendbar bleibt.
+Dieses Kapitel ergänzt eine weitere Frage:
 
-> Woran erkennen wir, ob ein Agent nicht nur etwas geliefert hat, sondern auch nach den vereinbarten Regeln gearbeitet hat?
+Woran erkennen wir, ob ein Agent nicht nur etwas geliefert hat, sondern auch nach den vereinbarten Regeln gearbeitet hat?
 
 Die bisherigen Kapitel beschreiben dafür bereits wichtige Grundlagen.
 
@@ -22,7 +23,15 @@ Dabei geht es nicht zuerst um ein neues Werkzeug.
 
 Es geht um eine einfache Frage:
 
-> Hat dieser Agentenlauf auf einer tragfähigen Grundlage gearbeitet?
+Hat dieser Agentenlauf auf einer tragfähigen Grundlage gearbeitet?
+
+## Kernaussage in fünf Sätzen
+
+Bei KI-Agenten reicht es nicht, nur das Ergebnis zu prüfen.
+Auch der Agentenlauf selbst muss nachvollziehbar werden.
+Ein Qualitätsvertrag beschreibt, welche Regel gilt und welcher Nachweis sie belegt.
+Er ersetzt keine menschliche Entscheidung, macht aber fehlende Nachweise sichtbar.
+So wird aus einer plausiblen Agenten-Zusammenfassung eine prüfbare Arbeitsgrundlage.
 
 ## Beobachtung
 
@@ -50,8 +59,9 @@ dass praktische KI-Leistung nicht allein aus dem Modell entsteht.
 
 Sie entsteht im Zusammenspiel aus Modell, Regeln, Tool-Grenzen, Kontextsteuerung, Sicherheitslogik, Nachweisen und Prüfungen.
 
-Dieses Framework überträgt genau diese Einsicht auf Software Delivery: Auch dort reicht Modelloutput allein nicht.
-Es braucht persistente Artefakte und Gates, damit KI-Ergebnisse nachvollziehbar, prüfbar und verantwortbar werden.
+Diese Beobachtung lässt sich auf Softwareentwicklung mit KI-Agenten übertragen: Auch dort reicht Modelloutput allein nicht.
+Daraus folgt eine einfache Annahme: Es braucht dauerhafte Artefakte und Gates, damit KI-Ergebnisse nachvollziehbar,
+prüfbar und verantwortbar bleiben.
 
 Ein Agent kann sehr schnell plausibel klingende Ergebnisse erzeugen.
 
@@ -79,7 +89,7 @@ Zum Beispiel:
 
 Genau an dieser Stelle werden ausführbare Qualitätsverträge wichtig.
 
-Sie machen Regeln, Prüfungen und Nachweise explizit. Dadurch wird aus einer plausiblen Agenten-Zusammenfassung eine
+Sie machen Regeln, Prüfungen und Nachweise sichtbar. Dadurch wird aus einer plausiblen Agenten-Zusammenfassung eine
 prüfbare Arbeitsgrundlage.
 
 ## Was ist ein Agentenlauf?
@@ -258,7 +268,7 @@ Zum Beispiel:
 * Test- und Freigaberegeln
 * Abweichungen zwischen Dokumentation, Spezifikation und Code
 
-So entsteht kein zweiter Regelkatalog.
+So sollte kein zweiter Regelkatalog entstehen.
 
 Die Regel bleibt dort, wo sie hingehört.
 
@@ -332,7 +342,7 @@ Zum Beispiel:
 
 Solche Fragen sind nicht neu.
 
-Neu ist, dass sie bei agentischer Arbeit häufiger ausdrücklich gestellt werden müssen.
+Neu ist, dass sie bei Arbeit mit KI-Agenten häufiger ausdrücklich gestellt werden müssen.
 
 Ein Agent sollte nicht nur liefern.
 
@@ -444,7 +454,7 @@ Ohne diese Trennung entsteht schnell Botsitting:
 
 Dabei lesen wir häufig lange Agenten-Zusammenfassungen, suchen fehlende Nachweise und prüfen im Kopf nach, ob die Arbeit wirklich belastbar ist.
 
-![Qualitätsverträge reduzieren Botsitting](./assets/qualitaetsvertraege-vom-raetselraten-zur-pruefung.png)
+![Qualitätsverträge reduzieren Botsitting](../assets/qualitaetsvertraege-vom-raetselraten-zur-pruefung.png)
 
 *Qualitätsverträge machen sichtbar, was geprüft wurde, welche Nachweise vorliegen und welche Entscheidung noch offen ist.*
 
@@ -468,7 +478,7 @@ Wenn Qualitätsverträge eigene Produktregeln erfinden, konkurrieren sie mit Pro
 
 Ein drittes Risiko ist Bürokratie.
 
-Wenn jeder kleine Schritt denselben schweren Prüfprozess auslöst, wird das Framework zum Hindernis.
+Wenn jeder kleine Schritt denselben schweren Prüfprozess auslöst, wird der Ansatz zum Hindernis.
 
 Ein viertes Risiko ist Abhängigkeit von einzelnen Werkzeugen.
 
@@ -559,13 +569,13 @@ Er prüft, ob der Weg zum Ergebnis nachvollziehbar ist.
 
 ## Kernaussage
 
-Agentische Delivery braucht nicht nur bessere Antworten.
+Softwareentwicklung mit KI-Agenten braucht nicht nur bessere Antworten.
 
 Sie braucht bessere Nachvollziehbarkeit.
 
 Ausführbare Qualitätsverträge helfen dabei, vereinbarte Regeln wiederholt gegen sichtbare Nachweise zu prüfen.
 
-Sie beziehen sich auf konkrete Agentenläufe, Review-Ergebnisse oder Delivery-Artefakte.
+Sie beziehen sich auf konkrete Agentenläufe, Review-Ergebnisse oder Lieferartefakte.
 
 Sie ersetzen keine Produktanforderungen.
 
@@ -583,3 +593,8 @@ Der Qualitätsvertrag prüft, ob die Regeln sichtbar beachtet wurden.
 
 Das Gate oder die fachliche Prüfung entscheidet, welche Wirkung das hat.
 
+## Nächster Schritt
+
+Das nächste Dokument hält die wichtigsten Begriffe des Entwurfs kurz und einheitlich fest:
+
+[06 - Glossar](06-glossar.md)

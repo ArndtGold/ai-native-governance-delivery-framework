@@ -1,926 +1,365 @@
-# 02 — Gates
+# 02 - Gates
 
-Dieses Dokument beschreibt, wie Gates im Framework bewertet werden.
+Dieses Dokument beschreibt, wie Gates bewertet werden.
 
-Der Überblick über das gesamte Modell steht in `01-framework-ueberblick.md`. Dieses Dokument erklärt nicht noch einmal
-den gesamten Ablauf. Es beantwortet die operative Frage:
+Ein Gate ist ein bewusster Haltepunkt.
+An diesem Punkt wird entschieden, ob die Arbeit weitergehen darf, nachgeschärft werden muss oder gestoppt wird.
 
-> Darf das Vorhaben verantwortbar in die nächste Phase wechseln, oder fehlt dafür noch etwas?
+Ein Gate prüft nicht, ob ein Dokument schön formuliert ist.
+Es prüft, ob Grundlage, Freigabe, Annahmen, Risiken und Nachweise ausreichen.
 
-Ein Gate ist ein bewusster Haltepunkt mit einer expliziten Entscheidung: `pass`, `revise`, `block` oder
-`pass_with_limits`.
+## Kernaussage in fünf Sätzen
 
-Ein Gate prüft nicht, ob ein Artefakt schön formuliert ist. Es prüft, ob Grundlage, Freigabe, Annahmen, Risiken und
-Nachweise ausreichen, um verantwortbar weiterzugehen.
+Ein Gate ist ein Haltepunkt mit einer klaren Entscheidung.
+Es prüft, ob die Grundlage trägt.
+Es prüft, ob die nötige Freigabe vorliegt.
+Es prüft, ob wichtige Nachweise sichtbar sind.
+Wenn harte Voraussetzungen fehlen, geht die Arbeit nicht still weiter.
 
----
+## Grundregel
 
-## 1. Grundprinzip
+Vor jedem Weitergehen müssen fünf Fragen beantwortet werden:
 
-Jedes Gate beantwortet fünf Fragen:
+1. Worauf basiert die Entscheidung?
+2. Was ist freigegeben?
+3. Welche Annahmen sind noch offen?
+4. Welche Nachweise liegen vor?
+5. Was darf als Nächstes passieren?
 
-1. **Grundlage:** Worauf basiert die aktuelle Entscheidung?
-2. **Freigabe:** Was ist bereits verbindlich freigegeben?
-3. **Annahmen:** Welche Annahmen oder Unsicherheiten bestehen noch?
-4. **Nachweise:** Welche Evidenz liegt vor, und was wurde nicht geprüft?
-5. **Nächster Schritt:** Was darf als Nächstes passieren?
+Wenn eine dieser Fragen nicht belastbar beantwortet werden kann, ist das Gate nicht bestanden.
 
-Wenn eine harte Voraussetzung fehlt oder eine offene Frage die nächste Phase fachlich unsicher macht, geht der Prozess
-nicht stillschweigend weiter.
+Das ist der einfache Kern von fail closed.
 
-Das ist der praktische Kern von `fail closed`.
+Fail closed bedeutet:
 
-`fail closed` bedeutet nicht, dass jedes Detail perfekt sein muss. Es bedeutet:
-
-- Unklarheiten werden sichtbar gemacht.
-- Annahmen werden als Annahmen markiert.
+- Fehlende Grundlagen werden nicht übersprungen.
+- Annahmen werden nicht als Fakten behandelt.
 - Fehlende Nachweise werden nicht als erledigt dargestellt.
-- Harte Voraussetzungen werden nicht übersprungen.
-- Spätere Artefakte dürfen frühere Entscheidungen nicht stillschweigend uminterpretieren.
+- Harte Voraussetzungen stoppen den nächsten Schritt.
+- Spätere Arbeit darf frühere Entscheidungen nicht still umdeuten.
 
----
-
-## 2. Statusmodell
+## Status
 
 Jedes Gate endet mit genau einem Status.
 
-| Status             | Bedeutung                                                                                                                              | Erlaubter nächster Schritt                                       |
-|--------------------|----------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| `pass`             | Das Gate ist erfüllt. Die notwendigen Eingaben liegen vor, die Entscheidung ist nachvollziehbar, und keine harte Voraussetzung fehlt.  | Die nächste Phase darf beginnen.                                 |
-| `revise`           | Das Gate ist noch nicht reif. Es fehlen Informationen, Präzisierungen, Nachweise oder eine bessere Abgrenzung.                         | Artefakt oder Klärung nacharbeiten und erneut prüfen.            |
-| `block`            | Das Gate darf nicht passieren. Eine harte Voraussetzung fehlt, ein Widerspruch ist offen oder ein Risiko darf nicht übergangen werden. | Prozess anhalten, bis die Blockade entschieden oder behoben ist. |
-| `pass_with_limits` | Das Gate ist nur eingeschränkt bestanden. Einschränkungen und Risiken sind explizit benannt und bewusst akzeptiert.                    | Nur der klar begrenzte nächste Schritt ist erlaubt.              |
+pass bedeutet:
+Die Grundlage trägt. Die nötige Freigabe liegt vor. Der nächste Schritt darf beginnen.
 
-### Regeln für `pass_with_limits`
+revise bedeutet:
+Es fehlt noch etwas. Die Arbeit muss nachgeschärft und erneut geprüft werden.
 
-`pass_with_limits` ist selten und darf nicht als bequemer Mittelweg verwendet werden.
+block bedeutet:
+Ein harter Blocker ist offen. Die Arbeit darf nicht weitergehen, bis der Blocker geklärt ist.
 
-Der Status ist nur zulässig, wenn:
+pass mit Grenzen bedeutet:
+Der nächste Schritt ist nur in einem klar begrenzten Rahmen erlaubt.
 
-- die Einschränkung konkret benannt ist,
-- das verbleibende Risiko sichtbar ist,
-- klar ist, was nicht geprüft wurde,
-- der nächste Schritt eng begrenzt ist,
-- keine harte Voraussetzung fehlt.
+pass mit Grenzen ist selten.
+Der Status ist nur sinnvoll, wenn klar ist:
 
-Beispiel:
+- Was ist erlaubt?
+- Was ist nicht erlaubt?
+- Welches Risiko bleibt?
+- Welcher Nachweis fehlt noch?
+- Wann muss erneut geprüft werden?
 
-```text
-Gate: G-04 Implementation Entry
-Status: pass_with_limits
-Begründung: PRD, Design und Task & Test Plan liegen vor. Der E2E-Test kann erst in der Staging-Umgebung ausgeführt werden.
-Limit: Nur Implementierung und lokale Tests erlaubt; keine Freigabe ohne Staging-Nachweis.
-Next action: Implementierung starten, E2E-Nachweis vor Task Plan Review nachreichen.
-```
+## Gute Gate-Entscheidungen
 
----
+Eine Gate-Entscheidung muss kurz und belastbar sein.
 
-## 3. Gute Gate-Entscheidungen
-
-Eine Gate-Entscheidung muss nicht lang sein. Sie muss belastbar sein.
-
-Jede Gate-Entscheidung sollte enthalten:
+Sie sollte enthalten:
 
 - Gate
 - Status
-- Entscheidungsgrundlage
+- Grundlage
 - kurze Begründung
-- offene Punkte oder Einschränkungen
-- nächste Aktion
+- offene Punkte
+- nächster Schritt
 
-Beispiel:
+Eine gute Entscheidung sagt nicht nur, was entschieden wurde.
+Sie sagt auch, worauf die Entscheidung beruht.
 
-```text
-Gate: G-01 Product Requirements Doc
-Status: revise
-Grundlage: UR-1, PRD.draft v0.2
-Begründung: Scope ist beschrieben, aber AC-3 und AC-4 sind noch nicht testbar.
-Offen: AC-3 präzisieren; Reporting explizit als Out-of-Scope oder In-Scope entscheiden.
-Next action: PRD überarbeiten und erneut gegen G-01 prüfen.
-```
+## Harte Blocker
 
----
+Ein Gate muss blockieren, wenn eine dieser Situationen vorliegt:
 
-## 4. Anforderungen an LLMs und Agenten
-
-Für dieses Framework reicht es nicht, dass ein Modell gute Antworten, plausible Pläne oder funktionierenden Code
-erzeugt.
-
-Coding-Fähigkeit ist nicht gleich Prozessfähigkeit.
-
-Ein geeigneter Agent braucht zwei Fähigkeiten:
-
-1. **Fachliche Gate-Prüfung**  
-   Der Agent erkennt, ob Scope, Akzeptanzkriterien, Brownfield-Kontext, Risiken, Nachweise oder Freigaben fehlen oder
-   widersprüchlich sind.
-
-2. **Technische Gate-Durchsetzung**  
-   Der Agent stoppt bei einem nicht erfüllten Gate, bevor Dateien geändert, Tools genutzt, Kommandos ausgeführt oder
-   Deployment-Schritte gestartet werden.
-
-Human-in-the-loop ersetzt diese Disziplin nicht. Menschen können prüfen, Rückfragen stellen und freigeben. Sie sollten
-aber keinen bereits ungeordnet weitergelaufenen Agentenfluss nachträglich rekonstruieren müssen.
-
-![Anforderungen an LLMs und Agenten: Nicht nur liefern können, auch stoppen können](../assets/llm-agent-gate-discipline.png)
-
-Ein Agent, der bei fehlenden Voraussetzungen trotzdem weiterplant, implementiert oder Ergebnisse als fertig darstellt,
-ist für dieses Framework nicht als steuernder Agent geeignet. Er kann weiterhin unterstützend eingesetzt werden, etwa
-für Recherche, Formulierungen, Variantenbildung, Code-Vorschläge oder Zusammenfassungen.
-
-> Ein geeigneter Agent muss nicht nur liefern können. Er muss auch zuverlässig nicht liefern, wenn das Gate nicht
-> erfüllt ist.
-
----
-
-## 5. Universelle Gate-Regeln
-
-Diese Regeln gelten für alle Gates.
-
-### 5.1 Harte Blocker
-
-Ein Gate muss auf `block` stehen, wenn eine dieser Situationen vorliegt:
-
-- eine harte Voraussetzung fehlt,
-- ein freigegebener Produktvertrag fehlt, obwohl er erforderlich ist,
-- Scope oder Akzeptanzkriterien widersprechen sich,
-- ein späteres Artefakt interpretiert ein früheres Artefakt stillschweigend um,
-- Brownfield-Kontext wird ignoriert,
-- bestehende Ownership ist unklar,
-- neue Parallelstrukturen entstehen ohne Entscheidung,
-- nicht verifizierte Annahmen werden als Fakten behandelt,
-- Security, Datenschutz oder Compliance sind betroffen und ungeklärt,
+- Eine harte Voraussetzung fehlt.
+- Eine nötige Freigabe fehlt.
+- Scope oder Akzeptanzkriterien widersprechen sich.
+- Ein späteres Artefakt deutet ein früheres Artefakt still um.
+- Brownfield-Kontext wird ignoriert.
+- Bestehende Verantwortung ist unklar.
+- Es entstehen parallele Strukturen ohne Entscheidung.
+- Eine Annahme wird als Fakt behandelt.
+- Sicherheit, Datenschutz oder Compliance sind betroffen und ungeklärt.
 - Qualität wird behauptet, aber nicht belegt.
 
-### 5.2 Mindestprüfung vor jedem Weitergehen
+## Brownfield
 
-Vor dem Wechsel in die nächste Phase muss klar sein:
+Brownfield bedeutet:
+Die Arbeit betrifft ein bestehendes System.
 
-- Was ist die verbindliche Grundlage?
-- Was ist freigegeben?
-- Welche Annahmen bestehen?
-- Welche Risiken bleiben?
-- Welche Nachweise liegen vor?
-- Was wurde nicht geprüft?
-- Was darf als Nächstes passieren?
+Dann reicht es nicht, nur die neue Idee zu verstehen.
+Es muss auch verstanden werden:
 
-Wenn diese Fragen nicht belastbar beantwortet werden können, ist das Gate nicht einfach bestanden.
+- Welches bestehende Verhalten gilt?
+- Welche Module oder Prozesse sind betroffen?
+- Wer besitzt die Verantwortung?
+- Welche technischen Schulden gibt es?
+- Welche Tests schützen bestehendes Verhalten?
+- Welche Risiken entstehen durch die Änderung?
 
-### 5.3 Keine stillen Bedeutungsänderungen
+Brownfield blockiert nicht automatisch.
+Brownfield verlangt aber eine bewusste Entscheidung, wie bestehende Struktur verändert wird.
 
-Ein späteres Artefakt darf ein früheres Artefakt nicht stillschweigend verändern.
+## Ablauf
 
-Beispiele:
+Der typische Ablauf ist:
 
-- Ein Solution Design darf keine neue Produktsemantik einführen, die im PRD nicht angelegt ist.
-- Ein Task & Test Plan darf keinen zusätzlichen Scope erzeugen.
-- Eine Implementierung darf kein bestehendes Verhalten ändern, wenn diese Änderung nicht entschieden wurde.
-- Ein QA-Report darf fehlende Evidenz nicht durch Plausibilität ersetzen.
+1. G-00 User Requirement
+2. Brownfield Review, falls bestehender Kontext betroffen sein kann
+3. G-01 Product Requirements Doc
+4. G-02 Solution Design
+5. G-03 Task und Test Plan
+6. Brownfield Analyse pro Aufgabe, falls bestehender Kontext betroffen ist
+7. G-04 Implementation Entry
+8. Umsetzungsnachweise
+9. Task Plan Review
+10. QA Gate
 
-Wenn sich Scope, Akzeptanzkriterien, Non-Goals, Produktsemantik, Security, Datenschutz oder Compliance-relevante
-Annahmen ändern, braucht es eine bewusste Änderungsentscheidung.
+Nicht jeder Schritt ist immer ein eigenes Haupt-Gate.
+Brownfield Review, Brownfield Analyse pro Aufgabe, Umsetzungsnachweise und Task Plan Review sind aber wichtige Prüfstationen.
 
----
-
-## 6. Brownfield als Querschnittsregel
-
-Brownfield ist kein Sonderthema am Rand.
-
-Sobald ein Vorhaben bestehende Systeme, Produktlogik, Schnittstellen, Datenmodelle, Ownership, technische Schulden oder
-Betriebsverhalten berührt, muss Brownfield früh sichtbar werden und über alle Gates hinweg nachgeführt werden.
-
-Dafür gibt es zwei unterschiedliche Prüfungen:
-
-1. **Brownfield Review nach G-00**  
-   Frühe fachliche und systemische Orientierung, bevor das PRD entsteht.
-
-2. **Task-level Brownfield Analysis vor G-04**  
-   Konkrete operative Analyse pro Task, bevor implementiert wird.
-
-Die frühe Prüfung verhindert, dass bereits das PRD auf einer falschen Greenfield-Annahme entsteht. Die spätere Prüfung
-verhindert, dass die Umsetzung trotz gutem PRD und Design neue Drift, Parallelstrukturen oder falsche Ownership erzeugt.
-
-Die Prüfung wird über die Gates hinweg konkreter:
-
-| Station                        | Brownfield-Frage                                                                                             |
-|--------------------------------|--------------------------------------------------------------------------------------------------------------|
-| G-00                           | Könnte bestehender Systemkontext betroffen sein?                                                             |
-| Brownfield Review              | Welche bestehende Logik, Ownership, Produktsemantik oder Systemgrenze muss vor dem PRD verstanden werden?    |
-| G-01                           | Sind Auswirkungen auf Scope, Non-Goals, Risiken und Akzeptanzkriterien übersetzt?                            |
-| G-02                           | Respektiert das Design bestehende Systemgrenzen, Ownership und Produktsemantik?                              |
-| G-03                           | Sind Brownfield-Fragen in Tasks, Tests oder Review-Punkte überführt?                                         |
-| Task-level Brownfield Analysis | Welche Artefakte sind pro Task betroffen, was kann wiederverwendet werden, und wo drohen Parallelstrukturen? |
-| G-04                           | Darf die Umsetzung im bestehenden System starten?                                                            |
-| Task Plan Review               | Wurde die geplante Reuse-Strategie tatsächlich eingehalten?                                                  |
-| QA-Gate                        | Sind Auswirkungen, Regressionen und Nachweise ausreichend sichtbar?                                          |
-
-Leitregel:
-
-> Reuse before create.
-
-Neue Artefakte, neue State-Pfade, neue Wrapper, neue Endpoints, neue Defaults oder parallele Verantwortlichkeiten
-brauchen eine Begründung, wenn bestehende Verantwortung bereits vorhanden ist.
-
-Brownfield blockiert nicht automatisch. Brownfield verlangt aber eine explizite Entscheidung darüber, wie bestehende
-Struktur kontrolliert verändert wird.
-
----
-
-## 7. Gate-Übersicht
-
-Der typische Entscheidungsfluss sieht so aus:
-
-```text
-G-00 User Requirement
-   ↓
-Brownfield Review, falls bestehender Systemkontext betroffen sein könnte
-   ↓
-G-01 Product Requirements Doc
-   ↓
-G-02 Solution Design
-   ↓
-G-03 Task & Test Plan
-   ↓
-Task-level Brownfield Analysis, falls bestehender Systemkontext betroffen ist
-   ↓
-G-04 Implementation Entry
-   ↓
-Implementation Evidence
-   ↓
-Task Plan Review
-   ↓
-QA-Gate
-```
-
-Hinweis: Brownfield Review, Task-level Brownfield Analysis, Implementation Evidence und Task Plan Review sind
-Prüfstationen mit Gate-Statuslogik. Sie müssen nicht zwingend als eigene Haupt-Gates nummeriert werden, sind aber
-verbindliche Kontrollpunkte, sobald ihr Kontext zutrifft.
-
----
-
-# Gate-Kriterien
-
-## G-00 — User Requirement
+## G-00 User Requirement
 
 G-00 prüft, ob aus einem Anliegen ein sinnvoller nächster Schritt werden kann.
 
-Es geht noch nicht um PRD, Design oder Umsetzung. Es geht um Orientierung: Was ist das Problem, was ist das Ziel, wer
-ist betroffen, welche Unsicherheiten sind sichtbar?
+Es geht um Orientierung:
 
-### Benötigte Eingaben
+- Was ist das Problem?
+- Was ist das Ziel?
+- Wer ist betroffen?
+- Welche Risiken sind sichtbar?
+- Welche Fragen sind offen?
+- Kann bestehender Systemkontext betroffen sein?
 
-- Anliegen oder Problem
-- gewünschtes Ziel
-- betroffene Nutzer oder Rollen
-- bekannte Constraints
-- erkennbare Risiken
-- offene Fragen
+pass, wenn Problem und Ziel ausreichend klar sind.
 
-In Brownfield-Kontexten zusätzlich:
+revise, wenn Ziel, Nutzer, Kontext oder Ergebnis noch zu unklar sind.
 
-- Hinweise auf betroffene bestehende Systeme
-- bekannte technische Schulden
-- bestehende Produktlogik oder Ownership
-- mögliche Schnittstellen, Datenmodelle oder Betriebsabhängigkeiten
+block, wenn Ziele sich widersprechen, Verantwortung unklar ist oder eine wichtige Richtungsentscheidung fehlt.
 
-### Entscheidungskriterien
-
-**pass, wenn:**
-
-- Problem und Ziel ausreichend verstanden sind,
-- betroffene Nutzer oder Rollen erkennbar sind,
-- wichtigste Constraints und Unsicherheiten sichtbar sind,
-- klar ist, ob Brownfield wahrscheinlich betroffen ist,
-- ein PRD sinnvoll vorbereitet werden kann.
-
-**revise, wenn:**
-
-- das Ziel nicht verständlich ist,
-- Nutzer oder Betroffene unklar sind,
-- das gewünschte Ergebnis mehrdeutig ist,
-- wichtige Constraints fehlen,
-- Brownfield-Auswirkungen wahrscheinlich sind, aber noch nicht grob eingeordnet wurden.
-
-**block, wenn:**
-
-- Ziele sich widersprechen,
-- Verantwortung unklar ist,
-- eine fachliche Richtungsentscheidung fehlt,
-- Security, Datenschutz oder Compliance offensichtlich betroffen und ungeklärt sind,
-- im Brownfield-Kontext unklar ist, welches bestehende Verhalten überhaupt gelten soll.
-
-### Gate-Check
-
-- Verstehen wir das Problem?
-- Verstehen wir das Ziel?
-- Wissen wir, wer betroffen ist?
-- Sind die wichtigsten Unsicherheiten sichtbar?
-- Ist klar, ob Brownfield betroffen ist?
-- Muss vor dem PRD eine Richtungsentscheidung getroffen werden?
-
-### Next action
-
-Bei `pass`: Brownfield Review durchführen, falls bestehender Systemkontext betroffen sein könnte; sonst PRD
-vorbereiten.  
-Bei `revise`: Anliegen, Ziel oder Kontext nachschärfen.  
-Bei `block`: Richtungsentscheidung oder Verantwortlichkeit klären, bevor ein PRD entsteht.
-
----
+Nächster Schritt:
+Bei pass folgt ein Brownfield Review, wenn bestehender Kontext betroffen sein kann.
+Sonst kann das PRD vorbereitet werden.
 
 ## Brownfield Review nach G-00
 
-Der Brownfield Review liegt direkt nach G-00, sobald bestehender Systemkontext betroffen sein könnte.
+Der Brownfield Review liegt früh.
+Er soll verhindern, dass das PRD auf einer falschen Annahme entsteht.
 
-Er ist noch keine implementierungsnahe Analyse. Er soll verhindern, dass das PRD auf einer falschen Greenfield-Annahme
-entsteht.
+Er fragt:
 
-Der Brownfield Review beantwortet die frühe Frage:
+- Welche bestehende Logik kann betroffen sein?
+- Welches Verhalten muss geschützt werden?
+- Welche Verantwortung ist bereits vorhanden?
+- Welche Systemgrenzen gibt es?
+- Welche Risiken müssen ins PRD?
+- Muss vor dem PRD eine fachliche Entscheidung getroffen werden?
 
-> Welche bestehende Logik, Ownership, Produktsemantik oder Systemgrenze müssen wir verstehen, bevor wir Anforderungen
-> formulieren?
+pass, wenn die wichtigsten Brownfield-Risiken für das PRD sichtbar sind.
 
-### Benötigte Eingaben
+revise, wenn Systemkontext, Verantwortung oder bestehendes Verhalten noch zu unklar sind.
 
-- Ergebnis aus G-00
-- Hinweise auf betroffene Systeme, Module, Schnittstellen oder Prozesse
-- bekannte technische Schulden oder fragile Bereiche
-- vorhandene Produktlogik oder Ownership
-- erkennbare Drift zwischen Dokumentation, Runtime-Verhalten und gewünschter Produktsemantik
+block, wenn unklar ist, welches bestehende Verhalten fachlich gelten soll.
 
-### Entscheidungskriterien
-
-**pass, wenn:**
-
-- klar ist, welche bestehenden Systeme oder Verantwortlichkeiten wahrscheinlich betroffen sind,
-- bestehendes Verhalten, das geschützt werden muss, grob benannt ist,
-- relevante Brownfield-Risiken für das PRD sichtbar sind,
-- offene Richtungsentscheidungen markiert sind,
-- klar ist, welche Punkte in Scope, Non-Goals, Risiken oder Akzeptanzkriterien übersetzt werden müssen.
-
-**revise, wenn:**
-
-- mögliche Systembetroffenheit noch zu unklar ist,
-- Ownership oder Produktsemantik nicht ausreichend verstanden wurde,
-- relevante technische Schulden nur vermutet, aber nicht eingeordnet wurden,
-- unklar ist, welche bestehenden Verhaltensweisen geschützt werden müssen.
-
-**block, wenn:**
-
-- unklar ist, welches bestehende Verhalten fachlich gelten soll,
-- eine Source-of-Truth- oder Ownership-Frage vor dem PRD entschieden werden muss,
-- Security, Datenschutz oder Compliance offensichtlich betroffen und ungeklärt sind,
-- das PRD sonst wahrscheinlich eine falsche Produktsemantik festschreiben würde.
-
-### Gate-Check
-
-- Welche bestehenden Systeme, Module oder Prozesse könnten betroffen sein?
-- Gibt es bestehendes Verhalten, das geschützt werden muss?
-- Gibt es bekannte technische Schulden oder fragile Bereiche?
-- Ist aktuelle Produktsemantik eindeutig?
-- Gibt es Drift zwischen Dokumentation, Runtime und gewünschtem Verhalten?
-- Muss vor dem PRD eine fachliche Richtungsentscheidung getroffen werden?
-
-### Next action
-
-Bei `pass`: PRD mit Brownfield-Erkenntnissen vorbereiten.  
-Bei `revise`: Brownfield-Kontext grob nachklären.  
-Bei `block`: fachliche Richtungs-, Ownership- oder Source-of-Truth-Entscheidung treffen.
-
----
-
-## G-01 — Product Requirements Doc
+## G-01 Product Requirements Doc
 
 G-01 prüft, ob ein belastbarer Produktvertrag vorliegt.
 
-Das `Product Requirements Doc` ist der zentrale Anker für Scope, Akzeptanzkriterien, Non-Goals, Constraints und
-Erfolgskriterien. Es beschreibt nicht jede spätere Lösung im Detail. Es legt fest, was fachlich gelten soll.
+Das PRD beschreibt, was fachlich gelten soll.
+Es hält Scope, Akzeptanzkriterien, Nicht-Ziele, Annahmen, Risiken und Erfolgskriterien fest.
 
-### Benötigte Eingaben
+pass, wenn:
 
-- Ergebnis aus G-00
-- geklärtes Problem und Ziel
-- Scope und Out-of-Scope
-- Akzeptanzkriterien
-- Non-Goals
-- relevante Constraints
-- Annahmen und Risiken
-- Brownfield-Erkenntnisse aus G-00, falls vorhanden
+- Scope und Nicht-Ziele klar getrennt sind.
+- Akzeptanzkriterien prüfbar sind.
+- Annahmen und Risiken sichtbar sind.
+- Brownfield-Erkenntnisse berücksichtigt sind.
+- Das PRD freigegeben ist.
 
-### Entscheidungskriterien
+revise, wenn Scope, Kriterien, Risiken oder Nicht-Ziele noch unscharf sind.
 
-**pass, wenn:**
+block, wenn Scope widersprüchlich ist, eine Freigabe fehlt oder das PRD bestehendes Verhalten ohne Entscheidung verändern würde.
 
-- das PRD vollständig genug, widerspruchsfrei und freigegeben ist,
-- Scope und Out-of-Scope klar getrennt sind,
-- Akzeptanzkriterien testbar formuliert sind,
-- Non-Goals sichtbar sind,
-- relevante Constraints, Annahmen und Risiken markiert sind,
-- Brownfield-Erkenntnisse in Scope, Risiken oder Akzeptanzkriterien übersetzt wurden.
-
-**revise, wenn:**
-
-- Akzeptanzkriterien nicht testbar sind,
-- Scope oder Out-of-Scope unscharf sind,
-- Non-Goals fehlen,
-- Annahmen nicht markiert sind,
-- Risiken aus G-00 nicht aufgenommen wurden,
-- Brownfield-Kontext erkannt, aber nicht fachlich übersetzt wurde.
-
-**block, wenn:**
-
-- Scope widersprüchlich ist,
-- eine fachliche Entscheidung fehlt,
-- regulatorische, sicherheitsrelevante oder datenschutzrelevante Fragen offen sind,
-- das PRD bestehendes Verhalten verändern würde, ohne dass diese Änderung bewusst entschieden wurde,
-- keine verbindliche Freigabe für den Produktvertrag vorliegt.
-
-### Gate-Check
-
-- Ist klar, was gebaut oder geändert werden soll?
-- Ist klar, was nicht gebaut oder geändert werden soll?
-- Sind die Akzeptanzkriterien prüfbar?
-- Sind Annahmen und Risiken sichtbar?
-- Ist der Brownfield-Kontext berücksichtigt?
-- Liegt eine Freigabe für das PRD vor?
-
-### Next action
-
-Bei `pass`: Solution Design erstellen.  
-Bei `revise`: PRD nachschärfen und erneut prüfen.  
-Bei `block`: fehlende Entscheidung oder Freigabe einholen, bevor Design entsteht.
-
----
-
-## G-02 — Solution Design
+## G-02 Solution Design
 
 G-02 prüft, ob es ein tragfähiges Lösungskonzept gibt.
 
-Das Solution Design beschreibt, wie das PRD konzeptionell erfüllt werden soll. Es bleibt auf Design-Ebene. Es ist keine
-Implementierungsanleitung.
+Das Design beschreibt, wie das PRD erfüllt werden soll.
+Es bleibt auf Entwurfsebene.
+Es ist keine Implementierungsanleitung.
 
-### Benötigte Eingaben
+pass, wenn:
 
-- freigegebenes PRD
-- relevante Constraints
-- bekannte Risiken
-- Brownfield-Kontext, falls vorhanden
-- Architektur- oder Systemhinweise
+- Das Design auf das PRD zurückführt.
+- Die wichtigsten Entscheidungen erklärt sind.
+- Komponenten und Verantwortung verständlich sind.
+- Schnittstellen und Datenflüsse passend beschrieben sind.
+- Sicherheits-, Datenschutz- und Betriebsfragen berücksichtigt sind.
+- Bestehende Systemgrenzen respektiert werden.
 
-### Entscheidungskriterien
+revise, wenn Verantwortung, Grenzen, Risiken oder Entscheidungen unklar sind.
 
-**pass, wenn:**
+block, wenn kein freigegebenes PRD vorliegt oder das Design den Produktvertrag verändert.
 
-- das Design nachvollziehbar auf das PRD zurückführt,
-- wesentliche Lösungsentscheidungen erklärt sind,
-- Komponenten und Verantwortlichkeiten verständlich sind,
-- Schnittstellen und Datenflüsse konzeptionell beschrieben sind,
-- Sicherheits-, Datenschutz-, Betriebs- und Observability-Aspekte berücksichtigt sind,
-- relevante Trade-offs sichtbar sind,
-- bestehende Systemgrenzen respektiert werden.
+## G-03 Task und Test Plan
 
-**revise, wenn:**
+G-03 prüft, ob aus Produktvertrag und Design ein umsetzbarer Plan entstanden ist.
 
-- Traceability zum PRD fehlt,
-- Verantwortlichkeiten unklar sind,
-- Trade-offs nicht erklärt werden,
-- Brownfield-Risiken nicht berücksichtigt sind,
-- bestehende Systemgrenzen ignoriert werden,
-- das Design bereits implementierungsnahe Details enthält.
+Der Plan verbindet Aufgaben mit Tests und Nachweisen.
+Er beschreibt, was getan wird, warum es getan wird und wie es später geprüft wird.
 
-**block, wenn:**
+pass, wenn:
 
-- kein freigegebenes PRD vorliegt,
-- das Design Akzeptanzkriterien oder Non-Goals widerspricht,
-- das Design Produktsemantik ohne Change-Entscheidung verändert,
-- Security, Datenschutz oder Compliance ungeklärt sind,
-- eine Architekturentscheidung mit hoher Auswirkung fehlt.
+- Aufgaben aus PRD und Design ableitbar sind.
+- Jede wichtige Aufgabe einen Zweck hat.
+- Akzeptanzkriterien durch Tests oder Nachweise abgedeckt sind.
+- Abhängigkeiten sichtbar sind.
+- Risiken in Aufgaben, Tests oder Review-Punkte übersetzt wurden.
+- Brownfield-Fragen für die spätere Analyse sichtbar sind.
 
-### Gate-Check
+revise, wenn Aufgaben, Tests, Reihenfolge oder Nachweise noch unklar sind.
 
-- Führt das Design auf das PRD zurück?
-- Sind Komponenten und Verantwortlichkeiten verständlich?
-- Sind Schnittstellen und Datenflüsse passend abstrakt beschrieben?
-- Werden bestehende Systemgrenzen respektiert?
-- Bleibt das Design konzeptionell?
-- Sind Risiken und Trade-offs sichtbar?
+block, wenn PRD oder Design fehlen, Akzeptanzkriterien nicht prüfbar sind oder der Plan Scope hinzufügt.
 
-### Next action
+## Brownfield Analyse pro Aufgabe
 
-Bei `pass`: Task & Test Plan erstellen.  
-Bei `revise`: Design klären oder abstrahieren.  
-Bei `block`: fehlende Grundlage oder Richtungsentscheidung klären.
+Diese Prüfung liegt vor G-04, wenn bestehender Code oder bestehende Systeme betroffen sind.
 
----
-
-## G-03 — Task & Test Plan
-
-G-03 prüft, ob aus Produktvertrag und Design ein steuerbarer Umsetzungsplan entstanden ist.
-
-Der Task & Test Plan verbindet Arbeitspakete mit Testbarkeit. Er beschreibt nicht nur, was getan werden soll, sondern
-auch, warum es getan werden soll und wie später geprüft wird, ob es erledigt ist.
-
-### Benötigte Eingaben
-
-- freigegebenes PRD
-- abgeschlossenes Solution Design
-- Akzeptanzkriterien
-- relevante Risiken
-- Brownfield-Kontext, falls vorhanden
-
-### Entscheidungskriterien
-
-**pass, wenn:**
-
-- Tasks nachvollziehbar aus PRD und Design abgeleitet sind,
-- jede relevante Aufgabe einen Zweck hat,
-- Akzeptanzkriterien ausreichend durch Tests oder Nachweise abgedeckt sind,
-- Abhängigkeiten und Reihenfolge sichtbar sind,
-- Risiken in Tasks, Tests oder Review-Punkte übersetzt wurden,
-- Brownfield-Fragen für die spätere Analyse identifiziert sind.
-
-**revise, wenn:**
-
-- Tasks keinen klaren Bezug zu Anforderungen, Design, Risiko oder Qualitätsziel haben,
-- Akzeptanzabdeckung fehlt oder unklar ist,
-- Tests für relevante Akzeptanzkriterien fehlen,
-- Reihenfolge oder Abhängigkeiten unklar sind,
-- Risiken nicht in Tasks, Tests oder Review-Punkte übersetzt wurden,
-- Brownfield-Kontext nicht in eine spätere Analyse überführt wurde.
-
-**block, wenn:**
-
-- kein freigegebenes PRD vorliegt,
-- kein tragfähiges Solution Design vorliegt,
-- Akzeptanzkriterien nicht prüfbar sind,
-- eine zentrale Brownfield-Frage offen ist,
-- der Task Plan Arbeit außerhalb des freigegebenen Scope enthält.
-
-### Gate-Check
-
-- Hat jede relevante Aufgabe einen Zweck?
-- Führt jede Aufgabe auf PRD, Design, Risiko oder Qualitätsziel zurück?
-- Sind Akzeptanzkriterien abgedeckt?
-- Sind Tests oder Nachweise benannt?
-- Sind Abhängigkeiten sichtbar?
-- Ist klar, wann eine Aufgabe fertig ist?
-
-### Next action
-
-Bei `pass`: Task-level Brownfield Analysis durchführen, falls bestehender Systemkontext betroffen ist; sonst G-04
-prüfen. Bei `revise`: Task & Test Plan nachschärfen. Bei `block`: Scope-, Design- oder Brownfield-Entscheidung klären.
-
----
-
-## Task-level Brownfield Analysis vor G-04
-
-In Brownfield-Kontexten reicht der frühe Brownfield Review aus G-00 nicht aus.
-
-Vor der Implementierung braucht es eine konkrete Brownfield Analysis. Sie prüft pro Task, welche bestehenden Artefakte
-betroffen sind, was bereits vorhanden ist, welche Reuse-Strategie sinnvoll ist und ob neue Parallelstrukturen drohen.
-
-Diese Prüfung liegt zwischen G-03 und G-04.
-
-Sie beantwortet die operative Frage:
-
-> Wie setzen wir den genehmigten Task & Test Plan im bestehenden System sauber und minimal-invasiv um?
-
-### Benötigte Eingaben
-
-- freigegebenes PRD
-- abgeschlossenes Solution Design
-- abgeschlossener Task & Test Plan
-- relevante Repository-, System-, Runtime- oder Dokumentationsinformationen
-- bekannte technische Schulden oder fragile Bereiche
-
-### Entscheidungskriterien
-
-**pass, wenn:**
-
-- relevante bestehende Artefakte identifiziert sind,
-- vorhandene Verantwortung und Ownership verstanden wurden,
-- Reuse, Erweiterung, Refactoring oder Neuanlage begründet sind,
-- Regressionen und Testbedarf sichtbar sind,
-- der minimal-invasive Pfad fachlich und technisch begründet ist.
-
-**revise, wenn:**
-
-- relevante Module oder Artefakte nicht geprüft wurden,
-- aktuelle Teilabdeckung unklar ist,
-- bestehende Ownership nicht verstanden wurde,
-- Test- oder Regressionsbedarf offen ist,
-- der minimal-invasive Pfad nicht begründet ist.
-
-**block, wenn:**
-
-- Implementierung wahrscheinlich neue Drift oder Parallelstrukturen erzeugen würde,
-- ein neues Artefakt trotz vorhandener Verantwortung geplant ist,
-- ein zweiter State-, Render-, Recovery- oder Policy-Pfad entstehen würde,
-- eine Source-of-Truth-Frage offen ist,
-- eine Änderung bestehendes Verhalten brechen würde, ohne dass dies entschieden wurde.
-
-### Gate-Check
+Sie fragt pro Aufgabe:
 
 - Welche bestehenden Artefakte sind betroffen?
-- Was ist bereits vollständig oder teilweise vorhanden?
-- Was wird wiederverwendet, erweitert, refaktoriert oder neu angelegt?
+- Was ist bereits vorhanden?
+- Was wird wiederverwendet?
+- Was wird erweitert?
+- Was muss neu entstehen?
 - Welche Regressionen können entstehen?
-- Drohen Parallelstrukturen?
-- Ist der Eingriff minimal-invasiv im fachlich sauberen Sinn?
+- Drohen parallele Strukturen?
 
-### Next action
+pass, wenn der Eingriff fachlich und technisch sauber begründet ist.
 
-Bei `pass`: G-04 Implementation Entry prüfen.  
-Bei `revise`: Bestandsanalyse vertiefen.  
-Bei `block`: Ownership-, Produktsemantik- oder Reuse-Entscheidung treffen.
+revise, wenn bestehende Module, Verantwortung, Tests oder Risiken noch nicht ausreichend geprüft wurden.
 
----
+block, wenn eine zweite Wahrheitsquelle, ein zweiter Zustandsweg oder eine parallele Verantwortung entstehen würde.
 
-## G-04 — Implementation Entry
+## G-04 Implementation Entry
 
-G-04 prüft, ob die Umsetzung auf einer freigegebenen, nachvollziehbaren und ausreichend geprüften Grundlage starten
-darf.
+G-04 prüft, ob die Umsetzung starten darf.
 
-G-04 entscheidet nicht, ob das Ergebnis fertig ist. G-04 entscheidet, ob Implementierung verantwortbar beginnen darf.
+G-04 entscheidet nicht, ob das Ergebnis fertig ist.
+G-04 entscheidet nur, ob die Implementierung auf einer freigegebenen Grundlage beginnen darf.
 
-### Benötigte Eingaben
+pass, wenn:
 
-- freigegebenes PRD
-- abgeschlossenes Solution Design
-- abgeschlossener Task & Test Plan
-- Brownfield Analysis, falls bestehender Codebestand betroffen ist
-- klare Zuständigkeit für Umsetzung, Tests und Nachweise
+- PRD, Design und Task und Test Plan vorliegen.
+- Das PRD freigegeben ist.
+- Brownfield geklärt ist, falls relevant.
+- Klar ist, was umgesetzt werden darf.
+- Klar ist, was nicht umgesetzt werden darf.
+- Klar ist, welche Nachweise nach der Umsetzung erwartet werden.
 
-### Entscheidungskriterien
+revise, wenn einzelne Aufgaben, Nachweise oder Zuständigkeiten noch unklar sind.
 
-**pass, wenn:**
+block, wenn eine harte Grundlage fehlt oder die Umsetzung Scope überschreiten würde.
 
-- alle harten Voraussetzungen erfüllt sind,
-- die Umsetzung durch PRD, Design und Task & Test Plan gedeckt ist,
-- Brownfield Analysis abgeschlossen ist, falls erforderlich,
-- bekannte Risiken und Nachweispflichten sichtbar sind,
-- klar ist, welche Tests, Checks oder Evidenzen nach der Umsetzung erwartet werden.
+## Umsetzungsnachweise
 
-**revise, wenn:**
+Nach der Umsetzung müssen die Nachweise sichtbar sein.
 
-- Nachweispflichten unklar sind,
-- einzelne Tasks nicht eindeutig umsetzbar sind,
-- Brownfield-Reuse noch nicht ausreichend konkret ist,
-- Zuständigkeiten für Tests oder Checks fehlen,
-- offene Punkte markiert, aber noch nacharbeitbar sind.
+Umsetzungsnachweise sind kein Ersatz für QA.
+Sie sind die Grundlage für Task Plan Review und QA Gate.
 
-**block, wenn:**
+Sie sollte zeigen:
 
-- PRD, Design oder Task & Test Plan fehlen,
-- das PRD nicht freigegeben ist,
-- die Umsetzung Scope überschreiten würde,
-- Security, Datenschutz oder Compliance ungeklärt sind,
-- Brownfield-Fragen mit hoher Auswirkung offen sind,
-- Implementierung wahrscheinlich ungeklärte Parallelstrukturen erzeugen würde.
+- Welche Dateien oder Artefakte wurden geändert?
+- Zu welchen Aufgaben gehören die Änderungen?
+- Welche Tests und Checks liefen?
+- Was war das Ergebnis?
+- Was wurde nicht geprüft?
+- Welche Risiken bleiben?
+- Welche Screenshots, Logs oder Build-Ergebnisse belegen sichtbares Verhalten?
 
-### Gate-Check
+Fertig darf nicht behauptet werden, wenn Nachweise fehlen.
 
-- Ist der Produktvertrag freigegeben?
-- Sind Design und Task & Test Plan abgeschlossen?
-- Ist Brownfield geklärt, falls relevant?
-- Ist klar, was umgesetzt werden darf?
-- Ist klar, was nicht umgesetzt werden darf?
-- Ist klar, welche Nachweise nach Umsetzung erforderlich sind?
+## Task Plan Review
 
-### Next action
+Der Task Plan Review prüft nach der Umsetzung, ob der genehmigte Plan wirklich erfüllt wurde.
 
-Bei `pass`: Implementierung starten.  
-Bei `pass_with_limits`: nur den begrenzten Implementierungsschritt ausführen.  
-Bei `revise`: Grundlage oder Nachweispflichten nachschärfen.  
-Bei `block`: fehlende Freigabe oder harte Voraussetzung einholen.
+Er beantwortet eine einfache Frage:
+Wurde umgesetzt, was im Task und Test Plan vorgesehen war?
 
----
+pass, wenn:
 
-## Implementation Evidence
+- Alle wichtigen Aufgaben erledigt sind.
+- Akzeptanzkriterien bewertet wurden.
+- Nachweise vorliegen.
+- Abweichungen dokumentiert und akzeptiert sind.
+- Keine zentrale Lücke offen ist.
 
-Nach der Umsetzung müssen Code, Tests und Nachweise sichtbar gemacht werden.
+revise, wenn Aufgaben teilweise erledigt sind oder Nachweise fehlen.
 
-Implementation Evidence ist kein Ersatz für QA. Sie ist die Nachweisgrundlage für Task Plan Review und QA-Gate.
+block, wenn wichtige Aufgaben fehlen, zentrale Nachweise fehlen oder die Umsetzung deutlich vom Plan abweicht.
 
-### Muss enthalten
+## QA Gate
 
-- geänderte Dateien oder Artefakte
-- Zuordnung zu Tasks
-- ausgeführte Tests und Checks
-- Ergebnis der Tests und Checks
-- nicht ausgeführte Prüfungen
-- bekannte Lücken oder Risiken
-- relevante Screenshots, Logs, Build-Ergebnisse oder Runtime-Evidenz, falls Verhalten nur so belegbar ist
+Das QA Gate prüft, ob das Ergebnis freigegeben werden kann.
 
-### Regeln
+QA prüft nicht nur, ob Code vorhanden ist.
+QA prüft, ob das Ergebnis mit den vorhandenen Nachweisen verantwortbar ist.
 
-- „Fertig“ darf nicht behauptet werden, wenn Evidenz fehlt.
-- Ein grüner Build beweist keine vollständige Task-Erfüllung.
-- Nicht ausgeführte Prüfungen müssen als `NOT_VERIFIED` sichtbar bleiben.
-- Out-of-Scope-Änderungen müssen dokumentiert werden.
-- Abweichungen vom Task & Test Plan müssen markiert werden.
+pass, wenn:
 
----
+- Relevante Akzeptanzkriterien erfüllt sind.
+- Tests und Checks nachvollziehbar sind.
+- Defekte sichtbar und akzeptiert oder behoben sind.
+- Offene Risiken akzeptiert oder nicht blockierend sind.
+- Brownfield-Auswirkungen ausreichend geprüft sind.
 
-## Task Plan Review nach G-04
+revise, wenn Korrekturen oder Nachweise fehlen, aber nacharbeitbar sind.
 
-Nach der Implementierung sollte nicht direkt zur finalen QA gesprungen werden.
+block, wenn kritische Defekte, harte Risiken oder Sicherheits-, Datenschutz- oder Compliance-Probleme offen sind.
 
-Zuerst braucht es einen Task Plan Review.
+## Verhältnis zu Werkzeugen
 
-Der Task Plan Review prüft, ob die Umsetzung den genehmigten Task & Test Plan tatsächlich erfüllt. Dabei wird jede
-relevante `task_id` einzeln betrachtet.
+Gates ersetzen keine Werkzeuge.
 
-Der Task Plan Review ist keine finale QA-Entscheidung. Er beantwortet eine engere Frage:
+Jira, Azure DevOps, GitHub Issues, Pull Requests und Pipelines können zeigen, woran gearbeitet wurde.
+Sie entscheiden aber nicht automatisch, ob die Arbeit verantwortbar weitergehen darf.
 
-> Wurde das umgesetzt, was im genehmigten Task & Test Plan vorgesehen war?
+Ein Agent darf nicht nur deshalb weiterarbeiten, weil er ein Ticket lesen, einen Branch öffnen oder eine Pipeline starten kann.
+Er muss prüfen, ob die Voraussetzungen des Gates erfüllt sind.
 
-### Benötigte Eingaben
+Werkzeuge liefern Informationen.
+Gates liefern Entscheidungen.
 
-- genehmigter Task & Test Plan
-- Implementation Evidence
-- Test- und Check-Ergebnisse
-- bekannte Abweichungen
-- offene Punkte oder nicht verifizierte Nachweise
-
-### Entscheidungskriterien
-
-**pass, wenn:**
-
-- alle relevanten Tasks vollständig erfüllt sind,
-- Acceptance Criteria pro Task bewertet wurden,
-- belastbare Evidenz vorliegt,
-- Abweichungen dokumentiert und akzeptiert sind,
-- keine zentrale Task-Lücke offen ist.
-
-**revise, wenn:**
-
-- Tasks teilweise erfüllt sind,
-- Evidenz fehlt,
-- Acceptance Criteria nur teilweise erfüllt sind,
-- UI-, State-, Render- oder Runtime-Verhalten nicht belegt ist,
-- Tests vorhanden sind, aber nicht zur Aufgabe passen,
-- der Build grün ist, aber das Task-Ziel nicht vollständig erfüllt wurde,
-- Out-of-Scope-Änderungen geklärt werden müssen.
-
-**block, wenn:**
-
-- wichtige Tasks nicht erledigt sind,
-- ein kritisches Akzeptanzkriterium fehlt,
-- Evidenz für zentrales Verhalten fehlt,
-- die Umsetzung wesentlich vom genehmigten Task Plan abweicht,
-- nicht entschieden ist, ob eine Abweichung akzeptiert werden darf.
-
-### Gate-Check
-
-- Wurde jede relevante `task_id` einzeln geprüft?
-- Ist der Status pro Task klar: vollständig, teilweise oder nicht erledigt?
-- Sind Acceptance Criteria pro Task bewertet?
-- Gibt es belastbare Evidenz?
-- Sind Abweichungen dokumentiert?
-- Welche Lücken gehen an QA?
-
-### Next action
-
-Bei `pass`: QA-Gate vorbereiten.  
-Bei `revise`: fehlende Task-Erfüllung oder Evidenz nacharbeiten.  
-Bei `block`: zentrale Task-Lücke oder Abweichung entscheiden.
-
----
-
-## QA-Gate
-
-QA prüft die Lieferfähigkeit des Ergebnisses.
-
-Es geht nicht nur darum, ob Code vorhanden ist oder ob einzelne Tests grün sind. QA bewertet, ob das Ergebnis mit den
-vorhandenen Nachweisen verantwortbar freigegeben werden kann.
-
-QA ist nicht der Ort, um fehlenden Scope, unklare Produktsemantik oder ungeklärte Brownfield-Entscheidungen nachträglich
-zu verstecken.
-
-### Benötigte Eingaben
-
-- Implementation Evidence
-- Test- und Check-Ergebnisse
-- Task Plan Review
-- bekannte Defects
-- offene Risiken
-- nicht verifizierte Punkte
-- relevante Freigaben oder Risikoakzeptanzen
-
-### Entscheidungskriterien
-
-**pass, wenn:**
-
-- relevante Akzeptanzkriterien erfüllt sind,
-- Nachweise ausreichend und nachvollziehbar sind,
-- keine offenen Risiken eine Freigabe verhindern,
-- bekannte Defects akzeptiert oder behoben sind,
-- nicht verifizierte Punkte keine harte Freigabevoraussetzung betreffen,
-- Brownfield-Auswirkungen und Regressionen ausreichend geprüft sind.
-
-**revise, wenn:**
-
-- Korrekturen nötig sind,
-- weitere Nachweise fehlen,
-- Defects offen sind, aber behebbar erscheinen,
-- nicht verifizierte Punkte nachgereicht werden müssen,
-- Risikoakzeptanz noch dokumentiert werden muss.
-
-**block, wenn:**
-
-- kritische Defects offen sind,
-- Nachweise für wichtige Akzeptanzkriterien fehlen,
-- ein nicht akzeptiertes Risiko besteht,
-- Compliance-, Datenschutz- oder Sicherheitsprobleme offen sind,
-- das Ergebnis nicht verantwortbar freigegeben werden darf.
-
-### Gate-Check
-
-- Sind alle relevanten Akzeptanzkriterien bewertet?
-- Sind Tests und Checks nachvollziehbar?
-- Sind Defects sichtbar?
-- Sind offene Risiken akzeptiert oder blockierend?
-- Sind nicht verifizierte Punkte markiert?
-- Ist die Lieferung verantwortbar freigabefähig?
-
-### Next action
-
-Bei `pass`: Ergebnis freigeben oder in den nächsten Release-Schritt überführen.  
-Bei `revise`: Defects, Nachweise oder Risikoentscheidungen nacharbeiten.  
-Bei `block`: Freigabe stoppen, bis der Blocker behoben oder bewusst entschieden ist.
-
----
-
-## Verhältnis zu Tooling
-
-Die Gates ersetzen keine Werkzeuge wie Jira, Azure DevOps, GitHub Issues, Pull Requests oder CI/CD.
-
-Sie erklären, welche Entscheidung ein Werkzeug unterstützen soll.
-
-Ein Jira-Ticket kann zeigen, woran gearbeitet wird. Ein Pull Request kann zeigen, was geändert wurde. Eine Pipeline kann
-zeigen, welche Checks gelaufen sind.
-
-Das Gate beantwortet die Frage, ob diese Informationen zusammen ausreichen, um verantwortbar weiterzugehen.
-
-Toolzugriff ersetzt keine Gate-Entscheidung.
-
-Ein Agent darf nicht nur deshalb weiterarbeiten, weil er ein Ticket lesen, einen Branch öffnen oder eine Pipeline
-starten kann. Er muss prüfen, ob die Voraussetzungen des jeweiligen Gates erfüllt sind.
-
-MCP oder vergleichbare Integrationen sollten deshalb nicht als direkter Autopilot verstanden werden, sondern als
-kontrollierte Verbindung zwischen Agent und Werkzeuglandschaft.
-
-Das Ziel ist nicht:
-
-> Der Agent kann alles ausführen.
-
-Sondern:
-
-> Der Agent kann die richtigen Nachweise lesen, die richtigen Aktionen auslösen und an Gate-Haltepunkten zuverlässig
-> stoppen.
-
-Tool-Integrationen müssen governance-fähig sein:
-
-- klare Berechtigungen,
-- nachvollziehbare Aktionen,
-- begrenzte Schreibrechte,
-- Audit Logs,
-- Trennung zwischen Lesen, Vorschlagen, Ändern und Freigeben.
-
----
-
-## Kurzform für die Anwendung
-
-Diese Kurzform kann als Operator-Checkliste verwendet werden.
-
-```text
-Gate: <Gate-Name>
-Status: pass | revise | block | pass_with_limits
-Grundlage: <Artefakte, Versionen, Evidenz>
-Begründung: <kurz und belastbar>
-Offen / Limits: <nur wenn vorhanden>
-Next action: <eindeutiger nächster Schritt>
-```
-
-### Minimalfragen
+## Kurzform
 
 Vor jedem Weitergehen:
 
 - Ist die Grundlage klar?
 - Ist die nötige Freigabe vorhanden?
-- Sind Annahmen markiert?
+- Sind Annahmen sichtbar?
 - Sind Risiken sichtbar?
 - Sind Nachweise vorhanden?
 - Ist klar, was nicht geprüft wurde?
 - Ist der nächste Schritt erlaubt?
 
-Wenn nicht, ist das Gate nicht `pass`.
-
----
+Wenn nicht, ist das Gate nicht pass.
 
 ## Nächster Schritt
 
-Als nächstes sollten die Artefakte detaillierter beschrieben werden.
+Gates brauchen belastbare Grundlagen.
+Das nächste Dokument beschreibt deshalb die Artefakte, auf denen Gate-Entscheidungen beruhen:
 
-Das nächste Dokument ist daher:
-
-[`03-artefakte.md`](03-artefakte.md)
+[03 - Artefakte](03-artefakte.md)

@@ -1,5 +1,16 @@
 # 04 - Wissen nutzbar halten
 
+Das vorherige Kapitel hat beschrieben, wie Artefakte einzelne Arbeitsstände festhalten.
+Dieses Kapitel beschreibt, wie daraus dauerhaft nutzbares Projektwissen wird.
+
+## Kernaussage in fünf Sätzen
+
+Projektwissen ist mehr als ein Chatverlauf oder eine Tool-Memory.
+Es muss nahe am Projekt liegen, damit Menschen und Agenten später darauf aufbauen können.
+Artefakte speichern die wichtigen Arbeitsstände.
+Ein Kontextgraph macht sichtbar, wie Anforderungen, Entscheidungen, Tests und Nachweise zusammenhängen.
+So kann Projektwissen mit jeder Nutzung besser statt nur größer werden.
+
 ## Beobachtung
 
 Wer einige Zeit mit [`Artefakten`](03-artefakte.md), LLMs und Agenten arbeitet, könnte auch noch ein weiteres
@@ -39,14 +50,14 @@ vorhandenes Wissen gültig, auffindbar und wiederverwendbar bleibt.
 ![Wissen gültig, auffindbar und wiederverwendbar halten](../assets/wissen-gueltig-auffindbar-wiederverwendbar.png)
 
 Einige Unternehmen schalten solche Memory-Funktionen bewusst ab oder begrenzen sie. Gründe können Kosten, Datenschutz,
-Governance oder fehlende Kontrolle über gespeichertes Wissen sein.
+fehlende Steuerung oder fehlende Kontrolle über gespeichertes Wissen sein.
 
 Das zeigt eine wichtige Grenze plattformbasierter Memory-Funktionen:
 
 Sie können hilfreich sein, sollten aber nicht die einzige Grundlage für dauerhaft relevantes Projektwissen sein.
 
 Das gilt besonders dann, wenn KI nicht nur einfach nur breit ausgerollt wird, sondern konkret und dauerhaft in Software
-Delivery eingebunden werden soll.
+Softwareentwicklung eingebunden werden soll.
 
 Für Softwareprojekte reicht es nicht, Wissen irgendwo in einer Toolplattform zu speichern.
 
@@ -63,24 +74,23 @@ Das relevante Wissen entsteht und verändert sich nahe am Projekt:
 Wenn dieses Wissen in [`Artefakten`](03-artefakte.md) nahe am Projekt liegt, bleibt es versionierbar, prüfbar und
 unabhängiger von einer einzelnen Toolplattform.
 
-Gerade um nicht auf einen Toolhersteller angewiesen zu sein, legt dieses Framework das Gedächtnis nahe an das Projekt
-und
-seine [`Artefakte`](03-artefakte.md).
+Gerade um nicht auf einen Toolhersteller angewiesen zu sein, legt dieser Entwurf das Gedächtnis nahe an das Projekt
+und seine [`Artefakte`](03-artefakte.md).
 
 ## Artefakte als Gedächtnis
 
-[`Artefakte`](03-artefakte.md) sind der stabile Speicher der Delivery.
+[`Artefakte`](03-artefakte.md) sind der stabile Speicher der Lieferung.
 
 Sie halten die Arbeitsstände fest, auf die spätere Agentenläufe, Reviews und Entscheidungen wieder verweisen können.
 
 Dadurch muss vorhandenes Wissen nicht jedes Mal neu aus Chats, Tickets, Dokumenten oder Code rekonstruiert werden.
 
 In diesem Abschnitt geht es deshalb nicht um die Struktur einzelner Artefakte, sondern um ihre Rolle als langfristiges
-Gedächtnis der Delivery.
+Gedächtnis der Lieferung.
 
 ## Brownfield und Gedächtnis
 
-Brownfield ist im Framework bereits als eigener Prüfpunkt beschrieben.
+Brownfield ist im Entwurf bereits als eigener Prüfpunkt beschrieben.
 
 In diesem Abschnitt geht es um einen zusätzlichen Aspekt:
 
@@ -152,7 +162,7 @@ Ein [`TaskTestPlan`](03-artefakte.md) verweist auf Produktvertrag und Design.
 
 Ein [`QA-Report`](03-artefakte.md) verweist auf Tests, Nachweise und Umsetzung.
 
-So entsteht Schritt für Schritt ein Wissensnetz des Projekts.
+So kann Schritt für Schritt ein Wissensnetz des Projekts entstehen.
 
 Mit wachsender Systemgröße werden jedoch nicht nur Artefakte wichtig.
 
@@ -201,7 +211,7 @@ Jeder Review kann ungültige Annahmen, fehlende Nachweise oder überholte Bezieh
 
 Jedes [`Gate`](02-gates.md) prüft, ob der aktuelle Stand noch tragfähig ist.
 
-**So entsteht ein lernender Kontextgraph.**
+**So kann ein lernender Kontextgraph entstehen.**
 
 Das Projektwissen wird mit jeder Nutzung nicht nur größer.
 
@@ -209,12 +219,12 @@ Es wird besser: genauer, aktueller und leichter wiederverwendbar.
 
 ### Was den Kontextgraphen unterscheidet zu gängigen KI-Werkzeugen
 
-Ein Kontextgraph im Sinne dieses Frameworks ist kein klassisches Memory-System.
+Ein Kontextgraph im Sinne dieses Entwurfs ist kein klassisches Memory-System.
 
 Memory-Funktionen von KI-Werkzeugen speichern Informationen, damit ein Modell oder Agent bei späteren Aufgaben darauf
 zurückgreifen kann.
 
-Der Kontextgraph diese Frameworks verfolgt ein anderes Ziel.
+Der Kontextgraph in diesem Entwurf verfolgt ein anderes Ziel.
 
 Er speichert Wissen nicht für eine einzelne KI, sondern macht Projektwissen für Menschen, Agenten und zukünftige
 Entscheidungen nachvollziehbar.
@@ -252,11 +262,11 @@ Der Kontextgraph macht ihre Beziehungen sichtbar.
 
 [`Gates`](02-gates.md) prüfen, ob auf diesem Wissen verantwortbar aufgebaut werden darf.
 
-So entsteht ein projektnahes Delivery-Gedächtnis, das mit jeder Nutzung nicht nur größer, sondern besser werden kann.
+So kann ein projektnahes Liefergedächtnis entstehen, das mit jeder Nutzung nicht nur größer, sondern besser wird.
 
 ## Nächster Schritt
 
-Das nächste Dokument beschreibt, wie Regeln aus Artefakten, Gates und Projektwissen als wiederholbare
-Qualitätsverträge prüfbar werden:
+Das nächste Dokument beschreibt, warum bei KI-Agenten nicht nur das Ergebnis, sondern auch der Agentenlauf selbst
+prüfbar werden muss:
 
-[`05 - Ausführbare Qualitätsverträge`](05-vom-mythos-zur-pruefung)
+[05 - Vom Mythos zur Prüfung](05-vom-mythos-zur-pruefung.md)

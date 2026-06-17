@@ -7,18 +7,26 @@ Software Engineering**.
 
 Es verbindet das Manifest mit den späteren Detaildokumenten. Im Kern geht es um eine einfache Frage:
 
-> Wie organisieren wir Software Delivery mit KI-Agenten so, dass sie nicht nur schneller wird, sondern nachvollziehbar,
+> Wie organisieren wir Softwareentwicklung mit KI-Agenten so, dass sie nicht nur schneller wird, sondern nachvollziehbar,
 > prüfbar und verantwortbar bleibt?
 
 Der Überblick beschreibt noch kein Tool, keine Agent Runtime und keinen fertigen Implementierungsprozess. Er skizziert
 das Arbeitsmodell, die Gates, die wichtigsten Artefakte und die offenen Fragen.
+
+## Kernaussage in fünf Sätzen
+
+KI-Agenten machen Softwareentwicklung schneller, aber nicht automatisch klarer.
+Der Entwurf ordnet die Arbeit deshalb in Gates, Artefakte und Nachweise.
+Ein Produktvertrag hält fest, was fachlich gelten soll.
+Design, Aufgaben, Tests und Umsetzung müssen darauf zurückführen.
+So bleibt sichtbar, warum etwas gebaut wird, worauf es basiert und wann es weitergehen darf.
 
 ---
 
 ## Ausgangspunkt
 
 KI-Agenten können heute schon viele Tätigkeiten unterstützen, die bisher klar bei einzelnen Personen oder einem ganzen
-Team lagen:Anforderungen zusammenfassen, Lösungsansätze formulieren, Architekturvorschläge machen, Arbeitspakete ableiten,
+Team lagen: Anforderungen zusammenfassen, Lösungsansätze formulieren, Architekturvorschläge machen, Arbeitspakete ableiten,
 Testfälle planen oder Code erzeugen.
 
 ![Der rote Faden in KI-gestützter Software Delivery](../assets/der-rote-faden-ai-delivery.png)
@@ -38,14 +46,14 @@ Akzeptanzkriterien erfüllt sind, welche Entscheidungen noch gelten und welche �
 Ein Board zeigt Fortschritt. Es zeigt aber nicht zwingend fachliche Nachvollziehbarkeit.
 
 Genau hier entsteht durch KI-Agenten zusätzlicher Druck: Je mehr Zwischenschritte durch KI unterstützt oder vorbereitet
-werden, desto schwieriger wird es, den roten Faden nicht nur organisatorisch, sondern auch fachlich und auditierbar zu
+werden, desto schwieriger wird es, den roten Faden nicht nur organisatorisch, sondern auch fachlich prüfbar zu
 halten.
 
-Dieses Framework setzt genau dort an.
+Dieser Entwurf setzt genau dort an.
 
 ## Grundmodell
 
-Das Framework betrachtet Delivery als Abfolge von Gates.
+Das Modell betrachtet die Arbeit als Abfolge von Gates.
 
 Ein Gate ist kein zusätzliches Meeting und kein Selbstzweck. Ein Gate ist ein bewusster Haltepunkt, an dem geprüft wird,
 ob genügend Klarheit, Freigabe und Nachweis vorhanden sind, um sinnvoll weiterzugehen.
@@ -92,7 +100,7 @@ Dieser Review ist noch keine Implementierungsanalyse. Er soll klären, ob der Wu
 Schnittstellen, Datenmodelle, Ownership, technische Schulden, Produktsemantik oder Betriebsabhängigkeiten berührt.
 
 Gerade in bestehenden Systemen ist ein User Requirement selten isoliert. Ein scheinbar kleiner Wunsch kann vorhandenes
-Verhalten verändern, alte Annahmen brechen oder eine fachliche Entscheidung betreffen, die im Code nur noch implizit sichtbar ist.
+Verhalten verändern, alte Annahmen brechen oder eine fachliche Entscheidung betreffen, die nur noch im Code steckt.
 
 Ein früher Review des bestehenden Systemkontexts ist gerade im Zusammenhang mit LLMs wichtig.
 
@@ -147,7 +155,7 @@ Er beschreibt, was tatsächlich gelten soll:
 - Constraints
 - Annahmen
 
-Der Produktvertrag ist der zentrale Anker des Frameworks. Er verhindert, dass sich Anforderungen im weiteren Verlauf
+Der Produktvertrag ist der zentrale Anker des Entwurfs. Er verhindert, dass sich Anforderungen im weiteren Verlauf
 unbemerkt verschieben.
 
 Ohne freigegebenen Produktvertrag sollte keine Implementierung beginnen.
@@ -156,7 +164,7 @@ Ohne freigegebenen Produktvertrag sollte keine Implementierung beginnen.
 
 In G-02 wird beschrieben, wie die Lösung grundsätzlich aussehen soll.
 
-Dabei geht es um Architektur, Komponenten, Verantwortlichkeiten, Schnittstellen auf konzeptioneller Ebene, Datenflüsse,
+Dabei geht es um Architektur, Komponenten, Verantwortlichkeiten, Schnittstellen auf Entwurfsebene, Datenflüsse,
 Sequenzen sowie Sicherheits-, Datenschutz- und Observability-Aspekte.
 
 Wichtig ist die Grenze zwischen Design und Code.
@@ -184,12 +192,12 @@ Der Task & Test Plan beschreibt unter anderem:
 
 Ein Task sollte nicht einfach nur technisch plausibel klingen. Er sollte nachvollziehbar machen, welche fachliche,
 technische oder risikobezogene Begründung hinter ihm steht.
-In Brownfield-Kontexten gehört zur Vorbereitung der Umsetzung eine explizite Brownfield-Analyse. Sie prüft, welche
+In Brownfield-Kontexten gehört zur Vorbereitung der Umsetzung eine klare Brownfield-Analyse. Sie prüft, welche
 bestehenden Artefakte betroffen sind, welche Teile bereits vorhanden sind, welche Reuse-Strategie sinnvoll ist und ob neue
 Parallelstrukturen drohen.
 
 G-03 verhindert damit, dass nach dem Design direkt „irgendwie gebaut“ wird. Stattdessen entsteht ein prüfbarer Plan:
-Was wird gebaut, warum wird es gebaut, in welcher Reihenfolge, und wie wird es validiert?
+Was wird gebaut, warum wird es gebaut, in welcher Reihenfolge, und wie wird es geprüft?
 
 ### G-04 — Code / Implementation
 
@@ -216,7 +224,7 @@ Dabei wird jede relevante `task_id` einzeln betrachtet:
 
 - Wurde die Aufgabe vollständig, teilweise oder nicht erledigt?
 - Welche Acceptance Criteria sind erfüllt, teilweise erfüllt, offen oder nicht verifizierbar?
-- Welche Dateien, Tests, Build-Ergebnisse oder UI-/Runtime-Evidenz stützen die Bewertung?
+- Welche Dateien, Tests, Build-Ergebnisse oder UI-/Runtime-Nachweise stützen die Bewertung?
 - Gibt es Abweichungen vom Task Plan?
 - Sind Out-of-Scope-Änderungen entstanden?
 - Welche Lücken müssen an das spätere QA-Gate übergeben werden?
@@ -246,22 +254,22 @@ genehmigten Task & Test Plan tatsächlich erfüllt wurde: vollständig, teilweis
 Dabei gilt:
 
 - Ein grüner Build beweist keine vollständige Task-Erfüllung.
-- Fehlende Evidenz darf nicht durch Annahmen ersetzt werden.
-- Sichtbares UI-, State-, Render- oder Runtime-Verhalten braucht sichtbare Evidenz.
+- Fehlende Nachweise dürfen nicht durch Annahmen ersetzt werden.
+- Sichtbares UI-, State-, Render- oder Runtime-Verhalten braucht sichtbare Nachweise.
 - Teilumsetzung muss als Teilumsetzung sichtbar bleiben.
 - Out-of-Scope-Änderungen müssen dokumentiert werden.
-- Bei unklarer Evidenz wird nicht auf „fertig“ entschieden.
+- Bei unklaren Nachweisen wird nicht auf „fertig“ entschieden.
 
 Der Task Plan Review ist deshalb keine Bürokratie. Er ist der Moment, in dem aus einer plausiblen KI-Umsetzung
-eine überprüfbare Delivery-Aussage wird.
+eine überprüfbare Lieferaussage wird.
 
 ## Der Produktvertrag als Anker
 
 Das `Product Requirements Doc` ist mehr als Dokumentation. Er ist der Bezugspunkt für alle nachgelagerten
 Entscheidungen.
 
-Das Solution Design erklärt, wie der Vertrag konzeptionell erfüllt werden soll. Der Task & Test Plan leitet daraus
-umsetzbare Arbeitspakete und Validierung ab. Die Implementierung darf nur das umsetzen, was durch Vertrag, Design und
+Das Solution Design erklärt, wie der Vertrag auf Entwurfsebene erfüllt werden soll. Der Task & Test Plan leitet daraus
+umsetzbare Arbeitspakete und Prüfungen ab. Die Implementierung darf nur das umsetzen, was durch Vertrag, Design und
 Plan gedeckt ist.
 
 Wenn sich Scope, Akzeptanzkriterien oder Non-Goals ändern, ist das keine beiläufige Textänderung. Dann braucht es einen
@@ -311,18 +319,18 @@ Ein guter Task beantwortet mindestens:
 - Welche Tests oder Nachweise gehören dazu?
 - Gibt es besondere Review- oder Change-Request-Punkte?
 
-Gerade bei KI-Agenten ist das wichtig, weil sie sehr schnell sehr überzeugende Pläne erzeugen können. Das Framework
+Gerade bei KI-Agenten ist das wichtig, weil sie sehr schnell sehr überzeugende Pläne erzeugen können. Der Entwurf
 fordert nicht mehr Planung um der Planung willen, sondern nachvollziehbare Planung.
 
-## Traceability
+## Nachvollziehbarkeit
 
-Traceability bedeutet hier nicht, möglichst viele Dokumente zu erzeugen.
+Nachvollziehbarkeit bedeutet hier nicht, möglichst viele Dokumente zu erzeugen.
 
-Traceability bedeutet, die entscheidenden Fragen beantworten zu können:
+Nachvollziehbarkeit bedeutet, die entscheidenden Fragen beantworten zu können:
 
 - Warum existiert dieser Task?
 - Welche Anforderung begründet diese Designentscheidung?
-- Welcher Test validiert welches Akzeptanzkriterium?
+- Welcher Test prüft welches Akzeptanzkriterium?
 - Welche Freigabe erlaubt diese Implementierung?
 - Welche Änderung hatte welchen Effekt auf Scope oder Risiko?
 
@@ -340,7 +348,7 @@ Testabdeckung.
 
 Genau dort ist schnelle Code-Erzeugung besonders riskant.
 
-Brownfield bedeutet in diesem Framework deshalb nicht einfach „bestehender Code“. Brownfield bedeutet: Vor jeder
+Brownfield bedeutet in diesem Modell deshalb nicht einfach „bestehender Code“. Brownfield bedeutet: Vor jeder
 Implementierung muss verstanden werden, was bereits vorhanden ist, welche Verantwortung bestehende Artefakte haben und
 welcher Eingriff das System am wenigsten belastet.
 
@@ -367,12 +375,13 @@ Vor der Implementierung braucht es deshalb eine Brownfield-Analyse:
 Wichtig ist dabei die Unterscheidung zwischen einem kleinen technischen Diff und einem sauberen fachlichen Schnitt.
 
 Der kleinste technische Eingriff ist nicht automatisch die beste Lösung. Wenn er neue Zustandsvermischung, falsche
-Ownership, stille Parallelstrukturen oder spätere Rückbauarbeit erzeugt, ist er nicht minimal-invasiv im Sinne dieses Frameworks.
+Ownership, stille Parallelstrukturen oder spätere Rückbauarbeit erzeugt, ist er nicht minimal-invasiv im Sinne dieses
+Modells.
 
 Minimal-invasiv bedeutet: so wenig Änderung wie möglich, aber so viel Struktur wie nötig, damit die Lösung
 dauerhaft tragfähig bleibt.
 
-Brownfield ist deshalb kein Randfall, sondern ein zentraler Prüfstein für agentische Software Delivery.
+Brownfield ist deshalb kein Randfall, sondern ein zentraler Prüfstein für Softwareentwicklung mit KI-Agenten.
 Ob KI-gestützte Entwicklung wirklich funktioniert, zeigt sich nicht an der nächsten Greenfield-Demo, sondern dort,
 wo bestehende Systeme kontrolliert, nachvollziehbar und verantwortbar weiterentwickelt werden müssen.
 
@@ -391,7 +400,7 @@ dargestellt werden, als sei es geprüft.
 Änderungen entstehen in KI-gestützter Arbeit oft beiläufig: in Rückfragen, Umformulierungen, Ergänzungen oder scheinbar
 kleinen Optimierungen.
 
-Das Framework behandelt relevante Änderungen deshalb ausdrücklich als prüfpflichtig.
+Der Entwurf behandelt relevante Änderungen deshalb ausdrücklich als prüfpflichtig.
 
 Das gilt besonders bei Änderungen an:
 
@@ -419,8 +428,8 @@ Offen sind unter anderem:
 - Tooling-Unterstützung
 - Agent Runtime
 - Automatisierung von Prüfungen
-- Integration in bestehende Delivery-Prozesse
-- organisationsspezifische Governance-Profile
+- Integration in bestehende Lieferprozesse
+- organisationsspezifische Steuerungsprofile
 
 Diese Punkte werden in eigenen Dokumenten und Issues weiter ausgearbeitet.
 
@@ -432,9 +441,9 @@ Für die weitere Arbeit sind vor allem diese Fragen spannend:
 2. Reichen die Gates G-00 bis G-04 aus?
 3. Ist `Task & Test Plan` der passende Name für G-03, oder wäre `Delivery Plan` besser?
 4. Wie streng sollte fail closed in echten Teams angewendet werden?
-5. Wie viel Traceability hilft, ohne den Prozess zu überfrachten?
+5. Wie viel Nachvollziehbarkeit hilft, ohne den Prozess zu überfrachten?
 6. Welche Qualitätsnachweise sind in Brownfield-Projekten mindestens nötig?
-7. Welche Teile des Frameworks sollten später durch Tooling unterstützt werden?
+7. Welche Teile des Ansatzes sollten später durch Tooling unterstützt werden?
 8. Wo muss menschliche Verantwortung zwingend erhalten bleiben?
 
 ## Beispiel: Vom Greenfield-Experiment zum Brownfield-System
@@ -448,7 +457,7 @@ erzeugen.
 Das ist wertvoll, aber es bleibt nicht lange Greenfield.
 
 Sobald der erste Prototyp existiert, gibt es bereits Bestand: Dateien, Komponenten, Datenmodelle, Annahmen, Benennungen,
-State-Flows, Tests, Workarounds und implizite Produktentscheidungen. Jede weitere Änderung trifft auf diese vorhandenen
+State-Flows, Tests, Workarounds und versteckte Produktentscheidungen. Jede weitere Änderung trifft auf diese vorhandenen
 Strukturen.
 
 Wenn man ab diesem Punkt ohne Gates weiterarbeitet, öffnet ein LLM leicht neue Stränge: ein zusätzlicher Service, ein
@@ -461,8 +470,8 @@ Das nächste User Requirement wird nicht einfach als neuer Umsetzungsauftrag beh
 der Wunsch bereits bestehenden Systemkontext berührt. Der frühe Brownfield Review klärt, welche Logik, Ownership,
 Produktsemantik oder Systemgrenze verstanden werden muss, bevor Anforderungen formuliert werden.
 
-Erst danach entsteht das `Product Requirements Doc`. Darauf folgen Solution Design, Task & Test Plan, Brownfield
-Analysis, Implementierung, Task Plan Review und QA-Nachweis.
+Erst danach entsteht das Product Requirements Doc. Darauf folgen Solution Design, Task und Test Plan, Brownfield
+Analyse, Implementierung, Task Plan Review und QA-Nachweis.
 
 So bleibt der rote Faden erhalten: Das Projekt darf schnell starten, aber es entwickelt sich nicht unkontrolliert
 weiter.
@@ -482,10 +491,8 @@ Auch ein KI-generierter "Prototyp" wird nach wenigen Iterationen zum Brownfield-
 
 ## Nächster Schritt
 
-Als nächstes sollten die Gates detaillierter beschrieben werden.
+Als nächstes werden die Gates beschrieben.
 
 Das nächste Dokument ist daher:
 
-[`02-gates.md`](02-gates.md)
-
-
+[02 - Gates](02-gates.md)

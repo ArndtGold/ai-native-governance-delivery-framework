@@ -2,7 +2,7 @@
 
 ## Warum dieses Projekt existiert
 
-Agentisches Software Engineering verändert gerade, wie Software geplant, entworfen, getestet und umgesetzt wird.
+Softwareentwicklung mit KI-Agenten verändert gerade, wie Software geplant, entworfen, getestet und umgesetzt wird.
 
 Viele Diskussionen drehen sich um Coding Agents, Produktivität und Automatisierung. Das ist nachvollziehbar. Wer sieht,
 wie schnell KI heute lauffähigen Code erzeugen kann, landet schnell bei der Frage, wie viel schneller Entwicklung
@@ -10,7 +10,7 @@ dadurch wird.
 
 Dieses Projekt setzt an einer anderen Stelle an:
 
-> Wie halten wir Software Delivery kontrollierbar, prüfbar und am vereinbarten Ziel ausgerichtet, wenn KI-Agenten
+> Wie halten wir Softwareentwicklung kontrollierbar, prüfbar und am vereinbarten Ziel ausgerichtet, wenn KI-Agenten
 > Anforderungen interpretieren, Lösungen entwerfen, Arbeitspakete ableiten, Tests planen und Implementierungsartefakte
 > erzeugen?
 
@@ -18,7 +18,7 @@ In vielen Teams versucht man, den roten Faden über Jira, Azure DevOps, GitHub I
 Planungssysteme zu halten. Diese Werkzeuge sind wichtig. Sie zeigen, woran gearbeitet wird, wer beteiligt ist und wie
 weit ein Vorgang fortgeschritten ist.
 
-Sie beantworten aber nicht automatisch die Governance-Frage.
+Sie beantworten aber nicht automatisch die Steuerungsfrage.
 
 Ein typischer Satz aus der Praxis lautet:
 
@@ -27,10 +27,10 @@ Ein typischer Satz aus der Praxis lautet:
 Das ist kein reines Tool-Problem. Es zeigt eine Lücke zwischen Aktivität und fachlicher Nachvollziehbarkeit.
 
 Ein Board zeigt, woran gearbeitet wird.
-Dieses Framework erklärt, warum daran gearbeitet werden darf.
+Dieser Entwurf fragt, warum daran gearbeitet werden darf.
 
-Agentisches Software Engineering braucht deshalb mehr als bessere Tools. Es braucht einen Delivery-Rahmen, der Scope,
-Freigabe, Traceability, Qualitätsnachweise, Rollen, Verantwortung und Änderungen sichtbar macht.
+Softwareentwicklung mit KI-Agenten braucht deshalb mehr als bessere Tools. Sie braucht einen Arbeitsrahmen, der Scope,
+Freigabe, Nachvollziehbarkeit, Qualitätsnachweise, Rollen, Verantwortung und Änderungen sichtbar macht.
 
 ## Eine Analogie
 
@@ -43,7 +43,7 @@ Sie werden beherrschbar, wenn eine einfachere Struktur entsteht, die diese Infor
 Eine historische Analogie ist die Entwicklung von Schriftsystemen: Statt immer mehr einzelne Zeichen (Keilschrift) zu verwalten,
 entstanden einfachere Strukturen, mit denen Wissen leichter erfassbar, vermittelbar und wiederverwendbar wurde.
 
-Agentische Software Delivery steht möglicherweise vor einer ähnlichen Herausforderung.
+Softwareentwicklung mit KI-Agenten steht möglicherweise vor einer ähnlichen Herausforderung.
 
 Nicht die Menge der erzeugbaren Ergebnisse wird zum Engpass.
 
@@ -56,12 +56,12 @@ Dieser Entwurf ist zunächst kein Produkt, kein Tool und kein Rollout-Vorschlag.
 
 Er beschreibt Beobachtungen:
 
-Je mehr Verantwortung KI-Agenten in der Software Delivery übernehmen, desto wichtiger werden Nachvollziehbarkeit,
+Je mehr Verantwortung KI-Agenten in der Softwareentwicklung übernehmen, desto wichtiger werden Nachvollziehbarkeit,
 Freigabe, Projektwissen und kontrollierte Entscheidungen.
 
 Die erste Frage lautet deshalb nicht:
 
-* Wer besitzt das Framework?
+* Wer besitzt so einen Ansatz?
 * Wie wird es eingeführt?
 * Wie wird es bewertet?
 * Wie wird es vermarktet?
@@ -70,13 +70,13 @@ Die erste Frage lautet:
 
 * Ist die Beobachtung fachlich richtig?
 
-Wenn agentische Software Delivery zunimmt:
+Wenn Softwareentwicklung mit KI-Agenten zunimmt:
 
-* Entstehen dann tatsächlich neue Anforderungen an Governance?
+* Entstehen dann tatsächlich neue Anforderungen an Steuerung und Verantwortung?
 * Werden Produktverträge wichtiger?
 * Werden Brownfield-Fragen wichtiger?
 * Brauchen Teams ein belastbares Projektgedächtnis?
-* Reichen bestehende Delivery-Modelle dafür aus?
+* Reichen bestehende Liefermodelle dafür aus?
 
 Dieses Repository versteht sich zunächst als Beitrag zu dieser Diskussion.
 
@@ -84,25 +84,25 @@ Dieses Repository versteht sich zunächst als Beitrag zu dieser Diskussion.
 
 Dieses Projekt ist bewusst Deutsch-first.
 
-Der Grund ist fachlich: Governance, Verantwortung, Freigabe, Nachweisführung, Prüfpfade, Akzeptanzkriterien, Nicht-Ziele
-und Änderungssteuerung sind keine rein technischen Begriffe. Sie berühren Organisation, Haftung, Zusammenarbeit,
+Der Grund ist fachlich: Verantwortung, Freigabe, Nachweisführung, Prüfpfade, Akzeptanzkriterien, Nicht-Ziele und
+Änderungssteuerung sind keine rein technischen Begriffe. Sie berühren Organisation, Haftung, Zusammenarbeit,
 Regulierung und Entscheidungsverantwortung.
 
 Gerade im deutschsprachigen Raum, etwa in Unternehmen, Mittelstand, öffentlicher Verwaltung, regulierten Branchen und
-europäischen Governance-Kontexten, müssen diese Fragen präzise und anschlussfähig diskutiert werden können.
+europäischen Regelungsumfeldern, müssen diese Fragen präzise und anschlussfähig diskutiert werden können.
 
-Englische Fachbegriffe wie `AI-native`, `Delivery`, `Gate`, `Traceability`, `Product Requirements Doc` oder
+Englische Fachbegriffe wie `AI-native`, `Delivery`, `Gate`, `Product Requirements Doc` oder
 `Agentic Software Engineering` werden dort verwendet, wo sie als Fachanker hilfreich sind. Die argumentative und
-konzeptionelle Ausarbeitung erfolgt jedoch zunächst auf Deutsch.
+inhaltliche Ausarbeitung erfolgt jedoch zunächst auf Deutsch.
 
-Englische Übersetzungen können später entstehen. Die Primärfassung dieses Frameworks soll zuerst im deutschsprachigen
+Englische Übersetzungen können später entstehen. Die Primärfassung dieses Entwurfs soll zuerst im deutschsprachigen
 Kontext geschärft werden.
 
 ## Kernthese
 
-Agentisches Software Engineering braucht eine explizite Governance- und Delivery-Schicht.
+Softwareentwicklung mit KI-Agenten braucht eine klare Steuerungs- und Lieferstruktur.
 
-Ohne eine solche Schicht kann KI-gestützte Delivery zwar schneller werden, aber zugleich schwer nachvollziehbar bleiben:
+Ohne eine solche Struktur kann KI-gestützte Softwareentwicklung zwar schneller werden, aber zugleich schwer nachvollziehbar bleiben:
 
 * Anforderungen können stillschweigend uminterpretiert werden
 * Scope kann ohne Freigabe wandern
@@ -112,10 +112,10 @@ Ohne eine solche Schicht kann KI-gestützte Delivery zwar schneller werden, aber
 * Qualitätsaussagen können ohne Nachweise bleiben
 * Verantwortung kann unklar werden
 
-Ziel dieses Frameworks ist es, KI-gestützte Software Delivery belastbarer zu machen, indem Absicht, Scope, Freigabe,
-Traceability und Qualitätsnachweise explizit werden.
+Ziel dieses Entwurfs ist es, KI-gestützte Softwareentwicklung belastbarer zu machen, indem Absicht, Scope, Freigabe,
+Nachvollziehbarkeit und Qualitätsnachweise sichtbar werden.
 
-Besonders relevant wird diese Governance-Schicht in Brownfield-Projekten, in denen KI-Agenten nicht nur neue Funktionen
+Besonders relevant wird diese Steuerung in Brownfield-Projekten, in denen KI-Agenten nicht nur neue Funktionen
 erzeugen, sondern bestehende Systeme verstehen, verändern, modernisieren und absichern müssen.
 
 ## Rollenwandel
@@ -135,8 +135,8 @@ und wann es weitergehen darf.
 
 ## Brownfield als Kernrealität
 
-Dieses Framework betrachtet Brownfield-Projekte nicht als Sonderfall, sondern als zentrale Realität agentischer Software
-Delivery.
+Dieser Entwurf betrachtet Brownfield-Projekte nicht als Sonderfall, sondern als zentrale Realität von
+Softwareentwicklung mit KI-Agenten.
 
 Viele relevante KI-gestützte Softwarevorhaben werden nicht auf der grünen Wiese entstehen. Sie werden in bestehenden
 Systemlandschaften stattfinden: in gewachsenen Codebasen, mit historischen Architekturentscheidungen, unvollständiger
@@ -144,19 +144,19 @@ Dokumentation, bestehenden Schnittstellen, regulatorischen Anforderungen, techni
 
 Gerade dort reicht schnelle Code-Erzeugung nicht aus.
 
-In Brownfield-Kontexten muss agentische Softwarearbeit besonders sorgfältig gesteuert werden:
+In Brownfield-Kontexten muss Arbeit mit KI-Agenten besonders sorgfältig gesteuert werden:
 
 * bestehendes Verhalten darf nicht unbemerkt verändert werden
-* implizites Systemwissen muss sichtbar gemacht werden
+* verstecktes Systemwissen muss sichtbar gemacht werden
 * Abhängigkeiten müssen nachvollziehbar bleiben
 * Änderungen brauchen klare Begründung und Freigabe
 * Tests müssen bestehendes Verhalten absichern
-* Risiken müssen vor Umsetzung explizit werden
+* Risiken müssen vor Umsetzung sichtbar werden
 * Migration, Rückbau und Rollback müssen mitgedacht werden
 
-Brownfield-Delivery ist deshalb kein Randfall für dieses Framework. Sie ist wahrscheinlich der wichtigste Prüfstein.
+Brownfield ist deshalb kein Randfall für diesen Entwurf. Er ist wahrscheinlich der wichtigste Prüfstein.
 
-Ob agentisches Software Engineering wirklich trägt, entscheidet sich nicht an der nächsten grünen Wiese, sondern an
+Ob Softwareentwicklung mit KI-Agenten wirklich trägt, entscheidet sich nicht an der nächsten grünen Wiese, sondern an
 bestehenden Systemen: dort, wo Abhängigkeiten gewachsen sind, Wissen verteilt ist, Tests fehlen und Änderungen trotzdem
 verantwortbar geliefert werden müssen.
 
@@ -199,15 +199,15 @@ welches Risiko oder welches Qualitätsziel er adressiert.
 Gerade bei KI-Agenten ist das wichtig, weil sie sehr schnell überzeugende Pläne erzeugen können. Die Zerlegung von
 Arbeit muss deshalb erklärbar und prüfbar bleiben.
 
-### 6. Traceability ist keine Bürokratie
+### 6. Nachvollziehbarkeit ist keine Bürokratie
 
-Traceability bedeutet nicht, möglichst viele Dokumente zu erzeugen.
+Nachvollziehbarkeit bedeutet nicht, möglichst viele Dokumente zu erzeugen.
 
-Traceability bedeutet, grundlegende Delivery-Fragen beantworten zu können:
+Nachvollziehbarkeit bedeutet, grundlegende Lieferfragen beantworten zu können:
 
 * Warum existiert diese Aufgabe?
 * Welche Anforderung stützt diese Designentscheidung?
-* Welches Akzeptanzkriterium validiert dieser Test?
+* Welches Akzeptanzkriterium prüft dieser Test?
 * Welches freigegebene Artefakt erlaubt diese Implementierung?
 * Was hat sich zwischen zwei Versionen geändert?
 
@@ -215,22 +215,22 @@ Traceability bedeutet, grundlegende Delivery-Fragen beantworten zu können:
 
 Eine Qualitätsbehauptung reicht nicht aus.
 
-Delivery sollte sichtbare Nachweise enthalten, zum Beispiel Testergebnisse, Build-Status, Review-Ergebnisse, bekannte
+Die Lieferung sollte sichtbare Nachweise enthalten, zum Beispiel Testergebnisse, Build-Status, Review-Ergebnisse, bekannte
 Einschränkungen und verbleibende Risiken.
 
 Was nicht geprüft wurde, sollte auch nicht so dargestellt werden, als sei es geprüft.
 
-### 8. Änderungen müssen explizit sein
+### 8. Änderungen müssen sichtbar sein
 
 Wenn Scope, Akzeptanzkriterien, Non-Goals oder sicherheits-, compliance- oder datenschutzrelevante Aspekte geändert
 werden, muss diese Änderung dokumentiert und geprüft werden.
 
-Agentische Delivery darf Änderungen nicht hinter flüssiger Konversation verstecken.
+Arbeit mit KI-Agenten darf Änderungen nicht hinter flüssiger Konversation verstecken.
 
-## Was dieses Framework ist
+## Was dieser Entwurf ist
 
-Dieses Framework ist ein Vorschlag für gate-basierte, auditierbare Software Delivery in KI-gestützten und agentischen
-Umgebungen.
+Dieser Entwurf ist ein Vorschlag für Softwareentwicklung mit KI-Agenten, die über Gates gesteuert und nachvollziehbar
+geprüft werden kann.
 
 Es strukturiert Arbeit entlang von:
 
@@ -243,11 +243,11 @@ Es strukturiert Arbeit entlang von:
 * Review und Change Control
 
 Es richtet sich an Teams, Builder, Forscherinnen und Forscher, Engineering Leads, Produktverantwortliche und Praktiker,
-die agentisches Software Engineering zuverlässiger, prüfbarer und verantwortbarer machen wollen.
+die Softwareentwicklung mit KI-Agenten zuverlässiger, prüfbarer und verantwortbarer machen wollen.
 
-## Was dieses Framework nicht ist
+## Was dieser Entwurf nicht ist
 
-Dieses Framework ist kein Coding Standard.
+Dieser Entwurf ist kein Coding Standard.
 
 Es ersetzt kein Engineering-Urteil.
 
@@ -256,7 +256,7 @@ gebunden.
 
 Es soll Teams nicht durch unnötige Bürokratie verlangsamen.
 
-Sein Zweck ist es, die kritischen Teile von Software Delivery so explizit zu machen, dass Menschen und KI-Agenten sicher
+Sein Zweck ist es, die kritischen Teile von Softwareentwicklung so sichtbar zu machen, dass Menschen und KI-Agenten sicher
 zusammenarbeiten können.
 
 ## Offene Fragen
@@ -266,12 +266,12 @@ Dieses Projekt wird bewusst als Diskussionsentwurf veröffentlicht.
 Wichtige Fragen sind:
 
 1. Wie verändert sich die Rolle erfahrener Entwickler, wenn KI-Agenten Teile eines Entwicklungsteams übernehmen?
-2. Wie viel Governance ist hilfreich, bevor sie zu schwergewichtig wird?
-3. Ist ein Produktvertrag der richtige Anker für agentische Delivery?
+2. Wie viel Steuerung ist hilfreich, bevor sie zu schwergewichtig wird?
+3. Ist ein Produktvertrag der richtige Anker für Arbeit mit KI-Agenten?
 4. Wo endet Design und wo beginnt Implementierung?
-5. Wie lassen sich Tickets, Boards und Pull Requests mit fachlicher Traceability verbinden?
+5. Wie lassen sich Tickets, Boards und Pull Requests mit fachlicher Nachvollziehbarkeit verbinden?
 6. Welche Qualitätssignale sind notwendig, um Vertrauen zu schaffen?
 7. Wie sollte Verantwortung zwischen Menschen und Agenten verteilt werden?
-8. Welche Teile dieses Frameworks sollten durch Tooling unterstützt werden?
+8. Welche Teile dieses Ansatzes sollten durch Tooling unterstützt werden?
 9. Was muss menschliches Review und menschliches Urteil bleiben?
-10. Wie kann das Framework Brownfield-Modernisierung unterstützen, ohne bestehende Lieferprozesse zu überfrach
+10. Wie kann dieser Ansatz Brownfield-Modernisierung unterstützen, ohne bestehende Lieferprozesse zu überfrachten?

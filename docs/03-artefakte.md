@@ -4,11 +4,22 @@ Hier geht es um die Frage:
 
 Was muss ein Artefakt enthalten, damit es als Grundlage für die nächste Entscheidung taugt?
 
-Mit anderen Worten: Artefakte sollen verhindern, dass ein LLM direkt von einer Idee in Code springt. Sie zwingen dazu,
-Bedarf, Produktvertrag, Design, Tests und Nachweise als getrennte Arbeitsstände sichtbar zu machen.
+Das vorherige Kapitel hat beschrieben, wann ein Gate weitergehen darf.
+Dieses Kapitel beschreibt, worauf ein Gate seine Entscheidung stützt.
+
+Mit anderen Worten: Artefakte sollen verhindern, dass ein LLM direkt von einer Idee in Code springt. Sie helfen dabei,
+Bedarf, Produktvertrag, Design, Tests und Nachweise als getrennte Arbeitsstände sichtbar zu halten.
 
 Dadurch können Gates nicht nur den erzeugten Output bewerten, sondern auch die Grundlage, auf der dieser Output
 entstanden ist.
+
+## Kernaussage in fünf Sätzen
+
+Artefakte halten wichtige Arbeitsstände fest.
+Sie machen sichtbar, was entschieden wurde, worauf es basiert und welche Risiken offen sind.
+Ohne Artefakte springt ein KI-Agent leicht von einer Idee direkt in Code.
+Mit Artefakten bleiben Bedarf, Produktvertrag, Design, Tests und Nachweise getrennt.
+Dadurch können spätere Gates prüfen, ob auf einer tragfähigen Grundlage weitergearbeitet wird.
 
 ## Grundidee
 
@@ -33,7 +44,7 @@ In der Praxis kann das kippen: Erst werden Rollen reduziert, weil KI vermeintlic
 wird deutlich, dass weiterhin Menschen gebraucht werden, die Anforderungen klären, Annahmen prüfen, Artefakte pflegen,
 KI-Ergebnisse bewerten und die Verantwortung für das Ergebnis übernehmen können.
 
-Das Problem ist dann nicht fehlende KI-Leistung. Das Problem ist ein verkürztes Verständnis davon, was Software Delivery
+Das Problem ist dann nicht fehlende KI-Leistung. Das Problem ist ein verkürztes Verständnis davon, was Softwareentwicklung
 mit KI tatsächlich erfordert.
 
 Entscheidend bleibt nicht nur, wie viel Code mit KI entsteht. Entscheidend ist, ob dieser Code den Bedarf erfüllt, auf
@@ -47,7 +58,7 @@ Scope, Annahmen, Design, Tests und Nachweise.
 
 ![LLM ohne Artefakte vs. mit Artefakten](../assets/llm_ohne_artefakte.png)
 
-Genau hier setzt die Idee dieses Frameworks an: weg vom flüchtigen Dialog mit dem Modell, hin zu persistenten
+Genau hier setzt die Idee dieses Entwurfs an: weg vom flüchtigen Dialog mit dem Modell, hin zu dauerhaften
 Artefakten, die einen prüfbaren Arbeitsstand festhalten.
 
 Ein Artefakt macht sichtbar:
@@ -82,7 +93,7 @@ Beispiele:
 
 * Das `PRD.contract` ist der verbindliche Produktvertrag.
 * `G-01` prüft, ob dieser Vertrag vollständig, belastbar und freigabefähig ist.
-* Das `SolutionDesign` zeigt die konzeptionelle Lösung.
+* Das `SolutionDesign` zeigt die Lösung auf Entwurfsebene.
 * `G-02` prüft, ob dieses Design sauber aus dem Produktvertrag abgeleitet ist und noch keine Implementierung
   vorwegnimmt.
 
@@ -237,7 +248,7 @@ Nachgelagerte Artefakte dürfen den Produktvertrag nicht stillschweigend veränd
 
 Das `SolutionDesign` beschreibt die Lösung auf Design-Ebene.
 
-Es zeigt, wie der Produktvertrag konzeptionell erfüllt werden soll.
+Es zeigt, wie der Produktvertrag auf Entwurfsebene erfüllt werden soll.
 
 Es sollte enthalten:
 
@@ -245,7 +256,7 @@ Es sollte enthalten:
 * Komponenten
 * Verantwortlichkeiten
 * Datenflüsse
-* Schnittstellen auf konzeptioneller Ebene
+* Schnittstellen auf Entwurfsebene
 * relevante Sicherheitsaspekte
 * Datenschutzaspekte
 * Observability-Aspekte
@@ -405,7 +416,7 @@ Ein Artefakt ist schwach, wenn:
 
 ## Kernaussage
 
-Artefakte sind das Gedächtnis der Delivery.
+Artefakte sind das Gedächtnis der Lieferung.
 
 Sie machen sichtbar:
 
@@ -416,3 +427,10 @@ Sie machen sichtbar:
 Sie ersetzen keine Gates. Sie liefern die Grundlage, damit wir mit Gates verantwortbar entscheiden können.
 
 ![Kernaussage: Artefakte als Grundlage für Gates](../assets/kernaussage-artefakte-grundlage-gates.png)
+
+## Nächster Schritt
+
+Artefakte halten einzelne Arbeitsstände fest.
+Das nächste Dokument beschreibt, wie diese Arbeitsstände als Projektwissen auffindbar und wiederverwendbar bleiben:
+
+[04 - Wissen nutzbar halten](04-wissen-nutzbar-halten.md)

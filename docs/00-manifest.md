@@ -102,6 +102,10 @@ Kontext geschärft werden.
 
 Softwareentwicklung mit KI-Agenten braucht eine klare Steuerungs- und Lieferstruktur.
 
+Die zentrale Aufgabe ist nicht nur, Agenten produktiver zu machen.
+Die zentrale Aufgabe ist, ihre Arbeit so einzubetten, dass Scope, Architektur, Verantwortung und Projektwissen nicht
+unbemerkt verschoben werden.
+
 Ohne eine solche Struktur kann KI-gestützte Softwareentwicklung zwar schneller werden, aber zugleich schwer nachvollziehbar bleiben:
 
 * Anforderungen können stillschweigend uminterpretiert werden

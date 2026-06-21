@@ -595,6 +595,7 @@ Das Gate oder die fachliche Prüfung entscheidet, welche Wirkung das hat.
 
 ## Nächster Schritt
 
-Das nächste Dokument hält die wichtigsten Begriffe des Entwurfs kurz und einheitlich fest:
+Das nächste Kapitel beschreibt, warum mit wachsendem Projektwissen nicht nur mehr Kontext, sondern der richtige Kontext
+wichtig wird:
 
-[06 - Glossar](06-glossar.md)
+[06 - Vom Notizzettel zum Bauplan](06-vom-notizzettel-zum-bauplan.md)

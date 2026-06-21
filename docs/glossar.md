@@ -1,4 +1,4 @@
-# 06 - Glossar
+# Glossar
 
 Dieses Glossar hält die wichtigsten Begriffe des Entwurfs einfach und einheitlich.
 Es ist kein Wörterbuch für alle Fachbegriffe.
@@ -42,6 +42,18 @@ Spätere Arbeit darf ihn nicht still umdeuten.
 Der Kontextgraph zeigt Beziehungen zwischen Artefakten, Entscheidungen, Tests, Nachweisen und bestehenden Systemteilen.
 Er ist kein Tool-Memory.
 Er gehört zum Projekt und soll Projektwissen auffindbar machen.
+
+## Fachliche Landkarte
+
+Die fachliche Landkarte ist kein zweites Projektgedächtnis.
+Sie beschreibt den fachlichen Ausschnitt aus Artefakten und Kontextgraph, der für eine Aufgabe wichtig ist.
+Dazu gehören Begriffe, Regeln, Grenzen, Risiken und Nachweise.
+
+## Domain Driven Delivery
+
+Domain Driven Delivery verbindet Fachlichkeit und Lieferung.
+Der Begriff meint hier keinen Zwang zu einem vollständigen DDD-Modell.
+Er beschreibt, dass Anforderungen, Design, Tasks, Tests, Reviews und Gates auf fachliche Begriffe, Regeln und Grenzen zurückführen sollen.
 
 ## Qualitätsvertrag
 

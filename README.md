@@ -121,8 +121,10 @@ Empfohlene Reihenfolge:
 4. [03 - Artefakte](docs/03-artefakte.md)
 5. [04 - Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md)
 6. [05 - Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md)
-7. [06 - Glossar](docs/06-glossar.md)
-8. [Beispiel - Kleiner Brownfield Change](examples/sample-delivery-flow.md)
+7. [06 - Vom Notizzettel zum Bauplan](docs/06-vom-notizzettel-zum-bauplan.md)
+8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
+9. [Glossar](docs/glossar.md)
+10. [Beispiel - Kleiner Brownfield Change](examples/sample-delivery-flow.md)
 
 ## Projektstruktur
 
@@ -136,10 +138,13 @@ Empfohlene Reihenfolge:
 │  ├─ 03-artefakte.md
 │  ├─ 04-wissen-nutzbar-halten.md
 │  ├─ 05-vom-mythos-zur-pruefung.md
-│  └─ 06-glossar.md
+│  ├─ 06-vom-notizzettel-zum-bauplan.md
+│  ├─ 07-domain-driven-delivery.md
+│  └─ glossar.md
 ├─ templates/
 ├─ examples/
-│  └─ sample-delivery-flow.md
+│  ├─ sample-delivery-flow.md
+│  └─ sample-banking-flow.md
 └─ .github/
 ```
 

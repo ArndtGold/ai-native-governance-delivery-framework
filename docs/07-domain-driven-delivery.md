@@ -259,6 +259,16 @@ Genau hier beginnt Domain Driven Delivery.
 
 Die Beziehungen bekommen fachliche Bedeutung.
 
+Die Anschlussfrage lautet:
+
+> Zeigt das Delivery-Lagebild nur Beziehungen, oder zeigt es auch, ob diese Beziehungen fachlich richtig sind?
+
+Ein [Delivery-Lagebild](06-vom-notizzettel-zum-delivery-lagebild.md) kann zeigen, dass ein Test mit einem Risiko verbunden ist.
+
+Domain Driven Delivery fragt zusätzlich, ob dieses Risiko, dieser Test und die betroffene Regel fachlich zusammenpassen.
+
+Erst dadurch wird aus Orientierung ein Bauplan.
+
 Ein Task ist nicht nur Arbeit.
 
 Er ist Arbeit an einer Anforderung, einer Regel, einem Risiko oder einer Komponente.

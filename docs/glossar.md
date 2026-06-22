@@ -43,6 +43,12 @@ Der Kontextgraph zeigt Beziehungen zwischen Artefakten, Entscheidungen, Tests, N
 Er ist kein Tool-Memory.
 Er gehört zum Projekt und soll Projektwissen auffindbar machen.
 
+## Delivery-Lagebild
+
+Das Delivery-Lagebild zeigt, ob Anforderungen, Annahmen, Entscheidungen, Risiken, Aufgaben, Tests, Nachweise und Gates nachvollziehbar zusammenpassen.
+Es ist mehr als eine Linkliste.
+Es macht sichtbar, worauf ein Arbeitsstand basiert, welche Nachweise ihn stützen und welche Lücken eine Lieferung schwächen.
+
 ## Fachliche Landkarte
 
 Die fachliche Landkarte ist kein zweites Projektgedächtnis.

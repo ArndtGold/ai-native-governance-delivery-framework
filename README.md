@@ -121,10 +121,13 @@ Empfohlene Reihenfolge:
 4. [03 - Artefakte](docs/03-artefakte.md)
 5. [04 - Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md)
 6. [05 - Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md)
-7. [06 - Vom Notizzettel zum Bauplan](docs/06-vom-notizzettel-zum-bauplan.md)
+7. [06 - Das Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
 9. [Glossar](docs/glossar.md)
 10. [Beispiel - Kleiner Brownfield Change](examples/sample-delivery-flow.md)
+
+Kapitel 06 zeigt, wie aus verteiltem Projektwissen ein prüfbares Delivery-Lagebild wird.
+Kapitel 07 ordnet dieses Lagebild fachlich durch Begriffe, Regeln und Grenzen.
 
 ## Projektstruktur
 
@@ -138,7 +141,7 @@ Empfohlene Reihenfolge:
 │  ├─ 03-artefakte.md
 │  ├─ 04-wissen-nutzbar-halten.md
 │  ├─ 05-vom-mythos-zur-pruefung.md
-│  ├─ 06-vom-notizzettel-zum-bauplan.md
+│  ├─ 06-vom-notizzettel-zum-delivery-lagebild.md
 │  ├─ 07-domain-driven-delivery.md
 │  └─ glossar.md
 ├─ templates/

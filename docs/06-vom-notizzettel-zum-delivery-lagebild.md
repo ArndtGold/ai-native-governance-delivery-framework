@@ -1,10 +1,12 @@
-# 06 - Vom Notizzettel zum Bauplan
+# 06 - Das Delivery-Lagebild
 
 Das vorherige Kapitel hat beschrieben, wie Agentenläufe prüfbar werden.
 
-Dieses Kapitel beschreibt eine weitere Herausforderung:
+Dieses Kapitel beschreibt, wie aus wachsendem Projektwissen ein Delivery-Lagebild wird.
 
-Wie finden Menschen und Agenten die Informationen, die für eine Aufgabe tatsächlich relevant sind?
+Ein Delivery-Lagebild zeigt nicht nur, wo Informationen liegen.
+
+Es zeigt, wie Anforderungen, Annahmen, Entscheidungen, Risiken, Aufgaben, Tests, Nachweise und Gates zusammenhängen.
 
 ## Kernaussage in fünf Sätzen
 
@@ -12,12 +14,11 @@ Mehr Kontext führt nicht automatisch zu besseren Ergebnissen.
 
 Mit jedem Artefakt, jeder Entscheidung und jeder Analyse wächst das Projektwissen.
 
-Dadurch wird die Auswahl der richtigen Informationen wichtiger als das Speichern weiterer Informationen.
+Dadurch wird Orientierung wichtiger als das reine Speichern weiterer Informationen.
 
-Der Kontextgraph hilft dabei, relevante Zusammenhänge sichtbar zu machen.
+Das Delivery-Lagebild macht sichtbar, welche Informationen zusammengehören und welche Lücken eine Lieferung schwächen.
 
-So arbeiten Menschen und Agenten auf dem Wissen, das sie wirklich benötigen, statt das gesamte Projekt immer wieder neu
-zu analysieren.
+So arbeiten Menschen und Agenten nicht auf einer Dokumentensammlung, sondern auf einem nachvollziehbaren Arbeitsstand.
 
 ## Beobachtung
 
@@ -153,15 +154,13 @@ Ein Agent muss deshalb unterscheiden können:
 
 Diese Auswahl wird mit wachsender Projektgröße immer wichtiger.
 
-## Der Kontextgraph als Wegweiser
+## Der Kontextgraph als Werkzeug
 
-Im vorherigen Kapitel wurde der Kontextgraph als Teil des Projektgedächtnisses beschrieben.
+Das Delivery-Lagebild braucht ein einfaches Werkzeug, um Zusammenhänge sichtbar zu machen.
 
-Er hat jedoch noch eine zweite Aufgabe.
+Dieses Werkzeug ist der Kontextgraph.
 
-Er hilft dabei, relevantes Wissen zu finden.
-
-Der Kontextgraph beantwortet nicht nur:
+Er beantwortet nicht nur:
 
 > Was wissen wir?
 
@@ -178,11 +177,11 @@ Beispielsweise:
 * Welche Nachweise stützen den aktuellen Stand?
 * Welche Freigaben wurden bereits erteilt?
 
-Der Kontextgraph wird dadurch zu einem Wegweiser.
+Der Kontextgraph ist damit kein Selbstzweck.
 
-Er hilft Menschen und Agenten dabei, schneller die richtigen Informationen zu finden.
+Er ist das Mittel, mit dem aus verstreutem Projektwissen ein Delivery-Lagebild entsteht.
 
-## Wenn ein einfacher Kontextgraph nicht mehr reicht
+## Wenn eine reine Übersicht nicht mehr reicht
 
 Am Anfang reicht oft ein einfacher Kontextgraph.
 
@@ -219,11 +218,11 @@ Entscheidend ist der Punkt, an dem Menschen und Agenten nicht mehr zuverlässig 
 * welche Information überholt ist
 * welche Lücke eine Freigabe schwächt
 
-Dann muss der Kontextgraph mehr leisten als Verlinkung.
+Dann muss das Delivery-Lagebild mehr leisten als Verlinkung.
 
 ![Vom Kontextgraphen zum Delivery-Lagebild](../assets/vom-kontextgraphen-zum-delivery-lagebild.png)
 
-Er muss Beziehungen sichtbar machen.
+Es muss Beziehungen sichtbar machen.
 
 Nicht nur:
 
@@ -244,6 +243,31 @@ Das ist der Übergang vom einfachen Kontextgraphen zum Delivery-Lagebild.
 Ein einfacher Kontextgraph hilft beim Finden.
 
 Ein Delivery-Lagebild hilft beim Bewerten.
+
+Die einfache Beobachtungsfrage lautet deshalb:
+
+> Ist der Kontextgraph noch eine Linkliste, oder ist er schon ein Delivery-Lagebild?
+
+Eine Linkliste zeigt, wo etwas liegt.
+
+Ein Delivery-Lagebild zeigt zusätzlich, warum etwas zusammengehört.
+
+Das ist der praktische Gewinn:
+
+* Anforderungen stehen nicht nur neben Entscheidungen, sondern begründen sie.
+* Tests stehen nicht nur neben Tasks, sondern prüfen ein Risiko oder ein Akzeptanzkriterium.
+* Nachweise stehen nicht nur in einem Ordner, sondern stützen eine Gate-Entscheidung.
+* Lücken sind nicht nur offene Punkte, sondern haben eine Wirkung auf Freigabe, Review oder Nacharbeit.
+
+Damit kann ein Review anders fragen.
+
+Nicht nur:
+
+> Gibt es die Dokumente?
+
+Sondern:
+
+> Passen die Dokumente, Entscheidungen, Tests und Nachweise nachvollziehbar zusammen?
 
 ## Vom Projekt zum relevanten Ausschnitt
 

@@ -598,4 +598,4 @@ Das Gate oder die fachliche Prüfung entscheidet, welche Wirkung das hat.
 Das nächste Kapitel beschreibt, warum mit wachsendem Projektwissen nicht nur mehr Kontext, sondern der richtige Kontext
 wichtig wird:
 
-[06 - Vom Notizzettel zum Bauplan](06-vom-notizzettel-zum-bauplan.md)
+[06 - Das Delivery-Lagebild](06-vom-notizzettel-zum-delivery-lagebild.md)

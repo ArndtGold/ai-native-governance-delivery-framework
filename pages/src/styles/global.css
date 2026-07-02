@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --agdf-glow: rgba(20, 184, 166, 0.35);
+    --agdf-glow-soft: rgba(20, 184, 166, 0.12);
+    --shadow-soft: 0 1px 2px rgba(2, 6, 23, 0.4), 0 8px 24px -12px rgba(2, 6, 23, 0.6);
+    --shadow-card: 0 1px 0 0 rgba(148, 163, 184, 0.05) inset, 0 1px 2px rgba(2, 6, 23, 0.5), 0 12px 32px -16px rgba(2, 6, 23, 0.7);
+    --shadow-glow: 0 0 0 1px rgba(20, 184, 166, 0.18), 0 1px 0 0 rgba(94, 234, 212, 0.10) inset, 0 18px 40px -18px var(--agdf-glow);
+    --shadow-hero: 0 0 80px -20px var(--agdf-glow), 0 0 24px -8px var(--agdf-glow-soft);
+}
+
 html {
     scroll-behavior: smooth;
 }
@@ -9,6 +18,10 @@ html {
 body {
     @apply bg-dark-950 text-dark-100 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(20, 184, 166, 0.08), transparent 60%),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.4), transparent 40%);
+    background-attachment: fixed;
 }
 
 ::selection {
@@ -16,31 +29,72 @@ body {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { @apply bg-dark-900; }
-::-webkit-scrollbar-thumb { @apply bg-dark-700 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-agdf-700; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { @apply bg-dark-950; }
+::-webkit-scrollbar-thumb {
+    @apply bg-dark-700 rounded-full;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-agdf-700;
+    background-clip: content-box;
+}
 
 /* Gradient text */
 .gradient-text {
-    @apply bg-gradient-to-r from-agdf-300 via-agdf-400 to-agdf-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-agdf-200 via-agdf-400 to-agdf-500 bg-clip-text text-transparent;
+    text-shadow: 0 0 40px rgba(20, 184, 166, 0.15);
 }
 
-/* Card glow */
+/* ---------- Material surfaces ---------- */
+
+/* Inset top highlight: gives cards a subtle "lit edge" without decorative noise */
+.inset-highlight {
+    box-shadow: 0 1px 0 0 rgba(148, 163, 184, 0.06) inset;
+}
+
+/* Glass surface for floating layers (nav, modal, hero badge) */
+.glass {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(2, 6, 23, 0.72));
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Standard elevated card: layered depth, soft inset edge */
+.surface {
+    @apply rounded-xl border border-dark-700/80 bg-dark-900/60;
+    box-shadow: var(--shadow-card);
+}
+
+/* Card glow — primary interactive surface */
 .card-glow {
-    @apply relative overflow-hidden rounded-xl border border-dark-700 bg-dark-900/50 transition-all duration-300;
+    @apply relative overflow-hidden rounded-xl border border-dark-700/80 bg-dark-900/50 transition-all duration-300;
+    box-shadow: var(--shadow-card);
+}
+.card-glow::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px;
+    background: linear-gradient(90deg, transparent, rgba(94, 234, 212, 0.35), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 .card-glow:hover {
-    @apply border-agdf-500/50 bg-dark-800/50;
-    box-shadow: 0 0 30px -10px rgba(20, 184, 166, 0.3);
+    @apply border-agdf-500/50 bg-dark-800/60;
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+.card-glow:hover::before {
+    opacity: 1;
 }
 
 /* Terminal */
 .terminal {
-    @apply rounded-lg border border-dark-700 bg-dark-950 font-mono text-sm;
+    @apply rounded-xl border border-dark-700/80 bg-dark-950 font-mono text-sm;
+    box-shadow: var(--shadow-card), 0 0 0 1px rgba(15, 23, 42, 0.5) inset;
 }
 .terminal-header {
-    @apply flex items-center gap-2 border-b border-dark-700 px-4 py-2;
+    @apply flex items-center gap-2 border-b border-dark-800 bg-dark-900/60 px-4 py-2;
 }
 .terminal-body {
     @apply p-4 overflow-x-auto;
@@ -48,13 +102,76 @@ body {
 
 /* Gate flow */
 .gate-node {
-    @apply rounded-lg border px-3 py-2 text-center font-mono text-xs font-semibold transition-all;
+    @apply rounded-lg border px-3 py-2 text-center font-mono text-xs font-semibold transition-all duration-200;
+    box-shadow: var(--shadow-soft);
+}
+.gate-node:hover {
+    transform: translateY(-1px);
 }
 .gate-node-pass    { @apply border-agdf-500/50 bg-agdf-950 text-agdf-300; }
 .gate-node-current { @apply border-agdf-400 bg-agdf-900 text-agdf-200 ring-2 ring-agdf-400/30; }
 .gate-node-default { @apply border-dark-700 bg-dark-900 text-dark-200; }
+.gate-node-default:hover { @apply border-agdf-500/40 text-agdf-200; }
 
 /* Section anchor offset */
 section[id] {
-    scroll-margin-top: 4rem;
+    scroll-margin-top: 4.5rem;
+}
+
+/* ---------- Ghost buttons ---------- */
+.btn-ghost {
+    @apply rounded-lg border border-dark-700 bg-transparent px-6 py-3 font-semibold text-dark-100 transition-all duration-200;
+}
+.btn-ghost:hover {
+    @apply border-agdf-500/60 text-agdf-200;
+    box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.25), 0 8px 24px -12px var(--agdf-glow);
+}
+
+.btn-primary {
+    @apply rounded-lg bg-agdf-600 px-6 py-3 font-semibold text-white transition-all duration-200;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.15) inset, 0 10px 30px -12px var(--agdf-glow);
+}
+.btn-primary:hover {
+    @apply bg-agdf-500;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.2) inset, 0 14px 36px -10px var(--agdf-glow);
+    transform: translateY(-1px);
+}
+
+/* ---------- Reveal on scroll ---------- */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+}
+[data-reveal="fade"] {
+    transform: none;
+}
+[data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* Stagger helper */
+[data-reveal-delay="1"] { --reveal-delay: 60ms; }
+[data-reveal-delay="2"] { --reveal-delay: 120ms; }
+[data-reveal-delay="3"] { --reveal-delay: 180ms; }
+[data-reveal-delay="4"] { --reveal-delay: 240ms; }
+[data-reveal-delay="5"] { --reveal-delay: 300ms; }
+[data-reveal-delay="6"] { --reveal-delay: 360ms; }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    .card-glow:hover,
+    .btn-primary:hover,
+    .gate-node:hover {
+        transform: none;
+    }
 }

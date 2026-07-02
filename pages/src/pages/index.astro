@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import Icon from '../components/Icon.astro'
 import { site, principles, buildingBlocks, gateFlow, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
 ---
@@ -100,7 +101,9 @@ import { skills, skillFamilies } from '../data/skills'
   <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
     {buildingBlocks.map((b, i) => (
       <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="card-glow p-6 text-center">
-        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-agdf-500/30 bg-agdf-950 text-2xl font-bold text-agdf-300 shadow-[0_0_28px_-12px_var(--agdf-glow)]">{b.icon}</div>
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-agdf-500/30 bg-agdf-950 text-agdf-300 shadow-[0_0_28px_-12px_var(--agdf-glow)]">
+          <Icon name={b.icon} class="h-8 w-8" />
+        </div>
         <h3 class="mb-2 text-lg font-semibold">{b.name}</h3>
         <p class="text-sm text-dark-200">{b.desc}</p>
       </div>
@@ -590,7 +593,7 @@ import { skills, skillFamilies } from '../data/skills'
 <section id="author" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-10 text-center">
     <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Author</div>
-    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950 text-2xl font-bold text-agdf-300 shadow-[0_0_30px_-10px_var(--agdf-glow)]">{site.author.initials}</div>
+    <img src={site.author.image} alt={site.author.name} class="mx-auto mb-4 h-16 w-16 rounded-2xl border border-agdf-500/30 bg-agdf-950 object-cover shadow-[0_0_30px_-10px_var(--agdf-glow)]" loading="lazy" decoding="async" />
     <h2 class="text-2xl font-bold sm:text-3xl">{site.author.name}</h2>
     <p class="mt-2 text-sm text-dark-200">{site.author.role}</p>
   </div>

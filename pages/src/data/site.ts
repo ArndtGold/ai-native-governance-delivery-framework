@@ -10,7 +10,7 @@ export const site = {
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 30+ years enterprise experience",
-        initials: "AGO",
+        image: "/assets/author-placeholder.svg",
     },
 }
 
@@ -221,22 +221,22 @@ export const buildingBlocks = [
     {
         name: "Artifacts",
         desc: "Persistent work states such as requirements, product contracts, designs, task plans, tests and evidence.",
-        icon: "A",
+        icon: "archive-box",
     },
     {
         name: "Gates",
         desc: "Deliberate checkpoints that decide whether work may continue, revise or must stop.",
-        icon: "G",
+        icon: "shield-check",
     },
     {
         name: "Delivery Map",
         desc: "A project-near view that connects artifacts, decisions, risks, tests, evidence and gates.",
-        icon: "M",
+        icon: "map",
     },
     {
         name: "Quality Contracts",
         desc: "Verifiable rules for agent runs, reviews, gate checks and evidence requirements.",
-        icon: "Q",
+        icon: "clipboard-document-check",
     },
 ];
 

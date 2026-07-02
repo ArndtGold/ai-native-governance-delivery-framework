@@ -35,12 +35,38 @@ const { title = site.fullName, description = site.description } = Astro.props
             })
         })
         // Mobile menu toggle
-        const menuBtn = document.getElementById('menu-toggle')
-        const mobileMenu = document.getElementById('mobile-menu')
-        if (menuBtn && mobileMenu) {
-            menuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden')
+        const btn = document.getElementById('nav-toggle')
+        const menu = document.getElementById('nav-menu')
+        if (btn && menu) {
+            const setOpen = function (open) {
+                if (open) menu.setAttribute('data-open', '')
+                else menu.removeAttribute('data-open')
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false')
+                btn.querySelector('.nav-toggle-open').classList.toggle('hidden', open)
+                btn.querySelector('.nav-toggle-close').classList.toggle('hidden', !open)
+            }
+            btn.addEventListener('click', function () {
+                setOpen(!menu.hasAttribute('data-open'))
             })
+            menu.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function () { setOpen(false) })
+            })
+            document.addEventListener('click', function (ev) {
+                if (!menu.hasAttribute('data-open')) return
+                if (menu.contains(ev.target) || btn.contains(ev.target)) return
+                setOpen(false)
+            })
+        }
+
+        // Scroll progress
+        const scrollProgress = document.getElementById('scroll-progress')
+        if (scrollProgress) {
+            window.addEventListener('scroll', () => {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+                const progress = scrollHeight > 0 ? scrollTop / scrollHeight : 0
+                scrollProgress.style.transform = `scaleX(${progress})`
+            }, { passive: true })
         }
         // Reveal on scroll (respects prefers-reduced-motion via CSS)
         const revealEls = document.querySelectorAll('[data-reveal]')

@@ -6,30 +6,42 @@ import { skills, skillFamilies } from '../data/skills'
 
 <BaseLayout>
 <!-- ==================== NAV ==================== -->
-<nav class="glass fixed top-0 z-50 w-full border-b border-dark-800/80">
-  <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-    <a href="#" class="flex items-center gap-2 font-bold text-lg">
-      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-agdf-600 font-mono text-sm text-white shadow-[0_0_20px_-4px_var(--agdf-glow)]">G</span>
-      <span class="gradient-text">AGDF</span>
+<header class="fixed inset-x-0 top-0 z-50 border-b border-dark-800/60">
+  <div class="nav-bar-bg pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
+  <div class="mx-auto flex max-w-[90rem] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
+    <a href="#" class="flex items-center gap-2">
+      <img src="/assets/logo.png" alt="AGDF" class="h-8 w-auto" />
     </a>
-    <div class="hidden items-center gap-6 text-sm text-dark-200 md:flex">
-      <a href="#why" class="transition-colors hover:text-agdf-300">Why</a>
-      <a href="#proof" class="transition-colors hover:text-agdf-300">Proof</a>
-      <a href="#intake" class="transition-colors hover:text-agdf-300">Intake</a>
-      <a href="#workflow" class="transition-colors hover:text-agdf-300">Workflow</a>
-      <a href="#skills" class="transition-colors hover:text-agdf-300">Skills</a>
-      <a href="#setup" class="transition-colors hover:text-agdf-300">Setup</a>
-      <a href="#architecture" class="transition-colors hover:text-agdf-300">Architecture</a>
+    <button id="nav-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="nav-menu" aria-expanded="false" class="flex cursor-grab items-center rounded-md border border-dark-700 px-2 py-1 text-dark-200 transition-colors hover:border-agdf-500/60 hover:text-agdf-200 md:hidden">
+      <span class="nav-toggle-open inline-flex w-5 justify-center text-xl leading-none text-agdf-400">☰</span>
+      <span class="nav-toggle-close hidden w-5 justify-center text-xl leading-none text-agdf-400">✕</span>
+    </button>
+    <div id="nav-menu" class="nav-menu-panel absolute right-4 top-full hidden w-auto flex-col items-end gap-y-1.5 rounded-md rounded-t-none border border-dark-700/80 bg-dark-950/95 p-4 shadow-lg data-[open]:flex md:static md:top-auto md:flex md:w-auto md:flex-1 md:flex-row md:items-center md:justify-between md:gap-x-5 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
+      <nav class="flex min-w-0 flex-col flex-wrap items-end gap-x-5 gap-y-1 text-sm text-dark-200 md:ml-4 md:flex-row md:items-center">
+        <a href="#why" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Why</a>
+        <a href="#proof" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Proof</a>
+        <a href="#intake" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Intake</a>
+        <a href="#workflow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Workflow</a>
+        <a href="#skills" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Skills</a>
+        <a href="#setup" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Setup</a>
+        <a href="#architecture" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Architecture</a>
+      </nav>
+      <nav class="flex flex-col flex-wrap items-end gap-x-3 gap-y-1 text-sm text-dark-200 md:flex-row md:items-center">
+        <a href={site.repo} class="inline-flex items-center gap-1.5 transition-colors hover:text-agdf-300">
+          <svg class="h-4 w-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
+          GitHub
+        </a>
+      </nav>
     </div>
-    <a href={site.repo} class="btn-ghost px-3 py-1.5 text-sm">GitHub</a>
   </div>
-</nav>
+  <div id="scroll-progress" class="h-0.5 origin-left bg-agdf-500" style="transform: scaleX(0)"></div>
+</header>
 
 <!-- ==================== HERO ==================== -->
 <section class="relative flex items-center justify-center overflow-hidden px-0 pb-8 pt-24 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-36">
   <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.16),transparent_55%)]"></div>
   <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"></div>
-  <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+  <div class="relative mx-auto max-w-[90rem] px-4 text-center sm:px-6">
     <div data-reveal class="glass mb-5 inline-flex items-center gap-2 rounded-full border border-agdf-500/30 px-4 py-1.5 text-sm text-agdf-300 sm:mb-6">
       <span class="h-2 w-2 rounded-full bg-agdf-400 shadow-[0_0_10px_var(--agdf-glow)] animate-pulse"></span>
       Open governance framework · Apache-2.0
@@ -79,7 +91,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== WHY IT WORKS ==================== -->
-<section id="why" class="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+<section id="why" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Why It Works</h2>
     <p class="text-dark-200">The framework turns delivery principles into repeatable checks.</p>
@@ -109,7 +121,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== PRODUCT PROOF ==================== -->
-<section id="proof" class="mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6">
+<section id="proof" class="mx-auto max-w-[90rem] px-4 pb-24 pt-10 sm:px-6">
   <div data-reveal class="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
     <div>
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.product.eyebrow}</div>
@@ -129,7 +141,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== HIGHLIGHTS ==================== -->
-<section id="highlights" class="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+<section id="highlights" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Catches Early</h2>
     <p class="text-dark-200">Agent output can look confident while the delivery basis is weak. AGDF makes these risks visible before they become delivery problems.</p>
@@ -149,7 +161,7 @@ import { skills, skillFamilies } from '../data/skills'
 
 <!-- ==================== REQUIREMENT INTAKE ==================== -->
 <section id="intake" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">A New Requirement Enters Here</h2>
       <p class="mx-auto max-w-2xl text-dark-200">
@@ -245,7 +257,7 @@ import { skills, skillFamilies } from '../data/skills'
 
 <!-- ==================== WORKFLOW ==================== -->
 <section id="workflow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to evidence</div>
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Delivery Flow</h2>
@@ -313,7 +325,7 @@ import { skills, skillFamilies } from '../data/skills'
 
 <!-- ==================== GATE FLOW ==================== -->
 <section id="gate-flow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Gate Map</h2>
       <p class="text-dark-200">Each gate is a deliberate checkpoint. Fail closed: no implementation without the required approval.</p>
@@ -342,7 +354,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== SKILLS ==================== -->
-<section id="skills" class="mx-auto max-w-7xl px-4 py-24 sm:px-6">
+<section id="skills" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">7 Core Workflow Skills</h2>
     <p class="text-dark-200">Each skill is an auditable workflow, not a loose suggestion.</p>
@@ -383,7 +395,7 @@ import { skills, skillFamilies } from '../data/skills'
 
 <!-- ==================== SETUP ==================== -->
 <section id="setup" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-3xl px-4 sm:px-6">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
       <p class="text-dark-200">Install the plugin, verify it, then start with the gate check.</p>
@@ -436,7 +448,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== DESIGN ==================== -->
-<section id="design" class="mx-auto max-w-7xl px-4 py-24 sm:px-6">
+<section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
     <p class="text-dark-200">The framework adds delivery discipline. It does not replace engineering ownership.</p>
@@ -453,7 +465,7 @@ import { skills, skillFamilies } from '../data/skills'
 
 <!-- ==================== ARCHITECTURE ==================== -->
 <section id="architecture" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Architecture</h2>
       <p class="text-dark-200">Plugin structure: Constitution + Hooks + 7 core skills</p>
@@ -541,7 +553,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== COMPATIBILITY ==================== -->
-<section id="compat" class="mx-auto max-w-3xl px-4 py-24 sm:px-6">
+<section id="compat" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Compatibility</h2>
       <p class="text-dark-200">AGDF targets common Agentic AI coding tools, with Claude Code as the primary surface.</p>
@@ -575,7 +587,7 @@ import { skills, skillFamilies } from '../data/skills'
 </section>
 
 <!-- ==================== AUTHOR ==================== -->
-<section id="author" class="mx-auto max-w-3xl px-4 py-24 sm:px-6">
+<section id="author" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-10 text-center">
     <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Author</div>
     <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950 text-2xl font-bold text-agdf-300 shadow-[0_0_30px_-10px_var(--agdf-glow)]">{site.author.initials}</div>
@@ -593,7 +605,7 @@ import { skills, skillFamilies } from '../data/skills'
 
 <!-- ==================== FOOTER ==================== -->
 <footer class="border-t border-dark-800/80 py-12">
-  <div class="mx-auto max-w-7xl px-4 text-center sm:px-6">
+  <div class="mx-auto max-w-[90rem] px-4 text-center sm:px-6">
     <div class="mb-4 flex items-center justify-center gap-2">
       <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-agdf-600 font-mono text-sm text-white shadow-[0_0_20px_-4px_var(--agdf-glow)]">G</span>
       <span class="font-bold">AGDF</span>

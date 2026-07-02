@@ -47,6 +47,23 @@ body {
     text-shadow: 0 0 40px rgba(20, 184, 166, 0.15);
 }
 
+/* ---------- Nav bar background ---------- */
+.nav-bar-bg {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.85));
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Nav menu panel (mobile) */
+.nav-menu-panel {
+    min-width: 200px;
+}
+
+/* Nav spy link */
+.nav-spy {
+    @apply rounded px-1 py-0.5;
+}
+
 /* ---------- Material surfaces ---------- */
 
 /* Inset top highlight: gives cards a subtle "lit edge" without decorative noise */

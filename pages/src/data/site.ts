@@ -1,12 +1,17 @@
 export const site = {
     name: "AGDF",
-    fullName: "Agentic Governance & Delivery Framework",
-    tagline: "Keep AI coding runs gated, auditable and Brownfield-safe.",
+    fullName: "AI Governance & Delivery Framework",
+    tagline: "Keep AI-assisted delivery gated, auditable and Brownfield-safe.",
     description: "A focused governance plugin for Agentic AI Coding Tools: seven core workflow skills for approvals, Brownfield analysis, TP verification, QA decisions and auditable delivery closeout.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
     version: "0.1.0",
+    author: {
+        name: "Arndt Gold",
+        role: "Software engineer · 30+ years enterprise experience",
+        initials: "AGO",
+    },
 }
 
 export const highlights = [
@@ -51,45 +56,45 @@ export const highlights = [
 export const workflowSteps = [
     {
         step: "01",
-        title: "Check the Gate",
+        title: "Gate Check",
         command: "/agdf-gate-check",
-        desc: "Determine whether the requested next step is allowed, blocked, or missing an exact approval."
+        desc: "Is the next step allowed?"
     },
     {
         step: "02",
-        title: "Read the Brownfield",
+        title: "Brownfield Read",
         command: "/agdf-brownfield-analysis",
-        desc: "Find existing owners, behaviour, tests, and reuse paths before implementation starts."
+        desc: "What existing behavior, owners and risks must be known?"
     },
     {
         step: "03",
-        title: "Implement and Test",
+        title: "Implement + Test",
         command: "CD+Tests",
-        desc: "Deliver the change and evidence, while keeping CD+Tests separate from QA completion."
+        desc: "Deliver the change and keep evidence separate from QA judgment."
     },
     {
         step: "04",
-        title: "Verify TP Coverage",
+        title: "Task Plan Coverage",
         command: "/agdf-task-plan-review",
-        desc: "Check whether each planned task and acceptance criterion is actually covered."
+        desc: "Are all planned tasks and acceptance criteria covered?"
     },
     {
         step: "05",
-        title: "Inspect Solution Integrity",
+        title: "Solution Integrity",
         command: "/agdf-clean-implementation-review",
-        desc: "Identify workarounds, fallbacks, parallel structures, and missing exit criteria."
+        desc: "Are there workarounds, parallel structures or missing exit criteria?"
     },
     {
         step: "06",
-        title: "Decide QA",
+        title: "QA Decision",
         command: "/agdf-qa-gate",
-        desc: "Make the formal `pass | revise | block` decision from evidence, not confidence."
+        desc: "Pass, revise or block based on evidence — not confidence."
     },
     {
         step: "07",
-        title: "Close the Run",
+        title: "Delivery Closeout",
         command: "/agdf-release-or",
-        desc: "Produce the auditable OR, then hand off delivery with `/agdf-delivery-closeout` when appropriate."
+        desc: "Produce the auditable outcome and hand off cleanly."
     },
 ]
 
@@ -118,8 +123,9 @@ export const approvalGates = [
 export const visualProofs = {
     product: {
         eyebrow: "Product proof",
-        title: "The framework is built for real agent workflows.",
-        desc: "AGDF fits where requirements, workflow builders, approvals, runs and evidence meet. The plugin keeps those surfaces from drifting apart.",
+        title: "A real application delivered with AGDF",
+        desc: "This application was built with ChatGPT Plus + Codex using AGDF as the delivery framework: requirements, workflow design, approvals, run evidence and QA decisions stayed connected.",
+        built: "AGDF did not replace the tools. It structured the delivery through artifacts, gates and delivery context.",
         src: "/assets/example-greenfield-to-brownfield-gates.png",
         alt: "Agent Builder workflow canvas with Start, Agent and End nodes plus configuration panels.",
         width: 4662,
@@ -127,18 +133,18 @@ export const visualProofs = {
     },
     intake: {
         eyebrow: "Requirement intake",
-        title: "A board shows progress. AGDF decides whether progress is allowed.",
-        desc: "The first decision is not which task to execute. It is whether the current artefact, approval and evidence state allows the next step.",
+        title: "A board shows progress. AGDF shows whether the next step is allowed.",
+        desc: "Before work moves forward, AGDF makes the current artifact, approval and evidence state visible: what is ready, what is missing and what must be clarified first.",
     },
     qa: {
         eyebrow: "Task-plan evidence",
         title: "Looks done is not the same as done.",
-        desc: "After implementation, AGDF checks the delivered change against the approved plan, acceptance criteria and missing evidence before QA decides.",
+        desc: "AGDF compares the delivered change with the approved plan, acceptance criteria and required evidence before QA can decide: pass, revise or block.",
     },
     architecture: {
-        eyebrow: "Delivery Lagebild",
-        title: "Traceability turns scattered artefacts into a delivery decision.",
-        desc: "The Context Graph is useful when it supports decisions: what blocks, what proves, what changed and what can safely happen next.",
+        eyebrow: "Delivery map",
+        title: "From scattered artifacts to delivery decisions.",
+        desc: "The Context Graph connects requirements, risks, tests, evidence and gates so teams can see what blocks, what proves readiness, what changed and what can safely happen next.",
     },
 }
 
@@ -149,15 +155,15 @@ export const prevention = [
     },
     {
         title: "Greenfield In Brownfield",
-        desc: "The agent creates a second path instead of extending the existing owner."
+        desc: "The agent creates a parallel path instead of extending the existing owner or behavior."
     },
     {
         title: "Green Build, Unfinished Task",
-        desc: "Tests pass, but the approved Task Plan was only partially fulfilled."
+        desc: "Tests pass, but the approved Task Plan is only partially fulfilled."
     },
     {
         title: "QA Without Evidence",
-        desc: "A run is called done without TP coverage, Brownfield fit or review evidence."
+        desc: "A run is called done without task coverage, Brownfield fit or review evidence."
     },
     {
         title: "Permanent Fallbacks",
@@ -177,22 +183,62 @@ export const notFor = [
 ]
 
 export const principles = [
-    { title: "No Implementation Without Approved Product Contract", desc: "Implementation is not based on vague intent, but on a stable contract with scope, acceptance criteria and non-goals." },
-    { title: "Fail Closed", desc: "When a necessary approval, input or quality statement is missing, the process stops. The standard is never 'best effort'." },
-    { title: "One Authoritative Source for Product Intent", desc: "The product contract is the anchor. Design, tasks and implementation must not silently reinterpret it." },
-    { title: "Keep Design and Code Separated", desc: "Conceptual design and implementation details must not be mixed prematurely." },
-    { title: "Tasks Need Business Justification", desc: "A task is not just a card on a board. It must make traceable which requirement it addresses." },
-    { title: "Traceability Is Not Bureaucracy", desc: "Traceability means being able to answer fundamental delivery questions — not producing as many documents as possible." },
-    { title: "Quality Needs Evidence", desc: "A quality claim is not sufficient. What was not checked must not be presented as checked." },
-    { title: "Changes Must Be Visible", desc: "Scope, AC or non-goal changes are documented and reviewed. Work with AI agents must not hide changes behind conversation." },
-]
+    {
+        title: "No Implementation Without an Approved Product Contract",
+        desc: "Implementation must not start from vague intent. It needs a stable product contract with scope, acceptance criteria and non-goals.",
+    },
+    {
+        title: "Fail Closed",
+        desc: "When required approval, input or quality evidence is missing, the process stops. The default is never best effort.",
+    },
+    {
+        title: "One Source of Product Intent",
+        desc: "The product contract is the anchor. Design, tasks and implementation must not silently reinterpret it.",
+    },
+    {
+        title: "Design Is Not Code",
+        desc: "Conceptual design and implementation details must stay separated until the right gate allows implementation.",
+    },
+    {
+        title: "Tasks Need Business Justification",
+        desc: "A task is not just a board card. It must show which requirement, risk or decision it addresses.",
+    },
+    {
+        title: "Traceability Is Not Bureaucracy",
+        desc: "Traceability means answering fundamental delivery questions, not producing as many documents as possible.",
+    },
+    {
+        title: "Quality Needs Evidence",
+        desc: "A quality claim is not enough. What was not checked must not be presented as checked.",
+    },
+    {
+        title: "Changes Must Be Visible",
+        desc: "Changes to scope, acceptance criteria or non-goals must be documented and reviewed. AI conversations must not hide product changes.",
+    },
+];
 
 export const buildingBlocks = [
-    { name: "Gates", desc: "Deliberate checkpoints where it is decided whether work may continue.", icon: "G" },
-    { name: "Artefacts", desc: "Saved work states such as requirements, product contract, design, tasks, tests and evidence.", icon: "A" },
-    { name: "Project Knowledge", desc: "A project-near memory that does not live solely in chat logs or tool memory.", icon: "W" },
-    { name: "Quality Contracts", desc: "Verifiable rules for agent runs, reviews and evidence.", icon: "Q" },
-]
+    {
+        name: "Artifacts",
+        desc: "Persistent work states such as requirements, product contracts, designs, task plans, tests and evidence.",
+        icon: "A",
+    },
+    {
+        name: "Gates",
+        desc: "Deliberate checkpoints that decide whether work may continue, revise or must stop.",
+        icon: "G",
+    },
+    {
+        name: "Delivery Map",
+        desc: "A project-near view that connects artifacts, decisions, risks, tests, evidence and gates.",
+        icon: "M",
+    },
+    {
+        name: "Quality Contracts",
+        desc: "Verifiable rules for agent runs, reviews, gate checks and evidence requirements.",
+        icon: "Q",
+    },
+];
 
 export const gateFlow = [
     { gate: "UR", name: "User Requirement", desc: "Problem, goal, affected users, constraints" },

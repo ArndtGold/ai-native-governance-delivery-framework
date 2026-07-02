@@ -13,12 +13,12 @@ import { skills, skillFamilies } from '../data/skills'
       <span class="gradient-text">AGDF</span>
     </a>
     <div class="hidden items-center gap-6 text-sm text-dark-200 md:flex">
+      <a href="#why" class="transition-colors hover:text-agdf-300">Why</a>
       <a href="#proof" class="transition-colors hover:text-agdf-300">Proof</a>
       <a href="#intake" class="transition-colors hover:text-agdf-300">Intake</a>
       <a href="#workflow" class="transition-colors hover:text-agdf-300">Workflow</a>
       <a href="#skills" class="transition-colors hover:text-agdf-300">Skills</a>
       <a href="#setup" class="transition-colors hover:text-agdf-300">Setup</a>
-      <a href="#design" class="transition-colors hover:text-agdf-300">Principles</a>
       <a href="#architecture" class="transition-colors hover:text-agdf-300">Architecture</a>
     </div>
     <a href={site.repo} class="btn-ghost px-3 py-1.5 text-sm">GitHub</a>
@@ -30,23 +30,26 @@ import { skills, skillFamilies } from '../data/skills'
   <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.16),transparent_55%)]"></div>
   <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"></div>
   <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
-    <div data-reveal class="glass mb-3 inline-flex items-center gap-2 rounded-full border border-agdf-500/30 px-4 py-1.5 text-sm text-agdf-300 sm:mb-4">
+    <div data-reveal class="glass mb-5 inline-flex items-center gap-2 rounded-full border border-agdf-500/30 px-4 py-1.5 text-sm text-agdf-300 sm:mb-6">
       <span class="h-2 w-2 rounded-full bg-agdf-400 shadow-[0_0_10px_var(--agdf-glow)] animate-pulse"></span>
-      v{site.version} · Core workflow plugin · Apache-2.0
+      Open governance framework · Apache-2.0
     </div>
-    <h1 data-reveal data-reveal-delay="1" class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl">
-      Keep AI Coding Runs<br /><span class="gradient-text">Under Control</span>
+    <div data-reveal data-reveal-delay="1" class="mb-5 sm:mb-6">
+      <div class="text-2xl font-extrabold tracking-tight sm:text-3xl"><span class="gradient-text">AGDF</span></div>
+      <div class="mt-1 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-dark-200 sm:text-sm">{site.fullName}</div>
+    </div>
+    <h1 data-reveal data-reveal-delay="2" class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl">
+      From AI Output to<br /><span class="gradient-text">Governed Delivery</span>
     </h1>
-    <p data-reveal data-reveal-delay="2" class="mx-auto mb-6 max-w-2xl text-lg text-dark-200 sm:mb-8 sm:text-xl">
-      {site.tagline}
+    <p data-reveal data-reveal-delay="3" class="mx-auto mb-4 max-w-2xl text-lg text-dark-100 sm:mb-5 sm:text-xl">
+      AGDF is a framework for AI-assisted software delivery with artifacts, gates, QA evidence and Brownfield-aware context.
     </p>
-    <p data-reveal data-reveal-delay="3" class="mx-auto mb-7 max-w-xl text-sm text-dark-200/70 sm:mb-10">
-      Seven focused skills for teams that want the speed of agentic coding without losing approvals,
-      Brownfield safety, task-plan traceability, QA evidence or delivery accountability.
+    <p data-reveal data-reveal-delay="4" class="mx-auto mb-7 max-w-xl text-sm text-dark-200/80 sm:mb-10 sm:text-base">
+      It helps teams use AI agents without losing scope, traceability, reviewability and human responsibility.
     </p>
-    <div data-reveal data-reveal-delay="4" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+    <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#workflow" class="btn-primary">See the workflow</a>
-      <a href="#setup" class="btn-ghost">Install the plugin</a>
+      <a href={site.repo} class="btn-ghost">View on GitHub</a>
     </div>
     <!-- Terminal demo -->
     <div data-reveal data-reveal-delay="5" class="terminal mx-auto mt-10 hidden max-w-lg text-left sm:block">
@@ -75,6 +78,36 @@ import { skills, skillFamilies } from '../data/skills'
   </div>
 </section>
 
+<!-- ==================== WHY IT WORKS ==================== -->
+<section id="why" class="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Why It Works</h2>
+    <p class="text-dark-200">The framework turns delivery principles into repeatable checks.</p>
+  </div>
+  <!-- Building blocks -->
+  <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {buildingBlocks.map((b, i) => (
+      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="card-glow p-6 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-agdf-500/30 bg-agdf-950 text-2xl font-bold text-agdf-300 shadow-[0_0_28px_-12px_var(--agdf-glow)]">{b.icon}</div>
+        <h3 class="mb-2 text-lg font-semibold">{b.name}</h3>
+        <p class="text-sm text-dark-200">{b.desc}</p>
+      </div>
+    ))}
+  </div>
+  <!-- Principles -->
+  <div class="grid gap-4 sm:grid-cols-2">
+    {principles.map((p, i) => (
+      <div data-reveal data-reveal-delay={String((i % 2) + 1)} class="inset-highlight flex gap-4 rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-agdf-500/30 bg-agdf-950 font-mono text-sm font-bold text-agdf-400">{i + 1}</span>
+        <div>
+          <h4 class="font-semibold text-agdf-200">{p.title}</h4>
+          <p class="mt-1 text-sm text-dark-200">{p.desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
 <!-- ==================== PRODUCT PROOF ==================== -->
 <section id="proof" class="mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6">
   <div data-reveal class="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
@@ -82,6 +115,7 @@ import { skills, skillFamilies } from '../data/skills'
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.product.eyebrow}</div>
       <h2 class="mb-4 text-3xl font-bold sm:text-4xl">{visualProofs.product.title}</h2>
       <p class="max-w-xl text-dark-200">{visualProofs.product.desc}</p>
+      <p class="mt-3 max-w-xl text-sm font-medium text-agdf-300/90">{visualProofs.product.built}</p>
     </div>
     <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
       <img src={visualProofs.product.src} alt={visualProofs.product.alt} width={visualProofs.product.width} height={visualProofs.product.height} class="block h-auto w-full cursor-zoom-in rounded-lg" loading="eager" decoding="async" />
@@ -97,8 +131,8 @@ import { skills, skillFamilies } from '../data/skills'
 <!-- ==================== HIGHLIGHTS ==================== -->
 <section id="highlights" class="mx-auto max-w-7xl px-4 py-20 sm:px-6">
   <div data-reveal class="mb-12 text-center">
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Prevents</h2>
-    <p class="text-dark-200">Agent output can look confident while the delivery basis is weak. AGDF makes those risks visible early.</p>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Catches Early</h2>
+    <p class="text-dark-200">Agent output can look confident while the delivery basis is weak. AGDF makes these risks visible before they become delivery problems.</p>
   </div>
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {prevention.map((item, index) => (
@@ -213,15 +247,16 @@ import { skills, skillFamilies } from '../data/skills'
 <section id="workflow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-7xl px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The 7-Skill Core Workflow</h2>
-      <p class="text-dark-200">Drive the run step by step: approve, inspect, implement, verify, decide, report, hand off.</p>
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to evidence</div>
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Delivery Flow</h2>
+      <p class="text-dark-200">Seven controls that keep AI delivery runs gated, traceable and evidence-based.</p>
     </div>
     <div class="grid gap-4 lg:grid-cols-7">
       {workflowSteps.map((step, i) => (
         <div data-reveal data-reveal-delay={String((i % 7) + 1)} class="surface p-4 transition-all hover:border-agdf-500/40 hover:-translate-y-0.5">
           <div class="mb-3 flex items-center justify-between gap-2">
-            <span class="font-mono text-xs font-bold text-agdf-400">{step.step}</span>
-            <span class="rounded-full border border-dark-700 px-2 py-0.5 font-mono text-[10px] text-dark-200">{step.command}</span>
+            <span class="font-mono text-xs font-bold text-agdf-400">Control {step.step}</span>
+            <span class="rounded-full border border-dark-700/80 px-2 py-0.5 font-mono text-[10px] text-dark-200">{step.command}</span>
           </div>
           <h3 class="mb-2 text-sm font-semibold text-agdf-200">{step.title}</h3>
           <p class="text-xs leading-relaxed text-dark-200">{step.desc}</p>
@@ -406,37 +441,11 @@ import { skills, skillFamilies } from '../data/skills'
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
     <p class="text-dark-200">The framework adds delivery discipline. It does not replace engineering ownership.</p>
   </div>
-  <div class="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {notFor.map((item, i) => (
       <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
         <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
         <p class="text-sm leading-relaxed text-dark-200">{item}</p>
-      </div>
-    ))}
-  </div>
-  <div data-reveal class="mb-12 text-center">
-    <h3 class="text-2xl font-bold sm:text-3xl">Why It Works</h3>
-    <p class="mt-3 text-dark-200">The plugin turns framework principles into repeatable checks.</p>
-  </div>
-  <!-- Building blocks -->
-  <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-    {buildingBlocks.map((b, i) => (
-      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="card-glow p-6 text-center">
-        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-agdf-500/30 bg-agdf-950 text-2xl font-bold text-agdf-300 shadow-[0_0_28px_-12px_var(--agdf-glow)]">{b.icon}</div>
-        <h3 class="mb-2 text-lg font-semibold">{b.name}</h3>
-        <p class="text-sm text-dark-200">{b.desc}</p>
-      </div>
-    ))}
-  </div>
-  <!-- Principles -->
-  <div class="grid gap-4 sm:grid-cols-2">
-    {principles.map((p, i) => (
-      <div data-reveal data-reveal-delay={String((i % 2) + 1)} class="inset-highlight flex gap-4 rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
-        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-agdf-500/30 bg-agdf-950 font-mono text-sm font-bold text-agdf-400">{i + 1}</span>
-        <div>
-          <h4 class="font-semibold text-agdf-200">{p.title}</h4>
-          <p class="mt-1 text-sm text-dark-200">{p.desc}</p>
-        </div>
       </div>
     ))}
   </div>
@@ -565,6 +574,23 @@ import { skills, skillFamilies } from '../data/skills'
   </div>
 </section>
 
+<!-- ==================== AUTHOR ==================== -->
+<section id="author" class="mx-auto max-w-3xl px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-10 text-center">
+    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Author</div>
+    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950 text-2xl font-bold text-agdf-300 shadow-[0_0_30px_-10px_var(--agdf-glow)]">{site.author.initials}</div>
+    <h2 class="text-2xl font-bold sm:text-3xl">{site.author.name}</h2>
+    <p class="mt-2 text-sm text-dark-200">{site.author.role}</p>
+  </div>
+  <div data-reveal data-reveal-delay="1" class="space-y-4 text-center">
+    <p class="text-dark-200">AGDF was created by <strong class="font-semibold text-dark-100">{site.author.name}</strong>, a software engineer with more than 30 years of enterprise software experience and a background in mechanical engineering and computer science.</p>
+    <p class="text-dark-200">The framework reflects observations from Java, Spring, Brownfield systems and AI-assisted development: fast AI output can be useful, but software delivery still needs artifacts, gates, evidence and human responsibility.</p>
+  </div>
+  <div data-reveal data-reveal-delay="2" class="inset-highlight mt-8 rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 text-center">
+    <p class="text-sm text-dark-200">AGDF is published as an independent discussion draft. It is not a product pitch, not a mandatory process and not a replacement for experienced developers.</p>
+  </div>
+</section>
+
 <!-- ==================== FOOTER ==================== -->
 <footer class="border-t border-dark-800/80 py-12">
   <div class="mx-auto max-w-7xl px-4 text-center sm:px-6">
@@ -574,7 +600,7 @@ import { skills, skillFamilies } from '../data/skills'
     </div>
     <p class="mb-2 text-sm text-dark-200">{site.fullName}</p>
     <p class="mb-4 text-xs text-dark-200/50">
-      Copyright © 2024-2026 Arndt Gold · Licensed under {site.license}
+      Copyright © 2024-2026 {site.author.name} · Licensed under {site.license}
     </p>
     <div class="flex justify-center gap-4 text-sm text-dark-200">
       <a href={site.repo} class="transition-colors hover:text-agdf-300">GitHub</a>

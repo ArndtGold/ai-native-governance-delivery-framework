@@ -1,0 +1,75 @@
+---
+import '../styles/global.css'
+import { site } from '../data/site'
+
+interface Props {
+    title?: string
+    description?: string
+}
+
+const { title = site.fullName, description = site.description } = Astro.props
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-dark-950 text-dark-100">
+    <slot />
+
+    <script is:inline>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'))
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }) }
+            })
+        })
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menu-toggle')
+        const mobileMenu = document.getElementById('mobile-menu')
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden')
+            })
+        }
+        // Skill modal
+        document.querySelectorAll('[data-skill]').forEach(el => {
+            el.addEventListener('click', () => {
+                const modal = document.getElementById('skill-modal')
+                const title = document.getElementById('skill-modal-title')
+                const body = document.getElementById('skill-modal-body')
+                if (modal && title && body) {
+                    title.textContent = el.getAttribute('data-skill-name') || ''
+                    body.innerHTML = el.getAttribute('data-skill-desc') || ''
+                    modal.classList.remove('hidden')
+                    modal.classList.add('flex')
+                }
+            })
+        })
+        const closeModal = document.getElementById('skill-modal-close')
+        const modal = document.getElementById('skill-modal')
+        if (closeModal && modal) {
+            closeModal.addEventListener('click', () => {
+                modal.classList.add('hidden')
+                modal.classList.remove('flex')
+            })
+            modal.addEventListener('click', e => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden')
+                    modal.classList.remove('flex')
+                }
+            })
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { site, principles, buildingBlocks, gateFlow, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs } from '../data/site'
+import { skills, skillFamilies } from '../data/skills'
+---
+
+<BaseLayout>
+<!-- ==================== NAV ==================== -->
+<nav class="fixed top-0 z-50 w-full border-b border-dark-800 bg-dark-950/80 backdrop-blur-lg">
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+    <a href="#" class="flex items-center gap-2 font-bold text-lg">
+      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-agdf-600 font-mono text-sm text-white">G</span>
+      <span class="gradient-text">AGDF</span>
+    </a>
+    <div class="hidden items-center gap-6 text-sm text-dark-200 md:flex">
+      <a href="#proof" class="hover:text-agdf-300">Proof</a>
+      <a href="#intake" class="hover:text-agdf-300">Intake</a>
+      <a href="#workflow" class="hover:text-agdf-300">Workflow</a>
+      <a href="#skills" class="hover:text-agdf-300">Skills</a>
+      <a href="#setup" class="hover:text-agdf-300">Setup</a>
+      <a href="#design" class="hover:text-agdf-300">Principles</a>
+      <a href="#architecture" class="hover:text-agdf-300">Architecture</a>
+    </div>
+    <a href={site.repo} class="rounded-lg border border-dark-700 px-3 py-1.5 text-sm text-dark-200 hover:border-agdf-500 hover:text-agdf-300">GitHub</a>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section class="relative flex items-center justify-center overflow-hidden px-0 pb-8 pt-24 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-36">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.12),transparent_50%)]"></div>
+  <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+    <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300 sm:mb-4">
+      <span class="h-2 w-2 rounded-full bg-agdf-400 animate-pulse"></span>
+      v{site.version} · Core workflow plugin · Apache-2.0
+    </div>
+    <h1 class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl">
+      Keep AI Coding Runs<br /><span class="gradient-text">Under Control</span>
+    </h1>
+    <p class="mx-auto mb-6 max-w-2xl text-lg text-dark-200 sm:mb-8 sm:text-xl">
+      {site.tagline}
+    </p>
+    <p class="mx-auto mb-7 max-w-xl text-sm text-dark-200/70 sm:mb-10">
+      Seven focused skills for teams that want the speed of agentic coding without losing approvals,
+      Brownfield safety, task-plan traceability, QA evidence or delivery accountability.
+    </p>
+    <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+      <a href="#workflow" class="rounded-lg bg-agdf-600 px-6 py-3 font-semibold text-white hover:bg-agdf-500">See the workflow</a>
+      <a href="#setup" class="rounded-lg border border-dark-700 px-6 py-3 font-semibold text-dark-100 hover:border-agdf-500">Install the plugin</a>
+    </div>
+    <!-- Terminal demo -->
+    <div class="terminal mx-auto mt-10 hidden max-w-lg text-left sm:block">
+      <div class="terminal-header">
+        <span class="h-3 w-3 rounded-full bg-red-500/80"></span>
+        <span class="h-3 w-3 rounded-full bg-yellow-500/80"></span>
+        <span class="h-3 w-3 rounded-full bg-green-500/80"></span>
+        <span class="ml-2 text-xs text-dark-200">Claude Code</span>
+      </div>
+      <div class="terminal-body">
+        <div class="text-agdf-400">❯ <span class="text-dark-100">/agdf-gate-check</span></div>
+        <div class="mt-2 text-dark-200">
+          <div><span class="text-agdf-300">Current gate:</span> <code>PRD</code></div>
+          <div><span class="text-agdf-300">Status:</span> <code class="text-yellow-400">blocked</code></div>
+          <div><span class="text-agdf-300">Allowed:</span> clarify status, OR-lite</div>
+          <div><span class="text-agdf-300">Forbidden:</span> SD, TP, code</div>
+          <div><span class="text-agdf-300">Missing approval:</span> <code>Approval: PRD</code></div>
+          <div><span class="text-agdf-300">Next step:</span> provide the exact approval</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 rounded-lg border border-dark-700 bg-dark-950 px-4 py-3 text-left font-mono text-xs text-dark-100 sm:hidden">
+      <div><span class="text-agdf-400">❯</span> /agdf-gate-check</div>
+      <div class="mt-2 text-dark-200"><span class="text-agdf-300">Missing:</span> <code>Approval: PRD</code></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRODUCT PROOF ==================== -->
+<section id="proof" class="mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6">
+  <div class="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+    <div>
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.product.eyebrow}</div>
+      <h2 class="mb-4 text-3xl font-bold sm:text-4xl">{visualProofs.product.title}</h2>
+      <p class="max-w-xl text-dark-200">{visualProofs.product.desc}</p>
+    </div>
+    <figure class="overflow-hidden rounded-lg border border-dark-700 bg-dark-900">
+      <img src={visualProofs.product.src} alt={visualProofs.product.alt} width={visualProofs.product.width} height={visualProofs.product.height} class="block h-auto w-full" loading="eager" decoding="async" />
+    </figure>
+  </div>
+</section>
+
+<!-- ==================== HIGHLIGHTS ==================== -->
+<section id="highlights" class="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+  <div class="mb-12 text-center">
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Prevents</h2>
+    <p class="text-dark-200">Agent output can look confident while the delivery basis is weak. AGDF makes those risks visible early.</p>
+  </div>
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {prevention.map((item, index) => (
+      <div class="card-glow p-6">
+        <div class="mb-3 flex items-center gap-3">
+          <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-agdf-900 font-mono text-lg font-bold text-agdf-300">{index + 1}</span>
+          <h3 class="text-lg font-semibold">{item.title}</h3>
+        </div>
+        <p class="text-sm text-dark-200">{item.desc}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<!-- ==================== REQUIREMENT INTAKE ==================== -->
+<section id="intake" class="border-y border-dark-800 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">A New Requirement Enters Here</h2>
+      <p class="mx-auto max-w-2xl text-dark-200">
+        AGDF first decides the operating mode. Small fixes stay lightweight. Product-impacting work enters the approval-driven delivery path.
+      </p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      {requirementPaths.map((path) => (
+        <div class="rounded-lg border border-dark-700 bg-dark-950 p-6">
+          <div class="mb-4 flex items-center justify-between gap-4">
+            <h3 class="text-xl font-bold text-agdf-200">{path.label}</h3>
+            <span class="rounded-full border border-agdf-500/30 bg-agdf-950 px-3 py-1 font-mono text-xs text-agdf-300">mode</span>
+          </div>
+          <p class="mb-4 text-sm leading-relaxed text-dark-200">{path.trigger}</p>
+          <div class="terminal-body !p-3 text-xs">
+            <span class="text-agdf-400">flow:</span> <span class="text-dark-100">{path.path}</span>
+          </div>
+          <p class="mt-4 text-sm font-medium text-dark-100">{path.outcome}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-10 rounded-lg border border-dark-700 bg-dark-950 p-6">
+      <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 class="text-xl font-bold">Exact approvals unlock the next step</h3>
+          <p class="mt-1 text-sm text-dark-200">Implicit consent is intentionally not enough. The formula stays explicit so responsibility stays visible.</p>
+        </div>
+        <code class="rounded-lg border border-dark-700 bg-dark-900 px-3 py-2 text-sm text-agdf-300">Approval: &lt;GateName&gt;</code>
+      </div>
+      <div class="grid gap-3 md:grid-cols-4">
+        {approvalGates.map((gate) => (
+          <div class="rounded-lg border border-dark-700 bg-dark-900/70 p-4">
+            <div class="mb-2 font-mono text-xs font-bold text-agdf-400">{gate.gate}</div>
+            <code class="block text-sm text-dark-100">{gate.approval}</code>
+            <p class="mt-3 text-xs leading-relaxed text-dark-200">{gate.meaning}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="mt-10 grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.intake.eyebrow}</div>
+        <h3 class="mb-3 text-2xl font-bold sm:text-3xl">{visualProofs.intake.title}</h3>
+        <p class="text-dark-200">{visualProofs.intake.desc}</p>
+      </div>
+      <div class="rounded-lg border border-dark-700 bg-dark-950 p-4 sm:p-5">
+        <div class="mb-4 grid gap-3 sm:grid-cols-2">
+          <div class="rounded-lg border border-dark-700 bg-dark-900 p-4">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Board</div>
+            <div class="mt-3 grid grid-cols-4 gap-2 text-center text-[10px] text-dark-200">
+              {["Backlog", "Doing", "Review", "Done"].map((column) => (
+                <div class="rounded border border-dark-700 bg-dark-950 p-2">{column}</div>
+              ))}
+            </div>
+            <p class="mt-3 text-xs text-dark-200">Shows what people work on.</p>
+          </div>
+          <div class="rounded-lg border border-agdf-500/30 bg-agdf-950/40 p-4">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">AGDF</div>
+            <p class="mt-3 text-sm font-semibold text-dark-100">Explains why the next step is allowed.</p>
+            <div class="mt-3 flex flex-wrap gap-2 text-xs">
+              {["Product contract", "Approval", "Traceability", "Evidence"].map((item) => (
+                <span class="rounded-full border border-agdf-500/30 px-2 py-1 text-agdf-200">{item}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+          {[
+            ["PRD", "Product contract"],
+            ["SD", "Solution design"],
+            ["TP", "Task and test plan"],
+            ["CD", "Implementation"],
+            ["QA", "Decision evidence"],
+          ].map(([gate, label]) => (
+            <div class="min-w-0 rounded-lg border border-dark-700 bg-dark-900 p-3 text-center">
+              <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-lg border border-agdf-500/40 bg-agdf-950 font-mono text-sm font-bold text-agdf-300">{gate}</div>
+              <div class="break-words text-sm font-semibold text-dark-100">{label}</div>
+              <div class="mt-2 text-xs text-dark-200">What is valid?</div>
+            </div>
+          ))}
+        </div>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+          {["pass", "revise", "block"].map((state) => (
+            <span class="rounded-lg border border-dark-700 bg-dark-900 px-3 py-2 font-mono text-xs text-dark-100">{state}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WORKFLOW ==================== -->
+<section id="workflow" class="border-y border-dark-800 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The 7-Skill Core Workflow</h2>
+      <p class="text-dark-200">Drive the run step by step: approve, inspect, implement, verify, decide, report, hand off.</p>
+    </div>
+    <div class="grid gap-4 lg:grid-cols-7">
+      {workflowSteps.map((step) => (
+        <div class="rounded-lg border border-dark-700 bg-dark-950 p-4">
+          <div class="mb-3 flex items-center justify-between gap-2">
+            <span class="font-mono text-xs font-bold text-agdf-400">{step.step}</span>
+            <span class="rounded-full border border-dark-700 px-2 py-0.5 font-mono text-[10px] text-dark-200">{step.command}</span>
+          </div>
+          <h3 class="mb-2 text-sm font-semibold text-agdf-200">{step.title}</h3>
+          <p class="text-xs leading-relaxed text-dark-200">{step.desc}</p>
+        </div>
+      ))}
+    </div>
+    <div class="mt-10 grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+      <div>
+        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.qa.eyebrow}</div>
+        <h3 class="mb-3 text-2xl font-bold sm:text-3xl">{visualProofs.qa.title}</h3>
+        <p class="text-dark-200">{visualProofs.qa.desc}</p>
+      </div>
+      <div class="rounded-lg border border-dark-700 bg-dark-950 p-4 sm:p-5">
+        <div class="grid gap-4 lg:grid-cols-3">
+          <div class="rounded-lg border border-dark-700 bg-dark-900 p-4">
+            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Approved plan</div>
+            {["Acceptance criteria", "Tests", "Scope"].map((item) => (
+              <div class="mb-3 flex items-center gap-3 rounded-lg border border-dark-700 bg-dark-950 p-3 text-sm text-dark-100">
+                <span class="h-2 w-2 rounded-full bg-agdf-400"></span>
+                {item}
+              </div>
+            ))}
+          </div>
+          <div class="rounded-lg border border-dark-700 bg-dark-900 p-4">
+            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Implementation</div>
+            <div class="rounded-lg border border-dark-700 bg-dark-950 p-4 font-mono text-xs text-dark-200">
+              <div class="text-agdf-300">code changed</div>
+              <div class="mt-2 h-2 rounded-full bg-dark-700"></div>
+              <div class="mt-2 h-2 w-4/5 rounded-full bg-dark-800"></div>
+              <div class="mt-2 h-2 w-2/3 rounded-full bg-dark-800"></div>
+            </div>
+            <div class="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-3 text-sm text-yellow-200">Looks done</div>
+          </div>
+          <div class="rounded-lg border border-dark-700 bg-dark-900 p-4">
+            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Review result</div>
+            {[
+              ["pass", "Task 1 covered", "text-agdf-300"],
+              ["pass", "AC 2 covered", "text-agdf-300"],
+              ["block", "Test missing", "text-red-300"],
+              ["revise", "UI evidence missing", "text-yellow-300"],
+            ].map(([state, item, color]) => (
+              <div class="mb-2 flex items-center justify-between gap-3 rounded-lg border border-dark-700 bg-dark-950 p-3 text-sm">
+                <span class="text-dark-100">{item}</span>
+                <span class={`font-mono text-xs ${color}`}>{state}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-950/20 p-4 text-center font-semibold text-red-200">Only partially done until evidence closes the gap.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== GATE FLOW ==================== -->
+<section id="gate-flow" class="border-y border-dark-800 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Gate Map</h2>
+      <p class="text-dark-200">Each gate is a deliberate checkpoint. Fail closed: no implementation without the required approval.</p>
+    </div>
+    <div class="flex flex-wrap items-center justify-center gap-2">
+      {gateFlow.map((g, i) => (
+        <>
+          <div class="gate-node gate-node-default min-w-[100px]">
+            <div class="text-agdf-400">{g.gate}</div>
+            <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
+          </div>
+          {i < gateFlow.length - 1 && <span class="text-agdf-600">→</span>}
+        </>
+      ))}
+    </div>
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {gateFlow.map(g => (
+        <div class="rounded-lg border border-dark-700 bg-dark-900/50 p-3">
+          <div class="font-mono text-xs font-bold text-agdf-400">{g.gate}</div>
+          <div class="mt-1 text-sm font-semibold">{g.name}</div>
+          <div class="mt-1 text-xs text-dark-200">{g.desc}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SKILLS ==================== -->
+<section id="skills" class="mx-auto max-w-7xl px-4 py-24 sm:px-6">
+  <div class="mb-12 text-center">
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">7 Core Workflow Skills</h2>
+    <p class="text-dark-200">Each skill is an auditable workflow, not a loose suggestion.</p>
+  </div>
+  <div class="overflow-x-auto rounded-xl border border-dark-700">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-dark-700 bg-dark-900 text-xs uppercase text-dark-200">
+        <tr>
+          <th class="px-4 py-3">Skill</th>
+          <th class="px-4 py-3">Family</th>
+          <th class="px-4 py-3">What it does</th>
+          <th class="px-4 py-3 hidden lg:table-cell">When to run it</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-dark-800">
+        {skills.map(s => (
+          <tr class="hover:bg-dark-900/50">
+            <td class="px-4 py-3">
+              <code class="text-agdf-300">/{s.name}</code>
+            </td>
+            <td class="px-4 py-3">
+              <span class="rounded-full border border-dark-700 px-2 py-0.5 text-xs text-dark-200">{s.family}</span>
+            </td>
+            <td class="px-4 py-3 text-dark-200">{s.short}</td>
+            <td class="px-4 py-3 text-xs text-dark-200/70 hidden lg:table-cell">{s.when}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <!-- Skill families -->
+  <div class="mt-8 flex flex-wrap justify-center gap-3">
+    {skillFamilies.map(f => (
+      <span class="rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300">{f}</span>
+    ))}
+  </div>
+</section>
+
+<!-- ==================== SETUP ==================== -->
+<section id="setup" class="border-y border-dark-800 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
+      <p class="text-dark-200">Install the plugin, verify it, then start with the gate check.</p>
+    </div>
+    <div class="space-y-6">
+      <!-- Installation -->
+      <div>
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Terminal:</span>
+          <span class="font-semibold">Installation</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Install the plugin from the repository</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin add arndtgold/ai-native-governance-delivery-framework</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Verification -->
+      <div>
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Terminal:</span>
+          <span class="font-semibold">Verification</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin list</span></div>
+            <div class="text-dark-200">  agdf    0.1.0    Agentic Governance & Delivery Framework  ✓</div>
+          </div>
+        </div>
+      </div>
+      <!-- First use -->
+      <div>
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Claude Code:</span>
+          <span class="font-semibold">First Use</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/agdf-gate-check</span></div>
+            <div class="text-dark-200">  Current gate: <code>UR</code></div>
+            <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
+            <div class="text-dark-200">  Allowed: formulate UR, run Brownfield Review</div>
+            <div class="text-dark-200">  Next step: describe and approve the UR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DESIGN ==================== -->
+<section id="design" class="mx-auto max-w-7xl px-4 py-24 sm:px-6">
+  <div class="mb-12 text-center">
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
+    <p class="text-dark-200">The framework adds delivery discipline. It does not replace engineering ownership.</p>
+  </div>
+  <div class="mb-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {notFor.map((item) => (
+      <div class="rounded-lg border border-dark-700 bg-dark-900/50 p-5">
+        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
+        <p class="text-sm leading-relaxed text-dark-200">{item}</p>
+      </div>
+    ))}
+  </div>
+  <div class="mb-12 text-center">
+    <h3 class="text-2xl font-bold sm:text-3xl">Why It Works</h3>
+    <p class="mt-3 text-dark-200">The plugin turns framework principles into repeatable checks.</p>
+  </div>
+  <!-- Building blocks -->
+  <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {buildingBlocks.map(b => (
+      <div class="card-glow p-6 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-agdf-900 text-2xl font-bold text-agdf-300">{b.icon}</div>
+        <h3 class="mb-2 text-lg font-semibold">{b.name}</h3>
+        <p class="text-sm text-dark-200">{b.desc}</p>
+      </div>
+    ))}
+  </div>
+  <!-- Principles -->
+  <div class="grid gap-4 sm:grid-cols-2">
+    {principles.map((p, i) => (
+      <div class="flex gap-4 rounded-lg border border-dark-700 bg-dark-900/50 p-4">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-agdf-950 font-mono text-sm font-bold text-agdf-400">{i + 1}</span>
+        <div>
+          <h4 class="font-semibold text-agdf-200">{p.title}</h4>
+          <p class="mt-1 text-sm text-dark-200">{p.desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<!-- ==================== ARCHITECTURE ==================== -->
+<section id="architecture" class="border-y border-dark-800 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Architecture</h2>
+      <p class="text-dark-200">Plugin structure: Constitution + Hooks + 7 core skills</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <div class="terminal">
+          <div class="terminal-body text-xs">
+            <div class="text-dark-200/50">plugin/</div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.claude-plugin/</span> <span class="text-dark-200/50">plugin.json</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">hooks/</span> <span class="text-dark-200/50">hooks.json, session-start.sh</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">meta/</span> <span class="text-dark-200/50">agdf-constitution.md, agdf-tenets.md, agdf-runtime-contract.md</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">skills/</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-gate-check/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-brownfield-analysis/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-qa-gate/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-task-plan-review/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-clean-implementation-review/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-release-or/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-delivery-closeout/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            <div class="mt-2 text-dark-200/50">.claude-plugin/</div>
+            <div class="ml-4 text-dark-200/50">marketplace.json</div>
+            <div class="mt-2 text-dark-200/50">docs/ <span class="text-dark-200/30">— German-first framework documentation</span></div>
+            <div class="text-dark-200/50">pages/ <span class="text-dark-200/30">— Astro website</span></div>
+          </div>
+        </div>
+        <div class="mt-6">
+          <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.architecture.eyebrow}</div>
+          <h3 class="mb-3 text-2xl font-bold sm:text-3xl">{visualProofs.architecture.title}</h3>
+          <p class="text-dark-200">{visualProofs.architecture.desc}</p>
+        </div>
+      </div>
+      <div class="rounded-lg border border-dark-700 bg-dark-950 p-4 sm:p-5">
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Context Graph</div>
+            <div class="mt-1 text-sm font-semibold text-dark-100">Decision-oriented delivery map</div>
+          </div>
+          <span class="rounded-full border border-red-500/30 bg-red-950/30 px-3 py-1 font-mono text-xs text-red-200">blocked</span>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            ["UR-045", "User requirement", "defines"],
+            ["PRD v1.2", "Product contract", "constrains"],
+            ["SD v0.4", "Solution design", "refines"],
+            ["TP v0.3", "Task plan", "tests"],
+            ["TR-2026", "Test evidence", "proves"],
+            ["QA v0.2", "QA report", "decides"],
+          ].map(([id, label, relation]) => (
+            <div class="rounded-lg border border-dark-700 bg-dark-900 p-3">
+              <div class="font-mono text-xs font-bold text-agdf-300">{id}</div>
+              <div class="mt-1 text-sm font-semibold text-dark-100">{label}</div>
+              <div class="mt-2 rounded-full border border-dark-700 px-2 py-1 text-xs text-dark-200">{relation}</div>
+            </div>
+          ))}
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <div class="rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-4">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-yellow-300">Risk</div>
+            <p class="mt-2 text-sm text-yellow-100">Limit rejection path not tested.</p>
+          </div>
+          <div class="rounded-lg border border-red-500/30 bg-red-950/20 p-4">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-red-300">Blocker</div>
+            <p class="mt-2 text-sm text-red-100">QA cannot pass without missing evidence.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Layer description -->
+    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+      <div class="rounded-lg border border-dark-700 bg-dark-900/50 p-4">
+        <h4 class="mb-1 font-semibold text-agdf-300">Constitution</h4>
+        <p class="text-xs text-dark-200">Operating Model, Gate Discipline, Brownfield Discipline, Quality Contract Discipline</p>
+      </div>
+      <div class="rounded-lg border border-dark-700 bg-dark-900/50 p-4">
+        <h4 class="mb-1 font-semibold text-agdf-300">Hooks</h4>
+        <p class="text-xs text-dark-200">SessionStart loads the Constitution. No CLI/MCP — pure plugin.</p>
+      </div>
+      <div class="rounded-lg border border-dark-700 bg-dark-900/50 p-4">
+        <h4 class="mb-1 font-semibold text-agdf-300">Skills</h4>
+        <p class="text-xs text-dark-200">7 skills: Governance, Analysis, Review, Delivery</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== COMPATIBILITY ==================== -->
+<section id="compat" class="mx-auto max-w-3xl px-4 py-24 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Compatibility</h2>
+      <p class="text-dark-200">AGDF targets common Agentic AI coding tools, with Claude Code as the primary surface.</p>
+  </div>
+  <div class="overflow-x-auto rounded-xl border border-dark-700">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-dark-700 bg-dark-900 text-xs uppercase text-dark-200">
+        <tr>
+          <th class="px-4 py-3">Agent Tool</th>
+          <th class="px-4 py-3">Version</th>
+          <th class="px-4 py-3">Compat.</th>
+          <th class="px-4 py-3">Goal</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-dark-800">
+        {compatibility.map(c => (
+          <tr class="hover:bg-dark-900/50">
+            <td class="px-4 py-3 font-medium">{c.tool}</td>
+            <td class="px-4 py-3 font-mono text-dark-200">{c.version}</td>
+            <td class="px-4 py-3">
+              <span class={`font-mono font-semibold ${c.compat === '100%' ? 'text-agdf-400' : 'text-yellow-400'}`}>{c.compat}</span>
+            </td>
+            <td class="px-4 py-3">
+              <span class={`rounded-full px-2 py-0.5 text-xs ${c.goal === 'primary' ? 'bg-agdf-950 text-agdf-300' : 'bg-dark-800 text-dark-200'}`}>{c.goal}</span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="border-t border-dark-800 py-12">
+  <div class="mx-auto max-w-7xl px-4 text-center sm:px-6">
+    <div class="mb-4 flex items-center justify-center gap-2">
+      <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-agdf-600 font-mono text-sm text-white">G</span>
+      <span class="font-bold">AGDF</span>
+    </div>
+    <p class="mb-2 text-sm text-dark-200">{site.fullName}</p>
+    <p class="mb-4 text-xs text-dark-200/50">
+      Copyright © 2024-2026 Arndt Gold · Licensed under {site.license}
+    </p>
+    <div class="flex justify-center gap-4 text-sm text-dark-200">
+      <a href={site.repo} class="hover:text-agdf-300">GitHub</a>
+      <a href="#highlights" class="hover:text-agdf-300">Highlights</a>
+      <a href="#skills" class="hover:text-agdf-300">Skills</a>
+      <a href="#setup" class="hover:text-agdf-300">Setup</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ==================== SKILL MODAL ==================== -->
+<div id="skill-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+  <div class="max-w-lg rounded-xl border border-dark-700 bg-dark-900 p-6">
+    <div class="mb-4 flex items-center justify-between">
+      <h3 id="skill-modal-title" class="font-mono text-lg font-bold text-agdf-300"></h3>
+      <button id="skill-modal-close" class="text-dark-200 hover:text-white">✕</button>
+    </div>
+    <p id="skill-modal-body" class="text-sm text-dark-200"></p>
+  </div>
+</div>
+
+</BaseLayout>

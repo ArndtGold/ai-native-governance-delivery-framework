@@ -2,7 +2,7 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten.
+Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten — jetzt auch als Plugin für Agentic AI Coding Tools.
 
 Der Entwurf fragt:
 
@@ -20,13 +20,12 @@ Der Arbeitslauf muss belegbar bleiben.
 
 ## Status
 
-Dieses Repository ist ein öffentlicher Diskussionsentwurf.
-Es ist noch kein fertiges Tool, kein Pflichtprozess und kein Standard.
+Dieses Repository enthält zwei Layer:
 
-Ziel ist zuerst, die Beobachtung zu prüfen:
+1. **Framework-Dokumentation** (`docs/`): Ein öffentlicher Diskursentwurf, der Beobachtungen und Prinzipien beschreibt.
+2. **AGDF Plugin** (`plugin/`): Ein installierbares Claude Code Plugin mit 7 Core-Workflow-Skills, Constitution und Hooks.
 
-Je stärker KI-Agenten in Softwareentwicklung eingebunden werden, desto wichtiger werden Scope, Freigabe,
-Nachvollziehbarkeit, Projektwissen und Qualitätsnachweise.
+Das Plugin ist die operative Umsetzung der Framework-Prinzipien: Gate-Enforcement, Brownfield-Analyse, Quality Contracts und auditable Delivery-Workflows.
 
 ## Erste 5 Minuten
 
@@ -36,37 +35,56 @@ Wenn du schnell verstehen willst, worum es geht:
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
 
+Wenn du das Plugin direkt ausprobieren willst:
+
+```bash
+# Plugin installieren
+claude plugin add arndtgold/ai-native-governance-delivery-framework
+
+# In Claude Code verwenden
+/agdf-gate-check
+```
+
 Danach solltest du beantworten können:
 
 - Warum reicht ein guter Agenten-Output allein nicht?
 - Welche Entscheidung stoppt oder erlaubt den nächsten Schritt?
 - Welche Nachweise braucht ein Team, damit ein Agentenlauf vertrauenswürdig wird?
 
-## Warum es dieses Projekt gibt
+## The AGDF Plugin
 
-Viele Diskussionen über KI in der Softwareentwicklung drehen sich um Geschwindigkeit.
-Wie schnell kann ein Agent Code schreiben?
-Wie viel Arbeit kann automatisiert werden?
-Welches Tool ist am besten?
+The plugin (AGDF = Agentic Governance & Delivery Framework) turns the framework principles into operational runtime guidance:
 
-Diese Fragen sind wichtig.
-Sie reichen aber nicht.
+- **Constitution**: Loads the operating model at session start: Uncertainty Reduction → Evidence → Artefacts → Verification → Outcome, plus gate, Brownfield, and Quality Contract discipline.
+- **7 Core Skills**: Gate Check, Brownfield Analysis, Task Plan Review, Clean Implementation Review, QA Gate, Release OR, Delivery Closeout.
+- **Fail-closed enforcement**: Exact approval formula `Approval: <GateName>`; implicit consent is not enough. Legacy German `Freigabe: <GateName>` may be interpreted, but new artefacts use `Approval:`.
+- **No CLI/MCP**: Pure plugin — skills, constitution, and hooks.
 
-Ein Agent kann schnell ein plausibles Ergebnis erzeugen.
-Trotzdem kann offen bleiben:
+Plugin runtime validation:
 
-- War die Anforderung richtig verstanden?
-- War der Scope freigegeben?
-- Wurde bestehendes Verhalten geschützt?
-- Wurden Tests wirklich ausgeführt?
-- Sind fehlende Nachweise sichtbar?
-- Darf der nächste Schritt überhaupt beginnen?
+```bash
+node plugin/scripts/check-runtime-integrity.mjs
+```
 
-Ein Board zeigt, woran gearbeitet wird.
-Dieser Entwurf fragt, warum daran gearbeitet werden darf.
+### Skills
 
-Der Entwurf beschreibt nicht nur, wie man KI-Agenten nutzt.
-Er fragt, wie verhindert wird, dass Agentenarbeit unbemerkt Scope, Architektur oder Projektwissen verschiebt.
+| Skill | Family | Purpose |
+|---|---|---|
+| `/agdf-gate-check` | Governance | Determine the earliest blocking gate |
+| `/agdf-brownfield-analysis` | Analysis | Analyze existing artefacts and reuse strategy before implementation |
+| `/agdf-task-plan-review` | Review | Verify whether the Task Plan was actually fulfilled |
+| `/agdf-clean-implementation-review` | Review | Surface solution integrity, fallbacks, and workarounds |
+| `/agdf-qa-gate` | Governance | Formal QA decision: pass / revise / block |
+| `/agdf-release-or` | Delivery | Orchestration Report as auditable closeout |
+| `/agdf-delivery-closeout` | Delivery | Operational delivery handoff with Git summary |
+
+### Gate Flow
+
+```text
+UR → Brownfield Review → PRD → SD → TP → Brownfield Analysis → CD+Tests → Task Plan Review → QA → OR
+```
+
+Every gate ends with exactly one status: `pass` / `revise` / `block`.
 
 ## Was der Entwurf vorschlägt
 
@@ -96,21 +114,6 @@ Ein Agent kann lokal plausibel arbeiten und trotzdem eine zweite Struktur oder e
 Deshalb behandelt dieser Entwurf Brownfield nicht als Sonderfall.
 Brownfield ist der Normalfall, an dem sich der Ansatz bewähren muss.
 
-## Schnell ausprobieren
-
-Ein Team kann den Entwurf klein testen:
-
-1. Einen echten kleinen Brownfield Change auswählen.
-2. In einem Absatz das User Requirement formulieren.
-3. Prüfen, ob bestehendes Verhalten betroffen ist.
-4. Drei bis fünf Akzeptanzkriterien festhalten.
-5. Einen kurzen Task und Test Plan schreiben.
-6. Nach der Umsetzung Nachweise sammeln.
-7. Am Ende prüfen, ob Ergebnis und Agentenlauf ausreichend belegt sind.
-
-Wenn dieser kleine Lauf mehr Klarheit schafft, ist der Ansatz nützlich.
-Wenn er nur mehr Text erzeugt, muss der Zuschnitt kleiner werden.
-
 ## Dokumente
 
 Empfohlene Reihenfolge:
@@ -125,16 +128,49 @@ Empfohlene Reihenfolge:
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
 9. [Glossar](docs/glossar.md)
 10. [Beispiel - Kleiner Brownfield Change](examples/sample-delivery-flow.md)
+11. [Beispiel - Banking Flow](examples/sample-banking-flow.md)
 
-Kapitel 06 zeigt, wie aus verteiltem Projektwissen ein prüfbares Delivery-Lagebild wird.
-Kapitel 07 ordnet dieses Lagebild fachlich durch Begriffe, Regeln und Grenzen.
+## Website
 
-## Projektstruktur
+Die Projekt-Website liegt unter `pages/` und ist eine Astro-Single-Page-Application.
+
+```bash
+cd pages
+npm install
+npm run dev      # Entwicklung
+npm run build    # Produktion
+```
+
+## Project Structure
 
 ```text
 /
 ├─ README.md
-├─ docs/
+├─ AGENTS.md                         # Agent Operating System
+├─ LICENSE.txt
+├─ .claude-plugin/
+│  └─ marketplace.json               # Plugin Marketplace Definition
+├─ plugin/                           # AGDF Plugin
+│  ├─ .claude-plugin/
+│  │  └─ plugin.json
+│  ├─ hooks/
+│  │  ├─ hooks.json                  # SessionStart Hook
+│  │  └─ session-start.sh
+│  ├─ meta/
+│  │  ├─ agdf-constitution.md        # Operating Model, Gate/Brownfield/Quality Discipline
+│  │  ├─ agdf-tenets.md             # Principles plus Brownfield/Quality/Delivery Tenets
+│  │  └─ agdf-runtime-contract.md   # Compact skill runtime for outputs, gates and Context Graph
+│  ├─ scripts/
+│  │  └─ check-runtime-integrity.mjs # Checks English runtime layer and skill contract references
+│  └─ skills/                        # 7 core workflow skills
+│     ├─ agdf-gate-check/
+│     ├─ agdf-brownfield-analysis/
+│     ├─ agdf-qa-gate/
+│     ├─ agdf-task-plan-review/
+│     ├─ agdf-clean-implementation-review/
+│     ├─ agdf-release-or/
+│     └─ agdf-delivery-closeout/
+├─ docs/                             # German-first framework documentation
 │  ├─ 00-manifest.md
 │  ├─ 01-framework-ueberblick.md
 │  ├─ 02-gates.md
@@ -144,22 +180,21 @@ Kapitel 07 ordnet dieses Lagebild fachlich durch Begriffe, Regeln und Grenzen.
 │  ├─ 06-vom-notizzettel-zum-delivery-lagebild.md
 │  ├─ 07-domain-driven-delivery.md
 │  └─ glossar.md
-├─ templates/
 ├─ examples/
 │  ├─ sample-delivery-flow.md
 │  └─ sample-banking-flow.md
-└─ .github/
+├─ assets/                           # Diagrams
+└─ pages/                            # Astro-Website (agdf.tools)
+   ├─ package.json
+   ├─ astro.config.mjs
+   ├─ tailwind.config.mjs
+   ├─ src/
+   │  ├─ pages/index.astro
+   │  ├─ layouts/BaseLayout.astro
+   │  ├─ data/skills.ts, site.ts
+   │  └─ styles/global.css
+   └─ public/
 ```
-
-## Nicht im Fokus
-
-Noch nicht im Fokus stehen:
-
-- fertiges Tooling
-- Agent Runtime
-- IDE-Integration
-- vollständige Automatisierung
-- organisationsspezifische Compliance-Profile
 
 ## Diskussion erwünscht
 
@@ -177,6 +212,4 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ## Lizenz
 
-Die Lizenz ist noch festzulegen.
-
-Bis zur Entscheidung sollte das Repository als Diskussionsentwurf behandelt werden.
+Licensed under [Apache-2.0](LICENSE).

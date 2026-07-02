@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    @apply bg-dark-950 text-dark-100 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+::selection {
+    @apply bg-agdf-500/30 text-white;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { @apply bg-dark-900; }
+::-webkit-scrollbar-thumb { @apply bg-dark-700 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-agdf-700; }
+
+/* Gradient text */
+.gradient-text {
+    @apply bg-gradient-to-r from-agdf-300 via-agdf-400 to-agdf-500 bg-clip-text text-transparent;
+}
+
+/* Card glow */
+.card-glow {
+    @apply relative overflow-hidden rounded-xl border border-dark-700 bg-dark-900/50 transition-all duration-300;
+}
+.card-glow:hover {
+    @apply border-agdf-500/50 bg-dark-800/50;
+    box-shadow: 0 0 30px -10px rgba(20, 184, 166, 0.3);
+}
+
+/* Terminal */
+.terminal {
+    @apply rounded-lg border border-dark-700 bg-dark-950 font-mono text-sm;
+}
+.terminal-header {
+    @apply flex items-center gap-2 border-b border-dark-700 px-4 py-2;
+}
+.terminal-body {
+    @apply p-4 overflow-x-auto;
+}
+
+/* Gate flow */
+.gate-node {
+    @apply rounded-lg border px-3 py-2 text-center font-mono text-xs font-semibold transition-all;
+}
+.gate-node-pass    { @apply border-agdf-500/50 bg-agdf-950 text-agdf-300; }
+.gate-node-current { @apply border-agdf-400 bg-agdf-900 text-agdf-200 ring-2 ring-agdf-400/30; }
+.gate-node-default { @apply border-dark-700 bg-dark-900 text-dark-200; }
+
+/* Section anchor offset */
+section[id] {
+    scroll-margin-top: 4rem;
+}

@@ -1,0 +1,23 @@
+## NAME
+
+`agdf-task-plan-review` - task plan review
+
+## SYNOPSIS
+
+`/agdf-task-plan-review` [`--help`|`-h`]
+
+## DESCRIPTION
+
+Checks after code changes and before QA whether the approved Task Plan tasks were fully, partially, or not completed. Provides reliable TP coverage as input for the QA gate decision.
+
+## EXAMPLES
+
+Trigger the skill:
+
+```text
+> /agdf-task-plan-review
+```
+
+## SEE ALSO
+
+See the full SKILL.md for detailed workflow, output format, and decision logic.

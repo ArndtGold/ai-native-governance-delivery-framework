@@ -254,7 +254,7 @@ export const gateFlow = [
 ]
 
 export const compatibility = [
-    { tool: "Anthropic Claude Code CLI", integration: "Plugin", support: "First-class", goal: "primary" },
-    { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills", support: "First-class", goal: "primary" },
+    { tool: "Anthropic Claude Code CLI", integration: "Plugin", support: "First-class", goal: "primary", setupAnchor: "#setup-claude" },
+    { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills", support: "First-class", goal: "primary", setupAnchor: "#setup-copilot" },
     { tool: "OpenAI Codex CLI", integration: "AGENTS.md", support: "Best-effort", goal: "secondary" },
 ]

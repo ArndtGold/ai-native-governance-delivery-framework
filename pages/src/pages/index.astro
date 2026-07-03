@@ -396,110 +396,6 @@ import { skills, skillFamilies } from '../data/skills'
   </div>
 </section>
 
-<!-- ==================== SETUP ==================== -->
-<section id="setup" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
-      <p class="text-dark-200">Copilot and Claude do not integrate the same way. Copilot boots through repo files; Claude installs a plugin into the Claude Code CLI.</p>
-    </div>
-    <div data-reveal data-reveal-delay="1" class="surface mb-6 p-5">
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Prerequisites</div>
-      <div class="grid gap-3 md:grid-cols-2">
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">Node.js and npm installed</div>
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">Run the bootstrap command inside your target Git repository</div>
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">For Copilot: GitHub Copilot CLI or Copilot Coding Agent</div>
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">For Claude: Claude Code CLI</div>
-      </div>
-    </div>
-    <div class="space-y-6">
-      <div data-reveal data-reveal-delay="2">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">GitHub Copilot:</span>
-          <span class="font-semibold">Bootstrap in your target repository</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
-            <div class="text-dark-200">  writes AGENTS.md and .github/skills <span class="text-agdf-300">✓</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Installation -->
-      <div data-reveal data-reveal-delay="3">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Claude Code:</span>
-          <span class="font-semibold">Install the plugin into Claude Code</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in a terminal where the Claude Code CLI is installed</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin add arndtgold/ai-native-governance-delivery-framework</span></div>
-            <div class="text-dark-200">  installs AGDF into Claude Code <span class="text-agdf-300">✓</span></div>
-          </div>
-        </div>
-      </div>
-      <div data-reveal data-reveal-delay="4">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">GitHub Copilot:</span>
-          <span class="font-semibold">AGENTS.md and repository skills</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Copilot loads AGDF from AGENTS.md and checked-in skills</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/instructions</span></div>
-            <div class="text-dark-200">  AGENTS.md <span class="text-agdf-300">✓</span></div>
-            <div class="text-dark-200">  .github/skills/agdf-gate-check/SKILL.md <span class="text-agdf-300">✓</span></div>
-          </div>
-        </div>
-      </div>
-      <div data-reveal data-reveal-delay="5">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Both:</span>
-          <span class="font-semibold">Prepare one target repository for both surfaces</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want the repo files for both paths</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
-            <div class="text-dark-200">  still install the Claude plugin separately <span class="text-agdf-300">✓</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Verification -->
-      <div data-reveal data-reveal-delay="6">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Terminal:</span>
-          <span class="font-semibold">Verification</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin list</span></div>
-            <div class="text-dark-200">  agdf    0.1.0    Agentic Governance & Delivery Framework  <span class="text-agdf-300">✓</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- First use -->
-      <div data-reveal data-reveal-delay="7">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Any supported agent:</span>
-          <span class="font-semibold">First prompt</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Run an AGDF gate check for this request.</span></div>
-            <div class="text-dark-200">  Current gate: <code>UR</code></div>
-            <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
-            <div class="text-dark-200">  Allowed: formulate UR, run Brownfield Review</div>
-            <div class="text-dark-200">  Next step: describe and approve the UR</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ==================== DESIGN ==================== -->
 <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
@@ -624,7 +520,13 @@ import { skills, skillFamilies } from '../data/skills'
       <tbody class="divide-y divide-dark-800">
         {compatibility.map(c => (
           <tr class="transition-colors hover:bg-agdf-950/30">
-            <td class="px-4 py-3 font-medium">{c.tool}</td>
+            <td class="px-4 py-3 font-medium">
+              {c.setupAnchor ? (
+                <a href={c.setupAnchor} class="transition-colors hover:text-agdf-300">{c.tool}</a>
+              ) : (
+                c.tool
+              )}
+            </td>
               <td class="px-4 py-3 font-mono text-dark-200">{c.integration}</td>
             <td class="px-4 py-3">
                 <span class={`font-mono font-semibold ${c.support === 'First-class' ? 'text-agdf-400' : 'text-yellow-400'}`}>{c.support}</span>
@@ -636,6 +538,107 @@ import { skills, skillFamilies } from '../data/skills'
         ))}
       </tbody>
     </table>
+  </div>
+</section>
+
+<!-- ==================== SETUP ==================== -->
+<section id="setup" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
+    <div data-reveal class="mb-12 text-center">
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
+      <p class="text-dark-200">Copilot and Claude do not integrate the same way. Copilot boots through repo files; Claude installs a plugin into the Claude Code CLI.</p>
+    </div>
+    <div id="setup-prerequisites" data-reveal data-reveal-delay="1" class="surface mb-6 p-5">
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Prerequisites</div>
+      <div class="grid gap-3 md:grid-cols-2">
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">Node.js and npm installed</div>
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">Run the bootstrap command inside your target Git repository</div>
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">For Copilot: GitHub Copilot CLI or Copilot Coding Agent</div>
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">For Claude: Claude Code CLI</div>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div id="setup-copilot" data-reveal data-reveal-delay="2">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">GitHub Copilot:</span>
+          <span class="font-semibold">Bootstrap in your target repository</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
+            <div class="text-dark-200">  writes AGENTS.md and .github/skills <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="setup-claude" data-reveal data-reveal-delay="3">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Claude Code:</span>
+          <span class="font-semibold">Install the plugin into Claude Code</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in a terminal where the Claude Code CLI is installed</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin add arndtgold/ai-native-governance-delivery-framework</span></div>
+            <div class="text-dark-200">  installs AGDF into Claude Code <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div data-reveal data-reveal-delay="4">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">GitHub Copilot:</span>
+          <span class="font-semibold">AGENTS.md and repository skills</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Copilot loads AGDF from AGENTS.md and checked-in skills</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/instructions</span></div>
+            <div class="text-dark-200">  AGENTS.md <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  .github/skills/agdf-gate-check/SKILL.md <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="setup-both" data-reveal data-reveal-delay="5">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Both:</span>
+          <span class="font-semibold">Prepare one target repository for both surfaces</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want the repo files for both paths</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
+            <div class="text-dark-200">  still install the Claude plugin separately <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div data-reveal data-reveal-delay="6">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Terminal:</span>
+          <span class="font-semibold">Verification</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin list</span></div>
+            <div class="text-dark-200">  agdf    0.1.0    Agentic Governance & Delivery Framework  <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div data-reveal data-reveal-delay="7">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Any supported agent:</span>
+          <span class="font-semibold">First prompt</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Run an AGDF gate check for this request.</span></div>
+            <div class="text-dark-200">  Current gate: <code>UR</code></div>
+            <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
+            <div class="text-dark-200">  Allowed: formulate UR, run Brownfield Review</div>
+            <div class="text-dark-200">  Next step: describe and approve the UR</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 

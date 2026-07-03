@@ -18,15 +18,6 @@ Der Mensch bleibt verantwortlich.
 Der Agent kann unterstützen.
 Der Arbeitslauf muss belegbar bleiben.
 
-## Status
-
-Dieses Repository enthält zwei Layer:
-
-1. **Framework-Dokumentation** (`docs/`): Ein öffentlicher Diskursentwurf, der Beobachtungen und Prinzipien beschreibt.
-2. **AGDF Runtime** (`plugin/`, `AGENTS.md`, `.github/`): Ein installierbares Claude Code Plugin mit 7 Core-Workflow-Skills, Constitution und Hooks sowie GitHub-Copilot-Unterstuetzung ueber Repository-Instruktionen und sichtbare Repo-Skills.
-
-Die Runtime ist die operative Umsetzung der Framework-Prinzipien: Gate-Enforcement, Brownfield-Analyse, Quality Contracts und auditable Delivery-Workflows.
-
 ## Erste 5 Minuten
 
 Wenn du schnell verstehen willst, worum es geht:
@@ -126,6 +117,7 @@ Besonders interessant sind Fragen wie:
 
 Beiträge sind willkommen:
 Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Requests.
+
 
 
 ## Runtime und Setup

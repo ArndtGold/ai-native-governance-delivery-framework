@@ -213,36 +213,3 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 ## Lizenz
 
 Licensed under [Apache-2.0](LICENSE).
-
-prevents: {
-eyebrow: "Failure modes",
-title: "What AGDF Catches Early",
-desc: "Agent output can look confident while the delivery basis is weak. AGDF makes these risks visible before they become delivery problems.",
-items: [
-{
-title: "Silent Scope Drift",
-desc: "Prompt, design and code no longer describe the same product intent.",
-},
-{
-title: "Greenfield in Brownfield",
-desc: "The agent creates a parallel path instead of extending the existing owner or behavior.",
-},
-{
-title: "Green Build, Unfinished Task",
-desc: "Tests pass, but the approved Task Plan is only partially fulfilled.",
-},
-{
-title: "QA Without Evidence",
-desc: "A run is called done without task coverage, Brownfield fit or review evidence.",
-},
-{
-title: "Permanent Fallbacks",
-desc: "Temporary guards, shims or defaults become hidden target architecture.",
-},
-{
-title: "Premature Handoff",
-desc: "A commit or PR is prepared before gate status and remaining risks are clear.",
-},
-],
-}
-

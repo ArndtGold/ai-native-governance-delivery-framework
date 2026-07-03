@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 
-const repoRoot = new URL("../..", import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const pluginRoot = join(repoRoot, "plugin");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
 const skillRoot = join(pluginRoot, "skills");
@@ -48,6 +49,14 @@ function read(path) {
   return readFileSync(path, "utf8");
 }
 
+function isFile(path) {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
 function stripAllowedGerman(content) {
   let next = content;
   for (const fragment of allowedGermanFragments) {
@@ -57,9 +66,7 @@ function stripAllowedGerman(content) {
 }
 
 function assertFile(path, label) {
-  try {
-    if (!statSync(path).isFile()) failures.push(`${label} missing`);
-  } catch {
+  if (!isFile(path)) {
     failures.push(`${label} missing`);
   }
 }
@@ -79,11 +86,11 @@ for (const skill of expectedSkills) {
   const helpPath = join(skillRoot, skill, "help.md");
   assertFile(skillPath, `${skill}/SKILL.md`);
   assertFile(helpPath, `${skill}/help.md`);
-  if (!statSync(skillPath).isFile() || !statSync(helpPath).isFile()) continue;
+  if (!isFile(skillPath) || !isFile(helpPath)) continue;
 
   const skillMd = read(skillPath);
   const helpMd = read(helpPath);
-  const frontmatter = skillMd.match(/^---\n([\s\S]*?)\n---/);
+  const frontmatter = skillMd.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatter) {
     failures.push(`${skill}/SKILL.md missing YAML frontmatter`);
   } else {

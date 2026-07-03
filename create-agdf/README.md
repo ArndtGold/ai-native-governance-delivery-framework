@@ -25,7 +25,7 @@ If the target repository already has an `AGENTS.md`, `create-agdf` preserves it 
 
 The repository-facing AGDF sources are maintained in:
 
-- `AGENTS.md`
+- `plugin/meta/agdf-copilot-agents.md`
 - `plugin/skills/`
 - `plugin/meta/agdf-runtime-contract.md`
 

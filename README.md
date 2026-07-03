@@ -104,6 +104,9 @@ Empfohlene Reihenfolge:
 └─ pages/
 ```
 
+Die Root-`AGENTS.md` steuert die Bearbeitung dieses Repositories.
+Die installierbaren Copilot-Instruktionen werden separat in `plugin/meta/agdf-copilot-agents.md` gepflegt.
+
 ## Diskussion erwünscht
 
 Besonders interessant sind Fragen wie:

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 const repoRoot = resolve(packageRoot, "..");
-const sourceAgentsPath = join(repoRoot, "AGENTS.md");
+const sourceAgentsPath = join(repoRoot, "plugin", "meta", "agdf-copilot-agents.md");
 const sourceSkillsRoot = join(repoRoot, "plugin", "skills");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
 const generatedRoot = join(packageRoot, "generated");

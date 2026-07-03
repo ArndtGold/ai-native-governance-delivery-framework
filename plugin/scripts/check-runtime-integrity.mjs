@@ -5,6 +5,7 @@ import { join } from "node:path";
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const pluginRoot = join(repoRoot, "plugin");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
+const copilotAgentsPath = join(pluginRoot, "meta", "agdf-copilot-agents.md");
 const skillRoot = join(pluginRoot, "skills");
 
 const expectedSkills = [
@@ -73,6 +74,7 @@ function assertFile(path, label) {
 }
 
 assertFile(runtimeContractPath, "runtime contract");
+assertFile(copilotAgentsPath, "Copilot AGENTS source");
 
 const actualSkills = readdirSync(skillRoot)
   .filter((entry) => statSync(join(skillRoot, entry)).isDirectory())
@@ -114,7 +116,7 @@ for (const skill of expectedSkills) {
 }
 
 for (const [pathLabel, content] of [
-  ["AGENTS.md", read(join(repoRoot, "AGENTS.md"))],
+  ["plugin/meta/agdf-copilot-agents.md", read(copilotAgentsPath)],
   ["plugin/meta/agdf-runtime-contract.md", read(runtimeContractPath)],
 ]) {
   const normalized = stripAllowedGerman(content);

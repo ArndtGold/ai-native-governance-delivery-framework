@@ -356,6 +356,22 @@ import { skills, skillFamilies } from '../data/skills'
   </div>
 </section>
 
+<!-- ==================== DESIGN ==================== -->
+<section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
+    <p class="text-dark-200">The framework adds delivery discipline. It does not replace engineering ownership.</p>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {notFor.map((item, i) => (
+      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
+        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
+        <p class="text-sm leading-relaxed text-dark-200">{item}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
 <!-- ==================== SKILLS ==================== -->
 <section id="skills" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
@@ -392,22 +408,6 @@ import { skills, skillFamilies } from '../data/skills'
   <div data-reveal data-reveal-delay="2" class="mt-8 flex flex-wrap justify-center gap-3">
     {skillFamilies.map(f => (
       <span class="rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300 shadow-[0_0_24px_-16px_var(--agdf-glow)]">{f}</span>
-    ))}
-  </div>
-</section>
-
-<!-- ==================== DESIGN ==================== -->
-<section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
-    <p class="text-dark-200">The framework adds delivery discipline. It does not replace engineering ownership.</p>
-  </div>
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    {notFor.map((item, i) => (
-      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
-        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
-        <p class="text-sm leading-relaxed text-dark-200">{item}</p>
-      </div>
     ))}
   </div>
 </section>

@@ -6,7 +6,6 @@ Bootstrap AGDF for one repository.
 
 ```bash
 npm create agdf@latest copilot
-npm create agdf@latest claude
 npm create agdf@latest both
 ```
 
@@ -17,9 +16,17 @@ Optional flags:
 
 ## Targets
 
-- `copilot` writes `AGENTS.md` and `.github/copilot-instructions.md`
-- `claude` writes `AGENTS.md` and prints the Claude plugin installation step
-- `both` writes both instruction files and prints both next steps
+- `copilot` writes `AGENTS.md` and visible repository skills under `.github/skills/`
+- `both` writes `AGENTS.md` plus visible repository skills and reminds you to install the Claude plugin separately
+
+## Single source of truth
+
+The AGDF skill contracts are maintained in `plugin/skills/`.
+The published package assets are generated from the repository sources only at pack/publish time. The package does not keep a second manually maintained template tree.
+
+```bash
+npm run sync-package-assets
+```
 
 ## Publishing
 

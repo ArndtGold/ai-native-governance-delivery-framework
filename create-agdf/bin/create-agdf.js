@@ -7,16 +7,26 @@ import process from "node:process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
-const templatesRoot = join(packageRoot, "templates");
+const generatedRoot = join(packageRoot, "generated");
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["copilot", "claude", "both"]);
+const allowedTargets = new Set(["copilot", "both"]);
+const copilotSkillFiles = [
+  join(".github", "skills", "README.md"),
+  join(".github", "skills", "agdf-runtime-contract.md"),
+  join(".github", "skills", "agdf-gate-check", "SKILL.md"),
+  join(".github", "skills", "agdf-brownfield-analysis", "SKILL.md"),
+  join(".github", "skills", "agdf-task-plan-review", "SKILL.md"),
+  join(".github", "skills", "agdf-clean-implementation-review", "SKILL.md"),
+  join(".github", "skills", "agdf-qa-gate", "SKILL.md"),
+  join(".github", "skills", "agdf-release-or", "SKILL.md"),
+  join(".github", "skills", "agdf-delivery-closeout", "SKILL.md"),
+];
 
 function printUsage() {
   console.log(`create-agdf
 
 Usage:
   npm create agdf@latest copilot
-  npm create agdf@latest claude
   npm create agdf@latest both
 
 Options:
@@ -78,7 +88,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: copilot, claude, or both.");
+    console.error("Please choose one target: copilot or both.");
     printUsage();
     process.exit(1);
   }
@@ -90,8 +100,8 @@ function parseArgs(argv) {
   };
 }
 
-function loadTemplate(relativePath) {
-  return readFileSync(join(templatesRoot, relativePath), "utf8");
+function loadAsset(relativePath) {
+  return readFileSync(join(generatedRoot, relativePath), "utf8");
 }
 
 function writeGeneratedFile(targetDir, relativePath, content, force) {
@@ -109,15 +119,17 @@ function generatedFilesForTarget(target) {
   const files = [
     {
       path: "AGENTS.md",
-      content: loadTemplate("AGENTS.md"),
+      content: loadAsset("AGENTS.md"),
     },
   ];
 
   if (target === "copilot" || target === "both") {
-    files.push({
-      path: join(".github", "copilot-instructions.md"),
-      content: loadTemplate(join(".github", "copilot-instructions.md")),
-    });
+    for (const skillPath of copilotSkillFiles) {
+      files.push({
+        path: skillPath,
+        content: loadAsset(skillPath),
+      });
+    }
   }
 
   return files;
@@ -134,11 +146,11 @@ function printNextSteps(target, destination, files) {
 
   console.log("");
   console.log("Next steps:");
-  if (target === "claude" || target === "both") {
+  if (target === "both") {
     console.log(`- Install the Claude Code plugin: ${pluginInstallCommand}`);
   }
   if (target === "copilot" || target === "both") {
-    console.log("- In GitHub Copilot CLI, run /instructions to confirm that the repository instructions are loaded.");
+    console.log("- In GitHub Copilot CLI, run /instructions to confirm that AGENTS.md is loaded and the repository skills are visible.");
   }
   console.log("- Commit the generated files so the repository becomes the source of truth.");
 }

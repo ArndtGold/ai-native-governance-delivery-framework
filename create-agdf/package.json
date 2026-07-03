@@ -5,14 +5,16 @@
   "type": "module",
   "files": [
     "bin",
-    "templates",
+    "generated",
     "README.md"
   ],
   "bin": {
     "create-agdf": "./bin/create-agdf.js"
   },
   "scripts": {
-    "smoke-test": "node ./scripts/smoke-test.js"
+    "sync-package-assets": "node ./scripts/sync-package-assets.js",
+    "smoke-test": "npm run sync-package-assets && node ./scripts/smoke-test.js",
+    "prepack": "npm run sync-package-assets"
   },
   "keywords": [
     "agdf",

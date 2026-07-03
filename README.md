@@ -23,7 +23,7 @@ Der Arbeitslauf muss belegbar bleiben.
 Dieses Repository enthält zwei Layer:
 
 1. **Framework-Dokumentation** (`docs/`): Ein öffentlicher Diskursentwurf, der Beobachtungen und Prinzipien beschreibt.
-2. **AGDF Runtime** (`plugin/`, `AGENTS.md`, `.github/`): Ein installierbares Claude Code Plugin mit 7 Core-Workflow-Skills, Constitution und Hooks sowie GitHub-Copilot-Unterstuetzung ueber Repository-Instruktionen.
+2. **AGDF Runtime** (`plugin/`, `AGENTS.md`, `.github/`): Ein installierbares Claude Code Plugin mit 7 Core-Workflow-Skills, Constitution und Hooks sowie GitHub-Copilot-Unterstuetzung ueber Repository-Instruktionen und sichtbare Repo-Skills.
 
 Die Runtime ist die operative Umsetzung der Framework-Prinzipien: Gate-Enforcement, Brownfield-Analyse, Quality Contracts und auditable Delivery-Workflows.
 
@@ -35,80 +35,13 @@ Wenn du schnell verstehen willst, worum es geht:
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
 
-Wenn du AGDF in ein neues Repository bootstrapen willst:
-
-```bash
-# GitHub Copilot
-npm create agdf@latest copilot
-
-# Claude Code
-npm create agdf@latest claude
-
-# Beide Oberflaechen
-npm create agdf@latest both
-```
-
-Wenn du AGDF in Claude Code direkt ausprobieren willst:
-
-```bash
-# Plugin installieren
-claude plugin add arndtgold/ai-native-governance-delivery-framework
-
-# In Claude Code verwenden
-/agdf-gate-check
-```
-
-Wenn du GitHub Copilot CLI oder den Copilot Coding Agent verwenden willst:
-
-```text
-# Repo-Instruktionen anzeigen
-/instructions
-
-# Danach einen AGDF-Check per Prompt ausloesen
-Run an AGDF gate check for this request.
-```
+Installation und Setup fuer GitHub Copilot, Claude Code oder beide Oberflaechen stehen in [INSTALL.md](INSTALL.md).
 
 Danach solltest du beantworten können:
 
 - Warum reicht ein guter Agenten-Output allein nicht?
 - Welche Entscheidung stoppt oder erlaubt den nächsten Schritt?
 - Welche Nachweise braucht ein Team, damit ein Agentenlauf vertrauenswürdig wird?
-
-## The AGDF Runtime
-
-AGDF (Agentic Governance & Delivery Framework) turns the framework principles into operational runtime guidance:
-
-- **Constitution**: Loads the operating model at session start: Uncertainty Reduction → Evidence → Artefacts → Verification → Outcome, plus gate, Brownfield, and Quality Contract discipline.
-- **7 Core Skills**: Gate Check, Brownfield Analysis, Task Plan Review, Clean Implementation Review, QA Gate, Release OR, Delivery Closeout.
-- **Fail-closed enforcement**: Exact approval formula `Approval: <GateName>`; implicit consent is not enough. Legacy German `Freigabe: <GateName>` may be interpreted, but new artefacts use `Approval:`.
-- **Claude Code surface**: Installable plugin from `plugin/` with skills, constitution, and hooks.
-- **GitHub Copilot surface**: Repository instructions via `AGENTS.md` and `.github/copilot-instructions.md`.
-
-Plugin runtime validation:
-
-```bash
-node plugin/scripts/check-runtime-integrity.mjs
-```
-
-### Skills
-
-| Skill | Family | Purpose |
-|---|---|---|
-| `/agdf-gate-check` | Governance | Determine the earliest blocking gate |
-| `/agdf-brownfield-analysis` | Analysis | Analyze existing artefacts and reuse strategy before implementation |
-| `/agdf-task-plan-review` | Review | Verify whether the Task Plan was actually fulfilled |
-| `/agdf-clean-implementation-review` | Review | Surface solution integrity, fallbacks, and workarounds |
-| `/agdf-qa-gate` | Governance | Formal QA decision: pass / revise / block |
-| `/agdf-release-or` | Delivery | Orchestration Report as auditable closeout |
-| `/agdf-delivery-closeout` | Delivery | Operational delivery handoff with Git summary |
-
-### Gate Flow
-
-```text
-UR → Brownfield Review → PRD → SD → TP → Brownfield Analysis → CD+Tests → Task Plan Review → QA → OR
-```
-
-Every gate ends with exactly one status: `pass` / `revise` / `block`.
 
 ## Was der Entwurf vorschlägt
 
@@ -154,50 +87,18 @@ Empfohlene Reihenfolge:
 10. [Beispiel - Kleiner Brownfield Change](examples/sample-delivery-flow.md)
 11. [Beispiel - Banking Flow](examples/sample-banking-flow.md)
 
-## Website
-
-Die Projekt-Website liegt unter `pages/` und ist eine Astro-Single-Page-Application.
-
-```bash
-cd pages
-npm install
-npm run dev      # Entwicklung
-npm run build    # Produktion
-```
-
-## Project Structure
+## Projektstruktur
 
 ```text
 /
 ├─ README.md
-├─ AGENTS.md                         # Agent Operating System
+├─ INSTALL.md
+├─ AGENTS.md
 ├─ .github/
-│  └─ copilot-instructions.md        # GitHub Copilot repository instructions
-├─ create-agdf/                      # npm create agdf bootstrap package
-├─ LICENSE.txt
+├─ create-agdf/
 ├─ .claude-plugin/
-│  └─ marketplace.json               # Plugin Marketplace Definition
-├─ plugin/                           # AGDF Plugin
-│  ├─ .claude-plugin/
-│  │  └─ plugin.json
-│  ├─ hooks/
-│  │  ├─ hooks.json                  # SessionStart Hook
-│  │  └─ session-start.sh
-│  ├─ meta/
-│  │  ├─ agdf-constitution.md        # Operating Model, Gate/Brownfield/Quality Discipline
-│  │  ├─ agdf-tenets.md             # Principles plus Brownfield/Quality/Delivery Tenets
-│  │  └─ agdf-runtime-contract.md   # Compact skill runtime for outputs, gates and Context Graph
-│  ├─ scripts/
-│  │  └─ check-runtime-integrity.mjs # Checks English runtime layer and skill contract references
-│  └─ skills/                        # 7 core workflow skills
-│     ├─ agdf-gate-check/
-│     ├─ agdf-brownfield-analysis/
-│     ├─ agdf-qa-gate/
-│     ├─ agdf-task-plan-review/
-│     ├─ agdf-clean-implementation-review/
-│     ├─ agdf-release-or/
-│     └─ agdf-delivery-closeout/
-├─ docs/                             # German-first framework documentation
+├─ plugin/
+├─ docs/
 │  ├─ 00-manifest.md
 │  ├─ 01-framework-ueberblick.md
 │  ├─ 02-gates.md
@@ -208,19 +109,8 @@ npm run build    # Produktion
 │  ├─ 07-domain-driven-delivery.md
 │  └─ glossar.md
 ├─ examples/
-│  ├─ sample-delivery-flow.md
-│  └─ sample-banking-flow.md
-├─ assets/                           # Diagrams
-└─ pages/                            # Astro-Website (agdf.tools)
-   ├─ package.json
-   ├─ astro.config.mjs
-   ├─ tailwind.config.mjs
-   ├─ src/
-   │  ├─ pages/index.astro
-   │  ├─ layouts/BaseLayout.astro
-   │  ├─ data/skills.ts, site.ts
-   │  └─ styles/global.css
-   └─ public/
+├─ assets/
+└─ pages/
 ```
 
 ## Diskussion erwünscht
@@ -237,6 +127,16 @@ Besonders interessant sind Fragen wie:
 Beiträge sind willkommen:
 Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Requests.
 
+
+## Runtime und Setup
+
+AGDF ist nicht nur ein Diskussionsentwurf, sondern auch als operative Laufzeit nutzbar:
+
+- für **Claude Code** als Plugin
+- für **GitHub Copilot** über Repository-Instruktionen und Repo-Skills
+
+Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen in [INSTALL.md](INSTALL.md).
+
 ## Lizenz
 
-Licensed under [Apache-2.0](LICENSE).
+Lizenziert unter [Apache-2.0](LICENSE).

@@ -24,8 +24,18 @@ function run(target, expectedFiles) {
   }
 }
 
-run("copilot", ["AGENTS.md", join(".github", "copilot-instructions.md")]);
-run("claude", ["AGENTS.md"]);
-run("both", ["AGENTS.md", join(".github", "copilot-instructions.md")]);
+run("copilot", [
+  "AGENTS.md",
+  join(".github", "skills", "README.md"),
+  join(".github", "skills", "agdf-runtime-contract.md"),
+  join(".github", "skills", "agdf-gate-check", "SKILL.md"),
+  join(".github", "skills", "agdf-qa-gate", "SKILL.md"),
+]);
+run("both", [
+  "AGENTS.md",
+  join(".github", "skills", "README.md"),
+  join(".github", "skills", "agdf-runtime-contract.md"),
+  join(".github", "skills", "agdf-release-or", "SKILL.md"),
+]);
 
 console.log("create-agdf smoke test passed");

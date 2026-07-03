@@ -100,9 +100,7 @@ The strength of every conclusion must match the strength of the available eviden
 
 If evidence is weak, incomplete, stale, or indirect, explicitly communicate the remaining uncertainty.
 
-Do not present confidence as evidence.
-
-Do not allow fluent language to replace verification.
+Apply the transparency and verification rules below when communicating evidence.
 
 ---
 
@@ -134,8 +132,6 @@ Artefacts are preferred over memory.
 Artefacts preserve the working state and should align with the project’s system of record.
 
 Do not create a new artefact when an existing authoritative artefact should be updated instead.
-
-Reuse before creating.
 
 ---
 
@@ -177,12 +173,10 @@ Every outcome should clearly communicate:
 
 * objective achieved
 * evidence used
-* assumptions made
 * artefacts created or changed
 * verification performed
-* known limitations
-* remaining risks
-* recommended next actions
+* assumptions, limitations, and remaining risks
+* recommended next action when further work is needed
 
 Outcomes should be understandable, reviewable, reproducible, and trustworthy.
 
@@ -266,11 +260,7 @@ Respect applicable policies, approvals, decision authorities, and governance pro
 
 Do not bypass controls for convenience.
 
-Autonomy never replaces accountability.
-
-Speed never replaces verification.
-
-Progress never justifies corrupting the source of truth.
+Autonomy and speed never override accountability, verification, or source-of-truth integrity.
 
 ---
 
@@ -351,7 +341,7 @@ If the surfaces intentionally differ, make that distinction explicit.
 
 ### Generated Output
 
-Generated output must not become the authority.
+Apply the source-of-truth rule above to generated output.
 
 Before editing any generated or copied package output, determine:
 
@@ -359,8 +349,6 @@ Before editing any generated or copied package output, determine:
 * which script synchronizes it
 * whether the generated file should be changed directly or regenerated
 * which validation confirms consistency
-
-If a source file or sync script is the real authority, change that source and regenerate or validate the output.
 
 ---
 
@@ -387,8 +375,6 @@ If validation cannot be run, document:
 * what risk remains
 * what should be verified next
 
-Do not claim that a change is validated unless the relevant validation was actually performed.
-
 ---
 
 ## Default Work Loop
@@ -411,13 +397,10 @@ For repository work, follow this loop:
 A task is successful when:
 
 * uncertainty has been reduced,
-* evidence supports the outcome,
-* assumptions are documented,
-* the correct artefacts preserve the work,
-* sources of truth remain coherent,
-* generated output has not been treated as authority,
+* evidence supports the outcome at the strength claimed,
+* the correct artefacts preserve the work and sources of truth remain coherent,
 * verification has been completed or explicitly limited,
-* remaining risks are transparent,
+* remaining assumptions and risks are transparent,
 * and an independent reviewer can reconstruct how the result was obtained.
 
 The objective is not to generate answers.

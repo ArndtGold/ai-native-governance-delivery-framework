@@ -568,6 +568,7 @@ import { skills, skillFamilies } from '../data/skills'
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
             <div class="text-dark-200">  writes AGENTS.md and .github/skills <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  if AGENTS.md already exists, AGDF writes AGENTS.agdf.md instead <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
       </div>
@@ -591,7 +592,7 @@ import { skills, skillFamilies } from '../data/skills'
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Copilot loads AGDF from AGENTS.md and checked-in skills</span></div>
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Merge AGENTS.agdf.md into your existing AGENTS.md first if the repo already had one</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/instructions</span></div>
             <div class="text-dark-200">  AGENTS.md <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  .github/skills/agdf-gate-check/SKILL.md <span class="text-agdf-300">✓</span></div>
@@ -607,6 +608,7 @@ import { skills, skillFamilies } from '../data/skills'
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want the repo files for both paths</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
+            <div class="text-dark-200">  preserves an existing AGENTS.md and writes AGENTS.agdf.md for manual merge <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  still install the Claude plugin separately <span class="text-agdf-300">✓</span></div>
           </div>
         </div>

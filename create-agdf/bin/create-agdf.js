@@ -10,6 +10,7 @@ const packageRoot = resolve(__dirname, "..");
 const generatedRoot = join(packageRoot, "generated");
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
 const allowedTargets = new Set(["copilot", "both"]);
+const agdfFragmentPath = "AGENTS.agdf.md";
 const copilotSkillFiles = [
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
@@ -115,10 +116,11 @@ function writeGeneratedFile(targetDir, relativePath, content, force) {
   writeFileSync(outputPath, content, "utf8");
 }
 
-function generatedFilesForTarget(target) {
+function generatedFilesForTarget(target, targetDir, force) {
+  const agentsTargetPath = existsSync(join(targetDir, "AGENTS.md")) && !force ? agdfFragmentPath : "AGENTS.md";
   const files = [
     {
-      path: "AGENTS.md",
+      path: agentsTargetPath,
       content: loadAsset("AGENTS.md"),
     },
   ];
@@ -135,7 +137,7 @@ function generatedFilesForTarget(target) {
   return files;
 }
 
-function printNextSteps(target, destination, files) {
+function printNextSteps(target, destination, files, wroteAgentsFragment) {
   console.log("");
   console.log(`AGDF bootstrap complete in ${destination}`);
   console.log("");
@@ -146,18 +148,22 @@ function printNextSteps(target, destination, files) {
 
   console.log("");
   console.log("Next steps:");
+  if (wroteAgentsFragment) {
+    console.log(`- Existing AGENTS.md detected. Merge ${agdfFragmentPath} into your current AGENTS.md before using Copilot with AGDF.`);
+  }
   if (target === "both") {
     console.log(`- Install the Claude Code plugin: ${pluginInstallCommand}`);
   }
   if (target === "copilot" || target === "both") {
-    console.log("- In GitHub Copilot CLI, run /instructions to confirm that AGENTS.md is loaded and the repository skills are visible.");
+    console.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");
   }
   console.log("- Commit the generated files so the repository becomes the source of truth.");
 }
 
 function main() {
   const options = parseArgs(process.argv.slice(2));
-  const files = generatedFilesForTarget(options.target);
+  const files = generatedFilesForTarget(options.target, options.dir, options.force);
+  const wroteAgentsFragment = files.some(file => file.path === agdfFragmentPath);
 
   try {
     for (const file of files) {
@@ -168,7 +174,7 @@ function main() {
     process.exit(1);
   }
 
-  printNextSteps(options.target, options.dir, files);
+  printNextSteps(options.target, options.dir, files, wroteAgentsFragment);
 }
 
 main();

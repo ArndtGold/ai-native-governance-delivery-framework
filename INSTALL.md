@@ -20,10 +20,17 @@ Run this inside the target Git repository you want to equip with AGDF:
 npm create agdf@latest copilot
 ```
 
-This writes:
+If the repository does not yet contain `AGENTS.md`, this writes:
 
 - `AGENTS.md`
 - `.github/skills/**`
+
+If `AGENTS.md` already exists, AGDF keeps it unchanged and writes:
+
+- `AGENTS.agdf.md`
+- `.github/skills/**`
+
+Then merge the AGDF instructions from `AGENTS.agdf.md` into your existing `AGENTS.md`. Use `--force` only if you intentionally want to replace existing generated files.
 
 After bootstrapping the target repository, verify that Copilot sees the checked-in instructions:
 
@@ -64,9 +71,9 @@ If one target repository should support both Copilot and Claude-oriented repo fi
 npm create agdf@latest both
 ```
 
-This writes:
+This follows the same AGENTS behavior as the `copilot` target:
 
-- `AGENTS.md`
+- `AGENTS.md` or `AGENTS.agdf.md` if an `AGENTS.md` already exists
 - `.github/skills/**`
 
 For Claude Code itself you still install the plugin separately:

@@ -14,10 +14,12 @@ Optional flags:
 - `--dir <path>` write into a specific directory
 - `--force` overwrite existing generated files
 
-## Targets
+## Targets and existing AGENTS.md
 
 - `copilot` writes `AGENTS.md` and visible repository skills under `.github/skills/`
-- `both` writes `AGENTS.md` plus visible repository skills and reminds you to install the Claude plugin separately
+- `both` writes the same Copilot-facing files and reminds you to install the Claude plugin separately
+
+If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. Use `--force` only when you explicitly want to overwrite generated files.
 
 ## Single source of truth
 

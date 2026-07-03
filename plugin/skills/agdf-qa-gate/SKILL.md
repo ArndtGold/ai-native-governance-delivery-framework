@@ -40,7 +40,7 @@ QA-specific `decision` is exactly `pass | revise | block`.
 
 ## When To Use
 - after `CD+Tests`
-- after Code Review
+- after `agdf-code-review`
 - after `agdf-task-plan-review`
 - after `agdf-clean-implementation-review`
 - before UAT
@@ -58,7 +58,7 @@ Use what is available:
 - approved TP and TP Review
 - Brownfield Analysis
 - Clean Implementation Review
-- Code Review Report
+- `agdf-code-review` or Code Review Report
 - test/build results
 - documentation impact review
 - runtime or UI evidence

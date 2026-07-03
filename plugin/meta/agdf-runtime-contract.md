@@ -22,6 +22,7 @@ Structured Delivery must not bypass missing approvals.
 - Implicit consent is not approval.
 - The earliest blocking gate wins.
 - `CD+Tests` is implementation and test status only, not a delivery signal.
+- `agdf-code-review` standardizes the mandatory `CR` step, but does not replace QA.
 - `agdf-qa-gate` decides final `pass | revise | block`.
 - `agdf-release-or` reports the run, but does not replace QA.
 

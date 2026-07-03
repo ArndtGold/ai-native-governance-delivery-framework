@@ -10,6 +10,7 @@ const skillRoot = join(pluginRoot, "skills");
 const expectedSkills = [
   "agdf-brownfield-analysis",
   "agdf-clean-implementation-review",
+  "agdf-code-review",
   "agdf-delivery-closeout",
   "agdf-gate-check",
   "agdf-qa-gate",

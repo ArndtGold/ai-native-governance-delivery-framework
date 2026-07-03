@@ -29,12 +29,14 @@ run("copilot", [
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
   join(".github", "skills", "agdf-gate-check", "SKILL.md"),
+  join(".github", "skills", "agdf-code-review", "SKILL.md"),
   join(".github", "skills", "agdf-qa-gate", "SKILL.md"),
 ]);
 run("both", [
   "AGENTS.md",
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
+  join(".github", "skills", "agdf-code-review", "SKILL.md"),
   join(".github", "skills", "agdf-release-or", "SKILL.md"),
 ]);
 

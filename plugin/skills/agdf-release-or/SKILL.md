@@ -46,7 +46,7 @@ OR-specific output must make gate status, delivered and intentionally not delive
 - after artefact creation
 - when a gate blocks
 - after `CD+Tests`
-- after CR
+- after `agdf-code-review`
 - after QA
 - after UAT
 - whenever a compact audit closeout is needed
@@ -62,6 +62,7 @@ Use what is available:
 - `agdf-task-plan-review`
 - `agdf-brownfield-analysis`
 - `agdf-clean-implementation-review`
+- `agdf-code-review`
 - QA Report
 - UAT Report
 - documentation impact review

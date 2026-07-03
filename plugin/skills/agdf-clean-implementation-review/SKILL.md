@@ -49,7 +49,7 @@ Use what is available:
 - Code Deliverables
 - changed files
 - tests and test results
-- Code Review Report
+- `agdf-code-review` or Code Review Report
 - QA Report
 - Brownfield Analysis findings
 - PRD or SD architecture notes

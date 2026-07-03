@@ -41,6 +41,7 @@ After bootstrapping the target repository, verify that Copilot sees the checked-
 You should see at least:
 
 - `AGENTS.md`
+- `.github/skills/agdf-runtime-contract.md`
 - `.github/skills/agdf-gate-check/SKILL.md`
 
 Then trigger AGDF naturally, for example:
@@ -48,6 +49,10 @@ Then trigger AGDF naturally, for example:
 ```text
 Run an AGDF gate check for this request.
 ```
+
+For code-changing runs, the repository skills also include:
+
+- `.github/skills/agdf-code-review/SKILL.md`
 
 ## Claude Code
 

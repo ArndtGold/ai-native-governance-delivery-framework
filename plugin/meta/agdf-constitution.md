@@ -117,7 +117,7 @@ Typical artefacts include:
 * Decision logs
 * Risk assessments
 * Evidence reports
-* Orchestrierungsreports (OR)
+* Orchestration Reports (OR)
 
 Artefacts are preferred over conversation.
 Artefacts are preferred over memory.
@@ -180,7 +180,7 @@ AGDF work follows a gate-driven flow:
 
 with internal process steps:
 
-    Brownfield-Analyse → CD+Tests → CR → OR
+    Brownfield Analysis → CD+Tests → CR → OR
 
 Rules:
 
@@ -214,9 +214,9 @@ Before any implementation in an existing system:
 * Understand existing artefacts, ownership, and behaviour.
 * Apply **Reuse-before-Create**: existing modules, services, components,
   endpoints, tests and configurations are preferred over new creation.
-* Choose the **minimal-invasive** change that is durably sound.
+* Choose the **minimal clean slice** that is durably sound.
 * Avoid silent parallel structures.
-* Detect and surface **SoT/Runtime/Produktsemantik drift** — if documentation,
+* Detect and surface **SoT/runtime/product-semantics drift** — if documentation,
   runtime behaviour and intended product semantics diverge, flag it as a
   gate-level concern, not a mere brownfield fix.
 

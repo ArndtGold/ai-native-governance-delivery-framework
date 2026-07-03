@@ -23,8 +23,13 @@ If the target repository already has an `AGENTS.md`, `create-agdf` preserves it 
 
 ## Single source of truth
 
-The AGDF skill contracts are maintained in `plugin/skills/`.
-The published package assets are generated from the repository sources only at pack/publish time. The package does not keep a second manually maintained template tree.
+The repository-facing AGDF sources are maintained in:
+
+- `AGENTS.md`
+- `plugin/skills/`
+- `plugin/meta/agdf-runtime-contract.md`
+
+The published package assets are generated from these repository sources only at pack/publish time. The package does not keep a second manually maintained template tree.
 
 ```bash
 npm run sync-package-assets

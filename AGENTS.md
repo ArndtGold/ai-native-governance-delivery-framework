@@ -44,6 +44,7 @@ Evidence overrides assumptions and memory. If evidence is missing, state the unc
 | `agdf-brownfield-analysis` | before non-trivial implementation in existing systems | clarifies reuse, owners, risks |
 | `agdf-task-plan-review` | after implementation and before QA, verify TP coverage | no final QA decision |
 | `agdf-clean-implementation-review` | inspect workarounds, fallbacks, parallel structures, or symptom fixes | not a TP or QA substitute |
+| `agdf-code-review` | mandatory CR step after code changes, focused on defects, regression, and security findings | does not replace TP review, clean review, or QA |
 | `agdf-qa-gate` | final QA decision | only instance for `pass | revise | block` |
 | `agdf-release-or` | auditable closeout for every relevant run | not a QA substitute |
 | `agdf-delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
@@ -52,7 +53,7 @@ Select exactly one primary skill first. Add more only when they cover a distinct
 
 ## Skill Contract
 For repeated output, gate, Quality Contract, and Context Graph rules, use:
-`plugin/meta/agdf-runtime-contract.md`
+the repository-local `agdf-runtime-contract.md` artifact.
 
 Skills may include short runtime reminders, but must not carry a second complete rule or code table.
 

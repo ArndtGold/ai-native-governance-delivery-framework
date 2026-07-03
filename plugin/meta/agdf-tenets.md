@@ -115,7 +115,7 @@ case), you *MUST* honor the following **BROWNFIELD TENETS**:
     Existing architecture, naming, error handling, logging, security and
     test conventions are binding unless an explicit deviation is justified.
 
--   **SoT/Runtime/Produktsemantik Drift Must Be Surfaced**:
+-   **SoT/Runtime/Product-Semantics Drift Must Be Surfaced**:
     If documented target architecture, observable runtime behaviour and
     intended product semantics diverge, this must be explicitly flagged as
     drift — not silently treated as a refactor.

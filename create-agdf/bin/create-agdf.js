@@ -18,6 +18,7 @@ const copilotSkillFiles = [
   join(".github", "skills", "agdf-brownfield-analysis", "SKILL.md"),
   join(".github", "skills", "agdf-task-plan-review", "SKILL.md"),
   join(".github", "skills", "agdf-clean-implementation-review", "SKILL.md"),
+  join(".github", "skills", "agdf-code-review", "SKILL.md"),
   join(".github", "skills", "agdf-qa-gate", "SKILL.md"),
   join(".github", "skills", "agdf-release-or", "SKILL.md"),
   join(".github", "skills", "agdf-delivery-closeout", "SKILL.md"),

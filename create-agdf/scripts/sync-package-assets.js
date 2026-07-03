@@ -44,7 +44,7 @@ function writeSkillsReadme(skillNames) {
   const lines = [
     "# AGDF repository skills",
     "",
-    "These repository skills are generated from `plugin/skills/`, which is the single source of truth for the AGDF skill contracts.",
+    "These repository skills were generated from the AGDF source repository and are intended to be checked into this repository.",
     "",
     "## Skills",
     "",
@@ -52,7 +52,7 @@ function writeSkillsReadme(skillNames) {
     "",
     "## Runtime contract",
     "",
-    "Shared output and gate rules live in `agdf-runtime-contract.md`.",
+    "Shared output and gate rules for this checkout live in `agdf-runtime-contract.md`.",
     "",
   ];
 

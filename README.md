@@ -2,7 +2,7 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten — jetzt auch als Plugin für Agentic AI Coding Tools.
+Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten — jetzt als Claude-Code-Plugin und mit GitHub-Copilot-Unterstuetzung ueber Repository-Instruktionen.
 
 Der Entwurf fragt:
 
@@ -23,9 +23,9 @@ Der Arbeitslauf muss belegbar bleiben.
 Dieses Repository enthält zwei Layer:
 
 1. **Framework-Dokumentation** (`docs/`): Ein öffentlicher Diskursentwurf, der Beobachtungen und Prinzipien beschreibt.
-2. **AGDF Plugin** (`plugin/`): Ein installierbares Claude Code Plugin mit 7 Core-Workflow-Skills, Constitution und Hooks.
+2. **AGDF Runtime** (`plugin/`, `AGENTS.md`, `.github/`): Ein installierbares Claude Code Plugin mit 7 Core-Workflow-Skills, Constitution und Hooks sowie GitHub-Copilot-Unterstuetzung ueber Repository-Instruktionen.
 
-Das Plugin ist die operative Umsetzung der Framework-Prinzipien: Gate-Enforcement, Brownfield-Analyse, Quality Contracts und auditable Delivery-Workflows.
+Die Runtime ist die operative Umsetzung der Framework-Prinzipien: Gate-Enforcement, Brownfield-Analyse, Quality Contracts und auditable Delivery-Workflows.
 
 ## Erste 5 Minuten
 
@@ -35,7 +35,20 @@ Wenn du schnell verstehen willst, worum es geht:
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
 
-Wenn du das Plugin direkt ausprobieren willst:
+Wenn du AGDF in ein neues Repository bootstrapen willst:
+
+```bash
+# GitHub Copilot
+npm create agdf@latest copilot
+
+# Claude Code
+npm create agdf@latest claude
+
+# Beide Oberflaechen
+npm create agdf@latest both
+```
+
+Wenn du AGDF in Claude Code direkt ausprobieren willst:
 
 ```bash
 # Plugin installieren
@@ -45,20 +58,31 @@ claude plugin add arndtgold/ai-native-governance-delivery-framework
 /agdf-gate-check
 ```
 
+Wenn du GitHub Copilot CLI oder den Copilot Coding Agent verwenden willst:
+
+```text
+# Repo-Instruktionen anzeigen
+/instructions
+
+# Danach einen AGDF-Check per Prompt ausloesen
+Run an AGDF gate check for this request.
+```
+
 Danach solltest du beantworten können:
 
 - Warum reicht ein guter Agenten-Output allein nicht?
 - Welche Entscheidung stoppt oder erlaubt den nächsten Schritt?
 - Welche Nachweise braucht ein Team, damit ein Agentenlauf vertrauenswürdig wird?
 
-## The AGDF Plugin
+## The AGDF Runtime
 
-The plugin (AGDF = Agentic Governance & Delivery Framework) turns the framework principles into operational runtime guidance:
+AGDF (Agentic Governance & Delivery Framework) turns the framework principles into operational runtime guidance:
 
 - **Constitution**: Loads the operating model at session start: Uncertainty Reduction → Evidence → Artefacts → Verification → Outcome, plus gate, Brownfield, and Quality Contract discipline.
 - **7 Core Skills**: Gate Check, Brownfield Analysis, Task Plan Review, Clean Implementation Review, QA Gate, Release OR, Delivery Closeout.
 - **Fail-closed enforcement**: Exact approval formula `Approval: <GateName>`; implicit consent is not enough. Legacy German `Freigabe: <GateName>` may be interpreted, but new artefacts use `Approval:`.
-- **No CLI/MCP**: Pure plugin — skills, constitution, and hooks.
+- **Claude Code surface**: Installable plugin from `plugin/` with skills, constitution, and hooks.
+- **GitHub Copilot surface**: Repository instructions via `AGENTS.md` and `.github/copilot-instructions.md`.
 
 Plugin runtime validation:
 
@@ -147,6 +171,9 @@ npm run build    # Produktion
 /
 ├─ README.md
 ├─ AGENTS.md                         # Agent Operating System
+├─ .github/
+│  └─ copilot-instructions.md        # GitHub Copilot repository instructions
+├─ create-agdf/                      # npm create agdf bootstrap package
 ├─ LICENSE.txt
 ├─ .claude-plugin/
 │  └─ marketplace.json               # Plugin Marketplace Definition

@@ -70,7 +70,7 @@ import { skills, skillFamilies } from '../data/skills'
         <span class="h-3 w-3 rounded-full bg-red-500/80"></span>
         <span class="h-3 w-3 rounded-full bg-yellow-500/80"></span>
         <span class="h-3 w-3 rounded-full bg-green-500/80"></span>
-        <span class="ml-2 text-xs text-dark-200">Claude Code</span>
+        <span class="ml-2 text-xs text-dark-200">Claude Code / GitHub Copilot</span>
       </div>
       <div class="terminal-body">
         <div class="text-agdf-400">❯ <span class="text-dark-100">/agdf-gate-check</span></div>
@@ -401,14 +401,28 @@ import { skills, skillFamilies } from '../data/skills'
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
-      <p class="text-dark-200">Install the plugin, verify it, then start with the gate check.</p>
+      <p class="text-dark-200">Use the Claude Code plugin or let GitHub Copilot load the checked-in AGDF instructions.</p>
     </div>
     <div class="space-y-6">
-      <!-- Installation -->
       <div data-reveal data-reveal-delay="1">
         <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
           <span class="text-dark-200/50">Terminal:</span>
-          <span class="font-semibold">Installation</span>
+          <span class="font-semibold">Bootstrap</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Scaffold AGDF for Copilot, Claude, or both</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest claude</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Installation -->
+      <div data-reveal data-reveal-delay="2">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Terminal:</span>
+          <span class="font-semibold">Claude Code installation</span>
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
@@ -417,8 +431,22 @@ import { skills, skillFamilies } from '../data/skills'
           </div>
         </div>
       </div>
+      <div data-reveal data-reveal-delay="3">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">GitHub Copilot:</span>
+          <span class="font-semibold">Repository instructions</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Copilot loads AGDF from checked-in instructions</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/instructions</span></div>
+            <div class="text-dark-200">  AGENTS.md <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  .github/copilot-instructions.md <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
       <!-- Verification -->
-      <div data-reveal data-reveal-delay="2">
+      <div data-reveal data-reveal-delay="4">
         <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
           <span class="text-dark-200/50">Terminal:</span>
           <span class="font-semibold">Verification</span>
@@ -431,14 +459,14 @@ import { skills, skillFamilies } from '../data/skills'
         </div>
       </div>
       <!-- First use -->
-      <div data-reveal data-reveal-delay="3">
+      <div data-reveal data-reveal-delay="5">
         <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Claude Code:</span>
-          <span class="font-semibold">First Use</span>
+          <span class="text-dark-200/50">Any supported agent:</span>
+          <span class="font-semibold">First prompt</span>
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/agdf-gate-check</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Run an AGDF gate check for this request.</span></div>
             <div class="text-dark-200">  Current gate: <code>UR</code></div>
             <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
             <div class="text-dark-200">  Allowed: formulate UR, run Brownfield Review</div>
@@ -559,7 +587,7 @@ import { skills, skillFamilies } from '../data/skills'
 <section id="compat" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Compatibility</h2>
-      <p class="text-dark-200">AGDF targets common Agentic AI coding tools, with Claude Code as the primary surface.</p>
+      <p class="text-dark-200">AGDF targets common Agentic AI coding tools, with a Claude Code plugin surface and GitHub Copilot repository-instruction support.</p>
   </div>
   <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
     <table class="w-full text-left text-sm">

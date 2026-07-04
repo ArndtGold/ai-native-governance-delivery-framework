@@ -98,7 +98,7 @@ const projectStats = await getProjectStats()
 QA decisions and auditable closeout.
     </p>
     <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-      <a href="#setup-codex" class="btn-primary">Install for Codex</a>
+      <a href="#setup-codex-project" class="btn-primary">Try in Codex</a>
       <a href={site.repo} class="btn-ghost">View on GitHub</a>
     </div>
     <div data-reveal data-reveal-delay="5" class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
@@ -649,7 +649,7 @@ QA decisions and auditable closeout.
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
-      <p class="text-dark-200">Start with Codex when you want the primary AGDF plugin experience. Claude Code uses the same plugin source; Copilot receives repository files and `.agdf/control` templates generated from the shared runtime.</p>
+      <p class="text-dark-200">Start with Codex in one repository when you want to try AGDF without changing your global setup. Install globally only when AGDF should follow you across projects.</p>
     </div>
     <div id="setup-prerequisites" data-reveal data-reveal-delay="1" class="surface mb-6 p-5">
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Prerequisites</div>
@@ -662,14 +662,28 @@ QA decisions and auditable closeout.
       </div>
     </div>
     <div class="space-y-6">
-      <div id="setup-codex" data-reveal data-reveal-delay="2">
+      <div id="setup-codex-project" data-reveal data-reveal-delay="2">
         <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Codex:</span>
-          <span class="font-semibold">Install the primary AGDF plugin</span>
+          <span class="text-dark-200/50">Codex trial:</span>
+          <span class="font-semibold">Make AGDF available only in this repository</span>
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Add the AGDF repository marketplace, then install the plugin</span></div>
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository where you want to try AGDF</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest codex</span></div>
+            <div class="text-dark-200">  writes .agents/plugins/marketplace.json and plugins/agdf <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  restart Codex, open /plugins, select the project marketplace and install agdf <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="setup-codex" data-reveal data-reveal-delay="3">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">Codex:</span>
+          <span class="font-semibold">Install the AGDF plugin globally for your Codex setup</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Use this when AGDF should be available across projects</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin add agdf --marketplace agdf</span></div>
             <div class="text-dark-200">  loads plugin/.codex-plugin/plugin.json, shared AGDF skills and the control scaffold <span class="text-agdf-300">✓</span></div>
@@ -727,8 +741,9 @@ QA decisions and auditable closeout.
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want Copilot-facing repo files</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
+            <div class="text-dark-200">  writes the project Codex marketplace and local AGDF plugin copy <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  preserves an existing AGENTS.md and writes AGENTS.agdf.md for manual merge <span class="text-agdf-300">✓</span></div>
-            <div class="text-dark-200">  still install the Claude Code or Codex plugin separately <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  still install the Claude Code plugin separately if needed <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
       </div>

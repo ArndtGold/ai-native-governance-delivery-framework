@@ -24,6 +24,15 @@ function run(target, expectedFiles) {
   }
 }
 
+run("codex", [
+  join(".agents", "plugins", "marketplace.json"),
+  join("plugins", "agdf", ".codex-plugin", "plugin.json"),
+  join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
+  join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
+  join("plugins", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-code-review", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-qa-gate", "SKILL.md"),
+]);
 run("copilot", [
   "AGENTS.md",
   join(".agdf", "control", "README.md"),
@@ -39,6 +48,9 @@ run("copilot", [
 ]);
 run("both", [
   "AGENTS.md",
+  join(".agents", "plugins", "marketplace.json"),
+  join("plugins", "agdf", ".codex-plugin", "plugin.json"),
+  join("plugins", "agdf", "skills", "agdf-release-or", "SKILL.md"),
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".github", "skills", "README.md"),

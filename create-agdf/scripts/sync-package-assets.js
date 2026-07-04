@@ -8,10 +8,12 @@ const repoRoot = resolve(packageRoot, "..");
 const sourceAgentsPath = join(repoRoot, "plugin", "meta", "agdf-copilot-agents.md");
 const sourceSkillsRoot = join(repoRoot, "plugin", "skills");
 const sourceControlRoot = join(repoRoot, "plugin", "control");
+const sourcePluginRoot = join(repoRoot, "plugin");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
 const generatedRoot = join(packageRoot, "generated");
 const generatedSkillsRoot = join(generatedRoot, ".github", "skills");
 const generatedControlRoot = join(generatedRoot, ".agdf", "control");
+const generatedCodexPluginRoot = join(generatedRoot, "plugins", "agdf");
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -30,6 +32,25 @@ function syncDirectory(sourceRoot, targetRoot) {
 
     if (stats.isDirectory()) {
       syncDirectory(sourcePath, targetPath);
+      continue;
+    }
+
+    if (stats.isFile()) {
+      write(targetPath, read(sourcePath));
+    }
+  }
+}
+
+function syncPluginDirectory(sourceRoot, targetRoot) {
+  for (const entry of readdirSync(sourceRoot)) {
+    if (entry === ".claude-plugin" || entry === "hooks" || entry === "scripts") continue;
+
+    const sourcePath = join(sourceRoot, entry);
+    const targetPath = join(targetRoot, entry);
+    const stats = statSync(sourcePath);
+
+    if (stats.isDirectory()) {
+      syncPluginDirectory(sourcePath, targetPath);
       continue;
     }
 
@@ -78,6 +99,28 @@ function writeSkillsReadme(skillNames) {
   write(join(generatedSkillsRoot, "README.md"), lines.join("\n"));
 }
 
+function writeCodexMarketplace() {
+  const marketplace = {
+    name: "agdf-project",
+    plugins: [
+      {
+        name: "agdf",
+        source: {
+          source: "local",
+          path: "./plugins/agdf",
+        },
+        policy: {
+          installation: "AVAILABLE",
+          authentication: "ON_INSTALL",
+        },
+        category: "Productivity",
+      },
+    ],
+  };
+
+  write(join(generatedRoot, ".agents", "plugins", "marketplace.json"), `${JSON.stringify(marketplace, null, 2)}\n`);
+}
+
 function main() {
   const skillNames = getSkillDirectories();
 
@@ -87,6 +130,8 @@ function main() {
   syncTopLevelAssets();
   syncRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
+  syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
+  writeCodexMarketplace();
   for (const skillName of skillNames) {
     syncSkill(skillName);
   }

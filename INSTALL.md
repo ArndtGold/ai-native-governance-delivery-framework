@@ -30,6 +30,8 @@ codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework
 codex plugin add agdf --marketplace agdf
 ```
 
+This installs AGDF into your Codex environment. Use the repository-local setup below when AGDF should be visible only for one target repository.
+
 Then start a new Codex thread and ask:
 
 ```text
@@ -43,6 +45,26 @@ Create an AGDF control scaffold for this repository.
 ```
 
 Use `plugin/control/templates/` as the source. In a target repository, live control files usually belong under `.agdf/control/`.
+
+### Codex for one repository only
+
+Run this inside the target Git repository when AGDF should be available only from that project:
+
+```bash
+npm create agdf@latest codex
+```
+
+This writes:
+
+- `.agents/plugins/marketplace.json`
+- `plugins/agdf/.codex-plugin/plugin.json`
+- `plugins/agdf/skills/**`
+- `plugins/agdf/control/**`
+- `plugins/agdf/meta/**`
+
+Then restart Codex in that repository, open `/plugins`, select the project marketplace and install `agdf`.
+
+The plugin is then discoverable from that repository's marketplace. Other repositories do not get this project-local marketplace unless they also contain the generated `.agents/plugins/marketplace.json` and `plugins/agdf/` files.
 
 ## GitHub Actions and rollout boundary
 
@@ -125,17 +147,17 @@ If one target repository should support Copilot-oriented repo files plus plugin 
 npm create agdf@latest both
 ```
 
-This follows the same AGENTS behavior as the `copilot` target:
+This writes the Codex project marketplace plus the same Copilot-facing files as the `copilot` target:
 
+- `.agents/plugins/marketplace.json`
+- `plugins/agdf/**`
 - `AGENTS.md` or `AGENTS.agdf.md` if an `AGENTS.md` already exists
 - `.github/skills/**`
 
-For Claude Code and Codex themselves you still install the plugin separately:
+For Claude Code you still install the plugin separately if you want Claude Code plugin support outside the checked-in Copilot files:
 
 ```bash
 claude plugin add arndtgold/ai-native-governance-delivery-framework
-codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework
-codex plugin add agdf --marketplace agdf
 ```
 
 ## Validate the runtime in this repository

@@ -9,8 +9,27 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 const generatedRoot = join(packageRoot, "generated");
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["copilot", "both"]);
+const allowedTargets = new Set(["codex", "copilot", "both"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
+const codexPluginFiles = [
+  join(".agents", "plugins", "marketplace.json"),
+  join("plugins", "agdf", ".codex-plugin", "plugin.json"),
+  join("plugins", "agdf", "control", "README.md"),
+  join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
+  join("plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"),
+  join("plugins", "agdf", "control", "templates", "SOT_REGISTRY.md"),
+  join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
+  join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+  join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
+  join("plugins", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-brownfield-analysis", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-task-plan-review", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-clean-implementation-review", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-code-review", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-qa-gate", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-release-or", "SKILL.md"),
+  join("plugins", "agdf", "skills", "agdf-delivery-closeout", "SKILL.md"),
+];
 const controlFiles = [
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "AGDF_RUN.md"),
@@ -36,6 +55,7 @@ function printUsage() {
   console.log(`create-agdf
 
 Usage:
+  npm create agdf@latest codex
   npm create agdf@latest copilot
   npm create agdf@latest both
 
@@ -98,7 +118,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: copilot or both.");
+    console.error("Please choose one target: codex, copilot or both.");
     printUsage();
     process.exit(1);
   }
@@ -126,15 +146,24 @@ function writeGeneratedFile(targetDir, relativePath, content, force) {
 }
 
 function generatedFilesForTarget(target, targetDir, force) {
-  const agentsTargetPath = existsSync(join(targetDir, "AGENTS.md")) && !force ? agdfFragmentPath : "AGENTS.md";
-  const files = [
-    {
-      path: agentsTargetPath,
-      content: loadAsset("AGENTS.md"),
-    },
-  ];
+  const files = [];
+
+  if (target === "codex" || target === "both") {
+    for (const codexPath of codexPluginFiles) {
+      files.push({
+        path: codexPath,
+        content: loadAsset(codexPath),
+      });
+    }
+  }
 
   if (target === "copilot" || target === "both") {
+    const agentsTargetPath = existsSync(join(targetDir, "AGENTS.md")) && !force ? agdfFragmentPath : "AGENTS.md";
+    files.push({
+      path: agentsTargetPath,
+      content: loadAsset("AGENTS.md"),
+    });
+
     for (const controlPath of controlFiles) {
       files.push({
         path: controlPath,
@@ -167,8 +196,12 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
   if (wroteAgentsFragment) {
     console.log(`- Existing AGENTS.md detected. Merge ${agdfFragmentPath} into your current AGENTS.md before using Copilot with AGDF.`);
   }
+  if (target === "codex" || target === "both") {
+    console.log("- Restart Codex in this repository, open /plugins, select the project marketplace and install agdf.");
+    console.log("- Start a new Codex thread in this repository and ask: Run an AGDF gate check for this request.");
+  }
   if (target === "both") {
-    console.log(`- Install the Claude Code plugin: ${pluginInstallCommand}`);
+    console.log(`- Optional global Claude Code install: ${pluginInstallCommand}`);
   }
   if (target === "copilot" || target === "both") {
     console.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");

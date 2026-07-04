@@ -5,6 +5,7 @@ Bootstrap AGDF repository instructions for one repository.
 ## Usage
 
 ```bash
+npm create agdf@latest codex
 npm create agdf@latest copilot
 npm create agdf@latest both
 ```
@@ -16,12 +17,15 @@ Optional flags:
 
 ## Targets and existing AGENTS.md
 
+- `codex` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `copilot` writes `AGENTS.md`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
-- `both` writes the same Copilot-facing files and reminds you to install the Claude Code plugin separately
+- `both` writes the Codex project marketplace plus the Copilot-facing repository files
 
 If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. Use `--force` only when you explicitly want to overwrite generated files.
 
-Codex is supported through the AGDF Codex plugin in `plugin/.codex-plugin/plugin.json`, not through `create-agdf` package output.
+Use the `codex` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
+
+After `npm create agdf@latest codex`, restart Codex in that repository, open `/plugins`, select the project marketplace and install `agdf`.
 
 ## Control scaffold
 

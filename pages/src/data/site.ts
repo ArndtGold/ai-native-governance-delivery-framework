@@ -2,7 +2,7 @@ export const site = {
     name: "AGDF",
     fullName: "AI Governance & Delivery Framework",
     tagline: "Keep AI-assisted delivery gated, auditable and Brownfield-safe.",
-    description: "A focused governance plugin for Agentic AI Coding Tools: seven core workflow skills for approvals, Brownfield analysis, TP verification, QA decisions and auditable delivery closeout.",
+    description: "A focused governance plugin for Agentic AI Coding Tools: core workflow skills and control templates for approvals, Brownfield analysis, durable run state, QA decisions and auditable delivery closeout.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
@@ -230,7 +230,7 @@ export const buildingBlocks = [
     },
     {
         name: "Delivery Map",
-        desc: "A project-near view that connects artifacts, decisions, risks, tests, evidence and gates.",
+        desc: "A project-near control state that connects run status, artifacts, decisions, risks, tests, evidence and gates.",
         icon: "map",
     },
     {
@@ -254,7 +254,7 @@ export const gateFlow = [
 ]
 
 export const compatibility = [
-    { tool: "Anthropic Claude Code CLI", integration: "Plugin", support: "First-class", goal: "primary", setupAnchor: "#setup-claude" },
-    { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills", support: "First-class", goal: "primary", setupAnchor: "#setup-copilot" },
-    { tool: "OpenAI Codex CLI", integration: "AGENTS.md", support: "Best-effort", goal: "secondary" },
+    { tool: "OpenAI Codex CLI / app", integration: "Plugin + control scaffold", support: "Leading", goal: "primary", setupAnchor: "#setup-codex" },
+    { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "First-class", goal: "plugin", setupAnchor: "#setup-claude" },
+    { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills + .agdf/control", support: "First-class", goal: "repo files", setupAnchor: "#setup-copilot" },
 ]

@@ -11,6 +11,14 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
 const allowedTargets = new Set(["copilot", "both"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
+const controlFiles = [
+  join(".agdf", "control", "README.md"),
+  join(".agdf", "control", "templates", "AGDF_RUN.md"),
+  join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
+  join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
+  join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
+  join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+];
 const copilotSkillFiles = [
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
@@ -127,6 +135,13 @@ function generatedFilesForTarget(target, targetDir, force) {
   ];
 
   if (target === "copilot" || target === "both") {
+    for (const controlPath of controlFiles) {
+      files.push({
+        path: controlPath,
+        content: loadAsset(controlPath),
+      });
+    }
+
     for (const skillPath of copilotSkillFiles) {
       files.push({
         path: skillPath,
@@ -157,6 +172,7 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
   }
   if (target === "copilot" || target === "both") {
     console.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");
+    console.log("- Copy the templates under .agdf/control/templates into live control files when the repository needs a durable run state, backlog pointer, SoT registry or context graph.");
   }
   console.log("- Commit the generated files so the repository becomes the source of truth.");
 }

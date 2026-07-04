@@ -26,6 +26,11 @@ function run(target, expectedFiles) {
 
 run("copilot", [
   "AGENTS.md",
+  join(".agdf", "control", "README.md"),
+  join(".agdf", "control", "templates", "AGDF_RUN.md"),
+  join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
+  join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
+  join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
   join(".github", "skills", "agdf-gate-check", "SKILL.md"),
@@ -34,6 +39,8 @@ run("copilot", [
 ]);
 run("both", [
   "AGENTS.md",
+  join(".agdf", "control", "README.md"),
+  join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
   join(".github", "skills", "agdf-code-review", "SKILL.md"),
@@ -60,6 +67,11 @@ run("both", [
     const expectedSkillPath = join(tempDir, ".github", "skills", "agdf-gate-check", "SKILL.md");
     if (!existsSync(expectedSkillPath)) {
       throw new Error("Missing repository skills for existing AGENTS.md scenario.");
+    }
+
+    const expectedControlPath = join(tempDir, ".agdf", "control", "templates", "AGDF_RUN.md");
+    if (!existsSync(expectedControlPath)) {
+      throw new Error("Missing AGDF control scaffold for existing AGENTS.md scenario.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

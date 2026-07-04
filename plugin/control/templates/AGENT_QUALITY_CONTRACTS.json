@@ -1,0 +1,78 @@
+{
+  "schema_version": "1",
+  "updated_at": "",
+  "contracts": [
+    {
+      "code": "AGDF_GATE_BYPASS",
+      "category": "agent_process",
+      "impact": "block",
+      "title": "Gate bypass",
+      "description": "A later artefact or implementation was produced without the required exact approval.",
+      "applies_to_modes": ["structured_delivery"],
+      "gate_effect": ["prd", "sd", "tp", "qa", "uat"],
+      "required_evidence": ["approval_log", "artifact_status"],
+      "evaluation": "review",
+      "owner": "governance"
+    },
+    {
+      "code": "AGDF_QA_WITHOUT_TASK_PLAN_REVIEW",
+      "category": "agent_process",
+      "impact": "block",
+      "title": "QA without task-plan review",
+      "description": "QA is evaluated for Structured Delivery without prior task-plan coverage evidence.",
+      "applies_to_modes": ["structured_delivery"],
+      "gate_effect": ["qa"],
+      "required_evidence": ["task_plan_review"],
+      "evaluation": "review",
+      "owner": "governance"
+    },
+    {
+      "code": "AGDF_PARALLEL_SOT",
+      "category": "architecture_integrity",
+      "impact": "block",
+      "title": "Parallel source of truth",
+      "description": "A second source of truth was introduced for product intent, runtime behavior, visible state, policy or persistent domain data.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["prd", "sd", "tp", "qa"],
+      "required_evidence": ["brownfield_analysis", "source_of_truth_reference"],
+      "evaluation": "review",
+      "owner": "governance"
+    },
+    {
+      "code": "AGDF_DOC_IMPACT_UNCHECKED",
+      "category": "doc_spec_drift",
+      "impact": "revise",
+      "title": "Documentation or SoT impact unchecked",
+      "description": "A behavior, architecture, API, UX, policy or runtime change was completed without checking the affected source-of-truth artefacts.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["qa"],
+      "required_evidence": ["sot_impact_review"],
+      "evaluation": "review",
+      "owner": "docs"
+    },
+    {
+      "code": "AGDF_TEST_SCOPE_UNCLEAR",
+      "category": "tp_coverage",
+      "impact": "revise",
+      "title": "Test scope unclear",
+      "description": "Tests were cited but are not traceable to affected acceptance criteria, tasks or risk paths.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["qa"],
+      "required_evidence": ["test_result", "acceptance_mapping"],
+      "evaluation": "review",
+      "owner": "test"
+    },
+    {
+      "code": "AGDF_QUICK_TASK_EVIDENCE_LIGHT",
+      "category": "agent_process",
+      "impact": "warn",
+      "title": "Quick task evidence light",
+      "description": "A Quick Task has minimal evidence that may be acceptable for scope and risk but must remain visible.",
+      "applies_to_modes": ["quick_task"],
+      "gate_effect": ["none"],
+      "required_evidence": ["closeout_note"],
+      "evaluation": "review",
+      "owner": "governance"
+    }
+  ]
+}

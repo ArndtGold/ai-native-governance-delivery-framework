@@ -57,6 +57,18 @@ the repository-local `agdf-runtime-contract.md` artifact.
 
 Skills may include short runtime reminders, but must not carry a second complete rule or code table.
 
+## Durable Control State
+When this repository uses the AGDF control scaffold, keep live control files under `.agdf/control/`.
+Use the templates as starting points only:
+
+- `.agdf/control/templates/AGDF_RUN.md`
+- `.agdf/control/templates/MASTER_BACKLOG.md`
+- `.agdf/control/templates/SOT_REGISTRY.md`
+- `.agdf/control/templates/CONTEXT_GRAPH.md`
+- `.agdf/control/templates/AGENT_QUALITY_CONTRACTS.json`
+
+Do not let chat history become the source of truth for gate state, approvals, evidence, backlog status or durable Brownfield knowledge.
+
 ## Closeout
 After relevant code, documentation, skill, or governance changes:
 - run relevant checks or state the test gap

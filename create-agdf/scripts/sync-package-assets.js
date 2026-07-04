@@ -7,9 +7,11 @@ const packageRoot = resolve(__dirname, "..");
 const repoRoot = resolve(packageRoot, "..");
 const sourceAgentsPath = join(repoRoot, "plugin", "meta", "agdf-copilot-agents.md");
 const sourceSkillsRoot = join(repoRoot, "plugin", "skills");
+const sourceControlRoot = join(repoRoot, "plugin", "control");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
 const generatedRoot = join(packageRoot, "generated");
 const generatedSkillsRoot = join(generatedRoot, ".github", "skills");
+const generatedControlRoot = join(generatedRoot, ".agdf", "control");
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -18,6 +20,23 @@ function read(path) {
 function write(path, content) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content, "utf8");
+}
+
+function syncDirectory(sourceRoot, targetRoot) {
+  for (const entry of readdirSync(sourceRoot)) {
+    const sourcePath = join(sourceRoot, entry);
+    const targetPath = join(targetRoot, entry);
+    const stats = statSync(sourcePath);
+
+    if (stats.isDirectory()) {
+      syncDirectory(sourcePath, targetPath);
+      continue;
+    }
+
+    if (stats.isFile()) {
+      write(targetPath, read(sourcePath));
+    }
+  }
 }
 
 function getSkillDirectories() {
@@ -67,6 +86,7 @@ function main() {
 
   syncTopLevelAssets();
   syncRuntimeContract();
+  syncDirectory(sourceControlRoot, generatedControlRoot);
   for (const skillName of skillNames) {
     syncSkill(skillName);
   }

@@ -53,6 +53,18 @@ When a run affects project memory or a Context Graph, use:
 Do not create a new node for a mere version, a general chat summary, or a local observation without a concrete next clean step.
 `sot_drift` must not pass silently as a warning.
 
+## Control Scaffold
+
+When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
+
+- `AGDF_RUN.md` is the current run dashboard.
+- `MASTER_BACKLOG.md` is the living pointer for active delivery work.
+- `SOT_REGISTRY.md` prevents parallel sources of truth.
+- `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.
+- `AGENT_QUALITY_CONTRACTS.json` stores reusable block, revise and warning conditions.
+
+The scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.
+
 ## Skill Output
 
 Every skill output should be as short as possible and as concrete as needed.

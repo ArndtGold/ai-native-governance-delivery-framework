@@ -2,21 +2,41 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten — jetzt als Claude-Code-Plugin und mit GitHub-Copilot-Unterstuetzung ueber Repository-Instruktionen.
+Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als Plugin, zusätzlich nutzbar mit Claude Code und GitHub Copilot.
 
-Der Entwurf fragt:
+## Language note
+
+AGDF is German-first by design.
+
+The framework discusses governance, responsibility, approval, evidence and delivery control in the language in which many of the underlying enterprise, product and accountability conversations happen for this project. English software-delivery terms are used where they are established, but the primary reasoning language remains German to preserve nuance around control, responsibility and decision-making.
+
+The plugin surfaces and operational commands are kept usable for Codex, Claude Code and GitHub Copilot. Selected runtime-facing parts may become bilingual where that improves adoption without weakening the original concepts.
+
+## Zentrale Frage
 
 Wie bleibt Softwareentwicklung kontrollierbar, wenn KI-Agenten nicht nur Code schreiben, sondern auch planen, prüfen,
 ändern und zusammenfassen?
 
-## In einem Satz
+### In einem Satz
 
-KI-Agenten brauchen nicht nur Prompts und Tools.
-Sie brauchen einen nachvollziehbaren Arbeitsrahmen aus Gates, Artefakten, Projektwissen und Nachweisen.
+KI-Agenten brauchen nicht nur Prompts und Tools, sondern eine überprüfbare Arbeitsordnung:
+Gates, Artefakte, Projektwissen, Nachweise und klare Stoppsignale.
 
 Der Mensch bleibt verantwortlich.
-Der Agent kann unterstützen.
-Der Arbeitslauf muss belegbar bleiben.
+Der Agent kann Arbeit beschleunigen.
+Der Arbeitslauf muss kontrollierbar, nachvollziehbar und belegbar bleiben.
+
+## Worum geht es praktisch?
+
+AGDF beantwortet während eines Agentenlaufs immer wieder dieselben Kontrollfragen:
+
+- Was ist fachlich erlaubt?
+- Welche Freigabe liegt wirklich vor?
+- Welche Quelle der Wahrheit gilt?
+- Welche Evidenz belegt den nächsten Schritt?
+- Wo muss der Agent stoppen, statt plausibel weiterzumachen?
+
+Darum ist AGDF zuerst ein **Kontrollsystem** und erst danach ein technisches Plugin.
 
 ## Erste 5 Minuten
 
@@ -26,7 +46,7 @@ Wenn du schnell verstehen willst, worum es geht:
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
 
-Installation und Setup fuer GitHub Copilot, Claude Code oder beide Oberflaechen stehen in [INSTALL.md](INSTALL.md).
+Installation und Setup für Codex, Claude Code, GitHub Copilot oder kombinierte Oberflächen stehen in [INSTALL.md](INSTALL.md).
 
 Danach solltest du beantworten können:
 
@@ -34,9 +54,9 @@ Danach solltest du beantworten können:
 - Welche Entscheidung stoppt oder erlaubt den nächsten Schritt?
 - Welche Nachweise braucht ein Team, damit ein Agentenlauf vertrauenswürdig wird?
 
-## Was der Entwurf vorschlägt
+## Was schlägt AGDF vor?
 
-Der Entwurf arbeitet mit vier Bausteinen.
+AGDF arbeitet mit fünf Bausteinen.
 
 Gates:
 bewusste Haltepunkte, an denen entschieden wird, ob Arbeit weitergehen darf.
@@ -49,6 +69,9 @@ ein projektnahes Gedächtnis, das nicht allein in Chatverläufen oder Tool-Memor
 
 Qualitätsverträge:
 prüfbare Regeln für Agentenläufe, Reviews und Nachweise.
+
+Control-Scaffold:
+konkrete Repository-Artefakte für Run-Status, Backlog-Zeiger, Source-of-Truth-Registry, Context Graph und wiederverwendbare Qualitätsverträge.
 
 ## Warum Brownfield wichtig ist
 
@@ -89,6 +112,12 @@ Empfohlene Reihenfolge:
 ├─ create-agdf/
 ├─ .claude-plugin/
 ├─ plugin/
+│  ├─ .claude-plugin/
+│  ├─ .codex-plugin/
+│  ├─ control/
+│  ├─ hooks/
+│  ├─ meta/
+│  └─ skills/
 ├─ docs/
 │  ├─ 00-manifest.md
 │  ├─ 01-framework-ueberblick.md
@@ -107,7 +136,7 @@ Empfohlene Reihenfolge:
 Die Root-`AGENTS.md` steuert die Bearbeitung dieses Repositories.
 Die installierbaren Copilot-Instruktionen werden separat in `plugin/meta/agdf-copilot-agents.md` gepflegt.
 
-## Diskussion erwünscht
+## Welche Fragen sind interessant?
 
 Besonders interessant sind Fragen wie:
 
@@ -121,16 +150,26 @@ Besonders interessant sind Fragen wie:
 Beiträge sind willkommen:
 Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Requests.
 
-
-
 ## Runtime und Setup
 
 AGDF ist nicht nur ein Diskussionsentwurf, sondern auch als operative Laufzeit nutzbar:
 
+- für **Codex** als Plugin
 - für **Claude Code** als Plugin
 - für **GitHub Copilot** über Repository-Instruktionen und Repo-Skills
 
 Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen in [INSTALL.md](INSTALL.md).
+
+Das Plugin liefert zusätzlich einen Control-Scaffold unter `plugin/control/`.
+Dieser Scaffold macht den praktischen Arbeitsstand sichtbar:
+
+Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte aus den Dokumenten:
+
+- aktueller Run-Status und nächste erlaubte Aktion: aus [Gates](docs/02-gates.md), besonders Gate-Status, Gate-Entscheidung und nächster Schritt
+- Master-Backlog als lebender Steuerungszeiger: aus [Artefakten](docs/03-artefakte.md), besonders Artefaktstatus, Referenzen und Artefaktliste als Fallback
+- Source-of-Truth-Registry gegen parallele Wahrheiten: aus dem [Manifest](docs/00-manifest.md), besonders „Eine verbindliche Quelle für Produktabsicht“
+- Context Graph für dauerhaft relevante Brownfield-Erkenntnisse: aus [Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md) und [Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
+- Quality Contracts als wiederverwendbare Block-, Revise- und Warnsignale: aus [Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md), besonders ausführbare Qualitätsverträge und ihre Wirkung
 
 ## Lizenz
 

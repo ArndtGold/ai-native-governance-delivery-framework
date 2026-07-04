@@ -5,13 +5,18 @@
         "email":           ""
     },
     "metadata": {
-        "description":     "AI Governance & Delivery Framework (AGDF)"
+        "description":     "Codex-first workflow skills and control templates for gated, auditable AI-assisted software delivery."
     },
     "plugins": [
         {
             "name":        "agdf",
             "source":      "./plugin/",
-            "description": "AI Governance & Delivery Framework (AGDF)"
+            "description": "AI Governance & Delivery Framework (AGDF): Codex-first workflow skills and control templates for gated, auditable AI-assisted delivery.",
+            "policy": {
+                "installation": "AVAILABLE",
+                "authentication": "ON_INSTALL"
+            },
+            "category":    "Productivity"
         }
     ]
 }

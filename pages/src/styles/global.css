@@ -156,6 +156,39 @@ section[id] {
     transform: translateY(-1px);
 }
 
+/* ---------- GitHub star nudge ---------- */
+.star-nudge {
+    position: relative;
+    isolation: isolate;
+}
+.star-nudge::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.32), rgba(56, 189, 248, 0.18), rgba(20, 184, 166, 0.24));
+    opacity: 0;
+    animation: star-nudge-glow 4.8s ease-in-out infinite;
+}
+.star-spark {
+    transform-origin: center;
+    filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.45));
+    animation: star-spark-twinkle 2.8s ease-in-out infinite;
+}
+
+@keyframes star-nudge-glow {
+    0%, 68%, 100% { opacity: 0; }
+    76%, 88% { opacity: 1; }
+}
+
+@keyframes star-spark-twinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.82; }
+    42% { transform: scale(1) rotate(0deg); opacity: 0.82; }
+    50% { transform: scale(1.18) rotate(10deg); opacity: 1; }
+    58% { transform: scale(1) rotate(0deg); opacity: 0.86; }
+}
+
 /* ---------- Reveal on scroll ---------- */
 [data-reveal] {
     opacity: 0;
@@ -192,5 +225,9 @@ section[id] {
     .btn-primary:hover,
     .gate-node:hover {
         transform: none;
+    }
+    .star-nudge::after,
+    .star-spark {
+        animation: none;
     }
 }

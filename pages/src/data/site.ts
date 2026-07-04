@@ -6,7 +6,7 @@ export const site = {
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
-    version: "0.1.0",
+    version: "0.1.3",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 30+ years enterprise experience",
@@ -179,7 +179,31 @@ export const notFor = [
     "It is not a ticket system or project-management board.",
     "It is not autonomous shipping without human approval.",
     "It is not a replacement for product responsibility.",
+    "It is not an EU AI Act compliance certification or legal assessment.",
     "It is not a large skill catalogue; the plugin is intentionally core-workflow only.",
+]
+
+export const aiActFit = [
+    {
+        title: "Risk-based delivery control",
+        desc: "AGDF makes scope, approvals, evidence gaps and blockers visible before an AI-assisted change moves forward.",
+        mapsTo: "Risk management and human-centric control",
+    },
+    {
+        title: "Traceable run state",
+        desc: "The control scaffold keeps gate state, artefacts, evidence, missing evidence and next allowed actions outside transient chat history.",
+        mapsTo: "Documentation, traceability and logs",
+    },
+    {
+        title: "Human oversight by design",
+        desc: "Exact approvals and QA decisions remain human accountability points. The agent can prepare evidence, but it does not silently self-approve.",
+        mapsTo: "Human oversight and deployer responsibility",
+    },
+    {
+        title: "Clear boundary",
+        desc: "AGDF is not a conformity assessment, legal classification or AI Act certificate. It is a governance and evidence framework for AI-assisted delivery.",
+        mapsTo: "Compliance support, not compliance automation",
+    },
 ]
 
 export const principles = [

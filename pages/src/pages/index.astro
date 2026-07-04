@@ -1,8 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateFlow, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs } from '../data/site'
+import { site, principles, buildingBlocks, gateFlow, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs, aiActFit } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
+import { getProjectStats } from '../data/projectStats'
+
+const projectStats = await getProjectStats()
 ---
 
 <BaseLayout>
@@ -23,6 +26,7 @@ import { skills, skillFamilies } from '../data/skills'
         <a href="#proof" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Proof</a>
         <a href="#intake" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Intake</a>
         <a href="#workflow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Workflow</a>
+        <a href="#ai-act" data-navlink class="nav-spy transition-colors hover:text-agdf-300">EU AI Act</a>
         <a href="#skills" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Skills</a>
         <a href="#setup" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Setup</a>
         <a href="#architecture" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Architecture</a>
@@ -48,21 +52,54 @@ import { skills, skillFamilies } from '../data/skills'
       Open governance framework · Apache-2.0
     </div>
     <div data-reveal data-reveal-delay="1" class="mb-5 sm:mb-6">
-      <div class="text-2xl font-extrabold tracking-tight sm:text-3xl"><span class="gradient-text">AGDF</span></div>
-      <div class="mt-1 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-dark-200 sm:text-sm">{site.fullName}</div>
+      <div class="text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <span class="gradient-text">AGDF</span>
+      </div>
+      <div class="mt-1 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-dark-200 sm:text-sm">
+        AI Governance & Delivery Framework
+      </div>
     </div>
-    <h1 data-reveal data-reveal-delay="2" class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl">
-      Control AI Delivery<br /><span class="gradient-text">Before Code Moves</span>
+
+    <h1
+      data-reveal
+      data-reveal-delay="2"
+      class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl"
+    >
+      Control AI Delivery<br />
+      <span class="gradient-text">Before Code Moves</span>
     </h1>
-    <p data-reveal data-reveal-delay="3" class="mx-auto mb-4 max-w-2xl text-lg text-dark-100 sm:mb-5 sm:text-xl">
-      AGDF is a framework for AI-assisted software delivery with artifacts, gates, QA evidence and Brownfield-aware context.
+
+    <p
+      data-reveal
+      data-reveal-delay="3"
+      class="mx-auto mb-4 max-w-3xl text-lg text-dark-100 sm:mb-5 sm:text-xl"
+    >
+      The governance layer for AI-assisted software delivery.
     </p>
-    <p data-reveal data-reveal-delay="4" class="mx-auto mb-7 max-w-xl text-sm text-dark-200/80 sm:mb-10 sm:text-base">
-      It helps teams use AI agents without losing scope, traceability, reviewability and human responsibility.
+
+    <p
+      data-reveal
+      data-reveal-delay="4"
+      class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
+    >
+      Govern AI coding agents through artifacts, delivery gates,
+quality contracts and project-aware context, keeping every change
+traceable, reviewable and production-ready.
     </p>
     <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#setup-codex" class="btn-primary">Install for Codex</a>
       <a href={site.repo} class="btn-ghost">View on GitHub</a>
+    </div>
+    <div data-reveal data-reveal-delay="5" class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+      {projectStats.map((stat) => (
+        <a href={stat.href} class="group inline-flex overflow-hidden rounded-lg border border-blue-400/20 bg-blue-950/60 text-xs font-bold uppercase tracking-[0.14em] text-blue-50 shadow-[0_0_24px_-16px_rgba(96,165,250,0.8)] transition-colors hover:border-blue-300/50" aria-label={`${stat.label}: ${stat.value}`}>
+          <span class="inline-flex items-center gap-1.5 bg-blue-800/70 px-2.5 py-1.5 transition-colors group-hover:bg-blue-700/80">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
+            {stat.label}
+          </span>
+          <span class="bg-blue-900/80 px-3 py-1.5 font-mono tracking-wide transition-colors group-hover:bg-blue-800/80">{stat.value}</span>
+        </a>
+      ))}
     </div>
     <!-- Terminal demo -->
     <div data-reveal data-reveal-delay="5" class="terminal mx-auto mt-10 hidden max-w-lg text-left sm:block">
@@ -369,6 +406,51 @@ import { skills, skillFamilies } from '../data/skills'
         <p class="text-sm leading-relaxed text-dark-200">{item}</p>
       </div>
     ))}
+  </div>
+</section>
+
+<!-- ==================== EU AI ACT FIT ==================== -->
+<section id="ai-act" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Regulatory fit</div>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Built For The Questions The EU AI Act Makes Hard To Ignore</h2>
+    <p class="mx-auto max-w-3xl text-dark-200">
+      AGDF is not an AI Act compliance certificate. It helps teams preserve the control evidence that AI-assisted delivery needs: approvals, human oversight, traceability, documentation, monitoring signals and explicit blockers.
+    </p>
+  </div>
+  <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+    <div data-reveal class="surface p-6">
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What the AI Act points toward</div>
+      <p class="text-sm leading-relaxed text-dark-200">
+        The EU AI Act uses a risk-based approach for AI developers and deployers. For higher-risk contexts, the public EU guidance highlights risk assessment, documentation, traceability, logging, human oversight, monitoring, robustness and cybersecurity.
+      </p>
+      <p class="mt-4 text-sm leading-relaxed text-dark-200">
+        AGDF does not classify your AI system or replace legal review. It gives AI coding work a practical control layer so teams can show what was approved, what evidence exists, what remains unverified and why the next step is or is not allowed.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-2 text-xs">
+        {["risk-based", "human oversight", "logs", "documentation", "traceability", "monitoring"].map((item) => (
+          <span class="rounded-full border border-agdf-500/30 bg-agdf-950/40 px-3 py-1 text-agdf-200">{item}</span>
+        ))}
+      </div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      {aiActFit.map((item, i) => (
+        <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/60 p-5 transition-colors hover:border-agdf-500/40">
+          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{item.mapsTo}</div>
+          <h3 class="mb-2 text-lg font-semibold text-agdf-200">{item.title}</h3>
+          <p class="text-sm leading-relaxed text-dark-200">{item.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div data-reveal class="mt-8 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-5 text-sm text-yellow-100 shadow-[0_0_32px_-22px_rgba(234,179,8,0.8)]">
+    <strong class="font-semibold text-yellow-200">Boundary:</strong>
+    AGDF supports governance evidence for AI-assisted software delivery. It does not determine whether a system is prohibited, high-risk, limited-risk or minimal-risk, and it does not replace conformity assessment, data protection assessment or legal advice.
+  </div>
+  <div data-reveal class="mt-5 flex flex-wrap gap-3 text-sm text-dark-200">
+    <a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai" class="transition-colors hover:text-agdf-300">EU AI Act overview</a>
+    <a href="https://digital-strategy.ec.europa.eu/en/policies/guidelines-gpai-providers" class="transition-colors hover:text-agdf-300">GPAI provider guidance</a>
+    <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng" class="transition-colors hover:text-agdf-300">Regulation (EU) 2024/1689</a>
   </div>
 </section>
 

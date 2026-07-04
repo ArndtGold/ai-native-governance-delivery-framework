@@ -31,6 +31,11 @@ function formatCount(value: number | undefined): string {
   return String(value);
 }
 
+function formatSocialCount(value: number | undefined): string {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 1000) return "New";
+  return formatCount(value);
+}
+
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
     const response = await fetch(url, {
@@ -78,12 +83,12 @@ export async function getProjectStats(): Promise<ProjectStat[]> {
   return [
     {
       label: "Author stars",
-      value: formatCount(authorStars),
+      value: formatSocialCount(authorStars),
       href: `https://github.com/${repoOwner}?tab=repositories`,
     },
     {
       label: "Author followers",
-      value: formatCount(user?.followers),
+      value: formatSocialCount(user?.followers),
       href: `https://github.com/${repoOwner}`,
     },
     {
@@ -93,7 +98,7 @@ export async function getProjectStats(): Promise<ProjectStat[]> {
     },
     {
       label: "Project stars",
-      value: formatCount(repo?.stargazers_count),
+      value: formatSocialCount(repo?.stargazers_count),
       href: `${repoUrl}/stargazers`,
     },
   ];

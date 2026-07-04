@@ -86,7 +86,7 @@ const projectStats = await getProjectStats()
       data-reveal-delay="3"
       class="mx-auto mb-4 max-w-3xl text-lg text-dark-100 sm:mb-5 sm:text-xl"
     >
-      The governance layer for AI-assisted software delivery.
+      Know when an AI-assisted change is allowed to move.
     </p>
 
     <p
@@ -94,24 +94,32 @@ const projectStats = await getProjectStats()
       data-reveal-delay="4"
       class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
     >
-      Govern AI coding agents through artifacts, delivery gates,
-quality contracts and project-aware context, keeping every change
-traceable, reviewable and production-ready.
+      AGDF turns agent work into approved steps, visible evidence,
+QA decisions and auditable closeout.
     </p>
     <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#setup-codex" class="btn-primary">Install for Codex</a>
       <a href={site.repo} class="btn-ghost">View on GitHub</a>
     </div>
     <div data-reveal data-reveal-delay="5" class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-      {projectStats.map((stat) => (
-        <a href={stat.href} class="group inline-flex overflow-hidden rounded-lg border border-blue-400/20 bg-blue-950/60 text-xs font-bold uppercase tracking-[0.14em] text-blue-50 shadow-[0_0_24px_-16px_rgba(96,165,250,0.8)] transition-colors hover:border-blue-300/50" aria-label={`${stat.label}: ${stat.value}`}>
+      {projectStats.map((stat) => {
+        const isProjectStars = stat.label === 'Project stars'
+        return (
+        <a href={stat.href} class={`group inline-flex overflow-hidden rounded-lg border border-blue-400/20 bg-blue-950/60 text-xs font-bold uppercase tracking-[0.14em] text-blue-50 shadow-[0_0_24px_-16px_rgba(96,165,250,0.8)] transition-colors hover:border-blue-300/50 ${isProjectStars ? 'star-nudge' : ''}`} aria-label={isProjectStars ? `Star AGDF on GitHub. Current project stars: ${stat.value}` : `${stat.label}: ${stat.value}`}>
           <span class="inline-flex items-center gap-1.5 bg-blue-800/70 px-2.5 py-1.5 transition-colors group-hover:bg-blue-700/80">
             <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
             {stat.label}
           </span>
-          <span class="bg-blue-900/80 px-3 py-1.5 font-mono tracking-wide transition-colors group-hover:bg-blue-800/80">{stat.value}</span>
+          <span class="inline-flex items-center gap-1.5 bg-blue-900/80 px-3 py-1.5 font-mono tracking-wide transition-colors group-hover:bg-blue-800/80">
+            {isProjectStars && (
+              <svg class="star-spark h-3.5 w-3.5 text-yellow-200" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.1 9.8 5.4l4.7.4-3.6 3.1 1.1 4.6L8 11.1l-4 2.4 1.1-4.6-3.6-3.1 4.7-.4L8 1.1Z"/></svg>
+            )}
+            {stat.value}
+            {isProjectStars && <span class="hidden font-sans text-[10px] font-semibold normal-case tracking-normal text-blue-100/80 sm:inline">Star if useful</span>}
+          </span>
         </a>
-      ))}
+        )
+      })}
     </div>
     <!-- Terminal demo -->
     <div data-reveal data-reveal-delay="5" class="terminal mx-auto mt-10 hidden max-w-lg text-left sm:block">
@@ -144,7 +152,7 @@ traceable, reviewable and production-ready.
 <section id="why" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Why It Works</h2>
-    <p class="text-dark-200">The framework turns delivery principles into repeatable checks.</p>
+    <p class="text-dark-200">AGDF turns delivery principles into decisions an agent must respect.</p>
   </div>
   <!-- Building blocks -->
   <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -196,7 +204,7 @@ traceable, reviewable and production-ready.
 <section id="highlights" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Catches Early</h2>
-    <p class="text-dark-200">Agent output can look confident while the delivery basis is weak. AGDF makes these risks visible before they become delivery problems.</p>
+    <p class="text-dark-200">Confidence is not control. AGDF catches missing approvals, weak evidence and unsafe shortcuts early.</p>
   </div>
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {prevention.map((item, index) => (
@@ -217,7 +225,7 @@ traceable, reviewable and production-ready.
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">A New Requirement Enters Here</h2>
       <p class="mx-auto max-w-2xl text-dark-200">
-        AGDF first decides the operating mode. Small fixes stay lightweight. Product-impacting work enters the approval-driven delivery path.
+        Every request starts with one question: quick task or controlled delivery?
       </p>
     </div>
 
@@ -241,7 +249,7 @@ traceable, reviewable and production-ready.
       <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h3 class="text-xl font-bold">Exact approvals unlock the next step</h3>
-          <p class="mt-1 text-sm text-dark-200">Implicit consent is intentionally not enough. The formula stays explicit so responsibility stays visible.</p>
+          <p class="mt-1 text-sm text-dark-200">No exact approval, no next gate. Responsibility stays visible.</p>
         </div>
         <code class="rounded-lg border border-agdf-500/30 bg-agdf-950/50 px-3 py-2 text-sm text-agdf-300 shadow-[0_0_24px_-12px_var(--agdf-glow)]">Approval: &lt;GateName&gt;</code>
       </div>
@@ -274,7 +282,7 @@ traceable, reviewable and production-ready.
           </div>
           <div class="rounded-lg border border-agdf-500/30 bg-agdf-950/40 p-4 shadow-[0_0_32px_-16px_var(--agdf-glow)]">
             <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">AGDF</div>
-            <p class="mt-3 text-sm font-semibold text-dark-100">Explains why the next step is allowed.</p>
+            <p class="mt-3 text-sm font-semibold text-dark-100">Decides whether the next step is allowed.</p>
             <div class="mt-3 flex flex-wrap gap-2 text-xs">
               {["Product contract", "Approval", "Traceability", "Evidence"].map((item) => (
                 <span class="rounded-full border border-agdf-500/30 px-2 py-1 text-agdf-200">{item}</span>
@@ -313,7 +321,7 @@ traceable, reviewable and production-ready.
     <div data-reveal class="mb-12 text-center">
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to evidence</div>
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Delivery Flow</h2>
-      <p class="text-dark-200">Seven controls that keep AI delivery runs gated, traceable and evidence-based.</p>
+      <p class="text-dark-200">Seven controls decide what may happen next.</p>
     </div>
     <div class="grid gap-4 lg:grid-cols-7">
       {workflowSteps.map((step, i) => (
@@ -380,7 +388,7 @@ traceable, reviewable and production-ready.
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Gate Map</h2>
-      <p class="text-dark-200">Each gate is a deliberate checkpoint. Fail closed: no implementation without the required approval.</p>
+      <p class="text-dark-200">Each gate is a decision point. Fail closed: no approval, no implementation.</p>
     </div>
     <div data-reveal data-reveal-delay="1" class="flex flex-wrap items-center justify-center gap-2">
       {gateFlow.map((g, i) => (
@@ -409,7 +417,7 @@ traceable, reviewable and production-ready.
 <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
-    <p class="text-dark-200">The framework adds delivery discipline. It does not replace engineering ownership.</p>
+    <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
   </div>
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {notFor.map((item, i) => (
@@ -425,9 +433,9 @@ traceable, reviewable and production-ready.
 <section id="ai-act" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
     <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Regulatory fit</div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Built For The Questions The EU AI Act Makes Hard To Ignore</h2>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">AGDF Keeps The Evidence The EU AI Act Makes Hard To Ignore</h2>
     <p class="mx-auto max-w-3xl text-dark-200">
-      AGDF is not an AI Act compliance certificate. It helps teams preserve the control evidence that AI-assisted delivery needs: approvals, human oversight, traceability, documentation, monitoring signals and explicit blockers.
+      AGDF is not a compliance certificate. It preserves the delivery evidence teams need to discuss approvals, oversight, traceability, documentation, monitoring signals and blockers.
     </p>
   </div>
   <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -437,7 +445,7 @@ traceable, reviewable and production-ready.
         The EU AI Act uses a risk-based approach for AI developers and deployers. For higher-risk contexts, the public EU guidance highlights risk assessment, documentation, traceability, logging, human oversight, monitoring, robustness and cybersecurity.
       </p>
       <p class="mt-4 text-sm leading-relaxed text-dark-200">
-        AGDF does not classify your AI system or replace legal review. It gives AI coding work a practical control layer so teams can show what was approved, what evidence exists, what remains unverified and why the next step is or is not allowed.
+        AGDF does not classify your AI system or replace legal review. It gives AI coding work a control layer: what was approved, what evidence exists, what remains unverified and why the next step is or is not allowed.
       </p>
       <div class="mt-5 flex flex-wrap gap-2 text-xs">
         {["risk-based", "human oversight", "logs", "documentation", "traceability", "monitoring"].map((item) => (
@@ -511,7 +519,7 @@ traceable, reviewable and production-ready.
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Architecture</h2>
-      <p class="text-dark-200">Plugin structure: shared skills, runtime contract and surface-specific manifests</p>
+      <p class="text-dark-200">One shared control source. Surface-specific manifests only expose it.</p>
     </div>
     <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
       <div data-reveal data-reveal-delay="1">

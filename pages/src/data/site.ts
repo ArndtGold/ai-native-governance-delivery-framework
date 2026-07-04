@@ -1,8 +1,8 @@
 export const site = {
     name: "AGDF",
     fullName: "AI Governance & Delivery Framework",
-    tagline: "Keep AI-assisted delivery gated, auditable and Brownfield-safe.",
-    description: "A focused governance plugin for Agentic AI Coding Tools: core workflow skills and control templates for approvals, Brownfield analysis, durable run state, QA decisions and auditable delivery closeout.",
+    tagline: "Know whether the next AI-assisted step is allowed.",
+    description: "A focused governance plugin for Agentic AI Coding Tools: core workflow skills and control templates that turn AI delivery into approved steps, visible evidence, QA decisions and auditable closeout.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
@@ -18,37 +18,37 @@ export const highlights = [
     {
         title: "Stop Before Scope Drifts",
         icon: "gate",
-        description: "When a run lacks a valid approval, AGDF makes the block visible instead of letting the agent continue on assumptions.",
+        description: "No approval, no next gate. AGDF stops assumption-driven continuation before it becomes delivery drift.",
         command: "/agdf-gate-check",
     },
     {
         title: "Protect Existing Systems",
         icon: "brownfield",
-        description: "Before code changes, inspect existing owners, tests and behaviour so the agent does not create a second path that looks clean only locally.",
+        description: "Brownfield is the default. AGDF forces owners, tests and existing behaviour into view before code changes.",
         command: "/agdf-brownfield-analysis",
     },
     {
         title: "Verify The Plan, Not The Vibe",
         icon: "review",
-        description: "After implementation, check each planned task against real code, tests and evidence. A green build alone is not completion.",
+        description: "A green build is not completion. AGDF checks delivered work against the approved plan and evidence.",
         command: "/agdf-task-plan-review",
     },
     {
         title: "Make QA A Decision",
         icon: "audit",
-        description: "QA becomes an explicit `pass | revise | block` decision based on TP coverage, Brownfield fit, solution integrity and evidence.",
+        description: "QA is not a feeling. AGDF turns it into `pass | revise | block` from coverage, fit, integrity and evidence.",
         command: "/agdf-qa-gate",
     },
     {
         title: "Expose Workarounds",
         icon: "integrity",
-        description: "Fallbacks, shims and guards are not allowed to masquerade as architecture. AGDF forces exit criteria and cleanup paths.",
+        description: "Temporary fixes need owners and exits. AGDF stops fallback logic from becoming hidden architecture.",
         command: "/agdf-clean-implementation-review",
     },
     {
         title: "Close Runs With Evidence",
         icon: "handoff",
-        description: "Every relevant run ends with what was delivered, what was not delivered, what remains risky and what may happen next.",
+        description: "A run ends with delivered scope, open gaps, remaining risks and the next allowed move.",
         command: "/agdf-release-or",
     },
 ]
@@ -58,43 +58,43 @@ export const workflowSteps = [
         step: "01",
         title: "Gate Check",
         command: "/agdf-gate-check",
-        desc: "Is the next step allowed?"
+        desc: "Decide whether the next step is allowed."
     },
     {
         step: "02",
         title: "Brownfield Read",
         command: "/agdf-brownfield-analysis",
-        desc: "What existing behavior, owners and risks must be known?"
+        desc: "Find owners, behaviour, tests and risks before changing code."
     },
     {
         step: "03",
         title: "Implement + Test",
         command: "CD+Tests",
-        desc: "Deliver the change and keep evidence separate from QA judgment."
+        desc: "Produce code and evidence. Do not call it QA."
     },
     {
         step: "04",
         title: "Task Plan Coverage",
         command: "/agdf-task-plan-review",
-        desc: "Are all planned tasks and acceptance criteria covered?"
+        desc: "Compare delivered work with approved tasks and acceptance criteria."
     },
     {
         step: "05",
         title: "Solution Integrity",
         command: "/agdf-clean-implementation-review",
-        desc: "Are there workarounds, parallel structures or missing exit criteria?"
+        desc: "Catch fallback architecture, parallel paths and missing exits."
     },
     {
         step: "06",
         title: "QA Decision",
         command: "/agdf-qa-gate",
-        desc: "Pass, revise or block based on evidence — not confidence."
+        desc: "Decide pass, revise or block from evidence."
     },
     {
         step: "07",
         title: "Delivery Closeout",
         command: "/agdf-release-or",
-        desc: "Produce the auditable outcome and hand off cleanly."
+        desc: "Name what changed, what did not, and what may happen next."
     },
 ]
 
@@ -103,13 +103,13 @@ export const requirementPaths = [
         label: "Quick Task",
         trigger: "Small local fix, review, debugging step or refactor without new product semantics.",
         path: "Understand context -> change narrowly -> run relevant checks -> close with evidence",
-        outcome: "Fast, minimal and still evidenced."
+        outcome: "Fast, narrow, evidenced."
     },
     {
         label: "Structured Delivery",
         trigger: "New capability, architecture impact, runtime/policy/persistence change, visible UX decision or release-critical work.",
         path: "UR -> PRD -> SD -> TP -> CD+Tests -> Reviews -> QA -> OR -> Delivery Closeout",
-        outcome: "Gated, auditable and approval-driven."
+        outcome: "Approved steps, traceable evidence, explicit stop points."
     },
 ]
 
@@ -124,8 +124,8 @@ export const visualProofs = {
     product: {
         eyebrow: "Product proof",
         title: "A real application delivered with AGDF",
-        desc: "This application was built with ChatGPT Plus + Codex using AGDF as the delivery framework: requirements, workflow design, approvals, run evidence and QA decisions stayed connected.",
-        built: "AGDF did not replace the tools. It structured the delivery through artifacts, gates and delivery context.",
+        desc: "This application was delivered with ChatGPT Plus + Codex using AGDF as the control layer: requirements, approvals, design, evidence and QA stayed connected.",
+        built: "AGDF did not replace the tools. It kept the delivery governable.",
         src: "/assets/example-greenfield-to-brownfield-gates.png",
         alt: "Agent Builder workflow canvas with Start, Agent and End nodes plus configuration panels.",
         width: 4662,
@@ -134,44 +134,44 @@ export const visualProofs = {
     intake: {
         eyebrow: "Requirement intake",
         title: "A board shows progress. AGDF shows whether the next step is allowed.",
-        desc: "Before work moves forward, AGDF makes the current artifact, approval and evidence state visible: what is ready, what is missing and what must be clarified first.",
+        desc: "Before work moves forward, AGDF shows the artifact, approval and evidence state: what is ready, what is missing and what must stop.",
     },
     qa: {
         eyebrow: "Task-plan evidence",
         title: "Looks done is not the same as done.",
-        desc: "AGDF compares the delivered change with the approved plan, acceptance criteria and required evidence before QA can decide: pass, revise or block.",
+        desc: "AGDF checks the approved plan against code, tests and missing evidence before QA decides: pass, revise or block.",
     },
     architecture: {
         eyebrow: "Delivery map",
         title: "From scattered artifacts to delivery decisions.",
-        desc: "The Context Graph connects requirements, risks, tests, evidence and gates so teams can see what blocks, what proves readiness, what changed and what can safely happen next.",
+        desc: "The Context Graph shows what proves readiness, what blocks, what changed and what can safely happen next.",
     },
 }
 
 export const prevention = [
     {
         title: "Silent Scope Drift",
-        desc: "Prompt, design and code no longer describe the same product intent."
+        desc: "Prompt, design and code describe different products."
     },
     {
         title: "Greenfield In Brownfield",
-        desc: "The agent creates a parallel path instead of extending the existing owner or behavior."
+        desc: "The agent creates a second path instead of extending the owner."
     },
     {
         title: "Green Build, Unfinished Task",
-        desc: "Tests pass, but the approved Task Plan is only partially fulfilled."
+        desc: "Tests pass while the approved Task Plan remains open."
     },
     {
         title: "QA Without Evidence",
-        desc: "A run is called done without task coverage, Brownfield fit or review evidence."
+        desc: "Done is claimed before evidence supports it."
     },
     {
         title: "Permanent Fallbacks",
-        desc: "Temporary guards, shims or defaults become hidden target architecture."
+        desc: "Temporary guards become architecture."
     },
     {
         title: "Premature Handoff",
-        desc: "A commit or PR is prepared before gate status and remaining risks are clear."
+        desc: "Commit or PR work starts before gate status and risks are clear."
     },
 ]
 
@@ -186,22 +186,22 @@ export const notFor = [
 export const aiActFit = [
     {
         title: "Risk-based delivery control",
-        desc: "AGDF makes scope, approvals, evidence gaps and blockers visible before an AI-assisted change moves forward.",
+        desc: "No approval, no evidence, no next step.",
         mapsTo: "Risk management and human-centric control",
     },
     {
         title: "Traceable run state",
-        desc: "The control scaffold keeps gate state, artefacts, evidence, missing evidence and next allowed actions outside transient chat history.",
+        desc: "Gate state leaves chat history and becomes repository state.",
         mapsTo: "Documentation, traceability and logs",
     },
     {
         title: "Human oversight by design",
-        desc: "Exact approvals and QA decisions remain human accountability points. The agent can prepare evidence, but it does not silently self-approve.",
+        desc: "The agent prepares evidence. People approve, decide QA and own the release.",
         mapsTo: "Human oversight and deployer responsibility",
     },
     {
         title: "Clear boundary",
-        desc: "AGDF is not a conformity assessment, legal classification or AI Act certificate. It is a governance and evidence framework for AI-assisted delivery.",
+        desc: "AGDF supports the file trail. It does not certify compliance.",
         mapsTo: "Compliance support, not compliance automation",
     },
 ]
@@ -244,22 +244,22 @@ export const principles = [
 export const buildingBlocks = [
     {
         name: "Artifacts",
-        desc: "Persistent work states such as requirements, product contracts, designs, task plans, tests and evidence.",
+        desc: "Persist the work state: need, product contract, design, plan, tests and evidence.",
         icon: "archive-box",
     },
     {
         name: "Gates",
-        desc: "Deliberate checkpoints that decide whether work may continue, revise or must stop.",
+        desc: "Decide whether work may start, must revise or must stop.",
         icon: "shield-check",
     },
     {
         name: "Delivery Map",
-        desc: "A project-near control state that connects run status, artifacts, decisions, risks, tests, evidence and gates.",
+        desc: "Connect run status, artifacts, decisions, risks, tests, evidence and gates.",
         icon: "map",
     },
     {
         name: "Quality Contracts",
-        desc: "Verifiable rules for agent runs, reviews, gate checks and evidence requirements.",
+        desc: "Turn repeated review questions into reusable block, revise and warn signals.",
         icon: "clipboard-document-check",
     },
 ];

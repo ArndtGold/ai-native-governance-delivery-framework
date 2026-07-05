@@ -237,8 +237,7 @@ if (!agdfMarketplaceEntry) {
   failures.push("plugin marketplace must expose agdf");
 } else {
   if (agdfMarketplaceEntry.source !== "./plugin/") failures.push("plugin marketplace agdf source must point to ./plugin/");
-  if (agdfMarketplaceEntry.policy?.installation !== "AVAILABLE") failures.push("plugin marketplace agdf install policy must be AVAILABLE");
-  if (agdfMarketplaceEntry.policy?.authentication !== "ON_INSTALL") failures.push("plugin marketplace agdf auth policy must be ON_INSTALL");
+  if (Object.hasOwn(agdfMarketplaceEntry, "policy")) failures.push("Claude plugin marketplace agdf entry must not use unsupported policy field");
   if (agdfMarketplaceEntry.category !== "Productivity") failures.push("plugin marketplace agdf category must be Productivity");
 }
 

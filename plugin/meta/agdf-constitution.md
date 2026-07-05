@@ -105,7 +105,15 @@ Transform transient reasoning into durable knowledge.
 
 Create or update artefacts whenever they improve traceability or future work.
 
-Typical artefacts include:
+For new product semantics, functional change, user-visible behaviour, policy,
+persistence, architecture, release-critical work or any Structured Delivery run,
+a User Requirement (UR) is mandatory.
+
+UR, PRD, SD, TP and QA report approvals require durable artefacts in the target
+repository's AGDF control state or links from that control state to the
+repository's authoritative source of truth before the next gate can open.
+
+Artefacts include:
 
 * User Requirements
 * Product Requirements Docs (PRD)

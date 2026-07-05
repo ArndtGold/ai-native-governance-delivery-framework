@@ -30,6 +30,10 @@ Use Quick Task Mode for questions, small reviews, local debugging and narrow fix
 
 Use Structured Delivery Mode for new capabilities, architecture, policy, persistence, release-critical work, formal artefacts or explicit approvals.
 
+Any new product semantics, functional change or user-visible behaviour change requires a durable UR first.
+Persist it in `.agdf/control/` or link it from there to the target repository's authoritative source of truth before PRD, SD, TP, Brownfield Analysis or implementation.
+Treat approval text and durable artefact presence as separate checks for UR, PRD, SD, TP and QA report decisions.
+
 Quick Task Mode must still cite evidence and close with a concrete result.
 Structured Delivery Mode must respect gates, reviews and closeout discipline.
 

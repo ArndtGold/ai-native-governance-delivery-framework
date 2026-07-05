@@ -168,6 +168,12 @@ This promotes the AGDF templates into live files under:
 .agdf/control/
 ```
 
+It also installs reusable artefact templates for `UR`, `PRD`, `SD`, `TP` and `QA_REPORT` under:
+
+```text
+.agdf/control/templates/artefacts/
+```
+
 Check the result before the next governed agent run:
 
 ```bash

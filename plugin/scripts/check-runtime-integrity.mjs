@@ -27,6 +27,11 @@ const expectedControlFiles = [
   "templates/SOT_REGISTRY.md",
   "templates/CONTEXT_GRAPH.md",
   "templates/AGENT_QUALITY_CONTRACTS.json",
+  "templates/artefacts/UR.md",
+  "templates/artefacts/PRD.md",
+  "templates/artefacts/SD.md",
+  "templates/artefacts/TP.md",
+  "templates/artefacts/QA_REPORT.md",
 ];
 
 const allowedGermanFragments = [
@@ -237,6 +242,25 @@ if (isFile(agentRouterPath)) {
   }
 }
 
+if (isFile(runtimeContractPath)) {
+  const runtimeContract = read(runtimeContractPath);
+  if (!runtimeContract.includes("Approval of one user gate permits work on the next gate artefact only")) {
+    failures.push("runtime contract must state that one gate approval only permits the next gate artefact");
+  }
+  if (!runtimeContract.includes("`Approval: UR` permits PRD drafting, not implementation")) {
+    failures.push("runtime contract must state that Approval: UR permits PRD drafting, not implementation");
+  }
+  if (!runtimeContract.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
+    failures.push("runtime contract must require a durable UR for new product semantics or functional change");
+  }
+  if (!runtimeContract.includes("UR, PRD, SD, TP and QA report approvals require durable artefacts")) {
+    failures.push("runtime contract must require durable artefacts for UR, PRD, SD, TP and QA report approvals");
+  }
+  if (!runtimeContract.includes("approval and durable artefact presence are separate requirements")) {
+    failures.push("runtime contract must separate approval text from durable artefact presence");
+  }
+}
+
 const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;
 const agdfMarketplaceEntry = marketplace?.plugins?.find((plugin) => plugin?.name === "agdf");
 if (!agdfMarketplaceEntry) {
@@ -273,6 +297,20 @@ for (const skill of expectedSkills) {
   }
   if (!skillMd.includes("../../meta/agdf-runtime-contract.md")) {
     failures.push(`${skill}/SKILL.md missing runtime contract reference`);
+  }
+  if (skill === "gate-check") {
+    if (!skillMd.includes("If `Approval: UR` is present, do not say implementation is the next step.")) {
+      failures.push("gate-check must prevent implementation immediately after Approval: UR");
+    }
+    if (!skillMd.includes("| `UR` approved and UR artefact persisted or linked, PRD missing or draft | `PRD` |")) {
+      failures.push("gate-check must define PRD as the next gate after UR approval");
+    }
+    if (!skillMd.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
+      failures.push("gate-check must require durable UR persistence for new product semantics or functional change");
+    }
+    if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
+      failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
+    }
   }
 
   for (const [pathLabel, content] of [

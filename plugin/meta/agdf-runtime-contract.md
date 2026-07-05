@@ -12,6 +12,8 @@ It is the operational reference for skill outputs, but it is not a second copy o
 
 Quick Task Mode must not become ritual gate overhead.
 Structured Delivery must not bypass missing approvals.
+New product semantics, functional change, user-visible behaviour, policy, persistence, architecture or release-critical work requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT before later artefacts or implementation.
+UR, PRD, SD, TP and QA report approvals require durable artefacts or linked authoritative repository SoT entries before the next gate can open.
 
 ## Gate Rules
 
@@ -21,6 +23,12 @@ Structured Delivery must not bypass missing approvals.
 - Legacy alias: `Freigabe: <GateName>` may be accepted when reviewing older German runs, but all new outputs must use `Approval: <GateName>`.
 - Implicit consent is not approval.
 - The earliest blocking gate wins.
+- For UR, PRD, SD, TP and QA, approval and durable artefact presence are separate requirements. A gate is not satisfied by approval text alone when its artefact is missing from `.agdf/control/` or not linked to the authoritative repository SoT.
+- Approval of one user gate permits work on the next gate artefact only. It does not permit implementation unless the approved gate is `TP` and required internal implementation prerequisites are satisfied.
+- `Approval: UR` permits PRD drafting, not implementation.
+- `Approval: PRD` permits Solution Design drafting, not implementation.
+- `Approval: SD` permits Task/Test Plan drafting, not implementation.
+- `Approval: TP` permits Brownfield Analysis and then CD+Tests when Brownfield evidence supports it.
 - `CD+Tests` is implementation and test status only, not a delivery signal.
 - `code-review` standardizes the mandatory `CR` step, but does not replace QA.
 - `qa-gate` decides final `pass | revise | block`.

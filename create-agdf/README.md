@@ -36,6 +36,7 @@ The generated `.agdf/control/templates/` files are reusable starting points for 
 
 - `AGDF_RUN.md` for the current run dashboard
 - `MASTER_BACKLOG.md` for active delivery pointers
+- `templates/artefacts/` for durable UR, PRD, SD, TP and QA report artefact templates
 - `SOT_REGISTRY.md` for one source of truth per domain
 - `CONTEXT_GRAPH.md` for durable Brownfield findings, decisions, risks, evidence and exit criteria
 - `AGENT_QUALITY_CONTRACTS.json` for reusable block, revise and warning conditions
@@ -50,6 +51,11 @@ This writes:
 
 - `.agdf/control/AGDF_RUN.md`
 - `.agdf/control/MASTER_BACKLOG.md`
+- `.agdf/control/templates/artefacts/UR.md`
+- `.agdf/control/templates/artefacts/PRD.md`
+- `.agdf/control/templates/artefacts/SD.md`
+- `.agdf/control/templates/artefacts/TP.md`
+- `.agdf/control/templates/artefacts/QA_REPORT.md`
 - `.agdf/control/SOT_REGISTRY.md`
 - `.agdf/control/CONTEXT_GRAPH.md`
 - `.agdf/control/AGENT_QUALITY_CONTRACTS.json`

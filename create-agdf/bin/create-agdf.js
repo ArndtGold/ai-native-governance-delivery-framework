@@ -14,6 +14,7 @@ const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-d
 const allowedTargets = new Set(["codex", "copilot", "both", "init", "doctor", "gate-check"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
+const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const codexPluginFiles = [
@@ -25,6 +26,11 @@ const codexPluginFiles = [
   join("plugins", "agdf", "control", "templates", "SOT_REGISTRY.md"),
   join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "UR.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "PRD.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "SD.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "TP.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
   join("plugins", "agdf", "hooks", "hooks.json"),
   join("plugins", "agdf", "hooks", "session-start.sh"),
   join("plugins", "agdf", "meta", "agdf-agent-router.md"),
@@ -41,6 +47,11 @@ const controlFiles = [
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+  join(".agdf", "control", "templates", "artefacts", "UR.md"),
+  join(".agdf", "control", "templates", "artefacts", "PRD.md"),
+  join(".agdf", "control", "templates", "artefacts", "SD.md"),
+  join(".agdf", "control", "templates", "artefacts", "TP.md"),
+  join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
 ];
 const liveControlFiles = [
   {
@@ -63,6 +74,13 @@ const liveControlFiles = [
     path: join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
     source: join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
   },
+];
+const artefactTemplateFiles = [
+  join(".agdf", "control", "templates", "artefacts", "UR.md"),
+  join(".agdf", "control", "templates", "artefacts", "PRD.md"),
+  join(".agdf", "control", "templates", "artefacts", "SD.md"),
+  join(".agdf", "control", "templates", "artefacts", "TP.md"),
+  join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
 ];
 const doctorRequiredFiles = [
   join(".agdf", "control", "AGDF_RUN.md"),
@@ -199,6 +217,13 @@ function generatedFilesForTarget(target, targetDir, force) {
       files.push({
         path: controlPath.path,
         content: loadAsset(controlPath.source),
+      });
+    }
+
+    for (const templatePath of artefactTemplateFiles) {
+      files.push({
+        path: templatePath,
+        content: loadAsset(templatePath),
       });
     }
 
@@ -528,6 +553,17 @@ function cleanStatusCell(value) {
   return value.replace(/^`|`$/g, "").trim();
 }
 
+function addApprovalRows(approvals, section) {
+  for (const cells of tableRows(section)) {
+    const [gate, status, evidence] = cells;
+    if (!userGateOrder.includes(gate)) continue;
+    approvals.set(gate, {
+      status: cleanStatusCell(status ?? ""),
+      evidence: evidence ?? "",
+    });
+  }
+}
+
 function readRunState(targetDir) {
   const runPath = join(".agdf", "control", "AGDF_RUN.md");
   if (!existsSync(join(targetDir, runPath))) {
@@ -537,19 +573,25 @@ function readRunState(targetDir) {
       current_gate: "",
       next_allowed_action: "",
       approvals: new Map(),
+      artefacts: new Map(),
       evidence_refs: [],
     };
   }
 
   const content = readTargetFile(targetDir, runPath);
-  const approvalsSection = content.match(/## Approvals([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
   const approvals = new Map();
-  for (const cells of tableRows(approvalsSection)) {
-    const [gate, status, evidence] = cells;
-    if (!userGateOrder.includes(gate)) continue;
-    approvals.set(gate, {
+  addApprovalRows(approvals, content.match(/## Approvals([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "");
+  addApprovalRows(approvals, content.match(/## Gate Checklist([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "");
+
+  const artefacts = new Map();
+  const artefactsSection = content.match(/## Artefacts([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
+  for (const cells of tableRows(artefactsSection)) {
+    const [type, path, status, notes] = cells;
+    if (!userGateOrder.includes(type)) continue;
+    artefacts.set(type, {
+      path: path ?? "",
       status: cleanStatusCell(status ?? ""),
-      evidence: evidence ?? "",
+      notes: notes ?? "",
     });
   }
 
@@ -570,6 +612,7 @@ function readRunState(targetDir) {
     current_gate: extractField(content, "current_gate"),
     next_allowed_action: extractField(content, "next_allowed_action"),
     approvals,
+    artefacts,
     evidence_refs,
   };
 }
@@ -593,29 +636,131 @@ function gateApprovalStatus(runState, gate) {
   return runState.approvals.get(gate)?.status ?? "";
 }
 
+function gateArtefactStatus(runState, gate) {
+  if (!userGateOrder.includes(gate)) return { status: "not_applicable", path: "" };
+  return runState.artefacts.get(gate) ?? { status: "", path: "" };
+}
+
+function isDurableGateArtefactSatisfied(runState, gate) {
+  if (!durableGateArtefacts.has(gate)) return true;
+  const artefact = gateArtefactStatus(runState, gate);
+  if (!artefact.path || isPlaceholderValue(artefact.path)) return false;
+  if (gate === "QA") return artefact.status === "pass";
+  return artefact.status === "approved";
+}
+
+function durableArtefactBlock(gate, nextGate) {
+  const label = gate === "QA" ? "QA report" : `${gate} artefact`;
+  const stablePath = gate === "QA" ? ".agdf/control/artefacts/<key>/QA_REPORT.md" : `.agdf/control/artefacts/<key>/${gate}.md`;
+  return {
+    status: "blocked",
+    current_gate: gate,
+    blocking_reason: `missing_durable_${gate.toLowerCase()}_artefact`,
+    missing_approval: "none",
+    allowed: [
+      `persist the approved ${label} in a stable artefact path such as ${stablePath}`,
+      "link the artefact from AGDF_RUN.md and MASTER_BACKLOG.md",
+      "run gate-check again",
+    ],
+    forbidden: nextGate
+      ? [`create ${nextGate}`, "create later-gate artefacts", "implement gated work", "claim QA or release readiness"]
+      : ["create later-gate artefacts", "implement gated work", "claim release readiness"],
+    next_allowed_action: `Persist the approved ${label} and link it from the AGDF control state before continuing.`,
+  };
+}
+
+function isGateSatisfied(runState, gate) {
+  const status = gateApprovalStatus(runState, gate);
+  if (status === "not_applicable") return true;
+  if (status !== "approved") return false;
+  return isDurableGateArtefactSatisfied(runState, gate);
+}
+
+function transitionDecisionForRunState(runState) {
+  if (gateApprovalStatus(runState, "UR") === "approved" && !isGateSatisfied(runState, "UR")) return durableArtefactBlock("UR", "PRD");
+
+  if (!isGateSatisfied(runState, "UR")) {
+    return {
+      status: "blocked",
+      current_gate: "UR",
+      blocking_reason: "missing_exact_approval",
+      missing_approval: "Approval: UR",
+      allowed: ["clarify user need", "formulate and persist UR", "record evidence", "request exact UR approval"],
+      forbidden: ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"],
+      next_allowed_action: "Clarify the user requirement, persist the UR, and request exact approval: Approval: UR",
+    };
+  }
+
+  if (gateApprovalStatus(runState, "PRD") === "approved" && !isGateSatisfied(runState, "PRD")) return durableArtefactBlock("PRD", "SD");
+
+  if (!isGateSatisfied(runState, "PRD")) {
+    return {
+      status: "open",
+      current_gate: "PRD",
+      blocking_reason: "none",
+      missing_approval: "Approval: PRD",
+      allowed: ["draft or refine PRD", "define scope", "define acceptance criteria", "define non-goals", "request exact PRD approval"],
+      forbidden: ["create SD", "create TP", "run Brownfield Analysis as implementation preparation", "implement code", "claim QA or release readiness"],
+      next_allowed_action: "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+    };
+  }
+
+  if (gateApprovalStatus(runState, "SD") === "approved" && !isGateSatisfied(runState, "SD")) return durableArtefactBlock("SD", "TP");
+
+  if (!isGateSatisfied(runState, "SD")) {
+    return {
+      status: "open",
+      current_gate: "SD",
+      blocking_reason: "none",
+      missing_approval: "Approval: SD",
+      allowed: ["draft or refine Solution Design", "define architecture", "define ownership", "request exact SD approval"],
+      forbidden: ["create TP", "implement code", "claim QA or release readiness"],
+      next_allowed_action: "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+    };
+  }
+
+  if (gateApprovalStatus(runState, "TP") === "approved" && !isGateSatisfied(runState, "TP")) return durableArtefactBlock("TP", "Brownfield Analysis");
+
+  if (!isGateSatisfied(runState, "TP")) {
+    return {
+      status: "open",
+      current_gate: "TP",
+      blocking_reason: "none",
+      missing_approval: "Approval: TP",
+      allowed: ["draft or refine Task/Test Plan", "define task IDs", "define test evidence", "request exact TP approval"],
+      forbidden: ["implement code", "claim QA or release readiness"],
+      next_allowed_action: "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
+    };
+  }
+
+  if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA")) return durableArtefactBlock("QA", "UAT");
+
+  return {
+    status: "open",
+    current_gate: "Brownfield Analysis",
+    blocking_reason: "none",
+    missing_approval: "none",
+    allowed: ["run Brownfield Analysis for the approved TP scope", "verify existing owners, reuse paths and regression risks"],
+    forbidden: ["implement before Brownfield evidence supports the approved TP path", "claim QA or release readiness"],
+    next_allowed_action: "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+  };
+}
+
 function evaluateGateCheck(targetDir) {
   const doctorReport = evaluateDoctor(targetDir);
   const runState = readRunState(targetDir);
-  const fallbackGate = firstUnapprovedGate(runState.approvals);
-  const currentGate = normalizeCurrentGate(runState.current_gate, fallbackGate);
-  const currentApprovalStatus = gateApprovalStatus(runState, currentGate);
+  const transitionDecision = transitionDecisionForRunState(runState);
   const doctorBlocker = doctorReport.findings.find((finding) => finding.severity === "block");
   const doctorRevise = doctorReport.findings.find((finding) => finding.severity === "revise");
 
-  let status = "open";
-  let blockingReason = "none";
-  let missingApproval = "none";
-  let allowed = [
-    "continue with the documented next allowed action",
-    "update evidence when new facts are observed",
-    "run doctor or gate-check again after control changes",
-  ];
-  let forbidden = [
-    "bypass the documented gate state",
-    "treat warnings as resolved without evidence",
-  ];
+  let status = transitionDecision.status;
+  let currentGate = transitionDecision.current_gate;
+  let blockingReason = transitionDecision.blocking_reason;
+  let missingApproval = transitionDecision.missing_approval;
+  let allowed = transitionDecision.allowed;
+  let forbidden = transitionDecision.forbidden;
   let nextAllowedAction = isPlaceholderValue(runState.next_allowed_action)
-    ? "Continue with the current documented gate only after setting next_allowed_action."
+    ? transitionDecision.next_allowed_action
     : runState.next_allowed_action;
 
   if (doctorBlocker) {
@@ -627,16 +772,9 @@ function evaluateGateCheck(targetDir) {
   } else if (doctorRevise) {
     status = "blocked";
     blockingReason = doctorRevise.code;
-    allowed = ["repair the incomplete control state", "run doctor again"];
+    allowed = [...new Set(["repair the incomplete control state", ...transitionDecision.allowed, "run doctor again"])];
     forbidden = ["continue governed delivery", "create later-gate artefacts", "implement gated work"];
     nextAllowedAction = doctorRevise.next_step;
-  } else if (userGateOrder.includes(currentGate) && currentApprovalStatus !== "approved" && currentApprovalStatus !== "not_applicable") {
-    status = "blocked";
-    blockingReason = "missing_exact_approval";
-    missingApproval = `Approval: ${currentGate}`;
-    allowed = ["clarify the current gate", "record evidence", "write OR-lite status", "request exact approval"];
-    forbidden = ["create later-gate artefacts", "implement gated work", "mark QA or UAT as passed"];
-    nextAllowedAction = `Request exact approval: Approval: ${currentGate}`;
   }
 
   return {

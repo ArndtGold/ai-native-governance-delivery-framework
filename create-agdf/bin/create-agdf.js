@@ -11,7 +11,7 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["codex", "copilot", "both"]);
+const allowedTargets = new Set(["codex", "copilot", "both", "init", "doctor"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
@@ -41,6 +41,35 @@ const controlFiles = [
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
 ];
+const liveControlFiles = [
+  {
+    path: join(".agdf", "control", "AGDF_RUN.md"),
+    source: join(".agdf", "control", "templates", "AGDF_RUN.md"),
+  },
+  {
+    path: join(".agdf", "control", "MASTER_BACKLOG.md"),
+    source: join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
+  },
+  {
+    path: join(".agdf", "control", "SOT_REGISTRY.md"),
+    source: join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
+  },
+  {
+    path: join(".agdf", "control", "CONTEXT_GRAPH.md"),
+    source: join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
+  },
+  {
+    path: join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
+    source: join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+  },
+];
+const doctorRequiredFiles = [
+  join(".agdf", "control", "AGDF_RUN.md"),
+  join(".agdf", "control", "MASTER_BACKLOG.md"),
+  join(".agdf", "control", "SOT_REGISTRY.md"),
+  join(".agdf", "control", "CONTEXT_GRAPH.md"),
+  join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
+];
 const copilotInstructionFiles = [
   join(".github", "copilot-instructions.md"),
   join(".github", "instructions", "agdf-governance.instructions.md"),
@@ -58,10 +87,13 @@ Usage:
   npm create agdf@latest codex
   npm create agdf@latest copilot
   npm create agdf@latest both
+  npm create agdf@latest init
+  npm create agdf@latest doctor
 
 Options:
   --dir <path>   Write files into a specific directory
   --force        Overwrite existing generated files
+  --json         Print doctor output as JSON
   --help         Show this help
 `);
 }
@@ -71,6 +103,7 @@ function parseArgs(argv) {
   let target;
   let dir = ".";
   let force = false;
+  let json = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -83,6 +116,11 @@ function parseArgs(argv) {
 
     if (arg === "--force") {
       force = true;
+      continue;
+    }
+
+    if (arg === "--json") {
+      json = true;
       continue;
     }
 
@@ -118,7 +156,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, copilot or both.");
+    console.error("Please choose one target: codex, copilot, both, init or doctor.");
     printUsage();
     process.exit(1);
   }
@@ -127,6 +165,7 @@ function parseArgs(argv) {
     target,
     dir: resolve(process.cwd(), dir),
     force,
+    json,
   };
 }
 
@@ -147,6 +186,22 @@ function writeGeneratedFile(targetDir, relativePath, content, force) {
 
 function generatedFilesForTarget(target, targetDir, force) {
   const files = [];
+
+  if (target === "init") {
+    files.push({
+      path: join(".agdf", "control", "README.md"),
+      content: loadAsset(join(".agdf", "control", "README.md")),
+    });
+
+    for (const controlPath of liveControlFiles) {
+      files.push({
+        path: controlPath.path,
+        content: loadAsset(controlPath.source),
+      });
+    }
+
+    return files;
+  }
 
   if (target === "codex" || target === "both") {
     for (const codexPath of codexPluginFiles) {
@@ -200,6 +255,12 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
 
   console.log("");
   console.log("Next steps:");
+  if (target === "init") {
+    console.log("- Fill .agdf/control/AGDF_RUN.md with the current gate, evidence and next allowed action.");
+    console.log("- Run npm create agdf@latest doctor to check the control state before the next agent run.");
+    console.log("- Commit the live control files once they represent the repository's current delivery state.");
+    return;
+  }
   if (wroteAgentsFragment) {
     console.log(`- Existing AGENTS.md detected. Merge ${agdfFragmentPath} into your current AGENTS.md before using Copilot with AGDF.`);
   }
@@ -212,13 +273,259 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
   }
   if (target === "copilot" || target === "both") {
     console.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");
-    console.log("- Copy the templates under .agdf/control/templates into live control files when the repository needs a durable run state, backlog pointer, SoT registry or context graph.");
+    console.log("- Run npm create agdf@latest init when the repository needs live AGDF control files.");
   }
   console.log("- Commit the generated files so the repository becomes the source of truth.");
 }
 
+function readTargetFile(targetDir, relativePath) {
+  return readFileSync(join(targetDir, relativePath), "utf8");
+}
+
+function addFinding(findings, severity, code, message, path, nextStep) {
+  findings.push({
+    severity,
+    code,
+    message,
+    path,
+    next_step: nextStep,
+  });
+}
+
+function nonEmptyTableRows(content) {
+  return content
+    .split("\n")
+    .filter((line) => line.trim().startsWith("|"))
+    .filter((line) => !line.includes("---"))
+    .map((line) => line.split("|").map((cell) => cell.trim()).filter(Boolean))
+    .filter((cells) => cells.some((cell) => cell && !cell.startsWith("`")));
+}
+
+function tableRows(content) {
+  return content
+    .split("\n")
+    .filter((line) => line.trim().startsWith("|"))
+    .filter((line) => !line.includes("---"))
+    .map((line) => {
+      const cells = line.split("|").map((cell) => cell.trim());
+      if (cells[0] === "") cells.shift();
+      if (cells.at(-1) === "") cells.pop();
+      return cells;
+    });
+}
+
+function hasFilledTableRow(content, firstCellPattern) {
+  return tableRows(content)
+    .filter((cells) => firstCellPattern.test(cells[0] ?? ""))
+    .some((cells) => cells.slice(1).some((cell) => cell && !cell.startsWith("`")));
+}
+
+function isPlaceholderValue(value) {
+  return !value || (value.startsWith("`") && value.includes("|"));
+}
+
+function hasFilledEvidenceRow(content) {
+  const evidenceSection = content.match(/## Evidence([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
+  return tableRows(evidenceSection)
+    .filter((cells) => cells[0] !== "Evidence")
+    .some((cells) => {
+      const [evidence, source, covers] = cells;
+      return Boolean(evidence || source || covers);
+    });
+}
+
+function parseQualityContracts(content) {
+  const parsed = JSON.parse(content);
+  if (!Array.isArray(parsed.contracts) || parsed.contracts.length === 0) {
+    throw new Error("contracts must be a non-empty array");
+  }
+  for (const contract of parsed.contracts) {
+    if (!contract.code || !contract.impact || !contract.required_evidence) {
+      throw new Error(`contract ${contract.code ?? "<unknown>"} is missing code, impact or required_evidence`);
+    }
+  }
+  return parsed;
+}
+
+function evaluateDoctor(targetDir) {
+  const findings = [];
+  const missing = doctorRequiredFiles.filter((relativePath) => !existsSync(join(targetDir, relativePath)));
+
+  for (const relativePath of missing) {
+    const templatePath = join(dirname(relativePath), "templates", relativePath.split("/").at(-1));
+    const hasTemplate = existsSync(join(targetDir, templatePath));
+    addFinding(
+      findings,
+      "block",
+      "AGDF_CONTROL_FILE_MISSING",
+      hasTemplate
+        ? "Live control file is missing; only the template exists."
+        : "Required live control file is missing.",
+      relativePath,
+      "Run npm create agdf@latest init, then fill the live control files with the current repository state.",
+    );
+  }
+
+  if (missing.length === 0) {
+    const runPath = join(".agdf", "control", "AGDF_RUN.md");
+    const run = readTargetFile(targetDir, runPath);
+    const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
+    const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
+    const hasEvidence = hasFilledEvidenceRow(run);
+
+    if (isPlaceholderValue(currentGateLine)) {
+      addFinding(
+        findings,
+        "revise",
+        "AGDF_CURRENT_GATE_MISSING",
+        "AGDF_RUN.md does not name the current gate.",
+        runPath,
+        "Set current_gate to the current delivery gate or none.",
+      );
+    }
+
+    if (isPlaceholderValue(nextActionLine)) {
+      addFinding(
+        findings,
+        "revise",
+        "AGDF_NEXT_ALLOWED_ACTION_MISSING",
+        "AGDF_RUN.md does not state the next allowed action.",
+        runPath,
+        "Fill the next allowed action before asking an agent to continue delivery work.",
+      );
+    }
+
+    if (!hasEvidence) {
+      addFinding(
+        findings,
+        "warn",
+        "AGDF_EVIDENCE_EMPTY",
+        "AGDF_RUN.md has no visible evidence row yet.",
+        runPath,
+        "Add at least one evidence row or explicitly document that no evidence exists yet.",
+      );
+    }
+
+    const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
+    const backlog = readTargetFile(targetDir, backlogPath);
+    if (!hasFilledTableRow(backlog, /^P[0-9]/)) {
+      addFinding(
+        findings,
+        "warn",
+        "AGDF_BACKLOG_POINTER_EMPTY",
+        "MASTER_BACKLOG.md does not contain an active or planned work pointer.",
+        backlogPath,
+        "Add the active item or document that no governed delivery item is active.",
+      );
+    }
+
+    const sotPath = join(".agdf", "control", "SOT_REGISTRY.md");
+    const sot = readTargetFile(targetDir, sotPath);
+    if (!hasFilledTableRow(sot, /Product intent|Architecture|Runtime contracts|UX \/ user flows|Operations \/ release/)) {
+      addFinding(
+        findings,
+        "warn",
+        "AGDF_SOT_REGISTRY_EMPTY",
+        "SOT_REGISTRY.md has no filled primary source-of-truth row.",
+        sotPath,
+        "Assign one primary source of truth for at least the domains relevant to the next run.",
+      );
+    }
+
+    const activeDomains = new Map();
+    for (const cells of nonEmptyTableRows(sot)) {
+      const [domain, document, status] = cells;
+      if (!domain || !document || status !== "active") continue;
+      activeDomains.set(domain, (activeDomains.get(domain) ?? 0) + 1);
+    }
+    for (const [domain, count] of activeDomains.entries()) {
+      if (count > 1) {
+        addFinding(
+          findings,
+          "block",
+          "AGDF_PARALLEL_SOT",
+          `Domain has ${count} active source-of-truth rows: ${domain}.`,
+          sotPath,
+          "Keep exactly one active primary source of truth for this domain.",
+        );
+      }
+    }
+
+    const contextPath = join(".agdf", "control", "CONTEXT_GRAPH.md");
+    const contextGraph = readTargetFile(targetDir, contextPath);
+    if (contextGraph.includes("### CG-001 Example")) {
+      addFinding(
+        findings,
+        "warn",
+        "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
+        "CONTEXT_GRAPH.md still contains the example node.",
+        contextPath,
+        "Remove the example or replace it with an evidenced node that has an exit criterion.",
+      );
+    }
+
+    const contractsPath = join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json");
+    try {
+      parseQualityContracts(readTargetFile(targetDir, contractsPath));
+    } catch (error) {
+      addFinding(
+        findings,
+        "block",
+        "AGDF_QUALITY_CONTRACTS_INVALID",
+        `AGENT_QUALITY_CONTRACTS.json is invalid: ${error.message}`,
+        contractsPath,
+        "Restore the generated contracts or fix the JSON contract schema.",
+      );
+    }
+  }
+
+  const severityRank = { block: 3, revise: 2, warn: 1 };
+  const maxSeverity = findings.reduce((max, finding) => Math.max(max, severityRank[finding.severity] ?? 0), 0);
+  const status = maxSeverity >= 3 ? "block" : maxSeverity === 2 ? "revise" : maxSeverity === 1 ? "warn" : "pass";
+
+  return {
+    schema_version: "1",
+    status,
+    checked_at: new Date().toISOString(),
+    target_dir: targetDir,
+    summary: {
+      findings: findings.length,
+      block: findings.filter((finding) => finding.severity === "block").length,
+      revise: findings.filter((finding) => finding.severity === "revise").length,
+      warn: findings.filter((finding) => finding.severity === "warn").length,
+    },
+    findings,
+  };
+}
+
+function printDoctorReport(report, json) {
+  if (json) {
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  console.log(`AGDF doctor: ${report.status}`);
+  console.log(`Checked: ${report.target_dir}`);
+  console.log(`Findings: ${report.summary.findings} (${report.summary.block} block, ${report.summary.revise} revise, ${report.summary.warn} warn)`);
+
+  for (const finding of report.findings) {
+    console.log("");
+    console.log(`[${finding.severity}] ${finding.code}`);
+    console.log(`Path: ${finding.path}`);
+    console.log(finding.message);
+    console.log(`Next step: ${finding.next_step}`);
+  }
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
+
+  if (options.target === "doctor") {
+    const report = evaluateDoctor(options.dir);
+    printDoctorReport(report, options.json);
+    process.exit(report.status === "block" ? 2 : 0);
+  }
+
   const files = generatedFilesForTarget(options.target, options.dir, options.force);
   const wroteAgentsFragment = files.some(file => file.path === agdfFragmentPath);
 

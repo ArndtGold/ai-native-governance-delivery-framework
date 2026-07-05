@@ -8,6 +8,8 @@ Bootstrap AGDF repository instructions for one repository.
 npm create agdf@latest codex
 npm create agdf@latest copilot
 npm create agdf@latest both
+npm create agdf@latest init
+npm create agdf@latest doctor
 ```
 
 Optional flags:
@@ -29,7 +31,7 @@ After `npm create agdf@latest codex`, restart Codex in that repository, open `/p
 
 ## Control scaffold
 
-The generated `.agdf/control/templates/` files are starting points for durable AGDF state:
+The generated `.agdf/control/templates/` files are reusable starting points for durable AGDF state:
 
 - `AGDF_RUN.md` for the current run dashboard
 - `MASTER_BACKLOG.md` for active delivery pointers
@@ -37,7 +39,28 @@ The generated `.agdf/control/templates/` files are starting points for durable A
 - `CONTEXT_GRAPH.md` for durable Brownfield findings, decisions, risks, evidence and exit criteria
 - `AGENT_QUALITY_CONTRACTS.json` for reusable block, revise and warning conditions
 
-Copy or promote templates into live `.agdf/control/` files only when the target repository is ready to own them as source-of-truth artefacts.
+Use `init` to promote those templates into live control files:
+
+```bash
+npm create agdf@latest init
+```
+
+This writes:
+
+- `.agdf/control/AGDF_RUN.md`
+- `.agdf/control/MASTER_BACKLOG.md`
+- `.agdf/control/SOT_REGISTRY.md`
+- `.agdf/control/CONTEXT_GRAPH.md`
+- `.agdf/control/AGENT_QUALITY_CONTRACTS.json`
+
+Use `doctor` to check whether the live control state is actionable:
+
+```bash
+npm create agdf@latest doctor
+npm create agdf@latest doctor --json
+```
+
+The doctor reports missing live control files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts. It exits non-zero only for blocking control failures.
 
 ## Single source of truth
 

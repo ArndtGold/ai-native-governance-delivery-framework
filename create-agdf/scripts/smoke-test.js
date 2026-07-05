@@ -95,6 +95,71 @@ run("both", [
 ]);
 
 {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-init-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+
+    for (const relativePath of [
+      join(".agdf", "control", "README.md"),
+      join(".agdf", "control", "AGDF_RUN.md"),
+      join(".agdf", "control", "MASTER_BACKLOG.md"),
+      join(".agdf", "control", "SOT_REGISTRY.md"),
+      join(".agdf", "control", "CONTEXT_GRAPH.md"),
+      join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
+    ]) {
+      if (!existsSync(join(tempDir, relativePath))) {
+        throw new Error(`Missing live control file for init: ${relativePath}`);
+      }
+    }
+
+    const doctorOutput = execFileSync(process.execPath, [binPath, "doctor", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const doctorReport = JSON.parse(doctorOutput);
+    if (doctorReport.status !== "revise") {
+      throw new Error(`Doctor should classify a fresh unfilled control scaffold as revise, got ${doctorReport.status}.`);
+    }
+    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_CURRENT_GATE_MISSING")) {
+      throw new Error("Doctor should report a missing current gate for a fresh control scaffold.");
+    }
+    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_NEXT_ALLOWED_ACTION_MISSING")) {
+      throw new Error("Doctor should report a missing next allowed action for a fresh control scaffold.");
+    }
+    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_EVIDENCE_EMPTY")) {
+      throw new Error("Doctor should report empty evidence for a fresh control scaffold.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-missing-"));
+
+  try {
+    let failed = false;
+    try {
+      execFileSync(process.execPath, [binPath, "doctor", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+    } catch (error) {
+      failed = true;
+      const output = error.stdout.toString();
+      const doctorReport = JSON.parse(output);
+      if (doctorReport.status !== "block") {
+        throw new Error(`Doctor should block when live control files are missing, got ${doctorReport.status}.`);
+      }
+      if (!doctorReport.findings.some((finding) => finding.code === "AGDF_CONTROL_FILE_MISSING")) {
+        throw new Error("Doctor should report missing live control files.");
+      }
+    }
+
+    if (!failed) {
+      throw new Error("Doctor should exit non-zero when live control files are missing.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-existing-agents-"));
   const existingAgentsPath = join(tempDir, "AGENTS.md");
 

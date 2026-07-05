@@ -8,11 +8,11 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
 
 | File | Purpose |
 |---|---|
-| `templates/AGDF_RUN.md` | Current run state: mode, gate, approvals, evidence, risks, next allowed action |
-| `templates/MASTER_BACKLOG.md` | Living backlog pointer: active initiatives and current UR/PRD/SD/TP artefacts |
-| `templates/SOT_REGISTRY.md` | Source-of-truth registry: one primary owner per domain |
-| `templates/CONTEXT_GRAPH.md` | Project memory: durable decisions, Brownfield findings, risks, evidence and exit criteria |
-| `templates/AGENT_QUALITY_CONTRACTS.json` | Machine-readable warning, revise and block contracts for review and QA |
+| `templates/AGDF_RUN.md` | Template for current run state: mode, gate, approvals, evidence, risks, next allowed action |
+| `templates/MASTER_BACKLOG.md` | Template for the living backlog pointer: active initiatives and current UR/PRD/SD/TP artefacts |
+| `templates/SOT_REGISTRY.md` | Template for the source-of-truth registry: one primary owner per domain |
+| `templates/CONTEXT_GRAPH.md` | Template for project memory: durable decisions, Brownfield findings, risks, evidence and exit criteria |
+| `templates/AGENT_QUALITY_CONTRACTS.json` | Template for machine-readable warning, revise and block contracts for review and QA |
 
 ## Recommended Target Layout
 
@@ -27,6 +27,21 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
 ```
 
 Keep these files small and reviewable. They are control artefacts, not a second documentation site.
+
+Create the live files with:
+
+```bash
+npm create agdf@latest init
+```
+
+Then check whether the live state is actionable:
+
+```bash
+npm create agdf@latest doctor
+npm create agdf@latest doctor --json
+```
+
+`doctor` does not replace agent judgment. It catches basic control failures: missing live files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts.
 
 ## Operating Rules
 

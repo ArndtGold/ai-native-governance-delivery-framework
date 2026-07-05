@@ -735,6 +735,8 @@ QA decisions and auditable closeout.
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
             <div class="text-dark-200">  writes AGENTS.md, Copilot instructions, repo skills and .agdf/control templates <span class="text-agdf-300">✓</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest init</span></div>
+            <div class="text-dark-200">  promotes templates into live .agdf/control files <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  if AGENTS.md already exists, AGDF writes AGENTS.agdf.md instead <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
@@ -766,6 +768,8 @@ QA decisions and auditable closeout.
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want Copilot-facing repo files</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
             <div class="text-dark-200">  writes the project Codex marketplace and local AGDF plugin copy <span class="text-agdf-300">✓</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest doctor</span></div>
+            <div class="text-dark-200">  checks gate, next action, evidence, SoT and quality contracts <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  preserves an existing AGENTS.md and writes AGENTS.agdf.md for manual merge <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  adds Copilot custom instructions as the always-on guardrail layer <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  still install the Claude Code plugin separately if needed <span class="text-agdf-300">✓</span></div>
@@ -780,7 +784,7 @@ QA decisions and auditable closeout.
         <div class="terminal">
           <div class="terminal-body space-y-2">
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin list</span></div>
-            <div class="text-dark-200">  agdf    0.1.7    Agentic Governance & Delivery Framework  <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  agdf    0.1.8    Agentic Governance & Delivery Framework  <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin list</span></div>
             <div class="text-dark-200">  agdf    installed and enabled <span class="text-agdf-300">✓</span></div>
           </div>
@@ -793,8 +797,9 @@ QA decisions and auditable closeout.
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest init</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest doctor --json</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Run an AGDF gate check for this request.</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Create an AGDF control scaffold for this repository.</span></div>
             <div class="text-dark-200">  Current gate: <code>UR</code></div>
             <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
             <div class="text-dark-200">  Allowed: formulate UR, run Brownfield Review</div>

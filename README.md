@@ -172,6 +172,15 @@ Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte a
 - Context Graph für dauerhaft relevante Brownfield-Erkenntnisse: aus [Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md) und [Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
 - Quality Contracts als wiederverwendbare Block-, Revise- und Warnsignale: aus [Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md), besonders ausführbare Qualitätsverträge und ihre Wirkung
 
+Für Ziel-Repositories gibt es dafür einen ausführbaren Kontrollpfad:
+
+```bash
+npm create agdf@latest init
+npm create agdf@latest doctor
+```
+
+`init` legt live Control-Dateien unter `.agdf/control/` an. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts überhaupt prüfbar sind.
+
 ## Lizenz
 
 Lizenziert unter [Apache-2.0](LICENSE).

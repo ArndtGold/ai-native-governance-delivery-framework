@@ -45,7 +45,20 @@ For a repository that should keep durable AGDF control state, ask Codex to use t
 Create an AGDF control scaffold for this repository.
 ```
 
-Use `plugin/control/templates/` as the source. In a target repository, live control files usually belong under `.agdf/control/`.
+Or initialize live control files directly:
+
+```bash
+npm create agdf@latest init
+```
+
+This promotes the AGDF templates into live files under `.agdf/control/`. Check the result before the next governed agent run:
+
+```bash
+npm create agdf@latest doctor
+npm create agdf@latest doctor --json
+```
+
+`doctor` reports whether the repository has a current gate, a next allowed action, visible evidence, backlog pointer, source-of-truth registry, Context Graph hygiene and valid quality contracts.
 
 ### Codex for one repository only
 
@@ -66,6 +79,13 @@ This writes:
 Then restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
 
 The plugin is then discoverable from that repository's local marketplace. Other repositories do not get this project-local marketplace unless they also contain the generated `.agents/plugins/marketplace.json` and `plugins/agdf/` files.
+
+If this repository should also keep durable AGDF control state, run:
+
+```bash
+npm create agdf@latest init
+npm create agdf@latest doctor
+```
 
 ## GitHub Actions and rollout boundary
 
@@ -110,7 +130,7 @@ npm create agdf@latest copilot
 If the repository does not yet contain `AGENTS.md`, this writes:
 
 - `AGENTS.md`
-- `.agdf/control/**`
+- `.agdf/control/templates/**`
 - `.github/copilot-instructions.md`
 - `.github/instructions/agdf-governance.instructions.md`
 - `.github/skills/**`
@@ -118,12 +138,19 @@ If the repository does not yet contain `AGENTS.md`, this writes:
 If `AGENTS.md` already exists, AGDF keeps it unchanged and writes:
 
 - `AGENTS.agdf.md`
-- `.agdf/control/**`
+- `.agdf/control/templates/**`
 - `.github/copilot-instructions.md`
 - `.github/instructions/agdf-governance.instructions.md`
 - `.github/skills/**`
 
 Then merge the AGDF instructions from `AGENTS.agdf.md` into your existing `AGENTS.md`. Use `--force` only if you intentionally want to replace existing generated files.
+
+When the repository is ready to own AGDF state as source-of-truth artefacts, run:
+
+```bash
+npm create agdf@latest init
+npm create agdf@latest doctor
+```
 
 After bootstrapping the target repository, verify that Copilot sees the checked-in instructions:
 
@@ -137,6 +164,7 @@ You should see at least:
 - `.github/copilot-instructions.md`
 - `.github/instructions/agdf-governance.instructions.md`
 - `.agdf/control/templates/AGDF_RUN.md`
+- `.agdf/control/AGDF_RUN.md` after `npm create agdf@latest init`
 - `.github/skills/agdf-runtime-contract.md`
 - `.github/skills/agdf-gate-check/SKILL.md`
 

@@ -20,6 +20,19 @@ This skill must not create later artefacts such as PRD, SD, TP, CD, CR, QA, or U
 ## Runtime Contract
 Use `../../meta/agdf-runtime-contract.md` for gate terms, closeout discipline, and non-duplication rules.
 
+## Machine-Readable Control Path
+
+When the target repository contains live AGDF control files, prefer the executable control path before deriving a gate decision manually:
+
+```bash
+npm create agdf@latest doctor --json
+npm create agdf@latest gate-check --json
+```
+
+`doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and `AGDF_RUN.md` to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.
+
+The CLI report is evidence for this skill, not a second rule system. If the report says `blocked`, do not continue with later-gate artefacts until the reported blocker is resolved.
+
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.
 2. The earliest blocking gate wins.

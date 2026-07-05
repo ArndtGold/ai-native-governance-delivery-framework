@@ -11,8 +11,9 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["codex", "copilot", "both", "init", "doctor"]);
+const allowedTargets = new Set(["codex", "copilot", "both", "init", "doctor", "gate-check"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
+const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const codexPluginFiles = [
@@ -89,11 +90,12 @@ Usage:
   npm create agdf@latest both
   npm create agdf@latest init
   npm create agdf@latest doctor
+  npm create agdf@latest gate-check
 
 Options:
   --dir <path>   Write files into a specific directory
   --force        Overwrite existing generated files
-  --json         Print doctor output as JSON
+  --json         Print doctor or gate-check output as JSON
   --help         Show this help
 `);
 }
@@ -156,7 +158,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, copilot, both, init or doctor.");
+    console.error("Please choose one target: codex, copilot, both, init, doctor or gate-check.");
     printUsage();
     process.exit(1);
   }
@@ -517,6 +519,163 @@ function printDoctorReport(report, json) {
   }
 }
 
+function extractField(content, field) {
+  const pattern = new RegExp(`^- ${field}:[^\\S\\r\\n]*(.*)$`, "m");
+  return content.match(pattern)?.[1]?.trim() ?? "";
+}
+
+function cleanStatusCell(value) {
+  return value.replace(/^`|`$/g, "").trim();
+}
+
+function readRunState(targetDir) {
+  const runPath = join(".agdf", "control", "AGDF_RUN.md");
+  if (!existsSync(join(targetDir, runPath))) {
+    return {
+      path: runPath,
+      content: "",
+      current_gate: "",
+      next_allowed_action: "",
+      approvals: new Map(),
+      evidence_refs: [],
+    };
+  }
+
+  const content = readTargetFile(targetDir, runPath);
+  const approvalsSection = content.match(/## Approvals([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
+  const approvals = new Map();
+  for (const cells of tableRows(approvalsSection)) {
+    const [gate, status, evidence] = cells;
+    if (!userGateOrder.includes(gate)) continue;
+    approvals.set(gate, {
+      status: cleanStatusCell(status ?? ""),
+      evidence: evidence ?? "",
+    });
+  }
+
+  const evidenceSection = content.match(/## Evidence([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
+  const evidence_refs = tableRows(evidenceSection)
+    .filter((cells) => cells[0] !== "Evidence")
+    .filter((cells) => Boolean(cells[0] || cells[1] || cells[2]))
+    .map((cells) => ({
+      evidence: cells[0] ?? "",
+      source: cells[1] ?? "",
+      covers: cells[2] ?? "",
+      strength: cleanStatusCell(cells[3] ?? ""),
+    }));
+
+  return {
+    path: runPath,
+    content,
+    current_gate: extractField(content, "current_gate"),
+    next_allowed_action: extractField(content, "next_allowed_action"),
+    approvals,
+    evidence_refs,
+  };
+}
+
+function firstUnapprovedGate(approvals) {
+  for (const gate of userGateOrder) {
+    const status = approvals.get(gate)?.status ?? "";
+    if (status !== "approved" && status !== "not_applicable") return gate;
+  }
+  return "OR";
+}
+
+function normalizeCurrentGate(value, fallbackGate) {
+  if (isPlaceholderValue(value)) return fallbackGate;
+  const normalized = value.replace(/`/g, "").trim();
+  return normalized || fallbackGate;
+}
+
+function gateApprovalStatus(runState, gate) {
+  if (!userGateOrder.includes(gate)) return "not_applicable";
+  return runState.approvals.get(gate)?.status ?? "";
+}
+
+function evaluateGateCheck(targetDir) {
+  const doctorReport = evaluateDoctor(targetDir);
+  const runState = readRunState(targetDir);
+  const fallbackGate = firstUnapprovedGate(runState.approvals);
+  const currentGate = normalizeCurrentGate(runState.current_gate, fallbackGate);
+  const currentApprovalStatus = gateApprovalStatus(runState, currentGate);
+  const doctorBlocker = doctorReport.findings.find((finding) => finding.severity === "block");
+  const doctorRevise = doctorReport.findings.find((finding) => finding.severity === "revise");
+
+  let status = "open";
+  let blockingReason = "none";
+  let missingApproval = "none";
+  let allowed = [
+    "continue with the documented next allowed action",
+    "update evidence when new facts are observed",
+    "run doctor or gate-check again after control changes",
+  ];
+  let forbidden = [
+    "bypass the documented gate state",
+    "treat warnings as resolved without evidence",
+  ];
+  let nextAllowedAction = isPlaceholderValue(runState.next_allowed_action)
+    ? "Continue with the current documented gate only after setting next_allowed_action."
+    : runState.next_allowed_action;
+
+  if (doctorBlocker) {
+    status = "blocked";
+    blockingReason = doctorBlocker.code;
+    allowed = ["repair the AGDF control scaffold", "run doctor again"];
+    forbidden = ["continue governed delivery", "create later-gate artefacts", "implement gated work"];
+    nextAllowedAction = doctorBlocker.next_step;
+  } else if (doctorRevise) {
+    status = "blocked";
+    blockingReason = doctorRevise.code;
+    allowed = ["repair the incomplete control state", "run doctor again"];
+    forbidden = ["continue governed delivery", "create later-gate artefacts", "implement gated work"];
+    nextAllowedAction = doctorRevise.next_step;
+  } else if (userGateOrder.includes(currentGate) && currentApprovalStatus !== "approved" && currentApprovalStatus !== "not_applicable") {
+    status = "blocked";
+    blockingReason = "missing_exact_approval";
+    missingApproval = `Approval: ${currentGate}`;
+    allowed = ["clarify the current gate", "record evidence", "write OR-lite status", "request exact approval"];
+    forbidden = ["create later-gate artefacts", "implement gated work", "mark QA or UAT as passed"];
+    nextAllowedAction = `Request exact approval: Approval: ${currentGate}`;
+  }
+
+  return {
+    schema_version: "1",
+    status,
+    current_gate: currentGate,
+    blocking_reason: blockingReason,
+    missing_approval: missingApproval,
+    allowed,
+    forbidden,
+    next_allowed_action: nextAllowedAction,
+    doctor_status: doctorReport.status,
+    doctor_summary: doctorReport.summary,
+    evidence_refs: runState.evidence_refs,
+    doctor_report: doctorReport,
+  };
+}
+
+function printGateCheckReport(report, json) {
+  if (json) {
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  console.log(`AGDF gate-check: ${report.status}`);
+  console.log(`Current gate: ${report.current_gate}`);
+  console.log(`Blocking reason: ${report.blocking_reason}`);
+  console.log(`Missing approval: ${report.missing_approval}`);
+  console.log(`Doctor: ${report.doctor_status} (${report.doctor_summary.findings} findings)`);
+  console.log("");
+  console.log("Allowed:");
+  for (const item of report.allowed) console.log(`- ${item}`);
+  console.log("");
+  console.log("Forbidden:");
+  for (const item of report.forbidden) console.log(`- ${item}`);
+  console.log("");
+  console.log(`Next allowed action: ${report.next_allowed_action}`);
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
 
@@ -524,6 +683,12 @@ function main() {
     const report = evaluateDoctor(options.dir);
     printDoctorReport(report, options.json);
     process.exit(report.status === "block" ? 2 : 0);
+  }
+
+  if (options.target === "gate-check") {
+    const report = evaluateGateCheck(options.dir);
+    printGateCheckReport(report, options.json);
+    process.exit(report.status === "blocked" ? 2 : 0);
   }
 
   const files = generatedFilesForTarget(options.target, options.dir, options.force);

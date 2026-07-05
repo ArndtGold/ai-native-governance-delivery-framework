@@ -177,9 +177,10 @@ Für Ziel-Repositories gibt es dafür einen ausführbaren Kontrollpfad:
 ```bash
 npm create agdf@latest init
 npm create agdf@latest doctor
+npm create agdf@latest gate-check --json
 ```
 
-`init` legt live Control-Dateien unter `.agdf/control/` an. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts überhaupt prüfbar sind.
+`init` legt live Control-Dateien unter `.agdf/control/` an. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts überhaupt prüfbar sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
 
 ## Lizenz
 

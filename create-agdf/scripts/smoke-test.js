@@ -127,6 +127,32 @@ run("both", [
     if (!doctorReport.findings.some((finding) => finding.code === "AGDF_EVIDENCE_EMPTY")) {
       throw new Error("Doctor should report empty evidence for a fresh control scaffold.");
     }
+
+    let gateCheckFailed = false;
+    try {
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+    } catch (error) {
+      gateCheckFailed = true;
+      const gateCheckReport = JSON.parse(error.stdout.toString());
+      if (gateCheckReport.status !== "blocked") {
+        throw new Error(`Gate-check should block a fresh unfilled control scaffold, got ${gateCheckReport.status}.`);
+      }
+      if (gateCheckReport.current_gate !== "UR") {
+        throw new Error(`Gate-check should fall back to UR for a fresh scaffold, got ${gateCheckReport.current_gate}.`);
+      }
+      if (gateCheckReport.doctor_status !== "revise") {
+        throw new Error(`Gate-check should embed the doctor revise status, got ${gateCheckReport.doctor_status}.`);
+      }
+      if (!gateCheckReport.doctor_report?.findings?.some((finding) => finding.code === "AGDF_CURRENT_GATE_MISSING")) {
+        throw new Error("Gate-check should include the doctor report as evidence.");
+      }
+      if (gateCheckReport.evidence_refs.length !== 0) {
+        throw new Error("Gate-check should not expose empty template evidence rows.");
+      }
+    }
+    if (!gateCheckFailed) {
+      throw new Error("Gate-check should exit non-zero when a fresh control scaffold is blocked.");
+    }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -153,6 +179,92 @@ run("both", [
 
     if (!failed) {
       throw new Error("Doctor should exit non-zero when live control files are missing.");
+    }
+
+    let gateCheckFailed = false;
+    try {
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+    } catch (error) {
+      gateCheckFailed = true;
+      const gateCheckReport = JSON.parse(error.stdout.toString());
+      if (gateCheckReport.status !== "blocked" || gateCheckReport.doctor_status !== "block") {
+        throw new Error("Gate-check should block when doctor blocks missing live control files.");
+      }
+      if (gateCheckReport.blocking_reason !== "AGDF_CONTROL_FILE_MISSING") {
+        throw new Error(`Gate-check should expose the doctor blocker, got ${gateCheckReport.blocking_reason}.`);
+      }
+    }
+
+    if (!gateCheckFailed) {
+      throw new Error("Gate-check should exit non-zero when live control files are missing.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-open-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: test-run
+- started_at: 2026-07-05
+- mode: structured_delivery
+- current_gate: UR
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Test UR is approved. |
+| What is approved? | UR |
+| What is missing? | PRD |
+| What is the next allowed action? | Draft PRD. |
+| What is explicitly forbidden right now? | Implementation |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | not_applicable |  |
+| SD | not_applicable |  |
+| TP | not_applicable |  |
+| QA | not_applicable |  |
+| UAT | not_applicable |  |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| UR approval | AGDF_RUN.md | UR gate | direct |
+
+## Closeout
+
+- next_allowed_action: Draft PRD.
+`, "utf8");
+
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckReport = JSON.parse(gateCheckOutput);
+    if (gateCheckReport.status !== "open") {
+      throw new Error(`Gate-check should be open when current gate is approved and next action exists, got ${gateCheckReport.status}.`);
+    }
+    if (gateCheckReport.doctor_status !== "warn") {
+      throw new Error(`Gate-check should preserve non-blocking doctor warnings, got ${gateCheckReport.doctor_status}.`);
+    }
+    if (gateCheckReport.next_allowed_action !== "Draft PRD.") {
+      throw new Error(`Gate-check should expose the next allowed action, got ${gateCheckReport.next_allowed_action}.`);
+    }
+    if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {
+      throw new Error("Gate-check should expose filled evidence references.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

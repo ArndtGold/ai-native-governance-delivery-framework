@@ -10,6 +10,7 @@ npm create agdf@latest copilot
 npm create agdf@latest both
 npm create agdf@latest init
 npm create agdf@latest doctor
+npm create agdf@latest gate-check
 ```
 
 Optional flags:
@@ -61,6 +62,15 @@ npm create agdf@latest doctor --json
 ```
 
 The doctor reports missing live control files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts. It exits non-zero only for blocking control failures.
+
+Use `gate-check` to derive the next process decision from the doctor result and `AGDF_RUN.md`:
+
+```bash
+npm create agdf@latest gate-check
+npm create agdf@latest gate-check --json
+```
+
+The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
 
 ## Single source of truth
 

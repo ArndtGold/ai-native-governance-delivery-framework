@@ -39,9 +39,11 @@ Then check whether the live state is actionable:
 ```bash
 npm create agdf@latest doctor
 npm create agdf@latest doctor --json
+npm create agdf@latest gate-check --json
 ```
 
 `doctor` does not replace agent judgment. It catches basic control failures: missing live files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts.
+`gate-check` consumes the doctor result and live run state to report whether the next process step is `open` or `blocked`.
 
 ## Operating Rules
 

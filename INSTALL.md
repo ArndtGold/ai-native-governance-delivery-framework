@@ -56,9 +56,11 @@ This promotes the AGDF templates into live files under `.agdf/control/`. Check t
 ```bash
 npm create agdf@latest doctor
 npm create agdf@latest doctor --json
+npm create agdf@latest gate-check --json
 ```
 
 `doctor` reports whether the repository has a current gate, a next allowed action, visible evidence, backlog pointer, source-of-truth registry, Context Graph hygiene and valid quality contracts.
+`gate-check` derives the operative decision from that state: `open | blocked`, current gate, missing approval, allowed outputs, forbidden outputs and next allowed action.
 
 ### Codex for one repository only
 
@@ -85,6 +87,7 @@ If this repository should also keep durable AGDF control state, run:
 ```bash
 npm create agdf@latest init
 npm create agdf@latest doctor
+npm create agdf@latest gate-check
 ```
 
 ## GitHub Actions and rollout boundary
@@ -150,6 +153,7 @@ When the repository is ready to own AGDF state as source-of-truth artefacts, run
 ```bash
 npm create agdf@latest init
 npm create agdf@latest doctor
+npm create agdf@latest gate-check
 ```
 
 After bootstrapping the target repository, verify that Copilot sees the checked-in instructions:

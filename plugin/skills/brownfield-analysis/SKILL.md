@@ -1,6 +1,6 @@
 ---
 name: brownfield-analysis
-description: Use this skill before implementation in an existing codebase, especially for feature extensions, bug fixes, refactorings, or changes to existing modules. It analyzes existing artefacts, current coverage, reuse strategy, risks, and the minimal clean implementation path. Use it before CD+Tests.
+description: Use this skill after gate-check or live AGDF control state confirms that implementation preparation is allowed, and before non-trivial implementation in an existing codebase. It analyzes existing artefacts, current coverage, reuse strategy, risks, and the minimal clean implementation path. Do not use it as the first AGDF skill for a fresh "I want to build/change X" prompt when approval, scope, or next allowed action is unclear.
 ---
 
 # brownfield-analysis
@@ -38,6 +38,7 @@ Brownfield-specific output must make evidence, missing existing-system view, par
 12. Specification archive migrations must follow the archive index if present.
 
 ## When To Use
+- after `gate-check` permits implementation preparation or live `.agdf/control/AGDF_RUN.md` already names Brownfield Analysis as the next allowed action
 - before `CD+Tests`
 - before changes to an existing repository
 - bug fixes in existing modules
@@ -58,6 +59,7 @@ Use what is available:
 - repository conventions
 
 If inputs are missing, work only from observable evidence and mark gaps explicitly.
+If gate status, approval, scope or next allowed action is unclear, stop and route to `gate-check` instead of recommending or starting implementation.
 
 ## Workflow
 1. Identify affected tasks and scope.

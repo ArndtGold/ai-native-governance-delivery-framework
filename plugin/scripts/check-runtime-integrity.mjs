@@ -223,6 +223,12 @@ if (isFile(sessionStartHookPath)) {
 if (isFile(agentRouterPath)) {
   const agentRouter = read(agentRouterPath);
   assertRouterMatchesDefinition("plugin/meta/agdf-agent-router.md", agentRouter, "codex");
+  if (!agentRouter.includes("Default entry rule: a new user intent to build, add, change, extend, refactor or otherwise deliver something starts with `gate-check`")) {
+    failures.push("plugin/meta/agdf-agent-router.md must state the gate-check default entry rule for new build/change intents");
+  }
+  if (!agentRouter.includes("Do not choose `brownfield-analysis` as the first primary skill for a fresh")) {
+    failures.push("plugin/meta/agdf-agent-router.md must prevent brownfield-analysis from bypassing gate-check on fresh build/change prompts");
+  }
   for (const skill of pluginDefinition?.skillSet ?? []) {
     const copilotName = skillNameForSurface(skill, "copilot");
     if (agentRouter.includes(`\`${copilotName}\``) || agentRouter.includes(`/${copilotName}`)) {

@@ -110,6 +110,31 @@ plugin/meta/agdf-agent-router.md
 
 plus the compact AGDF constitution so the skills do not have to carry the whole control model alone.
 
+### How Codex chooses AGDF skills
+
+Codex does not need a generated repository `AGENTS.md` to recognize AGDF plugin skills.
+The Codex plugin runtime provides the discovery surface:
+
+```text
+plugin/.codex-plugin/plugin.json
+plugin/skills/*/SKILL.md
+plugin/meta/agdf-agent-router.md
+plugin/hooks/hooks.json
+```
+
+At runtime:
+
+1. Codex sees the installed plugin skills through their `name` and `description`.
+2. The AGDF `SessionStart` hook loads the shared router and compact constitution.
+3. The router describes which AGDF skill should be primary for which kind of request.
+4. The individual skill descriptions provide additional trigger hints.
+
+For example, a new user intent such as "I want to build X" should route first to `gate-check`, not `qa-gate`.
+`qa-gate` is only appropriate when implementation evidence exists and a QA decision is requested or implied.
+
+This is why AGDF generates `AGENTS.md` only for Copilot-style repository instruction loading.
+Codex uses plugin discovery plus the AGDF router instead.
+
 For local repository testing, add this repository as a Codex plugin marketplace and then install `agdf`:
 
 ```bash
@@ -283,9 +308,9 @@ using:
 surface.skillPrefix + skillSet.slug
 ```
 
-## Why AGENTS.md is not generated for Codex or Claude Code
+## Why AGENTS.md is not the Codex or Claude Code router
 
-Neither `AGENTS.md` nor `CLAUDE.md` is generated for Codex or Claude Code because both surfaces consume AGDF through the installable plugin package.
+AGDF does not generate a separate `AGENTS.md` or `CLAUDE.md` routing file for Codex or Claude Code because both surfaces consume AGDF through the installable plugin package.
 
 For Codex, the plugin manifest is:
 
@@ -296,6 +321,7 @@ plugin/.codex-plugin/plugin.json
 For Claude Code, the same `plugin/` root is used as the installable plugin package.
 
 Both surfaces load AGDF skills, hooks and shared meta instructions from the plugin bundle.
+Their skill routing comes from the plugin router and skill descriptions, not from a target-repository `AGENTS.md`.
 
 GitHub Copilot is different.
 Copilot does not currently consume AGDF through the same plugin package.
@@ -317,8 +343,9 @@ This creates a clear ownership boundary:
 - `.github/skills/**` exposes Copilot-visible AGDF skills.
 - `.agdf/control/**` stores durable AGDF control state owned by the target repository.
 
-AGDF must not treat `AGENTS.md` as part of the plugin package.
+AGDF must not treat `AGENTS.md` as part of the Codex or Claude Code plugin package.
 It is a generated or manually merged Copilot-facing repository file.
+When `npm create agdf@latest both` writes `AGENTS.md`, that file is still for Copilot-style repository instruction loading; the Codex plugin continues to use `plugin/.codex-plugin/plugin.json`, `plugin/skills/**`, hooks and `plugin/meta/agdf-agent-router.md`.
 
 If the target repository already has an `AGENTS.md`, the Copilot bootstrap writes `AGENTS.agdf.md` instead.
 The repository owner must then merge the AGDF section intentionally, because the existing file may already contain project-specific rules for build commands, tests, architecture, security constraints or team workflow.

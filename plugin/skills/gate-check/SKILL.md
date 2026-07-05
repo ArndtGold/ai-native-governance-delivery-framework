@@ -1,6 +1,6 @@
 ---
 name: gate-check
-description: Use this skill when the active gate is unclear, when a later-gate artefact is requested, when an exact approval may be missing, or when the next permissible step must be determined. Use it before creating formal artefacts in Structured Delivery and whenever implicit consent might be mistaken for approval.
+description: Use this skill as the default first AGDF skill for any new build, change, extension, refactor, feature, CLI, app, fix with product semantics, Structured Delivery request, unclear approval, later-gate artefact request, or unclear next permissible step. Use it before brownfield-analysis, implementation, formal artefacts, QA, or release when approval/evidence/next action is not already explicit.
 ---
 
 # gate-check
@@ -54,6 +54,7 @@ Internal mandatory steps:
 `Brownfield Analysis -> CD+Tests -> CR -> OR`
 
 ## When To Use
+- new user intent to build, add, change, extend, refactor or deliver something
 - Structured Delivery before first artefact creation
 - unclear current gate
 - user says "continue" or similar without exact approval
@@ -62,6 +63,9 @@ Internal mandatory steps:
 - QA, UAT, or release permission is unclear
 
 Not required for simple Quick Tasks without new product scope and without formal artefacts.
+
+For a fresh prompt such as "I want to build a small CLI", use this skill first.
+Do not route directly to `brownfield-analysis` or implementation until this skill or live AGDF control state says that implementation preparation is the next allowed action.
 
 ## Inputs
 Use what is available:

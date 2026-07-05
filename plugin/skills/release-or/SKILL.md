@@ -22,7 +22,7 @@ It reports:
 - Context Graph impact
 - open risks, blockers, retained fallbacks, and exit criteria
 - next permissible step
-- whether further quality follow-up is useful
+- whether further quality follow-up or a separate delivery closeout is useful
 
 ## Runtime Contract
 Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
@@ -85,7 +85,7 @@ If information is missing, state the gap instead of guessing.
 8. Name retained fallbacks and exit criteria.
 9. Set exactly one next permissible step.
 10. Set exactly one quality outlook.
-11. Add a commit-ready handoff only when code changes exist and the delivery state allows it.
+11. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
 
 ## Output
 Use a compact structure:
@@ -106,14 +106,6 @@ Use a compact structure:
 
 When Context Graph impact is relevant, include the fields from `../../meta/agdf-runtime-contract.md`.
 
-For code-changing closeouts that are commit-near, append:
-
-```text
-Commit title:
-Commit body:
-Migration/Rollout note:
-```
-
 ## Forbidden
 This skill must not:
 
@@ -121,4 +113,5 @@ This skill must not:
 - call `CD+Tests` complete, QA-ready, or release-ready
 - hide missing approvals
 - provide later-gate content while an earlier gate blocks
+- produce the operative commit/PR handoff owned by `delivery-closeout`
 - execute commit, push, or PR actions

@@ -175,7 +175,7 @@ if (codexPlugin && pluginDefinition) {
   if (codexPlugin.interface?.brandColor !== pluginDefinition.brandColor) failures.push("Codex plugin brand color must match canonical AGDF plugin definition");
   if (JSON.stringify(codexPlugin.interface?.capabilities) !== JSON.stringify(pluginDefinition.codex?.capabilities)) failures.push("Codex plugin capabilities must match canonical AGDF plugin definition");
   if (JSON.stringify(codexPlugin.interface?.defaultPrompt) !== JSON.stringify(pluginDefinition.codex?.defaultPrompt)) failures.push("Codex plugin default prompts must match canonical AGDF plugin definition");
-  if (Object.hasOwn(codexPlugin, "hooks")) failures.push("Codex plugin manifest should use default hooks/hooks.json instead of duplicating hooks");
+  if (codexPlugin.hooks !== `./${pluginDefinition.codex?.hooks}`) failures.push("Codex plugin manifest hooks must explicitly point to ./hooks/hooks.json");
 }
 
 if (claudePlugin && pluginDefinition) {
@@ -209,6 +209,9 @@ if (hooksConfig) {
   if (!sessionStartCommands.some((hook) => hook?.type === "command" && String(hook?.command ?? "").includes("session-start.sh"))) {
     failures.push("Codex plugin SessionStart hooks must load session-start.sh");
   }
+  const sessionStartCommandText = sessionStartCommands.map((hook) => String(hook?.command ?? "")).join("\n");
+  if (!sessionStartCommandText.includes("PLUGIN_ROOT")) failures.push("Codex plugin SessionStart hook command must use PLUGIN_ROOT");
+  if (sessionStartCommandText.includes("/plugins/cache/*/")) failures.push("Codex plugin SessionStart hook command must not use cache wildcards");
 }
 
 if (isFile(sessionStartHookPath)) {

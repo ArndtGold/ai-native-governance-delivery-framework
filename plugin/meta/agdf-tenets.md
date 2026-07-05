@@ -16,7 +16,12 @@ you *MUST* honor the following **GENERIC TENETS**:
     Implementation should not be based on vague intent.
     A stable product contract defines accepted scope, acceptance criteria,
     non-goals, constraints and success measurement.
-    Without an approved PRD, no implementation may begin.
+    For Structured Delivery or product-semantically relevant implementation,
+    no implementation may begin without an approved PRD or an explicitly
+    equivalent product contract.
+    Quick Task Mode may still handle narrow local fixes, reviews, debugging
+    and tooling maintenance when no new product meaning, user capability,
+    architecture, policy or persistence decision is introduced.
 
 -   **Fail Closed**:
     When a necessary approval, input, or quality statement is missing,

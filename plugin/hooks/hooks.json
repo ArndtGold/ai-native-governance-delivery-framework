@@ -5,7 +5,7 @@
                 "hooks": [
                     {
                         "type":         "command",
-                        "command":      "bash -lc 'for hook in \"${CODEX_HOME:-$HOME/.codex}\"/plugins/cache/*/agdf/*/hooks/session-start.sh \"$PWD/plugins/agdf/hooks/session-start.sh\" \"$(dirname \"$0\")/session-start.sh\"; do [ -f \"$hook\" ] && exec bash \"$hook\"; done; exit 0'",
+                        "command":      "bash -lc 'hook=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}/hooks/session-start.sh\"; if [ -f \"$hook\" ]; then exec bash \"$hook\"; fi; hook=\"$PWD/plugins/agdf/hooks/session-start.sh\"; if [ -f \"$hook\" ]; then exec bash \"$hook\"; fi; exit 0'",
                         "statusMessage": "Loading AGDF..."
                     }
                 ]

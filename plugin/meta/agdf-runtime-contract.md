@@ -24,7 +24,8 @@ Structured Delivery must not bypass missing approvals.
 - `CD+Tests` is implementation and test status only, not a delivery signal.
 - `code-review` standardizes the mandatory `CR` step, but does not replace QA.
 - `qa-gate` decides final `pass | revise | block`.
-- `release-or` reports the run, but does not replace QA.
+- `release-or` reports the run, but does not replace QA or produce the operative commit/PR handoff.
+- `delivery-closeout` owns the operative Git handoff text when QA/OR/UAT state allows it.
 
 ## Quality Contract Output
 

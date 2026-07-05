@@ -43,7 +43,7 @@ function syncDirectory(sourceRoot, targetRoot) {
 
 function syncPluginDirectory(sourceRoot, targetRoot) {
   for (const entry of readdirSync(sourceRoot)) {
-    if (entry === ".claude-plugin" || entry === "hooks" || entry === "scripts") continue;
+    if (entry === ".claude-plugin" || entry === "scripts") continue;
 
     const sourcePath = join(sourceRoot, entry);
     const targetPath = join(targetRoot, entry);
@@ -68,6 +68,45 @@ function getSkillDirectories() {
 
 function syncTopLevelAssets() {
   write(join(generatedRoot, "AGENTS.md"), read(sourceAgentsPath));
+}
+
+function writeCopilotInstructions() {
+  const lines = [
+    "# AGDF Copilot instructions",
+    "",
+    "AGDF is active in this repository.",
+    "",
+    "- Treat `AGENTS.md` as the primary repository instruction source.",
+    "- Use `.github/skills/` for AGDF task workflows instead of inventing parallel process rules.",
+    "- Use `.agdf/control/` for durable run state, backlog pointers, source-of-truth ownership, Context Graph knowledge and quality contracts.",
+    "- Before non-trivial implementation or formal delivery work, determine whether the request is a Quick Task or Structured Delivery.",
+    "- If approval, evidence, ownership or the next allowed action is unclear, run the AGDF gate-check workflow before creating later artefacts or code.",
+    "- Do not treat chat history as the source of truth for gate state, approvals, evidence or delivery status.",
+    "",
+  ];
+
+  write(join(generatedRoot, ".github", "copilot-instructions.md"), lines.join("\n"));
+}
+
+function writeCopilotGovernanceInstructions() {
+  const lines = [
+    "---",
+    'applyTo: "AGENTS.md,AGENTS.agdf.md,.agdf/**,.github/skills/**,.github/copilot-instructions.md,.github/instructions/**"',
+    "---",
+    "",
+    "# AGDF governance artefacts",
+    "",
+    "These files are control artefacts, not general documentation.",
+    "",
+    "- Keep AGDF rules sourced from `AGENTS.md`, `.github/skills/` and `.github/skills/agdf-runtime-contract.md`.",
+    "- Do not duplicate the full gate model, Quality Contract table or Context Graph relationship language in new files.",
+    "- Keep generated AGDF files small, reviewable and linked to the owning source of truth.",
+    "- Preserve the rule that missing approval, missing evidence or unclear ownership blocks later delivery steps.",
+    "- If changing AGDF bootstrap behaviour, update the generated files, smoke test and affected setup documentation together.",
+    "",
+  ];
+
+  write(join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"), lines.join("\n"));
 }
 
 function syncRuntimeContract() {
@@ -101,7 +140,10 @@ function writeSkillsReadme(skillNames) {
 
 function writeCodexMarketplace() {
   const marketplace = {
-    name: "agdf-project",
+    name: "agdf-repo",
+    interface: {
+      displayName: "This repository",
+    },
     plugins: [
       {
         name: "agdf",
@@ -128,6 +170,8 @@ function main() {
   mkdirSync(generatedSkillsRoot, { recursive: true });
 
   syncTopLevelAssets();
+  writeCopilotInstructions();
+  writeCopilotGovernanceInstructions();
   syncRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);

@@ -18,14 +18,14 @@ Optional flags:
 ## Targets and existing AGENTS.md
 
 - `codex` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
-- `copilot` writes `AGENTS.md`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
-- `both` writes the Codex project marketplace plus the Copilot-facing repository files
+- `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
+- `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 
-If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. Use `--force` only when you explicitly want to overwrite generated files.
+If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. The generated `.github/copilot-instructions.md` keeps Copilot pointed at `AGENTS.md`, `.github/skills/` and `.agdf/control/` without duplicating the full AGDF rule model. Use `--force` only when you explicitly want to overwrite generated files.
 
 Use the `codex` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
 
-After `npm create agdf@latest codex`, restart Codex in that repository, open `/plugins`, select the project marketplace and install `agdf`.
+After `npm create agdf@latest codex`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
 
 ## Control scaffold
 

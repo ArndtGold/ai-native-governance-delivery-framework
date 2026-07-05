@@ -8,6 +8,8 @@ const marketplacePath = join(repoRoot, ".claude-plugin", "marketplace.json");
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
 const copilotAgentsPath = join(pluginRoot, "meta", "agdf-copilot-agents.md");
+const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
+const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const controlRoot = join(pluginRoot, "control");
 const skillRoot = join(pluginRoot, "skills");
 
@@ -98,6 +100,8 @@ assertFile(runtimeContractPath, "runtime contract");
 assertFile(copilotAgentsPath, "Copilot AGENTS source");
 assertFile(marketplacePath, "plugin marketplace");
 assertFile(codexPluginPath, "Codex plugin manifest");
+assertFile(hooksConfigPath, "Codex plugin default hooks config");
+assertFile(sessionStartHookPath, "AGDF SessionStart hook");
 assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
 
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
@@ -106,7 +110,17 @@ if (codexPlugin) {
   if (codexPlugin.skills !== "./skills/") failures.push("Codex plugin manifest must point skills to ./skills/");
   if (codexPlugin.interface?.displayName !== "AI Governance & Delivery Framework") failures.push("Codex plugin display name must be speaking and not only the AGDF acronym");
   if (!codexPlugin.interface?.shortDescription?.includes("Codex-first")) failures.push("Codex plugin short description must state Codex-first positioning");
-  if (Object.hasOwn(codexPlugin, "hooks")) failures.push("Codex plugin manifest should rely on default hook discovery instead of duplicating hooks");
+  if (Object.hasOwn(codexPlugin, "hooks")) failures.push("Codex plugin manifest should use default hooks/hooks.json instead of duplicating hooks");
+}
+
+const hooksConfig = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Codex plugin hooks config") : null;
+if (hooksConfig) {
+  const sessionStartGroups = hooksConfig.hooks?.SessionStart;
+  if (!Array.isArray(sessionStartGroups) || sessionStartGroups.length === 0) failures.push("Codex plugin hooks config must define SessionStart hooks");
+  const sessionStartCommands = sessionStartGroups?.flatMap((group) => group?.hooks ?? []) ?? [];
+  if (!sessionStartCommands.some((hook) => hook?.type === "command" && String(hook?.command ?? "").includes("session-start.sh"))) {
+    failures.push("Codex plugin SessionStart hooks must load session-start.sh");
+  }
 }
 
 const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;

@@ -115,7 +115,7 @@ Empfohlene Reihenfolge:
 │  ├─ .claude-plugin/
 │  ├─ .codex-plugin/
 │  ├─ control/
-│  ├─ hooks/
+│  ├─ hooks/      # SessionStart lifecycle config for Codex and Claude Code
 │  ├─ meta/
 │  └─ skills/
 ├─ docs/

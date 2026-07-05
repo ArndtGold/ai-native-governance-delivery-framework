@@ -20,7 +20,11 @@ const codexPluginFiles = [
   join("plugins", "agdf", "control", "templates", "SOT_REGISTRY.md"),
   join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+  join("plugins", "agdf", "hooks", "hooks.json"),
+  join("plugins", "agdf", "hooks", "session-start.sh"),
+  join("plugins", "agdf", "meta", "agdf-constitution.md"),
   join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
+  join("plugins", "agdf", "meta", "agdf-tenets.md"),
   join("plugins", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
   join("plugins", "agdf", "skills", "agdf-brownfield-analysis", "SKILL.md"),
   join("plugins", "agdf", "skills", "agdf-task-plan-review", "SKILL.md"),
@@ -37,6 +41,10 @@ const controlFiles = [
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+];
+const copilotInstructionFiles = [
+  join(".github", "copilot-instructions.md"),
+  join(".github", "instructions", "agdf-governance.instructions.md"),
 ];
 const copilotSkillFiles = [
   join(".github", "skills", "README.md"),
@@ -171,6 +179,13 @@ function generatedFilesForTarget(target, targetDir, force) {
       });
     }
 
+    for (const instructionPath of copilotInstructionFiles) {
+      files.push({
+        path: instructionPath,
+        content: loadAsset(instructionPath),
+      });
+    }
+
     for (const skillPath of copilotSkillFiles) {
       files.push({
         path: skillPath,
@@ -197,7 +212,7 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
     console.log(`- Existing AGENTS.md detected. Merge ${agdfFragmentPath} into your current AGENTS.md before using Copilot with AGDF.`);
   }
   if (target === "codex" || target === "both") {
-    console.log("- Restart Codex in this repository, open /plugins, select the project marketplace and install agdf.");
+    console.log("- Restart Codex in this repository, open /plugins, select This repository and install agdf.");
     console.log("- Start a new Codex thread in this repository and ask: Run an AGDF gate check for this request.");
   }
   if (target === "both") {

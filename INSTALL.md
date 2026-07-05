@@ -22,6 +22,7 @@ AGDF is a control-first plugin. The skills steer agent behavior during a run; th
 
 AGDF is available as a Codex plugin from the same `plugin/` root used for the Claude plugin.
 Codex uses `plugin/.codex-plugin/plugin.json` as the plugin manifest and loads the shared AGDF skills from `plugin/skills/`.
+Codex also discovers the default `plugin/hooks/hooks.json` lifecycle config when the plugin bundle includes it. The AGDF SessionStart hook loads the compact constitution so the skills do not have to carry the whole control model alone.
 
 For local repository testing, add this repository as a Codex plugin marketplace and then install `agdf`:
 
@@ -62,13 +63,13 @@ This writes:
 - `plugins/agdf/control/**`
 - `plugins/agdf/meta/**`
 
-Then restart Codex in that repository, open `/plugins`, select the project marketplace and install `agdf`.
+Then restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
 
-The plugin is then discoverable from that repository's marketplace. Other repositories do not get this project-local marketplace unless they also contain the generated `.agents/plugins/marketplace.json` and `plugins/agdf/` files.
+The plugin is then discoverable from that repository's local marketplace. Other repositories do not get this project-local marketplace unless they also contain the generated `.agents/plugins/marketplace.json` and `plugins/agdf/` files.
 
 ## GitHub Actions and rollout boundary
 
-GitHub Actions can validate that the Codex and Claude Code plugin artefacts are publishable, but they should not run `codex plugin marketplace add` or `claude plugin add` as a rollout step.
+GitHub Actions can validate that the Codex, Claude Code and Copilot-facing artefacts are publishable and internally consistent, but they should not run `codex plugin marketplace add` or `claude plugin add` as a rollout step.
 Those commands configure the current machine or user environment. In GitHub Actions that would only affect the temporary runner and would not install AGDF for repository users.
 
 Use GitHub Actions for:
@@ -106,12 +107,16 @@ If the repository does not yet contain `AGENTS.md`, this writes:
 
 - `AGENTS.md`
 - `.agdf/control/**`
+- `.github/copilot-instructions.md`
+- `.github/instructions/agdf-governance.instructions.md`
 - `.github/skills/**`
 
 If `AGENTS.md` already exists, AGDF keeps it unchanged and writes:
 
 - `AGENTS.agdf.md`
 - `.agdf/control/**`
+- `.github/copilot-instructions.md`
+- `.github/instructions/agdf-governance.instructions.md`
 - `.github/skills/**`
 
 Then merge the AGDF instructions from `AGENTS.agdf.md` into your existing `AGENTS.md`. Use `--force` only if you intentionally want to replace existing generated files.
@@ -125,6 +130,8 @@ After bootstrapping the target repository, verify that Copilot sees the checked-
 You should see at least:
 
 - `AGENTS.md`
+- `.github/copilot-instructions.md`
+- `.github/instructions/agdf-governance.instructions.md`
 - `.agdf/control/templates/AGDF_RUN.md`
 - `.github/skills/agdf-runtime-contract.md`
 - `.github/skills/agdf-gate-check/SKILL.md`
@@ -147,11 +154,13 @@ If one target repository should support Copilot-oriented repo files plus plugin 
 npm create agdf@latest both
 ```
 
-This writes the Codex project marketplace plus the same Copilot-facing files as the `copilot` target:
+This writes the Codex repository-local marketplace plus the same Copilot-facing files as the `copilot` target:
 
 - `.agents/plugins/marketplace.json`
 - `plugins/agdf/**`
 - `AGENTS.md` or `AGENTS.agdf.md` if an `AGENTS.md` already exists
+- `.github/copilot-instructions.md`
+- `.github/instructions/agdf-governance.instructions.md`
 - `.github/skills/**`
 
 For Claude Code you still install the plugin separately if you want Claude Code plugin support outside the checked-in Copilot files:

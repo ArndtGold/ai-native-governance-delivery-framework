@@ -28,7 +28,11 @@ run("codex", [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
+  join("plugins", "agdf", "hooks", "hooks.json"),
+  join("plugins", "agdf", "hooks", "session-start.sh"),
+  join("plugins", "agdf", "meta", "agdf-constitution.md"),
   join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
+  join("plugins", "agdf", "meta", "agdf-tenets.md"),
   join("plugins", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
   join("plugins", "agdf", "skills", "agdf-code-review", "SKILL.md"),
   join("plugins", "agdf", "skills", "agdf-qa-gate", "SKILL.md"),
@@ -40,6 +44,8 @@ run("copilot", [
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
+  join(".github", "copilot-instructions.md"),
+  join(".github", "instructions", "agdf-governance.instructions.md"),
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
   join(".github", "skills", "agdf-gate-check", "SKILL.md"),
@@ -50,9 +56,13 @@ run("both", [
   "AGENTS.md",
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
+  join("plugins", "agdf", "hooks", "hooks.json"),
+  join("plugins", "agdf", "meta", "agdf-constitution.md"),
   join("plugins", "agdf", "skills", "agdf-release-or", "SKILL.md"),
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
+  join(".github", "copilot-instructions.md"),
+  join(".github", "instructions", "agdf-governance.instructions.md"),
   join(".github", "skills", "README.md"),
   join(".github", "skills", "agdf-runtime-contract.md"),
   join(".github", "skills", "agdf-code-review", "SKILL.md"),
@@ -79,6 +89,11 @@ run("both", [
     const expectedSkillPath = join(tempDir, ".github", "skills", "agdf-gate-check", "SKILL.md");
     if (!existsSync(expectedSkillPath)) {
       throw new Error("Missing repository skills for existing AGENTS.md scenario.");
+    }
+
+    const expectedInstructionsPath = join(tempDir, ".github", "copilot-instructions.md");
+    if (!existsSync(expectedInstructionsPath)) {
+      throw new Error("Missing Copilot instructions for existing AGENTS.md scenario.");
     }
 
     const expectedControlPath = join(tempDir, ".agdf", "control", "templates", "AGDF_RUN.md");

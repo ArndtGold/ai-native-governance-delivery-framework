@@ -528,7 +528,7 @@ QA decisions and auditable closeout.
             <div class="text-dark-200/50">plugin/</div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">.claude-plugin/</span> <span class="text-dark-200/50">plugin.json</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">.codex-plugin/</span> <span class="text-dark-200/50">plugin.json</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">hooks/</span> <span class="text-dark-200/50">hooks.json, session-start.sh</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">hooks/</span> <span class="text-dark-200/50">SessionStart lifecycle config</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">meta/</span> <span class="text-dark-200/50">agdf-constitution.md, agdf-tenets.md, agdf-runtime-contract.md</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">skills/</span></div>
             <div class="ml-8 text-dark-200"><span class="text-agdf-300">agdf-gate-check/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
@@ -594,7 +594,7 @@ QA decisions and auditable closeout.
       </div>
       <div data-reveal data-reveal-delay="1" class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
         <h4 class="mb-1 font-semibold text-agdf-300">Hooks</h4>
-        <p class="text-xs text-dark-200">Claude uses SessionStart; Codex and Claude share the same skill source.</p>
+        <p class="text-xs text-dark-200">SessionStart loads the AGDF constitution so skills run inside the control model from the first turn.</p>
       </div>
       <div data-reveal data-reveal-delay="2" class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
         <h4 class="mb-1 font-semibold text-agdf-300">Skills</h4>
@@ -667,13 +667,34 @@ QA decisions and auditable closeout.
           <span class="text-dark-200/50">Codex trial:</span>
           <span class="font-semibold">Make AGDF available only in this repository</span>
         </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository where you want to try AGDF</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest codex</span></div>
-            <div class="text-dark-200">  writes .agents/plugins/marketplace.json and plugins/agdf <span class="text-agdf-300">✓</span></div>
-            <div class="text-dark-200">  restart Codex, open /plugins, select the project marketplace and install agdf <span class="text-agdf-300">✓</span></div>
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+          <div class="terminal">
+            <div class="terminal-body space-y-2">
+              <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository where you want to try AGDF</span></div>
+              <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest codex</span></div>
+              <div class="text-dark-200">  writes .agents/plugins/marketplace.json and plugins/agdf <span class="text-agdf-300">✓</span></div>
+              <div class="text-dark-200">  restart Codex, open /plugins, select This repository and install agdf <span class="text-agdf-300">✓</span></div>
+            </div>
           </div>
+          <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
+            <img
+              src="/assets/codex-project-marketplace.png"
+              alt="Codex CLI plugin browser showing a repository-local marketplace with AI Governance and Delivery Framework available for installation."
+              width="1049"
+              height="675"
+              class="block h-auto w-full cursor-zoom-in rounded-lg"
+              loading="lazy"
+              decoding="async"
+            />
+            <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
+              <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </span>
+            </button>
+            <figcaption class="px-2 py-3 text-xs text-dark-200">
+              Repository-local marketplace visible in `/plugins`.
+            </figcaption>
+          </figure>
         </div>
       </div>
       <div id="setup-codex" data-reveal data-reveal-delay="3">
@@ -686,7 +707,7 @@ QA decisions and auditable closeout.
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Use this when AGDF should be available across projects</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin add agdf --marketplace agdf</span></div>
-            <div class="text-dark-200">  loads plugin/.codex-plugin/plugin.json, shared AGDF skills and the control scaffold <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  loads plugin/.codex-plugin/plugin.json, shared AGDF skills, lifecycle hooks and control templates <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
       </div>
@@ -712,7 +733,7 @@ QA decisions and auditable closeout.
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
-            <div class="text-dark-200">  writes AGENTS.md, .github/skills and .agdf/control templates <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  writes AGENTS.md, Copilot instructions, repo skills and .agdf/control templates <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  if AGENTS.md already exists, AGDF writes AGENTS.agdf.md instead <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
@@ -720,13 +741,15 @@ QA decisions and auditable closeout.
       <div data-reveal data-reveal-delay="5">
         <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
           <span class="text-dark-200/50">GitHub Copilot:</span>
-          <span class="font-semibold">AGENTS.md and repository skills</span>
+          <span class="font-semibold">Instructions, skills and control files</span>
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Merge AGENTS.agdf.md into your existing AGENTS.md first if the repo already had one</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">/instructions</span></div>
             <div class="text-dark-200">  AGENTS.md <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  .github/copilot-instructions.md <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  .github/instructions/agdf-governance.instructions.md <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  .agdf/control/templates/AGDF_RUN.md <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  .github/skills/agdf-gate-check/SKILL.md <span class="text-agdf-300">✓</span></div>
           </div>
@@ -743,6 +766,7 @@ QA decisions and auditable closeout.
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
             <div class="text-dark-200">  writes the project Codex marketplace and local AGDF plugin copy <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  preserves an existing AGENTS.md and writes AGENTS.agdf.md for manual merge <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  adds Copilot custom instructions as the always-on guardrail layer <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  still install the Claude Code plugin separately if needed <span class="text-agdf-300">✓</span></div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 # create-agdf
 
-Bootstrap AGDF repository instructions for one repository.
+Bootstrap AGDF repository instructions and a machine-checkable control loop for one repository.
 
 ## Usage
 
@@ -71,6 +71,8 @@ npm create agdf@latest gate-check --json
 ```
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
+
+Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction layer into a repository control system: the agent can be guided by rules, and the repository state can be checked before the next governed step.
 
 ## Single source of truth
 

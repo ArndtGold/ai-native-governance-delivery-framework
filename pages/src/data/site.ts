@@ -2,11 +2,11 @@ export const site = {
     name: "AGDF",
     fullName: "AI Governance & Delivery Framework",
     tagline: "Know whether the next AI-assisted step is allowed.",
-    description: "A focused governance plugin for Agentic AI Coding Tools: core workflow skills and control templates that turn AI delivery into approved steps, visible evidence, QA decisions and auditable closeout.",
+    description: "A focused governance plugin for Agentic AI Coding Tools: workflow skills, control files and machine-readable checks that turn AI delivery into approved steps, visible evidence, QA decisions and auditable closeout.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
-    version: "0.1.9",
+    version: "0.2.0",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 30+ years enterprise experience",

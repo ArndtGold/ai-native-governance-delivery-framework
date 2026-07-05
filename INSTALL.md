@@ -161,6 +161,8 @@ open | blocked
 
 including current gate, missing approval, allowed outputs, forbidden outputs and next allowed action.
 
+That is the `0.2.0` control boundary: AGDF no longer only asks agents to follow rules; it gives the repository a checkable control state.
+
 ## Codex for one repository only
 
 Run this inside the target Git repository when AGDF should be available only from that project:

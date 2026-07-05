@@ -164,6 +164,8 @@ Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen in [I
 Das Plugin liefert zusätzlich einen Control-Scaffold unter `plugin/control/`.
 Dieser Scaffold macht den praktischen Arbeitsstand sichtbar:
 
+Ab `0.2.0` ist AGDF als prüfbarer Repository-Control-Loop nutzbar: Nicht nur der Agent soll Regeln beachten, sondern der Repository-Zustand selbst kann mit `doctor` und `gate-check --json` geprüft werden.
+
 Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte aus den Dokumenten:
 
 - aktueller Run-Status und nächste erlaubte Aktion: aus [Gates](docs/02-gates.md), besonders Gate-Status, Gate-Entscheidung und nächster Schritt

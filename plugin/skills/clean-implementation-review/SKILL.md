@@ -1,5 +1,5 @@
 ---
-name: agdf-clean-implementation-review
+name: clean-implementation-review
 description: Use this skill to determine whether an implementation is a clean primary solution or whether fallbacks, workarounds, guards, defaults, shims, or parallel structures have made it unnecessarily complex. Use it after code changes, before QA, or whenever symptom treatment is suspected.
 ---
 
@@ -49,7 +49,7 @@ Use what is available:
 - Code Deliverables
 - changed files
 - tests and test results
-- `agdf-code-review` or Code Review Report
+- `code-review` or Code Review Report
 - QA Report
 - Brownfield Analysis findings
 - PRD or SD architecture notes

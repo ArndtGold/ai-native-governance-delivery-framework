@@ -1,5 +1,5 @@
 ---
-name: agdf-gate-check
+name: gate-check
 description: Use this skill when the active gate is unclear, when a later-gate artefact is requested, when an exact approval may be missing, or when the next permissible step must be determined. Use it before creating formal artefacts in Structured Delivery and whenever implicit consent might be mistaken for approval.
 ---
 

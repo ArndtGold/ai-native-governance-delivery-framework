@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-release-or` - release OR
+`release-or` - release OR
 
 ## SYNOPSIS
 
-`/agdf-release-or` [`--help`|`-h`]
+`/release-or` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Creates the mandatory Orchestration Report (OR) for a run. Summarizes gate statu
 Trigger the skill:
 
 ```text
-> /agdf-release-or
+> /release-or
 ```
 
 ## SEE ALSO

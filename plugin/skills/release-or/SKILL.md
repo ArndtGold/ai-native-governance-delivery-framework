@@ -1,5 +1,5 @@
 ---
-name: agdf-release-or
+name: release-or
 description: Use this skill at the end of every relevant run to produce a compact, auditable Orchestration Report. It summarizes gate status, delivered and intentionally not delivered work, TP coverage, Brownfield fit, solution integrity, open risks, and the next permissible step.
 ---
 
@@ -46,7 +46,7 @@ OR-specific output must make gate status, delivered and intentionally not delive
 - after artefact creation
 - when a gate blocks
 - after `CD+Tests`
-- after `agdf-code-review`
+- after `code-review`
 - after QA
 - after UAT
 - whenever a compact audit closeout is needed
@@ -59,10 +59,10 @@ Use what is available:
 - artefacts created in this run
 - intentionally not delivered content
 - Task Plan
-- `agdf-task-plan-review`
-- `agdf-brownfield-analysis`
-- `agdf-clean-implementation-review`
-- `agdf-code-review`
+- `task-plan-review`
+- `brownfield-analysis`
+- `clean-implementation-review`
+- `code-review`
 - QA Report
 - UAT Report
 - documentation impact review
@@ -117,7 +117,7 @@ Migration/Rollout note:
 ## Forbidden
 This skill must not:
 
-- decide QA in place of `agdf-qa-gate`
+- decide QA in place of `qa-gate`
 - call `CD+Tests` complete, QA-ready, or release-ready
 - hide missing approvals
 - provide later-gate content while an earlier gate blocks

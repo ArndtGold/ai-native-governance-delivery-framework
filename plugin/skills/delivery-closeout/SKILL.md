@@ -1,5 +1,5 @@
 ---
-name: agdf-delivery-closeout
+name: delivery-closeout
 description: Use this skill for the final delivery handoff after QA, OR, or UAT when a run should move toward commit, push, or PR. It standardizes commit-ready summaries, UAT-gated commit offers, and the next delivery step without replacing QA or OR decisions.
 ---
 
@@ -17,7 +17,7 @@ It answers:
 - whether evidence-based technical follow-up remains useful
 - whether Context Graph follow-up from OR/QA remains open
 
-This skill does not replace `agdf-qa-gate`, `agdf-release-or`, user approvals, or gate decisions.
+This skill does not replace `qa-gate`, `release-or`, user approvals, or gate decisions.
 
 ## Runtime Contract
 Use `../../meta/agdf-runtime-contract.md` for closeout discipline, gate terms, Context Graph fields, and non-duplication rules.
@@ -39,7 +39,7 @@ Use `../../meta/agdf-runtime-contract.md` for closeout discipline, gate terms, C
 - after `Approval: UAT`
 - when the user asks for commit, push, or PR handoff
 
-Do not use as a substitute for `agdf-qa-gate`, `agdf-release-or`, or `agdf-gate-check`.
+Do not use as a substitute for `qa-gate`, `release-or`, or `gate-check`.
 
 ## Inputs
 Use what is available:

@@ -1,5 +1,5 @@
 ---
-name: agdf-brownfield-analysis
+name: brownfield-analysis
 description: Use this skill before implementation in an existing codebase, especially for feature extensions, bug fixes, refactorings, or changes to existing modules. It analyzes existing artefacts, current coverage, reuse strategy, risks, and the minimal clean implementation path. Use it before CD+Tests.
 ---
 

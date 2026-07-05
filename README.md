@@ -134,7 +134,8 @@ Empfohlene Reihenfolge:
 ```
 
 Die Root-`AGENTS.md` steuert die Bearbeitung dieses Repositories.
-Die installierbaren Copilot-Instruktionen werden separat in `plugin/meta/agdf-copilot-agents.md` gepflegt.
+Die installierbaren Router-Instruktionen werden zentral in `plugin/meta/agdf-agent-router.md` gepflegt und pro Zielsystem gerendert.
+Das Skill-Routing wird nicht je Oberfläche gepflegt: `plugin/meta/agdf-plugin.definition.json` enthält `skillSet.slug`, `useFor` und `boundary`; der sichtbare Skillname entsteht aus `surface.skillPrefix + slug`.
 
 ## Welche Fragen sind interessant?
 

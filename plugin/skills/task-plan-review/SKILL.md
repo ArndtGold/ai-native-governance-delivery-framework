@@ -1,5 +1,5 @@
 ---
-name: agdf-task-plan-review
+name: task-plan-review
 description: Use this skill after code changes and before QA to verify whether the approved Task Plan was actually fulfilled. It checks each task_id against implementation, acceptance criteria, tests, visible evidence, and deviations, and provides TP coverage for QA.
 ---
 
@@ -14,7 +14,7 @@ For each relevant task, this skill determines:
 - which acceptance criteria are done, partial, missing, or not verifiable
 - which files, tests, runtime evidence, or UI evidence support the finding
 - evidence strength
-- which gaps must be handed to `agdf-qa-gate`
+- which gaps must be handed to `qa-gate`
 
 This skill provides TP coverage. It is not the final QA decision.
 

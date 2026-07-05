@@ -8,9 +8,13 @@ import process from "node:process";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 const generatedRoot = join(packageRoot, "generated");
+const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
+const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
 const allowedTargets = new Set(["codex", "copilot", "both"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
+const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
+const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const codexPluginFiles = [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
@@ -22,17 +26,12 @@ const codexPluginFiles = [
   join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
   join("plugins", "agdf", "hooks", "hooks.json"),
   join("plugins", "agdf", "hooks", "session-start.sh"),
+  join("plugins", "agdf", "meta", "agdf-agent-router.md"),
   join("plugins", "agdf", "meta", "agdf-constitution.md"),
+  join("plugins", "agdf", "meta", "agdf-plugin.definition.json"),
   join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
   join("plugins", "agdf", "meta", "agdf-tenets.md"),
-  join("plugins", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-brownfield-analysis", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-task-plan-review", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-clean-implementation-review", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-code-review", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-qa-gate", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-release-or", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-delivery-closeout", "SKILL.md"),
+  ...codexSkillNames.map((skillName) => join("plugins", "agdf", "skills", skillName, "SKILL.md")),
 ];
 const controlFiles = [
   join(".agdf", "control", "README.md"),
@@ -48,15 +47,8 @@ const copilotInstructionFiles = [
 ];
 const copilotSkillFiles = [
   join(".github", "skills", "README.md"),
-  join(".github", "skills", "agdf-runtime-contract.md"),
-  join(".github", "skills", "agdf-gate-check", "SKILL.md"),
-  join(".github", "skills", "agdf-brownfield-analysis", "SKILL.md"),
-  join(".github", "skills", "agdf-task-plan-review", "SKILL.md"),
-  join(".github", "skills", "agdf-clean-implementation-review", "SKILL.md"),
-  join(".github", "skills", "agdf-code-review", "SKILL.md"),
-  join(".github", "skills", "agdf-qa-gate", "SKILL.md"),
-  join(".github", "skills", "agdf-release-or", "SKILL.md"),
-  join(".github", "skills", "agdf-delivery-closeout", "SKILL.md"),
+  join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
+  ...copilotSkillNames.map((skillName) => join(".github", "skills", skillName, "SKILL.md")),
 ];
 
 function printUsage() {

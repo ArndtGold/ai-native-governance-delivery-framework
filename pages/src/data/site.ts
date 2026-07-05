@@ -19,37 +19,37 @@ export const highlights = [
         title: "Stop Before Scope Drifts",
         icon: "gate",
         description: "No approval, no next gate. AGDF stops assumption-driven continuation before it becomes delivery drift.",
-        command: "/agdf-gate-check",
+        command: "/gate-check",
     },
     {
         title: "Protect Existing Systems",
         icon: "brownfield",
         description: "Brownfield is the default. AGDF forces owners, tests and existing behaviour into view before code changes.",
-        command: "/agdf-brownfield-analysis",
+        command: "/brownfield-analysis",
     },
     {
         title: "Verify The Plan, Not The Vibe",
         icon: "review",
         description: "A green build is not completion. AGDF checks delivered work against the approved plan and evidence.",
-        command: "/agdf-task-plan-review",
+        command: "/task-plan-review",
     },
     {
         title: "Make QA A Decision",
         icon: "audit",
         description: "QA is not a feeling. AGDF turns it into `pass | revise | block` from coverage, fit, integrity and evidence.",
-        command: "/agdf-qa-gate",
+        command: "/qa-gate",
     },
     {
         title: "Expose Workarounds",
         icon: "integrity",
         description: "Temporary fixes need owners and exits. AGDF stops fallback logic from becoming hidden architecture.",
-        command: "/agdf-clean-implementation-review",
+        command: "/clean-implementation-review",
     },
     {
         title: "Close Runs With Evidence",
         icon: "handoff",
         description: "A run ends with delivered scope, open gaps, remaining risks and the next allowed move.",
-        command: "/agdf-release-or",
+        command: "/release-or",
     },
 ]
 
@@ -57,13 +57,13 @@ export const workflowSteps = [
     {
         step: "01",
         title: "Gate Check",
-        command: "/agdf-gate-check",
+        command: "/gate-check",
         desc: "Decide whether the next step is allowed."
     },
     {
         step: "02",
         title: "Brownfield Read",
-        command: "/agdf-brownfield-analysis",
+        command: "/brownfield-analysis",
         desc: "Find owners, behaviour, tests and risks before changing code."
     },
     {
@@ -75,25 +75,25 @@ export const workflowSteps = [
     {
         step: "04",
         title: "Task Plan Coverage",
-        command: "/agdf-task-plan-review",
+        command: "/task-plan-review",
         desc: "Compare delivered work with approved tasks and acceptance criteria."
     },
     {
         step: "05",
         title: "Solution Integrity",
-        command: "/agdf-clean-implementation-review",
+        command: "/clean-implementation-review",
         desc: "Catch fallback architecture, parallel paths and missing exits."
     },
     {
         step: "06",
         title: "QA Decision",
-        command: "/agdf-qa-gate",
+        command: "/qa-gate",
         desc: "Decide pass, revise or block from evidence."
     },
     {
         step: "07",
         title: "Delivery Closeout",
-        command: "/agdf-release-or",
+        command: "/release-or",
         desc: "Name what changed, what did not, and what may happen next."
     },
 ]

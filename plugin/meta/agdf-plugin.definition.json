@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "id": "agdf",
+  "version": "0.1.5",
+  "displayName": "AI Governance & Delivery Framework",
+  "developerName": "AI-native Governance & Delivery Framework",
+  "description": "Codex-first workflow skills for gated, auditable AI-assisted software delivery.",
+  "claudeDescription": "Codex-first workflow skills and control templates for gated, auditable AI-assisted software delivery.",
+  "shortDescription": "Codex-first workflow skills for gated, auditable AI-assisted delivery.",
+  "longDescription": "AI Governance & Delivery Framework (AGDF) packages reusable Codex-first skills and control templates for gate checks, Brownfield analysis, task-plan review, solution-integrity review, QA decisions, durable run state and auditable delivery closeout.",
+  "homepage": "https://agdf.iself.eu",
+  "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+  "license": "Apache-2.0",
+  "keywords": ["agentic", "governance", "delivery", "ai-native", "brownfield"],
+  "category": "Productivity",
+  "brandColor": "#14B8A6",
+  "author": {
+    "name": "AI-native Governance & Delivery Framework",
+    "url": "https://agdf.iself.eu"
+  },
+  "codex": {
+    "skills": "./skills/",
+    "skillPrefix": "",
+    "agentRouter": "meta/agdf-agent-router.md",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Run an AGDF gate check for this request.",
+      "Create an AGDF control scaffold for this repository.",
+      "Use AGDF Brownfield analysis before implementation.",
+      "Close this run with an AGDF orchestration report."
+    ],
+    "hooks": "hooks/hooks.json"
+  },
+  "claude": {
+    "skillPrefix": "",
+    "agentRouter": "meta/agdf-agent-router.md"
+  },
+  "copilot": {
+    "skillPrefix": "agdf-",
+    "runtimeContractFileName": "agdf-runtime-contract.md"
+  },
+  "skillSet": [
+    {
+      "slug": "brownfield-analysis",
+      "useFor": "before non-trivial implementation in existing systems",
+      "boundary": "clarifies reuse, owners and risks"
+    },
+    {
+      "slug": "clean-implementation-review",
+      "useFor": "inspect workarounds, fallbacks, parallel structures or symptom fixes",
+      "boundary": "not a TP or QA substitute"
+    },
+    {
+      "slug": "code-review",
+      "useFor": "mandatory CR step after code changes, focused on defects, regression and security findings",
+      "boundary": "does not replace TP review, clean review or QA"
+    },
+    {
+      "slug": "delivery-closeout",
+      "useFor": "commit/PR-near handoff after QA/OR/UAT",
+      "boundary": "never performs VCS actions automatically"
+    },
+    {
+      "slug": "gate-check",
+      "useFor": "unclear approval, Structured Delivery, later-gate artefact requested",
+      "boundary": "does not create later artefacts"
+    },
+    {
+      "slug": "qa-gate",
+      "useFor": "final QA decision",
+      "boundary": "only instance for `pass | revise | block`"
+    },
+    {
+      "slug": "release-or",
+      "useFor": "auditable closeout for every relevant run",
+      "boundary": "not a QA substitute"
+    },
+    {
+      "slug": "task-plan-review",
+      "useFor": "after implementation and before QA, verify TP coverage",
+      "boundary": "no final QA decision"
+    }
+  ],
+  "marketplaces": {
+    "repository": {
+      "name": "agdf-repo",
+      "displayName": "This repository"
+    }
+  }
+}

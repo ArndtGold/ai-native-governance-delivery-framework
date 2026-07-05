@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-code-review` - code review
+`code-review` - code review
 
 ## SYNOPSIS
 
-`/agdf-code-review` [`--help`|`-h`]
+`/code-review` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Produces the mandatory Code Review Report for changed code and focuses on correc
 Trigger the skill:
 
 ```text
-> /agdf-code-review
+> /code-review
 ```
 
 ## SEE ALSO

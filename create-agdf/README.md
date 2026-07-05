@@ -43,16 +43,27 @@ Copy or promote templates into live `.agdf/control/` files only when the target 
 
 The repository-facing AGDF sources are maintained in:
 
-- `plugin/meta/agdf-copilot-agents.md`
+- `plugin/meta/agdf-agent-router.md`
+- `plugin/meta/agdf-plugin.definition.json`
 - `plugin/skills/`
 - `plugin/meta/agdf-runtime-contract.md`
 - `plugin/control/`
+
+Skill routing is rendered from `skillSet.slug`, `useFor`, `boundary` and the target surface `skillPrefix`; it is not maintained as separate Codex, Claude Code and Copilot routing tables.
 
 The published package assets are generated from these repository sources only at pack/publish time. The package does not keep a second manually maintained template tree.
 
 ```bash
 npm run sync-package-assets
 ```
+
+To verify the rendered routing locally, run:
+
+```bash
+npm run test:routing
+```
+
+The routing test installs `both` into a temporary target repository and checks that plugin routing stays unprefixed while Copilot routing receives the configured `agdf-` prefix.
 
 ## Publishing
 

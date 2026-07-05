@@ -13,7 +13,8 @@
   },
   "scripts": {
     "sync-package-assets": "node ./scripts/sync-package-assets.js",
-    "smoke-test": "npm run sync-package-assets && node ./scripts/smoke-test.js",
+    "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
+    "smoke-test": "npm run sync-package-assets && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
     "prepack": "npm run sync-package-assets"
   },
   "keywords": [

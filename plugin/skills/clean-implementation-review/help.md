@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-clean-implementation-review` - clean implementation review
+`clean-implementation-review` - clean implementation review
 
 ## SYNOPSIS
 
-`/agdf-clean-implementation-review` [`--help`|`-h`]
+`/clean-implementation-review` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Evaluates solution integrity: whether the implementation is a clean primary solu
 Trigger the skill:
 
 ```text
-> /agdf-clean-implementation-review
+> /clean-implementation-review
 ```
 
 ## SEE ALSO

@@ -6,6 +6,10 @@ import { fileURLToPath } from "node:url";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
+const pluginDefinitionPath = fileURLToPath(new URL("../plugin/meta/agdf-plugin.definition.json", packageRoot));
+const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
+const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 
 function run(target, expectedFiles) {
   const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-${target}-`));
@@ -19,6 +23,28 @@ function run(target, expectedFiles) {
         throw new Error(`Missing expected file for ${target}: ${relativePath}`);
       }
     }
+
+    if (target === "codex" || target === "both") {
+      const pluginRouterPath = join(tempDir, "plugins", "agdf", "meta", "agdf-agent-router.md");
+      const pluginRouter = readFileSync(pluginRouterPath, "utf8");
+      if (!pluginRouter.includes("| `gate-check` |")) {
+        throw new Error(`Missing unprefixed plugin skill routing for ${target}.`);
+      }
+      if (pluginRouter.includes("`agdf-gate-check`")) {
+        throw new Error(`Plugin router for ${target} must not contain Copilot-prefixed skill names.`);
+      }
+    }
+
+    if (target === "copilot" || target === "both") {
+      const copilotAgentsPath = join(tempDir, "AGENTS.md");
+      const copilotAgents = readFileSync(copilotAgentsPath, "utf8");
+      if (!copilotAgents.includes("| `agdf-gate-check` |")) {
+        throw new Error(`Missing prefixed Copilot skill routing for ${target}.`);
+      }
+      if (copilotAgents.includes("| `gate-check` |")) {
+        throw new Error(`Copilot AGENTS.md for ${target} must not contain unprefixed skill routing.`);
+      }
+    }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -30,12 +56,12 @@ run("codex", [
   join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
   join("plugins", "agdf", "hooks", "hooks.json"),
   join("plugins", "agdf", "hooks", "session-start.sh"),
+  join("plugins", "agdf", "meta", "agdf-agent-router.md"),
   join("plugins", "agdf", "meta", "agdf-constitution.md"),
+  join("plugins", "agdf", "meta", "agdf-plugin.definition.json"),
   join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
   join("plugins", "agdf", "meta", "agdf-tenets.md"),
-  join("plugins", "agdf", "skills", "agdf-gate-check", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-code-review", "SKILL.md"),
-  join("plugins", "agdf", "skills", "agdf-qa-gate", "SKILL.md"),
+  ...["gate-check", "code-review", "qa-gate"].map((slug) => join("plugins", "agdf", "skills", `${pluginDefinition.codex.skillPrefix}${slug}`, "SKILL.md")),
 ]);
 run("copilot", [
   "AGENTS.md",
@@ -47,26 +73,25 @@ run("copilot", [
   join(".github", "copilot-instructions.md"),
   join(".github", "instructions", "agdf-governance.instructions.md"),
   join(".github", "skills", "README.md"),
-  join(".github", "skills", "agdf-runtime-contract.md"),
-  join(".github", "skills", "agdf-gate-check", "SKILL.md"),
-  join(".github", "skills", "agdf-code-review", "SKILL.md"),
-  join(".github", "skills", "agdf-qa-gate", "SKILL.md"),
+  join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
+  ...["gate-check", "code-review", "qa-gate"].map((slug) => join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}${slug}`, "SKILL.md")),
 ]);
 run("both", [
   "AGENTS.md",
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "hooks", "hooks.json"),
+  join("plugins", "agdf", "meta", "agdf-agent-router.md"),
   join("plugins", "agdf", "meta", "agdf-constitution.md"),
-  join("plugins", "agdf", "skills", "agdf-release-or", "SKILL.md"),
+  join("plugins", "agdf", "skills", `${pluginDefinition.codex.skillPrefix}release-or`, "SKILL.md"),
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".github", "copilot-instructions.md"),
   join(".github", "instructions", "agdf-governance.instructions.md"),
   join(".github", "skills", "README.md"),
-  join(".github", "skills", "agdf-runtime-contract.md"),
-  join(".github", "skills", "agdf-code-review", "SKILL.md"),
-  join(".github", "skills", "agdf-release-or", "SKILL.md"),
+  join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
+  join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}code-review`, "SKILL.md"),
+  join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}release-or`, "SKILL.md"),
 ]);
 
 {
@@ -85,8 +110,11 @@ run("both", [
     if (!existsSync(agdfFragmentPath)) {
       throw new Error("Missing AGENTS.agdf.md fragment for existing AGENTS.md scenario.");
     }
+    if (!readFileSync(agdfFragmentPath, "utf8").includes("| `agdf-gate-check` |")) {
+      throw new Error("AGENTS.agdf.md must contain prefixed Copilot skill routing.");
+    }
 
-    const expectedSkillPath = join(tempDir, ".github", "skills", "agdf-gate-check", "SKILL.md");
+    const expectedSkillPath = join(tempDir, ".github", "skills", `${pluginDefinition.copilot.skillPrefix}gate-check`, "SKILL.md");
     if (!existsSync(expectedSkillPath)) {
       throw new Error("Missing repository skills for existing AGENTS.md scenario.");
     }

@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-gate-check` - gate check
+`gate-check` - gate check
 
 ## SYNOPSIS
 
-`/agdf-gate-check` [`--help`|`-h`]
+`/gate-check` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Determines the earliest blocking user approval gate and derives which artefacts 
 Trigger the skill:
 
 ```text
-> /agdf-gate-check
+> /gate-check
 ```
 
 ## SEE ALSO

@@ -22,7 +22,7 @@ AGDF is a control-first plugin. The skills steer agent behavior during a run; th
 
 AGDF is available as a Codex plugin from the same `plugin/` root used for the Claude plugin.
 Codex uses `plugin/.codex-plugin/plugin.json` as the plugin manifest and loads the shared AGDF skills from `plugin/skills/`.
-Codex also discovers the default `plugin/hooks/hooks.json` lifecycle config when the plugin bundle includes it. The AGDF SessionStart hook loads the compact constitution so the skills do not have to carry the whole control model alone.
+Codex also discovers the default `plugin/hooks/hooks.json` lifecycle config when the plugin bundle includes it. The AGDF SessionStart hook loads `plugin/meta/agdf-agent-router.md` plus the compact constitution so the skills do not have to carry the whole control model alone.
 
 For local repository testing, add this repository as a Codex plugin marketplace and then install `agdf`:
 
@@ -92,8 +92,12 @@ claude plugin add arndtgold/ai-native-governance-delivery-framework
 This installs AGDF into Claude Code. Then start with:
 
 ```text
-/agdf-gate-check
+/gate-check
 ```
+
+Codex and Claude Code plugin skill names are intentionally unprefixed because the plugin itself provides the `agdf` namespace. This avoids labels such as `agdf:agdf-gate-check`.
+The shared router source is `plugin/meta/agdf-agent-router.md`; Copilot `AGENTS.md` is rendered from the same source with Copilot skill prefixes.
+The routing table itself is calculated from `plugin/meta/agdf-plugin.definition.json`: `surface.skillPrefix + skillSet.slug`.
 
 ## GitHub Copilot
 

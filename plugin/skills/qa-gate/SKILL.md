@@ -1,5 +1,5 @@
 ---
-name: agdf-qa-gate
+name: qa-gate
 description: Use this skill before any QA decision to determine whether implementation can be classified as pass, revise, or block based on TP coverage, Brownfield fit, solution integrity, evidence, and open blockers. Use it after CD+Tests, after reviews, and before UAT or release decisions.
 ---
 
@@ -40,9 +40,9 @@ QA-specific `decision` is exactly `pass | revise | block`.
 
 ## When To Use
 - after `CD+Tests`
-- after `agdf-code-review`
-- after `agdf-task-plan-review`
-- after `agdf-clean-implementation-review`
+- after `code-review`
+- after `task-plan-review`
+- after `clean-implementation-review`
 - before UAT
 - before any claim that implementation is done, releasable, or QA-ready
 - when evidence from Brownfield, TP, or clean-review skills exists
@@ -58,7 +58,7 @@ Use what is available:
 - approved TP and TP Review
 - Brownfield Analysis
 - Clean Implementation Review
-- `agdf-code-review` or Code Review Report
+- `code-review` or Code Review Report
 - test/build results
 - documentation impact review
 - runtime or UI evidence

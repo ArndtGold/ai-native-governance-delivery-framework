@@ -1,5 +1,5 @@
 ---
-name: agdf-code-review
+name: code-review
 description: Use this skill after code changes and before QA to produce the mandatory Code Review Report for correctness, regression, security, and maintainability findings in the actual diff. It standardizes the CR step without replacing TP review, clean review, or QA.
 ---
 

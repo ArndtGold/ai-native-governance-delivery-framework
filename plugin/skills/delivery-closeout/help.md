@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-delivery-closeout` - delivery closeout
+`delivery-closeout` - delivery closeout
 
 ## SYNOPSIS
 
-`/agdf-delivery-closeout` [`--help`|`-h`]
+`/delivery-closeout` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Standardizes the operational delivery closeout for a run with a commit-ready Git
 Trigger the skill:
 
 ```text
-> /agdf-delivery-closeout
+> /delivery-closeout
 ```
 
 ## SEE ALSO

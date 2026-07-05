@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-qa-gate` - QA gate
+`qa-gate` - QA gate
 
 ## SYNOPSIS
 
-`/agdf-qa-gate` [`--help`|`-h`]
+`/qa-gate` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Makes the formal QA gate decision (`pass | revise | block`) based on TP coverage
 Trigger the skill:
 
 ```text
-> /agdf-qa-gate
+> /qa-gate
 ```
 
 ## SEE ALSO

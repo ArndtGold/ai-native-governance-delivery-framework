@@ -5,15 +5,17 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 const repoRoot = resolve(packageRoot, "..");
-const sourceAgentsPath = join(repoRoot, "plugin", "meta", "agdf-copilot-agents.md");
+const sourceAgentsPath = join(repoRoot, "plugin", "meta", "agdf-agent-router.md");
 const sourceSkillsRoot = join(repoRoot, "plugin", "skills");
 const sourceControlRoot = join(repoRoot, "plugin", "control");
 const sourcePluginRoot = join(repoRoot, "plugin");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
+const pluginDefinitionPath = join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const generatedRoot = join(packageRoot, "generated");
 const generatedSkillsRoot = join(generatedRoot, ".github", "skills");
 const generatedControlRoot = join(generatedRoot, ".agdf", "control");
 const generatedCodexPluginRoot = join(generatedRoot, "plugins", "agdf");
+const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -60,14 +62,69 @@ function syncPluginDirectory(sourceRoot, targetRoot) {
   }
 }
 
+function sourceSkillName(skillSlug) {
+  return `${pluginDefinition.codex.skillPrefix}${skillSlug}`;
+}
+
+function copilotSkillName(skillSlug) {
+  return `${pluginDefinition.copilot.skillPrefix}${skillSlug}`;
+}
+
+function toCopilotSkillContent(content) {
+  let next = content;
+  for (const skill of pluginDefinition.skillSet) {
+    const sourceName = sourceSkillName(skill.slug);
+    const targetName = copilotSkillName(skill.slug);
+    if (sourceName === targetName) continue;
+
+    next = next
+      .replaceAll(`name: ${sourceName}`, `name: ${targetName}`)
+      .replaceAll(`\`${sourceName}\``, `\`${targetName}\``)
+      .replaceAll(`/${sourceName}`, `/${targetName}`);
+  }
+  return next;
+}
+
+function toCopilotAgentRouter(content) {
+  const copilotSurfaceConvention = [
+    "## Surface Convention",
+    "GitHub Copilot repository skills do not have a plugin namespace.",
+    "",
+    "Therefore generated Copilot skill names use the AGDF prefix:",
+    "",
+    ...pluginDefinition.skillSet.map((skill) => `- \`${copilotSkillName(skill.slug)}\``),
+    "",
+    "Do not remove that prefix in Copilot-facing repository skills.",
+    "Codex and Claude Code plugin surfaces use the same canonical router with unprefixed skill names because their plugin namespace already carries `agdf`.",
+    "",
+  ].join("\n");
+
+  return toCopilotSkillContent(content)
+    .replace("# AGDF Agent Router", "# AGENTS.md")
+    .replace(
+      "You are operating inside the AGDF plugin namespace.",
+      "You are an autonomous agent operating in an AGDF-governed delivery system.",
+    )
+    .replace(/## Surface Convention[\s\S]*?(?=## Mode Selection)/, copilotSurfaceConvention);
+}
+
 function getSkillDirectories() {
-  return readdirSync(sourceSkillsRoot)
+  const expectedSkillNames = pluginDefinition.skillSet
+    .map((skill) => sourceSkillName(skill.slug))
+    .sort();
+  const actualSkillNames = readdirSync(sourceSkillsRoot)
     .filter((entry) => statSync(join(sourceSkillsRoot, entry)).isDirectory())
     .sort();
+
+  if (JSON.stringify(actualSkillNames) !== JSON.stringify(expectedSkillNames)) {
+    throw new Error(`AGDF skill directories do not match the canonical target convention. Expected ${expectedSkillNames.join(", ")}, got ${actualSkillNames.join(", ")}`);
+  }
+
+  return actualSkillNames;
 }
 
 function syncTopLevelAssets() {
-  write(join(generatedRoot, "AGENTS.md"), read(sourceAgentsPath));
+  write(join(generatedRoot, "AGENTS.md"), toCopilotAgentRouter(read(sourceAgentsPath)));
 }
 
 function writeCopilotInstructions() {
@@ -110,16 +167,18 @@ function writeCopilotGovernanceInstructions() {
 }
 
 function syncRuntimeContract() {
-  write(join(generatedSkillsRoot, "agdf-runtime-contract.md"), read(sourceRuntimeContractPath));
+  write(join(generatedSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), toCopilotSkillContent(read(sourceRuntimeContractPath)));
 }
 
-function syncSkill(skillName) {
-  const sourcePath = join(sourceSkillsRoot, skillName, "SKILL.md");
-  const normalized = read(sourcePath).replaceAll("../../meta/agdf-runtime-contract.md", "../agdf-runtime-contract.md");
-  write(join(generatedSkillsRoot, skillName, "SKILL.md"), normalized);
+function syncSkill(skillSlug) {
+  const sourceName = sourceSkillName(skillSlug);
+  const targetName = copilotSkillName(skillSlug);
+  const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
+  const normalized = toCopilotSkillContent(read(sourcePath).replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.copilot.runtimeContractFileName}`));
+  write(join(generatedSkillsRoot, targetName, "SKILL.md"), normalized);
 }
 
-function writeSkillsReadme(skillNames) {
+function writeSkillsReadme(skillSlugs) {
   const lines = [
     "# AGDF repository skills",
     "",
@@ -127,7 +186,7 @@ function writeSkillsReadme(skillNames) {
     "",
     "## Skills",
     "",
-    ...skillNames.map((skill) => `- \`${skill}\``),
+    ...skillSlugs.map((skill) => `- \`${copilotSkillName(skill)}\``),
     "",
     "## Runtime contract",
     "",
@@ -139,14 +198,15 @@ function writeSkillsReadme(skillNames) {
 }
 
 function writeCodexMarketplace() {
+  const repositoryMarketplace = pluginDefinition.marketplaces.repository;
   const marketplace = {
-    name: "agdf-repo",
+    name: repositoryMarketplace.name,
     interface: {
-      displayName: "This repository",
+      displayName: repositoryMarketplace.displayName,
     },
     plugins: [
       {
-        name: "agdf",
+        name: pluginDefinition.id,
         source: {
           source: "local",
           path: "./plugins/agdf",
@@ -155,7 +215,7 @@ function writeCodexMarketplace() {
           installation: "AVAILABLE",
           authentication: "ON_INSTALL",
         },
-        category: "Productivity",
+        category: pluginDefinition.category,
       },
     ],
   };
@@ -164,7 +224,10 @@ function writeCodexMarketplace() {
 }
 
 function main() {
-  const skillNames = getSkillDirectories();
+  const skillSlugs = getSkillDirectories().map((skillName) => {
+    const prefix = pluginDefinition.codex.skillPrefix;
+    return prefix && skillName.startsWith(prefix) ? skillName.slice(prefix.length) : skillName;
+  });
 
   rmSync(generatedRoot, { recursive: true, force: true });
   mkdirSync(generatedSkillsRoot, { recursive: true });
@@ -176,10 +239,10 @@ function main() {
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
   writeCodexMarketplace();
-  for (const skillName of skillNames) {
-    syncSkill(skillName);
+  for (const skillSlug of skillSlugs) {
+    syncSkill(skillSlug);
   }
-  writeSkillsReadme(skillNames);
+  writeSkillsReadme(skillSlugs);
 }
 
 main();

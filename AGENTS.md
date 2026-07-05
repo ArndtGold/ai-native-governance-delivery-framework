@@ -274,9 +274,9 @@ This repository is the source for:
 * the Copilot bootstrap package under `create-agdf/`
 * the website and documentation that explain both surfaces
 
-The installable Copilot `AGENTS.md` content is maintained in:
+The installable agent-router content is maintained in:
 
-* `plugin/meta/agdf-copilot-agents.md`
+* `plugin/meta/agdf-agent-router.md`
 
 Do not treat generated package output, documentation copies, or derived files as independent sources of truth.
 
@@ -306,10 +306,16 @@ Follow these rules:
 
 Use the following files and directories as authoritative sources:
 
-* Copilot installable root instructions: `plugin/meta/agdf-copilot-agents.md`
+* Canonical installable agent router: `plugin/meta/agdf-agent-router.md`
 * Shared runtime rules: `plugin/meta/agdf-runtime-contract.md`
+* Canonical plugin metadata: `plugin/meta/agdf-plugin.definition.json`
 * Claude and Copilot skill sources: `plugin/skills/`
 * Copilot package asset sync: `create-agdf/scripts/sync-package-assets.js`
+
+Skill routing is not maintained separately per surface. The canonical routing rows live in
+`plugin/meta/agdf-plugin.definition.json` as `skillSet.slug`, `useFor` and `boundary`; the visible skill name is
+calculated as `surface.skillPrefix + skillSet.slug`. Codex and Claude Code use an empty prefix, while Copilot uses
+`agdf-`.
 
 When changing derived output, first change the authoritative source and then run the relevant sync or validation step.
 

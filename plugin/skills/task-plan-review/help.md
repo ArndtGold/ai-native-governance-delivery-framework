@@ -1,10 +1,10 @@
 ## NAME
 
-`agdf-task-plan-review` - task plan review
+`task-plan-review` - task plan review
 
 ## SYNOPSIS
 
-`/agdf-task-plan-review` [`--help`|`-h`]
+`/task-plan-review` [`--help`|`-h`]
 
 ## DESCRIPTION
 
@@ -15,7 +15,7 @@ Checks after code changes and before QA whether the approved Task Plan tasks wer
 Trigger the skill:
 
 ```text
-> /agdf-task-plan-review
+> /task-plan-review
 ```
 
 ## SEE ALSO

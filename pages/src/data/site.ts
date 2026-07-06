@@ -1,8 +1,8 @@
 export const site = {
     name: "AGDF",
     fullName: "AI Governance & Delivery Framework",
-    tagline: "Know whether the next AI-assisted step is allowed.",
-    description: "A focused governance plugin for Agentic AI Coding Tools: native workflow skills and durable control files that turn AI delivery into approved steps, visible evidence, QA decisions and auditable closeout, with machine-readable validators when proof is needed.",
+    tagline: "Stop agents before they code past the evidence.",
+    description: "A focused governance plugin for teams that let AI agents touch real code: AGDF turns delivery into approved steps, visible evidence, QA decisions and auditable closeout, with machine-readable validators when proof is needed.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
@@ -56,45 +56,51 @@ export const highlights = [
 export const workflowSteps = [
     {
         step: "01",
-        title: "Gate Check",
+        title: "Gate Check + UR",
         command: "/gate-check",
-        desc: "Decide whether the next step is allowed."
+        desc: "Persist the need, expose the current gate and require exact approval before product work starts."
     },
     {
         step: "02",
-        title: "Brownfield Read",
+        title: "Brownfield Review",
         command: "/brownfield-analysis",
-        desc: "Find owners, behaviour, tests and risks before changing code."
+        desc: "After Approval: UR, size owners, existing behaviour, system boundaries, tests and risk."
     },
     {
         step: "03",
-        title: "Implement + Test",
-        command: "CD+Tests",
-        desc: "Produce code and evidence. Do not call it QA."
+        title: "Mode/Slice Decision",
+        command: "control state",
+        desc: "Choose quick_task, structured_slice, structured_delivery or block with scope reason and evidence."
     },
     {
         step: "04",
-        title: "Task Plan Coverage",
-        command: "/task-plan-review",
-        desc: "Compare delivered work with approved tasks and acceptance criteria."
+        title: "PRD / SD / TP",
+        command: "as needed",
+        desc: "Create only the artefact depth the reviewed change size justifies. Do not ritualize."
     },
     {
         step: "05",
-        title: "Solution Integrity",
-        command: "/clean-implementation-review",
-        desc: "Catch fallback architecture, parallel paths and missing exits."
+        title: "Implementation Prep",
+        command: "/brownfield-analysis",
+        desc: "Before non-trivial code, map reuse strategy, contracts, regressions and test evidence per task."
     },
     {
         step: "06",
-        title: "QA Decision",
-        command: "/qa-gate",
-        desc: "Decide pass, revise or block from evidence."
+        title: "CD + Reviews",
+        command: "CD+Tests",
+        desc: "Implement narrowly, run checks, then verify TP coverage, code quality and clean implementation."
     },
     {
         step: "07",
-        title: "Delivery Closeout",
+        title: "QA Decision",
+        command: "/qa-gate",
+        desc: "Decide pass, revise or block from TP coverage, Brownfield fit, integrity and evidence."
+    },
+    {
+        step: "08",
+        title: "OR + Closeout",
         command: "/release-or",
-        desc: "Name what changed, what did not, and what may happen next."
+        desc: "Record audit status, open gaps, risks and the next allowed delivery action."
     },
 ]
 
@@ -266,15 +272,73 @@ export const buildingBlocks = [
 
 export const gateFlow = [
     { gate: "UR", name: "User Requirement", desc: "Problem, goal, affected users, constraints" },
-    { gate: "BF", name: "Brownfield Review", desc: "Existing logic, ownership, system boundaries" },
-    { gate: "PRD", name: "Product Requirements", desc: "Scope, acceptance criteria, non-goals, approval" },
+    { gate: "BR", name: "Brownfield Review", desc: "Existing logic, ownership, system boundaries" },
+    { gate: "MODE", name: "Mode/Slice Decision", desc: "quick_task / structured_slice / structured_delivery / block" },
+    { gate: "PRD", name: "Product Requirements", desc: "Scope, acceptance criteria, non-goals" },
     { gate: "SD", name: "Solution Design", desc: "Architecture, components, interfaces" },
     { gate: "TP", name: "Task & Test Plan", desc: "Work packages, test matrix, dependencies" },
     { gate: "BA", name: "Brownfield Analysis", desc: "Reuse strategy per task, regressions" },
     { gate: "CD", name: "Code / Implementation", desc: "Code, tests, quality evidence" },
-    { gate: "TPR", name: "Task Plan Review", desc: "TP-coverage: fully_done / partially_done" },
+    { gate: "REV", name: "Reviews", desc: "Task-plan coverage, code quality, clean implementation" },
     { gate: "QA", name: "QA Gate", desc: "pass / revise / block" },
     { gate: "OR", name: "Orchestration Report", desc: "Auditable closeout" },
+]
+
+export const gateMapPaths = {
+    sharedStart: [
+        { gate: "UR", name: "User Requirement" },
+        { gate: "BR", name: "Brownfield Review" },
+        { gate: "MODE", name: "Mode/Slice Decision" },
+    ],
+    quick: {
+        label: "Quick path",
+        note: "Only when Brownfield Review shows narrow scope, no new product semantics and enough evidence.",
+        steps: [
+            { gate: "CD", name: "Small change + checks" },
+            { gate: "OR-lite", name: "Evidence closeout" },
+        ],
+    },
+    structured: {
+        label: "Structured path",
+        note: "Used when the reviewed change size needs explicit product, solution or task contracts.",
+        steps: [
+            { gate: "PRD", name: "Product Requirements" },
+            { gate: "SD", name: "Solution Design" },
+            { gate: "TP", name: "Task & Test Plan" },
+            { gate: "BA", name: "Brownfield Analysis" },
+            { gate: "CD", name: "CD + Tests" },
+            { gate: "REV", name: "Reviews" },
+            { gate: "QA", name: "QA Gate" },
+            { gate: "OR", name: "OR + Closeout" },
+        ],
+    },
+}
+
+export const gateModeMatrix = [
+    {
+        mode: "quick_task",
+        use: "UR, Brownfield Review, Mode/Slice Decision, CD+checks, OR-lite",
+        skip: "PRD, SD, TP and QA unless risk or evidence gaps require escalation",
+        decision: "Use only for narrow approved scope without new product semantics.",
+    },
+    {
+        mode: "structured_slice",
+        use: "UR, Brownfield Review, Mode/Slice Decision, minimal PRD/SD/TP, BA, CD, reviews, QA, OR",
+        skip: "Full-depth artefacts when a small slice contract is enough",
+        decision: "Use when the change needs explicit contracts, but only for a bounded slice.",
+    },
+    {
+        mode: "structured_delivery",
+        use: "UR, Brownfield Review, Mode/Slice Decision, PRD, SD, TP, BA, CD, reviews, QA, OR",
+        skip: "Nothing material; depth is justified by impact, risk or release relevance",
+        decision: "Use for new capability, architecture, persistence, policy, UX or release-critical work.",
+    },
+    {
+        mode: "block",
+        use: "Current gate, missing evidence, next allowed action",
+        skip: "All later gates and implementation",
+        decision: "Use when approval, artefact, evidence, ownership or source of truth is missing.",
+    },
 ]
 
 export const compatibility = [

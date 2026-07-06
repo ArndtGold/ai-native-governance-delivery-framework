@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateFlow, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs, aiActFit } from '../data/site'
+import { site, principles, buildingBlocks, gateFlow, gateMapPaths, gateModeMatrix, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs, aiActFit } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
 import { getProjectStats } from '../data/projectStats'
 
@@ -23,15 +23,15 @@ const projectStats = await getProjectStats()
     <div id="nav-menu" class="nav-menu-panel absolute right-4 top-full hidden w-auto flex-col items-end gap-y-1.5 rounded-md rounded-t-none border border-dark-700/80 bg-dark-950/95 p-4 shadow-lg data-[open]:flex md:static md:top-auto md:flex md:w-auto md:flex-1 md:flex-row md:items-center md:justify-between md:gap-x-5 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
       <nav class="flex min-w-0 flex-col flex-wrap items-end gap-x-5 gap-y-1 text-sm text-dark-200 md:ml-4 md:flex-row md:items-center">
         <a href="#why" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Why</a>
-        <a href="#proof" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Proof</a>
-        <a href="#intake" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Intake</a>
-        <a href="#workflow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Workflow</a>
-        <a href="#ai-act" data-navlink class="nav-spy transition-colors hover:text-agdf-300">EU AI Act</a>
+        <a href="#workflow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Flow</a>
+        <a href="#gate-flow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Gate Map</a>
+        <a href="#control-system" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Control System</a>
         <a href="#skills" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Skills</a>
-        <a href="#architecture" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Architecture</a>
-        <a href="#setup" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Setup</a>
       </nav>
       <nav class="flex flex-col flex-wrap items-end gap-x-3 gap-y-1 text-sm text-dark-200 md:flex-row md:items-center">
+        <a href="#setup" data-navlink class="nav-spy inline-flex items-center rounded-full border border-agdf-500/30 bg-agdf-950/60 px-3 py-1.5 font-semibold text-agdf-200 shadow-[0_0_24px_-16px_var(--agdf-glow)] transition-colors hover:border-agdf-400/60 hover:text-agdf-100">
+          Try AGDF
+        </a>
         <a href="#author" data-navlink class="nav-spy inline-flex items-center gap-1.5 transition-colors hover:text-agdf-300">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
           Author
@@ -86,7 +86,7 @@ const projectStats = await getProjectStats()
       data-reveal-delay="3"
       class="mx-auto mb-4 max-w-3xl text-lg text-dark-100 sm:mb-5 sm:text-xl"
     >
-      Know when an AI-assisted change is allowed to move.
+      For teams that let AI agents touch real code.
     </p>
 
     <p
@@ -94,8 +94,8 @@ const projectStats = await getProjectStats()
       data-reveal-delay="4"
       class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
     >
-      AGDF runs natively through skills and durable control files. Validators
-make that state machine-readable when proof is needed.
+      Agents are fast at starting. AGDF makes them prove the next step is allowed:
+      requirement, Brownfield context, approval, evidence, QA decision and closeout.
     </p>
     <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#setup-codex-project" class="btn-primary">Try in Codex</a>
@@ -121,29 +121,49 @@ make that state machine-readable when proof is needed.
         )
       })}
     </div>
-    <!-- Terminal demo -->
-    <div data-reveal data-reveal-delay="5" class="terminal mx-auto mt-10 hidden max-w-lg text-left sm:block">
-      <div class="terminal-header">
-        <span class="h-3 w-3 rounded-full bg-red-500/80"></span>
-        <span class="h-3 w-3 rounded-full bg-yellow-500/80"></span>
-        <span class="h-3 w-3 rounded-full bg-green-500/80"></span>
-        <span class="ml-2 text-xs text-dark-200">Codex / Claude Code / GitHub Copilot</span>
-      </div>
-      <div class="terminal-body">
-        <div class="text-agdf-400">❯ <span class="text-dark-100">/gate-check</span></div>
-        <div class="mt-2 text-dark-200">
-          <div><span class="text-agdf-300">Current gate:</span> <code>PRD</code></div>
-          <div><span class="text-agdf-300">Status:</span> <code class="text-yellow-400">blocked</code></div>
-          <div><span class="text-agdf-300">Allowed:</span> clarify status, OR-lite</div>
-          <div><span class="text-agdf-300">Forbidden:</span> SD, TP, code</div>
-          <div><span class="text-agdf-300">Missing approval:</span> <code>Approval: PRD</code></div>
-          <div><span class="text-agdf-300">Next step:</span> provide the exact approval</div>
+    <!-- Agent behavior demo -->
+    <div data-reveal data-reveal-delay="5" class="mx-auto mt-10 grid max-w-5xl gap-4 text-left lg:grid-cols-[0.9fr_1.1fr]">
+      <div class="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.95),0_1px_0_rgba(255,255,255,0.10)_inset] backdrop-blur-xl">
+        <div class="mb-5 flex items-center justify-between gap-3">
+          <div class="text-sm font-semibold text-dark-100">Without AGDF</div>
+          <span class="rounded-full bg-red-500/12 px-3 py-1 text-xs font-medium text-red-200">starts too soon</span>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+          <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
+          <div class="mt-2 text-base font-semibold leading-snug text-white">Add team-based approval workflows to the existing admin console.</div>
+          <div class="mt-5 h-px bg-white/10"></div>
+          <div class="mt-5 text-sm font-semibold text-red-200">Agent starts changing admin screens and approval logic.</div>
+          <div class="mt-2 text-sm leading-relaxed text-dark-300">No durable requirement. No ownership check. No gate status.</div>
         </div>
       </div>
-    </div>
-    <div data-reveal data-reveal-delay="5" class="terminal mt-6 px-4 py-3 text-left font-mono text-xs text-dark-100 sm:hidden">
-      <div><span class="text-agdf-400">❯</span> /gate-check</div>
-      <div class="mt-2 text-dark-200"><span class="text-agdf-300">Missing:</span> <code>Approval: PRD</code></div>
+      <div class="rounded-[22px] border border-agdf-300/25 bg-[linear-gradient(180deg,rgba(20,184,166,0.14),rgba(15,23,42,0.26))] p-5 shadow-[0_26px_78px_-38px_rgba(20,184,166,0.55),0_1px_0_rgba(255,255,255,0.16)_inset] backdrop-blur-xl">
+        <div class="mb-5 flex items-center justify-between gap-3">
+          <div class="text-sm font-semibold text-dark-100">With AGDF</div>
+          <span class="rounded-full bg-agdf-400/15 px-3 py-1 text-xs font-medium text-agdf-200">blocked safely</span>
+        </div>
+        <div class="rounded-2xl border border-agdf-300/20 bg-black/30 p-4">
+          <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
+          <div class="mt-2 text-base font-semibold leading-snug text-white">Add team-based approval workflows to the existing admin console.</div>
+          <div class="mt-5 grid gap-2.5 text-sm">
+            <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
+              <span class="text-dark-300">Current gate</span>
+              <code class="text-agdf-200">UR</code>
+            </div>
+            <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
+              <span class="text-dark-300">Allowed</span>
+              <span class="text-dark-100">persist requirement</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
+              <span class="text-dark-300">Forbidden</span>
+              <span class="text-dark-100">implementation, QA, release</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 rounded-xl bg-agdf-400/10 px-3 py-2">
+              <span class="text-dark-300">Next step</span>
+              <code class="text-agdf-200">Approval: UR</code>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -321,11 +341,64 @@ make that state machine-readable when proof is needed.
     <div data-reveal class="mb-12 text-center">
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to evidence</div>
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Delivery Flow</h2>
-      <p class="text-dark-200">Seven controls decide what may happen next.</p>
+      <p class="text-dark-200">A gate does not move because someone says go. It moves when artefact, approval, evidence and the next allowed action line up.</p>
     </div>
-    <div class="grid gap-4 lg:grid-cols-7">
+    <div data-reveal data-reveal-delay="1" class="mb-8 rounded-lg border border-agdf-500/25 bg-agdf-950/20 p-4 sm:p-5">
+      <div class="grid gap-4 lg:grid-cols-[1fr_auto_1.4fr] lg:items-center">
+        <div>
+          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Shared start</div>
+          <div class="flex flex-wrap items-center gap-2">
+            {["UR", "Brownfield Review", "Mode/Slice Decision"].map((item, i) => (
+              <>
+                <span class="rounded-lg border border-agdf-500/30 bg-dark-950 px-3 py-2 font-mono text-xs font-bold text-agdf-200">{item}</span>
+                {i < 2 && <span class="text-agdf-600">→</span>}
+              </>
+            ))}
+          </div>
+        </div>
+        <div class="hidden h-px w-10 bg-agdf-500/40 lg:block"></div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-lg border border-agdf-500/25 bg-dark-950/80 p-3">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Quick path</div>
+            <p class="mt-2 text-xs leading-relaxed text-dark-200">Small approved change, relevant checks, evidence closeout.</p>
+          </div>
+          <div class="rounded-lg border border-dark-700/80 bg-dark-950/80 p-3">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Structured path</div>
+            <p class="mt-2 text-xs leading-relaxed text-dark-200">PRD, SD and TP only when Brownfield Review justifies that depth.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-reveal data-reveal-delay="2" class="mb-8 overflow-hidden rounded-lg border border-dark-700/80 bg-dark-950/70">
+      <div class="grid border-b border-dark-800 bg-dark-900/80 px-4 py-3 text-xs font-bold uppercase tracking-wide text-dark-200 sm:grid-cols-[0.9fr_1.6fr_1.2fr_1.4fr]">
+        <div>Mode</div>
+        <div class="hidden sm:block">Gates used</div>
+        <div class="hidden sm:block">Not used by default</div>
+        <div class="hidden sm:block">Decision rule</div>
+      </div>
+      {gateModeMatrix.map((row, i) => (
+        <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="grid gap-3 border-b border-dark-800 px-4 py-4 last:border-b-0 sm:grid-cols-[0.9fr_1.6fr_1.2fr_1.4fr]">
+          <div>
+            <div class="font-mono text-sm font-bold text-agdf-300">{row.mode}</div>
+          </div>
+          <div>
+            <div class="mb-1 text-[10px] font-bold uppercase tracking-wide text-dark-300 sm:hidden">Gates used</div>
+            <p class="text-xs leading-relaxed text-dark-100">{row.use}</p>
+          </div>
+          <div>
+            <div class="mb-1 text-[10px] font-bold uppercase tracking-wide text-dark-300 sm:hidden">Not used by default</div>
+            <p class="text-xs leading-relaxed text-dark-200">{row.skip}</p>
+          </div>
+          <div>
+            <div class="mb-1 text-[10px] font-bold uppercase tracking-wide text-dark-300 sm:hidden">Decision rule</div>
+            <p class="text-xs leading-relaxed text-dark-200">{row.decision}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {workflowSteps.map((step, i) => (
-        <div data-reveal data-reveal-delay={String((i % 7) + 1)} class="surface p-4 transition-all hover:border-agdf-500/40 hover:-translate-y-0.5">
+        <div data-reveal data-reveal-delay={String((i % 8) + 1)} class="surface p-4 transition-all hover:border-agdf-500/40 hover:-translate-y-0.5">
           <div class="mb-3 flex items-center justify-between gap-2">
             <span class="font-mono text-xs font-bold text-agdf-400">Control {step.step}</span>
             <span class="rounded-full border border-dark-700/80 px-2 py-0.5 font-mono text-[10px] text-dark-200">{step.command}</span>
@@ -388,18 +461,57 @@ make that state machine-readable when proof is needed.
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Gate Map</h2>
-      <p class="text-dark-200">Each gate is a decision point. Fail closed: no approval, no implementation.</p>
+      <p class="text-dark-200">The map is not a fixed ceremony. Brownfield Review decides whether the work stays quick or needs a structured product path.</p>
     </div>
-    <div data-reveal data-reveal-delay="1" class="flex flex-wrap items-center justify-center gap-2">
-      {gateFlow.map((g, i) => (
-        <>
-          <div class="gate-node gate-node-default min-w-[100px]">
-            <div class="text-agdf-400">{g.gate}</div>
-            <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
+    <div data-reveal data-reveal-delay="1" class="surface p-4 sm:p-5">
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        {gateMapPaths.sharedStart.map((g, i) => (
+          <>
+            <div class="gate-node gate-node-default min-w-[118px]">
+              <div class="text-agdf-400">{g.gate}</div>
+              <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
+            </div>
+            {i < gateMapPaths.sharedStart.length - 1 && <span class="text-agdf-600">→</span>}
+          </>
+        ))}
+      </div>
+      <div class="mt-5 flex justify-center">
+        <div class="rounded-full border border-agdf-500/30 bg-agdf-950/40 px-4 py-2 text-center font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">
+          choose path
+        </div>
+      </div>
+      <div class="mt-5 grid gap-4 lg:grid-cols-2">
+        <div class="rounded-lg border border-agdf-500/25 bg-agdf-950/20 p-4">
+          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">{gateMapPaths.quick.label}</div>
+          <p class="mb-4 text-sm leading-relaxed text-dark-200">{gateMapPaths.quick.note}</p>
+          <div class="flex flex-wrap items-center gap-2">
+            {gateMapPaths.quick.steps.map((g, i) => (
+              <>
+                <div class="gate-node gate-node-default min-w-[132px]">
+                  <div class="text-agdf-400">{g.gate}</div>
+                  <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
+                </div>
+                {i < gateMapPaths.quick.steps.length - 1 && <span class="text-agdf-600">→</span>}
+              </>
+            ))}
           </div>
-          {i < gateFlow.length - 1 && <span class="text-agdf-600">→</span>}
-        </>
-      ))}
+        </div>
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900/70 p-4">
+          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">{gateMapPaths.structured.label}</div>
+          <p class="mb-4 text-sm leading-relaxed text-dark-200">{gateMapPaths.structured.note}</p>
+          <div class="flex flex-wrap items-center gap-2">
+            {gateMapPaths.structured.steps.map((g, i) => (
+              <>
+                <div class="gate-node gate-node-default min-w-[108px]">
+                  <div class="text-agdf-400">{g.gate}</div>
+                  <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
+                </div>
+                {i < gateMapPaths.structured.steps.length - 1 && <span class="text-agdf-600">→</span>}
+              </>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
     <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       {gateFlow.map((g, i) => (
@@ -514,11 +626,11 @@ make that state machine-readable when proof is needed.
   </div>
 </section>
 
-<!-- ==================== ARCHITECTURE ==================== -->
-<section id="architecture" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
+<!-- ==================== CONTROL SYSTEM ==================== -->
+<section id="control-system" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Architecture</h2>
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Control System</h2>
       <p class="text-dark-200">One shared control source. Surface-specific manifests only expose it.</p>
     </div>
     <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">

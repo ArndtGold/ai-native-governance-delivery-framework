@@ -32,6 +32,7 @@ const expectedControlFiles = [
   "templates/artefacts/SD.md",
   "templates/artefacts/TP.md",
   "templates/artefacts/QA_REPORT.md",
+  "templates/artefacts/OR.md",
 ];
 
 const allowedGermanFragments = [
@@ -244,11 +245,14 @@ if (isFile(agentRouterPath)) {
 
 if (isFile(runtimeContractPath)) {
   const runtimeContract = read(runtimeContractPath);
-  if (!runtimeContract.includes("Approval of one user gate permits work on the next gate artefact only")) {
-    failures.push("runtime contract must state that one gate approval only permits the next gate artefact");
+  if (!runtimeContract.includes("Approval of one user gate permits work on the next allowed gate artefact or required internal step only")) {
+    failures.push("runtime contract must state that one gate approval only permits the next gate artefact or required internal step");
   }
-  if (!runtimeContract.includes("`Approval: UR` permits PRD drafting, not implementation")) {
-    failures.push("runtime contract must state that Approval: UR permits PRD drafting, not implementation");
+  if (!runtimeContract.includes("`Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision")) {
+    failures.push("runtime contract must state that Approval: UR permits Brownfield Review before Mode/Slice Decision");
+  }
+  if (!runtimeContract.includes("PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision")) {
+    failures.push("runtime contract must state that gate depth is chosen after Brownfield Review");
   }
   if (!runtimeContract.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
     failures.push("runtime contract must require a durable UR for new product semantics or functional change");
@@ -258,6 +262,15 @@ if (isFile(runtimeContractPath)) {
   }
   if (!runtimeContract.includes("approval and durable artefact presence are separate requirements")) {
     failures.push("runtime contract must separate approval text from durable artefact presence");
+  }
+  if (!runtimeContract.includes("AGDF must work natively through the plugin router, skills and live `.agdf/control/` artefacts")) {
+    failures.push("runtime contract must state native AGDF runtime before machine-readable validators");
+  }
+  if (!runtimeContract.includes("`delivery-map --json` is the machine-readable delivery picture")) {
+    failures.push("runtime contract must define delivery-map as the machine-readable delivery picture");
+  }
+  if (!runtimeContract.includes("Missing relationship evidence in the Artefact Chain is at least `revise`")) {
+    failures.push("runtime contract must state the delivery-map relationship evidence rule");
   }
 }
 
@@ -302,14 +315,32 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("If `Approval: UR` is present, do not say implementation is the next step.")) {
       failures.push("gate-check must prevent implementation immediately after Approval: UR");
     }
-    if (!skillMd.includes("| `UR` approved and UR artefact persisted or linked, PRD missing or draft | `PRD` |")) {
-      failures.push("gate-check must define PRD as the next gate after UR approval");
+    if (!skillMd.includes("| `UR` approved and UR artefact persisted or linked, Brownfield Review missing | `Brownfield Review` |")) {
+      failures.push("gate-check must define Brownfield Review as the next internal step after UR approval");
+    }
+    if (!skillMd.includes("| Brownfield Review done or not_applicable, Mode/Slice Decision missing | `Mode/Slice Decision` |")) {
+      failures.push("gate-check must define Mode/Slice Decision after Brownfield Review");
+    }
+    if (!skillMd.includes("| Mode/Slice Decision is `quick_task` | `Quick Task Execution` |")) {
+      failures.push("gate-check must define Quick Task Execution after quick_task Mode/Slice Decision");
+    }
+    if (!skillMd.includes("| Mode/Slice Decision is `structured_slice` or `structured_delivery`, PRD missing or draft | `PRD` |")) {
+      failures.push("gate-check must define PRD after structured Mode/Slice Decision");
     }
     if (!skillMd.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
       failures.push("gate-check must require durable UR persistence for new product semantics or functional change");
     }
     if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
       failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
+    }
+    if (!skillMd.includes("npm create agdf@latest delivery-map --json")) {
+      failures.push("gate-check must expose the machine-readable delivery-map command");
+    }
+    if (!skillMd.includes("AGDF is applied natively through this skill, the agent router, and live `.agdf/control/` state")) {
+      failures.push("gate-check must state that AGDF is applied natively before helper commands");
+    }
+    if (!skillMd.includes("The CLI reports are validators and JSON evidence, not the primary user experience")) {
+      failures.push("gate-check must classify CLI reports as validators, not the primary workflow");
     }
   }
 
@@ -342,10 +373,11 @@ const runTemplatePath = join(controlRoot, "templates", "AGDF_RUN.md");
 const contextGraphTemplatePath = join(controlRoot, "templates", "CONTEXT_GRAPH.md");
 const sotRegistryTemplatePath = join(controlRoot, "templates", "SOT_REGISTRY.md");
 const qualityContractsPath = join(controlRoot, "templates", "AGENT_QUALITY_CONTRACTS.json");
+const orTemplatePath = join(controlRoot, "templates", "artefacts", "OR.md");
 
 if (isFile(runTemplatePath)) {
   const runTemplate = read(runTemplatePath);
-  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "context_graph_impact", "quality_outlook"]) {
+  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "Artefact Chain", "context_graph_impact", "quality_outlook"]) {
     if (!runTemplate.includes(required)) failures.push(`AGDF_RUN.md missing control field: ${required}`);
   }
 }
@@ -361,6 +393,13 @@ if (isFile(sotRegistryTemplatePath)) {
   const sotRegistryTemplate = read(sotRegistryTemplatePath);
   if (!sotRegistryTemplate.includes("Each domain should have one primary owner")) {
     failures.push("SOT_REGISTRY.md must state one primary owner per domain");
+  }
+}
+
+if (isFile(orTemplatePath)) {
+  const orTemplate = read(orTemplatePath);
+  for (const required of ["Report mode", "OR-lite | OR-full", "Next Permissible Step", "Context Graph Impact", "OR does not approve later gates"]) {
+    if (!orTemplate.includes(required)) failures.push(`OR.md missing control field: ${required}`);
   }
 }
 

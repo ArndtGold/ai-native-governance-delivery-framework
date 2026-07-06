@@ -9,12 +9,13 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
 | File | Purpose |
 |---|---|
 | `templates/AGDF_RUN.md` | Template for current run state: mode, gate, approvals, evidence, risks, next allowed action |
-| `templates/MASTER_BACKLOG.md` | Template for the living backlog pointer: active initiatives and current UR/PRD/SD/TP artefacts |
+| `templates/MASTER_BACKLOG.md` | Template for the living backlog pointer: active initiatives and current UR/PRD/SD/TP/QA/OR artefacts |
 | `templates/artefacts/UR.md` | Template for the durable user requirement artefact of a work item |
 | `templates/artefacts/PRD.md` | Template for the durable product requirements artefact |
 | `templates/artefacts/SD.md` | Template for the durable solution design artefact |
 | `templates/artefacts/TP.md` | Template for the durable task and test plan artefact |
 | `templates/artefacts/QA_REPORT.md` | Template for the durable QA decision report |
+| `templates/artefacts/OR.md` | Template for the durable Orchestration Report closeout |
 | `templates/SOT_REGISTRY.md` | Template for the source-of-truth registry: one primary owner per domain |
 | `templates/CONTEXT_GRAPH.md` | Template for project memory: durable decisions, Brownfield findings, risks, evidence and exit criteria |
 | `templates/AGENT_QUALITY_CONTRACTS.json` | Template for machine-readable warning, revise and block contracts for review and QA |
@@ -33,6 +34,7 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
         SD.md
         TP.md
         QA_REPORT.md
+        OR.md
     SOT_REGISTRY.md
     CONTEXT_GRAPH.md
     AGENT_QUALITY_CONTRACTS.json
@@ -62,6 +64,7 @@ npm create agdf@latest gate-check --json
 - `AGDF_RUN.md` is the current run dashboard.
 - `MASTER_BACKLOG.md` points to active delivery work; detailed artefacts live beside the work item.
 - UR, PRD, SD, TP and QA decisions require durable artefacts or links to the authoritative repository source of truth before the next gate can open.
+- OR records the run closeout and next permissible step; it does not approve later gates.
 - `SOT_REGISTRY.md` decides which document owns which domain.
 - `CONTEXT_GRAPH.md` records durable project knowledge only when it has evidence and an exit criterion.
 - `AGENT_QUALITY_CONTRACTS.json` names reusable block, revise and warning conditions.

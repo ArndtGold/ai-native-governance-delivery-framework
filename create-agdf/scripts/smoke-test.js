@@ -44,6 +44,15 @@ function run(target, expectedFiles) {
       if (copilotAgents.includes("| `gate-check` |")) {
         throw new Error(`Copilot AGENTS.md for ${target} must not contain unprefixed skill routing.`);
       }
+
+      const copilotInstructionsPath = join(tempDir, ".github", "copilot-instructions.md");
+      const copilotInstructions = readFileSync(copilotInstructionsPath, "utf8");
+      if (!copilotInstructions.includes("Apply AGDF natively from `AGENTS.md`, repository skills and live `.agdf/control/` state")) {
+        throw new Error(`Copilot instructions for ${target} must state native AGDF operation before helper commands.`);
+      }
+      if (!copilotInstructions.includes("Use machine-readable checks such as `doctor --json`, `gate-check --json` or `delivery-map --json` as validators")) {
+        throw new Error(`Copilot instructions for ${target} must classify machine-readable checks as validators.`);
+      }
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -55,6 +64,7 @@ run("codex", [
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "OR.md"),
   join("plugins", "agdf", "hooks", "hooks.json"),
   join("plugins", "agdf", "hooks", "session-start.sh"),
   join("plugins", "agdf", "meta", "agdf-agent-router.md"),
@@ -70,6 +80,7 @@ run("copilot", [
   join(".agdf", "control", "templates", "AGDF_RUN.md"),
   join(".agdf", "control", "templates", "artefacts", "PRD.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join(".agdf", "control", "templates", "artefacts", "OR.md"),
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
@@ -91,6 +102,7 @@ run("both", [
   join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join(".agdf", "control", "templates", "artefacts", "OR.md"),
   join(".github", "copilot-instructions.md"),
   join(".github", "instructions", "agdf-governance.instructions.md"),
   join(".github", "skills", "README.md"),
@@ -117,6 +129,7 @@ run("both", [
       join(".agdf", "control", "templates", "artefacts", "SD.md"),
       join(".agdf", "control", "templates", "artefacts", "TP.md"),
       join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+      join(".agdf", "control", "templates", "artefacts", "OR.md"),
     ]) {
       if (!existsSync(join(tempDir, relativePath))) {
         throw new Error(`Missing live control file for init: ${relativePath}`);
@@ -172,6 +185,84 @@ run("both", [
 }
 
 {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-implicit-consent-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: test-run
+- started_at: 2026-07-06
+- mode: structured_delivery
+- current_gate: UR
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | User said "ok, leg los" after a draft intent. |
+| What is approved? | implicit consent only |
+| What is missing? | exact Approval: UR |
+| What is the next allowed action? | Request exact UR approval. |
+| What is explicitly forbidden right now? | PRD, SD, TP, implementation |
+
+## Gate Checklist
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | missing | ok, leg los |
+| PRD | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/test-run/UR.md | draft |  |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| implicit consent | AGDF_RUN.md | UR gate | direct |
+
+## Closeout
+
+- next_allowed_action: Request exact UR approval.
+`, "utf8");
+
+    let failed = false;
+    try {
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+    } catch (error) {
+      failed = true;
+      const gateCheckReport = JSON.parse(error.stdout.toString());
+      if (gateCheckReport.status !== "blocked") {
+        throw new Error(`Gate-check should block implicit consent, got ${gateCheckReport.status}.`);
+      }
+      if (gateCheckReport.current_gate !== "UR") {
+        throw new Error(`Gate-check should remain at UR for implicit consent, got ${gateCheckReport.current_gate}.`);
+      }
+      if (gateCheckReport.missing_approval !== "Approval: UR") {
+        throw new Error(`Gate-check should require exact UR approval, got ${gateCheckReport.missing_approval}.`);
+      }
+      if (!gateCheckReport.forbidden.includes("implement code")) {
+        throw new Error("Gate-check should forbid implementation when consent is only implicit.");
+      }
+    }
+    if (!failed) {
+      throw new Error("Gate-check should exit non-zero when consent is only implicit.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-missing-"));
 
   try {
@@ -210,6 +301,90 @@ run("both", [
 
     if (!gateCheckFailed) {
       throw new Error("Gate-check should exit non-zero when live control files are missing.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-ur-triage-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: test-run
+- started_at: 2026-07-06
+- mode: structured_delivery
+- current_gate: UR
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Test UR is approved and persisted. |
+| What is approved? | UR |
+| What is missing? | Brownfield Review |
+| What is the next allowed action? | Run Brownfield Review after G-00. |
+| What is explicitly forbidden right now? | PRD and implementation |
+
+## Gate Checklist
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/test-run/UR.md | approved |  |
+| Brownfield Review |  | missing |  |
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+
+## Mode / Slice Decision
+
+- decision: structured_slice
+- required_next_gate: PRD
+- scope_reason: Test fixture uses a small structured slice.
+- evidence: Brownfield Review marked not_applicable.
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| UR approval | AGDF_RUN.md | UR gate | direct |
+
+## Closeout
+
+- next_allowed_action: Run Brownfield Review after G-00.
+`, "utf8");
+
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckReport = JSON.parse(gateCheckOutput);
+    if (gateCheckReport.status !== "open") {
+      throw new Error(`Gate-check should open Brownfield Review after approved UR, got ${gateCheckReport.status}.`);
+    }
+    if (gateCheckReport.current_gate !== "Brownfield Review") {
+      throw new Error(`Gate-check should move from approved UR to Brownfield Review, got ${gateCheckReport.current_gate}.`);
+    }
+    if (!gateCheckReport.allowed.includes("run Brownfield Review after G-00")) {
+      throw new Error("Gate-check should allow Brownfield Review after approved UR.");
+    }
+    if (!gateCheckReport.forbidden.includes("create PRD before Brownfield Review is resolved")) {
+      throw new Error("Gate-check should forbid PRD before Brownfield Review is resolved.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -259,7 +434,21 @@ run("both", [
 | Type | Path | Status | Notes |
 |---|---|---|---|
 | UR | .agdf/control/artefacts/test-run/UR.md | approved |  |
+| Brownfield Review | .agdf/control/artefacts/test-run/BROWNFIELD_REVIEW.md | not_applicable | No Brownfield impact. |
 | PRD |  | draft |  |
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+
+## Mode / Slice Decision
+
+- decision: structured_slice
+- required_next_gate: PRD
+- scope_reason: Test fixture uses a small structured slice.
+- evidence: Brownfield Review marked not_applicable.
 
 ## Evidence
 
@@ -291,6 +480,207 @@ run("both", [
     }
     if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {
       throw new Error("Gate-check should expose filled evidence references.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-mode-slice-missing-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: test-run
+- started_at: 2026-07-06
+- mode: structured_delivery
+- current_gate: Brownfield Review
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | UR is approved and Brownfield Review is done. |
+| What is approved? | UR |
+| What is missing? | Mode/Slice Decision |
+| What is the next allowed action? | Decide process size. |
+| What is explicitly forbidden right now? | PRD and implementation |
+
+## Gate Checklist
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/test-run/UR.md | approved |  |
+| Brownfield Review | .agdf/control/artefacts/test-run/BROWNFIELD_REVIEW.md | done | Existing owner and scope were inspected. |
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Brownfield Review | AGDF_RUN.md | Mode selection | direct |
+
+## Closeout
+
+- next_allowed_action: Decide process size.
+`, "utf8");
+
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckReport = JSON.parse(gateCheckOutput);
+    if (gateCheckReport.status !== "open") {
+      throw new Error(`Gate-check should open Mode/Slice Decision after Brownfield Review, got ${gateCheckReport.status}.`);
+    }
+    if (gateCheckReport.current_gate !== "Mode/Slice Decision") {
+      throw new Error(`Gate-check should not jump to PRD without Mode/Slice Decision, got ${gateCheckReport.current_gate}.`);
+    }
+    if (!gateCheckReport.forbidden.includes("create PRD before process size is decided")) {
+      throw new Error("Gate-check should forbid PRD before process size is decided.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-delivery-map-chain-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(backlogPath, `# AGDF Master Backlog
+
+## Active Backlog
+
+| Prio | Key | Title | Status | UR | PRD | SD | TP | QA | OR | Current Spec | Notes |
+|---:|---|---|---|---|---|---|---|---|---|---|---|
+| P1 | test-run | Delivery map test | in_progress | UR.md | PRD.md |  |  |  | OR.md | PRD.md | needs SD |
+`, "utf8");
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: test-run
+- started_at: 2026-07-06
+- mode: structured_delivery
+- current_gate: SD
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | UR and PRD are approved. |
+| What is approved? | UR, PRD |
+| What is missing? | PRD relationship evidence |
+| What is the next allowed action? | Fill Artefact Chain evidence. |
+| What is explicitly forbidden right now? | SD approval |
+
+## Gate Checklist
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | approved | Approval: PRD |
+| SD | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/test-run/UR.md | approved |  |
+| Brownfield Review | .agdf/control/artefacts/test-run/BROWNFIELD_REVIEW.md | not_applicable | No Brownfield impact. |
+| PRD | .agdf/control/artefacts/test-run/PRD.md | approved |  |
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| PRD | derived_from | UR |  |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| UR approval | AGDF_RUN.md | UR gate | direct |
+| PRD approval | AGDF_RUN.md | PRD gate | direct |
+
+## Missing Evidence
+
+| Missing evidence | Impact | Required next step |
+|---|---|---|
+|  | warn |  |
+
+## Risks
+
+| Risk | Impact | Mitigation or owner |
+|---|---|---|
+|  | warn |  |
+
+## Context Graph Impact
+
+- context_graph_impact: none
+- context_graph_refs:
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence:
+
+## Closeout
+
+- next_allowed_action: Fill Artefact Chain evidence.
+`, "utf8");
+
+    const deliveryMapOutput = execFileSync(process.execPath, [binPath, "delivery-map", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const deliveryMapReport = JSON.parse(deliveryMapOutput);
+    if (deliveryMapReport.status !== "revise") {
+      throw new Error(`Delivery-map should revise approved PRD without relationship evidence, got ${deliveryMapReport.status}.`);
+    }
+    if (!deliveryMapReport.findings.some((finding) => finding.code === "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING")) {
+      throw new Error("Delivery-map should report missing relationship evidence for approved PRD.");
+    }
+    if (!deliveryMapReport.relationships.some((relationship) => relationship.from === "PRD" && relationship.status === "missing_evidence")) {
+      throw new Error("Delivery-map should expose PRD relationship status as missing_evidence.");
+    }
+    if (deliveryMapReport.backlog_pointers[0]?.or !== "OR.md") {
+      throw new Error("Delivery-map should preserve the OR backlog pointer column.");
+    }
+    if (deliveryMapReport.backlog_pointers[0]?.current_spec !== "PRD.md") {
+      throw new Error("Delivery-map should preserve the Current Spec column after OR.");
+    }
+
+    let gateCheckFailed = false;
+    try {
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+    } catch (error) {
+      gateCheckFailed = true;
+      const gateCheckReport = JSON.parse(error.stdout.toString());
+      if (!gateCheckReport.delivery_map?.findings?.some((finding) => finding.code === "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING")) {
+        throw new Error("Gate-check should include delivery-map findings as evidence context.");
+      }
+    }
+    if (!gateCheckFailed) {
+      throw new Error("Gate-check should exit non-zero when delivery-map relationship evidence is missing.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -417,6 +807,12 @@ run("both", [
 | UR | .agdf/control/artefacts/test-run/UR.md | approved |  |
 | PRD |  | missing |  |
 
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
@@ -471,6 +867,10 @@ for (const missingCase of [
       "| PRD | .agdf/control/artefacts/test-run/PRD.md | approved |  |",
       "| SD |  | missing |  |",
     ],
+    chain: [
+      "| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |",
+      "| PRD | derived_from | UR | PRD links to approved UR. |",
+    ],
     reason: "missing_durable_sd_artefact",
   },
   {
@@ -487,6 +887,11 @@ for (const missingCase of [
       "| PRD | .agdf/control/artefacts/test-run/PRD.md | approved |  |",
       "| SD | .agdf/control/artefacts/test-run/SD.md | approved |  |",
       "| TP |  | missing |  |",
+    ],
+    chain: [
+      "| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |",
+      "| PRD | derived_from | UR | PRD links to approved UR. |",
+      "| SD | derived_from | PRD | SD links to approved PRD. |",
     ],
     reason: "missing_durable_tp_artefact",
   },
@@ -506,6 +911,12 @@ for (const missingCase of [
       "| SD | .agdf/control/artefacts/test-run/SD.md | approved |  |",
       "| TP | .agdf/control/artefacts/test-run/TP.md | approved |  |",
       "| QA |  | missing |  |",
+    ],
+    chain: [
+      "| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |",
+      "| PRD | derived_from | UR | PRD links to approved UR. |",
+      "| SD | derived_from | PRD | SD links to approved PRD. |",
+      "| TP | derived_from | SD | TP links to approved SD. |",
     ],
     reason: "missing_durable_qa_artefact",
   },
@@ -547,6 +958,12 @@ ${missingCase.approvals.join("\n")}
 | Type | Path | Status | Notes |
 |---|---|---|---|
 ${missingCase.artefacts.join("\n")}
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+${missingCase.chain.join("\n")}
 
 ## Evidence
 

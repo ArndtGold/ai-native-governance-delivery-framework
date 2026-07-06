@@ -1,12 +1,12 @@
 ---
 name: brownfield-analysis
-description: Use this skill after gate-check or live AGDF control state confirms that implementation preparation is allowed, and before non-trivial implementation in an existing codebase. It analyzes existing artefacts, current coverage, reuse strategy, risks, and the minimal clean implementation path. Do not use it as the first AGDF skill for a fresh "I want to build/change X" prompt when approval, scope, or next allowed action is unclear.
+description: Use this skill after gate-check or live AGDF control state confirms that Brownfield Review or implementation preparation is allowed. Use it after Approval: UR as the lightweight Brownfield Review after G-00 before PRD when existing systems may be affected, and again before non-trivial implementation after TP. Do not use it as the first AGDF skill for a fresh "I want to build/change X" prompt when approval, scope, or next allowed action is unclear.
 ---
 
 # brownfield-analysis
 
 ## Purpose
-Ensure implementation in an existing system is Brownfield-oriented, not Greenfield-style.
+Ensure delivery in an existing system is Brownfield-oriented, not Greenfield-style.
 
 The skill answers:
 
@@ -15,7 +15,7 @@ The skill answers:
 - what can be reused, extended, or refactored
 - whether new artefacts are really needed
 - architecture, compatibility, migration, and regression impact
-- the minimal clean implementation path
+- the minimal clean next step
 - whether Context Graph impact exists without automatically creating a node
 
 ## Runtime Contract
@@ -24,21 +24,24 @@ Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context G
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
 
 ## Rules
-1. Brownfield first: understand the existing codebase before implementation.
-2. Reuse-before-create: prefer existing modules, services, components, tables, endpoints, tests, and configuration.
-3. Minimal clean slice: choose the smallest durable intervention, not merely the smallest technical diff.
-4. No silent parallel structures.
-5. Existing architecture, naming, error handling, logging, security, and test conventions are binding unless deviation is justified.
-6. What is not visibly evidenced does not count as existing.
-7. Async execute paths must not become a second product-policy decision point.
-8. Visible state ownership must be checked for chat, rendering, scrolling, recovery, and status problems.
-9. SoT/runtime/product-semantics drift must be named; if official behaviour must be decided first, recommend UR or equivalent product direction.
-10. Large UI surfaces and state hooks must be checked for mixed render, view-model, derived state, orchestration, persistence, and recovery ownership.
-11. Context Graph impact must be curated; it is not a review log or version index.
-12. Specification archive migrations must follow the archive index if present.
+1. Brownfield first: understand the existing codebase before PRD/SD decisions when existing-system impact is possible, and again before implementation.
+2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must decide `quick_task`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen.
+3. Reuse-before-create: prefer existing modules, services, components, tables, endpoints, tests, and configuration.
+4. Minimal clean slice: choose the smallest durable intervention, not merely the smallest technical diff.
+5. No silent parallel structures.
+6. Existing architecture, naming, error handling, logging, security, and test conventions are binding unless deviation is justified.
+7. What is not visibly evidenced does not count as existing.
+8. Async execute paths must not become a second product-policy decision point.
+9. Visible state ownership must be checked for chat, rendering, scrolling, recovery, and status problems.
+10. SoT/runtime/product-semantics drift must be named; if official behaviour must be decided first, recommend UR or equivalent product direction.
+11. Large UI surfaces and state hooks must be checked for mixed render, view-model, derived state, orchestration, persistence, and recovery ownership.
+12. Context Graph impact must be curated; it is not a review log or version index.
+13. Specification archive migrations must follow the archive index if present.
 
 ## When To Use
+- after `gate-check` permits `Brownfield Review` or live `.agdf/control/AGDF_RUN.md` names Brownfield Review as the next allowed action
 - after `gate-check` permits implementation preparation or live `.agdf/control/AGDF_RUN.md` already names Brownfield Analysis as the next allowed action
+- after `Approval: UR` when existing owners, SoT, contracts, policies, persistence, runtime paths, tests, UI, UX or architecture may affect PRD/SD scope
 - before `CD+Tests`
 - before changes to an existing repository
 - bug fixes in existing modules
@@ -51,7 +54,7 @@ Brownfield-specific output must make evidence, missing existing-system view, par
 ## Inputs
 Use what is available:
 
-- Task Plan, `task_id`, `story_id`
+- approved UR, Task Plan, `task_id`, `story_id`
 - project structure
 - affected files, modules, services, APIs, data models
 - existing tests
@@ -59,7 +62,8 @@ Use what is available:
 - repository conventions
 
 If inputs are missing, work only from observable evidence and mark gaps explicitly.
-If gate status, approval, scope or next allowed action is unclear, stop and route to `gate-check` instead of recommending or starting implementation.
+If gate status, approval, scope or next allowed action is unclear, stop and route to `gate-check` instead of recommending PRD/SD detail or starting implementation.
+When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, TP, or implementation until the Mode/Slice Decision is explicit.
 
 ## Workflow
 1. Identify affected tasks and scope.
@@ -93,6 +97,8 @@ Use a concise structure:
 ```text
 ## Brownfield Analysis
 - decision: pass | revise | block | not_applicable
+- mode_slice_decision: quick_task | structured_slice | structured_delivery | block
+- required_next_gate: none | PRD | SD | TP | Brownfield Analysis
 - scope:
 - evidence:
 - missing_evidence:
@@ -116,3 +122,4 @@ This skill must not:
 - convert product-semantics drift into a mere refactor
 - create Context Graph nodes automatically
 - treat archive links as active current specification signals
+- recommend broad PRD/SD/TP or implementation by reflex before Mode/Slice Decision is recorded

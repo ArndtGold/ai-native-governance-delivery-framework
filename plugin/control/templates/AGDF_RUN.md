@@ -5,7 +5,7 @@
 - run_id:
 - started_at:
 - mode: `quick_task | structured_delivery`
-- current_gate: `none | UR | PRD | SD | TP | CD+Tests | CR | QA | UAT | OR`
+- current_gate: `none | UR | Brownfield Review | Mode/Slice Decision | PRD | SD | TP | Quick Task Execution | Brownfield Analysis | CD+Tests | CR | QA | UAT | OR`
 - decision: `pass | revise | block | in_progress`
 - owner:
 
@@ -44,9 +44,31 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | PRD |  | `draft | approved | superseded | not_applicable` |  |
 | SD |  | `draft | approved | superseded | not_applicable` |  |
 | TP |  | `draft | approved | superseded | not_applicable` |  |
+| Brownfield Review |  | `missing | done | not_applicable` |  |
 | Review |  | `missing | done | not_applicable` |  |
 | QA |  | `missing | pass | revise | block | not_applicable` |  |
 | OR |  | `missing | done | not_applicable` |  |
+
+## Mode / Slice Decision
+
+Set this after Brownfield Review. Do not assume the full gate chain before the existing-system impact is understood.
+
+- decision: `undecided | quick_task | structured_slice | structured_delivery | block`
+- required_next_gate: `none | PRD | SD | TP | Brownfield Analysis`
+- scope_reason:
+- evidence:
+
+## Artefact Chain
+
+Keep the active work item traceable. A gate may open only when the previous gate has both exact approval and a durable or linked artefact.
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | `approved_by` | `Approval: UR` |  |
+| PRD | `derived_from` | UR |  |
+| SD | `derived_from` | PRD |  |
+| TP | `derived_from` | SD |  |
+| QA_REPORT | `tests` | TP |  |
 
 ## Evidence
 

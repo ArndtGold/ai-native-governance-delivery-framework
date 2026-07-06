@@ -32,7 +32,7 @@ Which existing repository artefacts, docs, code paths or decisions must be respe
 
 ## 7. Risks And Unknowns
 
-Which questions must PRD, SD or Brownfield Analysis clarify later?
+Which questions must Brownfield Review, PRD, SD or later implementation-preparation Brownfield Analysis clarify?
 
 ## 8. Next Step
 

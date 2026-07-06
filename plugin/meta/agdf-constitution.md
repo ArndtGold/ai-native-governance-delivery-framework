@@ -184,11 +184,11 @@ Gate Discipline
 
 AGDF work follows a gate-driven flow:
 
-    UR → PRD → SD → TP → QA → UAT
+    UR → Brownfield Review → Mode/Slice Decision → PRD/SD/TP as needed → QA → UAT
 
 with internal process steps:
 
-    Brownfield Analysis → CD+Tests → CR → OR
+    Brownfield Review → Mode/Slice Decision → Brownfield Analysis → CD+Tests → CR → OR
 
 Rules:
 
@@ -199,8 +199,17 @@ Rules:
   `Approval: <GateName>`
   Legacy German runs may contain `Freigabe: <GateName>`; keep it as an
   interpretation alias only and write new artefacts with `Approval:`.
-* **Implicit consent is not consent**: "ok", "go", "approved" or similar
-  formulations do not count as gate approvals.
+* **Implicit consent is not consent**: "ok", "go", "approved", "go ahead",
+  "do it", "continue", "leg los" or similar formulations do not count as gate
+  approvals.
+* **No gate skipping**: Urgency, task wording, chat history, "start" requests
+  or implicit consent must not skip from one gate to implementation or to a
+  later artefact. The next allowed action is the next unsatisfied gate or
+  internal mandatory step.
+* **Size before ceremony**: After an approved durable UR, Brownfield Review
+  determines change size and routing before PRD depth is chosen. The Mode/Slice
+  Decision is one of `quick_task`, `structured_slice`, `structured_delivery` or
+  `block`.
 * **No gate leaks**: Later gate artefacts must not be produced when an
   earlier gate is still blocking.
 

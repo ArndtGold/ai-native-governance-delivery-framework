@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "agdf",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "AI-native Governance & Delivery Framework",
   "description": "Codex-first workflow skills for gated, auditable AI-assisted software delivery.",
@@ -42,8 +42,8 @@
   "skillSet": [
     {
       "slug": "brownfield-analysis",
-      "useFor": "after gate-check permits implementation preparation, before non-trivial changes in existing systems",
-      "boundary": "clarifies reuse, owners and risks; never bypasses gate-check"
+      "useFor": "after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems",
+      "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission"
     },
     {
       "slug": "clean-implementation-review",
@@ -63,7 +63,7 @@
     {
       "slug": "gate-check",
       "useFor": "new build/change intent, unclear approval, Structured Delivery, later-gate artefact requested",
-      "boundary": "does not create later artefacts"
+      "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review"
     },
     {
       "slug": "qa-gate",

@@ -2,11 +2,11 @@ export const site = {
     name: "AGDF",
     fullName: "AI Governance & Delivery Framework",
     tagline: "Know whether the next AI-assisted step is allowed.",
-    description: "A focused governance plugin for Agentic AI Coding Tools: workflow skills, control files and machine-readable checks that turn AI delivery into approved steps, visible evidence, QA decisions and auditable closeout.",
+    description: "A focused governance plugin for Agentic AI Coding Tools: native workflow skills and durable control files that turn AI delivery into approved steps, visible evidence, QA decisions and auditable closeout, with machine-readable validators when proof is needed.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
-    version: "0.2.3",
+    version: "0.2.4",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 30+ years enterprise experience",
@@ -108,8 +108,8 @@ export const requirementPaths = [
     {
         label: "Structured Delivery",
         trigger: "New capability, architecture impact, runtime/policy/persistence change, visible UX decision or release-critical work.",
-        path: "UR -> PRD -> SD -> TP -> CD+Tests -> Reviews -> QA -> OR -> Delivery Closeout",
-        outcome: "Approved steps, traceable evidence, explicit stop points."
+        path: "UR -> Brownfield Review -> Mode/Slice Decision -> PRD/SD/TP as needed -> CD+Tests -> Reviews -> QA -> OR -> Delivery Closeout",
+        outcome: "Only as much gate depth as the reviewed change size justifies."
     },
 ]
 

@@ -94,8 +94,8 @@ const projectStats = await getProjectStats()
       data-reveal-delay="4"
       class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
     >
-      AGDF turns agent work into approved steps, visible evidence,
-QA decisions and auditable closeout.
+      AGDF runs natively through skills and durable control files. Validators
+make that state machine-readable when proof is needed.
     </p>
     <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#setup-codex-project" class="btn-primary">Try in Codex</a>
@@ -768,10 +768,13 @@ QA decisions and auditable closeout.
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want Copilot-facing repo files</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
             <div class="text-dark-200">  writes the project Codex marketplace and local AGDF plugin copy <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  AGDF works natively from router, skills and live .agdf/control state <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest doctor</span></div>
-            <div class="text-dark-200">  checks gate, next action, evidence, SoT and quality contracts <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  validator for gate, next action, evidence, SoT and quality contracts <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest gate-check --json</span></div>
-            <div class="text-dark-200">  returns the next process decision as machine-readable control output <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  validator for the next allowed process decision <span class="text-agdf-300">✓</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest delivery-map --json</span></div>
+            <div class="text-dark-200">  validator for artefact chain, evidence, risks and Context Graph effect <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  preserves an existing AGENTS.md and writes AGENTS.agdf.md for manual merge <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  adds Copilot custom instructions as the always-on guardrail layer <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  still install the Claude Code plugin separately if needed <span class="text-agdf-300">✓</span></div>
@@ -799,14 +802,13 @@ QA decisions and auditable closeout.
         </div>
         <div class="terminal">
           <div class="terminal-body space-y-2">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest init</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest doctor --json</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest gate-check --json</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Run an AGDF gate check for this request.</span></div>
+            <div class="text-dark-200">  Reads router, skills and live .agdf/control state natively</div>
             <div class="text-dark-200">  Current gate: <code>UR</code></div>
             <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
             <div class="text-dark-200">  Allowed: formulate and persist UR</div>
             <div class="text-dark-200">  Next step: describe and approve the UR</div>
+            <div class="text-dark-200">  Optional validator: <code>npm create agdf@latest delivery-map --json</code></div>
           </div>
         </div>
       </div>

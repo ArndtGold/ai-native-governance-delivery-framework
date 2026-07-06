@@ -11,10 +11,18 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["codex", "copilot", "both", "init", "doctor", "gate-check"]);
+const allowedTargets = new Set(["codex", "copilot", "both", "init", "doctor", "gate-check", "delivery-map"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
+const internalStepArtefacts = new Set(["Brownfield Review"]);
+const deliveryRelationships = [
+  { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
+  { from: "PRD", relationship: "derived_from", to: "UR", requiredBy: "PRD" },
+  { from: "SD", relationship: "derived_from", to: "PRD", requiredBy: "SD" },
+  { from: "TP", relationship: "derived_from", to: "SD", requiredBy: "TP" },
+  { from: "QA_REPORT", relationship: "tests", to: "TP", requiredBy: "QA" },
+];
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const codexPluginFiles = [
@@ -31,6 +39,7 @@ const codexPluginFiles = [
   join("plugins", "agdf", "control", "templates", "artefacts", "SD.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "TP.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "OR.md"),
   join("plugins", "agdf", "hooks", "hooks.json"),
   join("plugins", "agdf", "hooks", "session-start.sh"),
   join("plugins", "agdf", "meta", "agdf-agent-router.md"),
@@ -52,6 +61,7 @@ const controlFiles = [
   join(".agdf", "control", "templates", "artefacts", "SD.md"),
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join(".agdf", "control", "templates", "artefacts", "OR.md"),
 ];
 const liveControlFiles = [
   {
@@ -81,6 +91,7 @@ const artefactTemplateFiles = [
   join(".agdf", "control", "templates", "artefacts", "SD.md"),
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join(".agdf", "control", "templates", "artefacts", "OR.md"),
 ];
 const doctorRequiredFiles = [
   join(".agdf", "control", "AGDF_RUN.md"),
@@ -109,11 +120,12 @@ Usage:
   npm create agdf@latest init
   npm create agdf@latest doctor
   npm create agdf@latest gate-check
+  npm create agdf@latest delivery-map
 
 Options:
   --dir <path>   Write files into a specific directory
   --force        Overwrite existing generated files
-  --json         Print doctor or gate-check output as JSON
+  --json         Print doctor, gate-check or delivery-map output as JSON
   --help         Show this help
 `);
 }
@@ -176,7 +188,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, copilot, both, init, doctor or gate-check.");
+    console.error("Please choose one target: codex, copilot, both, init, doctor, gate-check or delivery-map.");
     printUsage();
     process.exit(1);
   }
@@ -361,6 +373,21 @@ function hasFilledEvidenceRow(content) {
     });
 }
 
+function markdownSection(content, heading) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return content.match(new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?:\\n## |\\n# |$)`))?.[1] ?? "";
+}
+
+function filled(value) {
+  return Boolean(value && !isPlaceholderValue(value) && value.trim() !== "");
+}
+
+function nonTemplateRows(section, headerCell) {
+  return tableRows(section)
+    .filter((cells) => cells[0] !== headerCell)
+    .filter((cells) => cells.some((cell) => filled(cell)));
+}
+
 function parseQualityContracts(content) {
   const parsed = JSON.parse(content);
   if (!Array.isArray(parsed.contracts) || parsed.contracts.length === 0) {
@@ -504,6 +531,11 @@ function evaluateDoctor(targetDir) {
         "Restore the generated contracts or fix the JSON contract schema.",
       );
     }
+
+    const runState = readRunState(targetDir);
+    for (const finding of analyzeDeliveryMap(runState).findings) {
+      addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
+    }
   }
 
   const severityRank = { block: 3, revise: 2, warn: 1 };
@@ -549,6 +581,11 @@ function extractField(content, field) {
   return content.match(pattern)?.[1]?.trim() ?? "";
 }
 
+function extractSectionField(section, field) {
+  const pattern = new RegExp(`^- ${field}:[^\\S\\r\\n]*(.*)$`, "m");
+  return section.match(pattern)?.[1]?.trim() ?? "";
+}
+
 function cleanStatusCell(value) {
   return value.replace(/^`|`$/g, "").trim();
 }
@@ -575,6 +612,11 @@ function readRunState(targetDir) {
       approvals: new Map(),
       artefacts: new Map(),
       evidence_refs: [],
+      artefact_chain: [],
+      mode_slice_decision: {},
+      missing_evidence: [],
+      risks: [],
+      context_graph: {},
     };
   }
 
@@ -584,10 +626,10 @@ function readRunState(targetDir) {
   addApprovalRows(approvals, content.match(/## Gate Checklist([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "");
 
   const artefacts = new Map();
-  const artefactsSection = content.match(/## Artefacts([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
+  const artefactsSection = markdownSection(content, "Artefacts");
   for (const cells of tableRows(artefactsSection)) {
     const [type, path, status, notes] = cells;
-    if (!userGateOrder.includes(type)) continue;
+    if (!userGateOrder.includes(type) && !internalStepArtefacts.has(type)) continue;
     artefacts.set(type, {
       path: path ?? "",
       status: cleanStatusCell(status ?? ""),
@@ -595,16 +637,57 @@ function readRunState(targetDir) {
     });
   }
 
-  const evidenceSection = content.match(/## Evidence([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "";
-  const evidence_refs = tableRows(evidenceSection)
+  const artefactChain = nonTemplateRows(markdownSection(content, "Artefact Chain"), "From")
+    .map((cells) => ({
+      from: cells[0] ?? "",
+      relationship: cleanStatusCell(cells[1] ?? ""),
+      to: cleanStatusCell(cells[2] ?? ""),
+      evidence: cells[3] ?? "",
+    }));
+
+  const evidence_refs = tableRows(markdownSection(content, "Evidence"))
     .filter((cells) => cells[0] !== "Evidence")
-    .filter((cells) => Boolean(cells[0] || cells[1] || cells[2]))
+    .filter((cells) => filled(cells[0]) || filled(cells[1]) || filled(cells[2]))
     .map((cells) => ({
       evidence: cells[0] ?? "",
       source: cells[1] ?? "",
       covers: cells[2] ?? "",
       strength: cleanStatusCell(cells[3] ?? ""),
     }));
+
+  const missingEvidence = tableRows(markdownSection(content, "Missing Evidence"))
+    .filter((cells) => cells[0] !== "Missing evidence")
+    .filter((cells) => filled(cells[0]))
+    .map((cells) => ({
+      missing_evidence: cells[0] ?? "",
+      impact: cleanStatusCell(cells[1] ?? ""),
+      required_next_step: cells[2] ?? "",
+    }));
+
+  const risks = tableRows(markdownSection(content, "Risks"))
+    .filter((cells) => cells[0] !== "Risk")
+    .filter((cells) => filled(cells[0]))
+    .map((cells) => ({
+      risk: cells[0] ?? "",
+      impact: cleanStatusCell(cells[1] ?? ""),
+      mitigation_or_owner: cells[2] ?? "",
+    }));
+
+  const contextGraph = {
+    impact: cleanStatusCell(extractField(content, "context_graph_impact")),
+    refs: extractField(content, "context_graph_refs"),
+    required_action: cleanStatusCell(extractField(content, "context_graph_required_action")),
+    gate_effect: cleanStatusCell(extractField(content, "context_graph_gate_effect")),
+    evidence: extractField(content, "context_graph_evidence"),
+  };
+
+  const modeSliceSection = markdownSection(content, "Mode / Slice Decision");
+  const modeSliceDecision = {
+    decision: cleanStatusCell(extractSectionField(modeSliceSection, "decision")),
+    required_next_gate: cleanStatusCell(extractSectionField(modeSliceSection, "required_next_gate")),
+    scope_reason: extractSectionField(modeSliceSection, "scope_reason"),
+    evidence: extractSectionField(modeSliceSection, "evidence"),
+  };
 
   return {
     path: runPath,
@@ -614,6 +697,11 @@ function readRunState(targetDir) {
     approvals,
     artefacts,
     evidence_refs,
+    artefact_chain: artefactChain,
+    mode_slice_decision: modeSliceDecision,
+    missing_evidence: missingEvidence,
+    risks,
+    context_graph: contextGraph,
   };
 }
 
@@ -647,6 +735,116 @@ function isDurableGateArtefactSatisfied(runState, gate) {
   if (!artefact.path || isPlaceholderValue(artefact.path)) return false;
   if (gate === "QA") return artefact.status === "pass";
   return artefact.status === "approved";
+}
+
+function isInternalStepSatisfied(runState, step) {
+  const artefact = runState.artefacts.get(step);
+  if (!artefact) return false;
+  return artefact.status === "done" || artefact.status === "not_applicable";
+}
+
+function modeSliceDecision(runState) {
+  const decision = runState.mode_slice_decision?.decision ?? "";
+  if (!decision || isPlaceholderValue(decision)) return "undecided";
+  return decision;
+}
+
+function relationshipRequired(runState, requiredBy) {
+  if (gateApprovalStatus(runState, requiredBy) === "not_applicable") return false;
+  if (requiredBy === "QA") {
+    return isGateSatisfied(runState, "QA");
+  }
+
+  return isGateSatisfied(runState, requiredBy);
+}
+
+function findRelationship(runState, expected) {
+  return runState.artefact_chain.find((row) =>
+    row.from === expected.from
+    && row.relationship === expected.relationship
+    && row.to === expected.to
+  );
+}
+
+function severityFromImpact(value) {
+  if (value === "block") return "block";
+  if (value === "revise") return "revise";
+  if (value === "warning" || value === "warn") return "warn";
+  return null;
+}
+
+function analyzeDeliveryMap(runState) {
+  const findings = [];
+  const relationships = deliveryRelationships.map((expected) => {
+    const row = findRelationship(runState, expected);
+    const required = relationshipRequired(runState, expected.requiredBy);
+    const evidence = row?.evidence ?? "";
+    const status = !row ? "missing" : filled(evidence) ? "pass" : required ? "missing_evidence" : "template";
+
+    if (required && status !== "pass") {
+      findings.push({
+        severity: "revise",
+        code: status === "missing" ? "AGDF_DELIVERY_RELATIONSHIP_MISSING" : "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING",
+        message: `${expected.from} must be traceable via ${expected.relationship} ${expected.to}.`,
+        path: runState.path,
+        next_step: "Fill the Artefact Chain row with concrete evidence before treating the delivery map as complete.",
+      });
+    }
+
+    return {
+      from: expected.from,
+      relationship: expected.relationship,
+      to: expected.to,
+      required,
+      status,
+      evidence,
+    };
+  });
+
+  for (const item of runState.missing_evidence) {
+    const severity = severityFromImpact(item.impact);
+    if (!severity) continue;
+    findings.push({
+      severity,
+      code: "AGDF_MISSING_EVIDENCE_DECLARED",
+      message: item.missing_evidence,
+      path: runState.path,
+      next_step: item.required_next_step || "Resolve or explicitly accept the missing evidence before advancing the gate.",
+    });
+  }
+
+  for (const item of runState.risks) {
+    const severity = severityFromImpact(item.impact);
+    if (!severity) continue;
+    findings.push({
+      severity,
+      code: "AGDF_RISK_DECLARED",
+      message: item.risk,
+      path: runState.path,
+      next_step: item.mitigation_or_owner || "Assign mitigation or ownership before advancing the gate.",
+    });
+  }
+
+  const contextSeverity = severityFromImpact(runState.context_graph?.gate_effect);
+  if (contextSeverity) {
+    findings.push({
+      severity: contextSeverity,
+      code: "AGDF_CONTEXT_GRAPH_GATE_EFFECT",
+      message: `Context Graph impact is ${runState.context_graph.impact || "unspecified"} with gate effect ${runState.context_graph.gate_effect}.`,
+      path: runState.path,
+      next_step: runState.context_graph.required_action && runState.context_graph.required_action !== "none"
+        ? `Resolve Context Graph action: ${runState.context_graph.required_action}.`
+        : "Clarify the Context Graph impact before advancing the gate.",
+    });
+  }
+
+  return {
+    relationships,
+    missing_evidence: runState.missing_evidence,
+    risks: runState.risks,
+    context_graph: runState.context_graph,
+    findings,
+  };
 }
 
 function durableArtefactBlock(gate, nextGate) {
@@ -694,6 +892,63 @@ function transitionDecisionForRunState(runState) {
   if (gateApprovalStatus(runState, "PRD") === "approved" && !isGateSatisfied(runState, "PRD")) return durableArtefactBlock("PRD", "SD");
 
   if (!isGateSatisfied(runState, "PRD")) {
+    if (!isInternalStepSatisfied(runState, "Brownfield Review")) {
+      return {
+        status: "open",
+        current_gate: "Brownfield Review",
+        blocking_reason: "none",
+        missing_approval: "none",
+        allowed: [
+          "run Brownfield Review after G-00",
+          "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
+          "mark Brownfield Review as done or not_applicable in AGDF_RUN.md",
+        ],
+        forbidden: ["create PRD before Brownfield Review is resolved", "create SD", "create TP", "implement code", "claim QA or release readiness"],
+        next_allowed_action: "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+      };
+    }
+
+    const modeDecision = modeSliceDecision(runState);
+    if (modeDecision === "undecided") {
+      return {
+        status: "open",
+        current_gate: "Mode/Slice Decision",
+        blocking_reason: "none",
+        missing_approval: "none",
+        allowed: [
+          "decide whether the approved UR is quick_task, structured_slice, structured_delivery or block",
+          "record scope reason and evidence in AGDF_RUN.md",
+          "choose the next required gate depth before drafting PRD or implementing",
+        ],
+        forbidden: ["create PRD before process size is decided", "create SD", "create TP", "implement code", "claim QA or release readiness"],
+        next_allowed_action: "Record the Mode/Slice Decision from Brownfield Review before choosing PRD depth or Quick Task execution.",
+      };
+    }
+
+    if (modeDecision === "block") {
+      return {
+        status: "blocked",
+        current_gate: "Mode/Slice Decision",
+        blocking_reason: "mode_slice_decision_blocked",
+        missing_approval: "none",
+        allowed: ["resolve ownership, SoT, evidence, impact or product-direction uncertainty", "run gate-check again"],
+        forbidden: ["create PRD", "create SD", "create TP", "implement code", "claim QA or release readiness"],
+        next_allowed_action: "Resolve the Brownfield Review blocker before choosing a delivery path.",
+      };
+    }
+
+    if (modeDecision === "quick_task") {
+      return {
+        status: "open",
+        current_gate: "Quick Task Execution",
+        blocking_reason: "none",
+        missing_approval: "none",
+        allowed: ["implement the narrow approved UR scope", "run relevant checks", "record evidence and close with OR-lite"],
+        forbidden: ["expand scope beyond the Brownfield Review decision", "create broad PRD/SD/TP artefacts by ritual", "claim QA or release readiness without evidence"],
+        next_allowed_action: "Proceed as a Quick Task within the Brownfield Review scope and record verification evidence.",
+      };
+    }
+
     return {
       status: "open",
       current_gate: "PRD",
@@ -701,7 +956,9 @@ function transitionDecisionForRunState(runState) {
       missing_approval: "Approval: PRD",
       allowed: ["draft or refine PRD", "define scope", "define acceptance criteria", "define non-goals", "request exact PRD approval"],
       forbidden: ["create SD", "create TP", "run Brownfield Analysis as implementation preparation", "implement code", "claim QA or release readiness"],
-      next_allowed_action: "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+      next_allowed_action: modeDecision === "structured_slice"
+        ? "Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved."
+        : "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
     };
   }
 
@@ -750,6 +1007,7 @@ function evaluateGateCheck(targetDir) {
   const doctorReport = evaluateDoctor(targetDir);
   const runState = readRunState(targetDir);
   const transitionDecision = transitionDecisionForRunState(runState);
+  const deliveryMap = analyzeDeliveryMap(runState);
   const doctorBlocker = doctorReport.findings.find((finding) => finding.severity === "block");
   const doctorRevise = doctorReport.findings.find((finding) => finding.severity === "revise");
 
@@ -789,6 +1047,12 @@ function evaluateGateCheck(targetDir) {
     doctor_status: doctorReport.status,
     doctor_summary: doctorReport.summary,
     evidence_refs: runState.evidence_refs,
+    delivery_map: {
+      relationships: deliveryMap.relationships,
+      mode_slice_decision: runState.mode_slice_decision,
+      context_graph: deliveryMap.context_graph,
+      findings: deliveryMap.findings,
+    },
     doctor_report: doctorReport,
   };
 }
@@ -814,6 +1078,84 @@ function printGateCheckReport(report, json) {
   console.log(`Next allowed action: ${report.next_allowed_action}`);
 }
 
+function readBacklogPointers(targetDir) {
+  const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
+  if (!existsSync(join(targetDir, backlogPath))) return [];
+
+  const backlog = readTargetFile(targetDir, backlogPath);
+  const activeSection = markdownSection(backlog, "Active Backlog");
+  return nonTemplateRows(activeSection, "Prio")
+    .map((cells) => ({
+      prio: cells[0] ?? "",
+      key: cells[1] ?? "",
+      title: cells[2] ?? "",
+      status: cleanStatusCell(cells[3] ?? ""),
+      ur: cells[4] ?? "",
+      prd: cells[5] ?? "",
+      sd: cells[6] ?? "",
+      tp: cells[7] ?? "",
+      qa: cells[8] ?? "",
+      or: cells[9] ?? "",
+      current_spec: cells[10] ?? "",
+      notes: cells[11] ?? "",
+    }));
+}
+
+function evaluateDeliveryMap(targetDir) {
+  const doctorReport = evaluateDoctor(targetDir);
+  const runState = readRunState(targetDir);
+  const map = analyzeDeliveryMap(runState);
+  const gateDecision = transitionDecisionForRunState(runState);
+
+  const severityRank = { block: 3, revise: 2, warn: 1 };
+  const deliverySeverity = map.findings.reduce((max, finding) => Math.max(max, severityRank[finding.severity] ?? 0), 0);
+  const doctorSeverity = severityRank[doctorReport.status] ?? 0;
+  const maxSeverity = Math.max(deliverySeverity, doctorSeverity);
+  const status = maxSeverity >= 3 ? "block" : maxSeverity === 2 ? "revise" : maxSeverity === 1 ? "warn" : "pass";
+
+  return {
+    schema_version: "1",
+    status,
+    checked_at: new Date().toISOString(),
+    target_dir: targetDir,
+    current_gate: gateDecision.current_gate,
+    next_allowed_action: isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action,
+    backlog_pointers: readBacklogPointers(targetDir),
+    artefacts: Object.fromEntries([...runState.artefacts.entries()]),
+    approvals: Object.fromEntries([...runState.approvals.entries()]),
+    mode_slice_decision: runState.mode_slice_decision,
+    relationships: map.relationships,
+    evidence_refs: runState.evidence_refs,
+    missing_evidence: map.missing_evidence,
+    risks: map.risks,
+    context_graph: map.context_graph,
+    findings: map.findings,
+    doctor_status: doctorReport.status,
+    doctor_summary: doctorReport.summary,
+    doctor_report: doctorReport,
+  };
+}
+
+function printDeliveryMapReport(report, json) {
+  if (json) {
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  console.log(`AGDF delivery-map: ${report.status}`);
+  console.log(`Current gate: ${report.current_gate}`);
+  console.log(`Next allowed action: ${report.next_allowed_action}`);
+  console.log(`Relationships: ${report.relationships.filter((item) => item.status === "pass").length}/${report.relationships.length} evidenced`);
+  console.log(`Findings: ${report.findings.length}`);
+
+  for (const finding of report.findings) {
+    console.log("");
+    console.log(`[${finding.severity}] ${finding.code}`);
+    console.log(finding.message);
+    console.log(`Next step: ${finding.next_step}`);
+  }
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
 
@@ -827,6 +1169,12 @@ function main() {
     const report = evaluateGateCheck(options.dir);
     printGateCheckReport(report, options.json);
     process.exit(report.status === "blocked" ? 2 : 0);
+  }
+
+  if (options.target === "delivery-map") {
+    const report = evaluateDeliveryMap(options.dir);
+    printDeliveryMapReport(report, options.json);
+    process.exit(report.status === "block" ? 2 : 0);
   }
 
   const files = generatedFilesForTarget(options.target, options.dir, options.force);

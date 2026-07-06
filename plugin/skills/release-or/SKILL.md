@@ -28,6 +28,7 @@ It reports:
 Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
+When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from `AGDF_RUN.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
 
 ## Rules
 1. OR is always allowed and mandatory for relevant runs.
@@ -77,15 +78,16 @@ If information is missing, state the gap instead of guessing.
 2. Determine report depth:
    - `OR-lite`: gate status, allowed/forbidden outputs, missing approval, next step
    - `OR-full`: also delivered artefacts, TP coverage, Brownfield fit, solution integrity, risks, fallbacks, QA/UAT status
-3. Record delivered vs intentionally not delivered content.
-4. Summarize TP coverage if a TP exists.
-5. Summarize Brownfield fit and solution integrity if reviewed.
-6. Summarize tests and verification.
-7. Summarize documentation and Context Graph impact if relevant.
-8. Name retained fallbacks and exit criteria.
-9. Set exactly one next permissible step.
-10. Set exactly one quality outlook.
-11. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
+3. Record the selected `Report mode` and durable OR target or link when `.agdf/control/` exists.
+4. Record delivered vs intentionally not delivered content.
+5. Summarize TP coverage if a TP exists.
+6. Summarize Brownfield fit and solution integrity if reviewed.
+7. Summarize tests and verification.
+8. Summarize documentation and Context Graph impact if relevant.
+9. Name retained fallbacks and exit criteria.
+10. Set exactly one next permissible step.
+11. Set exactly one quality outlook.
+12. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
 
 ## Output
 Use a compact structure:
@@ -93,6 +95,8 @@ Use a compact structure:
 ```text
 ## OR
 - gate:
+- report_mode:
+- artefact:
 - status:
 - delivered:
 - intentionally_not_delivered:

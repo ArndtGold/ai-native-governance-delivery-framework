@@ -562,6 +562,9 @@ const projectStats = await getProjectStats()
 <!-- ==================== DESIGN ==================== -->
 <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
+    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+      <Icon name="boundary" class="h-8 w-8" />
+    </div>
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
     <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
   </div>
@@ -578,23 +581,26 @@ const projectStats = await getProjectStats()
 <!-- ==================== EU AI ACT FIT ==================== -->
 <section id="ai-act" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Regulatory fit</div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">AGDF Keeps The Evidence The EU AI Act Makes Hard To Ignore</h2>
+    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+      <Icon name="file-evidence" class="h-8 w-8" />
+    </div>
+    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Governance evidence</div>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">AI Governance Needs Evidence. AGDF Keeps It Visible.</h2>
     <p class="mx-auto max-w-3xl text-dark-200">
-      AGDF is not a compliance certificate. It preserves the delivery evidence teams need to discuss approvals, oversight, traceability, documentation, monitoring signals and blockers.
+      When AI agents touch real code, teams need to know what was approved, what changed, what was checked and what still blocks release.
     </p>
   </div>
   <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
     <div data-reveal class="surface p-6">
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What the AI Act points toward</div>
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What good AI delivery needs</div>
       <p class="text-sm leading-relaxed text-dark-200">
-        The EU AI Act uses a risk-based approach for AI developers and deployers. For higher-risk contexts, the public EU guidance highlights risk assessment, documentation, traceability, logging, human oversight, monitoring, robustness and cybersecurity.
+        Regulations such as the EU AI Act push teams toward risk awareness, documentation, traceability and human oversight. Those ideas only become useful when the delivery trail is visible.
       </p>
       <p class="mt-4 text-sm leading-relaxed text-dark-200">
-        AGDF does not classify your AI system or replace legal review. It gives AI coding work a control layer: what was approved, what evidence exists, what remains unverified and why the next step is or is not allowed.
+        AGDF gives AI-assisted coding work that trail: approved scope, affected context, evidence, open gaps and the reason the next step is allowed or blocked.
       </p>
       <div class="mt-5 flex flex-wrap gap-2 text-xs">
-        {["risk-based", "human oversight", "logs", "documentation", "traceability", "monitoring"].map((item) => (
+        {["approved scope", "human decision", "visible evidence", "traceable gaps", "blocked next step"].map((item) => (
           <span class="rounded-full border border-agdf-500/30 bg-agdf-950/40 px-3 py-1 text-agdf-200">{item}</span>
         ))}
       </div>
@@ -611,7 +617,7 @@ const projectStats = await getProjectStats()
   </div>
   <div data-reveal class="mt-8 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-5 text-sm text-yellow-100 shadow-[0_0_32px_-22px_rgba(234,179,8,0.8)]">
     <strong class="font-semibold text-yellow-200">Boundary:</strong>
-    AGDF supports governance evidence for AI-assisted software delivery. It does not determine whether a system is prohibited, high-risk, limited-risk or minimal-risk, and it does not replace conformity assessment, data protection assessment or legal advice.
+    AGDF helps preserve delivery evidence for AI-assisted software work. It does not classify AI systems, certify compliance or replace legal review.
   </div>
   <div data-reveal class="mt-5 flex flex-wrap gap-3 text-sm text-dark-200">
     <a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai" class="transition-colors hover:text-agdf-300">EU AI Act overview</a>
@@ -620,50 +626,13 @@ const projectStats = await getProjectStats()
   </div>
 </section>
 
-<!-- ==================== SKILLS ==================== -->
-<section id="skills" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">7 Core Workflow Skills</h2>
-    <p class="text-dark-200">Each skill is an auditable workflow, not a loose suggestion.</p>
-  </div>
-  <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
-    <table class="w-full text-left text-sm">
-      <thead class="border-b border-dark-700/80 bg-dark-900/80 text-xs uppercase text-dark-200">
-        <tr>
-          <th class="px-4 py-3">Skill</th>
-          <th class="px-4 py-3">Family</th>
-          <th class="px-4 py-3">What it does</th>
-          <th class="px-4 py-3 hidden lg:table-cell">When to run it</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-dark-800">
-        {skills.map(s => (
-          <tr class="transition-colors hover:bg-agdf-950/30">
-            <td class="px-4 py-3">
-              <code class="text-agdf-300">{s.name.startsWith('/') ? s.name : '/' + s.name}</code>
-            </td>
-            <td class="px-4 py-3">
-              <span class="rounded-full border border-dark-700/80 px-2 py-0.5 text-xs text-dark-200">{s.family}</span>
-            </td>
-            <td class="px-4 py-3 text-dark-200">{s.short}</td>
-            <td class="px-4 py-3 text-xs text-dark-200/70 hidden lg:table-cell">{s.when}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-  <!-- Skill families -->
-  <div data-reveal data-reveal-delay="2" class="mt-8 flex flex-wrap justify-center gap-3">
-    {skillFamilies.map(f => (
-      <span class="rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300 shadow-[0_0_24px_-16px_var(--agdf-glow)]">{f}</span>
-    ))}
-  </div>
-</section>
-
 <!-- ==================== CONTROL SYSTEM ==================== -->
 <section id="control-system" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
+      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+        <Icon name="control-network" class="h-8 w-8" />
+      </div>
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Control System</h2>
       <p class="text-dark-200">The control state lives in the repository, not only in chat.</p>
       <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">AGDF keeps the current gate, backlog pointer, source-of-truth registry, Context Graph, QA evidence and OR closeout as durable project artefacts.</p>
@@ -771,6 +740,49 @@ const projectStats = await getProjectStats()
         <p class="text-xs text-dark-200">Core skills: Governance, Analysis, Review, Delivery</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ==================== SKILLS ==================== -->
+<section id="skills" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+      <Icon name="workflow" class="h-8 w-8" />
+    </div>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">7 Core Workflow Skills</h2>
+    <p class="text-dark-200">Each skill is an auditable workflow, not a loose suggestion.</p>
+  </div>
+  <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-dark-700/80 bg-dark-900/80 text-xs uppercase text-dark-200">
+        <tr>
+          <th class="px-4 py-3">Skill</th>
+          <th class="px-4 py-3">Family</th>
+          <th class="px-4 py-3">What it does</th>
+          <th class="px-4 py-3 hidden lg:table-cell">When to run it</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-dark-800">
+        {skills.map(s => (
+          <tr class="transition-colors hover:bg-agdf-950/30">
+            <td class="px-4 py-3">
+              <code class="text-agdf-300">{s.name.startsWith('/') ? s.name : '/' + s.name}</code>
+            </td>
+            <td class="px-4 py-3">
+              <span class="rounded-full border border-dark-700/80 px-2 py-0.5 text-xs text-dark-200">{s.family}</span>
+            </td>
+            <td class="px-4 py-3 text-dark-200">{s.short}</td>
+            <td class="px-4 py-3 text-xs text-dark-200/70 hidden lg:table-cell">{s.when}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <!-- Skill families -->
+  <div data-reveal data-reveal-delay="2" class="mt-8 flex flex-wrap justify-center gap-3">
+    {skillFamilies.map(f => (
+      <span class="rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300 shadow-[0_0_24px_-16px_var(--agdf-glow)]">{f}</span>
+    ))}
   </div>
 </section>
 

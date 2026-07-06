@@ -191,24 +191,24 @@ export const notFor = [
 
 export const aiActFit = [
     {
-        title: "Risk-based delivery control",
+        title: "Risk stays visible",
         desc: "No approval, no evidence, no next step.",
-        mapsTo: "Risk management and human-centric control",
+        mapsTo: "Before work moves",
     },
     {
-        title: "Traceable run state",
+        title: "The run leaves a trail",
         desc: "Gate state leaves chat history and becomes repository state.",
-        mapsTo: "Documentation, traceability and logs",
+        mapsTo: "During delivery",
     },
     {
-        title: "Human oversight by design",
+        title: "People keep the decision",
         desc: "The agent prepares evidence. People approve, decide QA and own the release.",
-        mapsTo: "Human oversight and deployer responsibility",
+        mapsTo: "At decision points",
     },
     {
-        title: "Clear boundary",
-        desc: "AGDF supports the file trail. It does not certify compliance.",
-        mapsTo: "Compliance support, not compliance automation",
+        title: "Compliance is not automated",
+        desc: "AGDF supports the delivery trail. It does not certify compliance.",
+        mapsTo: "Clear boundary",
     },
 ]
 

@@ -51,10 +51,6 @@ const projectStats = await getProjectStats()
   <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.16),transparent_55%)]"></div>
   <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"></div>
   <div class="relative mx-auto max-w-[90rem] px-4 text-center sm:px-6">
-    <div data-reveal class="glass mb-5 inline-flex items-center gap-2 rounded-full border border-agdf-500/30 px-4 py-1.5 text-sm text-agdf-300 sm:mb-6">
-      <span class="h-2 w-2 rounded-full bg-agdf-400 shadow-[0_0_10px_var(--agdf-glow)] animate-pulse"></span>
-      Open governance framework · Apache-2.0
-    </div>
     <div data-reveal data-reveal-delay="1" class="mb-5 flex justify-center sm:mb-6">
       <div class="flex flex-col items-center gap-2">
         <img
@@ -86,7 +82,7 @@ const projectStats = await getProjectStats()
       data-reveal-delay="3"
       class="mx-auto mb-4 max-w-3xl text-lg text-dark-100 sm:mb-5 sm:text-xl"
     >
-      For teams that let AI agents touch real code.
+     For teams that let coding agents work on real repositories and business relevant changes.
     </p>
 
     <p
@@ -94,53 +90,27 @@ const projectStats = await getProjectStats()
       data-reveal-delay="4"
       class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
     >
-      AGDF makes agents prove scope, impact, approval and evidence before they
-      change real systems.
+      AGDF keeps humans and agents aligned on scope, impact, approval, evidence and next steps before code moves.
     </p>
-    <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-      <a href="#setup-codex-project" class="btn-primary">Try in Codex</a>
-      <a href={site.repo} class="btn-ghost">View on GitHub</a>
-    </div>
-    <div data-reveal data-reveal-delay="5" class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-      {projectStats.map((stat) => {
-        const isProjectStars = stat.label === 'Project stars'
-        return (
-        <a href={stat.href} class={`group inline-flex overflow-hidden rounded-lg border border-blue-400/20 bg-blue-950/60 text-xs font-bold uppercase tracking-[0.14em] text-blue-50 shadow-[0_0_24px_-16px_rgba(96,165,250,0.8)] transition-colors hover:border-blue-300/50 ${isProjectStars ? 'star-nudge' : ''}`} aria-label={isProjectStars ? `Star AGDF on GitHub. Current project stars: ${stat.value}` : `${stat.label}: ${stat.value}`}>
-          <span class="inline-flex items-center gap-1.5 bg-blue-800/70 px-2.5 py-1.5 transition-colors group-hover:bg-blue-700/80">
-            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
-            {stat.label}
-          </span>
-          <span class="inline-flex items-center gap-1.5 bg-blue-900/80 px-3 py-1.5 font-mono tracking-wide transition-colors group-hover:bg-blue-800/80">
-            {isProjectStars && (
-              <svg class="star-spark h-3.5 w-3.5 text-yellow-200" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.1 9.8 5.4l4.7.4-3.6 3.1 1.1 4.6L8 11.1l-4 2.4 1.1-4.6-3.6-3.1 4.7-.4L8 1.1Z"/></svg>
-            )}
-            {stat.value}
-            {isProjectStars && <span class="hidden font-sans text-[10px] font-semibold normal-case tracking-normal text-blue-100/80 sm:inline">Star if useful</span>}
-          </span>
-        </a>
-        )
-      })}
-    </div>
     <!-- Agent behavior demo -->
     <div data-reveal data-reveal-delay="5" class="mx-auto mt-10 grid max-w-5xl gap-4 text-left lg:grid-cols-[0.9fr_1.1fr]">
       <div class="rounded-[22px] border border-white/10 bg-white/[0.045] p-5 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.95),0_1px_0_rgba(255,255,255,0.10)_inset] backdrop-blur-xl">
         <div class="mb-5 flex items-center justify-between gap-3">
-          <div class="text-sm font-semibold text-dark-100">Without AGDF</div>
-          <span class="rounded-full bg-red-500/12 px-3 py-1 text-xs font-medium text-red-200">starts too soon</span>
+          <div class="text-xl font-semibold text-dark-100">Coding Agent without AGDF</div>
+          <span class="rounded-full bg-red-500/12 px-3 py-1 text-sm font-medium text-red-200">state unclear</span>
         </div>
         <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
-          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot without a control layer</div>
+          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot</div>
           <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
           <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
           <div class="mt-5 h-px bg-white/10"></div>
-          <div class="mt-5 text-sm font-semibold text-red-200">Agent drafts a local plan and starts changing approval logic.</div>
-          <div class="mt-2 text-sm leading-relaxed text-dark-300">Plan stays in chat. No durable requirement. No approved gate. No repository-owned next action.</div>
+          <div class="mt-5 text-sm font-semibold text-red-200">The agent may ask, plan and expose diffs. But agent side approval is not delivery control.</div>
+          <div class="mt-2 text-sm leading-relaxed text-dark-300">No durable scope captured in the repository.</div>
+          <div class="mt-2 text-sm leading-relaxed text-dark-300">No approved checkpoint before implementation.</div>
+          <div class="mt-2 text-sm leading-relaxed text-dark-300">No shared delivery state.</div>
           <div class="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm leading-relaxed text-red-100">
-            Consequence: your admin flow may change before scope, owners, permissions and rollback risk are agreed.
-          </div>
-          <div class="mt-2 inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-100">
-            <span class="font-mono text-red-200">$</span>
-            expensive rework
+            The diff is visible, but delivery state drifts.
+            After many iterations, scope, approval, evidence, gaps and next steps become scattered or implicit.
           </div>
         </div>
       </div>
@@ -148,37 +118,34 @@ const projectStats = await getProjectStats()
         <div class="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/80 to-transparent"></div>
         <div class="pointer-events-none absolute -right-16 -top-20 h-44 w-44 rounded-full bg-cyan-200/18 blur-3xl"></div>
         <div class="mb-5 flex items-center justify-between gap-3">
-          <div class="text-sm font-semibold text-dark-100">With AGDF</div>
-          <span class="rounded-full border border-cyan-100/25 bg-cyan-300/18 px-3 py-1 text-xs font-medium text-cyan-50 shadow-[0_0_24px_-10px_rgba(103,232,249,0.9)]">blocked safely</span>
+          <div class="text-xl font-semibold text-dark-100">Coding Agent governed by AGDF</div>
+          <span class="rounded-full bg-red-500/12 px-3 py-1 text-sm font-medium text-red-200">blocked safely</span>
         </div>
         <div class="relative rounded-2xl border border-cyan-100/25 bg-black/32 p-4 shadow-[0_1px_0_rgba(255,255,255,0.12)_inset]">
-          <div class="mb-4 text-xs font-medium text-dark-300">The same tools with AGDF as the control layer</div>
+          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot</div>
           <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
           <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
           <div class="mt-5 grid gap-2.5 text-sm">
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
               <span class="text-dark-300">First checkpoint</span>
-              <code class="text-cyan-100">User need</code>
+              <code class="text-cyan-100">User need captured</code>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
               <span class="text-dark-300">Allowed</span>
               <span class="text-dark-100">Clarify what should change and why it matters.</span>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
-              <span class="text-dark-300">Forbidden</span>
-              <span class="text-dark-100">Decide the build before scope and impact are clear.</span>
+              <span class="text-dark-300">Blocked</span>
+              <span class="text-dark-100">Do not change approval logic before scope are clear.</span>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl border border-cyan-100/15 bg-cyan-300/13 px-3 py-2 shadow-[0_0_24px_-18px_rgba(103,232,249,0.9)]">
               <span class="text-dark-300">Your control</span>
-              <code class="text-cyan-100">Approval: UR</code>
+              <code class="text-cyan-100">Approval required</code>
             </div>
           </div>
-          <div class="mt-4 inline-flex items-center gap-2 rounded-full border border-cyan-100/20 bg-cyan-300/12 px-3 py-1 text-xs font-semibold text-cyan-50">
-            <span class="font-mono text-cyan-100">$</span>
-            live delivery picture
-          </div>
-          <div class="mt-2 text-sm leading-relaxed text-dark-300">
-            See what is implemented, what is missing, what is blocked and what may happen next.
+           <div class="mt-2 text-sm leading-relaxed text-dark-300">
+            From code diff to shared delivery state.
+            Humans and agents stay aligned across long delivery chains, even after more than 170 iterations and thousands of developer days.
           </div>
         </div>
       </div>
@@ -1012,6 +979,28 @@ const projectStats = await getProjectStats()
   <div data-reveal data-reveal-delay="2" class="inset-highlight mt-8 rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 text-center">
     <p class="text-sm text-dark-200">AGDF is published as an independent discussion draft. It is not a product pitch, not a mandatory process and not a replacement for experienced developers.</p>
   </div>
+
+  <div data-reveal data-reveal-delay="5" class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+      {projectStats.map((stat) => {
+        const isProjectStars = stat.label === 'Project stars'
+        return (
+        <a href={stat.href} class={`group inline-flex overflow-hidden rounded-lg border border-blue-400/20 bg-blue-950/60 text-xs font-bold uppercase tracking-[0.14em] text-blue-50 shadow-[0_0_24px_-16px_rgba(96,165,250,0.8)] transition-colors hover:border-blue-300/50 ${isProjectStars ? 'star-nudge' : ''}`} aria-label={isProjectStars ? `Star AGDF on GitHub. Current project stars: ${stat.value}` : `${stat.label}: ${stat.value}`}>
+          <span class="inline-flex items-center gap-1.5 bg-blue-800/70 px-2.5 py-1.5 transition-colors group-hover:bg-blue-700/80">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
+            {stat.label}
+          </span>
+          <span class="inline-flex items-center gap-1.5 bg-blue-900/80 px-3 py-1.5 font-mono tracking-wide transition-colors group-hover:bg-blue-800/80">
+            {isProjectStars && (
+              <svg class="star-spark h-3.5 w-3.5 text-yellow-200" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.1 9.8 5.4l4.7.4-3.6 3.1 1.1 4.6L8 11.1l-4 2.4 1.1-4.6-3.6-3.1 4.7-.4L8 1.1Z"/></svg>
+            )}
+            {stat.value}
+            {isProjectStars && <span class="hidden font-sans text-[10px] font-semibold normal-case tracking-normal text-blue-100/80 sm:inline">Star if useful</span>}
+          </span>
+        </a>
+        )
+      })}
+  </div>
+
 </section>
 
 <!-- ==================== FOOTER ==================== -->

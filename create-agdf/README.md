@@ -17,6 +17,9 @@ Optional flags:
 
 - `--dir <path>` write into a specific directory
 - `--force` overwrite existing generated files
+- `--language <de|en>` or `--lang <de|en>` persist the preferred AGDF artefact and chat language
+
+If no language is provided, `create-agdf` derives the preference from the local system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale) and falls back to `en`.
 
 ## Targets and existing AGENTS.md
 
@@ -51,6 +54,7 @@ This writes:
 
 - `.agdf/control/AGDF_RUN.md`
 - `.agdf/control/MASTER_BACKLOG.md`
+- `.agdf/control/config.json`
 - `.agdf/control/templates/artefacts/UR.md`
 - `.agdf/control/templates/artefacts/PRD.md`
 - `.agdf/control/templates/artefacts/SD.md`
@@ -59,6 +63,8 @@ This writes:
 - `.agdf/control/SOT_REGISTRY.md`
 - `.agdf/control/CONTEXT_GRAPH.md`
 - `.agdf/control/AGENT_QUALITY_CONTRACTS.json`
+
+`config.json` stores `artifact_language` and `chat_language` for governed work in the target repository. Runtime rules stay English so all AGDF surfaces share the same control contract.
 
 Use `doctor` to check whether the live control state is actionable:
 

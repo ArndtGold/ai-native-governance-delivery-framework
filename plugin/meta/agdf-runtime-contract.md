@@ -25,6 +25,8 @@ Use this compact output shape when no formal gate artefact is required:
 - `risk`: remaining risk or `none`
 - `next_step`: the single next useful action or `none`
 
+Do not add a separate `Quality outlook` line for pure Quick Tasks unless the task became a relevant run.
+
 ## Relevant Run
 
 A relevant run is any run that changes durable state, creates or updates an AGDF artefact, changes code or runtime behaviour, performs a gate decision, blocks on a governance condition, produces QA/UAT/release evidence, or closes a delivery slice.
@@ -43,6 +45,7 @@ When in doubt, use a short OR-lite only if it clarifies gate state, evidence, ri
 - For UR, PRD, SD, TP and QA, approval and durable artefact presence are separate requirements. A gate is not satisfied by approval text alone when its artefact is missing from `.agdf/control/` or not linked to the authoritative repository SoT.
 - Approval of one user gate permits work on the next allowed gate artefact or required internal step only. It does not permit implementation unless the approved gate is `TP` and required internal implementation prerequisites are satisfied.
 - Gates must never be skipped or inferred from urgency, tone, chat history, task wording or an instruction to "start". The next allowed action is always the next unsatisfied gate or internal mandatory step.
+- Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact. They forbid later-gate work and implementation. For a fresh request, the allowed work is to initialize `.agdf/control/`, draft the minimal UR, link it, and request `Approval: UR`.
 - `Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision. It never permits implementation by itself.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
 - The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in `AGDF_RUN.md` or an equivalent linked control artefact.
@@ -137,6 +140,7 @@ Do not create a new node for a mere version, a general chat summary, or a local 
 
 When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
 
+- `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules remain English.
 - `AGDF_RUN.md` is the current run dashboard.
 - `MASTER_BACKLOG.md` is the living pointer for active delivery work.
 - `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.

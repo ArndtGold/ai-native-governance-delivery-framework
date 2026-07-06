@@ -77,7 +77,14 @@ AGDF is a native agent workflow first: read the live control state, apply the ac
 Use `doctor`, `gate-check --json` or `delivery-map --json` as validators when a machine-readable proof is useful, not as a substitute for the router or skills.
 
 ## Closeout
-After relevant code, documentation, skill or governance changes:
+For Quick Task Mode, close with the Runtime Contract mini-output only:
+
+- `result`
+- `evidence`
+- `risk`
+- `next_step`
+
+For relevant runs that change durable state, code, artefacts or gate status:
 
 - run relevant checks or state the test gap
 - never commit, push or open a PR automatically

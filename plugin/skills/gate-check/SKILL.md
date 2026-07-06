@@ -61,6 +61,7 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 12. Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions. Approval text without the corresponding persisted or linked artefact keeps the current gate at that gate.
 13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | structured_slice | structured_delivery | block`.
 14. The Mode/Slice Decision must be visible and evidenced before any Quick Task execution, PRD shortcut or implementation. A decision value without scope reason and evidence is still missing.
+15. Missing or incomplete control state must not push work back to the user. If the next allowed step is an artefact draft, the agent may initialize the scaffold, draft the current allowed artefact, link it, and then request the exact approval. Implementation remains forbidden.
 
 ## Gate Evaluation
 
@@ -107,6 +108,7 @@ If a status is not explicit, do not assume it is satisfied.
 8. Treat a generic "start", "continue" or "leg los" request as a request to perform only the current next allowed action.
 9. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
 10. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
+11. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means initialize control state, draft the minimal UR, then request `Approval: UR`.
 
 ## Output
 Keep the result short and operational:

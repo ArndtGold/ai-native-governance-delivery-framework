@@ -236,6 +236,9 @@ if (isFile(agentRouterPath)) {
   if (!agentRouter.includes("Do not choose `brownfield-analysis` as the first primary skill for a fresh")) {
     failures.push("plugin/meta/agdf-agent-router.md must prevent brownfield-analysis from bypassing gate-check on fresh build/change prompts");
   }
+  if (!agentRouter.includes("For Quick Task Mode, close with the Runtime Contract mini-output only")) {
+    failures.push("plugin/meta/agdf-agent-router.md must keep Quick Task closeout lighter than relevant-run closeout");
+  }
   for (const skill of pluginDefinition?.skillSet ?? []) {
     const copilotName = skillNameForSurface(skill, "copilot");
     if (agentRouter.includes(`\`${copilotName}\``) || agentRouter.includes(`/${copilotName}`)) {
@@ -261,6 +264,12 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("A Mode/Slice Decision without scope reason and evidence is not recorded")) {
     failures.push("runtime contract must treat unevidenced Mode/Slice Decision as missing");
   }
+  if (!runtimeContract.includes("Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact")) {
+    failures.push("runtime contract must allow constructive artefact drafting when control state is missing");
+  }
+  if (!runtimeContract.includes("`config.json` stores project language preferences")) {
+    failures.push("runtime contract must define AGDF language preference config");
+  }
   if (!runtimeContract.includes("## Gate Transition Model")) {
     failures.push("runtime contract must own the canonical gate transition model");
   }
@@ -269,6 +278,9 @@ if (isFile(runtimeContractPath)) {
   }
   if (!runtimeContract.includes("## Quick Task Output")) {
     failures.push("runtime contract must define Quick Task output");
+  }
+  if (!runtimeContract.includes("Do not add a separate `Quality outlook` line for pure Quick Tasks")) {
+    failures.push("runtime contract must prevent Quick Task closeout from requiring Quality outlook");
   }
   if (!runtimeContract.includes("## Relevant Run")) {
     failures.push("runtime contract must define relevant run for OR scope");
@@ -345,6 +357,9 @@ for (const skill of expectedSkills) {
     }
     if (!skillMd.includes("A decision value without scope reason and evidence is still missing")) {
       failures.push("gate-check must require evidenced Mode/Slice Decision before later work");
+    }
+    if (!skillMd.includes("Missing or incomplete control state must not push work back to the user")) {
+      failures.push("gate-check must make missing control state constructive for current artefact drafting");
     }
     if (!skillMd.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
       failures.push("gate-check must require durable UR persistence for new product semantics or functional change");

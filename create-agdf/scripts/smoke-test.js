@@ -38,11 +38,28 @@ function run(target, expectedFiles) {
     if (target === "copilot" || target === "both") {
       const copilotAgentsPath = join(tempDir, "AGENTS.md");
       const copilotAgents = readFileSync(copilotAgentsPath, "utf8");
+      const copilotSkillsReadmePath = join(tempDir, ".github", "skills", "README.md");
+      const copilotSkillsReadme = readFileSync(copilotSkillsReadmePath, "utf8");
       if (!copilotAgents.includes("| `agdf-gate-check` |")) {
         throw new Error(`Missing prefixed Copilot skill routing for ${target}.`);
       }
       if (copilotAgents.includes("| `gate-check` |")) {
         throw new Error(`Copilot AGENTS.md for ${target} must not contain unprefixed skill routing.`);
+      }
+      for (const skillName of copilotSkillNames) {
+        const skillPath = join(tempDir, ".github", "skills", skillName, "SKILL.md");
+        if (!existsSync(skillPath)) {
+          throw new Error(`Copilot surface for ${target} routes ${skillName} but does not expose .github/skills/${skillName}/SKILL.md.`);
+        }
+        if (!copilotAgents.includes(`\`${skillName}\``)) {
+          throw new Error(`Copilot AGENTS.md for ${target} must route ${skillName}.`);
+        }
+        if (!copilotSkillsReadme.includes(`\`${skillName}\``)) {
+          throw new Error(`Copilot skills README for ${target} must list ${skillName}.`);
+        }
+      }
+      if (copilotAgents.includes("`agdf-brownfield-analysis`") && !existsSync(join(tempDir, ".github", "skills", "agdf-brownfield-analysis", "SKILL.md"))) {
+        throw new Error("Copilot AGENTS.md routes agdf-brownfield-analysis but the skill is not exposed.");
       }
 
       const copilotInstructionsPath = join(tempDir, ".github", "copilot-instructions.md");
@@ -60,6 +77,7 @@ function run(target, expectedFiles) {
 }
 
 run("codex", [
+  join(".agdf", "control", "config.json"),
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
@@ -77,6 +95,7 @@ run("codex", [
 ]);
 run("copilot", [
   "AGENTS.md",
+  join(".agdf", "control", "config.json"),
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "AGDF_RUN.md"),
   join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
@@ -94,6 +113,7 @@ run("copilot", [
 ]);
 run("both", [
   "AGENTS.md",
+  join(".agdf", "control", "config.json"),
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "hooks", "hooks.json"),
@@ -121,6 +141,7 @@ run("both", [
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
 
     for (const relativePath of [
+      join(".agdf", "control", "config.json"),
       join(".agdf", "control", "README.md"),
       join(".agdf", "control", "AGDF_RUN.md"),
       join(".agdf", "control", "MASTER_BACKLOG.md"),
@@ -170,6 +191,9 @@ run("both", [
       if (!gateCheckReport.allowed.includes("formulate and persist UR")) {
         throw new Error("Gate-check should require UR persistence before later artefacts.");
       }
+      if (!gateCheckReport.next_allowed_action.includes("persist the UR draft")) {
+        throw new Error("Gate-check should make UR drafting the constructive next action for a fresh scaffold.");
+      }
       if (gateCheckReport.doctor_status !== "revise") {
         throw new Error(`Gate-check should embed the doctor revise status, got ${gateCheckReport.doctor_status}.`);
       }
@@ -182,6 +206,49 @@ run("both", [
     }
     if (!gateCheckFailed) {
       throw new Error("Gate-check should exit non-zero when a fresh control scaffold is blocked.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-explicit-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
+    const config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
+    if (config.artifact_language !== "de" || config.chat_language !== "de" || config.runtime_language !== "en") {
+      throw new Error("Explicit --language de should set artefact/chat language to de and runtime language to en.");
+    }
+    if (config.source !== "parameter") {
+      throw new Error(`Explicit --language should record source=parameter, got ${config.source}.`);
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-locale-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], {
+      stdio: "pipe",
+      env: {
+        ...process.env,
+        LC_ALL: "",
+        LC_MESSAGES: "",
+        LANGUAGE: "",
+        LANG: "de_DE.UTF-8",
+      },
+    });
+    const config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
+    if (config.artifact_language !== "de" || config.chat_language !== "de") {
+      throw new Error("System locale de_DE.UTF-8 should default artefact/chat language to de.");
+    }
+    if (config.source !== "system_locale" || config.detected_locale !== "de_DE.UTF-8") {
+      throw new Error(`System locale detection should record source and locale, got ${config.source}/${config.detected_locale}.`);
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -300,6 +367,18 @@ run("both", [
       }
       if (gateCheckReport.blocking_reason !== "AGDF_CONTROL_FILE_MISSING") {
         throw new Error(`Gate-check should expose the doctor blocker, got ${gateCheckReport.blocking_reason}.`);
+      }
+      if (gateCheckReport.current_gate !== "UR") {
+        throw new Error(`Gate-check should orient missing control files to UR, got ${gateCheckReport.current_gate}.`);
+      }
+      if (!gateCheckReport.allowed.includes("draft and persist the minimal UR for the requested change")) {
+        throw new Error("Gate-check should allow minimal UR drafting when control files are missing.");
+      }
+      if (!gateCheckReport.next_allowed_action.includes("Initialize .agdf/control, draft the minimal UR")) {
+        throw new Error("Gate-check should give init plus UR draft as the next action when control files are missing.");
+      }
+      if (!gateCheckReport.forbidden.includes("implement code")) {
+        throw new Error("Gate-check should still forbid implementation when control files are missing.");
       }
     }
 

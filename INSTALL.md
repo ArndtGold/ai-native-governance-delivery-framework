@@ -162,6 +162,23 @@ Or initialize live control files directly:
 npm create agdf@latest init
 ```
 
+You can pin the preferred project language during setup:
+
+```bash
+npm create agdf@latest init --language de
+npm create agdf@latest codex --lang en
+```
+
+Supported values are `de` and `en`. If no language is provided, `create-agdf` reads the local system locale from `LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale and falls back to `en`.
+
+The selected language is written to:
+
+```text
+.agdf/control/config.json
+```
+
+AGDF uses `artifact_language` for durable control artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules and internal control contracts remain English so Codex, Claude Code and Copilot share one stable rule surface.
+
 This promotes the AGDF templates into live files under:
 
 ```text
@@ -206,6 +223,7 @@ This writes:
 
 ```text
 .agents/plugins/marketplace.json
+.agdf/control/config.json
 plugins/agdf/.codex-plugin/plugin.json
 plugins/agdf/skills/**
 plugins/agdf/control/**
@@ -230,6 +248,8 @@ npm create agdf@latest init
 npm create agdf@latest doctor
 npm create agdf@latest gate-check
 ```
+
+Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `both` or `init` when the repository should persist an explicit AGDF language preference in `.agdf/control/config.json`. Without the flag, AGDF derives the preference from the local system locale.
 
 ## GitHub Actions and rollout boundary
 
@@ -267,6 +287,21 @@ claude plugin add arndtgold/ai-native-governance-delivery-framework
 ```
 
 This installs AGDF into Claude Code.
+
+Language preference is project-local, not global to the Claude Code plugin.
+After installing the plugin, run this inside each repository that should keep governed AGDF state:
+
+```bash
+npm create agdf@latest init --language de
+```
+
+Use `--language en` or `--lang en` for English artefacts and chat. If no language flag is provided, `create-agdf` derives the preference from the local system locale and writes it to:
+
+```text
+.agdf/control/config.json
+```
+
+Claude Code should use that file's `artifact_language` for durable AGDF artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. The plugin runtime and shared control rules remain English.
 
 Then start with:
 
@@ -364,10 +399,13 @@ Run this inside the target Git repository you want to equip with AGDF:
 npm create agdf@latest copilot
 ```
 
+Add `--language de|en` or `--lang de|en` if AGDF artefacts and chat responses should follow an explicit project language. Without the flag, `create-agdf` derives the preference from the local system locale and writes it to `.agdf/control/config.json`.
+
 If the repository does not yet contain `AGENTS.md`, this writes:
 
 ```text
 AGENTS.md
+.agdf/control/config.json
 .agdf/control/templates/**
 .github/copilot-instructions.md
 .github/instructions/agdf-governance.instructions.md
@@ -378,6 +416,7 @@ If `AGENTS.md` already exists, AGDF keeps it unchanged and writes:
 
 ```text
 AGENTS.agdf.md
+.agdf/control/config.json
 .agdf/control/templates/**
 .github/copilot-instructions.md
 .github/instructions/agdf-governance.instructions.md
@@ -437,6 +476,7 @@ This writes the Codex repository-local marketplace plus the same Copilot-facing 
 
 ```text
 .agents/plugins/marketplace.json
+.agdf/control/config.json
 plugins/agdf/**
 AGENTS.md or AGENTS.agdf.md if an AGENTS.md already exists
 .github/copilot-instructions.md

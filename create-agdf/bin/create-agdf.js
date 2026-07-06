@@ -128,9 +128,63 @@ Usage:
 Options:
   --dir <path>   Write files into a specific directory
   --force        Overwrite existing generated files
+  --language <de|en>
+                 Set AGDF chat and artefact language. Defaults to detected system locale.
+  --lang <de|en> Alias for --language
   --json         Print doctor, gate-check or delivery-map output as JSON
   --help         Show this help
 `);
+}
+
+function normalizeLanguage(value) {
+  const normalized = String(value ?? "").trim().toLowerCase().replace("_", "-");
+  if (!normalized) return "";
+  if (normalized.startsWith("de")) return "de";
+  if (normalized.startsWith("en")) return "en";
+  return "";
+}
+
+function detectSystemLocale() {
+  const envLocale = process.env.LC_ALL || process.env.LC_MESSAGES || process.env.LANG || process.env.LANGUAGE || "";
+  if (envLocale) return envLocale;
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().locale || "";
+  } catch {
+    return "";
+  }
+}
+
+function resolveLanguagePreference(explicitLanguage) {
+  const explicit = normalizeLanguage(explicitLanguage);
+  if (explicit) {
+    return {
+      artifact_language: explicit,
+      chat_language: explicit,
+      runtime_language: "en",
+      source: "parameter",
+      detected_locale: detectSystemLocale() || "unknown",
+    };
+  }
+
+  const detectedLocale = detectSystemLocale();
+  const detected = normalizeLanguage(detectedLocale) || "en";
+  return {
+    artifact_language: detected,
+    chat_language: detected,
+    runtime_language: "en",
+    source: detectedLocale ? "system_locale" : "default",
+    detected_locale: detectedLocale || "unknown",
+  };
+}
+
+function languageConfigContent(languagePreference) {
+  return `${JSON.stringify({
+    artifact_language: languagePreference.artifact_language,
+    chat_language: languagePreference.chat_language,
+    runtime_language: languagePreference.runtime_language,
+    source: languagePreference.source,
+    detected_locale: languagePreference.detected_locale,
+  }, null, 2)}\n`;
 }
 
 function parseArgs(argv) {
@@ -139,6 +193,7 @@ function parseArgs(argv) {
   let dir = ".";
   let force = false;
   let json = false;
+  let language;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -156,6 +211,22 @@ function parseArgs(argv) {
 
     if (arg === "--json") {
       json = true;
+      continue;
+    }
+
+    if (arg === "--language" || arg === "--lang") {
+      const next = args[i + 1];
+      if (!next) {
+        console.error(`Missing value for ${arg}`);
+        process.exit(1);
+      }
+      const normalized = normalizeLanguage(next);
+      if (!normalized) {
+        console.error("Unsupported language. Use --language de or --language en.");
+        process.exit(1);
+      }
+      language = normalized;
+      i += 1;
       continue;
     }
 
@@ -201,6 +272,7 @@ function parseArgs(argv) {
     dir: resolve(process.cwd(), dir),
     force,
     json,
+    language: resolveLanguagePreference(language),
   };
 }
 
@@ -219,10 +291,18 @@ function writeGeneratedFile(targetDir, relativePath, content, force) {
   writeFileSync(outputPath, content, "utf8");
 }
 
-function generatedFilesForTarget(target, targetDir, force) {
+function addLanguageConfig(files, languagePreference) {
+  files.push({
+    path: join(".agdf", "control", "config.json"),
+    content: languageConfigContent(languagePreference),
+  });
+}
+
+function generatedFilesForTarget(target, targetDir, force, languagePreference) {
   const files = [];
 
   if (target === "init") {
+    addLanguageConfig(files, languagePreference);
     files.push({
       path: join(".agdf", "control", "README.md"),
       content: loadAsset(join(".agdf", "control", "README.md")),
@@ -246,6 +326,7 @@ function generatedFilesForTarget(target, targetDir, force) {
   }
 
   if (target === "codex" || target === "both") {
+    addLanguageConfig(files, languagePreference);
     for (const codexPath of codexPluginFiles) {
       files.push({
         path: codexPath,
@@ -255,6 +336,7 @@ function generatedFilesForTarget(target, targetDir, force) {
   }
 
   if (target === "copilot" || target === "both") {
+    if (target !== "both") addLanguageConfig(files, languagePreference);
     const agentsTargetPath = existsSync(join(targetDir, "AGENTS.md")) && !force ? agdfFragmentPath : "AGENTS.md";
     files.push({
       path: agentsTargetPath,
@@ -297,6 +379,11 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
 
   console.log("");
   console.log("Next steps:");
+  const languageConfig = files.find((file) => file.path === join(".agdf", "control", "config.json"));
+  if (languageConfig) {
+    const language = JSON.parse(languageConfig.content);
+    console.log(`- AGDF language preference: artefacts=${language.artifact_language}, chat=${language.chat_language}, runtime=${language.runtime_language}.`);
+  }
   if (target === "init") {
     console.log("- Fill .agdf/control/AGDF_RUN.md with the current gate, evidence and next allowed action.");
     console.log("- Run npm create agdf@latest doctor to check the control state before the next agent run.");
@@ -1026,18 +1113,33 @@ function evaluateGateCheck(targetDir) {
     ? transitionDecision.next_allowed_action
     : runState.next_allowed_action;
 
-  if (doctorBlocker) {
+  if (doctorBlocker?.code === "AGDF_CONTROL_FILE_MISSING") {
     status = "blocked";
     blockingReason = doctorBlocker.code;
-    allowed = ["repair the AGDF control scaffold", "run doctor again"];
-    forbidden = ["continue governed delivery", "create later-gate artefacts", "implement gated work"];
+    currentGate = "UR";
+    missingApproval = "Approval: UR";
+    allowed = [
+      "initialize the AGDF control scaffold with npm create agdf@latest init",
+      "draft and persist the minimal UR for the requested change",
+      "link the UR from AGDF_RUN.md and MASTER_BACKLOG.md",
+      "request exact approval: Approval: UR",
+    ];
+    forbidden = ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"];
+    nextAllowedAction = "Initialize .agdf/control, draft the minimal UR for the request, then ask for exact approval: Approval: UR.";
+  } else if (doctorBlocker) {
+    status = "blocked";
+    blockingReason = doctorBlocker.code;
+    allowed = ["repair the AGDF control scaffold", ...transitionDecision.allowed, "run doctor again"];
+    forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work", "claim QA or release readiness"];
     nextAllowedAction = doctorBlocker.next_step;
   } else if (doctorRevise) {
     status = "blocked";
     blockingReason = doctorRevise.code;
-    allowed = [...new Set(["repair the incomplete control state", ...transitionDecision.allowed, "run doctor again"])];
-    forbidden = ["continue governed delivery", "create later-gate artefacts", "implement gated work"];
-    nextAllowedAction = doctorRevise.next_step;
+    allowed = [...new Set(["complete the current control-state fields", ...transitionDecision.allowed, "run doctor again"])];
+    forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work before the gate allows it", "claim QA or release readiness"];
+    nextAllowedAction = transitionDecision.current_gate === "UR"
+      ? "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
+      : doctorRevise.next_step;
   }
 
   return {
@@ -1183,7 +1285,7 @@ function main() {
     process.exit(report.status === "block" ? 2 : 0);
   }
 
-  const files = generatedFilesForTarget(options.target, options.dir, options.force);
+  const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
   const wroteAgentsFragment = files.some(file => file.path === agdfFragmentPath);
 
   try {

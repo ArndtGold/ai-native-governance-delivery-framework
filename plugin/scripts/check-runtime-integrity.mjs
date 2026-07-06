@@ -28,6 +28,7 @@ const expectedControlFiles = [
   "templates/CONTEXT_GRAPH.md",
   "templates/AGENT_QUALITY_CONTRACTS.json",
   "templates/artefacts/UR.md",
+  "templates/artefacts/BROWNFIELD_REVIEW.md",
   "templates/artefacts/PRD.md",
   "templates/artefacts/SD.md",
   "templates/artefacts/TP.md",
@@ -254,6 +255,27 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision")) {
     failures.push("runtime contract must state that gate depth is chosen after Brownfield Review");
   }
+  if (!runtimeContract.includes("The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation")) {
+    failures.push("runtime contract must require visible Mode/Slice Decision before later work");
+  }
+  if (!runtimeContract.includes("A Mode/Slice Decision without scope reason and evidence is not recorded")) {
+    failures.push("runtime contract must treat unevidenced Mode/Slice Decision as missing");
+  }
+  if (!runtimeContract.includes("## Gate Transition Model")) {
+    failures.push("runtime contract must own the canonical gate transition model");
+  }
+  if (!runtimeContract.includes("Skills may reference it, but must not carry a second complete copy")) {
+    failures.push("runtime contract must forbid duplicated complete gate transition tables");
+  }
+  if (!runtimeContract.includes("## Quick Task Output")) {
+    failures.push("runtime contract must define Quick Task output");
+  }
+  if (!runtimeContract.includes("## Relevant Run")) {
+    failures.push("runtime contract must define relevant run for OR scope");
+  }
+  if (!runtimeContract.includes("## Brownfield Modes")) {
+    failures.push("runtime contract must define Brownfield modes");
+  }
   if (!runtimeContract.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
     failures.push("runtime contract must require a durable UR for new product semantics or functional change");
   }
@@ -315,17 +337,14 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("If `Approval: UR` is present, do not say implementation is the next step.")) {
       failures.push("gate-check must prevent implementation immediately after Approval: UR");
     }
-    if (!skillMd.includes("| `UR` approved and UR artefact persisted or linked, Brownfield Review missing | `Brownfield Review` |")) {
-      failures.push("gate-check must define Brownfield Review as the next internal step after UR approval");
+    if (skillMd.includes("## Gate Transitions") || skillMd.includes("## Gate Order") || skillMd.includes("| State | Current gate or step | Allowed | Forbidden | Missing approval |")) {
+      failures.push("gate-check must not duplicate the Runtime Contract gate transition table");
     }
-    if (!skillMd.includes("| Brownfield Review done or not_applicable, Mode/Slice Decision missing | `Mode/Slice Decision` |")) {
-      failures.push("gate-check must define Mode/Slice Decision after Brownfield Review");
+    if (!skillMd.includes("The canonical gate order and transition model live only in the Runtime Contract")) {
+      failures.push("gate-check must point to the Runtime Contract as gate transition SoT");
     }
-    if (!skillMd.includes("| Mode/Slice Decision is `quick_task` | `Quick Task Execution` |")) {
-      failures.push("gate-check must define Quick Task Execution after quick_task Mode/Slice Decision");
-    }
-    if (!skillMd.includes("| Mode/Slice Decision is `structured_slice` or `structured_delivery`, PRD missing or draft | `PRD` |")) {
-      failures.push("gate-check must define PRD after structured Mode/Slice Decision");
+    if (!skillMd.includes("A decision value without scope reason and evidence is still missing")) {
+      failures.push("gate-check must require evidenced Mode/Slice Decision before later work");
     }
     if (!skillMd.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
       failures.push("gate-check must require durable UR persistence for new product semantics or functional change");
@@ -373,11 +392,12 @@ const runTemplatePath = join(controlRoot, "templates", "AGDF_RUN.md");
 const contextGraphTemplatePath = join(controlRoot, "templates", "CONTEXT_GRAPH.md");
 const sotRegistryTemplatePath = join(controlRoot, "templates", "SOT_REGISTRY.md");
 const qualityContractsPath = join(controlRoot, "templates", "AGENT_QUALITY_CONTRACTS.json");
+const brownfieldReviewTemplatePath = join(controlRoot, "templates", "artefacts", "BROWNFIELD_REVIEW.md");
 const orTemplatePath = join(controlRoot, "templates", "artefacts", "OR.md");
 
 if (isFile(runTemplatePath)) {
   const runTemplate = read(runTemplatePath);
-  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "Artefact Chain", "context_graph_impact", "quality_outlook"]) {
+  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "transparency_note", "Artefact Chain", "context_graph_impact", "quality_outlook"]) {
     if (!runTemplate.includes(required)) failures.push(`AGDF_RUN.md missing control field: ${required}`);
   }
 }
@@ -393,6 +413,13 @@ if (isFile(sotRegistryTemplatePath)) {
   const sotRegistryTemplate = read(sotRegistryTemplatePath);
   if (!sotRegistryTemplate.includes("Each domain should have one primary owner")) {
     failures.push("SOT_REGISTRY.md must state one primary owner per domain");
+  }
+}
+
+if (isFile(brownfieldReviewTemplatePath)) {
+  const brownfieldReviewTemplate = read(brownfieldReviewTemplatePath);
+  for (const required of ["Existing-System View", "Reuse And Parallel-Structure Risk", "Mode / Slice Decision", "transparency_note", "Next Permissible Step"]) {
+    if (!brownfieldReviewTemplate.includes(required)) failures.push(`BROWNFIELD_REVIEW.md missing control field: ${required}`);
   }
 }
 

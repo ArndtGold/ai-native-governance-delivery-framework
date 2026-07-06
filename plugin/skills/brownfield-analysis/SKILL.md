@@ -22,10 +22,18 @@ The skill answers:
 Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
+When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`.
+
+## Modes
+
+- `post_ur_review`: use after approved durable UR to size and route the work. Output must decide `quick_task`, `structured_slice`, `structured_delivery`, or `block` with scope reason and evidence.
+- `pre_implementation_analysis`: use after approved durable TP to verify the implementation path before `CD+Tests`. Output must focus on reuse path, owners, regression risk, test impact and minimal clean implementation.
+
+Do not mix both modes silently. Name the active mode in the output.
 
 ## Rules
 1. Brownfield first: understand the existing codebase before PRD/SD decisions when existing-system impact is possible, and again before implementation.
-2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must decide `quick_task`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen.
+2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must visibly decide `quick_task`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen.
 3. Reuse-before-create: prefer existing modules, services, components, tables, endpoints, tests, and configuration.
 4. Minimal clean slice: choose the smallest durable intervention, not merely the smallest technical diff.
 5. No silent parallel structures.
@@ -63,7 +71,7 @@ Use what is available:
 
 If inputs are missing, work only from observable evidence and mark gaps explicitly.
 If gate status, approval, scope or next allowed action is unclear, stop and route to `gate-check` instead of recommending PRD/SD detail or starting implementation.
-When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, TP, or implementation until the Mode/Slice Decision is explicit.
+When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, TP, or implementation until the Mode/Slice Decision is explicit, evidenced and recorded.
 
 ## Workflow
 1. Identify affected tasks and scope.
@@ -96,11 +104,14 @@ Use a concise structure:
 
 ```text
 ## Brownfield Analysis
+- mode: post_ur_review | pre_implementation_analysis
 - decision: pass | revise | block | not_applicable
 - mode_slice_decision: quick_task | structured_slice | structured_delivery | block
 - required_next_gate: none | PRD | SD | TP | Brownfield Analysis
+- artefact: .agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md | none
 - scope:
 - evidence:
+- transparency: why later artefacts are skipped, shortened or required
 - missing_evidence:
 - current_coverage:
 - reuse_strategy:

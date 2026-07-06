@@ -19,6 +19,7 @@ This skill must not create later artefacts such as PRD, SD, TP, CD, CR, QA, or U
 
 ## Runtime Contract
 Use `../../meta/agdf-runtime-contract.md` for gate terms, closeout discipline, and non-duplication rules.
+The canonical gate order and transition model live only in the Runtime Contract. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
 
 ## Native Control Path
 
@@ -59,35 +60,13 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 11. New product semantics, functional change or user-visible behaviour change requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT before Brownfield Review, PRD, SD, TP, Brownfield Analysis or implementation.
 12. Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions. Approval text without the corresponding persisted or linked artefact keeps the current gate at that gate.
 13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | structured_slice | structured_delivery | block`.
+14. The Mode/Slice Decision must be visible and evidenced before any Quick Task execution, PRD shortcut or implementation. A decision value without scope reason and evidence is still missing.
 
-## Gate Order
-User gates:
-
-`UR -> PRD -> SD -> TP -> QA -> UAT`
-
-Internal mandatory steps:
-
-`Brownfield Review -> Mode/Slice Decision -> Brownfield Analysis -> CD+Tests -> CR -> OR`
-
-## Gate Transitions
-
-Use this transition model for Structured Delivery:
-
-| State | Current gate or step | Allowed | Forbidden | Missing approval |
-|---|---|---|---|---|
-| No approved UR | `UR` | clarify user need, formulate and persist UR, request `Approval: UR` | PRD, SD, TP, Brownfield Analysis, implementation, QA, release | `Approval: UR` |
-| `UR` approved and UR artefact persisted or linked, Brownfield Review missing | `Brownfield Review` | classify workstream, existing owners, SoT, reuse risks, change size and PRD/SD open questions; mark review done or not_applicable | PRD, SD, TP, implementation, QA, release | none |
-| Brownfield Review done or not_applicable, Mode/Slice Decision missing | `Mode/Slice Decision` | decide `quick_task`, `structured_slice`, `structured_delivery` or `block`; record evidence and required next gate depth | PRD, SD, TP, implementation, QA, release | none |
-| Mode/Slice Decision is `quick_task` | `Quick Task Execution` | implement only the narrow approved UR scope, run relevant checks, record evidence and OR-lite | broad PRD/SD/TP by ritual, scope expansion, QA or release claims without evidence | none |
-| Mode/Slice Decision is `structured_slice` or `structured_delivery`, PRD missing or draft | `PRD` | draft/refine PRD at the smallest justified depth, define scope, acceptance criteria and non-goals, persist/link PRD, request `Approval: PRD` | SD, TP, implementation-preparation Brownfield Analysis, implementation, QA, release | `Approval: PRD` |
-| `PRD` approved and PRD artefact persisted or linked, SD missing or draft | `SD` | draft/refine Solution Design, ownership and architecture, persist/link SD, request `Approval: SD` | TP, implementation, QA, release | `Approval: SD` |
-| `SD` approved and SD artefact persisted or linked, TP missing or draft | `TP` | draft/refine Task/Test Plan, task IDs, evidence plan, persist/link TP, request `Approval: TP` | implementation, QA, release | `Approval: TP` |
-| `TP` approved and TP artefact persisted or linked, Brownfield missing | `Brownfield Analysis` | run Brownfield Analysis for approved TP scope | implementation, QA, release | none |
-| Brownfield passed for approved TP | `CD+Tests` | implement approved TP tasks and run tests | QA pass, UAT, release | none |
-| `QA` approved but QA report missing or not pass | `QA` | persist/link QA report with `pass` decision or revise/block evidence | UAT, release | none |
+## Gate Evaluation
 
 If `Approval: UR` is present, do not say implementation is the next step.
 The next step is Brownfield Review when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible; after that, the next step is a Mode/Slice Decision. Do not assume the full PRD/SD/TP chain before the existing-system impact is understood.
+Use the Runtime Contract's Gate Transition Model to derive the current gate, allowed outputs, forbidden outputs and missing approval.
 
 ## When To Use
 - new user intent to build, add, change, extend, refactor or deliver something
@@ -127,6 +106,7 @@ If a status is not explicit, do not assume it is satisfied.
 7. Ensure the next step follows the gate transition table. In particular, never jump from `Approval: UR` to implementation.
 8. Treat a generic "start", "continue" or "leg los" request as a request to perform only the current next allowed action.
 9. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
+10. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
 
 ## Output
 Keep the result short and operational:

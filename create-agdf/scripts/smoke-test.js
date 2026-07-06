@@ -63,6 +63,7 @@ run("codex", [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "OR.md"),
   join("plugins", "agdf", "hooks", "hooks.json"),
@@ -78,6 +79,7 @@ run("copilot", [
   "AGENTS.md",
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "AGDF_RUN.md"),
+  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join(".agdf", "control", "templates", "artefacts", "PRD.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
   join(".agdf", "control", "templates", "artefacts", "OR.md"),
@@ -100,6 +102,7 @@ run("both", [
   join("plugins", "agdf", "skills", `${pluginDefinition.codex.skillPrefix}release-or`, "SKILL.md"),
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
+  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
   join(".agdf", "control", "templates", "artefacts", "OR.md"),
@@ -125,6 +128,7 @@ run("both", [
       join(".agdf", "control", "CONTEXT_GRAPH.md"),
       join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
       join(".agdf", "control", "templates", "artefacts", "UR.md"),
+      join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
       join(".agdf", "control", "templates", "artefacts", "PRD.md"),
       join(".agdf", "control", "templates", "artefacts", "SD.md"),
       join(".agdf", "control", "templates", "artefacts", "TP.md"),
@@ -561,6 +565,87 @@ run("both", [
 }
 
 {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-mode-slice-incomplete-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: test-run
+- started_at: 2026-07-06
+- mode: structured_delivery
+- current_gate: Brownfield Review
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | UR is approved and Brownfield Review is done. |
+| What is approved? | UR |
+| What is missing? | Mode/Slice Decision evidence |
+| What is the next allowed action? | Record Mode/Slice Decision with evidence. |
+| What is explicitly forbidden right now? | Implementation |
+
+## Gate Checklist
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/test-run/UR.md | approved |  |
+| Brownfield Review | .agdf/control/artefacts/test-run/BROWNFIELD_REVIEW.md | done | Existing owner and scope were inspected. |
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+
+## Mode / Slice Decision
+
+- decision: quick_task
+- required_next_gate: none
+- scope_reason:
+- evidence:
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Brownfield Review | AGDF_RUN.md | Mode selection | direct |
+
+## Closeout
+
+- next_allowed_action: Record Mode/Slice Decision with evidence.
+`, "utf8");
+
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckReport = JSON.parse(gateCheckOutput);
+    if (gateCheckReport.status !== "open") {
+      throw new Error(`Gate-check should remain open for incomplete Mode/Slice Decision, got ${gateCheckReport.status}.`);
+    }
+    if (gateCheckReport.current_gate !== "Mode/Slice Decision") {
+      throw new Error(`Gate-check should not enter Quick Task Execution without Mode/Slice evidence, got ${gateCheckReport.current_gate}.`);
+    }
+    if (!gateCheckReport.forbidden.includes("implement code")) {
+      throw new Error("Gate-check should forbid implementation while Mode/Slice Decision evidence is missing.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-delivery-map-chain-"));
   const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
@@ -571,9 +656,9 @@ run("both", [
 
 ## Active Backlog
 
-| Prio | Key | Title | Status | UR | PRD | SD | TP | QA | OR | Current Spec | Notes |
-|---:|---|---|---|---|---|---|---|---|---|---|---|
-| P1 | test-run | Delivery map test | in_progress | UR.md | PRD.md |  |  |  | OR.md | PRD.md | needs SD |
+| Prio | Key | Title | Status | UR | Brownfield Review | PRD | SD | TP | QA | OR | Current Spec | Notes |
+|---:|---|---|---|---|---|---|---|---|---|---|---|---|
+| P1 | test-run | Delivery map test | in_progress | UR.md | BROWNFIELD_REVIEW.md | PRD.md |  |  |  | OR.md | PRD.md | needs SD |
 `, "utf8");
     writeFileSync(runPath, `# AGDF Run State
 
@@ -661,6 +746,9 @@ run("both", [
     }
     if (!deliveryMapReport.relationships.some((relationship) => relationship.from === "PRD" && relationship.status === "missing_evidence")) {
       throw new Error("Delivery-map should expose PRD relationship status as missing_evidence.");
+    }
+    if (deliveryMapReport.backlog_pointers[0]?.brownfield_review !== "BROWNFIELD_REVIEW.md") {
+      throw new Error("Delivery-map should preserve the Brownfield Review backlog pointer column.");
     }
     if (deliveryMapReport.backlog_pointers[0]?.or !== "OR.md") {
       throw new Error("Delivery-map should preserve the OR backlog pointer column.");

@@ -29,9 +29,10 @@ Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context G
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
 When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from `AGDF_RUN.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
+Use the Runtime Contract definition of `Relevant Run` to decide whether OR is mandatory or whether a Quick Task mini-closeout is enough.
 
 ## Rules
-1. OR is always allowed and mandatory for relevant runs.
+1. OR is always allowed and mandatory for relevant runs as defined in the Runtime Contract.
 2. OR is an audit report, not a blocking gate.
 3. Do not leak artefacts from blocked later gates.
 4. Use OR-lite when early gates block.
@@ -51,6 +52,8 @@ When `.agdf/control/` is present, persist or link the OR under `.agdf/control/ar
 - after QA
 - after UAT
 - whenever a compact audit closeout is needed
+
+Do not force OR onto a pure explanation, read-only inspection, small review, or local debugging step that produces no durable state change and no gate consequence.
 
 ## Inputs
 Use what is available:

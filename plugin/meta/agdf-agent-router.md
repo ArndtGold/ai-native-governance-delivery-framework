@@ -37,9 +37,10 @@ Do not infer approval from "ok", "go ahead", "do it", "approved", "continue", "l
 Those phrases may express intent to proceed, but they do not unlock a gate unless the exact gate formula is present.
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
 Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `structured_slice`, `structured_delivery` or `block`.
+Make that decision visible before coding or drafting later artefacts: state the selected path, scope reason, evidence and next required gate in the live control state or linked artefact.
 Do not assume the full PRD/SD/TP chain before that decision; use only as much gate depth as the reviewed change size justifies.
 
-Quick Task Mode must still cite evidence and close with a concrete result.
+Quick Task Mode must still use the Runtime Contract mini-output: `result`, `evidence`, `risk`, `next_step`.
 Structured Delivery Mode must respect gates, reviews and closeout discipline.
 
 ## Skill Routing
@@ -57,7 +58,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 Select exactly one primary skill first.
 Add more only when they cover a distinct concrete risk dimension.
 Do not choose `brownfield-analysis` as the first primary skill for a fresh "I want to build/change X" prompt unless `gate-check` or existing live AGDF control state already makes implementation preparation the next allowed action.
-Never jump directly from `Approval: UR`, implicit consent, or a generic "start" request to implementation. Route to Brownfield Review, then Mode/Slice Decision, then the smallest safe next gate or Quick Task execution.
+Never jump directly from `Approval: UR`, implicit consent, or a generic "start" request to implementation. Route to Brownfield Review, then a visible Mode/Slice Decision with evidence, then the smallest safe next gate or Quick Task execution.
 
 ## Runtime Contract
 For repeated output, gate, Quality Contract and Context Graph rules, use:

@@ -15,6 +15,23 @@ Structured Delivery must not bypass missing approvals.
 New product semantics, functional change, user-visible behaviour, policy, persistence, architecture or release-critical work requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT before later artefacts or implementation.
 UR, PRD, SD, TP and QA report approvals require durable artefacts or linked authoritative repository SoT entries before the next gate can open.
 
+## Quick Task Output
+
+Quick Tasks are intentionally lightweight, but they must not become invisible.
+Use this compact output shape when no formal gate artefact is required:
+
+- `result`: what changed or was concluded
+- `evidence`: files, commands, observations, or reasoning that support the result
+- `risk`: remaining risk or `none`
+- `next_step`: the single next useful action or `none`
+
+## Relevant Run
+
+A relevant run is any run that changes durable state, creates or updates an AGDF artefact, changes code or runtime behaviour, performs a gate decision, blocks on a governance condition, produces QA/UAT/release evidence, or closes a delivery slice.
+
+OR is not mandatory for a pure explanation, read-only inspection, small review, or local debugging step that produces no durable state change and no gate consequence.
+When in doubt, use a short OR-lite only if it clarifies gate state, evidence, risk, or the next permissible step.
+
 ## Gate Rules
 
 - User gates: `UR -> PRD -> SD -> TP -> QA -> UAT`
@@ -28,6 +45,7 @@ UR, PRD, SD, TP and QA report approvals require durable artefacts or linked auth
 - Gates must never be skipped or inferred from urgency, tone, chat history, task wording or an instruction to "start". The next allowed action is always the next unsatisfied gate or internal mandatory step.
 - `Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision. It never permits implementation by itself.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
+- The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in `AGDF_RUN.md` or an equivalent linked control artefact.
 - `Approval: PRD` permits Solution Design drafting, not implementation.
 - `Approval: SD` permits Task/Test Plan drafting, not implementation.
 - `Approval: TP` permits implementation-preparation Brownfield Analysis and then CD+Tests when Brownfield evidence supports it.
@@ -59,6 +77,34 @@ Mode/Slice Decision rules:
 - `structured_slice`: use when some formal artefacts are needed, but they can stay intentionally small and scoped to the approved slice.
 - `structured_delivery`: use when the change has broad product, architecture, runtime, policy, persistence, release or cross-owner impact.
 - `block`: use when ownership, SoT, impact, evidence or product direction is not clear enough to choose a safe path.
+
+A Mode/Slice Decision without scope reason and evidence is not recorded. Treat it as missing and keep the next step at `Mode/Slice Decision`.
+
+## Gate Transition Model
+
+This table is the canonical transition model. Skills may reference it, but must not carry a second complete copy.
+
+| State | Current gate or step | Allowed | Forbidden | Missing approval |
+|---|---|---|---|---|
+| No approved UR | `UR` | clarify user need, formulate and persist UR, request `Approval: UR` | PRD, SD, TP, Brownfield Analysis, implementation, QA, release | `Approval: UR` |
+| `UR` approved and UR artefact persisted or linked, Brownfield Review missing | `Brownfield Review` | classify workstream, existing owners, SoT, reuse risks, change size and PRD/SD open questions; mark review done or not_applicable | PRD, SD, TP, implementation, QA, release | none |
+| Brownfield Review done or not_applicable, Mode/Slice Decision missing or incomplete | `Mode/Slice Decision` | decide `quick_task`, `structured_slice`, `structured_delivery` or `block`; record scope reason, evidence and required next gate depth | PRD, SD, TP, implementation, QA, release | none |
+| Mode/Slice Decision is `quick_task` | `Quick Task Execution` | implement only the narrow approved UR scope, run relevant checks, record evidence and OR-lite when the run is relevant | broad PRD/SD/TP by ritual, scope expansion, QA or release claims without evidence | none |
+| Mode/Slice Decision is `structured_slice` or `structured_delivery`, PRD missing or draft | `PRD` | draft/refine PRD at the smallest justified depth, define scope, acceptance criteria and non-goals, persist/link PRD, request `Approval: PRD` | SD, TP, implementation-preparation Brownfield Analysis, implementation, QA, release | `Approval: PRD` |
+| `PRD` approved and PRD artefact persisted or linked, SD missing or draft | `SD` | draft/refine Solution Design, ownership and architecture, persist/link SD, request `Approval: SD` | TP, implementation, QA, release | `Approval: SD` |
+| `SD` approved and SD artefact persisted or linked, TP missing or draft | `TP` | draft/refine Task/Test Plan, task IDs, evidence plan, persist/link TP, request `Approval: TP` | implementation, QA, release | `Approval: TP` |
+| `TP` approved and TP artefact persisted or linked, Brownfield Analysis missing | `Brownfield Analysis` | run Brownfield Analysis for approved TP scope | implementation, QA, release | none |
+| Brownfield Analysis passed for approved TP | `CD+Tests` | implement approved TP tasks and run tests | QA pass, UAT, release | none |
+| `QA` approved but QA report missing or not pass | `QA` | persist/link QA report with `pass` decision or revise/block evidence | UAT, release | none |
+
+## Brownfield Modes
+
+The `brownfield-analysis` skill has two explicit modes:
+
+- `post_ur_review`: lightweight sizing and routing after approved durable UR; decides Mode/Slice Decision before PRD depth or implementation is chosen.
+- `pre_implementation_analysis`: implementation-preparation analysis after approved durable TP; verifies reuse path, owners, regression risk and fit before `CD+Tests`.
+
+Do not mix the modes silently. Name the active mode in Brownfield output.
 
 ## Quality Contract Output
 
@@ -93,6 +139,7 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 
 - `AGDF_RUN.md` is the current run dashboard.
 - `MASTER_BACKLOG.md` is the living pointer for active delivery work.
+- `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
 - `SOT_REGISTRY.md` prevents parallel sources of truth.
 - `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.
 - `AGENT_QUALITY_CONTRACTS.json` stores reusable block, revise and warning conditions.

@@ -44,7 +44,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | PRD |  | `draft | approved | superseded | not_applicable` |  |
 | SD |  | `draft | approved | superseded | not_applicable` |  |
 | TP |  | `draft | approved | superseded | not_applicable` |  |
-| Brownfield Review |  | `missing | done | not_applicable` |  |
+| Brownfield Review |  | `missing | draft | done | not_applicable | superseded` |  |
 | Review |  | `missing | done | not_applicable` |  |
 | QA |  | `missing | pass | revise | block | not_applicable` |  |
 | OR |  | `missing | done | not_applicable` |  |
@@ -52,11 +52,13 @@ Valid approval format for new runs: `Approval: <GateName>`.
 ## Mode / Slice Decision
 
 Set this after Brownfield Review. Do not assume the full gate chain before the existing-system impact is understood.
+Quick Task execution or implementation is not allowed until this decision is visible with scope reason and evidence.
 
 - decision: `undecided | quick_task | structured_slice | structured_delivery | block`
 - required_next_gate: `none | PRD | SD | TP | Brownfield Analysis`
 - scope_reason:
 - evidence:
+- transparency_note:
 
 ## Artefact Chain
 

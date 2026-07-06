@@ -35,6 +35,7 @@ const codexPluginFiles = [
   join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join("plugins", "agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
   join("plugins", "agdf", "control", "templates", "artefacts", "UR.md"),
+  join("plugins", "agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "PRD.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "SD.md"),
   join("plugins", "agdf", "control", "templates", "artefacts", "TP.md"),
@@ -57,6 +58,7 @@ const controlFiles = [
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
   join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
   join(".agdf", "control", "templates", "artefacts", "UR.md"),
+  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join(".agdf", "control", "templates", "artefacts", "PRD.md"),
   join(".agdf", "control", "templates", "artefacts", "SD.md"),
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
@@ -87,6 +89,7 @@ const liveControlFiles = [
 ];
 const artefactTemplateFiles = [
   join(".agdf", "control", "templates", "artefacts", "UR.md"),
+  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join(".agdf", "control", "templates", "artefacts", "PRD.md"),
   join(".agdf", "control", "templates", "artefacts", "SD.md"),
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
@@ -745,7 +748,9 @@ function isInternalStepSatisfied(runState, step) {
 
 function modeSliceDecision(runState) {
   const decision = runState.mode_slice_decision?.decision ?? "";
-  if (!decision || isPlaceholderValue(decision)) return "undecided";
+  const scopeReason = runState.mode_slice_decision?.scope_reason ?? "";
+  const evidence = runState.mode_slice_decision?.evidence ?? "";
+  if (!decision || isPlaceholderValue(decision) || !filled(scopeReason) || !filled(evidence)) return "undecided";
   return decision;
 }
 
@@ -917,11 +922,11 @@ function transitionDecisionForRunState(runState) {
         missing_approval: "none",
         allowed: [
           "decide whether the approved UR is quick_task, structured_slice, structured_delivery or block",
-          "record scope reason and evidence in AGDF_RUN.md",
+          "record scope reason, evidence and required next gate depth in AGDF_RUN.md",
           "choose the next required gate depth before drafting PRD or implementing",
         ],
         forbidden: ["create PRD before process size is decided", "create SD", "create TP", "implement code", "claim QA or release readiness"],
-        next_allowed_action: "Record the Mode/Slice Decision from Brownfield Review before choosing PRD depth or Quick Task execution.",
+        next_allowed_action: "Record the Mode/Slice Decision from Brownfield Review with scope reason and evidence before choosing PRD depth or Quick Task execution.",
       };
     }
 
@@ -1091,13 +1096,14 @@ function readBacklogPointers(targetDir) {
       title: cells[2] ?? "",
       status: cleanStatusCell(cells[3] ?? ""),
       ur: cells[4] ?? "",
-      prd: cells[5] ?? "",
-      sd: cells[6] ?? "",
-      tp: cells[7] ?? "",
-      qa: cells[8] ?? "",
-      or: cells[9] ?? "",
-      current_spec: cells[10] ?? "",
-      notes: cells[11] ?? "",
+      brownfield_review: cells[5] ?? "",
+      prd: cells[6] ?? "",
+      sd: cells[7] ?? "",
+      tp: cells[8] ?? "",
+      qa: cells[9] ?? "",
+      or: cells[10] ?? "",
+      current_spec: cells[11] ?? "",
+      notes: cells[12] ?? "",
     }));
 }
 

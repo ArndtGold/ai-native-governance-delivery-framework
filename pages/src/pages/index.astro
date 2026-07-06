@@ -94,8 +94,8 @@ const projectStats = await getProjectStats()
       data-reveal-delay="4"
       class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
     >
-      Agents are fast at starting. AGDF makes them prove the next step is allowed:
-      requirement, Brownfield context, approval, evidence, QA decision and closeout.
+      AGDF makes agents prove scope, impact, approval and evidence before they
+      change real systems.
     </p>
     <div data-reveal data-reveal-delay="5" class="flex flex-col items-center justify-center gap-4 sm:flex-row">
       <a href="#setup-codex-project" class="btn-primary">Try in Codex</a>
@@ -157,16 +157,16 @@ const projectStats = await getProjectStats()
           <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
           <div class="mt-5 grid gap-2.5 text-sm">
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
-              <span class="text-dark-300">Current gate</span>
-              <code class="text-cyan-100">User Requirement (UR)</code>
+              <span class="text-dark-300">First checkpoint</span>
+              <code class="text-cyan-100">User need</code>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
               <span class="text-dark-300">Allowed</span>
-              <span class="text-dark-100">user's perspective and why it is functionally relevant.</span>
+              <span class="text-dark-100">Clarify what should change and why it matters.</span>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.055] px-3 py-2">
               <span class="text-dark-300">Forbidden</span>
-              <span class="text-dark-100">How exactly will it be built technically, or in code?</span>
+              <span class="text-dark-100">Decide the build before scope and impact are clear.</span>
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl border border-cyan-100/15 bg-cyan-300/13 px-3 py-2 shadow-[0_0_24px_-18px_rgba(103,232,249,0.9)]">
               <span class="text-dark-300">Your control</span>
@@ -185,10 +185,10 @@ const projectStats = await getProjectStats()
     </div>
     <div data-reveal data-reveal-delay="5" class="mx-auto mt-5 grid max-w-5xl gap-3 text-left sm:grid-cols-2 lg:grid-cols-4">
       {[
-        ["Durable gates", "Current gate, missing approval and next allowed action survive the chat.", "#durable-control-state"],
-        ["Mode clarity", "Brownfield Review decides quick_task, structured_slice, structured_delivery or block.", "#gate-flow"],
-        ["Evidence before QA", "QA is pass, revise or block from coverage, fit, integrity and proof.", "#workflow"],
-        ["Auditable closeout", "OR records what changed, what did not and what may happen next.", "#durable-control-state"],
+        ["Durable gates", "The current checkpoint, missing approval and next allowed action survive the chat.", "#durable-control-state"],
+        ["Existing impact first", "See what could be affected before the work starts moving.", "#gate-flow"],
+        ["Evidence before QA", "Quality decisions come from coverage, fit and proof, not confidence.", "#workflow"],
+        ["Auditable closeout", "Every run ends with what changed, what stayed open and what can happen next.", "#durable-control-state"],
       ].map(([title, desc, href]) => (
         <a href={href} class="group relative block overflow-hidden rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.16),rgba(15,23,42,0.23))] p-4 shadow-[0_20px_62px_-34px_rgba(34,211,238,0.62),0_1px_0_rgba(255,255,255,0.14)_inset] transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-100/45 hover:shadow-[0_26px_72px_-32px_rgba(34,211,238,0.78),0_1px_0_rgba(255,255,255,0.18)_inset]">
           <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/55 to-transparent"></div>
@@ -278,7 +278,7 @@ const projectStats = await getProjectStats()
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">A New Requirement Enters Here</h2>
       <p class="mx-auto max-w-2xl text-dark-200">
-        Every request starts with one question: quick task or controlled delivery?
+        Every request starts with one practical question: can this stay small, or does it need stronger control?
       </p>
     </div>
 
@@ -287,7 +287,7 @@ const projectStats = await getProjectStats()
         <div data-reveal data-reveal-delay={String(i + 1)} class="surface p-6">
           <div class="mb-4 flex items-center justify-between gap-4">
             <h3 class="text-xl font-bold text-agdf-200">{path.label}</h3>
-            <span class="rounded-full border border-agdf-500/30 bg-agdf-950 px-3 py-1 font-mono text-xs text-agdf-300">mode</span>
+            <span class="rounded-full border border-agdf-500/30 bg-agdf-950 px-3 py-1 font-mono text-xs text-agdf-300">path</span>
           </div>
           <p class="mb-4 text-sm leading-relaxed text-dark-200">{path.trigger}</p>
           <div class="terminal-body !p-3 text-xs">
@@ -374,14 +374,14 @@ const projectStats = await getProjectStats()
     <div data-reveal class="mb-12 text-center">
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to evidence</div>
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Delivery Flow</h2>
-      <p class="text-dark-200">A gate does not move because someone says go. It moves when artefact, approval, evidence and the next allowed action line up.</p>
+      <p class="text-dark-200">Work does not move because someone says go. It moves when scope, approval, evidence and the next allowed action line up.</p>
     </div>
     <div data-reveal data-reveal-delay="1" class="mb-8 rounded-lg border border-agdf-500/25 bg-agdf-950/20 p-4 sm:p-5">
       <div class="grid gap-4 lg:grid-cols-[1fr_auto_1.4fr] lg:items-center">
         <div>
           <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Shared start</div>
           <div class="flex flex-wrap items-center gap-2">
-            {["UR", "Brownfield Review", "Mode/Slice Decision"].map((item, i) => (
+            {["User need", "Impact check", "Right-sized path"].map((item, i) => (
               <>
                 <span class="rounded-lg border border-agdf-500/30 bg-dark-950 px-3 py-2 font-mono text-xs font-bold text-agdf-200">{item}</span>
                 {i < 2 && <span class="text-agdf-600">→</span>}
@@ -404,9 +404,9 @@ const projectStats = await getProjectStats()
     </div>
     <div data-reveal data-reveal-delay="2" class="mb-8 overflow-hidden rounded-lg border border-dark-700/80 bg-dark-950/70">
       <div class="grid border-b border-dark-800 bg-dark-900/80 px-4 py-3 text-xs font-bold uppercase tracking-wide text-dark-200 sm:grid-cols-[0.9fr_1.6fr_1.2fr_1.4fr]">
-        <div>Mode</div>
-        <div class="hidden sm:block">Gates used</div>
-        <div class="hidden sm:block">Not used by default</div>
+        <div>Path</div>
+        <div class="hidden sm:block">What AGDF uses</div>
+        <div class="hidden sm:block">What stays out</div>
         <div class="hidden sm:block">Decision rule</div>
       </div>
       {gateModeMatrix.map((row, i) => (
@@ -494,8 +494,8 @@ const projectStats = await getProjectStats()
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Gate Map</h2>
-      <p class="text-dark-200">The map is not a fixed ceremony. Brownfield Review decides whether the work stays quick or needs a structured product path.</p>
-      <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">This is where AGDF makes mode clarity explicit: the selected mode determines which gates are active, which gates are skipped and which next action is allowed.</p>
+      <p class="text-dark-200">The map is not a fixed ceremony. AGDF checks existing impact first, then keeps the path as light as the risk allows.</p>
+      <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">This is where a request becomes a visible delivery decision: what is active, what can stay out and what may happen next.</p>
     </div>
     <div data-reveal data-reveal-delay="1" class="surface p-4 sm:p-5">
       <div class="flex flex-wrap items-center justify-center gap-2">

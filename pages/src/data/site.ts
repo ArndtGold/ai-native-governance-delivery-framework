@@ -58,19 +58,19 @@ export const workflowSteps = [
         step: "01",
         title: "Gate Check + UR",
         command: "/gate-check",
-        desc: "Persist the need, expose the current gate and require exact approval before product work starts."
+        desc: "Capture the need, show the current checkpoint and require approval before product work starts."
     },
     {
         step: "02",
         title: "Brownfield Review",
         command: "/brownfield-analysis",
-        desc: "After Approval: UR, size owners, existing behaviour, system boundaries, tests and risk."
+        desc: "Check existing ownership, protected behavior, boundaries, tests and risk."
     },
     {
         step: "03",
-        title: "Mode/Slice Decision",
+        title: "Right-Sized Path",
         command: "control state",
-        desc: "Choose quick_task, structured_slice, structured_delivery or block with scope reason and evidence."
+        desc: "Decide whether the work can stay small, needs a bounded plan or must stop."
     },
     {
         step: "04",
@@ -112,10 +112,10 @@ export const requirementPaths = [
         outcome: "Fast, narrow, evidenced."
     },
     {
-        label: "Structured Delivery",
-        trigger: "New capability, architecture impact, runtime/policy/persistence change, visible UX decision or release-critical work.",
-        path: "UR -> Brownfield Review -> Mode/Slice Decision -> PRD/SD/TP as needed -> CD+Tests -> Reviews -> QA -> OR -> Delivery Closeout",
-        outcome: "Only as much gate depth as the reviewed change size justifies."
+        label: "Controlled Delivery",
+        trigger: "New capability, architecture impact, policy or persistence change, visible UX decision or release-critical work.",
+        path: "Clarify need -> check impact -> plan only what risk justifies -> implement -> verify -> close with evidence",
+        outcome: "More control when the work can affect real systems."
     },
 ]
 
@@ -140,7 +140,7 @@ export const visualProofs = {
     intake: {
         eyebrow: "Requirement intake",
         title: "A board shows progress. AGDF shows whether the next step is allowed.",
-        desc: "Before work moves forward, AGDF shows the artifact, approval and evidence state: what is ready, what is missing and what must stop.",
+        desc: "Before work moves forward, AGDF shows what is ready, what is missing and what must stop.",
     },
     qa: {
         eyebrow: "Task-plan evidence",
@@ -273,7 +273,7 @@ export const buildingBlocks = [
 export const gateFlow = [
     { gate: "UR", name: "User Requirement", desc: "Problem, goal, affected users, constraints" },
     { gate: "BR", name: "Brownfield Review", desc: "Existing logic, ownership, system boundaries" },
-    { gate: "MODE", name: "Mode/Slice Decision", desc: "quick_task / structured_slice / structured_delivery / block" },
+    { gate: "PATH", name: "Right-Sized Path", desc: "small / bounded / structured / blocked" },
     { gate: "PRD", name: "Product Requirements", desc: "Scope, acceptance criteria, non-goals" },
     { gate: "SD", name: "Solution Design", desc: "Architecture, components, interfaces" },
     { gate: "TP", name: "Task & Test Plan", desc: "Work packages, test matrix, dependencies" },
@@ -288,11 +288,11 @@ export const gateMapPaths = {
     sharedStart: [
         { gate: "UR", name: "User Requirement" },
         { gate: "BR", name: "Brownfield Review" },
-        { gate: "MODE", name: "Mode/Slice Decision" },
+        { gate: "PATH", name: "Right-Sized Path" },
     ],
     quick: {
         label: "Quick path",
-        note: "Only when Brownfield Review shows narrow scope, no new product semantics and enough evidence.",
+        note: "Only when the impact check shows narrow scope, clear ownership and enough evidence.",
         steps: [
             { gate: "CD", name: "Small change + checks" },
             { gate: "OR-lite", name: "Evidence closeout" },
@@ -300,7 +300,7 @@ export const gateMapPaths = {
     },
     structured: {
         label: "Structured path",
-        note: "Used when the reviewed change size needs explicit product, solution or task contracts.",
+        note: "Used when the change needs explicit product, solution or task contracts.",
         steps: [
             { gate: "PRD", name: "Product Requirements" },
             { gate: "SD", name: "Solution Design" },
@@ -316,25 +316,25 @@ export const gateMapPaths = {
 
 export const gateModeMatrix = [
     {
-        mode: "quick_task",
-        use: "UR, Brownfield Review, Mode/Slice Decision, CD+checks, OR-lite",
-        skip: "PRD, SD, TP and QA unless risk or evidence gaps require escalation",
+        mode: "Quick task",
+        use: "User need, impact check, right-sized path, small change, relevant checks, evidence closeout",
+        skip: "Product, solution, task and QA gates unless risk or evidence gaps require escalation",
         decision: "Use only for narrow approved scope without new product semantics.",
     },
     {
-        mode: "structured_slice",
-        use: "UR, Brownfield Review, Mode/Slice Decision, minimal PRD/SD/TP, BA, CD, reviews, QA, OR",
-        skip: "Full-depth artefacts when a small slice contract is enough",
+        mode: "Bounded slice",
+        use: "User need, impact check, right-sized path, minimal product/solution/task plan, implementation, reviews, QA, closeout",
+        skip: "Full-depth artifacts when a small slice contract is enough",
         decision: "Use when the change needs explicit contracts, but only for a bounded slice.",
     },
     {
-        mode: "structured_delivery",
-        use: "UR, Brownfield Review, Mode/Slice Decision, PRD, SD, TP, BA, CD, reviews, QA, OR",
+        mode: "Structured delivery",
+        use: "User need, impact check, right-sized path, product/solution/task plan, implementation, reviews, QA, closeout",
         skip: "Nothing material; depth is justified by impact, risk or release relevance",
         decision: "Use for new capability, architecture, persistence, policy, UX or release-critical work.",
     },
     {
-        mode: "block",
+        mode: "Blocked",
         use: "Current gate, missing evidence, next allowed action",
         skip: "All later gates and implementation",
         decision: "Use when approval, artefact, evidence, ownership or source of truth is missing.",

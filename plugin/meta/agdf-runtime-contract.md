@@ -27,6 +27,19 @@ Use this compact output shape when no formal gate artefact is required:
 
 Do not add a separate `Quality outlook` line for pure Quick Tasks unless the task became a relevant run.
 
+## Chat Output Discipline
+
+Durable artefacts are for the repository, not for flooding the chat.
+When a skill creates or updates `.agdf/control/` files, gate artefacts, reviews, QA reports or OR reports, the chat response must stay compact:
+
+- name the artefact path and status
+- summarize the decision or content in a few lines
+- state the current gate, forbidden work and next permissible step
+- mention validation evidence when available
+
+Do not paste full control files, full artefact bodies, full templates or full generated reports into the chat unless the user explicitly asks to see the full content.
+For larger or more formal work, create or update the durable artefacts fully, then reference them by path and summarize what changed.
+
 ## Relevant Run
 
 A relevant run is any run that changes durable state, creates or updates an AGDF artefact, changes code or runtime behaviour, performs a gate decision, blocks on a governance condition, produces QA/UAT/release evidence, or closes a delivery slice.
@@ -45,7 +58,7 @@ When in doubt, use a short OR-lite only if it clarifies gate state, evidence, ri
 - For UR, PRD, SD, TP and QA, approval and durable artefact presence are separate requirements. A gate is not satisfied by approval text alone when its artefact is missing from `.agdf/control/` or not linked to the authoritative repository SoT.
 - Approval of one user gate permits work on the next allowed gate artefact or required internal step only. It does not permit implementation unless the approved gate is `TP` and required internal implementation prerequisites are satisfied.
 - Gates must never be skipped or inferred from urgency, tone, chat history, task wording or an instruction to "start". The next allowed action is always the next unsatisfied gate or internal mandatory step.
-- Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact. They forbid later-gate work and implementation. For a fresh request, the allowed work is to initialize `.agdf/control/`, draft the minimal UR, link it, and request `Approval: UR`.
+- Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact. They forbid later-gate work and implementation. For a fresh request, the default allowed work is to draft a minimal UR in the response and request `Approval: UR`. Initialize or write `.agdf/control/` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
 - `Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision. It never permits implementation by itself.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
 - The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in `AGDF_RUN.md` or an equivalent linked control artefact.
@@ -151,12 +164,23 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 
 The scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.
 
-## Native Runtime
+## Agent-Native Runtime And CLI Verification
 
-AGDF must work natively through the plugin router, skills and live `.agdf/control/` artefacts.
-Agents should read the live control state and apply the gate model directly before reaching for helper commands.
+AGDF is agent-native first and CLI-verifiable by design.
 
-Machine-readable commands such as `doctor --json`, `gate-check --json` and `delivery-map --json` are validators and automation interfaces.
+The primary operating path is the active skill plus the live `.agdf/control/` artefacts.
+Agents should read the repository state, apply this Runtime Contract, create or update only the currently allowed artefact, and make the next permissible step explicit.
+When control state is missing for a fresh request, keep the first step lightweight: draft the minimal UR in the response and request `Approval: UR`.
+Initialize a control scaffold only when durable AGDF control state is explicitly requested, already used by the repository, or required by a deterministic CLI/CI setup path.
+
+Helper commands are deterministic proof and automation interfaces, not the normal-work ritual:
+
+- `init` creates the machine-readable control scaffold.
+- `doctor --json` checks whether `.agdf/control/` is consistent and actionable; it is not the reviewer.
+- `gate-check --json` reports reproducible gate state; it does not replace the gate-check skill judgement.
+- `delivery-map --json` reports the delivery picture for CI, PRs, regression checks and audit trails.
+
+Machine-readable outputs should stay agent-friendly: stable decisions, blocking gate or current gate, missing approval, allowed outputs, forbidden outputs, next step, evidence and findings.
 They make the repository state checkable, but they do not replace the native skill workflow or the durable control artefacts.
 
 ## Delivery Map

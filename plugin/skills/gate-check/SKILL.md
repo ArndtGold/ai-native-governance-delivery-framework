@@ -21,9 +21,10 @@ This skill must not create later artefacts such as PRD, SD, TP, CD, CR, QA, or U
 Use `../../meta/agdf-runtime-contract.md` for gate terms, closeout discipline, and non-duplication rules.
 The canonical gate order and transition model live only in the Runtime Contract. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
 
-## Native Control Path
+## Agent-Native Control Path
 
-AGDF is applied natively through this skill, the agent router, and live `.agdf/control/` state.
+AGDF is agent-native first and CLI-verifiable by design.
+This skill is the primary operating path for gate judgement.
 
 First inspect the durable control state directly:
 
@@ -33,18 +34,23 @@ First inspect the durable control state directly:
 - `.agdf/control/CONTEXT_GRAPH.md`
 - `.agdf/control/AGENT_QUALITY_CONTRACTS.json`
 
-Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, or when a repository-local automation needs JSON evidence:
+If required control files are missing, do not automatically create a full `.agdf/control/` scaffold for a fresh small request.
+The default first action is to draft the minimal UR in the response and request `Approval: UR`.
+Use `init` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
+
+Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, when CI or PR evidence is needed, or when a repository-local automation needs JSON output:
 
 ```bash
+npm create agdf@latest init
 npm create agdf@latest doctor --json
 npm create agdf@latest gate-check --json
 npm create agdf@latest delivery-map --json
 ```
 
-`doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and `AGDF_RUN.md` to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.
+`init` creates the control scaffold. `doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and `AGDF_RUN.md` to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.
 `delivery-map` reports the durable delivery picture: active artefacts, approvals, Artefact Chain relationships, evidence refs, missing evidence, risks, Context Graph gate effect and machine-readable findings.
 
-The CLI reports are validators and JSON evidence, not the primary user experience and not a second rule system. If a report says `blocked`, do not continue with later-gate artefacts until the reported blocker is resolved.
+The CLI reports are validators and JSON evidence, not the primary user experience, not a required ritual for normal work and not a second rule system. If a report says `blocked`, do not continue with later-gate artefacts until the reported blocker is resolved.
 
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.
@@ -61,7 +67,7 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 12. Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions. Approval text without the corresponding persisted or linked artefact keeps the current gate at that gate.
 13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | structured_slice | structured_delivery | block`.
 14. The Mode/Slice Decision must be visible and evidenced before any Quick Task execution, PRD shortcut or implementation. A decision value without scope reason and evidence is still missing.
-15. Missing or incomplete control state must not push work back to the user. If the next allowed step is an artefact draft, the agent may initialize the scaffold, draft the current allowed artefact, link it, and then request the exact approval. Implementation remains forbidden.
+15. Missing or incomplete control state must not push setup work back to the user. For a fresh request, draft the current minimal artefact in the response and request the exact approval. Initialize or write `.agdf/control/` only when durable control state is explicitly requested, already live for the repository, or required for a deterministic CLI/CI setup path. Implementation remains forbidden.
 
 ## Gate Evaluation
 
@@ -108,7 +114,7 @@ If a status is not explicit, do not assume it is satisfied.
 8. Treat a generic "start", "continue" or "leg los" request as a request to perform only the current next allowed action.
 9. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
 10. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
-11. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means initialize control state, draft the minimal UR, then request `Approval: UR`.
+11. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means draft the minimal UR in the response, then request `Approval: UR`. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
 
 ## Output
 Keep the result short and operational:
@@ -119,6 +125,9 @@ Keep the result short and operational:
 - **Forbidden:** `<forbidden outputs>`
 - **Missing approval:** `Approval: <GateName> | none`
 - **Next step:** `<single permissible next step>`
+
+If this skill creates or updates control artefacts, do not paste full file bodies into the chat.
+List paths, summarize the decision, name the blocker or approval needed, and keep the durable content in the files.
 
 ## Forbidden
 This skill must not:
@@ -135,5 +144,6 @@ This skill must not:
 - treat "ok", "leg los", "go ahead", "approved" or similar wording as gate approval
 - perform full Brownfield Analysis unless explicitly requested
 - provide implementation snippets while implementation is gated
+- paste full `.agdf/control/` files, templates or artefact bodies into the chat unless the user explicitly asks for the full content
 - present QA or UAT as passed without evidence
 - present release as allowed without QA pass and UAT approval where required

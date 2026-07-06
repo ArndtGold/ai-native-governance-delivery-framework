@@ -136,12 +136,14 @@ function writeCopilotInstructions() {
     "- Treat `AGENTS.md` as the primary repository instruction source.",
     "- Use `.github/skills/` for AGDF task workflows instead of inventing parallel process rules.",
     "- Use `.agdf/control/` for durable run state, backlog pointers, source-of-truth ownership, Context Graph knowledge and quality contracts.",
+    "- AGDF is agent-native first and CLI-verifiable by design.",
     "- Apply AGDF natively from `AGENTS.md`, repository skills and live `.agdf/control/` state before reaching for helper commands.",
     "- Before non-trivial implementation or formal delivery work, determine whether the request is a Quick Task or Structured Delivery.",
     "- If approval, evidence, ownership or the next allowed action is unclear, run the AGDF gate-check workflow before creating later artefacts or code.",
-    "- Use machine-readable checks such as `doctor --json`, `gate-check --json` or `delivery-map --json` as validators, not as the primary workflow.",
+    "- Use `doctor --json`, `gate-check --json` or `delivery-map --json` as deterministic validators for CI, PR evidence, regression checks and audit trails, not as the primary workflow.",
     "- Do not infer gate approval from generic consent such as \"ok\", \"go ahead\", \"do it\", \"continue\", \"leg los\" or \"approved\".",
     "- Do not treat chat history as the source of truth for gate state, approvals, evidence or delivery status.",
+    "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
     "",
   ];
 

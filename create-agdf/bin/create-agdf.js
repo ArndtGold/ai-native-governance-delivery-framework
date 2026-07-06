@@ -506,7 +506,7 @@ function evaluateDoctor(targetDir) {
         ? "Live control file is missing; only the template exists."
         : "Required live control file is missing.",
       relativePath,
-      "Run npm create agdf@latest init, then fill the live control files with the current repository state.",
+      "Run npm create agdf@latest init only when the repository should own durable AGDF control state or deterministic setup is explicitly needed.",
     );
   }
 
@@ -1119,13 +1119,12 @@ function evaluateGateCheck(targetDir) {
     currentGate = "UR";
     missingApproval = "Approval: UR";
     allowed = [
-      "initialize the AGDF control scaffold with npm create agdf@latest init",
-      "draft and persist the minimal UR for the requested change",
-      "link the UR from AGDF_RUN.md and MASTER_BACKLOG.md",
+      "draft the minimal UR for the requested change in the response",
       "request exact approval: Approval: UR",
+      "run npm create agdf@latest init only when durable control state or deterministic setup is explicitly needed",
     ];
     forbidden = ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"];
-    nextAllowedAction = "Initialize .agdf/control, draft the minimal UR for the request, then ask for exact approval: Approval: UR.";
+    nextAllowedAction = "Draft the minimal UR for the request in the response, then ask for exact approval: Approval: UR. Do not write a full .agdf/control scaffold unless durable control state or deterministic setup is explicitly needed.";
   } else if (doctorBlocker) {
     status = "blocked";
     blockingReason = doctorBlocker.code;

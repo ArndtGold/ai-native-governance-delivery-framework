@@ -128,7 +128,7 @@ const projectStats = await getProjectStats()
           <div class="mt-5 grid gap-2.5 text-sm">
             <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-2">
               <span class="flex min-w-0 items-center gap-2 text-dark-300">
-                <Icon name="archive-box" class="h-4 w-4 shrink-0 text-cyan-200" />
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
                 First checkpoint
               </span>
               <code class="shrink-0 text-cyan-100">User need captured</code>
@@ -149,7 +149,7 @@ const projectStats = await getProjectStats()
             </div>
             <div class="flex items-center justify-between gap-3 rounded-xl border border-cyan-100/15 bg-cyan-300/13 px-3 py-2 shadow-[0_0_24px_-18px_rgba(103,232,249,0.9)]">
               <span class="flex min-w-0 items-center gap-2 text-dark-300">
-                <Icon name="clipboard-document-check" class="h-4 w-4 shrink-0 text-cyan-100" />
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
                 Your control
               </span>
               <code class="shrink-0 text-cyan-100">Approval required</code>
@@ -725,7 +725,7 @@ const projectStats = await getProjectStats()
       </div>
       <div data-reveal data-reveal-delay="1" class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
         <h4 class="mb-1 font-semibold text-agdf-300">Hooks</h4>
-        <p class="text-xs text-dark-200">SessionStart loads the plugin router and AGDF constitution so skills run inside the control model from the first turn.</p>
+        <p class="text-xs text-dark-200">SessionStart shows a compact AGDF reminder and points to the router and constitution without flooding the chat.</p>
       </div>
       <div data-reveal data-reveal-delay="2" class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
         <h4 class="mb-1 font-semibold text-agdf-300">Skills</h4>
@@ -909,7 +909,7 @@ const projectStats = await getProjectStats()
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest copilot</span></div>
             <div class="text-dark-200">  writes AGENTS.md, Copilot instructions, repo skills and .agdf/control templates <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest init</span></div>
-            <div class="text-dark-200">  promotes templates into live .agdf/control files <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  optional deterministic scaffold for live .agdf/control files <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  if AGENTS.md already exists, AGDF writes AGENTS.agdf.md instead <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
@@ -941,9 +941,10 @@ const projectStats = await getProjectStats()
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want Copilot-facing repo files</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest both</span></div>
             <div class="text-dark-200">  writes the project Codex marketplace and local AGDF plugin copy <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  agent-native first, CLI-verifiable by design <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  AGDF works natively from router, skills and live .agdf/control state <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest doctor</span></div>
-            <div class="text-dark-200">  validator for gate, next action, evidence, SoT and quality contracts <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  deterministic validator for gate, next action, evidence, SoT and quality contracts <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest gate-check --json</span></div>
             <div class="text-dark-200">  validator for the next allowed process decision <span class="text-agdf-300">✓</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest delivery-map --json</span></div>

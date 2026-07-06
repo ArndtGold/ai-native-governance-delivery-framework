@@ -44,7 +44,7 @@ The generated `.agdf/control/templates/` files are reusable starting points for 
 - `CONTEXT_GRAPH.md` for durable Brownfield findings, decisions, risks, evidence and exit criteria
 - `AGENT_QUALITY_CONTRACTS.json` for reusable block, revise and warning conditions
 
-Use `init` to promote those templates into live control files:
+Use `init` to promote those templates into live control files when the repository should own durable AGDF control state:
 
 ```bash
 npm create agdf@latest init
@@ -84,7 +84,7 @@ npm create agdf@latest gate-check --json
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
 
-Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction layer into a repository control system: the agent can be guided by rules, and the repository state can be checked before the next governed step.
+Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction layer into a repository control system when durable control state is needed. For normal fresh requests, the agent-native path can stay lighter: draft the minimal UR in the response, request `Approval: UR`, and use CLI validators only when machine-readable proof is useful.
 
 ## Single source of truth
 

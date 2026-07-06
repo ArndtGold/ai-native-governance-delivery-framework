@@ -162,9 +162,12 @@ AGDF ist nicht nur ein Diskussionsentwurf, sondern auch als operative Laufzeit n
 Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen in [INSTALL.md](INSTALL.md).
 
 Das Plugin liefert zusätzlich einen Control-Scaffold unter `plugin/control/`.
-Dieser Scaffold macht den praktischen Arbeitsstand sichtbar:
+Dieser Scaffold macht den praktischen Arbeitsstand sichtbar.
 
-Ab `0.2.0` ist AGDF als prüfbarer Repository-Control-Loop nutzbar: Nicht nur der Agent soll Regeln beachten, sondern der Repository-Zustand selbst kann mit `doctor` und `gate-check --json` geprüft werden.
+AGDF ist agent-native first und CLI-verifiable by design: Der normale Bedienpfad ist der aktive Skill. Der Agent liest den Repository-Zustand, wendet den Runtime Contract an, formuliert bei frischen Requests zuerst eine minimale UR im Chat, erzeugt oder aktualisiert nur erlaubte Artefakte und benennt den nächsten zulässigen Schritt.
+
+Die CLI ist dafür kein Pflicht-Ritual, sondern die deterministische Prüf- und Automationsschicht: Sie macht denselben Repository-Zustand für CI, PRs, Regressionen und Audit-Trails maschinenlesbar.
+Wenn AGDF dauerhafte Artefakte erzeugt oder aktualisiert, bleiben die Inhalte in den Dateien. Der Chat nennt Pfade, Entscheidungen, Blocker und nächste Schritte, aber flutet nicht mit vollständigen Control-Dateien.
 
 Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte aus den Dokumenten:
 
@@ -174,7 +177,7 @@ Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte a
 - Context Graph für dauerhaft relevante Brownfield-Erkenntnisse: aus [Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md) und [Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
 - Quality Contracts als wiederverwendbare Block-, Revise- und Warnsignale: aus [Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md), besonders ausführbare Qualitätsverträge und ihre Wirkung
 
-Für Ziel-Repositories gibt es dafür einen ausführbaren Kontrollpfad:
+Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
 ```bash
 npm create agdf@latest init
@@ -182,7 +185,7 @@ npm create agdf@latest doctor
 npm create agdf@latest gate-check --json
 ```
 
-`init` legt live Control-Dateien unter `.agdf/control/` an. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts überhaupt prüfbar sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
+`init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
 
 ## Lizenz
 

@@ -225,6 +225,12 @@ if (isFile(sessionStartHookPath)) {
   const sessionStartHook = read(sessionStartHookPath);
   if (!sessionStartHook.includes("agdf-agent-router.md")) failures.push("AGDF SessionStart hook must load the canonical agent router");
   if (!sessionStartHook.includes("agdf-constitution.md")) failures.push("AGDF SessionStart hook must load the AGDF constitution");
+  if (!sessionStartHook.includes("Do not print the full router or constitution unless the user asks for them")) {
+    failures.push("AGDF SessionStart hook must avoid flooding the chat with full router or constitution text");
+  }
+  if (sessionStartHook.includes('cat "$ROUTER"') || sessionStartHook.includes('cat "$CONSTITUTION"')) {
+    failures.push("AGDF SessionStart hook must not print full router or constitution files by default");
+  }
 }
 
 if (isFile(agentRouterPath)) {
@@ -267,6 +273,12 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact")) {
     failures.push("runtime contract must allow constructive artefact drafting when control state is missing");
   }
+  if (!runtimeContract.includes("For a fresh request, the default allowed work is to draft a minimal UR in the response")) {
+    failures.push("runtime contract must keep fresh missing-control requests lightweight");
+  }
+  if (!runtimeContract.includes("Initialize or write `.agdf/control/` only when the user explicitly asks for durable AGDF control state")) {
+    failures.push("runtime contract must prevent default full scaffold writes for fresh requests");
+  }
   if (!runtimeContract.includes("`config.json` stores project language preferences")) {
     failures.push("runtime contract must define AGDF language preference config");
   }
@@ -281,6 +293,12 @@ if (isFile(runtimeContractPath)) {
   }
   if (!runtimeContract.includes("Do not add a separate `Quality outlook` line for pure Quick Tasks")) {
     failures.push("runtime contract must prevent Quick Task closeout from requiring Quality outlook");
+  }
+  if (!runtimeContract.includes("## Chat Output Discipline")) {
+    failures.push("runtime contract must define compact chat output discipline");
+  }
+  if (!runtimeContract.includes("Do not paste full control files, full artefact bodies, full templates or full generated reports into the chat")) {
+    failures.push("runtime contract must prevent full artefact bodies from flooding chat");
   }
   if (!runtimeContract.includes("## Relevant Run")) {
     failures.push("runtime contract must define relevant run for OR scope");
@@ -297,8 +315,11 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("approval and durable artefact presence are separate requirements")) {
     failures.push("runtime contract must separate approval text from durable artefact presence");
   }
-  if (!runtimeContract.includes("AGDF must work natively through the plugin router, skills and live `.agdf/control/` artefacts")) {
-    failures.push("runtime contract must state native AGDF runtime before machine-readable validators");
+  if (!runtimeContract.includes("AGDF is agent-native first and CLI-verifiable by design")) {
+    failures.push("runtime contract must state the agent-native and CLI-verifiable operating model");
+  }
+  if (!runtimeContract.includes("Helper commands are deterministic proof and automation interfaces, not the normal-work ritual")) {
+    failures.push("runtime contract must classify helper commands as proof and automation interfaces");
   }
   if (!runtimeContract.includes("`delivery-map --json` is the machine-readable delivery picture")) {
     failures.push("runtime contract must define delivery-map as the machine-readable delivery picture");
@@ -358,8 +379,17 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("A decision value without scope reason and evidence is still missing")) {
       failures.push("gate-check must require evidenced Mode/Slice Decision before later work");
     }
-    if (!skillMd.includes("Missing or incomplete control state must not push work back to the user")) {
+    if (!skillMd.includes("Missing or incomplete control state must not push setup work back to the user")) {
       failures.push("gate-check must make missing control state constructive for current artefact drafting");
+    }
+    if (!skillMd.includes("For a fresh request, draft the current minimal artefact in the response")) {
+      failures.push("gate-check must keep fresh missing-control requests lightweight");
+    }
+    if (!skillMd.includes("Do not write a full control scaffold unless durable control state was explicitly requested")) {
+      failures.push("gate-check must prevent full control scaffold writes by default");
+    }
+    if (!skillMd.includes("do not paste full file bodies into the chat")) {
+      failures.push("gate-check must keep control artefact content out of chat by default");
     }
     if (!skillMd.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
       failures.push("gate-check must require durable UR persistence for new product semantics or functional change");
@@ -370,8 +400,11 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("npm create agdf@latest delivery-map --json")) {
       failures.push("gate-check must expose the machine-readable delivery-map command");
     }
-    if (!skillMd.includes("AGDF is applied natively through this skill, the agent router, and live `.agdf/control/` state")) {
-      failures.push("gate-check must state that AGDF is applied natively before helper commands");
+    if (!skillMd.includes("This skill is the primary operating path for gate judgement")) {
+      failures.push("gate-check must state that the skill is the primary operating path before helper commands");
+    }
+    if (!skillMd.includes("not a required ritual for normal work")) {
+      failures.push("gate-check must state that CLI reports are not a required ritual for normal work");
     }
     if (!skillMd.includes("The CLI reports are validators and JSON evidence, not the primary user experience")) {
       failures.push("gate-check must classify CLI reports as validators, not the primary workflow");

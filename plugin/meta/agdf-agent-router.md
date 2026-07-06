@@ -73,8 +73,9 @@ Use templates as starting points only.
 
 Do not let chat history become the source of truth for gate state, approvals, evidence, backlog status or durable Brownfield knowledge.
 
-AGDF is a native agent workflow first: read the live control state, apply the active skill and make the next allowed step explicit.
-Use `doctor`, `gate-check --json` or `delivery-map --json` as validators when a machine-readable proof is useful, not as a substitute for the router or skills.
+AGDF is agent-native first and CLI-verifiable by design: read the live control state, apply the active skill and make the next allowed step explicit.
+Use `init` only when durable control state is explicitly requested, the repository already uses `.agdf/control/` as its live AGDF working state, or a deterministic CLI/CI setup path is being executed.
+Use `doctor --json`, `gate-check --json` or `delivery-map --json` as deterministic validators for CI, PR evidence, regression checks or audit trails, not as a substitute for the router or skills.
 
 ## Closeout
 For Quick Task Mode, close with the Runtime Contract mini-output only:

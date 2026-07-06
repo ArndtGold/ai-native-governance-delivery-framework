@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 # AGDF Session Start Hook
-# Loads the AGDF plugin router and constitution into the agent session.
+# Activates a compact AGDF runtime reminder for the agent session.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROUTER="${SCRIPT_DIR}/../meta/agdf-agent-router.md"
-CONSTITUTION="${SCRIPT_DIR}/../meta/agdf-constitution.md"
+META_DIR="$(cd "${SCRIPT_DIR}/../meta" && pwd)"
+ROUTER="${META_DIR}/agdf-agent-router.md"
+CONSTITUTION="${META_DIR}/agdf-constitution.md"
 
-if [ -f "$ROUTER" ]; then
-    cat "$ROUTER"
-    printf "\n\n"
-fi
+cat <<EOF
+AGDF active.
 
-if [ -f "$CONSTITUTION" ]; then
-    cat "$CONSTITUTION"
-fi
+Use the installed AGDF skills as workflow controls.
+For a new build, change, extension, refactor, CLI, app, fix with product semantics, unclear approval, or unclear next step, use gate-check before implementation or later-gate artefacts.
+
+Do not print the full router or constitution unless the user asks for them.
+Source of truth:
+- ${ROUTER}
+- ${CONSTITUTION}
+EOF

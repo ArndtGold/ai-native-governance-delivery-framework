@@ -67,8 +67,11 @@ function run(target, expectedFiles) {
       if (!copilotInstructions.includes("Apply AGDF natively from `AGENTS.md`, repository skills and live `.agdf/control/` state")) {
         throw new Error(`Copilot instructions for ${target} must state native AGDF operation before helper commands.`);
       }
-      if (!copilotInstructions.includes("Use machine-readable checks such as `doctor --json`, `gate-check --json` or `delivery-map --json` as validators")) {
-        throw new Error(`Copilot instructions for ${target} must classify machine-readable checks as validators.`);
+      if (!copilotInstructions.includes("AGDF is agent-native first and CLI-verifiable by design")) {
+        throw new Error(`Copilot instructions for ${target} must state the agent-native and CLI-verifiable operating model.`);
+      }
+      if (!copilotInstructions.includes("Use `doctor --json`, `gate-check --json` or `delivery-map --json` as deterministic validators")) {
+        throw new Error(`Copilot instructions for ${target} must classify CLI checks as deterministic validators.`);
       }
     }
   } finally {
@@ -371,11 +374,14 @@ run("both", [
       if (gateCheckReport.current_gate !== "UR") {
         throw new Error(`Gate-check should orient missing control files to UR, got ${gateCheckReport.current_gate}.`);
       }
-      if (!gateCheckReport.allowed.includes("draft and persist the minimal UR for the requested change")) {
-        throw new Error("Gate-check should allow minimal UR drafting when control files are missing.");
+      if (!gateCheckReport.allowed.includes("draft the minimal UR for the requested change in the response")) {
+        throw new Error("Gate-check should allow minimal in-response UR drafting when control files are missing.");
       }
-      if (!gateCheckReport.next_allowed_action.includes("Initialize .agdf/control, draft the minimal UR")) {
-        throw new Error("Gate-check should give init plus UR draft as the next action when control files are missing.");
+      if (!gateCheckReport.next_allowed_action.includes("Draft the minimal UR for the request in the response")) {
+        throw new Error("Gate-check should give in-response UR draft as the next action when control files are missing.");
+      }
+      if (!gateCheckReport.next_allowed_action.includes("Do not write a full .agdf/control scaffold")) {
+        throw new Error("Gate-check should prevent full control scaffold writes by default when control files are missing.");
       }
       if (!gateCheckReport.forbidden.includes("implement code")) {
         throw new Error("Gate-check should still forbid implementation when control files are missing.");

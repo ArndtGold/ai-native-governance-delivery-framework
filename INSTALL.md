@@ -102,13 +102,14 @@ Codex also discovers the default lifecycle hook configuration when the plugin bu
 plugin/hooks/hooks.json
 ```
 
-The AGDF `SessionStart` hook loads:
+The AGDF `SessionStart` hook activates a compact runtime reminder and references:
 
 ```text
 plugin/meta/agdf-agent-router.md
 ```
 
 plus the compact AGDF constitution so the skills do not have to carry the whole control model alone.
+It does not print the full router into the chat; the first visible workflow step should still be the appropriate AGDF skill, usually `gate-check` for new build intent.
 
 ### How Codex chooses AGDF skills
 
@@ -125,7 +126,7 @@ plugin/hooks/hooks.json
 At runtime:
 
 1. Codex sees the installed plugin skills through their `name` and `description`.
-2. The AGDF `SessionStart` hook loads the shared router and compact constitution.
+2. The AGDF `SessionStart` hook activates a compact reminder and references the shared router and compact constitution.
 3. The router describes which AGDF skill should be primary for which kind of request.
 4. The individual skill descriptions provide additional trigger hints.
 
@@ -150,13 +151,14 @@ Then start a new Codex thread and ask:
 Run an AGDF gate check for this request.
 ```
 
-For a repository that should keep durable AGDF control state, ask Codex to use the plugin scaffold:
+For a repository that should keep durable AGDF control state, keep the agent-native path primary.
+Ask Codex to inspect the repository and create the minimal control scaffold only when durable AGDF control state is explicitly needed:
 
 ```text
 Create an AGDF control scaffold for this repository.
 ```
 
-Or initialize live control files directly:
+Or initialize live control files directly when you want deterministic scaffolding for scripts, CI setup, repeatable onboarding or a repository-owned AGDF control state:
 
 ```bash
 npm create agdf@latest init
@@ -178,6 +180,7 @@ The selected language is written to:
 ```
 
 AGDF uses `artifact_language` for durable control artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules and internal control contracts remain English so Codex, Claude Code and Copilot share one stable rule surface.
+Generated or updated control artefacts stay in files by default; user-facing chat should summarize paths, decisions, blockers and next steps instead of pasting full file bodies.
 
 This promotes the AGDF templates into live files under:
 
@@ -191,7 +194,7 @@ It also installs reusable artefact templates for `UR`, `PRD`, `SD`, `TP` and `QA
 .agdf/control/templates/artefacts/
 ```
 
-Check the result before the next governed agent run:
+Use deterministic validators when you need machine-readable proof, CI or PR evidence, repeatable diagnostics, or an audit trail:
 
 ```bash
 npm create agdf@latest doctor
@@ -209,7 +212,8 @@ open | blocked
 
 including current gate, missing approval, allowed outputs, forbidden outputs and next allowed action.
 
-That is the `0.2.0` control boundary: AGDF no longer only asks agents to follow rules; it gives the repository a checkable control state.
+These commands are not a required ritual for normal agent work when the agent can inspect the live control files directly.
+That is the control boundary: AGDF is agent-native first and CLI-verifiable by design.
 
 ## Codex for one repository only
 
@@ -241,7 +245,7 @@ Other repositories do not get this project-local marketplace unless they also co
 plugins/agdf/
 ```
 
-If this repository should also keep durable AGDF control state, run:
+If this repository should also keep durable AGDF control state, let the agent create the scaffold as the next allowed action or run the deterministic setup path directly:
 
 ```bash
 npm create agdf@latest init
@@ -426,7 +430,7 @@ AGENTS.agdf.md
 Then merge the AGDF instructions from `AGENTS.agdf.md` into your existing `AGENTS.md`.
 Use `--force` only if you intentionally want to replace existing generated files.
 
-When the repository is ready to own AGDF state as source-of-truth artefacts, run:
+When the repository is ready to own AGDF state as source-of-truth artefacts, let the agent initialize the scaffold as the next allowed action or run the deterministic setup path directly:
 
 ```bash
 npm create agdf@latest init

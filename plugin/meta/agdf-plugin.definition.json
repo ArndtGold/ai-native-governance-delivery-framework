@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "agdf",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "AI-native Governance & Delivery Framework",
   "description": "Codex-first workflow skills for gated, auditable AI-assisted software delivery.",
@@ -38,6 +38,16 @@
   "copilot": {
     "skillPrefix": "agdf-",
     "runtimeContractFileName": "agdf-runtime-contract.md"
+  },
+  "opencode": {
+    "skillPrefix": "agdf-",
+    "runtimeContractFileName": "agdf-runtime-contract.md",
+    "instructionsFileName": "AGDF.md",
+    "npmPackage": "create-agdf",
+    "permissions": {
+      "edit": "ask",
+      "bash": "ask"
+    }
   },
   "skillSet": [
     {

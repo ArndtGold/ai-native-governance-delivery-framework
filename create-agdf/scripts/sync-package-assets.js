@@ -15,6 +15,8 @@ const generatedRoot = join(packageRoot, "generated");
 const generatedSkillsRoot = join(generatedRoot, ".github", "skills");
 const generatedControlRoot = join(generatedRoot, ".agdf", "control");
 const generatedCodexPluginRoot = join(generatedRoot, "plugins", "agdf");
+const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
+const generatedOpenCodeAgentsRoot = join(generatedOpenCodeRoot, "agents");
 const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
 
 function read(path) {
@@ -70,6 +72,10 @@ function copilotSkillName(skillSlug) {
   return `${pluginDefinition.copilot.skillPrefix}${skillSlug}`;
 }
 
+function openCodeSkillName(skillSlug) {
+  return `${pluginDefinition.opencode.skillPrefix}${skillSlug}`;
+}
+
 function toCopilotSkillContent(content) {
   let next = content;
   for (const skill of pluginDefinition.skillSet) {
@@ -106,6 +112,48 @@ function toCopilotAgentRouter(content) {
       "You are an autonomous agent operating in an AGDF-governed delivery system.",
     )
     .replace(/## Surface Convention[\s\S]*?(?=## Mode Selection)/, copilotSurfaceConvention);
+}
+
+function toOpenCodeSkillContent(content) {
+  let next = content;
+  for (const skill of pluginDefinition.skillSet) {
+    const sourceName = sourceSkillName(skill.slug);
+    const targetName = openCodeSkillName(skill.slug);
+    if (sourceName === targetName) continue;
+
+    next = next
+      .replaceAll(`name: ${sourceName}`, `name: ${targetName}`)
+      .replaceAll(`\`${sourceName}\``, `\`${targetName}\``)
+      .replaceAll(`/${sourceName}`, `/${targetName}`);
+  }
+  return next;
+}
+
+function toOpenCodeAgentRouter(content) {
+  const openCodeSurfaceConvention = [
+    "## Surface Convention",
+    "OpenCode project agents do not have a plugin namespace.",
+    "",
+    "Therefore generated OpenCode agent names use the AGDF prefix:",
+    "",
+    ...pluginDefinition.skillSet.map((skill) => `- \`${openCodeSkillName(skill.slug)}\``),
+    "",
+    "Do not remove that prefix in OpenCode-facing repository agents.",
+    "Codex and Claude Code plugin surfaces use unprefixed skill names because their plugin namespace already carries `agdf`.",
+    "",
+  ].join("\n");
+
+  return toOpenCodeSkillContent(content)
+    .replace("# AGDF Agent Router", "# AGDF OpenCode instructions")
+    .replace(
+      "You are operating inside the AGDF plugin namespace.",
+      "You are operating in an OpenCode project configured with AGDF.",
+    )
+    .replace(
+      "Use the plugin skills as workflow controls, not as documentation shortcuts.",
+      "Use the AGDF agents as workflow controls, not as documentation shortcuts.",
+    )
+    .replace(/## Surface Convention[\s\S]*?(?=## Mode Selection)/, openCodeSurfaceConvention);
 }
 
 function getSkillDirectories() {
@@ -172,8 +220,77 @@ function writeCopilotGovernanceInstructions() {
   write(join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"), lines.join("\n"));
 }
 
+function writeOpenCodeConfig() {
+  const config = {
+    "$schema": "https://opencode.ai/config.json",
+    plugin: [pluginDefinition.opencode.npmPackage],
+    instructions: [`.opencode/${pluginDefinition.opencode.instructionsFileName}`],
+    permission: pluginDefinition.opencode.permissions,
+  };
+
+  write(join(generatedRoot, "opencode.json"), `${JSON.stringify(config, null, 2)}\n`);
+}
+
+function writeOpenCodeInstructions() {
+  const lines = [
+    toOpenCodeAgentRouter(read(sourceAgentsPath)),
+    "",
+    "## OpenCode Files",
+    "",
+    "- OpenCode loads this file through `opencode.json` `instructions`.",
+    "- OpenCode agents live under `.opencode/agents/` and use the `agdf-` prefix.",
+    `- The AGDF OpenCode plugin is loaded from npm through \`opencode.json\` \`plugin: ["${pluginDefinition.opencode.npmPackage}"]\`.`,
+    "- OpenCode permissions keep `edit` and `bash` on explicit approval by default.",
+    "- Shared output and gate rules live in `.opencode/agdf-runtime-contract.md`.",
+    "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
+    "",
+  ];
+
+  write(join(generatedOpenCodeRoot, pluginDefinition.opencode.instructionsFileName), lines.join("\n"));
+}
+
+function writeOpenCodeAgent(skillSlug) {
+  const sourceName = sourceSkillName(skillSlug);
+  const targetName = openCodeSkillName(skillSlug);
+  const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
+  const skillDefinition = pluginDefinition.skillSet.find((skill) => skill.slug === skillSlug);
+  const body = toOpenCodeSkillContent(read(sourcePath).replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.opencode.runtimeContractFileName}`));
+  const content = [
+    "---",
+    `description: ${skillDefinition?.useFor ?? `AGDF ${skillSlug}`}`,
+    "mode: subagent",
+    "---",
+    "",
+    body,
+    "",
+  ].join("\n");
+
+  write(join(generatedOpenCodeAgentsRoot, `${targetName}.md`), content);
+}
+
+function writeOpenCodeReadme(skillSlugs) {
+  const lines = [
+    "# AGDF OpenCode surface",
+    "",
+    "These files were generated from the AGDF source repository for OpenCode.",
+    "",
+    `- \`opencode.json\` loads the npm plugin \`${pluginDefinition.opencode.npmPackage}\` and \`.opencode/AGDF.md\` as repository instructions.`,
+    "- `opencode.json` keeps `edit` and `bash` on `ask` so execution remains permissioned.",
+    "- `.opencode/agents/` contains AGDF subagents generated from the canonical AGDF skills.",
+    "- `.opencode/agdf-runtime-contract.md` is the shared gate and output contract.",
+    "",
+    "## Agents",
+    "",
+    ...skillSlugs.map((skill) => `- \`${openCodeSkillName(skill)}\``),
+    "",
+  ];
+
+  write(join(generatedOpenCodeRoot, "README.md"), lines.join("\n"));
+}
+
 function syncRuntimeContract() {
   write(join(generatedSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), toCopilotSkillContent(read(sourceRuntimeContractPath)));
+  write(join(generatedOpenCodeRoot, pluginDefinition.opencode.runtimeContractFileName), toOpenCodeSkillContent(read(sourceRuntimeContractPath)));
 }
 
 function syncSkill(skillSlug) {
@@ -245,10 +362,14 @@ function main() {
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
   writeCodexMarketplace();
+  writeOpenCodeConfig();
+  writeOpenCodeInstructions();
   for (const skillSlug of skillSlugs) {
     syncSkill(skillSlug);
+    writeOpenCodeAgent(skillSlug);
   }
   writeSkillsReadme(skillSlugs);
+  writeOpenCodeReadme(skillSlugs);
 }
 
 main();

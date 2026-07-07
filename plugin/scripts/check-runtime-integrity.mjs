@@ -15,6 +15,7 @@ const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const createAgdfPackagePath = join(repoRoot, "create-agdf", "package.json");
 const pagesPackagePath = join(repoRoot, "pages", "package.json");
 const pagesSiteDataPath = join(repoRoot, "pages", "src", "data", "site.ts");
+const syncPackageAssetsPath = join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js");
 const controlRoot = join(pluginRoot, "control");
 const skillRoot = join(pluginRoot, "skills");
 
@@ -130,6 +131,7 @@ assertFile(sessionStartHookPath, "AGDF SessionStart hook");
 assertFile(createAgdfPackagePath, "create-agdf package manifest");
 assertFile(pagesPackagePath, "Pages package manifest");
 assertFile(pagesSiteDataPath, "Pages site data");
+assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
 assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
@@ -147,6 +149,10 @@ if (pluginDefinition) {
   if (pluginDefinition.codex?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Codex agent router must point to meta/agdf-agent-router.md");
   if (pluginDefinition.claude?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Claude agent router must point to meta/agdf-agent-router.md");
   if (pluginDefinition.copilot?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition Copilot skill prefix must be agdf-");
+  if (pluginDefinition.opencode?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition OpenCode skill prefix must be agdf-");
+  if (pluginDefinition.opencode?.runtimeContractFileName !== "agdf-runtime-contract.md") failures.push("canonical AGDF plugin definition OpenCode runtime contract filename must be agdf-runtime-contract.md");
+  if (pluginDefinition.opencode?.instructionsFileName !== "AGDF.md") failures.push("canonical AGDF plugin definition OpenCode instructions filename must be AGDF.md");
+  if (pluginDefinition.opencode?.permissions?.edit !== "ask" || pluginDefinition.opencode?.permissions?.bash !== "ask") failures.push("canonical AGDF plugin definition OpenCode permissions must ask before edit and bash");
   if (!Array.isArray(pluginDefinition.skillSet) || pluginDefinition.skillSet.length === 0) {
     failures.push("canonical AGDF plugin definition must declare the workflow skill set");
   } else {
@@ -206,6 +212,27 @@ if (pagesPackage && pluginDefinition && pagesPackage.version !== pluginDefinitio
 
 if (pluginDefinition && isFile(pagesSiteDataPath) && !read(pagesSiteDataPath).includes(`version: "${pluginDefinition.version}"`)) {
   failures.push("Pages site data version must match canonical AGDF plugin definition");
+}
+
+if (isFile(syncPackageAssetsPath)) {
+  const syncPackageAssets = read(syncPackageAssetsPath);
+  if (!syncPackageAssets.includes("writeOpenCodeConfig") || !syncPackageAssets.includes("writeOpenCodeAgent")) {
+    failures.push("create-agdf package asset sync must generate the OpenCode config and agents");
+  }
+  if (!pluginDefinition?.opencode?.npmPackage) {
+    failures.push("canonical AGDF plugin definition must declare the OpenCode npm package");
+  }
+  if (!syncPackageAssets.includes("toOpenCodeAgentRouter")) {
+    failures.push("OpenCode instructions must be rendered from the canonical AGDF router");
+  }
+}
+
+const openCodeNpmPluginPath = join(repoRoot, "create-agdf", "opencode-plugin.js");
+if (isFile(openCodeNpmPluginPath)) {
+  const openCodeNpmPlugin = read(openCodeNpmPluginPath);
+  if (!openCodeNpmPlugin.includes("experimental.session.compacting") || !openCodeNpmPlugin.includes("AGDF_CONTROL_DIR")) {
+    failures.push("OpenCode npm plugin must preserve AGDF runtime context hooks");
+  }
 }
 
 const hooksConfig = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Codex plugin hooks config") : null;

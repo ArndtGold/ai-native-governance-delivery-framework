@@ -11,8 +11,9 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["codex", "copilot", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
+const allowedTargets = new Set(["codex", "copilot", "opencode", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
+const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
 const internalStepArtefacts = new Set(["Brownfield Review"]);
@@ -25,6 +26,7 @@ const deliveryRelationships = [
 ];
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
+const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 const codexPluginFiles = [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
@@ -112,6 +114,12 @@ const copilotSkillFiles = [
   join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
   ...copilotSkillNames.map((skillName) => join(".github", "skills", skillName, "SKILL.md")),
 ];
+const openCodeFiles = [
+  join(".opencode", pluginDefinition.opencode.instructionsFileName),
+  join(".opencode", "README.md"),
+  join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
+  ...openCodeSkillNames.map((skillName) => join(".opencode", "agents", `${skillName}.md`)),
+];
 
 function printUsage() {
   console.log(`create-agdf
@@ -119,6 +127,7 @@ function printUsage() {
 Usage:
   npm create agdf@latest -- codex
   npm create agdf@latest -- copilot
+  npm create agdf@latest -- opencode
   npm create agdf@latest -- both
   npm create agdf@latest -- init
   npm create agdf@latest -- config --language de
@@ -263,7 +272,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, copilot, both, init, config, doctor, gate-check or delivery-map.");
+    console.error("Please choose one target: codex, copilot, opencode, both, init, config, doctor, gate-check or delivery-map.");
     printUsage();
     process.exit(1);
   }
@@ -375,10 +384,33 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
     }
   }
 
+  if (target === "opencode") {
+    addLanguageConfig(files, languagePreference);
+    const openCodeConfigTargetPath = existsSync(join(targetDir, "opencode.json")) && !force ? openCodeConfigFragmentPath : "opencode.json";
+    files.push({
+      path: openCodeConfigTargetPath,
+      content: loadAsset("opencode.json"),
+    });
+
+    for (const openCodePath of openCodeFiles) {
+      files.push({
+        path: openCodePath,
+        content: loadAsset(openCodePath),
+      });
+    }
+
+    for (const controlPath of controlFiles) {
+      files.push({
+        path: controlPath,
+        content: loadAsset(controlPath),
+      });
+    }
+  }
+
   return files;
 }
 
-function printNextSteps(target, destination, files, wroteAgentsFragment) {
+function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOpenCodeConfigFragment) {
   console.log("");
   console.log(`AGDF bootstrap complete in ${destination}`);
   console.log("");
@@ -414,6 +446,15 @@ function printNextSteps(target, destination, files, wroteAgentsFragment) {
   }
   if (target === "both") {
     console.log(`- Optional global Claude Code install: ${pluginInstallCommand}`);
+  }
+  if (target === "opencode") {
+    if (wroteOpenCodeConfigFragment) {
+      console.log(`- Existing opencode.json detected. Merge ${openCodeConfigFragmentPath} into your current opencode.json so OpenCode loads .opencode/AGDF.md.`);
+    }
+    console.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
+    console.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the AGDF subagents.");
+    console.log("- Use @agdf-gate-check for new build/change intent or unclear approval before later artefacts or implementation.");
+    console.log("- Run npm create agdf@latest -- init when the repository needs live AGDF control files.");
   }
   if (target === "copilot" || target === "both") {
     console.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");
@@ -1301,6 +1342,7 @@ function main() {
 
   const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
   const wroteAgentsFragment = files.some(file => file.path === agdfFragmentPath);
+  const wroteOpenCodeConfigFragment = files.some(file => file.path === openCodeConfigFragmentPath);
 
   try {
     for (const file of files) {
@@ -1311,7 +1353,7 @@ function main() {
     process.exit(1);
   }
 
-  printNextSteps(options.target, options.dir, files, wroteAgentsFragment);
+  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment);
 }
 
 main();

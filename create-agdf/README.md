@@ -7,6 +7,7 @@ Bootstrap AGDF repository instructions and a machine-checkable control loop for 
 ```bash
 npm create agdf@latest -- codex
 npm create agdf@latest -- copilot
+npm create agdf@latest -- opencode
 npm create agdf@latest -- both
 npm create agdf@latest -- init
 npm create agdf@latest -- config --language en
@@ -26,6 +27,7 @@ If no language is provided, `create-agdf` derives the preference from the local 
 
 - `codex` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
+- `opencode` writes `opencode.json`, `.opencode/AGDF.md`, prefixed OpenCode agents under `.opencode/agents/`, explicit edit/bash permissions, and AGDF control templates under `.agdf/control/`
 - `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
 
@@ -34,6 +36,16 @@ If the target repository already has an `AGENTS.md`, `create-agdf` preserves it 
 Use the `codex` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
 
 After `npm create agdf@latest -- codex`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
+
+Use the `opencode` target when AGDF should be available to OpenCode from repository files:
+
+```bash
+npm create agdf@latest -- opencode
+```
+
+OpenCode loads the AGDF npm plugin from `opencode.json`, AGENTS-style rules from `.opencode/AGDF.md`, explicit `edit`/`bash` permissions and the `agdf-` prefixed agents under `.opencode/agents/`.
+If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment.
+Using OpenCode's plugin installer for `create-agdf` can add the npm plugin entry, but AGDF still needs the repository instructions and agents. The `opencode` target writes the npm plugin entry and the repository files together.
 
 ## Control scaffold
 

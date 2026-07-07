@@ -1,16 +1,21 @@
 # Installation and Setup
 
-AGDF supports three primary usage surfaces:
+AGDF supports four usage surfaces:
 
 1. **Codex** through the installable plugin manifest in `plugin/.codex-plugin/plugin.json`
 2. **Claude Code** through the installable plugin in `plugin/`
 3. **GitHub Copilot** through generated repository files because Copilot does not currently consume the AGDF plugin package
+4. **OpenCode** through repository instructions, generated agents, permissions and the `create-agdf` npm plugin
 
 Codex and Claude Code consume AGDF as an installable plugin runtime.
-GitHub Copilot consumes AGDF as repository-local instructions and visible repository skills.
+GitHub Copilot consumes AGDF through an `AGENTS.md` bootstrap and visible repository skills.
+OpenCode consumes AGDF through AGENTS-style instructions, generated agents, explicit permissions and npm plugin hooks.
 
 Codex is the primary plugin-packaging surface for AGDF.
-The AGDF control model itself is surface-neutral and is reused for Claude Code and GitHub Copilot.
+OpenCode is the reference runtime for showing how AGDF can combine repository instructions, agents, permission gates and plugins in one target surface.
+The AGDF control model itself is surface-neutral and is reused for Claude Code, GitHub Copilot and OpenCode.
+
+AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, GitHub or OpenCode.
 
 AGDF is a control-first plugin.
 The skills steer agent behavior during a run.
@@ -256,11 +261,59 @@ npm create agdf@latest -- doctor
 npm create agdf@latest -- gate-check
 ```
 
-Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `both`, `init` or `config` when the repository should persist an explicit AGDF language preference in `.agdf/control/config.json`. Without the flag, AGDF derives the preference from the local system locale.
+Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `opencode`, `both`, `init` or `config` when the repository should persist an explicit AGDF language preference in `.agdf/control/config.json`. Without the flag, AGDF derives the preference from the local system locale.
+
+## OpenCode
+
+Run this inside the target Git repository you want to equip with AGDF for OpenCode:
+
+```bash
+npm create agdf@latest -- opencode
+```
+
+This writes:
+
+```text
+opencode.json
+.opencode/AGDF.md
+.opencode/agdf-runtime-contract.md
+.opencode/agents/agdf-*.md
+.agdf/control/config.json
+.agdf/control/templates/**
+```
+
+`opencode.json` contains both:
+
+```json
+{
+  "plugin": ["create-agdf"],
+  "instructions": [".opencode/AGDF.md"],
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  }
+}
+```
+
+OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/agents/agdf-*.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible.
+
+If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Merge its `plugin` and `instructions` entries into the existing OpenCode config so OpenCode loads the AGDF npm plugin and `.opencode/AGDF.md`.
+
+OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json`. The generated OpenCode surface uses the `agdf-` prefix because OpenCode project agents do not have the Codex or Claude Code plugin namespace.
+
+OpenCode also makes AGDF's control story visible at runtime: `.opencode/AGDF.md` carries the AGENTS-style rules, `.opencode/agents/` carries the generated AGDF agents, `permission.edit` and `permission.bash` stay on `ask`, and the npm plugin contributes runtime hooks.
+
+Use `@agdf-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
+
+```bash
+npx --yes create-agdf@latest doctor --json
+npx --yes create-agdf@latest gate-check --json
+npx --yes create-agdf@latest delivery-map --json
+```
 
 ## GitHub Actions and rollout boundary
 
-GitHub Actions can validate that the Codex, Claude Code and Copilot-facing artefacts are publishable and internally consistent.
+GitHub Actions can validate that the Codex, Claude Code, OpenCode and Copilot-facing artefacts are publishable and internally consistent.
 
 GitHub Actions should not run:
 
@@ -280,7 +333,7 @@ Use GitHub Actions for:
 - validating `.claude-plugin/marketplace.json`
 - running `node plugin/scripts/check-runtime-integrity.mjs`
 - publishing `create-agdf`
-- validating generated Copilot-facing files
+- validating generated Copilot- and OpenCode-facing files
 - validating that generated skill references match `plugin/meta/agdf-plugin.definition.json`
 
 Use the documented CLI commands on the target developer machine or workspace setup path to install AGDF into Codex or Claude Code.

@@ -100,7 +100,7 @@ const projectStats = await getProjectStats()
           <span class="shrink-0 rounded-full border border-red-500/20 bg-red-500/12 px-3 py-1 text-xs font-semibold text-red-200 sm:text-sm">state unclear</span>
         </div>
         <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
-          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot</div>
+          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot / OpenCode</div>
           <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
           <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
           <div class="mt-5 h-px bg-white/10"></div>
@@ -122,7 +122,7 @@ const projectStats = await getProjectStats()
           <span class="shrink-0 rounded-full border border-agdf-300/25 bg-agdf-400/12 px-3 py-1 text-xs font-semibold text-agdf-100 shadow-[0_0_24px_-12px_var(--agdf-glow)] sm:text-sm">safely blocked</span>
         </div>
         <div class="relative rounded-2xl border border-cyan-100/25 bg-black/32 p-4 shadow-[0_1px_0_rgba(255,255,255,0.12)_inset]">
-          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot</div>
+          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot / OpenCode</div>
           <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
           <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
           <div class="mt-5 grid gap-2.5 text-sm">
@@ -706,14 +706,17 @@ const projectStats = await getProjectStats()
             <div class="ml-8 text-dark-200"><span class="text-agdf-300">delivery-closeout/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
             <div class="mt-2 text-dark-200/50">.claude-plugin/</div>
             <div class="ml-4 text-dark-200/50">marketplace.json</div>
+            <div class="mt-2 text-dark-200/50">target repository after <span class="text-dark-200">npm create agdf -- opencode</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">opencode.json</span> <span class="text-dark-200/50">loads create-agdf, AGDF.md and ask permissions</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.opencode/</span> <span class="text-dark-200/50">AGDF.md, agents/agdf-*.md, agdf-runtime-contract.md</span></div>
             <div class="mt-2 text-dark-200/50">docs/ <span class="text-dark-200/30">— German-first framework documentation</span></div>
             <div class="text-dark-200/50">pages/ <span class="text-dark-200/30">— Astro website</span></div>
           </div>
         </div>
         <div class="mt-6">
-          <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Plugin runtime</div>
+          <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Reference runtime</div>
           <h3 class="mb-3 text-2xl font-bold sm:text-3xl">One runtime, multiple surfaces.</h3>
-          <p class="text-dark-200">Codex, Claude Code and Copilot expose the same control model through surface-specific manifests, skills and repository bootstrap files.</p>
+          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode shows the fuller runtime shape: AGENTS-style instructions, generated agents, permission gates and plugin hooks.</p>
         </div>
       </div>
     </div>
@@ -782,7 +785,8 @@ const projectStats = await getProjectStats()
 <section id="compat" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Compatibility</h2>
-        <p class="text-dark-200">AGDF is Codex-first. The skills, AGENTS runtime instructions and control scaffold are maintained for Codex as the leading plugin surface, then reused for Claude Code and GitHub Copilot.</p>
+        <p class="text-dark-200">AGDF is Codex-first, but not Codex-only. Codex and Claude consume AGDF through plugins and skills, Copilot through AGENTS.md bootstrap, and OpenCode through instructions, agents, permissions and plugins.</p>
+        <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">OpenCode is marked as reference because it exposes the full AGDF control stack in one runtime: rules, generated agents, explicit edit/bash permissions and plugin hooks.</p>
   </div>
   <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
     <table class="w-full text-left text-sm">
@@ -806,16 +810,19 @@ const projectStats = await getProjectStats()
             </td>
               <td class="px-4 py-3 font-mono text-dark-200">{c.integration}</td>
             <td class="px-4 py-3">
-                <span class={`font-mono font-semibold ${c.support === 'Leading' || c.support === 'First-class' ? 'text-agdf-400' : 'text-yellow-400'}`}>{c.support}</span>
+                <span class={`font-mono font-semibold ${c.support === 'Leading' || c.support === 'First-class' || c.support === 'Reference' ? 'text-agdf-400' : 'text-yellow-400'}`}>{c.support}</span>
             </td>
             <td class="px-4 py-3">
-              <span class={`rounded-full px-2 py-0.5 text-xs ${c.goal === 'primary' || c.goal === 'plugin' ? 'border border-agdf-500/30 bg-agdf-950 text-agdf-300' : 'bg-dark-800 text-dark-200'}`}>{c.goal}</span>
+              <span class={`rounded-full px-2 py-0.5 text-xs ${c.goal === 'primary' || c.goal === 'plugin' || c.goal === 'runtime' ? 'border border-agdf-500/30 bg-agdf-950 text-agdf-300' : 'bg-dark-800 text-dark-200'}`}>{c.goal}</span>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
   </div>
+  <p data-reveal data-reveal-delay="2" class="mx-auto mt-4 max-w-4xl text-center text-xs text-dark-400">
+    AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, GitHub or OpenCode.
+  </p>
 </section>
 
 <!-- ==================== SETUP ==================== -->
@@ -897,6 +904,21 @@ const projectStats = await getProjectStats()
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in a terminal where the Claude Code CLI is installed</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin add arndtgold/ai-native-governance-delivery-framework</span></div>
             <div class="text-dark-200">  installs AGDF into Claude Code <span class="text-agdf-300">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="setup-opencode" data-reveal data-reveal-delay="4">
+        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
+          <span class="text-dark-200/50">OpenCode:</span>
+          <span class="font-semibold">Reference runtime: instructions, agents, permissions and plugin hooks</span>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF for OpenCode</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- opencode</span></div>
+            <div class="text-dark-200">  writes opencode.json with plugin ["create-agdf"], instructions and ask permissions <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  writes agdf-* agents under .opencode/agents <span class="text-agdf-300">✓</span></div>
+            <div class="text-dark-200">  use @agdf-gate-check before later artefacts or implementation <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
       </div>

@@ -1,14 +1,19 @@
 {
   "name": "create-agdf",
-  "version": "0.2.8",
-  "description": "Bootstrap AGDF repository-local plugin files, Copilot instructions, skills, control files and machine-readable checks.",
+  "version": "0.2.9",
+  "description": "Bootstrap AGDF repository-local plugin files, Copilot/OpenCode instructions, skills, control files and machine-readable checks.",
   "type": "module",
   "files": [
     "bin",
     "generated",
+    "opencode-plugin.js",
     "README.md",
     "NOTICE"
   ],
+  "exports": {
+    ".": "./opencode-plugin.js",
+    "./opencode-plugin": "./opencode-plugin.js"
+  },
   "bin": {
     "create-agdf": "./bin/create-agdf.js"
   },
@@ -23,6 +28,7 @@
     "copilot",
     "claude-code",
     "codex",
+    "opencode",
     "control",
     "scaffold",
     "bootstrap"

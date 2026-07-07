@@ -10,6 +10,7 @@ const pluginDefinitionPath = fileURLToPath(new URL("../plugin/meta/agdf-plugin.d
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
+const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 
 function run(target, expectedFiles) {
   const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-${target}-`));
@@ -74,6 +75,34 @@ function run(target, expectedFiles) {
         throw new Error(`Copilot instructions for ${target} must classify CLI checks as deterministic validators.`);
       }
     }
+
+    if (target === "opencode") {
+      const openCodeConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
+      if (!openCodeConfig.instructions?.includes(".opencode/AGDF.md")) {
+        throw new Error("OpenCode config must load .opencode/AGDF.md instructions.");
+      }
+      if (!openCodeConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
+        throw new Error(`OpenCode config must load the ${pluginDefinition.opencode.npmPackage} npm plugin.`);
+      }
+      if (openCodeConfig.permission?.edit !== "ask" || openCodeConfig.permission?.bash !== "ask") {
+        throw new Error("OpenCode config must keep edit and bash on explicit approval.");
+      }
+
+      const openCodeInstructions = readFileSync(join(tempDir, ".opencode", "AGDF.md"), "utf8");
+      if (!openCodeInstructions.includes("| `agdf-gate-check` |")) {
+        throw new Error("OpenCode instructions must route prefixed AGDF agents.");
+      }
+      if (openCodeInstructions.includes("| `gate-check` |")) {
+        throw new Error("OpenCode instructions must not contain unprefixed skill routing.");
+      }
+
+      for (const skillName of openCodeSkillNames) {
+        const agentPath = join(tempDir, ".opencode", "agents", `${skillName}.md`);
+        if (!existsSync(agentPath)) {
+          throw new Error(`OpenCode surface routes ${skillName} but does not expose .opencode/agents/${skillName}.md.`);
+        }
+      }
+    }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -136,6 +165,40 @@ run("both", [
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}code-review`, "SKILL.md"),
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}release-or`, "SKILL.md"),
 ]);
+run("opencode", [
+  "opencode.json",
+  join(".agdf", "control", "config.json"),
+  join(".agdf", "control", "README.md"),
+  join(".agdf", "control", "templates", "AGDF_RUN.md"),
+  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
+  join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
+  join(".opencode", "AGDF.md"),
+  join(".opencode", "README.md"),
+  join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
+  join(".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}gate-check.md`),
+  join(".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}code-review.md`),
+  join(".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}qa-gate.md`),
+]);
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-existing-config-"));
+
+  try {
+    writeFileSync(join(tempDir, "opencode.json"), '{\n  "$schema": "https://opencode.ai/config.json"\n}\n', "utf8");
+    execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { stdio: "pipe" });
+
+    if (!existsSync(join(tempDir, "opencode.agdf.json"))) {
+      throw new Error("OpenCode target should write opencode.agdf.json when opencode.json already exists.");
+    }
+
+    const existingConfig = readFileSync(join(tempDir, "opencode.json"), "utf8");
+    if (existingConfig.includes(".opencode/AGDF.md")) {
+      throw new Error("OpenCode target must not overwrite an existing opencode.json without --force.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
 run("config", [
   join(".agdf", "control", "config.json"),
 ]);

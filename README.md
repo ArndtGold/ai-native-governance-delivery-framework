@@ -2,7 +2,7 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als Plugin, zusätzlich nutzbar mit Claude Code und GitHub Copilot.
+Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als Plugin, zusätzlich nutzbar mit Claude Code, GitHub Copilot und OpenCode.
 
 ## Language note
 
@@ -10,7 +10,9 @@ AGDF is German-first by design.
 
 The framework discusses governance, responsibility, approval, evidence and delivery control in the language in which many of the underlying enterprise, product and accountability conversations happen for this project. English software-delivery terms are used where they are established, but the primary reasoning language remains German to preserve nuance around control, responsibility and decision-making.
 
-The plugin surfaces and operational commands are kept usable for Codex, Claude Code and GitHub Copilot. Selected runtime-facing parts may become bilingual where that improves adoption without weakening the original concepts.
+The plugin surfaces and operational commands are kept usable for Codex, Claude Code, GitHub Copilot and OpenCode. Selected runtime-facing parts may become bilingual where that improves adoption without weakening the original concepts.
+
+AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, GitHub or OpenCode.
 
 ## Zentrale Frage
 
@@ -181,12 +183,13 @@ Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
 ```bash
 npm create agdf@latest -- init
+npm create agdf@latest -- opencode
 npm create agdf@latest -- config --language en
 npm create agdf@latest -- doctor
 npx --yes create-agdf@latest gate-check --json
 ```
 
-`config` schreibt oder aktualisiert nur die projektlokale Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
+`opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions, Agents, Permissions und Plugin-Hooks. `config` schreibt oder aktualisiert nur die projektlokale Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
 
 ## Lizenz
 

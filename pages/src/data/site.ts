@@ -6,7 +6,7 @@ export const site = {
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
-    version: "0.2.8",
+    version: "0.2.9",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 30+ years enterprise experience",
@@ -342,6 +342,7 @@ export const gateModeMatrix = [
 ]
 
 export const compatibility = [
+    { tool: "OpenCode", integration: "instructions + agents + permissions + npm plugin", support: "Reference", goal: "runtime", setupAnchor: "#setup-opencode" },
     { tool: "OpenAI Codex CLI / app", integration: "Plugin + control scaffold", support: "Leading", goal: "primary", setupAnchor: "#setup-codex-project" },
     { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "First-class", goal: "plugin", setupAnchor: "#setup-claude" },
     { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills + .agdf/control", support: "First-class", goal: "repo files", setupAnchor: "#setup-copilot" },

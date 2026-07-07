@@ -740,9 +740,13 @@ const projectStats = await getProjectStats()
 
 <!-- ==================== SKILLS ==================== -->
 <section id="skills" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-      <Icon name="workflow" class="h-8 w-8" />
+  <div data-reveal class="mb-12 flex flex-col items-center text-center">
+    <div class="mb-5 inline-flex max-w-full items-center gap-3 rounded-full border border-agdf-500/30 bg-agdf-950/60 px-4 py-2 text-left shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+      <img src="/assets/agdf-logo.svg" alt="" class="h-10 w-10 shrink-0" loading="lazy" decoding="async" />
+      <div class="min-w-0">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-agdf-300">AGDF Skill System</p>
+        <p class="text-sm text-dark-200">Workflow controls for governed agent delivery.</p>
+      </div>
     </div>
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">7 Core Workflow Skills</h2>
     <p class="text-dark-200">Each skill is an auditable workflow, not a loose suggestion.</p>

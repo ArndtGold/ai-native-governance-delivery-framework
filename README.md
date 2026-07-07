@@ -190,3 +190,9 @@ npm create agdf@latest gate-check --json
 ## Lizenz
 
 Lizenziert unter [Apache-2.0](LICENSE).
+
+## Marken
+
+AGDF(TM) und AI Governance & Delivery Framework(TM) sind Marken von Arndt Gold.
+Die Nutzung von Name, Logo und Projektmarken ist in [TRADEMARKS.md](TRADEMARKS.md) beschrieben.
+Weitere Hinweise stehen in [NOTICE](NOTICE).

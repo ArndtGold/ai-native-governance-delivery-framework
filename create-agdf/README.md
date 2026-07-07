@@ -119,3 +119,8 @@ The repository publishes this package from `create-agdf/` via the GitHub Actions
 - Create or update the version in `create-agdf/package.json`
 - Push a matching git tag in the form `create-agdf-v<version>`
 - Ensure the repository secret `NPM_TOKEN` exists with publish rights for `create-agdf`
+
+## Trademark Notice
+
+AGDF(TM) and AI Governance & Delivery Framework(TM) are marks of Arndt Gold.
+Use of the AGDF name and marks is governed by the project trademark guidelines.

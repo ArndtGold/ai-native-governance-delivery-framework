@@ -129,9 +129,9 @@ export const approvalGates = [
 export const visualProofs = {
     product: {
         eyebrow: "Product proof",
-        title: "A real application delivered with AGDF",
-        desc: "This application was delivered with ChatGPT Plus + Codex using AGDF as the control layer: requirements, approvals, design, evidence and QA stayed connected.",
-        built: "AGDF did not replace the tools. It kept the delivery governable.",
+        title: "From unchecked agent output to governed delivery state.",
+        desc: "The Agent Builder workflow was created with ChatGPT Plus and Codex. AGDF kept requirements, design, approvals, evidence and QA connected, so humans and agents could work from the same delivery state.",
+        built: "AGDF did not replace tools, judgment or delivery responsibility. It made AI output governable, turning agent speed into a delivery advantage.",
         src: "/assets/example-greenfield-to-brownfield-gates.png",
         alt: "Agent Builder workflow canvas with Start, Agent and End nodes plus configuration panels.",
         width: 4662,
@@ -157,27 +157,27 @@ export const visualProofs = {
 export const prevention = [
     {
         title: "Silent Scope Drift",
-        desc: "Prompt, design and code describe different products."
+        desc: "Prompt, design and code describe different products, so teams review output that no longer matches the approved intent."
     },
     {
         title: "Greenfield In Brownfield",
-        desc: "The agent creates a second path instead of extending the owner."
+        desc: "When ownership, rules and integration points are unclear, the coding agent creates a second path instead of extending the owner."
     },
     {
         title: "Green Build, Unfinished Task",
-        desc: "Tests pass while the approved Task Plan remains open."
+        desc: "Tests pass while the approved Task Plan remains open, so a green build is mistaken for completed delivery."
     },
     {
         title: "QA Without Evidence",
-        desc: "Done is claimed before evidence supports it."
+        desc: "Done is claimed before evidence supports it, leaving reviewers with confidence instead of proof."
     },
     {
         title: "Permanent Fallbacks",
-        desc: "Temporary guards become architecture."
+        desc: "Temporary guards become architecture because no gate forces cleanup, removal or an explicit design decision."
     },
     {
         title: "Premature Handoff",
-        desc: "Commit or PR work starts before gate status and risks are clear."
+        desc: "Commit or PR work starts before gate status and risks are clear, shifting unresolved decisions into review."
     },
 ]
 
@@ -215,57 +215,57 @@ export const aiActFit = [
 export const principles = [
     {
         title: "No Implementation Without an Approved Product Contract",
-        desc: "Implementation must not start from vague intent. It needs a stable product contract with scope, acceptance criteria and non-goals.",
-    },
-    {
-        title: "Fail Closed",
-        desc: "When required approval, input or quality evidence is missing, the process stops. The default is never best effort.",
+        desc: "Agents can turn vague intent into plausible code. Approved scope, acceptance criteria and non-goals define what may be built.",
     },
     {
         title: "One Source of Product Intent",
-        desc: "The product contract is the anchor. Design, tasks and implementation must not silently reinterpret it.",
+        desc: "Prompt, design, tasks, code and tests can silently drift apart. The product contract keeps the intended product stable.",
+    },
+    {
+        title: "Fail Closed",
+        desc: "Missing approval, input or evidence must stop the run. Otherwise best effort hides risk behind apparent progress.",
     },
     {
         title: "Design Is Not Code",
-        desc: "Conceptual design and implementation details must stay separated until the right gate allows implementation.",
+        desc: "Agents can make architecture while coding. Design stays separate until the right gate allows implementation.",
     },
     {
         title: "Tasks Need Business Justification",
-        desc: "A task is not just a board card. It must show which requirement, risk or decision it addresses.",
-    },
-    {
-        title: "Traceability Is Not Bureaucracy",
-        desc: "Traceability means answering fundamental delivery questions, not producing as many documents as possible.",
+        desc: "Activity alone is not value. Each task must show which requirement, risk or delivery decision it supports.",
     },
     {
         title: "Quality Needs Evidence",
-        desc: "A quality claim is not enough. What was not checked must not be presented as checked.",
+        desc: "Confident summaries can look like proof. What was not checked must not be presented as checked.",
     },
     {
         title: "Changes Must Be Visible",
-        desc: "Changes to scope, acceptance criteria or non-goals must be documented and reviewed. AI conversations must not hide product changes.",
+        desc: "AI conversations can hide product changes inside implementation work. Scope changes must be documented and reviewed.",
+    },
+    {
+        title: "Traceability Is Not Bureaucracy",
+        desc: "Teams must explain why work was allowed, what it proves and what still blocks delivery. That is traceability.",
     },
 ];
 
 export const buildingBlocks = [
     {
         name: "Artifacts",
-        desc: "Persist the work state: need, product contract, design, plan, tests and evidence.",
+        desc: "Persist the work state so output can be checked against need, product contract, design, plan, tests and evidence.",
         icon: "archive-box",
     },
     {
         name: "Gates",
-        desc: "Decide whether work may start, must revise or must stop.",
+        desc: "Decide whether work may start, must revise or must stop before missing input becomes hidden risk.",
         icon: "shield-check",
     },
     {
         name: "Delivery Map",
-        desc: "Connect run status, artifacts, decisions, risks, tests, evidence and gates.",
+        desc: "Connect status, artifacts, decisions, risks, tests, evidence and gates so progress and blockers stay visible.",
         icon: "map",
     },
     {
         name: "Quality Contracts",
-        desc: "Turn repeated review questions into reusable block, revise and warn signals.",
+        desc: "Turn repeated review questions into reusable block, revise and warn signals instead of relying on confident summaries.",
         icon: "clipboard-document-check",
     },
 ];

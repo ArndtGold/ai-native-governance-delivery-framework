@@ -4,6 +4,19 @@ Bootstrap AGDF repository instructions and a machine-checkable control loop for 
 
 ## Usage
 
+Preferred long-term CLI shape:
+
+```bash
+npx --yes agdf@latest codex
+npx --yes agdf@latest opencode
+npx --yes agdf@latest init
+npx --yes agdf@latest config --language en
+npx --yes agdf@latest doctor
+npx --yes agdf@latest gate-check --json
+```
+
+Backward-compatible scaffold usage:
+
 ```bash
 npm create agdf@latest -- codex
 npm create agdf@latest -- copilot
@@ -135,6 +148,8 @@ The routing test installs `both` into a temporary target repository and checks t
 ## Publishing
 
 The repository publishes this package from `create-agdf/` via the GitHub Actions workflow `.github/workflows/publish-create-agdf.yml`.
+
+The primary user-facing CLI package is published separately from `agdf/` and delegates to this package through the shared `create-agdf/cli` export.
 
 - Create or update the version in `create-agdf/package.json`
 - Push a matching git tag in the form `create-agdf-v<version>`

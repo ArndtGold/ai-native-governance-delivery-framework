@@ -182,11 +182,17 @@ Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte a
 Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
 ```bash
+npx --yes agdf@latest init
+npx --yes agdf@latest opencode
+npx --yes agdf@latest config --language en
+npx --yes agdf@latest doctor
+npx --yes agdf@latest gate-check --json
+```
+
+Für Scaffold-kompatible Installation bleibt der npm-create-Pfad erhalten:
+
+```bash
 npm create agdf@latest -- init
-npm create agdf@latest -- opencode
-npm create agdf@latest -- config --language en
-npm create agdf@latest -- doctor
-npx --yes create-agdf@latest gate-check --json
 ```
 
 `opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions, Agents, Permissions und Plugin-Hooks. `config` schreibt oder aktualisiert nur die projektlokale Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.

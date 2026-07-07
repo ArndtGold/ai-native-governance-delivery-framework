@@ -26,6 +26,9 @@ jobs:
       - name: Verify create-agdf package
         run: npm --prefix create-agdf run smoke-test
 
+      - name: Verify agdf CLI package
+        run: npm --prefix agdf run smoke-test
+
       - name: Install Pages dependencies
         run: npm --prefix pages ci
 

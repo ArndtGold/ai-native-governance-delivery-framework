@@ -6,11 +6,26 @@ import { fileURLToPath } from "node:url";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
+const packageJsonPath = fileURLToPath(new URL("./package.json", packageRoot));
+const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 const pluginDefinitionPath = fileURLToPath(new URL("../plugin/meta/agdf-plugin.definition.json", packageRoot));
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
+
+if (packageJson.bin?.["create-agdf"] !== "./bin/create-agdf.js") {
+  throw new Error("create-agdf must keep the backward-compatible create-agdf binary.");
+}
+
+if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
+  throw new Error("create-agdf must export its CLI for the agdf wrapper package.");
+}
+
+const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
+if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes agdf@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+  throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
+}
 
 function run(target, expectedFiles) {
   const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-${target}-`));

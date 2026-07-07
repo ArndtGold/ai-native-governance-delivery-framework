@@ -845,6 +845,14 @@ const projectStats = await getProjectStats()
         <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">For Claude: Claude Code CLI</div>
         <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4 text-sm text-dark-200">For Copilot: GitHub Copilot CLI or Copilot Coding Agent</div>
       </div>
+      <p class="mt-4 text-xs text-dark-300">
+        New to npm commands?
+        <a href="https://docs.npmjs.com/cli/v10/commands/npx/" target="_blank" rel="noreferrer" class="text-agdf-300 transition-colors hover:text-agdf-200">npx</a>,
+        <a href="https://docs.npmjs.com/cli/v10/commands/npm-install/" target="_blank" rel="noreferrer" class="text-agdf-300 transition-colors hover:text-agdf-200">npm install</a>
+        and
+        <a href="https://docs.npmjs.com/cli/v10/commands/npm-uninstall/" target="_blank" rel="noreferrer" class="text-agdf-300 transition-colors hover:text-agdf-200">npm uninstall</a>
+        are explained in the official npm docs.
+      </p>
     </div>
     <div class="space-y-6">
       <div id="setup-codex-project" data-reveal data-reveal-delay="2">
@@ -856,7 +864,7 @@ const projectStats = await getProjectStats()
           <div class="terminal">
             <div class="terminal-body space-y-2">
               <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository where you want to try AGDF</span></div>
-              <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- codex</span></div>
+              <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest codex</span></div>
               <div class="text-dark-200">  writes .agents/plugins/marketplace.json and plugins/agdf <span class="text-agdf-300">✓</span></div>
               <div class="text-dark-200">  restart Codex, open /plugins, select This repository and install agdf <span class="text-agdf-300">✓</span></div>
             </div>
@@ -893,7 +901,7 @@ const projectStats = await getProjectStats()
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework</span></div>
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin add agdf --marketplace agdf</span></div>
             <div class="text-dark-200">  loads plugin/.codex-plugin/plugin.json, shared AGDF skills, lifecycle hooks and control templates <span class="text-agdf-300">✓</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- config --language en</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest config --language en</span></div>
             <div class="text-dark-200">  optional project language config without a full control scaffold <span class="text-agdf-300">✓</span></div>
           </div>
         </div>
@@ -919,7 +927,7 @@ const projectStats = await getProjectStats()
         <div class="terminal">
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF for OpenCode</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- opencode</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest opencode</span></div>
             <div class="text-dark-200">  writes opencode.json with plugin ["create-agdf"], instructions and ask permissions <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  writes agdf-* agents under .opencode/agents <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  use @agdf-gate-check before later artefacts or implementation <span class="text-agdf-300">✓</span></div>
@@ -934,9 +942,9 @@ const projectStats = await getProjectStats()
         <div class="terminal">
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this inside the repository you want to equip with AGDF</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- copilot</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest copilot</span></div>
             <div class="text-dark-200">  writes AGENTS.md, Copilot instructions, repo skills and .agdf/control templates <span class="text-agdf-300">✓</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- init</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest init</span></div>
             <div class="text-dark-200">  optional deterministic scaffold for live .agdf/control files <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  if AGENTS.md already exists, AGDF writes AGENTS.agdf.md instead <span class="text-agdf-300">✓</span></div>
           </div>
@@ -967,15 +975,15 @@ const projectStats = await getProjectStats()
         <div class="terminal">
           <div class="terminal-body space-y-2">
             <div><span class="text-dark-200/50">#</span> <span class="text-dark-200">Run this in the target repository if you want Copilot-facing repo files</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- both</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest both</span></div>
             <div class="text-dark-200">  writes the project Codex marketplace and local AGDF plugin copy <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  agent-native first, CLI-verifiable by design <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  AGDF works natively from router, skills and live .agdf/control state <span class="text-agdf-300">✓</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npm create agdf@latest -- doctor</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest doctor</span></div>
             <div class="text-dark-200">  deterministic validator for gate, next action, evidence, SoT and quality contracts <span class="text-agdf-300">✓</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes create-agdf@latest gate-check --json</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest gate-check --json</span></div>
             <div class="text-dark-200">  validator for the next allowed process decision <span class="text-agdf-300">✓</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes create-agdf@latest delivery-map --json</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes agdf@latest delivery-map --json</span></div>
             <div class="text-dark-200">  validator for artefact chain, evidence, risks and Context Graph effect <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  preserves an existing AGENTS.md and writes AGENTS.agdf.md for manual merge <span class="text-agdf-300">✓</span></div>
             <div class="text-dark-200">  adds Copilot custom instructions as the always-on guardrail layer <span class="text-agdf-300">✓</span></div>
@@ -1010,7 +1018,7 @@ const projectStats = await getProjectStats()
             <div class="text-dark-200">  Status: <code class="text-yellow-400">open</code></div>
             <div class="text-dark-200">  Allowed: formulate and persist UR</div>
             <div class="text-dark-200">  Next step: describe and approve the UR</div>
-            <div class="text-dark-200">  Optional validator: <code>npx --yes create-agdf@latest delivery-map --json</code></div>
+            <div class="text-dark-200">  Optional validator: <code>npx --yes agdf@latest delivery-map --json</code></div>
           </div>
         </div>
       </div>

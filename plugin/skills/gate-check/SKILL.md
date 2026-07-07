@@ -41,10 +41,10 @@ Use `init` only when the user explicitly asks for durable AGDF control state, th
 Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, when CI or PR evidence is needed, or when a repository-local automation needs JSON output:
 
 ```bash
-npm create agdf@latest -- init
-npx --yes create-agdf@latest doctor --json
-npx --yes create-agdf@latest gate-check --json
-npx --yes create-agdf@latest delivery-map --json
+npx --yes agdf@latest init
+npx --yes agdf@latest doctor --json
+npx --yes agdf@latest gate-check --json
+npx --yes agdf@latest delivery-map --json
 ```
 
 `init` creates the control scaffold. `doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and `AGDF_RUN.md` to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.

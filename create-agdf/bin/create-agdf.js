@@ -124,7 +124,14 @@ const openCodeFiles = [
 function printUsage() {
   console.log(`create-agdf
 
-Usage:
+Preferred AGDF CLI:
+  npx --yes agdf@latest codex
+  npx --yes agdf@latest opencode
+  npx --yes agdf@latest init
+  npx --yes agdf@latest doctor
+  npx --yes agdf@latest gate-check --json
+
+Scaffold-compatible npm create usage:
   npm create agdf@latest -- codex
   npm create agdf@latest -- copilot
   npm create agdf@latest -- opencode
@@ -134,6 +141,10 @@ Usage:
   npm create agdf@latest -- doctor
   npm create agdf@latest -- gate-check
   npm create agdf@latest -- delivery-map
+
+Backward-compatible create-agdf usage:
+  npx --yes create-agdf@latest doctor --json
+  npx --yes create-agdf@latest gate-check --json
 
 Options:
   --dir <path>   Write files into a specific directory
@@ -428,13 +439,13 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
   }
   if (target === "init") {
     console.log("- Fill .agdf/control/AGDF_RUN.md with the current gate, evidence and next allowed action.");
-    console.log("- Run npm create agdf@latest -- doctor to check the control state before the next agent run.");
+    console.log("- Run npx --yes agdf@latest doctor to check the control state before the next agent run.");
     console.log("- Commit the live control files once they represent the repository's current delivery state.");
     return;
   }
   if (target === "config") {
     console.log("- Restart or start a new agent session so the AGDF SessionStart hook reads the updated project language config.");
-    console.log("- Run npm create agdf@latest -- doctor when this repository also uses durable AGDF control state.");
+    console.log("- Run npx --yes agdf@latest doctor when this repository also uses durable AGDF control state.");
     return;
   }
   if (wroteAgentsFragment) {
@@ -454,11 +465,11 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
     console.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
     console.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the AGDF subagents.");
     console.log("- Use @agdf-gate-check for new build/change intent or unclear approval before later artefacts or implementation.");
-    console.log("- Run npm create agdf@latest -- init when the repository needs live AGDF control files.");
+    console.log("- Run npx --yes agdf@latest init when the repository needs live AGDF control files.");
   }
   if (target === "copilot" || target === "both") {
     console.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");
-    console.log("- Run npm create agdf@latest -- init when the repository needs live AGDF control files.");
+    console.log("- Run npx --yes agdf@latest init when the repository needs live AGDF control files.");
   }
   console.log("- Commit the generated files so the repository becomes the source of truth.");
 }
@@ -562,7 +573,7 @@ function evaluateDoctor(targetDir) {
         ? "Live control file is missing; only the template exists."
         : "Required live control file is missing.",
       relativePath,
-      "Run npm create agdf@latest -- init only when the repository should own durable AGDF control state or deterministic setup is explicitly needed.",
+      "Run npx --yes agdf@latest init only when the repository should own durable AGDF control state or deterministic setup is explicitly needed.",
     );
   }
 
@@ -1177,7 +1188,7 @@ function evaluateGateCheck(targetDir) {
     allowed = [
       "draft the minimal UR for the requested change in the response",
       "request exact approval: Approval: UR",
-      "run npm create agdf@latest -- init only when durable control state or deterministic setup is explicitly needed",
+      "run npx --yes agdf@latest init only when durable control state or deterministic setup is explicitly needed",
     ];
     forbidden = ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"];
     nextAllowedAction = "Draft the minimal UR for the request in the response, then ask for exact approval: Approval: UR. Do not write a full .agdf/control scaffold unless durable control state or deterministic setup is explicitly needed.";

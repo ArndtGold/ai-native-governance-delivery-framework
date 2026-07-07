@@ -14,6 +14,7 @@ const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
 const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const codexComposerIconPath = join(pluginRoot, "assets", "agdf-icon.svg");
 const codexLogoPath = join(pluginRoot, "assets", "agdf-logo.svg");
+const agdfPackagePath = join(repoRoot, "agdf", "package.json");
 const createAgdfPackagePath = join(repoRoot, "create-agdf", "package.json");
 const pagesPackagePath = join(repoRoot, "pages", "package.json");
 const pagesSiteDataPath = join(repoRoot, "pages", "src", "data", "site.ts");
@@ -130,6 +131,7 @@ assertFile(codexPluginPath, "Codex plugin manifest");
 assertFile(claudePluginPath, "Claude plugin manifest");
 assertFile(codexComposerIconPath, "Codex plugin composer icon");
 assertFile(codexLogoPath, "Codex plugin logo");
+assertFile(agdfPackagePath, "agdf CLI package manifest");
 assertFile(hooksConfigPath, "Codex plugin default hooks config");
 assertFile(sessionStartHookPath, "AGDF SessionStart hook");
 assertFile(createAgdfPackagePath, "create-agdf package manifest");
@@ -141,6 +143,7 @@ assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
+const agdfPackage = isFile(agdfPackagePath) ? readJson(agdfPackagePath, "agdf CLI package manifest") : null;
 const createAgdfPackage = isFile(createAgdfPackagePath) ? readJson(createAgdfPackagePath, "create-agdf package manifest") : null;
 const pagesPackage = isFile(pagesPackagePath) ? readJson(pagesPackagePath, "Pages package manifest") : null;
 
@@ -212,6 +215,13 @@ if (claudePlugin && pluginDefinition) {
 
 if (createAgdfPackage && pluginDefinition && createAgdfPackage.version !== pluginDefinition.version) {
   failures.push("create-agdf package version must match canonical AGDF plugin definition");
+}
+
+if (agdfPackage && pluginDefinition) {
+  if (agdfPackage.name !== "agdf") failures.push("agdf CLI package name must be agdf");
+  if (agdfPackage.version !== pluginDefinition.version) failures.push("agdf CLI package version must match canonical AGDF plugin definition");
+  if (agdfPackage.bin?.agdf !== "./bin/agdf.js") failures.push("agdf CLI package must expose the agdf binary");
+  if (agdfPackage.dependencies?.["create-agdf"] !== pluginDefinition.version) failures.push("agdf CLI package must depend on the matching create-agdf version");
 }
 
 if (pagesPackage && pluginDefinition && pagesPackage.version !== pluginDefinition.version) {
@@ -435,7 +445,7 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
       failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
     }
-    if (!skillMd.includes("npx --yes create-agdf@latest delivery-map --json")) {
+    if (!skillMd.includes("npx --yes agdf@latest delivery-map --json")) {
       failures.push("gate-check must expose the machine-readable delivery-map command");
     }
     if (!skillMd.includes("This skill is the primary operating path for gate judgement")) {

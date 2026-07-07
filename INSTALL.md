@@ -169,12 +169,22 @@ Or initialize live control files directly when you want deterministic scaffoldin
 npm create agdf@latest -- init
 ```
 
+The primary CLI package is `agdf`. Use it when command semantics matter:
+
+```bash
+npx --yes agdf@latest init
+npx --yes agdf@latest doctor
+npx --yes agdf@latest gate-check --json
+```
+
+`npm create agdf@latest -- ...` remains supported for scaffold-style setup.
+
 You can pin the preferred project language during setup:
 
 ```bash
-npm create agdf@latest -- init --language de
-npm create agdf@latest -- codex --lang en
-npm create agdf@latest -- config --language en
+npx --yes agdf@latest init --language de
+npx --yes agdf@latest codex --lang en
+npx --yes agdf@latest config --language en
 ```
 
 Supported values are `de` and `en`. If no language is provided, `create-agdf` reads the local system locale from `LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale and falls back to `en`.

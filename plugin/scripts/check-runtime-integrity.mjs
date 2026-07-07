@@ -218,7 +218,7 @@ if (createAgdfPackage && pluginDefinition && createAgdfPackage.version !== plugi
 }
 
 if (agdfPackage && pluginDefinition) {
-  if (agdfPackage.name !== "agdf") failures.push("agdf CLI package name must be agdf");
+  if (agdfPackage.name !== "@agdf-runtime/cli") failures.push("agdf CLI package name must be @agdf-runtime/cli");
   if (agdfPackage.version !== pluginDefinition.version) failures.push("agdf CLI package version must match canonical AGDF plugin definition");
   if (agdfPackage.bin?.agdf !== "./bin/agdf.js") failures.push("agdf CLI package must expose the agdf binary");
   if (agdfPackage.dependencies?.["create-agdf"] !== pluginDefinition.version) failures.push("agdf CLI package must depend on the matching create-agdf version");
@@ -445,7 +445,7 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
       failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
     }
-    if (!skillMd.includes("npx --yes agdf@latest delivery-map --json")) {
+    if (!skillMd.includes("npx --yes @agdf-runtime/cli@latest delivery-map --json")) {
       failures.push("gate-check must expose the machine-readable delivery-map command");
     }
     if (!skillMd.includes("This skill is the primary operating path for gate judgement")) {

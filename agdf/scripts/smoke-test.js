@@ -10,8 +10,8 @@ const createAgdfPackageRoot = fileURLToPath(new URL("./create-agdf", repoRoot));
 const packageJsonPath = fileURLToPath(new URL("./package.json", packageRoot));
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 
-if (packageJson.name !== "agdf") {
-  throw new Error("The primary CLI package must be named agdf.");
+if (packageJson.name !== "@agdf-runtime/cli") {
+  throw new Error("The primary CLI package must be named @agdf-runtime/cli.");
 }
 
 if (packageJson.bin?.agdf !== "./bin/agdf.js") {
@@ -40,8 +40,8 @@ try {
     stdio: "pipe",
   });
 
-  const installedAgdfRoot = join(tempDir, "node_modules", "agdf");
-  mkdirSync(join(tempDir, "node_modules"), { recursive: true });
+  const installedAgdfRoot = join(tempDir, "node_modules", "@agdf-runtime", "cli");
+  mkdirSync(join(tempDir, "node_modules", "@agdf-runtime"), { recursive: true });
   cpSync(fileURLToPath(packageRoot), installedAgdfRoot, {
     recursive: true,
     filter: (source) => !source.includes(`${join("agdf", "node_modules")}`),
@@ -53,7 +53,7 @@ try {
     encoding: "utf8",
   });
 
-  if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes agdf@latest init")) {
+  if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf-runtime/cli@latest init")) {
     throw new Error("agdf help output must present the primary AGDF CLI shape.");
   }
 } finally {

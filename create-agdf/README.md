@@ -7,12 +7,12 @@ Bootstrap AGDF repository instructions and a machine-checkable control loop for 
 Preferred long-term CLI shape:
 
 ```bash
-npx --yes agdf@latest codex
-npx --yes agdf@latest opencode
-npx --yes agdf@latest init
-npx --yes agdf@latest config --language en
-npx --yes agdf@latest doctor
-npx --yes agdf@latest gate-check --json
+npx --yes @agdf-runtime/cli@latest codex
+npx --yes @agdf-runtime/cli@latest opencode
+npx --yes @agdf-runtime/cli@latest init
+npx --yes @agdf-runtime/cli@latest config --language en
+npx --yes @agdf-runtime/cli@latest doctor
+npx --yes @agdf-runtime/cli@latest gate-check --json
 ```
 
 Backward-compatible scaffold usage:

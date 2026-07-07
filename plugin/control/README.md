@@ -49,15 +49,21 @@ Keep these files small and reviewable. They are control artefacts, not a second 
 Create the live files with:
 
 ```bash
-npm create agdf@latest init
+npm create agdf@latest -- init
+```
+
+If only the project language preference is missing or should change after plugin installation, write just the config file:
+
+```bash
+npm create agdf@latest -- config --language en
 ```
 
 Then check whether the live state is actionable:
 
 ```bash
-npm create agdf@latest doctor
-npm create agdf@latest doctor --json
-npm create agdf@latest gate-check --json
+npm create agdf@latest -- doctor
+npx --yes create-agdf@latest doctor --json
+npx --yes create-agdf@latest gate-check --json
 ```
 
 `doctor` does not replace agent judgment. It catches basic control failures: missing live files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts.

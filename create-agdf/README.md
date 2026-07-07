@@ -5,12 +5,13 @@ Bootstrap AGDF repository instructions and a machine-checkable control loop for 
 ## Usage
 
 ```bash
-npm create agdf@latest codex
-npm create agdf@latest copilot
-npm create agdf@latest both
-npm create agdf@latest init
-npm create agdf@latest doctor
-npm create agdf@latest gate-check
+npm create agdf@latest -- codex
+npm create agdf@latest -- copilot
+npm create agdf@latest -- both
+npm create agdf@latest -- init
+npm create agdf@latest -- config --language en
+npm create agdf@latest -- doctor
+npm create agdf@latest -- gate-check
 ```
 
 Optional flags:
@@ -26,12 +27,13 @@ If no language is provided, `create-agdf` derives the preference from the local 
 - `codex` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
 - `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
+- `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
 
 If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. The generated `.github/copilot-instructions.md` keeps Copilot pointed at `AGENTS.md`, `.github/skills/` and `.agdf/control/` without duplicating the full AGDF rule model. Use `--force` only when you explicitly want to overwrite generated files.
 
 Use the `codex` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
 
-After `npm create agdf@latest codex`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
+After `npm create agdf@latest -- codex`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
 
 ## Control scaffold
 
@@ -47,7 +49,7 @@ The generated `.agdf/control/templates/` files are reusable starting points for 
 Use `init` to promote those templates into live control files when the repository should own durable AGDF control state:
 
 ```bash
-npm create agdf@latest init
+npm create agdf@latest -- init
 ```
 
 This writes:
@@ -66,11 +68,17 @@ This writes:
 
 `config.json` stores `artifact_language` and `chat_language` for governed work in the target repository. Runtime rules stay English so all AGDF surfaces share the same control contract.
 
+For an existing repository where the plugin is already installed and only the language preference is missing or wrong, use the lighter config target:
+
+```bash
+npm create agdf@latest -- config --language en
+```
+
 Use `doctor` to check whether the live control state is actionable:
 
 ```bash
-npm create agdf@latest doctor
-npm create agdf@latest doctor --json
+npm create agdf@latest -- doctor
+npx --yes create-agdf@latest doctor --json
 ```
 
 The doctor reports missing live control files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts. It exits non-zero only for blocking control failures.
@@ -78,8 +86,8 @@ The doctor reports missing live control files, missing current gate, missing nex
 Use `gate-check` to derive the next process decision from the doctor result and `AGDF_RUN.md`:
 
 ```bash
-npm create agdf@latest gate-check
-npm create agdf@latest gate-check --json
+npm create agdf@latest -- gate-check
+npx --yes create-agdf@latest gate-check --json
 ```
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.

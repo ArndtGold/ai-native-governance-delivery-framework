@@ -228,6 +228,9 @@ if (isFile(sessionStartHookPath)) {
   if (!sessionStartHook.includes("Do not print the full router or constitution unless the user asks for them")) {
     failures.push("AGDF SessionStart hook must avoid flooding the chat with full router or constitution text");
   }
+  if (!sessionStartHook.includes(".agdf/control/config.json") || !sessionStartHook.includes("artefacts=") || !sessionStartHook.includes("chat=")) {
+    failures.push("AGDF SessionStart hook must report the project language config hint compactly");
+  }
   if (sessionStartHook.includes('cat "$ROUTER"') || sessionStartHook.includes('cat "$CONSTITUTION"')) {
     failures.push("AGDF SessionStart hook must not print full router or constitution files by default");
   }
@@ -397,7 +400,7 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
       failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
     }
-    if (!skillMd.includes("npm create agdf@latest delivery-map --json")) {
+    if (!skillMd.includes("npx --yes create-agdf@latest delivery-map --json")) {
       failures.push("gate-check must expose the machine-readable delivery-map command");
     }
     if (!skillMd.includes("This skill is the primary operating path for gate judgement")) {

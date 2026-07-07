@@ -136,6 +136,9 @@ run("both", [
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}code-review`, "SKILL.md"),
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}release-or`, "SKILL.md"),
 ]);
+run("config", [
+  join(".agdf", "control", "config.json"),
+]);
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-init-"));
@@ -226,6 +229,29 @@ run("both", [
     }
     if (config.source !== "parameter") {
       throw new Error(`Explicit --language should record source=parameter, got ${config.source}.`);
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-config-update-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "config", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
+    let config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
+    if (config.artifact_language !== "de" || config.chat_language !== "de") {
+      throw new Error("Config target should write only the requested project language.");
+    }
+    if (existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))) {
+      throw new Error("Config target must not create live AGDF control files.");
+    }
+
+    execFileSync(process.execPath, [binPath, "config", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
+    config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
+    if (config.artifact_language !== "en" || config.chat_language !== "en" || config.runtime_language !== "en") {
+      throw new Error("Config target should update existing config.json without requiring --force.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

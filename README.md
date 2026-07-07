@@ -180,12 +180,13 @@ Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte a
 Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
 ```bash
-npm create agdf@latest init
-npm create agdf@latest doctor
-npm create agdf@latest gate-check --json
+npm create agdf@latest -- init
+npm create agdf@latest -- config --language en
+npm create agdf@latest -- doctor
+npx --yes create-agdf@latest gate-check --json
 ```
 
-`init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
+`config` schreibt oder aktualisiert nur die projektlokale Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
 
 ## Lizenz
 

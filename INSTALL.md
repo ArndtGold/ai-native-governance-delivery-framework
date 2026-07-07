@@ -161,14 +161,15 @@ Create an AGDF control scaffold for this repository.
 Or initialize live control files directly when you want deterministic scaffolding for scripts, CI setup, repeatable onboarding or a repository-owned AGDF control state:
 
 ```bash
-npm create agdf@latest init
+npm create agdf@latest -- init
 ```
 
 You can pin the preferred project language during setup:
 
 ```bash
-npm create agdf@latest init --language de
-npm create agdf@latest codex --lang en
+npm create agdf@latest -- init --language de
+npm create agdf@latest -- codex --lang en
+npm create agdf@latest -- config --language en
 ```
 
 Supported values are `de` and `en`. If no language is provided, `create-agdf` reads the local system locale from `LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale and falls back to `en`.
@@ -181,6 +182,8 @@ The selected language is written to:
 
 AGDF uses `artifact_language` for durable control artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules and internal control contracts remain English so Codex, Claude Code and Copilot share one stable rule surface.
 Generated or updated control artefacts stay in files by default; user-facing chat should summarize paths, decisions, blockers and next steps instead of pasting full file bodies.
+
+Use `config` for an existing repository where the plugin is already installed and only the project language preference should be created or changed. Unlike `init`, it writes only `.agdf/control/config.json`.
 
 This promotes the AGDF templates into live files under:
 
@@ -197,9 +200,9 @@ It also installs reusable artefact templates for `UR`, `PRD`, `SD`, `TP` and `QA
 Use deterministic validators when you need machine-readable proof, CI or PR evidence, repeatable diagnostics, or an audit trail:
 
 ```bash
-npm create agdf@latest doctor
-npm create agdf@latest doctor --json
-npm create agdf@latest gate-check --json
+npm create agdf@latest -- doctor
+npx --yes create-agdf@latest doctor --json
+npx --yes create-agdf@latest gate-check --json
 ```
 
 `doctor` reports whether the repository has a current gate, a next allowed action, visible evidence, backlog pointer, source-of-truth registry, Context Graph hygiene and valid quality contracts.
@@ -220,7 +223,7 @@ That is the control boundary: AGDF is agent-native first and CLI-verifiable by d
 Run this inside the target Git repository when AGDF should be available only from that project:
 
 ```bash
-npm create agdf@latest codex
+npm create agdf@latest -- codex
 ```
 
 This writes:
@@ -248,12 +251,12 @@ plugins/agdf/
 If this repository should also keep durable AGDF control state, let the agent create the scaffold as the next allowed action or run the deterministic setup path directly:
 
 ```bash
-npm create agdf@latest init
-npm create agdf@latest doctor
-npm create agdf@latest gate-check
+npm create agdf@latest -- init
+npm create agdf@latest -- doctor
+npm create agdf@latest -- gate-check
 ```
 
-Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `both` or `init` when the repository should persist an explicit AGDF language preference in `.agdf/control/config.json`. Without the flag, AGDF derives the preference from the local system locale.
+Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `both`, `init` or `config` when the repository should persist an explicit AGDF language preference in `.agdf/control/config.json`. Without the flag, AGDF derives the preference from the local system locale.
 
 ## GitHub Actions and rollout boundary
 
@@ -296,7 +299,7 @@ Language preference is project-local, not global to the Claude Code plugin.
 After installing the plugin, run this inside each repository that should keep governed AGDF state:
 
 ```bash
-npm create agdf@latest init --language de
+npm create agdf@latest -- init --language de
 ```
 
 Use `--language en` or `--lang en` for English artefacts and chat. If no language flag is provided, `create-agdf` derives the preference from the local system locale and writes it to:
@@ -390,7 +393,7 @@ This creates a clear ownership boundary:
 
 AGDF must not treat `AGENTS.md` as part of the Codex or Claude Code plugin package.
 It is a generated or manually merged Copilot-facing repository file.
-When `npm create agdf@latest both` writes `AGENTS.md`, that file is still for Copilot-style repository instruction loading; the Codex plugin continues to use `plugin/.codex-plugin/plugin.json`, `plugin/skills/**`, hooks and `plugin/meta/agdf-agent-router.md`.
+When `npm create agdf@latest -- both` writes `AGENTS.md`, that file is still for Copilot-style repository instruction loading; the Codex plugin continues to use `plugin/.codex-plugin/plugin.json`, `plugin/skills/**`, hooks and `plugin/meta/agdf-agent-router.md`.
 
 If the target repository already has an `AGENTS.md`, the Copilot bootstrap writes `AGENTS.agdf.md` instead.
 The repository owner must then merge the AGDF section intentionally, because the existing file may already contain project-specific rules for build commands, tests, architecture, security constraints or team workflow.
@@ -400,7 +403,7 @@ The repository owner must then merge the AGDF section intentionally, because the
 Run this inside the target Git repository you want to equip with AGDF:
 
 ```bash
-npm create agdf@latest copilot
+npm create agdf@latest -- copilot
 ```
 
 Add `--language de|en` or `--lang de|en` if AGDF artefacts and chat responses should follow an explicit project language. Without the flag, `create-agdf` derives the preference from the local system locale and writes it to `.agdf/control/config.json`.
@@ -433,9 +436,9 @@ Use `--force` only if you intentionally want to replace existing generated files
 When the repository is ready to own AGDF state as source-of-truth artefacts, let the agent initialize the scaffold as the next allowed action or run the deterministic setup path directly:
 
 ```bash
-npm create agdf@latest init
-npm create agdf@latest doctor
-npm create agdf@latest gate-check
+npm create agdf@latest -- init
+npm create agdf@latest -- doctor
+npm create agdf@latest -- gate-check
 ```
 
 After bootstrapping the target repository, verify that Copilot sees the checked-in instructions:
@@ -451,7 +454,7 @@ AGENTS.md
 .github/copilot-instructions.md
 .github/instructions/agdf-governance.instructions.md
 .agdf/control/templates/AGDF_RUN.md
-.agdf/control/AGDF_RUN.md after npm create agdf@latest init
+.agdf/control/AGDF_RUN.md after npm create agdf@latest -- init
 .github/skills/agdf-runtime-contract.md
 .github/skills/agdf-gate-check/SKILL.md
 ```
@@ -473,7 +476,7 @@ For code-changing runs, the repository skills also include:
 If one target repository should support Copilot-oriented repo files plus plugin usage in Claude Code or Codex, run:
 
 ```bash
-npm create agdf@latest both
+npm create agdf@latest -- both
 ```
 
 This writes the Codex repository-local marketplace plus the same Copilot-facing files as the `copilot` target:

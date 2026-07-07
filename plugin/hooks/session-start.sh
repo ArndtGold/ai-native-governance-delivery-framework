@@ -19,6 +19,9 @@ try {
   const chat = config.chat_language || "unset";
   const runtime = config.runtime_language || "en";
   console.log(`Project config: .agdf/control/config.json (artefacts=${artefacts}, chat=${chat}, runtime=${runtime}).`);
+  if (artefacts !== "unset" || chat !== "unset") {
+    console.log(`Language policy: write durable AGDF artefacts in ${artefacts} and user-facing responses in ${chat} unless the user explicitly asks otherwise. Runtime rules stay ${runtime}.`);
+  }
 } catch {
   console.log("Project config: .agdf/control/config.json exists but is not valid JSON. Run npx --yes @agdf-runtime/cli@latest doctor.");
 }

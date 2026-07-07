@@ -276,6 +276,9 @@ if (isFile(sessionStartHookPath)) {
   if (!sessionStartHook.includes(".agdf/control/config.json") || !sessionStartHook.includes("artefacts=") || !sessionStartHook.includes("chat=")) {
     failures.push("AGDF SessionStart hook must report the project language config hint compactly");
   }
+  if (!sessionStartHook.includes("Language policy: write durable AGDF artefacts in")) {
+    failures.push("AGDF SessionStart hook must turn language config into an explicit artefact/chat language instruction");
+  }
   if (sessionStartHook.includes('cat "$ROUTER"') || sessionStartHook.includes('cat "$CONSTITUTION"')) {
     failures.push("AGDF SessionStart hook must not print full router or constitution files by default");
   }

@@ -151,8 +151,10 @@ The repository publishes this package from `create-agdf/` via the GitHub Actions
 
 The primary user-facing CLI package is published separately from `agdf/` and delegates to this package through the shared `create-agdf/cli` export.
 
-- Create or update the version in `create-agdf/package.json`
+- From the repository root, run `npm run set-version -- <version>`
+- The version script updates the coupled package, plugin and site versions and refuses versions already published as `create-agdf` or `@agdf-runtime/cli`
 - Push a matching git tag in the form `create-agdf-v<version>`
+- After `create-agdf` is published, push `agdf-runtime-cli-v<version>` for the primary CLI package
 - Ensure the repository secret `NPM_TOKEN` exists with publish rights for `create-agdf`
 
 ## Trademark Notice

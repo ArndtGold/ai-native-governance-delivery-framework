@@ -11,6 +11,7 @@ The project marks include:
 
 - AGDF
 - AI Governance & Delivery Framework
+- AI-native Governance & Delivery Framework
 - AGDF logos, wordmarks and distinctive project branding
 
 ## Allowed Use

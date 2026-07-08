@@ -147,15 +147,8 @@ The routing test installs `both` into a temporary target repository and checks t
 
 ## Publishing
 
-The repository publishes this package from `create-agdf/` via the GitHub Actions workflow `.github/workflows/publish-create-agdf.yml`.
-
-The primary user-facing CLI package is published separately from `agdf/` and delegates to this package through the shared `create-agdf/cli` export.
-
-- From the repository root, run `npm run set-version -- <version>`
-- The version script updates the coupled package, plugin and site versions and refuses versions already published as `create-agdf` or `@agdf/cli`
-- Push a matching git tag in the form `create-agdf-v<version>`
-- After `create-agdf` is published, push `agdf-cli-v<version>` for the primary CLI package
-- Ensure the repository secret `NPM_TOKEN` exists with publish rights for `create-agdf`
+The repository publishes this package and the primary user-facing `@agdf/cli` wrapper as one coupled AGDF release.
+See the root `RELEASE.md` for the sequenced `agdf-v<version>` workflow and npm token requirements.
 
 ## Trademark Notice
 

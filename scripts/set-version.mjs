@@ -70,8 +70,7 @@ console.log("  node plugin/scripts/check-runtime-integrity.mjs");
 console.log("  npm --prefix pages run build");
 console.log("");
 console.log("Release tags:");
-console.log(`  create-agdf-v${nextVersion}`);
-console.log(`  agdf-cli-v${nextVersion}`);
+console.log(`  agdf-v${nextVersion}`);
 
 function assertNpmVersionDoesNotExist(packageName, version) {
   try {

@@ -298,6 +298,7 @@ Follow these rules:
 * If behavior changes for the AGDF runtime, Claude plugin, Copilot bootstrap output, skills, or installable instructions, update the relevant source file, generator, package output path, and directly affected documentation together.
 * Do not manually edit generated package output when a source file or sync script is the real authority.
 * Do not commit, push, tag, publish, or open pull requests automatically.
+* Release and npm publishing instructions live in `RELEASE.md`; do not tag or publish automatically.
 * If ownership, authority, or generation flow is unclear, stop and identify the missing decision before changing files.
 
 ---

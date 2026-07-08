@@ -23,6 +23,15 @@ What outcome is this run trying to make trustworthy?
 | What is the next allowed action? |  |
 | What is explicitly forbidden right now? |  |
 
+## Source And Scope State
+
+- normative_instruction_source:
+- multi_scope_state: `clear | ambiguous | blocked`
+- active_scope_evidence:
+- competing_scope_lines:
+- branch_workspace_evidence:
+- branch_workspace_scope_effect: `supports | conflicts | insufficient | not_checked`
+
 ## Run Status Card
 
 This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
@@ -109,6 +118,12 @@ Keep the active work item traceable. A gate may open only when the previous gate
 - context_graph_required_action: `none | link | update | create | resolve_drift`
 - context_graph_gate_effect: `none | warning | revise | block`
 - context_graph_evidence:
+
+## Knowledge Persistence Decision
+
+- memory_target: `context_graph | sot_registry | scope_artifact | open_questions | none`
+- memory_reason:
+- memory_refs:
 
 ## Closeout
 

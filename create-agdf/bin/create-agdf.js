@@ -777,12 +777,18 @@ function cleanStatusCell(value) {
   return value.replace(/^`|`$/g, "").trim();
 }
 
+function normalizeGateStatus(gate, status) {
+  const normalized = cleanStatusCell(status ?? "");
+  if (gate === "QA" && normalized === "passed") return "approved";
+  return normalized;
+}
+
 function addApprovalRows(approvals, section) {
   for (const cells of tableRows(section)) {
     const [gate, status, evidence] = cells;
     if (!userGateOrder.includes(gate)) continue;
     approvals.set(gate, {
-      status: cleanStatusCell(status ?? ""),
+      status: normalizeGateStatus(gate, status),
       evidence: evidence ?? "",
     });
   }
@@ -805,6 +811,8 @@ function readRunState(targetDir) {
       risks: [],
       context_graph: {},
       quality_outlook: "",
+      source_scope: {},
+      memory: {},
     };
   }
 
@@ -877,6 +885,23 @@ function readRunState(targetDir) {
     evidence: extractSectionField(modeSliceSection, "evidence"),
   };
 
+  const sourceScopeSection = markdownSection(content, "Source And Scope State");
+  const sourceScope = {
+    normative_instruction_source: extractSectionField(sourceScopeSection, "normative_instruction_source"),
+    multi_scope_state: cleanStatusCell(extractSectionField(sourceScopeSection, "multi_scope_state")),
+    active_scope_evidence: extractSectionField(sourceScopeSection, "active_scope_evidence"),
+    competing_scope_lines: extractSectionField(sourceScopeSection, "competing_scope_lines"),
+    branch_workspace_evidence: extractSectionField(sourceScopeSection, "branch_workspace_evidence"),
+    branch_workspace_scope_effect: cleanStatusCell(extractSectionField(sourceScopeSection, "branch_workspace_scope_effect")),
+  };
+
+  const memorySection = markdownSection(content, "Knowledge Persistence Decision");
+  const memory = {
+    target: cleanStatusCell(extractSectionField(memorySection, "memory_target")),
+    reason: extractSectionField(memorySection, "memory_reason"),
+    refs: extractSectionField(memorySection, "memory_refs"),
+  };
+
   return {
     path: runPath,
     content,
@@ -891,6 +916,8 @@ function readRunState(targetDir) {
     risks,
     context_graph: contextGraph,
     quality_outlook: extractField(content, "quality_outlook"),
+    source_scope: sourceScope,
+    memory,
   };
 }
 
@@ -922,7 +949,7 @@ function isDurableGateArtefactSatisfied(runState, gate) {
   if (!durableGateArtefacts.has(gate)) return true;
   const artefact = gateArtefactStatus(runState, gate);
   if (!artefact.path || isPlaceholderValue(artefact.path)) return false;
-  if (gate === "QA") return artefact.status === "pass";
+  if (gate === "QA") return artefact.status === "pass" || artefact.status === "passed";
   return artefact.status === "approved";
 }
 
@@ -1029,11 +1056,45 @@ function analyzeDeliveryMap(runState) {
     });
   }
 
+  const multiScopeState = runState.source_scope?.multi_scope_state;
+  if (multiScopeState === "ambiguous" || multiScopeState === "blocked") {
+    findings.push({
+      severity: multiScopeState === "blocked" ? "block" : "revise",
+      code: "AGDF_SCOPE_AMBIGUOUS",
+      message: "Multiple active scope lines are plausible; the agent must not choose one silently.",
+      path: runState.path,
+      next_step: "List competing scope lines with gate and artefact evidence, then clarify the active scope.",
+    });
+  }
+
+  const branchEffect = runState.source_scope?.branch_workspace_scope_effect;
+  if (branchEffect === "conflicts" || branchEffect === "insufficient") {
+    findings.push({
+      severity: branchEffect === "conflicts" ? "revise" : "warn",
+      code: "AGDF_BRANCH_NOT_SCOPE_PROOF",
+      message: "Branch or workspace evidence is not sufficient scope proof.",
+      path: runState.path,
+      next_step: "Confirm the active scope from durable artefacts or record why branch/workspace evidence is only supporting evidence.",
+    });
+  }
+
+  if (runState.memory?.target && runState.memory.target !== "none" && !filled(runState.memory.reason)) {
+    findings.push({
+      severity: "warn",
+      code: "AGDF_MEMORY_TARGET_REASON_MISSING",
+      message: "Knowledge persistence target is set without a reason.",
+      path: runState.path,
+      next_step: "Fill memory_reason or set memory_target to none.",
+    });
+  }
+
   return {
     relationships,
     missing_evidence: runState.missing_evidence,
     risks: runState.risks,
     context_graph: runState.context_graph,
+    source_scope: runState.source_scope,
+    memory: runState.memory,
     findings,
   };
 }
@@ -1110,6 +1171,7 @@ function isGateSatisfied(runState, gate) {
   const status = gateApprovalStatus(runState, gate);
   if (status === "not_applicable") return true;
   if (status !== "approved") return false;
+  if (gate === "UAT") return true;
   return isDurableGateArtefactSatisfied(runState, gate);
 }
 
@@ -1340,6 +1402,8 @@ function evaluateGateCheck(targetDir) {
       relationships: deliveryMap.relationships,
       mode_slice_decision: runState.mode_slice_decision,
       context_graph: deliveryMap.context_graph,
+      source_scope: deliveryMap.source_scope,
+      memory: deliveryMap.memory,
       findings: deliveryMap.findings,
     },
     doctor_report: doctorReport,
@@ -1436,6 +1500,8 @@ function evaluateDeliveryMap(targetDir) {
     missing_evidence: map.missing_evidence,
     risks: map.risks,
     context_graph: map.context_graph,
+    source_scope: map.source_scope,
+    memory: map.memory,
     findings: map.findings,
     doctor_status: doctorReport.status,
     doctor_summary: doctorReport.summary,

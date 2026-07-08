@@ -384,6 +384,24 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("`quality_outlook` is quality direction")) {
     failures.push("runtime contract must distinguish quality_outlook from next_step");
   }
+  if (!runtimeContract.includes("## Source Precedence")) {
+    failures.push("runtime contract must define source precedence");
+  }
+  if (!runtimeContract.includes("A branch name or uncommitted workspace delta is never sufficient scope proof by itself")) {
+    failures.push("runtime contract must state branch/workspace evidence limits");
+  }
+  if (!runtimeContract.includes("## Workstate And Scope Ambiguity")) {
+    failures.push("runtime contract must define multi-scope fail-closed behavior");
+  }
+  if (!runtimeContract.includes("## Knowledge Persistence Decision")) {
+    failures.push("runtime contract must define knowledge persistence decisions");
+  }
+  if (!runtimeContract.includes("## Bug Lightweight Track")) {
+    failures.push("runtime contract must define the Bug Lightweight Track");
+  }
+  if (!runtimeContract.includes("## Domain Guardrail Packs")) {
+    failures.push("runtime contract must define domain guardrail packs");
+  }
 }
 
 const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;

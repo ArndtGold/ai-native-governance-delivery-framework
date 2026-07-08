@@ -112,6 +112,12 @@ export const requirementPaths = [
         outcome: "Fast, narrow, evidenced."
     },
     {
+        label: "Bug Lightweight",
+        trigger: "Narrow defect with clear symptom, reproduction, expected behavior and fix boundary.",
+        path: "Record bug facts -> verify boundary -> fix narrowly -> test symptom -> close with evidence",
+        outcome: "Fast defect control without pretending it is full product delivery."
+    },
+    {
         label: "Controlled Delivery",
         trigger: "New capability, architecture impact, policy or persistence change, visible UX decision or release-critical work.",
         path: "Clarify need -> check impact -> plan only what risk justifies -> implement -> verify -> close with evidence",
@@ -179,6 +185,14 @@ export const prevention = [
         title: "Premature Handoff",
         desc: "Commit or PR work starts before gate status and risks are clear, shifting unresolved decisions into review."
     },
+    {
+        title: "Branch-As-Scope Assumption",
+        desc: "A branch name or workspace diff is treated as proof of scope even when durable artefacts or approvals say something else."
+    },
+    {
+        title: "Hidden Active Workline",
+        desc: "Multiple plausible scopes exist, but the agent silently picks one and produces artefacts for the wrong delivery line."
+    },
 ]
 
 export const notFor = [
@@ -245,6 +259,10 @@ export const principles = [
         title: "Traceability Is Not Bureaucracy",
         desc: "Teams must explain why work was allowed, what it proves and what still blocks delivery. That is traceability.",
     },
+    {
+        title: "Branch Names Are Not Authority",
+        desc: "Workspace clues can support a decision, but durable artefacts, approvals and source-of-truth ownership decide the active scope.",
+    },
 ];
 
 export const buildingBlocks = [
@@ -260,7 +278,7 @@ export const buildingBlocks = [
     },
     {
         name: "Delivery Map",
-        desc: "Connect status, artifacts, decisions, risks, tests, evidence and gates so progress and blockers stay visible.",
+        desc: "Connect status, artifacts, decisions, risks, tests, evidence, ambiguity and gates so progress and blockers stay visible.",
         icon: "map",
     },
     {
@@ -269,6 +287,33 @@ export const buildingBlocks = [
         icon: "clipboard-document-check",
     },
 ];
+
+export const operatingGuards = [
+    {
+        title: "Normative source precedence",
+        desc: "The repository declares which instructions and control files are authoritative. Generated copies, branch names and chat summaries cannot silently override them.",
+    },
+    {
+        title: "Multi-scope fail-closed",
+        desc: "When several active work lines are plausible, AGDF lists the candidates and blocks later-gate work until the scope is clear.",
+    },
+    {
+        title: "Branch is supporting evidence",
+        desc: "A branch or uncommitted diff may support a scope, but never proves it alone when durable artefacts or approvals are missing.",
+    },
+    {
+        title: "Knowledge persistence routing",
+        desc: "Each relevant run decides whether durable findings belong in the Context Graph, SoT registry, scope artefact, open questions or nowhere.",
+    },
+    {
+        title: "Bug Lightweight Track",
+        desc: "Narrow defects can stay lightweight when reproduction, expected behavior, fix boundary and evidence plan are explicit.",
+    },
+    {
+        title: "Domain guardrail packs",
+        desc: "Projects can add reusable checks for risky domains without replacing AGDF gates or approvals.",
+    },
+]
 
 export const gateFlow = [
     { gate: "UR", name: "User Requirement", desc: "Problem, goal, affected users, constraints" },
@@ -320,6 +365,12 @@ export const gateModeMatrix = [
         use: "User need, impact check, right-sized path, small change, relevant checks, evidence closeout",
         skip: "Product, solution, task and QA gates unless risk or evidence gaps require escalation",
         decision: "Use only for narrow approved scope without new product semantics.",
+    },
+    {
+        mode: "Bug lightweight",
+        use: "Bug facts, reproduction, actual and expected behavior, fix boundary, targeted checks, evidence closeout",
+        skip: "Full PRD/SD/TP chain when the defect does not introduce new product semantics",
+        decision: "Use only while the bug stays inside the recorded boundary; escalate if scope grows.",
     },
     {
         mode: "Bounded slice",

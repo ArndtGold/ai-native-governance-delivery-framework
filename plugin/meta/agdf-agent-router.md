@@ -35,12 +35,15 @@ Persist it in `.agdf/control/` or link it from there to the target repository's 
 Treat approval text and durable artefact presence as separate checks for UR, PRD, SD, TP and QA report decisions.
 Do not infer approval from "ok", "go ahead", "do it", "approved", "continue", "leg los" or similar wording.
 Those phrases may express intent to proceed, but they do not unlock a gate unless the exact gate formula is present.
+Do not infer active scope from branch names, uncommitted workspace deltas, chat history or generated summaries when durable artefacts point elsewhere.
+If multiple active scopes are plausible, list the evidenced lines and route to `gate-check` or workstate clarification instead of choosing silently.
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
 Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `structured_slice`, `structured_delivery` or `block`.
 Make that decision visible before coding or drafting later artefacts: state the selected path, scope reason, evidence and next required gate in the live control state or linked artefact.
 Do not assume the full PRD/SD/TP chain before that decision; use only as much gate depth as the reviewed change size justifies.
 
 Quick Task Mode must still use the Runtime Contract mini-output: `result`, `evidence`, `risk`, `next_step`.
+Narrow defect work may use the Runtime Contract's Bug Lightweight Track only when a durable bug artefact or linked authoritative issue carries reproduction, actual behavior, expected behavior, fix boundary and evidence plan.
 Structured Delivery Mode must respect gates, reviews and closeout discipline.
 
 ## Skill Routing
@@ -76,6 +79,7 @@ Do not let chat history become the source of truth for gate state, approvals, ev
 AGDF is agent-native first and CLI-verifiable by design: read the live control state, apply the active skill and make the next allowed step explicit.
 Use `init` only when durable control state is explicitly requested, the repository already uses `.agdf/control/` as its live AGDF working state, or a deterministic CLI/CI setup path is being executed.
 Use `doctor --json`, `gate-check --json` or `delivery-map --json` as deterministic validators for CI, PR evidence, regression checks or audit trails, not as a substitute for the router or skills.
+At run closeout, route new durable knowledge explicitly as `context_graph`, `sot_registry`, `scope_artifact`, `open_questions` or `none`.
 
 ## Closeout
 For Quick Task Mode, close with the Runtime Contract mini-output only:

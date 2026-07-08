@@ -83,6 +83,12 @@ This is a compact projection of the control state. It does not replace gate-chec
 - context_graph_gate_effect: `none | warning | revise | block`
 - context_graph_evidence:
 
+## Knowledge Persistence Decision
+
+- memory_target: `context_graph | sot_registry | scope_artifact | open_questions | none`
+- memory_reason:
+- memory_refs:
+
 ## Next Permissible Step
 
 - next_allowed_action:

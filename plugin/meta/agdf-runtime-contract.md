@@ -52,6 +52,84 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 `quality_outlook` must not unlock gates, imply QA pass, or substitute for missing evidence.
 
+## Source Precedence
+
+Every governed repository should make the normative instruction source visible.
+When several instruction files, generated copies, submodule rules, branch names, worktree diffs or chat summaries point in different directions, fail closed instead of inventing a primary authority.
+
+Default precedence:
+
+1. safety, security and compliance instructions
+2. repository-declared normative agent instructions
+3. live `.agdf/control/` state or a linked authoritative repository SoT
+4. approved gate artefacts
+5. source code and verified runtime evidence
+6. branch names, workspace deltas, chat history and model memory
+
+A branch name or uncommitted workspace delta is never sufficient scope proof by itself.
+It may support a scope only when it does not conflict with durable artefacts, approvals or source-of-truth records.
+
+## Workstate And Scope Ambiguity
+
+If a repository contains multiple plausible active work lines, the agent must not silently choose one.
+List the evidenced competing lines with their latest known gate, artefact pointers, approvals and missing evidence.
+The next permissible step is scope clarification or the earliest common safe gate.
+
+Use `multi_scope_state: clear | ambiguous | blocked` when the control state needs to make this visible.
+`ambiguous` is at least a revise condition for delivery-map style reporting.
+`blocked` applies when continuing would produce later-gate artefacts, implementation or release claims for the wrong scope.
+
+## Knowledge Persistence Decision
+
+Every relevant run should decide what happens to new durable knowledge.
+The decision is not a memory dump; it routes only reusable, evidenced information to the right owner.
+
+Use:
+
+- `memory_target: context_graph | sot_registry | scope_artifact | open_questions | none`
+- `memory_reason`: short reason for the target
+- `memory_refs`: paths or nodes affected
+
+Guidance:
+
+- Use `context_graph` for reusable Brownfield findings, decisions, risks, invariants and exit criteria.
+- Use `sot_registry` when source-of-truth ownership changes or drift is found.
+- Use `scope_artifact` for run-specific evidence, ticket details, screenshots, logs or local reproduction data.
+- Use `open_questions` when a durable question should survive the run but no answer is evidenced yet.
+- Use `none` for one-off observations without future decision value.
+
+## Bug Lightweight Track
+
+For narrow defect work, a repository may use a lightweight bug scope instead of the full UR/PRD/SD/TP chain when all of the following are true:
+
+- the defect is tied to a concrete symptom or ticket
+- the expected behavior is clear enough to test
+- no new product semantics, architecture, policy, persistence or cross-owner decision is introduced
+- a durable bug artefact or linked authoritative issue records reproduction, actual behavior, expected behavior, fix boundary, open questions and evidence plan
+
+The Bug Lightweight Track does not remove QA, OR, evidence, Brownfield fit or exact approvals required by the target repository.
+If the bug grows beyond the stated boundary, escalate to normal AGDF gate flow.
+
+## Domain Guardrail Packs
+
+Repositories may define domain guardrail packs for recurring high-risk surfaces such as UI, persistence, integration, financial calculations, policy, security, migration or release operations.
+A pack should define:
+
+- trigger patterns
+- required Brownfield touchpoints
+- protected invariants
+- required evidence
+- review or QA escalation conditions
+
+Domain guardrails are project-specific extensions.
+They must not override AGDF gates, approvals or the Runtime Contract.
+
+## Support Answer Bridge
+
+When the user asks about a concrete ticket, issue, incident or support question, end with exactly one smallest useful next step.
+Do not treat that next step as approval.
+When the next step is gated, name the required approval or AGDF skill instead of implying work may proceed.
+
 ## Chat Output Discipline
 
 Durable artefacts are for the repository, not for flooding the chat.
@@ -185,6 +263,7 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 - `SOT_REGISTRY.md` prevents parallel sources of truth.
 - `CONTEXT_GRAPH.md` stores durable Brownfield findings, decisions, risks, evidence and exit criteria.
 - `AGENT_QUALITY_CONTRACTS.json` stores reusable block, revise and warning conditions.
+- `memory_target`, `multi_scope_state` and branch/workspace evidence fields make ambiguity and persistence decisions visible without turning chat history into the source of truth.
 - OR reports live under `.agdf/control/artefacts/<key>/OR.md` when a run closeout is steering-relevant or should be auditable beyond the chat.
 
 The scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.
@@ -218,6 +297,8 @@ It must expose:
 - approved or active artefacts and approvals
 - `UR -> PRD -> SD -> TP -> QA_REPORT` relationships
 - evidence refs, missing evidence and declared risks
+- multi-scope ambiguity and branch/workspace evidence limits when present
+- memory persistence target, reason and references when present
 - Context Graph impact and gate effect
 - the Run Status Card as a compact projection of current gate, next step and quality outlook
 - findings that explain why the delivery picture is `pass | warn | revise | block`

@@ -68,6 +68,8 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | structured_slice | structured_delivery | block`.
 14. The Mode/Slice Decision must be visible and evidenced before any Quick Task execution, PRD shortcut or implementation. A decision value without scope reason and evidence is still missing.
 15. Missing or incomplete control state must not push setup work back to the user. For a fresh request, draft the current minimal artefact in the response and request the exact approval. Initialize or write `.agdf/control/` only when durable control state is explicitly requested, already live for the repository, or required for a deterministic CLI/CI setup path. Implementation remains forbidden.
+16. Branch names, uncommitted diffs, generated summaries and chat history are not sufficient scope proof when durable artefacts or approvals are missing or conflicting.
+17. If multiple active scopes are plausible, list the evidenced competing lines and keep the current step at scope clarification or the earliest common safe gate.
 
 ## Gate Evaluation
 
@@ -100,6 +102,8 @@ Use what is available:
 - Brownfield Analysis status
 - CD+Tests, CR, QA, UAT status
 - signs of documentation/runtime/product-semantics drift
+- branch/workspace evidence and whether it conflicts with durable artefacts
+- competing active scopes or work lines
 
 If a status is not explicit, do not assume it is satisfied.
 
@@ -115,6 +119,7 @@ If a status is not explicit, do not assume it is satisfied.
 9. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
 10. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
 11. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means draft the minimal UR in the response, then request `Approval: UR`. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
+12. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
 
 ## Output
 Keep the result short and operational:

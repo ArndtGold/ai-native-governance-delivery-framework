@@ -73,6 +73,54 @@
       "required_evidence": ["closeout_note"],
       "evaluation": "review",
       "owner": "governance"
+    },
+    {
+      "code": "AGDF_SCOPE_AMBIGUOUS",
+      "category": "agent_process",
+      "impact": "revise",
+      "title": "Ambiguous active scope",
+      "description": "Multiple active work lines are plausible and the agent must not choose one silently.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["ur", "prd", "sd", "tp", "qa"],
+      "required_evidence": ["competing_scope_lines", "active_scope_evidence"],
+      "evaluation": "review",
+      "owner": "governance"
+    },
+    {
+      "code": "AGDF_BRANCH_NOT_SCOPE_PROOF",
+      "category": "agent_process",
+      "impact": "warn",
+      "title": "Branch or workspace is not scope proof",
+      "description": "Branch names and workspace deltas may support a scope only when they do not conflict with durable artefacts or approvals.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["ur", "prd", "sd", "tp", "qa"],
+      "required_evidence": ["branch_workspace_evidence", "artefact_status"],
+      "evaluation": "review",
+      "owner": "governance"
+    },
+    {
+      "code": "AGDF_MEMORY_TARGET_MISSING",
+      "category": "agent_process",
+      "impact": "warn",
+      "title": "Knowledge persistence decision missing",
+      "description": "A relevant run ended without deciding whether new durable knowledge belongs in the Context Graph, SoT registry, scope artefact, open questions or nowhere.",
+      "applies_to_modes": ["structured_delivery", "quick_task"],
+      "gate_effect": ["or"],
+      "required_evidence": ["memory_target", "memory_reason"],
+      "evaluation": "review",
+      "owner": "governance"
+    },
+    {
+      "code": "AGDF_BUG_LIGHTWEIGHT_SCOPE_UNEVIDENCED",
+      "category": "scope_control",
+      "impact": "revise",
+      "title": "Bug Lightweight Track lacks bug evidence",
+      "description": "A lightweight defect path requires durable reproduction, actual behavior, expected behavior, fix boundary, open questions and evidence plan.",
+      "applies_to_modes": ["quick_task"],
+      "gate_effect": ["qa"],
+      "required_evidence": ["bug_artifact_or_issue", "reproduction", "expected_behavior", "evidence_plan"],
+      "evaluation": "review",
+      "owner": "governance"
     }
   ]
 }

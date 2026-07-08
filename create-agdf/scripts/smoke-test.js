@@ -441,6 +441,97 @@ run("config", [
 }
 
 {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-qa-passed-uat-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: qa-passed-run
+- started_at: 2026-07-08
+- mode: structured_delivery
+- current_gate: UAT
+- decision: qa_passed
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | QA passed for a structured slice. |
+| What is approved? | UR approved; PRD/SD/TP not applicable; QA passed. |
+| What is missing? | Approval: UAT |
+| What is the next allowed action? | Request Approval: UAT before delivery handoff. |
+| What is explicitly forbidden right now? | release or commit handoff without UAT approval |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | not_applicable | structured_slice |
+| SD | not_applicable | structured_slice |
+| TP | not_applicable | structured_slice |
+| QA | passed | .agdf/control/artefacts/qa-passed-run/QA_REPORT.md |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/qa-passed-run/UR.md | approved |  |
+| QA | .agdf/control/artefacts/qa-passed-run/QA_REPORT.md | passed |  |
+
+## Mode / Slice Decision
+
+- decision: structured_slice
+- required_next_gate: none
+- scope_reason: Test slice.
+- evidence: Test evidence.
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | exact approval |
+| PRD | derived_from | UR | not_applicable: structured_slice |
+| SD | derived_from | PRD | not_applicable: structured_slice |
+| TP | derived_from | SD | not_applicable: structured_slice |
+| QA_REPORT | tests | TP | .agdf/control/artefacts/qa-passed-run/QA_REPORT.md |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| QA report | .agdf/control/artefacts/qa-passed-run/QA_REPORT.md | QA | direct |
+
+## Closeout
+
+- next_allowed_action: Request Approval: UAT before delivery handoff.
+`, "utf8");
+
+    const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" }));
+    if (gateCheckReport.current_gate !== "UAT") {
+      throw new Error(`Gate-check should stay at UAT after QA passed, got ${gateCheckReport.current_gate}.`);
+    }
+    if (gateCheckReport.missing_approval !== "Approval: UAT") {
+      throw new Error(`Gate-check should require UAT approval after QA passed, got ${gateCheckReport.missing_approval}.`);
+    }
+    if (!gateCheckReport.allowed.includes("request exact UAT approval")) {
+      throw new Error("Gate-check should allow requesting exact UAT approval after QA passed.");
+    }
+    if (!gateCheckReport.forbidden.includes("release")) {
+      throw new Error("Gate-check should forbid release until UAT approval.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-missing-"));
 
   try {

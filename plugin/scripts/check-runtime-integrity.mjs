@@ -384,6 +384,9 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("`quality_outlook` is quality direction")) {
     failures.push("runtime contract must distinguish quality_outlook from next_step");
   }
+  if (!runtimeContract.includes("do not expose snake_case keys as the visible")) {
+    failures.push("runtime contract must keep the human-facing Run Status Card readable");
+  }
   if (!runtimeContract.includes("## Source Precedence")) {
     failures.push("runtime contract must define source precedence");
   }
@@ -522,6 +525,33 @@ if (isFile(runTemplatePath)) {
   const runTemplate = read(runTemplatePath);
   for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "transparency_note", "Artefact Chain", "context_graph_impact", "quality_outlook"]) {
     if (!runTemplate.includes(required)) failures.push(`AGDF_RUN.md missing control field: ${required}`);
+  }
+  const runStatusCard = runTemplate.match(/## Run Status Card\n([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
+    if (!runStatusCard.includes(`| ${label} |`)) failures.push(`AGDF_RUN.md Run Status Card missing readable label: ${label}`);
+  }
+  for (const extraLabel of ["Mode", "Mode / slice", "Forbidden now", "Evidence", "Next skill"]) {
+    if (runStatusCard.includes(`| ${extraLabel} |`)) failures.push(`AGDF_RUN.md Run Status Card is not compact: ${extraLabel}`);
+  }
+  for (const rawField of ["allowed_now", "forbidden_now", "blocking_condition", "next_skill", "next_step", "quality_outlook"]) {
+    if (runStatusCard.includes(`- ${rawField}:`)) failures.push(`AGDF_RUN.md Run Status Card exposes raw field: ${rawField}`);
+  }
+}
+
+if (isFile(orTemplatePath)) {
+  const orTemplate = read(orTemplatePath);
+  const orStatusCard = orTemplate.match(/## Run Status Card\n([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
+    if (!orStatusCard.includes(`| ${label} |`)) failures.push(`OR.md Run Status Card missing readable label: ${label}`);
+  }
+  for (const extraLabel of ["Mode", "Mode / slice", "Forbidden now", "Evidence", "Next skill"]) {
+    if (orStatusCard.includes(`| ${extraLabel} |`)) failures.push(`OR.md Run Status Card is not compact: ${extraLabel}`);
+  }
+  for (const rawField of ["allowed_now", "forbidden_now", "blocking_condition", "next_skill", "next_step", "quality_outlook"]) {
+    if (orStatusCard.includes(`- ${rawField}:`)) failures.push(`OR.md Run Status Card exposes raw field: ${rawField}`);
+  }
+  if ((orTemplate.match(/Quality outlook/g) ?? []).length !== 1) {
+    failures.push("OR.md must present Quality outlook exactly once in the Run Status Card");
   }
 }
 

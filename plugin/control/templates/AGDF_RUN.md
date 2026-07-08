@@ -36,13 +36,15 @@ What outcome is this run trying to make trustworthy?
 
 This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
 
-- status:
-- allowed_now:
-- forbidden_now:
-- blocking_condition:
-- next_skill:
-- next_step:
-- quality_outlook:
+| Run status | Value |
+|---|---|
+| Status |  |
+| Current gate |  |
+| Allowed now |  |
+| Blocked by |  |
+| Missing approval |  |
+| Next step |  |
+| Quality outlook |  |
 
 ## Approvals
 

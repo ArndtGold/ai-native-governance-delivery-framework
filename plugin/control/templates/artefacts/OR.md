@@ -37,13 +37,15 @@ Status: `draft | done | superseded`
 
 This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
 
-- status:
-- allowed_now:
-- forbidden_now:
-- blocking_condition:
-- next_skill:
-- next_step:
-- quality_outlook:
+| Run status | Value |
+|---|---|
+| Status |  |
+| Current gate |  |
+| Allowed now |  |
+| Blocked by |  |
+| Missing approval |  |
+| Next step |  |
+| Quality outlook |  |
 
 ## Delivered
 
@@ -94,10 +96,6 @@ This is a compact projection of the control state. It does not replace gate-chec
 - next_allowed_action:
 - required_approval:
 - forbidden_until_then:
-
-## Quality Outlook
-
-- quality_outlook:
 
 ## Approval
 

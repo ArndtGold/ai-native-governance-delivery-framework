@@ -52,6 +52,15 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 `quality_outlook` must not unlock gates, imply QA pass, or substitute for missing evidence.
 
+The field names above are the stable machine-readable contract used by JSON
+reports and automation. Human-facing Markdown must present the same projection
+with readable labels such as `Current gate`, `Allowed now`, `Blocked by`,
+`Next step` and `Quality outlook`; do not expose snake_case keys as the visible
+Run Status Card. Keep that card compact: show `Status`, `Current gate`,
+`Allowed now`, `Blocked by`, `Missing approval`, `Next step` and
+`Quality outlook`. Keep mode, forbidden actions, evidence and next-skill detail
+in the surrounding control artefact when they are relevant.
+
 ## Source Precedence
 
 Every governed repository should make the normative instruction source visible.

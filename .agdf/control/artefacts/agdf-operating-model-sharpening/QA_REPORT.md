@@ -19,6 +19,8 @@ Date: 2026-07-08
 | `npm --prefix create-agdf run smoke-test -- --quiet` | pass | Generated scaffold, routing render and package asset sync |
 | `npm --prefix pages run check` | pass | Astro/type diagnostics |
 | `npm --prefix pages run build` | pass | Static Pages build |
+| `npm --prefix pages run check` after Core Control Flow revision | pass | Astro/type diagnostics for revised Pages copy |
+| `npm --prefix pages run build` after Core Control Flow revision | pass | Static Pages build for revised Pages copy |
 
 ## Acceptance Coverage
 
@@ -28,6 +30,7 @@ Date: 2026-07-08
 | Control templates have a per-run persistence decision | done | `plugin/control/templates/AGDF_RUN.md`; `plugin/control/templates/artefacts/OR.md` |
 | Quality contracts include ambiguity/source/branch/persistence guardrails | done | `plugin/control/templates/AGENT_QUALITY_CONTRACTS.json` |
 | Pages explains operating-model sharpening clearly | done | `pages/src/data/site.ts`; `pages/src/pages/index.astro` |
+| Core Flow reflects operating-model sharpening | done | Workflow section renamed to Core Control Flow and now includes active scope, source authority and Bug Lightweight |
 | Runtime integrity, smoke and Pages checks pass | done | Validation commands above |
 | Post-QA status projects to UAT gate | done | `create-agdf/scripts/smoke-test.js`; local `gate-check --json` shows `current_gate: UAT` and `missing_approval: Approval: UAT` |
 

@@ -15,7 +15,7 @@ This structured slice intentionally has no separate TP artefact. Coverage is eva
 | templates-and-contracts | fully_done | `plugin/control/templates/AGDF_RUN.md`, `plugin/control/templates/artefacts/OR.md` and `plugin/control/templates/AGENT_QUALITY_CONTRACTS.json` add source/scope state, knowledge persistence decision and reusable quality contract signals. | none | Supports QA pass for durable control state. |
 | cli-validator-surface | fully_done | `create-agdf/bin/create-agdf.js` parses `source_scope` and `memory`, exposes them in `gate-check --json` / `delivery-map --json`, and reports ambiguity/branch/memory findings. `plugin/scripts/check-runtime-integrity.mjs` asserts the new runtime sections. | none | Supports QA pass for machine-readable evidence. |
 | gate-status-projection | fully_done | `create-agdf/bin/create-agdf.js` normalizes QA `passed` status and treats approved UAT as approval-only so QA pass projects to `current_gate: UAT` with `missing_approval: Approval: UAT`. `create-agdf/scripts/smoke-test.js` covers this regression. | none | Supports QA pass for post-QA status accuracy. |
-| pages-copy | fully_done | `pages/src/data/site.ts` adds Bug Lightweight, operating guards, branch/scope drift risks and updated public positioning. `pages/src/pages/index.astro` renders a new Operating Guards section. | none | Supports QA pass for Pages sharpening. |
+| pages-copy | fully_done | `pages/src/data/site.ts` adds Bug Lightweight, operating guards, branch/scope drift risks and updated public positioning. `pages/src/pages/index.astro` renders a new Operating Guards section and sharpens the workflow section from "Core Delivery Flow" to "Core Control Flow" with active scope, source authority and Bug Lightweight visible. | none | Supports QA pass for Pages sharpening. |
 
 ## Summary
 
@@ -43,5 +43,5 @@ This structured slice intentionally has no separate TP artefact. Coverage is eva
 - decision: pass
 - findings: none
 - missing_evidence: none
-- risks: The new CLI parser only emits findings when explicit source/scope/memory fields are present; empty legacy scaffolds remain compatible. QA `passed` status is now normalized to avoid stale post-QA status projections.
+- risks: The new CLI parser only emits findings when explicit source/scope/memory fields are present; empty legacy scaffolds remain compatible. QA `passed` status is now normalized to avoid stale post-QA status projections. Pages wording now emphasizes control flow rather than a linear delivery pipeline.
 - required_next_step: QA gate.

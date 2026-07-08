@@ -89,8 +89,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Existing Pages source | pages/src/data/site.ts; pages/src/pages/index.astro | Public communication owner | direct |
 | Runtime integrity check | `node plugin\scripts\check-runtime-integrity.mjs` | Runtime and generated control integrity | direct |
 | create-agdf smoke test | `npm --prefix create-agdf run smoke-test -- --quiet` | Generated scaffold, routing render and post-QA UAT projection | direct |
-| Pages check | `npm --prefix pages run check` | Astro/type diagnostics | direct |
-| Pages build | `npm --prefix pages run build` | Static site build | direct |
+| Pages check | `npm --prefix pages run check` | Astro/type diagnostics, including Core Control Flow revision | direct |
+| Pages build | `npm --prefix pages run build` | Static site build, including Core Control Flow revision | direct |
 | Gate-check status projection | `node create-agdf\bin\create-agdf.js gate-check --json` | Current gate UAT and missing `Approval: UAT` | direct |
 
 ## Missing Evidence
@@ -131,7 +131,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 ## Closeout
 
-- delivered: Runtime/router/gate-check/template/quality-contract/CLI/Pages sharpening implemented, including QA-passed to UAT status projection.
+- delivered: Runtime/router/gate-check/template/quality-contract/CLI/Pages sharpening implemented, including QA-passed to UAT status projection and Core Control Flow Pages revision.
 - not_delivered: No gate-order change; no approval-rule weakening; no MarzipanWeb-specific domain import.
 - verification_performed: runtime integrity; create-agdf smoke/routing; Pages check; Pages build.
 - unverified: downstream repo usability until first consumer adoption.

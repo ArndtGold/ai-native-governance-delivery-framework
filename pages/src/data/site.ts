@@ -56,21 +56,21 @@ export const highlights = [
 export const workflowSteps = [
     {
         step: "01",
-        title: "Gate Check + UR",
+        title: "Gate Check + Scope",
         command: "/gate-check",
-        desc: "Capture the need, show the current checkpoint and require approval before product work starts."
+        desc: "Capture the need, identify the active scope and show the current checkpoint before product work starts."
     },
     {
         step: "02",
-        title: "Brownfield Review",
+        title: "Source + Brownfield Review",
         command: "/brownfield-analysis",
-        desc: "Check existing ownership, protected behavior, boundaries, tests and risk."
+        desc: "Check source authority, existing ownership, protected behavior, boundaries, tests and risk."
     },
     {
         step: "03",
         title: "Right-Sized Path",
         command: "control state",
-        desc: "Decide whether the work can stay small, needs a bounded plan or must stop."
+        desc: "Decide whether the work is quick, bug-lightweight, bounded, structured or blocked."
     },
     {
         step: "04",
@@ -100,7 +100,7 @@ export const workflowSteps = [
         step: "08",
         title: "OR + Closeout",
         command: "/release-or",
-        desc: "Record audit status, open gaps, risks and the next allowed delivery action."
+        desc: "Record audit status, open gaps, risks, persistence target and the next allowed delivery action."
     },
 ]
 

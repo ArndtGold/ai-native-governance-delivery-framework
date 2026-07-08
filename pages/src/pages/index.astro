@@ -23,6 +23,7 @@ const projectStats = await getProjectStats()
     <div id="nav-menu" class="nav-menu-panel absolute right-4 top-full hidden w-auto flex-col items-end gap-y-1.5 rounded-md rounded-t-none border border-dark-700/80 bg-dark-950/95 p-4 shadow-lg data-[open]:flex md:static md:top-auto md:flex md:w-auto md:flex-1 md:flex-row md:items-center md:justify-between md:gap-x-5 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
       <nav class="flex min-w-0 flex-col flex-wrap items-end gap-x-5 gap-y-1 text-sm text-dark-200 md:ml-4 md:flex-row md:items-center">
         <a href="#why" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Why</a>
+        <a href="#operating-guards" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Guards</a>
         <a href="#workflow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Flow</a>
         <a href="#gate-flow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Gate Map</a>
         <a href="#control-system" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Control System</a>
@@ -469,28 +470,32 @@ const projectStats = await getProjectStats()
 <section id="workflow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to evidence</div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Delivery Flow</h2>
-      <p class="text-dark-200">Work does not move because someone says go. It moves when scope, approval, evidence and the next allowed action line up.</p>
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">From request to controlled workstate</div>
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The AGDF Core Control Flow</h2>
+      <p class="text-dark-200">Work does not move because someone says go. It moves when active scope, source authority, approval, evidence and the next allowed action line up.</p>
     </div>
     <div data-reveal data-reveal-delay="1" class="mb-8 rounded-lg border border-agdf-500/25 bg-agdf-950/20 p-4 sm:p-5">
       <div class="grid gap-4 lg:grid-cols-[1fr_auto_1.4fr] lg:items-center">
         <div>
           <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Shared start</div>
           <div class="flex flex-wrap items-center gap-2">
-            {["User need", "Impact check", "Right-sized path"].map((item, i) => (
+            {["User need", "Active scope", "Source check", "Right-sized path"].map((item, i) => (
               <>
                 <span class="rounded-lg border border-agdf-500/30 bg-dark-950 px-3 py-2 font-mono text-xs font-bold text-agdf-200">{item}</span>
-                {i < 2 && <span class="text-agdf-600">→</span>}
+                {i < 3 && <span class="text-agdf-600">→</span>}
               </>
             ))}
           </div>
         </div>
         <div class="hidden h-px w-10 bg-agdf-500/40 lg:block"></div>
-        <div class="grid gap-3 sm:grid-cols-2">
+        <div class="grid gap-3 sm:grid-cols-3">
           <div class="rounded-lg border border-agdf-500/25 bg-dark-950/80 p-3">
             <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Quick path</div>
             <p class="mt-2 text-xs leading-relaxed text-dark-200">Small approved changes stay lightweight, but still need relevant checks, evidence and closeout.</p>
+          </div>
+          <div class="rounded-lg border border-agdf-500/25 bg-dark-950/80 p-3">
+            <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Bug lightweight</div>
+            <p class="mt-2 text-xs leading-relaxed text-dark-200">Narrow defects stay fast only when reproduction, expected behavior and fix boundary are explicit.</p>
           </div>
           <div class="rounded-lg border border-dark-700/80 bg-dark-950/80 p-3">
             <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Structured path</div>

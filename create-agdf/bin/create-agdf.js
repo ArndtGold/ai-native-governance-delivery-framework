@@ -24,6 +24,36 @@ const deliveryRelationships = [
   { from: "TP", relationship: "derived_from", to: "SD", requiredBy: "TP" },
   { from: "QA_REPORT", relationship: "tests", to: "TP", requiredBy: "QA" },
 ];
+const nextSkillByGate = {
+  UR: "gate-check",
+  "Brownfield Review": "brownfield-analysis",
+  "Mode/Slice Decision": "gate-check",
+  "Quick Task Execution": "none",
+  PRD: "gate-check",
+  SD: "gate-check",
+  TP: "gate-check",
+  "Brownfield Analysis": "brownfield-analysis",
+  "CD+Tests": "none",
+  CR: "code-review",
+  QA: "qa-gate",
+  UAT: "delivery-closeout",
+  OR: "release-or",
+};
+const gateProgressOrder = [
+  "UR",
+  "Brownfield Review",
+  "Mode/Slice Decision",
+  "Quick Task Execution",
+  "PRD",
+  "SD",
+  "TP",
+  "Brownfield Analysis",
+  "CD+Tests",
+  "CR",
+  "QA",
+  "UAT",
+  "OR",
+];
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
@@ -774,6 +804,7 @@ function readRunState(targetDir) {
       missing_evidence: [],
       risks: [],
       context_graph: {},
+      quality_outlook: "",
     };
   }
 
@@ -859,6 +890,7 @@ function readRunState(targetDir) {
     missing_evidence: missingEvidence,
     risks,
     context_graph: contextGraph,
+    quality_outlook: extractField(content, "quality_outlook"),
   };
 }
 
@@ -1006,6 +1038,54 @@ function analyzeDeliveryMap(runState) {
   };
 }
 
+function deriveQualityOutlook(runState, findings = []) {
+  if (filled(runState.quality_outlook)) return runState.quality_outlook;
+  if (findings.some((finding) => finding.severity === "block" || finding.severity === "revise")) {
+    return "Resolve blocking or revise-level delivery-map findings before making stronger quality claims.";
+  }
+  if (findings.some((finding) => finding.severity === "warn")) {
+    return "Review warning-level findings when investing further in delivery confidence.";
+  }
+  return "No additional quality follow-up identified from the current control state.";
+}
+
+function buildStatusCard({
+  status,
+  currentGate,
+  allowed = [],
+  forbidden = [],
+  blockingReason = "none",
+  missingApproval = "none",
+  nextAllowedAction,
+  runState,
+  findings = [],
+}) {
+  const qualityOutlook = deriveQualityOutlook(runState, findings);
+  return {
+    mode: extractField(runState.content ?? "", "mode") || "unknown",
+    status,
+    current_gate: currentGate,
+    mode_slice_decision: runState.mode_slice_decision?.decision || "undecided",
+    allowed_now: allowed,
+    forbidden_now: forbidden,
+    blocking_condition: blockingReason || "none",
+    missing_approval: missingApproval || "none",
+    evidence: runState.evidence_refs,
+    next_skill: nextSkillByGate[currentGate] ?? "gate-check",
+    next_step: nextAllowedAction,
+    quality_outlook: qualityOutlook,
+  };
+}
+
+function effectiveCurrentGate(runState, transitionDecision) {
+  if (transitionDecision.status !== "open") return transitionDecision.current_gate;
+  const explicitGate = normalizeCurrentGate(runState.current_gate, "");
+  const explicitIndex = gateProgressOrder.indexOf(explicitGate);
+  const fallbackIndex = gateProgressOrder.indexOf(transitionDecision.current_gate);
+  if (explicitIndex === -1 || fallbackIndex === -1) return transitionDecision.current_gate;
+  return explicitIndex > fallbackIndex ? explicitGate : transitionDecision.current_gate;
+}
+
 function durableArtefactBlock(gate, nextGate) {
   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
   const stablePath = gate === "QA" ? ".agdf/control/artefacts/<key>/QA_REPORT.md" : `.agdf/control/artefacts/<key>/${gate}.md`;
@@ -1151,6 +1231,30 @@ function transitionDecisionForRunState(runState) {
 
   if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA")) return durableArtefactBlock("QA", "UAT");
 
+  if (isGateSatisfied(runState, "QA") && !isGateSatisfied(runState, "UAT")) {
+    return {
+      status: "open",
+      current_gate: "UAT",
+      blocking_reason: "none",
+      missing_approval: "Approval: UAT",
+      allowed: ["request exact UAT approval", "prepare non-operative delivery summary"],
+      forbidden: ["release", "push", "open PR", "commit without explicit user instruction and required approval"],
+      next_allowed_action: "Request exact approval: Approval: UAT before delivery handoff.",
+    };
+  }
+
+  if (isGateSatisfied(runState, "UAT")) {
+    return {
+      status: "open",
+      current_gate: "OR",
+      blocking_reason: "none",
+      missing_approval: "none",
+      allowed: ["produce OR or delivery closeout", "prepare commit, push or PR handoff when requested"],
+      forbidden: ["commit, push, open PR or release automatically"],
+      next_allowed_action: "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+    };
+  }
+
   return {
     status: "open",
     current_gate: "Brownfield Analysis",
@@ -1171,7 +1275,7 @@ function evaluateGateCheck(targetDir) {
   const doctorRevise = doctorReport.findings.find((finding) => finding.severity === "revise");
 
   let status = transitionDecision.status;
-  let currentGate = transitionDecision.current_gate;
+  let currentGate = effectiveCurrentGate(runState, transitionDecision);
   let blockingReason = transitionDecision.blocking_reason;
   let missingApproval = transitionDecision.missing_approval;
   let allowed = transitionDecision.allowed;
@@ -1220,6 +1324,18 @@ function evaluateGateCheck(targetDir) {
     doctor_status: doctorReport.status,
     doctor_summary: doctorReport.summary,
     evidence_refs: runState.evidence_refs,
+    quality_outlook: deriveQualityOutlook(runState, deliveryMap.findings),
+    status_card: buildStatusCard({
+      status,
+      currentGate,
+      allowed,
+      forbidden,
+      blockingReason,
+      missingApproval,
+      nextAllowedAction,
+      runState,
+      findings: deliveryMap.findings,
+    }),
     delivery_map: {
       relationships: deliveryMap.relationships,
       mode_slice_decision: runState.mode_slice_decision,
@@ -1240,6 +1356,7 @@ function printGateCheckReport(report, json) {
   console.log(`Current gate: ${report.current_gate}`);
   console.log(`Blocking reason: ${report.blocking_reason}`);
   console.log(`Missing approval: ${report.missing_approval}`);
+  console.log(`Quality outlook: ${report.quality_outlook}`);
   console.log(`Doctor: ${report.doctor_status} (${report.doctor_summary.findings} findings)`);
   console.log("");
   console.log("Allowed:");
@@ -1280,6 +1397,7 @@ function evaluateDeliveryMap(targetDir) {
   const runState = readRunState(targetDir);
   const map = analyzeDeliveryMap(runState);
   const gateDecision = transitionDecisionForRunState(runState);
+  const currentGate = effectiveCurrentGate(runState, gateDecision);
 
   const severityRank = { block: 3, revise: 2, warn: 1 };
   const deliverySeverity = map.findings.reduce((max, finding) => Math.max(max, severityRank[finding.severity] ?? 0), 0);
@@ -1287,13 +1405,28 @@ function evaluateDeliveryMap(targetDir) {
   const maxSeverity = Math.max(deliverySeverity, doctorSeverity);
   const status = maxSeverity >= 3 ? "block" : maxSeverity === 2 ? "revise" : maxSeverity === 1 ? "warn" : "pass";
 
+  const qualityOutlook = deriveQualityOutlook(runState, map.findings);
+  const nextAllowedAction = isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action;
+
   return {
     schema_version: "1",
     status,
     checked_at: new Date().toISOString(),
     target_dir: targetDir,
-    current_gate: gateDecision.current_gate,
-    next_allowed_action: isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action,
+    current_gate: currentGate,
+    next_allowed_action: nextAllowedAction,
+    quality_outlook: qualityOutlook,
+    status_card: buildStatusCard({
+      status,
+      currentGate,
+      allowed: gateDecision.allowed,
+      forbidden: gateDecision.forbidden,
+      blockingReason: gateDecision.blocking_reason,
+      missingApproval: gateDecision.missing_approval,
+      nextAllowedAction,
+      runState,
+      findings: map.findings,
+    }),
     backlog_pointers: readBacklogPointers(targetDir),
     artefacts: Object.fromEntries([...runState.artefacts.entries()]),
     approvals: Object.fromEntries([...runState.approvals.entries()]),
@@ -1319,6 +1452,7 @@ function printDeliveryMapReport(report, json) {
   console.log(`AGDF delivery-map: ${report.status}`);
   console.log(`Current gate: ${report.current_gate}`);
   console.log(`Next allowed action: ${report.next_allowed_action}`);
+  console.log(`Quality outlook: ${report.quality_outlook}`);
   console.log(`Relationships: ${report.relationships.filter((item) => item.status === "pass").length}/${report.relationships.length} evidenced`);
   console.log(`Findings: ${report.findings.length}`);
 

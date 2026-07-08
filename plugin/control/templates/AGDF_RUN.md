@@ -23,6 +23,18 @@ What outcome is this run trying to make trustworthy?
 | What is the next allowed action? |  |
 | What is explicitly forbidden right now? |  |
 
+## Run Status Card
+
+This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
+
+- status:
+- allowed_now:
+- forbidden_now:
+- blocking_condition:
+- next_skill:
+- next_step:
+- quality_outlook:
+
 ## Approvals
 
 Valid approval format for new runs: `Approval: <GateName>`.

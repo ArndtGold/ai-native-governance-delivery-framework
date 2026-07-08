@@ -117,6 +117,8 @@ npx --yes create-agdf@latest gate-check --json
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
 
+`gate-check --json` and `delivery-map --json` also expose a `status_card` object. It is a compact projection of the current control state: current gate, allowed and forbidden actions, blocker, next skill, next permissible step and `quality_outlook`. `next_step` is process permission; `quality_outlook` is the next meaningful quality-improvement focus and does not unlock gates.
+
 Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction layer into a repository control system when durable control state is needed. For normal fresh requests, the agent-native path can stay lighter: draft the minimal UR in the response, request `Approval: UR`, and use CLI validators only when machine-readable proof is useful.
 
 ## Single source of truth

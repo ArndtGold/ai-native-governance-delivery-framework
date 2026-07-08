@@ -230,6 +230,8 @@ open | blocked
 
 including current gate, missing approval, allowed outputs, forbidden outputs and next allowed action.
 
+For machine-readable handoff, `gate-check --json` and `delivery-map --json` include a `status_card` projection with the current gate, allowed and forbidden actions, blocking condition, next skill, next permissible step and `quality_outlook`. The quality outlook is advisory: it names the next useful quality improvement, but it does not unlock gates or replace evidence.
+
 These commands are not a required ritual for normal agent work when the agent can inspect the live control files directly.
 That is the control boundary: AGDF is agent-native first and CLI-verifiable by design.
 

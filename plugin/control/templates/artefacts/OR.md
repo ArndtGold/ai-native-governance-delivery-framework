@@ -33,6 +33,18 @@ Status: `draft | done | superseded`
 | QA |  |  |
 | UAT |  |  |
 
+## Run Status Card
+
+This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
+
+- status:
+- allowed_now:
+- forbidden_now:
+- blocking_condition:
+- next_skill:
+- next_step:
+- quality_outlook:
+
 ## Delivered
 
 | Item | Evidence |

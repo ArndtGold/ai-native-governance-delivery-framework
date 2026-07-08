@@ -378,6 +378,12 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("Missing relationship evidence in the Artefact Chain is at least `revise`")) {
     failures.push("runtime contract must state the delivery-map relationship evidence rule");
   }
+  if (!runtimeContract.includes("## Run Status Card")) {
+    failures.push("runtime contract must define the Run Status Card");
+  }
+  if (!runtimeContract.includes("`quality_outlook` is quality direction")) {
+    failures.push("runtime contract must distinguish quality_outlook from next_step");
+  }
 }
 
 const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;

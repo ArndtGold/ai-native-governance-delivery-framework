@@ -930,6 +930,15 @@ run("config", [
     if (deliveryMapReport.status !== "revise") {
       throw new Error(`Delivery-map should revise approved PRD without relationship evidence, got ${deliveryMapReport.status}.`);
     }
+    if (deliveryMapReport.status_card?.current_gate !== "SD") {
+      throw new Error("Delivery-map should expose a Run Status Card with the current gate.");
+    }
+    if (!deliveryMapReport.status_card?.forbidden_now?.includes("create TP")) {
+      throw new Error("Delivery-map status card should expose currently forbidden actions.");
+    }
+    if (!deliveryMapReport.quality_outlook || deliveryMapReport.status_card?.quality_outlook !== deliveryMapReport.quality_outlook) {
+      throw new Error("Delivery-map should expose quality_outlook consistently on the report and status card.");
+    }
     if (!deliveryMapReport.findings.some((finding) => finding.code === "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING")) {
       throw new Error("Delivery-map should report missing relationship evidence for approved PRD.");
     }
@@ -954,6 +963,15 @@ run("config", [
       const gateCheckReport = JSON.parse(error.stdout.toString());
       if (!gateCheckReport.delivery_map?.findings?.some((finding) => finding.code === "AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING")) {
         throw new Error("Gate-check should include delivery-map findings as evidence context.");
+      }
+      if (gateCheckReport.status_card?.current_gate !== "SD") {
+        throw new Error("Gate-check should expose a Run Status Card with the current gate.");
+      }
+      if (!gateCheckReport.status_card?.allowed_now?.includes("draft or refine Solution Design")) {
+        throw new Error("Gate-check status card should expose currently allowed actions.");
+      }
+      if (!gateCheckReport.quality_outlook || gateCheckReport.status_card?.quality_outlook !== gateCheckReport.quality_outlook) {
+        throw new Error("Gate-check should expose quality_outlook consistently on the report and status card.");
       }
     }
     if (!gateCheckFailed) {

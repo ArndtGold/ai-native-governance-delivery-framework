@@ -27,6 +27,31 @@ Use this compact output shape when no formal gate artefact is required:
 
 Do not add a separate `Quality outlook` line for pure Quick Tasks unless the task became a relevant run.
 
+## Run Status Card
+
+When a run needs an operational status view, use the Run Status Card as a compact projection of existing control state.
+It must not introduce a second gate model or override `gate-check`, `delivery-map`, QA, OR, or user approvals.
+
+- `mode`: `quick_task | structured_delivery | unknown`
+- `status`: `open | blocked | pass | warn | revise | block | in_progress`
+- `current_gate`: current user gate or internal step
+- `mode_slice_decision`: `undecided | quick_task | structured_slice | structured_delivery | block`
+- `allowed_now`: outputs or actions currently permitted
+- `forbidden_now`: outputs or actions currently forbidden
+- `blocking_condition`: current blocker or `none`
+- `missing_approval`: exact missing approval formula or `none`
+- `evidence`: concrete evidence references currently visible
+- `next_skill`: next AGDF skill or `none`
+- `next_step`: the single next permissible process action
+- `quality_outlook`: the next meaningful quality-improvement focus, or `none`
+
+`next_step` and `quality_outlook` are intentionally different:
+
+- `next_step` is process permission: what may happen next.
+- `quality_outlook` is quality direction: what would most improve confidence, maintainability, evidence, or delivery integrity if further investment is made.
+
+`quality_outlook` must not unlock gates, imply QA pass, or substitute for missing evidence.
+
 ## Chat Output Discipline
 
 Durable artefacts are for the repository, not for flooding the chat.
@@ -194,6 +219,7 @@ It must expose:
 - `UR -> PRD -> SD -> TP -> QA_REPORT` relationships
 - evidence refs, missing evidence and declared risks
 - Context Graph impact and gate effect
+- the Run Status Card as a compact projection of current gate, next step and quality outlook
 - findings that explain why the delivery picture is `pass | warn | revise | block`
 
 Missing relationship evidence in the Artefact Chain is at least `revise` once the related gate artefact is approved or passed.

@@ -197,6 +197,8 @@ npm create agdf@latest -- init
 
 `opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions, Agents, Permissions und Plugin-Hooks. `config` schreibt oder aktualisiert nur die projektlokale Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
 
+`gate-check --json` und `delivery-map --json` enthalten zusätzlich eine kompakte Run Status Card. Sie fasst aktuelles Gate, erlaubte und verbotene Aktionen, Blocker, nächsten Skill, nächsten erlaubten Schritt und `quality_outlook` zusammen. `next_step` bleibt dabei die Prozess-Erlaubnis; `quality_outlook` ist der nächste sinnvolle Qualitätshebel und ersetzt keine Freigabe.
+
 ## Lizenz
 
 Lizenziert unter [Apache-2.0](LICENSE).

@@ -91,6 +91,10 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | create-agdf smoke test | `npm --prefix create-agdf run smoke-test -- --quiet` | Generated scaffold, routing render and post-QA UAT projection | direct |
 | Pages check | `npm --prefix pages run check` | Astro/type diagnostics, including Core Control Flow revision | direct |
 | Pages build | `npm --prefix pages run build` | Static site build, including Core Control Flow revision | direct |
+| Pages check after Operating Model icon | `npm --prefix pages run check` | Astro/type diagnostics | direct |
+| Pages build after Operating Model icon | `npx --yes node@22 .\node_modules\astro\astro.js build` from `pages\` | Static site build on Node 22 LTS | direct |
+| Pages check after additional section icons | `npm --prefix pages run check` | Astro/type diagnostics | direct |
+| Pages build after additional section icons | `npx --yes node@22 .\node_modules\astro\astro.js build` from `pages\` | Static site build on Node 22 LTS | direct |
 | Gate-check status projection | `node create-agdf\bin\create-agdf.js gate-check --json` | Current gate UAT and missing `Approval: UAT` | direct |
 
 ## Missing Evidence
@@ -105,6 +109,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 |---|---|---|
 | Overfitting AGDF to MarzipanWeb specifics | warn | Generalize patterns and exclude MarzipanWeb-specific fachliche Guardrails |
 | More rules could increase ceremony | warn | Phrase as ambiguity reducers and lightweight tracks, not mandatory full-process overhead |
+| Local Node 25.8.2 Windows Astro build assertion | warn | Use Node 22 LTS build evidence; keep standard `astro check` green |
 
 ## Context Graph Impact
 
@@ -131,9 +136,9 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 ## Closeout
 
-- delivered: Runtime/router/gate-check/template/quality-contract/CLI/Pages sharpening implemented, including QA-passed to UAT status projection and Core Control Flow Pages revision.
+- delivered: Runtime/router/gate-check/template/quality-contract/CLI/Pages sharpening implemented, including QA-passed to UAT status projection, Core Control Flow Pages revision and section icons.
 - not_delivered: No gate-order change; no approval-rule weakening; no MarzipanWeb-specific domain import.
-- verification_performed: runtime integrity; create-agdf smoke/routing; Pages check; Pages build.
+- verification_performed: runtime integrity; create-agdf smoke/routing; Pages check; Pages build; Node 22 LTS Pages build after local Node 25 assertion.
 - unverified: downstream repo usability until first consumer adoption.
 - next_allowed_action: Request `Approval: UAT` before committing.
 - quality_outlook: Use first downstream adoption to confirm the guardrails reduce ambiguity without avoidable ceremony.

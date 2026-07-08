@@ -182,11 +182,11 @@ Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte a
 Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
 ```bash
-npx --yes @agdf-runtime/cli@latest init
-npx --yes @agdf-runtime/cli@latest opencode
-npx --yes @agdf-runtime/cli@latest config --language en
-npx --yes @agdf-runtime/cli@latest doctor
-npx --yes @agdf-runtime/cli@latest gate-check --json
+npx --yes @agdf/cli@latest init
+npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest config --language en
+npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --json
 ```
 
 Für Scaffold-kompatible Installation bleibt der npm-create-Pfad erhalten:

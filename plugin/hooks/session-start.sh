@@ -8,7 +8,7 @@ ROUTER="${META_DIR}/agdf-agent-router.md"
 CONSTITUTION="${META_DIR}/agdf-constitution.md"
 CONFIG_PATH="${PWD}/.agdf/control/config.json"
 
-CONFIG_HINT="Project config: .agdf/control/config.json not found. Use npx --yes @agdf-runtime/cli@latest config --language de|en to persist the project language."
+CONFIG_HINT="Project config: .agdf/control/config.json not found. Use npx --yes @agdf/cli@latest config --language de|en to persist the project language."
 if [[ -f "${CONFIG_PATH}" ]]; then
   CONFIG_HINT="$(CONFIG_PATH="${CONFIG_PATH}" node <<'NODE' 2>/dev/null || true
 const fs = require("node:fs");
@@ -23,7 +23,7 @@ try {
     console.log(`Language policy: write durable AGDF artefacts in ${artefacts} and user-facing responses in ${chat} unless the user explicitly asks otherwise. Runtime rules stay ${runtime}.`);
   }
 } catch {
-  console.log("Project config: .agdf/control/config.json exists but is not valid JSON. Run npx --yes @agdf-runtime/cli@latest doctor.");
+  console.log("Project config: .agdf/control/config.json exists but is not valid JSON. Run npx --yes @agdf/cli@latest doctor.");
 }
 NODE
 )"

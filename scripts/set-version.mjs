@@ -16,7 +16,7 @@ if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(nextVersion)) {
   fail(`Invalid version "${nextVersion}". Expected semver like 0.3.2 or 0.3.2-beta.1.`);
 }
 
-const packagesToCheck = ["create-agdf", "@agdf-runtime/cli"];
+const packagesToCheck = ["create-agdf", "@agdf/cli"];
 
 for (const packageName of packagesToCheck) {
   assertNpmVersionDoesNotExist(packageName, nextVersion);
@@ -71,7 +71,7 @@ console.log("  npm --prefix pages run build");
 console.log("");
 console.log("Release tags:");
 console.log(`  create-agdf-v${nextVersion}`);
-console.log(`  agdf-runtime-cli-v${nextVersion}`);
+console.log(`  agdf-cli-v${nextVersion}`);
 
 function assertNpmVersionDoesNotExist(packageName, version) {
   try {

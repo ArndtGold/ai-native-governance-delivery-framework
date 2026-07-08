@@ -23,7 +23,7 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf-runtime/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 

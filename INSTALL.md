@@ -172,9 +172,9 @@ npm create agdf@latest -- init
 The primary CLI package is `agdf`. Use it when command semantics matter:
 
 ```bash
-npx --yes @agdf-runtime/cli@latest init
-npx --yes @agdf-runtime/cli@latest doctor
-npx --yes @agdf-runtime/cli@latest gate-check --json
+npx --yes @agdf/cli@latest init
+npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --json
 ```
 
 `npm create agdf@latest -- ...` remains supported for scaffold-style setup.
@@ -182,9 +182,9 @@ npx --yes @agdf-runtime/cli@latest gate-check --json
 You can pin the preferred project language during setup:
 
 ```bash
-npx --yes @agdf-runtime/cli@latest init --language de
-npx --yes @agdf-runtime/cli@latest codex --lang en
-npx --yes @agdf-runtime/cli@latest config --language en
+npx --yes @agdf/cli@latest init --language de
+npx --yes @agdf/cli@latest codex --lang en
+npx --yes @agdf/cli@latest config --language en
 ```
 
 Supported values are `de` and `en`. If no language is provided, `create-agdf` reads the local system locale from `LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale and falls back to `en`.

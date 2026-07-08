@@ -7,12 +7,12 @@ Bootstrap AGDF repository instructions and a machine-checkable control loop for 
 Preferred long-term CLI shape:
 
 ```bash
-npx --yes @agdf-runtime/cli@latest codex
-npx --yes @agdf-runtime/cli@latest opencode
-npx --yes @agdf-runtime/cli@latest init
-npx --yes @agdf-runtime/cli@latest config --language en
-npx --yes @agdf-runtime/cli@latest doctor
-npx --yes @agdf-runtime/cli@latest gate-check --json
+npx --yes @agdf/cli@latest codex
+npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest init
+npx --yes @agdf/cli@latest config --language en
+npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --json
 ```
 
 Backward-compatible scaffold usage:
@@ -152,9 +152,9 @@ The repository publishes this package from `create-agdf/` via the GitHub Actions
 The primary user-facing CLI package is published separately from `agdf/` and delegates to this package through the shared `create-agdf/cli` export.
 
 - From the repository root, run `npm run set-version -- <version>`
-- The version script updates the coupled package, plugin and site versions and refuses versions already published as `create-agdf` or `@agdf-runtime/cli`
+- The version script updates the coupled package, plugin and site versions and refuses versions already published as `create-agdf` or `@agdf/cli`
 - Push a matching git tag in the form `create-agdf-v<version>`
-- After `create-agdf` is published, push `agdf-runtime-cli-v<version>` for the primary CLI package
+- After `create-agdf` is published, push `agdf-cli-v<version>` for the primary CLI package
 - Ensure the repository secret `NPM_TOKEN` exists with publish rights for `create-agdf`
 
 ## Trademark Notice

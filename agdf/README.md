@@ -5,16 +5,16 @@ Primary AGDF command-line interface.
 Use `agdf` for normal command semantics:
 
 ```bash
-npx --yes @agdf-runtime/cli@latest init
-npx --yes @agdf-runtime/cli@latest doctor
-npx --yes @agdf-runtime/cli@latest gate-check --json
-npx --yes @agdf-runtime/cli@latest opencode
+npx --yes @agdf/cli@latest init
+npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --json
+npx --yes @agdf/cli@latest opencode
 ```
 
 Install globally when AGDF should be available as a regular command:
 
 ```bash
-npm install -g @agdf-runtime/cli
+npm install -g @agdf/cli
 agdf init
 agdf doctor
 agdf gate-check --json

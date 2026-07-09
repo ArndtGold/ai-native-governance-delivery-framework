@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
 const nextVersion = process.argv[2];
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const npmCommand = process.platform === "win32" ? process.execPath : "npm";
+const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
 
 if (!nextVersion || nextVersion.startsWith("-")) {
   fail("Usage: npm run set-version -- <semver>");
@@ -76,7 +77,7 @@ console.log(`  agdf-v${nextVersion}`);
 
 function assertNpmVersionDoesNotExist(packageName, version) {
   try {
-    execFileSync(npmCommand, ["view", `${packageName}@${version}`, "version", "--json"], {
+    execFileSync(npmCommand, [...npmPrefixArgs, "view", `${packageName}@${version}`, "version", "--json"], {
       cwd: repoRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

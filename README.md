@@ -217,6 +217,7 @@ npx --yes @agdf/cli@latest codex
 npx --yes @agdf/cli@latest codex-repo
 npx --yes @agdf/cli@latest claude
 npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest doctor
@@ -229,12 +230,10 @@ Für Scaffold-kompatible Installation bleibt der npm-create-Pfad erhalten:
 npm create agdf@latest -- init
 ```
 
-`opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed
-OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist
-damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions,
-Agents, Permissions und Plugin-Hooks. AGDF für OpenCode hat zwei Ebenen: einen optionalen globalen
+`opencode` installiert den globalen OpenCode-Hook und macht das npm-Paket aus der OpenCode-Konfigurationsumgebung ladbar. `opencode-status` prüft danach getrennt: globale Config, Paket-Ladbarkeit, aktive Session-Signale und repository-lokale Oberfläche. OpenCode ist damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions,
+Agents, Permissions und Plugin-Hooks. AGDF für OpenCode hat zwei Ebenen: einen globalen
 npm-Plugin-Hook per `npx --yes @agdf/cli@latest opencode` und die repository-lokale Governance-Oberfläche
-aus `opencode.json`, `.opencode/AGDF.md`, `.opencode/agents/` und `.agdf/control/`. Der globale Hook ersetzt diese Repository-Dateien nicht. Die OpenCode-Agenten bleiben bewusst `mode: subagent`: Sie sind
+aus `opencode.json`, `.opencode/AGDF.md`, `.opencode/agents/` und `.agdf/control/`, erzeugt durch `opencode-repo`. Der globale Hook ersetzt diese Repository-Dateien nicht. Die OpenCode-Agenten bleiben bewusst `mode: subagent`: Sie sind
 Governance-Routing im Hintergrund, keine `.opencode/skills/`-Skills und keine Hauptagenten im Menü.
 Der sichtbare Einstieg für neue Change-Absicht oder unklare Freigabe ist `@agdf-gate-check`. `config` schreibt oder aktualisiert nur die projektlokale
 Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter

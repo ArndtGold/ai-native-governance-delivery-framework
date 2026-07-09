@@ -1,14 +1,17 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import process from "node:process";
 
 const packageRoot = new URL("..", import.meta.url);
 const repoRoot = new URL("..", packageRoot);
 const createAgdfPackageRoot = fileURLToPath(new URL("./create-agdf", repoRoot));
 const packageJsonPath = fileURLToPath(new URL("./package.json", packageRoot));
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+const npmCommand = process.platform === "win32" ? process.execPath : "npm";
+const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
 
 if (packageJson.name !== "@agdf/cli") {
   throw new Error("The primary CLI package must be named @agdf/cli.");
@@ -25,7 +28,7 @@ if (packageJson.dependencies?.["create-agdf"] !== packageJson.version) {
 const tempDir = mkdtempSync(join(tmpdir(), "agdf-cli-"));
 
 try {
-  execFileSync("npm", ["pack", "--silent", createAgdfPackageRoot], {
+  execFileSync(npmCommand, [...npmPrefixArgs, "pack", "--silent", createAgdfPackageRoot], {
     cwd: tempDir,
     stdio: "pipe",
   });
@@ -35,7 +38,7 @@ try {
     throw new Error("Expected create-agdf tarball was not created.");
   }
 
-  execFileSync("npm", ["install", "--silent", createAgdfTarball], {
+  execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", createAgdfTarball], {
     cwd: tempDir,
     stdio: "pipe",
   });

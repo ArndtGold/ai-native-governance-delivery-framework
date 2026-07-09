@@ -10,6 +10,8 @@ Preferred long-term CLI shape:
 npx --yes @agdf/cli@latest codex
 npx --yes @agdf/cli@latest codex-repo
 npx --yes @agdf/cli@latest claude
+npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
@@ -24,6 +26,8 @@ npm create agdf@latest -- codex
 npm create agdf@latest -- codex-repo
 npm create agdf@latest -- claude
 npm create agdf@latest -- copilot
+npm create agdf@latest -- opencode
+npm create agdf@latest -- opencode-status
 npm create agdf@latest -- opencode-repo
 npm create agdf@latest -- both
 npm create agdf@latest -- init
@@ -47,6 +51,7 @@ If no language is provided, `create-agdf` derives the preference from the local 
 - `claude` installs the AGDF plugin globally for Claude Code
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
 - `opencode` installs the AGDF npm plugin as a user-wide OpenCode hook
+- `opencode-status` reports OpenCode global config, package loadability, session signals and repository surface presence
 - `opencode-repo` writes `opencode.json`, `.opencode/AGDF.md`, prefixed OpenCode agents under `.opencode/agents/`, explicit edit/bash permissions, and AGDF control templates under `.agdf/control/`
 - `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
@@ -62,6 +67,14 @@ Use the `opencode` target to install the AGDF npm plugin as a user-wide OpenCode
 ```bash
 npx --yes @agdf/cli@latest opencode
 ```
+
+Then verify the visible installation state:
+
+```bash
+npx --yes @agdf/cli@latest opencode-status --json
+```
+
+The status command reports global configuration, whether `create-agdf` is loadable from the OpenCode config directory, whether the current process exposes AGDF session signals, and whether the current repository has `.opencode/AGDF.md` plus the `agdf-gate-check` surface. It does not infer an active OpenCode session from config alone.
 
 Use the `opencode-repo` target when AGDF should be available to OpenCode from repository files:
 

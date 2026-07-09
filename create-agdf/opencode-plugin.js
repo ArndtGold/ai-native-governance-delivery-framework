@@ -1,26 +1,38 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+
+const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 
 export const AGDFPlugin = async ({ directory, client }) => {
   const controlDir = `${directory}/.agdf/control`;
   const hasRepositorySurface = () => existsSync(`${directory}/.opencode/AGDF.md`) && existsSync(`${directory}/.opencode/agents`);
+  const status = () => ({
+    active: true,
+    version: packageJson.version,
+    controlDir,
+    repositorySurface: hasRepositorySurface(),
+  });
 
   return {
     event: async ({ event }) => {
       if (event?.type === "session.created") {
-        const repositorySurface = hasRepositorySurface();
+        const currentStatus = status();
         await client.app.log({
           body: {
             service: "agdf",
             level: "info",
-            message: repositorySurface ? "AGDF OpenCode surface active" : "AGDF OpenCode plugin loaded without repository surface",
-            extra: { controlDir, repositorySurface },
+            message: currentStatus.repositorySurface ? "AGDF OpenCode active" : "AGDF OpenCode global hook active without repository surface",
+            extra: currentStatus,
           },
         });
       }
     },
 
     "shell.env": async (_input, output) => {
+      const currentStatus = status();
+      output.env.AGDF_PLUGIN_ACTIVE = "1";
+      output.env.AGDF_PLUGIN_VERSION = currentStatus.version;
       output.env.AGDF_CONTROL_DIR = controlDir;
+      output.env.AGDF_OPENCODE_REPOSITORY_SURFACE = currentStatus.repositorySurface ? "1" : "0";
     },
 
     "experimental.session.compacting": async (_input, output) => {

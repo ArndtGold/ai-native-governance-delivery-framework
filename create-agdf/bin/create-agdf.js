@@ -13,7 +13,9 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
-const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
+const npmCommand = process.platform === "win32" ? process.execPath : "npm";
+const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
+const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -161,6 +163,7 @@ Preferred AGDF CLI:
   npx --yes @agdf/cli@latest codex-repo
   npx --yes @agdf/cli@latest claude
   npx --yes @agdf/cli@latest opencode
+  npx --yes @agdf/cli@latest opencode-status
   npx --yes @agdf/cli@latest opencode-repo
   npx --yes @agdf/cli@latest init
   npx --yes @agdf/cli@latest doctor
@@ -172,6 +175,7 @@ Scaffold-compatible npm create usage:
   npm create agdf@latest -- claude
   npm create agdf@latest -- copilot
   npm create agdf@latest -- opencode
+  npm create agdf@latest -- opencode-status
   npm create agdf@latest -- opencode-repo
   npm create agdf@latest -- both
   npm create agdf@latest -- init
@@ -323,7 +327,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, codex-repo, claude, copilot, opencode, opencode-repo, both, init, config, doctor, gate-check or delivery-map.");
+    console.error("Please choose one target: codex, codex-repo, claude, copilot, opencode, opencode-status, opencode-repo, both, init, config, doctor, gate-check or delivery-map.");
     printUsage();
     process.exit(1);
   }
@@ -371,12 +375,130 @@ function installOpenCodeGlobalPlugin(configDir) {
   };
 
   mkdirSync(configDir, { recursive: true });
+  try {
+    execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", "--save-prod", "--prefix", configDir, packageRoot], { stdio: "pipe" });
+  } catch (error) {
+    throw new Error(`Failed to install ${pluginDefinition.opencode.npmPackage} into the OpenCode config directory: ${(error.stderr || error.message).toString().trim()}`);
+  }
   writeFileSync(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf8");
 
   return {
     configPath,
     added: !alreadyInstalled,
   };
+}
+
+function readOpenCodeConfig(configPath) {
+  if (!existsSync(configPath)) return { exists: false, parseError: "", config: {} };
+  try {
+    return { exists: true, parseError: "", config: JSON.parse(readFileSync(configPath, "utf8")) };
+  } catch (error) {
+    return { exists: true, parseError: error.message, config: {} };
+  }
+}
+
+function isOpenCodeRepositorySurfacePresent(targetDir) {
+  return existsSync(join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName))
+    && existsSync(join(targetDir, ".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}gate-check.md`));
+}
+
+function resolveOpenCodePackage(configDir) {
+  const packageName = pluginDefinition.opencode.npmPackage;
+  try {
+    return {
+      loadable: true,
+      path: execFileSync(process.execPath, ["-e", `process.stdout.write(require.resolve(${JSON.stringify(packageName)}))`], {
+        cwd: configDir,
+        encoding: "utf8",
+        stdio: "pipe",
+      }),
+      error: "",
+    };
+  } catch (error) {
+    return {
+      loadable: false,
+      path: "",
+      error: (error.stderr || error.message || "package not resolvable").toString().trim(),
+    };
+  }
+}
+
+function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir()) {
+  const configPath = join(configDir, "opencode.json");
+  const configState = readOpenCodeConfig(configPath);
+  const plugins = Array.isArray(configState.config.plugin) ? configState.config.plugin : [];
+  const globalConfigured = plugins.includes(pluginDefinition.opencode.npmPackage);
+  const packageState = resolveOpenCodePackage(configDir);
+  const sessionSignals = {
+    active: process.env.AGDF_PLUGIN_ACTIVE === "1",
+    version: process.env.AGDF_PLUGIN_VERSION || "",
+    control_dir: process.env.AGDF_CONTROL_DIR || "",
+    repository_surface: process.env.AGDF_OPENCODE_REPOSITORY_SURFACE === "1",
+  };
+  const repositorySurface = isOpenCodeRepositorySurfacePresent(targetDir);
+
+  const findings = [];
+  if (!configState.exists) findings.push("OpenCode global config not found.");
+  if (configState.parseError) findings.push(`OpenCode global config is not valid JSON: ${configState.parseError}`);
+  if (!globalConfigured) findings.push(`OpenCode global config does not include ${pluginDefinition.opencode.npmPackage}.`);
+  if (!packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is not loadable from the OpenCode config directory.`);
+  if (!sessionSignals.active) findings.push("No active AGDF OpenCode session signal is visible in this process.");
+  if (!repositorySurface) findings.push("Current repository does not contain the AGDF OpenCode surface.");
+
+  return {
+    schema_version: "1",
+    status: globalConfigured && packageState.loadable ? "configured" : "not_configured",
+    global_config: {
+      path: configPath,
+      exists: configState.exists,
+      parse_error: configState.parseError,
+      plugin_configured: globalConfigured,
+    },
+    package: {
+      name: pluginDefinition.opencode.npmPackage,
+      loadable: packageState.loadable,
+      resolved_path: packageState.path,
+      error: packageState.error,
+    },
+    session: sessionSignals,
+    repository_surface: {
+      path: targetDir,
+      present: repositorySurface,
+      instructions: join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName),
+      gate_check_agent: join(targetDir, ".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}gate-check.md`),
+    },
+    visible_entrypoint: repositorySurface ? `@${pluginDefinition.opencode.skillPrefix}gate-check` : "none until opencode-repo is installed for this repository",
+    findings,
+    next_step: repositorySurface
+      ? `Restart OpenCode if needed, then use @${pluginDefinition.opencode.skillPrefix}gate-check for new build/change intent.`
+      : "Run npx --yes @agdf/cli@latest opencode-repo in repositories where AGDF governance should be active and reviewable.",
+  };
+}
+
+function printOpenCodeStatus(report, json) {
+  if (json) {
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  console.log("AGDF OpenCode status");
+  console.log(`Status: ${report.status}`);
+  console.log(`Global config: ${report.global_config.plugin_configured ? "configured" : "missing"} (${report.global_config.path})`);
+  if (report.global_config.parse_error) console.log(`Config parse error: ${report.global_config.parse_error}`);
+  console.log(`Package loadable: ${report.package.loadable ? "yes" : "no"}`);
+  if (report.package.resolved_path) console.log(`Package path: ${report.package.resolved_path}`);
+  console.log(`Session active signal: ${report.session.active ? "yes" : "no"}`);
+  if (report.session.version) console.log(`Session plugin version: ${report.session.version}`);
+  if (report.session.control_dir) console.log(`Session control dir: ${report.session.control_dir}`);
+  console.log(`Repository surface: ${report.repository_surface.present ? "present" : "missing"}`);
+  console.log(`Visible entrypoint: ${report.visible_entrypoint}`);
+  console.log(`Next step: ${report.next_step}`);
+
+  if (report.findings.length > 0) {
+    console.log("");
+    console.log("Findings:");
+    for (const finding of report.findings) console.log(`- ${finding}`);
+  }
 }
 
 function installCodexGlobalPlugin() {
@@ -1829,6 +1951,13 @@ function main() {
     process.exit(report.status === "block" ? 2 : 0);
   }
 
+  if (options.target === "opencode-status") {
+    const configDir = process.env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
+    const report = evaluateOpenCodeStatus(options.dir, configDir);
+    printOpenCodeStatus(report, options.json);
+    process.exit(report.status === "configured" ? 0 : 1);
+  }
+
   if (options.target === "codex") {
     try {
       installCodexGlobalPlugin();
@@ -1857,7 +1986,9 @@ function main() {
     try {
       const result = installOpenCodeGlobalPlugin(configDir);
       console.log(`AGDF OpenCode global plugin ${result.added ? "installed" : "already present"}: ${result.configPath}`);
-      console.log("Run npx --yes @agdf/cli@latest opencode-repo in each repository where AGDF governance should be active and reviewable.");
+      const report = evaluateOpenCodeStatus(options.dir, configDir);
+      printOpenCodeStatus(report, false);
+      console.log("Restart OpenCode so it loads the updated global plugin config.");
     } catch (error) {
       console.error(error.message);
       process.exit(1);

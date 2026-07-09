@@ -27,6 +27,7 @@ Install the user-wide OpenCode hook:
 
 ```bash
 npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-status
 ```
 
 Install the AGDF CLI globally when `agdf` should be available as a regular
@@ -74,6 +75,7 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `codex-repo` | Add a repository-local Codex marketplace and AGDF plugin copy. |
 | `claude` | Install the AGDF plugin globally for Claude Code. |
 | `opencode` | Install the AGDF npm plugin as a user-wide OpenCode hook. |
+| `opencode-status` | Report OpenCode global config, package loadability, session signals and repository surface presence. |
 | `opencode-repo` | Add OpenCode repository instructions, subagents, permissions and control templates. |
 | `copilot` | Add `AGENTS.md`, Copilot instructions, skills and control templates. |
 | `both` | Prepare the repository-file and plugin surfaces together. |
@@ -87,6 +89,7 @@ Examples:
 
 ```bash
 npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-status --json
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest init
@@ -105,7 +108,8 @@ They do not replace AGDF skill judgement or user approvals.
   repository.
 - **Claude Code:** `claude` installs the AGDF plugin globally for Claude Code.
 - **OpenCode:** `opencode` installs the user-wide npm plugin hook, while
-  `opencode-repo` writes the repository instructions, agents and permissions
+  `opencode-status` verifies global config, package loadability, session signals
+  and repository surface presence. `opencode-repo` writes the repository instructions, agents and permissions
   AGDF needs. Repository instructions, generated agents and control files remain
   the AGDF source of truth. The generated
   OpenCode agents are intentional `mode: subagent` workflow controls, not

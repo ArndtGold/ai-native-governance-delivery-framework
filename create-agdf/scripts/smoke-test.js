@@ -32,7 +32,7 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 
@@ -42,6 +42,33 @@ try {
   const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
   if (!openCodeGlobalConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
     throw new Error("opencode must add the AGDF npm plugin to OpenCode global config.");
+  }
+  let status = JSON.parse(execFileSync(process.execPath, [binPath, "opencode-status", "--dir", openCodeConfigTempDir, "--json"], {
+    encoding: "utf8",
+    stdio: "pipe",
+    env: { ...process.env, OPENCODE_CONFIG_DIR: openCodeConfigTempDir },
+  }));
+  if (status.status !== "configured") {
+    throw new Error(`opencode-status should report configured after opencode install, got ${status.status}.`);
+  }
+  if (!status.global_config.plugin_configured || !status.package.loadable) {
+    throw new Error("opencode-status must prove global config and package loadability separately.");
+  }
+  if (status.session.active) {
+    throw new Error("opencode-status must not claim an active session from config evidence alone.");
+  }
+  if (status.repository_surface.present || status.visible_entrypoint !== "none until opencode-repo is installed for this repository") {
+    throw new Error("opencode-status must keep global installation separate from repository surface activation.");
+  }
+
+  execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", openCodeConfigTempDir, "--force"], { encoding: "utf8", stdio: "pipe" });
+  status = JSON.parse(execFileSync(process.execPath, [binPath, "opencode-status", "--dir", openCodeConfigTempDir, "--json"], {
+    encoding: "utf8",
+    stdio: "pipe",
+    env: { ...process.env, OPENCODE_CONFIG_DIR: openCodeConfigTempDir },
+  }));
+  if (!status.repository_surface.present || status.visible_entrypoint !== "@agdf-gate-check") {
+    throw new Error("opencode-status should detect the repository surface after opencode-repo generation.");
   }
 } finally {
   rmSync(openCodeConfigTempDir, { recursive: true, force: true });

@@ -2,7 +2,7 @@
 
 ## Run Meta
 
-- run_id: fresh-request-control-state-docs
+- run_id: opencode-global-install-visibility
 - started_at: 2026-07-09
 - mode: quick_task
 - current_gate: OR
@@ -11,17 +11,17 @@
 
 ## Objective
 
-Clarify user-facing documentation for the difference between a normal fresh request and repository-owned durable AGDF control state.
+Make OpenCode AGDF global installation visibly and deterministically checkable while preserving explicit repository activation for repository-owned governance files.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | Runtime Contract and gate-check already define the fresh-request/default-UR and durable-control boundary. |
+| What is known? | The global OpenCode hook currently records `create-agdf` in OpenCode config, while repo visibility depends on `.opencode/AGDF.md` and `.opencode/agents/`. |
 | What is approved? | UR approved by exact user formula on 2026-07-09; Brownfield Review selected quick_task. |
-| What is missing? | No scope evidence is missing. |
+| What is missing? | No implementation or validation evidence is missing for the approved quick task. |
 | What is the next allowed action? | Offer commit handoff; do not execute it automatically. |
-| What is explicitly forbidden right now? | CLI behavior changes, new gate logic, unrelated OpenCode/frontmatter work, automatic commit/push/PR. |
+| What is explicitly forbidden right now? | Release, publish, commit, push or PR without explicit user request. |
 
 ## Run Status Card
 
@@ -35,7 +35,7 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Blocked by | none |
 | Missing approval | none |
 | Next step | Offer commit handoff |
-| Quality outlook | Keep Runtime Contract normative and explain the practical boundary once in user docs |
+| Quality outlook | Make status outputs distinguish facts from inferred or unverified session state |
 
 ## Approvals
 
@@ -49,30 +49,33 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | .agdf/control/artefacts/fresh-request-control-state-docs/UR.md | approved | Documentation clarification scope |
-| Brownfield Review | .agdf/control/artefacts/fresh-request-control-state-docs/BROWNFIELD_REVIEW.md | done | Quick task; documentation-only |
+| UR | .agdf/control/artefacts/opencode-global-install-visibility/UR.md | approved | OpenCode visibility scope |
+| Brownfield Review | .agdf/control/artefacts/opencode-global-install-visibility/BROWNFIELD_REVIEW.md | done | Quick task; bounded CLI/hook/docs/status change |
+| OR | .agdf/control/artefacts/opencode-global-install-visibility/OR.md | completed | Quick task closeout |
 
 ## Mode / Slice Decision
 
 - decision: quick_task
 - required_next_gate: none
-- scope_reason: The bounded change clarifies existing user documentation and does not alter Runtime Contract, gate logic, CLI behavior, persistence or architecture.
-- evidence: Runtime Contract and gate-check already define the behavior; README, INSTALL and create-agdf README are the affected user docs.
-- transparency_note: PRD/SD/TP are intentionally skipped because the approved scope is documentation-only and follows existing source-of-truth rules.
+- scope_reason: The approved scope is a bounded CLI/hook/status/documentation improvement using existing OpenCode integration points. It does not alter AGDF gate semantics, persistence model, or other surfaces.
+- evidence: Affected source files and generated asset flow are known; smoke tests can verify global config/status and repo surface behavior.
+- transparency_note: PRD, SD and TP are intentionally skipped because they would add ceremony without materially reducing risk for this targeted visibility improvement.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
 | UR | approved_by | Approval: UR | Exact approval captured in session and persisted in UR |
-| Brownfield Review | sizes | UR | `.agdf/control/artefacts/fresh-request-control-state-docs/BROWNFIELD_REVIEW.md` |
+| Brownfield Review | sizes | UR | `.agdf/control/artefacts/opencode-global-install-visibility/BROWNFIELD_REVIEW.md` |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Runtime Contract | plugin/meta/agdf-runtime-contract.md | Normative fresh-request and durable-control rule | direct |
-| Gate-check skill | plugin/skills/gate-check/SKILL.md | Operational next action for missing/incomplete control state | direct |
+| OpenCode hook source | create-agdf/opencode-plugin.js | Runtime hook status and environment behavior | direct |
+| CLI source | create-agdf/bin/create-agdf.js | OpenCode install and status command behavior | direct |
+| Generated asset source | create-agdf/scripts/sync-package-assets.js | OpenCode repository instructions and generated README | direct |
+| Smoke tests | create-agdf/scripts/smoke-test.js | Verification surface for OpenCode install/status behavior | direct |
 | User docs | README.md; INSTALL.md; create-agdf/README.md | Affected explanation surface | direct |
 
 ## Missing Evidence
@@ -85,36 +88,38 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Risk | Impact | Mitigation or owner |
 |---|---|---|
-| Documentation may duplicate runtime rules | warn | Explain the user-facing distinction while keeping Runtime Contract normative |
+| Status command may overstate active session evidence | warn | Report config, package loadability, session signals and repo surface as separate facts |
+| Global hook could be mistaken for repo activation | warn | Preserve explicit `opencode-repo` boundary in docs and status output |
+| Generated output drift | warn | Change generator and regenerate assets |
 
 ## Context Graph Impact
 
-- context_graph_impact: link_only
-- context_graph_refs: CG-OPERATING-MODEL-SHARPENING
-- context_graph_required_action: link
+- context_graph_impact: update_needed
+- context_graph_refs: CG-OPENCODE-VISIBILITY
+- context_graph_required_action: record after implementation outcome
 - context_graph_gate_effect: none
-- context_graph_evidence: This explains an existing operating-model boundary without changing rules.
+- context_graph_evidence: The change clarifies OpenCode install/session/repo-state visibility as an operating concern.
 
 ## Source And Scope State
 
 - normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `plugin/skills/gate-check/SKILL.md`; live `.agdf/control/`
 - multi_scope_state: clear
-- active_scope_evidence: approved UR and completed Brownfield Review for `fresh-request-control-state-docs`
+- active_scope_evidence: approved UR and completed Brownfield Review for `opencode-global-install-visibility`
 - competing_scope_lines: none
-- branch_workspace_evidence: control artefacts and documentation diff reviewed
+- branch_workspace_evidence: control artefacts reviewed and gate-check run
 - branch_workspace_scope_effect: supports
 
 ## Knowledge Persistence Decision
 
 - memory_target: scope_artifact
-- memory_reason: The clarification belongs to this documentation scope.
-- memory_refs: .agdf/control/artefacts/fresh-request-control-state-docs/
+- memory_reason: OpenCode visibility decisions belong to this implementation scope.
+- memory_refs: .agdf/control/artefacts/opencode-global-install-visibility/
 
 ## Closeout
 
-- delivered: UR, Brownfield Review, documentation clarification and focused review.
-- not_delivered: Commit, push, PR and release.
-- verification_performed: Source-of-truth inspected; README, INSTALL and create-agdf README reviewed; AGDF code review returned no findings.
-- unverified: downstream reader comprehension until adoption.
+- delivered: UR, Brownfield Review, implementation, generated assets, documentation updates, smoke validation, runtime integrity validation and OR-lite.
+- not_delivered: Commit, push, PR, release and publish.
+- verification_performed: Manual temporary OpenCode status check; `npm --prefix create-agdf run smoke-test`; `node plugin/scripts/check-runtime-integrity.mjs`.
+- unverified: A real restarted OpenCode TUI session displaying the hook-set environment variables.
 - next_allowed_action: Offer commit handoff; do not execute it automatically.
-- quality_outlook: Keep user explanation clear without creating a second runtime rule model.
+- quality_outlook: Make status outputs distinguish facts from inferred or unverified session state.

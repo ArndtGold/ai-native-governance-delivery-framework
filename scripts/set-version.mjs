@@ -3,10 +3,12 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
 const nextVersion = process.argv[2];
+const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
 if (!nextVersion || nextVersion.startsWith("-")) {
   fail("Usage: npm run set-version -- <semver>");
@@ -74,7 +76,7 @@ console.log(`  agdf-v${nextVersion}`);
 
 function assertNpmVersionDoesNotExist(packageName, version) {
   try {
-    execFileSync("npm", ["view", `${packageName}@${version}`, "version", "--json"], {
+    execFileSync(npmCommand, ["view", `${packageName}@${version}`, "version", "--json"], {
       cwd: repoRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],

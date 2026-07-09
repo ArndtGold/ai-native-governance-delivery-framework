@@ -52,6 +52,18 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 `quality_outlook` must not unlock gates, imply QA pass, or substitute for missing evidence.
 
+## Delivery Path Search
+
+Delivery Path Search is an optional read-only planning step for high-impact decisions with several materially different next actions.
+
+- It consumes current AGDF state and must reject gate-illegal candidates before model evaluation.
+- It returns one advisory recommendation or `no_safe_recommendation`.
+- It must report budgets, stopping reason and `full | tool_enforced | instruction_only` enforcement.
+- Model scores are judgements, not measurements.
+- Search output is evidence only. Canonical `gate-check` independently decides what may proceed.
+- The bounded first-release algorithm must not be labelled MCTS.
+- Surface adapters may translate transport and presentation, but must not fork scoring, search or gate semantics.
+
 The field names above are the stable machine-readable contract used by JSON
 reports and automation. Human-facing Markdown must present the same projection
 with readable labels such as `Current gate`, `Allowed now`, `Blocked by`,

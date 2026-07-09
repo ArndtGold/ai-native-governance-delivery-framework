@@ -6,6 +6,12 @@ import { homedir } from "node:os";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import { searchInputFromControl } from "../lib/delivery-path-search/state-adapter.js";
+import { runDeliveryPathSearch } from "../lib/delivery-path-search/search-engine.js";
+import { codexEvaluator } from "../lib/delivery-path-search/evaluators/codex.js";
+import { fixtureEvaluator } from "../lib/delivery-path-search/evaluators/protocol.js";
+import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
+import { persistSearchResult } from "../lib/delivery-path-search/persistence.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
@@ -15,7 +21,7 @@ const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
 const npmCommand = process.platform === "win32" ? process.execPath : "npm";
 const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
-const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
+const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map", "delivery-path-search"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -168,6 +174,7 @@ Preferred AGDF CLI:
   npx --yes @agdf/cli@latest init
   npx --yes @agdf/cli@latest doctor
   npx --yes @agdf/cli@latest gate-check --json
+  npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
 
 Scaffold-compatible npm create usage:
   npm create agdf@latest -- codex
@@ -183,6 +190,7 @@ Scaffold-compatible npm create usage:
   npm create agdf@latest -- doctor
   npm create agdf@latest -- gate-check
   npm create agdf@latest -- delivery-map
+  npm create agdf@latest -- delivery-path-search --surface codex
 
 Backward-compatible create-agdf usage:
   npx --yes create-agdf@latest doctor --json
@@ -194,8 +202,14 @@ Options:
   --language <de|en>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
   --lang <de|en> Alias for --language
-  --json         Print doctor, gate-check or delivery-map output as JSON
+  --json         Print machine-readable command output as JSON
   --status-card  Print compact gate-check status-card output for interactive use
+  --surface <codex|claude|copilot|opencode|generic>
+                 Declare the active Delivery Path Search surface
+  --fixture <path>
+                 Use deterministic evaluator/candidate fixtures instead of a live evaluator
+  --persist      Persist the redacted Delivery Path Search result under the current scope
+  --model <id>   Optional Codex evaluator model
   --help         Show this help
 `);
 }
@@ -260,6 +274,10 @@ function parseArgs(argv) {
   let statusCard = false;
   let language;
   let dirExplicit = false;
+  let surface = "generic";
+  let fixture;
+  let persist = false;
+  let model;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -282,6 +300,29 @@ function parseArgs(argv) {
 
     if (arg === "--status-card") {
       statusCard = true;
+      continue;
+    }
+
+    if (arg === "--persist") {
+      persist = true;
+      continue;
+    }
+
+    if (["--surface", "--fixture", "--model"].includes(arg)) {
+      const next = args[i + 1];
+      if (!next) {
+        console.error(`Missing value for ${arg}`);
+        process.exit(1);
+      }
+      if (arg === "--surface") {
+        if (!["codex", "claude", "copilot", "opencode", "generic"].includes(next)) {
+          console.error("Unsupported surface. Use codex, claude, copilot, opencode or generic.");
+          process.exit(1);
+        }
+        surface = next;
+      } else if (arg === "--fixture") fixture = next;
+      else model = next;
+      i += 1;
       continue;
     }
 
@@ -334,7 +375,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, codex-repo, claude, copilot, opencode, opencode-status, opencode-repo, both, init, config, doctor, gate-check or delivery-map.");
+    console.error("Please choose one target: codex, codex-repo, claude, copilot, opencode, opencode-status, opencode-repo, both, init, config, doctor, gate-check, delivery-map or delivery-path-search.");
     printUsage();
     process.exit(1);
   }
@@ -347,6 +388,10 @@ function parseArgs(argv) {
     statusCard,
     dirExplicit,
     language: resolveLanguagePreference(language),
+    surface,
+    fixture: fixture ? resolve(process.cwd(), fixture) : null,
+    persist,
+    model,
   };
 }
 
@@ -1956,7 +2001,35 @@ function printDeliveryMapReport(report, json) {
   }
 }
 
-function main() {
+async function executeDeliveryPathSearch(options) {
+  const fixture = options.fixture ? JSON.parse(readFileSync(options.fixture, "utf8")) : null;
+  const enforcement = fixture?.input?.enforcement ?? enforcementForSurface(options.surface);
+  const input = fixture?.input ?? searchInputFromControl(options.dir, { enforcement });
+  const evaluator = fixture
+    ? fixtureEvaluator(fixture.evaluations ?? {})
+    : options.surface === "codex"
+      ? codexEvaluator({ cwd: options.dir, model: options.model })
+      : null;
+  if (!evaluator) {
+    throw new Error(`${options.surface} has no executable evaluator in this release. Codex is the reference adapter; --fixture is available for deterministic contract testing.`);
+  }
+  const result = await runDeliveryPathSearch(input, evaluator, { candidates: fixture?.candidates });
+  if (options.persist) result.persistence = persistSearchResult(options.dir, result);
+  if (options.json) {
+    console.log(JSON.stringify(result, null, 2));
+    return result;
+  }
+  console.log(`AGDF Delivery Path Search: ${result.status}`);
+  console.log(`Current gate: ${result.current_gate}`);
+  console.log(`Enforcement: ${result.enforcement.level}`);
+  console.log(`Recommendation: ${result.recommendation?.action ?? "none"}`);
+  console.log(`Evaluations: ${result.budgets.evaluations}`);
+  console.log(`Stopping reason: ${result.stopping_reason}`);
+  console.log(result.next_gate_action);
+  return result;
+}
+
+async function main() {
   const options = parseArgs(process.argv.slice(2));
 
   if (options.target === "doctor") {
@@ -1975,6 +2048,17 @@ function main() {
     const report = evaluateDeliveryMap(options.dir);
     printDeliveryMapReport(report, options.json);
     process.exit(report.status === "block" ? 2 : 0);
+  }
+
+  if (options.target === "delivery-path-search") {
+    try {
+      const result = await executeDeliveryPathSearch(options);
+      process.exitCode = result.status === "recommendation" ? 0 : 2;
+    } catch (error) {
+      console.error(`Delivery Path Search failed: ${error.message}`);
+      process.exitCode = 2;
+    }
+    return;
   }
 
   if (options.target === "opencode-status") {
@@ -2038,4 +2122,4 @@ function main() {
   printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment);
 }
 
-main();
+await main();

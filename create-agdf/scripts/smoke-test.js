@@ -36,6 +36,20 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 
+const deliveryPathSearchFixture = fileURLToPath(new URL("./scripts/fixtures/delivery-path-search.json", packageRoot));
+const deliveryPathSearchOutput = JSON.parse(execFileSync(process.execPath, [
+  binPath,
+  "delivery-path-search",
+  "--fixture",
+  deliveryPathSearchFixture,
+  "--json",
+], { encoding: "utf8" }));
+if (deliveryPathSearchOutput.status !== "recommendation"
+  || deliveryPathSearchOutput.recommendation?.candidate_id !== "inspect"
+  || deliveryPathSearchOutput.next_gate_action !== "Run canonical AGDF gate-check; search does not grant permission.") {
+  throw new Error("delivery-path-search CLI must return the canonical advisory fixture result.");
+}
+
 const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
 try {
   execFileSync(process.execPath, [binPath, "opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });

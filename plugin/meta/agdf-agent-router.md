@@ -12,6 +12,7 @@ Codex and Claude Code already provide the `agdf` plugin namespace.
 Therefore plugin skill names are intentionally unprefixed:
 
 - `gate-check`
+- `delivery-path-search`
 - `brownfield-analysis`
 - `task-plan-review`
 - `clean-implementation-review`
@@ -49,6 +50,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 ## Skill Routing
 | Skill | Use For | Boundary |
 |---|---|---|
+| `delivery-path-search` | high-impact planning decisions with several plausible next delivery steps before implementation | read-only advisory search; never grants gate permission or replaces gate-check |
 | `brownfield-analysis` | after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems | clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission |
 | `clean-implementation-review` | inspect workarounds, fallbacks, parallel structures or symptom fixes | not a TP or QA substitute |
 | `code-review` | mandatory CR step after code changes, focused on defects, regression and security findings | does not replace TP review, clean review or QA |

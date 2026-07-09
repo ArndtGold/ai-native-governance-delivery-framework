@@ -18,6 +18,8 @@ const agdfPackagePath = join(repoRoot, "agdf", "package.json");
 const createAgdfPackagePath = join(repoRoot, "create-agdf", "package.json");
 const pagesPackagePath = join(repoRoot, "pages", "package.json");
 const pagesSiteDataPath = join(repoRoot, "pages", "src", "data", "site.ts");
+const pagesSkillsPath = join(repoRoot, "pages", "src", "data", "skills.ts");
+const pagesIndexPath = join(repoRoot, "pages", "src", "pages", "index.astro");
 const syncPackageAssetsPath = join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js");
 const controlRoot = join(pluginRoot, "control");
 const skillRoot = join(pluginRoot, "skills");
@@ -141,6 +143,8 @@ assertFile(sessionStartHookPath, "AGDF SessionStart hook");
 assertFile(createAgdfPackagePath, "create-agdf package manifest");
 assertFile(pagesPackagePath, "Pages package manifest");
 assertFile(pagesSiteDataPath, "Pages site data");
+assertFile(pagesSkillsPath, "Pages skill data");
+assertFile(pagesIndexPath, "Pages index");
 assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
 assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
 
@@ -180,6 +184,20 @@ if (pluginDefinition) {
   expectedSkills = (pluginDefinition.skillSet ?? [])
     .map((skill) => `${pluginDefinition.codex?.skillPrefix ?? ""}${skill?.slug ?? ""}`)
     .sort();
+}
+
+if (pluginDefinition && isFile(pagesSkillsPath)) {
+  const pageSkillNames = [...read(pagesSkillsPath).matchAll(/\bname:\s*"([^"]+)"/g)]
+    .map((match) => match[1])
+    .sort();
+  const canonicalSkillNames = (pluginDefinition.skillSet ?? []).map((skill) => skill.slug).sort();
+  if (JSON.stringify(pageSkillNames) !== JSON.stringify(canonicalSkillNames)) {
+    failures.push(`Pages skill data must match canonical skillSet exactly: expected ${canonicalSkillNames.join(", ")}, got ${pageSkillNames.join(", ")}`);
+  }
+}
+
+if (isFile(pagesIndexPath) && !read(pagesIndexPath).includes("{skills.length} Core Workflow Skills")) {
+  failures.push("Pages skill heading must derive its count from skills.length");
 }
 
 if (codexPlugin && pluginDefinition) {

@@ -2,26 +2,26 @@
 
 ## Run Meta
 
-- run_id: opencode-compact-gate-output
+- run_id: agdf-delivery-path-search
 - started_at: 2026-07-09
-- mode: quick_task
+- mode: structured_delivery
 - current_gate: OR
-- decision: completed
+- decision: pass
 - owner: agent
 
 ## Objective
 
-Reduce noisy AGDF CLI output in interactive OpenCode use by adding compact gate/status reporting and clearer OpenCode guidance while preserving full JSON evidence output.
+Add a surface-neutral, read-only AGDF Delivery Path Search capability with evaluator and surface adapters for multiple coding agents, without bypassing AGDF gates.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | `gate-check --json` emits a full report and already contains a compact `status_card`. OpenCode displays shell output prominently. |
-| What is approved? | UR approved by exact user formula on 2026-07-09; Brownfield Review selected quick_task. |
-| What is missing? | No implementation or validation evidence is missing for the approved quick task. |
-| What is the next allowed action? | Offer commit handoff; do not execute it automatically. |
-| What is explicitly forbidden right now? | Release, publish, commit, push or PR without explicit user request. |
+| What is known? | The existing AGDF control model is surface-neutral and already maps shared skills to Codex, Claude Code, GitHub Copilot and OpenCode through different delivery mechanisms. |
+| What is approved? | Revised UR, PRD, SD, TP, QA and UAT approved by exact user formulas; pre-implementation Brownfield Analysis passed. |
+| What is missing? | No missing evidence for the approved first-release scope. |
+| What is the next allowed action? | Delivery closeout handoff; commit, push, PR, release and publish require separate explicit instruction. |
+| What is explicitly forbidden right now? | Commit, push, PR, release, tag or npm publish without separate explicit user instruction. |
 
 ## Run Status Card
 
@@ -29,13 +29,13 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | Completed |
-| Current gate | OR closeout |
-| Allowed now | Commit handoff offer |
+| Status | Pass |
+| Current gate | OR |
+| Allowed now | Delivery closeout handoff |
 | Blocked by | none |
 | Missing approval | none |
-| Next step | Offer commit handoff |
-| Quality outlook | Keep compact output as a projection, not a second source of truth |
+| Next step | Offer commit-ready handoff; wait for explicit commit/push/PR/release instruction |
+| Quality outlook | No further technical follow-up required for first release; AI-native candidate generation is tracked as a separate future UR |
 
 ## Approvals
 
@@ -43,40 +43,66 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | `Approval: UR` provided in session on 2026-07-09 |
+| UR | approved | `Approval: UR` provided for the revised cross-agent scope on 2026-07-09 |
+| PRD | approved | `Approval: PRD` provided in session on 2026-07-09 |
+| SD | approved | `Approval: SD` provided in session on 2026-07-09 |
+| TP | approved | `Approval: TP` provided in session on 2026-07-09 |
+| QA | approved | `Approval: QA` provided in session on 2026-07-09 |
+| UAT | approved | `Approval: UAT` provided in session on 2026-07-09 |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | .agdf/control/artefacts/opencode-compact-gate-output/UR.md | approved | OpenCode compact output scope |
-| Brownfield Review | .agdf/control/artefacts/opencode-compact-gate-output/BROWNFIELD_REVIEW.md | done | Quick task; bounded CLI/output guidance change |
-| OR | .agdf/control/artefacts/opencode-compact-gate-output/OR.md | completed | Quick task closeout |
+| UR | .agdf/control/artefacts/agdf-delivery-path-search/UR.md | approved | Surface-neutral core plus evaluator and surface adapters |
+| Brownfield Review | .agdf/control/artefacts/agdf-delivery-path-search/BROWNFIELD_REVIEW.md | done | Repeated for cross-agent scope; structured delivery |
+| PRD | .agdf/control/artefacts/agdf-delivery-path-search/PRD.md | approved | Portable core, adapter contracts and enforcement levels |
+| SD | .agdf/control/artefacts/agdf-delivery-path-search/SD.md | approved | CLI runtime, module boundaries, contracts, adapters and persistence |
+| TP | .agdf/control/artefacts/agdf-delivery-path-search/TP.md | approved | DPS-01 through DPS-14 task and evidence plan |
+| Brownfield Analysis | .agdf/control/artefacts/agdf-delivery-path-search/BROWNFIELD_ANALYSIS.md | passed | Existing owners, reuse path, package boundary and risks confirmed |
+| CD+Tests | .agdf/control/artefacts/agdf-delivery-path-search/IMPLEMENTATION_EVIDENCE.md | completed | DPS-01 through DPS-14 implemented and checks passed |
+| Reviews | .agdf/control/artefacts/agdf-delivery-path-search/REVIEWS.md | passed | TP, clean implementation and code review completed |
+| QA | .agdf/control/artefacts/agdf-delivery-path-search/QA_REPORT.md | approved | Passing QA report approved on 2026-07-09 |
+| OR | .agdf/control/artefacts/agdf-delivery-path-search/OR.md | completed | UAT approved; delivery closeout handoff ready |
 
 ## Mode / Slice Decision
 
-- decision: quick_task
-- required_next_gate: none
-- scope_reason: The approved scope is a small output-mode and OpenCode guidance change using an existing `status_card` data structure. It preserves full JSON behavior and does not alter gate semantics.
-- evidence: The existing CLI already computes `status_card`; affected files and validation surfaces are known.
-- transparency_note: PRD, SD and TP are intentionally skipped because they would add ceremony without reducing risk for this bounded CLI/output guidance change.
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: The shared search runtime, model-evaluator contract, enforcement capability model and four materially different delivery surfaces introduce product, architecture, security and cross-surface compatibility decisions.
+- evidence: Existing AGDF documentation and generators identify separate Codex, Claude Code, GitHub Copilot and OpenCode ownership paths that share one canonical skill and control model.
+- transparency_note: Focused PRD, SD and TP artefacts are required; implementation can later be sliced by core and surface adapters.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Exact approval captured in session and persisted in UR |
-| Brownfield Review | sizes | UR | `.agdf/control/artefacts/opencode-compact-gate-output/BROWNFIELD_REVIEW.md` |
+| UR | approved_by | Approval: UR | Exact approval captured for revised cross-agent scope on 2026-07-09 |
+| Brownfield Review | sizes | UR | Repeated review covers the approved cross-agent UR |
+| PRD | derived_from | UR | Product requirements preserve the approved portable cross-agent scope |
+| PRD | approved_by | Approval: PRD | Exact approval captured in session on 2026-07-09 |
+| SD | derived_from | PRD | Architecture implements the approved product boundaries |
+| SD | approved_by | Approval: SD | Exact approval captured in session on 2026-07-09 |
+| TP | derived_from | SD | Tasks and tests implement the approved architecture |
+| TP | approved_by | Approval: TP | Exact approval captured in session on 2026-07-09 |
+| Brownfield Analysis | validates | TP | Pre-implementation analysis passed against DPS-01 through DPS-14 |
+| CD+Tests | implements | TP | Implementation evidence covers DPS-01 through DPS-14 |
+| Reviews | verifies | CD+Tests | TP coverage, clean review and code review passed |
+| QA_REPORT | tests | TP | Passing QA decision covers approved TP and evidence |
+| QA_REPORT | approved_by | Approval: QA | Exact approval captured in session on 2026-07-09 |
+| UAT | approved_by | Approval: UAT | Exact approval captured in session on 2026-07-09 |
+| OR | closes | QA_REPORT | OR-full records delivered scope, limitations, verification, risks and delivery handoff readiness |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| CLI source | create-agdf/bin/create-agdf.js | Gate-check output modes and status card data | direct |
-| OpenCode hook source | create-agdf/opencode-plugin.js | Runtime reminder wording | direct |
-| Generated asset source | create-agdf/scripts/sync-package-assets.js | OpenCode repository instructions | direct |
-| Smoke tests | create-agdf/scripts/smoke-test.js | Verification surface for compact output behavior | direct |
-| User docs | README.md; INSTALL.md; create-agdf/README.md | Affected explanation surface | direct |
+| Runtime contract | plugin/meta/agdf-runtime-contract.md | Canonical gates, permissions and durable state rules | direct |
+| Plugin definition | plugin/meta/agdf-plugin.definition.json | Canonical skill routing and surface prefixes | direct |
+| Codex manifest | plugin/.codex-plugin/plugin.json | Installed skill and hook packaging | direct |
+| Hook configuration | plugin/hooks/hooks.json | Existing lifecycle enforcement boundary | direct |
+| Runtime integrity | plugin/scripts/check-runtime-integrity.mjs | Existing cross-surface validation owner | direct |
+| Repository search | `rg` for MCTS and delivery-path terms | No existing search implementation observed | direct |
 
 ## Missing Evidence
 
@@ -88,38 +114,40 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Risk | Impact | Mitigation or owner |
 |---|---|---|
-| Compact output could become a second status model | warn | Render from existing `status_card` only |
-| Full JSON compatibility could regress | warn | Preserve `--json` behavior and smoke-test it |
-| OpenCode guidance may still encourage noisy raw JSON | warn | Update hook reminders and generated instructions |
+| Search could become a second gate authority | high | Consume canonical state; AGDF gates decide execution |
+| Model scores could be mistaken for measurements | high | Label facts, judgements and uncertainty separately |
+| Repeated evaluations add cost, latency and non-determinism | high | Define budgets, stopping rules and evidence |
+| Persisted traces could expose sensitive context | high | Define redaction and retention boundaries |
+| Current CLI projection does not consume persisted Brownfield Analysis completion | warn | Treat Runtime Contract plus persisted analysis as operative; keep the projection limitation visible |
 
 ## Context Graph Impact
 
 - context_graph_impact: link_only
-- context_graph_refs: CG-OPENCODE-VISIBILITY
-- context_graph_required_action: link closeout to existing OpenCode visibility context
+- context_graph_refs: none yet
+- context_graph_required_action: promote reusable invariants only if future work introduces a formal Context Graph owner
 - context_graph_gate_effect: none
-- context_graph_evidence: This refines the interactive reporting layer without changing AGDF gate rules.
+- context_graph_evidence: Current findings remain scope-specific and are preserved in the approved artefact chain and runtime-contract updates.
 
 ## Source And Scope State
 
-- normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `plugin/skills/gate-check/SKILL.md`; live `.agdf/control/`
+- normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `plugin/meta/agdf-plugin.definition.json`; live `.agdf/control/`
 - multi_scope_state: clear
-- active_scope_evidence: approved UR and completed Brownfield Review for `opencode-compact-gate-output`
+- active_scope_evidence: approved revised UR and repeated Brownfield Review for `agdf-delivery-path-search`
 - competing_scope_lines: none
-- branch_workspace_evidence: control artefacts reviewed and gate-check pending after update
+- branch_workspace_evidence: repository owners and absence of existing search implementation inspected
 - branch_workspace_scope_effect: supports
 
 ## Knowledge Persistence Decision
 
 - memory_target: scope_artifact
-- memory_reason: OpenCode compact output decisions belong to this implementation scope.
-- memory_refs: .agdf/control/artefacts/opencode-compact-gate-output/
+- memory_reason: Delivery-path-search decisions belong to this structured slice until reusable invariants are approved.
+- memory_refs: .agdf/control/artefacts/agdf-delivery-path-search/
 
 ## Closeout
 
-- delivered: UR, Brownfield Review, implementation, generated assets, documentation updates, smoke validation, runtime integrity validation, wrapper smoke validation and OR-lite.
-- not_delivered: Commit, push, PR, release and publish.
-- verification_performed: `gate-check --status-card` direct probe; `npm --prefix create-agdf run smoke-test`; `node plugin/scripts/check-runtime-integrity.mjs`; `npm --prefix agdf run smoke-test`.
-- unverified: A real restarted OpenCode TUI session following the new guidance.
-- next_allowed_action: Offer commit handoff; do not execute it automatically.
-- quality_outlook: Keep compact output as a projection of the existing status card, not a second source of truth.
+- delivered: Approved artefact chain, Brownfield analysis, DPS-01 through DPS-14 implementation, tests, mandatory reviews, QA approval, UAT approval and OR closeout.
+- not_delivered: commit, push, PR, release, tag and publish.
+- verification_performed: Codex read-only evaluator probe; focused Delivery Path Search tests; create-agdf smoke and routing tests; runtime integrity including exact Pages/plugin skill equality; packaged @agdf/cli wrapper smoke; package dry-run; Pages check and static build; TP, clean implementation and code review.
+- unverified: none for the approved first-release scope.
+- next_allowed_action: Offer commit-ready handoff; wait for explicit commit/push/PR/release instruction.
+- quality_outlook: No further technical follow-up required for first release; AI-native candidate generation is tracked as a separate future UR.

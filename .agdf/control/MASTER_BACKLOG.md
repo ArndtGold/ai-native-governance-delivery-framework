@@ -17,11 +17,13 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
+| 1 | `delivery-path-search-ai-candidate-generation` | Add AI-native generation of multiple concrete delivery-path candidates before deterministic validation and evaluation | Needs UR |  | [PRD](artefacts/agdf-delivery-path-search/PRD.md) | After the current release, formulate a separate UR for AI-native candidate generation while keeping AGDF legality and gates deterministic |
 
 ## Completed / Superseded Pointers
 
 | Key | Work item | Final status | Historical record | Outcome |
 |---|---|---|---|---|
+| `agdf-delivery-path-search` | Portable delivery-path search across coding-agent surfaces | Completed | [OR](artefacts/agdf-delivery-path-search/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09; first-release Delivery Path Search delivered with Codex as executable reference evaluator and non-Codex surfaces as contract-ready pending conforming evaluators |
 | `opencode-compact-gate-output` | Make AGDF gate/status output compact for interactive OpenCode use | Completed | [OR](artefacts/opencode-compact-gate-output/OR.md) | Quick task completed; compact status-card output implemented and focused checks passed on 2026-07-09 |
 | `opencode-global-install-visibility` | Make OpenCode global AGDF install visibly checkable | Completed | [OR](artefacts/opencode-global-install-visibility/OR.md) | Quick task completed; OpenCode global install/status visibility implemented and focused checks passed on 2026-07-09 |
 | `fresh-request-control-state-docs` | Clarify fresh request vs durable control state documentation | Completed | [Brownfield Review](artefacts/fresh-request-control-state-docs/BROWNFIELD_REVIEW.md) | Quick task completed; user docs clarified and review returned no findings on 2026-07-09 |

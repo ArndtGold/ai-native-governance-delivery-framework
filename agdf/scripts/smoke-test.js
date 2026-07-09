@@ -59,6 +59,21 @@ try {
   if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest init")) {
     throw new Error("agdf help output must present the primary AGDF CLI shape.");
   }
+
+  const fixturePath = fileURLToPath(new URL("./create-agdf/scripts/fixtures/delivery-path-search.json", repoRoot));
+  const result = JSON.parse(execFileSync(process.execPath, [
+    agdfBin,
+    "delivery-path-search",
+    "--fixture",
+    fixturePath,
+    "--json",
+  ], {
+    cwd: tempDir,
+    encoding: "utf8",
+  }));
+  if (result.status !== "recommendation" || result.recommendation?.candidate_id !== "inspect") {
+    throw new Error("The packed @agdf/cli wrapper must execute Delivery Path Search through create-agdf.");
+  }
 } finally {
   rmSync(tempDir, { recursive: true, force: true });
 }

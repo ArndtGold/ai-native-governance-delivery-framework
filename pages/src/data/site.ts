@@ -74,30 +74,36 @@ export const workflowSteps = [
     },
     {
         step: "04",
+        title: "Optional: Delivery Path Search",
+        command: "/delivery-path-search",
+        desc: "For high-impact choices, compare legal next steps before implementation. The result is advice; the gate still decides."
+    },
+    {
+        step: "05",
         title: "PRD / SD / TP",
         command: "as needed",
         desc: "Create only the artefact depth the reviewed change size justifies. Do not ritualize."
     },
     {
-        step: "05",
+        step: "06",
         title: "Implementation Prep",
         command: "/brownfield-analysis",
         desc: "Before non-trivial code, map reuse strategy, contracts, regressions and test evidence per task."
     },
     {
-        step: "06",
+        step: "07",
         title: "CD + Reviews",
         command: "CD+Tests",
         desc: "Implement narrowly, run checks, then verify TP coverage, code quality and clean implementation."
     },
     {
-        step: "07",
+        step: "08",
         title: "QA Decision",
         command: "/qa-gate",
         desc: "Decide pass, revise or block from TP coverage, Brownfield fit, integrity and evidence."
     },
     {
-        step: "08",
+        step: "09",
         title: "OR + Closeout",
         command: "/release-or",
         desc: "Record audit status, open gaps, risks, persistence target and the next allowed delivery action."
@@ -290,27 +296,27 @@ export const buildingBlocks = [
 
 export const operatingGuards = [
     {
-        title: "Normative source precedence",
-        desc: "The repository declares which instructions and control files are authoritative. Generated copies, branch names and chat summaries cannot silently override them.",
+        title: "Know which source wins",
+        desc: "Avoid decisions based on stale chat or generated copies. The repository declares the authoritative instructions and control files.",
     },
     {
-        title: "Multi-scope fail-closed",
-        desc: "When several active work lines are plausible, AGDF lists the candidates and blocks later-gate work until the scope is clear.",
+        title: "Do not build against the wrong scope",
+        desc: "When several work lines are plausible, AGDF shows them and stops later work until the active scope is clear.",
     },
     {
-        title: "Branch is supporting evidence",
-        desc: "A branch or uncommitted diff may support a scope, but never proves it alone when durable artefacts or approvals are missing.",
+        title: "A branch name is not approval",
+        desc: "Branches and diffs can support a decision, but durable scope and approvals determine what the agent may change.",
     },
     {
-        title: "Knowledge persistence routing",
-        desc: "Each relevant run decides whether durable findings belong in the Context Graph, SoT registry, scope artefact, open questions or nowhere.",
+        title: "Keep valuable findings after the chat",
+        desc: "Each run routes reusable knowledge to project memory, source ownership, scope evidence or explicit open questions.",
     },
     {
-        title: "Bug Lightweight Track",
+        title: "Keep narrow bugs lightweight",
         desc: "Narrow defects can stay lightweight when reproduction, expected behavior, fix boundary and evidence plan are explicit.",
     },
     {
-        title: "Domain guardrail packs",
+        title: "Reuse controls for risky domains",
         desc: "Projects can add reusable checks for risky domains without replacing AGDF gates or approvals.",
     },
 ]
@@ -393,8 +399,8 @@ export const gateModeMatrix = [
 ]
 
 export const compatibility = [
-    { tool: "OpenCode", integration: "global npm hook + repo instructions, subagents and permissions", support: "Reference", goal: "runtime", setupAnchor: "#setup-opencode" },
-    { tool: "OpenAI Codex CLI / app", integration: "Plugin + control scaffold", support: "Leading", goal: "primary", setupAnchor: "#setup-codex-project" },
+    { tool: "OpenCode", integration: "global npm hook + repo instructions, subagents and permissions", support: "Control-stack reference", goal: "runtime", setupAnchor: "#setup-opencode" },
+    { tool: "OpenAI Codex CLI / app", integration: "Plugin + control scaffold", support: "Executable DPS reference", goal: "primary", setupAnchor: "#setup-codex-project" },
     { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "First-class", goal: "plugin", setupAnchor: "#setup-claude" },
     { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills + .agdf/control", support: "First-class", goal: "repo files", setupAnchor: "#setup-copilot" },
 ]

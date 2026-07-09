@@ -86,6 +86,7 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `gate-check [--json]` | Report the current gate, blockers and next permitted action. |
 | `gate-check --status-card` | Print compact interactive gate status without full JSON. |
 | `delivery-map [--json]` | Report artefact relationships, evidence, risks and Context Graph effects. |
+| `delivery-path-search --surface <name> [--json]` | Compare bounded high-impact delivery paths before implementation; advisory only. |
 
 Examples:
 
@@ -99,10 +100,21 @@ npx --yes @agdf/cli@latest doctor
 npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 npx --yes @agdf/cli@latest delivery-map --json
+npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
 ```
 
 The CLI validators provide deterministic evidence for agents and automation.
 They do not replace AGDF skill judgement or user approvals.
+
+Delivery Path Search requires live `.agdf/control/AGDF_RUN.md` state with explicit
+allowed and forbidden actions. Codex is the executable evaluator in this
+release. Claude Code, Copilot and OpenCode expose the shared skill and contract,
+but do not yet ship native executable evaluators.
+
+Use `--persist` only when the redacted decision should become durable scope
+evidence. It writes `DELIVERY_PATH_SEARCH.json` and
+`DELIVERY_PATH_SEARCH.md` under `.agdf/control/artefacts/<scope>/`. Then run
+`gate-check`; the recommendation never grants permission.
 
 ## Surface Notes
 

@@ -15,6 +15,63 @@ Codex is the primary plugin-packaging surface for AGDF.
 OpenCode is the reference runtime for showing how AGDF can combine repository instructions, agents, permission gates and plugins in one target surface.
 The AGDF control model itself is surface-neutral and is reused for Claude Code, GitHub Copilot and OpenCode.
 
+Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex is the executable reference evaluator. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
+
+## Delivery Path Search
+
+Use Delivery Path Search only for high-impact planning decisions with several materially different legal next steps. It is not part of routine implementation and it is not a model-level MCTS switch.
+
+Prerequisites:
+
+- live `.agdf/control/AGDF_RUN.md` state in the target repository
+- explicit allowed and forbidden next actions
+- installed and authenticated Codex CLI for executable evaluation
+- an approved AGDF scope; search does not create approval
+
+Run:
+
+```bash
+npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
+```
+
+Optional:
+
+```bash
+npx --yes @agdf/cli@latest delivery-path-search \
+  --surface codex \
+  --model <model-id> \
+  --persist \
+  --json
+```
+
+`--persist` writes a redacted decision summary to:
+
+```text
+.agdf/control/artefacts/<scope>/DELIVERY_PATH_SEARCH.json
+.agdf/control/artefacts/<scope>/DELIVERY_PATH_SEARCH.md
+```
+
+Raw prompts, hidden reasoning, secrets and source snapshots are excluded. Cost units are bounded rubric values, not measured provider currency.
+
+Support boundary:
+
+| Surface | Shared workflow and routing | Executable evaluator |
+|---|---|---|
+| Codex | yes | yes, reference adapter |
+| Claude Code | yes | not in this release |
+| GitHub Copilot | yes | not in this release |
+| OpenCode | yes | not in this release |
+
+`--fixture` is available for deterministic contract testing. It is not a production external-evaluator configuration. Additional agents must implement the published evaluator contract before executable support can be claimed.
+
+After every result:
+
+```bash
+npx --yes @agdf/cli@latest gate-check --status-card
+```
+
+The search may return one recommendation or `no_safe_recommendation`. Neither outcome grants implementation permission.
+
 AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, GitHub or OpenCode.
 
 AGDF is a control-first plugin.

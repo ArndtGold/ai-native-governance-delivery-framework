@@ -15,6 +15,13 @@ export const skills: Skill[] = [
         when: "The user says go, but approvals, artefacts or allowed outputs are unclear."
     },
     {
+        name: "delivery-path-search",
+        family: "Planning",
+        short: "Compare high-impact delivery paths",
+        description: "Explores a bounded set of legal next delivery steps, scores them against scope, risk, evidence, tests and cost, and returns one advisory recommendation without granting implementation permission.",
+        when: "Several materially different next steps are plausible and choosing badly would create expensive rework."
+    },
+    {
         name: "brownfield-analysis",
         family: "Analysis",
         short: "Inspect existing ownership before code",
@@ -34,6 +41,13 @@ export const skills: Skill[] = [
         short: "Detect workaround-heavy solutions",
         description: "Reviews whether an implementation is a clean primary solution or has been unnecessarily complicated by fallbacks, workarounds, guards, defaults, shims or parallel structures.",
         when: "The implementation works, but may hide fallbacks, shims or duplicate ownership."
+    },
+    {
+        name: "code-review",
+        family: "Review",
+        short: "Review the actual diff for defects",
+        description: "Produces the mandatory code-review report from the real diff, focusing on correctness, regression, security and maintainability findings before QA.",
+        when: "Code changes and tests exist and the actual implementation needs mandatory review evidence."
     },
     {
         name: "qa-gate",
@@ -58,4 +72,4 @@ export const skills: Skill[] = [
     }
 ]
 
-export const skillFamilies = ["Governance", "Analysis", "Review", "Delivery"]
+export const skillFamilies = ["Planning", "Governance", "Analysis", "Review", "Delivery"]

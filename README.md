@@ -5,6 +5,12 @@
 Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als
 Plugin, zusätzlich nutzbar mit Claude Code, GitHub Copilot und OpenCode.
 
+Für folgenreiche Planungsentscheidungen kann die optionale **Delivery Path Search** mehrere
+zulässige nächste Schritte vergleichen. Sie nutzt einen portablen Search Core, kennzeichnet die
+Durchsetzungsstärke jeder Agent-Oberfläche und liefert nur eine Empfehlung. Der normale AGDF Gate
+Check entscheidet weiterhin, ob dieser Schritt ausgeführt werden darf. Die erste Version ist
+bewusst begrenzte Best-First-Suche und kein MCTS.
+
 ## Language note
 
 AGDF is German-first by design.

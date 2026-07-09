@@ -141,7 +141,21 @@ For example, a new user intent such as "I want to build X" should route first to
 This is why AGDF generates `AGENTS.md` only for Copilot-style repository instruction loading.
 Codex uses plugin discovery plus the AGDF router instead.
 
-For local repository testing, add this repository as a Codex plugin marketplace and then install `agdf`:
+For global Codex installation, run:
+
+```bash
+npx --yes @agdf/cli@latest codex
+```
+
+For local repository testing, run:
+
+```bash
+npx --yes @agdf/cli@latest codex-repo
+```
+
+Then restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
+
+The global command wraps the Codex marketplace installation commands:
 
 ```bash
 codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework
@@ -186,7 +200,7 @@ You can pin the preferred project language during setup:
 
 ```bash
 npx --yes @agdf/cli@latest init --language de
-npx --yes @agdf/cli@latest codex --lang en
+npx --yes @agdf/cli@latest codex-repo --lang en
 npx --yes @agdf/cli@latest config --language en
 ```
 
@@ -243,7 +257,7 @@ That is the control boundary: AGDF is agent-native first and CLI-verifiable by d
 Run this inside the target Git repository when AGDF should be available only from that project:
 
 ```bash
-npm create agdf@latest -- codex
+npm create agdf@latest -- codex-repo
 ```
 
 This writes:
@@ -381,10 +395,14 @@ Use the documented CLI commands on the target developer machine or workspace set
 Install the plugin in a normal terminal where the Claude Code CLI is installed:
 
 ```bash
-claude plugin add arndtgold/ai-native-governance-delivery-framework
+npx --yes @agdf/cli@latest claude
 ```
 
-This installs AGDF into Claude Code.
+This wraps the Claude Code plugin install command:
+
+```bash
+claude plugin add arndtgold/ai-native-governance-delivery-framework
+```
 
 Language preference is project-local, not global to the Claude Code plugin.
 After installing the plugin, run this inside each repository that should keep governed AGDF state:
@@ -585,7 +603,7 @@ AGENTS.md or AGENTS.agdf.md if an AGENTS.md already exists
 For Claude Code you still install the plugin separately if you want Claude Code plugin support outside the checked-in Copilot files:
 
 ```bash
-claude plugin add arndtgold/ai-native-governance-delivery-framework
+npx --yes @agdf/cli@latest claude
 ```
 
 ## Validate the runtime in this repository

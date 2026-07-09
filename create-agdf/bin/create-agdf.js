@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { homedir } from "node:os";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,8 +12,8 @@ const packageRoot = resolve(__dirname, "..");
 const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
-const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["codex", "copilot", "opencode", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
+const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
+const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -157,6 +158,8 @@ function printUsage() {
 
 Preferred AGDF CLI:
   npx --yes @agdf/cli@latest codex
+  npx --yes @agdf/cli@latest codex-repo
+  npx --yes @agdf/cli@latest claude
   npx --yes @agdf/cli@latest opencode
   npx --yes @agdf/cli@latest opencode-repo
   npx --yes @agdf/cli@latest init
@@ -165,6 +168,8 @@ Preferred AGDF CLI:
 
 Scaffold-compatible npm create usage:
   npm create agdf@latest -- codex
+  npm create agdf@latest -- codex-repo
+  npm create agdf@latest -- claude
   npm create agdf@latest -- copilot
   npm create agdf@latest -- opencode
   npm create agdf@latest -- opencode-repo
@@ -318,7 +323,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, copilot, opencode, opencode-repo, both, init, config, doctor, gate-check or delivery-map.");
+    console.error("Please choose one target: codex, codex-repo, claude, copilot, opencode, opencode-repo, both, init, config, doctor, gate-check or delivery-map.");
     printUsage();
     process.exit(1);
   }
@@ -372,6 +377,23 @@ function installOpenCodeGlobalPlugin(configDir) {
     configPath,
     added: !alreadyInstalled,
   };
+}
+
+function installCodexGlobalPlugin() {
+  try {
+    execFileSync("codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
+    execFileSync("codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], { stdio: "inherit" });
+  } catch (error) {
+    throw new Error("Failed to install the AGDF Codex plugin. Make sure the Codex CLI is installed and available on PATH, then rerun this command.");
+  }
+}
+
+function installClaudeGlobalPlugin() {
+  try {
+    execFileSync("claude", ["plugin", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
+  } catch {
+    throw new Error("Failed to install the AGDF Claude Code plugin. Make sure the Claude Code CLI is installed and available on PATH, then rerun this command.");
+  }
 }
 
 function loadAsset(relativePath) {
@@ -432,7 +454,7 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
     return files;
   }
 
-  if (target === "codex" || target === "both") {
+  if (target === "codex-repo" || target === "both") {
     addLanguageConfig(files, languagePreference);
     for (const codexPath of codexPluginFiles) {
       files.push({
@@ -528,7 +550,7 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
   if (wroteAgentsFragment) {
     console.log(`- Existing AGENTS.md detected. Merge ${agdfFragmentPath} into your current AGENTS.md before using Copilot with AGDF.`);
   }
-  if (target === "codex" || target === "both") {
+  if (target === "codex-repo" || target === "both") {
     console.log("- Restart Codex in this repository, open /plugins, select This repository and install agdf.");
     console.log("- Start a new Codex thread in this repository and ask: Run an AGDF gate check for this request.");
   }
@@ -1805,6 +1827,29 @@ function main() {
     const report = evaluateDeliveryMap(options.dir);
     printDeliveryMapReport(report, options.json);
     process.exit(report.status === "block" ? 2 : 0);
+  }
+
+  if (options.target === "codex") {
+    try {
+      installCodexGlobalPlugin();
+      console.log("AGDF Codex plugin installed globally.");
+      console.log("Run npx --yes @agdf/cli@latest codex-repo in a repository when you want to test AGDF from repository-local plugin files.");
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+    return;
+  }
+
+  if (options.target === "claude") {
+    try {
+      installClaudeGlobalPlugin();
+      console.log("AGDF Claude Code plugin installed globally.");
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+    return;
   }
 
   if (options.target === "opencode") {

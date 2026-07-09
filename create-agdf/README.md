@@ -8,6 +8,8 @@ Preferred long-term CLI shape:
 
 ```bash
 npx --yes @agdf/cli@latest codex
+npx --yes @agdf/cli@latest codex-repo
+npx --yes @agdf/cli@latest claude
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
@@ -19,6 +21,8 @@ Backward-compatible scaffold usage:
 
 ```bash
 npm create agdf@latest -- codex
+npm create agdf@latest -- codex-repo
+npm create agdf@latest -- claude
 npm create agdf@latest -- copilot
 npm create agdf@latest -- opencode-repo
 npm create agdf@latest -- both
@@ -38,7 +42,9 @@ If no language is provided, `create-agdf` derives the preference from the local 
 
 ## Targets and existing AGENTS.md
 
-- `codex` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
+- `codex` installs the AGDF plugin globally for Codex
+- `codex-repo` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
+- `claude` installs the AGDF plugin globally for Claude Code
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
 - `opencode` installs the AGDF npm plugin as a user-wide OpenCode hook
 - `opencode-repo` writes `opencode.json`, `.opencode/AGDF.md`, prefixed OpenCode agents under `.opencode/agents/`, explicit edit/bash permissions, and AGDF control templates under `.agdf/control/`
@@ -47,9 +53,9 @@ If no language is provided, `create-agdf` derives the preference from the local 
 
 If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. The generated `.github/copilot-instructions.md` keeps Copilot pointed at `AGENTS.md`, `.github/skills/` and `.agdf/control/` without duplicating the full AGDF rule model. Use `--force` only when you explicitly want to overwrite generated files.
 
-Use the `codex` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
+Use the `codex-repo` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
 
-After `npm create agdf@latest -- codex`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
+After `npm create agdf@latest -- codex-repo`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
 
 Use the `opencode` target to install the AGDF npm plugin as a user-wide OpenCode hook:
 

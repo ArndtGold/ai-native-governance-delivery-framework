@@ -32,7 +32,7 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 
@@ -60,7 +60,7 @@ function run(target, expectedFiles) {
       }
     }
 
-    if (target === "codex" || target === "both") {
+    if (target === "codex-repo" || target === "both") {
       const pluginRouterPath = join(tempDir, "plugins", "agdf", "meta", "agdf-agent-router.md");
       const pluginRouter = readFileSync(pluginRouterPath, "utf8");
       if (!pluginRouter.includes("| `gate-check` |")) {
@@ -157,7 +157,7 @@ function run(target, expectedFiles) {
   }
 }
 
-run("codex", [
+run("codex-repo", [
   join(".agdf", "control", "config.json"),
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),

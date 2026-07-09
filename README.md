@@ -213,6 +213,9 @@ Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
 ```bash
 npx --yes @agdf/cli@latest init
+npx --yes @agdf/cli@latest codex
+npx --yes @agdf/cli@latest codex-repo
+npx --yes @agdf/cli@latest claude
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en

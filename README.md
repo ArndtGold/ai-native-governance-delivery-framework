@@ -2,21 +2,30 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als Plugin, zusätzlich nutzbar mit Claude Code, GitHub Copilot und OpenCode.
+Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als
+Plugin, zusätzlich nutzbar mit Claude Code, GitHub Copilot und OpenCode.
 
 ## Language note
 
 AGDF is German-first by design.
 
-The framework discusses governance, responsibility, approval, evidence and delivery control in the language in which many of the underlying enterprise, product and accountability conversations happen for this project. English software-delivery terms are used where they are established, but the primary reasoning language remains German to preserve nuance around control, responsibility and decision-making.
+The framework discusses governance, responsibility, approval, evidence and delivery control in the
+language in which many of the underlying enterprise, product and accountability conversations happen
+for this project. English software-delivery terms are used where they are established, but the
+primary reasoning language remains German to preserve nuance around control, responsibility and
+decision-making.
 
-The plugin surfaces and operational commands are kept usable for Codex, Claude Code, GitHub Copilot and OpenCode. Selected runtime-facing parts may become bilingual where that improves adoption without weakening the original concepts.
+The plugin surfaces and operational commands are kept usable for Codex, Claude Code, GitHub Copilot
+and OpenCode. Selected runtime-facing parts may become bilingual where that improves adoption
+without weakening the original concepts.
 
-AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, GitHub or OpenCode.
+AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI,
+Anthropic, GitHub or OpenCode.
 
 ## Zentrale Frage
 
-Wie bleibt Softwareentwicklung kontrollierbar, wenn KI-Agenten nicht nur Code schreiben, sondern auch planen, prüfen,
+Wie bleibt Softwareentwicklung kontrollierbar, wenn KI-Agenten nicht nur Code schreiben, sondern
+auch planen, prüfen,
 ändern und zusammenfassen?
 
 ### In einem Satz
@@ -48,7 +57,8 @@ Wenn du schnell verstehen willst, worum es geht:
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
 
-Installation und Setup für Codex, Claude Code, GitHub Copilot oder kombinierte Oberflächen stehen in [INSTALL.md](INSTALL.md).
+Installation und Setup für Codex, Claude Code, GitHub Copilot oder kombinierte Oberflächen stehen
+in [INSTALL.md](INSTALL.md).
 
 Danach solltest du beantworten können:
 
@@ -73,16 +83,19 @@ Qualitätsverträge:
 prüfbare Regeln für Agentenläufe, Reviews und Nachweise.
 
 Control-Scaffold:
-konkrete Repository-Artefakte für Run-Status, Backlog-Zeiger, Source-of-Truth-Registry, Context Graph und wiederverwendbare Qualitätsverträge.
+konkrete Repository-Artefakte für Run-Status, Backlog-Zeiger, Source-of-Truth-Registry, Context
+Graph und wiederverwendbare Qualitätsverträge.
 
 ## Warum Brownfield wichtig ist
 
 Viele KI-gestützte Vorhaben entstehen nicht auf der grünen Wiese.
-Sie treffen auf bestehende Systeme, bestehende Verantwortung, technische Schulden und oft unvollständige Tests.
+Sie treffen auf bestehende Systeme, bestehende Verantwortung, technische Schulden und oft
+unvollständige Tests.
 
 Gerade dort reicht schnelle Code-Erzeugung nicht aus.
 Ein kleiner neuer Wunsch kann bestehendes Verhalten verändern.
-Ein Agent kann lokal plausibel arbeiten und trotzdem eine zweite Struktur oder eine zweite Wahrheit erzeugen.
+Ein Agent kann lokal plausibel arbeiten und trotzdem eine zweite Struktur oder eine zweite Wahrheit
+erzeugen.
 
 Deshalb behandelt dieser Entwurf Brownfield nicht als Sonderfall.
 Brownfield ist der Normalfall, an dem sich der Ansatz bewähren muss.
@@ -136,8 +149,11 @@ Empfohlene Reihenfolge:
 ```
 
 Die Root-`AGENTS.md` steuert die Bearbeitung dieses Repositories.
-Die installierbaren Router-Instruktionen werden zentral in `plugin/meta/agdf-agent-router.md` gepflegt und pro Zielsystem gerendert.
-Das Skill-Routing wird nicht je Oberfläche gepflegt: `plugin/meta/agdf-plugin.definition.json` enthält `skillSet.slug`, `useFor` und `boundary`; der sichtbare Skillname entsteht aus `surface.skillPrefix + slug`.
+Die installierbaren Router-Instruktionen werden zentral in `plugin/meta/agdf-agent-router.md`
+gepflegt und pro Zielsystem gerendert.
+Das Skill-Routing wird nicht je Oberfläche gepflegt: `plugin/meta/agdf-plugin.definition.json`
+enthält `skillSet.slug`, `useFor` und `boundary`; der sichtbare Skillname entsteht aus
+`surface.skillPrefix + slug`.
 
 ## Welche Fragen sind interessant?
 
@@ -161,23 +177,37 @@ AGDF ist nicht nur ein Diskussionsentwurf, sondern auch als operative Laufzeit n
 - für **Claude Code** als Plugin
 - für **GitHub Copilot** über Repository-Instruktionen und Repo-Skills
 
-Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen in [INSTALL.md](INSTALL.md).
+Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen
+in [INSTALL.md](INSTALL.md).
 
 Das Plugin liefert zusätzlich einen Control-Scaffold unter `plugin/control/`.
 Dieser Scaffold macht den praktischen Arbeitsstand sichtbar.
 
-AGDF ist agent-native first und CLI-verifiable by design: Der normale Bedienpfad ist der aktive Skill. Der Agent liest den Repository-Zustand, wendet den Runtime Contract an, formuliert bei frischen Requests zuerst eine minimale UR im Chat, erzeugt oder aktualisiert nur erlaubte Artefakte und benennt den nächsten zulässigen Schritt.
+AGDF ist agent-native first und CLI-verifiable by design: Der normale Bedienpfad ist der aktive
+Skill. Der Agent liest den Repository-Zustand, wendet den Runtime Contract an, formuliert bei
+frischen Requests zuerst eine minimale UR im Chat, erzeugt oder aktualisiert nur erlaubte Artefakte
+und benennt den nächsten zulässigen Schritt.
 
-Die CLI ist dafür kein Pflicht-Ritual, sondern die deterministische Prüf- und Automationsschicht: Sie macht denselben Repository-Zustand für CI, PRs, Regressionen und Audit-Trails maschinenlesbar.
-Wenn AGDF dauerhafte Artefakte erzeugt oder aktualisiert, bleiben die Inhalte in den Dateien. Der Chat nennt Pfade, Entscheidungen, Blocker und nächste Schritte, aber flutet nicht mit vollständigen Control-Dateien.
+Die CLI ist dafür kein Pflicht-Ritual, sondern die deterministische Prüf- und Automationsschicht:
+Sie macht denselben Repository-Zustand für CI, PRs, Regressionen und Audit-Trails maschinenlesbar.
+Wenn AGDF dauerhafte Artefakte erzeugt oder aktualisiert, bleiben die Inhalte in den Dateien. Der
+Chat nennt Pfade, Entscheidungen, Blocker und nächste Schritte, aber flutet nicht mit vollständigen
+Control-Dateien.
 
 Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte aus den Dokumenten:
 
-- aktueller Run-Status und nächste erlaubte Aktion: aus [Gates](docs/02-gates.md), besonders Gate-Status, Gate-Entscheidung und nächster Schritt
-- Master-Backlog als lebender Steuerungszeiger: aus [Artefakten](docs/03-artefakte.md), besonders Artefaktstatus, Referenzen und Artefaktliste als Fallback
-- Source-of-Truth-Registry gegen parallele Wahrheiten: aus dem [Manifest](docs/00-manifest.md), besonders „Eine verbindliche Quelle für Produktabsicht“
-- Context Graph für dauerhaft relevante Brownfield-Erkenntnisse: aus [Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md) und [Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
-- Quality Contracts als wiederverwendbare Block-, Revise- und Warnsignale: aus [Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md), besonders ausführbare Qualitätsverträge und ihre Wirkung
+- aktueller Run-Status und nächste erlaubte Aktion: aus [Gates](docs/02-gates.md), besonders
+  Gate-Status, Gate-Entscheidung und nächster Schritt
+- Master-Backlog als lebender Steuerungszeiger: aus [Artefakten](docs/03-artefakte.md), besonders
+  Artefaktstatus, Referenzen und Artefaktliste als Fallback
+- Source-of-Truth-Registry gegen parallele Wahrheiten: aus dem [Manifest](docs/00-manifest.md),
+  besonders „Eine verbindliche Quelle für Produktabsicht“
+- Context Graph für dauerhaft relevante Brownfield-Erkenntnisse:
+  aus [Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md)
+  und [Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
+- Quality Contracts als wiederverwendbare Block-, Revise- und Warnsignale:
+  aus [Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md), besonders ausführbare
+  Qualitätsverträge und ihre Wirkung
 
 Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 
@@ -195,9 +225,26 @@ Für Scaffold-kompatible Installation bleibt der npm-create-Pfad erhalten:
 npm create agdf@latest -- init
 ```
 
-`opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions, Agents, Permissions und Plugin-Hooks. `config` schreibt oder aktualisiert nur die projektlokale Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter `.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale frische Requests ist das kein Pflichtschritt. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger, Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind. `gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert ist.
+`opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed
+OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist
+damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions,
+Agents, Permissions und Plugin-Hooks. `config` schreibt oder aktualisiert nur die projektlokale
+Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter
+`.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale
+frische Requests ist das kein Pflichtschritt: Der Agent kann zunächst eine minimale UR im Chat
+formulieren und `Approval: UR` anfordern. `.agdf/control` wird erst beschrieben, wenn dauerhafter
+Repository-Control-State ausdrücklich gewünscht ist, bereits live genutzt wird oder ein
+deterministischer Setup-/CI-Pfad das verlangt. Brownfield Review, spätere Gates und Implementierung
+bleiben trotzdem an die im Runtime Contract geforderten persistierten oder verlinkten Artefakte
+gebunden. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger,
+Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind.
+`gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert
+ist.
 
-`gate-check --json` und `delivery-map --json` enthalten zusätzlich eine kompakte Run Status Card. Sie fasst aktuelles Gate, erlaubte und verbotene Aktionen, Blocker, nächsten Skill, nächsten erlaubten Schritt und `quality_outlook` zusammen. `next_step` bleibt dabei die Prozess-Erlaubnis; `quality_outlook` ist der nächste sinnvolle Qualitätshebel und ersetzt keine Freigabe.
+`gate-check --json` und `delivery-map --json` enthalten zusätzlich eine kompakte Run Status Card.
+Sie fasst aktuelles Gate, erlaubte und verbotene Aktionen, Blocker, nächsten Skill, nächsten
+erlaubten Schritt und `quality_outlook` zusammen. `next_step` bleibt dabei die Prozess-Erlaubnis;
+`quality_outlook` ist der nächste sinnvolle Qualitätshebel und ersetzt keine Freigabe.
 
 ## Lizenz
 

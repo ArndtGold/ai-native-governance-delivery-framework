@@ -156,14 +156,17 @@ Then start a new Codex thread and ask:
 Run an AGDF gate check for this request.
 ```
 
-For a repository that should keep durable AGDF control state, keep the agent-native path primary.
-Ask Codex to inspect the repository and create the minimal control scaffold only when durable AGDF control state is explicitly needed:
+For a normal fresh request, AGDF does not require `init` as a ritual first step. The agent can draft the minimal UR in the response and request the exact approval text `Approval: UR`.
+
+For Brownfield Review, later gated delivery work or implementation, the Runtime Contract still requires the relevant durable or linked artefacts before the process can move on. Create `.agdf/control` files only when the repository should own durable AGDF control state, when that state is already live, or when deterministic setup for scripts, CI or repeatable onboarding is needed.
+
+When durable AGDF control state is explicitly needed, keep the agent-native path primary. Ask Codex to inspect the repository and create the minimal control scaffold:
 
 ```text
 Create an AGDF control scaffold for this repository.
 ```
 
-Or initialize live control files directly when you want deterministic scaffolding for scripts, CI setup, repeatable onboarding or a repository-owned AGDF control state:
+Or initialize live control files directly when you want deterministic scaffolding for scripts, CI setup, repeatable onboarding or repository-owned AGDF control state:
 
 ```bash
 npm create agdf@latest -- init

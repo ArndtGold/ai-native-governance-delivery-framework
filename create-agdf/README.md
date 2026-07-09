@@ -93,6 +93,8 @@ This writes:
 
 `config.json` stores `artifact_language` and `chat_language` for governed work in the target repository. Runtime rules stay English so all AGDF surfaces share the same control contract.
 
+For a normal fresh request, `init` is not the required first move. The agent-native path can draft the minimal UR in the response and ask for the exact approval text `Approval: UR`. Write or initialize `.agdf/control` only when durable repository-owned control state is explicitly wanted, already in use, or needed for deterministic setup/CI evidence. Before Brownfield Review, later gates or implementation, AGDF still requires the persisted or linked artefacts named by the Runtime Contract.
+
 For an existing repository where the plugin is already installed and only the language preference is missing or wrong, use the lighter config target:
 
 ```bash
@@ -119,7 +121,7 @@ The gate check reports `open | blocked`, the current gate, blocking reason, miss
 
 `gate-check --json` and `delivery-map --json` also expose a `status_card` object. It is a compact projection of the current control state: current gate, allowed and forbidden actions, blocker, next skill, next permissible step and `quality_outlook`. `next_step` is process permission; `quality_outlook` is the next meaningful quality-improvement focus and does not unlock gates.
 
-Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction layer into a repository control system when durable control state is needed. For normal fresh requests, the agent-native path can stay lighter: draft the minimal UR in the response, request `Approval: UR`, and use CLI validators only when machine-readable proof is useful.
+Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction layer into a repository control system when durable control state is needed. For normal fresh requests, keep the path lighter: draft the minimal UR in the response, request `Approval: UR`, and use CLI validators only when machine-readable proof is useful.
 
 ## Single source of truth
 

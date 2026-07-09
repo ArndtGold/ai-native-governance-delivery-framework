@@ -22,6 +22,7 @@
 
 | Key | Work item | Final status | Historical record | Outcome |
 |---|---|---|---|---|
+| `fresh-request-control-state-docs` | Clarify fresh request vs durable control state documentation | Completed | [Brownfield Review](artefacts/fresh-request-control-state-docs/BROWNFIELD_REVIEW.md) | Quick task completed; user docs clarified and review returned no findings on 2026-07-09 |
 | `master-backlog-human-readable` | Make the Master Backlog human-readable with compact status labels and Markdown links | Completed | [OR](artefacts/master-backlog-human-readable/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09 |
 | `agdf-operating-model-sharpening` | Sharpen the AGDF operating model and public explanation | Completed | [OR](artefacts/agdf-operating-model-sharpening/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09 |
 | `run-status-card-quality-outlook` | Add Run Status Card and quality outlook | Completed | [OR](artefacts/run-status-card-quality-outlook/OR.md) | UAT approved; implementation committed in `bf3f9ec`; readability refinement committed in `c4c9d64` |

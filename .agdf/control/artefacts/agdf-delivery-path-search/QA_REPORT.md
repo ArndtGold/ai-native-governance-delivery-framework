@@ -126,10 +126,10 @@ Pages check/build and Runtime Integrity pass after this clarification.
 ## Context Graph
 
 - context_graph_impact: `link_only`
-- context_graph_refs: none yet
-- context_graph_required_action: Promote portable adapter, gate-authority and enforcement-level invariants after UAT.
+- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`
+- context_graph_required_action: link after UAT
 - context_graph_gate_effect: none
-- context_graph_evidence: QA verifies these invariants, but UAT should confirm the product positioning before promotion.
+- context_graph_evidence: QA verified the portable adapter, gate-authority and enforcement-level invariants; after UAT they were promoted to the dedicated Context Graph node.
 
 ## Approval
 

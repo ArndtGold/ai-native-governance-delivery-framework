@@ -95,10 +95,10 @@ Based on:
 ## Context Graph
 
 - context_graph_impact: `link_only`
-- context_graph_refs: none
-- context_graph_required_action: Promote reusable invariants only if future work introduces a formal Context Graph owner.
+- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`
+- context_graph_required_action: link
 - context_graph_gate_effect: none
-- context_graph_evidence: The current slice records its reusable decisions in scope artefacts and runtime contract updates.
+- context_graph_evidence: UAT-approved Delivery Path Search invariants are linked to the dedicated Context Graph node and preserved in the approved artefact chain and runtime-contract updates.
 
 ## Delivery Closeout Readiness
 

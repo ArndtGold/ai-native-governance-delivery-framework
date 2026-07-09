@@ -123,10 +123,10 @@ Valid approval format for new runs: `Approval: <GateName>`.
 ## Context Graph Impact
 
 - context_graph_impact: link_only
-- context_graph_refs: none yet
-- context_graph_required_action: promote reusable invariants only if future work introduces a formal Context Graph owner
+- context_graph_refs: CG-DELIVERY-PATH-SEARCH
+- context_graph_required_action: link
 - context_graph_gate_effect: none
-- context_graph_evidence: Current findings remain scope-specific and are preserved in the approved artefact chain and runtime-contract updates.
+- context_graph_evidence: UAT-approved Delivery Path Search invariants are linked to the dedicated Context Graph node and preserved in the approved artefact chain and runtime-contract updates.
 
 ## Source And Scope State
 
@@ -139,13 +139,13 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 ## Knowledge Persistence Decision
 
-- memory_target: scope_artifact
-- memory_reason: Delivery-path-search decisions belong to this structured slice until reusable invariants are approved.
-- memory_refs: .agdf/control/artefacts/agdf-delivery-path-search/
+- memory_target: context_graph
+- memory_reason: UAT-approved Delivery Path Search decisions now define reusable AGDF planning and evaluator-boundary invariants.
+- memory_refs: .agdf/control/CONTEXT_GRAPH.md#CG-DELIVERY-PATH-SEARCH; .agdf/control/artefacts/agdf-delivery-path-search/
 
 ## Closeout
 
-- delivered: Approved artefact chain, Brownfield analysis, DPS-01 through DPS-14 implementation, tests, mandatory reviews, QA approval, UAT approval and OR closeout.
+- delivered: Approved artefact chain, Brownfield analysis, DPS-01 through DPS-14 implementation, tests, mandatory reviews, QA approval, UAT approval, OR closeout and Context Graph node `CG-DELIVERY-PATH-SEARCH`.
 - not_delivered: commit, push, PR, release, tag and publish.
 - verification_performed: Codex read-only evaluator probe; focused Delivery Path Search tests; create-agdf smoke and routing tests; runtime integrity including exact Pages/plugin skill equality; packaged @agdf/cli wrapper smoke; package dry-run; Pages check and static build; TP, clean implementation and code review.
 - unverified: none for the approved first-release scope.

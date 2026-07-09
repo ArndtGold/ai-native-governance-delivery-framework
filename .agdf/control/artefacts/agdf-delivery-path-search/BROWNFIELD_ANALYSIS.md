@@ -75,9 +75,10 @@ No unrelated source-code edits were observed. Implementation must preserve these
 ## 8. Context Graph Impact
 
 - context_graph_impact: `link_only`
-- context_graph_refs: none yet
-- context_graph_required_action: Promote portable adapter and enforcement invariants only after implementation evidence and QA.
+- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`
+- context_graph_required_action: resolved after implementation evidence, QA and UAT; link to promoted node
 - context_graph_gate_effect: none
+- context_graph_evidence: Implementation evidence, QA and UAT confirmed the reusable advisory-search, gate-authority and evaluator-boundary invariants now captured in `CG-DELIVERY-PATH-SEARCH`.
 
 ## 9. Missing Evidence
 

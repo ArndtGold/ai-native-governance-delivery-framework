@@ -74,10 +74,10 @@ Size and route a surface-neutral, read-only delivery-path search capability with
 ## Context Graph Impact
 
 - context_graph_impact: `link_only`
-- context_graph_refs: none yet
-- context_graph_required_action: Reassess after PRD identifies durable invariants worth promoting.
+- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`
+- context_graph_required_action: resolved after QA and UAT; link to promoted node
 - context_graph_gate_effect: none
-- context_graph_evidence: Current findings belong to this scope until product and runtime decisions are approved.
+- context_graph_evidence: Initial findings stayed scope-local until product and runtime decisions were approved; after QA and UAT the reusable invariants were promoted to `CG-DELIVERY-PATH-SEARCH`.
 
 ## Decision
 

@@ -280,10 +280,16 @@ Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `opencode`, `bot
 
 ## OpenCode
 
-Run this inside the target Git repository you want to equip with AGDF for OpenCode:
+Run this once when you want OpenCode to load the AGDF npm plugin as a user-wide hook:
 
 ```bash
-npm create agdf@latest -- opencode
+npx --yes @agdf/cli@latest opencode
+```
+
+Then run this inside each target Git repository you want to equip with AGDF governance files for OpenCode:
+
+```bash
+npx --yes @agdf/cli@latest opencode-repo
 ```
 
 This writes:
@@ -310,11 +316,26 @@ opencode.json
 }
 ```
 
-OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/agents/agdf-*.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible. AGDF for OpenCode is repo-scoped, not a global OpenCode plugin install; activation stays local through the target repository's `opencode.json`.
+OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/agents/agdf-*.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible.
+
+AGDF for OpenCode has two layers:
+
+- optional global npm plugin hook through `~/.config/opencode/opencode.json`
+- repository-local governance surface through the target repository's `opencode.json`, `.opencode/AGDF.md`, `.opencode/agents/` and `.agdf/control/`
+
+The global install updates `~/.config/opencode/opencode.json` to contain the npm plugin entry:
+
+```json
+{
+  "plugin": ["create-agdf"]
+}
+```
+
+The global plugin hook does not replace repository instructions, generated subagents or durable control files. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
 
 If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Merge its `plugin` and `instructions` entries into the existing OpenCode config so OpenCode loads the AGDF npm plugin and `.opencode/AGDF.md`.
 
-OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json`. The generated OpenCode surface uses the `agdf-` prefix because OpenCode project agents do not have the Codex or Claude Code plugin namespace.
+OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json` or, optionally, the same npm plugin declared in global OpenCode config. The generated OpenCode surface uses the `agdf-` prefix because OpenCode project agents do not have the Codex or Claude Code plugin namespace.
 
 OpenCode also makes AGDF's control story visible at runtime: `.opencode/AGDF.md` carries the AGENTS-style rules, `.opencode/agents/` carries the generated AGDF agents, `permission.edit` and `permission.bash` stay on `ask`, and the npm plugin contributes runtime hooks.
 

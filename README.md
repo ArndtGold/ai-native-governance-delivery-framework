@@ -214,6 +214,7 @@ Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
 ```bash
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest doctor
 npx --yes @agdf/cli@latest gate-check --json
@@ -228,8 +229,9 @@ npm create agdf@latest -- init
 `opencode` erzeugt `opencode.json` mit `plugin: ["create-agdf"]`, `.opencode/AGDF.md`, prefixed
 OpenCode-Agenten unter `.opencode/agents/` und expliziten `edit`-/`bash`-Permissions. OpenCode ist
 damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions,
-Agents, Permissions und Plugin-Hooks. AGDF für OpenCode ist repository-lokal aktiviert, kein globaler
-OpenCode-Plugin-Install; die Aktivierung bleibt im Ziel-Repository über `opencode.json`. Die OpenCode-Agenten bleiben bewusst `mode: subagent`: Sie sind
+Agents, Permissions und Plugin-Hooks. AGDF für OpenCode hat zwei Ebenen: einen optionalen globalen
+npm-Plugin-Hook per `npx --yes @agdf/cli@latest opencode` und die repository-lokale Governance-Oberfläche
+aus `opencode.json`, `.opencode/AGDF.md`, `.opencode/agents/` und `.agdf/control/`. Der globale Hook ersetzt diese Repository-Dateien nicht. Die OpenCode-Agenten bleiben bewusst `mode: subagent`: Sie sind
 Governance-Routing im Hintergrund, keine `.opencode/skills/`-Skills und keine Hauptagenten im Menü.
 Der sichtbare Einstieg für neue Change-Absicht oder unklare Freigabe ist `@agdf-gate-check`. `config` schreibt oder aktualisiert nur die projektlokale
 Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter

@@ -851,7 +851,9 @@ const projectStats = await getProjectStats()
             <div class="ml-4 text-dark-200/50">marketplace.json</div>
             <div class="mt-2 text-dark-200/50">target repository after <span class="text-dark-200">npm create agdf -- opencode</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">opencode.json</span> <span class="text-dark-200/50">loads create-agdf, AGDF.md and ask permissions</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.opencode/</span> <span class="text-dark-200/50">AGDF.md, agents/agdf-*.md, agdf-runtime-contract.md</span></div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.opencode/</span> <span class="text-dark-200/50">AGDF.md, agents/agdf-*.md subagents, agdf-runtime-contract.md</span></div>
+            <div class="mt-2 text-dark-200/50">optional user-wide OpenCode hook</div>
+            <div class="ml-4 text-dark-200"><span class="text-agdf-400">~/.config/opencode/opencode.json</span> <span class="text-dark-200/50">plugin: ["create-agdf"]</span></div>
             <div class="mt-2 text-dark-200/50">docs/ <span class="text-dark-200/30">— German-first framework documentation</span></div>
             <div class="text-dark-200/50">pages/ <span class="text-dark-200/30">— Astro website</span></div>
           </div>
@@ -859,7 +861,7 @@ const projectStats = await getProjectStats()
         <div class="mt-6">
           <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Reference runtime</div>
           <h3 class="mb-3 text-2xl font-bold sm:text-3xl">One runtime, multiple surfaces.</h3>
-          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode shows the fuller runtime shape: AGENTS-style instructions, generated agents, permission gates and plugin hooks.</p>
+          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode shows the fuller runtime shape: repository instructions, generated subagents, permission gates and plugin hooks. Its optional global npm hook does not replace the repository-local AGDF source of truth.</p>
         </div>
       </div>
     </div>
@@ -932,8 +934,8 @@ const projectStats = await getProjectStats()
 <section id="compat" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Compatibility</h2>
-        <p class="text-dark-200">AGDF is Codex-first, but not Codex-only. Codex and Claude consume AGDF through plugins and skills, Copilot through AGENTS.md bootstrap, and OpenCode through instructions, agents, permissions and plugins.</p>
-        <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">OpenCode is marked as reference because it exposes the full AGDF control stack in one runtime: rules, generated agents, explicit edit/bash permissions and plugin hooks.</p>
+        <p class="text-dark-200">AGDF is Codex-first, but not Codex-only. Codex and Claude consume AGDF through plugins and skills, Copilot through AGENTS.md bootstrap, and OpenCode through an optional global npm hook plus repository instructions, subagents, permissions and plugins.</p>
+        <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">OpenCode is marked as reference because it exposes the full AGDF control stack in one runtime: rules, generated subagents, explicit edit/bash permissions and plugin hooks. The global hook is convenience; repository files remain the source of truth.</p>
   </div>
   <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
     <table class="w-full text-left text-sm">
@@ -989,10 +991,23 @@ const projectStats = await getProjectStats()
       </a>
     </div>
     <div class="grid gap-5 lg:grid-cols-2">
+      <div id="setup-codex" data-reveal data-reveal-delay="2" class="surface p-5">
+        <div class="mb-3">
+          <div class="text-xl font-bold text-dark-100">Codex</div>
+          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Install AGDF globally</div>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body space-y-2">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework</span></div>
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin add agdf --marketplace agdf</span></div>
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-dark-200">Start a new Codex session and use the AGDF skills from the plugin.</p>
+      </div>
       <div id="setup-codex-project" data-reveal data-reveal-delay="2" class="surface p-5">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Codex:</span>
-          <span class="font-semibold">Try AGDF in one repository</span>
+        <div class="mb-3">
+          <div class="text-xl font-bold text-dark-100">Codex</div>
+          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Try AGDF in one repository</div>
         </div>
         <div class="terminal">
           <div class="terminal-body">
@@ -1001,52 +1016,53 @@ const projectStats = await getProjectStats()
         </div>
         <p class="mt-3 text-sm text-dark-200">Restart Codex, open <code>/plugins</code>, select this repository and install <code>agdf</code>.</p>
       </div>
-      <div id="setup-codex" data-reveal data-reveal-delay="2" class="surface p-5">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Codex:</span>
-          <span class="font-semibold">Install AGDF globally</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework</span></div>
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">codex plugin add agdf --marketplace agdf</span></div>
-          </div>
-        </div>
-      </div>
-      <div id="setup-claude" data-reveal data-reveal-delay="3" class="surface p-5">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">Claude Code:</span>
-          <span class="font-semibold">Install the AGDF plugin</span>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin add arndtgold/ai-native-governance-delivery-framework</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Adds instructions, agents, permissions and plugin hooks together.</p>
-      </div>
       <div id="setup-opencode" data-reveal data-reveal-delay="3" class="surface p-5">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">OpenCode:</span>
-          <span class="font-semibold">Prepare the reference runtime</span>
+        <div class="mb-3">
+          <div class="text-xl font-bold text-dark-100">OpenCode</div>
+          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Install AGDF globally</div>
         </div>
         <div class="terminal">
           <div class="terminal-body">
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest opencode</span></div>
           </div>
         </div>
-        <p class="mt-3 text-sm text-dark-200">An existing <code>AGENTS.md</code> is preserved as <code>AGENTS.agdf.md</code> for manual merging.</p>
+        <p class="mt-3 text-sm text-dark-200">Restart OpenCode so it loads the AGDF npm plugin from your global config.</p>
+      </div>
+      <div id="setup-opencode-repo" data-reveal data-reveal-delay="3" class="surface p-5">
+        <div class="mb-3">
+          <div class="text-xl font-bold text-dark-100">OpenCode</div>
+          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Try AGDF in one repository</div>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest opencode-repo</span></div>
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-dark-200">Restart OpenCode in this repository and start with <code>@agdf-gate-check</code>.</p>
+      </div>
+      <div id="setup-claude" data-reveal data-reveal-delay="3" class="surface p-5">
+        <div class="mb-3">
+          <div class="text-xl font-bold text-dark-100">Claude Code</div>
+          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Install AGDF globally</div>
+        </div>
+        <div class="terminal">
+          <div class="terminal-body">
+            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">claude plugin add arndtgold/ai-native-governance-delivery-framework</span></div>
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-dark-200">Start a new Claude Code session and use the AGDF plugin skills.</p>
       </div>
       <div id="setup-copilot" data-reveal data-reveal-delay="4" class="surface p-5 lg:col-span-2">
-        <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">
-          <span class="text-dark-200/50">GitHub Copilot:</span>
-          <span class="font-semibold">Add repository instructions and skills</span>
+        <div class="mb-3">
+          <div class="text-xl font-bold text-dark-100">GitHub Copilot</div>
+          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Add repository instructions and skills</div>
         </div>
         <div class="terminal">
           <div class="terminal-body">
             <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest copilot</span></div>
           </div>
         </div>
+        <p class="mt-3 text-sm text-dark-200">Run <code>/instructions</code> after merging any generated AGENTS fragment.</p>
       </div>
     </div>
     <div class="mt-10">

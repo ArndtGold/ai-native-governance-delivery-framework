@@ -32,8 +32,19 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
+}
+
+const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
+try {
+  execFileSync(process.execPath, [binPath, "opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
+  const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
+  if (!openCodeGlobalConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
+    throw new Error("opencode must add the AGDF npm plugin to OpenCode global config.");
+  }
+} finally {
+  rmSync(openCodeConfigTempDir, { recursive: true, force: true });
 }
 
 function run(target, expectedFiles) {
@@ -100,7 +111,7 @@ function run(target, expectedFiles) {
       }
     }
 
-    if (target === "opencode") {
+    if (target === "opencode-repo") {
       const openCodeConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
       if (!openCodeConfig.instructions?.includes(".opencode/AGDF.md")) {
         throw new Error("OpenCode config must load .opencode/AGDF.md instructions.");
@@ -118,6 +129,12 @@ function run(target, expectedFiles) {
       }
       if (openCodeInstructions.includes("| `gate-check` |")) {
         throw new Error("OpenCode instructions must not contain unprefixed skill routing.");
+      }
+      if (!openCodeInstructions.includes("optional global npm plugin hook") || !openCodeInstructions.includes("repository files remain the AGDF source of truth")) {
+        throw new Error("OpenCode instructions must distinguish the optional global plugin hook from the repository-local AGDF source of truth.");
+      }
+      if (!openCodeInstructions.includes("mode: subagent") || !openCodeInstructions.includes("not OpenCode Skills under `.opencode/skills/`")) {
+        throw new Error("OpenCode instructions must explain that generated AGDF agents are subagent workflow controls, not OpenCode Skills.");
       }
 
       for (const skillName of openCodeSkillNames) {
@@ -197,7 +214,7 @@ run("both", [
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}code-review`, "SKILL.md"),
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}release-or`, "SKILL.md"),
 ]);
-run("opencode", [
+run("opencode-repo", [
   "opencode.json",
   join(".agdf", "control", "config.json"),
   join(".agdf", "control", "README.md"),
@@ -217,7 +234,7 @@ run("opencode", [
 
   try {
     writeFileSync(join(tempDir, "opencode.json"), '{\n  "$schema": "https://opencode.ai/config.json"\n}\n', "utf8");
-    execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir], { stdio: "pipe" });
 
     if (!existsSync(join(tempDir, "opencode.agdf.json"))) {
       throw new Error("OpenCode target should write opencode.agdf.json when opencode.json already exists.");

@@ -13,16 +13,22 @@ GitHub Copilot and OpenCode.
 
 ## Quick Start
 
-Run commands inside the target Git repository:
+Prepare one repository:
 
 ```bash
 npx --yes @agdf/cli@latest codex
-npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest copilot
 ```
 
-Install globally when AGDF should be available as a regular command on your
-machine:
+Install the user-wide OpenCode hook:
+
+```bash
+npx --yes @agdf/cli@latest opencode
+```
+
+Install the AGDF CLI globally when `agdf` should be available as a regular
+shell command on your machine:
 
 ```bash
 npm install -g @agdf/cli
@@ -63,7 +69,8 @@ authoritative reusable format, not AGDF's internal project backlog.
 | Command | Purpose |
 | --- | --- |
 | `codex` | Add a repository-local Codex marketplace and AGDF plugin copy. |
-| `opencode` | Add OpenCode instructions, agents, permissions and the npm plugin entry. |
+| `opencode` | Install the AGDF npm plugin as a user-wide OpenCode hook. |
+| `opencode-repo` | Add OpenCode repository instructions, subagents, permissions and control templates. |
 | `copilot` | Add `AGENTS.md`, Copilot instructions, skills and control templates. |
 | `both` | Prepare the repository-file and plugin surfaces together. |
 | `init` | Create durable `.agdf/control` files when repository-owned control state is required. |
@@ -75,6 +82,8 @@ authoritative reusable format, not AGDF's internal project backlog.
 Examples:
 
 ```bash
+npx --yes @agdf/cli@latest opencode
+npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest doctor
@@ -92,10 +101,10 @@ They do not replace AGDF skill judgement or user approvals.
   [AGDF website](https://agdf.iself.eu/#setup-codex).
 - **Claude Code:** install the AGDF plugin with the Claude Code CLI; this is not
   an `@agdf/cli` bootstrap target.
-- **OpenCode:** `opencode` writes the npm plugin entry together with the
-  repository instructions, agents and permissions AGDF needs. AGDF for OpenCode
-  is repo-scoped, not a global OpenCode plugin install; activation stays local
-  through the target repository's `opencode.json`. The generated
+- **OpenCode:** `opencode` installs the user-wide npm plugin hook, while
+  `opencode-repo` writes the repository instructions, agents and permissions
+  AGDF needs. Repository instructions, generated agents and control files remain
+  the AGDF source of truth. The generated
   OpenCode agents are intentional `mode: subagent` workflow controls, not
   `.opencode/skills/` entries or primary menu agents; use `@agdf-gate-check`
   as the visible entry point for new build/change intent.

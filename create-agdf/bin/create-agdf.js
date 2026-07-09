@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
@@ -11,7 +12,7 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "claude plugin add arndtgold/ai-native-governance-delivery-framework";
-const allowedTargets = new Set(["codex", "copilot", "opencode", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
+const allowedTargets = new Set(["codex", "copilot", "opencode", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -157,6 +158,7 @@ function printUsage() {
 Preferred AGDF CLI:
   npx --yes @agdf/cli@latest codex
   npx --yes @agdf/cli@latest opencode
+  npx --yes @agdf/cli@latest opencode-repo
   npx --yes @agdf/cli@latest init
   npx --yes @agdf/cli@latest doctor
   npx --yes @agdf/cli@latest gate-check --json
@@ -165,6 +167,7 @@ Scaffold-compatible npm create usage:
   npm create agdf@latest -- codex
   npm create agdf@latest -- copilot
   npm create agdf@latest -- opencode
+  npm create agdf@latest -- opencode-repo
   npm create agdf@latest -- both
   npm create agdf@latest -- init
   npm create agdf@latest -- config --language de
@@ -177,7 +180,7 @@ Backward-compatible create-agdf usage:
   npx --yes create-agdf@latest gate-check --json
 
 Options:
-  --dir <path>   Write files into a specific directory
+  --dir <path>   Write files into a specific directory. With opencode, use this as the OpenCode config directory.
   --force        Overwrite existing generated files
   --language <de|en>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
@@ -245,6 +248,7 @@ function parseArgs(argv) {
   let force = false;
   let json = false;
   let language;
+  let dirExplicit = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -288,6 +292,7 @@ function parseArgs(argv) {
         process.exit(1);
       }
       dir = next;
+      dirExplicit = true;
       i += 1;
       continue;
     }
@@ -313,7 +318,7 @@ function parseArgs(argv) {
   }
 
   if (!target || !allowedTargets.has(target)) {
-    console.error("Please choose one target: codex, copilot, opencode, both, init, config, doctor, gate-check or delivery-map.");
+    console.error("Please choose one target: codex, copilot, opencode, opencode-repo, both, init, config, doctor, gate-check or delivery-map.");
     printUsage();
     process.exit(1);
   }
@@ -323,7 +328,49 @@ function parseArgs(argv) {
     dir: resolve(process.cwd(), dir),
     force,
     json,
+    dirExplicit,
     language: resolveLanguagePreference(language),
+  };
+}
+
+function defaultOpenCodeConfigDir() {
+  return process.env.OPENCODE_CONFIG_DIR || join(homedir(), ".config", "opencode");
+}
+
+function installOpenCodeGlobalPlugin(configDir) {
+  const configPath = join(configDir, "opencode.json");
+  let config = {};
+
+  if (existsSync(configPath)) {
+    try {
+      config = JSON.parse(readFileSync(configPath, "utf8"));
+    } catch {
+      throw new Error(`Refusing to update unreadable OpenCode config: ${configPath}`);
+    }
+  }
+
+  if (config.plugin !== undefined && !Array.isArray(config.plugin)) {
+    throw new Error(`Refusing to update OpenCode config with non-array plugin field: ${configPath}`);
+  }
+
+  const plugins = [...(config.plugin ?? [])];
+  const alreadyInstalled = plugins.includes(pluginDefinition.opencode.npmPackage);
+  if (!alreadyInstalled) {
+    plugins.push(pluginDefinition.opencode.npmPackage);
+  }
+
+  const nextConfig = {
+    "$schema": config.$schema ?? "https://opencode.ai/config.json",
+    ...config,
+    plugin: plugins,
+  };
+
+  mkdirSync(configDir, { recursive: true });
+  writeFileSync(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf8");
+
+  return {
+    configPath,
+    added: !alreadyInstalled,
   };
 }
 
@@ -425,7 +472,7 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
     }
   }
 
-  if (target === "opencode") {
+  if (target === "opencode-repo") {
     addLanguageConfig(files, languagePreference);
     const openCodeConfigTargetPath = existsSync(join(targetDir, "opencode.json")) && !force ? openCodeConfigFragmentPath : "opencode.json";
     files.push({
@@ -488,12 +535,13 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
   if (target === "both") {
     console.log(`- Optional global Claude Code install: ${pluginInstallCommand}`);
   }
-  if (target === "opencode") {
+  if (target === "opencode-repo") {
     if (wroteOpenCodeConfigFragment) {
       console.log(`- Existing opencode.json detected. Merge ${openCodeConfigFragmentPath} into your current opencode.json so OpenCode loads .opencode/AGDF.md.`);
     }
     console.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
-    console.log("- AGDF for OpenCode is repo-scoped, not a global OpenCode plugin install; activation stays local through opencode.json.");
+    console.log("- Optional: also add create-agdf to ~/.config/opencode/opencode.json plugin[] for a user-wide OpenCode hook.");
+    console.log("- The global hook does not replace repository instructions or subagents; this repository's .opencode files remain the AGDF source of truth.");
     console.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the AGDF subagents.");
     console.log("- AGDF OpenCode agents are mode: subagent workflow controls; they are not .opencode/skills entries or primary menu agents.");
     console.log("- Use @agdf-gate-check as the visible entry point for new build/change intent or unclear approval before later artefacts or implementation.");
@@ -1757,6 +1805,19 @@ function main() {
     const report = evaluateDeliveryMap(options.dir);
     printDeliveryMapReport(report, options.json);
     process.exit(report.status === "block" ? 2 : 0);
+  }
+
+  if (options.target === "opencode") {
+    const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
+    try {
+      const result = installOpenCodeGlobalPlugin(configDir);
+      console.log(`AGDF OpenCode global plugin ${result.added ? "installed" : "already present"}: ${result.configPath}`);
+      console.log("Run npx --yes @agdf/cli@latest opencode-repo in each repository where AGDF governance should be active and reviewable.");
+    } catch (error) {
+      console.error(error.message);
+      process.exit(1);
+    }
+    return;
   }
 
   const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);

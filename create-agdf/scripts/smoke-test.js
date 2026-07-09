@@ -125,6 +125,14 @@ function run(target, expectedFiles) {
         if (!existsSync(agentPath)) {
           throw new Error(`OpenCode surface routes ${skillName} but does not expose .opencode/agents/${skillName}.md.`);
         }
+        const agentContent = readFileSync(agentPath, "utf8");
+        const frontmatterMatches = agentContent.match(/^---$/gm) ?? [];
+        if (frontmatterMatches.length !== 2) {
+          throw new Error(`OpenCode agent ${skillName} must contain exactly one YAML frontmatter block.`);
+        }
+        if (!agentContent.startsWith("---\ndescription:") || !agentContent.includes("\nmode: subagent\n---\n\n# ")) {
+          throw new Error(`OpenCode agent ${skillName} must render OpenCode metadata before the prompt body.`);
+        }
       }
     }
   } finally {

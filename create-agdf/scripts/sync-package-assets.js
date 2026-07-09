@@ -129,6 +129,10 @@ function toOpenCodeSkillContent(content) {
   return next;
 }
 
+function stripFrontmatter(content) {
+  return content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "").replace(/^\s+/, "");
+}
+
 function toOpenCodeAgentRouter(content) {
   const openCodeSurfaceConvention = [
     "## Surface Convention",
@@ -254,7 +258,7 @@ function writeOpenCodeAgent(skillSlug) {
   const targetName = openCodeSkillName(skillSlug);
   const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
   const skillDefinition = pluginDefinition.skillSet.find((skill) => skill.slug === skillSlug);
-  const body = toOpenCodeSkillContent(read(sourcePath).replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.opencode.runtimeContractFileName}`));
+  const body = toOpenCodeSkillContent(stripFrontmatter(read(sourcePath)).replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.opencode.runtimeContractFileName}`));
   const content = [
     "---",
     `description: ${skillDefinition?.useFor ?? `AGDF ${skillSlug}`}`,

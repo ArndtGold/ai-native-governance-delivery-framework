@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 
@@ -540,6 +540,222 @@ function tableRows(content) {
     });
 }
 
+const compactBacklogHeaders = ["priority", "key", "work item", "status", "artefacts", "current spec", "next step"];
+const legacyBacklogHeaders = ["prio", "key", "title", "status", "ur", "brownfield review", "prd", "sd", "tp", "qa", "or", "current spec", "notes"];
+const backlogStatusLabels = new Map([
+  ["needs ur", "needs_ur"],
+  ["awaiting brownfield review", "awaiting_brownfield_review"],
+  ["awaiting prd", "awaiting_prd"],
+  ["awaiting prd approval", "awaiting_prd_approval"],
+  ["awaiting sd", "awaiting_sd"],
+  ["awaiting sd approval", "awaiting_sd_approval"],
+  ["awaiting tp", "awaiting_tp"],
+  ["awaiting tp approval", "awaiting_tp_approval"],
+  ["in progress", "in_progress"],
+  ["blocked", "blocked"],
+  ["awaiting qa", "awaiting_qa"],
+  ["awaiting uat", "awaiting_uat"],
+  ["completed", "completed"],
+  ["superseded", "superseded"],
+  ["abandoned", "abandoned"],
+]);
+const backlogArtefactLabels = new Map([
+  ["ur", "ur"],
+  ["brownfield", "brownfield_review"],
+  ["prd", "prd"],
+  ["sd", "sd"],
+  ["tp", "tp"],
+  ["qa", "qa"],
+  ["or", "or"],
+]);
+
+function normalizeBacklogHeader(value) {
+  return value.replace(/`/g, "").trim().toLowerCase();
+}
+
+function markdownLink(value) {
+  const match = value.trim().match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+  return match ? { label: match[1].trim(), target: match[2].trim() } : null;
+}
+
+function resolvedBacklogLinkTarget(target) {
+  if (!target
+    || target.startsWith("/")
+    || target.includes("\\")
+    || /^[a-z][a-z0-9+.-]*:/i.test(target)) {
+    return null;
+  }
+  const resolved = posix.normalize(posix.join(".agdf/control", target));
+  if (resolved === ".." || resolved.startsWith("../")) return null;
+  return resolved;
+}
+
+function normalizedBacklogLinkTarget(value, findings, backlogPath, label) {
+  const link = markdownLink(value);
+  if (!link) return value.trim();
+  const resolved = resolvedBacklogLinkTarget(link.target);
+  if (!resolved) {
+    if (findings) {
+      addFinding(
+        findings,
+        "revise",
+        "AGDF_BACKLOG_LINK_TARGET_INVALID",
+        `Backlog ${label} link must be relative to MASTER_BACKLOG.md: ${link.target || "<empty>"}.`,
+        backlogPath,
+        "Use a document-relative artefact target such as artefacts/<key>/UR.md.",
+      );
+    }
+    return link.target;
+  }
+  return resolved;
+}
+
+function normalizeBacklogStatus(value, findings, backlogPath) {
+  const cleaned = cleanStatusCell(value ?? "");
+  const lookup = cleaned.replaceAll("_", " ").toLowerCase();
+  const normalized = backlogStatusLabels.get(lookup);
+  if (normalized) return normalized;
+  if (/^[a-z][a-z0-9_]*$/.test(cleaned)) return cleaned;
+  if (findings && filled(cleaned)) {
+    addFinding(
+      findings,
+      "revise",
+      "AGDF_BACKLOG_STATUS_UNKNOWN",
+      `MASTER_BACKLOG.md uses an unknown human status label: ${cleaned}.`,
+      backlogPath,
+      "Use a documented human status label or a supported legacy snake_case value.",
+    );
+  }
+  return cleaned;
+}
+
+function emptyBacklogPointer() {
+  return {
+    prio: "",
+    key: "",
+    title: "",
+    status: "",
+    ur: "",
+    brownfield_review: "",
+    prd: "",
+    sd: "",
+    tp: "",
+    qa: "",
+    or: "",
+    current_spec: "",
+    notes: "",
+  };
+}
+
+function parseCompactArtefacts(value, pointer, findings, backlogPath) {
+  if (!filled(value)) return;
+  const seen = new Set();
+  for (const entry of value.split(/\s+·\s+/)) {
+    const link = markdownLink(entry);
+    if (!link) {
+      if (findings) {
+        addFinding(
+          findings,
+          "revise",
+          "AGDF_BACKLOG_ARTEFACT_LINK_INVALID",
+          `Compact Artefacts entry is not a Markdown link: ${entry}.`,
+          backlogPath,
+          "Use [UR](artefacts/<key>/UR.md) style links separated by a middle dot.",
+        );
+      }
+      continue;
+    }
+    const field = backlogArtefactLabels.get(link.label.toLowerCase());
+    if (!field) {
+      if (findings) {
+        addFinding(
+          findings,
+          "revise",
+          "AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN",
+          `Compact Artefacts uses an unknown label: ${link.label}.`,
+          backlogPath,
+          "Use UR, Brownfield, PRD, SD, TP, QA or OR.",
+        );
+      }
+      continue;
+    }
+    if (seen.has(field)) {
+      if (findings) {
+        addFinding(
+          findings,
+          "revise",
+          "AGDF_BACKLOG_ARTEFACT_LABEL_DUPLICATE",
+          `Compact Artefacts repeats the ${link.label} link.`,
+          backlogPath,
+          "Keep exactly one link per artefact type.",
+        );
+      }
+      continue;
+    }
+    seen.add(field);
+    pointer[field] = normalizedBacklogLinkTarget(entry, findings, backlogPath, link.label);
+  }
+}
+
+function parseBacklogSection(section, findings = null, backlogPath = ".agdf/control/MASTER_BACKLOG.md") {
+  const rows = tableRows(section);
+  if (rows.length === 0) return [];
+  const headers = rows[0].map(normalizeBacklogHeader);
+  const layout = headers.join("|") === compactBacklogHeaders.join("|")
+    ? "compact"
+    : headers.join("|") === legacyBacklogHeaders.join("|")
+      ? "legacy"
+      : "unknown";
+
+  if (layout === "unknown") {
+    if (findings) {
+      addFinding(
+        findings,
+        "revise",
+        "AGDF_BACKLOG_LAYOUT_UNKNOWN",
+        `MASTER_BACKLOG.md uses an unsupported table layout: ${headers.join(", ")}.`,
+        backlogPath,
+        "Use the canonical compact layout or the supported legacy 13-column layout.",
+      );
+    }
+    return [];
+  }
+
+  return rows.slice(1)
+    .filter((cells) => cells.some((cell) => filled(cell)))
+    .map((cells) => {
+      const pointer = emptyBacklogPointer();
+      if (layout === "legacy") {
+        [
+          pointer.prio,
+          pointer.key,
+          pointer.title,
+          pointer.status,
+          pointer.ur,
+          pointer.brownfield_review,
+          pointer.prd,
+          pointer.sd,
+          pointer.tp,
+          pointer.qa,
+          pointer.or,
+          pointer.current_spec,
+          pointer.notes,
+        ] = cells.map((cell) => cell ?? "");
+        pointer.status = normalizeBacklogStatus(pointer.status, findings, backlogPath);
+        return pointer;
+      }
+
+      pointer.prio = cells[0] ?? "";
+      pointer.key = cleanStatusCell(cells[1] ?? "");
+      pointer.title = cells[2] ?? "";
+      pointer.status = normalizeBacklogStatus(cells[3], findings, backlogPath);
+      parseCompactArtefacts(cells[4] ?? "", pointer, findings, backlogPath);
+      pointer.current_spec = normalizedBacklogLinkTarget(cells[5] ?? "", findings, backlogPath, "Current spec");
+      pointer.notes = cells[6] ?? "";
+      return pointer;
+    });
+}
+
 function hasFilledTableRow(content, firstCellPattern) {
   return tableRows(content)
     .filter((cells) => firstCellPattern.test(cells[0] ?? ""))
@@ -649,7 +865,12 @@ function evaluateDoctor(targetDir) {
 
     const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
     const backlog = readTargetFile(targetDir, backlogPath);
-    if (!hasFilledTableRow(backlog, /^P[0-9]/)) {
+    parseBacklogSection(markdownSection(backlog, "Active Backlog"), findings, backlogPath);
+    parseBacklogSection(markdownSection(backlog, "Planned / Parking Lot"), findings, backlogPath);
+    const completedRows = tableRows(markdownSection(backlog, "Completed / Superseded Pointers"))
+      .slice(1)
+      .filter((cells) => cells.some((cell) => filled(cell)));
+    if (!hasFilledTableRow(backlog, /^P[0-9]/) && completedRows.length === 0) {
       addFinding(
         findings,
         "warn",
@@ -1438,22 +1659,7 @@ function readBacklogPointers(targetDir) {
 
   const backlog = readTargetFile(targetDir, backlogPath);
   const activeSection = markdownSection(backlog, "Active Backlog");
-  return nonTemplateRows(activeSection, "Prio")
-    .map((cells) => ({
-      prio: cells[0] ?? "",
-      key: cells[1] ?? "",
-      title: cells[2] ?? "",
-      status: cleanStatusCell(cells[3] ?? ""),
-      ur: cells[4] ?? "",
-      brownfield_review: cells[5] ?? "",
-      prd: cells[6] ?? "",
-      sd: cells[7] ?? "",
-      tp: cells[8] ?? "",
-      qa: cells[9] ?? "",
-      or: cells[10] ?? "",
-      current_spec: cells[11] ?? "",
-      notes: cells[12] ?? "",
-    }));
+  return parseBacklogSection(activeSection);
 }
 
 function evaluateDeliveryMap(targetDir) {

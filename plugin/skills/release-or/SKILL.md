@@ -42,6 +42,8 @@ Use the Runtime Contract definition of `Relevant Run` to decide whether OR is ma
 8. Retained fallbacks require visible exit criteria and cleanup path.
 9. End with the immediately permissible next step.
 10. `CD+Tests` is not completion.
+11. When moving a backlog item to Completed or Superseded, use the canonical human-readable table and link the final OR with a document-relative Markdown link.
+12. Keep machine status normalization in the CLI; do not write internal snake_case status values into the human-facing backlog.
 
 ## When To Use
 - at the end of every relevant run

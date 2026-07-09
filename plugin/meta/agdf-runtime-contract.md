@@ -275,6 +275,22 @@ When a repository needs durable AGDF state, use the plugin-local `control/` scaf
 - `memory_target`, `multi_scope_state` and branch/workspace evidence fields make ambiguity and persistence decisions visible without turning chat history into the source of truth.
 - OR reports live under `.agdf/control/artefacts/<key>/OR.md` when a run closeout is steering-relevant or should be auditable beyond the chat.
 
+### Human-readable Master Backlog
+
+The Markdown backlog is a human steering view; CLI reports are its normalized
+machine projection.
+
+- Use readable status labels such as `In progress`, `Awaiting UAT` and
+  `Completed` in Markdown.
+- Use links relative to `MASTER_BACKLOG.md`, such as
+  `[UR](artefacts/<key>/UR.md)`, instead of exposing long raw paths.
+- Keep `Priority`, `Key`, `Work item`, `Status`, `Artefacts`, `Current spec`
+  and `Next step` visible for active and planned work.
+- Keep one canonical template. Generated surface copies remain derived output.
+- Normalize human labels and link targets only at the CLI parser boundary.
+- Existing wide rows, raw paths and snake_case statuses remain supported for
+  backward compatibility.
+
 The scaffold is not a second documentation site. Link to authoritative artefacts instead of copying them.
 
 ## Agent-Native Runtime And CLI Verification

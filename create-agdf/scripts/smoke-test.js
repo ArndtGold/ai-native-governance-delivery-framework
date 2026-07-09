@@ -14,6 +14,15 @@ const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefini
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 
+function runJson(args) {
+  try {
+    return JSON.parse(execFileSync(process.execPath, [binPath, ...args], { encoding: "utf8", stdio: "pipe" }));
+  } catch (error) {
+    if (error.stdout) return JSON.parse(error.stdout.toString());
+    throw error;
+  }
+}
+
 if (packageJson.bin?.["create-agdf"] !== "./bin/create-agdf.js") {
   throw new Error("create-agdf must keep the backward-compatible create-agdf binary.");
 }
@@ -1067,6 +1076,150 @@ run("config", [
     }
     if (!gateCheckFailed) {
       throw new Error("Gate-check should exit non-zero when delivery-map relationship evidence is missing.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-compact-backlog-"));
+  const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    const statusCases = [
+      ["Needs UR", "needs_ur"],
+      ["Awaiting Brownfield Review", "awaiting_brownfield_review"],
+      ["Awaiting PRD", "awaiting_prd"],
+      ["Awaiting PRD approval", "awaiting_prd_approval"],
+      ["Awaiting SD", "awaiting_sd"],
+      ["Awaiting SD approval", "awaiting_sd_approval"],
+      ["Awaiting TP", "awaiting_tp"],
+      ["Awaiting TP approval", "awaiting_tp_approval"],
+      ["In progress", "in_progress"],
+      ["Blocked", "blocked"],
+      ["Awaiting QA", "awaiting_qa"],
+      ["Awaiting UAT", "awaiting_uat"],
+      ["Completed", "completed"],
+      ["Superseded", "superseded"],
+      ["Abandoned", "abandoned"],
+      ["legacy_custom_status", "legacy_custom_status"],
+    ];
+    const statusRows = statusCases
+      .map(([label], index) => `| P1 | \`status-${index}\` | ${label} test | ${label} | [UR](artefacts/status-${index}/UR.md) | [UR](artefacts/status-${index}/UR.md) | Continue |`)
+      .join("\n");
+    writeFileSync(backlogPath, `# AGDF Master Backlog
+
+## Active Backlog
+
+| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
+|---:|---|---|---|---|---|---|
+| P1 | \`compact-run\` | Compact backlog test | Awaiting UAT | [UR](artefacts/compact-run/UR.md) · [Brownfield](artefacts/compact-run/BROWNFIELD_REVIEW.md) · [QA](artefacts/compact-run/QA_REPORT.md) · [OR](artefacts/compact-run/OR.md) | [QA](artefacts/compact-run/QA_REPORT.md) | Request \`Approval: UAT\` |
+| P1 | \`external-spec\` | Repository SoT test | In progress | [UR](artefacts/external-spec/UR.md) | [Spec](../../docs/spec.md) | Continue |
+${statusRows}
+
+## Planned / Parking Lot
+
+| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
+|---:|---|---|---|---|---|---|
+`, "utf8");
+
+    const report = runJson(["delivery-map", "--dir", tempDir, "--json"]);
+    const pointer = report.backlog_pointers[0];
+    if (pointer?.key !== "compact-run" || pointer?.status !== "awaiting_uat") {
+      throw new Error("Compact backlog should preserve the key and normalize the human status label.");
+    }
+    if (pointer?.ur !== ".agdf/control/artefacts/compact-run/UR.md"
+      || pointer?.brownfield_review !== ".agdf/control/artefacts/compact-run/BROWNFIELD_REVIEW.md"
+      || pointer?.qa !== ".agdf/control/artefacts/compact-run/QA_REPORT.md"
+      || pointer?.or !== ".agdf/control/artefacts/compact-run/OR.md"
+      || pointer?.current_spec !== ".agdf/control/artefacts/compact-run/QA_REPORT.md") {
+      throw new Error("Compact backlog should resolve document-relative Markdown links to repository-relative JSON paths.");
+    }
+    if (Object.values(pointer).some((value) => typeof value === "string" && value.includes("]("))) {
+      throw new Error("Compact backlog JSON must not expose Markdown link syntax.");
+    }
+    const externalSpecPointer = report.backlog_pointers.find((item) => item.key === "external-spec");
+    if (externalSpecPointer?.current_spec !== "docs/spec.md") {
+      throw new Error(`Compact backlog should resolve safe repository SoT links, got ${externalSpecPointer?.current_spec}.`);
+    }
+    for (const [index, [, expectedStatus]] of statusCases.entries()) {
+      const statusPointer = report.backlog_pointers.find((item) => item.key === `status-${index}`);
+      if (statusPointer?.status !== expectedStatus) {
+        throw new Error(`Compact backlog should normalize status-${index} to ${expectedStatus}, got ${statusPointer?.status}.`);
+      }
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-invalid-compact-backlog-"));
+  const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(backlogPath, `# AGDF Master Backlog
+
+## Active Backlog
+
+| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
+|---:|---|---|---|---|---|---|
+| P1 | \`invalid-run\` | Invalid compact backlog | Waiting magically | [UR](https://example.com/UR.md) · [UR](artefacts/invalid-run/UR.md) · [QA](/tmp/QA.md) · [Mystery](artefacts/invalid-run/MYSTERY.md) · malformed-entry | [PRD](../../../outside.md) | Fix validation |
+
+## Planned / Parking Lot
+
+| Priority | Key | Unsupported |
+|---:|---|---|
+`, "utf8");
+
+    const report = runJson(["doctor", "--dir", tempDir, "--json"]);
+    const codes = new Set(report.findings.map((finding) => finding.code));
+    for (const requiredCode of [
+      "AGDF_BACKLOG_STATUS_UNKNOWN",
+      "AGDF_BACKLOG_LINK_TARGET_INVALID",
+      "AGDF_BACKLOG_ARTEFACT_LABEL_DUPLICATE",
+      "AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN",
+      "AGDF_BACKLOG_ARTEFACT_LINK_INVALID",
+      "AGDF_BACKLOG_LAYOUT_UNKNOWN",
+    ]) {
+      if (!codes.has(requiredCode)) throw new Error(`Invalid compact backlog should report ${requiredCode}.`);
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-completed-only-backlog-"));
+  const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(backlogPath, `# AGDF Master Backlog
+
+## Active Backlog
+
+| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
+|---:|---|---|---|---|---|---|
+
+## Planned / Parking Lot
+
+| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
+|---:|---|---|---|---|---|---|
+
+## Completed / Superseded Pointers
+
+| Key | Work item | Final status | Historical record | Outcome |
+|---|---|---|---|---|
+| \`completed-run\` | Completed run | Completed | [OR](artefacts/completed-run/OR.md) | UAT approved |
+`, "utf8");
+
+    const report = runJson(["doctor", "--dir", tempDir, "--json"]);
+    if (report.findings.some((finding) => finding.code === "AGDF_BACKLOG_POINTER_EMPTY")) {
+      throw new Error("A completed-only backlog should not be reported as empty.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

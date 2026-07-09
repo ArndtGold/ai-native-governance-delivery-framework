@@ -520,6 +520,7 @@ const sotRegistryTemplatePath = join(controlRoot, "templates", "SOT_REGISTRY.md"
 const qualityContractsPath = join(controlRoot, "templates", "AGENT_QUALITY_CONTRACTS.json");
 const brownfieldReviewTemplatePath = join(controlRoot, "templates", "artefacts", "BROWNFIELD_REVIEW.md");
 const orTemplatePath = join(controlRoot, "templates", "artefacts", "OR.md");
+const backlogTemplatePath = join(controlRoot, "templates", "MASTER_BACKLOG.md");
 
 if (isFile(runTemplatePath)) {
   const runTemplate = read(runTemplatePath);
@@ -552,6 +553,20 @@ if (isFile(orTemplatePath)) {
   }
   if ((orTemplate.match(/Quality outlook/g) ?? []).length !== 1) {
     failures.push("OR.md must present Quality outlook exactly once in the Run Status Card");
+  }
+}
+
+if (isFile(backlogTemplatePath)) {
+  const backlogTemplate = read(backlogTemplatePath);
+  for (const required of [
+    "| Priority | Key | Work item | Status | Artefacts | Current spec | Next step |",
+    "| Key | Work item | Final status | Historical record | Outcome |",
+    "document-relative Markdown link",
+  ]) {
+    if (!backlogTemplate.includes(required)) failures.push(`MASTER_BACKLOG.md missing human-readable backlog contract: ${required}`);
+  }
+  if (backlogTemplate.includes("| Prio | Key | Title | Status | UR |")) {
+    failures.push("MASTER_BACKLOG.md must not use the legacy wide layout as its canonical template");
   }
 }
 

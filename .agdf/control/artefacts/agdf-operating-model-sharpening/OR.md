@@ -2,17 +2,25 @@
 
 Run: `agdf-operating-model-sharpening`
 Status: pass
-Date: 2026-07-08
+Date: 2026-07-09
 
 ## Run Status Card
 
-- status: pass
-- allowed_now: UAT review, commit preparation after UAT approval
-- forbidden_now: release claim without UAT approval
-- blocking_condition: UAT not yet approved for commit/release handoff
-- next_skill: agdf-delivery-closeout
-- next_step: Request `Approval: UAT` before committing if this slice should be finalized in git.
-- quality_outlook: Validate in the next real consumer repo whether source precedence, scope ambiguity and memory routing make agent runs clearer without increasing ceremony.
+| Run status | Value |
+|---|---|
+| Status | UAT approved |
+| Current gate | OR closeout |
+| Allowed now | Preserve the completed delivery record |
+| Blocked by | none |
+| Missing approval | none |
+| Next step | No further delivery action for this slice |
+| Quality outlook | Validate in a real consumer repository whether the guardrails reduce ambiguity without increasing ceremony |
+
+## UAT
+
+- approval: `Approval: UAT`
+- approved_at: 2026-07-09
+- outcome: accepted
 
 ## Delivered
 
@@ -37,7 +45,7 @@ Date: 2026-07-08
 - `npm --prefix create-agdf run smoke-test -- --quiet`: pass
 - `npm --prefix pages run check`: pass
 - `npm --prefix pages run build`: pass
-- `node create-agdf\bin\create-agdf.js gate-check --json`: pass; projects `current_gate: UAT` with `missing_approval: Approval: UAT`
+- `node create-agdf\bin\create-agdf.js gate-check --json`: pass before UAT; projected `current_gate: UAT` with `missing_approval: Approval: UAT`
 - `npm --prefix pages run check` after Core Control Flow revision: pass
 - `npm --prefix pages run build` after Core Control Flow revision: pass
 - `npm --prefix pages run check` after Operating Model icon: pass
@@ -59,5 +67,5 @@ Date: 2026-07-08
 
 ## Next Permissible Step
 
-- next_allowed_action: Request `Approval: UAT` before commit handoff.
+- next_allowed_action: No further delivery action for this slice.
 - quality_outlook: Use the next downstream repo installation as a usability check for guardrail clarity.

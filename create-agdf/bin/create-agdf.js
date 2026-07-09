@@ -493,8 +493,10 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
       console.log(`- Existing opencode.json detected. Merge ${openCodeConfigFragmentPath} into your current opencode.json so OpenCode loads .opencode/AGDF.md.`);
     }
     console.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
+    console.log("- AGDF for OpenCode is repo-scoped, not a global OpenCode plugin install; activation stays local through opencode.json.");
     console.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the AGDF subagents.");
-    console.log("- Use @agdf-gate-check for new build/change intent or unclear approval before later artefacts or implementation.");
+    console.log("- AGDF OpenCode agents are mode: subagent workflow controls; they are not .opencode/skills entries or primary menu agents.");
+    console.log("- Use @agdf-gate-check as the visible entry point for new build/change intent or unclear approval before later artefacts or implementation.");
     console.log("- Run npx --yes @agdf/cli@latest init when the repository needs live AGDF control files.");
   }
   if (target === "copilot" || target === "both") {

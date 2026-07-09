@@ -97,6 +97,10 @@ function stripAllowedGerman(content) {
   return next;
 }
 
+function sectionAfterHeading(content, heading) {
+  return content.match(new RegExp(`## ${heading}\\r?\\n([\\s\\S]*?)(?=\\r?\\n## )`))?.[1] ?? "";
+}
+
 function assertFile(path, label) {
   if (!isFile(path)) {
     failures.push(`${label} missing`);
@@ -527,7 +531,7 @@ if (isFile(runTemplatePath)) {
   for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "transparency_note", "Artefact Chain", "context_graph_impact", "quality_outlook"]) {
     if (!runTemplate.includes(required)) failures.push(`AGDF_RUN.md missing control field: ${required}`);
   }
-  const runStatusCard = runTemplate.match(/## Run Status Card\n([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  const runStatusCard = sectionAfterHeading(runTemplate, "Run Status Card");
   for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
     if (!runStatusCard.includes(`| ${label} |`)) failures.push(`AGDF_RUN.md Run Status Card missing readable label: ${label}`);
   }
@@ -541,7 +545,7 @@ if (isFile(runTemplatePath)) {
 
 if (isFile(orTemplatePath)) {
   const orTemplate = read(orTemplatePath);
-  const orStatusCard = orTemplate.match(/## Run Status Card\n([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  const orStatusCard = sectionAfterHeading(orTemplate, "Run Status Card");
   for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
     if (!orStatusCard.includes(`| ${label} |`)) failures.push(`OR.md Run Status Card missing readable label: ${label}`);
   }

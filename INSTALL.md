@@ -310,13 +310,15 @@ opencode.json
 }
 ```
 
-OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/agents/agdf-*.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible.
+OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/agents/agdf-*.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible. AGDF for OpenCode is repo-scoped, not a global OpenCode plugin install; activation stays local through the target repository's `opencode.json`.
 
 If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Merge its `plugin` and `instructions` entries into the existing OpenCode config so OpenCode loads the AGDF npm plugin and `.opencode/AGDF.md`.
 
 OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json`. The generated OpenCode surface uses the `agdf-` prefix because OpenCode project agents do not have the Codex or Claude Code plugin namespace.
 
 OpenCode also makes AGDF's control story visible at runtime: `.opencode/AGDF.md` carries the AGENTS-style rules, `.opencode/agents/` carries the generated AGDF agents, `permission.edit` and `permission.bash` stay on `ask`, and the npm plugin contributes runtime hooks.
+
+The generated `.opencode/agents/agdf-*.md` files intentionally use `mode: subagent`. They are internal workflow-routing controls, not visible primary menu agents and not OpenCode Skills under `.opencode/skills/<name>/SKILL.md`. If users look for a visible entry point, start with `@agdf-gate-check` for new build/change intent or unclear approval; AGDF should remain a governance layer instead of converting those subagents into main agents.
 
 Use `@agdf-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
 

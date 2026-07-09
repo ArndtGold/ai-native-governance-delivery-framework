@@ -93,7 +93,12 @@ They do not replace AGDF skill judgement or user approvals.
 - **Claude Code:** install the AGDF plugin with the Claude Code CLI; this is not
   an `@agdf/cli` bootstrap target.
 - **OpenCode:** `opencode` writes the npm plugin entry together with the
-  repository instructions, agents and permissions AGDF needs.
+  repository instructions, agents and permissions AGDF needs. AGDF for OpenCode
+  is repo-scoped, not a global OpenCode plugin install; activation stays local
+  through the target repository's `opencode.json`. The generated
+  OpenCode agents are intentional `mode: subagent` workflow controls, not
+  `.opencode/skills/` entries or primary menu agents; use `@agdf-gate-check`
+  as the visible entry point for new build/change intent.
 - **GitHub Copilot:** `copilot` writes repository instructions and skills. If
   `AGENTS.md` already exists, AGDF preserves it and writes `AGENTS.agdf.md` for
   manual merging.

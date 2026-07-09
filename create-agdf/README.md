@@ -56,7 +56,8 @@ Use the `opencode` target when AGDF should be available to OpenCode from reposit
 npm create agdf@latest -- opencode
 ```
 
-OpenCode loads the AGDF npm plugin from `opencode.json`, AGENTS-style rules from `.opencode/AGDF.md`, explicit `edit`/`bash` permissions and the `agdf-` prefixed agents under `.opencode/agents/`.
+OpenCode loads the AGDF npm plugin from `opencode.json`, AGENTS-style rules from `.opencode/AGDF.md`, explicit `edit`/`bash` permissions and the `agdf-` prefixed agents under `.opencode/agents/`. AGDF for OpenCode is repo-scoped, not a global OpenCode plugin install; activation stays local through the target repository's `opencode.json`.
+Those generated agents use `mode: subagent` intentionally: they are internal governance-routing controls, not OpenCode Skills under `.opencode/skills/` and not primary menu agents. Use `@agdf-gate-check` as the visible entry point for new build/change intent or unclear approval.
 If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment.
 Using OpenCode's plugin installer for `create-agdf` can add the npm plugin entry, but AGDF still needs the repository instructions and agents. The `opencode` target writes the npm plugin entry and the repository files together.
 

@@ -636,6 +636,90 @@ run("config", [
 }
 
 {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-qa-status-mismatch-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: qa-status-mismatch
+- started_at: 2026-07-09
+- mode: structured_delivery
+- current_gate: QA
+- decision: qa_passed
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | QA approval and report exist, but the artefact status uses the wrong durable vocabulary. |
+| What is approved? | UR, PRD, SD, TP and QA |
+| What is missing? | Durable status correction |
+| What is the next allowed action? | Correct QA artefact status. |
+| What is explicitly forbidden right now? | Release readiness claims |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | approved | Approval: PRD |
+| SD | approved | Approval: SD |
+| TP | approved | Approval: TP |
+| QA | approved | Approval: QA |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/qa-status-mismatch/UR.md | approved |  |
+| PRD | .agdf/control/artefacts/qa-status-mismatch/PRD.md | approved |  |
+| SD | .agdf/control/artefacts/qa-status-mismatch/SD.md | approved |  |
+| TP | .agdf/control/artefacts/qa-status-mismatch/TP.md | approved |  |
+| QA | .agdf/control/artefacts/qa-status-mismatch/QA_REPORT.md | approved | wrong durable status for QA |
+
+## Mode / Slice Decision
+
+- decision: structured_slice
+- required_next_gate: TP
+- scope_reason: Test slice.
+- evidence: Test evidence.
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | exact approval |
+| PRD | derived_from | UR | PRD links to approved UR. |
+| SD | derived_from | PRD | SD links to approved PRD. |
+| TP | derived_from | SD | TP links to approved SD. |
+| QA_REPORT | tests | TP | .agdf/control/artefacts/qa-status-mismatch/QA_REPORT.md |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| QA report | .agdf/control/artefacts/qa-status-mismatch/QA_REPORT.md | QA | direct |
+`, "utf8");
+
+    const doctorReport = runJson(["doctor", "--dir", tempDir, "--json"]);
+    if (doctorReport.status !== "revise") {
+      throw new Error(`Doctor should revise on QA durable artefact status mismatch, got ${doctorReport.status}.`);
+    }
+    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_GATE_ARTEFACT_STATUS_INCONSISTENT" && finding.message.includes("expected `pass` or `passed`"))) {
+      throw new Error("Doctor should report the QA-specific durable artefact status vocabulary.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-missing-"));
 
   try {

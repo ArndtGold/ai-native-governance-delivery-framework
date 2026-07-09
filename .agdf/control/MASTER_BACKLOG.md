@@ -23,6 +23,7 @@
 
 | Key | Work item | Final status | Historical record | Outcome |
 |---|---|---|---|---|
+| `doctor-semantic-consistency` | Make AGDF doctor detect semantic control-state inconsistencies before gate-check fails later | Completed | [OR](artefacts/doctor-semantic-consistency/OR.md) | Quick task completed; doctor now reports QA durable artefact status mismatches before later gate-check confusion, and focused smoke/runtime checks passed on 2026-07-09 |
 | `context-graph-closeout-guard` | Prevent Governance-Closeout-Gaps by enforcing Context Graph reconciliation before clean handoff | Completed | [OR](artefacts/context-graph-closeout-guard/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09; Runtime Contract, OR/delivery-closeout skills, AGDF_RUN/OR templates and Runtime Integrity now enforce visible Context Graph reconciliation before clean handoff |
 | `agdf-delivery-path-search` | Portable delivery-path search across coding-agent surfaces | Completed | [OR](artefacts/agdf-delivery-path-search/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09; first-release Delivery Path Search delivered with Codex as executable reference evaluator and non-Codex surfaces as contract-ready pending conforming evaluators |
 | `opencode-compact-gate-output` | Make AGDF gate/status output compact for interactive OpenCode use | Completed | [OR](artefacts/opencode-compact-gate-output/OR.md) | Quick task completed; compact status-card output implemented and focused checks passed on 2026-07-09 |

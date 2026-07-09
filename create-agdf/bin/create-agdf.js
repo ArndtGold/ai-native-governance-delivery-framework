@@ -1188,6 +1188,9 @@ function evaluateDoctor(targetDir) {
     }
 
     const runState = readRunState(targetDir);
+    for (const finding of analyzeDurableGateArtefactConsistency(runState)) {
+      addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
+    }
     for (const finding of analyzeDeliveryMap(runState).findings) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
@@ -1419,6 +1422,38 @@ function isDurableGateArtefactSatisfied(runState, gate) {
   if (!artefact.path || isPlaceholderValue(artefact.path)) return false;
   if (gate === "QA") return artefact.status === "pass" || artefact.status === "passed";
   return artefact.status === "approved";
+}
+
+function expectedDurableArtefactStatuses(gate) {
+  return gate === "QA" ? ["pass", "passed"] : ["approved"];
+}
+
+function describeDurableArtefactStatuses(gate) {
+  return expectedDurableArtefactStatuses(gate).map((status) => `\`${status}\``).join(" or ");
+}
+
+function analyzeDurableGateArtefactConsistency(runState) {
+  const findings = [];
+
+  for (const gate of durableGateArtefacts) {
+    if (gateApprovalStatus(runState, gate) !== "approved") continue;
+
+    const artefact = gateArtefactStatus(runState, gate);
+    if (!artefact.path || isPlaceholderValue(artefact.path) || !artefact.status) continue;
+
+    const expectedStatuses = expectedDurableArtefactStatuses(gate);
+    if (expectedStatuses.includes(artefact.status)) continue;
+
+    findings.push({
+      severity: "revise",
+      code: "AGDF_GATE_ARTEFACT_STATUS_INCONSISTENT",
+      message: `${gate} approval is recorded, but the durable artefact row uses status \`${artefact.status}\`; expected ${describeDurableArtefactStatuses(gate)}.`,
+      path: runState.path,
+      next_step: `Update the ${gate} artefact row in AGDF_RUN.md to use the gate-specific durable status vocabulary.`,
+    });
+  }
+
+  return findings;
 }
 
 function isInternalStepSatisfied(runState, step) {

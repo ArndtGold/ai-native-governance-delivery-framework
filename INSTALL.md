@@ -191,6 +191,7 @@ The primary CLI package is `agdf`. Use it when command semantics matter:
 ```bash
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 ```
 
@@ -247,7 +248,7 @@ open | blocked
 
 including current gate, missing approval, allowed outputs, forbidden outputs and next allowed action.
 
-For machine-readable handoff, `gate-check --json` and `delivery-map --json` include a `status_card` projection with the current gate, allowed and forbidden actions, blocking condition, next skill, next permissible step and `quality_outlook`. The quality outlook is advisory: it names the next useful quality improvement, but it does not unlock gates or replace evidence.
+For interactive handoff, `gate-check --status-card` prints only the compact gate projection. For machine-readable handoff, `gate-check --json` and `delivery-map --json` include a `status_card` projection with the current gate, allowed and forbidden actions, blocking condition, next skill, next permissible step and `quality_outlook`. The quality outlook is advisory: it names the next useful quality improvement, but it does not unlock gates or replace evidence.
 
 These commands are not a required ritual for normal agent work when the agent can inspect the live control files directly.
 That is the control boundary: AGDF is agent-native first and CLI-verifiable by design.
@@ -359,6 +360,7 @@ Use `@agdf-gate-check` for new build/change intent or unclear approval before la
 
 ```bash
 npx --yes create-agdf@latest doctor --json
+npx --yes create-agdf@latest gate-check --status-card
 npx --yes create-agdf@latest gate-check --json
 npx --yes create-agdf@latest delivery-map --json
 ```

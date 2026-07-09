@@ -221,6 +221,7 @@ npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 ```
 
@@ -245,8 +246,8 @@ deterministischer Setup-/CI-Pfad das verlangt. Brownfield Review, spätere Gates
 bleiben trotzdem an die im Runtime Contract geforderten persistierten oder verlinkten Artefakte
 gebunden. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger,
 Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind.
-`gate-check` leitet daraus maschinenlesbar ab, ob der nächste Prozessschritt offen oder blockiert
-ist.
+`gate-check --status-card` gibt dafür eine kompakte interaktive Ansicht aus. `gate-check --json`
+bleibt der vollständige Maschinenbeweis für Automation, CI, Regressionen und Audit-Trails.
 
 `gate-check --json` und `delivery-map --json` enthalten zusätzlich eine kompakte Run Status Card.
 Sie fasst aktuelles Gate, erlaubte und verbotene Aktionen, Blocker, nächsten Skill, nächsten

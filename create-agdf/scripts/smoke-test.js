@@ -32,7 +32,7 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("--status-card") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 
@@ -345,12 +345,41 @@ run("config", [
       if (!gateCheckReport.doctor_report?.findings?.some((finding) => finding.code === "AGDF_CURRENT_GATE_MISSING")) {
         throw new Error("Gate-check should include the doctor report as evidence.");
       }
+      if (!gateCheckReport.status_card || gateCheckReport.status_card.current_gate !== "UR") {
+        throw new Error("Gate-check JSON should include the compact status_card projection.");
+      }
       if (gateCheckReport.evidence_refs.length !== 0) {
         throw new Error("Gate-check should not expose empty template evidence rows.");
       }
     }
     if (!gateCheckFailed) {
       throw new Error("Gate-check should exit non-zero when a fresh control scaffold is blocked.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-status-card-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    let failed = false;
+    try {
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8", stdio: "pipe" });
+    } catch (error) {
+      failed = true;
+      const output = error.stdout.toString();
+      if (!output.includes("AGDF status-card: blocked") || !output.includes("Current gate: UR") || !output.includes("Next step:")) {
+        throw new Error("gate-check --status-card should print compact status-card fields.");
+      }
+      if (output.includes("doctor_report") || output.includes("delivery_map")) {
+        throw new Error("gate-check --status-card must not print the full JSON report.");
+      }
+    }
+    if (!failed) {
+      throw new Error("gate-check --status-card should preserve the blocked exit code when the gate is blocked.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

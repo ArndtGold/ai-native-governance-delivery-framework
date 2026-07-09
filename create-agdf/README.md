@@ -16,6 +16,7 @@ npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 ```
 
@@ -145,6 +146,8 @@ npx --yes create-agdf@latest gate-check --json
 ```
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
+
+Use `gate-check --status-card` for compact interactive output, especially in OpenCode where shell output is highly visible. Keep `gate-check --json` for automation, CI, regression evidence and audit trails.
 
 `gate-check --json` and `delivery-map --json` also expose a `status_card` object. It is a compact projection of the current control state: current gate, allowed and forbidden actions, blocker, next skill, next permissible step and `quality_outlook`. `next_step` is process permission; `quality_outlook` is the next meaningful quality-improvement focus and does not unlock gates.
 

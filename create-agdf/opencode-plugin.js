@@ -50,7 +50,7 @@ export const AGDFPlugin = async ({ directory, client }) => {
         "## AGDF Runtime Reminder",
         "Use `.opencode/AGDF.md`, `.opencode/agents/` and `.agdf/control/` as the AGDF source for this OpenCode session.",
         "For new build/change intent or unclear approval, route first to `agdf-gate-check` before later artefacts or implementation.",
-        "Use `npx --yes @agdf/cli@latest gate-check --json` only as deterministic proof, not as a replacement for AGDF judgement.",
+        "Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
       ].join("\n"));
     },
   };

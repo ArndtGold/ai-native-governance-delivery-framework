@@ -196,6 +196,7 @@ function writeCopilotInstructions() {
     "- Do not infer gate approval from generic consent such as \"ok\", \"go ahead\", \"do it\", \"continue\", \"leg los\" or \"approved\".",
     "- Do not treat chat history as the source of truth for gate state, approvals, evidence or delivery status.",
     "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
+    "- For interactive checks, prefer `npx --yes @agdf/cli@latest gate-check --status-card`. Use `gate-check --json` for automation or audit evidence and summarize the status card instead of mirroring full JSON into chat.",
     "",
   ];
 
@@ -291,6 +292,7 @@ function writeOpenCodeReadme(skillSlugs) {
     "- These files intentionally do not install OpenCode Skills under `.opencode/skills/`; the AGDF agents are background workflow controls, not primary menu agents.",
     "- Use `@agdf-gate-check` as the visible entry point for new build/change intent or unclear approval.",
     "- Use `npx --yes @agdf/cli@latest opencode-status --json` to distinguish global hook configuration, package loadability, session activity and this repository surface.",
+    "- Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive gate state; reserve full `--json` output for automation or audit evidence.",
     "- `.opencode/agdf-runtime-contract.md` is the shared gate and output contract.",
     "",
     "## Agents",

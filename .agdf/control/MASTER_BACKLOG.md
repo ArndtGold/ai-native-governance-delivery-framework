@@ -22,6 +22,7 @@
 
 | Key | Work item | Final status | Historical record | Outcome |
 |---|---|---|---|---|
+| `opencode-compact-gate-output` | Make AGDF gate/status output compact for interactive OpenCode use | Completed | [OR](artefacts/opencode-compact-gate-output/OR.md) | Quick task completed; compact status-card output implemented and focused checks passed on 2026-07-09 |
 | `opencode-global-install-visibility` | Make OpenCode global AGDF install visibly checkable | Completed | [OR](artefacts/opencode-global-install-visibility/OR.md) | Quick task completed; OpenCode global install/status visibility implemented and focused checks passed on 2026-07-09 |
 | `fresh-request-control-state-docs` | Clarify fresh request vs durable control state documentation | Completed | [Brownfield Review](artefacts/fresh-request-control-state-docs/BROWNFIELD_REVIEW.md) | Quick task completed; user docs clarified and review returned no findings on 2026-07-09 |
 | `master-backlog-human-readable` | Make the Master Backlog human-readable with compact status labels and Markdown links | Completed | [OR](artefacts/master-backlog-human-readable/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09 |

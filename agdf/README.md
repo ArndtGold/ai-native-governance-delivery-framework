@@ -37,6 +37,7 @@ shell command on your machine:
 npm install -g @agdf/cli
 agdf init
 agdf doctor
+agdf gate-check --status-card
 agdf gate-check --json
 ```
 
@@ -50,7 +51,7 @@ Use it to:
 
 - install AGDF instructions and skills into a target repository
 - initialize durable `.agdf/control` state when a repository should own it
-- run deterministic validators such as `doctor` and `gate-check --json`
+- run compact interactive checks such as `gate-check --status-card` and deterministic validators such as `doctor` and `gate-check --json`
 - prepare Codex, GitHub Copilot and OpenCode surfaces from the same source of
   truth while keeping Claude Code installation explicitly separate
 
@@ -83,6 +84,7 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `config --language de\|en` | Persist the project language without creating the full control scaffold. |
 | `doctor [--json]` | Check whether the durable control state is consistent and actionable. |
 | `gate-check [--json]` | Report the current gate, blockers and next permitted action. |
+| `gate-check --status-card` | Print compact interactive gate status without full JSON. |
 | `delivery-map [--json]` | Report artefact relationships, evidence, risks and Context Graph effects. |
 
 Examples:
@@ -94,6 +96,7 @@ npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest doctor
+npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 npx --yes @agdf/cli@latest delivery-map --json
 ```

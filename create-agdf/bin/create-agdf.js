@@ -195,6 +195,7 @@ Options:
                  Set AGDF chat and artefact language. Defaults to detected system locale.
   --lang <de|en> Alias for --language
   --json         Print doctor, gate-check or delivery-map output as JSON
+  --status-card  Print compact gate-check status-card output for interactive use
   --help         Show this help
 `);
 }
@@ -256,6 +257,7 @@ function parseArgs(argv) {
   let dir = ".";
   let force = false;
   let json = false;
+  let statusCard = false;
   let language;
   let dirExplicit = false;
 
@@ -275,6 +277,11 @@ function parseArgs(argv) {
 
     if (arg === "--json") {
       json = true;
+      continue;
+    }
+
+    if (arg === "--status-card") {
+      statusCard = true;
       continue;
     }
 
@@ -337,6 +344,7 @@ function parseArgs(argv) {
     dir: resolve(process.cwd(), dir),
     force,
     json,
+    statusCard,
     dirExplicit,
     language: resolveLanguagePreference(language),
   };
@@ -1825,9 +1833,27 @@ function evaluateGateCheck(targetDir) {
   };
 }
 
-function printGateCheckReport(report, json) {
+function printGateCheckStatusCard(report) {
+  const card = report.status_card;
+  console.log(`AGDF status-card: ${card.status}`);
+  console.log(`Current gate: ${card.current_gate}`);
+  console.log(`Blocked by: ${card.blocking_condition}`);
+  console.log(`Missing approval: ${card.missing_approval}`);
+  console.log(`Next skill: ${card.next_skill}`);
+  console.log(`Next step: ${card.next_step}`);
+  console.log(`Quality outlook: ${card.quality_outlook}`);
+  if (card.allowed_now.length > 0) console.log(`Allowed now: ${card.allowed_now.join("; ")}`);
+  if (card.forbidden_now.length > 0) console.log(`Forbidden now: ${card.forbidden_now.join("; ")}`);
+}
+
+function printGateCheckReport(report, json, statusCard = false) {
   if (json) {
     console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  if (statusCard) {
+    printGateCheckStatusCard(report);
     return;
   }
 
@@ -1941,7 +1967,7 @@ function main() {
 
   if (options.target === "gate-check") {
     const report = evaluateGateCheck(options.dir);
-    printGateCheckReport(report, options.json);
+    printGateCheckReport(report, options.json, options.statusCard);
     process.exit(report.status === "blocked" ? 2 : 0);
   }
 

@@ -117,6 +117,7 @@ Keep the active work item traceable. A gate may open only when the previous gate
 
 - context_graph_impact: `none | link_only | update_existing_node | new_node_required | sot_drift`
 - context_graph_refs:
+- context_graph_reconciliation: `resolved | not_applicable | open_gap`
 - context_graph_required_action: `none | link | update | create | resolve_drift`
 - context_graph_gate_effect: `none | warning | revise | block`
 - context_graph_evidence:

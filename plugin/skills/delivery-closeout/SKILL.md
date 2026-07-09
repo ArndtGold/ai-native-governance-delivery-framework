@@ -32,6 +32,7 @@ Use `../../meta/agdf-runtime-contract.md` for closeout discipline, gate terms, C
 4. `Approval: UAT` unlocks an active commit offer when code changes exist.
 5. No commit handoff for runs without code changes.
 6. Always include exactly one next step and one quality outlook.
+7. If OR, QA or current run state reports `context_graph_reconciliation: open_gap`, do not provide a clean commit-ready handoff; set the next step to resolve or explicitly retain the Context Graph gap.
 
 ## When To Use
 - after `QA pass` with code changes
@@ -62,8 +63,10 @@ If code-change status is unclear, do not claim a commit handoff.
    - `uat_approved_with_code`
    - `uat_approved_without_code`
    - `non_delivery_closeout`
-2. Derive Git handoff only when code changes exist.
-3. Set exactly one next delivery step:
+2. Check Context Graph reconciliation from OR, QA, review and current run state.
+3. If reconciliation is `open_gap`, report the delivery status as not cleanly handoff-ready and do not derive commit-ready Git text.
+4. Derive Git handoff only when code changes exist and no unresolved Context Graph gap remains.
+5. Set exactly one next delivery step:
    - offer commit
    - offer push
    - offer PR
@@ -71,13 +74,15 @@ If code-change status is unclear, do not claim a commit handoff.
    - run QA/review
    - obtain UAT/approval
    - perform documentation follow-up
-4. Set quality outlook:
+   - resolve Context Graph gap
+6. Set quality outlook:
    - no further technical follow-up
    - more tests
    - refactoring
    - documentation sharpening
    - monitoring/runtime verification
-5. If `Approval: UAT` exists and code changes were delivered, actively offer the commit but do not run it.
+   - Context Graph reconciliation
+7. If `Approval: UAT` exists, code changes were delivered, and no Context Graph gap remains, actively offer the commit but do not run it.
 
 ## Output
 For code-changing runs:

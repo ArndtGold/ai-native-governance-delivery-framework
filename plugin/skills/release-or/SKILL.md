@@ -44,6 +44,8 @@ Use the Runtime Contract definition of `Relevant Run` to decide whether OR is ma
 10. `CD+Tests` is not completion.
 11. When moving a backlog item to Completed or Superseded, use the canonical human-readable table and link the final OR with a document-relative Markdown link.
 12. Keep machine status normalization in the CLI; do not write internal snake_case status values into the human-facing backlog.
+13. Reconcile Context Graph impact before clean closeout: report `context_graph_reconciliation: resolved | not_applicable | open_gap`.
+14. If Context Graph work remains unresolved, report it as an explicit open gap and do not describe the run as cleanly handoff-ready.
 
 ## When To Use
 - at the end of every relevant run
@@ -89,10 +91,11 @@ If information is missing, state the gap instead of guessing.
 6. Summarize Brownfield fit and solution integrity if reviewed.
 7. Summarize tests and verification.
 8. Summarize documentation and Context Graph impact if relevant.
-9. Name retained fallbacks and exit criteria.
-10. Set exactly one next permissible step.
-11. Set exactly one quality outlook.
-12. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
+9. Record Context Graph reconciliation as `resolved`, `not_applicable`, or `open_gap`.
+10. Name retained fallbacks and exit criteria.
+11. Set exactly one next permissible step.
+12. Set exactly one quality outlook.
+13. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
 
 ## Output
 Use a compact structure:
@@ -114,6 +117,7 @@ Use a compact structure:
 ```
 
 When Context Graph impact is relevant, include the fields from `../../meta/agdf-runtime-contract.md`.
+Include `context_graph_reconciliation` whenever Context Graph impact is present. If the value is `open_gap`, required next step must resolve or explicitly retain that gap before commit-ready or release-ready handoff.
 
 ## Forbidden
 This skill must not:

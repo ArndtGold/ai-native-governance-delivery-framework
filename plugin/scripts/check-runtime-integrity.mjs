@@ -21,6 +21,7 @@ const pagesSiteDataPath = join(repoRoot, "pages", "src", "data", "site.ts");
 const pagesSkillsPath = join(repoRoot, "pages", "src", "data", "skills.ts");
 const pagesIndexPath = join(repoRoot, "pages", "src", "pages", "index.astro");
 const syncPackageAssetsPath = join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js");
+const activeRunStatePath = join(repoRoot, ".agdf", "control", "AGDF_RUN.md");
 const controlRoot = join(pluginRoot, "control");
 const skillRoot = join(pluginRoot, "skills");
 
@@ -101,6 +102,42 @@ function stripAllowedGerman(content) {
 
 function sectionAfterHeading(content, heading) {
   return content.match(new RegExp(`## ${heading}\\r?\\n([\\s\\S]*?)(?=\\r?\\n## )`))?.[1] ?? "";
+}
+
+function fieldValue(content, field) {
+  return content.match(new RegExp(`^- ${field}:\\s*(.*)$`, "m"))?.[1]?.trim() ?? "";
+}
+
+function noneLike(value) {
+  const normalized = value.replaceAll("`", "").trim().toLowerCase();
+  return normalized === "" || normalized === "none" || normalized === "none yet" || normalized === "n/a";
+}
+
+function hasPendingContextGraphAction(value) {
+  const normalized = value.replaceAll("`", "").toLowerCase();
+  return /\b(link|update|create|resolve_drift|promote|reassess)\b/.test(normalized) || normalized.includes("after uat");
+}
+
+function assertContextGraphReconciliation(label, content, { allowTemplatePlaceholders = false } = {}) {
+  const impact = fieldValue(content, "context_graph_impact");
+  const refs = fieldValue(content, "context_graph_refs");
+  const reconciliation = fieldValue(content, "context_graph_reconciliation").replaceAll("`", "").trim();
+  const requiredAction = fieldValue(content, "context_graph_required_action");
+
+  if (!content.includes("context_graph_reconciliation")) {
+    failures.push(`${label} missing context_graph_reconciliation`);
+    return;
+  }
+
+  if (allowTemplatePlaceholders && reconciliation.includes("|")) return;
+
+  if (hasPendingContextGraphAction(requiredAction) && noneLike(refs) && reconciliation !== "open_gap") {
+    failures.push(`${label} has pending Context Graph action without concrete refs or open_gap reconciliation`);
+  }
+
+  if (reconciliation === "resolved" && noneLike(refs) && impact.replaceAll("`", "").trim() !== "none") {
+    failures.push(`${label} marks Context Graph reconciliation resolved without concrete refs`);
+  }
 }
 
 function assertFile(path, label) {
@@ -546,9 +583,10 @@ const backlogTemplatePath = join(controlRoot, "templates", "MASTER_BACKLOG.md");
 
 if (isFile(runTemplatePath)) {
   const runTemplate = read(runTemplatePath);
-  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "transparency_note", "Artefact Chain", "context_graph_impact", "quality_outlook"]) {
+  for (const required of ["current_gate", "next allowed action", "Missing Evidence", "Mode / Slice Decision", "transparency_note", "Artefact Chain", "context_graph_impact", "context_graph_reconciliation", "quality_outlook"]) {
     if (!runTemplate.includes(required)) failures.push(`AGDF_RUN.md missing control field: ${required}`);
   }
+  assertContextGraphReconciliation("AGDF_RUN.md template", runTemplate, { allowTemplatePlaceholders: true });
   const runStatusCard = sectionAfterHeading(runTemplate, "Run Status Card");
   for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
     if (!runStatusCard.includes(`| ${label} |`)) failures.push(`AGDF_RUN.md Run Status Card missing readable label: ${label}`);
@@ -615,9 +653,36 @@ if (isFile(brownfieldReviewTemplatePath)) {
 
 if (isFile(orTemplatePath)) {
   const orTemplate = read(orTemplatePath);
-  for (const required of ["Report mode", "OR-lite | OR-full", "Next Permissible Step", "Context Graph Impact", "OR does not approve later gates"]) {
+  for (const required of ["Report mode", "OR-lite | OR-full", "Next Permissible Step", "Context Graph Impact", "context_graph_reconciliation", "OR does not approve later gates"]) {
     if (!orTemplate.includes(required)) failures.push(`OR.md missing control field: ${required}`);
   }
+  assertContextGraphReconciliation("OR.md template", orTemplate, { allowTemplatePlaceholders: true });
+}
+
+if (isFile(activeRunStatePath)) {
+  assertContextGraphReconciliation(".agdf/control/AGDF_RUN.md", read(activeRunStatePath));
+}
+
+assertContextGraphReconciliation("Context Graph open-gap fixture", [
+  "- context_graph_impact: link_only",
+  "- context_graph_refs: none",
+  "- context_graph_reconciliation: open_gap",
+  "- context_graph_required_action: promote after UAT",
+].join("\n"));
+
+const fixtureFailureCount = failures.length;
+assertContextGraphReconciliation("Context Graph invalid fixture", [
+  "- context_graph_impact: link_only",
+  "- context_graph_refs: none",
+  "- context_graph_reconciliation: not_applicable",
+  "- context_graph_required_action: promote after UAT",
+].join("\n"));
+const invalidFixtureFailure = failures.pop();
+if (!invalidFixtureFailure?.includes("Context Graph invalid fixture")) {
+  failures.push("Context Graph invalid fixture did not fail as expected");
+}
+if (failures.length !== fixtureFailureCount) {
+  failures.push("Context Graph invalid fixture changed unrelated failure state");
 }
 
 const qualityContracts = isFile(qualityContractsPath) ? readJson(qualityContractsPath, "AGDF control quality contracts") : null;

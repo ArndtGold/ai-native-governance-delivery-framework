@@ -45,6 +45,19 @@ Use it to:
 - prepare Codex, GitHub Copilot and OpenCode surfaces from the same source of
   truth while keeping Claude Code installation explicitly separate
 
+## Durable Control State
+
+When a repository owns live AGDF control state,
+`.agdf/control/MASTER_BACKLOG.md` is its human-readable steering view. It links
+active work to the current UR, Brownfield Review, PRD, SD, TP, QA and OR
+artefacts without turning the backlog into a second specification.
+
+- [View the canonical Master Backlog template](https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/plugin/control/templates/MASTER_BACKLOG.md)
+- [Read the durable control-state guide](https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/plugin/control/README.md)
+
+Each repository maintains its own live backlog. The linked template is the
+authoritative reusable format, not AGDF's internal project backlog.
+
 ## Commands
 
 | Command | Purpose |

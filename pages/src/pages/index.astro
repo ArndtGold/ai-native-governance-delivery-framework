@@ -767,15 +767,30 @@ const projectStats = await getProjectStats()
       </div>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["AGDF_RUN", "current gate, missing approval, allowed and forbidden actions"],
-          ["MASTER_BACKLOG", "living pointer to active UR, PRD, SD, TP, QA and OR artefacts"],
-          ["CONTEXT_GRAPH", "durable Brownfield findings, risks, decisions and evidence"],
-          ["OR", "audit closeout: changed, not changed, open gaps and next allowed step"],
-        ].map(([name, desc]) => (
-          <div class="rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.10),rgba(15,23,42,0.22))] p-4 shadow-[0_18px_58px_-38px_rgba(34,211,238,0.55),0_1px_0_rgba(255,255,255,0.12)_inset]">
-            <div class="font-mono text-xs font-bold text-cyan-100">{name}</div>
-            <p class="mt-2 text-xs leading-relaxed text-dark-300">{desc}</p>
-          </div>
+          { name: "AGDF_RUN", desc: "current gate, missing approval, allowed and forbidden actions" },
+          {
+            name: "MASTER_BACKLOG",
+            desc: "living pointer to active UR, PRD, SD, TP, QA and OR artefacts",
+            href: "https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/plugin/control/templates/MASTER_BACKLOG.md",
+          },
+          { name: "CONTEXT_GRAPH", desc: "durable Brownfield findings, risks, decisions and evidence" },
+          { name: "OR", desc: "audit closeout: changed, not changed, open gaps and next allowed step" },
+        ].map(({ name, desc, href }) => (
+          href ? (
+            <a href={href} target="_blank" rel="noreferrer" aria-label="View the canonical Master Backlog template on GitHub" class="group rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.10),rgba(15,23,42,0.22))] p-4 shadow-[0_18px_58px_-38px_rgba(34,211,238,0.55),0_1px_0_rgba(255,255,255,0.12)_inset] transition-colors hover:border-cyan-200/50">
+              <div class="flex items-center justify-between gap-3 font-mono text-xs font-bold text-cyan-100">
+                <span>{name}</span>
+                <span aria-hidden="true" class="text-cyan-200/60 transition-transform group-hover:translate-x-0.5">↗</span>
+              </div>
+              <p class="mt-2 text-xs leading-relaxed text-dark-300">{desc}</p>
+              <span class="mt-3 inline-block text-xs font-medium text-cyan-100/80">View template</span>
+            </a>
+          ) : (
+            <div class="rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.10),rgba(15,23,42,0.22))] p-4 shadow-[0_18px_58px_-38px_rgba(34,211,238,0.55),0_1px_0_rgba(255,255,255,0.12)_inset]">
+              <div class="font-mono text-xs font-bold text-cyan-100">{name}</div>
+              <p class="mt-2 text-xs leading-relaxed text-dark-300">{desc}</p>
+            </div>
+          )
         ))}
       </div>
     </div>

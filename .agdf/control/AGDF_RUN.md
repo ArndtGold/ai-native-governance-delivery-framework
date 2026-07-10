@@ -20,10 +20,10 @@ checkout.
 
 | Question | Answer |
 |---|---|
-| What is known? | Implementation done and verified. A simulated union merge (`git merge-file --union`) confirmed exit code 0 (no blocking conflict) but revealed a real caveat: `doctor`'s regex-based field extraction reads only the first match, so it silently ignores a duplicated `current_gate` line rather than flagging it — the README bullet was corrected mid-run to state this honestly instead of overclaiming full protection. Separately and NOT caused by this run: `check-runtime-integrity.mjs` currently fails (Codex/Claude plugin manifest descriptions out of sync with the canonical definition) — confirmed via `git stash` to already exist at bare commit `5292f62`, the external commit from the other machine. |
-| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified. |
-| What is missing? | Nothing for this run's approved scope. The pre-existing, unrelated `check-runtime-integrity.mjs` failure from commit `5292f62` is a separate open issue, not part of this run. |
-| What is the next allowed action? | Offer delivery closeout for this run; separately, decide whether to open a new UR for the pre-existing plugin-manifest drift. |
+| What is known? | Implementation done and verified. A simulated union merge (`git merge-file --union`) confirmed exit code 0 (no blocking conflict) but revealed a real caveat: `doctor`'s regex-based field extraction reads only the first match, so it silently ignores a duplicated `current_gate` line rather than flagging it — the README bullet was corrected mid-run to state this honestly instead of overclaiming full protection. A separate plugin-manifest drift first observed around external commit `5292f62` has since been fixed and closed under `plugin-manifest-drift-5292f62`. |
+| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified. The later plugin-manifest drift fix was completed as a targeted follow-up after direct user instruction. |
+| What is missing? | Nothing for this run's approved scope. |
+| What is the next allowed action? | Offer delivery closeout; commit/push require separate explicit instruction. |
 | What is explicitly forbidden right now? | Changing anything beyond `.gitattributes` and the `plugin/control/README.md` bullet under this run's scope. |
 
 ## Prior Run Pointers
@@ -42,7 +42,7 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Allowed now | Delivery closeout handoff |
 | Blocked by | none |
 | Missing approval | none |
-| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction. Separately flag the pre-existing, unrelated `check-runtime-integrity.mjs` failure from commit `5292f62` |
+| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction |
 | Quality outlook | Chose git's built-in `union` driver over a custom `ours` driver to avoid an undocumented, easy-to-skip local setup step; corrected the README wording mid-run once testing showed `doctor` cannot detect the duplicated-line case by itself |
 
 ## Approvals
@@ -98,7 +98,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | `.gitattributes` added, propagation confirmed | New file `.gitattributes` (`.agdf/control/AGDF_RUN.md merge=union`); `plugin/control/README.md` Operating Rules bullet added and found in `create-agdf/generated/.agdf/control/README.md` and `create-agdf/generated/plugins/agdf/control/README.md` after `sync-package-assets` | Delivers UR Scope items 1-2 | direct |
 | Union merge simulation | `git merge-file --union merged.md base.md theirs.md` with conflicting `current_gate` lines → exit code 0 (no blocking conflict), but result kept both lines (`current_gate: QA` and `current_gate: CR`) side by side | Confirms Acceptance Signal "resolves without a blocking conflict"; confirms the "garbled" risk is real | direct |
 | `doctor` blind spot on duplication | Regex test (`content.match(/^- current_gate:.../m)`) against the duplicated-line result returned only the first value (`"QA"`), silently ignoring the second line | Confirms `doctor` alone will not catch this specific duplication class; corrected the README wording to say this honestly instead of overclaiming | direct |
-| Runtime integrity: my change is clean | `node plugin/scripts/check-runtime-integrity.mjs` after this run's changes still fails with the *same* 5 findings as with this run's changes stashed out (`git stash` test against bare commit `5292f62`) | Confirms the failure is pre-existing and unrelated to this run, not introduced by it | direct |
+| Runtime integrity: merge-strategy change was isolated | Earlier comparison showed the manifest-description failure was pre-existing and unrelated to the merge-strategy files. The separate manifest drift has since been fixed and `node plugin/scripts/check-runtime-integrity.mjs` now passes. | Confirms the merge-strategy run did not introduce the drift and the follow-up closed it | direct |
 | No regression | `create-agdf/scripts/test-routing.js` passed | No regression from `.gitattributes`/README changes | direct |
 
 ## Missing Evidence
@@ -106,7 +106,6 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Missing evidence | Impact | Required next step |
 |---|---|---|
 | none for this run's scope | none | none |
-| Root cause and fix for the pre-existing `check-runtime-integrity.mjs` failure (commit `5292f62`) | warn, unrelated to this run | Separate UR if the user wants it addressed now |
 
 ## Risks
 
@@ -114,7 +113,6 @@ Valid approval format for new runs: `Approval: <GateName>`.
 |---|---|---|
 | ~~`merge=ours` could silently discard a more-current incoming run state~~ avoided | none | Rejected `ours`; chose `union`, which keeps both sides rather than discarding either |
 | `union` can leave duplicated/conflicting lines that `doctor` alone will not detect (confirmed: it reads only the first regex match per field) | warn | README bullet now explicitly instructs a visual skim in addition to `doctor`/`gate-check` after a merge |
-| Pre-existing, unrelated `check-runtime-integrity.mjs` failure from commit `5292f62` (plugin manifest descriptions out of sync with canonical definition) | warn | Not this run's scope; flagged to the user for a separate decision |
 
 ## Context Graph Impact
 
@@ -147,18 +145,16 @@ Valid approval format for new runs: `Approval: <GateName>`.
   union-merge test confirming no blocking conflict; honest correction of the README wording once
   testing showed `doctor` cannot detect simple line-duplication by itself.
 - not_delivered: Any change to `agdf-runtime-contract.md`, skills, `doctor` logic, or CI workflow —
-  confirmed unnecessary. Fix for the pre-existing, unrelated `check-runtime-integrity.mjs` failure
-  (commit `5292f62`) — out of this run's scope, flagged separately to the user.
+  confirmed unnecessary. The pre-existing, unrelated `check-runtime-integrity.mjs` failure
+  (commit `5292f62`) was later fixed and closed under `plugin-manifest-drift-5292f62`.
 - verification_performed: `git merge-file --union` simulation (exit 0, duplicated-line result
   inspected); regex test confirming `doctor`'s single-match blind spot;
-  `node plugin/scripts/check-runtime-integrity.mjs` (same pre-existing 5 findings with and without this
-  run's changes, via `git stash`); `sync-package-assets` + propagation grep;
+  `node plugin/scripts/check-runtime-integrity.mjs` comparison during this run; later follow-up
+  `node plugin/scripts/check-runtime-integrity.mjs` pass after manifest drift fix; `sync-package-assets` + propagation grep;
   `create-agdf/scripts/test-routing.js` passed.
 - unverified: Real-world behavior under an actual concurrent `git merge` from two live clones (only
   simulated via `merge-file --union`, not a full two-clone rehearsal).
 - next_allowed_action: Offer delivery closeout; commit/push require separate explicit instruction.
-  Separately: decide whether to open a new UR for the pre-existing plugin-manifest drift from commit
-  `5292f62`.
 - quality_outlook: The mid-run correction (from overclaiming `doctor` catches all union-merge damage, to
   honestly stating its blind spot) is itself the strongest evidence this run behaved with the rigor it
   is supposed to protect.

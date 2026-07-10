@@ -69,11 +69,13 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
   const publishWorkflowPath = fileURLToPath(new URL("../.github/workflows/publish-agdf.yml", packageRoot));
   const publishWorkflow = readFileSync(publishWorkflowPath, "utf8");
   for (const requiredSnippet of [
-    "Wait for npm package readiness",
-    "PACKAGES=(\"create-agdf\" \"@agdf/cli\")",
+    "Wait for create-agdf readiness",
+    "Wait for @agdf/cli readiness",
     "MAX_ATTEMPTS=20",
     "SLEEP_SECONDS=15",
     "NPM_ERROR_LOG=\"$(mktemp)\"",
+    "wait_for_npm_package \"create-agdf\"",
+    "wait_for_npm_package \"@agdf/cli\"",
     "npm view \"${PACKAGE}@${VERSION}\" version --json",
     "Timed out waiting for ${PACKAGE}@${VERSION} after ${MAX_ATTEMPTS} attempts",
   ]) {
@@ -81,9 +83,10 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
       throw new Error(`Publish workflow must keep bounded exact-version npm readiness check: missing ${requiredSnippet}`);
     }
   }
-  if (publishWorkflow.indexOf("Publish create-agdf to npm") > publishWorkflow.indexOf("Wait for npm package readiness")
-    || publishWorkflow.indexOf("Publish @agdf/cli to npm") > publishWorkflow.indexOf("Wait for npm package readiness")) {
-    throw new Error("Publish workflow must wait for npm readiness only after both package publish steps.");
+  if (!(publishWorkflow.indexOf("Publish create-agdf to npm") < publishWorkflow.indexOf("Wait for create-agdf readiness")
+    && publishWorkflow.indexOf("Wait for create-agdf readiness") < publishWorkflow.indexOf("Publish @agdf/cli to npm")
+    && publishWorkflow.indexOf("Publish @agdf/cli to npm") < publishWorkflow.indexOf("Wait for @agdf/cli readiness"))) {
+    throw new Error("Publish workflow must wait for create-agdf readiness before publishing @agdf/cli, then wait for @agdf/cli readiness.");
   }
 }
 

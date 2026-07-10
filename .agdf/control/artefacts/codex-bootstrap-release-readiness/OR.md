@@ -16,7 +16,7 @@ The delivery slice passed QA and received `Approval: UAT` on 2026-07-10. The imp
 - Codex global bootstrap now refreshes the AGDF marketplace before plugin add and verifies the installed `agdf@agdf` version against the expected plugin definition version.
 - Claude Code global bootstrap now uses supported marketplace add/update plus `plugin install agdf@agdf` or `plugin update agdf@agdf`; it verifies version when exposed and reports a clear limitation when not exposed.
 - Copilot repository bootstrap can rerun safely by refreshing AGDF-owned generated files, preserving existing language config, preserving user-owned root `AGENTS.md`, and refreshing `AGENTS.agdf.md`.
-- The publish workflow now waits after both publish steps until `create-agdf@<version>` and `@agdf/cli@<version>` are resolvable from npm, bounded by retry limits and actionable diagnostics.
+- The publish workflow now waits until `create-agdf@<version>` is resolvable from npm before publishing `@agdf/cli`, then waits until `@agdf/cli@<version>` is resolvable, bounded by retry limits and actionable diagnostics.
 - Focused smoke coverage now verifies global CLI command sequences, version mismatch behavior, Copilot rerun ownership and publish workflow readiness shape.
 
 ## Intentionally Not Delivered
@@ -42,12 +42,12 @@ The delivery slice passed QA and received `Approval: UAT` on 2026-07-10. The imp
 
 ## Missing Evidence
 
-- The new GitHub Actions npm readiness step has not run in a live tagged publish workflow. It is statically covered by smoke tests and should be observed on the next release.
+- The new GitHub Actions npm readiness sequence has not run in a live tagged publish workflow. It is statically covered by smoke tests and should be observed on the next release.
 
 ## Risks
 
 - Codex and Claude Code CLI list output can evolve. The parser is intentionally tolerant and covered by stubbed executable tests, but future CLI output changes may require adapter adjustment.
-- npm readiness polling proves exact version resolvability after publish; it does not change npm propagation behavior.
+- npm readiness polling proves exact version resolvability before publishing the dependent wrapper and after publishing the wrapper; it does not change npm propagation behavior.
 
 ## Retained Fallbacks
 
@@ -68,4 +68,4 @@ Explicit user instruction is required for any Git operation. Recommended next op
 
 ## Quality Outlook
 
-No further technical follow-up is required for the approved implementation scope before commit. Release-time observation of the npm readiness step remains useful on the next tagged publish.
+No further technical follow-up is required for the approved implementation scope before commit. Release-time observation of the npm readiness sequence remains useful on the next tagged publish.

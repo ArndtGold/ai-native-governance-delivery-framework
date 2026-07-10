@@ -17,7 +17,7 @@
 | T05 | completed | Copilot rerun refreshes AGDF-owned generated files, preserves existing `.agdf/control/config.json`, preserves user-owned root `AGENTS.md`, and refreshes `AGENTS.agdf.md`. |
 | T06 | completed | Root `AGENTS.md` refresh occurs only when canonical AGDF ownership markers are present; user-owned or ambiguous root files are preserved. |
 | T07 | completed | `assertGeneratedWritePlan` checks generated writes before writing, preventing partial updates from blocked overwrite cases. |
-| T08 | completed | `.github/workflows/publish-agdf.yml` now waits after both publish steps for exact `create-agdf@<version>` and `@agdf/cli@<version>` npm resolvability with bounded attempts and diagnostics. |
+| T08 | completed | `.github/workflows/publish-agdf.yml` now waits for exact `create-agdf@<version>` npm resolvability before publishing `@agdf/cli`, then waits for exact `@agdf/cli@<version>` resolvability with bounded attempts and diagnostics. |
 | T09 | completed | Existing `sync-package-assets` path remains the source for generated package content; smoke test ran through that sync path. |
 | T10 | completed | CLI output names verified versions, Claude verification limitation, refreshed files and preserved files; smoke tests assert key diagnostics. |
 
@@ -27,7 +27,7 @@
 |---|---|
 | `create-agdf/bin/create-agdf.js` | Added Codex/Claude refresh and version checks, conservative Copilot ownership handling, precomputed write-plan validation and clearer generated/preserved output. |
 | `create-agdf/scripts/smoke-test.js` | Added fake Codex/Claude executable tests, Copilot rerun ownership fixtures and publish workflow readiness assertions. |
-| `.github/workflows/publish-agdf.yml` | Added bounded post-publish npm readiness polling for both packages. |
+| `.github/workflows/publish-agdf.yml` | Added bounded npm readiness polling after `create-agdf` publish and before `@agdf/cli` publish, plus final `@agdf/cli` readiness polling. |
 
 ## Validation
 
@@ -42,7 +42,8 @@
 ## Known Limits
 
 - Real Codex and Claude Code CLI output can evolve. Parsing is intentionally tolerant and tests use stubbed executables rather than private cache paths.
-- The GitHub Actions publish polling step is validated statically through smoke coverage; it was not executed against a live release in this implementation.
+- The GitHub Actions publish polling steps are validated statically through smoke coverage; they were not executed against a live release in this implementation.
+- A live 0.4.5 publish attempt exposed that waiting only after both packages are published is too late; T08 was corrected to gate `@agdf/cli` publication on `create-agdf` exact-version readiness.
 
 ## Required Next Step
 

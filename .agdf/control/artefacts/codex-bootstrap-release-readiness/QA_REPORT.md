@@ -10,8 +10,8 @@
 
 - decision: pass
 - evidence: TP coverage complete for T01-T10; Brownfield Analysis passed; Clean Implementation Review passed; Code Review passed with no findings; required validation passed.
-- missing_evidence: live GitHub Actions execution of the post-publish npm readiness step
-- risks: Codex and Claude Code CLI list output may evolve; implementation uses tolerant parsing and focused stub coverage. Publish readiness was validated statically and should be proven by the next real tagged publish run.
+- missing_evidence: live GitHub Actions execution of the npm readiness steps
+- risks: Codex and Claude Code CLI list output may evolve; implementation uses tolerant parsing and focused stub coverage. Publish readiness was validated statically and should be proven by the next real tagged publish run. The 0.4.5 publish observation showed that the readiness check must gate `@agdf/cli` publication on `create-agdf` readiness, which is now reflected in the workflow and smoke assertions.
 - required_next_step: Request `Approval: UAT` before delivery closeout, commit, push, PR, release, tag or publish.
 - impact_codes: none
 
@@ -34,4 +34,4 @@
 
 ## QA Decision Rationale
 
-QA passes because the approved task plan is fully covered by implementation evidence, focused smoke tests, runtime integrity checks and reviews. The remaining live-release evidence is correctly classified as residual release-time evidence rather than an implementation blocker because the workflow cannot be executed locally without publishing.
+QA passes because the approved task plan is fully covered by implementation evidence, focused smoke tests, runtime integrity checks and reviews. The remaining live-release evidence is correctly classified as residual release-time evidence rather than an implementation blocker because the workflow cannot be executed locally without publishing. The release-readiness implementation now prevents the observed dependency gap by waiting for `create-agdf` before publishing `@agdf/cli`.

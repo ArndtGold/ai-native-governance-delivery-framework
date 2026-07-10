@@ -11,7 +11,7 @@
 | T05 | fully_done | Copilot rerun fixtures show generated files refresh, config language is preserved, user root `AGENTS.md` is preserved and fragment is refreshed. | none | none |
 | T06 | fully_done | AGDF-owned root `AGENTS.md` fixture refreshes root file without creating a fragment; user-owned fixture preserves root file. | none | none |
 | T07 | fully_done | `assertGeneratedWritePlan` precomputes blocked writes before writes; existing smoke fixtures exercise allowed reruns. | none | none |
-| T08 | fully_done | Publish workflow includes bounded post-publish npm readiness polling for `create-agdf` and `@agdf/cli`; smoke test asserts exact snippets and ordering. | Live GitHub Actions execution not performed. | QA should note static-only workflow validation. |
+| T08 | fully_done | Publish workflow waits for `create-agdf` readiness before publishing `@agdf/cli`, then waits for `@agdf/cli` readiness; smoke test asserts exact snippets and ordering. | Live GitHub Actions execution not performed. | QA should note static-only workflow validation. |
 | T09 | fully_done | `npm --prefix create-agdf run smoke-test` ran `sync-package-assets` before smoke and routing tests. | none | none |
 | T10 | fully_done | Smoke tests assert version verification, mismatch diagnostics, Claude no-version limitation, refreshed output and preserved file output. | none | none |
 
@@ -21,7 +21,7 @@
 - partially_done: none
 - not_done: none
 - out_of_scope_changes: none identified
-- risks: publish workflow readiness was validated statically, not by a live tagged release run
+- risks: publish workflow readiness was validated statically, not by a live tagged release run; the 0.4.5 observation drove the intermediate readiness gate correction
 - required_next_step: QA gate review
 
 ## Clean Implementation Review

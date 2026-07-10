@@ -7,6 +7,7 @@ import {
   validateEvaluation,
   validateEnforcement,
 } from "../lib/delivery-path-search/contracts.js";
+import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
 
 // scoring.js
 
@@ -164,5 +165,15 @@ assert.throws(
 assert.deepEqual(validateEnforcement({ level: "instruction_only" }), { level: "instruction_only", evidence: [] });
 assert.throws(() => validateEnforcement({ level: "tool_enforced", evidence: [] }), /tool_enforced requires enforcement evidence/);
 assert.throws(() => validateEnforcement({ level: "bogus" }), /enforcement\.level must be full, tool_enforced or instruction_only/);
+
+// capabilities.js
+
+assert.deepEqual(enforcementForSurface("codex"), { level: "tool_enforced", evidence: ["codex exec --sandbox read-only --ephemeral"] });
+assert.deepEqual(enforcementForSurface("claude"), { level: "tool_enforced", evidence: ["claude -p --disallowedTools Edit,Write,Bash"] });
+assert.deepEqual(enforcementForSurface("copilot"), { level: "instruction_only", evidence: [] });
+assert.deepEqual(enforcementForSurface("opencode"), { level: "instruction_only", evidence: [] });
+assert.deepEqual(enforcementForSurface("generic"), { level: "instruction_only", evidence: [] });
+assert.deepEqual(enforcementForSurface("some-unknown-surface"), { level: "instruction_only", evidence: [] });
+assert.deepEqual(enforcementForSurface("codex", ["custom evidence"]), { level: "tool_enforced", evidence: ["custom evidence"] });
 
 console.log("Delivery Path Search unit tests passed.");

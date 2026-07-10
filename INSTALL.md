@@ -15,7 +15,7 @@ Codex is the primary plugin-packaging surface for AGDF.
 OpenCode is the reference runtime for showing how AGDF can combine repository instructions, agents, permission gates and plugins in one target surface.
 The AGDF control model itself is surface-neutral and is reused for Claude Code, GitHub Copilot and OpenCode.
 
-Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex is the executable reference evaluator. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
+Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
 
 ## Delivery Path Search
 

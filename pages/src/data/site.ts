@@ -401,6 +401,6 @@ export const gateModeMatrix = [
 export const compatibility = [
     { tool: "OpenCode", integration: "global npm hook + repo instructions, subagents and permissions", support: "Control-stack reference", goal: "runtime", setupAnchor: "#setup-opencode" },
     { tool: "OpenAI Codex CLI / app", integration: "Plugin + control scaffold", support: "Executable DPS reference", goal: "primary", setupAnchor: "#setup-codex-project" },
-    { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "First-class", goal: "plugin", setupAnchor: "#setup-claude" },
+    { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "Executable DPS reference", goal: "plugin", setupAnchor: "#setup-claude" },
     { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills + .agdf/control", support: "First-class", goal: "repo files", setupAnchor: "#setup-copilot" },
 ]

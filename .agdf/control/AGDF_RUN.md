@@ -2,7 +2,7 @@
 
 ## Run Meta
 
-- run_id: claude-evaluator-tool-enforcement-implementation
+- run_id: claude-parity-docs-and-tests
 - started_at: 2026-07-10
 - mode: quick_task
 - current_gate: Quick Task Execution
@@ -11,24 +11,24 @@
 
 ## Objective
 
-Implement `evaluators/claude.js`, wire it into the `delivery-path-search` CLI command, and upgrade
-Claude's reported enforcement level in `capabilities.js` from `instruction_only` to `tool_enforced`
-with real evidence.
+Close the remaining Claude/Codex parity gaps: outdated docs claiming Codex is the sole executable
+reference evaluator, missing unit test coverage for `capabilities.js`, and incomplete CLI help
+examples.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | Brownfield Review live-verified both open risks: spawning `claude -p` as a subprocess from within a running Claude Code session works cleanly (no interference), and `--disallowedTools "Edit,Write,Bash"` genuinely prevents the model from calling those tools (confirmed by asking it to write a file and observing refusal + no file created). Implementation followed and was end-to-end verified with a real CLI invocation producing a real recommendation and zero repository mutation. |
-| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified end-to-end. |
+| What is known? | Brownfield Review found a fourth owner the UR missed: the Pages compatibility table is data-driven from `pages/src/data/site.ts`, not just the `.astro` prose — both needed fixing. All four items (INSTALL.md, site.ts data row, index.astro prose, CLI help, capabilities.js tests) are now implemented and verified. |
+| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified. |
 | What is missing? | Nothing for this run's approved scope. |
 | What is the next allowed action? | Offer delivery closeout; commit/push require separate explicit instruction. |
-| What is explicitly forbidden right now? | Changing Copilot/OpenCode evaluator status, or the search/scoring/candidate-policy logic — both out of scope here. |
+| What is explicitly forbidden right now? | Changing Copilot/OpenCode's actual or documented enforcement status. |
 
 ## Prior Run Pointers
 
-- `gate-state-clarity`, `create-agdf-lib-test-coverage`, `plugin-author-consistency-fix` and `claude-evaluator-enforcement-decision` all completed on 2026-07-10 with real CI confirmation (latest pushed commit `debe2e4`); see `.agdf/control/MASTER_BACKLOG.md` Completed section.
-- Remaining Planned/Parking Lot items (`delivery-path-search-ai-candidate-generation`, `npm-publish-qa-caveat-closure`) are independent of this run.
+- `claude-evaluator-enforcement-decision` and `claude-evaluator-tool-enforcement-implementation` completed on 2026-07-10; this run closed the doc/test gaps those runs' scopes explicitly excluded.
+- Local commit `5feb13c` ("feat: Add Claude evaluator...") was found not yet pushed to `origin/main` earlier in this session — still separately open, independent of this run; re-check before assuming it landed.
 
 ## Run Status Card
 
@@ -41,8 +41,8 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Allowed now | Delivery closeout handoff |
 | Blocked by | none |
 | Missing approval | none |
-| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction; then re-check CI |
-| Quality outlook | Claude Code is now a second real, `tool_enforced` executable evaluator alongside Codex, live-verified end-to-end, not just documented |
+| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction |
+| Quality outlook | Docs, Pages site and CLI help now accurately state Codex and Claude are both executable DPS references; `capabilities.js` has regression-proof unit coverage for the first time |
 
 ## Approvals
 
@@ -61,8 +61,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | .agdf/control/artefacts/claude-evaluator-tool-enforcement-implementation/UR.md | approved | Implement Claude Delivery Path Search evaluator with tool-enforced evidence |
-| Brownfield Review | .agdf/control/artefacts/claude-evaluator-tool-enforcement-implementation/BROWNFIELD_REVIEW.md | done | Live-verified both named risks before implementation; selected quick_task |
+| UR | .agdf/control/artefacts/claude-parity-docs-and-tests/UR.md | approved | Close remaining Claude/Codex parity gaps in docs, tests and CLI help |
+| Brownfield Review | .agdf/control/artefacts/claude-parity-docs-and-tests/BROWNFIELD_REVIEW.md | done | Found the Pages data-array owner the UR missed; selected quick_task |
 | PRD | not_applicable | not_applicable | quick_task |
 | SD | not_applicable | not_applicable | quick_task |
 | TP | not_applicable | not_applicable | quick_task |
@@ -75,69 +75,68 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 - decision: quick_task
 - required_next_gate: none
-- scope_reason: One new evaluator file following an established pattern, one new branch in existing CLI wiring, one config value update — no new architecture, contract or persistence change.
-- evidence: Brownfield Review's live verification removed all open unknowns before implementation began; implementation matched the plan exactly.
-- transparency_note: Implementation completed under this decision; Copilot/OpenCode evaluators remain a separate, not-yet-started scope.
+- scope_reason: Pure copy and test additions reusing existing conventions and data structures; no architecture, contract or build-pipeline change.
+- evidence: Brownfield Review identified all owners precisely, including the one the UR missed; implementation matched the plan with one added file (`site.ts`) beyond the UR's original list.
+- transparency_note: Implementation completed under this decision; Copilot/OpenCode documented status unchanged.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
 | UR | approved_by | Approval: UR | Exact approval captured in session on 2026-07-10 |
-| Brownfield Review | sizes | UR | Selected quick_task; live-verified subprocess safety and `--disallowedTools` enforcement before implementation |
-| Quick Task Execution | implements | Brownfield Review | New `create-agdf/lib/delivery-path-search/evaluators/claude.js`; new `"claude"` branch in `bin/create-agdf.js`'s `executeDeliveryPathSearch`; `capabilities.js`'s `claude` entry upgraded to `tool_enforced` |
+| Brownfield Review | sizes | UR | Selected quick_task; found the additional `site.ts` data-array owner |
+| Quick Task Execution | implements | Brownfield Review | Updated `INSTALL.md`, `pages/src/data/site.ts`, `pages/src/pages/index.astro`, `create-agdf/bin/create-agdf.js` help text; extended `delivery-path-search-unit-test.js` with `capabilities.js` coverage |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Subprocess safety confirmed live | Ran `claude -p ... --output-format json` from within this running session: ~2s, exit 0, `git status --porcelain` identical before/after | No session/quota interference | direct |
-| `--disallowedTools` genuinely enforced | Ran `claude -p` asking the model to call the Write tool with `--disallowedTools "Edit,Write,Bash"` set: model reported the tool wasn't enabled, no file created | Confirms tool-level enforcement, not just an instruction | direct |
-| Full end-to-end CLI run | `node bin/create-agdf.js delivery-path-search --surface claude --dir <isolated temp repo> --json` produced a real, valid recommendation with `enforcement.level: "tool_enforced"`, real evaluator runtime `"2.1.203 (Claude Code)"`, correct `not_in_allowed_actions` rejection of extra model-proposed candidates, and zero mutation in both the temp repo and the main repo | Confirms the full integration works, not just the isolated evaluator function | direct |
-| Existing fixture-based tests still pass | `npm --prefix create-agdf run test:delivery-path-search`, `test:delivery-path-search-unit` both pass unmodified | No regression to search-engine/scoring/candidate-policy/contracts | direct |
-| Runtime integrity unaffected | `node plugin/scripts/check-runtime-integrity.mjs` → "ok (9 skills and 13 control files checked)" | No skill/control-file drift introduced | direct |
+| capabilities.js unit tests pass | `node create-agdf/scripts/delivery-path-search-unit-test.js` → "Delivery Path Search unit tests passed." (now asserts all 5 surface keys plus custom-evidence override) | Regression coverage for `enforcementForSurface` | direct |
+| Existing tests unaffected | `npm --prefix create-agdf run test:delivery-path-search` passes | No regression to search-engine behavior | direct |
+| Runtime integrity unaffected | `node plugin/scripts/check-runtime-integrity.mjs` → "ok (9 skills and 13 control files checked)" | No skill/control-file drift | direct |
+| Pages site builds cleanly | `npm --prefix pages run check` → "Result (9 files): 0 errors, 0 warnings, 0 hints" | Confirms the `.astro`/`site.ts` edits are valid, not just plausible-looking text | direct |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| Live CI confirmation for this exact change | warn | Requires commit + push, consistent with prior runs this session |
+| Live CI confirmation for this exact change | warn | Requires commit + push |
 
 ## Risks
 
 | Risk | Impact | Mitigation or owner |
 |---|---|---|
-| Per-call API cost for Claude evaluations is real and non-trivial (~$0.07-$0.19 observed for near-trivial prompts) | warn | Documented in Context Graph; same cost category as Codex evaluations, not a new class of risk |
+| none | none | none |
 
 ## Context Graph Impact
 
-- context_graph_impact: update_existing_node
+- context_graph_impact: none
 - context_graph_refs: CG-DELIVERY-PATH-SEARCH
 - context_graph_reconciliation: resolved
-- context_graph_required_action: update
+- context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: Updated `CG-DELIVERY-PATH-SEARCH`'s `evidence`, `invariants`, `risks` and `claude_enforcement_finding` fields to reflect that Claude Code is now a second real, live-verified, `tool_enforced` executable evaluator, not just a documented finding.
+- context_graph_evidence: Docs/tests/CLI help now match what the Context Graph already recorded; no further Context Graph change needed.
 
 ## Source And Scope State
 
 - normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `plugin/meta/agdf-plugin.definition.json`; live `.agdf/control/`
 - multi_scope_state: clear
-- active_scope_evidence: Approved UR and done Brownfield Review for `claude-evaluator-tool-enforcement-implementation`; Copilot/OpenCode evaluator work explicitly out of scope
+- active_scope_evidence: Approved UR and done Brownfield Review for `claude-parity-docs-and-tests`; Copilot/OpenCode status explicitly unchanged
 - competing_scope_lines: none
-- branch_workspace_evidence: `create-agdf/lib/delivery-path-search/evaluators/claude.js` (new), `create-agdf/bin/create-agdf.js`, `create-agdf/lib/delivery-path-search/surfaces/capabilities.js`, `.agdf/control/CONTEXT_GRAPH.md` modified
+- branch_workspace_evidence: `INSTALL.md`, `pages/src/data/site.ts`, `pages/src/pages/index.astro`, `create-agdf/bin/create-agdf.js`, `create-agdf/scripts/delivery-path-search-unit-test.js` modified
 - branch_workspace_scope_effect: supports
 
 ## Knowledge Persistence Decision
 
-- memory_target: context_graph
-- memory_reason: This is reusable, durable knowledge that Claude Code now has a live-verified tool-enforced evaluator, directly relevant to future Delivery Path Search or cross-surface enforcement questions.
-- memory_refs: .agdf/control/CONTEXT_GRAPH.md#CG-DELIVERY-PATH-SEARCH; .agdf/control/artefacts/claude-evaluator-tool-enforcement-implementation/
+- memory_target: none
+- memory_reason: Docs/test parity fix, no new durable cross-run knowledge beyond what Context Graph already holds.
+- memory_refs:
 
 ## Closeout
 
-- delivered: Approved and persisted UR; Brownfield Review with live-verified subprocess safety and tool-enforcement behavior; `evaluators/claude.js` implemented and wired into the CLI; `capabilities.js` upgraded to report `tool_enforced` for Claude with real evidence; full end-to-end CLI run verified with zero mutation; Context Graph updated to reflect the new implementation status.
-- not_delivered: Copilot/OpenCode evaluator implementations (separate, not-yet-started scope); live CI confirmation (requires commit + push).
-- verification_performed: Live `claude -p` subprocess safety test; live `--disallowedTools` enforcement test (attempted Write tool call, refused); full end-to-end `delivery-path-search --surface claude` CLI run in an isolated temp git repo with zero mutation confirmed; `npm --prefix create-agdf run test:delivery-path-search`; `npm --prefix create-agdf run test:delivery-path-search-unit`; `node plugin/scripts/check-runtime-integrity.mjs`.
-- unverified: Live `ubuntu-latest` CI execution of this change.
-- next_allowed_action: Offer commit-ready handoff; wait for explicit commit/push instruction; then re-check CI.
-- quality_outlook: No further technical follow-up required for this approved scope before commit; Claude Code now matches Codex's evaluator quality tier.
+- delivered: Approved and persisted UR; Brownfield Review that found and closed a fourth owner (`site.ts`) beyond the UR's original scope; `INSTALL.md`, Pages site prose and compatibility-table data, and CLI help text now accurately describe Claude as an executable DPS reference alongside Codex; `capabilities.js` now has regression-proof unit test coverage for all five surface keys and the evidence-override behavior.
+- not_delivered: Push of this change or the still-outstanding earlier commit `5feb13c` (separately flagged); Copilot/OpenCode evaluator work (out of scope by design).
+- verification_performed: `node create-agdf/scripts/delivery-path-search-unit-test.js`; `npm --prefix create-agdf run test:delivery-path-search`; `node plugin/scripts/check-runtime-integrity.mjs`; `npm --prefix pages run check`.
+- unverified: Live CI execution of this change.
+- next_allowed_action: Offer commit-ready handoff; wait for explicit commit/push instruction; then re-check both this commit and the still-unpushed `5feb13c`.
+- quality_outlook: No further technical follow-up required for this approved scope before commit.

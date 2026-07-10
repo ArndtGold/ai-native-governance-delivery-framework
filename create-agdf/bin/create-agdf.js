@@ -176,6 +176,7 @@ Preferred AGDF CLI:
   npx --yes @agdf/cli@latest doctor
   npx --yes @agdf/cli@latest gate-check --json
   npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
+  npx --yes @agdf/cli@latest delivery-path-search --surface claude --json
 
 Scaffold-compatible npm create usage:
   npm create agdf@latest -- codex
@@ -192,6 +193,7 @@ Scaffold-compatible npm create usage:
   npm create agdf@latest -- gate-check
   npm create agdf@latest -- delivery-map
   npm create agdf@latest -- delivery-path-search --surface codex
+  npm create agdf@latest -- delivery-path-search --surface claude
 
 Backward-compatible create-agdf usage:
   npx --yes create-agdf@latest doctor --json

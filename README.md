@@ -130,6 +130,7 @@ Empfohlene Reihenfolge:
 ├─ INSTALL.md
 ├─ AGENTS.md
 ├─ .github/
+├─ agdf/
 ├─ create-agdf/
 ├─ .claude-plugin/
 ├─ plugin/

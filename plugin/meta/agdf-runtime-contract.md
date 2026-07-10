@@ -27,6 +27,25 @@ Use this compact output shape when no formal gate artefact is required:
 
 Do not add a separate `Quality outlook` line for pure Quick Tasks unless the task became a relevant run.
 
+### Non-Normative Trivial Change Boundary
+
+A `quick_task` whose entire diff stays fully outside all of the following paths may close using only
+the compact output shape above, and must not create, rewrite or expand any of `AGDF_RUN.md`'s core
+sections (Run Meta, Objective, Current Control State, Source And Scope State, Run Status Card,
+Approvals, Artefacts, Mode/Slice Decision, Artefact Chain, Evidence, Missing Evidence, Risks, Context
+Graph Impact, Knowledge Persistence Decision, Closeout):
+
+- `plugin/skills/**`
+- `plugin/control/templates/**`
+- `plugin/meta/**`
+- `create-agdf/lib/**`
+- `create-agdf/bin/**`
+- any other executable code file, in any language, anywhere in the repository
+
+A `MASTER_BACKLOG.md` entry is required only when the change is otherwise a "Relevant Run" below. A
+change that is not clearly and fully outside every listed path fails closed to the existing, unchanged
+ceremony — ambiguity is never read as permission for the lighter path.
+
 ## Run Status Card
 
 When a run needs an operational status view, use the Run Status Card as a compact projection of existing control state.
@@ -180,6 +199,11 @@ A relevant run is any run that changes durable state, creates or updates an AGDF
 
 OR is not mandatory for a pure explanation, read-only inspection, small review, or local debugging step that produces no durable state change and no gate consequence.
 When in doubt, use a short OR-lite only if it clarifies gate state, evidence, risk, or the next permissible step.
+
+A `quick_task` fully inside the Non-Normative Trivial Change Boundary above stays exempt from the full
+`AGDF_RUN.md` ceremony even when it is otherwise a relevant run. If `AGDF_RUN.md` currently reflects
+another active run, append exactly one line to that run's `Prior Run Pointers` section noting what
+changed and that it is unrelated; do not edit any other section or any other existing line.
 
 ## Gate Rules
 

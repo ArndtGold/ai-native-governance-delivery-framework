@@ -6,7 +6,7 @@ export const site = {
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     license: "Apache-2.0",
-    version: "0.4.6",
+    version: "0.4.7",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 30+ years enterprise experience",

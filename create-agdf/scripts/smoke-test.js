@@ -1,5 +1,5 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { delimiter, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -23,6 +23,35 @@ function runJson(args) {
   }
 }
 
+function makeFakeExecutable(tempDir, name, source) {
+  const binDir = join(tempDir, "bin");
+  mkdirSync(binDir, { recursive: true });
+  const executablePath = join(binDir, name);
+  writeFileSync(executablePath, source, "utf8");
+  chmodSync(executablePath, 0o755);
+  return binDir;
+}
+
+function runCliWithPath(args, binDir, extraEnv = {}) {
+  return execFileSync(process.execPath, [binPath, ...args], {
+    encoding: "utf8",
+    stdio: "pipe",
+    env: {
+      ...process.env,
+      ...extraEnv,
+      PATH: `${binDir}${delimiter}${process.env.PATH}`,
+    },
+  });
+}
+
+function readJsonLines(path) {
+  return readFileSync(path, "utf8")
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+}
+
 if (packageJson.bin?.["create-agdf"] !== "./bin/create-agdf.js") {
   throw new Error("create-agdf must keep the backward-compatible create-agdf binary.");
 }
@@ -34,6 +63,175 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
 if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("--status-card") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
+}
+
+{
+  const publishWorkflowPath = fileURLToPath(new URL("../.github/workflows/publish-agdf.yml", packageRoot));
+  const publishWorkflow = readFileSync(publishWorkflowPath, "utf8");
+  for (const requiredSnippet of [
+    "Wait for npm package readiness",
+    "PACKAGES=(\"create-agdf\" \"@agdf/cli\")",
+    "MAX_ATTEMPTS=20",
+    "SLEEP_SECONDS=15",
+    "NPM_ERROR_LOG=\"$(mktemp)\"",
+    "npm view \"${PACKAGE}@${VERSION}\" version --json",
+    "Timed out waiting for ${PACKAGE}@${VERSION} after ${MAX_ATTEMPTS} attempts",
+  ]) {
+    if (!publishWorkflow.includes(requiredSnippet)) {
+      throw new Error(`Publish workflow must keep bounded exact-version npm readiness check: missing ${requiredSnippet}`);
+    }
+  }
+  if (publishWorkflow.indexOf("Publish create-agdf to npm") > publishWorkflow.indexOf("Wait for npm package readiness")
+    || publishWorkflow.indexOf("Publish @agdf/cli to npm") > publishWorkflow.indexOf("Wait for npm package readiness")) {
+    throw new Error("Publish workflow must wait for npm readiness only after both package publish steps.");
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-codex-global-"));
+  const logPath = join(tempDir, "codex.log");
+
+  try {
+    const binDir = makeFakeExecutable(tempDir, "codex", `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin list") {
+  console.log("agdf@agdf ${pluginDefinition.version}");
+}
+`);
+    const output = runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath });
+    const calls = readJsonLines(logPath).map((args) => args.join(" "));
+    const expectedCalls = [
+      "plugin marketplace add arndtgold/ai-native-governance-delivery-framework",
+      "plugin marketplace upgrade agdf",
+      "plugin add agdf --marketplace agdf",
+      "plugin list",
+    ];
+    if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
+      throw new Error(`Codex global bootstrap command order changed: ${calls.join(" | ")}`);
+    }
+    if (!output.includes(`AGDF Codex plugin version verified: ${pluginDefinition.version}`)) {
+      throw new Error("Codex global bootstrap must report verified plugin version.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-codex-mismatch-"));
+  const logPath = join(tempDir, "codex.log");
+
+  try {
+    const binDir = makeFakeExecutable(tempDir, "codex", `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin list") {
+  console.log("agdf@agdf 0.0.0");
+}
+`);
+    let failed = false;
+    try {
+      runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath });
+    } catch (error) {
+      failed = true;
+      const stderr = error.stderr.toString();
+      if (!stderr.includes(`expected ${pluginDefinition.version}`) || !stderr.includes("observed 0.0.0") || !stderr.includes("codex plugin marketplace upgrade agdf")) {
+        throw new Error(`Codex mismatch error must be actionable, got: ${stderr}`);
+      }
+    }
+    if (!failed) throw new Error("Codex global bootstrap must fail when the installed plugin version mismatches.");
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-install-"));
+  const logPath = join(tempDir, "claude.log");
+  const statePath = join(tempDir, "installed");
+
+  try {
+    const binDir = makeFakeExecutable(tempDir, "claude", `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin list") {
+  if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf ${pluginDefinition.version}");
+  process.exit(0);
+}
+if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin update agdf@agdf") {
+  fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
+}
+`);
+    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
+    const calls = readJsonLines(logPath).map((args) => args.join(" "));
+    if (!calls.includes("plugin marketplace add arndtgold/ai-native-governance-delivery-framework") || !calls.includes("plugin marketplace update agdf") || !calls.includes("plugin install agdf@agdf")) {
+      throw new Error(`Claude first install must use marketplace add/update and plugin install: ${calls.join(" | ")}`);
+    }
+    if (calls.some((call) => call === "plugin add arndtgold/ai-native-governance-delivery-framework")) {
+      throw new Error("Claude bootstrap must not call unsupported plugin add.");
+    }
+    if (!output.includes(`AGDF Claude Code plugin version verified: ${pluginDefinition.version}`)) {
+      throw new Error("Claude install must report verified plugin version when exposed.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-update-"));
+  const logPath = join(tempDir, "claude.log");
+  const statePath = join(tempDir, "installed");
+  writeFileSync(statePath, "installed", "utf8");
+
+  try {
+    const binDir = makeFakeExecutable(tempDir, "claude", `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin list") {
+  console.log("agdf@agdf ${pluginDefinition.version}");
+}
+`);
+    runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
+    const calls = readJsonLines(logPath).map((args) => args.join(" "));
+    if (!calls.includes("plugin update agdf@agdf") || calls.includes("plugin install agdf@agdf")) {
+      throw new Error(`Claude existing install must use plugin update only: ${calls.join(" | ")}`);
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-no-version-"));
+  const logPath = join(tempDir, "claude.log");
+  const statePath = join(tempDir, "installed");
+
+  try {
+    const binDir = makeFakeExecutable(tempDir, "claude", `#!/usr/bin/env node
+const fs = require("node:fs");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin list") {
+  if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf");
+  process.exit(0);
+}
+if (args.join(" ") === "plugin install agdf@agdf") {
+  fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
+}
+`);
+    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
+    if (!output.includes("did not expose a plugin version")) {
+      throw new Error("Claude bootstrap must report verification limitation when list output has no version.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 }
 
 const deliveryPathSearchFixture = fileURLToPath(new URL("./scripts/fixtures/delivery-path-search.json", packageRoot));
@@ -233,6 +431,85 @@ run("copilot", [
   join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
   ...["gate-check", "code-review", "qa-gate"].map((slug) => join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}${slug}`, "SKILL.md")),
 ]);
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-rerun-owned-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
+    const configPath = join(tempDir, ".agdf", "control", "config.json");
+    const instructionsPath = join(tempDir, ".github", "copilot-instructions.md");
+    const agentsPath = join(tempDir, "AGENTS.md");
+    writeFileSync(instructionsPath, "stale generated instructions\n", "utf8");
+    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en"], { encoding: "utf8", stdio: "pipe" });
+    const config = JSON.parse(readFileSync(configPath, "utf8"));
+    if (config.artifact_language !== "de" || config.chat_language !== "de") {
+      throw new Error("Copilot rerun must preserve an existing AGDF language config without --force.");
+    }
+    const refreshedInstructions = readFileSync(instructionsPath, "utf8");
+    if (refreshedInstructions === "stale generated instructions\n" || !refreshedInstructions.includes("AGDF is agent-native first and CLI-verifiable by design")) {
+      throw new Error("Copilot rerun must refresh AGDF-owned generated instruction files.");
+    }
+    const agents = readFileSync(agentsPath, "utf8");
+    if (!agents.includes("## Surface Convention")) {
+      throw new Error("Copilot rerun should refresh an AGDF-owned root AGENTS.md.");
+    }
+    if (!output.includes("refreshed: .github/copilot-instructions.md")) {
+      throw new Error("Copilot rerun output must name refreshed files.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-rerun-user-agents-"));
+
+  try {
+    writeFileSync(join(tempDir, "AGENTS.md"), "# Project Agent Notes\n\nKeep this user-owned file.\n", "utf8");
+    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
+    const userAgents = readFileSync(join(tempDir, "AGENTS.md"), "utf8");
+    if (!userAgents.includes("Keep this user-owned file.")) {
+      throw new Error("Copilot bootstrap must preserve a user-owned AGENTS.md.");
+    }
+    if (!existsSync(join(tempDir, "AGENTS.agdf.md"))) {
+      throw new Error("Copilot bootstrap must create the AGDF fragment when user-owned AGENTS.md exists.");
+    }
+    writeFileSync(join(tempDir, "AGENTS.agdf.md"), "stale fragment\n", "utf8");
+    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en"], { encoding: "utf8", stdio: "pipe" });
+    const fragment = readFileSync(join(tempDir, "AGENTS.agdf.md"), "utf8");
+    if (fragment === "stale fragment\n" || !fragment.includes("## Surface Convention")) {
+      throw new Error("Copilot rerun must refresh AGENTS.agdf.md while preserving user AGENTS.md.");
+    }
+    const config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
+    if (config.artifact_language !== "de" || config.chat_language !== "de") {
+      throw new Error("Copilot rerun with user-owned AGENTS.md must preserve existing language config.");
+    }
+    if (!output.includes("Preserved:") || !output.includes("AGENTS.md")) {
+      throw new Error("Copilot rerun output must name preserved user-owned AGENTS.md.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-owned-agents-"));
+
+  try {
+    writeFileSync(join(tempDir, "AGENTS.md"), "# AGENTS.md\n\n## Surface Convention\nGitHub Copilot repository skills do not have a plugin namespace.\n\nAGDF is agent-native first and CLI-verifiable by design.\n\nstale\n", "utf8");
+    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir], { stdio: "pipe" });
+    const agents = readFileSync(join(tempDir, "AGENTS.md"), "utf8");
+    if (agents.includes("stale") || !agents.includes("## Skill Routing")) {
+      throw new Error("Copilot bootstrap must refresh a positively AGDF-owned root AGENTS.md.");
+    }
+    if (existsSync(join(tempDir, "AGENTS.agdf.md"))) {
+      throw new Error("Copilot bootstrap should not create a fragment when root AGENTS.md is AGDF-owned.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
 run("both", [
   "AGENTS.md",
   join(".agdf", "control", "config.json"),

@@ -86,3 +86,39 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
+
+      - name: Wait for npm package readiness
+        shell: bash
+        run: |
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./create-agdf/package.json', 'utf8')).version")"
+          PACKAGES=("create-agdf" "@agdf/cli")
+          MAX_ATTEMPTS=20
+          SLEEP_SECONDS=15
+          NPM_ERROR_LOG="$(mktemp)"
+          trap 'rm -f "${NPM_ERROR_LOG}"' EXIT
+
+          for PACKAGE in "${PACKAGES[@]}"; do
+            LAST_ERROR=""
+            for ATTEMPT in $(seq 1 "${MAX_ATTEMPTS}"); do
+              if RESULT="$(npm view "${PACKAGE}@${VERSION}" version --json 2>"${NPM_ERROR_LOG}")"; then
+                RESOLVED_VERSION="$(node -e "const value = JSON.parse(process.argv[1]); process.stdout.write(String(value));" "${RESULT}")"
+                if [ "${RESOLVED_VERSION}" = "${VERSION}" ]; then
+                  echo "${PACKAGE}@${VERSION} is resolvable on npm."
+                  LAST_ERROR=""
+                  break
+                fi
+                LAST_ERROR="resolved ${RESOLVED_VERSION}, expected ${VERSION}"
+              else
+                LAST_ERROR="$(cat "${NPM_ERROR_LOG}")"
+              fi
+
+              if [ "${ATTEMPT}" -lt "${MAX_ATTEMPTS}" ]; then
+                sleep "${SLEEP_SECONDS}"
+              fi
+            done
+
+            if [ -n "${LAST_ERROR}" ]; then
+              echo "Timed out waiting for ${PACKAGE}@${VERSION} after ${MAX_ATTEMPTS} attempts. Last error: ${LAST_ERROR}" >&2
+              exit 1
+            fi
+          done

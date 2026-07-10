@@ -17,12 +17,14 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
+| 2 | `gate-state-clarity` | Make AGDF gate status show current gate, required approval, and next gate after approval without ambiguous open or blocked wording | Needs UR |  |  | Formulate a separate UR after the current bootstrap-readiness slice |
 | 1 | `delivery-path-search-ai-candidate-generation` | Add AI-native generation of multiple concrete delivery-path candidates before deterministic validation and evaluation | Needs UR |  | [PRD](artefacts/agdf-delivery-path-search/PRD.md) | After the current release, formulate a separate UR for AI-native candidate generation while keeping AGDF legality and gates deterministic |
 
 ## Completed / Superseded Pointers
 
 | Key | Work item | Final status | Historical record | Outcome |
 |---|---|---|---|---|
+| `codex-bootstrap-release-readiness` | Make Codex, Claude Code and Copilot AGDF updates reliable, and wait for npm package readiness after publish | Completed | [OR](artefacts/codex-bootstrap-release-readiness/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-10; Codex, Claude Code, Copilot and npm readiness improvements implemented with focused smoke/runtime checks passed |
 | `doctor-semantic-consistency` | Make AGDF doctor detect semantic control-state inconsistencies before gate-check fails later | Completed | [OR](artefacts/doctor-semantic-consistency/OR.md) | Quick task completed; doctor now reports QA durable artefact status mismatches before later gate-check confusion, and focused smoke/runtime checks passed on 2026-07-09 |
 | `context-graph-closeout-guard` | Prevent Governance-Closeout-Gaps by enforcing Context Graph reconciliation before clean handoff | Completed | [OR](artefacts/context-graph-closeout-guard/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09; Runtime Contract, OR/delivery-closeout skills, AGDF_RUN/OR templates and Runtime Integrity now enforce visible Context Graph reconciliation before clean handoff |
 | `agdf-delivery-path-search` | Portable delivery-path search across coding-agent surfaces | Completed | [OR](artefacts/agdf-delivery-path-search/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09; first-release Delivery Path Search delivered with Codex as executable reference evaluator and non-Codex surfaces as contract-ready pending conforming evaluators |

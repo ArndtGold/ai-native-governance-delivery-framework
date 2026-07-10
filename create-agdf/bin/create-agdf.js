@@ -555,20 +555,71 @@ function printOpenCodeStatus(report, json) {
 }
 
 function installCodexGlobalPlugin() {
+  const expectedVersion = pluginDefinition.version;
+
   try {
     execFileSync("codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
+    execFileSync("codex", ["plugin", "marketplace", "upgrade", "agdf"], { stdio: "inherit" });
     execFileSync("codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], { stdio: "inherit" });
+    const listOutput = execFileSync("codex", ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
+    const installedVersion = pluginVersionFromList(listOutput, "agdf@agdf");
+    if (installedVersion !== expectedVersion) {
+      throw new Error(versionMismatchMessage("Codex", "agdf@agdf", expectedVersion, installedVersion, "codex plugin marketplace upgrade agdf && codex plugin add agdf --marketplace agdf"));
+    }
+    console.log(`AGDF Codex plugin version verified: ${installedVersion}.`);
   } catch (error) {
-    throw new Error("Failed to install the AGDF Codex plugin. Make sure the Codex CLI is installed and available on PATH, then rerun this command.");
+    if (error.message?.startsWith("AGDF Codex plugin version mismatch")) throw error;
+    throw new Error(`Failed to install the AGDF Codex plugin. Make sure the Codex CLI is installed and available on PATH, then rerun this command. ${commandErrorText(error)}`.trim());
   }
 }
 
 function installClaudeGlobalPlugin() {
+  const expectedVersion = pluginDefinition.version;
+
   try {
-    execFileSync("claude", ["plugin", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
-  } catch {
-    throw new Error("Failed to install the AGDF Claude Code plugin. Make sure the Claude Code CLI is installed and available on PATH, then rerun this command.");
+    execFileSync("claude", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
+    execFileSync("claude", ["plugin", "marketplace", "update", "agdf"], { stdio: "inherit" });
+    const beforeList = execFileSync("claude", ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
+    const alreadyInstalled = pluginListHasPlugin(beforeList, "agdf@agdf");
+    execFileSync("claude", ["plugin", alreadyInstalled ? "update" : "install", "agdf@agdf"], { stdio: "inherit" });
+    const afterList = execFileSync("claude", ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
+    const installedVersion = pluginVersionFromList(afterList, "agdf@agdf");
+    if (installedVersion) {
+      if (installedVersion !== expectedVersion) {
+        throw new Error(versionMismatchMessage("Claude Code", "agdf@agdf", expectedVersion, installedVersion, "claude plugin marketplace update agdf && claude plugin update agdf@agdf"));
+      }
+      console.log(`AGDF Claude Code plugin version verified: ${installedVersion}.`);
+    } else {
+      console.log("AGDF Claude Code plugin installed or updated. Claude Code did not expose a plugin version in `claude plugin list`; verify with `claude plugin list` after restart if needed.");
+    }
+  } catch (error) {
+    if (error.message?.startsWith("AGDF Claude Code plugin version mismatch")) throw error;
+    throw new Error(`Failed to install the AGDF Claude Code plugin. Make sure the Claude Code CLI is installed and available on PATH, then rerun this command. ${commandErrorText(error)}`.trim());
   }
+}
+
+function commandErrorText(error) {
+  return (error.stderr || error.stdout || error.message || "").toString().trim();
+}
+
+function pluginListHasPlugin(output, pluginId) {
+  return output
+    .split(/\r?\n/)
+    .some((line) => line.includes(pluginId));
+}
+
+function pluginVersionFromList(output, pluginId) {
+  const escapedPluginId = pluginId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const line = output
+    .split(/\r?\n/)
+    .find((entry) => new RegExp(`(^|\\s)${escapedPluginId}(\\s|$)`).test(entry));
+  if (!line) return "";
+  const versionMatch = line.match(/\b(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)\b/);
+  return versionMatch?.[1] ?? "";
+}
+
+function versionMismatchMessage(surface, pluginId, expectedVersion, installedVersion, correctiveCommand) {
+  return `AGDF ${surface} plugin version mismatch for ${pluginId}: expected ${expectedVersion}, observed ${installedVersion || "unknown"}. Refresh with: ${correctiveCommand}`;
 }
 
 function loadAsset(relativePath) {
@@ -584,6 +635,55 @@ function writeGeneratedFile(targetDir, relativePath, content, force, allowOverwr
   }
 
   writeFileSync(outputPath, content, "utf8");
+}
+
+function assertGeneratedWritePlan(targetDir, files, force) {
+  const blocked = files.find((file) => existsSync(join(targetDir, file.path)) && !force && !file.allowOverwrite);
+  if (blocked) {
+    throw new Error(`Refusing to overwrite existing file: ${blocked.path}. Re-run with --force if you want to replace it.`);
+  }
+}
+
+function isAgdfOwnedAgentsFile(content) {
+  return content.includes("## Surface Convention")
+    && content.includes("GitHub Copilot repository skills do not have a plugin namespace")
+    && content.includes("AGDF is agent-native first and CLI-verifiable by design");
+}
+
+function addCopilotAgentsFile(files, targetDir, force) {
+  const agentsPath = join(targetDir, "AGENTS.md");
+  if (!existsSync(agentsPath) || force) {
+    files.push({
+      path: "AGENTS.md",
+      content: loadAsset("AGENTS.md"),
+    });
+    return;
+  }
+
+  const existingAgents = readFileSync(agentsPath, "utf8");
+  if (isAgdfOwnedAgentsFile(existingAgents)) {
+    files.push({
+      path: "AGENTS.md",
+      content: loadAsset("AGENTS.md"),
+      allowOverwrite: true,
+      action: "refreshed",
+    });
+    return;
+  }
+
+  files.push({
+    path: agdfFragmentPath,
+    content: loadAsset("AGENTS.md"),
+    allowOverwrite: true,
+    action: "refreshed",
+    preserved: "AGENTS.md",
+  });
+}
+
+function shouldWriteLanguageConfig(target, targetDir, force) {
+  if (force) return true;
+  if ((target === "copilot" || target === "both") && existsSync(join(targetDir, ".agdf", "control", "config.json"))) return false;
+  return true;
 }
 
 function addLanguageConfig(files, languagePreference) {
@@ -630,7 +730,7 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
   }
 
   if (target === "codex-repo" || target === "both") {
-    addLanguageConfig(files, languagePreference);
+    if (shouldWriteLanguageConfig(target, targetDir, force)) addLanguageConfig(files, languagePreference);
     for (const codexPath of codexPluginFiles) {
       files.push({
         path: codexPath,
@@ -640,17 +740,15 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
   }
 
   if (target === "copilot" || target === "both") {
-    if (target !== "both") addLanguageConfig(files, languagePreference);
-    const agentsTargetPath = existsSync(join(targetDir, "AGENTS.md")) && !force ? agdfFragmentPath : "AGENTS.md";
-    files.push({
-      path: agentsTargetPath,
-      content: loadAsset("AGENTS.md"),
-    });
+    if (target !== "both" && shouldWriteLanguageConfig(target, targetDir, force)) addLanguageConfig(files, languagePreference);
+    addCopilotAgentsFile(files, targetDir, force);
 
     for (const controlPath of controlFiles) {
       files.push({
         path: controlPath,
         content: loadAsset(controlPath),
+        allowOverwrite: true,
+        action: "refreshed",
       });
     }
 
@@ -658,6 +756,8 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
       files.push({
         path: instructionPath,
         content: loadAsset(instructionPath),
+        allowOverwrite: true,
+        action: "refreshed",
       });
     }
 
@@ -665,6 +765,8 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
       files.push({
         path: skillPath,
         content: loadAsset(skillPath),
+        allowOverwrite: true,
+        action: "refreshed",
       });
     }
   }
@@ -701,7 +803,15 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
   console.log("");
   console.log("Generated:");
   for (const file of files) {
-    console.log(`- ${file.path}`);
+    const action = file.action ? `${file.action}: ` : "";
+    console.log(`- ${action}${file.path}`);
+  }
+
+  const preservedFiles = [...new Set(files.map((file) => file.preserved).filter(Boolean))];
+  if (preservedFiles.length > 0) {
+    console.log("");
+    console.log("Preserved:");
+    for (const preserved of preservedFiles) console.log(`- ${preserved}`);
   }
 
   console.log("");
@@ -2146,6 +2256,7 @@ async function main() {
   const wroteOpenCodeConfigFragment = files.some(file => file.path === openCodeConfigFragmentPath);
 
   try {
+    assertGeneratedWritePlan(options.dir, files, options.force);
     for (const file of files) {
       writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
     }

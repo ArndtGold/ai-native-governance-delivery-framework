@@ -42,8 +42,8 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Allowed now | Delivery closeout handoff |
 | Blocked by | none |
 | Missing approval | none |
-| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction; then re-check CI |
-| Quality outlook | `check-runtime-integrity.mjs` passes locally again; real confirmation still requires a fresh CI run after commit/push |
+| Next step | None outstanding for these three runs; live CI confirmed green on commit `4601660` |
+| Quality outlook | Live `agdf-guardrails.yml` run for commit `4601660` passed all steps (runtime integrity, create-agdf package incl. new unit tests, agdf CLI package, Pages) — real CI confirmation obtained for `gate-state-clarity`, `create-agdf-lib-test-coverage` and this run |
 
 ## Approvals
 
@@ -96,12 +96,13 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Existing tests still pass | `npm --prefix create-agdf run test:delivery-path-search`, `test:delivery-path-search-unit`, `node create-agdf/scripts/test-routing.js` all pass | No regression from the metadata change | direct |
 | Generated assets resynced | `npm --prefix create-agdf run sync-package-assets` completed without error | `create-agdf/generated/` reflects the new author consistently (gitignored, verification-only) | direct |
 | Doctor evidence | `npx --yes @agdf/cli@latest doctor --json` run after the fix; remaining warnings only reference this run's own now-stale earlier draft state fields, not a new defect | Sanity check | direct |
+| Live CI run, all steps green | Commit `4601660` ("fix: Resolve Codex plugin author mismatch blocking CI") pushed; GitHub Actions `agdf-guardrails.yml` job "verify" (run 29091219642) — all 8 real steps `success`: Checkout, Setup Node.js, Verify runtime integrity, Verify create-agdf package, Verify agdf CLI package, Install Pages dependencies, Verify Pages | Final, real CI confirmation for this run, `gate-state-clarity` and `create-agdf-lib-test-coverage` | direct |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| Live CI run of `agdf-guardrails.yml` with this fix | warn | Requires commit + push; only then can `gate-state-clarity` and `create-agdf-lib-test-coverage` finally get real CI confirmation |
+| none | none | none |
 
 ## Risks
 
@@ -135,9 +136,9 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 ## Closeout
 
-- delivered: Approved and persisted UR; Brownfield Review confirming fix direction and expanding scope to include `.claude-plugin/plugin.json`; quick_task implementation updating both source files' author field to "Arndt Gold"; regenerated and verified `create-agdf/generated/` locally.
-- not_delivered: Actual CI-level confirmation (requires commit + push); real CI confirmation for `gate-state-clarity` and `create-agdf-lib-test-coverage` remains outstanding until then.
-- verification_performed: `node plugin/scripts/check-runtime-integrity.mjs`; `npm --prefix create-agdf run sync-package-assets`; `npm --prefix create-agdf run test:delivery-path-search`; `npm --prefix create-agdf run test:delivery-path-search-unit`; `node create-agdf/scripts/test-routing.js`; `npx --yes @agdf/cli@latest doctor --json`.
-- unverified: Live `ubuntu-latest` CI execution of `agdf-guardrails.yml` with this fix in place.
-- next_allowed_action: Offer commit-ready handoff; wait for explicit commit/push instruction; then re-check CI for all three runs.
-- quality_outlook: No further technical follow-up required for this approved scope before commit; the real quality confirmation is the next CI run.
+- delivered: Approved and persisted UR; Brownfield Review confirming fix direction and expanding scope to include `.claude-plugin/plugin.json`; quick_task implementation updating both source files' author field to "Arndt Gold"; regenerated and verified `create-agdf/generated/` locally; committed as `4601660` and pushed; live CI confirmed green across all steps.
+- not_delivered: none for this scope.
+- verification_performed: `node plugin/scripts/check-runtime-integrity.mjs`; `npm --prefix create-agdf run sync-package-assets`; `npm --prefix create-agdf run test:delivery-path-search`; `npm --prefix create-agdf run test:delivery-path-search-unit`; `node create-agdf/scripts/test-routing.js`; `npx --yes @agdf/cli@latest doctor --json`; GitHub Actions `agdf-guardrails.yml` run 29091219642 for commit `4601660` — all 8 steps `success`.
+- unverified: none.
+- next_allowed_action: None outstanding for these three runs. Future work returns to the remaining Planned/Parking Lot items on separate URs.
+- quality_outlook: All three runs (`gate-state-clarity`, `create-agdf-lib-test-coverage`, `plugin-author-consistency-fix`) are now delivered with real CI confirmation, not just local checks.

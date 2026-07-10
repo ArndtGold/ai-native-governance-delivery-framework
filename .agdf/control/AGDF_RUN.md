@@ -2,7 +2,7 @@
 
 ## Run Meta
 
-- run_id: claude-parity-docs-and-tests
+- run_id: agdf-backlog-vocabulary-visibility
 - started_at: 2026-07-10
 - mode: quick_task
 - current_gate: Quick Task Execution
@@ -11,24 +11,24 @@
 
 ## Objective
 
-Close the remaining Claude/Codex parity gaps: outdated docs claiming Codex is the sole executable
-reference evaluator, missing unit test coverage for `capabilities.js`, and incomplete CLI help
-examples.
+Make the canonical MASTER_BACKLOG.md status/artefact label vocabulary visible at write time and make
+verifying it with `doctor` an explicit named step, so drift like this session's "Parked, contingent"
+and "QA_REPORT" mistakes is caught before the user has to find it.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | Brownfield Review found a fourth owner the UR missed: the Pages compatibility table is data-driven from `pages/src/data/site.ts`, not just the `.astro` prose — both needed fixing. All four items (INSTALL.md, site.ts data row, index.astro prose, CLI help, capabilities.js tests) are now implemented and verified. |
-| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified. |
+| What is known? | Implementation is done and verified. Brownfield Review found that the sync pipeline already propagates both edited files to all surfaces without extra work. A real defect was caught and fixed during implementation itself: an embedded relative-path cross-reference I first wrote was only correct for Codex/Claude's generated layout, not Copilot/OpenCode's — replaced with surface-agnostic prose instead. |
+| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified across all four generated surfaces. |
 | What is missing? | Nothing for this run's approved scope. |
 | What is the next allowed action? | Offer delivery closeout; commit/push require separate explicit instruction. |
-| What is explicitly forbidden right now? | Changing Copilot/OpenCode's actual or documented enforcement status. |
+| What is explicitly forbidden right now? | Changing the actual allowed status/artefact values or `doctor`'s validation logic. |
 
 ## Prior Run Pointers
 
-- `claude-evaluator-enforcement-decision` and `claude-evaluator-tool-enforcement-implementation` completed on 2026-07-10; this run closed the doc/test gaps those runs' scopes explicitly excluded.
-- Local commit `5feb13c` ("feat: Add Claude evaluator...") was found not yet pushed to `origin/main` earlier in this session — still separately open, independent of this run; re-check before assuming it landed.
+- `claude-parity-docs-and-tests` completed on 2026-07-10; unrelated to this run.
+- Local commit `5feb13c` and the `claude-parity-docs-and-tests` work remain uncommitted/unpushed as of the last check — independent of this run, re-verify before assuming pushed state.
 
 ## Run Status Card
 
@@ -42,7 +42,7 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Blocked by | none |
 | Missing approval | none |
 | Next step | Offer commit-ready handoff; wait for explicit commit/push instruction |
-| Quality outlook | Docs, Pages site and CLI help now accurately state Codex and Claude are both executable DPS references; `capabilities.js` has regression-proof unit coverage for the first time |
+| Quality outlook | The canonical vocabulary is now documented at the point of editing, with a `doctor`-verification step named explicitly, across all four generated surfaces |
 
 ## Approvals
 
@@ -61,8 +61,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | .agdf/control/artefacts/claude-parity-docs-and-tests/UR.md | approved | Close remaining Claude/Codex parity gaps in docs, tests and CLI help |
-| Brownfield Review | .agdf/control/artefacts/claude-parity-docs-and-tests/BROWNFIELD_REVIEW.md | done | Found the Pages data-array owner the UR missed; selected quick_task |
+| UR | .agdf/control/artefacts/agdf-backlog-vocabulary-visibility/UR.md | approved | Make canonical backlog status/artefact vocabulary visible and verified at write time |
+| Brownfield Review | .agdf/control/artefacts/agdf-backlog-vocabulary-visibility/BROWNFIELD_REVIEW.md | done | Confirmed sync propagation and the reference-vs-duplicate wording approach; selected quick_task |
 | PRD | not_applicable | not_applicable | quick_task |
 | SD | not_applicable | not_applicable | quick_task |
 | TP | not_applicable | not_applicable | quick_task |
@@ -75,26 +75,26 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 - decision: quick_task
 - required_next_gate: none
-- scope_reason: Pure copy and test additions reusing existing conventions and data structures; no architecture, contract or build-pipeline change.
-- evidence: Brownfield Review identified all owners precisely, including the one the UR missed; implementation matched the plan with one added file (`site.ts`) beyond the UR's original list.
-- transparency_note: Implementation completed under this decision; Copilot/OpenCode documented status unchanged.
+- scope_reason: Pure documentation addition across three files, no new architecture, no code/behavior change, no new allowed values.
+- evidence: Brownfield Review confirmed exact owners and sync propagation; implementation matched the plan, with one self-caught and self-corrected defect (fragile cross-surface relative path) before calling it done.
+- transparency_note: Implementation completed under this decision; the actual allowed vocabulary values and `doctor`'s validation logic are unchanged.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
 | UR | approved_by | Approval: UR | Exact approval captured in session on 2026-07-10 |
-| Brownfield Review | sizes | UR | Selected quick_task; found the additional `site.ts` data-array owner |
-| Quick Task Execution | implements | Brownfield Review | Updated `INSTALL.md`, `pages/src/data/site.ts`, `pages/src/pages/index.astro`, `create-agdf/bin/create-agdf.js` help text; extended `delivery-path-search-unit-test.js` with `capabilities.js` coverage |
+| Brownfield Review | sizes | UR | Selected quick_task; confirmed sync propagation and reference-vs-duplicate approach |
+| Quick Task Execution | implements | Brownfield Review | Added rules 12-14 to `plugin/control/templates/MASTER_BACKLOG.md`; added rule 15 to `release-or/SKILL.md`; extended rule 18 in `gate-check/SKILL.md`; verified propagation to Codex, Claude, Copilot and OpenCode generated variants |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| capabilities.js unit tests pass | `node create-agdf/scripts/delivery-path-search-unit-test.js` → "Delivery Path Search unit tests passed." (now asserts all 5 surface keys plus custom-evidence override) | Regression coverage for `enforcementForSurface` | direct |
-| Existing tests unaffected | `npm --prefix create-agdf run test:delivery-path-search` passes | No regression to search-engine behavior | direct |
-| Runtime integrity unaffected | `node plugin/scripts/check-runtime-integrity.mjs` → "ok (9 skills and 13 control files checked)" | No skill/control-file drift | direct |
-| Pages site builds cleanly | `npm --prefix pages run check` → "Result (9 files): 0 errors, 0 warnings, 0 hints" | Confirms the `.astro`/`site.ts` edits are valid, not just plausible-looking text | direct |
+| Sync propagation confirmed for all 4 surfaces | `grep` of `create-agdf/generated/{plugins/agdf,.github,.opencode}` after `npm --prefix create-agdf run sync-package-assets` shows the new rules present in Codex, Copilot and OpenCode generated skill/template files | Confirms the doc change reaches every surface, not just the source | direct |
+| Self-caught cross-surface path defect | First implementation used `../../control/templates/MASTER_BACKLOG.md`, correct only for Codex/Claude's mirrored directory layout (`generatedCodexPluginRoot` mirrors `plugin/` 1:1); Copilot's `generatedSkillsRoot = .github/skills` and OpenCode's `.opencode/agents` sit at a different depth relative to `generatedControlRoot = .agdf/control`, where the same relative path would resolve to a non-existent file | Confirms the fix was caught and corrected before being reported as done, not left as a latent defect | direct |
+| Runtime integrity unaffected | `node plugin/scripts/check-runtime-integrity.mjs` → "ok (9 skills and 13 control files checked)" (run twice, before and after the path-defect correction) | No skill/control-file drift introduced | direct |
+| Existing tests unaffected | `test:delivery-path-search`, `test:delivery-path-search-unit`, `test-routing.js` all pass | No regression | direct |
 
 ## Missing Evidence
 
@@ -111,32 +111,32 @@ Valid approval format for new runs: `Approval: <GateName>`.
 ## Context Graph Impact
 
 - context_graph_impact: none
-- context_graph_refs: CG-DELIVERY-PATH-SEARCH
-- context_graph_reconciliation: resolved
+- context_graph_refs:
+- context_graph_reconciliation: not_applicable
 - context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: Docs/tests/CLI help now match what the Context Graph already recorded; no further Context Graph change needed.
+- context_graph_evidence: Documentation-only fix; no new durable cross-run knowledge claim.
 
 ## Source And Scope State
 
 - normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `plugin/meta/agdf-plugin.definition.json`; live `.agdf/control/`
 - multi_scope_state: clear
-- active_scope_evidence: Approved UR and done Brownfield Review for `claude-parity-docs-and-tests`; Copilot/OpenCode status explicitly unchanged
+- active_scope_evidence: Approved UR and done Brownfield Review for `agdf-backlog-vocabulary-visibility`
 - competing_scope_lines: none
-- branch_workspace_evidence: `INSTALL.md`, `pages/src/data/site.ts`, `pages/src/pages/index.astro`, `create-agdf/bin/create-agdf.js`, `create-agdf/scripts/delivery-path-search-unit-test.js` modified
+- branch_workspace_evidence: `plugin/control/templates/MASTER_BACKLOG.md`, `plugin/skills/release-or/SKILL.md`, `plugin/skills/gate-check/SKILL.md` modified; `create-agdf/generated/**` regenerated (gitignored, not committed)
 - branch_workspace_scope_effect: supports
 
 ## Knowledge Persistence Decision
 
 - memory_target: none
-- memory_reason: Docs/test parity fix, no new durable cross-run knowledge beyond what Context Graph already holds.
+- memory_reason: Documentation fix; no new durable cross-run knowledge beyond the artefact chain itself.
 - memory_refs:
 
 ## Closeout
 
-- delivered: Approved and persisted UR; Brownfield Review that found and closed a fourth owner (`site.ts`) beyond the UR's original scope; `INSTALL.md`, Pages site prose and compatibility-table data, and CLI help text now accurately describe Claude as an executable DPS reference alongside Codex; `capabilities.js` now has regression-proof unit test coverage for all five surface keys and the evidence-override behavior.
-- not_delivered: Push of this change or the still-outstanding earlier commit `5feb13c` (separately flagged); Copilot/OpenCode evaluator work (out of scope by design).
-- verification_performed: `node create-agdf/scripts/delivery-path-search-unit-test.js`; `npm --prefix create-agdf run test:delivery-path-search`; `node plugin/scripts/check-runtime-integrity.mjs`; `npm --prefix pages run check`.
+- delivered: Approved and persisted UR; Brownfield Review confirming sync propagation and the reference-vs-duplicate wording decision; canonical status/artefact vocabulary now enumerated in the `MASTER_BACKLOG.md` template's Rules section; explicit `doctor`-verification step added to `release-or/SKILL.md`; cross-reference added to `gate-check/SKILL.md`; a self-introduced cross-surface relative-path defect was caught and corrected before closeout; verified propagation to all four generated surfaces (Codex, Claude, Copilot, OpenCode).
+- not_delivered: Push of this change (requires separate explicit instruction); no change to the actual allowed vocabulary values.
+- verification_performed: `node plugin/scripts/check-runtime-integrity.mjs` (twice); `npm --prefix create-agdf run sync-package-assets`; grep-based propagation checks across all four generated surface variants; `npm --prefix create-agdf run test:delivery-path-search`; `npm --prefix create-agdf run test:delivery-path-search-unit`; `node create-agdf/scripts/test-routing.js`.
 - unverified: Live CI execution of this change.
-- next_allowed_action: Offer commit-ready handoff; wait for explicit commit/push instruction; then re-check both this commit and the still-unpushed `5feb13c`.
+- next_allowed_action: Offer commit-ready handoff; wait for explicit commit/push instruction.
 - quality_outlook: No further technical follow-up required for this approved scope before commit.

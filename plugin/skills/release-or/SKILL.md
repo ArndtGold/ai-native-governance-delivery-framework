@@ -46,6 +46,7 @@ Use the Runtime Contract definition of `Relevant Run` to decide whether OR is ma
 12. Keep machine status normalization in the CLI; do not write internal snake_case status values into the human-facing backlog.
 13. Reconcile Context Graph impact before clean closeout: report `context_graph_reconciliation: resolved | not_applicable | open_gap`.
 14. If Context Graph work remains unresolved, report it as an explicit open gap and do not describe the run as cleanly handoff-ready.
+15. After writing or updating `MASTER_BACKLOG.md`, run `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before closeout. See the AGDF control scaffold's `MASTER_BACKLOG.md` template Rules section for the canonical status/artefact label vocabulary.
 
 ## When To Use
 - at the end of every relevant run

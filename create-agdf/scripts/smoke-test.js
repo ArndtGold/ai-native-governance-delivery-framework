@@ -1230,6 +1230,19 @@ run("config", [
     if (gateCheckReport.next_allowed_action !== "Draft PRD.") {
       throw new Error(`Gate-check should expose the next allowed action, got ${gateCheckReport.next_allowed_action}.`);
     }
+    if (gateCheckReport.next_gate_after_approval !== "SD" || gateCheckReport.status_card?.next_gate_after_approval !== "SD") {
+      throw new Error("Gate-check should expose SD as the next gate after PRD approval.");
+    }
+    if (!gateCheckReport.allowed_after_approval.includes("Draft Solution Design") || gateCheckReport.allowed_after_approval.includes("implementation is allowed")) {
+      throw new Error("Gate-check should describe post-PRD approval authority without implying implementation authority.");
+    }
+    if (!gateCheckReport.status_card?.allowed_after_approval.includes("Draft Solution Design")) {
+      throw new Error("Status card should expose allowed-after-approval text for a missing PRD approval.");
+    }
+    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
+    if (!statusCardOutput.includes("Next gate after approval: SD") || !statusCardOutput.includes("Allowed after approval: Draft Solution Design")) {
+      throw new Error("gate-check --status-card should print post-approval transition lines for missing approval cases.");
+    }
     if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {
       throw new Error("Gate-check should expose filled evidence references.");
     }
@@ -1306,6 +1319,90 @@ run("config", [
     }
     if (!gateCheckReport.forbidden.includes("create PRD before process size is decided")) {
       throw new Error("Gate-check should forbid PRD before process size is decided.");
+    }
+    if (gateCheckReport.next_gate_after_approval !== "none" || gateCheckReport.status_card?.allowed_after_approval !== "none") {
+      throw new Error("Internal Mode/Slice Decision should not invent post-approval transition fields.");
+    }
+    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
+    if (statusCardOutput.includes("Next gate after approval:") || statusCardOutput.includes("Allowed after approval:")) {
+      throw new Error("Internal-step status card should omit post-approval transition lines.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-or-handoff-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: or-run
+- started_at: 2026-07-10
+- mode: structured_delivery
+- current_gate: OR
+- decision: pass
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | UAT approved and OR handoff is allowed. |
+| What is approved? | UR, PRD, SD, TP, QA, UAT |
+| What is missing? | none |
+| What is the next allowed action? | Produce delivery closeout. |
+| What is explicitly forbidden right now? | Automatic commit or release |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | not_applicable | quick historical scope |
+| PRD | not_applicable | quick historical scope |
+| SD | not_applicable | quick historical scope |
+| TP | not_applicable | quick historical scope |
+| QA | approved | QA report passed |
+| UAT | approved | Approval: UAT |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| QA | .agdf/control/artefacts/or-run/QA_REPORT.md | passed |  |
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| QA_REPORT | tests | TP | QA report verified the completed task plan. |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| UAT approval | AGDF_RUN.md | UAT | direct |
+
+## Closeout
+
+- next_allowed_action: Produce delivery closeout.
+`, "utf8");
+
+    const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" }));
+    if (gateCheckReport.current_gate !== "OR" || gateCheckReport.missing_approval !== "none") {
+      throw new Error("OR handoff should have no missing approval.");
+    }
+    if (gateCheckReport.next_gate_after_approval !== "none" || gateCheckReport.status_card?.allowed_after_approval !== "none") {
+      throw new Error("OR handoff should not expose post-approval transition fields.");
+    }
+    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
+    if (statusCardOutput.includes("Next gate after approval:") || statusCardOutput.includes("Allowed after approval:")) {
+      throw new Error("OR handoff status card should omit post-approval transition lines.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

@@ -1723,6 +1723,40 @@ function deriveQualityOutlook(runState, findings = []) {
   return "No additional quality follow-up identified from the current control state.";
 }
 
+function postApprovalTransition(missingApproval) {
+  const transitions = new Map([
+    ["Approval: UR", {
+      next_gate_after_approval: "Brownfield Review",
+      allowed_after_approval: "Run Brownfield Review and record Mode/Slice Decision before PRD or implementation.",
+    }],
+    ["Approval: PRD", {
+      next_gate_after_approval: "SD",
+      allowed_after_approval: "Draft Solution Design; implementation remains forbidden.",
+    }],
+    ["Approval: SD", {
+      next_gate_after_approval: "TP",
+      allowed_after_approval: "Draft Task/Test Plan; implementation remains forbidden.",
+    }],
+    ["Approval: TP", {
+      next_gate_after_approval: "Brownfield Analysis",
+      allowed_after_approval: "Run implementation-prep Brownfield Analysis before CD+Tests.",
+    }],
+    ["Approval: QA", {
+      next_gate_after_approval: "UAT",
+      allowed_after_approval: "Request UAT when QA has passed; release remains gated.",
+    }],
+    ["Approval: UAT", {
+      next_gate_after_approval: "OR",
+      allowed_after_approval: "Produce OR or delivery closeout; VCS and release actions still require explicit instruction.",
+    }],
+  ]);
+
+  return transitions.get(missingApproval) ?? {
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+  };
+}
+
 function buildStatusCard({
   status,
   currentGate,
@@ -1735,6 +1769,7 @@ function buildStatusCard({
   findings = [],
 }) {
   const qualityOutlook = deriveQualityOutlook(runState, findings);
+  const postApproval = postApprovalTransition(missingApproval);
   return {
     mode: extractField(runState.content ?? "", "mode") || "unknown",
     status,
@@ -1744,6 +1779,8 @@ function buildStatusCard({
     forbidden_now: forbidden,
     blocking_condition: blockingReason || "none",
     missing_approval: missingApproval || "none",
+    next_gate_after_approval: postApproval.next_gate_after_approval,
+    allowed_after_approval: postApproval.allowed_after_approval,
     evidence: runState.evidence_refs,
     next_skill: nextSkillByGate[currentGate] ?? "gate-check",
     next_step: nextAllowedAction,
@@ -1987,12 +2024,16 @@ function evaluateGateCheck(targetDir) {
       : doctorRevise.next_step;
   }
 
+  const postApproval = postApprovalTransition(missingApproval);
+
   return {
     schema_version: "1",
     status,
     current_gate: currentGate,
     blocking_reason: blockingReason,
     missing_approval: missingApproval,
+    next_gate_after_approval: postApproval.next_gate_after_approval,
+    allowed_after_approval: postApproval.allowed_after_approval,
     allowed,
     forbidden,
     next_allowed_action: nextAllowedAction,
@@ -2029,6 +2070,8 @@ function printGateCheckStatusCard(report) {
   console.log(`Current gate: ${card.current_gate}`);
   console.log(`Blocked by: ${card.blocking_condition}`);
   console.log(`Missing approval: ${card.missing_approval}`);
+  if (card.next_gate_after_approval !== "none") console.log(`Next gate after approval: ${card.next_gate_after_approval}`);
+  if (card.allowed_after_approval !== "none") console.log(`Allowed after approval: ${card.allowed_after_approval}`);
   console.log(`Next skill: ${card.next_skill}`);
   console.log(`Next step: ${card.next_step}`);
   console.log(`Quality outlook: ${card.quality_outlook}`);
@@ -2087,6 +2130,7 @@ function evaluateDeliveryMap(targetDir) {
 
   const qualityOutlook = deriveQualityOutlook(runState, map.findings);
   const nextAllowedAction = isPlaceholderValue(runState.next_allowed_action) ? gateDecision.next_allowed_action : runState.next_allowed_action;
+  const postApproval = postApprovalTransition(gateDecision.missing_approval);
 
   return {
     schema_version: "1",
@@ -2095,6 +2139,8 @@ function evaluateDeliveryMap(targetDir) {
     target_dir: targetDir,
     current_gate: currentGate,
     next_allowed_action: nextAllowedAction,
+    next_gate_after_approval: postApproval.next_gate_after_approval,
+    allowed_after_approval: postApproval.allowed_after_approval,
     quality_outlook: qualityOutlook,
     status_card: buildStatusCard({
       status,

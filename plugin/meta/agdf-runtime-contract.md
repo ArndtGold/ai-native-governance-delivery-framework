@@ -40,6 +40,8 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 - `forbidden_now`: outputs or actions currently forbidden
 - `blocking_condition`: current blocker or `none`
 - `missing_approval`: exact missing approval formula or `none`
+- `next_gate_after_approval`: the next user gate or internal step unlocked by the missing approval, or `none`
+- `allowed_after_approval`: concise description of what becomes allowed after the missing approval, or `none`
 - `evidence`: concrete evidence references currently visible
 - `next_skill`: next AGDF skill or `none`
 - `next_step`: the single next permissible process action
@@ -51,6 +53,13 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 - `quality_outlook` is quality direction: what would most improve confidence, maintainability, evidence, or delivery integrity if further investment is made.
 
 `quality_outlook` must not unlock gates, imply QA pass, or substitute for missing evidence.
+
+`allowed_now` and `allowed_after_approval` are intentionally different:
+
+- `allowed_now` is current authority under the active gate.
+- `allowed_after_approval` is the immediate authority unlocked only after the exact `missing_approval` is supplied.
+
+`next_gate_after_approval` and `allowed_after_approval` must be `none` when no approval is missing, when the current step is internal, or when the run is in OR/completed handoff. They must not imply implementation, QA, release, commit, push or PR authority unless the existing gate model already allows that authority.
 
 ## Delivery Path Search
 
@@ -69,7 +78,8 @@ reports and automation. Human-facing Markdown must present the same projection
 with readable labels such as `Current gate`, `Allowed now`, `Blocked by`,
 `Next step` and `Quality outlook`; do not expose snake_case keys as the visible
 Run Status Card. Keep that card compact: show `Status`, `Current gate`,
-`Allowed now`, `Blocked by`, `Missing approval`, `Next step` and
+`Allowed now`, `Blocked by`, `Missing approval`, `Next gate after approval`
+and `Allowed after approval` when a missing approval exists, `Next step` and
 `Quality outlook`. Keep mode, forbidden actions, evidence and next-skill detail
 in the surrounding control artefact when they are relevant.
 

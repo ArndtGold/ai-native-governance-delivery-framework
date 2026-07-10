@@ -227,6 +227,8 @@ Then start a new Codex thread and ask:
 Run an AGDF gate check for this request.
 ```
 
+For a visual example of the installed Codex plugin surface, see the project website's Codex plugin screenshot. Treat that screenshot as a UI example, not as the release version source of truth.
+
 For a normal fresh request, AGDF does not require `init` as a ritual first step. The agent can draft the minimal UR in the response and request the exact approval text `Approval: UR`.
 
 For Brownfield Review, later gated delivery work or implementation, the Runtime Contract still requires the relevant durable or linked artefacts before the process can move on. Create `.agdf/control` files only when the repository should own durable AGDF control state, when that state is already live, or when deterministic setup for scripts, CI or repeatable onboarding is needed.

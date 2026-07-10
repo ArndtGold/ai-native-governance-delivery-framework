@@ -107,9 +107,10 @@ The CLI validators provide deterministic evidence for agents and automation.
 They do not replace AGDF skill judgement or user approvals.
 
 Delivery Path Search requires live `.agdf/control/AGDF_RUN.md` state with explicit
-allowed and forbidden actions. Codex is the executable evaluator in this
-release. Claude Code, Copilot and OpenCode expose the shared skill and contract,
-but do not yet ship native executable evaluators.
+allowed and forbidden actions. Codex and Claude Code are executable, tool-enforced
+reference evaluators in this release. Copilot and OpenCode expose the shared skill
+and contract as instruction-only surfaces until a conforming executable evaluator
+is available.
 
 Use `--persist` only when the redacted decision should become durable scope
 evidence. It writes `DELIVERY_PATH_SEARCH.json` and

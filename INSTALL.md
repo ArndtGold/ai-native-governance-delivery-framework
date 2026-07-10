@@ -57,10 +57,10 @@ Support boundary:
 
 | Surface | Shared workflow and routing | Executable evaluator |
 |---|---|---|
-| Codex | yes | yes, reference adapter |
-| Claude Code | yes | not in this release |
-| GitHub Copilot | yes | not in this release |
-| OpenCode | yes | not in this release |
+| Codex | yes | yes, tool-enforced reference adapter |
+| Claude Code | yes | yes, tool-enforced reference adapter |
+| GitHub Copilot | yes | no, instruction-only |
+| OpenCode | yes | no, instruction-only |
 
 `--fixture` is available for deterministic contract testing. It is not a production external-evaluator configuration. Additional agents must implement the published evaluator contract before executable support can be claimed.
 

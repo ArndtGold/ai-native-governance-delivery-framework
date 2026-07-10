@@ -155,17 +155,18 @@ Use `delivery-path-search` only for high-impact planning decisions with several 
 npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
 ```
 
-The first release uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex is the executable reference adapter; Claude Code, Copilot and OpenCode reuse the same skill and contracts while declaring whether enforcement is full, tool-enforced or instruction-only.
+The first release uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex and Claude Code are executable, tool-enforced reference adapters; Copilot and OpenCode reuse the same skill and contracts as instruction-only surfaces until a conforming executable evaluator is available.
 
 Requirements and boundaries:
 
 - run it only in a repository with live `.agdf/control/AGDF_RUN.md` state
 - the current control state must expose legal next actions
 - Codex CLI must be installed and authenticated for `--surface codex`
-- `--model <id>` optionally selects the Codex evaluator model
+- Claude Code CLI must be installed and authenticated for `--surface claude`
+- `--model <id>` optionally selects the Codex or Claude evaluator model
 - `--persist` writes redacted `DELIVERY_PATH_SEARCH.json` and `.md` evidence under the current scope
 - `--fixture <path>` is for deterministic contract tests, not a production evaluator
-- Claude Code, Copilot and OpenCode have shared workflow mappings but no executable native evaluator in this release
+- Copilot and OpenCode have shared workflow mappings but no executable native evaluator in this release
 - cost units are rubric values used for bounded comparison, not measured provider currency
 
 The result is either one recommendation or `no_safe_recommendation`. In both cases run canonical `gate-check` afterwards.

@@ -9,6 +9,7 @@ import process from "node:process";
 import { searchInputFromControl } from "../lib/delivery-path-search/state-adapter.js";
 import { runDeliveryPathSearch } from "../lib/delivery-path-search/search-engine.js";
 import { codexEvaluator } from "../lib/delivery-path-search/evaluators/codex.js";
+import { claudeEvaluator } from "../lib/delivery-path-search/evaluators/claude.js";
 import { fixtureEvaluator } from "../lib/delivery-path-search/evaluators/protocol.js";
 import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
 import { persistSearchResult } from "../lib/delivery-path-search/persistence.js";
@@ -2200,9 +2201,11 @@ async function executeDeliveryPathSearch(options) {
     ? fixtureEvaluator(fixture.evaluations ?? {})
     : options.surface === "codex"
       ? codexEvaluator({ cwd: options.dir, model: options.model })
-      : null;
+      : options.surface === "claude"
+        ? claudeEvaluator({ cwd: options.dir, model: options.model })
+        : null;
   if (!evaluator) {
-    throw new Error(`${options.surface} has no executable evaluator in this release. Codex is the reference adapter; --fixture is available for deterministic contract testing.`);
+    throw new Error(`${options.surface} has no executable evaluator in this release. Codex and Claude are the reference adapters; --fixture is available for deterministic contract testing.`);
   }
   const result = await runDeliveryPathSearch(input, evaluator, { candidates: fixture?.candidates });
   if (options.persist) result.persistence = persistSearchResult(options.dir, result);

@@ -2,32 +2,34 @@
 
 ## Run Meta
 
-- run_id: agdf-micro-tier-below-quick-task
+- run_id: agdf-run-md-merge-strategy
 - started_at: 2026-07-10
-- mode: structured_slice
-- current_gate: OR
+- mode: quick_task
+- current_gate: Quick Task Execution
 - decision: pass
 - owner: agent
 
 ## Objective
 
-Give trivial, non-normative changes an explicit, narrow, path-based path that uses only the existing
-compact Quick Task Output shape instead of the full `AGDF_RUN.md` ceremony, without loosening ceremony
-for anything that touches skills, templates, meta, or code.
+Reduce or eliminate blocking git merge conflicts on `.agdf/control/AGDF_RUN.md` from concurrent edits
+across machines/sessions, without breaking the existing CI dependency
+(`.github/workflows/agdf-guardrails.yml`'s `delivery-map` check) that requires the file to exist in a
+checkout.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | `AGDF_RUN.md` is a single, one-size-fits-all template with no size variants; the Runtime Contract already defines a lightweight "Quick Task Output" shape but no explicit, mechanically checkable criterion for when it may replace the full file. |
-| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP`, `Approval: QA` and `Approval: UAT` all provided and confirmed on 2026-07-10. OR-full produced, `pass`. |
-| What is missing? | Nothing for this run's approved scope. |
-| What is the next allowed action? | Offer delivery closeout; commit/push require separate explicit instruction. |
-| What is explicitly forbidden right now? | Implementation, changes to `AGDF_RUN.md` template, Runtime Contract edits, `doctor` logic changes. |
+| What is known? | Implementation done and verified. A simulated union merge (`git merge-file --union`) confirmed exit code 0 (no blocking conflict) but revealed a real caveat: `doctor`'s regex-based field extraction reads only the first match, so it silently ignores a duplicated `current_gate` line rather than flagging it — the README bullet was corrected mid-run to state this honestly instead of overclaiming full protection. Separately and NOT caused by this run: `check-runtime-integrity.mjs` currently fails (Codex/Claude plugin manifest descriptions out of sync with the canonical definition) — confirmed via `git stash` to already exist at bare commit `5292f62`, the external commit from the other machine. |
+| What is approved? | `Approval: UR` provided on 2026-07-10. Brownfield Review done, selected `quick_task`. Quick Task implemented and verified. |
+| What is missing? | Nothing for this run's approved scope. The pre-existing, unrelated `check-runtime-integrity.mjs` failure from commit `5292f62` is a separate open issue, not part of this run. |
+| What is the next allowed action? | Offer delivery closeout for this run; separately, decide whether to open a new UR for the pre-existing plugin-manifest drift. |
+| What is explicitly forbidden right now? | Changing anything beyond `.gitattributes` and the `plugin/control/README.md` bullet under this run's scope. |
 
 ## Prior Run Pointers
 
-- `agdf-backlog-vocabulary-visibility` completed on 2026-07-10 (`pass`); unrelated to this run's scope, but is the direct trigger evidence cited in this run's UR.
+- `agdf-micro-tier-below-quick-task` completed on 2026-07-10 (`pass`); unrelated in scope, but is the
+  run during which this UR's triggering incident (external commits `2fff2c8`/`5292f62`) was observed.
 
 ## Run Status Card
 
@@ -36,12 +38,12 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Run status | Value |
 |---|---|
 | Status | Pass |
-| Current gate | OR |
+| Current gate | Quick Task Execution |
 | Allowed now | Delivery closeout handoff |
 | Blocked by | none |
 | Missing approval | none |
-| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction |
-| Quality outlook | This run's own CR/`doctor` cycle caught 4 real control-bookkeeping slips in real time — the strongest available evidence that the reduced ceremony boundary does not weaken governance |
+| Next step | Offer commit-ready handoff; wait for explicit commit/push instruction. Separately flag the pre-existing, unrelated `check-runtime-integrity.mjs` failure from commit `5292f62` |
+| Quality outlook | Chose git's built-in `union` driver over a custom `ours` driver to avoid an undocumented, easy-to-skip local setup step; corrected the README wording mid-run once testing showed `doctor` cannot detect the duplicated-line case by itself |
 
 ## Approvals
 
@@ -50,107 +52,113 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Gate | Status | Evidence |
 |---|---|---|
 | UR | approved | `Approval: UR` provided in session on 2026-07-10 |
-| PRD | approved | `Approval: PRD` confirmed against final content on 2026-07-10 |
-| SD | approved | `Approval: SD` provided in session on 2026-07-10 |
-| TP | approved | `Approval: TP` provided in session on 2026-07-10 |
-| QA | approved | `Approval: QA` provided in session on 2026-07-10; report `pass` |
-| UAT | approved | `Approval: UAT` provided in session on 2026-07-10 |
+| PRD | not_applicable | quick_task; Brownfield Review selected quick_task, no PRD required |
+| SD | not_applicable | quick_task |
+| TP | not_applicable | quick_task |
+| QA | not_applicable | quick_task has no formal QA gate; relevant checks recorded as evidence instead |
+| UAT | not_applicable | quick_task |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/UR.md | approved | Reduce documentation ceremony for trivial, non-normative changes |
-| Brownfield Review | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/BROWNFIELD_REVIEW.md | done | Confirmed single-template ceremony; selected `structured_slice` |
-| PRD | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/PRD.md | approved | Path-prefix boundary defined; `doctor`/`AGDF_RUN.md` question resolved; `Prior Run Pointers`-line decision incorporated |
-| SD | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/SD.md | approved | Single-file amendment scoped to `agdf-runtime-contract.md`; no skill/doctor/CLI changes needed |
-| TP | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/TP.md | approved | 7 tasks (T1-T7); worked example uses a genuine pending doc nit, not a manufactured one |
-| Brownfield Analysis | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/BROWNFIELD_ANALYSIS.md | passed | `pass`; worked-example applied: `README.md` Projektstruktur `agdf/` entry added |
-| Review | inline (CR above) | done | 4 revise-findings fixed; `doctor` pass/0 findings |
-| QA | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/QA_REPORT.md | pass | `Approval: QA` provided on 2026-07-10 |
-| OR | .agdf/control/artefacts/agdf-micro-tier-below-quick-task/OR.md | done | OR-full; `pass` |
+| UR | .agdf/control/artefacts/agdf-run-md-merge-strategy/UR.md | approved | Reduce concurrent-edit conflict risk on `AGDF_RUN.md` |
+| Brownfield Review | .agdf/control/artefacts/agdf-run-md-merge-strategy/BROWNFIELD_REVIEW.md | done | Rejected custom `ours` driver (undistributable without local config); selected built-in `union`; selected `quick_task` |
+| PRD | not_applicable | not_applicable | quick_task |
+| SD | not_applicable | not_applicable | quick_task |
+| TP | not_applicable | not_applicable | quick_task |
+| Brownfield Analysis | not_applicable | not_applicable | quick_task |
+| Review | none | missing | No separate formal code review artefact for this quick_task; checks recorded as evidence below |
+| QA | not_applicable | not_applicable | quick_task |
+| OR | inline (OR-lite) | done | Recorded in Closeout below, per quick_task OR-lite allowance |
 
 ## Mode / Slice Decision
 
-- decision: structured_slice
-- required_next_gate: PRD
-- scope_reason: Introduces new governance product semantics (an explicit ceremony-skip boundary in the mode model), touches the normative Runtime Contract, and must propagate across four generated surfaces plus possibly `doctor` validation logic — exceeds `quick_task`'s bar, but stays narrow enough that full `structured_delivery` is not warranted.
+- decision: quick_task
+- required_next_gate: none
+- scope_reason: One new `.gitattributes` line plus one Operating Rules bullet in `plugin/control/README.md`; no Runtime Contract, skill, doctor, or CI change; fully reversible.
 - evidence: See Brownfield Review Existing-System View and Reuse/Parallel-Structure Risk tables.
-- transparency_note: Only PRD drafting is allowed next; implementation remains forbidden.
+- transparency_note: Quick Task Execution may now add `.gitattributes` and the README bullet; nothing else.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
 | UR | approved_by | Approval: UR | Exact approval captured in session on 2026-07-10 |
-| Brownfield Review | sizes | UR | Selected `structured_slice`; identified single-template ceremony and path-based boundary requirement |
-| PRD | derived_from | UR | PRD scope directly implements the UR's Goal/Scope; `Approval: PRD` confirmed against final content on 2026-07-10 |
-| SD | derived_from | PRD | SD's single-file amendment plan implements PRD Acceptance Criteria 1-2; `Approval: SD` on 2026-07-10 |
-| TP | derived_from | SD | TP tasks T1-T7 map 1:1 to SD's Solution Overview and Test/Evidence Strategy; `Approval: TP` on 2026-07-10 |
-| CD+Tests | implements | TP | T1-T7 all executed with evidence; see Evidence table |
-| QA_REPORT | tests | TP | All 7 TP tasks verified `fully_done` in task-plan-review; QA decision `pass`; `Approval: QA` on 2026-07-10 |
+| Brownfield Review | sizes | UR | Rejected custom `ours` driver, selected built-in `union`; selected `quick_task` |
+| Quick Task Execution | implements | Brownfield Review | Added `.gitattributes`; added Operating Rules bullet to `plugin/control/README.md`; verified via simulated union-merge test and `check-runtime-integrity.mjs` |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Single `AGDF_RUN.md` template confirmed | Read of `plugin/control/templates/AGDF_RUN.md` | Confirms no existing size variant | direct |
-| Existing "Quick Task Output" / "Relevant Run" sections confirmed | Read of `plugin/meta/agdf-runtime-contract.md` lines 18-28, 177-182 | Confirms the lightweight shape already exists but lacks a file-skip criterion | direct |
-| T1/T2 amendment applied | Diff of `plugin/meta/agdf-runtime-contract.md`: new "Non-Normative Trivial Change Boundary" subsection under "Quick Task Output"; new paragraph in "Relevant Run" | Delivers PRD Acceptance Criteria 1-2 | direct |
-| T3 runtime integrity | `node plugin/scripts/check-runtime-integrity.mjs` → "ok (9 skills and 13 control files checked)", run before and after T1/T2 | No skill/control-file drift introduced | direct |
-| T4 propagation | `npm --prefix create-agdf run sync-package-assets`, then `grep -rl "Non-Normative Trivial Change Boundary" create-agdf/generated/` → found in `.github/skills/`, `.opencode/`, `plugins/agdf/meta/` (Claude reads `plugin/` directly, no separate copy) | Confirms propagation to all four surfaces | direct |
-| T5 regression | `delivery-path-search-test.js`, `delivery-path-search-unit-test.js`, `test-routing.js` all pass | No regression from the wording change | direct |
-| T6 worked example | `README.md` Projektstruktur diff: added missing `agdf/` entry (the published `@agdf/cli` package); a genuine pre-existing gap, not manufactured; touches only `README.md`, fully outside the boundary; runtime integrity re-checked after, still "ok" | Demonstrates the new rule on a real case | direct |
-| T7 Context Graph node | `CG-DOCUMENTATION-CEREMONY-BOUNDARY` added to `.agdf/control/CONTEXT_GRAPH.md` | Closes the deferred Brownfield Review Context Graph action | direct |
+| CI depends on `AGDF_RUN.md` presence | `.github/workflows/agdf-guardrails.yml` line 27: `node create-agdf/bin/create-agdf.js delivery-map --dir .` | Confirms gitignoring the file outright would break CI | direct |
+| Concurrent external edits observed | `git log --oneline --all`, `git reflog`, `git show` on commits `2fff2c8` and `5292f62`; user confirmed `5292f62` originates from another machine | Confirms the conflict risk is real, not hypothetical | direct |
+| No actual content collision this time | `git diff --stat HEAD` showed no divergence; `main...origin/main` showed no ahead/behind marker | Confirms this specific incident resolved cleanly by luck of non-overlapping file regions, not by design | direct |
+| `.gitattributes` added, propagation confirmed | New file `.gitattributes` (`.agdf/control/AGDF_RUN.md merge=union`); `plugin/control/README.md` Operating Rules bullet added and found in `create-agdf/generated/.agdf/control/README.md` and `create-agdf/generated/plugins/agdf/control/README.md` after `sync-package-assets` | Delivers UR Scope items 1-2 | direct |
+| Union merge simulation | `git merge-file --union merged.md base.md theirs.md` with conflicting `current_gate` lines → exit code 0 (no blocking conflict), but result kept both lines (`current_gate: QA` and `current_gate: CR`) side by side | Confirms Acceptance Signal "resolves without a blocking conflict"; confirms the "garbled" risk is real | direct |
+| `doctor` blind spot on duplication | Regex test (`content.match(/^- current_gate:.../m)`) against the duplicated-line result returned only the first value (`"QA"`), silently ignoring the second line | Confirms `doctor` alone will not catch this specific duplication class; corrected the README wording to say this honestly instead of overclaiming | direct |
+| Runtime integrity: my change is clean | `node plugin/scripts/check-runtime-integrity.mjs` after this run's changes still fails with the *same* 5 findings as with this run's changes stashed out (`git stash` test against bare commit `5292f62`) | Confirms the failure is pre-existing and unrelated to this run, not introduced by it | direct |
+| No regression | `create-agdf/scripts/test-routing.js` passed | No regression from `.gitattributes`/README changes | direct |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| none | none | none |
+| none for this run's scope | none | none |
+| Root cause and fix for the pre-existing `check-runtime-integrity.mjs` failure (commit `5292f62`) | warn, unrelated to this run | Separate UR if the user wants it addressed now |
 
 ## Risks
 
 | Risk | Impact | Mitigation or owner |
 |---|---|---|
-| ~~Boundary becomes a scope-creep loophole if expressed only as prose judgment~~ mitigated | none | T1 implemented the boundary as an explicit, fail-closed path-prefix allow-list in `agdf-runtime-contract.md`, not prose judgment — confirmed in CR |
+| ~~`merge=ours` could silently discard a more-current incoming run state~~ avoided | none | Rejected `ours`; chose `union`, which keeps both sides rather than discarding either |
+| `union` can leave duplicated/conflicting lines that `doctor` alone will not detect (confirmed: it reads only the first regex match per field) | warn | README bullet now explicitly instructs a visual skim in addition to `doctor`/`gate-check` after a merge |
+| Pre-existing, unrelated `check-runtime-integrity.mjs` failure from commit `5292f62` (plugin manifest descriptions out of sync with canonical definition) | warn | Not this run's scope; flagged to the user for a separate decision |
 
 ## Context Graph Impact
 
-- context_graph_impact: new_node_required
-- context_graph_refs: CG-DOCUMENTATION-CEREMONY-BOUNDARY
-- context_graph_reconciliation: resolved
-- context_graph_required_action: create
+- context_graph_impact: none
+- context_graph_refs:
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: Node created in `.agdf/control/CONTEXT_GRAPH.md` (T7), referencing `plugin/meta/agdf-runtime-contract.md`, `plugin/control/templates/AGDF_RUN.md`, `create-agdf/bin/create-agdf.js`.
+- context_graph_evidence: Not yet assessed — UR stage only.
 
 ## Source And Scope State
 
-- normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `plugin/control/templates/AGDF_RUN.md`; live `.agdf/control/`
+- normative_instruction_source: `plugin/meta/agdf-runtime-contract.md`; `.github/workflows/agdf-guardrails.yml`; live `.agdf/control/`
 - multi_scope_state: clear
-- active_scope_evidence: Approved UR and done Brownfield Review for `agdf-micro-tier-below-quick-task`
+- active_scope_evidence: New UR drafted for `agdf-run-md-merge-strategy`
 - competing_scope_lines: none
-- branch_workspace_evidence: no code changes yet; only new `.agdf/control/artefacts/agdf-micro-tier-below-quick-task/{UR.md,BROWNFIELD_REVIEW.md}`
+- branch_workspace_evidence: only new `.agdf/control/artefacts/agdf-run-md-merge-strategy/UR.md`
 - branch_workspace_scope_effect: supports
 
 ## Knowledge Persistence Decision
 
-- memory_target: context_graph
-- memory_reason: Reusable Brownfield finding (ceremony weight is structural, not agent over-application) and the path-based boundary requirement should survive beyond this run.
-- memory_refs: to be finalized at closeout
+- memory_target: none
+- memory_reason: Not yet relevant — UR stage only.
+- memory_refs:
 
 ## Closeout
 
-- delivered: Full UR→PRD→SD→TP→Brownfield Analysis→CD+Tests→CR→QA→UAT chain approved and passed on
-  2026-07-10; Runtime Contract amended with the Non-Normative Trivial Change Boundary; propagation to
-  all four surfaces confirmed; genuine worked example applied (`README.md` `agdf/` entry); Context
-  Graph node `CG-DOCUMENTATION-CEREMONY-BOUNDARY` created; CR/`doctor` cycle caught and fixed 4
-  control-bookkeeping defects along the way.
-- not_delivered: Commit/push of this change; no change to `doctor` logic, skills, or Mode/Slice
-  Decision model — all confirmed unnecessary for this scope.
-- verification_performed: `check-runtime-integrity.mjs` (x3), `sync-package-assets` + propagation grep,
-  full `create-agdf` regression suite, `npx @agdf/cli doctor` (progression 5→2→1→0 findings).
-- unverified: Live CI execution of this exact change (requires commit + push).
+- delivered: `.gitattributes` (`.agdf/control/AGDF_RUN.md merge=union`); Operating Rules bullet added to
+  `plugin/control/README.md`, propagated to generated Codex/Copilot/OpenCode surfaces; simulated
+  union-merge test confirming no blocking conflict; honest correction of the README wording once
+  testing showed `doctor` cannot detect simple line-duplication by itself.
+- not_delivered: Any change to `agdf-runtime-contract.md`, skills, `doctor` logic, or CI workflow —
+  confirmed unnecessary. Fix for the pre-existing, unrelated `check-runtime-integrity.mjs` failure
+  (commit `5292f62`) — out of this run's scope, flagged separately to the user.
+- verification_performed: `git merge-file --union` simulation (exit 0, duplicated-line result
+  inspected); regex test confirming `doctor`'s single-match blind spot;
+  `node plugin/scripts/check-runtime-integrity.mjs` (same pre-existing 5 findings with and without this
+  run's changes, via `git stash`); `sync-package-assets` + propagation grep;
+  `create-agdf/scripts/test-routing.js` passed.
+- unverified: Real-world behavior under an actual concurrent `git merge` from two live clones (only
+  simulated via `merge-file --union`, not a full two-clone rehearsal).
 - next_allowed_action: Offer delivery closeout; commit/push require separate explicit instruction.
-- quality_outlook: See OR Quality Outlook — the CR/doctor catch-rate on this run's own bookkeeping is
-  itself evidence the reduced boundary does not weaken governance.
+  Separately: decide whether to open a new UR for the pre-existing plugin-manifest drift from commit
+  `5292f62`.
+- quality_outlook: The mid-run correction (from overclaiming `doctor` catches all union-merge damage, to
+  honestly stating its blind spot) is itself the strongest evidence this run behaved with the rigor it
+  is supposed to protect.

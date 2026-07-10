@@ -80,5 +80,6 @@ npx --yes @agdf/cli@latest gate-check --json
 - `SOT_REGISTRY.md` decides which document owns which domain.
 - `CONTEXT_GRAPH.md` records durable project knowledge only when it has evidence and an exit criterion.
 - `AGENT_QUALITY_CONTRACTS.json` names reusable block, revise and warning conditions.
+- `AGDF_RUN.md` can be edited concurrently from different machines or sessions. Give it a `.gitattributes` entry (`.agdf/control/AGDF_RUN.md merge=union`, git's built-in union driver — no local `git config` registration needed, unlike a custom named driver) so concurrent edits merge automatically instead of blocking. Always re-run `doctor`/`gate-check` and visually skim the merged file after a merge or pull that could have touched it: a union merge on conflicting lines (e.g. two different `current_gate` values) keeps both lines rather than erroring, and `doctor` reads only the first match per field, so it will not by itself flag that duplication — it only catches missing or structurally malformed fields.
 
 Do not duplicate full product documentation in this scaffold. Link to the authoritative artefact instead.

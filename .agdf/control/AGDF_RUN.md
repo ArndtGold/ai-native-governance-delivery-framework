@@ -23,6 +23,10 @@ Make AGDF gate/status output show current gate, required approval, and next gate
 | What is the next allowed action? | Offer commit handoff; do not perform Git operations automatically. |
 | What is explicitly forbidden right now? | Commit, push, PR, release, tag and publish without explicit user instruction. |
 
+## Prior Run Pointer
+
+The run `create-agdf-lib-test-coverage` also completed on 2026-07-10 (quick_task; unit test coverage for `create-agdf/lib` scoring/candidate-policy/contracts); see `.agdf/control/MASTER_BACKLOG.md` Completed section and `.agdf/control/artefacts/create-agdf-lib-test-coverage/BROWNFIELD_REVIEW.md`. Its `package.json` test-wiring change is additive and does not conflict with this run's scope.
+
 ## Run Status Card
 
 This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.

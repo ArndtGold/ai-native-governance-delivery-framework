@@ -22,6 +22,8 @@ const pagesSkillsPath = join(repoRoot, "pages", "src", "data", "skills.ts");
 const pagesIndexPath = join(repoRoot, "pages", "src", "pages", "index.astro");
 const syncPackageAssetsPath = join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js");
 const activeRunStatePath = join(repoRoot, ".agdf", "control", "AGDF_RUN.md");
+const rootLicensePath = join(repoRoot, "LICENSE");
+const pluginLicensePath = join(pluginRoot, "LICENSE");
 const controlRoot = join(pluginRoot, "control");
 const skillRoot = join(pluginRoot, "skills");
 
@@ -184,6 +186,12 @@ assertFile(pagesSkillsPath, "Pages skill data");
 assertFile(pagesIndexPath, "Pages index");
 assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
 assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
+assertFile(rootLicensePath, "root LICENSE");
+assertFile(pluginLicensePath, "plugin LICENSE");
+
+if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath) !== read(pluginLicensePath)) {
+  failures.push("plugin/LICENSE must be byte-identical to the root LICENSE");
+}
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;

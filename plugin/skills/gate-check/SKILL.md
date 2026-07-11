@@ -124,14 +124,19 @@ If a status is not explicit, do not assume it is satisfied.
 12. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
 
 ## Output
-Keep the result short and operational:
+Keep the result short and operational. Render the Runtime Contract's compact human-facing Run Status Card rather than a surface-specific summary:
 
-- **Current gate:** `<GateName or internal step>`
-- **Status:** `open | blocked`
-- **Allowed:** `<allowed outputs>`
-- **Forbidden:** `<forbidden outputs>`
-- **Missing approval:** `Approval: <GateName> | none`
-- **Next step:** `<single permissible next step>`
+| Run status | Value |
+|---|---|
+| Status | `open | blocked` |
+| Current gate | `<GateName or internal step>` |
+| Allowed now | `<currently allowed outputs>` |
+| Blocked by | `<blocking condition or none>` |
+| Missing approval | `Approval: <GateName> | none` |
+| Next step | `<single permissible next step>` |
+| Quality outlook | `<next meaningful quality focus or none>` |
+
+When an approval is missing, also include `Next gate after approval` and `Allowed after approval` exactly as constrained by the Runtime Contract. Keep forbidden outputs, evidence and next-skill detail in the concise surrounding text when relevant; they are not extra status-card rows.
 
 If this skill creates or updates control artefacts, do not paste full file bodies into the chat.
 List paths, summarize the decision, name the blocker or approval needed, and keep the durable content in the files.

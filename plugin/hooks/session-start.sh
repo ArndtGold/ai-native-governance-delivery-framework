@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 META_DIR="$(cd "${SCRIPT_DIR}/../meta" && pwd)"
 ROUTER="${META_DIR}/agdf-agent-router.md"
 CONSTITUTION="${META_DIR}/agdf-constitution.md"
+RUNTIME_CONTRACT="${META_DIR}/agdf-runtime-contract.md"
 CONFIG_PATH="${PWD}/.agdf/control/config.json"
 
 CONFIG_HINT="Project config: .agdf/control/config.json not found. Use npx --yes @agdf/cli@latest config --language de|en to persist the project language."
@@ -40,4 +41,5 @@ Do not print the full router or constitution unless the user asks for them.
 Source of truth:
 - ${ROUTER}
 - ${CONSTITUTION}
+- ${RUNTIME_CONTRACT}
 EOF

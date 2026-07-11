@@ -1,6 +1,6 @@
 ---
 name: brownfield-analysis
-description: Use this skill after gate-check or live AGDF control state confirms that Brownfield Review or implementation preparation is allowed. Use it after Approval: UR as the lightweight Brownfield Review after G-00 before PRD when existing systems may be affected, and again before non-trivial implementation after TP. Do not use it as the first AGDF skill for a fresh "I want to build/change X" prompt when approval, scope, or next allowed action is unclear.
+description: "Use this skill after gate-check or live AGDF control state confirms that Brownfield Review or implementation preparation is allowed. Use it after Approval: UR as the lightweight Brownfield Review after G-00 before PRD when existing systems may be affected, and again before non-trivial implementation after TP. Do not use it as the first AGDF skill for a fresh \"I want to build/change X\" prompt when approval, scope, or next allowed action is unclear."
 ---
 
 # brownfield-analysis

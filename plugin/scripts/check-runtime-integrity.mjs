@@ -337,6 +337,7 @@ if (isFile(sessionStartHookPath)) {
   const sessionStartHook = read(sessionStartHookPath);
   if (!sessionStartHook.includes("agdf-agent-router.md")) failures.push("AGDF SessionStart hook must load the canonical agent router");
   if (!sessionStartHook.includes("agdf-constitution.md")) failures.push("AGDF SessionStart hook must load the AGDF constitution");
+  if (!sessionStartHook.includes("agdf-runtime-contract.md")) failures.push("AGDF SessionStart hook must expose the canonical runtime contract source");
   if (!sessionStartHook.includes("Do not print the full router or constitution unless the user asks for them")) {
     failures.push("AGDF SessionStart hook must avoid flooding the chat with full router or constitution text");
   }
@@ -506,7 +507,13 @@ for (const skill of expectedSkills) {
     failures.push(`${skill}/SKILL.md missing YAML frontmatter`);
   } else {
     if (!frontmatter[1].includes(`name: ${skill}`)) failures.push(`${skill}/SKILL.md frontmatter name mismatch`);
-    if (!/description:\s*Use this skill/i.test(frontmatter[1])) failures.push(`${skill}/SKILL.md description should be English and start with "Use this skill"`);
+    const descriptionLine = frontmatter[1].split(/\r?\n/).find((line) => line.startsWith("description:"));
+    const descriptionValue = descriptionLine?.slice("description:".length).trim() ?? "";
+    const unquotedDescription = descriptionValue.replace(/^(["'])(.*)\1$/, "$2");
+    if (!/^Use this skill/i.test(unquotedDescription)) failures.push(`${skill}/SKILL.md description should be English and start with "Use this skill"`);
+    if (!/^["']/.test(descriptionValue) && descriptionValue.includes(": ")) {
+      failures.push(`${skill}/SKILL.md description contains an unquoted colon-space sequence that Claude Code rejects as YAML`);
+    }
   }
   if (!skillMd.includes("../../meta/agdf-runtime-contract.md")) {
     failures.push(`${skill}/SKILL.md missing runtime contract reference`);
@@ -520,6 +527,12 @@ for (const skill of expectedSkills) {
     }
     if (!skillMd.includes("The canonical gate order and transition model live only in the Runtime Contract")) {
       failures.push("gate-check must point to the Runtime Contract as gate transition SoT");
+    }
+    for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
+      if (!skillMd.includes(`| ${label} |`)) failures.push(`gate-check must render Run Status Card label: ${label}`);
+    }
+    if (!skillMd.includes("Next gate after approval") || !skillMd.includes("Allowed after approval")) {
+      failures.push("gate-check must render post-approval Run Status Card fields when an approval is missing");
     }
     if (!skillMd.includes("A decision value without scope reason and evidence is still missing")) {
       failures.push("gate-check must require evidenced Mode/Slice Decision before later work");

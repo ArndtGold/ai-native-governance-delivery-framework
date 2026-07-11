@@ -12,7 +12,6 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
-| 1 | `delivery-path-search-ai-candidate-generation` | Add AI-native generation of multiple concrete delivery-path candidates before deterministic validation and evaluation | Awaiting QA | [UR](artefacts/delivery-path-search-ai-candidate-generation/UR.md) · [Brownfield](artefacts/delivery-path-search-ai-candidate-generation/BROWNFIELD_REVIEW.md) · [PRD](artefacts/delivery-path-search-ai-candidate-generation/PRD.md) · [SD](artefacts/delivery-path-search-ai-candidate-generation/SD.md) · [TP](artefacts/delivery-path-search-ai-candidate-generation/TP.md) · [QA](artefacts/delivery-path-search-ai-candidate-generation/QA_REPORT.md) | [QA](artefacts/delivery-path-search-ai-candidate-generation/QA_REPORT.md) | Authenticate Claude, rerun one bounded generator probe, then rerun TP Review and QA Gate |
 
 ## Planned / Parking Lot
 
@@ -46,3 +45,4 @@
 | `master-backlog-human-readable` | Make the Master Backlog human-readable with compact status labels and Markdown links | Completed | [OR](artefacts/master-backlog-human-readable/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09 |
 | `agdf-operating-model-sharpening` | Sharpen the AGDF operating model and public explanation | Completed | [OR](artefacts/agdf-operating-model-sharpening/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-09 |
 | `run-status-card-quality-outlook` | Add Run Status Card and quality outlook | Completed | [OR](artefacts/run-status-card-quality-outlook/OR.md) | UAT approved; implementation committed in `bf3f9ec`; readability refinement committed in `c4c9d64` |
+| `delivery-path-search-ai-candidate-generation` | Add AI-native generation of multiple concrete delivery-path candidates before deterministic validation and evaluation | Completed | [OR](artefacts/delivery-path-search-ai-candidate-generation/OR.md) | QA passed and `Approval: UAT` recorded on 2026-07-11; implementation committed in `798e52c`; real authenticated Codex (19.117s) and Claude (25.309s) generator-path probes captured within budget with zero worktree mutation; the 30000ms Claude budget-marginality risk (2 of 3 real attempts timed out) is carried forward as a candidate SD-level follow-up, mitigated by the tested deterministic fallback |

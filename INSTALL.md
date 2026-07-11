@@ -40,9 +40,13 @@ Optional:
 npx --yes @agdf/cli@latest delivery-path-search \
   --surface codex \
   --model <model-id> \
+  --generate-candidates \
+  --generator-model <model-id> \
   --persist \
   --json
 ```
+
+`--generate-candidates` is opt-in. It adds at most one call and five proposals under separate time/cost limits, then deterministically rejects malformed, illegal, duplicate or non-diverse proposals before evaluation. Generator failure remains visible and keeps the deterministic baseline; no automatic provider fallback occurs.
 
 `--persist` writes a redacted decision summary to:
 
@@ -55,12 +59,12 @@ Raw prompts, hidden reasoning, secrets and source snapshots are excluded. Cost u
 
 Support boundary:
 
-| Surface | Shared workflow and routing | Executable evaluator |
-|---|---|---|
-| Codex | yes | yes, tool-enforced reference adapter |
-| Claude Code | yes | yes, tool-enforced reference adapter |
-| GitHub Copilot | yes | no, instruction-only |
-| OpenCode | yes | no, instruction-only |
+| Surface | Shared workflow | Evaluator | Candidate generator |
+|---|---|---|---|
+| Codex | yes | tool-enforced | tool-enforced, opt-in |
+| Claude Code | yes | tool-enforced | tool-enforced, opt-in |
+| GitHub Copilot | yes | instruction-only | no native executable adapter |
+| OpenCode | yes | instruction-only | no native executable adapter |
 
 `--fixture` is available for deterministic contract testing. It is not a production external-evaluator configuration. Additional agents must implement the published evaluator contract before executable support can be claimed.
 

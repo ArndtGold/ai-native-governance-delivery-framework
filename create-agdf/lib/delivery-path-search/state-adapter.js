@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { CONTRACT_VERSION } from "./contracts.js";
+import { CONTRACT_VERSION, GENERATOR_CONTRACT_VERSION, validateGeneratorRequest } from "./contracts.js";
 
 function section(content, heading) {
   return content.match(new RegExp(`## ${heading}\\r?\\n([\\s\\S]*?)(?=\\r?\\n## |$)`))?.[1] ?? "";
@@ -35,7 +35,7 @@ export function searchInputFromControl(targetDir, options = {}) {
   const meta = Object.fromEntries([...content.matchAll(/^- ([a-z_]+):\s*(.+)$/gm)].map((match) => [match[1], match[2].replace(/^`|`$/g, "").trim()]));
   const answers = tableAnswers(content);
   const card = statusCard(content);
-  return {
+  const result = {
     contract_version: CONTRACT_VERSION,
     scope_key: options.scopeKey ?? meta.run_id ?? "unknown-scope",
     objective: section(content, "Objective").trim(),
@@ -55,4 +55,36 @@ export function searchInputFromControl(targetDir, options = {}) {
       stability_window: options.stabilityWindow ?? 3,
     },
   };
+  if (options.generation?.enabled) result.generation = {
+    enabled: true,
+    max_calls: 1,
+    max_proposals: options.generation.maxProposals ?? 5,
+    max_duration_ms: options.generation.maxDurationMs ?? 30000,
+    max_cost_units: options.generation.maxCostUnits ?? 5,
+  };
+  return result;
+}
+
+export function generatorRequestFromInput(input) {
+  return validateGeneratorRequest({
+    contract_version: GENERATOR_CONTRACT_VERSION,
+    scope_key: input.scope_key,
+    objective: input.objective,
+    scope_summary: input.objective,
+    current_gate: input.current_gate,
+    allowed_actions: input.allowed_actions,
+    forbidden_actions: input.forbidden_actions,
+    artefact_refs: [],
+    evidence: input.evidence_refs ?? [],
+    missing_evidence: [],
+    risks: input.risks ?? [],
+    constraints: ["advisory only", "canonical gate-check remains authoritative"],
+    enforcement: input.enforcement,
+    budgets: {
+      max_calls: input.generation.max_calls,
+      max_proposals: input.generation.max_proposals,
+      max_duration_ms: input.generation.max_duration_ms,
+      max_cost_units: input.generation.max_cost_units,
+    },
+  });
 }

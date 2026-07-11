@@ -1,0 +1,35 @@
+{
+  "input": {
+    "contract_version": "1",
+    "scope_key": "generated-cli-fixture",
+    "objective": "Choose one safe next delivery step",
+    "current_gate": "CD+Tests",
+    "allowed_actions": ["inspect existing tests"],
+    "forbidden_actions": ["release"],
+    "evidence_refs": ["TP.md"],
+    "risks": ["regression"],
+    "enforcement": { "level": "tool_enforced", "evidence": ["fixture generator"] },
+    "budgets": { "max_candidates": 3, "max_depth": 1, "max_evaluations": 3, "max_duration_ms": 5000, "max_cost_units": 10, "stability_window": 3 },
+    "generation": { "enabled": true, "max_calls": 1, "max_proposals": 5, "max_duration_ms": 3000, "max_cost_units": 5 }
+  },
+  "candidates": [{ "id": "inspect", "action": "inspect existing tests", "expected_evidence": ["test inventory"], "tests": [], "assumptions": [], "depth": 0 }],
+  "generator_response": {
+    "contract_version": "1",
+    "cost_units": 2,
+    "proposals": [{
+      "proposal_id": "focused",
+      "gate_action": "inspect existing tests",
+      "intent": "inspect contract and integration tests for the approved scope",
+      "expected_evidence": ["contract inventory"],
+      "tests": ["focused fixture review"],
+      "assumptions": [],
+      "affected_boundaries": ["contracts", "integration tests"],
+      "risk_strategy": "verify compatibility before change",
+      "reversibility": "read-only inspection"
+    }]
+  },
+  "evaluations": {
+    "inspect": { "contract_version": "1", "candidate_id": "inspect", "scope_fit": 4, "gate_readiness": 4, "risk_reduction": 4, "evidence_gain": 4, "testability": 4, "reversibility": 5, "cost": 1, "uncertainty": 1, "rationale": "Inspect existing tests.", "risks": [], "assumptions": [], "child_actions": [] },
+    "generated-focused": { "contract_version": "1", "candidate_id": "generated-focused", "scope_fit": 5, "gate_readiness": 5, "risk_reduction": 5, "evidence_gain": 5, "testability": 5, "reversibility": 5, "cost": 1, "uncertainty": 1, "rationale": "Inspect focused compatibility evidence.", "risks": [], "assumptions": [], "child_actions": [] }
+  }
+}

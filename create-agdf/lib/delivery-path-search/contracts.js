@@ -1,4 +1,5 @@
 export const CONTRACT_VERSION = "1";
+export const GENERATOR_CONTRACT_VERSION = "1";
 export const SCORING_POLICY_VERSION = "1";
 export const SCORE_DIMENSIONS = [
   "scope_fit",
@@ -25,6 +26,39 @@ function stringArray(value, label) {
   return value.map((item) => item.trim()).filter(Boolean);
 }
 
+function optionalBoundedString(value, label, maxLength = 1000) {
+  if (value === undefined) return undefined;
+  const result = requireString(value, label);
+  if (result.length > maxLength) throw new Error(`${label} must be at most ${maxLength} characters`);
+  return result;
+}
+
+function rejectUnknownKeys(value, allowed, label) {
+  const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
+  if (unknown.length) throw new Error(`${label} contains unknown fields: ${unknown.join(", ")}`);
+}
+
+function generationConfig(value, wholeRunBudgets) {
+  if (value === undefined) return undefined;
+  const generation = requireObject(value, "generation");
+  if (typeof generation.enabled !== "boolean") throw new Error("generation.enabled must be a boolean");
+  const limits = {
+    max_calls: 1,
+    max_proposals: 5,
+    max_duration_ms: 30000,
+    max_cost_units: 5,
+  };
+  for (const [key, maximum] of Object.entries(limits)) {
+    if (!Number.isInteger(generation[key]) || generation[key] < 1 || generation[key] > maximum) {
+      throw new Error(`generation.${key} must be an integer from 1 to ${maximum}`);
+    }
+  }
+  if (generation.max_calls !== 1) throw new Error("generation.max_calls must equal 1 in this contract version");
+  if (generation.max_duration_ms > wholeRunBudgets.max_duration_ms) throw new Error("generation.max_duration_ms cannot exceed budgets.max_duration_ms");
+  if (generation.max_cost_units > wholeRunBudgets.max_cost_units) throw new Error("generation.max_cost_units cannot exceed budgets.max_cost_units");
+  return structuredClone(generation);
+}
+
 export function validateSearchInput(value) {
   const input = requireObject(value, "search input");
   if (input.contract_version !== CONTRACT_VERSION) throw new Error(`unsupported search input contract_version: ${input.contract_version}`);
@@ -43,6 +77,7 @@ export function validateSearchInput(value) {
   for (const key of ["max_candidates", "max_depth", "max_evaluations", "max_duration_ms", "max_cost_units", "stability_window"]) {
     if (!Number.isInteger(budgets[key]) || budgets[key] < 1) throw new Error(`budgets.${key} must be a positive integer`);
   }
+  generationConfig(input.generation, budgets);
   return structuredClone(input);
 }
 
@@ -53,7 +88,99 @@ export function validateCandidate(value) {
   stringArray(candidate.expected_evidence ?? [], "candidate.expected_evidence");
   stringArray(candidate.tests ?? [], "candidate.tests");
   stringArray(candidate.assumptions ?? [], "candidate.assumptions");
+  if (candidate.source !== undefined && !["deterministic", "generated", "expanded"].includes(candidate.source)) {
+    throw new Error("candidate.source must be deterministic, generated or expanded");
+  }
+  optionalBoundedString(candidate.gate_action, "candidate.gate_action");
+  optionalBoundedString(candidate.intent, "candidate.intent");
+  stringArray(candidate.affected_boundaries ?? [], "candidate.affected_boundaries");
+  optionalBoundedString(candidate.risk_strategy, "candidate.risk_strategy");
+  optionalBoundedString(candidate.reversibility, "candidate.reversibility");
+  optionalBoundedString(candidate.generator_proposal_id, "candidate.generator_proposal_id", 200);
   return structuredClone(candidate);
+}
+
+export function validateGeneratorRequest(value) {
+  const request = requireObject(value, "generator request");
+  rejectUnknownKeys(request, ["contract_version", "scope_key", "objective", "scope_summary", "current_gate", "allowed_actions", "forbidden_actions", "artefact_refs", "evidence", "missing_evidence", "risks", "constraints", "enforcement", "budgets"], "generator request");
+  if (request.contract_version !== GENERATOR_CONTRACT_VERSION) throw new Error(`unsupported generator contract_version: ${request.contract_version}`);
+  requireString(request.scope_key, "generator scope_key");
+  optionalBoundedString(request.objective, "generator objective", 2000);
+  optionalBoundedString(request.scope_summary, "generator scope_summary", 2000);
+  requireString(request.current_gate, "generator current_gate");
+  for (const key of ["allowed_actions", "forbidden_actions", "artefact_refs", "evidence", "missing_evidence", "risks", "constraints"]) {
+    const items = stringArray(request[key] ?? [], `generator ${key}`);
+    if (items.length > 20 || items.some((item) => item.length > 500)) throw new Error(`generator ${key} exceeds context bounds`);
+  }
+  validateEnforcement(request.enforcement);
+  const budgets = requireObject(request.budgets, "generator budgets");
+  generationConfig({ enabled: true, ...budgets }, { max_duration_ms: 120000, max_cost_units: 20 });
+  const serialized = JSON.stringify(request);
+  if (/(secret|credential|environment|raw_prompt|hidden_reasoning|source_snapshot)/i.test(serialized)) {
+    throw new Error("generator request contains disallowed context");
+  }
+  return structuredClone(request);
+}
+
+export function validateGeneratorResponse(value) {
+  const response = requireObject(value, "generator response");
+  rejectUnknownKeys(response, ["contract_version", "proposals", "cost_units", "metadata"], "generator response");
+  if (response.contract_version !== GENERATOR_CONTRACT_VERSION) throw new Error(`unsupported generator contract_version: ${response.contract_version}`);
+  if (!Array.isArray(response.proposals) || response.proposals.length > 5) throw new Error("generator proposals must be an array with at most 5 items");
+  if (!Number.isInteger(response.cost_units) || response.cost_units < 0 || response.cost_units > 5) throw new Error("generator cost_units must be an integer from 0 to 5");
+  if (response.metadata !== undefined) {
+    const metadata = requireObject(response.metadata, "generator metadata");
+    rejectUnknownKeys(metadata, ["name", "runtime", "model"], "generator metadata");
+    for (const [key, item] of Object.entries(metadata)) optionalBoundedString(item, `generator metadata.${key}`, 500);
+  }
+  const proposals = response.proposals.map((proposal, index) => {
+    const item = requireObject(proposal, `proposal ${index}`);
+    rejectUnknownKeys(item, ["proposal_id", "gate_action", "intent", "expected_evidence", "tests", "assumptions", "affected_boundaries", "risk_strategy", "reversibility"], `proposal ${index}`);
+    const normalized = {
+      proposal_id: requireString(item.proposal_id, `proposal ${index}.proposal_id`),
+      gate_action: requireString(item.gate_action, `proposal ${index}.gate_action`),
+      intent: requireString(item.intent, `proposal ${index}.intent`),
+      expected_evidence: stringArray(item.expected_evidence ?? [], `proposal ${index}.expected_evidence`),
+      tests: stringArray(item.tests ?? [], `proposal ${index}.tests`),
+      assumptions: stringArray(item.assumptions ?? [], `proposal ${index}.assumptions`),
+      affected_boundaries: stringArray(item.affected_boundaries ?? [], `proposal ${index}.affected_boundaries`),
+      risk_strategy: requireString(item.risk_strategy, `proposal ${index}.risk_strategy`),
+      reversibility: requireString(item.reversibility, `proposal ${index}.reversibility`),
+    };
+    if (JSON.stringify(normalized).length > 5000) throw new Error(`proposal ${index} exceeds size limit`);
+    if (/(^|\s)(rm|sudo|curl|wget|bash|sh|exec)\s/i.test(normalized.intent)) throw new Error(`proposal ${index} contains executable instructions`);
+    return normalized;
+  });
+  return {
+    contract_version: response.contract_version,
+    proposals,
+    cost_units: response.cost_units,
+    metadata: response.metadata ? structuredClone(response.metadata) : {},
+  };
+}
+
+export function generatorOutputSchema() {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["contract_version", "proposals", "cost_units"],
+    properties: {
+      contract_version: { type: "string", const: GENERATOR_CONTRACT_VERSION },
+      cost_units: { type: "integer", minimum: 0, maximum: 5 },
+      proposals: {
+        type: "array", maxItems: 5, items: {
+          type: "object", additionalProperties: false,
+          required: ["proposal_id", "gate_action", "intent", "expected_evidence", "tests", "assumptions", "affected_boundaries", "risk_strategy", "reversibility"],
+          properties: {
+            proposal_id: { type: "string", minLength: 1 }, gate_action: { type: "string", minLength: 1 }, intent: { type: "string", minLength: 1 },
+            expected_evidence: { type: "array", items: { type: "string" } }, tests: { type: "array", items: { type: "string" } },
+            assumptions: { type: "array", items: { type: "string" } }, affected_boundaries: { type: "array", items: { type: "string" } },
+            risk_strategy: { type: "string", minLength: 1 }, reversibility: { type: "string", minLength: 1 },
+          },
+        },
+      },
+    },
+  };
 }
 
 export function validateEvaluation(value, candidateId) {

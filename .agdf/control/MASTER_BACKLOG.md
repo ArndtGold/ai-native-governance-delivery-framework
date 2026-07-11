@@ -12,12 +12,12 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
+| 1 | `delivery-path-search-ai-candidate-generation` | Add AI-native generation of multiple concrete delivery-path candidates before deterministic validation and evaluation | Awaiting QA | [UR](artefacts/delivery-path-search-ai-candidate-generation/UR.md) · [Brownfield](artefacts/delivery-path-search-ai-candidate-generation/BROWNFIELD_REVIEW.md) · [PRD](artefacts/delivery-path-search-ai-candidate-generation/PRD.md) · [SD](artefacts/delivery-path-search-ai-candidate-generation/SD.md) · [TP](artefacts/delivery-path-search-ai-candidate-generation/TP.md) · [QA](artefacts/delivery-path-search-ai-candidate-generation/QA_REPORT.md) | [QA](artefacts/delivery-path-search-ai-candidate-generation/QA_REPORT.md) | Authenticate Claude, rerun one bounded generator probe, then rerun TP Review and QA Gate |
 
 ## Planned / Parking Lot
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
-| 1 | `delivery-path-search-ai-candidate-generation` | Add AI-native generation of multiple concrete delivery-path candidates before deterministic validation and evaluation | Needs UR |  | [PRD](artefacts/agdf-delivery-path-search/PRD.md) | After the current release, formulate a separate UR for AI-native candidate generation while keeping AGDF legality and gates deterministic |
 | 2 | `agdf-scaffold-gitattributes-default` | Ship the `AGDF_RUN.md` `merge=union` `.gitattributes` entry via `init` (and surface bootstrap commands) to every consumer repository, not just this one | Needs UR | [UR](artefacts/agdf-scaffold-gitattributes-default/UR.md) | UR (draft, parked for tomorrow) | Resume tomorrow: confirm `Approval: UR`, then Brownfield Review |
 | 4 | `npm-publish-qa-caveat-closure` | Close the QA caveat "unverified: live GitHub Actions publish execution of the new npm readiness step" with real evidence | Blocked | [QA](artefacts/codex-bootstrap-release-readiness/QA_REPORT.md) | Not startable now; needs the next real npm publish run as trigger, not a UR right now |
 

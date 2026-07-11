@@ -37,6 +37,17 @@ Skip for routine questions, obvious local fixes and approved implementation with
 npx --yes @agdf/cli@latest delivery-path-search --surface <surface> --json
 ```
 
+Optional AI-native candidate generation is explicit:
+
+```bash
+npx --yes @agdf/cli@latest delivery-path-search \
+  --surface codex \
+  --generate-candidates \
+  --json
+```
+
+It supplements the deterministic baseline with at most one bounded generator call. Treat proposals as untrusted until the canonical core validates schema, gate action, scope, duplicates and material diversity. Report generation provenance, budgets, rejections and failure. Never hide deterministic fallback or switch providers automatically.
+
 5. Treat facts, repository evidence, assumptions and model judgements separately.
 6. Return exactly one recommendation or `no_safe_recommendation`.
 7. Run canonical AGDF gate-check after search. Never translate a recommendation into permission.
@@ -73,3 +84,6 @@ Persist only the redacted decision summary when durable evidence is required. Do
 - Do not invent default scores for invalid evaluator output.
 - Do not implement, approve or release based on search output.
 - Do not create agent-specific scoring, gate logic or skill copies.
+- Do not replace deterministic candidates with generated proposals.
+- Do not send secrets, full artefacts, source snapshots, raw prompts or hidden reasoning to a generator.
+- Do not claim executable generation for instruction-only surfaces.

@@ -10,6 +10,9 @@ zulässige nächste Schritte vergleichen. Sie nutzt einen portablen Search Core,
 Durchsetzungsstärke jeder Agent-Oberfläche und liefert nur eine Empfehlung. Der normale AGDF Gate
 Check entscheidet weiterhin, ob dieser Schritt ausgeführt werden darf. Die erste Version ist
 bewusst begrenzte Best-First-Suche und kein MCTS.
+Optional kann sie auf Codex und Claude Code einen begrenzten, technisch schreibgeschützten
+Generierungsschritt ergänzen. Er ersetzt niemals die deterministischen Kandidaten; Vorschläge werden
+vor der Bewertung deterministisch auf Gate-Legalität, Scope, Duplikate und materielle Unterschiede geprüft.
 
 ## Language note
 

@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { evaluatorOutputSchema, validateEvaluation } from "../contracts.js";
+import { guardedExecFileSync } from "../transports/read-only-guard.js";
 
 export function claudeEvaluator(options = {}) {
   const claudeBin = options.claudeBin ?? "claude";
@@ -7,18 +8,6 @@ export function claudeEvaluator(options = {}) {
   try {
     runtime = execFileSync(claudeBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {}
-
-  function gitState() {
-    try {
-      return execFileSync("git", ["status", "--porcelain=v1", "-z"], {
-        cwd: options.cwd,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-    } catch {
-      return null;
-    }
-  }
 
   return {
     name: "claude",
@@ -41,15 +30,12 @@ export function claudeEvaluator(options = {}) {
       ];
       if (options.model) args.push("--model", options.model);
       args.push(prompt);
-      const before = gitState();
-      const raw = execFileSync(claudeBin, args, {
+      const raw = guardedExecFileSync(claudeBin, args, {
         cwd: options.cwd,
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"],
         timeout: options.timeoutMs ?? 120000,
       });
-      const after = gitState();
-      if (before !== null && after !== before) throw new Error("repository mutation detected during read-only evaluator run");
       const response = JSON.parse(raw);
       if (response.is_error) throw new Error(`claude evaluator returned an error: ${response.result ?? "unknown error"}`);
       return validateEvaluation(JSON.parse(response.result), candidate.id);

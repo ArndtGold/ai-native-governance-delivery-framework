@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { scoreEvaluation, DEFAULT_WEIGHTS } from "../lib/delivery-path-search/scoring.js";
-import { candidateLegality, candidatesFromInput } from "../lib/delivery-path-search/candidate-policy.js";
+import { candidateLegality, candidatesFromInput, generatedCandidatesFromResponse } from "../lib/delivery-path-search/candidate-policy.js";
 import {
   validateSearchInput,
   validateCandidate,
   validateEvaluation,
   validateEnforcement,
+  validateGeneratorRequest,
+  validateGeneratorResponse,
+  generatorOutputSchema,
 } from "../lib/delivery-path-search/contracts.js";
 import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
 
@@ -175,5 +178,44 @@ assert.deepEqual(enforcementForSurface("opencode"), { level: "instruction_only",
 assert.deepEqual(enforcementForSurface("generic"), { level: "instruction_only", evidence: [] });
 assert.deepEqual(enforcementForSurface("some-unknown-surface"), { level: "instruction_only", evidence: [] });
 assert.deepEqual(enforcementForSurface("codex", ["custom evidence"]), { level: "tool_enforced", evidence: ["custom evidence"] });
+
+// candidate generation contracts and policy
+
+const generation = { enabled: true, max_calls: 1, max_proposals: 5, max_duration_ms: 3000, max_cost_units: 5 };
+assert.deepEqual(validateSearchInput({ ...validSearchInput, generation }).generation, generation);
+assert.throws(() => validateSearchInput({ ...validSearchInput, generation: { ...generation, max_proposals: 6 } }), /generation\.max_proposals/);
+assert.throws(() => validateSearchInput({ ...validSearchInput, generation: { ...generation, max_duration_ms: 6000 } }), /cannot exceed budgets\.max_duration_ms/);
+
+const generatorRequest = {
+  contract_version: "1", scope_key: "fixture-scope", objective: "Choose a path", scope_summary: "Approved scope", current_gate: "CD+Tests",
+  allowed_actions: ["implement approved task"], forbidden_actions: ["release"], artefact_refs: ["TP.md"], evidence: ["tests"], missing_evidence: [], risks: [], constraints: [],
+  enforcement: { level: "tool_enforced", evidence: ["fixture"] }, budgets: { max_calls: 1, max_proposals: 5, max_duration_ms: 30000, max_cost_units: 5 },
+};
+assert.equal(validateGeneratorRequest(generatorRequest).scope_key, "fixture-scope");
+assert.throws(() => validateGeneratorRequest({ ...generatorRequest, constraints: ["secret credential"] }), /disallowed context/);
+assert.throws(() => validateGeneratorRequest({ ...generatorRequest, raw_prompt: "hidden" }), /unknown fields/);
+
+const generatorResponse = {
+  contract_version: "1", cost_units: 2, proposals: [
+    { proposal_id: "p1", gate_action: "implement approved task", intent: "extend the existing contract owner", expected_evidence: ["unit tests"], tests: ["contract fixtures"], assumptions: [], affected_boundaries: ["contracts"], risk_strategy: "preserve compatibility", reversibility: "small additive change" },
+    { proposal_id: "p2", gate_action: "implement approved task", intent: "extend existing contract owner", expected_evidence: ["unit tests"], tests: ["contract fixtures"], assumptions: [], affected_boundaries: ["contracts"], risk_strategy: "preserve compatibility", reversibility: "small additive change" },
+  ],
+};
+const validatedResponse = validateGeneratorResponse(generatorResponse);
+const filtered = generatedCandidatesFromResponse(validatedResponse, { allowed_actions: ["implement approved task"], forbidden_actions: [] }, []);
+assert.equal(filtered.accepted.length, 1);
+assert.equal(filtered.rejected[0].reason, "cosmetic_or_material_duplicate");
+assert.equal(filtered.accepted[0].gate_action, "implement approved task");
+const structuralDuplicate = validateGeneratorResponse({
+  contract_version: "1", cost_units: 1, proposals: [generatorResponse.proposals[0], { ...generatorResponse.proposals[1], proposal_id: "p3", intent: "build a provider-neutral feature through existing ownership" }],
+});
+assert.equal(generatedCandidatesFromResponse(structuralDuplicate, { allowed_actions: ["implement approved task"], forbidden_actions: [] }, []).accepted.length, 1);
+const similarButResigned = validateGeneratorResponse({
+  contract_version: "1", cost_units: 1, proposals: [generatorResponse.proposals[0], { ...generatorResponse.proposals[1], proposal_id: "p4", affected_boundaries: ["different boundary"], risk_strategy: "different risk", reversibility: "different reversal" }],
+});
+assert.equal(generatedCandidatesFromResponse(similarButResigned, { allowed_actions: ["implement approved task"], forbidden_actions: [] }, []).accepted.length, 1);
+assert.throws(() => validateGeneratorResponse({ ...generatorResponse, cost_units: 6 }), /cost_units/);
+assert.throws(() => validateGeneratorResponse({ ...generatorResponse, extra: true }), /unknown fields/);
+assert.equal(generatorOutputSchema().properties.metadata, undefined, "provider metadata is local adapter evidence, not model output");
 
 console.log("Delivery Path Search unit tests passed.");

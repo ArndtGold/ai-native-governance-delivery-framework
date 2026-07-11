@@ -1,11 +1,24 @@
 import { CONTRACT_VERSION, SCORING_POLICY_VERSION, validateEvaluation, validateSearchInput } from "./contracts.js";
-import { candidateLegality, candidatesFromInput } from "./candidate-policy.js";
+import { candidateLegality, candidatesFromInput, generatedCandidatesFromResponse } from "./candidate-policy.js";
 import { scoreEvaluation } from "./scoring.js";
+import { generatorRequestFromInput } from "./state-adapter.js";
+
+function generatorFailureCode(error) {
+  if (error?.code === "GENERATOR_MUTATION_DETECTED") return "generator_mutation_detected";
+  if (error?.code === "GENERATOR_TIMEOUT") return "generator_timeout";
+  if (error?.code === "GENERATOR_AUTHENTICATION_FAILED") return "generator_authentication_failed";
+  if (error?.code === "ENOENT") return "generator_unavailable";
+  if (/auth/i.test(error?.message ?? "")) return "generator_authentication_failed";
+  if (/context|disallowed/i.test(error?.message ?? "")) return "generator_context_rejected";
+  if (/budget/i.test(error?.message ?? "")) return "generator_budget_exceeded";
+  return "generator_schema_invalid";
+}
 
 export async function runDeliveryPathSearch(inputValue, evaluator, options = {}) {
   const input = validateSearchInput(inputValue);
   const startedAt = Date.now();
-  const queue = [...(options.candidates ?? candidatesFromInput(input))];
+  const baseline = [...(options.candidates ?? candidatesFromInput(input))];
+  const queue = [...baseline];
   const rejected = [];
   const evaluated = [];
   let evaluations = 0;
@@ -13,6 +26,53 @@ export async function runDeliveryPathSearch(inputValue, evaluator, options = {})
   let lastLeaderId = null;
   let stableComparisons = 0;
   let stoppingReason = "candidate_queue_exhausted";
+  const generation = {
+    status: input.generation?.enabled ? "failed" : "disabled",
+    adapter: options.generator?.metadata ?? null,
+    budgets: input.generation ?? null,
+    returned: 0,
+    accepted: 0,
+    rejected: [],
+    cost_units: 0,
+    duration_ms: 0,
+    failure_code: null,
+  };
+
+  if (input.generation?.enabled) {
+    if (!options.generator) {
+      generation.failure_code = "generator_unavailable";
+    } else {
+      const generationStartedAt = Date.now();
+      try {
+        const response = await options.generator.generate(generatorRequestFromInput(input));
+        const elapsed = Date.now() - generationStartedAt;
+        generation.returned = response.proposals.length;
+        generation.cost_units = response.cost_units;
+        costUnits += response.cost_units;
+        if (elapsed > input.generation.max_duration_ms) {
+          const error = new Error("generator duration budget exceeded");
+          error.code = "GENERATOR_TIMEOUT";
+          throw error;
+        }
+        if (response.cost_units > input.generation.max_cost_units || response.proposals.length > input.generation.max_proposals) {
+          const error = new Error("generator response exceeds configured budget");
+          error.code = "GENERATOR_BUDGET_EXCEEDED";
+          throw error;
+        }
+        const filtered = generatedCandidatesFromResponse(response, input, baseline);
+        generation.accepted = filtered.accepted.length;
+        generation.rejected = filtered.rejected;
+        queue.push(...filtered.accepted.slice(0, input.generation.max_proposals));
+        generation.status = filtered.accepted.length === response.proposals.length ? "success" : "partial";
+        if (!filtered.accepted.length) generation.failure_code = "generator_no_diverse_proposals";
+      } catch (error) {
+        generation.failure_code = generatorFailureCode(error);
+        if (generation.failure_code === "generator_mutation_detected") throw error;
+      } finally {
+        generation.duration_ms = Date.now() - generationStartedAt;
+      }
+    }
+  }
 
   while (queue.length > 0) {
     if (evaluations >= input.budgets.max_evaluations) { stoppingReason = "evaluation_budget_exhausted"; break; }
@@ -46,6 +106,7 @@ export async function runDeliveryPathSearch(inputValue, evaluator, options = {})
             parent_id: candidate.id,
             depth: (candidate.depth ?? 0) + 1,
             action,
+            source: "expanded",
             expected_evidence: [],
             tests: [],
             assumptions: evaluation.assumptions,
@@ -85,6 +146,7 @@ export async function runDeliveryPathSearch(inputValue, evaluator, options = {})
     rejected,
     enforcement: input.enforcement,
     evaluator: evaluator.metadata ?? { name: evaluator.name ?? "unknown" },
+    generation,
     budgets: { configured: input.budgets, evaluations, cost_units: costUnits, stable_comparisons: stableComparisons, duration_ms: Date.now() - startedAt },
     stopping_reason: stoppingReason,
     next_gate_action: "Run canonical AGDF gate-check; search does not grant permission.",

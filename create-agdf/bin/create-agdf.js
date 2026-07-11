@@ -11,6 +11,9 @@ import { runDeliveryPathSearch } from "../lib/delivery-path-search/search-engine
 import { codexEvaluator } from "../lib/delivery-path-search/evaluators/codex.js";
 import { claudeEvaluator } from "../lib/delivery-path-search/evaluators/claude.js";
 import { fixtureEvaluator } from "../lib/delivery-path-search/evaluators/protocol.js";
+import { codexGenerator } from "../lib/delivery-path-search/generators/codex.js";
+import { claudeGenerator } from "../lib/delivery-path-search/generators/claude.js";
+import { fixtureGenerator } from "../lib/delivery-path-search/generators/protocol.js";
 import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
 import { persistSearchResult } from "../lib/delivery-path-search/persistence.js";
 
@@ -213,6 +216,13 @@ Options:
                  Use deterministic evaluator/candidate fixtures instead of a live evaluator
   --persist      Persist the redacted Delivery Path Search result under the current scope
   --model <id>   Optional Codex evaluator model
+  --generate-candidates
+                 Add one bounded AI-native candidate-generation call before evaluation
+  --generator-model <id>
+                 Optional candidate-generator model override
+  --max-generated-candidates <1-5>
+  --generation-timeout-ms <1-30000>
+  --generation-cost-units <1-5>
   --help         Show this help
 `);
 }
@@ -281,6 +291,11 @@ function parseArgs(argv) {
   let fixture;
   let persist = false;
   let model;
+  let generateCandidates = false;
+  let generatorModel;
+  let maxGeneratedCandidates = 5;
+  let generationTimeoutMs = 30000;
+  let generationCostUnits = 5;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -311,7 +326,12 @@ function parseArgs(argv) {
       continue;
     }
 
-    if (["--surface", "--fixture", "--model"].includes(arg)) {
+    if (arg === "--generate-candidates") {
+      generateCandidates = true;
+      continue;
+    }
+
+    if (["--surface", "--fixture", "--model", "--generator-model", "--max-generated-candidates", "--generation-timeout-ms", "--generation-cost-units"].includes(arg)) {
       const next = args[i + 1];
       if (!next) {
         console.error(`Missing value for ${arg}`);
@@ -324,7 +344,19 @@ function parseArgs(argv) {
         }
         surface = next;
       } else if (arg === "--fixture") fixture = next;
-      else model = next;
+      else if (arg === "--model") model = next;
+      else if (arg === "--generator-model") generatorModel = next;
+      else {
+        const value = Number(next);
+        const maximum = arg === "--generation-timeout-ms" ? 30000 : 5;
+        if (!Number.isInteger(value) || value < 1 || value > maximum) {
+          console.error(`${arg} must be an integer from 1 to ${maximum}.`);
+          process.exit(1);
+        }
+        if (arg === "--max-generated-candidates") maxGeneratedCandidates = value;
+        else if (arg === "--generation-timeout-ms") generationTimeoutMs = value;
+        else generationCostUnits = value;
+      }
       i += 1;
       continue;
     }
@@ -395,6 +427,11 @@ function parseArgs(argv) {
     fixture: fixture ? resolve(process.cwd(), fixture) : null,
     persist,
     model,
+    generateCandidates,
+    generatorModel,
+    maxGeneratedCandidates,
+    generationTimeoutMs,
+    generationCostUnits,
   };
 }
 
@@ -2198,7 +2235,27 @@ function printDeliveryMapReport(report, json) {
 async function executeDeliveryPathSearch(options) {
   const fixture = options.fixture ? JSON.parse(readFileSync(options.fixture, "utf8")) : null;
   const enforcement = fixture?.input?.enforcement ?? enforcementForSurface(options.surface);
-  const input = fixture?.input ?? searchInputFromControl(options.dir, { enforcement });
+  const fixtureGeneration = fixture?.generator_response;
+  const generationEnabled = Boolean(fixtureGeneration || options.generateCandidates);
+  const baseInput = fixture?.input ?? searchInputFromControl(options.dir, {
+    enforcement,
+    generation: generationEnabled ? {
+      enabled: true,
+      maxProposals: options.maxGeneratedCandidates,
+      maxDurationMs: options.generationTimeoutMs,
+      maxCostUnits: options.generationCostUnits,
+    } : undefined,
+  });
+  const input = generationEnabled && !baseInput.generation ? {
+    ...baseInput,
+    generation: {
+      enabled: true,
+      max_calls: 1,
+      max_proposals: options.maxGeneratedCandidates,
+      max_duration_ms: options.generationTimeoutMs,
+      max_cost_units: options.generationCostUnits,
+    },
+  } : baseInput;
   const evaluator = fixture
     ? fixtureEvaluator(fixture.evaluations ?? {})
     : options.surface === "codex"
@@ -2209,7 +2266,17 @@ async function executeDeliveryPathSearch(options) {
   if (!evaluator) {
     throw new Error(`${options.surface} has no executable evaluator in this release. Codex and Claude are the reference adapters; --fixture is available for deterministic contract testing.`);
   }
-  const result = await runDeliveryPathSearch(input, evaluator, { candidates: fixture?.candidates });
+  const generator = fixtureGeneration
+    ? fixtureGenerator(fixtureGeneration)
+    : options.generateCandidates && options.surface === "codex"
+      ? codexGenerator({ cwd: options.dir, model: options.generatorModel, timeoutMs: options.generationTimeoutMs })
+      : options.generateCandidates && options.surface === "claude"
+        ? claudeGenerator({ cwd: options.dir, model: options.generatorModel, timeoutMs: options.generationTimeoutMs })
+        : null;
+  if (options.generateCandidates && !generator) {
+    throw new Error(`${options.surface} has no executable candidate generator; Codex and Claude are tool-enforced reference transports.`);
+  }
+  const result = await runDeliveryPathSearch(input, evaluator, { candidates: fixture?.candidates, generator });
   if (options.persist) result.persistence = persistSearchResult(options.dir, result);
   if (options.json) {
     console.log(JSON.stringify(result, null, 2));
@@ -2220,6 +2287,9 @@ async function executeDeliveryPathSearch(options) {
   console.log(`Enforcement: ${result.enforcement.level}`);
   console.log(`Recommendation: ${result.recommendation?.action ?? "none"}`);
   console.log(`Evaluations: ${result.budgets.evaluations}`);
+  console.log(`Generation: ${result.generation.status} (${result.generation.accepted}/${result.generation.returned} accepted)`);
+  console.log(`Generation budget: ${result.generation.cost_units} cost units, ${result.generation.duration_ms} ms`);
+  if (result.generation.failure_code) console.log(`Generation failure: ${result.generation.failure_code}`);
   console.log(`Stopping reason: ${result.stopping_reason}`);
   console.log(result.next_gate_action);
   return result;

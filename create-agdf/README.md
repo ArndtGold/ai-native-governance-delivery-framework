@@ -155,7 +155,7 @@ Use `delivery-path-search` only for high-impact planning decisions with several 
 npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
 ```
 
-The first release uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex and Claude Code are executable, tool-enforced reference adapters; Copilot and OpenCode reuse the same skill and contracts as instruction-only surfaces until a conforming executable evaluator is available.
+The runtime uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex and Claude Code are executable, tool-enforced evaluator adapters and support opt-in `--generate-candidates`; generated proposals supplement the deterministic baseline and are deterministically validated before evaluation. Copilot and OpenCode reuse the same skill and contracts as instruction-only surfaces until conforming executable adapters are available.
 
 Requirements and boundaries:
 

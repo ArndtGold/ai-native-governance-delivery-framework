@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { evaluatorOutputSchema, validateEvaluation } from "../contracts.js";
+import { guardedExecFileSync } from "../transports/read-only-guard.js";
 
 export function codexEvaluator(options = {}) {
   const codexBin = options.codexBin ?? "codex";
@@ -10,18 +11,6 @@ export function codexEvaluator(options = {}) {
   try {
     runtime = execFileSync(codexBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {}
-
-  function gitState() {
-    try {
-      return execFileSync("git", ["status", "--porcelain=v1", "-z"], {
-        cwd: options.cwd,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-    } catch {
-      return null;
-    }
-  }
 
   return {
     name: "codex",
@@ -49,15 +38,12 @@ export function codexEvaluator(options = {}) {
         ];
         if (options.model) args.push("--model", options.model);
         args.push(prompt);
-        const before = gitState();
-        execFileSync(codexBin, args, {
+        guardedExecFileSync(codexBin, args, {
           cwd: options.cwd,
           encoding: "utf8",
           stdio: ["ignore", "pipe", "pipe"],
           timeout: options.timeoutMs ?? 120000,
         });
-        const after = gitState();
-        if (before !== null && after !== before) throw new Error("repository mutation detected during read-only evaluator run");
         return validateEvaluation(JSON.parse(readFileSync(outputPath, "utf8")), candidate.id);
       } finally {
         rmSync(temp, { recursive: true, force: true });

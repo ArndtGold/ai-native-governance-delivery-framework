@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runDeliveryPathSearch } from "../lib/delivery-path-search/search-engine.js";
 import { fixtureEvaluator } from "../lib/delivery-path-search/evaluators/protocol.js";
+import { fixtureGenerator } from "../lib/delivery-path-search/generators/protocol.js";
 import { persistSearchResult } from "../lib/delivery-path-search/persistence.js";
 
 const baseInput = {
@@ -85,6 +86,51 @@ const invalidEvaluation = await runDeliveryPathSearch(
 );
 assert.equal(invalidEvaluation.status, "no_safe_recommendation");
 assert.match(invalidEvaluation.rejected[0].reason, /invalid_evaluation/);
+
+const generatedInput = {
+  ...baseInput,
+  generation: { enabled: true, max_calls: 1, max_proposals: 5, max_duration_ms: 3000, max_cost_units: 5 },
+};
+const generatedResponse = {
+  contract_version: "1", cost_units: 2, proposals: [{
+    proposal_id: "p1", gate_action: "implement approved task", intent: "implement the approved task through the existing search core",
+    expected_evidence: ["integration test"], tests: ["generated path fixture"], assumptions: [], affected_boundaries: ["search core"],
+    risk_strategy: "extend existing owner", reversibility: "additive change",
+  }],
+};
+const generatedCandidateEvaluation = {
+  ...evaluations.safe,
+  candidate_id: "generated-p1",
+  rationale: "Uses the existing owner with explicit evidence.",
+};
+const generatedResult = await runDeliveryPathSearch(
+  generatedInput,
+  fixtureEvaluator({ ...evaluations, "candidate-1": { ...evaluations.safe, candidate_id: "candidate-1" }, "candidate-2": { ...evaluations.safe, candidate_id: "candidate-2" }, "generated-p1": generatedCandidateEvaluation }),
+  { generator: fixtureGenerator(generatedResponse) },
+);
+assert.equal(generatedResult.generation.status, "success");
+assert.equal(generatedResult.generation.accepted, 1);
+assert.equal(generatedResult.generation.cost_units, 2);
+assert.ok(generatedResult.alternatives.some((item) => item.candidate_id === "generated-p1") || generatedResult.recommendation.candidate_id === "generated-p1");
+
+const generatorFailure = await runDeliveryPathSearch(
+  generatedInput,
+  fixtureEvaluator({ "candidate-1": { ...evaluations.safe, candidate_id: "candidate-1" }, "candidate-2": { ...evaluations.safe, candidate_id: "candidate-2" } }),
+  { generator: { async generate() { throw new Error("schema invalid"); }, metadata: { name: "broken" } } },
+);
+assert.equal(generatorFailure.generation.status, "failed");
+assert.equal(generatorFailure.generation.failure_code, "generator_schema_invalid");
+assert.equal(generatorFailure.status, "recommendation", "deterministic baseline must survive generator failure");
+
+const strictGenerationBudget = await runDeliveryPathSearch(
+  { ...generatedInput, generation: { ...generatedInput.generation, max_cost_units: 1 } },
+  fixtureEvaluator({ "candidate-1": { ...evaluations.safe, candidate_id: "candidate-1" }, "candidate-2": { ...evaluations.safe, candidate_id: "candidate-2" } }),
+  { generator: fixtureGenerator(generatedResponse) },
+);
+assert.equal(strictGenerationBudget.generation.status, "failed");
+assert.equal(strictGenerationBudget.generation.failure_code, "generator_budget_exceeded");
+assert.equal(strictGenerationBudget.generation.cost_units, 2, "reported over-budget consumption must remain visible");
+assert.equal(strictGenerationBudget.status, "recommendation");
 
 const temp = mkdtempSync(join(tmpdir(), "agdf-dps-test-"));
 try {

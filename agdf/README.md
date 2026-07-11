@@ -101,6 +101,7 @@ npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 npx --yes @agdf/cli@latest delivery-map --json
 npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
+npx --yes @agdf/cli@latest delivery-path-search --surface codex --generate-candidates --json
 ```
 
 The CLI validators provide deterministic evidence for agents and automation.
@@ -111,6 +112,10 @@ allowed and forbidden actions. Codex and Claude Code are executable, tool-enforc
 reference evaluators in this release. Copilot and OpenCode expose the shared skill
 and contract as instruction-only surfaces until a conforming executable evaluator
 is available.
+
+Candidate generation is opt-in for Codex and Claude Code. It supplements deterministic
+candidates, uses separate hard budgets, and exposes provenance, rejection and failure;
+it never grants gate permission or silently switches providers.
 
 Use `--persist` only when the redacted decision should become durable scope
 evidence. It writes `DELIVERY_PATH_SEARCH.json` and

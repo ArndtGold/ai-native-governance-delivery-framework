@@ -91,6 +91,12 @@ Delivery Path Search is an optional read-only planning step for high-impact deci
 - Search output is evidence only. Canonical `gate-check` independently decides what may proceed.
 - The bounded first-release algorithm must not be labelled MCTS.
 - Surface adapters may translate transport and presentation, but must not fork scoring, search or gate semantics.
+- Optional AI-native candidate generation supplements the deterministic candidate baseline; it never replaces it.
+- Generated proposals are untrusted. The core must validate schema, exact canonical gate action, scope, duplicates and material diversity before evaluation.
+- Generation is opt-in and bounded to one call, five proposals, 30 seconds and five abstract cost units by default, within whole-run budgets.
+- External generation receives only bounded normalized control summaries and references, never secrets, full artefacts, raw prompts, hidden reasoning or source snapshots.
+- Generator status, provenance, accepted/rejected counts, separate budget use and typed failure must remain visible. Failure retains the deterministic baseline; automatic provider fallback is forbidden.
+- Codex and Claude Code may provide tool-enforced generator transports. Copilot, OpenCode and generic surfaces remain instruction-only without conforming evidence.
 
 The field names above are the stable machine-readable contract used by JSON
 reports and automation. Human-facing Markdown must present the same projection

@@ -251,6 +251,16 @@ if (deliveryPathSearchOutput.status !== "recommendation"
   throw new Error("delivery-path-search CLI must return the canonical advisory fixture result.");
 }
 
+const generatedDeliveryPathSearchFixture = fileURLToPath(new URL("./scripts/fixtures/delivery-path-search-generated.json", packageRoot));
+const generatedDeliveryPathSearchOutput = JSON.parse(execFileSync(process.execPath, [
+  binPath, "delivery-path-search", "--fixture", generatedDeliveryPathSearchFixture, "--json",
+], { encoding: "utf8" }));
+if (generatedDeliveryPathSearchOutput.generation?.status !== "success"
+  || generatedDeliveryPathSearchOutput.generation?.accepted !== 1
+  || generatedDeliveryPathSearchOutput.generation?.cost_units !== 2) {
+  throw new Error("delivery-path-search CLI must expose bounded generated-candidate provenance and budgets.");
+}
+
 const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
 try {
   execFileSync(process.execPath, [binPath, "opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });

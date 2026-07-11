@@ -76,7 +76,7 @@ export const workflowSteps = [
         step: "04",
         title: "Optional: Delivery Path Search",
         command: "/delivery-path-search",
-        desc: "For high-impact choices, compare legal next steps before implementation. The result is advice; the gate still decides."
+        desc: "For high-impact choices, compare legal next steps before implementation. Codex and Claude can optionally add bounded, validated candidate generation; the result is advice and the gate still decides."
     },
     {
         step: "05",

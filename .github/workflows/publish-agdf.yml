@@ -62,6 +62,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: validate
+    env:
+      NPM_CONFIG_CACHE: ${{ runner.temp }}/agdf-release-npm-cache
     permissions:
       contents: read
       id-token: write
@@ -162,3 +164,32 @@ jobs:
           }
 
           wait_for_npm_package "@agdf/cli"
+
+          MAX_LATEST_ATTEMPTS=20
+          LATEST_VERSION=""
+          LAST_LATEST_ERROR=""
+          for ATTEMPT in $(seq 1 "${MAX_LATEST_ATTEMPTS}"); do
+            if RESULT="$(npm view "@agdf/cli@latest" version --json 2>"${NPM_ERROR_LOG}")"; then
+              LATEST_VERSION="$(node -e "const value = JSON.parse(process.argv[1]); process.stdout.write(String(value));" "${RESULT}")"
+              if [ "${LATEST_VERSION}" = "${VERSION}" ]; then
+                echo "@agdf/cli@latest resolves to ${VERSION}."
+                LAST_LATEST_ERROR=""
+                break
+              fi
+              LAST_LATEST_ERROR="resolved ${LATEST_VERSION}, expected ${VERSION}"
+            else
+              LAST_LATEST_ERROR="$(cat "${NPM_ERROR_LOG}")"
+            fi
+
+            if [ "${ATTEMPT}" -lt "${MAX_LATEST_ATTEMPTS}" ]; then
+              sleep "${SLEEP_SECONDS}"
+            fi
+          done
+
+          if [ -n "${LAST_LATEST_ERROR}" ]; then
+            echo "Timed out waiting for @agdf/cli@latest to resolve to ${VERSION} after ${MAX_LATEST_ATTEMPTS} attempts. Last error: ${LAST_LATEST_ERROR}" >&2
+            exit 1
+          fi
+
+      - name: Run clean public bootstrap smoke test
+        run: AGDF_EXPECTED_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version")" node ./create-agdf/scripts/release-bootstrap-smoke-test.js

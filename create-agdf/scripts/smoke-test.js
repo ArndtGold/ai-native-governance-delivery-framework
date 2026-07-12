@@ -78,6 +78,9 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
     "wait_for_npm_package \"@agdf/cli\"",
     "npm view \"${PACKAGE}@${VERSION}\" version --json",
     "Timed out waiting for ${PACKAGE}@${VERSION} after ${MAX_ATTEMPTS} attempts",
+    "@agdf/cli@latest\" version --json",
+    "Run clean public bootstrap smoke test",
+    "NPM_CONFIG_CACHE: ${{ runner.temp }}/agdf-release-npm-cache",
   ]) {
     if (!publishWorkflow.includes(requiredSnippet)) {
       throw new Error(`Publish workflow must keep bounded exact-version npm readiness check: missing ${requiredSnippet}`);
@@ -87,6 +90,9 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
     && publishWorkflow.indexOf("Wait for create-agdf readiness") < publishWorkflow.indexOf("Publish @agdf/cli to npm")
     && publishWorkflow.indexOf("Publish @agdf/cli to npm") < publishWorkflow.indexOf("Wait for @agdf/cli readiness"))) {
     throw new Error("Publish workflow must wait for create-agdf readiness before publishing @agdf/cli, then wait for @agdf/cli readiness.");
+  }
+  if (publishWorkflow.indexOf("Wait for @agdf/cli readiness") > publishWorkflow.indexOf("Run clean public bootstrap smoke test")) {
+    throw new Error("Clean public bootstrap smoke test must run after @agdf/cli readiness.");
   }
 }
 

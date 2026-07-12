@@ -55,6 +55,12 @@ This avoids race conditions between package publication and wrapper validation.
 The repository secret `NPM_TOKEN` must have publish rights for `create-agdf` and
 for the `@agdf` npm organization.
 
+The publish workflow reports release readiness only after it verifies both exact
+package versions and that `@agdf/cli@latest` resolves to the same release version.
+It then runs a disposable clean-client bootstrap smoke test using the documented
+command shape. These checks are maintainer/CI evidence; they do not add flags or
+parameters to the public bootstrap commands.
+
 ## Do Not Use Legacy Split Tags
 
 Do not use separate package release tags such as:

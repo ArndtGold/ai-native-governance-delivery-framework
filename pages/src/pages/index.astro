@@ -75,7 +75,7 @@ const projectStats = await getProjectStats()
       class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl"
     >
       Govern AI Delivery<br />
-      <span class="gradient-text">Before Code Moves</span>
+      <span class="gradient-text">Before the Next Move</span>
     </h1>
 
     <p
@@ -874,80 +874,6 @@ const projectStats = await getProjectStats()
     {skillFamilies.map(f => (
       <span class="rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300 shadow-[0_0_24px_-16px_var(--agdf-glow)]">{f}</span>
     ))}
-  </div>
-
-  <div data-reveal data-reveal-delay="3" class="mt-12 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-    <div class="surface p-6">
-      <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Why Delivery Path Search matters</div>
-      <h3 class="text-2xl font-bold">Choose the safest next investment before an agent starts building.</h3>
-      <p class="mt-3 text-sm text-dark-200">High-impact changes rarely fail because an agent cannot produce code. They fail because the first plausible direction ignores existing ownership, missing evidence or downstream risk. AGDF compares the available paths first, so the team spends engineering time on the step most likely to reduce uncertainty and survive review.</p>
-      <div class="mt-5 rounded-lg border border-cyan-300/20 bg-cyan-950/20 p-4">
-        <div class="font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">Inspired by decision-tree search — not yet MCTS</div>
-        <p class="mt-2 text-xs leading-relaxed text-dark-200">AGDF explores several legal delivery paths, evaluates their likely consequences and expands the strongest candidates within fixed cost, time, depth and evaluation budgets. The first release uses bounded best-first search. Full Monte Carlo Tree Search would additionally require stochastic simulation, reward backpropagation and an explicit exploration policy.</p>
-      </div>
-      <div class="mt-5 grid gap-3 sm:grid-cols-3">
-        <div class="rounded-lg border border-dark-700 bg-dark-900/60 p-3">
-          <div class="font-semibold text-dark-100">Less rework</div>
-          <div class="mt-1 text-xs text-dark-300">Reject scope drift and duplicate architecture before code creates sunk cost.</div>
-        </div>
-        <div class="rounded-lg border border-dark-700 bg-dark-900/60 p-3">
-          <div class="font-semibold text-dark-100">Faster evidence</div>
-          <div class="mt-1 text-xs text-dark-300">Prefer the next action that answers the most important open question.</div>
-        </div>
-        <div class="rounded-lg border border-dark-700 bg-dark-900/60 p-3">
-          <div class="font-semibold text-dark-100">Safer autonomy</div>
-          <div class="mt-1 text-xs text-dark-300">Let agents explore options without letting exploration become implementation.</div>
-        </div>
-      </div>
-      <div class="mt-6 text-sm font-semibold text-dark-100">Example: adding authorization to an existing product</div>
-      <p class="mt-1 text-xs text-dark-300">Instead of immediately creating a new service, the search identifies which next step protects the existing investment and produces the strongest evidence.</p>
-      <div class="mt-5 space-y-3 text-sm">
-        <div class="rounded-lg border border-agdf-500/30 bg-agdf-950/40 p-3">
-          <div class="font-semibold text-agdf-200">Recommended: inspect the existing authorization tests</div>
-          <div class="mt-1 text-dark-300">Reveals the real policy owner before design begins. High evidence gain, low cost and fully reversible.</div>
-        </div>
-        <div class="rounded-lg border border-dark-700 bg-dark-900/60 p-3">
-          <div class="font-semibold text-dark-100">Rejected: introduce a parallel policy service</div>
-          <div class="mt-1 text-dark-300">Looks productive, but creates duplicate ownership, migration cost and long-term maintenance risk.</div>
-        </div>
-        <div class="rounded-lg border border-red-500/25 bg-red-950/20 p-3">
-          <div class="font-semibold text-red-200">Rejected before evaluation: deploy the change</div>
-          <div class="mt-1 text-dark-300">The current AGDF gate does not allow release activity.</div>
-        </div>
-      </div>
-      <div class="mt-5 rounded-lg border border-dark-700 bg-dark-950/80 p-3 font-mono text-xs text-dark-200">
-        npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
-      </div>
-      <p class="mt-3 text-xs text-dark-400">Business outcome: fewer false starts, earlier risk discovery and a reviewable reason for the next engineering investment. The result is advice, not approval; gate-check still decides what may proceed.</p>
-    </div>
-
-    <div class="surface p-6">
-      <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Execution support</div>
-      <h3 class="text-2xl font-bold">One contract. Honest capability levels.</h3>
-      <div class="mt-5 overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-dark-700 text-xs uppercase text-dark-300">
-            <tr>
-              <th class="py-2 pr-3">Surface</th>
-              <th class="py-2 pr-3">Workflow</th>
-              <th class="py-2">Evaluator</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-dark-800 text-dark-200">
-            <tr><td class="py-3 pr-3 font-medium text-dark-100">Codex</td><td class="py-3 pr-3 text-agdf-300">Ready</td><td class="py-3 text-agdf-300">Tool-enforced executable</td></tr>
-            <tr><td class="py-3 pr-3 font-medium text-dark-100">Claude Code</td><td class="py-3 pr-3 text-agdf-300">Ready</td><td class="py-3 text-agdf-300">Tool-enforced executable</td></tr>
-            <tr><td class="py-3 pr-3 font-medium text-dark-100">Copilot</td><td class="py-3 pr-3 text-yellow-400">Instruction-only</td><td class="py-3">No executable evaluator</td></tr>
-            <tr><td class="py-3 pr-3 font-medium text-dark-100">OpenCode</td><td class="py-3 pr-3 text-yellow-400">Instruction-only</td><td class="py-3">No executable evaluator</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="mt-5 space-y-2 text-xs text-dark-300">
-        <p><strong class="text-dark-100">Full:</strong> trusted lifecycle controls prevent writes.</p>
-        <p><strong class="text-dark-100">Tool-enforced:</strong> only read and evaluation tools are exposed.</p>
-        <p><strong class="text-dark-100">Instruction-only:</strong> the surface cannot technically prove write prevention.</p>
-        <p>Cost units are comparison scores, not measured provider currency.</p>
-      </div>
-    </div>
   </div>
 </section>
 

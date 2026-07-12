@@ -68,15 +68,6 @@ Wähle den Einstieg, der zu deinem Ziel passt:
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
 
-**AGDF mit einem Coding-Agenten anwenden**
-
-1. Starte mit dem [Coding-Agenten-Handbuch](docs/agenten-handbuch/README.md).
-2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine
-   strukturierte Auslieferung.
-
-Installation und Setup für Codex, Claude Code, GitHub Copilot oder kombinierte Oberflächen stehen
-in [INSTALL.md](INSTALL.md).
-
 Danach solltest du beantworten können:
 
 - Warum reicht ein guter Agenten-Output allein nicht?
@@ -170,83 +161,14 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ## Runtime und Setup
 
-AGDF ist nicht nur ein Diskussionsentwurf, sondern auch als operative Laufzeit nutzbar:
+### AGDF mit einem Coding Agent anwenden
 
-- für **Codex** als Plugin
-- für **Claude Code** als Plugin
-- für **GitHub Copilot** über Repository-Instruktionen und Repo-Skills
+Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [INSTALL.md](INSTALL.md).
 
-Die operativen Einstiege, Bootstrap-Pfade und oberflächenspezifischen
-Verifikationsschritte stehen in [INSTALL.md](INSTALL.md).
+Danach kannst du direkt einsteigen:
 
-Das Plugin liefert zusätzlich einen Control-Scaffold unter `plugin/control/`.
-Dieser Scaffold macht den praktischen Arbeitsstand sichtbar.
-
-AGDF ist agent-native first und über die Kommandozeile (CLI) überprüfbar: Der normale Bedienpfad
-ist der aktive Skill. Der Agent liest den Repository-Zustand, wendet den Runtime Contract an,
-formuliert bei frischen Requests zuerst eine minimale UR im Chat, erzeugt oder aktualisiert nur
-erlaubte Artefakte und benennt den nächsten zulässigen Schritt.
-
-Die CLI ist kein Pflicht-Ritual, sondern die deterministische Prüf- und Automationsschicht: Sie
-macht denselben Repository-Zustand für Continuous Integration (CI), Pull Requests (PRs),
-Regressionen und Audit-Trails maschinenlesbar. Wenn AGDF dauerhafte Artefakte erzeugt oder
-aktualisiert, bleiben die Inhalte in den Dateien. Der Chat nennt Pfade, Entscheidungen, Blocker und
-nächste Schritte, aber flutet nicht mit vollständigen Control-Dateien.
-
-Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte aus den Dokumenten:
-
-- aktueller Run-Status und nächste erlaubte Aktion: aus [Gates](docs/02-gates.md), besonders
-  Gate-Status, Gate-Entscheidung und nächster Schritt
-- Master-Backlog als lebender Steuerungszeiger: aus [Artefakten](docs/03-artefakte.md), besonders
-  Artefaktstatus, Referenzen und Artefaktliste als Fallback
-- Source-of-Truth-Registry gegen parallele Wahrheiten: aus dem [Manifest](docs/00-manifest.md),
-  besonders „Eine verbindliche Quelle für Produktabsicht“
-- Context Graph für dauerhaft relevante Brownfield-Erkenntnisse:
-  aus [Wissen nutzbar halten](docs/04-wissen-nutzbar-halten.md)
-  und [Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
-- Quality Contracts als wiederverwendbare Block-, Revise- und Warnsignale:
-  aus [Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md), besonders ausführbare
-  Qualitätsverträge und ihre Wirkung
-
-Für Ziel-Repositories stehen dafür prüfbare Hilfskommandos bereit:
-
-```bash
-npx --yes @agdf/cli@latest init
-npx --yes @agdf/cli@latest codex
-npx --yes @agdf/cli@latest codex-repo
-npx --yes @agdf/cli@latest claude
-npx --yes @agdf/cli@latest opencode
-npx --yes @agdf/cli@latest opencode-status
-npx --yes @agdf/cli@latest opencode-repo
-npx --yes @agdf/cli@latest config --language en
-npx --yes @agdf/cli@latest doctor
-npx --yes @agdf/cli@latest gate-check --status-card
-npx --yes @agdf/cli@latest gate-check --json
-```
-
-Für Scaffold-kompatible Installation bleibt der npm-create-Pfad erhalten:
-
-```bash
-npm create agdf@latest -- init
-```
-
-`init` legt Control-Dateien unter `.agdf/control/` nur an, wenn ein Repository dauerhaften
-AGDF-Control-State haben soll, ihn bereits verwendet oder ein deterministischer Setup-/CI-Pfad ihn
-erfordert. Für einen frischen Request ist das nicht nötig: Der Agent kann zuerst eine minimale UR
-im Chat formulieren und `Approval: UR` anfordern. Brownfield Review, spätere Gates und
-Implementierung bleiben jedoch an die im Runtime Contract geforderten persistierten oder
-verlinkten Artefakte gebunden.
-
-`doctor` prüft Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger und die Konsistenz des
-Control-State. `gate-check --status-card` liefert dafür die kompakte interaktive Ansicht;
-`gate-check --json` den vollständigen maschinenlesbaren Nachweis für Automation, CI, Regressionen
-und Audit-Trails. OpenCode-spezifische Installation, globaler Hook, repository-lokale Oberfläche
-und `opencode-status` sind in [INSTALL.md](INSTALL.md) beschrieben.
-
-`gate-check --json` und `delivery-map --json` enthalten zusätzlich eine kompakte Run Status Card.
-Sie fasst aktuelles Gate, erlaubte und verbotene Aktionen, Blocker, nächsten Skill, nächsten
-erlaubten Schritt und `quality_outlook` zusammen. `next_step` bleibt dabei die Prozess-Erlaubnis;
-`quality_outlook` ist der nächste sinnvolle Qualitätshebel und ersetzt keine Freigabe.
+1. Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md).
+2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
 
 ## Lizenz
 

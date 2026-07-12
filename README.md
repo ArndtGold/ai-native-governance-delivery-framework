@@ -120,8 +120,7 @@ Empfohlene Reihenfolge:
 6. [05 - Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md)
 7. [06 - Das Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
-10. [AGDF mit ChatGPT Codex, Claude Code oder OpenCode nutzen](docs/agenten-handbuch/README.md)
-11. [Glossar](docs/glossar.md)
+9. [Glossar](docs/glossar.md)
 
 ## Projektstruktur
 

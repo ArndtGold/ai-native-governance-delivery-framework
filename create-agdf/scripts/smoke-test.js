@@ -80,7 +80,7 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
     "Timed out waiting for ${PACKAGE}@${VERSION} after ${MAX_ATTEMPTS} attempts",
     "@agdf/cli@latest\" version --json",
     "Run clean public bootstrap smoke test",
-    "NPM_CONFIG_CACHE: ${{ runner.temp }}/agdf-release-npm-cache",
+    "NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache",
   ]) {
     if (!publishWorkflow.includes(requiredSnippet)) {
       throw new Error(`Publish workflow must keep bounded exact-version npm readiness check: missing ${requiredSnippet}`);

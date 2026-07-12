@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     env:
-      NPM_CONFIG_CACHE: ${{ runner.temp }}/agdf-release-npm-cache
+      NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm-cache
     permissions:
       contents: read
       id-token: write

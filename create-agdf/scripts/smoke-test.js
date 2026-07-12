@@ -66,6 +66,17 @@ if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --y
 }
 
 {
+  const guardrailsWorkflowPath = fileURLToPath(new URL("../.github/workflows/agdf-guardrails.yml", packageRoot));
+  const guardrailsWorkflow = readFileSync(guardrailsWorkflowPath, "utf8");
+  const syncMarker = "run: npm --prefix create-agdf run sync-package-assets";
+  const deliveryMapMarker = "run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active";
+  if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(deliveryMapMarker)
+    || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(deliveryMapMarker)) {
+    throw new Error("AGDF guardrails must synchronize generated package assets before running delivery-map directly from source.");
+  }
+}
+
+{
   const publishWorkflowPath = fileURLToPath(new URL("../.github/workflows/publish-agdf.yml", packageRoot));
   const publishWorkflow = readFileSync(publishWorkflowPath, "utf8");
   for (const requiredSnippet of [

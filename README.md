@@ -2,67 +2,35 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiges Control-Framework für Softwareentwicklung mit KI-Agenten — Codex-first als
-Plugin, zusätzlich nutzbar mit Claude Code, GitHub Copilot und OpenCode.
+Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten.
 
-Für folgenreiche Planungsentscheidungen kann die optionale **Delivery Path Search** mehrere
-zulässige nächste Schritte vergleichen. Sie nutzt einen portablen Search Core, kennzeichnet die
-Durchsetzungsstärke jeder Agent-Oberfläche und liefert nur eine Empfehlung. Der normale AGDF Gate
-Check entscheidet weiterhin, ob dieser Schritt ausgeführt werden darf. Die erste Version ist
-bewusst begrenzte Best-First-Suche und kein Monte-Carlo-Tree-Search-Verfahren (MCTS).
-Optional kann sie auf Codex und Claude Code einen begrenzten, technisch schreibgeschützten
-Generierungsschritt ergänzen. Er ersetzt niemals die deterministischen Kandidaten; Vorschläge werden
-vor der Bewertung deterministisch auf Gate-Legalität, Scope, Duplikate und materielle Unterschiede geprüft.
+Der Entwurf fragt:
 
-## Language note
-
-AGDF is German-first by design.
-
-The framework discusses governance, responsibility, approval, evidence and delivery control in the
-language in which many of the underlying enterprise, product and accountability conversations happen
-for this project. English software-delivery terms are used where they are established, but the
-primary reasoning language remains German to preserve nuance around control, responsibility and
-decision-making.
-
-The plugin surfaces and operational commands are kept usable for Codex, Claude Code, GitHub Copilot
-and OpenCode. Selected runtime-facing parts may become bilingual where that improves adoption
-without weakening the original concepts.
-
-AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI,
-Anthropic, GitHub or OpenCode.
-
-## Zentrale Frage
-
-Wie bleibt Softwareentwicklung kontrollierbar, wenn KI-Agenten nicht nur Code schreiben, sondern
-auch planen, prüfen,
+Wie bleibt Softwareentwicklung kontrollierbar, wenn KI-Agenten nicht nur Code schreiben, sondern auch planen, prüfen,
 ändern und zusammenfassen?
 
-### In einem Satz
+## In einem Satz
 
-KI-Agenten brauchen nicht nur Prompts und Tools, sondern eine überprüfbare Arbeitsordnung:
-Gates, Artefakte, Projektwissen, Nachweise und klare Stoppsignale.
+KI-Agenten brauchen nicht nur Prompts und Tools.
+Sie brauchen einen nachvollziehbaren Arbeitsrahmen aus Gates, Artefakten, Projektwissen und Nachweisen.
 
 Der Mensch bleibt verantwortlich.
-Der Agent kann Arbeit beschleunigen.
-Der Arbeitslauf muss kontrollierbar, nachvollziehbar und belegbar bleiben.
+Der Agent kann unterstützen.
+Der Arbeitslauf muss belegbar bleiben.
 
-## Worum geht es praktisch?
+## Status
 
-AGDF beantwortet während eines Agentenlaufs immer wieder dieselben Kontrollfragen:
+Dieses Repository ist ein öffentlicher Diskussionsentwurf.
+Es ist noch kein fertiges Tool, kein Pflichtprozess und kein Standard.
 
-- Was ist fachlich erlaubt?
-- Welche Freigabe liegt wirklich vor?
-- Welche Quelle der Wahrheit gilt?
-- Welche Evidenz belegt den nächsten Schritt?
-- Wo muss der Agent stoppen, statt plausibel weiterzumachen?
+Ziel ist zuerst, die Beobachtung zu prüfen:
 
-Darum ist AGDF zuerst ein **Kontrollsystem** und erst danach ein technisches Plugin.
+Je stärker KI-Agenten in Softwareentwicklung eingebunden werden, desto wichtiger werden Scope, Freigabe,
+Nachvollziehbarkeit, Projektwissen und Qualitätsnachweise.
 
 ## Erste 5 Minuten
 
-Wähle den Einstieg, der zu deinem Ziel passt:
-
-**AGDF verstehen**
+Wenn du schnell verstehen willst, worum es geht:
 
 1. Lies die Kernaussage im [Manifest](docs/00-manifest.md).
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
@@ -74,9 +42,35 @@ Danach solltest du beantworten können:
 - Welche Entscheidung stoppt oder erlaubt den nächsten Schritt?
 - Welche Nachweise braucht ein Team, damit ein Agentenlauf vertrauenswürdig wird?
 
-## Was schlägt AGDF vor?
+## Warum es dieses Projekt gibt
 
-AGDF arbeitet mit fünf Bausteinen.
+Viele Diskussionen über KI in der Softwareentwicklung drehen sich um Geschwindigkeit.
+Wie schnell kann ein Agent Code schreiben?
+Wie viel Arbeit kann automatisiert werden?
+Welches Tool ist am besten?
+
+Diese Fragen sind wichtig.
+Sie reichen aber nicht.
+
+Ein Agent kann schnell ein plausibles Ergebnis erzeugen.
+Trotzdem kann offen bleiben:
+
+- War die Anforderung richtig verstanden?
+- War der Scope freigegeben?
+- Wurde bestehendes Verhalten geschützt?
+- Wurden Tests wirklich ausgeführt?
+- Sind fehlende Nachweise sichtbar?
+- Darf der nächste Schritt überhaupt beginnen?
+
+Ein Board zeigt, woran gearbeitet wird.
+Dieser Entwurf fragt, warum daran gearbeitet werden darf.
+
+Der Entwurf beschreibt nicht nur, wie man KI-Agenten nutzt.
+Er fragt, wie verhindert wird, dass Agentenarbeit unbemerkt Scope, Architektur oder Projektwissen verschiebt.
+
+## Was der Entwurf vorschlägt
+
+Der Entwurf arbeitet mit vier Bausteinen.
 
 Gates:
 bewusste Haltepunkte, an denen entschieden wird, ob Arbeit weitergehen darf.
@@ -90,23 +84,30 @@ ein projektnahes Gedächtnis, das nicht allein in Chatverläufen oder Tool-Memor
 Qualitätsverträge:
 prüfbare Regeln für Agentenläufe, Reviews und Nachweise.
 
-Control-Scaffold:
-konkrete Repository-Artefakte für Run-Status, Backlog-Zeiger, Source-of-Truth-Registry, Context
-Graph und wiederverwendbare Qualitätsverträge.
-
 ## Warum Brownfield wichtig ist
 
 Viele KI-gestützte Vorhaben entstehen nicht auf der grünen Wiese.
-Sie treffen auf bestehende Systeme, bestehende Verantwortung, technische Schulden und oft
-unvollständige Tests.
+Sie treffen auf bestehende Systeme, bestehende Verantwortung, technische Schulden und oft unvollständige Tests.
 
 Gerade dort reicht schnelle Code-Erzeugung nicht aus.
 Ein kleiner neuer Wunsch kann bestehendes Verhalten verändern.
-Ein Agent kann lokal plausibel arbeiten und trotzdem eine zweite Struktur oder eine zweite Wahrheit
-erzeugen.
+Ein Agent kann lokal plausibel arbeiten und trotzdem eine zweite Struktur oder eine zweite Wahrheit erzeugen.
 
 Deshalb behandelt dieser Entwurf Brownfield nicht als Sonderfall.
 Brownfield ist der Normalfall, an dem sich der Ansatz bewähren muss.
+
+## Schnell ausprobieren
+
+Ein Team kann den Entwurf klein testen:
+
+1. Einen echten kleinen Brownfield Change auswählen.
+2. In einem Absatz das User Requirement formulieren.
+3. Prüfen, ob bestehendes Verhalten betroffen ist.
+4. Drei bis fünf Akzeptanzkriterien festhalten.
+5. Einen kurzen Task und Test Plan schreiben.
+6. Nach der Umsetzung Nachweise sammeln.
+7. Am Ende prüfen, ob Ergebnis und Agentenlauf ausreichend belegt sind.
+
 
 ## Dokumente
 
@@ -160,7 +161,7 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ## Runtime und Setup
 
-### AGDF mit einem Coding Agent anwenden
+### AGDF als Plugin mit einem Coding Agent anwenden
 
 Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [INSTALL.md](INSTALL.md).
 
@@ -168,6 +169,23 @@ Danach kannst du direkt einsteigen:
 
 1. Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md).
 2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
+
+## Language note
+
+AGDF is German-first by design.
+
+The framework discusses governance, responsibility, approval, evidence and delivery control in the
+language in which many of the underlying enterprise, product and accountability conversations happen
+for this project. English software-delivery terms are used where they are established, but the
+primary reasoning language remains German to preserve nuance around control, responsibility and
+decision-making.
+
+The plugin surfaces and operational commands are kept usable for Codex, Claude Code, GitHub Copilot
+and OpenCode. Selected runtime-facing parts may become bilingual where that improves adoption
+without weakening the original concepts.
+
+AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI,
+Anthropic, GitHub or OpenCode.
 
 ## Lizenz
 

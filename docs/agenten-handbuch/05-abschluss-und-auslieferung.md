@@ -79,6 +79,3 @@ ist immer eine eigene Entscheidung.
 Wenn der Agent diese Schritte ausführen soll, musst du sie ausdrücklich beauftragen.
 
 Weiter: [Fehlerbehebung](06-fehlerbehebung.md).
-
-
-Weiter: [Fehlerbehebung](06-fehlerbehebung.md).

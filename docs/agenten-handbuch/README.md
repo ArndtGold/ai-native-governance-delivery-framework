@@ -7,17 +7,6 @@ Runtime-Regeln studieren zu müssen.
 AGDF ist kein Formularprozess neben der Entwicklung. Es macht sichtbar, was der Agent gerade tun darf,
 welche Entscheidung beim Menschen liegt und welche Evidenz den nächsten Schritt trägt.
 
-Die wichtigsten Begriffe werden im Handbuch bei der ersten Nennung ausgeschrieben:
-
-- **User Requirement (UR)**
-- **Product Requirements Document (PRD)**
-- **Solution Design (SD)**
-- **Task- und Testplan (TP)**
-- **Quality Assurance (QA)**
-- **User Acceptance Testing (UAT)**
-
-Die vollständige Gate-Beschreibung steht in [02 – Gates](../02-gates.md).
-
 ## Einstieg
 
 Beginne mit dem [Schnellstart](01-schnellstart.md). Er führt durch einen vollständigen Weg vom ersten

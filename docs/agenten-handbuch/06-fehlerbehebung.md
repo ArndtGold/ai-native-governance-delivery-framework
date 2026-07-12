@@ -69,7 +69,4 @@ Korrigiere genau diesen Punkt.
 
 Der Agent bleibt im aktuellen Arbeitsstand und setzt die Arbeit erst fort, wenn die Voraussetzung erfüllt ist.
 
-Zurück zum [Handbuch Index](README.md).
-
-
 Zurück zum [Handbuch-Index](README.md).

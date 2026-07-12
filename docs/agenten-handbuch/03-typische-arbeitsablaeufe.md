@@ -126,6 +126,3 @@ Nur die Dokumentation ändern.
 Solche Vorgaben helfen dem Agenten bei der Planung. Er prüft trotzdem, ob sie zum bestehenden System, zu den vorhandenen Quellen und zum aktuellen Gate passen.
 
 Weiter: [Mehrere Runs](04-mehrere-runs.md).
-
-
-Weiter: [Mehrere Runs](04-mehrere-runs.md).

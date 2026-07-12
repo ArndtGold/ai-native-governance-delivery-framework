@@ -54,7 +54,5 @@ AGDF_RUN_ID
 
 Im normalen Gespräch mit dem Coding Agent ist das meist nicht nötig. Es genügt, das gewünschte Vorhaben eindeutig zu benennen oder den Agenten nach den aktiven Runs zu fragen.
 
-Weiter: [Abschluss und Auslieferung](05-abschluss-und-auslieferung.md).
-
 
 Weiter: [Abschluss und Auslieferung](05-abschluss-und-auslieferung.md).

@@ -102,6 +102,3 @@ Approval: UAT
 Beide Freigaben bleiben bewusste Entscheidungen.
 
 Weiter: [Typische Arbeitsabläufe](03-typische-arbeitsablaeufe.md).
-
-
-Weiter: [Typische Arbeitsabläufe](03-typische-arbeitsablaeufe.md).

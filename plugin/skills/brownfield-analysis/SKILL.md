@@ -47,8 +47,8 @@ Do not mix both modes silently. Name the active mode in the output.
 13. Specification archive migrations must follow the archive index if present.
 
 ## When To Use
-- after `gate-check` permits `Brownfield Review` or live `.agdf/control/AGDF_RUN.md` names Brownfield Review as the next allowed action
-- after `gate-check` permits implementation preparation or live `.agdf/control/AGDF_RUN.md` already names Brownfield Analysis as the next allowed action
+- after `gate-check` permits `Brownfield Review` or the selected canonical run record names Brownfield Review as the next allowed action
+- after `gate-check` permits implementation preparation or the selected canonical run record already names Brownfield Analysis as the next allowed action
 - after `Approval: UR` when existing owners, SoT, contracts, policies, persistence, runtime paths, tests, UI, UX or architecture may affect PRD/SD scope
 - before `CD+Tests`
 - before changes to an existing repository

@@ -107,7 +107,7 @@ npx --yes @agdf/cli@latest delivery-path-search --surface codex --generate-candi
 The CLI validators provide deterministic evidence for agents and automation.
 They do not replace AGDF skill judgement or user approvals.
 
-Delivery Path Search requires live `.agdf/control/AGDF_RUN.md` state with explicit
+Delivery Path Search requires selected canonical `.agdf/control/runs/<run_id>/RUN_STATE.md` state with explicit
 allowed and forbidden actions. Codex and Claude Code are executable, tool-enforced
 reference evaluators in this release. Copilot and OpenCode expose the shared skill
 and contract as instruction-only surfaces until a conforming executable evaluator

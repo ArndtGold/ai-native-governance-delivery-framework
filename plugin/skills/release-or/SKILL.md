@@ -28,7 +28,7 @@ It reports:
 Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
-When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from `AGDF_RUN.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
+When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
 Use the Runtime Contract definition of `Relevant Run` to decide whether OR is mandatory or whether a Quick Task mini-closeout is enough.
 
 ## Rules

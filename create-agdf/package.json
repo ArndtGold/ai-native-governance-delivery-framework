@@ -24,8 +24,9 @@
     "test:delivery-path-search": "node ./scripts/delivery-path-search-test.js",
     "test:delivery-path-search-unit": "node ./scripts/delivery-path-search-unit-test.js",
     "test:delivery-path-search-generator": "node ./scripts/delivery-path-search-generator-test.js",
+    "test:control-state": "node ./scripts/control-state-test.js",
     "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
-    "smoke-test": "npm run sync-package-assets && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+    "smoke-test": "npm run sync-package-assets && npm run test:control-state && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
     "prepack": "npm run sync-package-assets"
   },
   "keywords": [

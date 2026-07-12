@@ -23,7 +23,7 @@ Use Delivery Path Search only for high-impact planning decisions with several ma
 
 Prerequisites:
 
-- live `.agdf/control/AGDF_RUN.md` state in the target repository
+- live canonical `.agdf/control/runs/<run_id>/RUN_STATE.md` state, or legacy state awaiting explicit `run-migrate`
 - explicit allowed and forbidden next actions
 - installed and authenticated Codex CLI for executable evaluation
 - an approved AGDF scope; search does not create approval
@@ -627,8 +627,8 @@ You should see at least:
 AGENTS.md
 .github/copilot-instructions.md
 .github/instructions/agdf-governance.instructions.md
-.agdf/control/templates/AGDF_RUN.md
-.agdf/control/AGDF_RUN.md after npm create agdf@latest -- init
+.agdf/control/templates/RUN_STATE.md
+.agdf/control/runs/<run_id>/RUN_STATE.md after explicit run-create or migration
 .github/skills/agdf-runtime-contract.md
 .github/skills/agdf-gate-check/SKILL.md
 ```

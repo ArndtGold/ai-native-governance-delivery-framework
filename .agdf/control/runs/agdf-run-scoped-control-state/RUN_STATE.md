@@ -1,8 +1,3 @@
-<!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->
-<!-- canonical_source: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.agdf/control/runs/agdf-run-scoped-control-state/RUN_STATE.md -->
-<!-- run_id: agdf-run-scoped-control-state -->
-<!-- revision_id: 3badaf88-4e64-4ff7-85b2-542a33f36ecb -->
-<!-- sha256: daaac27e378664a8d47fa0d14d09a085cad140f5a0986e54ebaf11b7ede22fd2 -->
 # AGDF Run State
 
 ## Run Meta

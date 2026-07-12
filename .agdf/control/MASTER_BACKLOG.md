@@ -12,12 +12,12 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
+| 1 | `agdf-run-scoped-control-state` | Replace the single mutable `AGDF_RUN.md` authority with run-scoped control state for sustainable concurrent multi-user work | In Progress | [UR](artefacts/agdf-run-scoped-control-state/UR.md) · [Brownfield](artefacts/agdf-run-scoped-control-state/BROWNFIELD_REVIEW.md) · [PRD](artefacts/agdf-run-scoped-control-state/PRD.md) · [SD](artefacts/agdf-run-scoped-control-state/SD.md) · [TP](artefacts/agdf-run-scoped-control-state/TP.md) | [TP](artefacts/agdf-run-scoped-control-state/TP.md) | Brownfield Analysis passed; begin CD+Tests with RSC-01 contract fixtures |
 
 ## Planned / Parking Lot
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
-| 2 | `agdf-scaffold-gitattributes-default` | Ship the `AGDF_RUN.md` `merge=union` `.gitattributes` entry via `init` (and surface bootstrap commands) to every consumer repository, not just this one | Needs UR | [UR](artefacts/agdf-scaffold-gitattributes-default/UR.md) | UR (draft, parked for tomorrow) | Resume tomorrow: confirm `Approval: UR`, then Brownfield Review |
 | 4 | `npm-publish-qa-caveat-closure` | Close the QA caveat "unverified: live GitHub Actions publish execution of the new npm readiness step" with real evidence | Blocked | [QA](artefacts/codex-bootstrap-release-readiness/QA_REPORT.md) | Not startable now; needs the next real npm publish run as trigger, not a UR right now |
 
 ## Completed / Superseded Pointers

@@ -92,7 +92,7 @@ Using OpenCode's plugin installer or global config for `create-agdf` can add the
 
 The generated `.agdf/control/templates/` files are reusable starting points for durable AGDF state:
 
-- `AGDF_RUN.md` for the current run dashboard
+- `runs/<run_id>/RUN_STATE.md` for each canonical current run dashboard
 - `MASTER_BACKLOG.md` for active delivery pointers
 - `templates/artefacts/` for durable UR, PRD, SD, TP and QA report artefact templates
 - `SOT_REGISTRY.md` for one source of truth per domain
@@ -107,7 +107,7 @@ npm create agdf@latest -- init
 
 This writes:
 
-- `.agdf/control/AGDF_RUN.md`
+- `.agdf/control/runs/<run_id>/RUN_STATE.md`
 - `.agdf/control/MASTER_BACKLOG.md`
 - `.agdf/control/config.json`
 - `.agdf/control/templates/artefacts/UR.md`
@@ -138,7 +138,8 @@ npx --yes create-agdf@latest doctor --json
 
 The doctor reports missing live control files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts. It exits non-zero only for blocking control failures.
 
-Use `gate-check` to derive the next process decision from the doctor result and `AGDF_RUN.md`:
+Use `gate-check` to derive the next process decision from the selected canonical
+`.agdf/control/runs/<run_id>/RUN_STATE.md`. Use `--run <run_id>` or `AGDF_RUN_ID` when several runs are active:
 
 ```bash
 npm create agdf@latest -- gate-check
@@ -159,7 +160,7 @@ The runtime uses bounded best-first Delivery Path Search, not MCTS. It is read-o
 
 Requirements and boundaries:
 
-- run it only in a repository with live `.agdf/control/AGDF_RUN.md` state
+- run it only with selected canonical `.agdf/control/runs/<run_id>/RUN_STATE.md` state
 - the current control state must expose legal next actions
 - Codex CLI must be installed and authenticated for `--surface codex`
 - Claude Code CLI must be installed and authenticated for `--surface claude`

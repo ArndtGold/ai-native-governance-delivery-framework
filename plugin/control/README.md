@@ -9,7 +9,8 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
 | File | Purpose |
 |---|---|
 | `config.json` | Project language preference for generated AGDF artefacts and user-facing chat |
-| `templates/AGDF_RUN.md` | Template for current run state: mode, gate, approvals, evidence, risks, next allowed action |
+| `templates/RUN_STATE.md` | Canonical version-2 template for isolated per-run state |
+| `templates/AGDF_RUN.md` | Legacy migration-input and compatibility-projection template |
 | `templates/MASTER_BACKLOG.md` | Template for the living backlog pointer: active initiatives and current UR/Brownfield/PRD/SD/TP/QA/OR artefacts |
 | `templates/artefacts/UR.md` | Template for the durable user requirement artefact of a work item |
 | `templates/artefacts/BROWNFIELD_REVIEW.md` | Template for the durable Brownfield Review and Mode/Slice Decision |
@@ -27,6 +28,9 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
 ```text
 .agdf/
   control/
+    runs/
+      <run_id>/
+        RUN_STATE.md
     config.json
     AGDF_RUN.md
     MASTER_BACKLOG.md
@@ -71,7 +75,13 @@ npx --yes @agdf/cli@latest gate-check --json
 
 ## Operating Rules
 
-- `AGDF_RUN.md` is the current run dashboard.
+- Canonical mutable state is isolated per run at `runs/<run_id>/RUN_STATE.md`. Run discovery is
+  derived; do not maintain a writable active-run index. Select explicitly with `--run` or
+  `AGDF_RUN_ID` when more than one run is active.
+- Migrate legacy state explicitly with `run-migrate`; read-only commands never migrate. A retained
+  `AGDF_RUN.md` is migration input or a non-authoritative projection, not a second writable owner.
+
+- The selected `runs/<run_id>/RUN_STATE.md` is the current run dashboard.
 - `config.json` stores the project preference for artefact and chat language; runtime rules stay English.
 - `MASTER_BACKLOG.md` points to active delivery work; detailed artefacts live beside the work item.
 - Brownfield Review records the post-UR Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
@@ -80,6 +90,8 @@ npx --yes @agdf/cli@latest gate-check --json
 - `SOT_REGISTRY.md` decides which document owns which domain.
 - `CONTEXT_GRAPH.md` records durable project knowledge only when it has evidence and an exit criterion.
 - `AGENT_QUALITY_CONTRACTS.json` names reusable block, revise and warning conditions.
-- `AGDF_RUN.md` can be edited concurrently from different machines or sessions. Give it a `.gitattributes` entry (`.agdf/control/AGDF_RUN.md merge=union`, git's built-in union driver — no local `git config` registration needed, unlike a custom named driver) so concurrent edits merge automatically instead of blocking. Always re-run `doctor`/`gate-check` and visually skim the merged file after a merge or pull that could have touched it: a union merge on conflicting lines (e.g. two different `current_gate` values) keeps both lines rather than erroring, and `doctor` reads only the first match per field, so it will not by itself flag that duplication — it only catches missing or structurally malformed fields.
+- Never assign `merge=union` to canonical `runs/<run_id>/RUN_STATE.md` records. Concurrent edits to the
+  same run must remain conflict-visible; independent runs naturally change different files. After a
+  merge or pull, rerun `doctor` and `gate-check` for the selected run.
 
 Do not duplicate full product documentation in this scaffold. Link to the authoritative artefact instead.

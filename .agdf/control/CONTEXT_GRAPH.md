@@ -2,6 +2,16 @@
 
 ## Active Context Nodes
 
+### CG-RUN-SCOPED-CONTROL-STATE
+
+- situation: A global mutable `AGDF_RUN.md` creates cross-run conflicts for concurrent users, machines and agent sessions.
+- refs: .agdf/control/artefacts/agdf-run-scoped-control-state/PRD.md; .agdf/control/artefacts/agdf-run-scoped-control-state/SD.md; create-agdf/lib/control-state/
+- evidence: Approved PRD and SD assign one canonical `RUN_STATE.md` per run and one shared resolver; focused control-state tests pass.
+- decision: Mutable authority is isolated per run; discovery is derived; ambiguity and migration are explicit; legacy projections are non-authoritative and never updated automatically.
+- invariants: one mutable owner per run; no writable global active index; no automatic migration; no `merge=union` on canonical records; all consumers share selection semantics.
+- risks: mixed-version consumers and incomplete runtime integration remain open until TP completion.
+- exit_criteria: doctor, gate-check, delivery-map, Delivery Path Search, CI, packages and docs consume the shared resolver and all required migration/concurrency tests pass.
+
 ### CG-RUN-STATUS-CARD
 
 - situation: AGDF has machine-readable gate and delivery-map outputs, but needs a compact human/agent status projection that includes the next permissible step and the next meaningful quality outlook.

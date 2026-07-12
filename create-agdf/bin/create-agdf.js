@@ -16,6 +16,15 @@ import { claudeGenerator } from "../lib/delivery-path-search/generators/claude.j
 import { fixtureGenerator } from "../lib/delivery-path-search/generators/protocol.js";
 import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
 import { persistSearchResult } from "../lib/delivery-path-search/persistence.js";
+import {
+  aggregate,
+  createRun,
+  resolveRuns,
+  writeLegacyProjection,
+  migrateLegacy,
+  parseControlState,
+  verifyLegacyProjection,
+} from "../lib/control-state/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
@@ -25,7 +34,7 @@ const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
 const npmCommand = process.platform === "win32" ? process.execPath : "npm";
 const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
-const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map", "delivery-path-search"]);
+const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-migrate", "run-render-legacy"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -76,6 +85,7 @@ const codexPluginFiles = [
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
   join("plugins", "agdf", "control", "README.md"),
   join("plugins", "agdf", "control", "templates", "AGDF_RUN.md"),
+  join("plugins", "agdf", "control", "templates", "RUN_STATE.md"),
   join("plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join("plugins", "agdf", "control", "templates", "SOT_REGISTRY.md"),
   join("plugins", "agdf", "control", "templates", "CONTEXT_GRAPH.md"),
@@ -99,6 +109,7 @@ const codexPluginFiles = [
 const controlFiles = [
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "AGDF_RUN.md"),
+  join(".agdf", "control", "templates", "RUN_STATE.md"),
   join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
   join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
   join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
@@ -180,6 +191,9 @@ Preferred AGDF CLI:
   npx --yes @agdf/cli@latest gate-check --json
   npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
   npx --yes @agdf/cli@latest delivery-path-search --surface claude --json
+  npx --yes @agdf/cli@latest run-create --run <run_id>
+  npx --yes @agdf/cli@latest run-migrate [--run <run_id>]
+  npx --yes @agdf/cli@latest run-render-legacy --run <run_id>
 
 Scaffold-compatible npm create usage:
   npm create agdf@latest -- codex
@@ -210,6 +224,8 @@ Options:
   --lang <de|en> Alias for --language
   --json         Print machine-readable command output as JSON
   --status-card  Print compact gate-check status-card output for interactive use
+  --run <run_id> Select one canonical run
+  --all-active   Evaluate every active run (doctor and delivery-map only)
   --surface <codex|claude|copilot|opencode|generic>
                  Declare the active Delivery Path Search surface
   --fixture <path>
@@ -296,6 +312,8 @@ function parseArgs(argv) {
   let maxGeneratedCandidates = 5;
   let generationTimeoutMs = 30000;
   let generationCostUnits = 5;
+  let runId;
+  let allActive = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -328,6 +346,22 @@ function parseArgs(argv) {
 
     if (arg === "--generate-candidates") {
       generateCandidates = true;
+      continue;
+    }
+
+    if (arg === "--all-active") {
+      allActive = true;
+      continue;
+    }
+
+    if (arg === "--run") {
+      const next = args[i + 1];
+      if (!next) {
+        console.error("Missing value for --run");
+        process.exit(1);
+      }
+      runId = next;
+      i += 1;
       continue;
     }
 
@@ -428,6 +462,8 @@ function parseArgs(argv) {
     persist,
     model,
     generateCandidates,
+    runId,
+    allActive,
     generatorModel,
     maxGeneratedCandidates,
     generationTimeoutMs,
@@ -862,7 +898,7 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
     console.log(`- AGDF language preference: artefacts=${language.artifact_language}, chat=${language.chat_language}, runtime=${language.runtime_language}.`);
   }
   if (target === "init") {
-    console.log("- Fill .agdf/control/AGDF_RUN.md with the current gate, evidence and next allowed action.");
+    console.log("- Create or migrate a canonical run, then fill its RUN_STATE.md with the current gate, evidence and next allowed action.");
     console.log("- Run npx --yes @agdf/cli@latest doctor to check the control state before the next agent run.");
     console.log("- Commit the live control files once they represent the repository's current delivery state.");
     return;
@@ -1173,6 +1209,16 @@ function hasFilledEvidenceRow(content) {
     });
 }
 
+function allowNoActiveRuns(targetDir) {
+  const configPath = join(targetDir, ".agdf", "control", "config.json");
+  if (!existsSync(configPath)) return false;
+  try {
+    return JSON.parse(readFileSync(configPath, "utf8")).allow_no_active_runs === true;
+  } catch {
+    return false;
+  }
+}
+
 function markdownSection(content, heading) {
   const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return content.match(new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?:\\n## |\\n# |$)`))?.[1] ?? "";
@@ -1180,12 +1226,6 @@ function markdownSection(content, heading) {
 
 function filled(value) {
   return Boolean(value && !isPlaceholderValue(value) && value.trim() !== "");
-}
-
-function nonTemplateRows(section, headerCell) {
-  return tableRows(section)
-    .filter((cells) => cells[0] !== headerCell)
-    .filter((cells) => cells.some((cell) => filled(cell)));
 }
 
 function parseQualityContracts(content) {
@@ -1201,9 +1241,61 @@ function parseQualityContracts(content) {
   return parsed;
 }
 
-function evaluateDoctor(targetDir) {
+function evaluateDoctor(targetDir, selection = {}) {
+  if (selection.allActive) {
+    const selected = resolveRuns(targetDir, { allActive: true });
+    const runs = selected.runs.map((run) => ({
+      run_id: run.run_id,
+      report: evaluateDoctor(targetDir, { runId: run.run_id }),
+    }));
+    const status = selected.findings.length
+      ? "block"
+      : aggregate(
+          runs.map((item) => ({ run_id: item.run_id, status: item.report.status })),
+          { allowNoActiveRuns: allowNoActiveRuns(targetDir) },
+        ).status;
+    const findings = [
+      ...selected.findings.map((finding) => ({
+        ...finding,
+        severity: "block",
+        message: "Invalid canonical run entry.",
+        next_step: "Repair or remove the invalid run entry.",
+      })),
+      ...runs.flatMap((item) => item.report.findings.map((finding) => ({ ...finding, run_id: item.run_id }))),
+    ];
+    return {
+      schema_version: "1",
+      status,
+      checked_at: new Date().toISOString(),
+      target_dir: targetDir,
+      summary: {
+        findings: findings.length,
+        block: findings.filter((finding) => finding.severity === "block").length,
+        revise: findings.filter((finding) => finding.severity === "revise").length,
+        warn: findings.filter((finding) => finding.severity === "warn").length,
+      },
+      findings,
+      runs,
+    };
+  }
   const findings = [];
-  const missing = doctorRequiredFiles.filter((relativePath) => !existsSync(join(targetDir, relativePath)));
+  const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
+  if (hasCanonicalRuns) {
+    const projection = verifyLegacyProjection(targetDir);
+    if (!["absent", "valid"].includes(projection.status)) {
+      addFinding(
+        findings,
+        "block",
+        "AGDF_LEGACY_PROJECTION_DRIFT",
+        `Legacy compatibility state is not a valid projection: ${projection.status}.`,
+        join(".agdf", "control", "AGDF_RUN.md"),
+        "Regenerate the explicit legacy projection or remove it after legacy consumers are retired.",
+      );
+    }
+  }
+  const missing = doctorRequiredFiles.filter(
+    (relativePath) => !(relativePath.endsWith("AGDF_RUN.md") && hasCanonicalRuns) && !existsSync(join(targetDir, relativePath)),
+  );
 
   for (const relativePath of missing) {
     const templatePath = join(dirname(relativePath), "templates", relativePath.split("/").at(-1));
@@ -1221,8 +1313,9 @@ function evaluateDoctor(targetDir) {
   }
 
   if (missing.length === 0) {
-    const runPath = join(".agdf", "control", "AGDF_RUN.md");
-    const run = readTargetFile(targetDir, runPath);
+    const selectedRunState = readRunState(targetDir, selection);
+    const runPath = selectedRunState.path;
+    const run = selectedRunState.content;
     const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
     const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
     const hasEvidence = hasFilledEvidenceRow(run);
@@ -1232,7 +1325,7 @@ function evaluateDoctor(targetDir) {
         findings,
         "revise",
         "AGDF_CURRENT_GATE_MISSING",
-        "AGDF_RUN.md does not name the current gate.",
+        "The selected run state does not name the current gate.",
         runPath,
         "Set current_gate to the current delivery gate or none.",
       );
@@ -1243,7 +1336,7 @@ function evaluateDoctor(targetDir) {
         findings,
         "revise",
         "AGDF_NEXT_ALLOWED_ACTION_MISSING",
-        "AGDF_RUN.md does not state the next allowed action.",
+        "The selected run state does not state the next allowed action.",
         runPath,
         "Fill the next allowed action before asking an agent to continue delivery work.",
       );
@@ -1254,7 +1347,7 @@ function evaluateDoctor(targetDir) {
         findings,
         "warn",
         "AGDF_EVIDENCE_EMPTY",
-        "AGDF_RUN.md has no visible evidence row yet.",
+        "The selected run state has no visible evidence row yet.",
         runPath,
         "Add at least one evidence row or explicitly document that no evidence exists yet.",
       );
@@ -1337,7 +1430,7 @@ function evaluateDoctor(targetDir) {
       );
     }
 
-    const runState = readRunState(targetDir);
+    const runState = selectedRunState;
     for (const finding of analyzeDurableGateArtefactConsistency(runState)) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
@@ -1389,34 +1482,22 @@ function extractField(content, field) {
   return content.match(pattern)?.[1]?.trim() ?? "";
 }
 
-function extractSectionField(section, field) {
-  const pattern = new RegExp(`^- ${field}:[^\\S\\r\\n]*(.*)$`, "m");
-  return section.match(pattern)?.[1]?.trim() ?? "";
-}
-
 function cleanStatusCell(value) {
   return value.replace(/^`|`$/g, "").trim();
 }
 
-function normalizeGateStatus(gate, status) {
-  const normalized = cleanStatusCell(status ?? "");
-  if (gate === "QA" && normalized === "passed") return "approved";
-  return normalized;
-}
-
-function addApprovalRows(approvals, section) {
-  for (const cells of tableRows(section)) {
-    const [gate, status, evidence] = cells;
-    if (!userGateOrder.includes(gate)) continue;
-    approvals.set(gate, {
-      status: normalizeGateStatus(gate, status),
-      evidence: evidence ?? "",
+function readRunState(targetDir, selection = {}) {
+  let runPath = join(".agdf", "control", "AGDF_RUN.md");
+  const canonicalRoot = join(targetDir, ".agdf", "control", "runs");
+  if (existsSync(canonicalRoot)) {
+    const selected = resolveRuns(targetDir, {
+      runIdArg: selection.runId,
+      runIdEnv: process.env.AGDF_RUN_ID,
     });
+    runPath = selected.run.path.startsWith(targetDir)
+      ? selected.run.path.slice(targetDir.length + 1)
+      : selected.run.path;
   }
-}
-
-function readRunState(targetDir) {
-  const runPath = join(".agdf", "control", "AGDF_RUN.md");
   if (!existsSync(join(targetDir, runPath))) {
     return {
       path: runPath,
@@ -1438,107 +1519,15 @@ function readRunState(targetDir) {
   }
 
   const content = readTargetFile(targetDir, runPath);
-  const approvals = new Map();
-  addApprovalRows(approvals, content.match(/## Approvals([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "");
-  addApprovalRows(approvals, content.match(/## Gate Checklist([\s\S]*?)(?:\n## |\n# |$)/)?.[1] ?? "");
-
-  const artefacts = new Map();
-  const artefactsSection = markdownSection(content, "Artefacts");
-  for (const cells of tableRows(artefactsSection)) {
-    const [type, path, status, notes] = cells;
-    if (!userGateOrder.includes(type) && !internalStepArtefacts.has(type)) continue;
-    artefacts.set(type, {
-      path: path ?? "",
-      status: cleanStatusCell(status ?? ""),
-      notes: notes ?? "",
-    });
-  }
-
-  const artefactChain = nonTemplateRows(markdownSection(content, "Artefact Chain"), "From")
-    .map((cells) => ({
-      from: cells[0] ?? "",
-      relationship: cleanStatusCell(cells[1] ?? ""),
-      to: cleanStatusCell(cells[2] ?? ""),
-      evidence: cells[3] ?? "",
-    }));
-
-  const evidence_refs = tableRows(markdownSection(content, "Evidence"))
-    .filter((cells) => cells[0] !== "Evidence")
-    .filter((cells) => filled(cells[0]) || filled(cells[1]) || filled(cells[2]))
-    .map((cells) => ({
-      evidence: cells[0] ?? "",
-      source: cells[1] ?? "",
-      covers: cells[2] ?? "",
-      strength: cleanStatusCell(cells[3] ?? ""),
-    }));
-
-  const missingEvidence = tableRows(markdownSection(content, "Missing Evidence"))
-    .filter((cells) => cells[0] !== "Missing evidence")
-    .filter((cells) => filled(cells[0]))
-    .map((cells) => ({
-      missing_evidence: cells[0] ?? "",
-      impact: cleanStatusCell(cells[1] ?? ""),
-      required_next_step: cells[2] ?? "",
-    }));
-
-  const risks = tableRows(markdownSection(content, "Risks"))
-    .filter((cells) => cells[0] !== "Risk")
-    .filter((cells) => filled(cells[0]))
-    .map((cells) => ({
-      risk: cells[0] ?? "",
-      impact: cleanStatusCell(cells[1] ?? ""),
-      mitigation_or_owner: cells[2] ?? "",
-    }));
-
-  const contextGraph = {
-    impact: cleanStatusCell(extractField(content, "context_graph_impact")),
-    refs: extractField(content, "context_graph_refs"),
-    required_action: cleanStatusCell(extractField(content, "context_graph_required_action")),
-    gate_effect: cleanStatusCell(extractField(content, "context_graph_gate_effect")),
-    evidence: extractField(content, "context_graph_evidence"),
-  };
-
-  const modeSliceSection = markdownSection(content, "Mode / Slice Decision");
-  const modeSliceDecision = {
-    decision: cleanStatusCell(extractSectionField(modeSliceSection, "decision")),
-    required_next_gate: cleanStatusCell(extractSectionField(modeSliceSection, "required_next_gate")),
-    scope_reason: extractSectionField(modeSliceSection, "scope_reason"),
-    evidence: extractSectionField(modeSliceSection, "evidence"),
-  };
-
-  const sourceScopeSection = markdownSection(content, "Source And Scope State");
-  const sourceScope = {
-    normative_instruction_source: extractSectionField(sourceScopeSection, "normative_instruction_source"),
-    multi_scope_state: cleanStatusCell(extractSectionField(sourceScopeSection, "multi_scope_state")),
-    active_scope_evidence: extractSectionField(sourceScopeSection, "active_scope_evidence"),
-    competing_scope_lines: extractSectionField(sourceScopeSection, "competing_scope_lines"),
-    branch_workspace_evidence: extractSectionField(sourceScopeSection, "branch_workspace_evidence"),
-    branch_workspace_scope_effect: cleanStatusCell(extractSectionField(sourceScopeSection, "branch_workspace_scope_effect")),
-  };
-
-  const memorySection = markdownSection(content, "Knowledge Persistence Decision");
-  const memory = {
-    target: cleanStatusCell(extractSectionField(memorySection, "memory_target")),
-    reason: extractSectionField(memorySection, "memory_reason"),
-    refs: extractSectionField(memorySection, "memory_refs"),
-  };
+  const parsed = parseControlState(content, {
+    userGates: userGateOrder,
+    internalSteps: [...internalStepArtefacts],
+  });
 
   return {
     path: runPath,
     content,
-    current_gate: extractField(content, "current_gate"),
-    next_allowed_action: extractField(content, "next_allowed_action"),
-    approvals,
-    artefacts,
-    evidence_refs,
-    artefact_chain: artefactChain,
-    mode_slice_decision: modeSliceDecision,
-    missing_evidence: missingEvidence,
-    risks,
-    context_graph: contextGraph,
-    quality_outlook: extractField(content, "quality_outlook"),
-    source_scope: sourceScope,
-    memory,
+    ...parsed,
   };
 }
 
@@ -1599,7 +1588,7 @@ function analyzeDurableGateArtefactConsistency(runState) {
       code: "AGDF_GATE_ARTEFACT_STATUS_INCONSISTENT",
       message: `${gate} approval is recorded, but the durable artefact row uses status \`${artefact.status}\`; expected ${describeDurableArtefactStatuses(gate)}.`,
       path: runState.path,
-      next_step: `Update the ${gate} artefact row in AGDF_RUN.md to use the gate-specific durable status vocabulary.`,
+      next_step: `Update the ${gate} artefact row in the selected RUN_STATE.md to use the gate-specific durable status vocabulary.`,
     });
   }
 
@@ -1847,7 +1836,7 @@ function durableArtefactBlock(gate, nextGate) {
     missing_approval: "none",
     allowed: [
       `persist the approved ${label} in a stable artefact path such as ${stablePath}`,
-      "link the artefact from AGDF_RUN.md and MASTER_BACKLOG.md",
+      "link the artefact from the selected RUN_STATE.md and MASTER_BACKLOG.md",
       "run gate-check again",
     ],
     forbidden: nextGate
@@ -1892,7 +1881,7 @@ function transitionDecisionForRunState(runState) {
         allowed: [
           "run Brownfield Review after G-00",
           "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
-          "mark Brownfield Review as done or not_applicable in AGDF_RUN.md",
+          "mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md",
         ],
         forbidden: ["create PRD before Brownfield Review is resolved", "create SD", "create TP", "implement code", "claim QA or release readiness"],
         next_allowed_action: "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
@@ -1908,7 +1897,7 @@ function transitionDecisionForRunState(runState) {
         missing_approval: "none",
         allowed: [
           "decide whether the approved UR is quick_task, structured_slice, structured_delivery or block",
-          "record scope reason, evidence and required next gate depth in AGDF_RUN.md",
+          "record scope reason, evidence and required next gate depth in the selected RUN_STATE.md",
           "choose the next required gate depth before drafting PRD or implementing",
         ],
         forbidden: ["create PRD before process size is decided", "create SD", "create TP", "implement code", "claim QA or release readiness"],
@@ -2018,9 +2007,9 @@ function transitionDecisionForRunState(runState) {
   };
 }
 
-function evaluateGateCheck(targetDir) {
-  const doctorReport = evaluateDoctor(targetDir);
-  const runState = readRunState(targetDir);
+function evaluateGateCheck(targetDir, selection = {}) {
+  const doctorReport = evaluateDoctor(targetDir, selection);
+  const runState = readRunState(targetDir, selection);
   const transitionDecision = transitionDecisionForRunState(runState);
   const deliveryMap = analyzeDeliveryMap(runState);
   const doctorBlocker = doctorReport.findings.find((finding) => finding.severity === "block");
@@ -2155,9 +2144,51 @@ function readBacklogPointers(targetDir) {
   return parseBacklogSection(activeSection);
 }
 
-function evaluateDeliveryMap(targetDir) {
-  const doctorReport = evaluateDoctor(targetDir);
-  const runState = readRunState(targetDir);
+function evaluateDeliveryMap(targetDir, selection = {}) {
+  if (selection.allActive) {
+    const selected = resolveRuns(targetDir, { allActive: true });
+    const runs = selected.runs.map((run) => ({
+      run_id: run.run_id,
+      report: evaluateDeliveryMap(targetDir, { runId: run.run_id }),
+    }));
+    const status = selected.findings.length
+      ? "block"
+      : aggregate(
+          runs.map((item) => ({
+            run_id: item.run_id,
+            status: item.report.status,
+          })),
+          { allowNoActiveRuns: allowNoActiveRuns(targetDir) },
+        ).status;
+    const findings = [
+      ...selected.findings.map((finding) => ({
+        ...finding,
+        severity: "block",
+        message: "Invalid canonical run entry.",
+        next_step: "Repair or remove the invalid run entry.",
+      })),
+      ...runs.flatMap((item) =>
+        item.report.findings.map((finding) => ({
+          ...finding,
+          run_id: item.run_id,
+        })),
+      ),
+    ];
+    return {
+      schema_version: "1",
+      status,
+      current_gate: "all-active",
+      next_allowed_action: runs.length
+        ? "Resolve per-run findings."
+        : "Create or activate a governed run.",
+      quality_outlook: "Keep every active run independently actionable.",
+      relationships: runs.flatMap((item) => item.report.relationships),
+      findings,
+      runs,
+    };
+  }
+  const doctorReport = evaluateDoctor(targetDir, selection);
+  const runState = readRunState(targetDir, selection);
   const map = analyzeDeliveryMap(runState);
   const gateDecision = transitionDecisionForRunState(runState);
   const currentGate = effectiveCurrentGate(runState, gateDecision);
@@ -2238,6 +2269,7 @@ async function executeDeliveryPathSearch(options) {
   const fixtureGeneration = fixture?.generator_response;
   const generationEnabled = Boolean(fixtureGeneration || options.generateCandidates);
   const baseInput = fixture?.input ?? searchInputFromControl(options.dir, {
+    scopeKey: options.runId,
     enforcement,
     generation: generationEnabled ? {
       enabled: true,
@@ -2298,20 +2330,50 @@ async function executeDeliveryPathSearch(options) {
 async function main() {
   const options = parseArgs(process.argv.slice(2));
 
+  if (
+    options.allActive &&
+    !["doctor", "delivery-map"].includes(options.target)
+  ) {
+    throw new Error(
+      "--all-active is supported only by doctor and delivery-map",
+    );
+  }
+
+  if (options.target === "run-create") {
+    if (!options.runId || options.allActive)
+      throw new Error("run-create requires --run and rejects --all-active");
+    console.log(createRun(options.dir, options.runId));
+    return;
+  }
+  if (options.target === "run-migrate") {
+    console.log(
+      JSON.stringify(migrateLegacy(options.dir, options.runId), null, 2),
+    );
+    return;
+  }
+  if (options.target === "run-render-legacy") {
+    if (!options.runId) throw new Error("run-render-legacy requires --run");
+    const selected = resolveRuns(options.dir, { runIdArg: options.runId });
+    const output = join(options.dir, ".agdf", "control", "AGDF_RUN.md");
+    writeLegacyProjection(output, selected.run.path);
+    console.log(output);
+    return;
+  }
+
   if (options.target === "doctor") {
-    const report = evaluateDoctor(options.dir);
+    const report = evaluateDoctor(options.dir, options);
     printDoctorReport(report, options.json);
     process.exit(report.status === "block" ? 2 : 0);
   }
 
   if (options.target === "gate-check") {
-    const report = evaluateGateCheck(options.dir);
+    const report = evaluateGateCheck(options.dir, options);
     printGateCheckReport(report, options.json, options.statusCard);
     process.exit(report.status === "blocked" ? 2 : 0);
   }
 
   if (options.target === "delivery-map") {
-    const report = evaluateDeliveryMap(options.dir);
+    const report = evaluateDeliveryMap(options.dir, options);
     printDeliveryMapReport(report, options.json);
     process.exit(report.status === "block" ? 2 : 0);
   }

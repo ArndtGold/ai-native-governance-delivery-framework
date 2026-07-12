@@ -28,7 +28,7 @@ This skill is the primary operating path for gate judgement.
 
 First inspect the durable control state directly:
 
-- `.agdf/control/AGDF_RUN.md`
+- selected `.agdf/control/runs/<run_id>/RUN_STATE.md` (or legacy `AGDF_RUN.md` before explicit migration)
 - `.agdf/control/MASTER_BACKLOG.md`
 - `.agdf/control/SOT_REGISTRY.md`
 - `.agdf/control/CONTEXT_GRAPH.md`
@@ -47,7 +47,7 @@ npx --yes @agdf/cli@latest gate-check --json
 npx --yes @agdf/cli@latest delivery-map --json
 ```
 
-`init` creates the control scaffold. `doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and `AGDF_RUN.md` to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.
+`init` creates the control scaffold. `doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and the selected canonical run record to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.
 `delivery-map` reports the durable delivery picture: active artefacts, approvals, Artefact Chain relationships, evidence refs, missing evidence, risks, Context Graph gate effect and machine-readable findings.
 
 The CLI reports are validators and JSON evidence, not the primary user experience, not a required ritual for normal work and not a second rule system. If a report says `blocked`, do not continue with later-gate artefacts until the reported blocker is resolved.

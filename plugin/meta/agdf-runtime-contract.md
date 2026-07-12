@@ -30,7 +30,8 @@ Do not add a separate `Quality outlook` line for pure Quick Tasks unless the tas
 ### Non-Normative Trivial Change Boundary
 
 A `quick_task` whose entire diff stays fully outside all of the following paths may close using only
-the compact output shape above, and must not create, rewrite or expand any of `AGDF_RUN.md`'s core
+the compact output shape above, and must not create, rewrite or expand any selected canonical
+`RUN_STATE.md` core
 sections (Run Meta, Objective, Current Control State, Source And Scope State, Run Status Card,
 Approvals, Artefacts, Mode/Slice Decision, Artefact Chain, Evidence, Missing Evidence, Risks, Context
 Graph Impact, Knowledge Persistence Decision, Closeout):
@@ -207,9 +208,10 @@ OR is not mandatory for a pure explanation, read-only inspection, small review, 
 When in doubt, use a short OR-lite only if it clarifies gate state, evidence, risk, or the next permissible step.
 
 A `quick_task` fully inside the Non-Normative Trivial Change Boundary above stays exempt from the full
-`AGDF_RUN.md` ceremony even when it is otherwise a relevant run. If `AGDF_RUN.md` currently reflects
-another active run, append exactly one line to that run's `Prior Run Pointers` section noting what
-changed and that it is unrelated; do not edit any other section or any other existing line.
+selected-run ceremony even when it is otherwise a relevant run. If a selected canonical
+`RUN_STATE.md` currently reflects another scope, append exactly one line to that run's
+`Prior Run Pointers` section noting what changed and that it is unrelated; do not edit any other
+section or any other existing line.
 
 ## Gate Rules
 
@@ -225,7 +227,7 @@ changed and that it is unrelated; do not edit any other section or any other exi
 - Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact. They forbid later-gate work and implementation. For a fresh request, the default allowed work is to draft a minimal UR in the response and request `Approval: UR`. Initialize or write `.agdf/control/` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
 - `Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision. It never permits implementation by itself.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
-- The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in `AGDF_RUN.md` or an equivalent linked control artefact.
+- The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in the selected canonical `RUN_STATE.md` or an equivalent linked control artefact.
 - `Approval: PRD` permits Solution Design drafting, not implementation.
 - `Approval: SD` permits Task/Test Plan drafting, not implementation.
 - `Approval: TP` permits implementation-preparation Brownfield Analysis and then CD+Tests when Brownfield evidence supports it.
@@ -327,10 +329,18 @@ Relevant-run closeout must reconcile Context Graph impact before presenting a cl
 
 ## Control Scaffold
 
+### Run-Scoped Control State
+
+Canonical mutable run state lives at `.agdf/control/runs/<run_id>/RUN_STATE.md`, one file per run.
+Repository-level discovery is derived; do not maintain a writable active-run dashboard. Select with
+`--run`, then `AGDF_RUN_ID`, or automatically only when exactly one run is active. Ambiguity fails
+closed. Legacy `AGDF_RUN.md` is migration input or an explicitly rendered non-authoritative projection,
+never a second writable owner. Read-only commands must not migrate state.
+
 When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
 
 - `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules remain English.
-- `AGDF_RUN.md` is the current run dashboard.
+- `.agdf/control/runs/<run_id>/RUN_STATE.md` is the canonical current-run dashboard; legacy `AGDF_RUN.md` is migration input or an explicit non-authoritative projection.
 - `MASTER_BACKLOG.md` is the living pointer for active delivery work.
 - `BROWNFIELD_REVIEW.md` records the post-UR existing-system view and Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
 - `SOT_REGISTRY.md` prevents parallel sources of truth.
@@ -378,8 +388,8 @@ They make the repository state checkable, but they do not replace the native ski
 
 ## Delivery Map
 
-`delivery-map --json` is the machine-readable delivery picture for the active control state.
-It derives, but does not replace, the live `.agdf/control/AGDF_RUN.md` and `MASTER_BACKLOG.md` state.
+`delivery-map --json` is the machine-readable delivery picture for the selected canonical control state.
+It derives, but does not replace, the selected `RUN_STATE.md` and `MASTER_BACKLOG.md` state.
 
 It must expose:
 

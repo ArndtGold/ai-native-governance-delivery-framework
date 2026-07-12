@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -368,7 +368,8 @@ function main() {
     return prefix && skillName.startsWith(prefix) ? skillName.slice(prefix.length) : skillName;
   });
 
-  rmSync(generatedRoot, { recursive: true, force: true });
+  // Synchronize source-owned assets in place. Removing the complete generated tree first creates a
+  // real missing-assets window when pack, smoke and another agent/session run concurrently.
   mkdirSync(generatedSkillsRoot, { recursive: true });
 
   syncTopLevelAssets();

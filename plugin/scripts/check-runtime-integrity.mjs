@@ -31,6 +31,7 @@ let expectedSkills = [];
 
 const expectedControlFiles = [
   "README.md",
+  "templates/RUN_STATE.md",
   "templates/AGDF_RUN.md",
   "templates/MASTER_BACKLOG.md",
   "templates/SOT_REGISTRY.md",

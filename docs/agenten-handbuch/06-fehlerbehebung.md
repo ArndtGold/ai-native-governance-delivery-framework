@@ -1,41 +1,75 @@
 # Fehlerbehebung
 
-AGDF meldet fehlende Voraussetzungen absichtlich sichtbar. Die Meldung beschreibt normalerweise den
-aktuellen Gate, die fehlende Freigabe und den nächsten erlaubten Schritt.
+Wenn der Agent anhält, bedeutet das nicht automatisch, dass etwas schiefgelaufen ist.
+
+Meist fehlt nur eine Voraussetzung oder eine Entscheidung.
+
+Der Agent sollte dir immer sagen,
+
+* warum er angehalten hat,
+* was noch fehlt,
+* und wie du weitermachen kannst.
 
 ## „Approval: … fehlt“
 
-Prüfe zuerst, ob das zugehörige Artefakt existiert und der Inhalt deiner Entscheidung entspricht. Gib
-die Freigabe dann exakt an, zum Beispiel:
+Fehlt eine Freigabe, prüfe zuerst, ob das zugehörige Artefakt vollständig ist und deiner Entscheidung entspricht.
+
+Gib die Freigabe anschließend genau so ein:
 
 ```text
 Approval: TP
 ```
 
-`TP` steht für Task- und Testplan. Die Begriffe und Gate-Reihenfolge sind in
-[02 – Gates](../02-gates.md) beschrieben.
+`TP` steht für **Task und Testplan**.
 
-„OK“, „weiter“ oder „leg los“ sind nützliche Arbeitsanweisungen, aber keine Gate-Freigaben.
+Eine Antwort wie
+
+```text
+OK
+Weiter
+Leg los
+```
+
+ist eine normale Arbeitsanweisung, ersetzt aber keine Gate Freigabe.
+
+Die Reihenfolge der Gates findest du unter [02 Gates](../02-gates.md).
 
 ## Mehrere aktive Runs
 
-Wenn der Agent keinen Run automatisch wählen kann, nenne das Vorhaben eindeutig oder bitte um eine
-Liste aktiver Runs. Fortgeschrittene Nutzer können die technische Auswahl mit `--run` oder
-`AGDF_RUN_ID` verwenden; Details stehen im
-[Control-Scaffold](../../plugin/control/README.md).
+Gibt es mehrere aktive Runs, weiß der Agent nicht automatisch, welchen du meinst.
 
-## Legacy-Projektion oder Drift
+Nenne deshalb das gewünschte Vorhaben oder bitte den Agenten, alle aktiven Runs aufzulisten.
 
-Ältere Repositories können noch eine `AGDF_RUN.md` besitzen. Nach einer expliziten Migration ist die
-kanonische Run-Datei maßgeblich; die alte Datei ist nur eine erkennbare Kompatibilitätsprojektion.
-Meldet AGDF Drift oder Mixed Authority, lasse die Projektion neu erzeugen oder entferne sie erst,
-wenn keine älteren Verbraucher mehr darauf angewiesen sind. Siehe die technische Anleitung im
-[Control-Scaffold](../../plugin/control/README.md).
+Wenn du mit der Kommandozeile arbeitest, kannst du einen Run auch direkt auswählen, zum Beispiel mit `--run` oder `AGDF_RUN_ID`.
 
-## Der Agent sagt „blockiert“
+## Drift oder Mixed Authority
 
-Lies den genannten Befund nicht als allgemeines Scheitern. Häufig fehlt lediglich eine präzise
-Entscheidung, ein Artefaktverweis oder ein Nachweis. Korrigiere genau diesen Punkt; der Agent soll den
-Rest des Prozesszustands nicht stillschweigend verändern.
+In älteren Projekten kann zusätzlich noch eine Datei `AGDF_RUN.md` vorhanden sein.
+
+Nach einer Migration ist jedoch die neue Run Datei maßgeblich.
+
+Meldet AGDF **Drift** oder **Mixed Authority**, stimmen beide Dateien nicht mehr überein.
+
+Lass die Projektion neu erzeugen oder entferne die alte Datei, sobald sie nicht mehr benötigt wird.
+
+Die technischen Details findest du im [Control Scaffold](../../plugin/control/README.md).
+
+## Der Agent meldet „blockiert“
+
+Eine Blockierung bedeutet nicht, dass die Arbeit gescheitert ist.
+
+Meist fehlt nur
+
+* eine Entscheidung,
+* ein Nachweis,
+* eine Freigabe,
+* oder ein Verweis auf ein Artefakt.
+
+Korrigiere genau diesen Punkt.
+
+Der Agent bleibt im aktuellen Arbeitsstand und setzt die Arbeit erst fort, wenn die Voraussetzung erfüllt ist.
+
+Zurück zum [Handbuch Index](README.md).
+
 
 Zurück zum [Handbuch-Index](README.md).

@@ -1,46 +1,107 @@
 # Gates und Freigaben
 
-Ein Gate ist ein bewusster Haltepunkt. Der Agent zeigt, welche Information, welches Artefakt oder
-welche Freigabe fehlt, statt den nächsten Schritt plausibel zu erraten.
+Ein Gate ist ein fester Entscheidungspunkt.
 
-Die Begriffe bedeuten: **User Requirement (UR)**, **Product Requirements Document (PRD)**,
-**Solution Design (SD)**, **Task- und Testplan (TP)**, **Quality Assurance (QA)** und
-**User Acceptance Testing (UAT)**. Für die vollständige Gate-Logik siehe [02 – Gates](../02-gates.md).
+Der Agent hält dort an und zeigt dir,
+
+* was bereits vorliegt,
+* was noch fehlt,
+* welche Entscheidung nötig ist,
+* und welcher Schritt danach erlaubt ist.
+
+Er darf eine fehlende Freigabe nicht selbst annehmen oder überspringen.
+
+Die wichtigsten Gates sind:
+
+* **UR:** User Requirement
+* **PRD:** Product Requirements Document
+* **SD:** Solution Design
+* **TP:** Task und Testplan
+* **QA:** Quality Assurance
+* **UAT:** User Acceptance Testing
+
+Die vollständige Gate Logik findest du unter [02 Gates](../02-gates.md).
 
 ## Deine Rolle
 
-Du entscheidest über fachliche Richtung und Freigaben. Der Agent macht den Zustand transparent und
-bereitet den jeweils erlaubten nächsten Schritt vor.
+Du entscheidest über die fachliche Richtung und gibst die Gates frei.
 
-| Deine Entscheidung | Wirkung |
-|---|---|
-| `Approval: UR` | Die User Requirement ist freigegeben; der bestehende Kontext darf bewertet und der Arbeitsmodus festgelegt werden. |
-| `Approval: PRD` | Das Product Requirements Document ist freigegeben; die fachlichen Anforderungen dürfen in eine Lösung überführt werden. |
-| `Approval: SD` | Das Solution Design ist freigegeben; der Task- und Testplan darf entstehen. |
-| `Approval: TP` | Der Task- und Testplan ist freigegeben; Umsetzung und Tests dürfen nach der Vorbereitungsanalyse beginnen. |
-| `Approval: QA` | Ein bestandener Quality-Assurance-Bericht öffnet User Acceptance Testing. |
-| `Approval: UAT` | Das User Acceptance Testing ist festgehalten; der Abschluss kann vorbereitet werden. |
+Der Agent bereitet die Inhalte vor, zeigt offene Punkte und nennt den nächsten erlaubten Schritt.
 
-Die Tabelle ist eine Bedienhilfe. Die vollständige und verbindliche Beschreibung steht im
-[Runtime Contract](../../plugin/meta/agdf-runtime-contract.md).
+| Deine Freigabe  | Was danach erlaubt ist                                                                                                 |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Approval: UR`  | Die Anforderung ist freigegeben. Der Agent darf den bestehenden Kontext prüfen und den passenden Arbeitsweg festlegen. |
+| `Approval: PRD` | Die fachlichen Anforderungen sind freigegeben. Der Agent darf daraus eine technische Lösung entwickeln.                |
+| `Approval: SD`  | Das Lösungsdesign ist freigegeben. Der Agent darf den Task und Testplan erstellen.                                     |
+| `Approval: TP`  | Der Task und Testplan ist freigegeben. Umsetzung und Tests dürfen beginnen.                                            |
+| `Approval: QA`  | Die Qualitätsprüfung ist freigegeben. Das User Acceptance Testing darf beginnen.                                       |
+| `Approval: UAT` | Die fachliche Abnahme ist dokumentiert. Der Abschluss darf vorbereitet werden.                                         |
 
-## Warum ein Agent stoppt
+Eine Freigabe hat immer dieses Format:
 
-Ein Stopp ist kein Fehler, wenn eine Entscheidung fehlt. Häufige Beispiele:
+```text
+Approval: <GateName>
+```
 
-- Die UR ist noch nicht freigegeben.
-- Mehrere Runs sind aktiv und es fehlt die Auswahl.
-- Ein QA-Bericht ist zwar positiv, aber `Approval: QA` fehlt noch.
-- Ein Artefakt nennt eine offene Risiko- oder Context-Graph-Aktion.
+Zum Beispiel:
 
-Lies zuerst die vom Agenten genannte fehlende Freigabe und den nächsten erlaubten Schritt. Wenn die
-Richtung stimmt, antworte mit der exakten Approval-Zeile. Wenn nicht, beschreibe die gewünschte
-Korrektur; der Agent bleibt im aktuellen Gate und überarbeitet den Entwurf.
+```text
+Approval: UR
+```
 
-## Quality Assurance (QA) ist nicht User Acceptance Testing (UAT)
+Eine Anweisung wie `Leg los`, `Mach weiter` oder `Sieht gut aus` ersetzt keine Freigabe.
 
-Quality Assurance bewertet, ob die geplante Lieferung nachweisbar umgesetzt wurde. User Acceptance
-Testing ist deine Akzeptanz aus
-Nutzersicht. Deshalb genügt ein grüner Testlauf weder für `Approval: QA` noch für `Approval: UAT`.
+Die verbindliche Beschreibung der Gates steht im [Runtime Contract](../../plugin/meta/agdf-runtime-contract.md).
+
+## Warum der Agent stoppt
+
+Ein Stopp bedeutet nicht automatisch, dass ein Fehler aufgetreten ist.
+
+Meist fehlt eine Entscheidung oder eine Voraussetzung.
+
+Typische Gründe sind:
+
+* Die aktuelle Anforderung wurde noch nicht freigegeben.
+* Es sind mehrere Runs aktiv und der passende Run wurde noch nicht ausgewählt.
+* Der QA Bericht ist positiv, aber `Approval: QA` fehlt.
+* Ein Artefakt enthält noch ein offenes Risiko.
+* Eine notwendige Analyse oder Context Graph Aktion ist noch nicht abgeschlossen.
+
+Der Agent soll dir immer sagen,
+
+1. warum er stoppt,
+2. was noch fehlt,
+3. und was als Nächstes erlaubt ist.
+
+Stimmt der aktuelle Stand, gibst du das Gate mit der passenden Approval Zeile frei.
+
+Stimmt der Stand noch nicht, beschreibst du die gewünschte Korrektur. Der Agent bleibt im aktuellen Gate und überarbeitet die Inhalte.
+
+## QA ist nicht UAT
+
+**Quality Assurance prüft die Lieferung.**
+
+Dabei wird bewertet, ob die geplanten Änderungen umgesetzt, getestet und ausreichend nachgewiesen wurden.
+
+**User Acceptance Testing prüft den Nutzen.**
+
+Dabei entscheidest du aus fachlicher oder menschlicher Sicht, ob das Ergebnis die gewünschte Anforderung erfüllt.
+
+Ein erfolgreicher Testlauf reicht deshalb nicht automatisch für:
+
+```text
+Approval: QA
+```
+
+und auch nicht für:
+
+```text
+Approval: UAT
+```
+
+Beide Freigaben bleiben bewusste Entscheidungen.
+
+Weiter: [Typische Arbeitsabläufe](03-typische-arbeitsablaeufe.md).
+
 
 Weiter: [Typische Arbeitsabläufe](03-typische-arbeitsablaeufe.md).

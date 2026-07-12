@@ -1,31 +1,60 @@
 # Mehrere Runs
 
-Ein Run ist der langlebige Steuerungszustand eines Vorhabens. Mehrere Vorhaben können gleichzeitig
-aktiv sein, ohne dieselbe mutable Statusdatei zu teilen.
+Ein **Run** ist der Arbeitsstand eines Vorhabens.
+
+So können mehrere Aufgaben gleichzeitig im gleichen Repository bearbeitet werden, ohne sich gegenseitig zu beeinflussen.
 
 ## Was sich für dich ändert
 
-- Ein Coding-Agent kann mehrere Vorhaben im gleichen Repository sauber trennen.
-- Bei genau einem aktiven Run ist normalerweise keine Auswahl nötig.
-- Bei mehreren aktiven Runs muss der gewünschte Run explizit gewählt werden.
-- Ein nicht eindeutig ausgewählter Run führt zu einem kontrollierten Ambiguitätsfehler, nicht zu einer
-  stillen Auswahl.
+Normalerweise musst du dich um Runs nicht kümmern.
 
-Fortgeschrittene Aufrufe können einen Run mit `--run <run_id>` oder über `AGDF_RUN_ID` auswählen. Die
-technische Referenz und die genaue Priorität stehen im
-[Control-Scaffold](../../plugin/control/README.md). Im normalen Agentengespräch genügt meist, das
-Vorhaben eindeutig zu benennen oder den Agenten nach den aktiven Runs zu fragen.
+* Gibt es nur einen aktiven Run, arbeitet der Agent automatisch damit.
+* Gibt es mehrere aktive Runs, fragt der Agent nach, welchen Run du meinst.
+* Ist deine Angabe nicht eindeutig, stoppt der Agent und bittet um eine Auswahl.
 
-## Lifecycle
+Dadurch arbeitet der Agent immer am richtigen Vorhaben.
 
-Aktive Runs bleiben getrennt von abgeschlossenen, ersetzten oder abgebrochenen Runs. Abgeschlossene
-Runs werden nicht automatisch gelöscht: Sie bleiben als nachvollziehbarer Arbeitsnachweis erhalten,
-nehmen aber nicht mehr an der automatischen Auswahl aktiver Arbeit teil.
+## Mehrere Aufgaben gleichzeitig
 
-## Parallel arbeiten
+Angenommen, du arbeitest gleichzeitig an
 
-Wenn zwei Personen an unterschiedlichen Vorhaben arbeiten, besitzen die Runs getrennte kanonische
-Statusdateien. Änderungen am selben Run bleiben dagegen sichtbar und werden nicht durch einen
-automatischen Union-Merge versteckt.
+* einem Fehler,
+* einer neuen Funktion,
+* und einer Dokumentationsänderung.
+
+Für jedes Vorhaben kann AGDF einen eigenen Run führen.
+
+Jeder Run besitzt seinen eigenen Arbeitsstand, seine eigenen Artefakte und seine eigenen Freigaben. Änderungen eines Runs beeinflussen die anderen nicht.
+
+## Abgeschlossene Runs
+
+Ein abgeschlossener Run bleibt erhalten.
+
+Dadurch kannst du später jederzeit nachvollziehen,
+
+* welche Entscheidung getroffen wurde,
+* welche Nachweise vorlagen,
+* und wie die Änderung entstanden ist.
+
+Abgeschlossene Runs werden jedoch nicht mehr für neue Arbeiten verwendet.
+
+## Für fortgeschrittene Anwender
+
+Wenn du mit der Kommandozeile arbeitest, kannst du einen Run auch direkt auswählen, zum Beispiel mit:
+
+```text
+--run <run_id>
+```
+
+oder über die Umgebungsvariable:
+
+```text
+AGDF_RUN_ID
+```
+
+Im normalen Gespräch mit dem Coding Agent ist das meist nicht nötig. Es genügt, das gewünschte Vorhaben eindeutig zu benennen oder den Agenten nach den aktiven Runs zu fragen.
+
+Weiter: [Abschluss und Auslieferung](05-abschluss-und-auslieferung.md).
+
 
 Weiter: [Abschluss und Auslieferung](05-abschluss-und-auslieferung.md).

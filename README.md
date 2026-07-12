@@ -138,18 +138,6 @@ Empfohlene Reihenfolge:
 /
 ├─ README.md
 ├─ INSTALL.md
-├─ AGENTS.md
-├─ .github/
-├─ agdf/
-├─ create-agdf/
-├─ .claude-plugin/
-├─ plugin/
-│  ├─ .claude-plugin/
-│  ├─ .codex-plugin/
-│  ├─ control/
-│  ├─ hooks/      # SessionStart lifecycle config for Codex and Claude Code
-│  ├─ meta/
-│  └─ skills/
 ├─ docs/
 │  ├─ 00-manifest.md
 │  ├─ 01-framework-ueberblick.md
@@ -163,17 +151,8 @@ Empfohlene Reihenfolge:
 │  │  ├─ README.md
 │  │  └─ 01-schnellstart.md … 06-fehlerbehebung.md
 │  └─ glossar.md
-├─ examples/
-├─ assets/
-└─ pages/
+├─ ...
 ```
-
-Die Root-`AGENTS.md` steuert die Bearbeitung dieses Repositories.
-Die installierbaren Router-Instruktionen werden zentral in `plugin/meta/agdf-agent-router.md`
-gepflegt und pro Zielsystem gerendert.
-Das Skill-Routing wird nicht je Oberfläche gepflegt: `plugin/meta/agdf-plugin.definition.json`
-enthält `skillSet.slug`, `useFor` und `boundary`; der sichtbare Skillname entsteht aus
-`surface.skillPrefix + slug`.
 
 ## Welche Fragen sind interessant?
 

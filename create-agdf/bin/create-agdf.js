@@ -2168,7 +2168,7 @@ function evaluateDeliveryMap(targetDir, selection = {}) {
         next_step: "Repair or remove the invalid run entry.",
       })),
       ...runs.flatMap((item) =>
-        item.report.findings.map((finding) => ({
+        (item.report.doctor_report?.findings ?? item.report.findings).map((finding) => ({
           ...finding,
           run_id: item.run_id,
         })),

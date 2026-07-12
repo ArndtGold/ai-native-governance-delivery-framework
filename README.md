@@ -9,7 +9,7 @@ Für folgenreiche Planungsentscheidungen kann die optionale **Delivery Path Sear
 zulässige nächste Schritte vergleichen. Sie nutzt einen portablen Search Core, kennzeichnet die
 Durchsetzungsstärke jeder Agent-Oberfläche und liefert nur eine Empfehlung. Der normale AGDF Gate
 Check entscheidet weiterhin, ob dieser Schritt ausgeführt werden darf. Die erste Version ist
-bewusst begrenzte Best-First-Suche und kein MCTS.
+bewusst begrenzte Best-First-Suche und kein Monte-Carlo-Tree-Search-Verfahren (MCTS).
 Optional kann sie auf Codex und Claude Code einen begrenzten, technisch schreibgeschützten
 Generierungsschritt ergänzen. Er ersetzt niemals die deterministischen Kandidaten; Vorschläge werden
 vor der Bewertung deterministisch auf Gate-Legalität, Scope, Duplikate und materielle Unterschiede geprüft.
@@ -60,11 +60,19 @@ Darum ist AGDF zuerst ein **Kontrollsystem** und erst danach ein technisches Plu
 
 ## Erste 5 Minuten
 
-Wenn du schnell verstehen willst, worum es geht:
+Wähle den Einstieg, der zu deinem Ziel passt:
+
+**AGDF verstehen**
 
 1. Lies die Kernaussage im [Manifest](docs/00-manifest.md).
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
 3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
+
+**AGDF mit einem Coding-Agenten anwenden**
+
+1. Starte mit dem [Coding-Agenten-Handbuch](docs/agenten-handbuch/README.md).
+2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine
+   strukturierte Auslieferung.
 
 Installation und Setup für Codex, Claude Code, GitHub Copilot oder kombinierte Oberflächen stehen
 in [INSTALL.md](INSTALL.md).
@@ -121,9 +129,8 @@ Empfohlene Reihenfolge:
 6. [05 - Vom Mythos zur Prüfung](docs/05-vom-mythos-zur-pruefung.md)
 7. [06 - Das Delivery-Lagebild](docs/06-vom-notizzettel-zum-delivery-lagebild.md)
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
-9. [Glossar](docs/glossar.md)
-10. [Beispiel - Kleiner Brownfield Change](examples/sample-delivery-flow.md)
-11. [Beispiel - Banking Flow](examples/sample-banking-flow.md)
+10. [AGDF mit ChatGPT Codex, Claude Code oder OpenCode nutzen](docs/agenten-handbuch/README.md)
+11. [Glossar](docs/glossar.md)
 
 ## Projektstruktur
 
@@ -152,6 +159,9 @@ Empfohlene Reihenfolge:
 │  ├─ 05-vom-mythos-zur-pruefung.md
 │  ├─ 06-vom-notizzettel-zum-delivery-lagebild.md
 │  ├─ 07-domain-driven-delivery.md
+│  ├─ agenten-handbuch/
+│  │  ├─ README.md
+│  │  └─ 01-schnellstart.md … 06-fehlerbehebung.md
 │  └─ glossar.md
 ├─ examples/
 ├─ assets/
@@ -187,22 +197,22 @@ AGDF ist nicht nur ein Diskussionsentwurf, sondern auch als operative Laufzeit n
 - für **Claude Code** als Plugin
 - für **GitHub Copilot** über Repository-Instruktionen und Repo-Skills
 
-Die operativen Einstiege, Bootstrap-Pfade und Verifikationsschritte stehen
-in [INSTALL.md](INSTALL.md).
+Die operativen Einstiege, Bootstrap-Pfade und oberflächenspezifischen
+Verifikationsschritte stehen in [INSTALL.md](INSTALL.md).
 
 Das Plugin liefert zusätzlich einen Control-Scaffold unter `plugin/control/`.
 Dieser Scaffold macht den praktischen Arbeitsstand sichtbar.
 
-AGDF ist agent-native first und CLI-verifiable by design: Der normale Bedienpfad ist der aktive
-Skill. Der Agent liest den Repository-Zustand, wendet den Runtime Contract an, formuliert bei
-frischen Requests zuerst eine minimale UR im Chat, erzeugt oder aktualisiert nur erlaubte Artefakte
-und benennt den nächsten zulässigen Schritt.
+AGDF ist agent-native first und über die Kommandozeile (CLI) überprüfbar: Der normale Bedienpfad
+ist der aktive Skill. Der Agent liest den Repository-Zustand, wendet den Runtime Contract an,
+formuliert bei frischen Requests zuerst eine minimale UR im Chat, erzeugt oder aktualisiert nur
+erlaubte Artefakte und benennt den nächsten zulässigen Schritt.
 
-Die CLI ist dafür kein Pflicht-Ritual, sondern die deterministische Prüf- und Automationsschicht:
-Sie macht denselben Repository-Zustand für CI, PRs, Regressionen und Audit-Trails maschinenlesbar.
-Wenn AGDF dauerhafte Artefakte erzeugt oder aktualisiert, bleiben die Inhalte in den Dateien. Der
-Chat nennt Pfade, Entscheidungen, Blocker und nächste Schritte, aber flutet nicht mit vollständigen
-Control-Dateien.
+Die CLI ist kein Pflicht-Ritual, sondern die deterministische Prüf- und Automationsschicht: Sie
+macht denselben Repository-Zustand für Continuous Integration (CI), Pull Requests (PRs),
+Regressionen und Audit-Trails maschinenlesbar. Wenn AGDF dauerhafte Artefakte erzeugt oder
+aktualisiert, bleiben die Inhalte in den Dateien. Der Chat nennt Pfade, Entscheidungen, Blocker und
+nächste Schritte, aber flutet nicht mit vollständigen Control-Dateien.
 
 Die Templates sind keine neue Theorie, sondern operationalisieren die Konzepte aus den Dokumenten:
 
@@ -241,23 +251,18 @@ Für Scaffold-kompatible Installation bleibt der npm-create-Pfad erhalten:
 npm create agdf@latest -- init
 ```
 
-`opencode` installiert den globalen OpenCode-Hook und macht das npm-Paket aus der OpenCode-Konfigurationsumgebung ladbar. `opencode-status` prüft danach getrennt: globale Config, Paket-Ladbarkeit, aktive Session-Signale und repository-lokale Oberfläche. OpenCode ist damit die Referenz-Runtime dafür, dass AGDF nicht nur aus Prompts besteht, sondern aus Instructions,
-Agents, Permissions und Plugin-Hooks. AGDF für OpenCode hat zwei Ebenen: einen globalen
-npm-Plugin-Hook per `npx --yes @agdf/cli@latest opencode` und die repository-lokale Governance-Oberfläche
-aus `opencode.json`, `.opencode/AGDF.md`, `.opencode/agents/` und `.agdf/control/`, erzeugt durch `opencode-repo`. Der globale Hook ersetzt diese Repository-Dateien nicht. Die OpenCode-Agenten bleiben bewusst `mode: subagent`: Sie sind
-Governance-Routing im Hintergrund, keine `.opencode/skills/`-Skills und keine Hauptagenten im Menü.
-Der sichtbare Einstieg für neue Change-Absicht oder unklare Freigabe ist `@agdf-gate-check`. `config` schreibt oder aktualisiert nur die projektlokale
-Sprachpräferenz unter `.agdf/control/config.json`. `init` legt live Control-Dateien unter
-`.agdf/control/` an, wenn ein Repository dauerhaften AGDF-Control-State besitzen soll. Für normale
-frische Requests ist das kein Pflichtschritt: Der Agent kann zunächst eine minimale UR im Chat
-formulieren und `Approval: UR` anfordern. `.agdf/control` wird erst beschrieben, wenn dauerhafter
-Repository-Control-State ausdrücklich gewünscht ist, bereits live genutzt wird oder ein
-deterministischer Setup-/CI-Pfad das verlangt. Brownfield Review, spätere Gates und Implementierung
-bleiben trotzdem an die im Runtime Contract geforderten persistierten oder verlinkten Artefakte
-gebunden. `doctor` prüft, ob aktuelles Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger,
-Source-of-Truth-Registry, Context-Graph-Hygiene und Quality Contracts konsistent genug sind.
-`gate-check --status-card` gibt dafür eine kompakte interaktive Ansicht aus. `gate-check --json`
-bleibt der vollständige Maschinenbeweis für Automation, CI, Regressionen und Audit-Trails.
+`init` legt Control-Dateien unter `.agdf/control/` nur an, wenn ein Repository dauerhaften
+AGDF-Control-State haben soll, ihn bereits verwendet oder ein deterministischer Setup-/CI-Pfad ihn
+erfordert. Für einen frischen Request ist das nicht nötig: Der Agent kann zuerst eine minimale UR
+im Chat formulieren und `Approval: UR` anfordern. Brownfield Review, spätere Gates und
+Implementierung bleiben jedoch an die im Runtime Contract geforderten persistierten oder
+verlinkten Artefakte gebunden.
+
+`doctor` prüft Gate, nächste erlaubte Aktion, Evidenz, Backlog-Zeiger und die Konsistenz des
+Control-State. `gate-check --status-card` liefert dafür die kompakte interaktive Ansicht;
+`gate-check --json` den vollständigen maschinenlesbaren Nachweis für Automation, CI, Regressionen
+und Audit-Trails. OpenCode-spezifische Installation, globaler Hook, repository-lokale Oberfläche
+und `opencode-status` sind in [INSTALL.md](INSTALL.md) beschrieben.
 
 `gate-check --json` und `delivery-map --json` enthalten zusätzlich eine kompakte Run Status Card.
 Sie fasst aktuelles Gate, erlaubte und verbotene Aktionen, Blocker, nächsten Skill, nächsten

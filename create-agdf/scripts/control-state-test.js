@@ -152,7 +152,7 @@ try {
   assert.equal(migratedState.meta.owner, "test-owner");
   writeFileSync(
     join(legacyRoot, ".agdf", "control", "AGDF_RUN.md"),
-    renderLegacyProjection(canonical),
+    renderLegacyProjection(canonical, legacyRoot),
   );
   assert.equal(verifyLegacyProjection(legacyRoot).status, "valid");
   const projectionPath = join(legacyRoot, ".agdf", "control", "AGDF_RUN.md");

@@ -481,6 +481,7 @@ function defaultOpenCodeConfigDir() {
 
 function installOpenCodeGlobalPlugin(configDir) {
   assertGlobalOpenCodeSurfaceWritable(configDir);
+  const previousPackage = resolveOpenCodePackage(configDir);
   const configPath = join(configDir, "opencode.json");
   let config = {};
 
@@ -533,10 +534,12 @@ function installOpenCodeGlobalPlugin(configDir) {
     throw new Error(`Failed to install ${pluginDefinition.opencode.npmPackage} into the OpenCode config directory: ${(error.stderr || error.message).toString().trim()}`);
   }
   writeFileSync(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf8");
+  const installedPackage = resolveOpenCodePackage(configDir);
 
   return {
     configPath,
     added: !alreadyInstalled,
+    transition: openCodePackageTransition(previousPackage, installedPackage),
   };
 }
 
@@ -661,22 +664,62 @@ function isOpenCodeRepositorySurfacePresent(targetDir) {
 function resolveOpenCodePackage(configDir) {
   const packageName = pluginDefinition.opencode.npmPackage;
   try {
+    const resolvedPath = execFileSync(process.execPath, ["-e", `process.stdout.write(require.resolve(${JSON.stringify(packageName)}))`], {
+      cwd: configDir,
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+    let installedVersion = "";
+    try {
+      const packageManifest = JSON.parse(readFileSync(join(dirname(resolvedPath), "package.json"), "utf8"));
+      installedVersion = typeof packageManifest.version === "string" && packageManifest.version.trim() ? packageManifest.version.trim() : "";
+    } catch {
+      installedVersion = "";
+    }
     return {
       loadable: true,
-      path: execFileSync(process.execPath, ["-e", `process.stdout.write(require.resolve(${JSON.stringify(packageName)}))`], {
-        cwd: configDir,
-        encoding: "utf8",
-        stdio: "pipe",
-      }),
+      path: resolvedPath,
+      installed_version: installedVersion,
       error: "",
     };
   } catch (error) {
     return {
       loadable: false,
       path: "",
+      installed_version: "",
       error: (error.stderr || error.message || "package not resolvable").toString().trim(),
     };
   }
+}
+
+function openCodePackageVersionStatus(packageState) {
+  if (!packageState.loadable) return "unloadable";
+  if (!packageState.installed_version) return "unknown";
+  return packageState.installed_version === pluginDefinition.version ? "current" : "outdated";
+}
+
+function openCodePackageTransition(previousPackage, installedPackage) {
+  const previousVersion = previousPackage.loadable ? previousPackage.installed_version : "";
+  const installedVersion = installedPackage.loadable ? installedPackage.installed_version : "";
+  if (!installedVersion || (previousPackage.loadable && !previousVersion)) {
+    return {
+      previous_version: previousVersion,
+      installed_version: installedVersion,
+      status: "unknown",
+    };
+  }
+  if (!previousPackage.loadable) {
+    return {
+      previous_version: "",
+      installed_version: installedVersion,
+      status: "installed",
+    };
+  }
+  return {
+    previous_version: previousVersion,
+    installed_version: installedVersion,
+    status: previousVersion === installedVersion ? "unchanged" : "updated",
+  };
 }
 
 function evaluateGlobalOpenCodeSurface(configDir) {
@@ -693,12 +736,13 @@ function evaluateGlobalOpenCodeSurface(configDir) {
   };
 }
 
-function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir()) {
+function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(), transition = null) {
   const configPath = join(configDir, "opencode.json");
   const configState = readOpenCodeConfig(configPath);
   const plugins = Array.isArray(configState.config.plugin) ? configState.config.plugin : [];
   const globalConfigured = plugins.includes(pluginDefinition.opencode.npmPackage);
   const packageState = resolveOpenCodePackage(configDir);
+  const packageVersionStatus = openCodePackageVersionStatus(packageState);
   const globalNativeSurface = evaluateGlobalOpenCodeSurface(configDir);
   const sessionSignals = {
     active: process.env.AGDF_PLUGIN_ACTIVE === "1",
@@ -714,6 +758,8 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
   if (configState.parseError) findings.push(`OpenCode global config is not valid JSON: ${configState.parseError}`);
   if (!globalConfigured) findings.push(`OpenCode global config does not include ${pluginDefinition.opencode.npmPackage}.`);
   if (!packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is not loadable from the OpenCode config directory.`);
+  if (packageVersionStatus === "outdated") findings.push(`${pluginDefinition.opencode.npmPackage} version ${packageState.installed_version} is outdated; expected ${pluginDefinition.version}.`);
+  if (packageVersionStatus === "unknown" && packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is loadable but its installed version is unknown.`);
   if (!globalNativeSurface.complete) findings.push(`Global OpenCode native skill surface is incomplete (${globalNativeSurface.skill_count}/${globalNativeSurface.expected_skill_count} skills).`);
   if (!sessionSignals.active) findings.push("No active AGDF OpenCode session signal is visible in this process.");
   if (!repositorySurface) findings.push("Current repository does not contain the AGDF OpenCode surface.");
@@ -731,6 +777,10 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
       name: pluginDefinition.opencode.npmPackage,
       loadable: packageState.loadable,
       resolved_path: packageState.path,
+      installed_version: packageState.installed_version || null,
+      expected_version: pluginDefinition.version,
+      version_status: packageVersionStatus,
+      ...(transition ? { transition } : {}),
       error: packageState.error,
     },
     global_native_surface: globalNativeSurface,
@@ -744,7 +794,9 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
     },
     visible_entrypoint: repositorySurface ? `${pluginDefinition.opencode.skillPrefix}gate-check (native skill)` : "none until opencode-repo is installed for this repository",
     findings,
-    next_step: !globalNativeSurface.complete
+    next_step: packageVersionStatus !== "current"
+      ? "Run npx --yes @agdf/cli@latest opencode to install or repair the OpenCode package version."
+      : !globalNativeSurface.complete
       ? "Run npx --yes @agdf/cli@latest opencode to install or repair the global native OpenCode skill surface."
       : repositorySurface
       ? `Restart OpenCode if needed, then load ${pluginDefinition.opencode.skillPrefix}gate-check through the native skill tool for new build/change intent.`
@@ -764,6 +816,18 @@ function printOpenCodeStatus(report, json) {
   if (report.global_config.parse_error) console.log(`Config parse error: ${report.global_config.parse_error}`);
   console.log(`Package loadable: ${report.package.loadable ? "yes" : "no"}`);
   if (report.package.resolved_path) console.log(`Package path: ${report.package.resolved_path}`);
+  console.log(`Package version: ${report.package.installed_version || "unknown"}`);
+  console.log(`Expected version: ${report.package.expected_version}`);
+  console.log(`Version status: ${report.package.version_status}`);
+  if (report.package.transition?.status === "updated") {
+    console.log(`Version transition: ${report.package.transition.previous_version} -> ${report.package.transition.installed_version}`);
+  } else if (report.package.transition?.status === "installed") {
+    console.log(`Version transition: new install (${report.package.transition.installed_version || "unknown"})`);
+  } else if (report.package.transition?.status === "unchanged") {
+    console.log(`Version transition: unchanged (${report.package.transition.installed_version})`);
+  } else if (report.package.transition?.status === "unknown") {
+    console.log("Version transition: unknown");
+  }
   console.log(`Global native skills: ${report.global_native_surface.complete ? "complete" : "incomplete"} (${report.global_native_surface.skill_count}/${report.global_native_surface.expected_skill_count})`);
   console.log(`Global skill path: ${report.global_native_surface.path}`);
   console.log(`Session active signal: ${report.session.active ? "yes" : "no"}`);
@@ -2647,7 +2711,7 @@ async function main() {
       const result = installOpenCodeGlobalPlugin(configDir);
       installOpenCodeGlobalSurface(configDir);
       console.log(`AGDF OpenCode global plugin ${result.added ? "installed" : "already present"}: ${result.configPath}`);
-      const report = evaluateOpenCodeStatus(options.dir, configDir);
+      const report = evaluateOpenCodeStatus(options.dir, configDir, result.transition);
       printOpenCodeStatus(report, false);
       console.log("Restart OpenCode so it loads the updated global plugin config.");
     } catch (error) {

@@ -281,7 +281,7 @@ if (generatedDeliveryPathSearchOutput.generation?.status !== "success"
 
 const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
 try {
-  execFileSync(process.execPath, [binPath, "opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
+  const installOutput = execFileSync(process.execPath, [binPath, "opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
   const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
   if (!openCodeGlobalConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
     throw new Error("opencode must add the AGDF npm plugin to OpenCode global config.");
@@ -296,6 +296,17 @@ try {
   }
   if (!status.global_config.plugin_configured || !status.package.loadable) {
     throw new Error("opencode-status must prove global config and package loadability separately.");
+  }
+  if (status.package.installed_version !== pluginDefinition.version
+    || status.package.expected_version !== pluginDefinition.version
+    || status.package.version_status !== "current") {
+    throw new Error("opencode-status must report matching installed and expected package versions as current.");
+  }
+  if (!installOutput.includes(`Package version: ${pluginDefinition.version}`)
+    || !installOutput.includes(`Expected version: ${pluginDefinition.version}`)
+    || !installOutput.includes("Version status: current")
+    || !installOutput.includes(`Version transition: new install (${pluginDefinition.version})`)) {
+    throw new Error("opencode install must report package version, expected version, current status and new-install transition.");
   }
   if (!status.global_native_surface?.complete
     || status.global_native_surface.skill_count !== openCodeSkillNames.length
@@ -382,6 +393,88 @@ try {
     throw new Error("opencode global install must preflight collisions before mutating config or installing the package.");
   }
   rmSync(tempDir, { recursive: true, force: true });
+}
+
+function packageStatusFixture(version, includeVersion = true) {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-version-status-"));
+  const packageDir = join(tempDir, "node_modules", pluginDefinition.opencode.npmPackage);
+  mkdirSync(packageDir, { recursive: true });
+  const manifest = { name: pluginDefinition.opencode.npmPackage, main: "index.js" };
+  if (includeVersion) manifest.version = version;
+  writeFileSync(join(packageDir, "package.json"), JSON.stringify(manifest, null, 2), "utf8");
+  writeFileSync(join(packageDir, "index.js"), "module.exports = {};\n", "utf8");
+  writeFileSync(join(tempDir, "opencode.json"), JSON.stringify({ plugin: [pluginDefinition.opencode.npmPackage] }), "utf8");
+  return tempDir;
+}
+
+function readPackageStatus(tempDir) {
+  try {
+    return JSON.parse(execFileSync(process.execPath, [binPath, "opencode-status", "--dir", tempDir, "--json"], {
+      encoding: "utf8",
+      stdio: "pipe",
+      env: { ...process.env, OPENCODE_CONFIG_DIR: tempDir },
+    })).package;
+  } catch (error) {
+    if (error.stdout) return JSON.parse(error.stdout).package;
+    throw error;
+  }
+}
+
+{
+  const currentDir = packageStatusFixture(pluginDefinition.version);
+  const outdatedDir = packageStatusFixture("0.0.1");
+  const unknownDir = packageStatusFixture("", false);
+  const unloadableDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-version-unloadable-"));
+  writeFileSync(join(unloadableDir, "opencode.json"), JSON.stringify({ plugin: [pluginDefinition.opencode.npmPackage] }), "utf8");
+  try {
+    const current = readPackageStatus(currentDir);
+    const outdated = readPackageStatus(outdatedDir);
+    const unknown = readPackageStatus(unknownDir);
+    const unloadable = readPackageStatus(unloadableDir);
+    if (current.installed_version !== pluginDefinition.version || current.expected_version !== pluginDefinition.version || current.version_status !== "current") {
+      throw new Error("current OpenCode package fixture must classify as current.");
+    }
+    if (outdated.installed_version !== "0.0.1" || outdated.version_status !== "outdated") {
+      throw new Error("outdated OpenCode package fixture must classify as outdated.");
+    }
+    if (unknown.installed_version !== null || unknown.version_status !== "unknown") {
+      throw new Error("versionless OpenCode package fixture must classify as unknown.");
+    }
+    if (unloadable.installed_version !== null || unloadable.version_status !== "unloadable") {
+      throw new Error("unloadable OpenCode package fixture must classify as unloadable.");
+    }
+  } finally {
+    rmSync(currentDir, { recursive: true, force: true });
+    rmSync(outdatedDir, { recursive: true, force: true });
+    rmSync(unknownDir, { recursive: true, force: true });
+    rmSync(unloadableDir, { recursive: true, force: true });
+  }
+}
+
+function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
+  const tempDir = packageStatusFixture(version, includeVersion);
+  const output = execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  return { tempDir, output };
+}
+
+{
+  const updated = runOpenCodeWithPreinstalledVersion("0.0.1");
+  const unchanged = execFileSync(process.execPath, [binPath, "opencode", "--dir", updated.tempDir], { encoding: "utf8", stdio: "pipe" });
+  const unknown = runOpenCodeWithPreinstalledVersion("", false);
+  try {
+    if (!updated.output.includes(`Version transition: 0.0.1 -> ${pluginDefinition.version}`)) {
+      throw new Error("opencode update must report an observable previous-to-installed version transition.");
+    }
+    if (!unchanged.includes(`Version transition: unchanged (${pluginDefinition.version})`)) {
+      throw new Error("opencode repeat install must report an unchanged version transition.");
+    }
+    if (!unknown.output.includes("Version transition: unknown")) {
+      throw new Error("opencode must not invent a transition when the previous package version is unreadable.");
+    }
+  } finally {
+    rmSync(updated.tempDir, { recursive: true, force: true });
+    rmSync(unknown.tempDir, { recursive: true, force: true });
+  }
 }
 
 function run(target, expectedFiles) {

@@ -1,0 +1,49 @@
+# Brownfield Analysis: OpenCode Registry Installation and Runtime Integrity
+
+## Brownfield Analysis
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- mode_slice_decision: `structured_slice`
+- required_next_gate: `none`
+- artefact: `.agdf/control/artefacts/opencode-registry-install/BROWNFIELD_ANALYSIS.md`
+- scope: Verify the approved ORI-01 through ORI-10 implementation path against the current installer, parser, transition, canonical runtime sources, generated assets and regression fixtures.
+- evidence:
+  - ORI-01/ORI-03 insertion point is the single npm invocation in `installOpenCodeGlobalPlugin()` at `create-agdf/bin/create-agdf.js:482-543`; config merge, ownership preflight, package resolution and version-transition reporting already exist and remain reusable.
+  - ORI-02 can reuse `makeFakeExecutable()` and `runCliWithPath()` in `create-agdf/scripts/smoke-test.js`; npm can be injected through the existing subprocess `PATH` boundary on CI without adding a production package-source switch.
+  - ORI-04/ORI-06 insertion points are the existing `internalStepArtefacts` allowlist and `parseControlState()` approval/artefact loops. Approval rows and artefact rows are already separate maps, so QA normalization does not require a new model.
+  - ORI-05 insertion point is the existing `section()`/`sectionField()` parser boundary. Canonical-first, legacy-fallback lookup can be implemented locally without changing consumers.
+  - ORI-07 insertion point is the single `transitionDecisionForRunState()` function. `isInternalStepSatisfied()` already owns `done | not_applicable`; explicit branches can consume the newly retained internal artefacts without another state machine.
+  - ORI-08 source owners are `plugin/meta/agdf-runtime-contract.md` and `plugin/control/templates/RUN_STATE.md`; `create-agdf/scripts/sync-package-assets.js` already propagates both into `create-agdf/generated/`.
+  - ORI-09 has one verified dead helper definition and no call site. Current global OpenCode guidance already uses `agdf-global-*`, so only regression assertions are required.
+  - Existing OpenCode smoke fixtures already cover config preservation, collisions, status/version transitions, package loadability and global skill completeness; existing QA fixtures cover UAT and durable-report mismatch, providing adjacent test owners rather than requiring new suites.
+  - The targeted source files are clean in the current worktree; no overlapping user diff must be merged for implementation.
+- transparency: Implementation can proceed as a bounded extension of existing owners. No new module, package, command, parser, state machine or migration subsystem is justified. The real unpublished registry package cannot be installed during local QA; command construction and migration behavior use the bounded fake-npm fixture, while post-publish visibility remains release-workflow evidence.
+- missing_evidence: Runtime results for the new installer and transition fixtures do not exist yet and must be produced during CD+Tests. A real update of the user's global OpenCode installation is intentionally deferred to UAT or separate explicit instruction.
+- current_coverage:
+  - `fully_done`: package name/version ownership, OpenCode config merge and ownership checks, package status/version reporting, global skill generation, internal-step satisfaction helper, generated-asset sync, npm publish-readiness checks.
+  - `partially_done`: OpenCode installer tests, parser vocabulary, late-gate test fixtures and Runtime Contract transition table.
+  - `not_done`: exact registry package spec, `file:` migration fixtures, internal artefact retention beyond Brownfield Review, canonical heading parsing, QA `pass` normalization, explicit CD+Tests/CR/pre-QA transitions, dead-helper removal.
+- reuse_strategy: `extend` `installOpenCodeGlobalPlugin()`, `parseControlState()`, `transitionDecisionForRunState()`, existing smoke helpers and canonical runtime/template owners. Use `refactor` only for a small test helper extraction if repeated OpenCode CLI setup would otherwise duplicate fixture logic. No `replace` or new parallel owner is permitted.
+- change_impact:
+  - files/modules: `create-agdf/bin/create-agdf.js`, `create-agdf/lib/control-state/run-state-parser.js`, `create-agdf/scripts/smoke-test.js`, optionally focused assertions in `create-agdf/scripts/control-state-test.js`, `plugin/meta/agdf-runtime-contract.md`, `plugin/control/templates/RUN_STATE.md`, and generated copies produced by sync.
+  - interfaces: public CLI shape unchanged; machine-readable gate output becomes correct for previously unmodelled states.
+  - data_model_migrations: none; existing Markdown run states gain read compatibility and more complete interpretation.
+  - backwards_compatibility: legacy spaced Mode/Slice heading remains readable; internal steps remain non-user gates; existing OpenCode config is preserved.
+  - regression_tests: exact npm arguments, package/lock migration, source-removal loadability, parser normalization, full late-gate matrix, namespace guidance, sync/integrity/full smoke/doctor.
+  - side_effects: npm rewrites only the configured package dependency/lock entry; generated assets change through the existing sync owner.
+- parallel_structure_risk: low if the approved insertion points are followed; high and blocking if an OpenCode-only parser/transition or production package-source override is introduced.
+- sot_runtime_drift: confirmed and bounded. The Runtime Contract names the internal sequence but omits explicit CD+Tests/CR/pre-QA transition rows, while the implementation omits their branches. ORI-07 and ORI-08 must update code and canonical contract together before generated sync.
+- visible_ownership: CLI status and next-step visibility remain owned by `transitionDecisionForRunState()` plus existing status-card projection; no UI or separate recovery owner is involved.
+- ui_monolith_risk: `not_applicable`.
+- risks:
+  - npm fixture overreach could hide real npm behavior; keep it argument/output-contract-only and retain release-bootstrap registry evidence.
+  - Canonical/legacy heading precedence must be deterministic when both exist.
+  - Transition order changes affect all CLI surfaces using shared gate-check; matrix tests must assert complete human and JSON output.
+  - Generated-source drift is possible if source and generated files are edited independently; source-first plus sync is mandatory.
+- context_graph_impact: `link_only`
+- context_graph_refs: `CG-RUN-STATUS-CARD`; existing OpenCode installer/runtime-integrity evidence in this scope.
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `none`
+- context_graph_gate_effect: `none`
+- required_next_step: Proceed with CD+Tests for ORI-01 through ORI-10, starting with parser/transition regression fixtures and the bounded fake-npm installer fixture, then implement the shared owner changes and run the approved suite.

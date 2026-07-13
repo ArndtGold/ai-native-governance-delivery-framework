@@ -233,6 +233,7 @@ section or any other existing line.
 
 - User gates: `UR -> PRD -> SD -> TP -> QA -> UAT`
 - Internal mandatory steps: `Brownfield Review -> Mode/Slice Decision -> Brownfield Analysis -> CD+Tests -> CR -> OR`
+- On the approved-TP path, `CD+Tests` and `CR` are satisfied only by `done`; `not_applicable` may satisfy Brownfield Review or Brownfield Analysis, but it must not bypass implementation/test evidence or mandatory Code Review.
 - Exact approval formula: `Approval: <GateName>`
 - Legacy alias: `Freigabe: <GateName>` may be accepted when reviewing older German runs, but all new outputs must use `Approval: <GateName>`.
 - Implicit consent is not approval. Phrases such as "ok", "go ahead", "do it", "approved", "continue", "leg los" or "looks good" are work intent, not gate approval.
@@ -293,7 +294,11 @@ This table is the canonical transition model. Skills may reference it, but must 
 | `SD` approved and SD artefact persisted or linked, TP missing or draft | `TP` | draft/refine Task/Test Plan, task IDs, evidence plan, persist/link TP, request `Approval: TP` | implementation, QA, release | `Approval: TP` |
 | `TP` approved and TP artefact persisted or linked, Brownfield Analysis missing | `Brownfield Analysis` | run Brownfield Analysis for approved TP scope | implementation, QA, release | none |
 | Brownfield Analysis passed for approved TP | `CD+Tests` | implement approved TP tasks and run tests | QA pass, UAT, release | none |
+| `CD+Tests` done for approved TP, CR missing | `CR` | run mandatory Code Review and resolve blocking findings | QA pass, UAT, release | none |
+| `CR` done, QA not approved | `QA` | run QA gate, persist/refine QA report, request `Approval: QA` | UAT, release | `Approval: QA` |
 | `QA` approved but QA report missing or not pass | `QA` | persist/link QA report with `pass` decision or revise/block evidence | UAT, release | none |
+| QA approved and QA report is `pass` or `passed`, UAT not approved | `UAT` | request `Approval: UAT`, prepare non-operative delivery summary | release and automatic VCS actions | `Approval: UAT` |
+| UAT approved | `OR` | produce OR or delivery closeout; prepare VCS handoff only when requested | automatic commit, push, PR or release | none |
 
 ## Brownfield Modes
 

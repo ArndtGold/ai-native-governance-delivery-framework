@@ -53,6 +53,64 @@ function readJsonLines(path) {
     .map((line) => JSON.parse(line));
 }
 
+const openCodeNpmFixtureDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-fake-npm-"));
+const openCodeNpmLog = join(openCodeNpmFixtureDir, "npm.log");
+const openCodeNpmBinDir = makeFakeExecutable(openCodeNpmFixtureDir, "npm", `#!/usr/bin/env node
+const fs = require("node:fs");
+const path = require("node:path");
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(args) + "\\n");
+const expectedSpecifier = ${JSON.stringify(`${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`)};
+if (args.includes("--prefix") || !args.includes("--save-exact") || args.at(-1) !== expectedSpecifier) {
+  console.error("unexpected fake npm invocation: " + JSON.stringify(args));
+  process.exit(2);
+}
+const prefix = process.cwd();
+const packageJsonPath = path.join(prefix, "package.json");
+const lockPath = path.join(prefix, "package-lock.json");
+let manifest = { name: "opencode-global-config", private: true };
+if (fs.existsSync(packageJsonPath)) manifest = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+manifest.dependencies = { ...(manifest.dependencies || {}), ${JSON.stringify(pluginDefinition.opencode.npmPackage)}: ${JSON.stringify(pluginDefinition.version)} };
+fs.mkdirSync(prefix, { recursive: true });
+fs.writeFileSync(packageJsonPath, JSON.stringify(manifest, null, 2) + "\\n");
+let lock = { name: manifest.name, lockfileVersion: 3, requires: true, packages: {} };
+if (fs.existsSync(lockPath)) lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+lock.lockfileVersion = 3;
+lock.requires = true;
+lock.packages = { ...(lock.packages || {}) };
+for (const key of Object.keys(lock.packages)) {
+  if (key !== "node_modules/${pluginDefinition.opencode.npmPackage}" && key.includes("node_modules/${pluginDefinition.opencode.npmPackage}")) delete lock.packages[key];
+}
+lock.packages[""] = { ...(lock.packages[""] || {}), dependencies: manifest.dependencies };
+lock.packages["node_modules/${pluginDefinition.opencode.npmPackage}"] = {
+  version: ${JSON.stringify(pluginDefinition.version)},
+  resolved: ${JSON.stringify(`https://registry.npmjs.org/${pluginDefinition.opencode.npmPackage}/-/${pluginDefinition.opencode.npmPackage}-${pluginDefinition.version}.tgz`)},
+};
+fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + "\\n");
+const packageDir = path.join(prefix, "node_modules", ${JSON.stringify(pluginDefinition.opencode.npmPackage)});
+fs.mkdirSync(packageDir, { recursive: true });
+fs.writeFileSync(path.join(packageDir, "package.json"), JSON.stringify({
+  name: ${JSON.stringify(pluginDefinition.opencode.npmPackage)},
+  version: ${JSON.stringify(pluginDefinition.version)},
+  type: "module",
+  main: "opencode-plugin.js"
+}, null, 2) + "\\n");
+fs.writeFileSync(path.join(packageDir, "opencode-plugin.js"), "export default async function () { return {}; }\\n");
+`);
+
+function runOpenCodeCli(args, options = {}) {
+  return execFileSync(process.execPath, [binPath, ...args], {
+    ...options,
+    env: {
+      ...process.env,
+      ...(options.env ?? {}),
+      FAKE_NPM_LOG: openCodeNpmLog,
+      NODE_ENV: "test",
+      AGDF_TEST_NPM_CLI_PATH: join(openCodeNpmBinDir, "npm"),
+    },
+  });
+}
+
 if (packageJson.bin?.["create-agdf"] !== "./bin/create-agdf.js") {
   throw new Error("create-agdf must keep the backward-compatible create-agdf binary.");
 }
@@ -281,7 +339,7 @@ if (generatedDeliveryPathSearchOutput.generation?.status !== "success"
 
 const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
 try {
-  const installOutput = execFileSync(process.execPath, [binPath, "opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
+  const installOutput = runOpenCodeCli(["opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
   const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
   if (!openCodeGlobalConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
     throw new Error("opencode must add the AGDF npm plugin to OpenCode global config.");
@@ -308,6 +366,19 @@ try {
     || !installOutput.includes(`Version transition: new install (${pluginDefinition.version})`)) {
     throw new Error("opencode install must report package version, expected version, current status and new-install transition.");
   }
+  const npmArgs = readJsonLines(openCodeNpmLog).at(-1);
+  if (!npmArgs.includes("--save-exact")
+    || npmArgs.includes("--prefix")
+    || npmArgs.at(-1) !== `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`
+    || npmArgs.some((arg) => arg.includes(".npm/_npx") || arg === fileURLToPath(packageRoot))) {
+    throw new Error("opencode must install the exact registry package without a local package or npx-cache source.");
+  }
+  const installedManifest = JSON.parse(readFileSync(join(openCodeConfigTempDir, "package.json"), "utf8"));
+  const installedLock = readFileSync(join(openCodeConfigTempDir, "package-lock.json"), "utf8");
+  if (installedManifest.dependencies?.[pluginDefinition.opencode.npmPackage] !== pluginDefinition.version
+    || installedLock.includes("file:") || installedLock.includes(".npm/_npx")) {
+    throw new Error("opencode clean install must persist an exact registry dependency without a file source.");
+  }
   if (!status.global_native_surface?.complete
     || status.global_native_surface.skill_count !== openCodeSkillNames.length
     || status.global_native_surface.expected_skill_count !== openCodeSkillNames.length) {
@@ -320,6 +391,11 @@ try {
   if (!existsSync(join(openCodeConfigTempDir, "AGDF.md"))
     || !existsSync(join(openCodeConfigTempDir, "agdf-runtime-contract.md"))) {
     throw new Error("opencode must generate the owned global AGDF instruction and Runtime Contract adapters.");
+  }
+  const globalInstructions = readFileSync(join(openCodeConfigTempDir, "AGDF.md"), "utf8");
+  if (!globalInstructions.includes("global adapters use the `agdf-global-*` namespace")
+    || globalInstructions.includes("global adapters use the `agdf-*` namespace")) {
+    throw new Error("opencode global instructions must keep the collision-safe agdf-global-* namespace current.");
   }
   for (const skillName of globalOpenCodeSkillNames) {
     const globalSkillPath = join(openCodeConfigTempDir, "skills", skillName, "SKILL.md");
@@ -363,7 +439,26 @@ try {
     instructions: ["user.md"],
     permission: { edit: "ask", bash: "ask", skill: { "user-*": "deny" } },
   }, null, 2), "utf8");
-  execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  writeFileSync(join(tempDir, "package.json"), JSON.stringify({
+    name: "preservation-fixture",
+    dependencies: { "user-dependency": "1.2.3", [pluginDefinition.opencode.npmPackage]: "file:./.npm/_npx/legacy/node_modules/create-agdf" },
+  }, null, 2), "utf8");
+  writeFileSync(join(tempDir, "package-lock.json"), JSON.stringify({
+    name: "preservation-fixture",
+    lockfileVersion: 3,
+    packages: {
+      "": { dependencies: { "user-dependency": "1.2.3", [pluginDefinition.opencode.npmPackage]: "file:./.npm/_npx/legacy/node_modules/create-agdf" } },
+      "node_modules/user-dependency": { version: "1.2.3" },
+      ".npm/_npx/legacy/node_modules/create-agdf": { version: "0.0.1" },
+    },
+  }, null, 2), "utf8");
+  const legacySourcePath = join(tempDir, ".npm", "_npx", "legacy", "node_modules", pluginDefinition.opencode.npmPackage);
+  mkdirSync(legacySourcePath, { recursive: true });
+  writeFileSync(join(legacySourcePath, "package.json"), JSON.stringify({
+    name: pluginDefinition.opencode.npmPackage,
+    version: "0.0.1",
+  }), "utf8");
+  runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
   const preservedConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
   if (!preservedConfig.plugin.includes("user-plugin") || !preservedConfig.instructions.includes("user.md")
     || preservedConfig.permission.edit !== "ask" || preservedConfig.permission.bash !== "ask"
@@ -372,6 +467,25 @@ try {
   }
   if (readFileSync(userSkillPath, "utf8") !== "---\nname: user-skill\ndescription: User-owned skill.\n---\n\nUser content.\n") {
     throw new Error("opencode global install must preserve unrelated user-owned skills.");
+  }
+  const migratedManifest = JSON.parse(readFileSync(join(tempDir, "package.json"), "utf8"));
+  const migratedLock = JSON.parse(readFileSync(join(tempDir, "package-lock.json"), "utf8"));
+  if (migratedManifest.dependencies[pluginDefinition.opencode.npmPackage] !== pluginDefinition.version
+    || migratedManifest.dependencies["user-dependency"] !== "1.2.3"
+    || migratedLock.packages["node_modules/user-dependency"]?.version !== "1.2.3"
+    || Object.keys(migratedLock.packages).some((key) => key.includes(".npm/_npx"))) {
+    throw new Error("opencode update must migrate the AGDF file dependency while preserving unrelated package state.");
+  }
+  rmSync(join(tempDir, ".npm"), { recursive: true, force: true });
+  const migratedStatus = JSON.parse(execFileSync(process.execPath, [binPath, "opencode-status", "--dir", tempDir, "--json"], {
+    encoding: "utf8",
+    stdio: "pipe",
+    env: { ...process.env, OPENCODE_CONFIG_DIR: tempDir },
+  }));
+  if (!migratedStatus.package.loadable
+    || migratedStatus.package.installed_version !== pluginDefinition.version
+    || migratedStatus.package.version_status !== "current") {
+    throw new Error("opencode registry migration must remain loadable after the legacy npx-cache source is removed.");
   }
   rmSync(tempDir, { recursive: true, force: true });
 }
@@ -385,7 +499,7 @@ try {
   writeFileSync(instructionsPath, "# User AGDF instructions\n<!-- AGDF-GLOBAL-INSTRUCTIONS -->\n", "utf8");
   let rejected = false;
   try {
-    execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+    runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
   } catch (error) {
     rejected = String(error.stderr || error.stdout || error.message).includes("Refusing to overwrite unowned global OpenCode file");
   }
@@ -453,13 +567,13 @@ function readPackageStatus(tempDir) {
 
 function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
   const tempDir = packageStatusFixture(version, includeVersion);
-  const output = execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  const output = runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
   return { tempDir, output };
 }
 
 {
   const updated = runOpenCodeWithPreinstalledVersion("0.0.1");
-  const unchanged = execFileSync(process.execPath, [binPath, "opencode", "--dir", updated.tempDir], { encoding: "utf8", stdio: "pipe" });
+  const unchanged = runOpenCodeCli(["opencode", "--dir", updated.tempDir], { encoding: "utf8", stdio: "pipe" });
   const unknown = runOpenCodeWithPreinstalledVersion("", false);
   try {
     if (!updated.output.includes(`Version transition: 0.0.1 -> ${pluginDefinition.version}`)) {
@@ -476,6 +590,8 @@ function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
     rmSync(unknown.tempDir, { recursive: true, force: true });
   }
 }
+
+rmSync(openCodeNpmFixtureDir, { recursive: true, force: true });
 
 function run(target, expectedFiles) {
   const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-${target}-`));
@@ -1052,6 +1168,115 @@ run("config", [
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const cases = [
+    { name: "brownfield", steps: {}, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
+    { name: "cd-tests", steps: { "Brownfield Analysis": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
+    { name: "cr", steps: { "Brownfield Analysis": "done", "CD+Tests": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CR", missing: "none", allowed: "run mandatory code review", forbidden: "claim QA pass", next: "Run Code Review for the implemented TP scope and resolve blocking findings before QA." },
+    { name: "qa-approval", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA" },
+    { name: "brownfield-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA" },
+    { name: "mandatory-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "not_applicable", CR: "not_applicable" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
+    { name: "premature-qa", steps: {}, qa: "approved", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
+    { name: "premature-uat", steps: { "Brownfield Analysis": "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "pass"], uat: "approved", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
+    { name: "qa-report", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["", "missing"], uat: "missing", gate: "QA", missing: "none", allowed: "persist the approved QA report in a stable artefact path such as .agdf/control/artefacts/<key>/QA_REPORT.md", forbidden: "create UAT", next: "Persist the approved QA report and link it from the AGDF control state before continuing.", status: "blocked" },
+    { name: "uat", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "pass", qaArtefact: ["QA_REPORT.md", "passed"], uat: "missing", gate: "UAT", missing: "Approval: UAT", allowed: "request exact UAT approval", forbidden: "release", next: "Request exact approval: Approval: UAT before delivery handoff." },
+    { name: "or", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "passed", qaArtefact: ["QA_REPORT.md", "pass"], uat: "approved", gate: "OR", missing: "none", allowed: "produce OR or delivery closeout", forbidden: "commit, push, open PR or release automatically", next: "Produce delivery closeout or requested handoff; do not perform VCS actions automatically." },
+  ];
+
+  for (const testCase of cases) {
+    const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-late-gate-${testCase.name}-`));
+    const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+    try {
+      execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+      const internalRows = ["Brownfield Analysis", "CD+Tests", "CR"]
+        .map((step) => `| ${step} | ${testCase.steps[step] ? `${step.replace(/[^A-Za-z]+/g, "_").toUpperCase()}.md` : ""} | ${testCase.steps[step] ?? "missing"} | |`)
+        .join("\n");
+      writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: late-gate-${testCase.name}
+- started_at: 2026-07-13
+- mode: structured_delivery
+- current_gate: OR
+- decision: in_progress
+- owner: test
+
+## Current Control State
+
+| Question | Answer |
+|---|---|
+| What is known? | Approved TP and explicit late-gate artefact state. |
+| What is approved? | UR, PRD, SD and TP; QA/UAT according to fixture. |
+| What is missing? | The next canonical late-gate step. |
+| What is the next allowed action? | Derive it from the canonical transition model. |
+| What is explicitly forbidden right now? | Skipping the canonical transition model. |
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | approved | Approval: PRD |
+| SD | approved | Approval: SD |
+| TP | approved | Approval: TP |
+| QA | ${testCase.qa} | QA evidence |
+| UAT | ${testCase.uat} | UAT evidence |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | UR.md | approved | |
+| Brownfield Review | BROWNFIELD_REVIEW.md | done | |
+| PRD | PRD.md | approved | |
+| SD | SD.md | approved | |
+| TP | TP.md | approved | |
+${internalRows}
+| QA | ${testCase.qaArtefact[0]} | ${testCase.qaArtefact[1]} | |
+
+## Mode/Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: Late-gate transition fixture.
+- evidence: BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | exact approval |
+| PRD | derived_from | UR | linked |
+| SD | derived_from | PRD | linked |
+| TP | derived_from | SD | linked |
+| QA_REPORT | tests | TP | linked when present |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| late-gate fixture | smoke-test.js | transition | direct |
+
+## Closeout
+
+- next_allowed_action: ${testCase.next}
+`, "utf8");
+      const report = runJson(["gate-check", "--dir", tempDir, "--json"]);
+      if (report.current_gate !== testCase.gate
+        || report.missing_approval !== testCase.missing
+        || report.status !== (testCase.status ?? "open")
+        || !report.allowed.includes(testCase.allowed)
+        || !report.forbidden.includes(testCase.forbidden)
+        || report.next_allowed_action !== testCase.next) {
+        throw new Error(`Late-gate ${testCase.name} mismatch: ${JSON.stringify({ status: report.status, gate: report.current_gate, missing: report.missing_approval, allowed: report.allowed, forbidden: report.forbidden, next: report.next_allowed_action, doctor: report.doctor_report?.findings })}`);
+      }
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   }
 }
 
@@ -2247,6 +2472,9 @@ for (const missingCase of [
       "| PRD | .agdf/control/artefacts/test-run/PRD.md | approved |  |",
       "| SD | .agdf/control/artefacts/test-run/SD.md | approved |  |",
       "| TP | .agdf/control/artefacts/test-run/TP.md | approved |  |",
+      "| Brownfield Analysis | .agdf/control/artefacts/test-run/BROWNFIELD_ANALYSIS.md | done |  |",
+      "| CD+Tests | .agdf/control/artefacts/test-run/CD_TESTS.md | done |  |",
+      "| CR | .agdf/control/artefacts/test-run/CODE_REVIEW.md | done |  |",
       "| QA |  | missing |  |",
     ],
     chain: [

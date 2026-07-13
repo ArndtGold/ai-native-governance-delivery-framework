@@ -37,6 +37,27 @@ Describe the trustworthy outcome.
 | QA | missing |  |
 | UAT | missing |  |
 
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR |  | draft |  |
+| Brownfield Review |  | missing |  |
+| PRD |  | missing |  |
+| SD |  | missing |  |
+| TP |  | missing |  |
+| Brownfield Analysis |  | missing |  |
+| CD+Tests |  | missing |  |
+| CR |  | missing |  |
+| QA |  | missing |  |
+
+## Mode/Slice Decision
+
+- decision:
+- required_next_gate:
+- scope_reason:
+- evidence:
+
 ## Evidence
 
 | Evidence | Source | Covers | Strength |

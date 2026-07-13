@@ -101,11 +101,13 @@ export function parseControlState(
   const approvals = new Map();
   for (const h of ["Approvals", "Gate Checklist"])
     for (const [g, s, e] of rows(section(content, h))) {
-      if (userGates.includes(g))
+      if (userGates.includes(g)) {
+        const status = clean(s);
         approvals.set(g, {
-          status: clean(s) === "passed" && g === "QA" ? "approved" : clean(s),
+          status: g === "QA" && (status === "pass" || status === "passed") ? "approved" : status,
           evidence: e ?? "",
         });
+      }
     }
   const artefacts = new Map();
   for (const [t, p, s, n] of rows(section(content, "Artefacts"))) {
@@ -113,7 +115,9 @@ export function parseControlState(
       artefacts.set(t, { path: p ?? "", status: clean(s), notes: n ?? "" });
   }
   const mapRows = (h, header, fn) => dataRows(content, h, header).map(fn);
-  const mode = "Mode / Slice Decision",
+  const mode = section(content, "Mode/Slice Decision").trim()
+      ? "Mode/Slice Decision"
+      : "Mode / Slice Decision",
     source = "Source And Scope State",
     memory = "Knowledge Persistence Decision";
   return {

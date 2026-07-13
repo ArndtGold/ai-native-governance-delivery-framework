@@ -22,6 +22,7 @@ import {
   verifyLegacyProjection,
   writeRun,
 } from "../lib/control-state/index.js";
+import { parseControlState } from "../lib/control-state/run-state-parser.js";
 
 const root = mkdtempSync(join(tmpdir(), "agdf-control-state-"));
 const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
@@ -43,6 +44,64 @@ try {
   );
   const parsed = parseRunState(readFileSync(a, "utf8"), "run-a");
   assert.equal(parsed.valid, true);
+  const controlStateFixture = `# AGDF Run State
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| QA | pass | QA report |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| Brownfield Review | BROWNFIELD_REVIEW.md | done | reviewed |
+| Brownfield Analysis | BROWNFIELD_ANALYSIS.md | done | analysed |
+| CD+Tests | CD_TESTS.md | done | tested |
+| CR | CODE_REVIEW.md | done | reviewed |
+| QA | QA_REPORT.md | passed | report status remains passed |
+
+## Mode/Slice Decision
+
+- decision: structured_slice
+- required_next_gate: PRD
+- scope_reason: Canonical heading evidence.
+- evidence: BROWNFIELD_REVIEW.md
+`;
+  const parsedControlState = parseControlState(controlStateFixture, {
+    userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
+    internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
+  });
+  assert.equal(parsedControlState.approvals.get("QA")?.status, "approved");
+  assert.equal(parsedControlState.artefacts.get("QA")?.status, "passed");
+  assert.deepEqual(
+    [...parsedControlState.artefacts.keys()],
+    ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR", "QA"],
+  );
+  assert.equal(parsedControlState.mode_slice_decision.decision, "structured_slice");
+  const legacyMode = parseControlState(
+    controlStateFixture.replace("## Mode/Slice Decision", "## Mode / Slice Decision"),
+    { userGates: ["QA"], internalSteps: [] },
+  );
+  assert.equal(legacyMode.mode_slice_decision.decision, "structured_slice");
+  const canonicalPrecedence = parseControlState(`${controlStateFixture}
+## Mode / Slice Decision
+
+- decision: block
+- required_next_gate: none
+- scope_reason: Legacy duplicate.
+- evidence: legacy
+`, { userGates: ["QA"], internalSteps: [] });
+  assert.equal(canonicalPrecedence.mode_slice_decision.decision, "structured_slice");
+  for (const status of ["pass", "passed", "approved"]) {
+    const qaState = parseControlState(controlStateFixture.replace("| QA | pass | QA report |", `| QA | ${status} | QA report |`), {
+      userGates: ["QA"],
+      internalSteps: [],
+    });
+    assert.equal(qaState.approvals.get("QA")?.status, "approved");
+  }
   for (const [replacement, code] of [
     ["- lifecycle: broken", "AGDF_RUN_LIFECYCLE_INVALID"],
     ["- revision: 0", "AGDF_RUN_REVISION_INVALID"],

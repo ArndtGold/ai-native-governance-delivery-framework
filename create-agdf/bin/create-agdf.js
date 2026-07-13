@@ -32,14 +32,23 @@ const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
-const npmCommand = process.platform === "win32" ? process.execPath : "npm";
-const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
+const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
+const npmCommand = testNpmCliPath
+  ? process.execPath
+  : process.platform === "win32"
+    ? process.execPath
+    : "npm";
+const npmPrefixArgs = testNpmCliPath
+  ? [testNpmCliPath]
+  : process.platform === "win32"
+    ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")]
+    : [];
 const allowedTargets = new Set(["codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status", "opencode-repo", "both", "init", "config", "doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-migrate", "run-render-legacy"]);
 const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
-const internalStepArtefacts = new Set(["Brownfield Review"]);
+const internalStepArtefacts = new Set(["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"]);
 const deliveryRelationships = [
   { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
   { from: "PRD", relationship: "derived_from", to: "UR", requiredBy: "PRD" },
@@ -62,21 +71,6 @@ const nextSkillByGate = {
   UAT: "delivery-closeout",
   OR: "release-or",
 };
-const gateProgressOrder = [
-  "UR",
-  "Brownfield Review",
-  "Mode/Slice Decision",
-  "Quick Task Execution",
-  "PRD",
-  "SD",
-  "TP",
-  "Brownfield Analysis",
-  "CD+Tests",
-  "CR",
-  "QA",
-  "UAT",
-  "OR",
-];
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
@@ -529,7 +523,11 @@ function installOpenCodeGlobalPlugin(configDir) {
 
   mkdirSync(configDir, { recursive: true });
   try {
-    execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", "--save-prod", "--prefix", configDir, packageRoot], { stdio: "pipe" });
+    const packageSpecifier = `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`;
+    execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", "--save-prod", "--save-exact", packageSpecifier], {
+      cwd: configDir,
+      stdio: "pipe",
+    });
   } catch (error) {
     throw new Error(`Failed to install ${pluginDefinition.opencode.npmPackage} into the OpenCode config directory: ${(error.stderr || error.message).toString().trim()}`);
   }
@@ -1817,20 +1815,6 @@ function readRunState(targetDir, selection = {}) {
   };
 }
 
-function firstUnapprovedGate(approvals) {
-  for (const gate of userGateOrder) {
-    const status = approvals.get(gate)?.status ?? "";
-    if (status !== "approved" && status !== "not_applicable") return gate;
-  }
-  return "OR";
-}
-
-function normalizeCurrentGate(value, fallbackGate) {
-  if (isPlaceholderValue(value)) return fallbackGate;
-  const normalized = value.replace(/`/g, "").trim();
-  return normalized || fallbackGate;
-}
-
 function gateApprovalStatus(runState, gate) {
   if (!userGateOrder.includes(gate)) return "not_applicable";
   return runState.approvals.get(gate)?.status ?? "";
@@ -1884,7 +1868,9 @@ function analyzeDurableGateArtefactConsistency(runState) {
 function isInternalStepSatisfied(runState, step) {
   const artefact = runState.artefacts.get(step);
   if (!artefact) return false;
-  return artefact.status === "done" || artefact.status === "not_applicable";
+  if (artefact.status === "done") return true;
+  return artefact.status === "not_applicable"
+    && (step === "Brownfield Review" || step === "Brownfield Analysis");
 }
 
 function modeSliceDecision(runState) {
@@ -2103,15 +2089,6 @@ function buildStatusCard({
   };
 }
 
-function effectiveCurrentGate(runState, transitionDecision) {
-  if (transitionDecision.status !== "open") return transitionDecision.current_gate;
-  const explicitGate = normalizeCurrentGate(runState.current_gate, "");
-  const explicitIndex = gateProgressOrder.indexOf(explicitGate);
-  const fallbackIndex = gateProgressOrder.indexOf(transitionDecision.current_gate);
-  if (explicitIndex === -1 || fallbackIndex === -1) return transitionDecision.current_gate;
-  return explicitIndex > fallbackIndex ? explicitGate : transitionDecision.current_gate;
-}
-
 function durableArtefactBlock(gate, nextGate) {
   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
   const stablePath = gate === "QA" ? ".agdf/control/artefacts/<key>/QA_REPORT.md" : `.agdf/control/artefacts/<key>/${gate}.md`;
@@ -2256,6 +2233,43 @@ function transitionDecisionForRunState(runState) {
     };
   }
 
+  const implementationStepsRequired = gateApprovalStatus(runState, "TP") === "approved";
+  if (implementationStepsRequired && !isInternalStepSatisfied(runState, "Brownfield Analysis")) {
+    return {
+      status: "open",
+      current_gate: "Brownfield Analysis",
+      blocking_reason: "none",
+      missing_approval: "none",
+      allowed: ["run Brownfield Analysis for the approved TP scope", "verify existing owners, reuse paths and regression risks"],
+      forbidden: ["implement before Brownfield evidence supports the approved TP path", "claim QA or release readiness"],
+      next_allowed_action: "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    };
+  }
+
+  if (implementationStepsRequired && !isInternalStepSatisfied(runState, "CD+Tests")) {
+    return {
+      status: "open",
+      current_gate: "CD+Tests",
+      blocking_reason: "none",
+      missing_approval: "none",
+      allowed: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
+      forbidden: ["claim QA pass", "request UAT approval", "release"],
+      next_allowed_action: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    };
+  }
+
+  if (implementationStepsRequired && !isInternalStepSatisfied(runState, "CR")) {
+    return {
+      status: "open",
+      current_gate: "CR",
+      blocking_reason: "none",
+      missing_approval: "none",
+      allowed: ["run mandatory code review", "record correctness, regression, security and maintainability findings", "fix blocking review findings"],
+      forbidden: ["claim QA pass", "request UAT approval", "release"],
+      next_allowed_action: "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+    };
+  }
+
   if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA")) return durableArtefactBlock("QA", "UAT");
 
   if (isGateSatisfied(runState, "QA") && !isGateSatisfied(runState, "UAT")) {
@@ -2284,12 +2298,12 @@ function transitionDecisionForRunState(runState) {
 
   return {
     status: "open",
-    current_gate: "Brownfield Analysis",
+    current_gate: "QA",
     blocking_reason: "none",
-    missing_approval: "none",
-    allowed: ["run Brownfield Analysis for the approved TP scope", "verify existing owners, reuse paths and regression risks"],
-    forbidden: ["implement before Brownfield evidence supports the approved TP path", "claim QA or release readiness"],
-    next_allowed_action: "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    missing_approval: "Approval: QA",
+    allowed: ["run QA gate", "persist or refine the QA report", "request exact QA approval"],
+    forbidden: ["request UAT approval", "release", "claim delivery readiness before QA approval and report evidence"],
+    next_allowed_action: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
   };
 }
 
@@ -2302,7 +2316,7 @@ function evaluateGateCheck(targetDir, selection = {}) {
   const doctorRevise = doctorReport.findings.find((finding) => finding.severity === "revise");
 
   let status = transitionDecision.status;
-  let currentGate = effectiveCurrentGate(runState, transitionDecision);
+  let currentGate = transitionDecision.current_gate;
   let blockingReason = transitionDecision.blocking_reason;
   let missingApproval = transitionDecision.missing_approval;
   let allowed = transitionDecision.allowed;
@@ -2477,7 +2491,7 @@ function evaluateDeliveryMap(targetDir, selection = {}) {
   const runState = readRunState(targetDir, selection);
   const map = analyzeDeliveryMap(runState);
   const gateDecision = transitionDecisionForRunState(runState);
-  const currentGate = effectiveCurrentGate(runState, gateDecision);
+  const currentGate = gateDecision.current_gate;
 
   const severityRank = { block: 3, revise: 2, warn: 1 };
   const deliverySeverity = map.findings.reduce((max, finding) => Math.max(max, severityRank[finding.severity] ?? 0), 0);

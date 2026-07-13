@@ -34,22 +34,79 @@ Then re-run `node -v` and `npm -v` to confirm before continuing.
 
 ## Quick Start
 
-Prepare one repository:
+Commands are either **global** (installed once per machine through the
+coding agent's own CLI, then available in every repository you open with
+that agent) or **repository** (write files only into the current
+repository). Run only the command(s) for the agent(s) you actually use.
+
+### Codex
 
 ```bash
 npx --yes @agdf/cli@latest codex
-npx --yes @agdf/cli@latest codex-repo
-npx --yes @agdf/cli@latest claude
-npx --yes @agdf/cli@latest opencode-repo
-npx --yes @agdf/cli@latest copilot
 ```
 
-Install the user-wide OpenCode hook:
+**Global.** Requires the `codex` CLI on `PATH`. Runs
+`codex plugin marketplace add/upgrade` and `codex plugin add` to install the
+`agdf` plugin (skills, hooks, control templates) for every repository opened
+in Codex.
+
+```bash
+npx --yes @agdf/cli@latest codex-repo
+```
+
+**Repository.** Writes a repo-local marketplace and plugin copy instead of
+using the global one: `.agents/plugins/marketplace.json` and
+`plugins/agdf/**` (skills, hooks, meta, control templates).
+
+### Claude Code
+
+```bash
+npx --yes @agdf/cli@latest claude
+```
+
+**Global only.** Requires the `claude` CLI on `PATH`. Runs
+`claude plugin marketplace add/update` and `claude plugin install/update` to
+install the `agdf` plugin for every repository opened in Claude Code. There
+is no repository-local Claude Code plugin copy.
+
+### OpenCode
 
 ```bash
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-status
 ```
+
+**Global.** Adds the AGDF npm plugin as a user-wide hook in
+`~/.config/opencode/opencode.json` (or `$OPENCODE_CONFIG_DIR`). `opencode-status`
+verifies the install.
+
+```bash
+npx --yes @agdf/cli@latest opencode-repo
+```
+
+**Repository.** Writes `opencode.json` (or a fragment if one already
+exists), repository instructions, generated subagents and control templates
+under `.opencode/`.
+
+### GitHub Copilot
+
+```bash
+npx --yes @agdf/cli@latest copilot
+```
+
+**Repository only** — Copilot does not consume the AGDF plugin package, so
+there is no global command. Writes `AGENTS.md` (or `AGENTS.agdf.md`
+alongside an existing `AGENTS.md`), plus `.github/copilot-instructions.md`,
+`.github/instructions/agdf-governance.instructions.md` and
+`.github/skills/**`.
+
+### Both repository-local surfaces at once
+
+```bash
+npx --yes @agdf/cli@latest both
+```
+
+Runs `codex-repo` and `copilot` together.
 
 Install the AGDF CLI globally when `agdf` should be available as a regular
 shell command on your machine:
@@ -145,21 +202,13 @@ evidence. It writes `DELIVERY_PATH_SEARCH.json` and
 
 ## Surface Notes
 
-- **Codex:** `codex` installs the AGDF plugin globally for Codex, while
-  `codex-repo` prepares a repository-local marketplace for testing AGDF in one
-  repository.
-- **Claude Code:** `claude` installs the AGDF plugin globally for Claude Code.
-- **OpenCode:** `opencode` installs the user-wide npm plugin hook, while
-  `opencode-status` verifies global config, package loadability, session signals
-  and repository surface presence. `opencode-repo` writes the repository instructions, agents and permissions
-  AGDF needs. Repository instructions, generated agents and control files remain
-  the AGDF source of truth. The generated
-  OpenCode agents are intentional `mode: subagent` workflow controls, not
-  `.opencode/skills/` entries or primary menu agents; use `@agdf-gate-check`
-  as the visible entry point for new build/change intent.
-- **GitHub Copilot:** `copilot` writes repository instructions and skills. If
-  `AGENTS.md` already exists, AGDF preserves it and writes `AGENTS.agdf.md` for
-  manual merging.
+See [Quick Start](#quick-start) for what each command installs and its
+global-vs-repository scope. One extra OpenCode detail: repository
+instructions, generated agents and control files remain the AGDF source of
+truth even after the global hook is installed. The generated OpenCode agents
+are intentional `mode: subagent` workflow controls, not `.opencode/skills/`
+entries or primary menu agents; use `@agdf-gate-check` as the visible entry
+point for new build/change intent.
 
 `npm create agdf@latest -- ...` remains supported through the companion
 `create-agdf` package for scaffold-style setup flows.

@@ -12,6 +12,7 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
+| 3 | `agdf-onboarding-fit-default-prompt` | Add an AGDF suitability-assessment prompt as the first Codex default prompt | Completed | [OR](artefacts/agdf-onboarding-fit-default-prompt/OR.md) | [OR](artefacts/agdf-onboarding-fit-default-prompt/OR.md) | Delivery closeout |
 
 ## Planned / Parking Lot
 

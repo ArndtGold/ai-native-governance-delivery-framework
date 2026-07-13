@@ -678,7 +678,7 @@ const projectStats = await getProjectStats()
   <section id="limits" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
     <div data-reveal class="mb-12 text-center">
       <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-        <Icon name="boundary" class="h-8 w-8" />
+        <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
       <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Limits and operating conditions</div>
       <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Governance Helps. Responsibility Stays Human.</h2>
@@ -686,7 +686,7 @@ const projectStats = await getProjectStats()
     </div>
     <div class="grid gap-6 lg:grid-cols-2">
       <div data-reveal class="surface p-6">
-        <div class="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What AGDF does not replace</div>
+        <div class="mb-4 font-mono text-xm font-bold uppercase tracking-wide text-agdf-400">What AGDF does not replace</div>
         <ul class="grid gap-3 text-sm text-dark-200 sm:grid-cols-2">
           {agdfLimits.notReplace.map((item) => (
               <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
@@ -697,7 +697,7 @@ const projectStats = await getProjectStats()
         </ul>
       </div>
       <div data-reveal class="surface p-6">
-        <div class="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What AGDF depends on</div>
+        <div class="mb-4 font-mono text-xm font-bold uppercase tracking-wide text-agdf-400">What AGDF depends on</div>
         <ul class="grid gap-3 text-sm text-dark-200">
           {agdfLimits.dependsOn.map((item) => (
               <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">

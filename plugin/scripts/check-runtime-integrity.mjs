@@ -21,6 +21,7 @@ const pagesSiteDataPath = join(repoRoot, "pages", "src", "data", "site.ts");
 const pagesSkillsPath = join(repoRoot, "pages", "src", "data", "skills.ts");
 const pagesIndexPath = join(repoRoot, "pages", "src", "pages", "index.astro");
 const syncPackageAssetsPath = join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js");
+const createAgdfCliPath = join(repoRoot, "create-agdf", "bin", "create-agdf.js");
 const activeRunStatePath = join(repoRoot, ".agdf", "control", "AGDF_RUN.md");
 const rootLicensePath = join(repoRoot, "LICENSE");
 const pluginLicensePath = join(pluginRoot, "LICENSE");
@@ -213,6 +214,7 @@ if (pluginDefinition) {
   if (pluginDefinition.claude?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Claude agent router must point to meta/agdf-agent-router.md");
   if (pluginDefinition.copilot?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition Copilot skill prefix must be agdf-");
   if (pluginDefinition.opencode?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition OpenCode skill prefix must be agdf-");
+  if (pluginDefinition.opencode?.globalSkillPrefix !== "agdf-global-") failures.push("canonical AGDF plugin definition OpenCode global skill prefix must be agdf-global-");
   if (pluginDefinition.opencode?.runtimeContractFileName !== "agdf-runtime-contract.md") failures.push("canonical AGDF plugin definition OpenCode runtime contract filename must be agdf-runtime-contract.md");
   if (pluginDefinition.opencode?.instructionsFileName !== "AGDF.md") failures.push("canonical AGDF plugin definition OpenCode instructions filename must be AGDF.md");
   if (pluginDefinition.opencode?.permissions?.edit !== "ask" || pluginDefinition.opencode?.permissions?.bash !== "ask") failures.push("canonical AGDF plugin definition OpenCode permissions must ask before edit and bash");
@@ -310,6 +312,13 @@ if (isFile(syncPackageAssetsPath)) {
   }
   if (!syncPackageAssets.includes("toOpenCodeInstructionsRouter")) {
     failures.push("OpenCode instructions must be rendered from the canonical AGDF router");
+  }
+}
+
+if (isFile(createAgdfCliPath)) {
+  const createAgdfCli = read(createAgdfCliPath);
+  if (!createAgdfCli.includes("globalOpenCodeBoundary") || !createAgdfCli.includes("globalOpenCodeSkillOwnershipMarker")) {
+    failures.push("OpenCode global native-surface ownership and fail-closed boundary must remain in the canonical installer path");
   }
 }
 

@@ -821,7 +821,7 @@ const projectStats = await getProjectStats()
             <div class="mt-2 text-dark-200/50">target repository after <span class="text-dark-200">npm create agdf -- opencode</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">opencode.json</span> <span class="text-dark-200/50">loads create-agdf, AGDF.md and ask permissions</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">.opencode/</span> <span class="text-dark-200/50">AGDF.md, skills/agdf-*/SKILL.md, agdf-runtime-contract.md</span></div>
-            <div class="mt-2 text-dark-200/50">optional user-wide OpenCode hook</div>
+            <div class="mt-2 text-dark-200/50">global OpenCode plugin + native skills</div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">~/.config/opencode/opencode.json</span> <span class="text-dark-200/50">plugin: ["create-agdf"]</span></div>
             <div class="mt-2 text-dark-200/50">docs/ <span class="text-dark-200/30">— German-first framework documentation</span></div>
             <div class="text-dark-200/50">pages/ <span class="text-dark-200/30">— Astro website</span></div>
@@ -830,7 +830,7 @@ const projectStats = await getProjectStats()
         <div class="mt-6">
           <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Reference runtime</div>
           <h3 class="mb-3 text-2xl font-bold sm:text-3xl">One runtime, multiple surfaces.</h3>
-          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode combines an npm plugin with native repository skills, instructions and permission gates. Its optional global hook does not replace the repository-local AGDF source of truth.</p>
+          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode combines a global npm/native-skill surface with repository-local skills, instructions and permission gates. The global layer does not replace the repository-local AGDF source of truth.</p>
         </div>
       </div>
     </div>

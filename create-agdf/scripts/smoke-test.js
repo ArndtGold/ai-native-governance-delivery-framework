@@ -13,6 +13,7 @@ const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
+const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
 
 function runJson(args) {
   try {
@@ -296,6 +297,25 @@ try {
   if (!status.global_config.plugin_configured || !status.package.loadable) {
     throw new Error("opencode-status must prove global config and package loadability separately.");
   }
+  if (!status.global_native_surface?.complete
+    || status.global_native_surface.skill_count !== openCodeSkillNames.length
+    || status.global_native_surface.expected_skill_count !== openCodeSkillNames.length) {
+    throw new Error("opencode-status must prove the complete global native OpenCode skill surface.");
+  }
+  if (!openCodeGlobalConfig.instructions?.includes("AGDF.md")
+    || openCodeGlobalConfig.permission?.skill?.["agdf-*"] !== "allow") {
+    throw new Error("opencode must add the owned global AGDF instructions and explicit skill permission.");
+  }
+  if (!existsSync(join(openCodeConfigTempDir, "AGDF.md"))
+    || !existsSync(join(openCodeConfigTempDir, "agdf-runtime-contract.md"))) {
+    throw new Error("opencode must generate the owned global AGDF instruction and Runtime Contract adapters.");
+  }
+  for (const skillName of globalOpenCodeSkillNames) {
+    const globalSkillPath = join(openCodeConfigTempDir, "skills", skillName, "SKILL.md");
+    if (!existsSync(globalSkillPath) || !readFileSync(globalSkillPath, "utf8").includes(`AGDF-GLOBAL-SKILL: ${skillName} -->`)) {
+      throw new Error(`opencode must generate an owned global skill adapter for ${skillName}.`);
+    }
+  }
   if (status.session.active) {
     throw new Error("opencode-status must not claim an active session from config evidence alone.");
   }
@@ -319,6 +339,49 @@ try {
   }
 } finally {
   rmSync(openCodeConfigTempDir, { recursive: true, force: true });
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-global-preservation-"));
+  const userSkillPath = join(tempDir, "skills", "user-skill", "SKILL.md");
+  mkdirSync(join(tempDir, "skills", "user-skill"), { recursive: true });
+  writeFileSync(userSkillPath, "---\nname: user-skill\ndescription: User-owned skill.\n---\n\nUser content.\n", "utf8");
+  writeFileSync(join(tempDir, "opencode.json"), JSON.stringify({
+    "$schema": "https://opencode.ai/config.json",
+    plugin: ["user-plugin"],
+    instructions: ["user.md"],
+    permission: { edit: "ask", bash: "ask", skill: { "user-*": "deny" } },
+  }, null, 2), "utf8");
+  execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  const preservedConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
+  if (!preservedConfig.plugin.includes("user-plugin") || !preservedConfig.instructions.includes("user.md")
+    || preservedConfig.permission.edit !== "ask" || preservedConfig.permission.bash !== "ask"
+    || preservedConfig.permission.skill["user-*"] !== "deny" || !preservedConfig.permission.skill["agdf-*"]) {
+    throw new Error("opencode global install must preserve unrelated config and add only owned entries.");
+  }
+  if (readFileSync(userSkillPath, "utf8") !== "---\nname: user-skill\ndescription: User-owned skill.\n---\n\nUser content.\n") {
+    throw new Error("opencode global install must preserve unrelated user-owned skills.");
+  }
+  rmSync(tempDir, { recursive: true, force: true });
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-global-collision-"));
+  const configPath = join(tempDir, "opencode.json");
+  const instructionsPath = join(tempDir, "AGDF.md");
+  const originalConfig = JSON.stringify({ plugin: ["user-plugin"], permission: { edit: "ask", bash: "ask" } }, null, 2) + "\n";
+  writeFileSync(configPath, originalConfig, "utf8");
+  writeFileSync(instructionsPath, "# User AGDF instructions\n<!-- AGDF-GLOBAL-INSTRUCTIONS -->\n", "utf8");
+  let rejected = false;
+  try {
+    execFileSync(process.execPath, [binPath, "opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  } catch (error) {
+    rejected = String(error.stderr || error.stdout || error.message).includes("Refusing to overwrite unowned global OpenCode file");
+  }
+  if (!rejected || readFileSync(configPath, "utf8") !== originalConfig || existsSync(join(tempDir, "node_modules"))) {
+    throw new Error("opencode global install must preflight collisions before mutating config or installing the package.");
+  }
+  rmSync(tempDir, { recursive: true, force: true });
 }
 
 function run(target, expectedFiles) {
@@ -406,8 +469,8 @@ function run(target, expectedFiles) {
       if (openCodeInstructions.includes("| `gate-check` |")) {
         throw new Error("OpenCode instructions must not contain unprefixed skill routing.");
       }
-      if (!openCodeInstructions.includes("optional global npm plugin hook") || !openCodeInstructions.includes("repository files remain the AGDF source of truth")) {
-        throw new Error("OpenCode instructions must distinguish the optional global plugin hook from the repository-local AGDF source of truth.");
+      if (!openCodeInstructions.includes("global npm/native-skill discoverability layer") || !openCodeInstructions.includes("repository files remain the AGDF source of truth")) {
+        throw new Error("OpenCode instructions must distinguish global discoverability from the repository-local AGDF source of truth.");
       }
       if (!openCodeInstructions.includes("loaded on demand through OpenCode's native `skill` tool") || openCodeInstructions.includes("mode: subagent")) {
         throw new Error("OpenCode instructions must expose native skills without retaining the legacy subagent route.");

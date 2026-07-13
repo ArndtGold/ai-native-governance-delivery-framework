@@ -80,6 +80,10 @@ const gateProgressOrder = [
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
+const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
+const globalOpenCodeSkillOwnershipMarker = "<!-- AGDF-GLOBAL-SKILL: ";
+const globalOpenCodeInstructionsOwnershipMarker = "<!-- AGDF-GLOBAL-INSTRUCTIONS -->";
+const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->";
 const codexPluginFiles = [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
@@ -476,6 +480,7 @@ function defaultOpenCodeConfigDir() {
 }
 
 function installOpenCodeGlobalPlugin(configDir) {
+  assertGlobalOpenCodeSurfaceWritable(configDir);
   const configPath = join(configDir, "opencode.json");
   let config = {};
 
@@ -503,6 +508,24 @@ function installOpenCodeGlobalPlugin(configDir) {
     plugin: plugins,
   };
 
+  if (nextConfig.instructions !== undefined && !Array.isArray(nextConfig.instructions)) {
+    throw new Error(`Refusing to update OpenCode config with non-array instructions field: ${configPath}`);
+  }
+  nextConfig.instructions = [...(nextConfig.instructions ?? [])];
+  if (!nextConfig.instructions.includes("AGDF.md")) nextConfig.instructions.push("AGDF.md");
+
+  if (nextConfig.permission === undefined) {
+    nextConfig.permission = { skill: { "agdf-*": "allow" } };
+  } else if (nextConfig.permission && typeof nextConfig.permission === "object" && !Array.isArray(nextConfig.permission)) {
+    nextConfig.permission = { ...nextConfig.permission };
+    if (nextConfig.permission.skill === undefined) {
+      nextConfig.permission.skill = { "agdf-*": "allow" };
+    } else if (nextConfig.permission.skill && typeof nextConfig.permission.skill === "object" && !Array.isArray(nextConfig.permission.skill)) {
+      nextConfig.permission.skill = { ...nextConfig.permission.skill };
+      if (nextConfig.permission.skill["agdf-*"] === undefined) nextConfig.permission.skill["agdf-*"] = "allow";
+    }
+  }
+
   mkdirSync(configDir, { recursive: true });
   try {
     execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", "--save-prod", "--prefix", configDir, packageRoot], { stdio: "pipe" });
@@ -514,6 +537,110 @@ function installOpenCodeGlobalPlugin(configDir) {
   return {
     configPath,
     added: !alreadyInstalled,
+  };
+}
+
+function globalOpenCodeConfigPaths(configDir) {
+  return {
+    instructions: join(configDir, pluginDefinition.opencode.instructionsFileName),
+    runtimeContract: join(configDir, pluginDefinition.opencode.runtimeContractFileName),
+    skills: join(configDir, "skills"),
+  };
+}
+
+function globalOpenCodeOwnershipMarkerIsValid(content, marker, placement) {
+  const lines = content.split(/\r?\n/);
+  if (placement === "first-line") return lines[0] === marker;
+  const frontmatterEnd = lines.findIndex((line, index) => index > 0 && line === "---");
+  return frontmatterEnd >= 0 && lines[frontmatterEnd + 1] === marker;
+}
+
+function assertGlobalOpenCodeFileWritable(path, marker, placement) {
+  if (!existsSync(path)) return;
+  const existing = readFileSync(path, "utf8");
+  if (!globalOpenCodeOwnershipMarkerIsValid(existing, marker, placement)) {
+    throw new Error(`Refusing to overwrite unowned global OpenCode file: ${path}`);
+  }
+}
+
+function assertGlobalOpenCodeSurfaceWritable(configDir) {
+  const paths = globalOpenCodeConfigPaths(configDir);
+  assertGlobalOpenCodeFileWritable(paths.instructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
+  assertGlobalOpenCodeFileWritable(paths.runtimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
+  for (const skillName of globalOpenCodeSkillNames) {
+    assertGlobalOpenCodeFileWritable(
+      join(paths.skills, skillName, "SKILL.md"),
+      `${globalOpenCodeSkillOwnershipMarker}${skillName} -->`,
+      "after-frontmatter",
+    );
+  }
+}
+
+function writeOwnedGlobalOpenCodeFile(path, content, marker, placement) {
+  if (existsSync(path)) {
+    assertGlobalOpenCodeFileWritable(path, marker, placement);
+  }
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, content, "utf8");
+}
+
+function globalOpenCodeBoundary() {
+  return [
+    "## Global OpenCode Surface Boundary",
+    "",
+    "This skill is globally discoverable, but global plugin or skill presence is not repository governance activation.",
+    "Before applying AGDF gates, later artefacts or implementation guidance, inspect the current repository for `.opencode/AGDF.md`, `.opencode/skills/agdf-gate-check/SKILL.md` and `.agdf/control/`.",
+    "If the repository surface is absent, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo` in this repository.",
+    "When the repository surface exists, its local instructions, native skills and `.agdf/control/` state are authoritative.",
+    "",
+  ].join("\n");
+}
+
+function toGlobalOpenCodeContent(content) {
+  let next = content;
+  for (const skill of pluginDefinition.skillSet) {
+    const localName = `${pluginDefinition.opencode.skillPrefix}${skill.slug}`;
+    const globalName = `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`;
+    next = next.replaceAll(localName, globalName);
+  }
+  return next;
+}
+
+function installOpenCodeGlobalSurface(configDir) {
+  const paths = globalOpenCodeConfigPaths(configDir);
+  const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
+  const generatedInstructions = readFileSync(join(generatedOpenCodeRoot, pluginDefinition.opencode.instructionsFileName), "utf8");
+  const generatedRuntimeContract = readFileSync(join(generatedOpenCodeRoot, pluginDefinition.opencode.runtimeContractFileName), "utf8");
+  const globalInstructions = [
+    globalOpenCodeInstructionsOwnershipMarker,
+    "# AGDF Global OpenCode instructions",
+    "",
+    "AGDF native skills are globally discoverable through OpenCode.",
+    "",
+    globalOpenCodeBoundary(),
+    "The repository-local `.opencode/AGDF.md`, `.opencode/skills/` and `.agdf/control/` files remain the source of truth for active governance.",
+    "",
+    toGlobalOpenCodeContent(generatedInstructions),
+  ].join("\n");
+  const globalRuntimeContract = `${globalOpenCodeRuntimeContractOwnershipMarker}\n${generatedRuntimeContract}`;
+
+  writeOwnedGlobalOpenCodeFile(paths.instructions, globalInstructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
+  writeOwnedGlobalOpenCodeFile(paths.runtimeContract, globalRuntimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
+
+  for (let index = 0; index < openCodeSkillNames.length; index += 1) {
+    const sourceName = openCodeSkillNames[index];
+    const skillName = globalOpenCodeSkillNames[index];
+    const sourcePath = join(generatedOpenCodeRoot, "skills", sourceName, "SKILL.md");
+    const sourceContent = readFileSync(sourcePath, "utf8");
+    const marker = `${globalOpenCodeSkillOwnershipMarker}${skillName} -->`;
+    const content = toGlobalOpenCodeContent(sourceContent).replace(/^(---[\s\S]*?\n---\n)/, `$1${marker}\n\n${globalOpenCodeBoundary()}`);
+    writeOwnedGlobalOpenCodeFile(join(paths.skills, skillName, "SKILL.md"), content, marker, "after-frontmatter");
+  }
+
+  return {
+    instructions: paths.instructions,
+    runtimeContract: paths.runtimeContract,
+    skills: paths.skills,
   };
 }
 
@@ -552,12 +679,27 @@ function resolveOpenCodePackage(configDir) {
   }
 }
 
+function evaluateGlobalOpenCodeSurface(configDir) {
+  const paths = globalOpenCodeConfigPaths(configDir);
+  const skillCount = globalOpenCodeSkillNames.filter((skillName) => existsSync(join(paths.skills, skillName, "SKILL.md"))).length;
+  return {
+    path: paths.skills,
+    instructions: paths.instructions,
+    runtime_contract: paths.runtimeContract,
+    expected_skill_count: globalOpenCodeSkillNames.length,
+    skill_count: skillCount,
+    present: existsSync(paths.skills),
+    complete: existsSync(paths.instructions) && existsSync(paths.runtimeContract) && skillCount === openCodeSkillNames.length,
+  };
+}
+
 function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir()) {
   const configPath = join(configDir, "opencode.json");
   const configState = readOpenCodeConfig(configPath);
   const plugins = Array.isArray(configState.config.plugin) ? configState.config.plugin : [];
   const globalConfigured = plugins.includes(pluginDefinition.opencode.npmPackage);
   const packageState = resolveOpenCodePackage(configDir);
+  const globalNativeSurface = evaluateGlobalOpenCodeSurface(configDir);
   const sessionSignals = {
     active: process.env.AGDF_PLUGIN_ACTIVE === "1",
     version: process.env.AGDF_PLUGIN_VERSION || "",
@@ -572,6 +714,7 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
   if (configState.parseError) findings.push(`OpenCode global config is not valid JSON: ${configState.parseError}`);
   if (!globalConfigured) findings.push(`OpenCode global config does not include ${pluginDefinition.opencode.npmPackage}.`);
   if (!packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is not loadable from the OpenCode config directory.`);
+  if (!globalNativeSurface.complete) findings.push(`Global OpenCode native skill surface is incomplete (${globalNativeSurface.skill_count}/${globalNativeSurface.expected_skill_count} skills).`);
   if (!sessionSignals.active) findings.push("No active AGDF OpenCode session signal is visible in this process.");
   if (!repositorySurface) findings.push("Current repository does not contain the AGDF OpenCode surface.");
 
@@ -590,6 +733,7 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
       resolved_path: packageState.path,
       error: packageState.error,
     },
+    global_native_surface: globalNativeSurface,
     session: sessionSignals,
     repository_surface: {
       path: targetDir,
@@ -600,7 +744,9 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
     },
     visible_entrypoint: repositorySurface ? `${pluginDefinition.opencode.skillPrefix}gate-check (native skill)` : "none until opencode-repo is installed for this repository",
     findings,
-    next_step: repositorySurface
+    next_step: !globalNativeSurface.complete
+      ? "Run npx --yes @agdf/cli@latest opencode to install or repair the global native OpenCode skill surface."
+      : repositorySurface
       ? `Restart OpenCode if needed, then load ${pluginDefinition.opencode.skillPrefix}gate-check through the native skill tool for new build/change intent.`
       : "Run npx --yes @agdf/cli@latest opencode-repo in repositories where AGDF governance should be active and reviewable.",
   };
@@ -618,6 +764,8 @@ function printOpenCodeStatus(report, json) {
   if (report.global_config.parse_error) console.log(`Config parse error: ${report.global_config.parse_error}`);
   console.log(`Package loadable: ${report.package.loadable ? "yes" : "no"}`);
   if (report.package.resolved_path) console.log(`Package path: ${report.package.resolved_path}`);
+  console.log(`Global native skills: ${report.global_native_surface.complete ? "complete" : "incomplete"} (${report.global_native_surface.skill_count}/${report.global_native_surface.expected_skill_count})`);
+  console.log(`Global skill path: ${report.global_native_surface.path}`);
   console.log(`Session active signal: ${report.session.active ? "yes" : "no"}`);
   if (report.session.version) console.log(`Session plugin version: ${report.session.version}`);
   if (report.session.control_dir) console.log(`Session control dir: ${report.session.control_dir}`);
@@ -2497,6 +2645,7 @@ async function main() {
     const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
     try {
       const result = installOpenCodeGlobalPlugin(configDir);
+      installOpenCodeGlobalSurface(configDir);
       console.log(`AGDF OpenCode global plugin ${result.added ? "installed" : "already present"}: ${result.configPath}`);
       const report = evaluateOpenCodeStatus(options.dir, configDir);
       printOpenCodeStatus(report, false);

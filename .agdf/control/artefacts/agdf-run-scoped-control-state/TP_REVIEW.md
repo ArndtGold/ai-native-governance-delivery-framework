@@ -37,3 +37,27 @@ Reviewed at: 2026-07-12
 - out_of_scope_changes: none
 - risks: No unresolved TP risk; legacy compatibility remains an intentional, explicit migration boundary.
 - required_next_step: Run `qa-gate`; TP Review does not decide QA.
+
+## Delta — 2026-07-13 (post-QA, pre-UAT)
+
+UAT-preparation verification (`delivery-map --all-active`) surfaced `AGDF_LEGACY_PROJECTION_DRIFT`, traced
+to an unguarded Windows failure (`EPERM` on directory fsync) in `run-state-writer.js`, the file RSC-06
+created. Fixed with a single-line platform guard; a second, unrelated pre-existing gap in
+`control-state-test.js` (a symlink fixture aborting the whole test process without Windows Developer
+Mode/elevation) was also fixed by skipping only its two dependent assertions on `EPERM`, with a logged
+warning, leaving production symlink-rejection logic untouched.
+
+| task_id | status | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|
+| RSC-06 | fully_done | Full `test:control-state` suite now completes and passes on this platform after the fix (previously could not complete at all) (high) | none | none |
+| RSC-12 | fully_done | Unaffected; migration shares the same now-fixed write primitive, no separate defect found (high) | none | none |
+| RSC-13 | fully_done | Drift detection worked exactly as designed — it caught the RSC-06 defect before UAT (high) | none | none |
+| RSC-19 | partially_done | `test:control-state` and `@agdf/cli` smoke suites pass; `create-agdf` full smoke-test aggregate still aborts at an unrelated, pre-existing gap: Codex CLI not installed on PATH in this local environment (`spawnSync codex ENOENT`), blocking CLI-installation-flow coverage unrelated to control-state write logic (medium) | Full create-agdf smoke-test aggregate completion on a machine with Codex CLI installed | Low — pre-existing environment dependency, not introduced by this delta; does not affect control-state correctness evidence |
+
+### Delta Summary
+
+- fully_done: RSC-06, RSC-12, RSC-13 (upgraded/reaffirmed)
+- partially_done: RSC-19 (unrelated, pre-existing environment gap)
+- not_done: none
+- out_of_scope_changes: none — fix stays inside RSC-06's already-approved task boundary (`run-state-writer.js`, AC 18); no new task_id or TP amendment required. Note: PRD/SD never stated an explicit Windows/cross-platform acceptance criterion — this delta closes an implicit gap.
+- required_next_step: Run `qa-gate` delta decision (see QA_REPORT.md Delta section).

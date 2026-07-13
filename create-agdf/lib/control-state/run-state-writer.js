@@ -15,6 +15,7 @@ import { dirname } from "node:path";
 import { parseRunState } from "./run-state-parser.js";
 
 function fsyncDirectory(path) {
+  if (process.platform === "win32") return;
   const descriptor = openSync(path, "r");
   try {
     fsyncSync(descriptor);

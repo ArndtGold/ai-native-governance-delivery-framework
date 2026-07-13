@@ -12,7 +12,6 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
-| 1 | `agdf-run-scoped-control-state` | Replace the single mutable `AGDF_RUN.md` authority with run-scoped control state for sustainable concurrent multi-user work | In Progress | [UR](artefacts/agdf-run-scoped-control-state/UR.md) · [Brownfield](artefacts/agdf-run-scoped-control-state/BROWNFIELD_REVIEW.md) · [PRD](artefacts/agdf-run-scoped-control-state/PRD.md) · [SD](artefacts/agdf-run-scoped-control-state/SD.md) · [TP](artefacts/agdf-run-scoped-control-state/TP.md) · [QA](artefacts/agdf-run-scoped-control-state/QA_REPORT.md) | [QA](artefacts/agdf-run-scoped-control-state/QA_REPORT.md) | Conduct UAT and request exact `Approval: UAT` only after acceptance |
 
 ## Planned / Parking Lot
 
@@ -24,6 +23,7 @@
 
 | Key | Work item | Final status | Historical record | Outcome |
 |---|---|---|---|---|
+| `agdf-run-scoped-control-state` | Replace the single mutable `AGDF_RUN.md` authority with run-scoped control state for sustainable concurrent multi-user work | Completed | [OR](artefacts/agdf-run-scoped-control-state/OR.md) | 20/20 TP tasks delivered and QA-passed on 2026-07-12; two real defects found and fixed during UAT preparation on 2026-07-13 (Windows `fsyncDirectory` EPERM breaking every canonical write; CLI crash on ambiguous multi-run selection in `doctor`/`gate-check`/`delivery-map`), both with passing reviews, permanent regression tests and a renewed `Approval: QA`; `Approval: UAT` recorded 2026-07-13; OR pass. Commit/push/PR intentionally not performed, pending separate explicit instruction. Remaining disclosed gap: `create-agdf` full smoke-test aggregate unverified locally due to missing Codex CLI installation (pre-existing, unrelated) |
 | `coding-agent-user-guide-de` | Create a German practical user guide for applying AGDF through coding agents | Completed | [OR](artefacts/coding-agent-user-guide-de/OR.md) | Agent Handbook, Banking Flow reuse and refined README entry paths delivered; local links, runtime integrity and diff checks passed; QA and renewed UAT approved; Git delivery intentionally not performed |
 | `claude-run-status-card-enforcement` | Make the installed Claude Code plugin apply the canonical Run Status Card reliably and validate cleanly | Completed | [OR](artefacts/claude-run-status-card-enforcement/OR.md) | Shared gate-check instructions now require the canonical readable card, SessionStart exposes the Runtime Contract source, Claude-invalid skill YAML is fixed, and Claude/plugin/runtime/package validation passes; authenticated model-output evidence remains an optional pre-release probe |
 | `plugin-manifest-drift-5292f62` | Fix Codex/Claude plugin manifest descriptions drifted from the canonical `agdf-plugin.definition.json` | Completed | [OR](artefacts/plugin-manifest-drift-5292f62/OR.md) | Canonical plugin definition now owns the operating-system wording for Codex and Claude Code; generated assets synchronized; runtime integrity and package smoke tests passed |

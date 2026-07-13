@@ -131,6 +131,24 @@ try {
   assert.match(missingRenderSelector.stderr, /requires --run/);
   rmSync(cliRoot, { recursive: true, force: true });
 
+  const ambiguousRoot = mkdtempSync(join(tmpdir(), "agdf-control-ambiguous-"));
+  execFileSync(process.execPath, [cli, "init", "--dir", ambiguousRoot]);
+  rmSync(join(ambiguousRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
+  execFileSync(process.execPath, [cli, "run-create", "--dir", ambiguousRoot, "--run", "ambiguous-run-a"]);
+  execFileSync(process.execPath, [cli, "run-create", "--dir", ambiguousRoot, "--run", "ambiguous-run-b"]);
+  for (const target of ["doctor", "gate-check", "delivery-map"]) {
+    const ambiguous = spawnSync(process.execPath, [cli, target, "--dir", ambiguousRoot, "--json"], { encoding: "utf8" });
+    assert.notEqual(ambiguous.status, 0);
+    assert.equal(ambiguous.stderr, "", `${target} must not crash with a raw stack trace on an ambiguous multi-run selection`);
+    const report = JSON.parse(ambiguous.stdout);
+    const findings = report.doctor_report?.findings ?? report.findings ?? [];
+    assert.ok(
+      findings.some((finding) => finding.code === "AGDF_ACTIVE_RUN_AMBIGUOUS"),
+      `${target} must report AGDF_ACTIVE_RUN_AMBIGUOUS as a structured finding instead of throwing`,
+    );
+  }
+  rmSync(ambiguousRoot, { recursive: true, force: true });
+
   const legacyRoot = mkdtempSync(join(tmpdir(), "agdf-legacy-"));
   mkdirSync(join(legacyRoot, ".agdf", "control"), { recursive: true });
   writeFileSync(
@@ -198,12 +216,23 @@ try {
   rmSync(injectedRoot, { recursive: true, force: true });
   const symlinkRoot = mkdtempSync(join(tmpdir(), "agdf-symlink-"));
   mkdirSync(join(symlinkRoot, ".agdf", "control", "runs"), { recursive: true });
-  symlinkSync(
-    join(root, ".agdf", "control", "runs", "run-a"),
-    join(symlinkRoot, ".agdf", "control", "runs", "linked"),
-  );
-  assert.equal(discoverRuns(symlinkRoot)[0].valid, false);
-  assert.equal(resolveRuns(symlinkRoot, { allActive: true }).findings[0].code, "AGDF_RUN_PATH_INVALID");
+  let symlinkCreatable = true;
+  try {
+    symlinkSync(
+      join(root, ".agdf", "control", "runs", "run-a"),
+      join(symlinkRoot, ".agdf", "control", "runs", "linked"),
+    );
+  } catch (error) {
+    if (error.code !== "EPERM") throw error;
+    symlinkCreatable = false;
+    console.warn(
+      "[control-state-test] SKIPPED symlink-rejection assertions: this environment cannot create symlinks (EPERM) without elevated privileges or Windows Developer Mode",
+    );
+  }
+  if (symlinkCreatable) {
+    assert.equal(discoverRuns(symlinkRoot)[0].valid, false);
+    assert.equal(resolveRuns(symlinkRoot, { allActive: true }).findings[0].code, "AGDF_RUN_PATH_INVALID");
+  }
   rmSync(symlinkRoot, { recursive: true, force: true });
   const gitRoot = mkdtempSync(join(tmpdir(), "agdf-git-conflict-"));
   execFileSync("git", ["init", "-q", "--initial-branch=main"], {

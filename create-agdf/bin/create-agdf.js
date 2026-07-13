@@ -1316,41 +1316,53 @@ function evaluateDoctor(targetDir, selection = {}) {
     const selectedRunState = readRunState(targetDir, selection);
     const runPath = selectedRunState.path;
     const run = selectedRunState.content;
-    const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
-    const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
-    const hasEvidence = hasFilledEvidenceRow(run);
 
-    if (isPlaceholderValue(currentGateLine)) {
+    if (selectedRunState.resolution_error) {
       addFinding(
         findings,
-        "revise",
-        "AGDF_CURRENT_GATE_MISSING",
-        "The selected run state does not name the current gate.",
+        "block",
+        selectedRunState.resolution_error.split(":")[0] || "AGDF_ACTIVE_RUN_UNRESOLVED",
+        `Run selection failed: ${selectedRunState.resolution_error}`,
         runPath,
-        "Set current_gate to the current delivery gate or none.",
+        "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run, or use --all-active to evaluate every active run independently.",
       );
-    }
+    } else {
+      const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
+      const nextActionLine = run.match(/^- next_allowed_action:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
+      const hasEvidence = hasFilledEvidenceRow(run);
 
-    if (isPlaceholderValue(nextActionLine)) {
-      addFinding(
-        findings,
-        "revise",
-        "AGDF_NEXT_ALLOWED_ACTION_MISSING",
-        "The selected run state does not state the next allowed action.",
-        runPath,
-        "Fill the next allowed action before asking an agent to continue delivery work.",
-      );
-    }
+      if (isPlaceholderValue(currentGateLine)) {
+        addFinding(
+          findings,
+          "revise",
+          "AGDF_CURRENT_GATE_MISSING",
+          "The selected run state does not name the current gate.",
+          runPath,
+          "Set current_gate to the current delivery gate or none.",
+        );
+      }
 
-    if (!hasEvidence) {
-      addFinding(
-        findings,
-        "warn",
-        "AGDF_EVIDENCE_EMPTY",
-        "The selected run state has no visible evidence row yet.",
-        runPath,
-        "Add at least one evidence row or explicitly document that no evidence exists yet.",
-      );
+      if (isPlaceholderValue(nextActionLine)) {
+        addFinding(
+          findings,
+          "revise",
+          "AGDF_NEXT_ALLOWED_ACTION_MISSING",
+          "The selected run state does not state the next allowed action.",
+          runPath,
+          "Fill the next allowed action before asking an agent to continue delivery work.",
+        );
+      }
+
+      if (!hasEvidence) {
+        addFinding(
+          findings,
+          "warn",
+          "AGDF_EVIDENCE_EMPTY",
+          "The selected run state has no visible evidence row yet.",
+          runPath,
+          "Add at least one evidence row or explicitly document that no evidence exists yet.",
+        );
+      }
     }
 
     const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
@@ -1489,16 +1501,21 @@ function cleanStatusCell(value) {
 function readRunState(targetDir, selection = {}) {
   let runPath = join(".agdf", "control", "AGDF_RUN.md");
   const canonicalRoot = join(targetDir, ".agdf", "control", "runs");
+  let resolutionError;
   if (existsSync(canonicalRoot)) {
-    const selected = resolveRuns(targetDir, {
-      runIdArg: selection.runId,
-      runIdEnv: process.env.AGDF_RUN_ID,
-    });
-    runPath = selected.run.path.startsWith(targetDir)
-      ? selected.run.path.slice(targetDir.length + 1)
-      : selected.run.path;
+    try {
+      const selected = resolveRuns(targetDir, {
+        runIdArg: selection.runId,
+        runIdEnv: process.env.AGDF_RUN_ID,
+      });
+      runPath = selected.run.path.startsWith(targetDir)
+        ? selected.run.path.slice(targetDir.length + 1)
+        : selected.run.path;
+    } catch (error) {
+      resolutionError = error.message;
+    }
   }
-  if (!existsSync(join(targetDir, runPath))) {
+  if (resolutionError || !existsSync(join(targetDir, runPath))) {
     return {
       path: runPath,
       content: "",
@@ -1515,6 +1532,7 @@ function readRunState(targetDir, selection = {}) {
       quality_outlook: "",
       source_scope: {},
       memory: {},
+      resolution_error: resolutionError,
     };
   }
 

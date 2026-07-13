@@ -140,7 +140,11 @@ This avoids drift between:
 
 ## Prerequisites
 
-- Node.js and npm installed
+- Node.js 18 or later and npm installed (npm bundles `npx`). Check with
+  `node -v` and `npm -v`. If either fails, install Node.js first:
+  `winget install OpenJS.NodeJS.LTS` (Windows), `brew install node`
+  (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS
+  installer from https://nodejs.org on any OS.
 - For **Codex**: Codex CLI or the Codex app with plugin support
 - For **GitHub Copilot**: GitHub Copilot CLI or the Copilot Coding Agent
 - For **Claude Code**: Claude Code CLI

@@ -11,6 +11,27 @@ GitHub Copilot and OpenCode.
 - Repository: https://github.com/arndtgold/ai-native-governance-delivery-framework
 - Installation guide: https://github.com/arndtgold/ai-native-governance-delivery-framework/blob/main/INSTALL.md
 
+## Prerequisites
+
+AGDF is distributed as an npm package and run through `npx`, so Node.js and
+npm must be installed first (npm bundles `npx`).
+
+Check whether you already have them:
+
+```bash
+node -v
+npm -v
+```
+
+If either command fails, install Node.js 18 or later:
+
+- **Windows:** `winget install OpenJS.NodeJS.LTS`
+- **macOS:** `brew install node`
+- **Linux (Debian/Ubuntu):** `sudo apt install nodejs npm`
+- **Any OS:** download the LTS installer from https://nodejs.org
+
+Then re-run `node -v` and `npm -v` to confirm before continuing.
+
 ## Quick Start
 
 Prepare one repository:

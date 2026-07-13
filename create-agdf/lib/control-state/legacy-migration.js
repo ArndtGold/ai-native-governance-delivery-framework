@@ -62,7 +62,8 @@ export function renderLegacyProjection(path, root = process.cwd()) {
     parsed = parseRunState(content),
     digest = createHash("sha256").update(content).digest("hex");
   if (!parsed.valid) throw Error("AGDF_RUN_NOT_SELECTABLE");
-  return `<!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->\n<!-- canonical_source: ${relative(resolve(root), resolve(path))} -->\n<!-- run_id: ${parsed.meta.run_id} -->\n<!-- revision_id: ${parsed.meta.revision_id} -->\n<!-- sha256: ${digest} -->\n${content}`;
+  const canonicalSource = relative(resolve(root), resolve(path)).replaceAll("\\", "/");
+  return `<!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->\n<!-- canonical_source: ${canonicalSource} -->\n<!-- run_id: ${parsed.meta.run_id} -->\n<!-- revision_id: ${parsed.meta.revision_id} -->\n<!-- sha256: ${digest} -->\n${content}`;
 }
 export function writeLegacyProjection(path, canonical) {
   atomicWrite(path, renderLegacyProjection(canonical, resolve(dirname(path), "../..")));
@@ -78,7 +79,7 @@ export function verifyLegacyProjection(root) {
     projected = projectedStart >= 0 ? p.slice(projectedStart) : undefined;
   if (!source || !runId || !digest || projected === undefined)
     return { status: discoverRuns(root).length ? "mixed_authority" : "legacy" };
-  const target = resolve(root, source),
+  const target = resolve(root, source.replaceAll("\\", "/")),
     rel = relative(resolve(root), target),
     expected = relative(resolve(root), resolve(runPath(root, runId)));
   if (rel.startsWith("..") || !rel || rel !== expected || !existsSync(target))

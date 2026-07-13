@@ -13,6 +13,7 @@
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
 | 3 | `agdf-onboarding-fit-default-prompt` | Add an AGDF suitability-assessment prompt as the first Codex default prompt | Completed | [OR](artefacts/agdf-onboarding-fit-default-prompt/OR.md) | [OR](artefacts/agdf-onboarding-fit-default-prompt/OR.md) | Delivery closeout |
+| 3 | `agdf-pages-limits-and-risks` | Make AGDF limits, dependencies and process overhead explicit on the Pages site | Awaiting QA | [UR](artefacts/agdf-pages-limits-and-risks/UR.md) · [Brownfield](artefacts/agdf-pages-limits-and-risks/BROWNFIELD_REVIEW.md) · [PRD](artefacts/agdf-pages-limits-and-risks/PRD.md) · [SD](artefacts/agdf-pages-limits-and-risks/SD.md) · [TP](artefacts/agdf-pages-limits-and-risks/TP.md) · [QA](artefacts/agdf-pages-limits-and-risks/QA_REPORT.md) | [TP Review](artefacts/agdf-pages-limits-and-risks/TP_REVIEW.md) · [Clean Review](artefacts/agdf-pages-limits-and-risks/CLEAN_IMPLEMENTATION_REVIEW.md) · [Code Review](artefacts/agdf-pages-limits-and-risks/CODE_REVIEW.md) | Approval: QA |
 
 ## Planned / Parking Lot
 

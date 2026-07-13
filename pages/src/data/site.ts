@@ -209,6 +209,26 @@ export const notFor = [
     "It is not a large skill catalogue; the plugin is intentionally core-workflow only.",
 ]
 
+export const agdfLimits = {
+    notReplace: [
+        "Architecture expertise",
+        "Security and privacy review",
+        "Domain acceptance",
+        "Regulatory certification",
+        "Good tests",
+        "Human judgment",
+    ],
+    dependsOn: [
+        "Correct repository control state",
+        "Complete and traceable evidence",
+        "Actually executed tests",
+        "Honest human UAT",
+        "Disciplined use by agents and teams",
+    ],
+    framing: "AGDF makes delivery more governable. It does not make engineering judgment, verification or human responsibility optional.",
+    overhead: "AGDF reduces uncontrolled delivery risk, but it adds process overhead. Its value depends on choosing the smallest governance path that matches the change.",
+}
+
 export const aiActFit = [
     {
         title: "Risk stays visible",

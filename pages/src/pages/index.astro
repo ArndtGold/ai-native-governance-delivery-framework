@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, requirementPaths, approvalGates, visualProofs, aiActFit, operatingGuards } from '../data/site'
+import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, aiActFit, operatingGuards } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
 import { getProjectStats } from '../data/projectStats'
 
@@ -626,25 +626,6 @@ const projectStats = await getProjectStats()
   </div>
 </section>
 
-<!-- ==================== DESIGN ==================== -->
-<section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-      <Icon name="boundary" class="h-8 w-8" />
-    </div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
-    <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
-  </div>
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    {notFor.map((item, i) => (
-      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
-        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
-        <p class="text-sm leading-relaxed text-dark-200">{item}</p>
-      </div>
-    ))}
-  </div>
-</section>
-
 <!-- ==================== EU AI ACT FIT ==================== -->
 <section id="ai-act" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
@@ -693,7 +674,48 @@ const projectStats = await getProjectStats()
   </div>
 </section>
 
-<!-- ==================== CONTROL SYSTEM ==================== -->
+  <!-- ==================== LIMITS AND OPERATING CONDITIONS ==================== -->
+  <section id="limits" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+    <div data-reveal class="mb-12 text-center">
+      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+        <Icon name="boundary" class="h-8 w-8" />
+      </div>
+      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Limits and operating conditions</div>
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Governance Helps. Responsibility Stays Human.</h2>
+      <p class="mx-auto max-w-3xl text-dark-200">{agdfLimits.framing}</p>
+    </div>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div data-reveal class="surface p-6">
+        <div class="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What AGDF does not replace</div>
+        <ul class="grid gap-3 text-sm text-dark-200 sm:grid-cols-2">
+          {agdfLimits.notReplace.map((item) => (
+              <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
+                <span class="mt-0.5 text-agdf-400">•</span>
+                <span>{item}</span>
+              </li>
+          ))}
+        </ul>
+      </div>
+      <div data-reveal class="surface p-6">
+        <div class="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What AGDF depends on</div>
+        <ul class="grid gap-3 text-sm text-dark-200">
+          {agdfLimits.dependsOn.map((item) => (
+              <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
+                <span class="mt-0.5 text-agdf-400">•</span>
+                <span>{item}</span>
+              </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <div data-reveal class="mt-6 rounded-lg border border-agdf-500/20 bg-agdf-950/30 p-5 text-sm leading-relaxed text-dark-200">
+      {agdfLimits.overhead}
+    </div>
+  </section>
+
+
+
+  <!-- ==================== CONTROL SYSTEM ==================== -->
 <section id="control-system" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
     <div data-reveal class="mb-12 text-center">
@@ -937,94 +959,6 @@ const projectStats = await getProjectStats()
         @agdf/cli on npm →
       </a>
     </div>
-    <div data-reveal data-reveal-delay="1" class="mb-5 grid gap-3 text-sm md:grid-cols-2">
-      <div class="rounded-2xl border border-agdf-500/20 bg-agdf-950/35 p-4">
-        <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Plugin install supported</div>
-        <p class="mt-2 text-dark-200">Codex, Claude Code and OpenCode can load AGDF as an installable plugin or plugin hook.</p>
-      </div>
-      <div class="rounded-2xl border border-dark-700/80 bg-dark-950/35 p-4">
-        <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Repository setup supported</div>
-        <p class="mt-2 text-dark-200">Codex, OpenCode and GitHub Copilot can use repository-local AGDF files for reviewable project setup.</p>
-      </div>
-    </div>
-    <div data-reveal data-reveal-delay="1" class="mb-5 rounded-2xl border border-dark-700/80 bg-dark-950/35 p-4 text-sm">
-      <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Version baseline</div>
-      <p class="mt-2 text-dark-200">AGDF targets the current plugin-capable or repository-instruction-capable releases of each coding agent. Exact minimum agent versions are not pinned yet; use the latest Codex, Claude Code, OpenCode and GitHub Copilot releases for supported setup.</p>
-    </div>
-    <div class="grid gap-5 lg:grid-cols-2">
-      <div id="setup-codex" data-reveal data-reveal-delay="2" class="surface p-5">
-        <div class="mb-3">
-          <div class="flex items-center gap-2.5 text-xl font-bold text-dark-100"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-agdf-500/25 bg-agdf-950/70 shadow-[0_0_22px_-16px_var(--agdf-glow)]"><Icon name="ai-agent" class="h-5 w-5 text-agdf-300" /></span>Codex</div>
-          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Plugin install</div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest codex</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Start a new Codex session and use the AGDF skills from the plugin.</p>
-      </div>
-      <div id="setup-codex-project" data-reveal data-reveal-delay="2" class="surface p-5">
-        <div class="mb-3">
-          <div class="flex items-center gap-2.5 text-xl font-bold text-dark-100"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-agdf-500/25 bg-agdf-950/70 shadow-[0_0_22px_-16px_var(--agdf-glow)]"><Icon name="ai-agent" class="h-5 w-5 text-agdf-300" /></span>Codex</div>
-          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Repository setup</div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest codex-repo</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Restart Codex, open <code>/plugins</code>, select this repository and install <code>agdf</code>.</p>
-      </div>
-      <div id="setup-opencode" data-reveal data-reveal-delay="3" class="surface p-5">
-        <div class="mb-3">
-          <div class="flex items-center gap-2.5 text-xl font-bold text-dark-100"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-agdf-500/25 bg-agdf-950/70 shadow-[0_0_22px_-16px_var(--agdf-glow)]"><Icon name="ai-agent" class="h-5 w-5 text-agdf-300" /></span>OpenCode</div>
-          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Plugin hook</div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest opencode</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Restart OpenCode so it loads the AGDF npm plugin from your global config.</p>
-      </div>
-      <div id="setup-opencode-repo" data-reveal data-reveal-delay="3" class="surface p-5">
-        <div class="mb-3">
-          <div class="flex items-center gap-2.5 text-xl font-bold text-dark-100"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-agdf-500/25 bg-agdf-950/70 shadow-[0_0_22px_-16px_var(--agdf-glow)]"><Icon name="ai-agent" class="h-5 w-5 text-agdf-300" /></span>OpenCode</div>
-          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Repository setup</div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest opencode-repo</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Restart OpenCode in this repository and start with <code>@agdf-gate-check</code>.</p>
-      </div>
-      <div id="setup-claude" data-reveal data-reveal-delay="3" class="surface p-5">
-        <div class="mb-3">
-          <div class="flex items-center gap-2.5 text-xl font-bold text-dark-100"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-agdf-500/25 bg-agdf-950/70 shadow-[0_0_22px_-16px_var(--agdf-glow)]"><Icon name="ai-agent" class="h-5 w-5 text-agdf-300" /></span>Claude Code</div>
-          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Plugin install</div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest claude</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Start a new Claude Code session and use the AGDF plugin skills.</p>
-      </div>
-      <div id="setup-copilot" data-reveal data-reveal-delay="4" class="surface p-5 lg:col-span-2">
-        <div class="mb-3">
-          <div class="flex items-center gap-2.5 text-xl font-bold text-dark-100"><span class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-agdf-500/25 bg-agdf-950/70 shadow-[0_0_22px_-16px_var(--agdf-glow)]"><Icon name="ai-agent" class="h-5 w-5 text-agdf-300" /></span>GitHub Copilot</div>
-          <div class="mt-1 inline-flex rounded-full border border-agdf-500/25 bg-agdf-950/60 px-2.5 py-0.5 font-mono text-xs font-semibold uppercase tracking-wide text-agdf-300">Repository setup</div>
-        </div>
-        <div class="terminal">
-          <div class="terminal-body">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">npx --yes @agdf/cli@latest copilot</span></div>
-          </div>
-        </div>
-        <p class="mt-3 text-sm text-dark-200">Run <code>/instructions</code> after merging any generated AGENTS fragment.</p>
-      </div>
-    </div>
     <div class="mt-10">
       <div data-reveal data-reveal-delay="6" class="mb-10">
         <div class="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
@@ -1110,7 +1044,28 @@ const projectStats = await getProjectStats()
   </div>
 </section>
 
-<!-- ==================== AUTHOR ==================== -->
+
+  <!-- ==================== DESIGN ==================== -->
+  <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+    <div data-reveal class="mb-12 text-center">
+      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+        <Icon name="boundary" class="h-8 w-8" />
+      </div>
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
+      <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {notFor.map((item, i) => (
+          <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
+            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
+            <p class="text-sm leading-relaxed text-dark-200">{item}</p>
+          </div>
+      ))}
+    </div>
+  </section>
+
+
+  <!-- ==================== AUTHOR ==================== -->
 <section id="author" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-10 text-center">
     <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Author</div>

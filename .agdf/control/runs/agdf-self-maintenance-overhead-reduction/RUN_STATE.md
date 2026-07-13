@@ -1,8 +1,3 @@
-<!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->
-<!-- canonical_source: .agdf\control\runs\agdf-self-maintenance-overhead-reduction\RUN_STATE.md -->
-<!-- run_id: agdf-self-maintenance-overhead-reduction -->
-<!-- revision_id: a0b4ca7e-cd78-4fe7-9e00-ab0eff14ecfb -->
-<!-- sha256: fc37830799831bc327744eb24be84f59d7666a0674d89ff816a90a7f61dca9bd -->
 # AGDF Run State
 
 ## Run Meta

@@ -4,9 +4,9 @@
 
 - control_state_version: 2
 - run_id: agdf-run-scoped-control-state
-- lifecycle: active
-- revision: 10
-- revision_id: 7359cdcb-48e3-4902-80fb-ecb9e4874e86
+- lifecycle: completed
+- revision: 11
+- revision_id: dd4eeb66-80e3-482a-9228-cd63cddc2a21
 - mode: structured_delivery
 - current_gate: OR
 - decision: pass

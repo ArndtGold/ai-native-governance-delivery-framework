@@ -1698,7 +1698,7 @@ run("config", [
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
-| P1 | \`compact-run\` | Compact backlog test | Awaiting UAT | [UR](artefacts/compact-run/UR.md) · [Brownfield](artefacts/compact-run/BROWNFIELD_REVIEW.md) · [QA](artefacts/compact-run/QA_REPORT.md) · [OR](artefacts/compact-run/OR.md) | [QA](artefacts/compact-run/QA_REPORT.md) | Request \`Approval: UAT\` |
+| P1 | \`compact-run\` | [framework-maintenance] Compact backlog test | Awaiting UAT | [UR](artefacts/compact-run/UR.md) · [Brownfield](artefacts/compact-run/BROWNFIELD_REVIEW.md) · [QA](artefacts/compact-run/QA_REPORT.md) · [OR](artefacts/compact-run/OR.md) | [QA](artefacts/compact-run/QA_REPORT.md) | Request \`Approval: UAT\` |
 | P1 | \`external-spec\` | Repository SoT test | In progress | [UR](artefacts/external-spec/UR.md) | [Spec](../../docs/spec.md) | Continue |
 ${statusRows}
 
@@ -1713,6 +1713,13 @@ ${statusRows}
     if (pointer?.key !== "compact-run" || pointer?.status !== "awaiting_uat") {
       throw new Error("Compact backlog should preserve the key and normalize the human status label.");
     }
+    if (pointer?.scope !== "framework_maintenance") {
+      throw new Error(`Compact backlog should normalize a recognized [framework-maintenance] scope tag, got ${pointer?.scope}.`);
+    }
+    const scopeDoctorReport = runJson(["doctor", "--dir", tempDir, "--json"]);
+    if (scopeDoctorReport.findings.some((finding) => finding.code === "AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN")) {
+      throw new Error("A recognized [framework-maintenance] scope tag must not raise AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN.");
+    }
     if (pointer?.ur !== ".agdf/control/artefacts/compact-run/UR.md"
       || pointer?.brownfield_review !== ".agdf/control/artefacts/compact-run/BROWNFIELD_REVIEW.md"
       || pointer?.qa !== ".agdf/control/artefacts/compact-run/QA_REPORT.md"
@@ -1726,6 +1733,9 @@ ${statusRows}
     const externalSpecPointer = report.backlog_pointers.find((item) => item.key === "external-spec");
     if (externalSpecPointer?.current_spec !== "docs/spec.md") {
       throw new Error(`Compact backlog should resolve safe repository SoT links, got ${externalSpecPointer?.current_spec}.`);
+    }
+    if (externalSpecPointer?.scope !== "") {
+      throw new Error(`A Work item cell with no bracketed tag should leave scope empty, got ${externalSpecPointer?.scope}.`);
     }
     for (const [index, [, expectedStatus]] of statusCases.entries()) {
       const statusPointer = report.backlog_pointers.find((item) => item.key === `status-${index}`);
@@ -1750,7 +1760,7 @@ ${statusRows}
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
-| P1 | \`invalid-run\` | Invalid compact backlog | Waiting magically | [UR](https://example.com/UR.md) · [UR](artefacts/invalid-run/UR.md) · [QA](/tmp/QA.md) · [Mystery](artefacts/invalid-run/MYSTERY.md) · malformed-entry | [PRD](../../../outside.md) | Fix validation |
+| P1 | \`invalid-run\` | [bogus-scope] Invalid compact backlog | Waiting magically | [UR](https://example.com/UR.md) · [UR](artefacts/invalid-run/UR.md) · [QA](/tmp/QA.md) · [Mystery](artefacts/invalid-run/MYSTERY.md) · malformed-entry | [PRD](../../../outside.md) | Fix validation |
 
 ## Planned / Parking Lot
 
@@ -1767,6 +1777,7 @@ ${statusRows}
       "AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN",
       "AGDF_BACKLOG_ARTEFACT_LINK_INVALID",
       "AGDF_BACKLOG_LAYOUT_UNKNOWN",
+      "AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN",
     ]) {
       if (!codes.has(requiredCode)) throw new Error(`Invalid compact backlog should report ${requiredCode}.`);
     }

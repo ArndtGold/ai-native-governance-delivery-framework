@@ -18,6 +18,8 @@ This file is the living control pointer for active AGDF delivery work. Detailed 
 12. `Status` must be one of the human-readable labels `create-agdf/bin/create-agdf.js`'s `backlogStatusLabels` normalizes: Needs UR, Awaiting Brownfield Review, Awaiting PRD, Awaiting PRD Approval, Awaiting SD, Awaiting SD Approval, Awaiting TP, Awaiting TP Approval, In Progress, Blocked, Awaiting QA, Awaiting UAT, Completed, Superseded, Abandoned. That map is authoritative; this list only mirrors it for readability.
 13. `Artefacts` link labels must be one of `backlogArtefactLabels`: `ur`, `brownfield`, `prd`, `sd`, `tp`, `qa`, `or` (case-insensitive). Do not invent other labels such as a raw artefact filename.
 14. After writing or updating this file, run `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before treating the edit as done.
+15. A `Work item` cell may optionally start with a bracketed scope tag, one of `[framework-maintenance]` or `[external-delivery]`, so the split between AGDF's own maintenance work and external product delivery stays visible at a glance. The tag is never required retroactively on `Completed / Superseded Pointers` rows. `create-agdf/bin/create-agdf.js`'s `backlogScopeLabels` map is authoritative for the two accepted values.
+16. After writing or updating this file, also resolve any `AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN` finding, which fires only for a present-but-unrecognized bracketed tag, never for an absent one.
 
 ## Active Backlog
 

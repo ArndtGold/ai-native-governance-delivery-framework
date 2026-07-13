@@ -47,6 +47,22 @@ A `MASTER_BACKLOG.md` entry is required only when the change is otherwise a "Rel
 change that is not clearly and fully outside every listed path fails closed to the existing, unchanged
 ceremony — ambiguity is never read as permission for the lighter path.
 
+#### Narrow Code-Fix Criterion
+
+A change that touches one of the otherwise-excluded code paths above may still close with only the
+compact Quick Task Output shape — Code Review remains mandatory regardless — when **all** of the
+following hold. Any single condition failing, or any ambiguity about whether a condition holds, keeps
+the full existing ceremony unchanged:
+
+1. The diff is confined to a single function, or a function together with its direct,
+   necessarily-coupled caller, in exactly one file.
+2. A new or updated automated regression test exercises the fixed behavior and passes.
+3. No PRD, SD, TP, gate name, exact approval formula, or documented CLI flag/output-schema field is
+   added, removed, or changed — only internal correctness of already-approved behavior.
+4. `doctor` (or the locally available equivalent) and the directly affected existing test suite both
+   pass unchanged in shape after the fix, with no assertion skipped or weakened beyond what the fix
+   itself introduces.
+
 ## Run Status Card
 
 When a run needs an operational status view, use the Run Status Card as a compact projection of existing control state.

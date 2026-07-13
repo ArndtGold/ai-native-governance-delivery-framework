@@ -1001,6 +1001,10 @@ const backlogArtefactLabels = new Map([
   ["qa", "qa"],
   ["or", "or"],
 ]);
+const backlogScopeLabels = new Map([
+  ["framework-maintenance", "framework_maintenance"],
+  ["external-delivery", "external_delivery"],
+]);
 
 function normalizeBacklogHeader(value) {
   return value.replace(/`/g, "").trim().toLowerCase();
@@ -1062,11 +1066,32 @@ function normalizeBacklogStatus(value, findings, backlogPath) {
   return cleaned;
 }
 
+function normalizeBacklogScope(workItem, findings, backlogPath) {
+  const match = (workItem ?? "").match(/^\[([^\]]+)\]/);
+  if (!match) return undefined;
+  const cleaned = match[1].trim();
+  const lookup = cleaned.replaceAll("_", " ").toLowerCase().replaceAll(" ", "-");
+  const normalized = backlogScopeLabels.get(lookup);
+  if (normalized) return normalized;
+  if (findings) {
+    addFinding(
+      findings,
+      "revise",
+      "AGDF_BACKLOG_SCOPE_LABEL_UNKNOWN",
+      `MASTER_BACKLOG.md uses an unknown Work item scope tag: [${cleaned}].`,
+      backlogPath,
+      "Use [framework-maintenance] or [external-delivery], or remove the bracketed tag.",
+    );
+  }
+  return cleaned;
+}
+
 function emptyBacklogPointer() {
   return {
     prio: "",
     key: "",
     title: "",
+    scope: "",
     status: "",
     ur: "",
     brownfield_review: "",
@@ -1181,6 +1206,7 @@ function parseBacklogSection(section, findings = null, backlogPath = ".agdf/cont
       pointer.prio = cells[0] ?? "";
       pointer.key = cleanStatusCell(cells[1] ?? "");
       pointer.title = cells[2] ?? "";
+      pointer.scope = normalizeBacklogScope(cells[2], findings, backlogPath) ?? "";
       pointer.status = normalizeBacklogStatus(cells[3], findings, backlogPath);
       parseCompactArtefacts(cells[4] ?? "", pointer, findings, backlogPath);
       pointer.current_spec = normalizedBacklogLinkTarget(cells[5] ?? "", findings, backlogPath, "Current spec");

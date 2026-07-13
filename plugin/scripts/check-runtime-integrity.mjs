@@ -302,13 +302,13 @@ if (pluginDefinition && isFile(pagesSiteDataPath) && !read(pagesSiteDataPath).in
 
 if (isFile(syncPackageAssetsPath)) {
   const syncPackageAssets = read(syncPackageAssetsPath);
-  if (!syncPackageAssets.includes("writeOpenCodeConfig") || !syncPackageAssets.includes("writeOpenCodeAgent")) {
-    failures.push("create-agdf package asset sync must generate the OpenCode config and agents");
+  if (!syncPackageAssets.includes("writeOpenCodeConfig") || !syncPackageAssets.includes("writeOpenCodeSkill")) {
+    failures.push("create-agdf package asset sync must generate the OpenCode config and native skills");
   }
   if (!pluginDefinition?.opencode?.npmPackage) {
     failures.push("canonical AGDF plugin definition must declare the OpenCode npm package");
   }
-  if (!syncPackageAssets.includes("toOpenCodeAgentRouter")) {
+  if (!syncPackageAssets.includes("toOpenCodeInstructionsRouter")) {
     failures.push("OpenCode instructions must be rendered from the canonical AGDF router");
   }
 }

@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,6 +17,7 @@ const generatedControlRoot = join(generatedRoot, ".agdf", "control");
 const generatedCodexPluginRoot = join(generatedRoot, "plugins", "agdf");
 const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
 const generatedOpenCodeAgentsRoot = join(generatedOpenCodeRoot, "agents");
+const generatedOpenCodeSkillsRoot = join(generatedOpenCodeRoot, "skills");
 const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
 
 function read(path) {
@@ -129,20 +130,16 @@ function toOpenCodeSkillContent(content) {
   return next;
 }
 
-function stripFrontmatter(content) {
-  return content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "").replace(/^\s+/, "");
-}
-
-function toOpenCodeAgentRouter(content) {
+function toOpenCodeInstructionsRouter(content) {
   const openCodeSurfaceConvention = [
     "## Surface Convention",
-    "OpenCode project agents do not have a plugin namespace.",
+    "OpenCode project skills do not have a plugin namespace.",
     "",
-    "Therefore generated OpenCode agent names use the AGDF prefix:",
+    "Therefore generated OpenCode skill names use the AGDF prefix:",
     "",
     ...pluginDefinition.skillSet.map((skill) => `- \`${openCodeSkillName(skill.slug)}\``),
     "",
-    "Do not remove that prefix in OpenCode-facing repository agents.",
+    "Do not remove that prefix in OpenCode-facing repository skills.",
     "Codex and Claude Code plugin surfaces use unprefixed skill names because their plugin namespace already carries `agdf`.",
     "",
   ].join("\n");
@@ -155,7 +152,7 @@ function toOpenCodeAgentRouter(content) {
     )
     .replace(
       "Use the plugin skills as workflow controls, not as documentation shortcuts.",
-      "Use the AGDF agents as workflow controls, not as documentation shortcuts.",
+      "Use the native AGDF skills as workflow controls, not as documentation shortcuts.",
     )
     .replace(/## Surface Convention[\s\S]*?(?=## Mode Selection)/, openCodeSurfaceConvention);
 }
@@ -238,19 +235,19 @@ function writeOpenCodeConfig() {
 
 function writeOpenCodeInstructions() {
   const lines = [
-    toOpenCodeAgentRouter(read(sourceAgentsPath)),
+    toOpenCodeInstructionsRouter(read(sourceAgentsPath)),
     "",
     "## OpenCode Files",
     "",
     "- OpenCode loads this file through `opencode.json` `instructions`.",
     "- AGDF for OpenCode has two layers: an optional global npm plugin hook and this repository-local governance surface.",
-    "- The global plugin hook does not replace this file, `.opencode/agents/` or `.agdf/control/`; repository files remain the AGDF source of truth.",
-    "- OpenCode agents live under `.opencode/agents/` and use the `agdf-` prefix.",
-    "- The generated AGDF agents are `mode: subagent` workflow controls for internal routing. They are not OpenCode Skills under `.opencode/skills/` and are not intended to appear as primary menu agents.",
-    "- The visible user entry point is repository instruction loading plus direct subagent handoff, for example `@agdf-gate-check` for new build/change intent or unclear approval.",
+    "- The global plugin hook does not replace this file, `.opencode/skills/` or `.agdf/control/`; repository files remain the AGDF source of truth.",
+    "- Native OpenCode skills live under `.opencode/skills/` and use the `agdf-` prefix.",
+    "- The generated AGDF skills are loaded on demand through OpenCode's native `skill` tool; they are not parallel subagents or primary menu agents.",
+    "- For new build/change intent or unclear approval, load the `agdf-gate-check` skill before later artefacts or implementation.",
     `- The AGDF OpenCode plugin is loaded from npm through \`opencode.json\` \`plugin: ["${pluginDefinition.opencode.npmPackage}"]\`.`,
     "- Use `npx --yes @agdf/cli@latest opencode-status --json` to verify global config, package loadability, active session signals and repository surface presence separately.",
-    "- OpenCode permissions keep `edit` and `bash` on explicit approval by default.",
+    "- OpenCode permissions keep `edit` and `bash` on explicit approval and allow the generated `agdf-*` skills explicitly.",
     "- Shared output and gate rules live in `.opencode/agdf-runtime-contract.md`.",
     "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
     "",
@@ -259,23 +256,18 @@ function writeOpenCodeInstructions() {
   write(join(generatedOpenCodeRoot, pluginDefinition.opencode.instructionsFileName), lines.join("\n"));
 }
 
-function writeOpenCodeAgent(skillSlug) {
+function writeOpenCodeSkill(skillSlug) {
   const sourceName = sourceSkillName(skillSlug);
   const targetName = openCodeSkillName(skillSlug);
   const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
-  const skillDefinition = pluginDefinition.skillSet.find((skill) => skill.slug === skillSlug);
-  const body = toOpenCodeSkillContent(stripFrontmatter(read(sourcePath)).replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.opencode.runtimeContractFileName}`));
-  const content = [
-    "---",
-    `description: ${skillDefinition?.useFor ?? `AGDF ${skillSlug}`}`,
-    "mode: subagent",
-    "---",
-    "",
-    body,
-    "",
-  ].join("\n");
+  const content = toOpenCodeSkillContent(
+    read(sourcePath).replaceAll(
+      "../../meta/agdf-runtime-contract.md",
+      `../../${pluginDefinition.opencode.runtimeContractFileName}`,
+    ),
+  );
 
-  write(join(generatedOpenCodeAgentsRoot, `${targetName}.md`), content);
+  write(join(generatedOpenCodeSkillsRoot, targetName, "SKILL.md"), content);
 }
 
 function writeOpenCodeReadme(skillSlugs) {
@@ -286,16 +278,15 @@ function writeOpenCodeReadme(skillSlugs) {
     "",
     `- \`opencode.json\` loads the npm plugin \`${pluginDefinition.opencode.npmPackage}\` and \`.opencode/AGDF.md\` as repository instructions.`,
     "- AGDF for OpenCode has two layers: an optional global npm plugin hook and this repository-local governance surface.",
-    "- The global plugin hook does not replace `.opencode/AGDF.md`, `.opencode/agents/` or `.agdf/control/`; repository files remain the AGDF source of truth.",
-    "- `opencode.json` keeps `edit` and `bash` on `ask` so execution remains permissioned.",
-    "- `.opencode/agents/` contains AGDF subagents generated from the canonical AGDF skills.",
-    "- These files intentionally do not install OpenCode Skills under `.opencode/skills/`; the AGDF agents are background workflow controls, not primary menu agents.",
-    "- Use `@agdf-gate-check` as the visible entry point for new build/change intent or unclear approval.",
+    "- The global plugin hook does not replace `.opencode/AGDF.md`, `.opencode/skills/` or `.agdf/control/`; repository files remain the AGDF source of truth.",
+    "- `opencode.json` keeps `edit` and `bash` on `ask` and explicitly allows the generated `agdf-*` skills.",
+    "- `.opencode/skills/` contains native OpenCode skills generated from the canonical AGDF skills.",
+    "- For new build/change intent or unclear approval, load `agdf-gate-check` through OpenCode's native `skill` tool.",
     "- Use `npx --yes @agdf/cli@latest opencode-status --json` to distinguish global hook configuration, package loadability, session activity and this repository surface.",
     "- Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive gate state; reserve full `--json` output for automation or audit evidence.",
     "- `.opencode/agdf-runtime-contract.md` is the shared gate and output contract.",
     "",
-    "## Agents",
+    "## Skills",
     "",
     ...skillSlugs.map((skill) => `- \`${openCodeSkillName(skill)}\``),
     "",
@@ -383,8 +374,9 @@ function main() {
   writeOpenCodeInstructions();
   for (const skillSlug of skillSlugs) {
     syncSkill(skillSlug);
-    writeOpenCodeAgent(skillSlug);
+    writeOpenCodeSkill(skillSlug);
   }
+  rmSync(generatedOpenCodeAgentsRoot, { recursive: true, force: true });
   writeSkillsReadme(skillSlugs);
   writeOpenCodeReadme(skillSlugs);
 }

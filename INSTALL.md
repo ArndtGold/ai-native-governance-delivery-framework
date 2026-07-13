@@ -380,7 +380,7 @@ This writes:
 opencode.json
 .opencode/AGDF.md
 .opencode/agdf-runtime-contract.md
-.opencode/agents/agdf-*.md
+.opencode/skills/agdf-*/SKILL.md
 .agdf/control/config.json
 .agdf/control/templates/**
 ```
@@ -393,17 +393,20 @@ opencode.json
   "instructions": [".opencode/AGDF.md"],
   "permission": {
     "edit": "ask",
-    "bash": "ask"
+    "bash": "ask",
+    "skill": {
+      "agdf-*": "allow"
+    }
   }
 }
 ```
 
-OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/agents/agdf-*.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible.
+OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/skills/agdf-*/SKILL.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible.
 
 AGDF for OpenCode has two layers:
 
 - optional global npm plugin hook through `~/.config/opencode/opencode.json`
-- repository-local governance surface through the target repository's `opencode.json`, `.opencode/AGDF.md`, `.opencode/agents/` and `.agdf/control/`
+- repository-local governance surface through the target repository's `opencode.json`, `.opencode/AGDF.md`, `.opencode/skills/` and `.agdf/control/`
 
 The global install updates `~/.config/opencode/opencode.json` to contain the npm plugin entry:
 
@@ -413,17 +416,17 @@ The global install updates `~/.config/opencode/opencode.json` to contain the npm
 }
 ```
 
-The global plugin hook does not replace repository instructions, generated subagents or durable control files. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
+The global plugin hook does not replace repository instructions, native skills or durable control files. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
 
 If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Merge its `plugin` and `instructions` entries into the existing OpenCode config so OpenCode loads the AGDF npm plugin and `.opencode/AGDF.md`.
 
-OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json` or, optionally, the same npm plugin declared in global OpenCode config. The generated OpenCode surface uses the `agdf-` prefix because OpenCode project agents do not have the Codex or Claude Code plugin namespace.
+OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json` or, optionally, the same npm plugin declared in global OpenCode config. The generated OpenCode surface uses the `agdf-` prefix because OpenCode project skills do not have the Codex or Claude Code plugin namespace.
 
-OpenCode also makes AGDF's control story visible at runtime: `.opencode/AGDF.md` carries the AGENTS-style rules, `.opencode/agents/` carries the generated AGDF agents, `permission.edit` and `permission.bash` stay on `ask`, and the npm plugin contributes runtime hooks.
+OpenCode also makes AGDF's control story visible at runtime: `.opencode/AGDF.md` carries the AGENTS-style rules, `.opencode/skills/` carries the generated native AGDF skills, `permission.edit` and `permission.bash` stay on `ask`, `permission.skill` explicitly allows `agdf-*`, and the npm plugin contributes runtime hooks.
 
-The generated `.opencode/agents/agdf-*.md` files intentionally use `mode: subagent`. They are internal workflow-routing controls, not visible primary menu agents and not OpenCode Skills under `.opencode/skills/<name>/SKILL.md`. If users look for a visible entry point, start with `@agdf-gate-check` for new build/change intent or unclear approval; AGDF should remain a governance layer instead of converting those subagents into main agents.
+The generated `.opencode/skills/agdf-*/SKILL.md` files are discovered and loaded through OpenCode's native `skill` tool. They remain generated from the canonical AGDF skills and do not introduce a parallel OpenCode-only policy owner.
 
-Use `@agdf-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
+Load `agdf-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
 
 ```bash
 npx --yes create-agdf@latest doctor --json

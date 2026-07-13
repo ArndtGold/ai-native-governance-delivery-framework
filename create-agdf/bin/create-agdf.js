@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { homedir } from "node:os";
 import { dirname, join, posix, resolve } from "node:path";
@@ -173,7 +173,7 @@ const openCodeFiles = [
   join(".opencode", pluginDefinition.opencode.instructionsFileName),
   join(".opencode", "README.md"),
   join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
-  ...openCodeSkillNames.map((skillName) => join(".opencode", "agents", `${skillName}.md`)),
+  ...openCodeSkillNames.map((skillName) => join(".opencode", "skills", skillName, "SKILL.md")),
 ];
 
 function printUsage() {
@@ -528,7 +528,7 @@ function readOpenCodeConfig(configPath) {
 
 function isOpenCodeRepositorySurfacePresent(targetDir) {
   return existsSync(join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName))
-    && existsSync(join(targetDir, ".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}gate-check.md`));
+    && existsSync(join(targetDir, ".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md"));
 }
 
 function resolveOpenCodePackage(configDir) {
@@ -565,6 +565,7 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
     repository_surface: process.env.AGDF_OPENCODE_REPOSITORY_SURFACE === "1",
   };
   const repositorySurface = isOpenCodeRepositorySurfacePresent(targetDir);
+  const gateCheckSkillPath = join(targetDir, ".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md");
 
   const findings = [];
   if (!configState.exists) findings.push("OpenCode global config not found.");
@@ -594,12 +595,13 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
       path: targetDir,
       present: repositorySurface,
       instructions: join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName),
-      gate_check_agent: join(targetDir, ".opencode", "agents", `${pluginDefinition.opencode.skillPrefix}gate-check.md`),
+      gate_check_agent: gateCheckSkillPath,
+      gate_check_skill: gateCheckSkillPath,
     },
-    visible_entrypoint: repositorySurface ? `@${pluginDefinition.opencode.skillPrefix}gate-check` : "none until opencode-repo is installed for this repository",
+    visible_entrypoint: repositorySurface ? `${pluginDefinition.opencode.skillPrefix}gate-check (native skill)` : "none until opencode-repo is installed for this repository",
     findings,
     next_step: repositorySurface
-      ? `Restart OpenCode if needed, then use @${pluginDefinition.opencode.skillPrefix}gate-check for new build/change intent.`
+      ? `Restart OpenCode if needed, then load ${pluginDefinition.opencode.skillPrefix}gate-check through the native skill tool for new build/change intent.`
       : "Run npx --yes @agdf/cli@latest opencode-repo in repositories where AGDF governance should be active and reviewable.",
   };
 }
@@ -711,6 +713,29 @@ function writeGeneratedFile(targetDir, relativePath, content, force, allowOverwr
   }
 
   writeFileSync(outputPath, content, "utf8");
+}
+
+function removeOwnedLegacyOpenCodeAgents(targetDir) {
+  const agentsDir = join(targetDir, ".opencode", "agents");
+  if (!existsSync(agentsDir)) return [];
+
+  const removed = [];
+  for (const skill of pluginDefinition.skillSet) {
+    const skillName = `${pluginDefinition.opencode.skillPrefix}${skill.slug}`;
+    const relativePath = join(".opencode", "agents", `${skillName}.md`);
+    const agentPath = join(targetDir, relativePath);
+    if (!existsSync(agentPath)) continue;
+
+    const content = readFileSync(agentPath, "utf8");
+    const ownedHeader = `---\ndescription: ${skill.useFor}\nmode: subagent\n---`;
+    if (!content.startsWith(ownedHeader) || !content.includes(`# ${skill.slug}`)) continue;
+
+    rmSync(agentPath);
+    removed.push(relativePath);
+  }
+
+  if (readdirSync(agentsDir).length === 0) rmSync(agentsDir, { recursive: true });
+  return removed;
 }
 
 function assertGeneratedWritePlan(targetDir, files, force) {
@@ -873,7 +898,7 @@ function generatedFilesForTarget(target, targetDir, force, languagePreference) {
   return files;
 }
 
-function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOpenCodeConfigFragment) {
+function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents = []) {
   console.log("");
   console.log(`AGDF bootstrap complete in ${destination}`);
   console.log("");
@@ -881,6 +906,12 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
   for (const file of files) {
     const action = file.action ? `${file.action}: ` : "";
     console.log(`- ${action}${file.path}`);
+  }
+
+  if (removedOpenCodeAgents.length > 0) {
+    console.log("");
+    console.log("Removed generated legacy OpenCode agents:");
+    for (const relativePath of removedOpenCodeAgents) console.log(`- ${relativePath}`);
   }
 
   const preservedFiles = [...new Set(files.map((file) => file.preserved).filter(Boolean))];
@@ -924,10 +955,9 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
     }
     console.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
     console.log("- Optional: also add create-agdf to ~/.config/opencode/opencode.json plugin[] for a user-wide OpenCode hook.");
-    console.log("- The global hook does not replace repository instructions or subagents; this repository's .opencode files remain the AGDF source of truth.");
-    console.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the AGDF subagents.");
-    console.log("- AGDF OpenCode agents are mode: subagent workflow controls; they are not .opencode/skills entries or primary menu agents.");
-    console.log("- Use @agdf-gate-check as the visible entry point for new build/change intent or unclear approval before later artefacts or implementation.");
+    console.log("- The global hook does not replace repository instructions or native skills; this repository's .opencode files remain the AGDF source of truth.");
+    console.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the native AGDF skills.");
+    console.log("- Load agdf-gate-check through OpenCode's native skill tool for new build/change intent or unclear approval before later artefacts or implementation.");
     console.log("- Run npx --yes @agdf/cli@latest init when the repository needs live AGDF control files.");
   }
   if (target === "copilot" || target === "both") {
@@ -2481,18 +2511,22 @@ async function main() {
   const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
   const wroteAgentsFragment = files.some(file => file.path === agdfFragmentPath);
   const wroteOpenCodeConfigFragment = files.some(file => file.path === openCodeConfigFragmentPath);
+  let removedOpenCodeAgents = [];
 
   try {
     assertGeneratedWritePlan(options.dir, files, options.force);
     for (const file of files) {
       writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
     }
+    if (options.target === "opencode-repo") {
+      removedOpenCodeAgents = removeOwnedLegacyOpenCodeAgents(options.dir);
+    }
   } catch (error) {
     console.error(error.message);
     process.exit(1);
   }
 
-  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment);
+  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents);
 }
 
 await main();

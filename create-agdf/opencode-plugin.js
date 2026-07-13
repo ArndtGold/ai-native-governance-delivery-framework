@@ -4,7 +4,7 @@ const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.met
 
 export const AGDFPlugin = async ({ directory, client }) => {
   const controlDir = `${directory}/.agdf/control`;
-  const hasRepositorySurface = () => existsSync(`${directory}/.opencode/AGDF.md`) && existsSync(`${directory}/.opencode/agents`);
+  const hasRepositorySurface = () => existsSync(`${directory}/.opencode/AGDF.md`) && existsSync(`${directory}/.opencode/skills/agdf-gate-check/SKILL.md`);
   const status = () => ({
     active: true,
     version: packageJson.version,
@@ -40,7 +40,7 @@ export const AGDFPlugin = async ({ directory, client }) => {
         output.context.push([
           "## AGDF Plugin Notice",
           "The AGDF OpenCode npm plugin is loaded, but this repository does not contain the AGDF OpenCode surface.",
-          "Do not apply AGDF gates from the global plugin alone; repository instructions, subagents and control files are the source of truth.",
+          "Do not apply AGDF gates from the global plugin alone; repository instructions, native skills and control files are the source of truth.",
           "Run `npx --yes @agdf/cli@latest opencode-repo` in this repository when AGDF governance should be active here.",
         ].join("\n"));
         return;
@@ -48,8 +48,8 @@ export const AGDFPlugin = async ({ directory, client }) => {
 
       output.context.push([
         "## AGDF Runtime Reminder",
-        "Use `.opencode/AGDF.md`, `.opencode/agents/` and `.agdf/control/` as the AGDF source for this OpenCode session.",
-        "For new build/change intent or unclear approval, route first to `agdf-gate-check` before later artefacts or implementation.",
+        "Use `.opencode/AGDF.md`, `.opencode/skills/` and `.agdf/control/` as the AGDF source for this OpenCode session.",
+        "For new build/change intent or unclear approval, load the native `agdf-gate-check` skill before later artefacts or implementation.",
         "Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
       ].join("\n"));
     },

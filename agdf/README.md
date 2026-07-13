@@ -85,7 +85,7 @@ npx --yes @agdf/cli@latest opencode-repo
 ```
 
 **Repository.** Writes `opencode.json` (or a fragment if one already
-exists), repository instructions, generated subagents and control templates
+exists), repository instructions, native AGDF skills and control templates
 under `.opencode/`.
 
 ### GitHub Copilot
@@ -155,7 +155,7 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `claude` | Install the AGDF plugin globally for Claude Code. |
 | `opencode` | Install the AGDF npm plugin as a user-wide OpenCode hook. |
 | `opencode-status` | Report OpenCode global config, package loadability, session signals and repository surface presence. |
-| `opencode-repo` | Add OpenCode repository instructions, subagents, permissions and control templates. |
+| `opencode-repo` | Add OpenCode repository instructions, native skills, permissions and control templates. |
 | `copilot` | Add `AGENTS.md`, Copilot instructions, skills and control templates. |
 | `both` | Prepare the repository-file and plugin surfaces together. |
 | `init` | Create durable `.agdf/control` files when repository-owned control state is required. |
@@ -204,11 +204,10 @@ evidence. It writes `DELIVERY_PATH_SEARCH.json` and
 
 See [Quick Start](#quick-start) for what each command installs and its
 global-vs-repository scope. One extra OpenCode detail: repository
-instructions, generated agents and control files remain the AGDF source of
-truth even after the global hook is installed. The generated OpenCode agents
-are intentional `mode: subagent` workflow controls, not `.opencode/skills/`
-entries or primary menu agents; use `@agdf-gate-check` as the visible entry
-point for new build/change intent.
+instructions, native skills and control files remain the AGDF source of truth
+even after the global hook is installed. The generated OpenCode skills live
+under `.opencode/skills/` and load on demand through OpenCode's native `skill`
+tool; use `agdf-gate-check` first for new build/change intent.
 
 `npm create agdf@latest -- ...` remains supported through the companion
 `create-agdf` package for scaffold-style setup flows.

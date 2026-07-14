@@ -23,6 +23,11 @@ you *MUST* honor the following **GENERIC TENETS**:
     and tooling maintenance when no new product meaning, user capability,
     architecture, policy or persistence decision is introduced.
 
+    Verified Change may handle a bounded user-visible canonical metadata or
+    copy change only after approved UR and Brownfield Review when the Runtime
+    Contract record proves one owner, clean-at-baseline paths, no prohibited
+    impact and deterministic validation; every uncertainty escalates.
+
 -   **Fail Closed**:
     When a necessary approval, input, or quality statement is missing,
     the process must stop or demand revision.

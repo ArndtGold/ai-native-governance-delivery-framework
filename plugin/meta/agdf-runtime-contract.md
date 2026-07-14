@@ -27,6 +27,20 @@ Use this compact output shape when no formal gate artefact is required:
 
 Do not add a separate `Quality outlook` line for pure Quick Tasks unless the task became a relevant run.
 
+### Verified Change
+
+`verified_change` is a compact, fail-closed path for a bounded user-visible change with one canonical owner and deterministic proof. It is neither a prose exception nor a new user approval gate.
+
+After `Approval: UR`, Brownfield Review may select `verified_change` only when a durable `VERIFIED_CHANGE.md` record can prove all of the following before implementation:
+
+1. exactly one repository-relative canonical owner and bounded source/derived paths;
+2. no gate, permission, security, persistence, architecture, external API, CLI or release behavior impact;
+3. deterministic propagation when derived paths exist, plus at least one deterministic validation command;
+4. tracked and untracked worktree baseline paths captured before eligibility, with no candidate path already dirty; and
+5. an explicit `structured_slice` or `structured_delivery` escalation target.
+
+The record is the compact eligibility, execution and mini-closeout artefact. A missing, failed, unknown or ambiguous field/check must fail closed: mark the record `escalated` and continue at its declared structured target. Unrelated paths already dirty at baseline remain isolated; newly introduced unlisted paths invalidate the compact path. An executed record requires passing validation evidence and, where applicable, passing propagation evidence.
+
 ### Non-Normative Trivial Change Boundary
 
 A `quick_task` whose entire diff stays fully outside all of the following paths may close using only
@@ -68,10 +82,10 @@ the full existing ceremony unchanged:
 When a run needs an operational status view, use the Run Status Card as a compact projection of existing control state.
 It must not introduce a second gate model or override `gate-check`, `delivery-map`, QA, OR, or user approvals.
 
-- `mode`: `quick_task | structured_delivery | unknown`
+- `mode`: `quick_task | verified_change | structured_delivery | unknown`
 - `status`: `open | blocked | pass | warn | revise | block | in_progress`
 - `current_gate`: current user gate or internal step
-- `mode_slice_decision`: `undecided | quick_task | structured_slice | structured_delivery | block`
+- `mode_slice_decision`: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`
 - `allowed_now`: outputs or actions currently permitted
 - `forbidden_now`: outputs or actions currently forbidden
 - `blocking_condition`: current blocker or `none`
@@ -232,7 +246,7 @@ section or any other existing line.
 ## Gate Rules
 
 - User gates: `UR -> PRD -> SD -> TP -> QA -> UAT`
-- Internal mandatory steps: `Brownfield Review -> Mode/Slice Decision -> Brownfield Analysis -> CD+Tests -> CR -> OR`
+- Internal mandatory steps: `Brownfield Review -> Mode/Slice Decision -> Verified Change Execution | Brownfield Analysis -> CD+Tests -> CR -> OR`
 - On the approved-TP path, `CD+Tests` and `CR` are satisfied only by `done`; `not_applicable` may satisfy Brownfield Review or Brownfield Analysis, but it must not bypass implementation/test evidence or mandatory Code Review.
 - Exact approval formula: `Approval: <GateName>`
 - Legacy alias: `Freigabe: <GateName>` may be accepted when reviewing older German runs, but all new outputs must use `Approval: <GateName>`.
@@ -264,7 +278,7 @@ It is the sizing and routing step that decides how much later gate discipline is
 Its output is limited to:
 
 - workstream or follow-up-slice classification
-- `Mode/Slice Decision`: `quick_task | structured_slice | structured_delivery | block`
+- `Mode/Slice Decision`: `quick_task | verified_change | structured_slice | structured_delivery | block`
 - affected existing owners, source-of-truth artefacts, contracts, policies, runtime paths or tests
 - reuse-before-create risks and parallel-structure risks
 - open questions that PRD or SD must resolve
@@ -273,6 +287,7 @@ Its output is limited to:
 Mode/Slice Decision rules:
 
 - `quick_task`: use only when Brownfield Review shows a narrow local change, no new product semantics beyond the approved UR, no architecture/policy/persistence/contract expansion, and evidence is sufficient to proceed with a small implementation plus relevant checks.
+- `verified_change`: use only when the compact record can prove one canonical owner, bounded clean-at-baseline paths, no prohibited impact, deterministic propagation/validation and a structured escalation target. It skips later approvals only after every condition is evidenced and machine-validated.
 - `structured_slice`: use when some formal artefacts are needed, but they can stay intentionally small and scoped to the approved slice.
 - `structured_delivery`: use when the change has broad product, architecture, runtime, policy, persistence, release or cross-owner impact.
 - `block`: use when ownership, SoT, impact, evidence or product direction is not clear enough to choose a safe path.
@@ -287,8 +302,12 @@ This table is the canonical transition model. Skills may reference it, but must 
 |---|---|---|---|---|
 | No approved UR | `UR` | clarify user need, formulate and persist UR, request `Approval: UR` | PRD, SD, TP, Brownfield Analysis, implementation, QA, release | `Approval: UR` |
 | `UR` approved and UR artefact persisted or linked, Brownfield Review missing | `Brownfield Review` | classify workstream, existing owners, SoT, reuse risks, change size and PRD/SD open questions; mark review done or not_applicable | PRD, SD, TP, implementation, QA, release | none |
-| Brownfield Review done or not_applicable, Mode/Slice Decision missing or incomplete | `Mode/Slice Decision` | decide `quick_task`, `structured_slice`, `structured_delivery` or `block`; record scope reason, evidence and required next gate depth | PRD, SD, TP, implementation, QA, release | none |
+| Brownfield Review done or not_applicable, Mode/Slice Decision missing or incomplete | `Mode/Slice Decision` | decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`; record scope reason, evidence and required next gate depth | PRD, SD, TP, implementation, QA, release | none |
 | Mode/Slice Decision is `quick_task` | `Quick Task Execution` | implement only the narrow approved UR scope, run relevant checks, record evidence and OR-lite when the run is relevant | broad PRD/SD/TP by ritual, scope expansion, QA or release claims without evidence | none |
+| Mode/Slice Decision is `verified_change`, record missing/draft/invalid | `Verified Change Execution` | create or repair compact record, capture baseline and prove eligibility with doctor/gate-check | implementation, QA, UAT, release | none |
+| Verified Change record is `eligible` | `Verified Change Execution` | implement only declared paths, run declared propagation/validation, record mini-closeout | unlisted paths, prohibited impacts, QA/UAT/release claims | none |
+| Verified Change record is `executed` | `OR` | use mini-closeout and offer delivery closeout when requested | PRD/SD/TP/QA/UAT by ritual; automatic VCS actions | none |
+| Verified Change record is `escalated` | `PRD` | draft the PRD for declared `structured_slice` or `structured_delivery` escalation target | implementation through Verified Change | `Approval: PRD` |
 | Mode/Slice Decision is `structured_slice` or `structured_delivery`, PRD missing or draft | `PRD` | draft/refine PRD at the smallest justified depth, define scope, acceptance criteria and non-goals, persist/link PRD, request `Approval: PRD` | SD, TP, implementation-preparation Brownfield Analysis, implementation, QA, release | `Approval: PRD` |
 | `PRD` approved and PRD artefact persisted or linked, SD missing or draft | `SD` | draft/refine Solution Design, ownership and architecture, persist/link SD, request `Approval: SD` | TP, implementation, QA, release | `Approval: SD` |
 | `SD` approved and SD artefact persisted or linked, TP missing or draft | `TP` | draft/refine Task/Test Plan, task IDs, evidence plan, persist/link TP, request `Approval: TP` | implementation, QA, release | `Approval: TP` |

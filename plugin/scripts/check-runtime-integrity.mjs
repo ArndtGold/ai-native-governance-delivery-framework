@@ -1,8 +1,10 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
-const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+const repoRoot = process.env.AGDF_RUNTIME_INTEGRITY_ROOT
+  ? resolve(process.env.AGDF_RUNTIME_INTEGRITY_ROOT)
+  : fileURLToPath(new URL("../..", import.meta.url));
 const pluginRoot = join(repoRoot, "plugin");
 const marketplacePath = join(repoRoot, ".claude-plugin", "marketplace.json");
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
@@ -40,6 +42,7 @@ const expectedControlFiles = [
   "templates/AGENT_QUALITY_CONTRACTS.json",
   "templates/artefacts/UR.md",
   "templates/artefacts/BROWNFIELD_REVIEW.md",
+  "templates/artefacts/VERIFIED_CHANGE.md",
   "templates/artefacts/PRD.md",
   "templates/artefacts/SD.md",
   "templates/artefacts/TP.md",
@@ -609,6 +612,7 @@ const contextGraphTemplatePath = join(controlRoot, "templates", "CONTEXT_GRAPH.m
 const sotRegistryTemplatePath = join(controlRoot, "templates", "SOT_REGISTRY.md");
 const qualityContractsPath = join(controlRoot, "templates", "AGENT_QUALITY_CONTRACTS.json");
 const brownfieldReviewTemplatePath = join(controlRoot, "templates", "artefacts", "BROWNFIELD_REVIEW.md");
+const verifiedChangeTemplatePath = join(controlRoot, "templates", "artefacts", "VERIFIED_CHANGE.md");
 const orTemplatePath = join(controlRoot, "templates", "artefacts", "OR.md");
 const backlogTemplatePath = join(controlRoot, "templates", "MASTER_BACKLOG.md");
 
@@ -680,6 +684,14 @@ if (isFile(brownfieldReviewTemplatePath)) {
   for (const required of ["Existing-System View", "Reuse And Parallel-Structure Risk", "Mode / Slice Decision", "transparency_note", "Next Permissible Step"]) {
     if (!brownfieldReviewTemplate.includes(required)) failures.push(`BROWNFIELD_REVIEW.md missing control field: ${required}`);
   }
+}
+
+if (isFile(verifiedChangeTemplatePath)) {
+  const verifiedChangeTemplate = read(verifiedChangeTemplatePath);
+  for (const required of ["related_ur", "canonical_owner", "allowed_source_paths", "allowed_derived_paths", "baseline_tracked_paths", "baseline_untracked_paths", "escalation_target", "validation_commands"]) {
+    if (!new RegExp(`^- ${required}:`, "m").test(verifiedChangeTemplate)) failures.push(`VERIFIED_CHANGE.md missing control field: ${required}`);
+  }
+  if (!/^## Mini-Closeout$/m.test(verifiedChangeTemplate)) failures.push("VERIFIED_CHANGE.md missing control field: Mini-Closeout");
 }
 
 if (isFile(orTemplatePath)) {

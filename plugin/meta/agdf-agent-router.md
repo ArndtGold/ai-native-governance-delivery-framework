@@ -27,7 +27,7 @@ That `agdf-` prefix is reserved for GitHub Copilot repository skills, where no p
 ## Mode Selection
 Default entry rule: a new user intent to build, add, change, extend, refactor or otherwise deliver something starts with `gate-check` unless it is clearly only a question, explanation, local inspection, or explicitly scoped review.
 
-Use Quick Task Mode for questions, small reviews, local debugging and narrow fixes without new product semantics.
+Use Quick Task Mode for questions, small reviews, local debugging and narrow fixes without new product semantics. Use Verified Change only after approved UR and Brownfield Review when the Runtime Contract's compact record can prove bounded ownership, clean-at-baseline paths, prohibited-impact absence and deterministic validation.
 
 Use Structured Delivery Mode for new capabilities, architecture, policy, persistence, release-critical work, formal artefacts or explicit approvals.
 
@@ -39,9 +39,9 @@ Those phrases may express intent to proceed, but they do not unlock a gate unles
 Do not infer active scope from branch names, uncommitted workspace deltas, chat history or generated summaries when durable artefacts point elsewhere.
 If multiple active scopes are plausible, list the evidenced lines and route to `gate-check` or workstate clarification instead of choosing silently.
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
-Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `structured_slice`, `structured_delivery` or `block`.
+Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`.
 Make that decision visible before coding or drafting later artefacts: state the selected path, scope reason, evidence and next required gate in the live control state or linked artefact.
-Do not assume the full PRD/SD/TP chain before that decision; use only as much gate depth as the reviewed change size justifies.
+Do not assume the full PRD/SD/TP chain before that decision; use only as much gate depth as the reviewed change size justifies. A user-visible change is not automatically Verified Change eligible; any missing or ambiguous record condition escalates to the declared structured target before implementation.
 
 Quick Task Mode must still use the Runtime Contract mini-output: `result`, `evidence`, `risk`, `next_step`.
 Narrow defect work may use the Runtime Contract's Bug Lightweight Track only when a durable bug artefact or linked authoritative issue carries reproduction, actual behavior, expected behavior, fix boundary and evidence plan.

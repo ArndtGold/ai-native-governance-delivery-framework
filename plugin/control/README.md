@@ -14,6 +14,7 @@ Use this scaffold when a target repository should keep AGDF state outside chat h
 | `templates/MASTER_BACKLOG.md` | Template for the living backlog pointer: active initiatives and current UR/Brownfield/PRD/SD/TP/QA/OR artefacts |
 | `templates/artefacts/UR.md` | Template for the durable user requirement artefact of a work item |
 | `templates/artefacts/BROWNFIELD_REVIEW.md` | Template for the durable Brownfield Review and Mode/Slice Decision |
+| `templates/artefacts/VERIFIED_CHANGE.md` | Compact fail-closed record for an eligible Verified Change |
 | `templates/artefacts/PRD.md` | Template for the durable product requirements artefact |
 | `templates/artefacts/SD.md` | Template for the durable solution design artefact |
 | `templates/artefacts/TP.md` | Template for the durable task and test plan artefact |
@@ -84,7 +85,7 @@ npx --yes @agdf/cli@latest gate-check --json
 - The selected `runs/<run_id>/RUN_STATE.md` is the current run dashboard.
 - `config.json` stores the project preference for artefact and chat language; runtime rules stay English.
 - `MASTER_BACKLOG.md` points to active delivery work; detailed artefacts live beside the work item.
-- Brownfield Review records the post-UR Mode/Slice Decision before PRD depth or Quick Task execution is chosen.
+- Brownfield Review records the post-UR Mode/Slice Decision before PRD depth, Verified Change execution or Quick Task execution is chosen.
 - UR, PRD, SD, TP and QA decisions require durable artefacts or links to the authoritative repository source of truth before the next gate can open.
 - OR records the run closeout and next permissible step; it does not approve later gates.
 - `SOT_REGISTRY.md` decides which document owns which domain.

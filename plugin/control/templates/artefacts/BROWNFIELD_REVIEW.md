@@ -37,7 +37,7 @@ What approved UR scope is being sized and routed?
 
 ## Mode / Slice Decision
 
-- decision: `quick_task | structured_slice | structured_delivery | block`
+- decision: `quick_task | verified_change | structured_slice | structured_delivery | block`
 - required_next_gate: `none | PRD | SD | TP | Brownfield Analysis`
 - scope_reason:
 - evidence:

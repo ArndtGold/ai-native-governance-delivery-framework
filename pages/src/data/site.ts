@@ -118,10 +118,10 @@ export const requirementPaths = [
         outcome: "Fast, narrow, evidenced."
     },
     {
-        label: "Bug Lightweight",
-        trigger: "Narrow defect with clear symptom, reproduction, expected behavior and fix boundary.",
-        path: "Record bug facts -> verify boundary -> fix narrowly -> test symptom -> close with evidence",
-        outcome: "Fast defect control without pretending it is full product delivery."
+        label: "Narrow Bug Track",
+        trigger: "Reproducible, bounded defect with explicit reproduction, expected behavior and fix boundary.",
+        path: "Record defect facts -> verify boundary -> fix narrowly -> test the symptom -> close with evidence",
+        outcome: "Not a gate bypass: required QA, OR and repository approvals remain. For a machine-validated compact change, use Verified Change."
     },
     {
         label: "Controlled Delivery",

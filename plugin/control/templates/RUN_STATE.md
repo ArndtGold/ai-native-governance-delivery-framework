@@ -43,6 +43,7 @@ Describe the trustworthy outcome.
 |---|---|---|---|
 | UR |  | draft |  |
 | Brownfield Review |  | missing |  |
+| Verified Change |  | missing |  |
 | PRD |  | missing |  |
 | SD |  | missing |  |
 | TP |  | missing |  |
@@ -53,7 +54,7 @@ Describe the trustworthy outcome.
 
 ## Mode/Slice Decision
 
-- decision:
+- decision: `quick_task | verified_change | structured_slice | structured_delivery | block`
 - required_next_gate:
 - scope_reason:
 - evidence:

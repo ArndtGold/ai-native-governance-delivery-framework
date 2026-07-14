@@ -184,11 +184,11 @@ Gate Discipline
 
 AGDF work follows a gate-driven flow:
 
-    UR → Brownfield Review → Mode/Slice Decision → PRD/SD/TP as needed → QA → UAT
+    UR → Brownfield Review → Mode/Slice Decision → Verified Change or PRD/SD/TP as needed → QA → UAT
 
 with internal process steps:
 
-    Brownfield Review → Mode/Slice Decision → Brownfield Analysis → CD+Tests → CR → OR
+    Brownfield Review → Mode/Slice Decision → Verified Change Execution or Brownfield Analysis → CD+Tests → CR → OR
 
 Rules:
 
@@ -208,7 +208,7 @@ Rules:
   internal mandatory step.
 * **Size before ceremony**: After an approved durable UR, Brownfield Review
   determines change size and routing before PRD depth is chosen. The Mode/Slice
-  Decision is one of `quick_task`, `structured_slice`, `structured_delivery` or
+  Decision is one of `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or
   `block`.
 * **No gate leaks**: Later gate artefacts must not be produced when an
   earlier gate is still blocking.

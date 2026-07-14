@@ -4,8 +4,8 @@
 
 - run_id:
 - started_at:
-- mode: `quick_task | structured_delivery`
-- current_gate: `none | UR | Brownfield Review | Mode/Slice Decision | PRD | SD | TP | Quick Task Execution | Brownfield Analysis | CD+Tests | CR | QA | UAT | OR`
+- mode: `quick_task | verified_change | structured_delivery`
+- current_gate: `none | UR | Brownfield Review | Mode/Slice Decision | PRD | SD | TP | Quick Task Execution | Verified Change Execution | Brownfield Analysis | CD+Tests | CR | QA | UAT | OR`
 - decision: `pass | revise | block | in_progress`
 - owner:
 
@@ -68,6 +68,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | SD |  | `draft | approved | superseded | not_applicable` |  |
 | TP |  | `draft | approved | superseded | not_applicable` |  |
 | Brownfield Review |  | `missing | draft | done | not_applicable | superseded` |  |
+| Verified Change |  | `missing | draft | eligible | executed | escalated` |  |
 | Review |  | `missing | done | not_applicable` |  |
 | QA |  | `missing | pass | revise | block | not_applicable` |  |
 | OR |  | `missing | done | not_applicable` |  |
@@ -77,7 +78,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 Set this after Brownfield Review. Do not assume the full gate chain before the existing-system impact is understood.
 Quick Task execution or implementation is not allowed until this decision is visible with scope reason and evidence.
 
-- decision: `undecided | quick_task | structured_slice | structured_delivery | block`
+- decision: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`
 - required_next_gate: `none | PRD | SD | TP | Brownfield Analysis`
 - scope_reason:
 - evidence:

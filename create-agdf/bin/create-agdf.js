@@ -514,9 +514,10 @@ function installOpenCodeGlobalPlugin(configDir) {
   if (!nextConfig.instructions.includes("AGDF.md")) nextConfig.instructions.push("AGDF.md");
 
   if (nextConfig.permission === undefined) {
-    nextConfig.permission = { skill: { "agdf-*": "allow" } };
+    nextConfig.permission = { question: "allow", skill: { "agdf-*": "allow" } };
   } else if (nextConfig.permission && typeof nextConfig.permission === "object" && !Array.isArray(nextConfig.permission)) {
     nextConfig.permission = { ...nextConfig.permission };
+    if (nextConfig.permission.question === undefined) nextConfig.permission.question = "allow";
     if (nextConfig.permission.skill === undefined) {
       nextConfig.permission.skill = { "agdf-*": "allow" };
     } else if (nextConfig.permission.skill && typeof nextConfig.permission.skill === "object" && !Array.isArray(nextConfig.permission.skill)) {
@@ -1165,7 +1166,7 @@ function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOp
   }
   if (target === "opencode-repo") {
     if (wroteOpenCodeConfigFragment) {
-      console.log(`- Existing opencode.json detected. Merge ${openCodeConfigFragmentPath} into your current opencode.json so OpenCode loads .opencode/AGDF.md.`);
+      console.log(`- Existing opencode.json detected. Review ${openCodeConfigFragmentPath} and merge its owned entries so OpenCode loads .opencode/AGDF.md; preserve an explicit permission.question decision.`);
     }
     console.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
     console.log("- Optional: also add create-agdf to ~/.config/opencode/opencode.json plugin[] for a user-wide OpenCode hook.");

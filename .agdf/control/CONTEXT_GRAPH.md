@@ -40,6 +40,16 @@
 - risks: the allow-list could miss a future normative location added under a new subdirectory — mitigated by the fail-closed default rather than assumed coverage; a prose-only version of this boundary would have been a scope-creep loophole, which is why it was rejected during Brownfield Review/PRD in favor of the explicit path list. The same scope-creep-loophole risk applies to Verified Change and is mitigated by its durable record, candidate-clean baseline and automatic structured escalation; unrelated pre-existing dirty paths are isolated by the baseline rather than treated as permission or failure.
 - exit_criteria: Runtime Contract wording, generated Codex/Copilot/OpenCode surface copies (Claude reads `plugin/` directly, no separate copy) and a genuine worked example (this run's own `README.md` `agdf/` directory-listing fix; and `agdf-self-maintenance-overhead-reduction`'s own `MASTER_BACKLOG.md` `[framework-maintenance]` tag) consistently demonstrate both boundary mechanisms without weakening ceremony for runtime-governing changes.
 
+### CG-NATIVE-INTERACTION-AUTHORITY
+
+- situation: Coding-agent surfaces can present native questions, permission prompts and plan controls, but those host interactions have different authority and must not become interchangeable AGDF approvals.
+- refs: plugin/meta/agdf-runtime-contract.md (`Native Interaction Contract`); plugin/skills/gate-check/SKILL.md (`Native Interaction Path`); plugin/meta/agdf-plugin.definition.json (`interactions`); .agdf/control/artefacts/surface-native-interactions/SD.md
+- evidence: The approved surface-native-interactions design and implementation define one semantic envelope across Codex, Claude Code, OpenCode and exact-text fallback. Runtime integrity, control-state/routing tests, aggregate package smoke, explicit OpenCode missing/allow/deny fixtures, repeated-sync idempotence and Pages check/build passed on 2026-07-14.
+- decision: Native controls are presentation adapters only. Host permission, plan approval, timeout/default behavior, hook output and agent messages are not AGDF gate authority.
+- invariants: only deliberate user input that passes selected-run, current-gate and durable-artefact validation immediately before persistence can become an AGDF approval; exact text remains a universal fallback; explicit user surface permissions are preserved; no native response writes control state directly.
+- risks: host tool schemas and timeout behavior can drift; mitigated by descriptive capability metadata, deterministic integrity/generation tests and fail-closed textual fallback.
+- exit_criteria: canonical/runtime and generated-surface tests pass for all declared adapters, OpenCode explicit allow/deny preservation is proven, and QA confirms that supporting live probes are not presented as gate-enforcement evidence.
+
 ## Retired Context Nodes
 
 | Node | Reason | Replacement |

@@ -57,10 +57,40 @@
     "instructionsFileName": "AGDF.md",
     "npmPackage": "create-agdf",
     "permissions": {
+      "question": "allow",
       "edit": "ask",
       "bash": "ask",
       "skill": {
         "agdf-*": "allow"
+      }
+    }
+  },
+  "interactions": {
+    "fallback": "exact_text",
+    "surfaces": {
+      "codex": {
+        "questionAdapter": "request_user_input",
+        "availability": "when_callable",
+        "gateSafety": "omit_auto_resolution",
+        "technicalPermissionOwner": "codex_host"
+      },
+      "claude": {
+        "questionAdapter": "AskUserQuestion",
+        "availability": "when_no_auto_continue_timeout",
+        "gateSafety": "no_timeout_or_hook_supplied_answer",
+        "technicalPermissionOwner": "claude_host"
+      },
+      "opencode": {
+        "questionAdapter": "question",
+        "availability": "when_permission_question_allows",
+        "gateSafety": "preserve_explicit_deny",
+        "technicalPermissionOwner": "opencode_host"
+      },
+      "fallback": {
+        "questionAdapter": "exact_text",
+        "availability": "always",
+        "gateSafety": "wait_for_deliberate_user_input",
+        "technicalPermissionOwner": "host_specific"
       }
     }
   },

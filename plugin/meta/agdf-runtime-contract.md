@@ -268,6 +268,58 @@ section or any other existing line.
 - `release-or` reports the run, but does not replace QA or produce the operative commit/PR handoff.
 - `delivery-closeout` owns the operative Git handoff text when QA/OR/UAT state allows it.
 
+## Native Interaction Contract
+
+Native host controls improve how a decision is presented; they do not create a second approval model or authority source.
+
+Every AGDF interaction belongs to exactly one semantic kind:
+
+- `clarification`: asks for missing intent or a choice that does not itself authorize a gated transition.
+- `tool_permission`: requests host-owned authority for a command, file change, network access, external path, app action or comparable technical side effect.
+- `gate_approval`: requests deliberate user input for the one current AGDF user gate after its durable artefact and selected run are ready.
+
+The semantic interaction envelope is:
+
+```text
+interaction_kind: clarification | tool_permission | gate_approval
+surface: codex | claude | opencode | fallback
+run_id: required for gate_approval
+current_gate: required for gate_approval
+prompt: required
+options: required for a structured question
+effects: required when the interaction can cause side effects
+required_evidence: required for gate_approval
+auto_resolution: forbidden for gate_approval
+response_origin: deliberate_user_input for gate_approval
+```
+
+This envelope is not a new persisted record. The selected canonical `RUN_STATE.md` and existing artefact chain remain the durable authority.
+
+Before presenting `gate_approval`, the agent must:
+
+1. resolve exactly one selected run;
+2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
+3. ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` plus bounded revise and cancel/decline outcomes;
+4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
+5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
+6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
+7. persist an accepted approval only through the existing control-state workflow.
+
+A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. Revise, decline and cancel outcomes never advance a gate.
+
+Surface adapter rules:
+
+| Surface | Native question adapter | Gate-safe use | Technical permission boundary |
+|---|---|---|---|
+| Codex | native `request_user_input` or equivalent short-question control when callable | one gate question; omit auto-resolution; otherwise use exact text | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
+| Claude Code | `AskUserQuestion` | use only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; otherwise use exact text | Claude permissions and `ExitPlanMode` are not AGDF approval. |
+| OpenCode | built-in `question` | use with exact approval/revise/cancel options when `permission.question` permits it; explicit user deny selects exact-text fallback | `once`, `always`, `reject`, permission suggestions and auto mode are technical outcomes only. |
+| Fallback or non-interactive | concise exact text | wait for a new explicit user response; never synthesize or auto-resolve one | Host-specific technical permission remains separate. |
+
+Native structured questions are for real decision points. Prefer repository inspection over clarification and do not show them for status reporting, discoverable facts, routine read-only work or repeated non-ready gate prompts.
+
+Exact textual approvals remain canonical and fully supported on every surface. If native capability availability or safety is unknown, use the textual fallback. Host permission, plan approval, native question presentation, timeout/default behavior, hook output and agent messages never carry AGDF gate authority by themselves.
+
 ## Brownfield Review After G-00
 
 After an approved and durable UR, perform a lightweight `Brownfield Review` before PRD when Brownfield, UI, UX, admin, runtime, policy, persistence, architecture, ownership or source-of-truth impact is possible.

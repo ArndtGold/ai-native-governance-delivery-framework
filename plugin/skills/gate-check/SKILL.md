@@ -52,6 +52,32 @@ npx --yes @agdf/cli@latest delivery-map --json
 
 The CLI reports are validators and JSON evidence, not the primary user experience, not a required ritual for normal work and not a second rule system. If a report says `blocked`, do not continue with later-gate artefacts until the reported blocker is resolved.
 
+## Native Interaction Path
+
+Use the Runtime Contract's Native Interaction Contract to classify every candidate interaction as `clarification`, `tool_permission` or `gate_approval` before selecting a host control.
+
+Prefer inspection over asking. Do not invoke a structured question for status reporting, facts available in the repository, routine read-only work or a gate that is not ready. Do not repeatedly prompt for the same non-ready gate.
+
+For a ready `gate_approval`:
+
+1. Resolve exactly one selected run and evaluate the current gate.
+2. Confirm the required durable artefact is present and ready before presenting a question.
+3. Ask exactly one question that names the selected `run_id` and `current_gate`.
+4. Offer the exact approving option `Approval: <GateName>` plus bounded revise and cancel/decline outcomes.
+5. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution; otherwise request the same exact approval in concise text.
+6. Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence.
+7. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
+8. Persist accepted input only through the existing control-state workflow.
+
+Surface behavior:
+
+- Codex: use the native short-question/request-user-input control when callable, ask one gate question and omit auto-resolution.
+- Claude Code: use `AskUserQuestion` only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; otherwise use exact text. Claude permissions and `ExitPlanMode` remain separate.
+- OpenCode: use built-in `question` when permitted. Preserve explicit `permission.question` denial and use exact text in that case. `once`, `always`, `reject` and auto mode never become gate input.
+- Other, unavailable or non-interactive surfaces: use exact textual approval and wait for a new explicit user response.
+
+A free-form response must still exactly match the current gate's approval formula after revalidation. Revise, decline and cancel never advance the gate. Native presentation, host permission and plan approval are inputs or separate authority domains, never durable AGDF authority.
+
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.
 2. The earliest blocking gate wins.
@@ -72,6 +98,7 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 17. If multiple active scopes are plausible, list the evidenced competing lines and keep the current step at scope clarification or the earliest common safe gate.
 18. When maintaining `MASTER_BACKLOG.md`, use its canonical compact columns, readable status labels and document-relative Markdown links. Do not expose raw long paths or internal snake_case statuses in the human-facing table. The canonical status/artefact label vocabulary is defined in the AGDF control scaffold's `MASTER_BACKLOG.md` template Rules section; do not invent other labels.
 19. Preserve legacy backlog compatibility through the CLI parser; do not create a second surface-specific backlog format.
+20. Native interaction must follow the Runtime Contract's interaction envelope, readiness check, deliberate-user-input requirement and post-response revalidation boundary.
 
 ## Gate Evaluation
 

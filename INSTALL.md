@@ -38,6 +38,8 @@ Codex is the primary plugin-packaging surface for AGDF.
 OpenCode is the reference runtime for showing how AGDF can combine repository instructions, native skills, permission gates and plugins in one target surface.
 The AGDF control model itself is surface-neutral and is reused for Claude Code, GitHub Copilot and OpenCode.
 
+At a real decision point, AGDF may present a native structured question: Codex uses its short-question control when callable, Claude Code can use `AskUserQuestion` only without auto-continue authority, and OpenCode uses its built-in `question` tool. These controls improve presentation only. Exact textual approvals remain supported, and AGDF revalidates the selected run, current gate and durable artefact before persisting an approval. Command/edit/network permissions, Claude plan approval and OpenCode permission or auto-mode outcomes never count as AGDF gate approval.
+
 Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
 
 ## Delivery Path Search
@@ -423,6 +425,7 @@ opencode.json
   "plugin": ["create-agdf"],
   "instructions": [".opencode/AGDF.md"],
   "permission": {
+    "question": "allow",
     "edit": "ask",
     "bash": "ask",
     "skill": {
@@ -445,17 +448,17 @@ The global install updates `~/.config/opencode/opencode.json` and generates the 
 {
   "plugin": ["create-agdf"],
   "instructions": ["AGDF.md"],
-  "permission": { "skill": { "agdf-*": "allow" } }
+  "permission": { "question": "allow", "skill": { "agdf-*": "allow" } }
 }
 ```
 
 The global plugin and native skills do not replace repository instructions or durable control files. Global skills fail closed when the current repository has no AGDF surface. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
 
-If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Merge its `plugin` and `instructions` entries into the existing OpenCode config so OpenCode loads the AGDF npm plugin and `.opencode/AGDF.md`.
+If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Review and merge its owned `plugin`, `instructions` and permission entries so OpenCode loads the AGDF npm plugin, `.opencode/AGDF.md` and the native `question` tool. Preserve an explicit user `permission.question` decision; `deny` selects AGDF's exact-text fallback.
 
 OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json` or, optionally, the same npm plugin declared in global OpenCode config. Project skills use the canonical `agdf-` prefix; global adapters use `agdf-global-` because OpenCode does not prefer a same-named project skill over a global skill.
 
-OpenCode also makes AGDF's control story visible at runtime: global `AGDF.md` and `skills/agdf-global-*/` provide discoverability, while repository `.opencode/AGDF.md` carries the active rules, `.opencode/skills/agdf-*/` carries repository adapters, `.agdf/control/` remains authoritative, and `permission.edit`/`permission.bash` stay on `ask`.
+OpenCode also makes AGDF's control story visible at runtime: global `AGDF.md` and `skills/agdf-global-*/` provide discoverability, while repository `.opencode/AGDF.md` carries the active rules, `.opencode/skills/agdf-*/` carries repository adapters, `.agdf/control/` remains authoritative, `permission.question` enables native presentation, and `permission.edit`/`permission.bash` stay on `ask`. OpenCode permission results and auto mode remain technical controls, not AGDF gate authority.
 
 The generated `.opencode/skills/agdf-*/SKILL.md` files are discovered and loaded through OpenCode's native `skill` tool. They remain generated from the canonical AGDF skills and do not introduce a parallel OpenCode-only policy owner.
 

@@ -385,8 +385,9 @@ try {
     throw new Error("opencode-status must prove the complete global native OpenCode skill surface.");
   }
   if (!openCodeGlobalConfig.instructions?.includes("AGDF.md")
+    || openCodeGlobalConfig.permission?.question !== "allow"
     || openCodeGlobalConfig.permission?.skill?.["agdf-*"] !== "allow") {
-    throw new Error("opencode must add the owned global AGDF instructions and explicit skill permission.");
+    throw new Error("opencode must add the owned global AGDF instructions, native question permission and explicit skill permission.");
   }
   if (!existsSync(join(openCodeConfigTempDir, "AGDF.md"))
     || !existsSync(join(openCodeConfigTempDir, "agdf-runtime-contract.md"))) {
@@ -462,6 +463,7 @@ try {
   const preservedConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
   if (!preservedConfig.plugin.includes("user-plugin") || !preservedConfig.instructions.includes("user.md")
     || preservedConfig.permission.edit !== "ask" || preservedConfig.permission.bash !== "ask"
+    || preservedConfig.permission.question !== "allow"
     || preservedConfig.permission.skill["user-*"] !== "deny" || !preservedConfig.permission.skill["agdf-*"]) {
     throw new Error("opencode global install must preserve unrelated config and add only owned entries.");
   }
@@ -488,6 +490,26 @@ try {
     throw new Error("opencode registry migration must remain loadable after the legacy npx-cache source is removed.");
   }
   rmSync(tempDir, { recursive: true, force: true });
+}
+
+for (const explicitQuestionDecision of ["allow", "deny"]) {
+  const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-opencode-question-${explicitQuestionDecision}-`));
+  try {
+    writeFileSync(join(tempDir, "opencode.json"), JSON.stringify({
+      "$schema": "https://opencode.ai/config.json",
+      permission: { question: explicitQuestionDecision },
+    }, null, 2), "utf8");
+    runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+    const config = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
+    if (config.permission.question !== explicitQuestionDecision) {
+      throw new Error(`opencode global install must preserve explicit question ${explicitQuestionDecision}.`);
+    }
+    if (config.permission.skill?.["agdf-*"] !== "allow") {
+      throw new Error("opencode global install must add its owned skill permission beside an explicit question decision.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 }
 
 {
@@ -667,8 +689,9 @@ function run(target, expectedFiles) {
       }
       if (openCodeConfig.permission?.edit !== "ask"
         || openCodeConfig.permission?.bash !== "ask"
+        || openCodeConfig.permission?.question !== "allow"
         || openCodeConfig.permission?.skill?.["agdf-*"] !== "allow") {
-        throw new Error("OpenCode config must keep edit and bash on explicit approval and explicitly allow native AGDF skills.");
+        throw new Error("OpenCode config must allow native questions, keep edit and bash on explicit approval and explicitly allow native AGDF skills.");
       }
 
       const openCodeInstructions = readFileSync(join(tempDir, ".opencode", "AGDF.md"), "utf8");
@@ -683,6 +706,10 @@ function run(target, expectedFiles) {
       }
       if (!openCodeInstructions.includes("loaded on demand through OpenCode's native `skill` tool") || openCodeInstructions.includes("mode: subagent")) {
         throw new Error("OpenCode instructions must expose native skills without retaining the legacy subagent route.");
+      }
+      if (!openCodeInstructions.includes("explicit user `permission.question: deny` remains authoritative")
+        || !openCodeInstructions.includes("never convert an OpenCode permission outcome or auto mode into gate approval")) {
+        throw new Error("OpenCode instructions must preserve explicit question denial and separate technical permission from gate approval.");
       }
 
       for (const skillName of openCodeSkillNames) {
@@ -901,16 +928,23 @@ run("opencode-repo", [
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-existing-config-"));
 
   try {
-    writeFileSync(join(tempDir, "opencode.json"), '{\n  "$schema": "https://opencode.ai/config.json"\n}\n', "utf8");
-    execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir], { stdio: "pipe" });
+    writeFileSync(join(tempDir, "opencode.json"), '{\n  "$schema": "https://opencode.ai/config.json",\n  "permission": { "question": "deny" }\n}\n', "utf8");
+    const output = execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
 
     if (!existsSync(join(tempDir, "opencode.agdf.json"))) {
       throw new Error("OpenCode target should write opencode.agdf.json when opencode.json already exists.");
     }
 
-    const existingConfig = readFileSync(join(tempDir, "opencode.json"), "utf8");
-    if (existingConfig.includes(".opencode/AGDF.md")) {
-      throw new Error("OpenCode target must not overwrite an existing opencode.json without --force.");
+    const existingConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
+    const fragmentConfig = JSON.parse(readFileSync(join(tempDir, "opencode.agdf.json"), "utf8"));
+    if (existingConfig.instructions?.includes(".opencode/AGDF.md") || existingConfig.permission.question !== "deny") {
+      throw new Error("OpenCode target must not overwrite an existing opencode.json or its explicit question denial without --force.");
+    }
+    if (fragmentConfig.permission?.question !== "allow") {
+      throw new Error("OpenCode AGDF config fragment must declare the native question default for reviewed merge.");
+    }
+    if (!output.includes("preserve an explicit permission.question decision")) {
+      throw new Error("OpenCode existing-config guidance must preserve explicit question decisions.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

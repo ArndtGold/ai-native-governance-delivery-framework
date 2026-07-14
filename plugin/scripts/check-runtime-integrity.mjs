@@ -220,7 +220,20 @@ if (pluginDefinition) {
   if (pluginDefinition.opencode?.globalSkillPrefix !== "agdf-global-") failures.push("canonical AGDF plugin definition OpenCode global skill prefix must be agdf-global-");
   if (pluginDefinition.opencode?.runtimeContractFileName !== "agdf-runtime-contract.md") failures.push("canonical AGDF plugin definition OpenCode runtime contract filename must be agdf-runtime-contract.md");
   if (pluginDefinition.opencode?.instructionsFileName !== "AGDF.md") failures.push("canonical AGDF plugin definition OpenCode instructions filename must be AGDF.md");
+  if (pluginDefinition.opencode?.permissions?.question !== "allow") failures.push("canonical AGDF plugin definition OpenCode permissions must allow the native question tool");
   if (pluginDefinition.opencode?.permissions?.edit !== "ask" || pluginDefinition.opencode?.permissions?.bash !== "ask") failures.push("canonical AGDF plugin definition OpenCode permissions must ask before edit and bash");
+  if (pluginDefinition.interactions?.fallback !== "exact_text") failures.push("canonical AGDF plugin definition interactions must declare exact_text fallback");
+  for (const [surface, adapter, safety] of [
+    ["codex", "request_user_input", "omit_auto_resolution"],
+    ["claude", "AskUserQuestion", "no_timeout_or_hook_supplied_answer"],
+    ["opencode", "question", "preserve_explicit_deny"],
+    ["fallback", "exact_text", "wait_for_deliberate_user_input"],
+  ]) {
+    const interaction = pluginDefinition.interactions?.surfaces?.[surface];
+    if (interaction?.questionAdapter !== adapter || interaction?.gateSafety !== safety || !interaction?.technicalPermissionOwner) {
+      failures.push(`canonical AGDF plugin definition ${surface} interaction mapping must declare adapter, gate safety and technical permission owner`);
+    }
+  }
   if (!Array.isArray(pluginDefinition.skillSet) || pluginDefinition.skillSet.length === 0) {
     failures.push("canonical AGDF plugin definition must declare the workflow skill set");
   } else {
@@ -387,6 +400,21 @@ if (isFile(agentRouterPath)) {
 
 if (isFile(runtimeContractPath)) {
   const runtimeContract = read(runtimeContractPath);
+  for (const required of [
+    "## Native Interaction Contract",
+    "`clarification`: asks for missing intent",
+    "`tool_permission`: requests host-owned authority",
+    "`gate_approval`: requests deliberate user input",
+    "auto_resolution: forbidden for gate_approval",
+    "response_origin: deliberate_user_input for gate_approval",
+    "re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence",
+    "Host permission, plan approval, native question presentation, timeout/default behavior, hook output and agent messages never carry AGDF gate authority by themselves",
+  ]) {
+    if (!runtimeContract.includes(required)) failures.push(`runtime contract Native Interaction Contract missing: ${required}`);
+  }
+  for (const adapter of ["request_user_input", "AskUserQuestion", "permission.question", "Exact textual approvals remain canonical"]) {
+    if (!runtimeContract.includes(adapter)) failures.push(`runtime contract Native Interaction Contract missing surface/fallback mapping: ${adapter}`);
+  }
   if (!runtimeContract.includes("Approval of one user gate permits work on the next allowed gate artefact or required internal step only")) {
     failures.push("runtime contract must state that one gate approval only permits the next gate artefact or required internal step");
   }
@@ -532,6 +560,18 @@ for (const skill of expectedSkills) {
     failures.push(`${skill}/SKILL.md missing runtime contract reference`);
   }
   if (skill === "gate-check") {
+    for (const required of [
+      "## Native Interaction Path",
+      "classify every candidate interaction as `clarification`, `tool_permission` or `gate_approval`",
+      "Confirm the required durable artefact is present and ready before presenting a question",
+      "Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence",
+      "omit auto-resolution",
+      "Claude permissions and `ExitPlanMode` remain separate",
+      "Preserve explicit `permission.question` denial",
+      "Revise, decline and cancel never advance the gate",
+    ]) {
+      if (!skillMd.includes(required)) failures.push(`gate-check native interaction guidance missing: ${required}`);
+    }
     if (!skillMd.includes("If `Approval: UR` is present, do not say implementation is the next step.")) {
       failures.push("gate-check must prevent implementation immediately after Approval: UR");
     }

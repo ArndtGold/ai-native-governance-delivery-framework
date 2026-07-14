@@ -163,6 +163,13 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ### AGDF als Plugin mit einem Coding Agent anwenden
 
+Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [@agdf/cli on npm](https://www.npmjs.com/package/@agdf/cli).
+
+Danach kannst du direkt einsteigen:
+
+1. Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md).
+2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
+
 #### Passt AGDF zu Deinem Vorhaben?
 
 AGDF hilft, wenn KI-gestützte Änderungen an bestehenden Systemen nachvollziehbare Entscheidungen zu Scope, Freigaben, Nachweisen oder Zusammenarbeit brauchen. Bei kleinen, risikoarmen oder explorativen Aufgaben kann ein leichterer Arbeitsweg sinnvoller sein als zusätzlicher Governance-Aufwand.
@@ -174,14 +181,6 @@ Assess whether AGDF is proportionate for this repository and request before prop
 ```
 
 Die Einschätzung ist eine Orientierung, keine Freigabe für Umsetzung oder ein Ersatz für menschliche Verantwortung.
-
-Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [@agdf/cli on npm](https://www.npmjs.com/package/@agdf/cli).
-
-Danach kannst du direkt einsteigen:
-
-1. Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md).
-2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
-
 ## Language note
 
 AGDF is German-first by design.

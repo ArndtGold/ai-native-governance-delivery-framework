@@ -69,10 +69,15 @@ For a ready `gate_approval`:
 7. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
 8. Persist accepted input only through the existing control-state workflow.
 
+Make exactly one native-attempt for the ready gate. If the host does not render,
+apply or safely return the native question on that attempt, switch immediately
+to the exact textual approval. Do not ask the user to request the buttons again
+and do not create a retry loop or simulated control.
+
 Surface behavior:
 
-- Codex: use the native short-question/request-user-input control when callable, ask one gate question and omit auto-resolution.
-- Claude Code: use `AskUserQuestion` only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; otherwise use exact text. Claude permissions and `ExitPlanMode` remain separate.
+- Codex: invoke the native short-question/request-user-input control on the first eligible attempt when callable, ask one gate question and omit auto-resolution; if it is not rendered or applied, use exact text immediately.
+- Claude Code: invoke `AskUserQuestion` on the first eligible attempt only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if it is not rendered or applied, use exact text immediately. Claude permissions and `ExitPlanMode` remain separate.
 - OpenCode: use built-in `question` when permitted. Preserve explicit `permission.question` denial and use exact text in that case. `once`, `always`, `reject` and auto mode never become gate input.
 - Other, unavailable or non-interactive surfaces: use exact textual approval and wait for a new explicit user response.
 

@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: surface-native-interactions
-- lifecycle: active
-- revision: 10
-- revision_id: 6b2f823b-b97d-4c14-b61c-a34f086ce16c
+- lifecycle: completed
+- revision: 11
+- revision_id: 88B5DE46-B884-4F0B-AC00-BDD295794F73
 - mode: structured_slice
-- current_gate: UAT
-- decision: in_progress
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -20,10 +20,10 @@ Add a portable AGDF interaction layer that uses native Codex, Claude Code and Op
 
 | Question | Answer |
 |---|---|
-| What is known? | UR, PRD, SD, TP and QA are approved; Brownfield Analysis, CD+Tests and all mandatory reviews are done. QA decision is pass with strong deterministic AC-01 through AC-18 evidence; SNI-14 remains partial only for supporting interactive UI observations. |
-| What is approved? | UR, PRD, SD, TP and valid post-report QA approval, all on 2026-07-14. |
-| What is missing? | Exact `Approval: UAT`. |
-| What is the next allowed action? | Review the persisted UAT scope and provide or withhold exact `Approval: UAT`. |
+| What is known? | UR, PRD, SD, TP, QA and UAT are approved; Brownfield Analysis, CD+Tests and all mandatory reviews are done. QA decision is pass with strong deterministic AC-01 through AC-18 evidence; SNI-14 remains partial only for supporting interactive UI observations. |
+| What is approved? | UR, PRD, SD, TP, valid post-report QA approval and `Approval: UAT`, all on 2026-07-14. |
+| What is missing? | Delivery Orchestration Report; explicit delivery authorization if desired. |
+| What is the next allowed action? | Produce the Orchestration Report and offer delivery closeout. |
 | What is explicitly forbidden right now? | Release and VCS delivery actions; any parallel interaction policy, custom approval persistence or automatic overwrite of user-owned configuration. |
 
 ## Source And Scope State
@@ -39,12 +39,12 @@ Add a portable AGDF interaction layer that uses native Codex, Claude Code and Op
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UAT |
-| Allowed now | Review the UAT scope and provide or withhold exact UAT approval |
+| Status | OR ready |
+| Current gate | OR |
+| Allowed now | Produce the Orchestration Report and offer delivery closeout |
 | Blocked by | none |
-| Missing approval | `Approval: UAT` |
-| Next step | Review the UAT report and provide `Approval: UAT` if accepted |
+| Missing approval | none |
+| Next step | Produce the Orchestration Report; commit, push, PR and release require separate explicit instruction |
 | Quality outlook | Preserve one canonical interaction contract and prove each surface mapping without coupling AGDF to host-owned UI internals |
 
 ## Approvals
@@ -56,7 +56,7 @@ Add a portable AGDF interaction layer that uses native Codex, Claude Code and Op
 | SD | approved | Valid post-artefact `Approval: SD` provided on 2026-07-14 |
 | TP | approved | Valid post-artefact `Approval: TP` provided on 2026-07-14 |
 | QA | approved | Valid post-report `Approval: QA` provided on 2026-07-14 |
-| UAT | missing | Blocked by UR |
+| UAT | approved | `Approval: UAT` provided on 2026-07-14 |
 
 ## Artefacts
 
@@ -72,6 +72,7 @@ Add a portable AGDF interaction layer that uses native Codex, Claude Code and Op
 | CD+Tests | .agdf/control/artefacts/surface-native-interactions/CD_TESTS.md | done | SNI-01 through SNI-14 delivered; SNI-15 review inputs prepared; focused and aggregate tests pass |
 | CR | .agdf/control/artefacts/surface-native-interactions/CODE_REVIEW.md | done | TP Review pass_with_disclosure; Clean Review pass; Code Review pass with no findings |
 | QA | .agdf/control/artefacts/surface-native-interactions/QA_REPORT.md | passed | QA gate decision pass and exact QA approval recorded |
+| UAT | .agdf/control/artefacts/surface-native-interactions/UAT_REPORT.md | approved | Exact `Approval: UAT` provided on 2026-07-14; SNI-14 live UI limitation accepted as disclosed supporting evidence gap |
 
 ## Mode/Slice Decision
 
@@ -102,6 +103,7 @@ Add a portable AGDF interaction layer that uses native Codex, Claude Code and Op
 | CR | reviews | CD+Tests | Pass; no correctness, security, compatibility or maintainability findings |
 | QA_REPORT | tests | TP | Pass decision based on deterministic AC-01 through AC-18 evidence and disclosed supporting UI limitation |
 | QA_REPORT | approved_by | `Approval: QA` | Valid post-report approval provided on 2026-07-14 |
+| UAT_REPORT | approved_by | `Approval: UAT` | Exact approval provided on 2026-07-14 |
 
 ## Evidence
 
@@ -125,5 +127,8 @@ Add a portable AGDF interaction layer that uses native Codex, Claude Code and Op
 
 ## Closeout
 
-- next_allowed_action: Review the persisted UAT scope and obtain exact `Approval: UAT`.
-- quality_outlook: Preserve one canonical interaction contract and prove each surface mapping without coupling AGDF to host-owned UI internals.
+- delivered: Canonical cross-surface interaction contract, adapter mappings, fail-closed gate rules, generated propagation, OpenCode permission preservation, deterministic tests and Context Graph authority invariant.
+- not_delivered: Authenticated live native-UI probes, custom host UI, commit, push, PR or release.
+- verification_performed: TP Review, Clean Implementation Review, Code Review, QA, UAT, selected-run gate-check and doctor with zero findings.
+- next_allowed_action: Offer delivery closeout; VCS and release actions require separate explicit instruction.
+- quality_outlook: Contract and deterministic evidence are complete; authenticated live UI observation remains optional supporting follow-up.

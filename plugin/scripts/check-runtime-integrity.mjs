@@ -12,6 +12,7 @@ const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
 const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
+const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
 const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const codexComposerIconPath = join(pluginRoot, "assets", "agdf-icon.svg");
@@ -199,11 +200,20 @@ if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath
 }
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
+const runtimeContract = isFile(runtimeContractPath) ? read(runtimeContractPath) : "";
+const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
 const agdfPackage = isFile(agdfPackagePath) ? readJson(agdfPackagePath, "agdf CLI package manifest") : null;
 const createAgdfPackage = isFile(createAgdfPackagePath) ? readJson(createAgdfPackagePath, "create-agdf package manifest") : null;
 const pagesPackage = isFile(pagesPackagePath) ? readJson(pagesPackagePath, "Pages package manifest") : null;
+
+if (!runtimeContract.includes("first eligible native-attempt") || !runtimeContract.includes("does not trigger a second")) {
+  failures.push("Native Interaction Contract must require a single first native attempt with no retry");
+}
+if (!gateCheckSkill.includes("Make exactly one native-attempt") || !gateCheckSkill.includes("switch immediately")) {
+  failures.push("gate-check skill must require immediate exact-text fallback after an unsuccessful native attempt");
+}
 
 if (pluginDefinition) {
   if (pluginDefinition.id !== "agdf") failures.push("canonical AGDF plugin definition id must be agdf");

@@ -1,6 +1,6 @@
 # UAT Report: Surface-Native AGDF Interactions
 
-Status: awaiting_approval
+Status: approved
 Gate: UAT
 Based on: approved `QA_REPORT.md`
 Date: 2026-07-14
@@ -32,11 +32,12 @@ Authenticated interactive Claude native-question behavior and safely automated i
 
 ## UAT Decision
 
-- status: awaiting user decision
-- decision: pending
-- missing_approval: `Approval: UAT`
+- status: approved
+- decision: accepted
+- approval: `Approval: UAT` provided on 2026-07-14
+- missing_approval: none
 - forbidden: commit, push, pull request, release or automatic delivery action
-- required_next_step: Review the outcome and provide exact `Approval: UAT` only if accepted.
+- required_next_step: Produce the Orchestration Report and offer delivery closeout; VCS and release actions still require explicit instruction.
 
 ## Context Graph
 

@@ -305,14 +305,19 @@ Before presenting `gate_approval`, the agent must:
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
 7. persist an accepted approval only through the existing control-state workflow.
 
+The first eligible native-attempt has a single bounded outcome: the declared
+host control is presented, or the agent immediately uses the exact-text
+fallback. A host that does not apply the control does not trigger a second
+native prompt. AGDF must not simulate or force host-owned presentation.
+
 A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. Revise, decline and cancel outcomes never advance a gate.
 
 Surface adapter rules:
 
 | Surface | Native question adapter | Gate-safe use | Technical permission boundary |
 |---|---|---|---|
-| Codex | native `request_user_input` or equivalent short-question control when callable | one gate question; omit auto-resolution; otherwise use exact text | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
-| Claude Code | `AskUserQuestion` | use only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; otherwise use exact text | Claude permissions and `ExitPlanMode` are not AGDF approval. |
+| Codex | native `request_user_input` or equivalent short-question control when callable | on the first eligible attempt, present one gate question with auto-resolution omitted; if unavailable or not applied, use exact text without retry | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
+| Claude Code | `AskUserQuestion` | on the first eligible attempt, use only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if unavailable or not applied, use exact text without retry | Claude permissions and `ExitPlanMode` are not AGDF approval. |
 | OpenCode | built-in `question` | use with exact approval/revise/cancel options when `permission.question` permits it; explicit user deny selects exact-text fallback | `once`, `always`, `reject`, permission suggestions and auto mode are technical outcomes only. |
 | Fallback or non-interactive | concise exact text | wait for a new explicit user response; never synthesize or auto-resolve one | Host-specific technical permission remains separate. |
 

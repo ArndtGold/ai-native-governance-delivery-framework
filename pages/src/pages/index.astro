@@ -960,7 +960,7 @@ const projectStats = await getProjectStats()
       </a>
     </div>
     <div class="mt-10">
-       <div class="grid gap-4 sm:grid-cols-2">
+       <div class="grid gap-4 lg:grid-cols-3">
           <div>
             <div class="mb-2 text-xm font-medium text-dark-200/50">ChatGPT Codex App (MacOS)</div>
             <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
@@ -968,8 +968,8 @@ const projectStats = await getProjectStats()
                 <img
                   src="/assets/codex-agdf-plugin-ui.png"
                   alt="Codex plugin detail page showing AI Governance and Delivery Framework installed with AGDF skills, hooks and plugin metadata."
-                  width="1450"
-                  height="2200"
+                  width="3284"
+                  height="2354"
                   class="block h-auto w-full cursor-zoom-in"
                   loading="lazy"
                   decoding="async"
@@ -989,8 +989,29 @@ const projectStats = await getProjectStats()
                 <img
                   src="/assets/claude-agdf-plugin-ui.png"
                   alt="Claude Code plugin detail page showing AI Governance and Delivery Framework installed with AGDF skills, hooks and plugin metadata."
-                  width="1450"
-                  height="2200"
+                  width="1930"
+                  height="1386"
+                  class="block h-auto w-full cursor-zoom-in"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
+                <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </span>
+              </button>
+            </figure>
+          </div>
+          <div>
+            <div class="mb-2 text-xm font-medium text-dark-200/50">OpenCode App (macOS)</div>
+            <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
+              <div class="max-h-[46rem] overflow-hidden rounded-lg bg-white">
+                <img
+                  src="/assets/opencode-agdf-plugin-proof.png"
+                  alt="OpenCode showing the active create-agdf plugin in its Plugins panel alongside an AGDF plugin suitability assessment."
+                  width="1618"
+                  height="972"
                   class="block h-auto w-full cursor-zoom-in"
                   loading="lazy"
                   decoding="async"
@@ -1005,7 +1026,7 @@ const projectStats = await getProjectStats()
           </div>
         </div>
         <p class="mt-3 text-sm leading-6 text-dark-200">
-          Screenshots shown as UI examples, not as the release version source of truth. Use the install command and package metadata for the current release.
+          Screenshots show UI examples and observed integration states, not the release version source of truth. Use the install command and package metadata for the current release.
         </p>
       </div>
       <div data-reveal data-reveal-delay="7">

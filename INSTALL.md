@@ -1,18 +1,41 @@
 # Installation and Setup
 
+Install AGDF for the coding-agent surface where you work. The installation provides the appropriate plugin, native skills or repository files; it does not automatically approve work or replace product ownership, engineering judgement, security review, tests or human acceptance.
+
+## Choose your installation path
+
+Before running a command, install Node.js 18 or later with npm and the selected agent runtime. Run repository-local commands inside the target Git repository, not inside this AGDF repository.
+
+| Need | Command | Scope and verification | First safe action |
+|---|---|---|---|
+| Codex available in your personal environment | `npx --yes @agdf/cli@latest codex` | Installs or updates the global plugin and verifies its version through the Codex CLI. | Start a new Codex task and ask: `Run an AGDF gate check for this request.` |
+| Codex only for one repository | `npx --yes @agdf/cli@latest codex-repo` | Writes the local marketplace and plugin files; restart Codex, open `/plugins`, select **This repository**, then install `agdf`. | Start a new task in that repository and ask for a gate check. |
+| Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after restart. | Use `/gate-check` for new build or change intent. |
+| OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Install the repository surface before expecting governance to be active. |
+| OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes repository instructions, native skills, permissions and control templates. Re-run `opencode-status --json` from that repository. | Load `agdf-gate-check` through OpenCode's native skill tool. |
+| GitHub Copilot | `npm create agdf@latest -- copilot` | Writes repository instructions, visible skills and control templates. Verify with `/instructions`. | Start a repository task; AGDF instructions and skills are then visible to Copilot. |
+
+The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own AGDF instructions and control state.
+
+### Update, disable or remove
+
+Re-run the relevant installation command to update an installed AGDF surface. There is currently no AGDF-specific remove or disable command. For opt-out or removal, use the selected agent's native plugin/configuration management and review user-owned repository files before changing them; do not treat generated fragments as authorization to delete existing user configuration.
+
+## Advanced planning and runtime reference
+
 AGDF supports four usage surfaces:
 
 1. **Codex** through the installable plugin manifest in `plugin/.codex-plugin/plugin.json`
 2. **Claude Code** through the installable plugin in `plugin/`
 3. **GitHub Copilot** through generated repository files because Copilot does not currently consume the AGDF plugin package
-4. **OpenCode** through repository instructions, generated agents, permissions and the `create-agdf` npm plugin
+4. **OpenCode** through repository instructions, generated native skills, permissions and the `create-agdf` npm plugin
 
 Codex and Claude Code consume AGDF as an installable plugin runtime.
 GitHub Copilot consumes AGDF through an `AGENTS.md` bootstrap and visible repository skills.
-OpenCode consumes AGDF through AGENTS-style instructions, generated agents, explicit permissions and npm plugin hooks.
+OpenCode consumes AGDF through AGENTS-style instructions, generated native skills, explicit permissions and npm plugin hooks.
 
 Codex is the primary plugin-packaging surface for AGDF.
-OpenCode is the reference runtime for showing how AGDF can combine repository instructions, agents, permission gates and plugins in one target surface.
+OpenCode is the reference runtime for showing how AGDF can combine repository instructions, native skills, permission gates and plugins in one target surface.
 The AGDF control model itself is surface-neutral and is reused for Claude Code, GitHub Copilot and OpenCode.
 
 Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
@@ -138,17 +161,9 @@ This avoids drift between:
 - website documentation
 - examples and test prompts
 
-## Prerequisites
+## Detailed surface setup
 
-- Node.js 18 or later and npm installed (npm bundles `npx`). Check with
-  `node -v` and `npm -v`. If either fails, install Node.js first:
-  `winget install OpenJS.NodeJS.LTS` (Windows), `brew install node`
-  (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS
-  installer from https://nodejs.org on any OS.
-- For **Codex**: Codex CLI or the Codex app with plugin support
-- For **GitHub Copilot**: GitHub Copilot CLI or the Copilot Coding Agent
-- For **Claude Code**: Claude Code CLI
-- Run bootstrap commands inside the target Git repository, not inside this AGDF repository
+Prerequisites: Node.js 18 or later and npm (`node -v`, `npm -v`), plus the selected runtime: Codex CLI or Codex app with plugin support, Claude Code CLI, OpenCode, or GitHub Copilot CLI/Coding Agent. If Node.js is missing, install it with `winget install OpenJS.NodeJS.LTS` (Windows), `brew install node` (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS installer from https://nodejs.org.
 
 ## Codex
 
@@ -368,11 +383,21 @@ Run this once when you want OpenCode to load the AGDF npm plugin as a user-wide 
 npx --yes @agdf/cli@latest opencode
 ```
 
+Verify the global installation, then restart OpenCode so an already-running app loads the updated plugin configuration:
+
+```bash
+npx --yes @agdf/cli@latest opencode-status --json
+```
+
+Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
+
 Then run this inside each target Git repository you want to equip with AGDF governance files for OpenCode:
 
 ```bash
 npx --yes @agdf/cli@latest opencode-repo
 ```
+
+Run the same status command from that repository. The repository surface should be present and the visible entrypoint should name `agdf-gate-check (native skill)`; then load that skill for new build or change intent.
 
 This writes:
 

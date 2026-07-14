@@ -163,6 +163,18 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ### AGDF als Plugin mit einem Coding Agent anwenden
 
+#### Passt AGDF zu Deinem Vorhaben?
+
+AGDF hilft, wenn KI-gestützte Änderungen an bestehenden Systemen nachvollziehbare Entscheidungen zu Scope, Freigaben, Nachweisen oder Zusammenarbeit brauchen. Bei kleinen, risikoarmen oder explorativen Aufgaben kann ein leichterer Arbeitsweg sinnvoller sein als zusätzlicher Governance-Aufwand.
+
+Prüfe die Eignung vor Installation oder gesteuerter Umsetzung mit diesem Prompt:
+
+```text
+Assess whether AGDF is proportionate for this repository and request before proposing any implementation. Explain AGDF's purpose and practical benefits, weigh governance overhead against the project's delivery risk, and recommend the lightest suitable path — or explicitly advise against AGDF where it would add more process than value.
+```
+
+Die Einschätzung ist eine Orientierung, keine Freigabe für Umsetzung oder ein Ersatz für menschliche Verantwortung.
+
 Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [@agdf/cli on npm](https://www.npmjs.com/package/@agdf/cli).
 
 Danach kannst du direkt einsteigen:

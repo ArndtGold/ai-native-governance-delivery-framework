@@ -83,6 +83,8 @@ When a run needs an operational status view, use the Run Status Card as a compac
 It must not introduce a second gate model or override `gate-check`, `delivery-map`, QA, OR, or user approvals.
 
 - `mode`: `quick_task | verified_change | structured_delivery | unknown`
+- `run_id`: the exactly selected canonical run
+- `presentation_language`: `de | en`, with unsupported or absent chat language resolved to `en`
 - `status`: `open | blocked | pass | warn | revise | block | in_progress`
 - `current_gate`: current user gate or internal step
 - `mode_slice_decision`: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`
@@ -92,6 +94,10 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 - `missing_approval`: exact missing approval formula or `none`
 - `next_gate_after_approval`: the next user gate or internal step unlocked by the missing approval, or `none`
 - `allowed_after_approval`: concise description of what becomes allowed after the missing approval, or `none`
+- `user_visible_outcome_after_approval`: concise user-facing result of approving the current gate
+- `internal_next_step`: the next agent-controlled process step, or `none`
+- `next_user_gate`: the next actual user approval gate, or `none`
+- `user_action_required`: `yes` only when the user must provide another deliberate approval or decision; otherwise `no`
 - `evidence`: concrete evidence references currently visible
 - `next_skill`: next AGDF skill or `none`
 - `next_step`: the single next permissible process action
@@ -138,6 +144,56 @@ Run Status Card. Keep that card compact: show `Status`, `Current gate`,
 and `Allowed after approval` when a missing approval exists, `Next step` and
 `Quality outlook`. Keep mode, forbidden actions, evidence and next-skill detail
 in the surrounding control artefact when they are relevant.
+
+## Gate Transition Card
+
+The Gate Transition Card is the primary user-facing orientation message for a
+ready `gate_approval`. It is derived from the Run Status Card and canonical
+post-approval transition, but it is not another state model, persisted record,
+renderer or approval authority. The Run Status Card remains the operational,
+CLI and audit projection; the Gate Transition Card turns only the decision-
+relevant subset into concise product copy immediately before the host-native
+question or exact-text fallback.
+
+The card answers exactly three user questions, in this order:
+
+1. **Where am I?** A human-readable gate title, selected `run_id` as secondary
+   context and a clear ready-for-decision state.
+2. **What does this decision do?** The exact `Approval: <GateName>` value, its
+   concrete next outcome and the most important boundary that remains.
+3. **What happens next?** The immediate agent-controlled action and the next
+   actual user decision when one exists; otherwise a plain statement that no
+   further user action is required now.
+
+Use this compact composition:
+
+```text
+<human-readable gate title> · <run_id>
+<localized ready-for-decision line>
+
+<localized approve heading>
+`Approval: <GateName>` <localized concrete effect>. <localized remaining boundary>.
+
+<localized next heading>
+<localized immediate agent action>. <localized next user decision or no-action statement>.
+```
+
+Resolve all explanatory text through the Interaction Locale Contract. German
+uses the approved German product labels for readiness, approval and the next
+transition; English is the deterministic default for absent or unsupported
+locales. Gate names, `run_id` and exact approval values are never translated.
+The meaning, ordering and authority boundary must be identical across locales.
+
+The approval-time card must not be a Markdown table or dashboard. It must not
+present raw control-state keys, machine status values, diagnostic codes,
+evidence lists, allowed/forbidden inventories or implementation detail that is
+not needed for the decision. It must not repeat the native question. The card
+normally fits in one title, one readiness line and two short content blocks.
+
+For `Approval: TP`, the effect is permission to run pre-implementation
+Brownfield Analysis, implementation remains gated until that analysis passes,
+and the next block states plainly that no further user decision is required
+now. Brownfield Analysis must not be presented as a user gate.
 
 ## Source Precedence
 
@@ -295,11 +351,20 @@ response_origin: deliberate_user_input for gate_approval
 
 This envelope is not a new persisted record. The selected canonical `RUN_STATE.md` and existing artefact chain remain the durable authority.
 
+Before presenting `gate_approval` for any user gate (`UR`, `PRD`, `SD`, `TP`,
+`QA`, or `UAT`), the agent must emit the localized Gate Transition Card as a
+separate, immediately preceding interaction block. The card is not optional,
+not hidden in the question text and not replaced by a host button label.
+Native buttons or exact-text fallback may appear only after this card. The
+underlying Run Status Card fields remain available to evaluation and audit,
+but their dashboard projection must not be pasted into this approval-time
+message.
+
 Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` plus bounded revise and cancel/decline outcomes;
+3. emit the separate localized Gate Transition Card immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` plus bounded revise and cancel/decline outcomes;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
@@ -324,6 +389,20 @@ Surface adapter rules:
 Native structured questions are for real decision points. Prefer repository inspection over clarification and do not show them for status reporting, discoverable facts, routine read-only work or repeated non-ready gate prompts.
 
 Exact textual approvals remain canonical and fully supported on every surface. If native capability availability or safety is unknown, use the textual fallback. Host permission, plan approval, native question presentation, timeout/default behavior, hook output and agent messages never carry AGDF gate authority by themselves.
+
+### Interaction Locale Contract
+
+User-facing native questions, option descriptions and exact-text fallback explanations use the configured project chat language from `.agdf/control/config.json`:
+
+- `chat_language: de` selects the German presentation copy;
+- `chat_language: en` selects English presentation copy;
+- an absent, unsupported or not-yet-translated chat language falls back deterministically to English;
+- one question must not mix presentation languages;
+- durable artefacts, runtime rules, task identifiers and machine-facing approval values remain English;
+- the exact approval value remains `Approval: <GateName>` in every locale;
+- localized `revise`, `decline` and `cancel` labels are presentation text only and never carry gate authority.
+
+The locale changes presentation only. It must not change gate meaning, option ordering, readiness, validation, revalidation or persistence. Host-provided free-text labels and skip actions are not AGDF-owned approval options and must never advance a gate.
 
 ## Brownfield Review After G-00
 

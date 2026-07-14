@@ -214,6 +214,66 @@ if (!runtimeContract.includes("first eligible native-attempt") || !runtimeContra
 if (!gateCheckSkill.includes("Make exactly one native-attempt") || !gateCheckSkill.includes("switch immediately")) {
   failures.push("gate-check skill must require immediate exact-text fallback after an unsuccessful native attempt");
 }
+if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeContract.includes("an absent, unsupported or not-yet-translated chat language falls back deterministically to English")) {
+  failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
+}
+if (!gateCheckSkill.includes("resolve the configured chat locale") || !gateCheckSkill.includes("do not mix presentation languages within one question")) {
+  failures.push("gate-check skill must resolve chat locale and prohibit mixed-language gate questions");
+}
+if (!gateCheckSkill.includes("Host-provided free-text") || !gateCheckSkill.includes("Überspringen") || !gateCheckSkill.includes("never advance an AGDF gate")) {
+  failures.push("gate-check skill must keep host free-text and skip actions outside AGDF gate authority");
+}
+if (!runtimeContract.includes("Before presenting `gate_approval` for any user gate")
+  || !runtimeContract.includes("must emit the localized Gate Transition Card as a")
+  || !runtimeContract.includes("separate, immediately preceding interaction block")) {
+  failures.push("Runtime Contract must require a separate Gate Transition Card before every gate approval");
+}
+if (!gateCheckSkill.includes("separate localized Gate Transition Card immediately before any native question or exact-text fallback") || !gateCheckSkill.includes("where am I, what does this decision do, and what happens next")) {
+  failures.push("gate-check must require the three-part Gate Transition Card before native or textual approval");
+}
+if (!gateCheckSkill.includes("after `Approval: TP`") || !gateCheckSkill.includes("pre-implementation Brownfield Analysis") || !gateCheckSkill.includes("do not expose `next_user_gate: none`") || !gateCheckSkill.includes("do not ask for a second approval")) {
+  failures.push("gate-check must distinguish the internal Brownfield step from the next user gate");
+}
+if (!gateCheckSkill.includes("Bereit für deine Entscheidung") || !gateCheckSkill.includes("Ready for your decision") || !gateCheckSkill.includes("Keep each card in one locale")) {
+  failures.push("gate-check must define deterministic German and English-default transition-card composition");
+}
+const gateTransitionCard = sectionAfterHeading(runtimeContract, "Gate Transition Card");
+for (const required of [
+  "Where am I?",
+  "What does this decision do?",
+  "What happens next?",
+  "must not be a Markdown table or dashboard",
+  "must not repeat the native question",
+  "no further user decision is required",
+]) {
+  if (!gateTransitionCard.includes(required)) failures.push(`Gate Transition Card contract missing: ${required}`);
+}
+for (const pattern of [
+  "| Status |",
+  "- allowed_now:",
+  "Diagnostic code:",
+  "Evidence:",
+  "Question:",
+  "Next user gate: Brownfield Analysis",
+]) {
+  if (gateTransitionCard.includes(pattern)) failures.push(`Gate Transition Card must not render approval-time pattern: ${pattern}`);
+}
+if (!runtimeContract.includes("Run Status Card remains the operational,")
+  || !runtimeContract.includes("CLI and audit projection")) {
+  failures.push("Runtime Contract must preserve the machine and audit Run Status Card boundary");
+}
+if (!runtimeContract.includes("user_visible_outcome_after_approval") || !runtimeContract.includes("next_user_gate") || !runtimeContract.includes("internal_next_step")) {
+  failures.push("Runtime Contract must define the explicit user-intent transition fields");
+}
+if (!runtimeContract.includes("`run_id`: the exactly selected canonical run") || !runtimeContract.includes("`presentation_language`: `de | en`")) {
+  failures.push("Runtime Contract must include selected run and resolved presentation language in the status card");
+}
+if (!runtimeContract.includes("any user gate (`UR`, `PRD`, `SD`, `TP`,") || !runtimeContract.includes("`QA`, or `UAT`)")) {
+  failures.push("Runtime Contract must require the status card before every user gate");
+}
+if (!gateCheckSkill.includes("current gate") || !gateCheckSkill.includes("The primary option remains exactly `Approval: SD`")) {
+  failures.push("gate-check skill must define English default presentation with stable Approval token");
+}
 
 if (pluginDefinition) {
   if (pluginDefinition.id !== "agdf") failures.push("canonical AGDF plugin definition id must be agdf");

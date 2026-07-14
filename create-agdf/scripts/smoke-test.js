@@ -1,13 +1,14 @@
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { delimiter, join } from "node:path";
 import { tmpdir } from "node:os";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
 const packageJsonPath = fileURLToPath(new URL("./package.json", packageRoot));
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+const generatedRoot = fileURLToPath(new URL("./generated/", packageRoot));
 const pluginDefinitionPath = fileURLToPath(new URL("../plugin/meta/agdf-plugin.definition.json", packageRoot));
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
@@ -1128,6 +1129,131 @@ run("config", [
 }
 
 {
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-status-card-i18n-"));
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "locale-card"], { stdio: "pipe" });
+    const german = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;
+    if (!german.includes("AGDF-Statuskarte:") || !german.includes("Ausgewählter Run: locale-card") || !german.includes("Aktuelles Gate: UR") || !german.includes("Fehlende Freigabe: Approval: UR")) {
+      throw new Error("German chat language should render a German status card while preserving the exact English approval token.");
+    }
+    const configPath = join(tempDir, ".agdf", "control", "config.json");
+    const config = JSON.parse(readFileSync(configPath, "utf8"));
+    writeFileSync(configPath, `${JSON.stringify({ ...config, chat_language: "fr" }, null, 2)}\n`, "utf8");
+    const fallback = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;
+    if (!fallback.includes("AGDF status-card:") || !fallback.includes("Selected run: locale-card") || !fallback.includes("Current gate: UR") || !fallback.includes("Missing approval: Approval: UR")) {
+      throw new Error("Unsupported chat language should fall back deterministically to English status-card copy.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-status-card-tp-transition-"));
+  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+
+  try {
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
+    writeFileSync(runPath, `# AGDF Run State
+
+## Run Meta
+
+- run_id: tp-transition
+- mode: structured_delivery
+- current_gate: TP
+- decision: in_progress
+- owner: test
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | approved | Approval: PRD |
+| SD | approved | Approval: SD |
+| TP | missing | |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | UR.md | approved | |
+| Brownfield Review | BROWNFIELD_REVIEW.md | done | |
+| PRD | PRD.md | approved | |
+| SD | SD.md | approved | |
+| TP | TP.md | draft | |
+
+## Mode/Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: TP status-card transition fixture.
+- evidence: BROWNFIELD_REVIEW.md
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | Approval: UR | exact approval |
+| PRD | derived_from | UR | linked |
+| SD | derived_from | PRD | linked |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| TP fixture | smoke-test.js | status-card transition | direct |
+
+## Closeout
+
+- next_allowed_action: Request exact TP approval.
+`, "utf8");
+    const report = runJson(["gate-check", "--dir", tempDir, "--json"]);
+    if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
+      throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+{
+  const transitionSkillPaths = [
+    join(generatedRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md"),
+    join(generatedRoot, ".github", "skills", "agdf-gate-check", "SKILL.md"),
+    join(generatedRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"),
+  ];
+  const transitionContractPaths = [
+    join(generatedRoot, "plugins", "agdf", "meta", "agdf-runtime-contract.md"),
+    join(generatedRoot, ".github", "skills", "agdf-runtime-contract.md"),
+    join(generatedRoot, ".opencode", "agdf-runtime-contract.md"),
+  ];
+
+  for (const path of transitionSkillPaths) {
+    const content = readFileSync(path, "utf8");
+    if (!content.includes("separate localized Gate Transition Card")
+      || !content.includes("Bereit für deine Entscheidung")
+      || !content.includes("Ready for your decision")
+      || !content.includes("Do not render a Markdown table")
+      || !content.includes("do not ask for a second approval for Brownfield Analysis")) {
+      throw new Error(`Generated gate-check surface must preserve transition-card UX and locale invariants: ${path}`);
+    }
+  }
+
+  for (const path of transitionContractPaths) {
+    const content = readFileSync(path, "utf8");
+    if (!content.includes("## Gate Transition Card")
+      || !content.includes("answers exactly three user questions")
+      || !content.includes("Run Status Card remains the operational,")
+      || !content.includes("must not be a Markdown table or dashboard")) {
+      throw new Error(`Generated runtime contract must preserve the transition-card and status-projection boundary: ${path}`);
+    }
+  }
+}
+
+{
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-implicit-consent-"));
   const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
 
@@ -1729,8 +1855,11 @@ ${internalRows}
     if (!gateCheckReport.status_card?.allowed_after_approval.includes("Draft Solution Design")) {
       throw new Error("Status card should expose allowed-after-approval text for a missing PRD approval.");
     }
+    if (gateCheckReport.status_card?.next_user_gate !== "SD" || gateCheckReport.status_card?.user_action_required !== "yes") {
+      throw new Error("Status card should identify SD as the next actual user gate after PRD approval.");
+    }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
-    if (!statusCardOutput.includes("Next gate after approval: SD") || !statusCardOutput.includes("Allowed after approval: Draft Solution Design")) {
+    if (!statusCardOutput.includes("Next gate after approval: SD") || !statusCardOutput.includes("Allowed after approval: Draft Solution Design") || !statusCardOutput.includes("User action required: yes")) {
       throw new Error("gate-check --status-card should print post-approval transition lines for missing approval cases.");
     }
     if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {
@@ -1812,6 +1941,9 @@ ${internalRows}
     }
     if (gateCheckReport.next_gate_after_approval !== "none" || gateCheckReport.status_card?.allowed_after_approval !== "none") {
       throw new Error("Internal Mode/Slice Decision should not invent post-approval transition fields.");
+    }
+    if (gateCheckReport.status_card?.next_user_gate !== "none" || gateCheckReport.status_card?.user_action_required !== "no" || !gateCheckReport.status_card?.internal_next_step) {
+      throw new Error("Internal-step status card should distinguish its next internal step from user approval.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("Next gate after approval:") || statusCardOutput.includes("Allowed after approval:")) {

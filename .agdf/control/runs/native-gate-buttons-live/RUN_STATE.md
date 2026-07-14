@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: native-gate-buttons-live
 - lifecycle: active
-- revision: 6
-- revision_id: EBDBF827-22FA-4FBF-8470-3938F2CAE8E9
+- revision: 48
+- revision_id: 60728A9C-3E50-4A1B-6D7E-F8091A2B3C4D
 - mode: structured_delivery
-- current_gate: PRD
-- decision: block
+- current_gate: UAT
+- decision: decline
 - owner: agent
 
 ## Objective
@@ -20,36 +20,39 @@ Deliver and live-verify native Codex and Claude Code gate-approval buttons witho
 
 | Question | Answer |
 |---|---|
-| What is known? | The prior surface-native interaction run delivered contract and fallback behavior; a fresh Codex session now captured native Default-mode question rendering. |
-| What is approved? | `Approval: UR` provided on 2026-07-14 after the durable UR was persisted. |
-| What is missing? | The PRD and exact `Approval: PRD` for the reopened structured-delivery path. |
-| What is the next allowed action? | Draft and persist the PRD, then request `Approval: PRD`. |
-| What is explicitly forbidden right now? | SD, TP, implementation, custom UI, host configuration changes and release actions. |
+| What is known? | Fresh qa-gate decision is pass: NGB-01 through NGB-17 are fully done, all mandatory reviews pass and full tests remain green after the CR fix. |
+| What is approved? | UR, PRD, SD, revised TP and the fresh passing QA report are approved. |
+| What is missing? | UAT acceptance; the deliberate user decision was decline and no `Approval: UAT` exists. |
+| What is the next allowed action? | Await explicit user direction to revise the experience or justify a new UAT attempt after a change. |
+| What is explicitly forbidden right now? | Release and automatic VCS actions before deliberate UAT approval and separate delivery authorization. |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
 | UR | approved | Exact `Approval: UR` provided on 2026-07-14 after UR persistence. |
-| PRD | missing | |
-| SD | missing | |
-| TP | missing | |
-| QA | missing | |
-| UAT | missing | |
+| PRD | approved | Exact `Approval: PRD` provided on 2026-07-14 after the PRD was persisted. |
+| SD | approved | Deliberate native `Approval: SD` selected on 2026-07-14 after the revised SD was persisted and revalidated. |
+| TP | approved | Deliberate native `Approval: TP` selected on 2026-07-14 after the revised TP was persisted and revalidated. |
+| QA | approved | Deliberate native `Approval: QA` selected on 2026-07-14 after the fresh passing report was persisted and revalidated. |
+| UAT | decline | Deliberate native choice `Ablehnen` on 2026-07-14; no UAT approval persisted. |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
 | UR | .agdf/control/artefacts/native-gate-buttons-live/UR.md | approved | Exact approval recorded after artefact persistence. |
-| Brownfield Review | .agdf/control/artefacts/native-gate-buttons-live/BROWNFIELD_REVIEW.md | reopened | Codex Default-mode native question control callable and visibly rendered after fresh session. |
-| PRD |  | missing | |
-| SD |  | missing | |
-| TP |  | missing | |
-| Brownfield Analysis |  | missing | |
-| CD+Tests |  | missing | |
-| CR |  | missing | |
-| QA |  | missing | |
+| Brownfield Review | .agdf/control/artefacts/native-gate-buttons-live/BROWNFIELD_REVIEW.md | done | Reconciled for the explicitly selected run; PRD is approved and SD is the next gate. |
+| PRD | .agdf/control/artefacts/native-gate-buttons-live/PRD.md | approved | Exact `Approval: PRD` provided on 2026-07-14. |
+| SD | .agdf/control/artefacts/native-gate-buttons-live/SD.md | approved | Defines the three-part product-style transition card and forbids dashboard-style approval presentation; exact approval recorded after revalidation. |
+| TP | .agdf/control/artefacts/native-gate-buttons-live/TP.md | approved | NGB-13 through NGB-18 cover the product-style card, compatibility boundary, deterministic i18n, negative tests and refreshed reviews; exact approval recorded after revalidation. |
+| Brownfield Analysis | .agdf/control/artefacts/native-gate-buttons-live/BROWNFIELD_ANALYSIS.md | done | Fresh analysis passes for NGB-13 through NGB-17; existing owners, compatibility boundary and minimal clean path are confirmed. |
+| CD+Tests | .agdf/control/artefacts/native-gate-buttons-live/CD_TESTS.md | done | NGB-13 through NGB-17 implemented; runtime integrity, negative fixtures, control-state and aggregate smoke pass. |
+| TP Review | .agdf/control/artefacts/native-gate-buttons-live/TP_REVIEW.md | done | Per-task review covers NGB-01 through NGB-18; only expected downstream review/QA/UAT work remains partial. |
+| Clean Implementation Review | .agdf/control/artefacts/native-gate-buttons-live/CLEAN_IMPLEMENTATION_REVIEW.md | pass | Canonical owners are extended cleanly; no workaround, shim, retry loop, custom renderer or parallel authority exists. |
+| CR | .agdf/control/artefacts/native-gate-buttons-live/CODE_REVIEW.md | done | Mandatory diff review passes after resolving one maintainability finding; no actionable finding remains. |
+| QA | .agdf/control/artefacts/native-gate-buttons-live/QA_REPORT.md | pass | Fresh qa-gate pass covers NGB-01 through NGB-17, all mandatory reviews and post-fix full tests; exact QA approval recorded after revalidation. |
+| UAT | .agdf/control/artefacts/native-gate-buttons-live/UAT_REPORT.md | declined | User deliberately declined acceptance; TP workflow remains incomplete and delivery actions remain forbidden. |
 
 ## Evidence
 
@@ -66,16 +69,21 @@ Deliver and live-verify native Codex and Claude Code gate-approval buttons witho
 |---|---|---|---|
 | UR | approved_by | `Approval: UR` | Exact approval provided on 2026-07-14 after artefact persistence. |
 | Brownfield Review | sizes | structured_delivery | Fresh-session native probe resolves the prior host-capability block; see `BROWNFIELD_REVIEW.md`. |
+| PRD | derived_from | UR | `.agdf/control/artefacts/native-gate-buttons-live/PRD.md` derives from `.agdf/control/artefacts/native-gate-buttons-live/UR.md`; exact `Approval: PRD` recorded on 2026-07-14. |
+| SD | derived_from | PRD | `.agdf/control/artefacts/native-gate-buttons-live/SD.md` derives from the approved PRD; deliberate native `Approval: SD` was persisted after same-run/same-gate revalidation. |
+| TP | derived_from | SD | `.agdf/control/artefacts/native-gate-buttons-live/TP.md` derives from the approved SD; deliberate native `Approval: TP` was persisted after same-run/same-gate revalidation. |
+| QA_REPORT | tests | TP | `.agdf/control/artefacts/native-gate-buttons-live/QA_REPORT.md` records QA `pass` against the approved TP and review evidence; exact `Approval: QA` is recorded. |
+| UAT_REPORT | derived_from | QA_REPORT | `.agdf/control/artefacts/native-gate-buttons-live/UAT_REPORT.md` presents the user-facing acceptance checklist for native-first and locale behavior. |
 
 ## Mode/Slice Decision
 
 - decision: structured_delivery
-- required_next_gate: PRD
+- required_next_gate: CD+Tests
 - scope_reason: The fresh-session probe establishes the requested Codex host capability; the existing contract and adapter can be extended without a custom UI or second approval store.
 - evidence: `.agdf/control/artefacts/native-gate-buttons-live/BROWNFIELD_REVIEW.md`; native `request_user_input` probe; CLI 0.142.4 feature-flag verification.
-- transparency_note: The probe was capability evidence only. Its empty answer set did not approve any gate; PRD remains the earliest blocking user gate.
+- transparency_note: The probe was capability evidence only. Its empty answer set did not approve any gate; the approved TP and passed pre-implementation Brownfield Analysis now authorize only the bounded CD+Tests implementation step.
 
 ## Closeout
 
-- next_allowed_action: Draft the PRD and request `Approval: PRD`.
+- next_allowed_action: Await explicit user direction to revise the experience or justify a new UAT attempt after a change; do not repeat the same approval prompt automatically.
 - quality_outlook: Preserve the exact-text fallback and avoid a custom UI workaround until host support exists.

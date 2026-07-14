@@ -17,7 +17,7 @@ Status: `done`
 
 - decision: `pass`
 - mode_slice_decision: `structured_delivery`
-- required_next_gate: PRD
+- required_next_gate: SD
 - reuse_strategy: `extend_existing_native_adapter`
 
 ## Evidence
@@ -65,4 +65,7 @@ Do not add a custom MCP/app button panel, fake Markdown buttons, hook-supplied a
 
 ## Required Next Step
 
-Draft the PRD for the reopened `structured_delivery` path and request `Approval: PRD`. Preserve the exact-text fallback and use the native Codex control only for a later ready AGDF gate after its durable artefact exists.
+The reopened Brownfield Review is reconciled for the selected run. The PRD is
+approved; review the existing SD and request exact `Approval: SD`. Preserve
+the exact-text fallback and use the native Codex control only after canonical
+gate readiness for the selected run.

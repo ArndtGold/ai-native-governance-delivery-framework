@@ -21,12 +21,47 @@ import {
   resolveRuns,
   verifyLegacyProjection,
   writeRun,
+  validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
 import { parseControlState } from "../lib/control-state/run-state-parser.js";
 
 const root = mkdtempSync(join(tmpdir(), "agdf-control-state-"));
 const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
 try {
+  const approvalCandidate = Object.freeze({
+    response: "Approval: TP",
+    responseOrigin: "deliberate_user_input",
+    expectedApproval: "Approval: TP",
+    expectedRunId: "run-a",
+    currentRunId: "run-a",
+    expectedGate: "TP",
+    currentGate: "TP",
+    expectedRevisionId: "revision-a",
+    currentRevisionId: "revision-a",
+    durableArtefactReady: true,
+  });
+  assert.deepEqual(validateGateApprovalResponse(approvalCandidate), { accepted: true, reason: "accepted" });
+  for (const [name, override, reason] of [
+    ["unavailable adapter result", { response: "" }, "empty_response"],
+    ["non-deliberate response", { responseOrigin: "hook" }, "non_deliberate_response"],
+    ["empty response", { response: "" }, "empty_response"],
+    ["revise", { response: "Revise" }, "wrong_or_non_approval_response"],
+    ["decline", { response: "Decline" }, "wrong_or_non_approval_response"],
+    ["formula mismatch", { expectedApproval: "Approval: QA" }, "approval_formula_mismatch"],
+    ["stale gate", { currentGate: "QA" }, "changed_or_wrong_gate"],
+    ["changed run", { currentRunId: "run-b" }, "changed_or_wrong_run"],
+    ["stale revision", { currentRevisionId: "revision-b" }, "stale_revision"],
+    ["missing artefact", { durableArtefactReady: false }, "durable_artefact_not_ready"],
+  ]) {
+    const before = JSON.stringify(approvalCandidate);
+    assert.deepEqual(
+      validateGateApprovalResponse({ ...approvalCandidate, ...override }),
+      { accepted: false, reason },
+      name,
+    );
+    assert.equal(JSON.stringify(approvalCandidate), before, `${name} must not mutate control input`);
+  }
+
   const a = createRun(root, "run-a", "## Objective\n\nA\n");
   assert.equal(discoverRuns(root).length, 1);
   assert.equal(resolveRuns(root, {}).run.run_id, "run-a");

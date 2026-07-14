@@ -286,6 +286,17 @@ function resolveLanguagePreference(explicitLanguage) {
   };
 }
 
+function resolveConfiguredChatLanguage(targetDir) {
+  const configPath = join(targetDir, ".agdf", "control", "config.json");
+  if (!existsSync(configPath)) return "en";
+  try {
+    const config = JSON.parse(readFileSync(configPath, "utf8"));
+    return normalizeLanguage(config.chat_language) || "en";
+  } catch {
+    return "en";
+  }
+}
+
 function languageConfigContent(languagePreference) {
   return `${JSON.stringify({
     artifact_language: languagePreference.artifact_language,
@@ -2149,26 +2160,44 @@ function postApprovalTransition(missingApproval) {
     ["Approval: UR", {
       next_gate_after_approval: "Brownfield Review",
       allowed_after_approval: "Run Brownfield Review and record Mode/Slice Decision before PRD or implementation.",
+      internal_next_step: "Brownfield Review and Mode/Slice Decision",
+      next_user_gate: "PRD",
+      user_action_required: "yes",
     }],
     ["Approval: PRD", {
       next_gate_after_approval: "SD",
       allowed_after_approval: "Draft Solution Design; implementation remains forbidden.",
+      internal_next_step: "draft Solution Design",
+      next_user_gate: "SD",
+      user_action_required: "yes",
     }],
     ["Approval: SD", {
       next_gate_after_approval: "TP",
       allowed_after_approval: "Draft Task/Test Plan; implementation remains forbidden.",
+      internal_next_step: "draft Task/Test Plan",
+      next_user_gate: "TP",
+      user_action_required: "yes",
     }],
     ["Approval: TP", {
-      next_gate_after_approval: "Brownfield Analysis",
-      allowed_after_approval: "Run implementation-prep Brownfield Analysis before CD+Tests.",
+      next_gate_after_approval: "none",
+      allowed_after_approval: "Run implementation-prep Brownfield Analysis before CD+Tests; no further user approval is required at this internal step.",
+      internal_next_step: "pre-implementation Brownfield Analysis",
+      next_user_gate: "none",
+      user_action_required: "no",
     }],
     ["Approval: QA", {
       next_gate_after_approval: "UAT",
       allowed_after_approval: "Request UAT when QA has passed; release remains gated.",
+      internal_next_step: "prepare UAT evidence",
+      next_user_gate: "UAT",
+      user_action_required: "yes",
     }],
     ["Approval: UAT", {
       next_gate_after_approval: "OR",
       allowed_after_approval: "Produce OR or delivery closeout; VCS and release actions still require explicit instruction.",
+      internal_next_step: "OR or delivery closeout",
+      next_user_gate: "none",
+      user_action_required: "no",
     }],
   ]);
 
@@ -2187,11 +2216,15 @@ function buildStatusCard({
   missingApproval = "none",
   nextAllowedAction,
   runState,
+  chatLanguage = "en",
   findings = [],
 }) {
   const qualityOutlook = deriveQualityOutlook(runState, findings);
   const postApproval = postApprovalTransition(missingApproval);
+  const isUserGateApproval = missingApproval !== "none";
   return {
+    run_id: extractField(runState.content ?? "", "run_id") || "unknown",
+    presentation_language: chatLanguage,
     mode: extractField(runState.content ?? "", "mode") || "unknown",
     status,
     current_gate: currentGate,
@@ -2202,6 +2235,10 @@ function buildStatusCard({
     missing_approval: missingApproval || "none",
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
+    user_visible_outcome_after_approval: postApproval.allowed_after_approval,
+    internal_next_step: postApproval.internal_next_step || (isUserGateApproval ? "none" : nextAllowedAction),
+    next_user_gate: postApproval.next_user_gate || "none",
+    user_action_required: postApproval.user_action_required || (isUserGateApproval ? "yes" : "no"),
     evidence: runState.evidence_refs,
     next_skill: nextSkillByGate[currentGate] ?? "gate-check",
     next_step: nextAllowedAction,
@@ -2554,6 +2591,7 @@ function evaluateGateCheck(targetDir, selection = {}) {
       missingApproval,
       nextAllowedAction,
       runState,
+      chatLanguage: resolveConfiguredChatLanguage(targetDir),
       findings: deliveryMap.findings,
     }),
     delivery_map: {
@@ -2571,17 +2609,58 @@ function evaluateGateCheck(targetDir, selection = {}) {
 
 function printGateCheckStatusCard(report) {
   const card = report.status_card;
-  console.log(`AGDF status-card: ${card.status}`);
-  console.log(`Current gate: ${card.current_gate}`);
-  console.log(`Blocked by: ${card.blocking_condition}`);
-  console.log(`Missing approval: ${card.missing_approval}`);
-  if (card.next_gate_after_approval !== "none") console.log(`Next gate after approval: ${card.next_gate_after_approval}`);
-  if (card.allowed_after_approval !== "none") console.log(`Allowed after approval: ${card.allowed_after_approval}`);
-  console.log(`Next skill: ${card.next_skill}`);
-  console.log(`Next step: ${card.next_step}`);
-  console.log(`Quality outlook: ${card.quality_outlook}`);
-  if (card.allowed_now.length > 0) console.log(`Allowed now: ${card.allowed_now.join("; ")}`);
-  if (card.forbidden_now.length > 0) console.log(`Forbidden now: ${card.forbidden_now.join("; ")}`);
+  const de = card.presentation_language === "de";
+  const labels = de ? {
+    title: "AGDF-Statuskarte",
+    run: "Ausgewählter Run",
+    gate: "Aktuelles Gate",
+    blocked: "Blockiert durch",
+    missing: "Fehlende Freigabe",
+    outcome: "Ergebnis nach Freigabe",
+    internal: "Interner nächster Schritt",
+    userGate: "Nächstes User-Gate",
+    userAction: "Nutzeraktion erforderlich",
+    nextGate: "Nächstes Gate nach Freigabe",
+    allowedAfter: "Nach Freigabe erlaubt",
+    skill: "Nächster Skill",
+    step: "Nächster Schritt",
+    quality: "Qualitätsausblick",
+    allowed: "Jetzt erlaubt",
+    forbidden: "Aktuell verboten",
+  } : {
+    title: "AGDF status-card",
+    run: "Selected run",
+    gate: "Current gate",
+    blocked: "Blocked by",
+    missing: "Missing approval",
+    outcome: "User-visible outcome after approval",
+    internal: "Internal next step",
+    userGate: "Next user gate",
+    userAction: "User action required",
+    nextGate: "Next gate after approval",
+    allowedAfter: "Allowed after approval",
+    skill: "Next skill",
+    step: "Next step",
+    quality: "Quality outlook",
+    allowed: "Allowed now",
+    forbidden: "Forbidden now",
+  };
+  console.log(`${labels.title}: ${card.status}`);
+  console.log(`${labels.run}: ${card.run_id}`);
+  console.log(`${labels.gate}: ${card.current_gate}`);
+  console.log(`${labels.blocked}: ${card.blocking_condition}`);
+  console.log(`${labels.missing}: ${card.missing_approval}`);
+  console.log(`${labels.outcome}: ${card.user_visible_outcome_after_approval}`);
+  console.log(`${labels.internal}: ${card.internal_next_step}`);
+  console.log(`${labels.userGate}: ${card.next_user_gate}`);
+  console.log(`${labels.userAction}: ${card.user_action_required}`);
+  if (card.next_gate_after_approval !== "none") console.log(`${labels.nextGate}: ${card.next_gate_after_approval}`);
+  if (card.allowed_after_approval !== "none") console.log(`${labels.allowedAfter}: ${card.allowed_after_approval}`);
+  console.log(`${labels.skill}: ${card.next_skill}`);
+  console.log(`${labels.step}: ${card.next_step}`);
+  console.log(`${labels.quality}: ${card.quality_outlook}`);
+  if (card.allowed_now.length > 0) console.log(`${labels.allowed}: ${card.allowed_now.join("; ")}`);
+  if (card.forbidden_now.length > 0) console.log(`${labels.forbidden}: ${card.forbidden_now.join("; ")}`);
 }
 
 function printGateCheckReport(report, json, statusCard = false) {
@@ -2698,6 +2777,7 @@ function evaluateDeliveryMap(targetDir, selection = {}) {
       missingApproval: gateDecision.missing_approval,
       nextAllowedAction,
       runState,
+      chatLanguage: resolveConfiguredChatLanguage(targetDir),
       findings: map.findings,
     }),
     backlog_pointers: readBacklogPointers(targetDir),

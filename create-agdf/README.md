@@ -1,8 +1,34 @@
 # create-agdf
 
-Bootstrap AGDF repository instructions and a machine-checkable control loop for one repository.
+Bootstrap AGDF into the coding-agent surface and repository where work actually happens. It installs or generates the surface-specific guidance, skills and optional durable control files that help teams make scope, approvals, evidence and delivery state visible.
 
-## Usage
+AGDF is useful when AI-assisted work can affect an existing system and a team needs a traceable answer to: what is allowed next, who approved it and what evidence supports it. It is deliberately not a substitute for engineering judgement, security review, tests, product ownership or human acceptance. For the framework's fit, limits and examples, start with the [project overview](../README.md).
+
+## Quick start
+
+If you use Codex, this is the recommended first installation:
+
+```bash
+npx --yes @agdf/cli@latest codex
+```
+
+Restart Codex, open a new task in the repository you want to work in, and describe the intended change. AGDF starts with the smallest permitted governance step; it does not make implementation automatic.
+
+Use a different target when Codex is not your agent surface:
+
+| Surface or goal | Start with | What it gives you |
+|---|---|---|
+| Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin for Claude Code. |
+| OpenCode, user-wide discovery | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
+| OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Repository instructions, native skills, permissions and control templates. |
+| GitHub Copilot | `npm create agdf@latest -- copilot` | Repository instructions, visible skills and control templates. |
+| Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
+
+For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
+
+## Full command reference
+
+The commands below are the complete package reference. The Quick Start above is the recommended entry point; these commands cover the remaining surfaces, repository-local variants and validation paths.
 
 Preferred long-term CLI shape:
 
@@ -202,6 +228,18 @@ npm run test:routing
 ```
 
 The routing test installs `both` into a temporary target repository and checks that plugin routing stays unprefixed while Copilot routing receives the configured `agdf-` prefix.
+
+## Project, contribution and support
+
+This README is the package guide. Keep framework rationale, limits and examples in the [project overview](../README.md); keep target-specific installation in [INSTALL.md](../INSTALL.md); and use [RELEASE.md](../RELEASE.md) only when maintaining a published AGDF release.
+
+Non-sensitive feedback, examples and contributions are welcome through [GitHub Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues). To validate a local package change before proposing it, run:
+
+```bash
+npm --prefix create-agdf run smoke-test
+```
+
+The repository is licensed under [Apache-2.0](../LICENSE). No separate public `CONTRIBUTING.md`, `SECURITY.md` or private security-reporting channel is currently published. Do not treat a public issue as a private vulnerability disclosure.
 
 ## Publishing
 

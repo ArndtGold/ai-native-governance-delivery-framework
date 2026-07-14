@@ -163,7 +163,7 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ### AGDF als Plugin mit einem Coding Agent anwenden
 
-Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [INSTALL.md](INSTALL.md).
+Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [@agdf/cli](https://www.npmjs.com/package/@agdf/cli).
 
 Danach kannst du direkt einsteigen:
 

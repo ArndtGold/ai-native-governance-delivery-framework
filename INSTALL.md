@@ -250,7 +250,9 @@ Then start a new Codex thread and ask:
 Run an AGDF gate check for this request.
 ```
 
-For a visual example of the installed Codex plugin surface, see the project website's Codex plugin screenshot. Treat that screenshot as a UI example, not as the release version source of truth.
+![Codex plugin detail page showing AI Governance and Delivery Framework installed with AGDF skills, hooks and plugin metadata.](pages/public/assets/codex-agdf-plugin-ui.png)
+
+*UI example: Codex shows the installed AGDF plugin, its skills, hooks and metadata. It illustrates the plugin surface; use the install command and plugin metadata as the release-version authority.*
 
 For a normal fresh request, AGDF does not require `init` as a ritual first step. The agent can draft the minimal UR in the response and request the exact approval text `Approval: UR`.
 
@@ -391,6 +393,10 @@ npx --yes @agdf/cli@latest opencode-status --json
 
 Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
 
+![OpenCode showing the active create-agdf plugin in its Plugins panel alongside an AGDF plugin suitability assessment.](pages/public/assets/opencode-agdf-plugin-proof.png)
+
+*UI example: OpenCode shows the loaded `create-agdf` npm plugin and AGDF interaction. It does not prove repository governance activation, an active session, tool enforcement or the current release version; use `opencode-status --json` for those facts.*
+
 Then run this inside each target Git repository you want to equip with AGDF governance files for OpenCode:
 
 ```bash
@@ -523,6 +529,10 @@ Then start with:
 ```text
 /gate-check
 ```
+
+![Claude Code plugin detail page showing AI Governance and Delivery Framework installed with AGDF skills, hooks and plugin metadata.](pages/public/assets/claude-agdf-plugin-ui.png)
+
+*UI example: Claude Code shows the installed AGDF plugin and its provided surface. It does not replace `claude plugin list` as installation/version evidence or establish repository-local control state.*
 
 Codex and Claude Code plugin skill names are intentionally unprefixed because the plugin itself provides the `agdf` namespace.
 

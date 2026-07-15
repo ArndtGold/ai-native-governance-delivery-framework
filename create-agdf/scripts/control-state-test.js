@@ -199,6 +199,7 @@ try {
   assert.ok(qaReviseReport.forbidden.includes("request QA approval"));
   assert.equal(qaReviseReport.status_card.user_action_required, "no");
   assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
+  assert.equal(Object.hasOwn(qaReviseReport.status_card, "approvalOrientation"), false, "approval orientation must not change public JSON keys");
   rmSync(qaReviseRoot, { recursive: true, force: true });
   const legacyMode = parseControlState(
     controlStateFixture.replace("## Mode/Slice Decision", "## Mode / Slice Decision"),

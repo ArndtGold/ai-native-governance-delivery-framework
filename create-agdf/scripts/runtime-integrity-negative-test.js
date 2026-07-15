@@ -87,6 +87,36 @@ try {
 
   resetPluginFixture();
   writeFileSync(
+    runtimeContractPath,
+    readFileSync(runtimeContractPath, "utf8").replace(
+      "first the compact\napproval-time Run Status Card, then the Gate Transition Card, then exactly one",
+      "first the Gate Transition Card, then the compact Run Status Card, then exactly one",
+    ),
+    "utf8",
+  );
+  expectIntegrityFailure(/fixed two-card ordering from one non-authorizing snapshot/);
+
+  resetPluginFixture();
+  writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replace("Render both cards once", "Render one card once"),
+    "utf8",
+  );
+  expectIntegrityFailure(/render both approval cards once across native and fallback paths/);
+
+  resetPluginFixture();
+  writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replace(
+      "Do not invoke the native question tool until the complete two-card envelope is visible",
+      "The native question tool may be invoked after the first card",
+    ),
+    "utf8",
+  );
+  expectIntegrityFailure(/complete in one assistant message before native invocation/);
+
+  resetPluginFixture();
+  writeFileSync(
     pluginDefinitionPath,
     readFileSync(pluginDefinitionPath, "utf8").replace('[\n      "approve",\n      "revise",\n      "decline",\n      "cancel"\n    ]', '[\n      "approve",\n      "decline",\n      "revise",\n      "cancel"\n    ]'),
     "utf8",

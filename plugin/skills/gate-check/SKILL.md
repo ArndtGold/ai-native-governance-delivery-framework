@@ -62,16 +62,18 @@ For a ready `gate_approval`:
 
 1. Resolve exactly one selected run and evaluate the current gate.
 2. Confirm the required durable artefact is present and ready before presenting a question.
-3. Render a separate localized Gate Transition Card immediately before any native question or exact-text fallback. It includes the deterministic human run title and `UR · PRD · SD · TP` links from the selected run. Never put the card only into the question, button description or hidden tool context.
-4. Treat the operational Run Status Card as evaluation and audit input, not as the approval-time product surface. Do not paste its table, raw keys, machine statuses, evidence or diagnostic detail into the transition card.
-5. Compose the transition card as one human-readable gate title with `run_id`, one ready-for-decision line, one short approval-effect block and one short next-transition block. It must answer only: where am I, what does this decision do, and what happens next.
-6. Distinguish internal process steps from user decisions in natural language. For example, after `Approval: TP`, say that pre-implementation Brownfield Analysis runs next and that no further user action is required now; do not expose `next_user_gate: none` or `user_action_required: no`, and do not ask for a second approval for Brownfield Analysis.
-7. Ask exactly one question that names the selected `run_id` and `current_gate`.
-8. Offer options in stable order: exact `Approval: <GateName>`, localized revise and localized decline. Add explicit cancel only where supported after decline; otherwise host dismissal maps to cancel. Never preselect, skip, auto-submit or reorder an option.
-9. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution; otherwise request the same exact approval in concise text.
-10. Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence.
-11. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
-12. Persist accepted input only through the existing control-state workflow.
+3. Build one immutable, non-authorizing presentation snapshot from the selected evaluated run and current revision identity.
+4. Compose one Approval Orientation Envelope as one immediately preceding assistant message containing two distinct blocks. Render the compact localized approval-time Run Status Card first. It contains exactly selected run, readiness status, current gate, missing exact approval, one next action and quality outlook; omit raw keys, machine statuses, evidence, diagnostics and allowed/forbidden inventories.
+5. In the same assistant message, render a separate localized Gate Transition Card second, immediately before any native question or exact-text fallback. It includes the deterministic human run title and `UR · PRD · SD · TP` links from the selected run. Never put either card only into the question, button description or hidden tool context. Do not invoke the native question tool until the complete two-card envelope is visible.
+6. Compose the transition card as one human-readable gate title with `run_id`, one ready-for-decision line, one short approval-effect block and one short next-transition block. It must answer only: where am I, what does this decision do, and what happens next. Run and gate identity may anchor both cards; do not duplicate status rows, action inventories or the native question.
+7. Distinguish internal process steps from user decisions in natural language. For example, after `Approval: TP`, say that pre-implementation Brownfield Analysis runs next and that no further user action is required now; do not expose `next_user_gate: none` or `user_action_required: no`, and do not ask for a second approval for Brownfield Analysis.
+8. Ask exactly one question that names the selected `run_id` and `current_gate`.
+9. Offer options in stable order: exact `Approval: <GateName>`, localized revise and localized decline. Add explicit cancel only where supported after decline; otherwise host dismissal maps to cancel. Never preselect, skip, auto-submit or reorder an option.
+10. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution; otherwise request the same exact approval in concise text.
+11. Render both cards once in that single complete assistant message. If the native attempt is unavailable or not applied, continue to exact text without repeating either card.
+12. Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence.
+13. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
+14. Persist accepted input only through the existing control-state workflow.
 
 Before composing the question, resolve the configured chat locale from `.agdf/control/config.json` through `plugin/meta/agdf-interaction-locales.json`: exact complete pack, language subtag, then English fallback. German and English are initial packs, not a closed language list. Keep `Approval: <GateName>` exactly unchanged in every language, and do not mix presentation languages within one interaction. Labels and descriptions use the same resolved locale; host-owned UI chrome remains host-owned and may use a different language.
 
@@ -191,10 +193,12 @@ Keep the result short and operational. Render the Runtime Contract's compact hum
 
 When an approval is missing, also include `Next gate after approval` and `Allowed after approval` exactly as constrained by the Runtime Contract. Keep forbidden outputs, evidence and next-skill detail in the concise surrounding text when relevant; they are not extra status-card rows.
 
-This operational status table is for status reporting. When the same response
-immediately requests a ready gate approval, replace the table in the visible
-approval experience with the Gate Transition Card defined above, then invoke
-the native question or exact-text fallback. Do not show both cards.
+This complete operational status table remains the status-reporting and detail
+surface. When the same response immediately requests a ready gate approval,
+render its six-field compact approval-time projection first, then the Gate
+Transition Card in the same immediately preceding assistant message, then
+invoke exactly one native question or exact-text fallback. Both cards derive
+from the same snapshot and are shown exactly once.
 
 If this skill creates or updates control artefacts, do not paste full file bodies into the chat.
 List paths, summarize the decision, name the blocker or approval needed, and keep the durable content in the files.

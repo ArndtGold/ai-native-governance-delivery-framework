@@ -241,12 +241,27 @@ for (const required of [
   if (!gateCheckSkill.includes(required)) failures.push(`gate-check Human Decision Presentation guidance missing: ${required}`);
 }
 if (!runtimeContract.includes("Before presenting `gate_approval` for any user gate")
-  || !runtimeContract.includes("must emit the localized Gate Transition Card as a")
-  || !runtimeContract.includes("separate, immediately preceding interaction block")) {
-  failures.push("Runtime Contract must require a separate Gate Transition Card before every gate approval");
+  || !runtimeContract.includes("compact localized Run Status Card and")
+  || !runtimeContract.includes("two distinct blocks in that order within")
+  || !runtimeContract.includes("buttons or exact-text fallback may appear only after both cards")) {
+  failures.push("Runtime Contract must require the compact Status Card and Gate Transition Card before every gate approval");
 }
-if (!gateCheckSkill.includes("separate localized Gate Transition Card immediately before any native question or exact-text fallback") || !gateCheckSkill.includes("where am I, what does this decision do, and what happens next")) {
-  failures.push("gate-check must require the three-part Gate Transition Card before native or textual approval");
+if (!gateCheckSkill.includes("Render the compact localized approval-time Run Status Card first")
+  || !gateCheckSkill.includes("render a separate localized Gate Transition Card second")
+  || !gateCheckSkill.includes("where am I, what does this decision do, and what happens next")) {
+  failures.push("gate-check must require the compact Status Card then three-part Gate Transition Card before approval");
+}
+if (!runtimeContract.includes("first the compact\napproval-time Run Status Card, then the Gate Transition Card, then exactly one")
+  || !runtimeContract.includes("one immutable,\nnon-authorizing presentation snapshot")) {
+  failures.push("Runtime Contract must define fixed two-card ordering from one non-authorizing snapshot");
+}
+if (!gateCheckSkill.includes("Render both cards once") || !gateCheckSkill.includes("without repeating either card")) {
+  failures.push("gate-check must render both approval cards once across native and fallback paths");
+}
+if (!runtimeContract.includes("one immediately preceding assistant message")
+  || !runtimeContract.includes("Do not invoke the\nnative question tool until the complete two-card envelope is visible")
+  || !gateCheckSkill.includes("Do not invoke the native question tool until the complete two-card envelope is visible")) {
+  failures.push("Approval orientation must be complete in one assistant message before native invocation");
 }
 if (!gateCheckSkill.includes("after `Approval: TP`") || !gateCheckSkill.includes("pre-implementation Brownfield Analysis") || !gateCheckSkill.includes("do not expose `next_user_gate: none`") || !gateCheckSkill.includes("do not ask for a second approval")) {
   failures.push("gate-check must distinguish the internal Brownfield step from the next user gate");

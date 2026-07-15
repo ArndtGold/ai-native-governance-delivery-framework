@@ -1,9 +1,10 @@
 # User Requirements: Approval Orientation Completeness
 
-Status: draft
+Status: approved
 Gate: UR
 Owner: AGDF
 Date: 2026-07-15
+Gate approval: `Approval: UR` provided on 2026-07-15 after same-run/same-gate revalidation.
 
 ## Objective
 
@@ -38,6 +39,7 @@ one selected, revalidated control state before a native approval control.
   native approval control and retain exact-text authority boundaries.
 - Tests cover the two-card ordering and the no-authorization/no-retry rules.
 
-## Approval Needed
+## Approval
 
-Persisted execution requires exact `Approval: UR` after this draft is reviewed.
+Exact `Approval: UR` was provided on 2026-07-15 after this artefact and the
+selected run were revalidated at gate UR.

@@ -168,13 +168,32 @@ decision authority.
 
 ## Gate Transition Card
 
-The Gate Transition Card is the primary user-facing orientation message for a
-ready `gate_approval`. It is derived from the Run Status Card and canonical
-post-approval transition, but it is not another state model, persisted record,
-renderer or approval authority. The Run Status Card remains the operational,
-CLI and audit projection; the Gate Transition Card turns only the decision-
-relevant subset into concise product copy immediately before the host-native
-question or exact-text fallback.
+Every ready `gate_approval` uses one fixed visible sequence: first the compact
+approval-time Run Status Card, then the Gate Transition Card, then exactly one
+native question or exact-text fallback. Both cards derive from one immutable,
+non-authorizing presentation snapshot produced after canonical selected-run,
+gate and durable-artefact readiness evaluation. The snapshot never selects a
+run, decides a gate, persists state or grants approval.
+
+The two distinct card blocks form one Approval Orientation Envelope in one
+immediately preceding assistant message. The agent must complete that message
+before invoking any native question tool or emitting an exact-text approval
+request. Splitting the cards across separate assistant turns or invoking the
+tool after only one card is a failed interaction, not a valid presentation.
+
+The compact approval-time Run Status Card contains exactly six operational
+fields: selected run, readiness status, current gate, missing exact approval,
+one next action and quality outlook. It uses localized human-readable labels
+and must not contain evidence, diagnostic codes, raw control-state keys,
+allowed/forbidden inventories or machine values. The complete Run Status Card remains the operational,
+CLI and audit projection and remains available for complete detail outside the
+approval-time compact view.
+
+The Gate Transition Card is the second orientation message. It is derived from
+the same snapshot and canonical post-approval transition, but it is not another
+state model, persisted record, renderer or approval authority. It turns only
+the decision-relevant subset into concise product copy immediately before the
+host-native question or exact-text fallback.
 
 The card answers exactly three user questions, in this order:
 
@@ -210,11 +229,13 @@ for example, the German title may be `Lösungsdesign` while the authorization
 value remains `Approval: SD`. Meaning, ordering and authority boundaries are
 identical across locale packs.
 
-The approval-time card must not be a Markdown table or dashboard. It must not
+The Gate Transition Card must not be a Markdown table or dashboard. It must not
 present raw control-state keys, machine status values, diagnostic codes,
 evidence lists, allowed/forbidden inventories or implementation detail that is
 not needed for the decision. It must not repeat the native question. The card
 normally fits in one title, one readiness line and two short content blocks.
+Run and gate identity may appear in both cards to anchor the shared snapshot;
+status rows, action inventories and transition prose must not be duplicated.
 
 For `Approval: TP`, the effect is permission to run pre-implementation
 Brownfield Analysis, implementation remains gated until that analysis passes,
@@ -380,19 +401,20 @@ response_origin: deliberate_user_input for gate_approval
 This envelope is not a new persisted record. The selected canonical `RUN_STATE.md` and existing artefact chain remain the durable authority.
 
 Before presenting `gate_approval` for any user gate (`UR`, `PRD`, `SD`, `TP`,
-`QA`, or `UAT`), the agent must emit the localized Gate Transition Card as a
-separate, immediately preceding interaction block. The card is not optional,
-not hidden in the question text and not replaced by a host button label.
-Native buttons or exact-text fallback may appear only after this card. The
-underlying Run Status Card fields remain available to evaluation and audit,
-but their dashboard projection must not be pasted into this approval-time
-message.
+`QA`, or `UAT`), the agent must emit the compact localized Run Status Card and
+the localized Gate Transition Card as two distinct blocks in that order within
+one immediately preceding assistant message. Neither card is optional, hidden
+in the question text or replaced by a host button label. Do not invoke the
+native question tool until the complete two-card envelope is visible. Native
+buttons or exact-text fallback may appear only after both cards. Render the two
+cards once per eligible attempt; an unavailable or not-applied native control
+proceeds to exact text without repeating them.
 
 Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. emit the separate localized Gate Transition Card immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
+3. build one immutable non-authorizing presentation snapshot, emit its compact Run Status Card and Gate Transition Card in that order immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;

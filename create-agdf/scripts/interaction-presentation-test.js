@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  attachApprovalOrientationSnapshot,
+  buildApprovalOrientationSnapshot,
   buildArtefactRefs,
   buildInteractionAttempt,
   buildQualityReadiness,
@@ -80,6 +82,67 @@ for (const attemptOutcome of ["presented", "unavailable_before_invocation", "att
   assert.equal(Object.isFrozen(receipt), true);
 }
 assert.throws(() => buildInteractionAttempt({ interactionId: "i", runId: "r", currentGate: "UR", attemptOutcome: "invalid" }));
+
+for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+  const statusCard = {
+    run_id: "approval-run",
+    status: "open",
+    current_gate: gate,
+    missing_approval: `Approval: ${gate}`,
+    next_gate_after_approval: gate === "UAT" ? "OR" : "next",
+    next_step: "Continue with the current approved transition.",
+  };
+  const snapshot = buildApprovalOrientationSnapshot({
+    ready: true,
+    statusCard,
+    humanPresentation: {
+      runTitle: "Approval run",
+      gateTitle: gateTitle(registry, "de", gate),
+      artefactRefs: refs,
+    },
+    revisionId: "revision-1",
+    registry,
+    requestedLocale: "de-AT",
+  });
+  assert.deepEqual(snapshot.sequence, ["run_status_card", "gate_transition_card", "approval_interaction"]);
+  assert.deepEqual(snapshot.compact_status_card.fields.map((field) => field.id), [
+    "selected_run", "readiness_status", "current_gate", "missing_approval", "next_action", "quality_outlook",
+  ]);
+  assert.equal(snapshot.run_id, "approval-run");
+  assert.equal(snapshot.revision_id, "revision-1");
+  assert.equal(snapshot.current_gate, gate);
+  assert.equal(snapshot.presentation_language, "de");
+  assert.equal(snapshot.compact_status_card.fields[1].value, "Bereit für deine Entscheidung");
+  assert.equal(snapshot.gate_transition_card.exact_approval, `Approval: ${gate}`);
+  assert.equal(snapshot.approval_interaction.options[0].value, `Approval: ${gate}`);
+  assert.equal(snapshot.approval_interaction.authorizes, false);
+  assert.equal(snapshot.authorizes, false);
+  assert.equal(Object.isFrozen(snapshot), true);
+  assert.equal(Object.isFrozen(snapshot.compact_status_card.fields), true);
+  assert.equal(Object.isFrozen(snapshot.approval_interaction.options), true);
+}
+
+const readyStatus = { run_id: "r", status: "open", current_gate: "QA", missing_approval: "Approval: QA" };
+const readyHuman = { runTitle: "Run", gateTitle: "QA", artefactRefs: [] };
+assert.equal(buildApprovalOrientationSnapshot({ ready: false, statusCard: readyStatus, humanPresentation: readyHuman, registry, requestedLocale: "en" }), null);
+assert.equal(buildApprovalOrientationSnapshot({ ready: true, statusCard: { ...readyStatus, status: "blocked" }, humanPresentation: readyHuman, registry, requestedLocale: "en" }), null);
+assert.equal(buildApprovalOrientationSnapshot({ ready: true, statusCard: { ...readyStatus, missing_approval: "Approval: TP" }, humanPresentation: readyHuman, registry, requestedLocale: "en" }), null);
+assert.equal(buildApprovalOrientationSnapshot({ ready: true, statusCard: { ...readyStatus, current_gate: "Brownfield Analysis" }, humanPresentation: readyHuman, registry, requestedLocale: "en" }), null);
+
+const attachedStatus = { ...readyStatus };
+const publicKeysBefore = Object.keys(attachedStatus);
+const attachedSnapshot = attachApprovalOrientationSnapshot(attachedStatus, {
+  ready: true,
+  humanPresentation: readyHuman,
+  revisionId: "revision-attach",
+  registry,
+  requestedLocale: "en",
+});
+assert.equal(attachedStatus.approvalOrientation, attachedSnapshot);
+assert.equal(attachedSnapshot.revision_id, "revision-attach");
+assert.deepEqual(Object.keys(attachedStatus), publicKeysBefore);
+assert.equal(JSON.stringify(attachedStatus).includes("approvalOrientation"), false);
+assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card missing/);
 
 const readiness = buildQualityReadiness({
   planCoverage: "pass",

@@ -26,6 +26,7 @@ import {
   verifyLegacyProjection,
 } from "../lib/control-state/index.js";
 import {
+  attachApprovalOrientationSnapshot,
   buildArtefactRefs,
   buildRunCandidates,
   buildQualityReadiness,
@@ -2703,9 +2704,17 @@ function evaluateGateCheck(targetDir, selection = {}) {
     chatLanguage: presentationLocale,
     findings: deliveryMap.findings,
   });
+  const humanPresentation = buildHumanPresentation(targetDir, runState, currentGate, presentationLocale);
   Object.defineProperty(statusCard, "humanPresentation", {
-    value: buildHumanPresentation(targetDir, runState, currentGate, presentationLocale),
+    value: humanPresentation,
     enumerable: false,
+  });
+  attachApprovalOrientationSnapshot(statusCard, {
+    ready: status === "open" && missingApproval === `Approval: ${currentGate}`,
+    humanPresentation,
+    revisionId: extractField(runState.content ?? "", "revision_id"),
+    registry: interactionLocales,
+    requestedLocale: presentationLocale,
   });
   Object.defineProperty(statusCard, "runState", {
     value: runState,

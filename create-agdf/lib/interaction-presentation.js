@@ -2,6 +2,7 @@ const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
 const OUTCOMES = new Set(["approve", "revise", "decline", "cancel", "no_response", "timeout", "empty", "invalid", "stale"]);
 const ATTEMPT_OUTCOMES = new Set(["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]);
+const APPROVAL_SEQUENCE = Object.freeze(["run_status_card", "gate_transition_card", "approval_interaction"]);
 const QUALITY_STATUS_RANK = { pass: 0, warn: 1, revise: 2, block: 3 };
 const QUALITY_DIMENSIONS = Object.freeze([
   Object.freeze({ id: "plan_coverage", owner: "task-plan-review" }),
@@ -210,6 +211,68 @@ export function normalizeInteractionOutcome(value, { expectedApproval, stale = f
   return "invalid";
 }
 
+export function buildApprovalOrientationSnapshot({
+  ready = false,
+  statusCard,
+  humanPresentation,
+  revisionId = "",
+  registry,
+  requestedLocale,
+} = {}) {
+  if (!ready || !plainObject(statusCard) || !plainObject(humanPresentation)) return null;
+  const gate = String(statusCard.current_gate ?? "").trim();
+  const runId = String(statusCard.run_id ?? "").trim();
+  const expectedApproval = `Approval: ${gate}`;
+  if (!REQUIRED_GATES.includes(gate) || !runId || statusCard.status !== "open" || statusCard.missing_approval !== expectedApproval) return null;
+
+  const locale = resolvePresentationLocale(registry, requestedLocale);
+  const pack = localePack(registry, locale);
+  const runTitle = String(humanPresentation.runTitle ?? "").trim() || normalizedRunTitle(runId);
+  const currentGateTitle = String(humanPresentation.gateTitle ?? "").trim() || gateTitle(registry, locale, gate);
+  const artefactRefs = Object.freeze([...(humanPresentation.artefactRefs ?? [])].map((ref) => Object.freeze({ ...ref })));
+  const statusFields = Object.freeze([
+    Object.freeze({ id: "selected_run", label: pack.statusCard.run, value: `${runTitle} · ${runId}` }),
+    Object.freeze({ id: "readiness_status", label: pack.statusCard.title, value: pack.interaction.ready }),
+    Object.freeze({ id: "current_gate", label: pack.statusCard.gate, value: `${gate} — ${currentGateTitle}` }),
+    Object.freeze({ id: "missing_approval", label: pack.statusCard.missing, value: expectedApproval }),
+    Object.freeze({ id: "next_action", label: pack.statusCard.step, value: pack.primary.actions[gate] ?? String(statusCard.next_step ?? "") }),
+    Object.freeze({ id: "quality_outlook", label: pack.statusCard.quality, value: pack.primary.quality }),
+  ]);
+  const options = Object.freeze(gateOptions(registry, locale, gate).map((option) => Object.freeze({ ...option })));
+
+  return Object.freeze({
+    schema_version: "1",
+    run_id: runId,
+    revision_id: String(revisionId ?? "").trim(),
+    current_gate: gate,
+    presentation_language: locale,
+    sequence: APPROVAL_SEQUENCE,
+    compact_status_card: Object.freeze({ title: pack.statusCard.title, fields: statusFields }),
+    gate_transition_card: Object.freeze({
+      title: `${currentGateTitle} · ${runTitle} · ${runId}`,
+      artefact_refs: artefactRefs,
+      ready: pack.interaction.ready,
+      approve_heading: pack.interaction.approveHeading,
+      exact_approval: expectedApproval,
+      approval_effect: pack.primary.afterApproval[gate] ?? pack.primary.actions[gate] ?? "",
+      next_heading: pack.interaction.nextHeading,
+      next_gate: String(statusCard.next_gate_after_approval ?? "none"),
+    }),
+    approval_interaction: Object.freeze({ expected_approval: expectedApproval, options, authorizes: false }),
+    authorizes: false,
+  });
+}
+
+export function attachApprovalOrientationSnapshot(statusCard, options = {}) {
+  if (!plainObject(statusCard)) throw new Error("approval orientation status card missing");
+  const snapshot = buildApprovalOrientationSnapshot({ ...options, statusCard });
+  Object.defineProperty(statusCard, "approvalOrientation", {
+    value: snapshot,
+    enumerable: false,
+  });
+  return snapshot;
+}
+
 function qualityStatus(value) {
   const normalized = String(value ?? "").trim().toLowerCase();
   return Object.hasOwn(QUALITY_STATUS_RANK, normalized) ? normalized : "unknown";
@@ -253,5 +316,6 @@ export const interactionPresentationConstants = Object.freeze({
   artefactOrder: Object.freeze([...ARTEFACT_ORDER]),
   outcomes: Object.freeze([...OUTCOMES]),
   attemptOutcomes: Object.freeze([...ATTEMPT_OUTCOMES]),
+  approvalSequence: APPROVAL_SEQUENCE,
   qualityDimensions: QUALITY_DIMENSIONS,
 });

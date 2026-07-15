@@ -1135,14 +1135,17 @@ run("config", [
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
     execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "locale-card"], { stdio: "pipe" });
     const german = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;
-    if (!german.includes("AGDF-Statuskarte:") || !german.includes("Ausgewählter Run: locale-card") || !german.includes("Aktuelles Gate: UR") || !german.includes("Fehlende Freigabe: Approval: UR")) {
+    if (!german.includes("AGDF-Statuskarte:") || !german.includes("Ausgewählter Run: locale-card") || !german.includes("Run-Titel:") || !german.includes("Aktuelles Gate: UR — Nutzeranforderungen") || !german.includes("Artefakte:") || !german.includes("Fehlende Freigabe: Approval: UR")) {
       throw new Error("German chat language should render a German status card while preserving the exact English approval token.");
+    }
+    for (const rawPrimary of ["internal_next_step", "next_user_gate", "mode_slice_decision", "Internal next step", "Allowed now:"]) {
+      if (german.includes(rawPrimary)) throw new Error(`German primary status card must not expose mixed or raw process wording: ${rawPrimary}`);
     }
     const configPath = join(tempDir, ".agdf", "control", "config.json");
     const config = JSON.parse(readFileSync(configPath, "utf8"));
     writeFileSync(configPath, `${JSON.stringify({ ...config, chat_language: "fr" }, null, 2)}\n`, "utf8");
     const fallback = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;
-    if (!fallback.includes("AGDF status-card:") || !fallback.includes("Selected run: locale-card") || !fallback.includes("Current gate: UR") || !fallback.includes("Missing approval: Approval: UR")) {
+    if (!fallback.includes("AGDF status-card:") || !fallback.includes("Selected run: locale-card") || !fallback.includes("Run title:") || !fallback.includes("Current gate: UR — User requirements") || !fallback.includes("Artefacts:") || !fallback.includes("Missing approval: Approval: UR")) {
       throw new Error("Unsupported chat language should fall back deterministically to English status-card copy.");
     }
   } finally {
@@ -1230,6 +1233,11 @@ run("config", [
     join(generatedRoot, ".github", "skills", "agdf-runtime-contract.md"),
     join(generatedRoot, ".opencode", "agdf-runtime-contract.md"),
   ];
+  const transitionLocalePaths = [
+    join(generatedRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"),
+    join(generatedRoot, ".github", "skills", "agdf-interaction-locales.json"),
+    join(generatedRoot, ".opencode", "agdf-interaction-locales.json"),
+  ];
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
@@ -1249,6 +1257,13 @@ run("config", [
       || !content.includes("Run Status Card remains the operational,")
       || !content.includes("must not be a Markdown table or dashboard")) {
       throw new Error(`Generated runtime contract must preserve the transition-card and status-projection boundary: ${path}`);
+    }
+  }
+
+  const canonicalLocales = readFileSync(transitionLocalePaths[0], "utf8");
+  for (const path of transitionLocalePaths) {
+    if (readFileSync(path, "utf8") !== canonicalLocales) {
+      throw new Error(`Generated interaction locale registry must remain byte-identical: ${path}`);
     }
   }
 }
@@ -1859,7 +1874,7 @@ ${internalRows}
       throw new Error("Status card should identify SD as the next actual user gate after PRD approval.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
-    if (!statusCardOutput.includes("Next gate after approval: SD") || !statusCardOutput.includes("Allowed after approval: Draft Solution Design") || !statusCardOutput.includes("User action required: yes")) {
+    if (!statusCardOutput.includes("Next gate after approval: SD — Solution design") || !statusCardOutput.includes("Allowed after approval: Draft the solution design; implementation remains blocked.") || statusCardOutput.includes("User action required:")) {
       throw new Error("gate-check --status-card should print post-approval transition lines for missing approval cases.");
     }
     if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {

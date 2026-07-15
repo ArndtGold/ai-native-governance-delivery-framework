@@ -1,5 +1,8 @@
+import { normalizeInteractionOutcome } from "../interaction-presentation.js";
+
 export function validateGateApprovalResponse({
   response,
+  responseOutcome,
   responseOrigin,
   expectedApproval,
   expectedRunId,
@@ -9,12 +12,12 @@ export function validateGateApprovalResponse({
   expectedRevisionId,
   currentRevisionId,
   durableArtefactReady,
+  timedOut = false,
+  noResponse = false,
 }) {
   const checks = [
     [responseOrigin === "deliberate_user_input", "non_deliberate_response"],
-    [typeof response === "string" && response.length > 0, "empty_response"],
     [expectedApproval === `Approval: ${expectedGate}`, "approval_formula_mismatch"],
-    [response === expectedApproval, "wrong_or_non_approval_response"],
     [Boolean(expectedRunId) && expectedRunId === currentRunId, "changed_or_wrong_run"],
     [Boolean(expectedGate) && expectedGate === currentGate, "changed_or_wrong_gate"],
     [Boolean(expectedRevisionId) && expectedRevisionId === currentRevisionId, "stale_revision"],
@@ -22,7 +25,25 @@ export function validateGateApprovalResponse({
   ];
 
   const failed = checks.find(([accepted]) => !accepted);
-  return failed
-    ? { accepted: false, reason: failed[1] }
-    : { accepted: true, reason: "accepted" };
+  if (failed) return { accepted: false, reason: failed[1] };
+
+  const outcomeCandidate = responseOutcome && responseOutcome !== "approve" ? responseOutcome : response;
+  const outcome = normalizeInteractionOutcome(outcomeCandidate, {
+    expectedApproval,
+    timedOut,
+    noResponse,
+  });
+  const rejectionReasons = {
+    revise: "revision_requested",
+    decline: "declined",
+    cancel: "cancelled",
+    no_response: "no_response",
+    timeout: "timed_out",
+    empty: "empty_response",
+    invalid: "wrong_or_non_approval_response",
+    stale: "stale_response",
+  };
+  return outcome === "approve"
+    ? { accepted: true, reason: "accepted" }
+    : { accepted: false, reason: rejectionReasons[outcome] ?? "wrong_or_non_approval_response" };
 }

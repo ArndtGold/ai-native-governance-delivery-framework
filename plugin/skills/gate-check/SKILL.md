@@ -54,7 +54,7 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 
 ## Native Interaction Path
 
-Use the Runtime Contract's Native Interaction Contract to classify every candidate interaction as `clarification`, `tool_permission` or `gate_approval` before selecting a host control.
+Use the Runtime Contract's Native Interaction Contract to classify every candidate interaction as `clarification`, `tool_permission`, `gate_approval`, `blocked` or `status` before selecting a host control.
 
 Prefer inspection over asking. Do not invoke a structured question for status reporting, facts available in the repository, routine read-only work or a gate that is not ready. Do not repeatedly prompt for the same non-ready gate.
 
@@ -62,20 +62,20 @@ For a ready `gate_approval`:
 
 1. Resolve exactly one selected run and evaluate the current gate.
 2. Confirm the required durable artefact is present and ready before presenting a question.
-3. Render a separate localized Gate Transition Card immediately before any native question or exact-text fallback. Never put the card only into the question, button description or hidden tool context.
+3. Render a separate localized Gate Transition Card immediately before any native question or exact-text fallback. It includes the deterministic human run title and `UR · PRD · SD · TP` links from the selected run. Never put the card only into the question, button description or hidden tool context.
 4. Treat the operational Run Status Card as evaluation and audit input, not as the approval-time product surface. Do not paste its table, raw keys, machine statuses, evidence or diagnostic detail into the transition card.
 5. Compose the transition card as one human-readable gate title with `run_id`, one ready-for-decision line, one short approval-effect block and one short next-transition block. It must answer only: where am I, what does this decision do, and what happens next.
 6. Distinguish internal process steps from user decisions in natural language. For example, after `Approval: TP`, say that pre-implementation Brownfield Analysis runs next and that no further user action is required now; do not expose `next_user_gate: none` or `user_action_required: no`, and do not ask for a second approval for Brownfield Analysis.
 7. Ask exactly one question that names the selected `run_id` and `current_gate`.
-8. Offer the exact approving option `Approval: <GateName>` plus bounded revise and cancel/decline outcomes.
+8. Offer options in stable order: exact `Approval: <GateName>`, localized revise and localized decline. Add explicit cancel only where supported after decline; otherwise host dismissal maps to cancel. Never preselect, skip, auto-submit or reorder an option.
 9. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution; otherwise request the same exact approval in concise text.
 10. Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence.
 11. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
 12. Persist accepted input only through the existing control-state workflow.
 
-Before composing the question, resolve the configured chat locale from `.agdf/control/config.json`. Use German presentation text for `chat_language: de`; use English for `chat_language: en` or as the deterministic fallback for an absent or unsupported locale. Keep `Approval: <GateName>` exactly unchanged in every language, and do not mix presentation languages within one question.
+Before composing the question, resolve the configured chat locale from `.agdf/control/config.json` through `plugin/meta/agdf-interaction-locales.json`: exact complete pack, language subtag, then English fallback. German and English are initial packs, not a closed language list. Keep `Approval: <GateName>` exactly unchanged in every language, and do not mix presentation languages within one interaction. Labels and descriptions use the same resolved locale; host-owned UI chrome remains host-owned and may use a different language.
 
-For the transition card, German uses `Bereit für deine Entscheidung`, `Jetzt freigeben` and `Danach`; English uses `Ready for your decision`, `Approve now` and `Next`. Keep each card in one locale. Use a human-readable gate title rather than an internal status label. Do not render a Markdown table, dashboard rows, raw control-state keys, diagnostic codes, evidence lists, a duplicated gate question or a false user gate in the approval-time card.
+For the transition card, use the complete resolved locale pack. The initial German pack includes `Bereit für deine Entscheidung`, `Jetzt freigeben` and `Danach`; the initial English pack includes `Ready for your decision`, `Approve now` and `Next`. Keep each card in one locale. Use a localized human-readable gate title rather than an internal status label, while leaving the exact gate identifier and approval value unchanged. Do not render a Markdown table, dashboard rows, raw control-state keys, diagnostic codes, evidence lists, a duplicated gate question or a false user gate in the approval-time card.
 
 The primary option remains exactly `Approval: SD`; only explanatory copy and non-authoritative outcome labels are localized. Concrete localized copy belongs to the user-facing interaction layer or the approved delivery artefact, not to English runtime rules.
 
@@ -91,9 +91,11 @@ Surface behavior:
 - OpenCode: use built-in `question` when permitted. Preserve explicit `permission.question` denial and use exact text in that case. `once`, `always`, `reject` and auto mode never become gate input.
 - Other, unavailable or non-interactive surfaces: use exact textual approval and wait for a new explicit user response.
 
-Localized labels such as `Überarbeiten`/`Revise`, `Ablehnen`/`Decline` and `Abbrechen`/`Cancel` are presentation mappings to stable non-approval outcomes only. Host-provided free-text or `Überspringen`/`Skip` actions never advance an AGDF gate.
+Localized labels such as `Überarbeiten`/`Revise`, `Ablehnen`/`Decline` and `Abbrechen`/`Cancel` are presentation mappings to stable non-approval outcomes only. A label, description, option position or recommendation never authorizes a gate. Host-provided free-text or `Überspringen`/`Skip` actions never advance an AGDF gate.
 
-A free-form response must still exactly match the current gate's approval formula after revalidation. Revise, decline and cancel never advance the gate. Native presentation, host permission and plan approval are inputs or separate authority domains, never durable AGDF authority.
+A free-form response must still exactly match the current gate's approval formula after revalidation. Keep `decline`, `cancel`, `no_response`, `timeout`, `empty`, `invalid` and `stale` distinct; none advances the gate. Native presentation, host permission and plan approval are inputs or separate authority domains, never durable AGDF authority.
+
+Every primary chat card shows the selected run's `UR`, `PRD`, `SD` and `TP` in that order. Render an existing canonical path as a readable link and a missing artefact as localized non-link text; never guess paths. Resolve the human run title from current artefact heading, approved UR heading, Objective, then normalized `run_id`. Status, blocked, clarification and internal-step interactions use the same locale and artefact projection but do not show approval buttons. Keep raw process keys and machine status values in JSON or audit detail.
 
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.

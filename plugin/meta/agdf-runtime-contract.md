@@ -84,7 +84,7 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 - `mode`: `quick_task | verified_change | structured_delivery | unknown`
 - `run_id`: the exactly selected canonical run
-- `presentation_language`: `de | en`, with unsupported or absent chat language resolved to `en`
+- `presentation_language`: the resolved complete locale-pack tag; absent, unsupported or incomplete packs resolve to the registry's deterministic `en` fallback
 - `status`: `open | blocked | pass | warn | revise | block | in_progress`
 - `current_gate`: current user gate or internal step
 - `mode_slice_decision`: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`
@@ -157,8 +157,9 @@ question or exact-text fallback.
 
 The card answers exactly three user questions, in this order:
 
-1. **Where am I?** A human-readable gate title, selected `run_id` as secondary
-   context and a clear ready-for-decision state.
+1. **Where am I?** A localized human-readable gate title, deterministic human
+   run title, selected `run_id` as secondary context, compact `UR · PRD · SD · TP`
+   artefact links and a clear ready-for-decision state.
 2. **What does this decision do?** The exact `Approval: <GateName>` value, its
    concrete next outcome and the most important boundary that remains.
 3. **What happens next?** The immediate agent-controlled action and the next
@@ -168,7 +169,8 @@ The card answers exactly three user questions, in this order:
 Use this compact composition:
 
 ```text
-<human-readable gate title> · <run_id>
+<localized gate title> · <human run title> · <run_id>
+<UR link or localized missing text> · <PRD link or localized missing text> · <SD link or localized missing text> · <TP link or localized missing text>
 <localized ready-for-decision line>
 
 <localized approve heading>
@@ -178,11 +180,14 @@ Use this compact composition:
 <localized immediate agent action>. <localized next user decision or no-action statement>.
 ```
 
-Resolve all explanatory text through the Interaction Locale Contract. German
-uses the approved German product labels for readiness, approval and the next
-transition; English is the deterministic default for absent or unsupported
-locales. Gate names, `run_id` and exact approval values are never translated.
-The meaning, ordering and authority boundary must be identical across locales.
+Resolve all AGDF-owned explanatory text through the canonical Interaction
+Locale Registry. `en` and `de` are initial reviewed packs, not a closed locale
+list. English is the deterministic fallback for absent, unsupported or
+incomplete packs. Gate identifiers, `run_id`, canonical paths and exact
+approval values are never translated. The visible gate title is localized;
+for example, the German title may be `Lösungsdesign` while the authorization
+value remains `Approval: SD`. Meaning, ordering and authority boundaries are
+identical across locale packs.
 
 The approval-time card must not be a Markdown table or dashboard. It must not
 present raw control-state keys, machine status values, diagnostic codes,
@@ -333,11 +338,13 @@ Every AGDF interaction belongs to exactly one semantic kind:
 - `clarification`: asks for missing intent or a choice that does not itself authorize a gated transition.
 - `tool_permission`: requests host-owned authority for a command, file change, network access, external path, app action or comparable technical side effect.
 - `gate_approval`: requests deliberate user input for the one current AGDF user gate after its durable artefact and selected run are ready.
+- `blocked`: explains a blocker and the one permissible recovery action without offering approval controls.
+- `status`: reports current state without asking for a decision.
 
 The semantic interaction envelope is:
 
 ```text
-interaction_kind: clarification | tool_permission | gate_approval
+interaction_kind: clarification | tool_permission | gate_approval | blocked | status
 surface: codex | claude | opencode | fallback
 run_id: required for gate_approval
 current_gate: required for gate_approval
@@ -364,7 +371,7 @@ Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. emit the separate localized Gate Transition Card immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` plus bounded revise and cancel/decline outcomes;
+3. emit the separate localized Gate Transition Card immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
@@ -375,7 +382,7 @@ host control is presented, or the agent immediately uses the exact-text
 fallback. A host that does not apply the control does not trigger a second
 native prompt. AGDF must not simulate or force host-owned presentation.
 
-A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. Revise, decline and cancel outcomes never advance a gate.
+A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. A localized label, description, option position, recommendation style or host action never authorizes a gate. Revise, decline and cancel outcomes never advance a gate.
 
 Surface adapter rules:
 
@@ -392,17 +399,62 @@ Exact textual approvals remain canonical and fully supported on every surface. I
 
 ### Interaction Locale Contract
 
-User-facing native questions, option descriptions and exact-text fallback explanations use the configured project chat language from `.agdf/control/config.json`:
+User-facing native questions, option descriptions, primary chat cards, exact-text
+fallback and human CLI output use the configured project chat language from
+`.agdf/control/config.json` and the canonical registry
+`plugin/meta/agdf-interaction-locales.json`:
 
-- `chat_language: de` selects the German presentation copy;
-- `chat_language: en` selects English presentation copy;
-- an absent, unsupported or not-yet-translated chat language falls back deterministically to English;
-- one question must not mix presentation languages;
+- resolve an exact complete pack, then its language subtag, then deterministic English fallback;
+- `en` and `de` are the initial complete packs; additional reviewed complete packs are supported without changing runtime logic;
+- an incomplete pack is unsupported and must fail to English as a unit;
+- one interaction must not mix presentation languages, including labels and descriptions;
 - durable artefacts, runtime rules, task identifiers and machine-facing approval values remain English;
 - the exact approval value remains `Approval: <GateName>` in every locale;
-- localized `revise`, `decline` and `cancel` labels are presentation text only and never carry gate authority.
+- localized `revise`, `decline` and `cancel` labels are presentation text only and never carry gate authority;
+- host-owned chrome follows the host's own UI language and must not be presented as AGDF-translated chat copy.
 
 The locale changes presentation only. It must not change gate meaning, option ordering, readiness, validation, revalidation or persistence. Host-provided free-text labels and skip actions are not AGDF-owned approval options and must never advance a gate.
+
+### Human Decision Presentation Contract
+
+The primary user surface is a pure projection of the selected canonical run.
+It must never become a second evaluator, state store, renderer authority or
+approval path. Native controls, exact-text fallback and human CLI output use
+the same semantic payload and outcome ordering; machine JSON retains its
+stable field names and diagnostic values.
+
+For every primary chat card:
+
+1. Resolve a human run title deterministically from the current artefact
+   heading, approved UR heading, first non-empty Objective line, then normalized
+   `run_id`.
+2. Show `UR · PRD · SD · TP` in that stable order. Existing selected-run
+   artefacts are links with readable labels; missing artefacts use localized
+   non-link text. Never guess a path or emit a broken link.
+3. Use a localized visible gate title while preserving the exact gate identifier
+   and `Approval: <GateName>` authorization value.
+4. Keep primary copy decision-oriented. Raw keys such as `next_user_gate`,
+   `mode_slice_decision` and `required_next_gate`, diagnostic codes and machine
+   status values belong to JSON or audit detail, not the primary interaction.
+
+For a ready approval, explicit options are ordered `approve`, `revise`,
+`decline`; an explicit `cancel` follows only on surfaces that support it, while
+host dismissal maps to `cancel` on three-choice surfaces. Do not preselect,
+auto-submit, recommend as authorization, skip or reorder an option. Labels and
+descriptions use the same resolved locale and must have distinct, non-empty
+accessible names. Translation length budgets must preserve meaning without
+truncation being the only distinction.
+
+Normalize outcomes as distinct values:
+
+```text
+approve | revise | decline | cancel | no_response | timeout | empty | invalid | stale
+```
+
+Missing input, timeout, cancellation and empty input are not decline. Only
+`approve` backed by the exact revalidated `Approval: <GateName>` value may
+advance a gate. Clarification, blocked, internal-step and status-only
+interactions must not display gate-approval controls.
 
 ## Brownfield Review After G-00
 

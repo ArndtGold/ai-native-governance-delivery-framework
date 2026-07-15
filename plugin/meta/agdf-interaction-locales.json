@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "fallbackLocale": "en",
+  "optionOrder": ["approve", "revise", "decline", "cancel"],
+  "lengthBudgets": {
+    "label": 40,
+    "description": 160,
+    "title": 100
+  },
+  "locales": {
+    "en": {
+      "statusCard": {
+        "title": "AGDF status-card",
+        "run": "Selected run",
+        "humanTitle": "Run title",
+        "gate": "Current gate",
+        "blocked": "Blocked by",
+        "missing": "Missing approval",
+        "outcome": "Outcome after approval",
+        "internal": "Internal next step",
+        "userGate": "Next user gate",
+        "userAction": "User action required",
+        "nextGate": "Next gate after approval",
+        "allowedAfter": "Allowed after approval",
+        "skill": "Next skill",
+        "step": "Next step",
+        "quality": "Quality outlook",
+        "allowed": "Allowed now",
+        "forbidden": "Forbidden now",
+        "artefacts": "Artefacts"
+      },
+      "gateTitles": {
+        "UR": "User requirements",
+        "PRD": "Product requirements",
+        "SD": "Solution design",
+        "TP": "Task and test plan",
+        "QA": "Quality assurance",
+        "UAT": "User acceptance",
+        "Brownfield Review": "Brownfield review",
+        "Mode/Slice Decision": "Delivery scope decision",
+        "Brownfield Analysis": "Implementation preparation",
+        "CD+Tests": "Implementation and tests",
+        "CR": "Code review",
+        "OR": "Delivery report"
+      },
+      "interaction": {
+        "ready": "Ready for your decision",
+        "approveHeading": "Approve now",
+        "nextHeading": "Next",
+        "approveDescription": "Approve this gate with the exact authorization value.",
+        "reviseLabel": "Revise",
+        "reviseDescription": "Keep the gate open and request changes.",
+        "declineLabel": "Decline",
+        "declineDescription": "Reject this gate deliberately; authority remains unchanged.",
+        "cancelLabel": "Cancel",
+        "cancelDescription": "Close this decision without approving or declining it."
+      },
+      "artefacts": {
+        "notYetCreated": "not yet created"
+      },
+      "primary": {
+        "status": {
+          "open": "open",
+          "blocked": "blocked",
+          "pass": "passed",
+          "warn": "attention needed",
+          "revise": "revision needed",
+          "in_progress": "in progress"
+        },
+        "none": "none",
+        "blocked": "current gate prerequisites",
+        "quality": "Keep the presentation contract, evidence and gate authority aligned.",
+        "actions": {
+          "UR": "Clarify and approve the user requirements.",
+          "Brownfield Review": "Review existing owners and choose the smallest safe delivery path.",
+          "Mode/Slice Decision": "Decide the proportionate delivery scope from repository evidence.",
+          "PRD": "Define and approve the product behavior.",
+          "SD": "Define and approve the solution design.",
+          "TP": "Define and approve the task and test plan.",
+          "Brownfield Analysis": "Verify owners, reuse and regression coverage before implementation.",
+          "CD+Tests": "Implement the approved plan and collect test evidence.",
+          "CR": "Review the implementation and resolve blocking findings.",
+          "QA": "Evaluate quality evidence and make the QA decision.",
+          "UAT": "Make the deliberate user-acceptance decision.",
+          "OR": "Prepare the auditable delivery report."
+        },
+        "afterApproval": {
+          "UR": "Review existing owners and choose the proportionate delivery path; implementation remains blocked.",
+          "PRD": "Draft the solution design; implementation remains blocked.",
+          "SD": "Draft the task and test plan; implementation remains blocked.",
+          "TP": "Run pre-implementation Brownfield Analysis; implementation starts only if it passes.",
+          "QA": "Prepare the user-acceptance decision; release remains blocked.",
+          "UAT": "Prepare the delivery report; version-control and release actions still require explicit instruction."
+        }
+      }
+    },
+    "de": {
+      "statusCard": {
+        "title": "AGDF-Statuskarte",
+        "run": "Ausgewählter Run",
+        "humanTitle": "Run-Titel",
+        "gate": "Aktuelles Gate",
+        "blocked": "Blockiert durch",
+        "missing": "Fehlende Freigabe",
+        "outcome": "Ergebnis nach Freigabe",
+        "internal": "Interner nächster Schritt",
+        "userGate": "Nächstes User-Gate",
+        "userAction": "Nutzeraktion erforderlich",
+        "nextGate": "Nächstes Gate nach Freigabe",
+        "allowedAfter": "Nach Freigabe erlaubt",
+        "skill": "Nächster Skill",
+        "step": "Nächster Schritt",
+        "quality": "Qualitätsausblick",
+        "allowed": "Jetzt erlaubt",
+        "forbidden": "Aktuell verboten",
+        "artefacts": "Artefakte"
+      },
+      "gateTitles": {
+        "UR": "Nutzeranforderungen",
+        "PRD": "Produktanforderungen",
+        "SD": "Lösungsdesign",
+        "TP": "Aufgaben- und Testplan",
+        "QA": "Qualitätssicherung",
+        "UAT": "Nutzerabnahme",
+        "Brownfield Review": "Brownfield-Prüfung",
+        "Mode/Slice Decision": "Entscheidung zum Lieferumfang",
+        "Brownfield Analysis": "Implementierungsvorbereitung",
+        "CD+Tests": "Implementierung und Tests",
+        "CR": "Code-Review",
+        "OR": "Lieferbericht"
+      },
+      "interaction": {
+        "ready": "Bereit für deine Entscheidung",
+        "approveHeading": "Jetzt freigeben",
+        "nextHeading": "Danach",
+        "approveDescription": "Dieses Gate mit dem exakten Freigabewert autorisieren.",
+        "reviseLabel": "Überarbeiten",
+        "reviseDescription": "Das Gate offen lassen und Änderungen anfordern.",
+        "declineLabel": "Ablehnen",
+        "declineDescription": "Dieses Gate bewusst ablehnen; die Berechtigung bleibt unverändert.",
+        "cancelLabel": "Abbrechen",
+        "cancelDescription": "Diese Entscheidung ohne Freigabe oder Ablehnung schließen."
+      },
+      "artefacts": {
+        "notYetCreated": "noch nicht erstellt"
+      },
+      "primary": {
+        "status": {
+          "open": "offen",
+          "blocked": "blockiert",
+          "pass": "bestanden",
+          "warn": "Prüfung erforderlich",
+          "revise": "Überarbeitung erforderlich",
+          "in_progress": "in Arbeit"
+        },
+        "none": "keine",
+        "blocked": "Voraussetzungen des aktuellen Gates",
+        "quality": "Präsentationsvertrag, Nachweise und Gate-Berechtigung konsistent halten.",
+        "actions": {
+          "UR": "Nutzeranforderungen klären und freigeben.",
+          "Brownfield Review": "Bestehende Owner prüfen und den kleinsten sicheren Lieferweg wählen.",
+          "Mode/Slice Decision": "Den angemessenen Lieferumfang anhand der Repository-Nachweise festlegen.",
+          "PRD": "Produktverhalten definieren und freigeben.",
+          "SD": "Lösungsdesign definieren und freigeben.",
+          "TP": "Aufgaben- und Testplan definieren und freigeben.",
+          "Brownfield Analysis": "Owner, Wiederverwendung und Regressionstests vor der Implementierung prüfen.",
+          "CD+Tests": "Den freigegebenen Plan implementieren und Testnachweise sammeln.",
+          "CR": "Implementierung prüfen und blockierende Befunde beheben.",
+          "QA": "Qualitätsnachweise bewerten und die QA-Entscheidung treffen.",
+          "UAT": "Die bewusste Nutzerabnahme entscheiden.",
+          "OR": "Den auditierbaren Lieferbericht erstellen."
+        },
+        "afterApproval": {
+          "UR": "Bestehende Owner prüfen und den angemessenen Lieferweg wählen; die Implementierung bleibt gesperrt.",
+          "PRD": "Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt.",
+          "SD": "Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt.",
+          "TP": "Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.",
+          "QA": "Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.",
+          "UAT": "Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung."
+        }
+      }
+    }
+  }
+}

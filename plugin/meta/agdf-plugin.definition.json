@@ -67,29 +67,55 @@
   },
   "interactions": {
     "fallback": "exact_text",
+    "localeRegistry": "meta/agdf-interaction-locales.json",
+    "fallbackLocale": "en",
+    "optionOrder": [
+      "approve",
+      "revise",
+      "decline",
+      "cancel"
+    ],
+    "outcomes": [
+      "approve",
+      "revise",
+      "decline",
+      "cancel",
+      "no_response",
+      "timeout",
+      "empty",
+      "invalid",
+      "stale"
+    ],
     "surfaces": {
       "codex": {
         "questionAdapter": "request_user_input",
         "availability": "when_callable",
         "gateSafety": "omit_auto_resolution",
+        "explicitOutcomes": ["approve", "revise", "decline"],
+        "dismissOutcome": "cancel",
         "technicalPermissionOwner": "codex_host"
       },
       "claude": {
         "questionAdapter": "AskUserQuestion",
         "availability": "when_no_auto_continue_timeout",
         "gateSafety": "no_timeout_or_hook_supplied_answer",
+        "explicitOutcomes": ["approve", "revise", "decline"],
+        "dismissOutcome": "cancel",
         "technicalPermissionOwner": "claude_host"
       },
       "opencode": {
         "questionAdapter": "question",
         "availability": "when_permission_question_allows",
         "gateSafety": "preserve_explicit_deny",
+        "explicitOutcomes": ["approve", "revise", "decline"],
+        "dismissOutcome": "cancel",
         "technicalPermissionOwner": "opencode_host"
       },
       "fallback": {
         "questionAdapter": "exact_text",
         "availability": "always",
         "gateSafety": "wait_for_deliberate_user_input",
+        "explicitOutcomes": ["approve", "revise", "decline", "cancel"],
         "technicalPermissionOwner": "host_specific"
       }
     }

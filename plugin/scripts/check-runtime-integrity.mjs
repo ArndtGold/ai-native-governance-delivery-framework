@@ -12,6 +12,7 @@ const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
 const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
+const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
 const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
@@ -175,6 +176,7 @@ function assertRouterMatchesDefinition(pathLabel, content, surface) {
 }
 
 assertFile(runtimeContractPath, "runtime contract");
+assertFile(interactionLocalesPath, "interaction locale registry");
 assertFile(pluginDefinitionPath, "canonical AGDF plugin definition");
 assertFile(agentRouterPath, "canonical AGDF agent router");
 assertFile(marketplacePath, "plugin marketplace");
@@ -201,6 +203,7 @@ if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
 const runtimeContract = isFile(runtimeContractPath) ? read(runtimeContractPath) : "";
+const interactionLocales = isFile(interactionLocalesPath) ? readJson(interactionLocalesPath, "interaction locale registry") : null;
 const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
@@ -214,14 +217,22 @@ if (!runtimeContract.includes("first eligible native-attempt") || !runtimeContra
 if (!gateCheckSkill.includes("Make exactly one native-attempt") || !gateCheckSkill.includes("switch immediately")) {
   failures.push("gate-check skill must require immediate exact-text fallback after an unsuccessful native attempt");
 }
-if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeContract.includes("an absent, unsupported or not-yet-translated chat language falls back deterministically to English")) {
+if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeContract.includes("an incomplete pack is unsupported and must fail to English as a unit")) {
   failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
 }
-if (!gateCheckSkill.includes("resolve the configured chat locale") || !gateCheckSkill.includes("do not mix presentation languages within one question")) {
+if (!gateCheckSkill.includes("resolve the configured chat locale") || !gateCheckSkill.includes("do not mix presentation languages within one interaction")) {
   failures.push("gate-check skill must resolve chat locale and prohibit mixed-language gate questions");
 }
 if (!gateCheckSkill.includes("Host-provided free-text") || !gateCheckSkill.includes("Überspringen") || !gateCheckSkill.includes("never advance an AGDF gate")) {
   failures.push("gate-check skill must keep host free-text and skip actions outside AGDF gate authority");
+}
+for (const required of [
+  "Every primary chat card shows the selected run's `UR`, `PRD`, `SD` and `TP` in that order",
+  "A label, description, option position or recommendation never authorizes a gate",
+  "Status, blocked, clarification and internal-step interactions",
+  "never guess paths",
+]) {
+  if (!gateCheckSkill.includes(required)) failures.push(`gate-check Human Decision Presentation guidance missing: ${required}`);
 }
 if (!runtimeContract.includes("Before presenting `gate_approval` for any user gate")
   || !runtimeContract.includes("must emit the localized Gate Transition Card as a")
@@ -265,8 +276,18 @@ if (!runtimeContract.includes("Run Status Card remains the operational,")
 if (!runtimeContract.includes("user_visible_outcome_after_approval") || !runtimeContract.includes("next_user_gate") || !runtimeContract.includes("internal_next_step")) {
   failures.push("Runtime Contract must define the explicit user-intent transition fields");
 }
-if (!runtimeContract.includes("`run_id`: the exactly selected canonical run") || !runtimeContract.includes("`presentation_language`: `de | en`")) {
+if (!runtimeContract.includes("`run_id`: the exactly selected canonical run") || !runtimeContract.includes("`presentation_language`: the resolved complete locale-pack tag")) {
   failures.push("Runtime Contract must include selected run and resolved presentation language in the status card");
+}
+for (const required of [
+  "### Human Decision Presentation Contract",
+  "current artefact",
+  "`UR · PRD · SD · TP`",
+  "Never guess a path or emit a broken link",
+  "approve | revise | decline | cancel | no_response | timeout | empty | invalid | stale",
+  "A localized label, description, option position, recommendation style or host action never authorizes a gate",
+]) {
+  if (!runtimeContract.includes(required)) failures.push(`Human Decision Presentation Contract missing: ${required}`);
 }
 if (!runtimeContract.includes("any user gate (`UR`, `PRD`, `SD`, `TP`,") || !runtimeContract.includes("`QA`, or `UAT`)")) {
   failures.push("Runtime Contract must require the status card before every user gate");
@@ -293,6 +314,15 @@ if (pluginDefinition) {
   if (pluginDefinition.opencode?.permissions?.question !== "allow") failures.push("canonical AGDF plugin definition OpenCode permissions must allow the native question tool");
   if (pluginDefinition.opencode?.permissions?.edit !== "ask" || pluginDefinition.opencode?.permissions?.bash !== "ask") failures.push("canonical AGDF plugin definition OpenCode permissions must ask before edit and bash");
   if (pluginDefinition.interactions?.fallback !== "exact_text") failures.push("canonical AGDF plugin definition interactions must declare exact_text fallback");
+  if (pluginDefinition.interactions?.localeRegistry !== "meta/agdf-interaction-locales.json" || pluginDefinition.interactions?.fallbackLocale !== "en") {
+    failures.push("canonical AGDF plugin definition must declare the locale registry and English fallback");
+  }
+  if (JSON.stringify(pluginDefinition.interactions?.optionOrder) !== JSON.stringify(["approve", "revise", "decline", "cancel"])) {
+    failures.push("canonical AGDF plugin definition must preserve stable interaction option order");
+  }
+  if (JSON.stringify(pluginDefinition.interactions?.outcomes) !== JSON.stringify(["approve", "revise", "decline", "cancel", "no_response", "timeout", "empty", "invalid", "stale"])) {
+    failures.push("canonical AGDF plugin definition must preserve distinct interaction outcomes");
+  }
   for (const [surface, adapter, safety] of [
     ["codex", "request_user_input", "omit_auto_resolution"],
     ["claude", "AskUserQuestion", "no_timeout_or_hook_supplied_answer"],
@@ -302,6 +332,10 @@ if (pluginDefinition) {
     const interaction = pluginDefinition.interactions?.surfaces?.[surface];
     if (interaction?.questionAdapter !== adapter || interaction?.gateSafety !== safety || !interaction?.technicalPermissionOwner) {
       failures.push(`canonical AGDF plugin definition ${surface} interaction mapping must declare adapter, gate safety and technical permission owner`);
+    }
+    const expectedOutcomes = surface === "fallback" ? ["approve", "revise", "decline", "cancel"] : ["approve", "revise", "decline"];
+    if (JSON.stringify(interaction?.explicitOutcomes) !== JSON.stringify(expectedOutcomes)) {
+      failures.push(`canonical AGDF plugin definition ${surface} interaction mapping must preserve stable explicit outcome order`);
     }
   }
   if (!Array.isArray(pluginDefinition.skillSet) || pluginDefinition.skillSet.length === 0) {
@@ -318,6 +352,26 @@ if (pluginDefinition) {
   expectedSkills = (pluginDefinition.skillSet ?? [])
     .map((skill) => `${pluginDefinition.codex?.skillPrefix ?? ""}${skill?.slug ?? ""}`)
     .sort();
+}
+
+if (interactionLocales) {
+  if (interactionLocales.schemaVersion !== 1 || interactionLocales.fallbackLocale !== "en") failures.push("interaction locale registry must use schemaVersion 1 and English fallback");
+  if (JSON.stringify(interactionLocales.optionOrder) !== JSON.stringify(["approve", "revise", "decline", "cancel"])) failures.push("interaction locale registry must preserve stable option order");
+  const englishKeys = JSON.stringify(Object.keys(interactionLocales.locales?.en?.statusCard ?? {}).sort());
+  for (const locale of ["en", "de"]) {
+    const pack = interactionLocales.locales?.[locale];
+    if (!pack) {
+      failures.push(`interaction locale registry missing initial ${locale} pack`);
+      continue;
+    }
+    if (JSON.stringify(Object.keys(pack.statusCard ?? {}).sort()) !== englishKeys) failures.push(`interaction locale registry ${locale} status-card keys are incomplete`);
+    for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+      if (!pack.gateTitles?.[gate]) failures.push(`interaction locale registry ${locale} missing gate title ${gate}`);
+    }
+    for (const key of ["reviseLabel", "reviseDescription", "declineLabel", "declineDescription", "cancelLabel", "cancelDescription"]) {
+      if (!pack.interaction?.[key]) failures.push(`interaction locale registry ${locale} missing interaction copy ${key}`);
+    }
+  }
 }
 
 if (pluginDefinition && isFile(pagesSkillsPath)) {
@@ -632,13 +686,13 @@ for (const skill of expectedSkills) {
   if (skill === "gate-check") {
     for (const required of [
       "## Native Interaction Path",
-      "classify every candidate interaction as `clarification`, `tool_permission` or `gate_approval`",
+      "classify every candidate interaction as `clarification`, `tool_permission`, `gate_approval`, `blocked` or `status`",
       "Confirm the required durable artefact is present and ready before presenting a question",
       "Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence",
       "omit auto-resolution",
       "Claude permissions and `ExitPlanMode` remain separate",
       "Preserve explicit `permission.question` denial",
-      "Revise, decline and cancel never advance the gate",
+      "Keep `decline`, `cancel`, `no_response`, `timeout`, `empty`, `invalid` and `stale` distinct",
     ]) {
       if (!skillMd.includes(required)) failures.push(`gate-check native interaction guidance missing: ${required}`);
     }

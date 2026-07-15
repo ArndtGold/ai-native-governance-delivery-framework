@@ -12,6 +12,7 @@ const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefa
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const runtimeContractPath = join(fixtureRoot, "plugin", "meta", "agdf-runtime-contract.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
+const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 
 function makeFixture() {
   cpSync(join(repoRoot, "plugin"), join(fixtureRoot, "plugin"), { recursive: true });
@@ -67,6 +68,28 @@ try {
     "utf8",
   );
   expectIntegrityFailure(/gate-check native interaction guidance missing: ## Native Interaction Path/);
+
+  resetPluginFixture();
+  writeFileSync(
+    pluginDefinitionPath,
+    readFileSync(pluginDefinitionPath, "utf8").replace('[\n      "approve",\n      "revise",\n      "decline",\n      "cancel"\n    ]', '[\n      "approve",\n      "decline",\n      "revise",\n      "cancel"\n    ]'),
+    "utf8",
+  );
+  expectIntegrityFailure(/must preserve stable interaction option order/);
+
+  resetPluginFixture();
+  const localeRegistry = JSON.parse(readFileSync(interactionLocalesPath, "utf8"));
+  delete localeRegistry.locales.de.interaction.declineDescription;
+  writeFileSync(interactionLocalesPath, `${JSON.stringify(localeRegistry, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/interaction locale registry de missing interaction copy declineDescription/);
+
+  resetPluginFixture();
+  writeFileSync(
+    runtimeContractPath,
+    readFileSync(runtimeContractPath, "utf8").replace("Never guess a path or emit a broken link", "Guess a path when convenient"),
+    "utf8",
+  );
+  expectIntegrityFailure(/Human Decision Presentation Contract missing: Never guess a path or emit a broken link/);
 
   for (const [badPattern, expected] of [
     ["| Status | Value |", /Gate Transition Card must not render approval-time pattern: \| Status \|/],

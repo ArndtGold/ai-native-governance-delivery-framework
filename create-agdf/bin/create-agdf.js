@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, posix, relative, resolve } from "node:path";
@@ -25,12 +25,23 @@ import {
   parseControlState,
   verifyLegacyProjection,
 } from "../lib/control-state/index.js";
+import {
+  buildArtefactRefs,
+  canonicalizeLanguageTag,
+  formatArtefactRefs,
+  gateTitle,
+  localePack,
+  resolveHumanRunTitle,
+  resolvePresentationLocale,
+} from "../lib/interaction-presentation.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
 const generatedRoot = join(packageRoot, "generated");
 const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+const interactionLocalesPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json");
+const interactionLocales = JSON.parse(readFileSync(interactionLocalesPath, "utf8"));
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
 const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
 const npmCommand = testNpmCliPath
@@ -221,9 +232,9 @@ Backward-compatible create-agdf usage:
 Options:
   --dir <path>   Write files into a specific directory. With opencode, use this as the OpenCode config directory.
   --force        Overwrite existing generated files
-  --language <de|en>
+  --language <tag>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
-  --lang <de|en> Alias for --language
+  --lang <tag>   Alias for --language
   --json         Print machine-readable command output as JSON
   --status-card  Print compact gate-check status-card output for interactive use
   --run <run_id> Select one canonical run
@@ -246,11 +257,17 @@ Options:
 }
 
 function normalizeLanguage(value) {
-  const normalized = String(value ?? "").trim().toLowerCase().replace("_", "-");
+  return canonicalizeLanguageTag(value);
+}
+
+function configuredLanguage(value) {
+  const normalized = normalizeLanguage(value);
   if (!normalized) return "";
-  if (normalized.startsWith("de")) return "de";
-  if (normalized.startsWith("en")) return "en";
-  return "";
+  const language = normalized.split("-")[0];
+  if (interactionLocales.locales[normalized] || interactionLocales.locales[language]) {
+    return resolvePresentationLocale(interactionLocales, normalized);
+  }
+  return normalized;
 }
 
 function detectSystemLocale() {
@@ -264,7 +281,7 @@ function detectSystemLocale() {
 }
 
 function resolveLanguagePreference(explicitLanguage) {
-  const explicit = normalizeLanguage(explicitLanguage);
+  const explicit = configuredLanguage(explicitLanguage);
   if (explicit) {
     return {
       artifact_language: explicit,
@@ -276,7 +293,7 @@ function resolveLanguagePreference(explicitLanguage) {
   }
 
   const detectedLocale = detectSystemLocale();
-  const detected = normalizeLanguage(detectedLocale) || "en";
+  const detected = configuredLanguage(detectedLocale) || interactionLocales.fallbackLocale;
   return {
     artifact_language: detected,
     chat_language: detected,
@@ -288,12 +305,12 @@ function resolveLanguagePreference(explicitLanguage) {
 
 function resolveConfiguredChatLanguage(targetDir) {
   const configPath = join(targetDir, ".agdf", "control", "config.json");
-  if (!existsSync(configPath)) return "en";
+  if (!existsSync(configPath)) return interactionLocales.fallbackLocale;
   try {
     const config = JSON.parse(readFileSync(configPath, "utf8"));
-    return normalizeLanguage(config.chat_language) || "en";
+    return resolvePresentationLocale(interactionLocales, config.chat_language);
   } catch {
-    return "en";
+    return interactionLocales.fallbackLocale;
   }
 }
 
@@ -414,9 +431,9 @@ function parseArgs(argv) {
         console.error(`Missing value for ${arg}`);
         process.exit(1);
       }
-      const normalized = normalizeLanguage(next);
+      const normalized = configuredLanguage(next);
       if (!normalized) {
-        console.error("Unsupported language. Use --language de or --language en.");
+        console.error("Invalid language tag. Use a BCP 47 tag such as de, en or fr-CA.");
         process.exit(1);
       }
       language = normalized;
@@ -2246,6 +2263,48 @@ function buildStatusCard({
   };
 }
 
+function resolvedArtefactFile(targetDir, rawPath) {
+  const normalizedPath = String(rawPath ?? "").replace(/^`|`$/g, "").trim();
+  if (!normalizedPath || isAbsolute(normalizedPath) || normalizedPath.includes("<") || normalizedPath.includes(">")) return "";
+  const absolutePath = resolve(targetDir, normalizedPath);
+  if (relative(targetDir, absolutePath).startsWith("..") || !existsSync(absolutePath)) return "";
+  try {
+    const realPath = realpathSync(absolutePath);
+    return relative(realpathSync(targetDir), realPath).startsWith("..") || !statSync(realPath).isFile() ? "" : realPath;
+  } catch {
+    return "";
+  }
+}
+
+function readArtefactHeading(targetDir, artefact) {
+  const artefactPath = resolvedArtefactFile(targetDir, artefact?.path);
+  if (!artefactPath) return "";
+  try {
+    return readFileSync(artefactPath, "utf8").match(/^#\s+(.+)$/m)?.[1]?.trim() ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function buildHumanPresentation(targetDir, runState, currentGate, presentationLocale) {
+  const currentArtefactHeading = readArtefactHeading(targetDir, runState.artefacts.get(currentGate));
+  const urHeading = readArtefactHeading(targetDir, runState.artefacts.get("UR"));
+  return {
+    runTitle: resolveHumanRunTitle({
+      currentArtefactHeading,
+      urHeading,
+      runContent: runState.content,
+      runId: extractField(runState.content ?? "", "run_id") || "unknown",
+    }),
+    gateTitle: gateTitle(interactionLocales, presentationLocale, currentGate),
+    artefactRefs: buildArtefactRefs(runState.artefacts, interactionLocales, presentationLocale, {
+      pathExists(path) {
+        return Boolean(resolvedArtefactFile(targetDir, path));
+      },
+    }),
+  };
+}
+
 function durableArtefactBlock(gate, nextGate) {
   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
   const stablePath = gate === "QA" ? ".agdf/control/artefacts/<key>/QA_REPORT.md" : `.agdf/control/artefacts/<key>/${gate}.md`;
@@ -2566,6 +2625,23 @@ function evaluateGateCheck(targetDir, selection = {}) {
   }
 
   const postApproval = postApprovalTransition(missingApproval);
+  const presentationLocale = resolveConfiguredChatLanguage(targetDir);
+  const statusCard = buildStatusCard({
+    status,
+    currentGate,
+    allowed,
+    forbidden,
+    blockingReason,
+    missingApproval,
+    nextAllowedAction,
+    runState,
+    chatLanguage: presentationLocale,
+    findings: deliveryMap.findings,
+  });
+  Object.defineProperty(statusCard, "humanPresentation", {
+    value: buildHumanPresentation(targetDir, runState, currentGate, presentationLocale),
+    enumerable: false,
+  });
 
   return {
     schema_version: "1",
@@ -2582,18 +2658,7 @@ function evaluateGateCheck(targetDir, selection = {}) {
     doctor_summary: doctorReport.summary,
     evidence_refs: runState.evidence_refs,
     quality_outlook: deriveQualityOutlook(runState, deliveryMap.findings),
-    status_card: buildStatusCard({
-      status,
-      currentGate,
-      allowed,
-      forbidden,
-      blockingReason,
-      missingApproval,
-      nextAllowedAction,
-      runState,
-      chatLanguage: resolveConfiguredChatLanguage(targetDir),
-      findings: deliveryMap.findings,
-    }),
+    status_card: statusCard,
     delivery_map: {
       relationships: deliveryMap.relationships,
       mode_slice_decision: runState.mode_slice_decision,
@@ -2609,58 +2674,27 @@ function evaluateGateCheck(targetDir, selection = {}) {
 
 function printGateCheckStatusCard(report) {
   const card = report.status_card;
-  const de = card.presentation_language === "de";
-  const labels = de ? {
-    title: "AGDF-Statuskarte",
-    run: "Ausgewählter Run",
-    gate: "Aktuelles Gate",
-    blocked: "Blockiert durch",
-    missing: "Fehlende Freigabe",
-    outcome: "Ergebnis nach Freigabe",
-    internal: "Interner nächster Schritt",
-    userGate: "Nächstes User-Gate",
-    userAction: "Nutzeraktion erforderlich",
-    nextGate: "Nächstes Gate nach Freigabe",
-    allowedAfter: "Nach Freigabe erlaubt",
-    skill: "Nächster Skill",
-    step: "Nächster Schritt",
-    quality: "Qualitätsausblick",
-    allowed: "Jetzt erlaubt",
-    forbidden: "Aktuell verboten",
-  } : {
-    title: "AGDF status-card",
-    run: "Selected run",
-    gate: "Current gate",
-    blocked: "Blocked by",
-    missing: "Missing approval",
-    outcome: "User-visible outcome after approval",
-    internal: "Internal next step",
-    userGate: "Next user gate",
-    userAction: "User action required",
-    nextGate: "Next gate after approval",
-    allowedAfter: "Allowed after approval",
-    skill: "Next skill",
-    step: "Next step",
-    quality: "Quality outlook",
-    allowed: "Allowed now",
-    forbidden: "Forbidden now",
+  const labels = localePack(interactionLocales, card.presentation_language).statusCard;
+  const primary = localePack(interactionLocales, card.presentation_language).primary;
+  const presentation = card.humanPresentation ?? {
+    runTitle: card.run_id,
+    gateTitle: gateTitle(interactionLocales, card.presentation_language, card.current_gate),
+    artefactRefs: buildArtefactRefs({}, interactionLocales, card.presentation_language),
   };
-  console.log(`${labels.title}: ${card.status}`);
+  console.log(`${labels.title}: ${primary.status[card.status] ?? card.status}`);
   console.log(`${labels.run}: ${card.run_id}`);
-  console.log(`${labels.gate}: ${card.current_gate}`);
-  console.log(`${labels.blocked}: ${card.blocking_condition}`);
-  console.log(`${labels.missing}: ${card.missing_approval}`);
-  console.log(`${labels.outcome}: ${card.user_visible_outcome_after_approval}`);
-  console.log(`${labels.internal}: ${card.internal_next_step}`);
-  console.log(`${labels.userGate}: ${card.next_user_gate}`);
-  console.log(`${labels.userAction}: ${card.user_action_required}`);
-  if (card.next_gate_after_approval !== "none") console.log(`${labels.nextGate}: ${card.next_gate_after_approval}`);
-  if (card.allowed_after_approval !== "none") console.log(`${labels.allowedAfter}: ${card.allowed_after_approval}`);
-  console.log(`${labels.skill}: ${card.next_skill}`);
-  console.log(`${labels.step}: ${card.next_step}`);
-  console.log(`${labels.quality}: ${card.quality_outlook}`);
-  if (card.allowed_now.length > 0) console.log(`${labels.allowed}: ${card.allowed_now.join("; ")}`);
-  if (card.forbidden_now.length > 0) console.log(`${labels.forbidden}: ${card.forbidden_now.join("; ")}`);
+  console.log(`${labels.humanTitle}: ${presentation.runTitle}`);
+  console.log(`${labels.gate}: ${card.current_gate} — ${presentation.gateTitle}`);
+  console.log(`${labels.artefacts}: ${formatArtefactRefs(presentation.artefactRefs)}`);
+  console.log(`${labels.blocked}: ${card.blocking_condition === "none" ? primary.none : primary.blocked}`);
+  console.log(`${labels.missing}: ${card.missing_approval === "none" ? primary.none : card.missing_approval}`);
+  if (card.next_gate_after_approval !== "none") {
+    console.log(`${labels.nextGate}: ${card.next_gate_after_approval} — ${gateTitle(interactionLocales, card.presentation_language, card.next_gate_after_approval)}`);
+    console.log(`${labels.allowedAfter}: ${primary.afterApproval[card.current_gate] ?? primary.actions[card.current_gate]}`);
+  }
+  console.log(`${labels.allowed}: ${primary.actions[card.current_gate] ?? primary.none}`);
+  console.log(`${labels.step}: ${primary.actions[card.current_gate] ?? primary.none}`);
+  console.log(`${labels.quality}: ${primary.quality}`);
 }
 
 function printGateCheckReport(report, json, statusCard = false) {

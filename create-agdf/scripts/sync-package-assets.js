@@ -10,6 +10,7 @@ const sourceSkillsRoot = join(repoRoot, "plugin", "skills");
 const sourceControlRoot = join(repoRoot, "plugin", "control");
 const sourcePluginRoot = join(repoRoot, "plugin");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
+const sourceInteractionLocalesPath = join(repoRoot, "plugin", "meta", "agdf-interaction-locales.json");
 const pluginDefinitionPath = join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const generatedRoot = join(packageRoot, "generated");
 const generatedSkillsRoot = join(generatedRoot, ".github", "skills");
@@ -19,6 +20,7 @@ const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
 const generatedOpenCodeAgentsRoot = join(generatedOpenCodeRoot, "agents");
 const generatedOpenCodeSkillsRoot = join(generatedOpenCodeRoot, "skills");
 const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
+const interactionLocaleFileName = pluginDefinition.interactions.localeRegistry.split("/").at(-1);
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -265,7 +267,7 @@ function writeOpenCodeSkill(skillSlug) {
     read(sourcePath).replaceAll(
       "../../meta/agdf-runtime-contract.md",
       `../../${pluginDefinition.opencode.runtimeContractFileName}`,
-    ),
+    ).replaceAll("plugin/meta/agdf-interaction-locales.json", `../../${interactionLocaleFileName}`),
   );
 
   write(join(generatedOpenCodeSkillsRoot, targetName, "SKILL.md"), content);
@@ -298,15 +300,19 @@ function writeOpenCodeReadme(skillSlugs) {
 }
 
 function syncRuntimeContract() {
-  write(join(generatedSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), toCopilotSkillContent(read(sourceRuntimeContractPath)));
-  write(join(generatedOpenCodeRoot, pluginDefinition.opencode.runtimeContractFileName), toOpenCodeSkillContent(read(sourceRuntimeContractPath)));
+  write(join(generatedSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), toCopilotSkillContent(read(sourceRuntimeContractPath).replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName)));
+  write(join(generatedSkillsRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath));
+  write(join(generatedOpenCodeRoot, pluginDefinition.opencode.runtimeContractFileName), toOpenCodeSkillContent(read(sourceRuntimeContractPath).replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName)));
+  write(join(generatedOpenCodeRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath));
 }
 
 function syncSkill(skillSlug) {
   const sourceName = sourceSkillName(skillSlug);
   const targetName = copilotSkillName(skillSlug);
   const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
-  const normalized = toCopilotSkillContent(read(sourcePath).replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.copilot.runtimeContractFileName}`));
+  const normalized = toCopilotSkillContent(read(sourcePath)
+    .replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.copilot.runtimeContractFileName}`)
+    .replaceAll("plugin/meta/agdf-interaction-locales.json", `../${interactionLocaleFileName}`));
   write(join(generatedSkillsRoot, targetName, "SKILL.md"), normalized);
 }
 

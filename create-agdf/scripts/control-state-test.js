@@ -41,12 +41,18 @@ try {
     durableArtefactReady: true,
   });
   assert.deepEqual(validateGateApprovalResponse(approvalCandidate), { accepted: true, reason: "accepted" });
+  assert.deepEqual(validateGateApprovalResponse({ ...approvalCandidate, responseOutcome: "approve" }), { accepted: true, reason: "accepted" });
+  assert.deepEqual(validateGateApprovalResponse({ ...approvalCandidate, response: "Approve", responseOutcome: "approve" }), { accepted: false, reason: "wrong_or_non_approval_response" });
   for (const [name, override, reason] of [
-    ["unavailable adapter result", { response: "" }, "empty_response"],
+    ["unavailable adapter result", { response: undefined, noResponse: true }, "no_response"],
     ["non-deliberate response", { responseOrigin: "hook" }, "non_deliberate_response"],
     ["empty response", { response: "" }, "empty_response"],
-    ["revise", { response: "Revise" }, "wrong_or_non_approval_response"],
-    ["decline", { response: "Decline" }, "wrong_or_non_approval_response"],
+    ["revise", { responseOutcome: "revise" }, "revision_requested"],
+    ["decline", { responseOutcome: "decline" }, "declined"],
+    ["cancel", { responseOutcome: "cancel" }, "cancelled"],
+    ["timeout", { timedOut: true }, "timed_out"],
+    ["invalid", { response: "Approve" }, "wrong_or_non_approval_response"],
+    ["stale outcome", { responseOutcome: "stale" }, "stale_response"],
     ["formula mismatch", { expectedApproval: "Approval: QA" }, "approval_formula_mismatch"],
     ["stale gate", { currentGate: "QA" }, "changed_or_wrong_gate"],
     ["changed run", { currentRunId: "run-b" }, "changed_or_wrong_run"],

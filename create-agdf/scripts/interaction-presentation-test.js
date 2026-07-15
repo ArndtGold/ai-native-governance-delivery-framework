@@ -9,6 +9,7 @@ import {
   buildQualityReadiness,
   buildRunCandidates,
   executeNativeApprovalAttempt,
+  evaluateNativeApprovalCapability,
   canonicalizeLanguageTag,
   formatArtefactRefs,
   gateOptions,
@@ -99,12 +100,25 @@ const preflightSnapshot = buildApprovalOrientationSnapshot({
 const nativeAttempt = executeNativeApprovalAttempt({
   ready: true,
   orientationSnapshot: preflightSnapshot,
+  capabilityPreflight: evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" } }),
   invokeNative: () => { nativeCalls += 1; return { outcome: "attempted_not_applied", reason: "host_not_applied" }; },
   fallback: () => { fallbackCalls += 1; },
 });
 assert.equal(nativeCalls, 1);
 assert.equal(fallbackCalls, 1);
 assert.equal(nativeAttempt.outcome, "attempted_not_applied");
+const decoratedPreflight = evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "decorated_label_only", waitSafety: "deliberate_no_auto_resolution" } });
+assert.equal(decoratedPreflight.native_attempt_required, false);
+assert.equal(decoratedPreflight.reason, "decorated_only");
+assert.equal(executeNativeApprovalAttempt({ ready: true, orientationSnapshot: preflightSnapshot, capabilityPreflight: decoratedPreflight, invokeNative: () => { nativeCalls += 1; } }).attempted, false);
+assert.equal(nativeCalls, 1, "decorated-only capability must not invoke the adapter");
+assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "unsafe" } }).preflight_outcome, "unsafe_to_wait");
+assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "unknown", waitSafety: "unknown" } }).preflight_outcome, "unavailable_before_invocation");
+assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" }, runtimeCapability: { approvalValueTransport: "decorated_label_only", waitSafety: "deliberate_no_auto_resolution" } }).reason, "capability_conflict");
+assert.equal(evaluateNativeApprovalCapability({ staticCapability: { canonicalValueTransport: true, waitSafety: "deliberate_no_auto_resolution" } }).eligible, false, "legacy boolean metadata must fail closed");
+const runtimeConfirmedPreflight = evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "separate_label_and_value", waitSafety: "deliberate_no_auto_resolution" }, runtimeCapability: { approvalValueTransport: "separate_label_and_value", waitSafety: "deliberate_no_auto_resolution" } });
+assert.equal(runtimeConfirmedPreflight.eligible, true);
+assert.equal(runtimeConfirmedPreflight.evidence_source, "runtime");
 assert.equal(executeNativeApprovalAttempt({ ready: false, invokeNative: () => { nativeCalls += 1; } }).attempted, false);
 assert.equal(executeNativeApprovalAttempt({ ready: true, orientationSnapshot: null, invokeNative: () => { nativeCalls += 1; } }).reason, "orientation_preflight_failed");
 const attempt = buildInteractionAttempt({ interactionId: "i-1", runId: "alpha-run", currentGate: "UR", surface: "codex", attemptOutcome: "presented", expectedApproval: "Approval: UR" });

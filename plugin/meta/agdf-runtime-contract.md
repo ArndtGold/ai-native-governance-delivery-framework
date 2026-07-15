@@ -36,10 +36,12 @@ After `Approval: UR`, Brownfield Review may select `verified_change` only when a
 1. exactly one repository-relative canonical owner and bounded source/derived paths;
 2. no gate, permission, security, persistence, architecture, external API, CLI or release behavior impact;
 3. deterministic propagation when derived paths exist, plus at least one deterministic validation command;
-4. tracked and untracked worktree baseline paths captured before eligibility, with no candidate path already dirty; and
+4. a full baseline commit plus tracked and untracked worktree baseline paths captured before eligibility, with no candidate path already dirty; and
 5. an explicit `structured_slice` or `structured_delivery` escalation target.
 
-The record is the compact eligibility, execution and mini-closeout artefact. A missing, failed, unknown or ambiguous field/check must fail closed: mark the record `escalated` and continue at its declared structured target. Unrelated paths already dirty at baseline remain isolated; newly introduced unlisted paths invalidate the compact path. An executed record requires passing validation evidence and, where applicable, passing propagation evidence.
+The record is the compact Brownfield selection, eligibility, execution and mini-closeout artefact. The selected run may link the same normalized record path as Brownfield Review, Verified Change and OR only in `verified_change` mode and only with lifecycle-consistent role states; separate Brownfield and OR files remain supported. Permitted control paths derive only from recognized, explicitly linked artefacts beneath the selected run's own artefact directory.
+
+A missing, failed, unknown or ambiguous field/check must fail closed: mark the record `escalated` and continue at its declared structured target. Unrelated paths already dirty at baseline remain isolated; newly introduced unlisted paths invalidate the compact path. An executed record requires a machine-readable exact changed-path snapshot with passing scope status, passing validation evidence and, where applicable, passing propagation evidence. Active runs compare that snapshot with the current post-baseline worktree. Completed executed runs validate the persisted snapshot and record evidence without being retroactively invalidated by later unrelated live-worktree changes.
 
 ### Non-Normative Trivial Change Boundary
 
@@ -398,7 +400,7 @@ interaction_kind: clarification | tool_permission | gate_approval | blocked | st
 surface: codex | claude | opencode | fallback
 run_id: required for gate_approval
 current_gate: required for gate_approval
-native_attempt_required: true only for an eligible gate_approval before the first adapter attempt
+native_attempt_required: true only after ready-gate and adapter-capability preflight prove exact value transport and safe deliberate waiting
 prompt: required
 options: required for a structured question
 effects: required when the interaction can cause side effects
@@ -429,11 +431,13 @@ Before presenting `gate_approval`, the agent must:
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
 7. persist an accepted approval only through the existing control-state workflow.
 
-For an eligible `gate_approval`, `native_attempt_required` is a mandatory orchestration signal. The
-agent must make exactly one configured native adapter attempt after the two orientation cards and
-before any exact-text fallback. Hooks may prepare context but must not answer, approve or replace
-the adapter attempt. The signal is absent or false for clarification, blocked, status-only,
-internal-step and non-ready interactions.
+For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
+deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`
+is true only when current evidence proves `exact_option_value` or `separate_label_and_value` transport
+with safe deliberate waiting. Decorated-only, missing, conflicting or unknown capability fails closed to
+`unavailable_before_invocation`; unsafe waiting fails closed to `unsafe_to_wait`. Both expose false and use
+exact text without invoking the adapter. A report-only CLI evaluation has no verified current host adapter
+and therefore exposes false. Hooks may prepare context but must not answer, approve or replace an eligible attempt.
 
 The first eligible native-attempt has a single bounded outcome: the declared
 host control is presented, or the agent immediately uses the exact-text

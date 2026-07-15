@@ -2,6 +2,7 @@ const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
 const OUTCOMES = new Set(["approve", "revise", "decline", "cancel", "no_response", "timeout", "empty", "invalid", "stale"]);
 const ATTEMPT_OUTCOMES = new Set(["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]);
+const APPROVAL_VALUE_TRANSPORTS = new Set(["exact_option_value", "separate_label_and_value", "decorated_label_only", "unknown"]);
 const APPROVAL_SEQUENCE = Object.freeze(["run_status_card", "gate_transition_card", "approval_interaction"]);
 const QUALITY_STATUS_RANK = { pass: 0, warn: 1, revise: 2, block: 3 };
 const QUALITY_DIMENSIONS = Object.freeze([
@@ -180,10 +181,31 @@ export function reconcileRunScope({ requestText = "", scopeKey = "", runs = [] }
   return Object.freeze({ outcome: matches[0].lifecycle === "active" ? "active_match" : "completed_match", matches, reason: "exact_match" });
 }
 
-export function executeNativeApprovalAttempt({ ready = false, orientationSnapshot, invokeNative, fallback } = {}) {
+export function evaluateNativeApprovalCapability({ staticCapability, runtimeCapability } = {}) {
+  const staticValue = staticCapability?.approvalValueTransport;
+  const runtimeValue = runtimeCapability?.approvalValueTransport;
+  if (runtimeCapability && staticCapability && (runtimeValue !== staticValue || runtimeCapability.waitSafety !== staticCapability.waitSafety)) {
+    return Object.freeze({ eligible: false, native_attempt_required: false, preflight_outcome: "unavailable_before_invocation", reason: "capability_conflict", evidence_source: "runtime" });
+  }
+  const capability = runtimeCapability ?? staticCapability;
+  const evidenceSource = runtimeCapability ? "runtime" : staticCapability ? "static" : "none";
+  if (!capability || !APPROVAL_VALUE_TRANSPORTS.has(capability.approvalValueTransport)) return Object.freeze({ eligible: false, native_attempt_required: false, preflight_outcome: "unavailable_before_invocation", reason: "capability_missing", evidence_source: evidenceSource });
+  if (capability.waitSafety === "unsafe") return Object.freeze({ eligible: false, native_attempt_required: false, preflight_outcome: "unsafe_to_wait", reason: "unsafe_wait", evidence_source: evidenceSource });
+  if (capability.waitSafety !== "deliberate_no_auto_resolution") return Object.freeze({ eligible: false, native_attempt_required: false, preflight_outcome: "unavailable_before_invocation", reason: "capability_missing", evidence_source: evidenceSource });
+  if (!new Set(["exact_option_value", "separate_label_and_value"]).has(capability.approvalValueTransport)) return Object.freeze({ eligible: false, native_attempt_required: false, preflight_outcome: "unavailable_before_invocation", reason: capability.approvalValueTransport === "decorated_label_only" ? "decorated_only" : "capability_missing", evidence_source: evidenceSource });
+  return Object.freeze({ eligible: true, native_attempt_required: true, preflight_outcome: "eligible_for_invocation", reason: capability.approvalValueTransport === "exact_option_value" ? "exact_transport" : "separate_value_transport", evidence_source: evidenceSource });
+}
+
+export function executeNativeApprovalAttempt({ ready = false, orientationSnapshot, capabilityPreflight, invokeNative, fallback } = {}) {
   if (!ready) return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "gate_not_ready", authorizes: false });
   const preflight = validateApprovalOrientationSnapshot(orientationSnapshot);
   if (!preflight.valid) return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "orientation_preflight_failed", authorizes: false });
+  if (!capabilityPreflight?.eligible) {
+    const outcome = capabilityPreflight?.preflight_outcome === "unsafe_to_wait" ? "unsafe_to_wait" : "unavailable_before_invocation";
+    const reason = capabilityPreflight?.reason || "capability_missing";
+    if (typeof fallback === "function") fallback({ outcome, reason });
+    return Object.freeze({ attempted: false, outcome, reason, authorizes: false });
+  }
   if (typeof invokeNative !== "function") return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "adapter_unavailable", authorizes: false });
   let adapterResult;
   try {

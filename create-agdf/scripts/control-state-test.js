@@ -103,6 +103,7 @@ try {
 | CD+Tests | CD_TESTS.md | done | tested |
 | CR | CODE_REVIEW.md | done | reviewed |
 | QA | QA_REPORT.md | passed | report status remains passed |
+| OR | \`OR.md\` | done | closed |
 
 ## Mode/Slice Decision
 
@@ -114,13 +115,23 @@ try {
   const parsedControlState = parseControlState(controlStateFixture, {
     userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
     internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
+    closeoutArtefacts: ["OR"],
   });
   assert.equal(parsedControlState.approvals.get("QA")?.status, "approved");
   assert.equal(parsedControlState.artefacts.get("QA")?.status, "passed");
   assert.deepEqual(
     [...parsedControlState.artefacts.keys()],
-    ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR", "QA"],
+    ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR", "QA", "OR"],
   );
+  assert.equal(parsedControlState.artefacts.get("OR")?.path, "OR.md");
+  assert.equal(parsedControlState.artefacts.get("OR")?.path_format, "code_span");
+  const invalidPathState = parseControlState(controlStateFixture.replace("`OR.md`", "`OR.md"), { closeoutArtefacts: ["OR"] });
+  assert.equal(invalidPathState.artefacts.get("OR")?.path_format, "invalid");
+  assert.equal(invalidPathState.artefacts.get("OR")?.path_reason, "unmatched_delimiter");
+  for (const malformed of ["OR.md`", "``OR.md``", "`OR`-copy.md"]) {
+    const malformedState = parseControlState(controlStateFixture.replace("`OR.md`", malformed), { closeoutArtefacts: ["OR"] });
+    assert.equal(malformedState.artefacts.get("OR")?.path_format, "invalid", `${malformed} must remain invalid`);
+  }
   assert.equal(parsedControlState.mode_slice_decision.decision, "structured_slice");
   const qaReviseRoot = mkdtempSync(join(tmpdir(), "agdf-qa-revise-"));
   execFileSync(process.execPath, [cli, "init", "--dir", qaReviseRoot]);

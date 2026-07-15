@@ -136,7 +136,8 @@ try {
 
   resetPluginFixture();
   const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
-  delete pluginDefinition.interactions.surfaces.codex.canonicalValueTransport;
+  delete pluginDefinition.interactions.surfaces.codex.approvalValueTransport;
+  pluginDefinition.interactions.surfaces.codex.canonicalValueTransport = true;
   writeFileSync(pluginDefinitionPath, `${JSON.stringify(pluginDefinition, null, 2)}\n`, "utf8");
   expectIntegrityFailure(/codex interaction adapter must declare fail-closed canonical value transport/);
 

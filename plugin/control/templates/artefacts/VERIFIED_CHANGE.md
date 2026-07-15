@@ -13,10 +13,20 @@ Status: `draft | eligible | executed | escalated`
 - prohibited_impacts: none
 - propagation_command: none
 - validation_commands:
+- baseline_commit:
 - baseline_tracked_paths: none
 - baseline_untracked_paths: none
+- execution_changed_paths: none
+- execution_scope_status: pending
 - validation_status: pending
 - propagation_status: not_applicable
+
+## Brownfield Selection
+
+- mode: post_ur_review
+- decision: verified_change
+- scope_reason:
+- evidence:
 
 ## Eligibility Assertions
 

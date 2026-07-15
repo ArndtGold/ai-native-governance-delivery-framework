@@ -76,6 +76,24 @@ function rows(s) {
 function clean(v = "") {
   return v.replace(/^`|`$/g, "").trim();
 }
+export function parseArtefactPathCell(value = "") {
+  const raw = String(value).trim();
+  if (!raw) return { raw, path: "", format: "plain", reason: "empty" };
+  const ticks = [...raw].filter((character) => character === "`").length;
+  if (ticks === 0) return { raw, path: raw, format: "plain", reason: "none" };
+  if (ticks === 2 && raw.startsWith("`") && raw.endsWith("`")) {
+    const path = raw.slice(1, -1).trim();
+    if (path && !path.includes("`")) return { raw, path, format: "code_span", reason: "none" };
+  }
+  return {
+    raw,
+    path: "",
+    format: "invalid",
+    reason: ticks === 1 || raw.startsWith("`") !== raw.endsWith("`")
+      ? "unmatched_delimiter"
+      : "embedded_delimiter",
+  };
+}
 function meaningful(v = "") {
   return Boolean(v && !(v.startsWith("`") && v.includes("|")));
 }
@@ -96,7 +114,7 @@ function dataRows(c, h, header) {
 }
 export function parseControlState(
   content,
-  { userGates = [], internalSteps = [] } = {},
+  { userGates = [], internalSteps = [], closeoutArtefacts = [] } = {},
 ) {
   const approvals = new Map();
   for (const h of ["Approvals", "Gate Checklist"])
@@ -111,8 +129,17 @@ export function parseControlState(
     }
   const artefacts = new Map();
   for (const [t, p, s, n] of rows(section(content, "Artefacts"))) {
-    if (userGates.includes(t) || internalSteps.includes(t))
-      artefacts.set(t, { path: p ?? "", status: clean(s), notes: n ?? "" });
+    if (userGates.includes(t) || internalSteps.includes(t) || closeoutArtefacts.includes(t)) {
+      const parsedPath = parseArtefactPathCell(p ?? "");
+      artefacts.set(t, {
+        path: parsedPath.path,
+        status: clean(s),
+        notes: n ?? "",
+        raw_path: parsedPath.raw,
+        path_format: parsedPath.format,
+        path_reason: parsedPath.reason,
+      });
+    }
   }
   const mapRows = (h, header, fn) => dataRows(content, h, header).map(fn);
   const mode = section(content, "Mode/Slice Decision").trim()

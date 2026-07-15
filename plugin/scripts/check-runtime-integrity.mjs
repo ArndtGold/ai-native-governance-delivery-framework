@@ -265,9 +265,9 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     }
   }
 }
-for (const [surface, expectedTransport] of [["codex", false], ["claude", false], ["opencode", false], ["fallback", true]]) {
+for (const [surface, expectedTransport] of [["codex", "decorated_label_only"], ["claude", "decorated_label_only"], ["opencode", "decorated_label_only"], ["fallback", "exact_option_value"]]) {
   const surfaceContract = pluginDefinition?.interactions?.surfaces?.[surface];
-  if (surfaceContract?.canonicalValueTransport !== expectedTransport || surfaceContract?.authorizationPath !== "exact_text") {
+  if (surfaceContract?.approvalValueTransport !== expectedTransport || surfaceContract?.waitSafety !== "deliberate_no_auto_resolution" || surfaceContract?.authorizationPath !== "exact_text" || Object.hasOwn(surfaceContract ?? {}, "canonicalValueTransport")) {
     failures.push(`${surface} interaction adapter must declare fail-closed canonical value transport and exact-text authorization path`);
   }
 }
@@ -332,8 +332,8 @@ for (const required of [
 if (!runtimeContract.includes("any user gate (`UR`, `PRD`, `SD`, `TP`,") || !runtimeContract.includes("`QA`, or `UAT`)")) {
   failures.push("Runtime Contract must require the status card before every user gate");
 }
-if (!gateCheckSkill.includes("current gate") || !gateCheckSkill.includes("The primary option remains exactly `Approval: SD`")) {
-  failures.push("gate-check skill must define English default presentation with stable Approval token");
+if (!gateCheckSkill.includes("current gate") || !gateCheckSkill.includes("The primary option is derived exactly as `Approval: <GateName>`")) {
+  failures.push("gate-check skill must derive the stable Approval token from the current gate");
 }
 
 if (pluginDefinition) {

@@ -75,17 +75,18 @@ For a ready `gate_approval`:
 13. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
 14. Persist accepted input only through the existing control-state workflow.
 
-The ready-gate projection must expose `native_attempt_required: true`. Treat this as a mandatory
-orchestration instruction: after rendering the two cards, invoke the configured native question
-adapter exactly once before using the exact-text fallback. A hook, permission result or session
-context message cannot replace that attempt or supply its answer. For every non-ready interaction,
-the signal is absent or false and no approval control may be shown.
+Before projecting a ready gate, evaluate adapter callability, deliberate wait safety and canonical
+approval-value transport. Expose `native_attempt_required: true` only when that preflight proves
+`exact_option_value` or `separate_label_and_value` transport with safe deliberate waiting. Decorated-only,
+missing, conflicting or unknown capability exposes false and `unavailable_before_invocation`; unsafe
+waiting exposes false and `unsafe_to_wait`. In both cases use exact text without invoking the adapter.
+A hook, permission result or session context message cannot replace an eligible attempt or supply its answer.
 
 Before composing the question, resolve the configured chat locale from `.agdf/control/config.json` through `plugin/meta/agdf-interaction-locales.json`: exact complete pack, language subtag, then English fallback. German and English are initial packs, not a closed language list. Keep `Approval: <GateName>` exactly unchanged in every language, and do not mix presentation languages within one interaction. Labels and descriptions use the same resolved locale; host-owned UI chrome remains host-owned and may use a different language.
 
 For the transition card, use the complete resolved locale pack. The initial German pack includes `Bereit für deine Entscheidung`, `Jetzt freigeben` and `Danach`; the initial English pack includes `Ready for your decision`, `Approve now` and `Next`. Keep each card in one locale. Use a localized human-readable gate title rather than an internal status label, while leaving the exact gate identifier and approval value unchanged. Do not render a Markdown table, dashboard rows, raw control-state keys, diagnostic codes, evidence lists, a duplicated gate question or a false user gate in the approval-time card.
 
-The primary option remains exactly `Approval: SD`; only explanatory copy and non-authoritative outcome labels are localized. Concrete localized copy belongs to the user-facing interaction layer or the approved delivery artefact, not to English runtime rules.
+The primary option is derived exactly as `Approval: <GateName>` from the evaluated current gate; only explanatory copy and non-authoritative outcome labels are localized. Concrete localized copy belongs to the user-facing interaction layer or the approved delivery artefact, not to English runtime rules.
 
 Make exactly one native-attempt for the ready gate. If the host does not render,
 apply or safely return the native question on that attempt, switch immediately
@@ -125,7 +126,7 @@ Every primary chat card shows the selected run's `UR`, `PRD`, `SD` and `TP` in t
 10. Approval of one user gate permits work on the next allowed gate artefact or required internal step only; it never skips directly to implementation.
 11. New product semantics, functional change or user-visible behaviour change requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT before Brownfield Review, PRD, SD, TP, Brownfield Analysis or implementation.
 12. Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions. Approval text without the corresponding persisted or linked artefact keeps the current gate at that gate.
-13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | structured_slice | structured_delivery | block`.
+13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | verified_change | structured_slice | structured_delivery | block`.
 14. The Mode/Slice Decision must be visible and evidenced before any Quick Task execution, PRD shortcut or implementation. A decision value without scope reason and evidence is still missing.
 15. Missing or incomplete control state must not push setup work back to the user. For a fresh request, draft the current minimal artefact in the response and request the exact approval. Initialize or write `.agdf/control/` only when durable control state is explicitly requested, already live for the repository, or required for a deterministic CLI/CI setup path. Implementation remains forbidden.
 16. Branch names, uncommitted diffs, generated summaries and chat history are not sufficient scope proof when durable artefacts or approvals are missing or conflicting.

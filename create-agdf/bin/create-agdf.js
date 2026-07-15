@@ -63,6 +63,7 @@ const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
 const internalStepArtefacts = new Set(["Brownfield Review", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
+const closeoutArtefacts = new Set(["OR"]);
 const deliveryRelationships = [
   { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
   { from: "PRD", relationship: "derived_from", to: "UR", requiredBy: "PRD" },
@@ -1754,6 +1755,9 @@ function evaluateDoctor(targetDir, selection = {}) {
     for (const finding of analyzeDurableGateArtefactConsistency(runState)) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
+    for (const finding of analyzeArtefactRoleConsistency(targetDir, runState)) {
+      addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
+    }
     for (const finding of analyzeDeliveryMap(runState).findings) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
@@ -1828,6 +1832,14 @@ function gitPathList(targetDir, args) {
   }
 }
 
+function gitValue(targetDir, args) {
+  try {
+    return execFileSync("git", args, { cwd: targetDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  } catch {
+    return null;
+  }
+}
+
 function readVerifiedChangeRecord(targetDir, runState) {
   const artefact = runState.artefacts.get("Verified Change");
   if (!artefact?.path || isPlaceholderValue(artefact.path)) return { status: "missing", path: "", content: "" };
@@ -1870,9 +1882,14 @@ function evaluateVerifiedChange(targetDir, runState) {
   const validationCommands = extractField(record.content, "validation_commands");
   const baselineTracked = parseVerifiedChangePathList(extractField(record.content, "baseline_tracked_paths"));
   const baselineUntracked = parseVerifiedChangePathList(extractField(record.content, "baseline_untracked_paths"));
+  const baselineCommit = cleanStatusCell(extractField(record.content, "baseline_commit"));
+  const executionChangedPaths = parseVerifiedChangePathList(extractField(record.content, "execution_changed_paths"));
+  const executionScopeStatus = cleanStatusCell(extractField(record.content, "execution_scope_status"));
   const validationStatus = cleanStatusCell(extractField(record.content, "validation_status"));
   const propagationStatus = cleanStatusCell(extractField(record.content, "propagation_status"));
   const urArtefact = runState.artefacts.get("UR");
+  const lifecycle = extractField(runState.content, "lifecycle") || "active";
+  const runId = extractField(runState.content, "run_id") || "";
 
   if (!verifiedChangeStatuses.has(status)) add("AGDF_VERIFIED_CHANGE_STATUS_INVALID", "Verified Change record must use status draft, eligible, executed or escalated.", "Set a supported record status or escalate to the declared structured target.");
   if (!isSafeRepoRelativePath(relatedUr) || relatedUr !== urArtefact?.path) add("AGDF_VERIFIED_CHANGE_RELATED_UR_INVALID", "Verified Change record must link exactly to the selected run's repository-relative UR artefact.", "Set related_ur to the selected run's durable UR artefact path.");
@@ -1884,24 +1901,49 @@ function evaluateVerifiedChange(targetDir, runState) {
   if (!validationCommands || validationCommands === "none") add("AGDF_VERIFIED_CHANGE_VALIDATION_MISSING", "Verified Change requires at least one deterministic validation command.", "Record a deterministic acceptance or consistency check, or escalate.");
   if (derivedPaths.length > 0 && (!propagationCommand || propagationCommand === "none")) add("AGDF_VERIFIED_CHANGE_PROPAGATION_MISSING", "Derived paths require a deterministic propagation command.", "Record the propagation command or escalate.");
   if (!extractField(record.content, "baseline_tracked_paths") || !extractField(record.content, "baseline_untracked_paths")) add("AGDF_VERIFIED_CHANGE_BASELINE_MISSING", "Verified Change requires both tracked and untracked baseline path fields, using none when empty.", "Capture the worktree baseline before marking the record eligible.");
+  if (["eligible", "executed"].includes(status) && !/^[0-9a-f]{40,64}$/i.test(baselineCommit)) add("AGDF_VERIFIED_CHANGE_BASELINE_COMMIT_INVALID", "Eligible or executed Verified Change requires a full Git baseline_commit.", "Capture the current full Git commit id before eligibility or escalate.");
+
+  if (["eligible", "executed"].includes(status) && lifecycle !== "completed" && /^[0-9a-f]{40,64}$/i.test(baselineCommit)) {
+    const currentHead = gitValue(targetDir, ["rev-parse", "HEAD"]);
+    if (!currentHead) {
+      add("AGDF_VERIFIED_CHANGE_BASELINE_COMMIT_UNAVAILABLE", "Active Verified Change requires a readable current Git HEAD for baseline identity validation.", "Restore Git repository access or use the structured path.", "block");
+    } else if (baselineCommit !== currentHead) {
+      add("AGDF_VERIFIED_CHANGE_BASELINE_COMMIT_MISMATCH", "Active Verified Change baseline_commit does not match the current Git HEAD.", "Recapture the baseline before eligibility or escalate; do not reuse a stale or fabricated baseline identity.", "block");
+    }
+  }
 
   const allowedPaths = new Set([...sourcePaths, ...derivedPaths]);
   const baselinePaths = new Set([...baselineTracked, ...baselineUntracked]);
   const dirtyCandidate = [...allowedPaths].find((path) => baselinePaths.has(path));
   if (dirtyCandidate) add("AGDF_VERIFIED_CHANGE_BASELINE_CANDIDATE_DIRTY", `Declared candidate path is already dirty at baseline: ${dirtyCandidate}.`, "Escalate or start from a clean candidate path; do not adopt pre-existing edits.", "block");
 
-  const currentTracked = gitPathList(targetDir, ["diff", "HEAD", "--name-only"]);
-  const currentUntracked = gitPathList(targetDir, ["ls-files", "--others", "--exclude-standard"]);
-  if (currentTracked === null || currentUntracked === null) {
-    add("AGDF_VERIFIED_CHANGE_GIT_BASELINE_UNAVAILABLE", "Verified Change requires a readable Git worktree for scoped baseline validation.", "Use the structured path or restore Git worktree access.", "block");
+  const permittedControlPaths = new Set([record.path, runState.path, ".agdf/control/MASTER_BACKLOG.md"]);
+  const runArtefactPrefix = `.agdf/control/artefacts/${runId}/`;
+  for (const artefact of runState.artefacts.values()) {
+    if (artefact.path_format === "invalid") continue;
+    if (isSafeRepoRelativePath(artefact.path) && artefact.path.startsWith(runArtefactPrefix)) permittedControlPaths.add(artefact.path);
+  }
+
+  if (!(lifecycle === "completed" && status === "executed")) {
+    const currentTracked = gitPathList(targetDir, ["diff", "HEAD", "--name-only"]);
+    const currentUntracked = gitPathList(targetDir, ["ls-files", "--others", "--exclude-standard"]);
+    if (currentTracked === null || currentUntracked === null) {
+      add("AGDF_VERIFIED_CHANGE_GIT_BASELINE_UNAVAILABLE", "Verified Change requires a readable Git worktree for scoped baseline validation.", "Use the structured path or restore Git worktree access.", "block");
+    } else {
+      const introduced = [...new Set([...currentTracked, ...currentUntracked])].filter((path) => !baselinePaths.has(path)).sort();
+      const unexpected = introduced.filter((path) => !allowedPaths.has(path) && !permittedControlPaths.has(path));
+      if (unexpected.length > 0) add("AGDF_VERIFIED_CHANGE_SCOPE_ESCAPE", `Verified Change introduced unlisted path(s): ${unexpected.join(", ")}.`, "Mark the record escalated and continue at the declared structured target.", "block");
+      if (status === "executed" && JSON.stringify(introduced) !== JSON.stringify([...executionChangedPaths].sort())) {
+        add("AGDF_VERIFIED_CHANGE_EXECUTION_SCOPE_MISMATCH", "Executed Verified Change execution_changed_paths must equal the post-baseline changed-path set.", "Record the exact changed paths or escalate.", "block");
+      }
+    }
   } else {
-    const currentPaths = new Set([...currentTracked, ...currentUntracked]);
-    const permittedControlPaths = new Set([record.path, runState.path, ".agdf/control/MASTER_BACKLOG.md"]);
-    const unexpected = [...currentPaths].filter((path) => !baselinePaths.has(path) && !allowedPaths.has(path) && !permittedControlPaths.has(path));
-    if (unexpected.length > 0) add("AGDF_VERIFIED_CHANGE_SCOPE_ESCAPE", `Verified Change introduced unlisted path(s): ${unexpected.join(", ")}.`, "Mark the record escalated and continue at the declared structured target.", "block");
+    const unsafeExecutionPath = executionChangedPaths.find((path) => !isSafeRepoRelativePath(path) || (!allowedPaths.has(path) && !permittedControlPaths.has(path)));
+    if (unsafeExecutionPath) add("AGDF_VERIFIED_CHANGE_EXECUTION_SCOPE_INVALID", `Recorded execution path is outside the eligible scope: ${unsafeExecutionPath}.`, "Correct the historical execution snapshot or escalate.", "block");
   }
 
   if (status === "executed") {
+    if (executionChangedPaths.length === 0 || !executionChangedPaths.some((path) => allowedPaths.has(path)) || executionScopeStatus !== "pass") add("AGDF_VERIFIED_CHANGE_EXECUTION_EVIDENCE_MISSING", "Executed Verified Change requires a non-empty execution_changed_paths set containing a declared source/derived path and execution_scope_status: pass.", "Record complete execution-scope evidence or escalate.");
     if (validationStatus !== "pass") add("AGDF_VERIFIED_CHANGE_VALIDATION_EVIDENCE_MISSING", "Executed Verified Change requires validation_status: pass.", "Record passing deterministic validation evidence or escalate.");
     if (derivedPaths.length > 0 && propagationStatus !== "pass") add("AGDF_VERIFIED_CHANGE_PROPAGATION_EVIDENCE_MISSING", "Executed Verified Change with derived paths requires propagation_status: pass.", "Record successful propagation evidence or escalate.");
   }
@@ -1936,6 +1978,7 @@ function readRunState(targetDir, selection = {}) {
           const controlState = parseControlState(run.content, {
             userGates: userGateOrder,
             internalSteps: [...internalStepArtefacts],
+            closeoutArtefacts: [...closeoutArtefacts],
           });
           return {
             ...run,
@@ -1974,6 +2017,7 @@ function readRunState(targetDir, selection = {}) {
   const parsed = parseControlState(content, {
     userGates: userGateOrder,
     internalSteps: [...internalStepArtefacts],
+    closeoutArtefacts: [...closeoutArtefacts],
   });
 
   return {
@@ -2030,6 +2074,51 @@ function analyzeDurableGateArtefactConsistency(runState) {
     });
   }
 
+  return findings;
+}
+
+function analyzeArtefactRoleConsistency(targetDir, runState) {
+  const findings = [];
+  for (const [type, artefact] of runState.artefacts) {
+    if (artefact.path_format === "invalid") {
+      findings.push({
+        severity: "block",
+        code: "AGDF_ARTEFACT_PATH_FORMAT_INVALID",
+        message: `${type} uses an invalid artefact path cell (${artefact.path_reason}).`,
+        path: runState.path,
+        next_step: "Use a plain repository-relative path or one complete Markdown code span.",
+      });
+    } else if (artefact.path && !isSafeRepoRelativePath(artefact.path)) {
+      findings.push({
+        severity: "block",
+        code: "AGDF_ARTEFACT_PATH_INVALID",
+        message: `${type} must use a normalized repository-relative artefact path.`,
+        path: runState.path,
+        next_step: "Remove absolute, traversal, unsupported-backslash or otherwise non-normalized path text.",
+      });
+    }
+  }
+  const rolesByPath = new Map();
+  for (const [type, artefact] of runState.artefacts) {
+    if (!artefact.path) continue;
+    rolesByPath.set(artefact.path, [...(rolesByPath.get(artefact.path) ?? []), type]);
+  }
+  for (const [path, roles] of rolesByPath) {
+    if (roles.length < 2) continue;
+    const allowedRoles = new Set(["Brownfield Review", "Verified Change", "OR"]);
+    if (modeSliceDecision(runState) !== "verified_change" || roles.some((role) => !allowedRoles.has(role))) {
+      findings.push({ severity: "block", code: "AGDF_ARTEFACT_ROLE_ALIAS_INVALID", message: `Artefact path is reused across incompatible roles: ${roles.join(", ")}.`, path, next_step: "Use distinct artefacts or a lifecycle-consistent Verified Change compact record." });
+      continue;
+    }
+    const record = readVerifiedChangeRecord(targetDir, runState);
+    if (record.status !== "present") continue;
+    const recordStatus = cleanStatusCell(extractField(record.content, "status"));
+    const brownfieldComplete = extractField(record.content, "decision") === "verified_change" && filled(extractField(record.content, "scope_reason")) && filled(extractField(record.content, "evidence"));
+    const miniCloseoutComplete = ["delivered", "intentionally_not_delivered", "residual_risk", "next_step"].every((field) => filled(extractField(record.content, field)));
+    if (roles.includes("Brownfield Review") && (runState.artefacts.get("Brownfield Review")?.status !== "done" || !brownfieldComplete)) findings.push({ severity: "block", code: "AGDF_VERIFIED_CHANGE_BROWNFIELD_ROLE_INVALID", message: "Consolidated Brownfield Review role is incomplete.", path, next_step: "Complete Brownfield Selection before eligibility." });
+    if (roles.includes("Verified Change") && runState.artefacts.get("Verified Change")?.status !== recordStatus) findings.push({ severity: "block", code: "AGDF_VERIFIED_CHANGE_ROLE_STATUS_MISMATCH", message: "Verified Change artefact row status does not match the compact record.", path, next_step: "Align the run-state row and record status." });
+    if (roles.includes("OR") && runState.artefacts.get("OR")?.status === "done" && (recordStatus !== "executed" || !miniCloseoutComplete)) findings.push({ severity: "block", code: "AGDF_VERIFIED_CHANGE_OR_ROLE_INVALID", message: "Consolidated OR is complete before execution and Mini-Closeout evidence are complete.", path, next_step: "Complete execution and Mini-Closeout evidence before marking OR done." });
+  }
   return findings;
 }
 
@@ -2260,7 +2349,8 @@ function buildStatusCard({
   const postApproval = postApprovalTransition(missingApproval);
   const isUserGateApproval = missingApproval !== "none";
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
-  const nativeAttemptRequired = status === "open" && isUserGateApproval;
+  const nativeAttemptRequired = false;
+  const interactionKind = status === "open" && isUserGateApproval ? "gate_approval" : status === "blocked" ? "blocked" : "status";
   return {
     run_id: extractField(runState.content ?? "", "run_id") || "unknown",
     presentation_language: chatLanguage,
@@ -2284,8 +2374,10 @@ function buildStatusCard({
     next_skill: nextSkillByGate[currentGate] ?? "gate-check",
     next_step: nextAllowedAction,
     quality_outlook: qualityOutlook,
-    interaction_kind: nativeAttemptRequired ? "gate_approval" : status === "blocked" ? "blocked" : "status",
+    interaction_kind: interactionKind,
     native_attempt_required: nativeAttemptRequired,
+    native_preflight_outcome: isUserGateApproval ? "unavailable_before_invocation" : "not_applicable",
+    native_preflight_reason: isUserGateApproval ? "capability_missing" : "none",
   };
 }
 

@@ -38,3 +38,16 @@ Based on: approved `TP.md` and `CD_TESTS.md`
 - partially_done: none
 - not_done: none
 - required_next_step: Run QA; TP coverage is complete for the approved scope.
+
+## Shared Pages Scope Reconciliation (2026-07-15)
+
+- decision: `pass`
+- reviewed_delta: The completed `quality-readiness-surface` slice changed the
+  role wording in `pages/src/data/skills.ts`, which this TP already names as a
+  discovery-clarity owner.
+- TP impact: The change makes the review roles more distinguishable while
+  retaining the single canonical discovery source. It does not add a task,
+  alter acceptance criteria or weaken the UX-08 live-host evidence boundary.
+- evidence: Current interaction-presentation/control-state tests, Runtime
+  Integrity, Pages check/build and whitespace validation pass.
+- required_next_step: QA remains ready; exact `Approval: QA` is still required.

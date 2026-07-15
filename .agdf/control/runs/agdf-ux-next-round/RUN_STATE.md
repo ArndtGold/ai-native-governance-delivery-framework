@@ -4,11 +4,11 @@
 
 - control_state_version: 2
 - run_id: agdf-ux-next-round
-- lifecycle: active
+- lifecycle: completed
 - revision: 1
 - revision_id: 0545f7f2-b65a-4267-a5cc-05f4c9ac287f
 - mode: structured_delivery
-- current_gate: QA
+- current_gate: OR
 - decision: pass
 - owner: agent
 
@@ -22,11 +22,11 @@ fallback and version evidence more visible without changing gate authority.
 
 | Question | Answer |
 |---|---|
-| What is known? | The prior UX review identified four prioritized improvements: ambiguous-run choice, first-contact flow, skill grouping, and fallback/version evidence visibility. Technical interaction presentation tests and runtime-integrity checks currently pass. |
-| What is approved? | Durable UR, PRD, SD and TP approved with exact gate approvals on 2026-07-15. |
-| What is missing? | Exact QA approval; direct live-host rendering remains intentionally unverified and is not claimed. |
-| What is the next allowed action? | Request exact post-report `Approval: QA`. |
-| What is explicitly forbidden right now? | UAT, release and VCS claims before exact QA approval. |
+| What is known? | The prior UX review identified four prioritized improvements: ambiguous-run choice, first-contact flow, skill grouping, and fallback/version evidence visibility. The later completed `quality-readiness-surface` slice also changed the shared Pages skill-role copy; its bounded overlap was rechecked against this run's approved UX scope and current verification passes. |
+| What is approved? | Durable UR, PRD, SD, TP, QA and UAT accepted with exact approvals on 2026-07-15. |
+| What is missing? | No required gate approval; direct live-host rendering remains intentionally unverified and is not claimed. |
+| What is the next allowed action? | Offer delivery closeout for an explicit commit decision. |
+| What is explicitly forbidden right now? | Commit, push, pull request and release without separate explicit instruction. |
 
 ## Approvals
 
@@ -36,8 +36,8 @@ fallback and version evidence more visible without changing gate authority.
 | PRD | approved | `Approval: PRD` provided on 2026-07-15 |
 | SD | approved | `Approval: SD` provided on 2026-07-15 |
 | TP | approved | `Approval: TP` provided on 2026-07-15 |
-| QA | missing |  |
-| UAT | missing |  |
+| QA | approved | `Approval: QA` provided on 2026-07-15 after same-run/same-gate revalidation. |
+| UAT | approved | `Approval: UAT` selected through deliberate native input on 2026-07-15 after same-run/same-gate revalidation. |
 
 ## Artefacts
 
@@ -49,11 +49,13 @@ fallback and version evidence more visible without changing gate authority.
 | SD | `.agdf/control/artefacts/agdf-ux-next-round/SD.md` | approved | `Approval: SD` provided on 2026-07-15. |
 | TP | `.agdf/control/artefacts/agdf-ux-next-round/TP.md` | approved | `Approval: TP` provided on 2026-07-15. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-ux-next-round/BROWNFIELD_ANALYSIS.md` | done | Pre-implementation analysis passed; extend existing projections only. |
-| CD+Tests | `.agdf/control/artefacts/agdf-ux-next-round/CD_TESTS.md` | done | Deterministic focused, integrity, Pages and aggregate smoke evidence passed; declared task coverage is partial. |
-| TP Review | `.agdf/control/artefacts/agdf-ux-next-round/TP_REVIEW.md` | done | `revise`: UX-01/07 fully done; UX-02–05/08 partial; UX-06 not done. |
+| CD+Tests | `.agdf/control/artefacts/agdf-ux-next-round/CD_TESTS.md` | done | Deterministic focused, integrity, Pages and aggregate smoke evidence passed; the shared Pages-role-copy delta was reverified. |
+| TP Review | `.agdf/control/artefacts/agdf-ux-next-round/TP_REVIEW.md` | done | `pass`: UX-01 through UX-08 fully done; the later shared Pages-role-copy delta remains within the approved discovery-clarity boundary. |
 | Clean Implementation Review | `.agdf/control/artefacts/agdf-ux-next-round/CLEAN_IMPLEMENTATION_REVIEW.md` | done | `pass`: one-owner extension; no workaround, shim or parallel authority. |
 | CR | `.agdf/control/artefacts/agdf-ux-next-round/CODE_REVIEW.md` | done | `pass`: no implementation defect remains; TP scope gaps are QA inputs. |
-| QA | `.agdf/control/artefacts/agdf-ux-next-round/QA_REPORT.md` | pass | Refreshed QA pass; exact `Approval: QA` is still missing. |
+| QA | `.agdf/control/artefacts/agdf-ux-next-round/QA_REPORT.md` | pass | Refreshed QA pass; exact `Approval: QA` recorded on 2026-07-15. |
+| UAT Report | `.agdf/control/artefacts/agdf-ux-next-round/UAT_REPORT.md` | accepted | Exact `Approval: UAT` accepted on 2026-07-15. |
+| OR | `.agdf/control/artefacts/agdf-ux-next-round/OR.md` | pass | OR-full completed; delivery closeout is available. |
 
 ## Evidence
 
@@ -63,6 +65,7 @@ fallback and version evidence more visible without changing gate authority.
 | CD+Tests | `.agdf/control/artefacts/agdf-ux-next-round/CD_TESTS.md` | Implementation and deterministic checks | direct |
 | Reviews | `TP_REVIEW.md`; `CLEAN_IMPLEMENTATION_REVIEW.md`; `CODE_REVIEW.md` | Task coverage, solution integrity and code findings | direct |
 | QA gate | `.agdf/control/artefacts/agdf-ux-next-round/QA_REPORT.md` | Formal QA decision | direct |
+| Shared Pages scope delta | `.agdf/control/artefacts/quality-readiness-surface/OR.md`; `pages/src/data/skills.ts` | Later role-copy refinement on a shared UX path; scoped and reverified without changing this run's authority or acceptance boundary | direct |
 
 ## Mode/Slice Decision
 
@@ -83,12 +86,14 @@ fallback and version evidence more visible without changing gate authority.
 | TP | derived_from | SD | approved | `.agdf/control/artefacts/agdf-ux-next-round/TP.md` |
 | TP | approved_by | `Approval: TP` | approved | Exact approval recorded on 2026-07-15. |
 | CD+Tests | implements | TP | done | `.agdf/control/artefacts/agdf-ux-next-round/CD_TESTS.md` |
-| TP Review | verifies | TP | revise | `.agdf/control/artefacts/agdf-ux-next-round/TP_REVIEW.md` |
+| TP Review | verifies | TP | pass | `.agdf/control/artefacts/agdf-ux-next-round/TP_REVIEW.md` |
 | Clean Implementation Review | verifies | CD+Tests | pass | `.agdf/control/artefacts/agdf-ux-next-round/CLEAN_IMPLEMENTATION_REVIEW.md` |
 | CR | reviews | CD+Tests | pass | `.agdf/control/artefacts/agdf-ux-next-round/CODE_REVIEW.md` |
-| QA_REPORT | tests | TP | revise | `.agdf/control/artefacts/agdf-ux-next-round/QA_REPORT.md` |
+| QA_REPORT | tests | TP | pass | `.agdf/control/artefacts/agdf-ux-next-round/QA_REPORT.md` |
+| QA_REPORT | approved_by | `Approval: QA` | approved | Exact approval recorded on 2026-07-15 after same-run/same-gate revalidation. |
+| UAT Report | accepted_by | `Approval: UAT` | approved | Exact native approval recorded on 2026-07-15 after same-run/same-gate revalidation. |
 
 ## Closeout
 
-- next_allowed_action: Request exact post-report `Approval: QA`.
-- quality_outlook: QA pass is evidenced; wait for exact approval before UAT.
+- next_allowed_action: Offer delivery closeout for an explicit commit decision.
+- quality_outlook: UAT accepted; the completed run is ready for a commit-ready handoff, not an automatic VCS action.

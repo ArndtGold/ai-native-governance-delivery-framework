@@ -50,3 +50,11 @@ resolved or explicitly re-scoped.
 - missing_evidence: Host-native rendering remains deliberately unclaimed; this
   is an evidence boundary, not an implementation defect.
 - required_next_step: QA gate review.
+
+## Shared Pages Scope Reconciliation (2026-07-15)
+
+- decision: `pass`
+- findings: none. The later `pages/src/data/skills.ts` role-copy change is
+  bounded to the shared discovery presentation, preserves canonical metadata
+  ownership and passes the current interaction, integrity and Pages checks.
+- required_next_step: QA gate review.

@@ -42,3 +42,10 @@ does not waive those scope gaps.
   harness. No second locale policy, host adapter, status store or retry path
   was introduced.
 - required_next_step: QA gate review.
+
+## Shared Pages Scope Reconciliation (2026-07-15)
+
+- decision: `pass`
+- The later role-copy refinement stays in the existing Pages discovery owner.
+  It introduces no fallback, shim, parallel taxonomy or approval authority.
+- required_next_step: QA gate review.

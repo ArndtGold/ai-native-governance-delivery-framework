@@ -96,3 +96,15 @@ coverage; QA must not pass UX-06 or live-host evidence by inference.
   existing negative fixture proves missing German locale interaction copy fails.
 - Validation: `node create-agdf/scripts/runtime-integrity-negative-test.js`,
   Runtime Integrity, full package smoke and `git diff --check` pass.
+
+## Shared Pages Scope Reconciliation (2026-07-15)
+
+- The later completed `quality-readiness-surface` slice refined the skill-role
+  copy in `pages/src/data/skills.ts`, a shared path in this run's approved
+  discovery-clarity scope.
+- The delta preserves this run's canonical discovery ownership and does not
+  add a gate, approval or host-rendering claim. It is a compatible refinement,
+  not an unrecorded scope expansion.
+- Revalidation: interaction-presentation and control-state tests, Runtime
+  Integrity, Pages type check, Pages production build and `git diff --check`
+  pass on the combined current tree.

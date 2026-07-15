@@ -98,3 +98,33 @@ decision `pass` is required after remediation and refreshed review evidence.
 - required_next_step: Request exact post-report `Approval: QA`; only then may
   UAT be requested.
 - impact_codes: `supporting_evidence_gap_live_host`
+
+## QA Approval Record (2026-07-15)
+
+- approval: `Approval: QA`
+- status: accepted
+- validation: The exact approval was received after a same-run,
+  same-gate revalidation confirming `agdf-ux-next-round`, current gate `QA`,
+  QA decision `pass` and no doctor findings.
+- next_allowed_step: Prepare UAT evidence. UAT approval, release and delivery
+  closeout remain separate gates.
+
+## Shared Pages Scope Reconciliation (2026-07-15)
+
+## QA Gate
+
+- decision: `pass`
+- evidence: The later completed `quality-readiness-surface` slice refined
+  role-copy wording in the shared `pages/src/data/skills.ts` owner. TP Review,
+  Clean Implementation Review and Code Review each rechecked that delta as a
+  compatible discovery-clarity refinement. Interaction-presentation and
+  control-state tests, Runtime Integrity, Pages check/build and whitespace
+  validation pass on the current combined tree.
+- missing_evidence: Live-host rendering remains unverified and supporting-only;
+  this delta does not create a host rendering claim.
+- risks: The shared-path overlap is now explicit. The separate quality-readiness
+  run remains its own completed scope and does not change this run's gate or
+  approval authority.
+- required_next_step: Request exact post-report `Approval: QA`; only then may
+  UAT be requested.
+- impact_codes: `supporting_evidence_gap_live_host`

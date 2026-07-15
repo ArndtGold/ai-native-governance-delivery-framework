@@ -52,13 +52,13 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 |---|---|---|
 | `delivery-path-search` | high-impact planning decisions with several plausible next delivery steps before implementation | read-only advisory search; never grants gate permission or replaces gate-check |
 | `brownfield-analysis` | after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems | clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission |
-| `clean-implementation-review` | inspect workarounds, fallbacks, parallel structures or symptom fixes | not a TP or QA substitute |
-| `code-review` | mandatory CR step after code changes, focused on defects, regression and security findings | does not replace TP review, clean review or QA |
+| `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
+| `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
 | `gate-check` | new build/change intent, unclear approval, Structured Delivery, later-gate artefact requested | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
-| `qa-gate` | final QA decision | only instance for `pass | revise | block` |
+| `qa-gate` | sole final Quality Readiness decision | only instance for `pass | revise | block` |
 | `release-or` | auditable closeout for every relevant run | not a QA substitute |
-| `task-plan-review` | after implementation and before QA, verify TP coverage | no final QA decision |
+| `task-plan-review` | evidence dimension: verify whether the approved Task Plan was fulfilled | supports Quality Readiness; no final QA decision |
 
 Select exactly one primary skill first.
 Add more only when they cover a distinct concrete risk dimension.

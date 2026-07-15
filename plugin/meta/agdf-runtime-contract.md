@@ -145,6 +145,27 @@ and `Allowed after approval` when a missing approval exists, `Next step` and
 `Quality outlook`. Keep mode, forbidden actions, evidence and next-skill detail
 in the surrounding control artefact when they are relevant.
 
+## Quality Readiness Projection
+
+After CD+Tests, when any of the four review/QA artefacts exists, surfaces may show one compact
+derived `Quality Readiness` projection. It answers the user-facing question "what is the current
+quality outcome and what should happen next?" without replacing evidence or creating another
+decision authority.
+
+- It contains exactly four rows, in this order: `Plan coverage` from `task-plan-review`,
+  `Solution integrity` from `clean-implementation-review`, `Code quality` from `code-review`,
+  and `QA decision` from `qa-gate`.
+- `qa-gate` is always labeled as the sole decision owner. The other three rows are evidence
+  dimensions, not competing pass/revise/block decisions.
+- Overall status reuses canonical severity ordering. Missing or conflicting required evidence
+  must not render `pass`; surface `revise` or `block` with the decisive reason and one permitted
+  next action instead.
+- The projection is derived, non-persistent and non-authorizing. It cannot accept an approval,
+  advance a gate, suppress a report or replace the Run Status Card, Gate Transition Card, JSON
+  projection or durable review artefacts.
+- Show compact rows on `pass`. On `revise` or `block`, expand only the decisive row with its
+  canonical report reference; do not paste complete reports into chat.
+
 ## Gate Transition Card
 
 The Gate Transition Card is the primary user-facing orientation message for a

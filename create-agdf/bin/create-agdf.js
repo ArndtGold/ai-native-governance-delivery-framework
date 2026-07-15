@@ -28,6 +28,7 @@ import {
 import {
   buildArtefactRefs,
   buildRunCandidates,
+  buildQualityReadiness,
   canonicalizeLanguageTag,
   formatArtefactRefs,
   gateTitle,
@@ -60,7 +61,7 @@ const agdfFragmentPath = "AGENTS.agdf.md";
 const openCodeConfigFragmentPath = "opencode.agdf.json";
 const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
-const internalStepArtefacts = new Set(["Brownfield Review", "Verified Change", "Brownfield Analysis", "CD+Tests", "CR"]);
+const internalStepArtefacts = new Set(["Brownfield Review", "Verified Change", "Brownfield Analysis", "CD+Tests", "TP Review", "Clean Implementation Review", "Clean Review", "CR", "Code Review"]);
 const deliveryRelationships = [
   { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
   { from: "PRD", relationship: "derived_from", to: "UR", requiredBy: "PRD" },
@@ -2281,6 +2282,36 @@ function buildStatusCard({
   };
 }
 
+function statusFromReviewArtefact(artefact) {
+  if (!artefact) return "unknown";
+  const text = `${artefact.status ?? ""} ${artefact.notes ?? ""}`.toLowerCase();
+  for (const status of ["block", "revise", "warn", "pass"]) {
+    if (new RegExp(`\\b${status}(?:ed)?\\b`).test(text)) return status;
+  }
+  return "unknown";
+}
+
+function qualityReadinessForRunState(runState, nextAction) {
+  const artefacts = runState.artefacts;
+  const plan = artefacts.get("TP Review");
+  const clean = artefacts.get("Clean Implementation Review") ?? artefacts.get("Clean Review");
+  const code = artefacts.get("CR") ?? artefacts.get("Code Review");
+  const qa = artefacts.get("QA");
+  if (![plan, clean, code, qa].some(Boolean)) return null;
+  const reviewRows = [plan, clean, code, qa].filter(Boolean);
+  const decisive = reviewRows.find((artefact) => /\b(?:block|revise)\b/i.test(`${artefact.status ?? ""} ${artefact.notes ?? ""}`));
+  const readiness = buildQualityReadiness({
+    planCoverage: statusFromReviewArtefact(plan),
+    solutionIntegrity: statusFromReviewArtefact(clean),
+    codeQuality: statusFromReviewArtefact(code),
+    qaDecision: statusFromReviewArtefact(qa),
+    decisiveReason: decisive?.notes ?? "",
+    nextAction,
+  });
+  if (!readiness) return null;
+  return Object.freeze({ ...readiness, decisive_reference: decisive?.path ?? "" });
+}
+
 function resolvedArtefactFile(targetDir, rawPath) {
   const normalizedPath = String(rawPath ?? "").replace(/^`|`$/g, "").trim();
   if (!normalizedPath || isAbsolute(normalizedPath) || normalizedPath.includes("<") || normalizedPath.includes(">")) return "";
@@ -2676,6 +2707,10 @@ function evaluateGateCheck(targetDir, selection = {}) {
     value: buildHumanPresentation(targetDir, runState, currentGate, presentationLocale),
     enumerable: false,
   });
+  Object.defineProperty(statusCard, "runState", {
+    value: runState,
+    enumerable: false,
+  });
 
   return {
     schema_version: "1",
@@ -2730,6 +2765,21 @@ function printGateCheckStatusCard(report) {
   console.log(`${labels.allowed}: ${primary.actions[card.current_gate] ?? primary.none}`);
   console.log(`${labels.step}: ${primary.actions[card.current_gate] ?? primary.none}`);
   console.log(`${labels.quality}: ${primary.quality}`);
+  const readiness = qualityReadinessForRunState(card.runState, report.next_allowed_action);
+  if (readiness) {
+    const quality = localePack(interactionLocales, card.presentation_language).qualityReadiness;
+    console.log("");
+    console.log(`${quality.title}: ${primary.status[readiness.status] ?? readiness.status}`);
+    for (const row of readiness.rows) {
+      console.log(`${quality.rows[row.id]}: ${primary.status[row.status] ?? quality.unknown}`);
+    }
+    const reason = readiness.decisive_reason
+      || (readiness.status === "pass" ? primary.none : quality.fallbackReasons[readiness.decisive_dimension] || primary.none);
+    console.log(`${quality.reason}: ${reason}`);
+    if (readiness.status !== "pass" && readiness.decisive_reference) console.log(`${quality.reference}: ${readiness.decisive_reference}`);
+    console.log(`${quality.nextAction}: ${readiness.next_action || primary.none}`);
+    console.log(`${quality.decisionOwner}: ${quality.decisionOwnerValue}`);
+  }
 }
 
 function printGateCheckReport(report, json, statusCard = false) {

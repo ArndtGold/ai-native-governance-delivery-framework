@@ -4,6 +4,7 @@ import { join } from "node:path";
 import {
   buildArtefactRefs,
   buildInteractionAttempt,
+  buildQualityReadiness,
   buildRunCandidates,
   canonicalizeLanguageTag,
   formatArtefactRefs,
@@ -79,6 +80,24 @@ for (const attemptOutcome of ["presented", "unavailable_before_invocation", "att
   assert.equal(Object.isFrozen(receipt), true);
 }
 assert.throws(() => buildInteractionAttempt({ interactionId: "i", runId: "r", currentGate: "UR", attemptOutcome: "invalid" }));
+
+const readiness = buildQualityReadiness({
+  planCoverage: "pass",
+  solutionIntegrity: "pass",
+  codeQuality: "pass",
+  qaDecision: "revise",
+  decisiveReason: "TP coverage is incomplete",
+  nextAction: "Revise the affected task and rerun checks.",
+});
+assert.equal(readiness.status, "revise");
+assert.deepEqual(readiness.rows.map((row) => row.id), ["plan_coverage", "solution_integrity", "code_quality", "qa_decision"]);
+assert.equal(readiness.decisive_dimension, "qa_decision");
+assert.equal(readiness.decision_owner, "qa-gate");
+assert.equal(readiness.authorizes, false);
+assert.equal(buildQualityReadiness({ planCoverage: "pass", solutionIntegrity: "pass", codeQuality: "pass", qaDecision: "pass" }).status, "pass");
+assert.equal(buildQualityReadiness({ planCoverage: "pass", solutionIntegrity: "pass", codeQuality: "block", qaDecision: "pass" }).status, "block");
+assert.equal(buildQualityReadiness({ planCoverage: "pass", solutionIntegrity: "pass", codeQuality: "pass", qaDecision: "unknown" }).status, "revise");
+assert.equal(buildQualityReadiness({}), null);
 
 const additional = structuredClone(registry);
 additional.locales.es = structuredClone(additional.locales.en);

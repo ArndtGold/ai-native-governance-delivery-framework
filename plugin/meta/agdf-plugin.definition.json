@@ -153,14 +153,14 @@
     {
       "slug": "clean-implementation-review",
       "discovery": "automatic",
-      "useFor": "inspect workarounds, fallbacks, parallel structures or symptom fixes",
-      "boundary": "not a TP or QA substitute"
+      "useFor": "evidence dimension: inspect whether the solution is structurally clean",
+      "boundary": "supports Quality Readiness; not a TP or QA substitute"
     },
     {
       "slug": "code-review",
       "discovery": "automatic",
-      "useFor": "mandatory CR step after code changes, focused on defects, regression and security findings",
-      "boundary": "does not replace TP review, clean review or QA"
+      "useFor": "evidence dimension: review the actual diff for defects, regression and security findings",
+      "boundary": "supports Quality Readiness; does not replace QA"
     },
     {
       "slug": "delivery-closeout",
@@ -177,7 +177,7 @@
     {
       "slug": "qa-gate",
       "discovery": "automatic",
-      "useFor": "final QA decision",
+      "useFor": "sole final Quality Readiness decision",
       "boundary": "only instance for `pass | revise | block`"
     },
     {
@@ -189,8 +189,8 @@
     {
       "slug": "task-plan-review",
       "discovery": "automatic",
-      "useFor": "after implementation and before QA, verify TP coverage",
-      "boundary": "no final QA decision"
+      "useFor": "evidence dimension: verify whether the approved Task Plan was fulfilled",
+      "boundary": "supports Quality Readiness; no final QA decision"
     }
   ],
   "marketplaces": {

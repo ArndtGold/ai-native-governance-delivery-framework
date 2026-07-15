@@ -43,32 +43,32 @@ export const skills: Skill[] = [
     {
         name: "task-plan-review",
         family: "Review",
-        short: "Check implementation against the TP",
-        description: "Reviews after code changes and before QA whether the tasks from the approved Task Plan were fully, partially or not completed. Delivers reliable TP-coverage as input for the QA gate decision.",
+        short: "Plan coverage evidence",
+        description: "Answers one Quality Readiness question: was the approved Task Plan fully, partially or not completed? It supplies plan-coverage evidence for the QA decision.",
         when: "Code and tests exist, but task completion still needs evidence.",
         discovery: discoveryBySlug["task-plan-review"]
     },
     {
         name: "clean-implementation-review",
         family: "Review",
-        short: "Detect workaround-heavy solutions",
-        description: "Reviews whether an implementation is a clean primary solution or has been unnecessarily complicated by fallbacks, workarounds, guards, defaults, shims or parallel structures.",
+        short: "Solution integrity evidence",
+        description: "Answers one Quality Readiness question: is the implementation a clean primary solution, free of unnecessary fallbacks, workarounds or parallel structures?",
         when: "The implementation works, but may hide fallbacks, shims or duplicate ownership.",
         discovery: discoveryBySlug["clean-implementation-review"]
     },
     {
         name: "code-review",
         family: "Review",
-        short: "Review the actual diff for defects",
-        description: "Produces the mandatory code-review report from the real diff, focusing on correctness, regression, security and maintainability findings before QA.",
+        short: "Code quality evidence",
+        description: "Answers one Quality Readiness question: does the actual diff have correctness, regression, security or maintainability findings that must be addressed?",
         when: "Code changes and tests exist and the actual implementation needs mandatory review evidence.",
         discovery: discoveryBySlug["code-review"]
     },
     {
         name: "qa-gate",
         family: "Governance",
-        short: "Formal QA gate decision",
-        description: "Makes the formal QA gate decision (pass | revise | block) based on TP-coverage, brownfield fit, solution integrity, evidence quality and open blockers.",
+        short: "Final Quality Readiness decision",
+        description: "Makes the only final Quality Readiness decision (pass | revise | block) from plan coverage, brownfield fit, solution integrity, evidence quality and open blockers.",
         when: "Reviews and evidence exist and the run needs a formal pass, revise or block.",
         discovery: discoveryBySlug["qa-gate"]
     },

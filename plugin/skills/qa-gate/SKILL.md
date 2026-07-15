@@ -28,6 +28,13 @@ QA-specific `decision` is exactly `pass | revise | block`.
 `pass` is allowed only when TP coverage, Brownfield fit, solution integrity, and relevant documentation/Context Graph impact are sufficiently evidenced.
 `sot_drift` must not pass silently as a warning.
 
+When post-CD+Tests review evidence exists, present the Runtime Contract's derived Quality
+Readiness projection before the detailed QA report: Plan coverage, Solution integrity, Code
+quality and QA decision in that order. Name `qa-gate` as the sole decision owner, show one
+decisive reason and one permissible next action, and keep detailed reports as evidence links or
+on-demand detail. The projection is non-authorizing and must not replace the Run Status Card,
+Gate Transition Card or the durable QA report.
+
 ## Rules
 1. No QA pass without strong evidence.
 2. TP is the reference, not merely working code.

@@ -2,6 +2,13 @@ const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
 const OUTCOMES = new Set(["approve", "revise", "decline", "cancel", "no_response", "timeout", "empty", "invalid", "stale"]);
 const ATTEMPT_OUTCOMES = new Set(["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]);
+const QUALITY_STATUS_RANK = { pass: 0, warn: 1, revise: 2, block: 3 };
+const QUALITY_DIMENSIONS = Object.freeze([
+  Object.freeze({ id: "plan_coverage", owner: "task-plan-review" }),
+  Object.freeze({ id: "solution_integrity", owner: "clean-implementation-review" }),
+  Object.freeze({ id: "code_quality", owner: "code-review" }),
+  Object.freeze({ id: "qa_decision", owner: "qa-gate" }),
+]);
 
 function plainObject(value) {
   return value && typeof value === "object" && !Array.isArray(value);
@@ -55,7 +62,7 @@ export function validateLocaleRegistry(registry) {
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") ? budgets.title
-        : key.includes("Description") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key === "primary.quality"
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key === "primary.quality"
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -203,8 +210,48 @@ export function normalizeInteractionOutcome(value, { expectedApproval, stale = f
   return "invalid";
 }
 
+function qualityStatus(value) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return Object.hasOwn(QUALITY_STATUS_RANK, normalized) ? normalized : "unknown";
+}
+
+export function buildQualityReadiness({
+  planCoverage,
+  solutionIntegrity,
+  codeQuality,
+  qaDecision,
+  decisiveReason = "",
+  nextAction = "",
+} = {}) {
+  const values = [planCoverage, solutionIntegrity, codeQuality, qaDecision];
+  const rows = QUALITY_DIMENSIONS.map((dimension, index) => Object.freeze({
+    ...dimension,
+    status: qualityStatus(values[index]),
+  }));
+  const known = rows.filter((row) => row.status !== "unknown");
+  if (known.length === 0) return null;
+  const status = rows.some((row) => row.status === "unknown")
+    ? "revise"
+    : known.reduce((current, row) =>
+      QUALITY_STATUS_RANK[row.status] > QUALITY_STATUS_RANK[current] ? row.status : current,
+    "pass");
+  const decisiveRow = rows.find((row) => row.status === status && status !== "pass")
+    ?? rows.find((row) => row.id === "qa_decision")
+    ?? rows[0];
+  return Object.freeze({
+    status,
+    rows: Object.freeze(rows),
+    decisive_reason: String(decisiveReason ?? "").trim(),
+    decisive_dimension: decisiveRow.id,
+    next_action: String(nextAction ?? "").trim(),
+    decision_owner: "qa-gate",
+    authorizes: false,
+  });
+}
+
 export const interactionPresentationConstants = Object.freeze({
   artefactOrder: Object.freeze([...ARTEFACT_ORDER]),
   outcomes: Object.freeze([...OUTCOMES]),
   attemptOutcomes: Object.freeze([...ATTEMPT_OUTCOMES]),
+  qualityDimensions: QUALITY_DIMENSIONS,
 });

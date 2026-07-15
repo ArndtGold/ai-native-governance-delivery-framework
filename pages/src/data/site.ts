@@ -9,8 +9,8 @@ export const site = {
     version: "0.8.2",
     author: {
         name: "Arndt Gold",
-        role: "Software engineer · 30+ years enterprise experience",
-        image: "/assets/author-placeholder.svg",
+        role: "Software engineer · 20+ years enterprise experience",
+        image: "/assets/author.png",
     },
 }
 

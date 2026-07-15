@@ -1,10 +1,10 @@
 # User Requirement: Proven In Its Own Development
 
 - work_item: `pages-self-hosting-proof`
-- status: draft
+- status: approved
 - revision: 1
 - date: 2026-07-15
-- approval: pending exact `Approval: UR`; received `Approval: UR.` is invalid because of the trailing punctuation and is retained only as non-authorizing intent evidence
+- approval: exact `Approval: UR` received on 2026-07-15; earlier `Approval: UR.` remains retained only as rejected, non-authorizing intent evidence
 
 ## User Need
 

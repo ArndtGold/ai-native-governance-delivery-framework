@@ -3,6 +3,7 @@
 Status: pass
 Decision: pass
 Gate: QA
+Gate approval: exact `Approval: QA` provided on 2026-07-15 after same-run, same-gate and revision revalidation
 Date: 2026-07-15
 Owner: agdf-qa-gate
 

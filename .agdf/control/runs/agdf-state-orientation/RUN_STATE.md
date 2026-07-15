@@ -5,10 +5,10 @@
 - control_state_version: 2
 - run_id: agdf-state-orientation
 - lifecycle: active
-- revision: 7
-- revision_id: A7B8C9D0-E1F2-3456-789A-E78901234567
+- revision: 9
+- revision_id: A9B0C1D2-E3F4-5678-9ABC-F90123456789
 - mode: structured_slice
-- current_gate: QA
+- current_gate: OR
 - decision: pass
 - owner: agent
 
@@ -42,14 +42,14 @@ machine contract.
 | Run status | Value |
 |---|---|
 | Status | open |
-| Current gate | QA |
-| Allowed now | Request `Approval: QA`; prepare UAT after QA pass |
-| Blocked by | Missing `Approval: QA` |
-| Missing approval | `Approval: QA` |
-| Next gate after approval | UAT |
-| Allowed after approval | Request `Approval: UAT`; prepare non-operative delivery summary |
-| Next step | Request exact `Approval: QA` |
-| Quality outlook | Context Graph update at OR closeout; sequencing risk with agdf-human-decision-surface monitored |
+| Current gate | UAT |
+| Allowed now | Request `Approval: UAT`; prepare non-operative delivery summary |
+| Blocked by | Missing `Approval: UAT` |
+| Missing approval | `Approval: UAT` |
+| Next gate after approval | OR |
+| Allowed after approval | Produce OR or delivery closeout; prepare VCS handoff only when requested |
+| Next step | Request exact `Approval: UAT` |
+| Quality outlook | Context Graph update at OR closeout; sequencing risk monitored |
 
 ## Mode / Slice Decision
 
@@ -76,12 +76,13 @@ machine contract.
 | TP Review | verifies | TP | Pass — 12/12 tasks fully_done. |
 | Clean Implementation Review | verifies | CD+Tests | Pass — clean primary solution, no fallbacks/parallel structures. |
 | CR | reviews | CD+Tests | Pass — 3 advisory findings fixed. |
-| QA Report | tests | TP | Revision 1 pass — all evidence strong, no blocking risk. |
+| QA_REPORT | tests | TP | Revision 1 pass — all evidence strong, no blocking risk. |
+| QA | approved_by | `Approval: QA` | Exact approval provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
 
 ## Next Allowed Action
 
-- next_allowed_action: Request exact `Approval: QA`.
-- forbidden_until_then: UAT, release and automatic VCS actions before QA approval.
+- next_allowed_action: Request exact `Approval: UAT`.
+- forbidden_until_then: Release and automatic VCS actions before UAT approval.
 
 ## Approvals
 
@@ -91,7 +92,7 @@ machine contract.
 | PRD | approved | Exact `Approval: PRD` provided on 2026-07-15 after the PRD artefact was persisted and same-run, same-gate and revision revalidation. |
 | SD | approved | Exact `Approval: SD` provided on 2026-07-15 after the SD artefact was persisted and same-run, same-gate and revision revalidation. |
 | TP | approved | Exact `Approval: TP` provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
-| QA | pending | QA Report revision 1 pass; exact `Approval: QA` requested. |
+| QA | approved | Exact `Approval: QA` provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
 
 ## Artefacts
 
@@ -104,7 +105,7 @@ machine contract.
 | TP | `.agdf/control/artefacts/agdf-state-orientation/TP.md` | approved | 12 tasks (SO-01–SO-12), 14 tests (BT-01–BT-14), acceptance matrix, verification sequence. Exact approval recorded after revalidation. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-state-orientation/BROWNFIELD_ANALYSIS.md` | done | Implementation path verified; all target functions confirmed; no parallel-structure conflict; regression risk low. |
 | CD+Tests | `.agdf/control/artefacts/agdf-state-orientation/CD_TESTS.md` | done | 11 tasks implemented, 14 tests pass, 3 advisories fixed, release note recorded. |
-| QA Report | `.agdf/control/artefacts/agdf-state-orientation/QA_REPORT.md` | pass | All evidence strong; no blocking risk; decision: pass. |
+| QA | `.agdf/control/artefacts/agdf-state-orientation/QA_REPORT.md` | passed | All evidence strong; no blocking risk; decision: pass. |
 | TP Review | inline (TP Coverage in chat) | done | 12/12 tasks fully_done. |
 | Clean Implementation Review | inline (Clean Review in chat) | done | Pass — clean primary solution, no fallbacks/parallel structures. |
 | CR | inline (Code Review in chat) | done | Pass — 3 advisory findings fixed. |
@@ -125,8 +126,7 @@ machine contract.
 
 | Missing | Reason |
 |---|---|
-| `Approval: QA` | Requested |
-| `Approval: UAT` | After QA pass |
+| `Approval: UAT` | Requested |
 | Context Graph update (CG-RUN-STATUS-CARD) | Deferred to OR closeout |
 | `agdf-human-decision-surface` UAT pass | Sequencing risk remains open |
 
@@ -158,5 +158,5 @@ machine contract.
 
 ## Closeout
 
-- next_step: Request `Approval: QA`
-- quality_outlook: Context Graph update at OR closeout; sequencing risk with agdf-human-decision-surface monitored
+- next_step: Request `Approval: UAT`
+- quality_outlook: Context Graph update at OR closeout; sequencing risk monitored

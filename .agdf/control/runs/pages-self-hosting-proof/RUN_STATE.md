@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: pages-self-hosting-proof
-- lifecycle: active
-- revision: 1
-- revision_id: fdf0431f-e2da-4de8-8e5a-e93e98931ba8
-- mode: unknown
-- current_gate: UR
-- decision: awaiting_approval
+- lifecycle: completed
+- revision: 4
+- revision_id: daddb561-1a1f-470b-af73-e64eb3863438
+- mode: quick_task
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -20,31 +20,31 @@ Add a concise, evidence-backed Pages section showing that AGDF is actively devel
 
 | Question | Answer |
 |---|---|
-| What is known? | Placement, refined copy, three evidence messages and the need for a traceable run metric are clear. |
-| What is approved? | Nothing yet; `Approval: UR.` is non-authorizing because it does not exactly match the canonical value. |
-| What is missing? | Exact `Approval: UR`. |
-| What is the next allowed action? | Present the durable UR and request exact approval. |
-| What is explicitly forbidden right now? | Brownfield Review, Mode/Slice Decision, PRD, SD, TP, implementation, QA or release. |
+| What is known? | The approved section is implemented and verified in the existing page owner; 38 durable OR artefacts support the conservative `25+` claim. |
+| What is approved? | UR revision 1 via exact `Approval: UR` received on 2026-07-15. |
+| What is missing? | Nothing for the approved quick-task scope. |
+| What is the next allowed action? | None; an optional version-control handoff requires separate explicit instruction. |
+| What is explicitly forbidden right now? | Automatic commit, push, PR or release; future copy must preserve the evidence-backed present-tense boundary. |
 
 ## Run Status Card
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UR |
-| Allowed now | Refine the durable UR and request exact `Approval: UR` |
-| Blocked by | Missing exact approval |
-| Missing approval | `Approval: UR` |
-| Next gate after approval | Brownfield Review |
-| Allowed after approval | Inspect existing Pages owners, evidence counting and reuse risks; implementation remains gated |
-| Next step | Obtain exact UR approval without trailing punctuation |
+| Status | pass |
+| Current gate | OR |
+| Allowed now | Use the durable evidence and OR for audit or explicit delivery handoff |
+| Blocked by | none |
+| Missing approval | none at the current step |
+| Next gate after approval | none |
+| Allowed after approval | none |
+| Next step | none |
 | Quality outlook | Keep self-hosting claims evidence-backed and avoid unverifiable historical overclaiming |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | missing | `Approval: UR.` received with invalid trailing punctuation; not persisted as approval |
+| UR | approved | Exact `Approval: UR` received on 2026-07-15 for revalidated UR revision 1; earlier punctuated value rejected |
 | PRD | missing |  |
 | SD | missing |  |
 | TP | missing |  |
@@ -55,15 +55,21 @@ Add a concise, evidence-backed Pages section showing that AGDF is actively devel
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | .agdf/control/artefacts/pages-self-hosting-proof/UR.md | draft | Ready for exact approval |
-| Brownfield Review |  | missing | Forbidden before UR approval |
+| UR | .agdf/control/artefacts/pages-self-hosting-proof/UR.md | approved | Exact approval persisted |
+| Brownfield Review | .agdf/control/artefacts/pages-self-hosting-proof/BROWNFIELD_REVIEW.md | done | Pass; `quick_task` selected |
+| Quick Task Evidence | .agdf/control/artefacts/pages-self-hosting-proof/QUICK_TASK_EVIDENCE.md | done | Content, metric, build and responsive evidence pass |
+| CR | .agdf/control/artefacts/pages-self-hosting-proof/CODE_REVIEW.md | done | Focused code review pass with no findings |
+| OR | .agdf/control/artefacts/pages-self-hosting-proof/OR.md | pass | Quick-task closeout complete |
+| PRD |  | not_applicable | Skipped proportionately by evidenced quick-task decision |
+| SD |  | not_applicable | Skipped proportionately by evidenced quick-task decision |
+| TP |  | not_applicable | Skipped proportionately by evidenced quick-task decision |
 
 ## Mode/Slice Decision
 
-- decision: undecided
+- decision: quick_task
 - required_next_gate: none
-- scope_reason: Brownfield Review must assess the existing hero/Why composition, metric evidence owner and shared dirty Pages file before choosing the proportional path.
-- evidence: pending Brownfield Review after exact UR approval
+- scope_reason: One bounded static section with exact approved semantics, an existing composition owner, conservative durable evidence and no architecture, persistence, policy or runtime impact.
+- evidence: `.agdf/control/artefacts/pages-self-hosting-proof/BROWNFIELD_REVIEW.md`
 
 ## Evidence
 
@@ -77,16 +83,20 @@ Add a concise, evidence-backed Pages section showing that AGDF is actively devel
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | awaits_approval | `Approval: UR` | Exact value not yet received |
+| UR | approved_by | `Approval: UR` | Exact value received after revision revalidation |
+| Brownfield Review | sizes | quick_task | Existing owner, evidence and isolated verification path are clear |
+| Quick Task Evidence | implements | UR | Approved section and verification evidence pass |
+| CR | reviews | Quick Task Evidence | No correctness, regression, security or maintainability finding remains |
+| OR | closes | Quick Task Evidence | Delivered and intentionally omitted scope recorded |
 
 ## Source And Scope State
 
-- normative_instruction_source: draft UR revision 1; existing Pages ownership; AGDF Runtime Contract
+- normative_instruction_source: approved UR revision 1; existing Pages ownership; AGDF Runtime Contract
 - multi_scope_state: clear
 - active_scope_evidence: `.agdf/control/artefacts/pages-self-hosting-proof/UR.md`
-- competing_scope_lines: completed Pages runs have uncommitted attributable changes in the shared page owner; Brownfield Review must preserve hunk isolation
-- branch_workspace_evidence: `pages/src/pages/index.astro` is dirty from completed Pages scopes; no self-hosting proof section exists
-- branch_workspace_scope_effect: permits UR preparation only until exact approval and Brownfield sizing
+- competing_scope_lines: concurrent `agdf-state-orientation` control-artefact changes are outside this run; no competing page-owner change was observed
+- branch_workspace_evidence: the self-hosting proof is an isolated `pages/src/pages/index.astro` block; unrelated control artefact changes remain unclaimed
+- branch_workspace_scope_effect: completed without touching or claiming unrelated changes
 
 ## Context Graph Impact
 
@@ -99,5 +109,5 @@ Add a concise, evidence-backed Pages section showing that AGDF is actively devel
 
 ## Closeout
 
-- next_allowed_action: Present the durable UR and request exact `Approval: UR`.
+- next_allowed_action: none; optional delivery handoff only on explicit user instruction.
 - quality_outlook: Keep the proof claims traceable, current and proportionate.

@@ -122,6 +122,84 @@ try {
     ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR", "QA"],
   );
   assert.equal(parsedControlState.mode_slice_decision.decision, "structured_slice");
+  const qaReviseRoot = mkdtempSync(join(tmpdir(), "agdf-qa-revise-"));
+  execFileSync(process.execPath, [cli, "init", "--dir", qaReviseRoot]);
+  rmSync(join(qaReviseRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
+  execFileSync(process.execPath, [cli, "run-create", "--dir", qaReviseRoot, "--run", "qa-revise"]);
+  const qaArtefactDir = join(qaReviseRoot, ".agdf", "control", "artefacts", "qa-revise");
+  mkdirSync(qaArtefactDir, { recursive: true });
+  for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md"]) writeFileSync(join(qaArtefactDir, name), `# ${name}\n`);
+  writeFileSync(join(qaReviseRoot, ".agdf", "control", "runs", "qa-revise", "RUN_STATE.md"), `# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: qa-revise
+- lifecycle: active
+- revision: 1
+- revision_id: 11111111-1111-4111-8111-111111111111
+- mode: structured_delivery
+- current_gate: QA
+- decision: revise
+- owner: test
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+| UR | approved | Approval: UR |
+| PRD | approved | Approval: PRD |
+| SD | approved | Approval: SD |
+| TP | approved | Approval: TP |
+| QA | missing |  |
+| UAT | missing |  |
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/qa-revise/UR.md | approved | ready |
+| PRD | .agdf/control/artefacts/qa-revise/PRD.md | approved | ready |
+| SD | .agdf/control/artefacts/qa-revise/SD.md | approved | ready |
+| TP | .agdf/control/artefacts/qa-revise/TP.md | approved | ready |
+| Brownfield Review | BROWNFIELD_REVIEW.md | done | ready |
+| Brownfield Analysis | BROWNFIELD_ANALYSIS.md | done | ready |
+| CD+Tests | CD_TESTS.md | done | ready |
+| CR | CODE_REVIEW.md | done | ready |
+| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | revise | QA revision required |
+
+## Mode/Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: Test QA revise projection.
+- evidence: fixture
+
+## Artefact Chain
+
+| From | Relationship | To | Status | Evidence |
+|---|---|---|---|---|
+| UR | approved_by | Approval: UR | approved | fixture |
+| PRD | derived_from | UR | approved | fixture |
+| SD | derived_from | PRD | approved | fixture |
+| TP | derived_from | SD | approved | fixture |
+
+## Closeout
+
+- next_allowed_action: Resolve QA findings.
+- quality_outlook: QA revise.
+`);
+  const qaReviseGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
+  assert.equal(qaReviseGateCheck.status, 0, qaReviseGateCheck.stderr);
+  const qaReviseReport = JSON.parse(qaReviseGateCheck.stdout);
+  assert.equal(qaReviseReport.current_gate, "QA");
+  assert.equal(qaReviseReport.blocking_reason, "qa_revise_required");
+  assert.equal(qaReviseReport.missing_approval, "none");
+  assert.ok(qaReviseReport.allowed.every((action) => !action.includes("approval")));
+  assert.ok(qaReviseReport.forbidden.includes("request QA approval"));
+  assert.equal(qaReviseReport.status_card.user_action_required, "no");
+  assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
+  rmSync(qaReviseRoot, { recursive: true, force: true });
   const legacyMode = parseControlState(
     controlStateFixture.replace("## Mode/Slice Decision", "## Mode / Slice Decision"),
     { userGates: ["QA"], internalSteps: [] },
@@ -246,6 +324,10 @@ try {
       findings.some((finding) => finding.code === "AGDF_ACTIVE_RUN_AMBIGUOUS"),
       `${target} must report AGDF_ACTIVE_RUN_AMBIGUOUS as a structured finding instead of throwing`,
     );
+    if (target === "gate-check") {
+      assert.deepEqual(report.candidate_runs.map((candidate) => candidate.run_id), ["ambiguous-run-a", "ambiguous-run-b"]);
+      assert.ok(report.candidate_runs.every((candidate) => candidate.display_title && candidate.current_gate));
+    }
   }
   rmSync(ambiguousRoot, { recursive: true, force: true });
 

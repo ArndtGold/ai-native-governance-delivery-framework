@@ -382,6 +382,15 @@ host control is presented, or the agent immediately uses the exact-text
 fallback. A host that does not apply the control does not trigger a second
 native prompt. AGDF must not simulate or force host-owned presentation.
 
+An eligible interaction must make its presentation outcome visible and
+distinguishable: `presented`, `unavailable_before_invocation`,
+`attempted_not_applied`, or `unsafe_to_wait`. This is transient presentation
+evidence only, never a persisted approval, selected-run authority or substitute
+for post-response revalidation. A textual fallback names the outcome, gives the
+exact approval value and confirms that authority is unchanged. A fresh explicit
+user request may reopen the unchanged decision after revalidation; it is not an
+automatic retry.
+
 A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. A localized label, description, option position, recommendation style or host action never authorizes a gate. Revise, decline and cancel outcomes never advance a gate.
 
 Surface adapter rules:

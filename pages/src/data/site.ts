@@ -166,6 +166,13 @@ export const visualProofs = {
     },
 }
 
+export const versionEvidence = {
+    expectedRelease: site.version,
+    observedInstall: "session-unverified",
+    screenshotState: "observed UI context; release version session-unverified",
+    source: "Package metadata is the expected-release source. Host status output is required before calling an installed version observed.",
+}
+
 export const prevention = [
     {
         title: "Silent Scope Drift",

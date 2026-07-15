@@ -140,46 +140,55 @@
   "skillSet": [
     {
       "slug": "delivery-path-search",
+      "discovery": "optional",
       "useFor": "high-impact planning decisions with several plausible next delivery steps before implementation",
       "boundary": "read-only advisory search; never grants gate permission or replaces gate-check"
     },
     {
       "slug": "brownfield-analysis",
+      "discovery": "automatic",
       "useFor": "after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems",
       "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission"
     },
     {
       "slug": "clean-implementation-review",
+      "discovery": "automatic",
       "useFor": "inspect workarounds, fallbacks, parallel structures or symptom fixes",
       "boundary": "not a TP or QA substitute"
     },
     {
       "slug": "code-review",
+      "discovery": "automatic",
       "useFor": "mandatory CR step after code changes, focused on defects, regression and security findings",
       "boundary": "does not replace TP review, clean review or QA"
     },
     {
       "slug": "delivery-closeout",
+      "discovery": "automatic",
       "useFor": "commit/PR-near handoff after QA/OR/UAT",
       "boundary": "never performs VCS actions automatically"
     },
     {
       "slug": "gate-check",
+      "discovery": "start_here",
       "useFor": "new build/change intent, unclear approval, Structured Delivery, later-gate artefact requested",
       "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review"
     },
     {
       "slug": "qa-gate",
+      "discovery": "automatic",
       "useFor": "final QA decision",
       "boundary": "only instance for `pass | revise | block`"
     },
     {
       "slug": "release-or",
+      "discovery": "automatic",
       "useFor": "auditable closeout for every relevant run",
       "boundary": "not a QA substitute"
     },
     {
       "slug": "task-plan-review",
+      "discovery": "automatic",
       "useFor": "after implementation and before QA, verify TP coverage",
       "boundary": "no final QA decision"
     }

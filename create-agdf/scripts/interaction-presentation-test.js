@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   buildArtefactRefs,
+  buildInteractionAttempt,
+  buildRunCandidates,
   canonicalizeLanguageTag,
   formatArtefactRefs,
   gateOptions,
@@ -57,6 +59,26 @@ assert.equal(resolveHumanRunTitle({ urHeading: "# UR title", runContent: "## Obj
 assert.equal(resolveHumanRunTitle({ runContent: "## Objective\n\nObjective title\nmore", runId: "fallback-run" }), "Objective title");
 assert.equal(resolveHumanRunTitle({ runContent: "", runId: "fallback-run" }), "Fallback Run");
 assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
+
+const candidates = buildRunCandidates([
+  { run_id: "closed", valid: true, meta: { lifecycle: "completed" } },
+  { run_id: "beta-run", valid: true, meta: { lifecycle: "active", current_gate: "TP", revision_id: "b" }, control_state: { next_allowed_action: "Plan tests" }, ur_heading: "# Human beta title" },
+  { run_id: "alpha-run", valid: true, meta: { lifecycle: "active", current_gate: "UR", revision_id: "a" }, control_state: { next_allowed_action: "Draft UR" }, current_artefact_heading: "# Human alpha title" },
+]);
+assert.deepEqual(candidates.map((candidate) => candidate.run_id), ["alpha-run", "beta-run"]);
+assert.equal(candidates[0].display_title, "Human alpha title");
+assert.equal(candidates[1].display_title, "Human beta title");
+assert.equal(candidates[0].current_gate, "UR");
+const attempt = buildInteractionAttempt({ interactionId: "i-1", runId: "alpha-run", currentGate: "UR", surface: "codex", attemptOutcome: "presented", expectedApproval: "Approval: UR" });
+assert.equal(attempt.authorizes, false);
+for (const attemptOutcome of ["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]) {
+  const receipt = buildInteractionAttempt({ interactionId: `i-${attemptOutcome}`, runId: "alpha-run", currentGate: "UR", surface: "fallback", attemptOutcome, expectedApproval: "Approval: UR", fallbackReason: "host capability unavailable" });
+  assert.equal(receipt.attempt_outcome, attemptOutcome);
+  assert.equal(receipt.expected_approval, "Approval: UR");
+  assert.equal(receipt.authorizes, false);
+  assert.equal(Object.isFrozen(receipt), true);
+}
+assert.throws(() => buildInteractionAttempt({ interactionId: "i", runId: "r", currentGate: "UR", attemptOutcome: "invalid" }));
 
 const additional = structuredClone(registry);
 additional.locales.es = structuredClone(additional.locales.en);

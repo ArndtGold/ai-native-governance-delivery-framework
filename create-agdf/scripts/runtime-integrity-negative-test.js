@@ -71,6 +71,22 @@ try {
 
   resetPluginFixture();
   writeFileSync(
+    runtimeContractPath,
+    readFileSync(runtimeContractPath, "utf8").replace("`attempted_not_applied`", "`attempt_outcome_removed`"),
+    "utf8",
+  );
+  expectIntegrityFailure(/Runtime Contract must define visible fallback attempt outcomes/);
+
+  resetPluginFixture();
+  writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replace("State the outcome visibly", "State the outcome silently"),
+    "utf8",
+  );
+  expectIntegrityFailure(/gate-check skill must define visible fallback outcomes and explicit reopen only/);
+
+  resetPluginFixture();
+  writeFileSync(
     pluginDefinitionPath,
     readFileSync(pluginDefinitionPath, "utf8").replace('[\n      "approve",\n      "revise",\n      "decline",\n      "cancel"\n    ]', '[\n      "approve",\n      "decline",\n      "revise",\n      "cancel"\n    ]'),
     "utf8",

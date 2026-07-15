@@ -27,6 +27,7 @@ import {
 } from "../lib/control-state/index.js";
 import {
   buildArtefactRefs,
+  buildRunCandidates,
   canonicalizeLanguageTag,
   formatArtefactRefs,
   gateTitle,
@@ -1916,6 +1917,7 @@ function readRunState(targetDir, selection = {}) {
   let runPath = join(".agdf", "control", "AGDF_RUN.md");
   const canonicalRoot = join(targetDir, ".agdf", "control", "runs");
   let resolutionError;
+  let candidateRuns = [];
   if (existsSync(canonicalRoot)) {
     try {
       const selected = resolveRuns(targetDir, {
@@ -1927,6 +1929,21 @@ function readRunState(targetDir, selection = {}) {
         : selected.run.path;
     } catch (error) {
       resolutionError = error.message;
+      if (resolutionError.startsWith("AGDF_ACTIVE_RUN_AMBIGUOUS")) {
+        const active = resolveRuns(targetDir, { allActive: true }).runs.map((run) => {
+          const controlState = parseControlState(run.content, {
+            userGates: userGateOrder,
+            internalSteps: [...internalStepArtefacts],
+          });
+          return {
+            ...run,
+            control_state: controlState,
+            current_artefact_heading: readArtefactHeading(targetDir, controlState.artefacts.get(controlState.current_gate)),
+            ur_heading: readArtefactHeading(targetDir, controlState.artefacts.get("UR")),
+          };
+        });
+        candidateRuns = buildRunCandidates(active);
+      }
     }
   }
   if (resolutionError || !existsSync(join(targetDir, runPath))) {
@@ -1946,6 +1963,7 @@ function readRunState(targetDir, selection = {}) {
       quality_outlook: "",
       source_scope: {},
       memory: {},
+      candidate_runs: candidateRuns,
       resolution_error: resolutionError,
     };
   }
@@ -2333,6 +2351,10 @@ function isGateSatisfied(runState, gate) {
   return isDurableGateArtefactSatisfied(runState, gate);
 }
 
+function qaRevisionRequired(runState) {
+  return gateArtefactStatus(runState, "QA").status === "revise";
+}
+
 function transitionDecisionForRunState(runState, verifiedChange = null) {
   if (gateApprovalStatus(runState, "UR") === "approved" && !isGateSatisfied(runState, "UR")) return durableArtefactBlock("UR", "PRD");
 
@@ -2533,6 +2555,18 @@ function transitionDecisionForRunState(runState, verifiedChange = null) {
     };
   }
 
+  if (qaRevisionRequired(runState)) {
+    return {
+      status: "open",
+      current_gate: "QA",
+      blocking_reason: "qa_revise_required",
+      missing_approval: "none",
+      allowed: ["revise the implementation against the QA findings", "refresh CD+Tests and mandatory reviews", "rerun QA with refreshed evidence"],
+      forbidden: ["request QA approval", "request UAT approval", "release", "claim delivery readiness"],
+      next_allowed_action: "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+    };
+  }
+
   if (gateApprovalStatus(runState, "QA") === "approved" && !isGateSatisfied(runState, "QA")) return durableArtefactBlock("QA", "UAT");
 
   if (isGateSatisfied(runState, "QA") && !isGateSatisfied(runState, "UAT")) {
@@ -2658,6 +2692,7 @@ function evaluateGateCheck(targetDir, selection = {}) {
     doctor_summary: doctorReport.summary,
     evidence_refs: runState.evidence_refs,
     quality_outlook: deriveQualityOutlook(runState, deliveryMap.findings),
+    candidate_runs: runState.candidate_runs ?? [],
     status_card: statusCard,
     delivery_map: {
       relationships: deliveryMap.relationships,

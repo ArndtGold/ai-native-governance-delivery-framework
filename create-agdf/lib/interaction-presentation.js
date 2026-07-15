@@ -1,6 +1,7 @@
 const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
 const OUTCOMES = new Set(["approve", "revise", "decline", "cancel", "no_response", "timeout", "empty", "invalid", "stale"]);
+const ATTEMPT_OUTCOMES = new Set(["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]);
 
 function plainObject(value) {
   return value && typeof value === "object" && !Array.isArray(value);
@@ -111,6 +112,45 @@ export function resolveHumanRunTitle({ currentArtefactHeading, urHeading, runCon
   return [currentArtefactHeading, urHeading, objective].map(stripMarkdown).find(Boolean) || normalizedRunTitle(runId);
 }
 
+function displaySafeTitle(value, fallback) {
+  const title = stripMarkdown(value).replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim();
+  return (title || fallback).slice(0, 100);
+}
+
+export function buildRunCandidates(runs) {
+  return [...(runs ?? [])]
+    .filter((run) => run?.valid && run?.meta?.lifecycle === "active" && typeof run.run_id === "string")
+    .map((run) => {
+      const currentGate = run.control_state?.current_gate || run.meta?.current_gate || "unknown";
+      const title = resolveHumanRunTitle({
+        currentArtefactHeading: run.current_artefact_heading,
+        urHeading: run.ur_heading,
+        runContent: "",
+        runId: run.run_id,
+      });
+      return {
+        run_id: run.run_id,
+        display_title: displaySafeTitle(title, normalizedRunTitle(run.run_id)),
+        current_gate: currentGate,
+        next_allowed_action: String(run.control_state?.next_allowed_action ?? "").trim(),
+        revision_id: String(run.meta?.revision_id ?? "").trim(),
+      };
+    })
+    .sort((left, right) => left.display_title.localeCompare(right.display_title) || left.run_id.localeCompare(right.run_id));
+}
+
+export function buildInteractionAttempt({ interactionId, runId, currentGate, surface, attemptOutcome, expectedApproval, fallbackReason = "" }) {
+  if (!ATTEMPT_OUTCOMES.has(attemptOutcome)) throw new Error("invalid interaction attempt outcome");
+  if (!String(interactionId ?? "").trim() || !String(runId ?? "").trim() || !String(currentGate ?? "").trim())
+    throw new Error("interaction attempt identity missing");
+  return Object.freeze({
+    interaction_id: String(interactionId), run_id: String(runId), current_gate: String(currentGate),
+    surface: String(surface ?? "fallback"), attempt_outcome: attemptOutcome,
+    expected_approval: String(expectedApproval ?? ""), fallback_reason: String(fallbackReason ?? ""),
+    authorizes: false,
+  });
+}
+
 function safeArtefactPath(value) {
   const path = String(value ?? "").replace(/^`|`$/g, "").trim();
   if (!path || !/^[A-Za-z0-9._/-]+$/.test(path) || /^([a-z]+:|\/)/i.test(path)) return "";
@@ -166,4 +206,5 @@ export function normalizeInteractionOutcome(value, { expectedApproval, stale = f
 export const interactionPresentationConstants = Object.freeze({
   artefactOrder: Object.freeze([...ARTEFACT_ORDER]),
   outcomes: Object.freeze([...OUTCOMES]),
+  attemptOutcomes: Object.freeze([...ATTEMPT_OUTCOMES]),
 });

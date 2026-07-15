@@ -84,6 +84,13 @@ apply or safely return the native question on that attempt, switch immediately
 to the exact textual approval. Do not ask the user to request the buttons again
 and do not create a retry loop or simulated control.
 
+State the outcome visibly: `presented`, `unavailable_before_invocation`,
+`attempted_not_applied` or `unsafe_to_wait`. For every fallback, say in the
+configured locale why a native control was not usable, show the exact approval
+value and confirm that authority is unchanged. This transient outcome is not
+approval evidence. A new explicit user request may reopen the unchanged decision
+only after fresh run/gate/artefact revalidation; never retry automatically.
+
 Surface behavior:
 
 - Codex: invoke the native short-question/request-user-input control on the first eligible attempt when callable, ask one gate question and omit auto-resolution; if it is not rendered or applied, use exact text immediately.

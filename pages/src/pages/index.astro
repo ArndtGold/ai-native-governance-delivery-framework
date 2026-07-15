@@ -1,11 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, aiActFit, operatingGuards } from '../data/site'
+import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, versionEvidence, aiActFit, operatingGuards } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
 import { getProjectStats } from '../data/projectStats'
 
 const projectStats = await getProjectStats()
+const discoveryGroups = [
+  { key: 'start_here', title: 'Start here', description: 'Begin a governed change or clarify the next allowed step.' },
+  { key: 'automatic', title: 'Used automatically', description: 'AGDF routes these workflow controls when their delivery state requires them.' },
+  { key: 'optional', title: 'Optional', description: 'Use only when the stated situation applies.' },
+] as const
 ---
 
 <BaseLayout>
@@ -865,7 +870,11 @@ const projectStats = await getProjectStats()
     <h2 class="mb-3 text-3xl font-bold sm:text-4xl">{skills.length} Core Workflow Skills</h2>
     <p class="max-w-3xl text-dark-200">Each skill is an auditable workflow, not a loose suggestion. Delivery Path Search helps teams avoid implementing the wrong plausible idea first—before it becomes expensive rework.</p>
   </div>
-  <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
+  <p class="mx-auto mb-6 max-w-3xl text-center text-sm text-dark-300">Host-owned plugin catalogues may still show a flat list. This grouped view is the AGDF-owned discovery surface.</p>
+  <div data-reveal data-reveal-delay="1" class="space-y-6">
+    {discoveryGroups.map(group => (
+      <div class="surface overflow-x-auto">
+        <div class="border-b border-dark-700/80 bg-dark-900/80 px-4 py-3"><h3 class="font-semibold text-agdf-200">{group.title}</h3><p class="mt-1 text-xs text-dark-300">{group.description}</p></div>
     <table class="w-full text-left text-sm">
       <thead class="border-b border-dark-700/80 bg-dark-900/80 text-xs uppercase text-dark-200">
         <tr>
@@ -876,7 +885,7 @@ const projectStats = await getProjectStats()
         </tr>
       </thead>
       <tbody class="divide-y divide-dark-800">
-        {skills.map(s => (
+        {skills.filter(s => s.discovery === group.key).map(s => (
           <tr class="transition-colors hover:bg-agdf-950/30">
             <td class="px-4 py-3">
               <code class="text-agdf-300">{s.name.startsWith('/') ? s.name : '/' + s.name}</code>
@@ -890,6 +899,8 @@ const projectStats = await getProjectStats()
         ))}
       </tbody>
     </table>
+      </div>
+    ))}
   </div>
   <!-- Skill families -->
   <div data-reveal data-reveal-delay="2" class="mt-8 flex flex-wrap justify-center gap-3">
@@ -1028,6 +1039,11 @@ const projectStats = await getProjectStats()
         <p class="mt-3 text-sm leading-6 text-dark-200">
           Screenshots show UI examples and observed integration states, not the release version source of truth. Use the install command and package metadata for the current release.
         </p>
+        <div class="mt-4 grid gap-3 text-sm sm:grid-cols-3" aria-label="Version and screenshot evidence">
+          <div class="rounded-lg border border-agdf-500/30 bg-agdf-950/30 p-3"><span class="block text-xs uppercase text-dark-300">Expected release</span><strong class="text-agdf-200">{versionEvidence.expectedRelease}</strong><span class="mt-1 block text-xs text-dark-300">Package metadata</span></div>
+          <div class="rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-3"><span class="block text-xs uppercase text-dark-300">Observed install</span><strong class="text-yellow-300">{versionEvidence.observedInstall}</strong><span class="mt-1 block text-xs text-dark-300">Check the active host session or status command.</span></div>
+          <div class="rounded-lg border border-dark-700 p-3"><span class="block text-xs uppercase text-dark-300">Screenshot evidence</span><strong class="text-dark-100">{versionEvidence.screenshotState}</strong><span class="mt-1 block text-xs text-dark-300">{versionEvidence.source}</span></div>
+        </div>
       </div>
       <div data-reveal data-reveal-delay="7">
         <div class="mb-2 flex items-center gap-2 text-sm text-dark-200">

@@ -217,6 +217,12 @@ if (!runtimeContract.includes("first eligible native-attempt") || !runtimeContra
 if (!gateCheckSkill.includes("Make exactly one native-attempt") || !gateCheckSkill.includes("switch immediately")) {
   failures.push("gate-check skill must require immediate exact-text fallback after an unsuccessful native attempt");
 }
+if (!runtimeContract.includes("`attempted_not_applied`") || !runtimeContract.includes("`unsafe_to_wait`")) {
+  failures.push("Runtime Contract must define visible fallback attempt outcomes");
+}
+if (!gateCheckSkill.includes("State the outcome visibly") || !gateCheckSkill.includes("never retry automatically")) {
+  failures.push("gate-check skill must define visible fallback outcomes and explicit reopen only");
+}
 if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeContract.includes("an incomplete pack is unsupported and must fail to English as a unit")) {
   failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
 }

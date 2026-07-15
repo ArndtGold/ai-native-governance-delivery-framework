@@ -5,6 +5,7 @@ export const site = {
     description: "A focused governance plugin for teams that let AI agents touch real code: AGDF turns delivery into approved steps, visible evidence, QA decisions and auditable closeout, with machine-readable validators when proof is needed.",
     domain: "agdf.tools",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+    contactEmail: "agdf@iself.eu",
     license: "Apache-2.0",
     version: "0.8.5",
     author: {

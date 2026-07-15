@@ -1162,11 +1162,12 @@ const discoveryGroups = [
     <p class="mx-auto mb-4 max-w-2xl text-xs text-dark-200/50">
       AGDF™ and AI Governance & Delivery Framework™ are marks of {site.author.name}.
     </p>
-    <div class="flex justify-center gap-4 text-sm text-dark-200">
+    <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-dark-200">
       <a href={site.repo} class="transition-colors hover:text-agdf-300">GitHub</a>
       <a href="#highlights" class="transition-colors hover:text-agdf-300">Highlights</a>
       <a href="#skills" class="transition-colors hover:text-agdf-300">Skills</a>
       <a href="#setup" class="transition-colors hover:text-agdf-300">Setup</a>
+      <a href={`mailto:${site.contactEmail}`} class="transition-colors hover:text-agdf-300">Contact: {site.contactEmail}</a>
     </div>
   </div>
 </footer>

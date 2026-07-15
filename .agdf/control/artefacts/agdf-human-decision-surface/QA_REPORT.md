@@ -1,16 +1,17 @@
 # QA Gate Report: Human Decision Surface
 
 Status: pass
-Approval status: approved with exact `Approval: QA`
+Revision: 2
+Approval status: exact `Approval: QA` provided on 2026-07-15 for revision 2 after same-run, same-gate and report revalidation
 Date: 2026-07-15
 Task Plan: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 ## QA Gate
 
 - decision: pass
-- evidence: HDS-01 through HDS-15 are `fully_done` in `TP_REVIEW.md`; pre-implementation Brownfield Analysis passed; Clean Implementation Review passed without parallel ownership; mandatory Code Review passed after all findings were corrected; the final full `create-agdf` smoke, runtime integrity, negative tests, package dry-run and whitespace checks pass.
+- evidence: HDS-01 through HDS-23 are `fully_done` in TP Review revision 2; pre-implementation Brownfield Analysis revision 2 passed; Clean Implementation Review revision 2 passed without parallel ownership; mandatory Code Review revision 2 passed after the title-owner and metadata-path corrections; the final full `create-agdf` smoke, Runtime Integrity, negative tests, routing and whitespace checks pass.
 - missing_evidence: Live host-native visual, keyboard and screen-reader behavior is not repository-controlled and remains UAT evidence. This does not weaken exact authorization, ordering, fallback or locale semantics proven at repository level.
-- risks: Additional locale packs still require human linguistic review before support is claimed. Host-native control rendering and Markdown-link behavior may vary while preserving the required semantic fallback.
+- risks: Repository evidence proves the immutable snapshot, preflight and fail-closed mapping but cannot prove that a host visibly renders the two cards or control. Additional locale packs still require human linguistic review.
 - required_next_step: Prepare live host UAT evidence; release and version-control actions remain gated.
 - impact_codes: none
 
@@ -18,12 +19,12 @@ Task Plan: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 | Dimension | Decision | Evidence |
 |---|---|---|
-| TP coverage | pass | HDS-01 through HDS-15 fully done with direct code, contract and test evidence. |
+| TP coverage | pass | HDS-01 through HDS-23 fully done with direct code, contract and test evidence. |
 | Brownfield fit | pass | Existing Runtime Contract, skill, CLI, parser, adapter, sync and test owners were extended. |
-| Solution integrity | pass | One locale registry and one pure helper; no second gate evaluator, persistence path or surface translation owner. |
+| Solution integrity | pass | Existing locale registry, immutable snapshot and pure preflight were extended; no second renderer, gate evaluator, persistence path or surface owner. |
 | Correctness | pass | Exact approval remains mandatory; all non-approval outcomes are distinct and non-authoritative. |
 | Compatibility | pass | Machine JSON shape and values remain unchanged; initial English/German behavior and package surfaces pass. |
-| UX semantics | pass | Localized gate titles, stable options, same-language descriptions, deterministic titles and safe artefact links are enforced. |
+| UX semantics | pass | The action heading is primary, the two cards remain separate and ordered, and control/fallback is structurally third. |
 | Accessibility contract | pass | Non-empty accessible copy and length budgets are tested; host implementation remains UAT scope. |
 | Security | pass | Artefact paths require canonical relative syntax, root containment, realpath containment and regular files. |
 
@@ -38,6 +39,5 @@ Task Plan: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 ## Approval Boundary
 
-This QA decision does not replace UAT. Deliberate exact `Approval: QA` was
-provided on 2026-07-15 and revalidated against this selected run, unchanged QA
-gate and passing durable report. It authorizes UAT preparation only.
+This QA decision does not replace UAT. Exact `Approval: QA` was revalidated and
+recorded for revision 2 on 2026-07-15. It authorizes UAT preparation only.

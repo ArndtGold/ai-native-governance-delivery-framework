@@ -20,6 +20,7 @@ import {
   reconcileRunScope,
   normalizeReconciliationText,
   validateLocaleRegistry,
+  validateApprovalOrientationSnapshot,
 } from "../lib/interaction-presentation.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
@@ -87,8 +88,17 @@ assert.equal(reconcileRunScope({ scopeKey: "Closed title", runs: [
 ] }).outcome, "completed_match");
 let nativeCalls = 0;
 let fallbackCalls = 0;
+const preflightSnapshot = buildApprovalOrientationSnapshot({
+  ready: true,
+  statusCard: { run_id: "alpha-run", status: "open", current_gate: "UR", missing_approval: "Approval: UR" },
+  humanPresentation: { runTitle: "Alpha run", gateTitle: gateTitle(registry, "de", "UR"), artefactRefs: refs },
+  revisionId: "preflight-revision",
+  registry,
+  requestedLocale: "de",
+});
 const nativeAttempt = executeNativeApprovalAttempt({
   ready: true,
+  orientationSnapshot: preflightSnapshot,
   invokeNative: () => { nativeCalls += 1; return { outcome: "attempted_not_applied", reason: "host_not_applied" }; },
   fallback: () => { fallbackCalls += 1; },
 });
@@ -96,6 +106,7 @@ assert.equal(nativeCalls, 1);
 assert.equal(fallbackCalls, 1);
 assert.equal(nativeAttempt.outcome, "attempted_not_applied");
 assert.equal(executeNativeApprovalAttempt({ ready: false, invokeNative: () => { nativeCalls += 1; } }).attempted, false);
+assert.equal(executeNativeApprovalAttempt({ ready: true, orientationSnapshot: null, invokeNative: () => { nativeCalls += 1; } }).reason, "orientation_preflight_failed");
 const attempt = buildInteractionAttempt({ interactionId: "i-1", runId: "alpha-run", currentGate: "UR", surface: "codex", attemptOutcome: "presented", expectedApproval: "Approval: UR" });
 assert.equal(attempt.authorizes, false);
 for (const attemptOutcome of ["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]) {
@@ -129,6 +140,13 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     requestedLocale: "de-AT",
   });
   assert.deepEqual(snapshot.sequence, ["run_status_card", "gate_transition_card", "approval_interaction"]);
+  assert.equal(snapshot.compact_status_card.semantic_block, "run_status_card");
+  assert.equal(snapshot.gate_transition_card.semantic_block, "gate_transition_card");
+  assert.equal(snapshot.approval_interaction.semantic_block, "approval_interaction");
+  assert.equal(snapshot.compact_status_card.primary_heading, registry.locales.de.gateActionTitles[gate]);
+  assert.equal(snapshot.compact_status_card.title, snapshot.compact_status_card.primary_heading);
+  assert.equal(snapshot.compact_status_card.primary_heading_level, 2);
+  assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] });
   assert.deepEqual(snapshot.compact_status_card.fields.map((field) => field.id), [
     "selected_run", "readiness_status", "current_gate", "missing_approval", "next_action", "quality_outlook",
   ]);
@@ -144,6 +162,22 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(Object.isFrozen(snapshot), true);
   assert.equal(Object.isFrozen(snapshot.compact_status_card.fields), true);
   assert.equal(Object.isFrozen(snapshot.approval_interaction.options), true);
+}
+
+for (const [mutation, expectedError] of [
+  [(snapshot) => { snapshot.sequence = ["gate_transition_card", "run_status_card", "approval_interaction"]; }, "sequence"],
+  [(snapshot) => { snapshot.compact_status_card.semantic_block = "combined_card"; }, "run_status_card"],
+  [(snapshot) => { delete snapshot.gate_transition_card; }, "gate_transition_card"],
+  [(snapshot) => { snapshot.compact_status_card.primary_heading = "AGDF Status"; }, "generic_primary_heading"],
+  [(snapshot) => { snapshot.compact_status_card.title = "AGDF Status — TP"; }, "primary_heading_owner"],
+  [(snapshot) => { snapshot.compact_status_card.primary_heading = "Run Status Card — TP"; snapshot.compact_status_card.title = snapshot.compact_status_card.primary_heading; }, "generic_primary_heading"],
+  [(snapshot) => { snapshot.compact_status_card.primary_heading_level = 3; }, "primary_heading"],
+  [(snapshot) => { snapshot.approval_interaction.options[0].value = "Approval: TP (Recommended)"; }, "canonical_approval"],
+]) {
+  const invalid = structuredClone(preflightSnapshot);
+  mutation(invalid);
+  assert.equal(validateApprovalOrientationSnapshot(invalid).valid, false);
+  assert.ok(validateApprovalOrientationSnapshot(invalid).errors.includes(expectedError));
 }
 
 const readyStatus = { run_id: "r", status: "open", current_gate: "QA", missing_approval: "Approval: QA" };
@@ -195,6 +229,9 @@ assert.equal(resolvePresentationLocale(additional, "es-MX"), "es");
 const incomplete = structuredClone(registry);
 delete incomplete.locales.de.interaction.declineDescription;
 assert.equal(validateLocaleRegistry(incomplete).valid, false);
+const missingActionTitle = structuredClone(registry);
+delete missingActionTitle.locales.de.gateActionTitles.TP;
+assert.equal(validateLocaleRegistry(missingActionTitle).valid, false);
 
 const longLocale = structuredClone(registry);
 longLocale.locales.fr = structuredClone(longLocale.locales.en);

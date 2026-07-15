@@ -2,10 +2,24 @@
 
 Status: done
 Decision: pass
-Date: 2026-07-14
+Revision: 2
+Date: 2026-07-15
 Based on: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 ## Delivered
+
+### Revision 2 delta
+
+- Added complete localized action-oriented headings for all six user gates and made the action title
+  the single primary owner of the compact approval-time Run Status Card.
+- Added semantic block identities and a pure sequence preflight for
+  `run_status_card -> gate_transition_card -> approval_interaction`.
+- Bound native attempt execution to a valid orientation snapshot; missing, merged, reversed,
+  duplicated, generic-heading and decorated-approval variants fail before invocation.
+- Declared canonical-value transport per adapter. Unproven host adapters remain presentation-only;
+  exact text is the authorization path.
+- Strengthened Runtime Contract, `gate-check`, generated assets and Runtime Integrity against card
+  merging, generic primary headings and adapter-capability drift.
 
 - Added one canonical, extensible interaction locale registry with complete initial `en` and `de` packs, exact/subtag/English fallback, stable option order and accessibility length budgets.
 - Added one pure interaction-presentation helper for locale resolution, localized gate titles, deterministic human run titles, safe `UR · PRD · SD · TP` references, stable options and distinct outcomes.
@@ -15,6 +29,19 @@ Based on: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 - Added generated locale registries for Codex, Copilot and OpenCode and byte-identity checks.
 
 ## TP Coverage
+
+### Revision 3 tasks
+
+| Task | Evidence | Result |
+|---|---|---|
+| HDS-16 | `buildApprovalOrientationSnapshot`; semantic blocks, action heading and all-gate fixtures | pass |
+| HDS-17 | `validateApprovalOrientationSnapshot`; invalid/missing snapshot blocks `executeNativeApprovalAttempt` | pass |
+| HDS-18 | Complete `gateActionTitles` for `en`/`de`; completeness and generic-title negatives | pass |
+| HDS-19 | Existing immutable snapshot and attempt envelope retained; presentation remains non-authorizing | pass |
+| HDS-20 | Existing one-fallback/no-retry contract plus preflight-before-invocation tests | pass |
+| HDS-21 | Per-surface `canonicalValueTransport`; decorated approval negative | pass |
+| HDS-22 | Generated sync, full smoke, Runtime Integrity, focused negatives and whitespace checks | pass |
+| HDS-23 | Refreshed TP Review, Clean Implementation Review and Code Review revision 2 | pass |
 
 | Task | Evidence | Result |
 |---|---|---|
@@ -43,6 +70,8 @@ Based on: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 | `npm pack --dry-run --json` in `create-agdf` | pass: generated locale registry included in package |
 | explicit `fr-CA` configuration probe | pass: extensible BCP 47 tag persisted; presentation fallback remains registry-controlled |
 | `git diff --check` | pass |
+| `npm run test:interaction-presentation` | pass: action headings, ordered blocks, preflight and canonical approval negatives |
+| `npm run test:runtime-integrity-negative` | pass: ordering, heading and adapter-capability mutation checks |
 
 ## Compatibility Evidence
 
@@ -54,4 +83,4 @@ Based on: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 ## Remaining Required Work
 
-Complete Task Plan Review, Clean Implementation Review and mandatory Code Review before QA.
+Run the refreshed QA gate using revision-2 review evidence; live host visibility remains UAT-only.

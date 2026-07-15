@@ -70,6 +70,7 @@ export function validateLocaleRegistry(registry) {
     }
     for (const key of REQUIRED_GATES) {
       if (typeof pack.gateTitles?.[key] !== "string" || !pack.gateTitles[key].trim()) errors.push(`missing_gate_title:${locale}:${key}`);
+      if (typeof pack.gateActionTitles?.[key] !== "string" || !pack.gateActionTitles[key].trim()) errors.push(`missing_gate_action_title:${locale}:${key}`);
     }
   }
   if (JSON.stringify(registry?.optionOrder) !== JSON.stringify(["approve", "revise", "decline", "cancel"])) errors.push("option_order");
@@ -179,8 +180,10 @@ export function reconcileRunScope({ requestText = "", scopeKey = "", runs = [] }
   return Object.freeze({ outcome: matches[0].lifecycle === "active" ? "active_match" : "completed_match", matches, reason: "exact_match" });
 }
 
-export function executeNativeApprovalAttempt({ ready = false, invokeNative, fallback } = {}) {
+export function executeNativeApprovalAttempt({ ready = false, orientationSnapshot, invokeNative, fallback } = {}) {
   if (!ready) return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "gate_not_ready", authorizes: false });
+  const preflight = validateApprovalOrientationSnapshot(orientationSnapshot);
+  if (!preflight.valid) return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "orientation_preflight_failed", authorizes: false });
   if (typeof invokeNative !== "function") return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "adapter_unavailable", authorizes: false });
   let adapterResult;
   try {
@@ -280,6 +283,7 @@ export function buildApprovalOrientationSnapshot({
   const pack = localePack(registry, locale);
   const runTitle = String(humanPresentation.runTitle ?? "").trim() || normalizedRunTitle(runId);
   const currentGateTitle = String(humanPresentation.gateTitle ?? "").trim() || gateTitle(registry, locale, gate);
+  const primaryHeading = String(pack.gateActionTitles?.[gate] ?? "").trim();
   const artefactRefs = Object.freeze([...(humanPresentation.artefactRefs ?? [])].map((ref) => Object.freeze({ ...ref })));
   const statusFields = Object.freeze([
     Object.freeze({ id: "selected_run", label: pack.statusCard.run, value: `${runTitle} · ${runId}` }),
@@ -298,8 +302,15 @@ export function buildApprovalOrientationSnapshot({
     current_gate: gate,
     presentation_language: locale,
     sequence: APPROVAL_SEQUENCE,
-    compact_status_card: Object.freeze({ title: pack.statusCard.title, fields: statusFields }),
+    compact_status_card: Object.freeze({
+      semantic_block: "run_status_card",
+      title: primaryHeading,
+      primary_heading: primaryHeading,
+      primary_heading_level: 2,
+      fields: statusFields,
+    }),
     gate_transition_card: Object.freeze({
+      semantic_block: "gate_transition_card",
       title: `${currentGateTitle} · ${runTitle} · ${runId}`,
       artefact_refs: artefactRefs,
       ready: pack.interaction.ready,
@@ -309,9 +320,30 @@ export function buildApprovalOrientationSnapshot({
       next_heading: pack.interaction.nextHeading,
       next_gate: String(statusCard.next_gate_after_approval ?? "none"),
     }),
-    approval_interaction: Object.freeze({ expected_approval: expectedApproval, options, authorizes: false }),
+    approval_interaction: Object.freeze({ semantic_block: "approval_interaction", expected_approval: expectedApproval, options, authorizes: false }),
     authorizes: false,
   });
+}
+
+export function validateApprovalOrientationSnapshot(snapshot) {
+  const errors = [];
+  if (!plainObject(snapshot)) return Object.freeze({ valid: false, errors: Object.freeze(["snapshot_missing"]) });
+  if (JSON.stringify(snapshot.sequence) !== JSON.stringify(APPROVAL_SEQUENCE)) errors.push("sequence");
+  if (snapshot.compact_status_card?.semantic_block !== "run_status_card") errors.push("run_status_card");
+  if (snapshot.gate_transition_card?.semantic_block !== "gate_transition_card") errors.push("gate_transition_card");
+  if (snapshot.approval_interaction?.semantic_block !== "approval_interaction") errors.push("approval_interaction");
+  const heading = String(snapshot.compact_status_card?.primary_heading ?? "").trim();
+  if (!heading || snapshot.compact_status_card?.primary_heading_level !== 2) errors.push("primary_heading");
+  if (String(snapshot.compact_status_card?.title ?? "").trim() !== heading) errors.push("primary_heading_owner");
+  if (/^(?:(?:agdf[- ]?status(?: card|karte)?|run status card|gate transition card)(?:\b|\s*[-:—·])|(?:UR|PRD|SD|TP|QA|UAT)(?:\s*[-:—·]|$))/i.test(heading)) errors.push("generic_primary_heading");
+  const fieldIds = snapshot.compact_status_card?.fields?.map((field) => field?.id);
+  if (JSON.stringify(fieldIds) !== JSON.stringify(["selected_run", "readiness_status", "current_gate", "missing_approval", "next_action", "quality_outlook"])) errors.push("status_fields");
+  const expectedApproval = `Approval: ${String(snapshot.current_gate ?? "").trim()}`;
+  if (!REQUIRED_GATES.includes(snapshot.current_gate)
+    || snapshot.gate_transition_card?.exact_approval !== expectedApproval
+    || snapshot.approval_interaction?.expected_approval !== expectedApproval
+    || snapshot.approval_interaction?.options?.[0]?.value !== expectedApproval) errors.push("canonical_approval");
+  return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
 }
 
 export function attachApprovalOrientationSnapshot(statusCard, options = {}) {

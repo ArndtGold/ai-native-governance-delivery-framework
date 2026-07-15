@@ -2,8 +2,9 @@
 
 Status: approved
 Gate: UR
-Gate approval: `Approval: UR` provided on 2026-07-14 after clarification
-Date: 2026-07-14
+Revision: 2
+Gate approval: exact `Approval: UR` provided on 2026-07-15 for revision 2 after same-run, same-gate and revision revalidation
+Date: 2026-07-15
 Owner: AGDF
 
 ## 1. Problem
@@ -75,6 +76,21 @@ durable artefact are ready and the host can wait for deliberate input.
 - Native option labels and descriptions are resolved from the configured chat language through one canonical mapping; agent-specific synonyms are not accepted as the standard presentation.
 - The mapping is locale-extensible; `de` and `en` are initial packs, not an exhaustive language boundary.
 
+### 5.1.1 Mandatory approval-interaction sequence
+
+Every ready user gate MUST use this exact visible sequence:
+
+1. compact Run Status Card;
+2. separate Gate Transition Card;
+3. native approval control, or the exact-text fallback when the native attempt is not usable.
+
+The two cards MUST be visibly complete in one immediately preceding assistant message before the
+native adapter is invoked. They MUST remain two separately recognizable semantic blocks and MUST NOT
+be merged, omitted, reversed or moved into button text, option descriptions, tool arguments or hidden
+context. The localized action-oriented title is the first visible line of the complete envelope; it
+does not replace either card. Each card is rendered exactly once. A native control invoked before
+both cards are visible is a contract violation and cannot authorize a gate transition.
+
 ## 5.3 Interaction and Accessibility Invariants
 
 - The visible gate title is localized through the active language pack, while the exact approval value remains unchanged. For example, a localized `Lösungsdesign` may be paired with `Approval: SD`.
@@ -87,6 +103,9 @@ durable artefact are ready and the host can wait for deliberate input.
 - A human-readable run title is preferred. If only a `run_id` exists, the fallback title must be deterministic and safe, without silently selecting another run.
 - Tests cover every user gate (`UR`, `PRD`, `SD`, `TP`, `QA`, `UAT`), internal steps, clarification/blocker states and status-only interactions that must not request approval.
 - A presentation label or button position must never authorize a transition. Only an exact, revalidated `Approval: <GateName>` value may authorize a gate.
+- Deterministic fixtures must reject every sequence except `Run Status Card -> Gate Transition Card
+  -> native control or exact-text fallback`, including merged, omitted, reversed, duplicated and
+  button-first variants.
 
 ## 6. Existing Source Of Truth
 
@@ -105,4 +124,5 @@ durable artefact are ready and the host can wait for deliberate input.
 
 ## 8. Next Step
 
-Approval recorded: `Approval: UR`. Brownfield Review must confirm the revised UX scope before PRD progression.
+Revision 2 is approved. Brownfield Review must reconfirm the affected presentation owners before PRD
+progression.

@@ -4,8 +4,8 @@
 
 - decision: `pass`
 - gate: `UAT`
-- gate_approval: pending `Approval: UAT`
-- date: `2026-07-13`
+- gate_approval: `Approval: UAT`
+- date: `2026-07-15`
 
 ## Acceptance Evidence
 
@@ -36,8 +36,4 @@
 
 ## Required Next Step
 
-Approve the UAT result only with:
-
-`Approval: UAT`
-
-After approval, perform delivery closeout. VCS and release actions remain separately authorized operations.
+UAT accepted. Perform delivery closeout. VCS and release actions remain separately authorized operations.

@@ -2,10 +2,24 @@
 
 Status: done
 Decision: pass
-Date: 2026-07-14
+Revision: 2
+Date: 2026-07-15
 Task Plan: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 ## TP Coverage
+
+### Revision 3 delta
+
+| task_id | status | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|
+| HDS-16 | fully_done | Existing immutable snapshot now exposes two named card blocks, one action heading owner and stable ordered sequence | Host pixel rendering | UAT only |
+| HDS-17 | fully_done | Pure preflight plus native-attempt boundary rejects invalid structure before invocation | Agent-host visual emission cannot be proven in repository tests | UAT only |
+| HDS-18 | fully_done | Complete reviewed `en`/`de` action-title mappings; completeness and generic-heading negatives | none | none |
+| HDS-19 | fully_done | Invocation, presentation outcome and authorization remain separate, non-persisted structures | Host-visible evidence | UAT only |
+| HDS-20 | fully_done | `attempted_not_applied` fallback remains single/no-retry; invalid preflight does not invoke | none | none |
+| HDS-21 | fully_done | Adapter capability metadata fails closed; decorated value fixture is invalid | Future host capability proof may permit `true` | none now |
+| HDS-22 | fully_done | Full package smoke, Runtime Integrity, generated sync and whitespace checks pass | none | none |
+| HDS-23 | fully_done | Refreshed TP, clean and code reviews are persisted | none | QA may proceed |
 
 | task_id | status | evidence | missing_evidence | QA impact |
 |---|---|---|---|---|
@@ -27,9 +41,9 @@ Task Plan: `.agdf/control/artefacts/agdf-human-decision-surface/TP.md`
 
 ## Summary
 
-- fully_done: HDS-01 through HDS-15
+- fully_done: HDS-01 through HDS-23
 - partially_done: none
 - not_done: none
 - out_of_scope_changes: none observed
 - risks: Live host rendering, keyboard and screen-reader behavior require UAT rather than repository-only proof.
-- required_next_step: Run the QA gate using TP coverage, clean-review, code-review and full verification evidence.
+- required_next_step: Run refreshed QA using revision-3 TP coverage, clean-review, code-review and full verification evidence.

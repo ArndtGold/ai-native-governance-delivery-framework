@@ -97,6 +97,8 @@
           "decline"
         ],
         "dismissOutcome": "cancel",
+        "canonicalValueTransport": false,
+        "authorizationPath": "exact_text",
         "technicalPermissionOwner": "codex_host"
       },
       "claude": {
@@ -109,6 +111,8 @@
           "decline"
         ],
         "dismissOutcome": "cancel",
+        "canonicalValueTransport": false,
+        "authorizationPath": "exact_text",
         "technicalPermissionOwner": "claude_host"
       },
       "opencode": {
@@ -121,6 +125,8 @@
           "decline"
         ],
         "dismissOutcome": "cancel",
+        "canonicalValueTransport": false,
+        "authorizationPath": "exact_text",
         "technicalPermissionOwner": "opencode_host"
       },
       "fallback": {
@@ -133,6 +139,8 @@
           "decline",
           "cancel"
         ],
+        "canonicalValueTransport": true,
+        "authorizationPath": "exact_text",
         "technicalPermissionOwner": "host_specific"
       }
     }

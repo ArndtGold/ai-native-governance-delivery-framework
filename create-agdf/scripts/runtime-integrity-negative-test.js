@@ -117,11 +117,28 @@ try {
 
   resetPluginFixture();
   writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replace(
+      "Never merge, reverse, omit or duplicate them",
+      "The cards may be combined when concise",
+    ),
+    "utf8",
+  );
+  expectIntegrityFailure(/one action-oriented primary heading without replacing or merging the ordered cards/);
+
+  resetPluginFixture();
+  writeFileSync(
     pluginDefinitionPath,
     readFileSync(pluginDefinitionPath, "utf8").replace('[\n      "approve",\n      "revise",\n      "decline",\n      "cancel"\n    ]', '[\n      "approve",\n      "decline",\n      "revise",\n      "cancel"\n    ]'),
     "utf8",
   );
   expectIntegrityFailure(/must preserve stable interaction option order/);
+
+  resetPluginFixture();
+  const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+  delete pluginDefinition.interactions.surfaces.codex.canonicalValueTransport;
+  writeFileSync(pluginDefinitionPath, `${JSON.stringify(pluginDefinition, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/codex interaction adapter must declare fail-closed canonical value transport/);
 
   resetPluginFixture();
   const localeRegistry = JSON.parse(readFileSync(interactionLocalesPath, "utf8"));

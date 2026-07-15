@@ -1,6 +1,6 @@
 # UAT Report: Human Decision Surface
 
-Status: pending_live_runtime_evidence
+Status: revise
 Date: 2026-07-15
 Based on: `.agdf/control/artefacts/agdf-human-decision-surface/QA_REPORT.md`
 
@@ -23,6 +23,15 @@ runtime, not the current cached `0.8.0` skill copy.
    keys and does not mix German primary copy with English machine detail.
 7. Keyboard and screen-reader names remain distinct with the host's own chrome
    language left untouched.
+8. The first visible line is the localized action-oriented gate or internal-step title as a
+   level-two Markdown heading or equivalent accessible host heading; generic AGDF/status labels are
+   secondary only and the primary title appears exactly once.
+9. A native adapter call that returns a value without a user-visible control or deliberate choice is
+   reported as `attempted_not_applied`, persists nothing and falls back once to exact text. Decorated
+   labels do not become exact approval values.
+10. Every ready gate visibly renders the compact Run Status Card first, the separate Gate Transition
+    Card second and only then the native control or exact-text fallback; neither card is merged,
+    omitted, reversed, duplicated or hidden in tool context.
 
 ## Current Evidence
 
@@ -32,9 +41,31 @@ runtime, not the current cached `0.8.0` skill copy.
   fell back to exact text; this validates the fail-closed outcome distinction,
   but it does not validate the newly built candidate because the active skill
   comes from the cached `0.8.0` installation.
+- Live user feedback on 2026-07-15 found that `AGDF-Status` was presented as the visual primary title
+  while the understandable gate title appeared only as ordinary text. The existing PRD required a
+  localized title but did not make first-line position, heading level or generic-title exclusion
+  mechanically mandatory.
+- Two live native attempts returned structured values while the user reported no visible button or
+  deliberate choice. Internal adapter return was therefore incorrectly stronger than visible
+  presentation evidence and must be handled as `attempted_not_applied`.
+- Live feedback on 2026-07-15 found that the agent collapsed the required Run Status Card and Gate
+  Transition Card into one combined block before the native attempt. The existing UR/PRD named the
+  components but did not state the complete visible order and non-merging rule as a mechanical MUST.
+- A live QA interaction after the revision-2 implementation rendered Quality Readiness and then
+  invoked the native control without the required intervening Run Status Card and Gate Transition
+  Card. The adapter also returned the decorated label `Approval: QA (Recommended)`. No QA approval
+  was persisted. This proves repository snapshot/preflight tests do not by themselves enforce the
+  actual agent-to-host tool-call order; end-to-end conformance remains unresolved UAT evidence.
+- After exact QA approval, `gate-check` projected UAT as an eligible `gate_approval` with
+  `native_attempt_required: true` even though this durable UAT report remains `Status: revise` and
+  names failing end-to-end evidence. The projection is non-authoritative and must fail closed; no UAT
+  control was shown.
 
 ## Decision
 
-- decision: pending
-- missing_evidence: Fresh candidate installation/reload and deliberate live host acceptance.
-- required_next_step: Install or reload the candidate plugin, run the live checks above, then request exact `Approval: UAT` only if accepted.
+- decision: revise
+- missing_evidence: Exact QA approval and end-to-end evidence that the running agent emits both
+  required cards immediately before the control or fallback without relying only on repository
+  snapshot tests.
+- required_next_step: Keep UAT at `revise`; obtain exact QA approval through a valid fallback, then
+  resolve and retest the end-to-end orchestration gap before UAT can pass.

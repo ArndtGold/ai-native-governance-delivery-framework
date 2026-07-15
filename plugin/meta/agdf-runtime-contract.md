@@ -181,6 +181,14 @@ before invoking any native question tool or emitting an exact-text approval
 request. Splitting the cards across separate assistant turns or invoking the
 tool after only one card is a failed interaction, not a valid presentation.
 
+The first visible line of that envelope is the localized action-oriented title
+of the current user gate, rendered as a level-two Markdown heading or equivalent
+accessible host heading inside the compact approval-time Run Status Card.
+`AGDF Status`, `Run Status Card`, `Gate Transition Card`, raw gate identifiers
+and machine values are semantic or diagnostic labels only and must not become
+the primary heading. The action title appears exactly once and does not replace,
+merge or reorder either required card block.
+
 The compact approval-time Run Status Card contains exactly six operational
 fields: selected run, readiness status, current gate, missing exact approval,
 one next action and quality outlook. It uses localized human-readable labels

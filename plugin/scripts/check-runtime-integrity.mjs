@@ -258,10 +258,29 @@ if (!runtimeContract.includes("first the compact\napproval-time Run Status Card,
 if (!gateCheckSkill.includes("Render both cards once") || !gateCheckSkill.includes("without repeating either card")) {
   failures.push("gate-check must render both approval cards once across native and fallback paths");
 }
+for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+  for (const locale of ["en", "de"]) {
+    if (!interactionLocales?.locales?.[locale]?.gateActionTitles?.[gate]) {
+      failures.push(`Interaction locale ${locale} missing action-oriented gate title for ${gate}`);
+    }
+  }
+}
+for (const [surface, expectedTransport] of [["codex", false], ["claude", false], ["opencode", false], ["fallback", true]]) {
+  const surfaceContract = pluginDefinition?.interactions?.surfaces?.[surface];
+  if (surfaceContract?.canonicalValueTransport !== expectedTransport || surfaceContract?.authorizationPath !== "exact_text") {
+    failures.push(`${surface} interaction adapter must declare fail-closed canonical value transport and exact-text authorization path`);
+  }
+}
 if (!runtimeContract.includes("one immediately preceding assistant message")
   || !runtimeContract.includes("Do not invoke the\nnative question tool until the complete two-card envelope is visible")
   || !gateCheckSkill.includes("Do not invoke the native question tool until the complete two-card envelope is visible")) {
   failures.push("Approval orientation must be complete in one assistant message before native invocation");
+}
+if (!runtimeContract.includes("first visible line of that envelope is the localized action-oriented title")
+  || !runtimeContract.includes("must not become\nthe primary heading")
+  || !gateCheckSkill.includes("Its first visible line is the localized action-oriented gate title")
+  || !gateCheckSkill.includes("Never merge, reverse, omit or duplicate them")) {
+  failures.push("Approval orientation must enforce one action-oriented primary heading without replacing or merging the ordered cards");
 }
 if (!gateCheckSkill.includes("after `Approval: TP`") || !gateCheckSkill.includes("pre-implementation Brownfield Analysis") || !gateCheckSkill.includes("do not expose `next_user_gate: none`") || !gateCheckSkill.includes("do not ask for a second approval")) {
   failures.push("gate-check must distinguish the internal Brownfield step from the next user gate");

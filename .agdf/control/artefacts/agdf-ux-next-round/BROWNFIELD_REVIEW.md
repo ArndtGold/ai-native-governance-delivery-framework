@@ -101,3 +101,73 @@ copy, projections and acceptance evidence.
 
 Keep one canonical control-state model and extend its presentation projections. The primary quality
 risk is UX clarity drifting into a parallel authority model or surface-specific behavior.
+
+## Follow-up Brownfield Review: Run Reconciliation And Lifecycle Status
+
+### Review Meta
+
+- review_type: `post_prd_follow_up`
+- related_prd: `.agdf/control/artefacts/agdf-ux-next-round/PRD.md` section 2.5
+- reviewed_at: 2026-07-15
+- reviewer: agent
+- PRD approval: `Approval: PRD` provided on 2026-07-15
+
+### Review Decision
+
+- decision: `pass`
+- mode_slice_decision: `structured_slice`
+- required_next_gate: `SD`
+- reuse_strategy: `extend_existing_owners`
+
+The refinement is implementable without a new authority model, but it is not a Quick Task. It
+changes user-visible orchestration and status semantics across the durable run repository, gate
+evaluation, human CLI output and agent routing guidance.
+
+### Existing-System Findings
+
+| Concern | Existing owner | Finding | Required direction |
+|---|---|---|---|
+| Active-run ambiguity | `create-agdf/lib/interaction-presentation.js`; `create-agdf/bin/create-agdf.js` | `buildRunCandidates()` intentionally projects only valid active runs; this correctly prevents closed runs from being selectable, but it cannot identify a matching completed delivery before a new run is created. | Add a separate non-authorizing reconciliation projection for active and recently completed runs; do not broaden the approval candidate list to closed runs. |
+| Run discovery | `create-agdf/lib/control-state/run-state-repository.js`; `run-state-resolver.js` | Canonical parsing and explicit `--run`/`AGDF_RUN_ID` selection already exist. Matching by recency, branch or chat proximity would violate the existing fail-closed boundary. | Define deterministic matching inputs in SD; uncertain matches must be reported as clarification, never auto-selected. |
+| OR / completed status | `create-agdf/bin/create-agdf.js` transition evaluation; `plugin/meta/agdf-runtime-contract.md` status contract | OR handoff currently returns `status: open` with `current_gate: OR`, while the canonical run may have `lifecycle: completed`. This is process-valid but humanly ambiguous. | Keep lifecycle and delivery state separate in the projection, e.g. `completed` plus `delivery closeout pending`; preserve machine compatibility and exact authority. |
+| Agent routing | `plugin/skills/gate-check/SKILL.md`; `plugin/meta/agdf-agent-router.md` | Existing guidance resolves active ambiguity but does not require a pre-creation check against completed matching work. | Add a pre-creation reconciliation invariant and require an explicit explanation when work is already delivered or a new follow-up is justified. |
+| Tests and generated surfaces | `create-agdf/scripts/interaction-presentation-test.js`, `control-state-test.js`, `smoke-test.js`, runtime-integrity sync | Active candidate and OR status behavior are covered independently; the combined reconciliation and lifecycle wording is not yet covered. | Add focused fixtures and propagate the canonical wording through integrity/smoke checks without changing existing JSON authority fields. |
+
+### Ownership And Compatibility Boundary
+
+- The canonical control-state files and run parser remain the sole source of lifecycle, gate and
+  approval authority.
+- The reconciliation result is a presentation/clarification projection only. It must never select
+  a run, approve a gate, reopen a completed run or persist a new authority record.
+- Active-run candidates remain active-only for selection. Completed matches are informational and
+  may point to the delivered OR/closeout; a distinct follow-up requires explicit user intent and
+  its own durable scope.
+- Existing `--run`, `AGDF_RUN_ID`, `candidate_runs`, exact approval values and machine-readable
+  schemas remain backward compatible. Additive detail fields require consumer-safe defaults.
+- No fuzzy model judgement may become the canonical match decision. The SD must define a bounded,
+  deterministic match contract and a fail-closed result for insufficient evidence.
+
+### Impact And Risks
+
+- impact: high for chat orchestration clarity; medium for CLI human output; low for gate authority
+  and persistence because those remain unchanged.
+- primary risk: a broad semantic matcher could incorrectly merge distinct work or expose a
+  completed run as selectable. Mitigation: separate informational matching from active selection,
+  deterministic evidence, and explicit clarification on ambiguity.
+- secondary risk: changing `status: open` globally could break automation. Mitigation: preserve the
+  existing JSON status contract where required and introduce a distinct lifecycle/closeout display
+  value or human-facing label through the canonical projection.
+- evidence gap: no live host rendering is required for this refinement; deterministic CLI/chat
+  projection tests are the first proof boundary.
+
+### Next Permissible Step
+
+- next_allowed_action: Draft the focused Solution Design for deterministic existing-run
+  reconciliation and lifecycle/closeout status projection.
+- forbidden_until_then: implementation, QA, UAT and release claims for this follow-up refinement.
+
+### Quality Outlook
+
+The clean solution is a pre-creation reconciliation projection plus an explicit lifecycle/closeout
+projection, both derived from the existing run state. Do not solve the symptom by auto-reusing the
+most recent run, by making completed runs active candidates, or by adding a second run registry.

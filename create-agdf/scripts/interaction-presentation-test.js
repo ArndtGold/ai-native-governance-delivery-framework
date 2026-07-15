@@ -8,6 +8,7 @@ import {
   buildInteractionAttempt,
   buildQualityReadiness,
   buildRunCandidates,
+  executeNativeApprovalAttempt,
   canonicalizeLanguageTag,
   formatArtefactRefs,
   gateOptions,
@@ -16,6 +17,8 @@ import {
   normalizedRunTitle,
   resolveHumanRunTitle,
   resolvePresentationLocale,
+  reconcileRunScope,
+  normalizeReconciliationText,
   validateLocaleRegistry,
 } from "../lib/interaction-presentation.js";
 
@@ -72,6 +75,27 @@ assert.deepEqual(candidates.map((candidate) => candidate.run_id), ["alpha-run", 
 assert.equal(candidates[0].display_title, "Human alpha title");
 assert.equal(candidates[1].display_title, "Human beta title");
 assert.equal(candidates[0].current_gate, "UR");
+assert.equal(normalizeReconciliationText("Human Alpha_Title"), "human alpha title");
+const reconciliation = reconcileRunScope({ scopeKey: "Human beta title", runs: [
+  { run_id: "beta-run", valid: true, meta: { lifecycle: "active", current_gate: "TP" }, ur_heading: "# Human beta title" },
+  { run_id: "closed", valid: true, meta: { lifecycle: "completed", current_gate: "OR" }, ur_heading: "# Closed title" },
+] });
+assert.equal(reconciliation.outcome, "active_match");
+assert.equal(reconciliation.matches[0].run_id, "beta-run");
+assert.equal(reconcileRunScope({ scopeKey: "Closed title", runs: [
+  { run_id: "closed", valid: true, meta: { lifecycle: "completed", current_gate: "OR" }, ur_heading: "# Closed title" },
+] }).outcome, "completed_match");
+let nativeCalls = 0;
+let fallbackCalls = 0;
+const nativeAttempt = executeNativeApprovalAttempt({
+  ready: true,
+  invokeNative: () => { nativeCalls += 1; return { outcome: "attempted_not_applied", reason: "host_not_applied" }; },
+  fallback: () => { fallbackCalls += 1; },
+});
+assert.equal(nativeCalls, 1);
+assert.equal(fallbackCalls, 1);
+assert.equal(nativeAttempt.outcome, "attempted_not_applied");
+assert.equal(executeNativeApprovalAttempt({ ready: false, invokeNative: () => { nativeCalls += 1; } }).attempted, false);
 const attempt = buildInteractionAttempt({ interactionId: "i-1", runId: "alpha-run", currentGate: "UR", surface: "codex", attemptOutcome: "presented", expectedApproval: "Approval: UR" });
 assert.equal(attempt.authorizes, false);
 for (const attemptOutcome of ["presented", "unavailable_before_invocation", "attempted_not_applied", "unsafe_to_wait"]) {

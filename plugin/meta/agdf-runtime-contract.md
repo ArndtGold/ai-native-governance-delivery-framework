@@ -390,6 +390,7 @@ interaction_kind: clarification | tool_permission | gate_approval | blocked | st
 surface: codex | claude | opencode | fallback
 run_id: required for gate_approval
 current_gate: required for gate_approval
+native_attempt_required: true only for an eligible gate_approval before the first adapter attempt
 prompt: required
 options: required for a structured question
 effects: required when the interaction can cause side effects
@@ -419,6 +420,12 @@ Before presenting `gate_approval`, the agent must:
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
 7. persist an accepted approval only through the existing control-state workflow.
+
+For an eligible `gate_approval`, `native_attempt_required` is a mandatory orchestration signal. The
+agent must make exactly one configured native adapter attempt after the two orientation cards and
+before any exact-text fallback. Hooks may prepare context but must not answer, approve or replace
+the adapter attempt. The signal is absent or false for clarification, blocked, status-only,
+internal-step and non-ready interactions.
 
 The first eligible native-attempt has a single bounded outcome: the declared
 host control is presented, or the agent immediately uses the exact-text

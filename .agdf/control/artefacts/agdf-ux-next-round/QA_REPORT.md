@@ -99,6 +99,35 @@ decision `pass` is required after remediation and refreshed review evidence.
   UAT be requested.
 - impact_codes: `supporting_evidence_gap_live_host`
 
+## Follow-up QA Gate: Reliable Native Approval Invocation
+
+- decision: `revise`
+- quality_readiness:
+  - plan_coverage: `revise` — NAI-01 and NAI-03 are not implemented; NAI-04 through NAI-07 remain partial.
+  - solution_integrity: `revise` — the readiness signal is clean, but without an orchestration seam it
+    can remain a non-enforced instruction.
+  - code_quality: `revise` — no defect in the additive projection, but the approved core behavior is
+    missing from the actual diff.
+  - qa_decision: `revise` — P1 review findings remain open.
+- evidence: current workspace diff; passing Runtime Integrity, control-state, interaction, routing,
+  package smoke and `git diff --check`; TP Review, Clean Implementation Review and Code Review.
+- missing_evidence: deterministic active/completed run reconciliation, exactly-one native adapter
+  orchestration/omission fixture, hook-boundary fixture, human lifecycle projection and direct host
+  attempt evidence.
+- risks: users may still receive a textual approval without a native attempt because the host call is
+  not owned by the current implementation path. No release, UAT or delivery claim is permitted.
+- required_next_step: implement NAI-01 and NAI-03, add the missing focused fixtures, refresh all
+  reviews and rerun the QA gate.
+- impact_codes: `TP_PARTIAL`, `NATIVE_ATTEMPT_ORCHESTRATION_MISSING`, `RUN_RECONCILIATION_MISSING`
+
+## Follow-up QA Gate Refresh (2026-07-15)
+
+- decision: `revise`
+- passing scope: readiness projection, deterministic reconciliation helper, single-attempt/fallback helper, localized delivery-status projection, focused tests, package smoke, Runtime Integrity, Pages build and `git diff --check`.
+- remaining blockers: reconciliation is not wired into the pre-creation agent boundary; native host invocation remains an external adapter boundary with no direct host evidence; hook non-authority has documentation but no executable host fixture.
+- release posture: no UAT, release or delivery-closeout claim for this follow-up.
+- impact_codes: `RUN_RECONCILIATION_NOT_WIRED`, `HOST_ADAPTER_EVIDENCE_UNVERIFIED`, `HOOK_BOUNDARY_FIXTURE_MISSING`
+
 ## QA Approval Record (2026-07-15)
 
 - approval: `Approval: QA`

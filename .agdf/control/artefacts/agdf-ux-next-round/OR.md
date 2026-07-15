@@ -39,3 +39,12 @@ Owner: agent
 - quality_outlook: The completed UX scope is accepted. The independent planned
   `approval-orientation-completeness` work item owns any future two-card
   approval-presentation change.
+
+## Scope Closure Refresh (2026-07-15)
+
+- decision: `accepted_as_completed`
+- user_decision: TP and repository-side implementation are treated as completed within the approved scope.
+- delivered: deterministic run reconciliation helper, single-attempt native-approval orchestration seam with exact-text fallback, readiness projection, and localized human delivery-status output.
+- intentionally_not_delivered: host-owned button-rendering proof and external agent-boundary wiring; these remain outside the repository-side completion claim and do not justify a second hook.
+- evidence: focused interaction/control-state tests, package smoke, Runtime Integrity, Pages build and whitespace validation pass.
+- required_next_step: delivery closeout; commit, push, PR and release remain separately authorized actions.

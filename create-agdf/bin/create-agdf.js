@@ -2259,10 +2259,14 @@ function buildStatusCard({
   const qualityOutlook = deriveQualityOutlook(runState, findings);
   const postApproval = postApprovalTransition(missingApproval);
   const isUserGateApproval = missingApproval !== "none";
+  const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
+  const nativeAttemptRequired = status === "open" && isUserGateApproval;
   return {
     run_id: extractField(runState.content ?? "", "run_id") || "unknown",
     presentation_language: chatLanguage,
     mode: extractField(runState.content ?? "", "mode") || "unknown",
+    lifecycle,
+    delivery_state: lifecycle === "completed" && currentGate === "OR" ? "completed_closeout_pending" : lifecycle,
     status,
     current_gate: currentGate,
     mode_slice_decision: runState.mode_slice_decision?.decision || "undecided",
@@ -2280,6 +2284,8 @@ function buildStatusCard({
     next_skill: nextSkillByGate[currentGate] ?? "gate-check",
     next_step: nextAllowedAction,
     quality_outlook: qualityOutlook,
+    interaction_kind: nativeAttemptRequired ? "gate_approval" : status === "blocked" ? "blocked" : "status",
+    native_attempt_required: nativeAttemptRequired,
   };
 }
 
@@ -2736,6 +2742,8 @@ function evaluateGateCheck(targetDir, selection = {}) {
     doctor_summary: doctorReport.summary,
     evidence_refs: runState.evidence_refs,
     quality_outlook: deriveQualityOutlook(runState, deliveryMap.findings),
+    interaction_kind: statusCard.interaction_kind,
+    native_attempt_required: statusCard.native_attempt_required,
     candidate_runs: runState.candidate_runs ?? [],
     status_card: statusCard,
     delivery_map: {
@@ -2764,6 +2772,7 @@ function printGateCheckStatusCard(report) {
   console.log(`${labels.run}: ${card.run_id}`);
   console.log(`${labels.humanTitle}: ${presentation.runTitle}`);
   console.log(`${labels.gate}: ${card.current_gate} — ${presentation.gateTitle}`);
+  console.log(`${labels.lifecycle}: ${primary.lifecycle[card.delivery_state] ?? primary.lifecycle.unknown}`);
   console.log(`${labels.artefacts}: ${formatArtefactRefs(presentation.artefactRefs)}`);
   console.log(`${labels.blocked}: ${card.blocking_condition === "none" ? primary.none : primary.blocked}`);
   console.log(`${labels.missing}: ${card.missing_approval === "none" ? primary.none : card.missing_approval}`);

@@ -69,3 +69,49 @@ Owner: AGDF
 Review this task and test plan and approve only with:
 
 `Approval: TP`
+
+## 7. Follow-up Task And Test Plan: Reliable Native Approval Invocation
+
+Status: approved
+Based on: approved follow-up SD sections 9.1–9.7
+Gate approval: `Approval: TP` provided on 2026-07-15
+
+### 7.1 Task list
+
+| task_id | Task | Acceptance mapping | Evidence required |
+|---|---|---|---|
+| NAI-01 | Add deterministic pre-creation reconciliation for active and recently completed matching runs as a read-only projection. | PRD 2.5; SD 9.1 | Fixtures for `active_match`, `completed_match`, `no_match` and `match_uncertain`; no implicit selection or persistence. |
+| NAI-02 | Add an additive `native_attempt_required` readiness signal to the canonical gate-ready projection. | PRD 2.7; SD 9.7 | Ready-gate fixture asserts `true`; blocked, ambiguous, status-only and non-ready fixtures assert absent/false. |
+| NAI-03 | Implement one central gate-approval orchestration path that emits both cards and invokes the configured native adapter exactly once before fallback. | PRD 2.7; SD 9.7 | Hermetic orchestration fixture fails when a ready gate goes directly to bare text; exactly-one-attempt evidence. |
+| NAI-04 | Keep hooks preparation-only and prove that SessionStart, UserPromptSubmit and permission hooks cannot answer, approve or replace the native gate attempt. | PRD 2.7; SD 9.7 | Negative fixtures and runtime-integrity assertions for hook non-authority. |
+| NAI-05 | Classify native outcomes and emit immediate localized exact-text fallback without automatic retry. | PRD 2.4, 2.7; SD 9.7 | Coverage for `presented`, `unavailable_before_invocation`, `attempted_not_applied` and `unsafe_to_wait`; no retry fixture. |
+| NAI-06 | Add configured-locale human projections for lifecycle, closeout and all primary status fields without raw enum leakage. | PRD 2.6; SD 9.2–9.3 | German/English projection tests reject unexplained internal values and preserve exact approval tokens. |
+| NAI-07 | Run propagation, regression and host evidence checks across canonical and generated surfaces. | PRD acceptance criteria; SD 9.4–9.5 | Runtime Integrity, control-state, interaction, routing, package smoke, Pages checks and explicit host evidence boundary. |
+
+### 7.2 Focused test plan
+
+| Area | Automated proof | Manual / host evidence |
+|---|---|---|
+| Readiness | Exactly-one-run, artefact-ready and current-gate fixture produces `native_attempt_required: true`. | Inspect the ready-gate orientation before the native question. |
+| Native invocation | Orchestrator spy records one adapter call and rejects zero calls or retries. | Observe one Codex native attempt where callable; record unavailable/not-applied otherwise. |
+| Fallback | Outcome-specific localized fallback includes exact approval value and unchanged authority. | Confirm the user can continue with exact text without requesting buttons again. |
+| Non-ready safety | Ambiguous, blocked, status-only and internal-step fixtures produce no approval control. | Verify no buttons appear for clarification or status interactions. |
+| Hook boundary | Hook fixtures cannot supply answers or persist approvals. | Inspect host-specific hook behavior where available. |
+| Existing-run reconciliation | Active/completed matching fixtures prevent duplicate creation and distinguish delivered work. | Confirm the chat explains reuse, already-delivered scope or why a new follow-up is needed. |
+| Language boundary | Configured German/English primary projections contain no unexplained raw enums. | Inspect human-facing cards and fallback copy. |
+
+### 7.3 QA blockers
+
+- A ready gate reaches bare text without a recorded native attempt: `block`.
+- More than one native attempt occurs for one eligible interaction: `block`.
+- A hook supplies an answer, approval or second authority: `block`.
+- A fallback hides whether the native attempt was unavailable or not applied: `revise`.
+- A completed matching run is offered as an active approval candidate: `block`.
+- Human-facing primary copy exposes raw internal values without explanation: `revise`.
+- Host rendering cannot be observed: record `unverified`; do not claim native success.
+
+### 7.4 Next step
+
+The follow-up Task And Test Plan was approved with:
+
+`Approval: TP`

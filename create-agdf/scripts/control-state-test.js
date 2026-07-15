@@ -328,6 +328,8 @@ try {
     if (target === "gate-check") {
       assert.deepEqual(report.candidate_runs.map((candidate) => candidate.run_id), ["ambiguous-run-a", "ambiguous-run-b"]);
       assert.ok(report.candidate_runs.every((candidate) => candidate.display_title && candidate.current_gate));
+      assert.equal(report.native_attempt_required, false, "ambiguous runs must never require a native approval attempt");
+      assert.notEqual(report.interaction_kind, "gate_approval", "ambiguous runs must remain clarification/blocked interactions");
     }
   }
   rmSync(ambiguousRoot, { recursive: true, force: true });

@@ -92,3 +92,129 @@ automatic selection, silent fallback or host-UI imitation is a revise/block cond
   policy is forbidden.
 - required_next_step: Implement the bounded transition guard and a hermetic CLI
   regression fixture, then refresh CD+Tests and reviews.
+
+## Follow-up Pre-Implementation Analysis: Native Approval Orchestration
+
+### Analysis Meta
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- mode_slice_decision: `structured_slice`
+- required_next_gate: `none`
+- scope: NAI-01 through NAI-07 in the approved follow-up TP
+- TP approval: `Approval: TP` provided on 2026-07-15
+
+### Existing Owners And Coverage
+
+| Owner | Current coverage | Reuse path | Implementation impact |
+|---|---|---|---|
+| `create-agdf/lib/control-state/run-state-repository.js` | `partially_done`: canonical run discovery and lifecycle parsing exist; no deterministic pre-creation reconciliation projection | add read-only summaries and matching evidence; retain existing write/collision rules | medium |
+| `create-agdf/lib/interaction-presentation.js` | `partially_done`: locale, cards, active candidates and non-authoritative receipts exist; no readiness envelope or lifecycle human projection | extend pure helpers for reconciliation, readiness and localized display | high |
+| `create-agdf/bin/create-agdf.js` | `partially_done`: gate evaluation and status-card output exist; OR handoff still presents machine `open` too directly to humans | add additive `native_attempt_required` detail and human lifecycle mapping without changing authority fields | high |
+| Runtime Contract, `gate-check` skill and plugin definition | `partially_done`: adapter rules and one-attempt/fallback language exist, but the execution obligation is not yet backed by a readiness signal and omission test | align one canonical orchestration contract and generated surfaces | high |
+| `plugin/hooks/hooks.json` and `session-start.sh` | `fully_done` for session context only; no safe responsibility for delayed gate interaction | leave hooks preparation-only; add negative assertions against hook authority | none |
+| `create-agdf/scripts/*` | `partially_done`: control-state and interaction tests exist, but no adapter-call spy or ready-gate omission fixture | add hermetic orchestration and negative fixtures in the existing test style | medium |
+
+### Clean Implementation Path
+
+- Extend the existing projection and gate-evaluation owners; do not add a second hook, run registry,
+  approval store or host UI.
+- Make `native_attempt_required` a derived, additive readiness signal. It is a contract that the
+  agent/orchestrator must act on, not a replacement for host capability.
+- Keep the actual native question invocation in the assistant/host orchestration layer. This repo
+  can define, test and report the required attempt, but it cannot force a host to render a button.
+- Use an adapter spy or bounded host seam in deterministic tests to prove zero/one/multiple-call
+  behavior. Keep direct Codex/Claude/OpenCode observations as separate evidence.
+- Preserve the exact approval validator, canonical `RUN_STATE.md`, existing selectors and machine
+  output compatibility.
+
+### Boundary And Residual Risk
+
+- No plugin-owned callable `request_user_input`, `AskUserQuestion` or `question` implementation is
+  present in this repository. Native rendering is therefore an external host capability boundary.
+- The implementation can make omission detectable and make the correct path mandatory in the
+  orchestration contract, but it cannot honestly guarantee button rendering from plugin files alone.
+- If a host or runtime cannot expose a deliberate question adapter, the exact-text fallback remains
+  the correct behavior. Any `presented` claim requires direct host evidence.
+- A second hook would weaken rather than strengthen the boundary because hooks can load context but
+  must not answer, approve or replace the gate interaction.
+
+### Regression And Evidence Plan
+
+- run existing control-state, interaction, routing, runtime-integrity and package smoke suites;
+- add ready-gate fixture: cards -> exactly one adapter attempt -> classified outcome;
+- add omission fixture: ready gate -> no adapter call -> test failure;
+- add non-ready fixtures: no buttons for ambiguous, blocked, status-only or internal interactions;
+- add hook boundary fixtures: no hook-supplied answer or approval;
+- add reconciliation fixtures for active/completed/uncertain/no match;
+- record live host evidence separately and mark unsupported/unobserved surfaces `unverified`.
+
+### Required Next Step
+
+- required_next_step: Implement NAI-01 through NAI-07 narrowly, starting with the readiness envelope,
+  reconciliation projection and hermetic single-attempt tests.
+- implementation_limit: Do not claim guaranteed native buttons until direct host evidence confirms
+  the adapter is invoked and applied.
+
+## Follow-up Pre-Implementation Analysis: Native Approval Orchestration
+
+### Analysis Meta
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- mode_slice_decision: `structured_slice`
+- required_next_gate: `none`
+- scope: NAI-01 through NAI-07 in the approved follow-up TP
+- TP approval: `Approval: TP` provided on 2026-07-15
+
+### Existing Owners And Coverage
+
+| Owner | Current coverage | Reuse path | Implementation impact |
+|---|---|---|---|
+| `create-agdf/lib/control-state/run-state-repository.js` | `partially_done`: canonical run discovery and lifecycle parsing exist; no deterministic pre-creation reconciliation projection | add read-only summaries and matching evidence; retain existing write/collision rules | medium |
+| `create-agdf/lib/interaction-presentation.js` | `partially_done`: locale, cards, active candidates and non-authoritative receipts exist; no readiness envelope or lifecycle human projection | extend pure helpers for reconciliation, readiness and localized display | high |
+| `create-agdf/bin/create-agdf.js` | `partially_done`: gate evaluation and status-card output exist; OR handoff still presents machine `open` too directly to humans | add additive `native_attempt_required` detail and human lifecycle mapping without changing authority fields | high |
+| Runtime Contract, `gate-check` skill and plugin definition | `partially_done`: adapter rules and one-attempt/fallback language exist, but the execution obligation is not yet backed by a readiness signal and omission test | align one canonical orchestration contract and generated surfaces | high |
+| `plugin/hooks/hooks.json` and `session-start.sh` | `fully_done` for session context only; no safe responsibility for delayed gate interaction | leave hooks preparation-only; add negative assertions against hook authority | none |
+| `create-agdf/scripts/*` | `partially_done`: control-state and interaction tests exist, but no adapter-call spy or ready-gate omission fixture | add hermetic orchestration and negative fixtures in the existing test style | medium |
+
+### Clean Implementation Path
+
+- Extend the existing projection and gate-evaluation owners; do not add a second hook, run registry,
+  approval store or host UI.
+- Make `native_attempt_required` a derived, additive readiness signal. It is a contract that the
+  agent/orchestrator must act on, not a replacement for host capability.
+- Keep the actual native question invocation in the assistant/host orchestration layer. This repo
+  can define, test and report the required attempt, but it cannot force a host to render a button.
+- Use an adapter spy or bounded host seam in deterministic tests to prove zero/one/multiple-call
+  behavior. Keep direct Codex/Claude/OpenCode observations as separate evidence.
+- Preserve the exact approval validator, canonical `RUN_STATE.md`, existing selectors and machine
+  output compatibility.
+
+### Boundary And Residual Risk
+
+- No plugin-owned callable `request_user_input`, `AskUserQuestion` or `question` implementation is
+  present in this repository. Native rendering is therefore an external host capability boundary.
+- The implementation can make omission detectable and make the correct path mandatory in the
+  orchestration contract, but it cannot honestly guarantee button rendering from plugin files alone.
+- If a host or runtime cannot expose a deliberate question adapter, the exact-text fallback remains
+  the correct behavior. Any `presented` claim requires direct host evidence.
+- A second hook would weaken rather than strengthen the boundary because hooks can load context but
+  must not answer, approve or replace the gate interaction.
+
+### Regression And Evidence Plan
+
+- run existing control-state, interaction, routing, runtime-integrity and package smoke suites;
+- add ready-gate fixture: cards -> exactly one adapter attempt -> classified outcome;
+- add omission fixture: ready gate -> no adapter call -> test failure;
+- add non-ready fixtures: no buttons for ambiguous, blocked, status-only or internal interactions;
+- add hook boundary fixtures: no hook-supplied answer or approval;
+- add reconciliation fixtures for active/completed/uncertain/no match;
+- record live host evidence separately and mark unsupported/unobserved surfaces `unverified`.
+
+### Required Next Step
+
+- required_next_step: Implement NAI-01 through NAI-07 narrowly, starting with the readiness envelope,
+  reconciliation projection and hermetic single-attempt tests.
+- implementation_limit: Do not claim guaranteed native buttons until direct host evidence confirms
+  the adapter is invoked and applied.

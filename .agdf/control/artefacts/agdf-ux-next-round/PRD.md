@@ -101,6 +101,84 @@ selector, approval authority, state store, skill registry or host-owned UI repla
 - Historical screenshots are never presented as current-version proof and retain their explicit
   evidence boundary.
 
+### 2.5 Existing-run reconciliation and lifecycle clarity (follow-up refinement)
+
+> This section records a post-review refinement identified during chat execution. It is not part
+> of the already accepted `agdf-ux-next-round` delivery and requires a fresh PRD decision before
+> implementation. Follow-up PRD decision: `Approval: PRD` provided on 2026-07-15.
+
+The chat orchestrator must reconcile the user's request with existing durable work before it
+creates or persists a new run. This is a product requirement for preventing duplicate delivery
+lines, not merely an implementation optimization.
+
+- Before drafting or persisting a new UR/run, inspect active and recently completed runs for a
+  matching objective, scope and relevant UX/product semantics.
+- If an open run matches, present that run as the candidate scope and continue only after the
+  selected run and current gate are revalidated. Do not create a second run for the same work.
+- If a completed run matches, present the delivered result and its current delivery state instead
+  of starting duplicate implementation. A new run is justified only when the user clearly asks for
+  a distinct follow-up or change beyond the completed scope.
+- An exact `Approval: UR` authorizes the selected, revalidated scope; it does not authorize
+  creating a new run before existing-run reconciliation has completed.
+- Human-facing status must separate lifecycle from closeout state. A completed run with delivery
+  closeout still available must read as `completed — delivery closeout pending`, not simply
+  `open`.
+- The conversation must state when it reuses, recognizes as already delivered, or declines to
+  create a duplicate run. It must never silently choose a recent run by recency, branch or chat
+  proximity alone.
+
+### 2.6 Human-facing vocabulary boundary (follow-up refinement)
+
+> This section sharpens the chat presentation contract. It is a PRD refinement and requires a
+> fresh `Approval: PRD` before implementation or downstream design changes. Refined language
+> boundary approved with `Approval: PRD` on 2026-07-15.
+
+The chat is a human decision surface, not a dump of AGDF's internal state model. Technical
+identifiers may remain canonical in durable artefacts and machine output, but they must not be the
+first or only explanation shown to a user.
+
+- Every user-facing status, blocker, next-step or delivery-path message leads with a plain-language
+  label and action-oriented explanation in the configured chat language.
+- Raw internal values such as `structured_slice`, `structured_delivery`, `quick_task`, `OR`, `PRD`,
+  `SD`, `TP`, `UAT` and `Brownfield Review` must not appear without explanation in normal chat prose.
+- Preferred German chat wording is, for example: `kleiner, strukturierter Arbeitsabschnitt`,
+  `umfangreiche strukturierte Lieferung`, `Prüfung des bestehenden Systems` and `Abschlussbericht`;
+  other configured languages use their corresponding plain-language equivalents.
+- The exact approval token remains unchanged and visible where authority is requested, for example
+  `Approval: PRD`; it must be accompanied by a short explanation of what that decision means.
+- Technical identifiers may appear as secondary context only in an artefact link, code block,
+  machine-readable output, audit detail or when the user explicitly asks for technical status.
+- The chat must never expose a raw enum as the value of a human-facing field such as `Lieferweg`,
+  `Status`, `Nächster Schritt` or `Blockiert durch`.
+- The same vocabulary boundary applies to clarification, blocked, status-only, approval and
+  closeout interactions; it is not limited to the first-contact prompt.
+
+### 2.7 Reliable native approval invocation (follow-up refinement)
+
+> Three execution attempts exposed the same failure mode: the approval remained textual even when
+> the user expected a native decision control. This is a reliability requirement, not a preference
+> for a richer presentation. This follow-up refinement was approved with `Approval: PRD` on
+> 2026-07-15.
+
+- When exactly one run is selected, the current user gate is ready and its durable artefact is
+  present, AGDF must classify the interaction as `gate_approval` and make exactly one native
+  question attempt on the configured host surface before showing the exact-text fallback.
+- The gate-check result must expose an explicit machine-readable `native_attempt_required` signal
+  for an eligible gate. The agent must not silently skip from readiness to bare approval text.
+- The native attempt must be observable as one of `presented`, `unavailable_before_invocation`,
+  `attempted_not_applied` or `unsafe_to_wait`. The user-facing response must distinguish host
+  limitation from agent omission and from a gate that was not ready.
+- A SessionStart or other hook may load context, validate configuration or remind the agent of the
+  interaction contract. A hook must never supply gate answers, act as a second approval authority,
+  or replace the required native question attempt.
+- Native control invocation is an adapter responsibility, but the decision to attempt it is a
+  canonical gate-orchestration responsibility. Host-owned rendering cannot be forced or simulated.
+- If the native attempt is unavailable or not applied, AGDF immediately uses the exact localized
+  text fallback with the unchanged approval token. It must not retry automatically or ask the user
+  to request the buttons again.
+- Readiness, clarification, blocked and status interactions must never display approval buttons;
+  reliability applies only to genuinely eligible gate approvals.
+
 ## 3. Acceptance Criteria
 
 - A multiple-active-run fixture renders only real active candidates with deterministic titles,
@@ -136,6 +214,19 @@ selector, approval authority, state store, skill registry or host-owned UI repla
 - Version and screenshot copy makes current package evidence and historical visual evidence
   distinguishable without changing the version source of truth, and does not claim a running
   session version without direct observation.
+- A matching active or recently completed run is surfaced before a new run is created; the
+  conversation explains reuse, delivered scope or the reason a distinct follow-up is needed.
+- A completed run with pending delivery closeout is presented with lifecycle and closeout state
+  separately, without collapsing it into the generic `open` status.
+- Human-facing chat fixtures reject unexplained internal enum values and raw gate names in primary
+  prose, while allowing exact approval tokens, artefact links, code blocks and explicit technical
+  status requests.
+- Each primary chat status presents a plain-language label, the user's immediate decision or next
+  action, and any technical identifier only as secondary context.
+- An eligible gate fixture fails if the native question attempt is omitted before the exact-text
+  fallback; a non-ready or ambiguous fixture proves that no approval control is offered.
+- Host-adapter evidence records the single attempt outcome and distinguishes unavailable host
+  capability from an agent-side omission; hooks are proven non-authorizing and non-answering.
 - Existing interaction-presentation, runtime-integrity, control-state, routing and package smoke
   tests pass, and new focused coverage protects the new presentation states.
 

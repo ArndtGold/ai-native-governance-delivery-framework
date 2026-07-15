@@ -147,6 +147,57 @@ export function buildRunCandidates(runs) {
     .sort((left, right) => left.display_title.localeCompare(right.display_title) || left.run_id.localeCompare(right.run_id));
 }
 
+export function normalizeReconciliationText(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[._:/\\-]+/g, " ")
+    .replace(/[^\p{L}\p{N}\s]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function reconcileRunScope({ requestText = "", scopeKey = "", runs = [] } = {}) {
+  const requested = normalizeReconciliationText(scopeKey || requestText);
+  if (!requested) return Object.freeze({ outcome: "match_uncertain", matches: [], reason: "scope_input_missing" });
+  const matches = [...(runs ?? [])]
+    .filter((run) => run?.valid && ["active", "completed"].includes(run?.meta?.lifecycle) && typeof run.run_id === "string")
+    .filter((run) => {
+      const keys = [run.scope_key, run.display_title, run.current_artefact_heading, run.ur_heading]
+        .map(normalizeReconciliationText)
+        .filter(Boolean);
+      return keys.includes(requested);
+    })
+    .map((run) => Object.freeze({
+      run_id: run.run_id,
+      lifecycle: run.meta.lifecycle,
+      display_title: displaySafeTitle(run.display_title || run.ur_heading || run.run_id, normalizedRunTitle(run.run_id)),
+      current_gate: run.control_state?.current_gate || run.meta?.current_gate || "unknown",
+    }))
+    .sort((left, right) => left.run_id.localeCompare(right.run_id));
+  if (matches.length !== 1) return Object.freeze({ outcome: matches.length ? "match_uncertain" : "no_match", matches, reason: matches.length > 1 ? "multiple_exact_matches" : "no_exact_match" });
+  return Object.freeze({ outcome: matches[0].lifecycle === "active" ? "active_match" : "completed_match", matches, reason: "exact_match" });
+}
+
+export function executeNativeApprovalAttempt({ ready = false, invokeNative, fallback } = {}) {
+  if (!ready) return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "gate_not_ready", authorizes: false });
+  if (typeof invokeNative !== "function") return Object.freeze({ attempted: false, outcome: "unavailable_before_invocation", reason: "adapter_unavailable", authorizes: false });
+  let adapterResult;
+  try {
+    adapterResult = invokeNative();
+  } catch (error) {
+    adapterResult = { outcome: "attempted_not_applied", reason: String(error?.message || "adapter_error") };
+  }
+  const outcome = ATTEMPT_OUTCOMES.has(adapterResult?.outcome)
+    ? adapterResult.outcome
+    : adapterResult?.presented === true || adapterResult?.applied === true
+      ? "presented"
+      : "attempted_not_applied";
+  const reason = String(adapterResult?.reason || "").trim();
+  if (outcome !== "presented" && typeof fallback === "function") fallback({ outcome, reason });
+  return Object.freeze({ attempted: true, outcome, reason, authorizes: false });
+}
+
 export function buildInteractionAttempt({ interactionId, runId, currentGate, surface, attemptOutcome, expectedApproval, fallbackReason = "" }) {
   if (!ATTEMPT_OUTCOMES.has(attemptOutcome)) throw new Error("invalid interaction attempt outcome");
   if (!String(interactionId ?? "").trim() || !String(runId ?? "").trim() || !String(currentGate ?? "").trim())

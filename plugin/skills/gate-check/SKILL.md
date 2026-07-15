@@ -75,6 +75,12 @@ For a ready `gate_approval`:
 13. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
 14. Persist accepted input only through the existing control-state workflow.
 
+The ready-gate projection must expose `native_attempt_required: true`. Treat this as a mandatory
+orchestration instruction: after rendering the two cards, invoke the configured native question
+adapter exactly once before using the exact-text fallback. A hook, permission result or session
+context message cannot replace that attempt or supply its answer. For every non-ready interaction,
+the signal is absent or false and no approval control may be shown.
+
 Before composing the question, resolve the configured chat locale from `.agdf/control/config.json` through `plugin/meta/agdf-interaction-locales.json`: exact complete pack, language subtag, then English fallback. German and English are initial packs, not a closed language list. Keep `Approval: <GateName>` exactly unchanged in every language, and do not mix presentation languages within one interaction. Labels and descriptions use the same resolved locale; host-owned UI chrome remains host-owned and may use a different language.
 
 For the transition card, use the complete resolved locale pack. The initial German pack includes `Bereit für deine Entscheidung`, `Jetzt freigeben` and `Danach`; the initial English pack includes `Ready for your decision`, `Approve now` and `Next`. Keep each card in one locale. Use a localized human-readable gate title rather than an internal status label, while leaving the exact gate identifier and approval value unchanged. Do not render a Markdown table, dashboard rows, raw control-state keys, diagnostic codes, evidence lists, a duplicated gate question or a false user gate in the approval-time card.

@@ -1873,6 +1873,9 @@ ${internalRows}
     if (gateCheckReport.status_card?.next_user_gate !== "SD" || gateCheckReport.status_card?.user_action_required !== "yes") {
       throw new Error("Status card should identify SD as the next actual user gate after PRD approval.");
     }
+    if (gateCheckReport.interaction_kind !== "gate_approval" || gateCheckReport.native_attempt_required !== true || gateCheckReport.status_card?.native_attempt_required !== true) {
+      throw new Error("An eligible gate must require exactly one native approval attempt before text fallback.");
+    }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
     if (!statusCardOutput.includes("Next gate after approval: SD — Solution design") || !statusCardOutput.includes("Allowed after approval: Draft the solution design; implementation remains blocked.") || statusCardOutput.includes("User action required:")) {
       throw new Error("gate-check --status-card should print post-approval transition lines for missing approval cases.");

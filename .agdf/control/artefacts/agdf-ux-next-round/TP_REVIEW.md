@@ -51,3 +51,36 @@ Based on: approved `TP.md` and `CD_TESTS.md`
 - evidence: Current interaction-presentation/control-state tests, Runtime
   Integrity, Pages check/build and whitespace validation pass.
 - required_next_step: QA remains ready; exact `Approval: QA` is still required.
+
+## Follow-up TP Review: Reliable Native Approval Invocation
+
+- status: `revise`
+- NAI-01: `not_done` — no pre-creation reconciliation for active/completed/uncertain/no-match
+  scopes exists.
+- NAI-02: `fully_done` — `native_attempt_required` and `interaction_kind` are projected and
+  ready/ambiguous fixtures pass.
+- NAI-03: `not_done` — no repository-owned exactly-one native adapter orchestration path exists.
+- NAI-04: `partially_done` — hook non-authority is documented, but not covered by a negative fixture.
+- NAI-05: `partially_done` — fallback contract exists, but the new readiness signal is not connected
+  to outcome observation or no-retry orchestration.
+- NAI-06: `partially_done` — lifecycle fields exist in machine output, but human closeout wording is
+  not fully projected.
+- NAI-07: `partially_done` — existing deterministic checks pass; focused follow-up and host evidence
+  remain missing.
+- required_next_step: complete NAI-01 and NAI-03 through the existing projection/orchestration
+  boundary before QA.
+
+## Follow-up TP Review Refresh (2026-07-15)
+
+| task_id | status | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|
+| NAI-01 | partially_done | Deterministic `reconcileRunScope` covers active, completed, no-match and uncertain-match outcomes and has focused tests. | The helper is not yet called by the run-creation/agent boundary. | revise. |
+| NAI-02 | fully_done | `native_attempt_required` and `interaction_kind` are projected with ready/ambiguous fixtures. | none. | none. |
+| NAI-03 | partially_done | `executeNativeApprovalAttempt` enforces one invocation, outcome classification and one fallback in focused tests. | The repository cannot call a host-owned native question adapter; only the adapter seam is repository-owned. | revise for live host evidence; no second hook is justified. |
+| NAI-04 | partially_done | Runtime contract and gate skill keep hooks preparation-only. | No executable host-boundary negative fixture exists. | revise. |
+| NAI-05 | fully_done | Helper prevents invocation when not ready, invokes once when ready, classifies failure and calls fallback once without authorizing. | Host response observation remains external. | supporting evidence only. |
+| NAI-06 | fully_done | Localized human delivery-status labels are projected in the status-card output; raw lifecycle enums remain machine-only. | none. | none. |
+| NAI-07 | partially_done | Interaction, control-state, smoke, runtime-integrity, Pages build and diff checks pass. | Direct host rendering evidence remains unavailable. | revise for release claim. |
+
+- follow-up decision: `revise`
+- required next step: integrate reconciliation at the actual pre-creation agent boundary and obtain direct host-adapter evidence where the host exposes it; do not add a second hook.

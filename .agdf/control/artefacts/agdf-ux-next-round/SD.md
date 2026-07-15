@@ -186,3 +186,168 @@ that screenshots are historical integration evidence, not release-version proof.
 Review this solution design and approve only with:
 
 `Approval: SD`
+
+## 9. Follow-up Solution Design: Reconciliation And Human-Language Status
+
+Status: approved
+Scope: PRD section 2.5 and section 2.6
+Gate approval: `Approval: SD` provided on 2026-07-15
+
+This follow-up design extends the existing projections. It does not reopen the completed delivery,
+create a second run registry or change gate authority.
+
+### 9.1 Pre-creation reconciliation
+
+Add a read-only reconciliation step before a new UR or run is drafted or persisted:
+
+1. Normalize the requested objective into a bounded comparison record using explicit user wording,
+   requested product area and any already-known scope key. Do not use branch recency, timestamps or
+   chat proximity as semantic evidence.
+2. Compare that record against valid active and recently completed runs using deterministic fields
+   and explicit artefact headings. A match requires sufficient evidence; otherwise return
+   `match_uncertain`.
+3. Project one of four non-authorizing outcomes: `active_match`, `completed_match`, `no_match` or
+   `match_uncertain`.
+4. For `active_match`, present the existing run as the candidate scope and revalidate its current
+   gate before any next action. Never create a second run silently.
+5. For `completed_match`, present the delivered result and delivery state. Do not treat the
+   completed run as an active approval candidate. Only an explicit distinct follow-up may create a
+   new run.
+6. For `match_uncertain`, ask a plain-language clarification naming the competing work lines; do
+   not select, approve or persist anything.
+7. For `no_match`, continue with the existing UR drafting path.
+
+The reconciliation projection is detail/presentation data only. It cannot authorize a gate,
+reopen a completed run or replace `RUN_STATE.md`.
+
+### 9.2 Lifecycle and closeout projection
+
+Keep the canonical lifecycle and gate fields unchanged in durable state and machine-readable JSON.
+Add a derived human-facing delivery state to the presentation layer:
+
+| Canonical state | Human-facing chat wording |
+|---|---|
+| active work | `in Arbeit` / configured-language equivalent |
+| completed, closeout available | `abgeschlossen — Abschluss noch ausstehend` / configured-language equivalent |
+| completed, closeout complete | `abgeschlossen` / configured-language equivalent |
+| blocked | `blockiert — [plain-language reason]` / configured-language equivalent |
+
+The machine value `status: open` may remain backward compatible where consumers depend on it, but
+it must not be the only human-facing explanation for an OR/completed handoff.
+
+### 9.3 Human-language projection
+
+All primary chat surfaces use the configured chat locale and a plain-language-first composition:
+
+- `structured_slice` becomes a localized explanation such as `kleiner, strukturierter
+  Arbeitsabschnitt`.
+- `structured_delivery` becomes `umfangreiche strukturierte Lieferung`.
+- `Brownfield Review` becomes `Prüfung des bestehenden Systems`.
+- `OR` becomes `Abschlussbericht`.
+- `PRD`, `SD`, `TP` and `UAT` receive localized explanatory labels wherever they appear outside
+  the exact approval token or an explicit technical view.
+
+Raw identifiers remain allowed in artefact links, code blocks, JSON, audit details and explicit
+technical-status requests. The exact token `Approval: <GateName>` remains unchanged and is always
+paired with a plain-language explanation.
+
+### 9.4 Ownership and integration
+
+- `create-agdf/lib/control-state/run-state-repository.js`: expose read-only run summaries needed
+  for deterministic reconciliation; no new write authority.
+- `create-agdf/lib/interaction-presentation.js`: own reconciliation and lifecycle display
+  projections as pure helpers.
+- `create-agdf/bin/create-agdf.js`: invoke reconciliation before run creation and map lifecycle to
+  human status without breaking machine output.
+- `plugin/meta/agdf-runtime-contract.md` and `plugin/skills/gate-check/SKILL.md`: own the
+  pre-creation invariant and plain-language boundary.
+- `plugin/meta/agdf-interaction-locales.json`: own localized labels and status copy.
+- `create-agdf/scripts/*` and runtime-integrity checks: protect matching, lifecycle wording,
+  locale completeness and raw-enum leakage.
+
+### 9.5 Test strategy
+
+- active matching never creates a duplicate run and revalidates the selected run;
+- completed matching reports delivered scope without offering it as an active candidate;
+- uncertain matching stays at clarification and persists nothing;
+- no-match preserves the current UR path;
+- OR/completed status no longer renders only the generic human label `open`;
+- configured German and English projections use plain-language labels;
+- raw enums are rejected in primary chat prose but accepted in technical/audit projections;
+- exact approval tokens remain unchanged and authoritative;
+- existing control-state, interaction, routing, runtime-integrity and package smoke tests remain
+  green.
+
+### 9.6 Next step
+
+Review this follow-up Solution Design and approve only with:
+
+`Approval: SD`
+
+### 9.7 Native approval orchestration
+
+The reliable native-control path is an agent-orchestration contract, not a second hook. Hooks may
+load context or validate readiness, but the assistant's gate-approval turn owns the single native
+question attempt.
+
+#### Readiness contract
+
+After canonical evaluation, the gate-check projection exposes an additive detail-only envelope:
+
+```text
+interaction_kind: gate_approval
+native_attempt_required: true
+selected_run: <run_id>
+current_gate: <GateName>
+expected_approval: Approval: <GateName>
+```
+
+`native_attempt_required` is true only when exactly one run is selected, the user gate is ready,
+the required durable artefact exists and the presentation snapshot is current. It is false or
+absent for status, clarification, blocked, internal-step and non-ready interactions.
+
+#### Single-attempt sequence
+
+1. `gate-check` produces the canonical readiness envelope and immutable presentation snapshot.
+2. The agent emits the localized Run Status Card and Gate Transition Card once.
+3. The agent invokes the configured host adapter exactly once, with auto-resolution and preselected
+   answers omitted.
+4. The adapter result is classified as `presented`, `unavailable_before_invocation`,
+   `attempted_not_applied` or `unsafe_to_wait`.
+5. For any non-presented result, the agent immediately emits the localized exact-text fallback with
+   the unchanged approval token and authority boundary. It does not retry automatically.
+6. A deliberate response is revalidated against the same run, gate and artefact before persistence.
+
+The adapter call must occur in the assistant interaction path after the cards. A SessionStart,
+UserPromptSubmit or permission hook must not call the gate, provide an answer, persist approval or
+replace the adapter attempt. Hooks are preparation and diagnostics only.
+
+#### Host adapter mapping
+
+| Surface | Adapter | Required behavior |
+|---|---|---|
+| Codex | `request_user_input` | One callable attempt on the first eligible gate turn; no auto-resolution. |
+| Claude Code | `AskUserQuestion` | One attempt only when no timeout/default or hook-supplied answer can continue the turn. |
+| OpenCode | `question` | One attempt when `permission.question` permits; explicit deny selects fallback. |
+| Fallback | exact text | Used immediately when no safe native adapter is available or applied. |
+
+Host rendering remains host-owned. AGDF may record whether the adapter was invoked and whether the
+control was applied, but it must not simulate buttons or claim `presented` from instruction text
+alone.
+
+#### Enforcement and evidence
+
+- Add an `native_attempt_required` assertion to the canonical gate-ready projection.
+- Add a hermetic orchestrator fixture that fails when a ready gate goes directly to bare text.
+- Add fixtures proving no adapter call occurs for ambiguous, blocked, status-only or non-ready gates.
+- Add host-specific probe evidence where the adapter is callable; classify unavailable hosts as
+  unverified rather than passed.
+- Keep exact approval validation and durable persistence unchanged.
+- Runtime-integrity checks must reject drift between the readiness envelope, adapter rules,
+  fallback outcomes and locale copy.
+
+#### 9.8 Next step
+
+The revised follow-up Solution Design was approved with:
+
+`Approval: SD`

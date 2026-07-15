@@ -51,6 +51,29 @@ resolved or explicitly re-scoped.
   is an evidence boundary, not an implementation defect.
 - required_next_step: QA gate review.
 
+## Follow-up Code Review Refresh (2026-07-15)
+
+- decision: `revise`
+- verified: exact normalized reconciliation, fail-closed ambiguity, single native attempt, single fallback and localized delivery status are covered by focused tests.
+- remaining P1: no call site connects reconciliation to pre-creation run selection; no repository-owned host adapter can prove native button rendering.
+- remaining P2: hook non-authority still lacks an executable host-boundary fixture.
+
+## Follow-up Code Review: Reliable Native Approval Invocation
+
+- decision: `revise`
+- finding: `[P1]` The new `native_attempt_required` field is only a projection signal; no code path
+  invokes or observes a host-native question, so the core reliability behavior is not implemented.
+  Evidence: `create-agdf/bin/create-agdf.js` adds the field, but the diff contains no adapter-call
+  owner or exactly-one-attempt seam.
+- finding: `[P1]` The approved pre-creation reconciliation is absent. Existing
+  `buildRunCandidates()` intentionally filters to active runs and cannot identify a matching
+  completed delivery before a new run is created.
+- finding: `[P2]` `delivery_state` is exposed in machine status output but is not yet rendered as the
+  plain-language lifecycle/closeout distinction required by the PRD.
+- security_and_authority: no authority or persistence regression found; exact approval and canonical
+  run state remain authoritative.
+- required_next_step: implement the missing bounded seams and add their focused tests before QA.
+
 ## Shared Pages Scope Reconciliation (2026-07-15)
 
 - decision: `pass`

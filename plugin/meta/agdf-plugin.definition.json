@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "agdf",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "Arndt Gold",
   "description": "Codex-first operating system for governed AI-assisted delivery.",
@@ -91,7 +91,11 @@
         "questionAdapter": "request_user_input",
         "availability": "when_callable",
         "gateSafety": "omit_auto_resolution",
-        "explicitOutcomes": ["approve", "revise", "decline"],
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline"
+        ],
         "dismissOutcome": "cancel",
         "technicalPermissionOwner": "codex_host"
       },
@@ -99,7 +103,11 @@
         "questionAdapter": "AskUserQuestion",
         "availability": "when_no_auto_continue_timeout",
         "gateSafety": "no_timeout_or_hook_supplied_answer",
-        "explicitOutcomes": ["approve", "revise", "decline"],
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline"
+        ],
         "dismissOutcome": "cancel",
         "technicalPermissionOwner": "claude_host"
       },
@@ -107,7 +115,11 @@
         "questionAdapter": "question",
         "availability": "when_permission_question_allows",
         "gateSafety": "preserve_explicit_deny",
-        "explicitOutcomes": ["approve", "revise", "decline"],
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline"
+        ],
         "dismissOutcome": "cancel",
         "technicalPermissionOwner": "opencode_host"
       },
@@ -115,7 +127,12 @@
         "questionAdapter": "exact_text",
         "availability": "always",
         "gateSafety": "wait_for_deliberate_user_input",
-        "explicitOutcomes": ["approve", "revise", "decline", "cancel"],
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline",
+          "cancel"
+        ],
         "technicalPermissionOwner": "host_specific"
       }
     }

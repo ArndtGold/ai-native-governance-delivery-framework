@@ -113,6 +113,18 @@ A free-form response must still exactly match the current gate's approval formul
 
 Every primary chat card shows the selected run's `UR`, `PRD`, `SD` and `TP` in that order. Render an existing canonical path as a readable link and a missing artefact as localized non-link text; never guess paths. Resolve the human run title from current artefact heading, approved UR heading, Objective, then normalized `run_id`. Status, blocked, clarification and internal-step interactions use the same locale and artefact projection but do not show approval buttons. Keep raw process keys and machine status values in JSON or audit detail.
 
+### Breadcrumb Rendering
+
+The compact human Run Status Card includes a single-line path-derived breadcrumb showing the user's position in the delivery journey. Derive it from the Mode/Slice Decision and the Approvals table — not a fixed template. Use `✓` for fulfilled, `●` for current, `○` for open, separated by ` · `. Non-applicable gates are absent. See the Runtime Contract §Breadcrumb for the path templates and the derived `breadcrumb` array.
+
+### Post-Acceptance Transition Narration
+
+After each accepted gate approval is persisted, emit exactly one narration line using the template `<what was satisfied> → <what the agent does next internally> → <user action: yes/no>`. This generalizes the existing TP pattern (step 7 above) to every gate advancement. The narration is post-acceptance only: it never appears in the same message as the Gate Transition Card, never contains the `Approval:` value, and never repeats the decision's effect. For internal steps (Brownfield Review, Brownfield Analysis), state what the agent does next and that no user action is required, without exposing `next_user_gate: none` or asking for a second approval. See the Runtime Contract §Post-Acceptance Transition Narration for the full contract.
+
+### Internal-State Collapse in the Human Card
+
+When rendering the compact human Run Status Card, collapse internal sub-states (`verified_change` sub-states, `context_graph_required_action`, `multi_scope_state`) to stable human labels. `escalated`, `open_gap` and `blocked` remain explicitly visible. The full machine/audit projection retains all raw values unchanged. See the Runtime Contract §Internal-State Collapse for the complete mapping table.
+
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.
 2. The earliest blocking gate wins.

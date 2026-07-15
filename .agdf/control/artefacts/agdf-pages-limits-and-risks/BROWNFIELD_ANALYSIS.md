@@ -4,6 +4,7 @@
 
 - mode: `pre_implementation_analysis`
 - decision: `pass`
+- revalidated: `2026-07-15`
 - mode_slice_decision: `structured_slice`
 - required_next_gate: `CD+Tests`
 - source: `.agdf/control/artefacts/agdf-pages-limits-and-risks/TP.md`
@@ -21,14 +22,14 @@ No new route, component system, navigation entry or runtime owner is needed.
 
 ## Current Coverage
 
-- `fully_done`: existing non-certification boundary, human-responsibility language and governance-evidence section.
-- `partially_done`: public limits are present in scattered form but do not cover architecture, security/privacy, testing, UAT, control-state and process-overhead dependencies as one coherent explanation.
-- `not_done`: paired limits-and-dependencies section with explicit overhead framing.
+- `fully_done`: the paired limits/dependencies model, all required responsibility and operating-condition copy, process-overhead framing, and the existing non-certification boundary are present in the current Pages owners.
+- `partially_done`: none.
+- `not_done`: the current composition order does not match the approved flow. `What AGDF Is Not` is separated from the limits and governance-evidence sections, while `AI Governance Needs Evidence` precedes the limits section.
 
 ## Implementation Readiness
 
 - exact content requirements are fixed in PRD, SD and TP;
-- the placement between `What AGDF Is Not` and AI-governance evidence is fixed;
+- the approved placement is fixed and the current ordering gap can be corrected by moving existing sections without introducing a new owner or changing their content;
 - existing styling, responsive grid and reveal conventions are available for reuse;
 - no unresolved ownership, migration, security or legal-claim question remains within scope.
 
@@ -42,14 +43,14 @@ No new route, component system, navigation entry or runtime owner is needed.
 
 ## Parallel-Structure And Drift Review
 
-- parallel content owner risk: none if the new copy is added to `site.ts` and rendered from `index.astro` only;
+- parallel content owner risk: none; the existing copy remains owned by `site.ts` and rendered from `index.astro` only;
 - duplicate boundary risk: manageable through a direct cross-section copy review;
 - legal/compliance drift: no new certification claim is permitted;
 - runtime/gate drift: none; this is Pages-only public copy and composition.
 
 ## Minimal Clean Implementation Path
 
-Proceed with CD+Tests using only the approved Pages data and template changes, existing styling conventions and the listed check/build/render evidence. Do not change plugin, runtime, control or gate files beyond the approved delivery artefacts.
+Proceed with CD+Tests by correcting the existing section order to `What AGDF Is Not` → `Limits and operating conditions` → `AI Governance Needs Evidence`, then verify the already-present content and responsive presentation. Do not rewrite the copy or change plugin, runtime, control or gate files beyond the approved delivery artefacts.
 
 ## Required Next Step
 

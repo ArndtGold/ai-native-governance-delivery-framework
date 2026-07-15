@@ -5,7 +5,7 @@
 - work item: `agdf-pages-limits-and-risks`
 - source: `.agdf/control/artefacts/agdf-pages-limits-and-risks/UR.md`
 - brownfield basis: `.agdf/control/artefacts/agdf-pages-limits-and-risks/BROWNFIELD_REVIEW.md`
-- gate approval: `Approval: PRD` pending post-artefact confirmation
+- gate approval: exact `Approval: PRD` received on 2026-07-15 after canonical run, current-gate and revision revalidation
 
 ## 1. User Outcome
 
@@ -106,4 +106,4 @@ Implementation is limited to existing Pages data and section composition. No new
 
 ## 8. Gate Decision
 
-This PRD is ready for user confirmation. Implementation remains forbidden until valid post-artefact `Approval: PRD`, followed by the required SD/TP path or an explicitly evidenced smaller route.
+This PRD is approved with exact `Approval: PRD`. The existing SD must be revalidated next; implementation remains non-authorizing until the ordered SD and TP gates are restored.

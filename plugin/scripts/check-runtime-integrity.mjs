@@ -265,6 +265,28 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     }
   }
 }
+for (const locale of ["en", "de"]) {
+  const pack = interactionLocales?.locales?.[locale];
+  if (!pack?.statusCard?.breadcrumbFulfilled || !pack?.statusCard?.breadcrumbCurrent || !pack?.statusCard?.breadcrumbOpen || !pack?.statusCard?.breadcrumbSeparator) {
+    failures.push(`Interaction locale ${locale} missing breadcrumb keys in statusCard`);
+  }
+  if (!pack?.internalStateLabels?.verifiedChange || !pack?.internalStateLabels?.verifiedChangeEscalated || !pack?.internalStateLabels?.contextGraphMaintained || !pack?.internalStateLabels?.contextGraphOpenGap || !pack?.internalStateLabels?.multiScopeBlocked) {
+    failures.push(`Interaction locale ${locale} missing internalStateLabels keys`);
+  }
+  if (!pack?.primary?.narration?.gateSatisfied || !pack?.primary?.narration?.noAction || !pack?.primary?.narration?.gates) {
+    failures.push(`Interaction locale ${locale} missing narration keys in primary`);
+  }
+  for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+    if (!pack?.primary?.narration?.gates?.[gate]?.agentNext) {
+      failures.push(`Interaction locale ${locale} missing narration agentNext for gate ${gate}`);
+    }
+  }
+  for (const gate of ["Verified Change", "Quick Task", "Block"]) {
+    if (!pack?.gateTitles?.[gate]) {
+      failures.push(`Interaction locale ${locale} missing gateTitle for ${gate}`);
+    }
+  }
+}
 for (const [surface, expectedTransport] of [["codex", "decorated_label_only"], ["claude", "decorated_label_only"], ["opencode", "decorated_label_only"], ["fallback", "exact_option_value"]]) {
   const surfaceContract = pluginDefinition?.interactions?.surfaces?.[surface];
   if (surfaceContract?.approvalValueTransport !== expectedTransport || surfaceContract?.waitSafety !== "deliberate_no_auto_resolution" || surfaceContract?.authorizationPath !== "exact_text" || Object.hasOwn(surfaceContract ?? {}, "canonicalValueTransport")) {

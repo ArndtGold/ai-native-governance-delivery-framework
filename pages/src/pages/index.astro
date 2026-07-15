@@ -326,6 +326,23 @@ const discoveryGroups = [
   </div>
 </section>
 
+<!-- ==================== INDUSTRY SIGNAL ==================== -->
+<aside aria-labelledby="industry-signal-title" class="mx-auto max-w-[90rem] px-4 py-10 sm:px-6">
+  <div data-reveal class="mx-auto max-w-4xl rounded-2xl border border-violet-300/20 bg-[linear-gradient(145deg,rgba(139,92,246,0.10),rgba(15,23,42,0.52))] p-6 shadow-[0_24px_72px_-52px_rgba(139,92,246,0.75),0_1px_0_rgba(255,255,255,0.08)_inset] sm:p-8">
+    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-violet-200">Industry signal · Mozilla 2026</div>
+    <h2 id="industry-signal-title" class="text-2xl font-bold text-white sm:text-3xl">Beyond the model</h2>
+    <p class="mt-4 text-sm leading-relaxed text-dark-200 sm:text-base">
+      Mozilla’s 2026 State of Open Source AI report argues that the agentic harness is becoming the critical control layer around AI models.
+    </p>
+    <p class="mt-3 text-sm leading-relaxed text-dark-200 sm:text-base">
+      A harness controls what an agent can see, remember and do. AGDF adds delivery authority for coding work: approved scope, required evidence, human decisions and the next allowed step.
+    </p>
+    <a href="https://stateofopensource.ai/" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-violet-200 transition-colors hover:text-white">
+      Read Mozilla’s State of Open Source AI report <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</aside>
+
 <!-- ==================== PRODUCT PROOF ==================== -->
 <section id="proof" class="mx-auto max-w-[90rem] px-4 pb-24 pt-10 sm:px-6">
   <div data-reveal class="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
@@ -631,6 +648,64 @@ const discoveryGroups = [
   </div>
 </section>
 
+<!-- ==================== DESIGN ==================== -->
+<section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+      <Icon name="boundary" class="h-8 w-8" />
+    </div>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
+    <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {notFor.map((item, i) => (
+      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
+        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
+        <p class="text-sm leading-relaxed text-dark-200">{item}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<!-- ==================== LIMITS AND OPERATING CONDITIONS ==================== -->
+<section id="limits" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+      <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Limits and operating conditions</div>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Governance Helps. Responsibility Stays Human.</h2>
+    <p class="mx-auto max-w-3xl text-dark-200">{agdfLimits.framing}</p>
+  </div>
+  <div class="grid gap-6 lg:grid-cols-2">
+    <div data-reveal class="surface p-6">
+      <div class="mb-4 font-mono text-sm font-bold uppercase tracking-wide text-agdf-400">What AGDF does not replace</div>
+      <ul class="grid gap-3 text-sm text-dark-200 sm:grid-cols-2">
+        {agdfLimits.notReplace.map((item) => (
+          <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
+            <span class="mt-0.5 text-agdf-400">•</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div data-reveal class="surface p-6">
+      <div class="mb-4 font-mono text-sm font-bold uppercase tracking-wide text-agdf-400">What AGDF depends on</div>
+      <ul class="grid gap-3 text-sm text-dark-200">
+        {agdfLimits.dependsOn.map((item) => (
+          <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
+            <span class="mt-0.5 text-agdf-400">•</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+  <div data-reveal class="mt-6 rounded-lg border border-agdf-500/20 bg-agdf-950/30 p-5 text-sm leading-relaxed text-dark-200">
+    {agdfLimits.overhead}
+  </div>
+</section>
+
 <!-- ==================== EU AI ACT FIT ==================== -->
 <section id="ai-act" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
   <div data-reveal class="mb-12 text-center">
@@ -678,47 +753,6 @@ const discoveryGroups = [
     <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng" class="transition-colors hover:text-agdf-300">Regulation (EU) 2024/1689</a>
   </div>
 </section>
-
-  <!-- ==================== LIMITS AND OPERATING CONDITIONS ==================== -->
-  <section id="limits" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-        <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-      </div>
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Limits and operating conditions</div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Governance Helps. Responsibility Stays Human.</h2>
-      <p class="mx-auto max-w-3xl text-dark-200">{agdfLimits.framing}</p>
-    </div>
-    <div class="grid gap-6 lg:grid-cols-2">
-      <div data-reveal class="surface p-6">
-        <div class="mb-4 font-mono text-xm font-bold uppercase tracking-wide text-agdf-400">What AGDF does not replace</div>
-        <ul class="grid gap-3 text-sm text-dark-200 sm:grid-cols-2">
-          {agdfLimits.notReplace.map((item) => (
-              <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
-                <span class="mt-0.5 text-agdf-400">•</span>
-                <span>{item}</span>
-              </li>
-          ))}
-        </ul>
-      </div>
-      <div data-reveal class="surface p-6">
-        <div class="mb-4 font-mono text-xm font-bold uppercase tracking-wide text-agdf-400">What AGDF depends on</div>
-        <ul class="grid gap-3 text-sm text-dark-200">
-          {agdfLimits.dependsOn.map((item) => (
-              <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
-                <span class="mt-0.5 text-agdf-400">•</span>
-                <span>{item}</span>
-              </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-    <div data-reveal class="mt-6 rounded-lg border border-agdf-500/20 bg-agdf-950/30 p-5 text-sm leading-relaxed text-dark-200">
-      {agdfLimits.overhead}
-    </div>
-  </section>
-
-
 
   <!-- ==================== CONTROL SYSTEM ==================== -->
 <section id="control-system" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
@@ -1088,27 +1122,6 @@ const discoveryGroups = [
       </div>
     </div>
 </section>
-
-
-  <!-- ==================== DESIGN ==================== -->
-  <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-        <Icon name="boundary" class="h-8 w-8" />
-      </div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
-      <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {notFor.map((item, i) => (
-          <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
-            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
-            <p class="text-sm leading-relaxed text-dark-200">{item}</p>
-          </div>
-      ))}
-    </div>
-  </section>
-
 
   <!-- ==================== AUTHOR ==================== -->
 <section id="author" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">

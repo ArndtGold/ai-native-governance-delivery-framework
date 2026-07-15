@@ -24,6 +24,10 @@ import {
   validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
 import { parseControlState } from "../lib/control-state/run-state-parser.js";
+import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
+
+const pluginRoot = join(import.meta.dirname, "..", "..", "plugin");
+const localeRegistry = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-interaction-locales.json"), "utf8"));
 
 const root = mkdtempSync(join(tmpdir(), "agdf-control-state-"));
 const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
@@ -454,6 +458,122 @@ try {
   );
   rmSync(gitRoot, { recursive: true, force: true });
   rmSync(legacyRoot, { recursive: true, force: true });
+
+  // BT-01: Breadcrumb rendering for structured_delivery with 2 approved gates
+  {
+    const breadcrumb = [
+      { gate: "UR", status: "fulfilled" },
+      { gate: "PRD", status: "fulfilled" },
+      { gate: "SD", status: "current" },
+      { gate: "TP", status: "open" },
+      { gate: "QA", status: "open" },
+      { gate: "UAT", status: "open" },
+    ];
+    const rendered = buildBreadcrumb(breadcrumb, localeRegistry, "en");
+    assert.ok(rendered.includes("\u2713"), "BT-01: fulfilled symbol present");
+    assert.ok(rendered.includes("\u25cf"), "BT-01: current symbol present");
+    assert.ok(rendered.includes("\u25cb"), "BT-01: open symbol present");
+    assert.equal((rendered.match(/\u00b7/g) || []).length, 5, "BT-01: 5 separators for 6 entries");
+  }
+
+  // BT-02: Breadcrumb for verified_change
+  {
+    const breadcrumb = [
+      { gate: "UR", status: "fulfilled" },
+      { gate: "Verified Change", status: "current" },
+      { gate: "OR", status: "open" },
+    ];
+    const rendered = buildBreadcrumb(breadcrumb, localeRegistry, "en");
+    assert.ok(rendered.includes("Verified change"), "BT-02: verified change label present");
+    assert.equal((rendered.match(/\u00b7/g) || []).length, 2, "BT-02: 2 separators for 3 entries");
+  }
+
+  // BT-03: Breadcrumb for quick_task
+  {
+    const breadcrumb = [
+      { gate: "UR", status: "fulfilled" },
+      { gate: "Quick Task", status: "current" },
+    ];
+    const rendered = buildBreadcrumb(breadcrumb, localeRegistry, "en");
+    assert.ok(rendered.includes("Quick task"), "BT-03: quick task label present");
+    assert.equal((rendered.match(/\u00b7/g) || []).length, 1, "BT-03: 1 separator for 2 entries");
+  }
+
+  // BT-04: Breadcrumb for block
+  {
+    const breadcrumb = [
+      { gate: "UR", status: "fulfilled" },
+      { gate: "Block", status: "current" },
+    ];
+    const rendered = buildBreadcrumb(breadcrumb, localeRegistry, "en");
+    assert.ok(rendered.includes("Block"), "BT-04: block label present");
+  }
+
+  // BT-05: Narration for UR
+  {
+    const narration = buildTransitionNarration("UR", localeRegistry, "en");
+    assert.ok(narration.includes("Brownfield Review"), "BT-05: UR narration mentions Brownfield Review");
+    assert.ok(narration.includes("no user action"), "BT-05: UR narration says no user action");
+  }
+
+  // BT-06: Narration is a string, not a card object (non-overlap)
+  {
+    const narration = buildTransitionNarration("UR", localeRegistry, "en");
+    assert.equal(typeof narration, "string", "BT-06: narration is a string");
+    assert.ok(!narration.includes("Where am I"), "BT-06: narration does not use card three-question form");
+  }
+
+  // BT-07: Narration does not contain Approval: value
+  {
+    const narration = buildTransitionNarration("PRD", localeRegistry, "en");
+    assert.ok(!narration.includes("Approval:"), "BT-07: narration does not contain Approval: value");
+  }
+
+  // BT-08: Collapse verified_change eligible
+  {
+    const result = collapseInternalState({ modeSliceDecision: "verified_change", verifiedChangeState: "eligible" }, localeRegistry, "en");
+    assert.equal(result.verified_change, "Compact change under review", "BT-08: eligible collapses to under review");
+  }
+
+  // BT-09: Collapse verified_change escalated (stays explicit)
+  {
+    const result = collapseInternalState({ modeSliceDecision: "verified_change", verifiedChangeState: "escalated" }, localeRegistry, "en");
+    assert.equal(result.verified_change, "Escalated to structured delivery", "BT-09: escalated stays explicit");
+  }
+
+  // BT-10: Collapse context_graph open_gap (stays explicit)
+  {
+    const result = collapseInternalState({ contextGraphRequiredAction: "open_gap" }, localeRegistry, "en");
+    assert.equal(result.context_graph, "Graph gap open", "BT-10: open_gap stays explicit");
+  }
+
+  // BT-11: Collapse multi_scope clear (not shown)
+  {
+    const result = collapseInternalState({ multiScopeState: "clear" }, localeRegistry, "en");
+    assert.equal(result.multi_scope, undefined, "BT-11: clear multi_scope not shown");
+  }
+
+  // BT-12: collapseInternalState does not mutate input (full projection unchanged)
+  {
+    const input = { modeSliceDecision: "verified_change", verifiedChangeState: "eligible" };
+    collapseInternalState(input, localeRegistry, "en");
+    assert.equal(input.modeSliceDecision, "verified_change", "BT-12: input not mutated");
+  }
+
+  // BT-14: Locale registry has required new keys for en and de
+  {
+    for (const locale of ["en", "de"]) {
+      assert.ok(localeRegistry.locales[locale].statusCard.breadcrumbFulfilled, `BT-14: ${locale} breadcrumbFulfilled exists`);
+      assert.ok(localeRegistry.locales[locale].statusCard.breadcrumbCurrent, `BT-14: ${locale} breadcrumbCurrent exists`);
+      assert.ok(localeRegistry.locales[locale].statusCard.breadcrumbOpen, `BT-14: ${locale} breadcrumbOpen exists`);
+      assert.ok(localeRegistry.locales[locale].internalStateLabels, `BT-14: ${locale} internalStateLabels exists`);
+      assert.ok(localeRegistry.locales[locale].primary.narration, `BT-14: ${locale} narration exists`);
+      assert.ok(localeRegistry.locales[locale].gateTitles["Verified Change"], `BT-14: ${locale} Verified Change gateTitle exists`);
+      assert.ok(localeRegistry.locales[locale].gateTitles["Quick Task"], `BT-14: ${locale} Quick Task gateTitle exists`);
+      assert.ok(localeRegistry.locales[locale].gateTitles["Block"], `BT-14: ${locale} Block gateTitle exists`);
+    }
+  }
+
   console.log("control-state tests passed");
 } finally {
   rmSync(root, { recursive: true, force: true });

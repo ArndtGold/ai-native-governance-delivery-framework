@@ -64,7 +64,7 @@ export function validateLocaleRegistry(registry) {
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key === "primary.quality"
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key === "primary.quality"
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -415,6 +415,66 @@ export function buildQualityReadiness({
     decision_owner: "qa-gate",
     authorizes: false,
   });
+}
+
+export function collapseInternalState(
+  { modeSliceDecision = "", verifiedChangeState = "", contextGraphRequiredAction = "", multiScopeState = "" } = {},
+  registry,
+  requestedLocale,
+) {
+  const pack = localePack(registry, requestedLocale);
+  const labels = pack.internalStateLabels || {};
+  const result = {};
+  if (modeSliceDecision === "verified_change") {
+    if (verifiedChangeState === "escalated") {
+      result.verified_change = labels.verifiedChangeEscalated || "Escalated to structured delivery";
+    } else if (["missing", "draft", "invalid", "eligible", "executed"].includes(verifiedChangeState)) {
+      result.verified_change = labels.verifiedChange || "Compact change under review";
+    }
+  }
+  if (contextGraphRequiredAction === "open_gap") {
+    result.context_graph = labels.contextGraphOpenGap || "Graph gap open";
+  } else if (["link", "update", "create", "resolve_drift"].includes(contextGraphRequiredAction)) {
+    result.context_graph = labels.contextGraphMaintained || "Project memory maintained";
+  }
+  if (multiScopeState === "blocked") {
+    result.multi_scope = labels.multiScopeBlocked || "Ambiguous scope, clarification needed";
+  }
+  return result;
+}
+
+export function buildBreadcrumb(breadcrumb, registry, requestedLocale) {
+  if (!Array.isArray(breadcrumb)) return "";
+  const pack = localePack(registry, requestedLocale);
+  const cardLabels = pack.statusCard || {};
+  const titles = pack.gateTitles || {};
+  const sep = cardLabels.breadcrumbSeparator || " \u00b7 ";
+  const symbols = {
+    fulfilled: cardLabels.breadcrumbFulfilled || "\u2713",
+    current: cardLabels.breadcrumbCurrent || "\u25cf",
+    open: cardLabels.breadcrumbOpen || "\u25cb",
+  };
+  return breadcrumb
+    .map((entry) => {
+      const title = titles[entry.gate] || entry.gate;
+      const symbol = symbols[entry.status] || symbols.open;
+      return `${title} ${symbol}`;
+    })
+    .join(sep);
+}
+
+export function buildTransitionNarration(gate, registry, requestedLocale) {
+  const pack = localePack(registry, requestedLocale);
+  const narration = pack.primary?.narration || {};
+  const gateTitles = pack.gateTitles || {};
+  const gateTitle = gateTitles[gate] || gate;
+  const gateConfig = narration.gates?.[gate] || {};
+  const agentNext = gateConfig.agentNext || "";
+  const userAction = gateConfig.userAction || narration.noAction || "no user action required now";
+  if (!agentNext) return "";
+  const gateSatisfiedTemplate = narration.gateSatisfied || "{gate} approved";
+  const gateSatisfied = gateSatisfiedTemplate.replace("{gate}", gateTitle);
+  return `${gateSatisfied} \u2192 ${agentNext} \u2192 ${userAction}`;
 }
 
 export const interactionPresentationConstants = Object.freeze({

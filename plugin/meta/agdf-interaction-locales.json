@@ -28,7 +28,19 @@
         "lifecycle": "Delivery status",
         "allowed": "Allowed now",
         "forbidden": "Forbidden now",
-        "artefacts": "Artefacts"
+        "artefacts": "Artefacts",
+        "breadcrumb": "Path",
+        "breadcrumbFulfilled": "\u2713",
+        "breadcrumbCurrent": "\u25cf",
+        "breadcrumbOpen": "\u25cb",
+        "breadcrumbSeparator": " \u00b7 "
+      },
+      "internalStateLabels": {
+        "verifiedChange": "Compact change under review",
+        "verifiedChangeEscalated": "Escalated to structured delivery",
+        "contextGraphMaintained": "Project memory maintained",
+        "contextGraphOpenGap": "Graph gap open",
+        "multiScopeBlocked": "Ambiguous scope, clarification needed"
       },
       "qualityReadiness": {
         "title": "Quality Readiness",
@@ -63,7 +75,10 @@
         "Brownfield Analysis": "Implementation preparation",
         "CD+Tests": "Implementation and tests",
         "CR": "Code review",
-        "OR": "Delivery report"
+        "OR": "Delivery report",
+        "Verified Change": "Verified change",
+        "Quick Task": "Quick task",
+        "Block": "Block"
       },
       "gateActionTitles": {
         "UR": "Approve user requirements",
@@ -128,6 +143,18 @@
           "TP": "Run pre-implementation Brownfield Analysis; implementation starts only if it passes.",
           "QA": "Prepare the user-acceptance decision; release remains blocked.",
           "UAT": "Prepare the delivery report; version-control and release actions still require explicit instruction."
+        },
+        "narration": {
+          "gateSatisfied": "{gate} approved",
+          "noAction": "no user action required now",
+          "gates": {
+            "UR": { "agentNext": "Agent runs Brownfield Review next" },
+            "PRD": { "agentNext": "Agent drafts the Solution Design next" },
+            "SD": { "agentNext": "Agent drafts the Task and Test Plan next" },
+            "TP": { "agentNext": "Agent runs pre-implementation Brownfield Analysis next" },
+            "QA": { "agentNext": "Agent prepares the user-acceptance decision", "userAction": "user acceptance decision next" },
+            "UAT": { "agentNext": "Agent prepares the delivery report" }
+          }
         }
       }
     },
@@ -151,7 +178,19 @@
         "lifecycle": "Lieferstatus",
         "allowed": "Jetzt erlaubt",
         "forbidden": "Aktuell verboten",
-        "artefacts": "Artefakte"
+        "artefacts": "Artefakte",
+        "breadcrumb": "Pfad",
+        "breadcrumbFulfilled": "\u2713",
+        "breadcrumbCurrent": "\u25cf",
+        "breadcrumbOpen": "\u25cb",
+        "breadcrumbSeparator": " \u00b7 "
+      },
+      "internalStateLabels": {
+        "verifiedChange": "Kompakte Änderung wird geprüft",
+        "verifiedChangeEscalated": "Eskaliert zu structured delivery",
+        "contextGraphMaintained": "Projektgedächtnis wird gepflegt",
+        "contextGraphOpenGap": "Graph-Lücke offen",
+        "multiScopeBlocked": "Mehrdeutiger Scope, Klärung nötig"
       },
       "qualityReadiness": {
         "title": "Quality Readiness",
@@ -186,7 +225,10 @@
         "Brownfield Analysis": "Implementierungsvorbereitung",
         "CD+Tests": "Implementierung und Tests",
         "CR": "Code-Review",
-        "OR": "Lieferbericht"
+        "OR": "Lieferbericht",
+        "Verified Change": "Verified Change",
+        "Quick Task": "Quick Task",
+        "Block": "Block"
       },
       "gateActionTitles": {
         "UR": "Nutzeranforderung freigeben",
@@ -251,6 +293,18 @@
           "TP": "Die Brownfield-Analyse vor der Implementierung durchführen; die Implementierung startet nur nach bestandenem Ergebnis.",
           "QA": "Die Nutzerabnahme vorbereiten; die Veröffentlichung bleibt gesperrt.",
           "UAT": "Den Lieferbericht vorbereiten; Versionskontroll- und Veröffentlichungsaktionen benötigen weiterhin eine ausdrückliche Anweisung."
+        },
+        "narration": {
+          "gateSatisfied": "{gate} genehmigt",
+          "noAction": "keine Nutzeraktion erforderlich",
+          "gates": {
+            "UR": { "agentNext": "Agent führt Brownfield Review als Nächstes durch" },
+            "PRD": { "agentNext": "Agent entwirft als Nächstes das Lösungsdesign" },
+            "SD": { "agentNext": "Agent entwirft als Nächstes den Aufgaben- und Testplan" },
+            "TP": { "agentNext": "Agent führt Brownfield-Analyse vor Implementierung durch" },
+            "QA": { "agentNext": "Agent bereitet die Nutzerabnahme vor", "userAction": "Nutzerabnahme als Nächstes" },
+            "UAT": { "agentNext": "Agent bereitet den Lieferbericht vor" }
+          }
         }
       }
     }

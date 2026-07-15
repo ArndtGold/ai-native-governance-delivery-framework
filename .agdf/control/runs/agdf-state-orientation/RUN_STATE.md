@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-state-orientation
 - lifecycle: active
-- revision: 2
-- revision_id: B2C3D4E5-F6A7-8901-BCDE-F23456789012
+- revision: 7
+- revision_id: A7B8C9D0-E1F2-3456-789A-E78901234567
 - mode: structured_slice
-- current_gate: PRD
-- decision: in_progress
+- current_gate: QA
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -24,11 +24,11 @@ machine contract.
 
 | Question | Answer |
 |---|---|
-| What is known? | UR revision 1 approved. Brownfield Review done: `pass`, `structured_slice`. Three design decisions resolved as specification. Existing owners, reuse paths and parallel-structure risk to `agdf-human-decision-surface` identified. |
-| What is approved? | `Approval: UR` provided on 2026-07-15 for revision 1 after revalidation. |
-| What is missing? | Compact PRD defining the exact presentation boundary, breadcrumb derivation, narration template and collapse rules. |
-| What is the next allowed action? | Draft the compact PRD and request `Approval: PRD`. |
-| What is explicitly forbidden right now? | SD, TP, Brownfield Analysis, implementation, QA and release claims before approved PRD. |
+| What is known? | All four user gates approved (UR, PRD, SD, TP). Brownfield Review: `structured_slice`. Pre-implementation Brownfield Analysis: `pass`. Implementation path verified — all target functions confirmed at expected locations, no parallel-structure conflict, regression risk low (all additive). |
+| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD` and `Approval: TP` provided on 2026-07-15 after revalidation. |
+| What is missing? | Implementation of SO-01 through SO-10; test evidence BT-01 through BT-14; verification bundle (SO-11); review chain (SO-12). |
+| What is the next allowed action? | Implement SO-01 through SO-10, run tests, record CD+Tests evidence. |
+| What is explicitly forbidden right now? | QA pass, UAT and release claims before CD+Tests, reviews and QA gate. |
 
 ## Source And Scope State
 
@@ -42,14 +42,14 @@ machine contract.
 | Run status | Value |
 |---|---|
 | Status | open |
-| Current gate | PRD |
-| Allowed now | Draft and refine the compact PRD; request exact PRD approval |
-| Blocked by | Missing approved PRD |
-| Missing approval | `Approval: PRD` |
-| Next gate after approval | SD |
-| Allowed after approval | Draft the compact Solution Design; implementation remains forbidden |
-| Next step | Draft the PRD and request exact `Approval: PRD` |
-| Quality outlook | Define non-overlapping file sections with `agdf-human-decision-surface`; add regression coverage for breadcrumb, narration and collapse |
+| Current gate | QA |
+| Allowed now | Request `Approval: QA`; prepare UAT after QA pass |
+| Blocked by | Missing `Approval: QA` |
+| Missing approval | `Approval: QA` |
+| Next gate after approval | UAT |
+| Allowed after approval | Request `Approval: UAT`; prepare non-operative delivery summary |
+| Next step | Request exact `Approval: QA` |
+| Quality outlook | Context Graph update at OR closeout; sequencing risk with agdf-human-decision-surface monitored |
 
 ## Mode / Slice Decision
 
@@ -65,18 +65,33 @@ machine contract.
 |---|---|---|---|
 | UR | approved_by | `Approval: UR` | Exact approval provided on 2026-07-15 for revision 1 after same-run, same-gate and revision revalidation. |
 | Brownfield Review | sizes | `structured_slice` | Existing Runtime Contract, gate-check skill, locale registry, CLI presentation layer and Context Graph node `CG-RUN-STATUS-CARD` cover the owners; reuse path is extend; parallel-structure risk to `agdf-human-decision-surface` mitigated by sequencing. |
-| PRD | derived_from | UR | Pending — draft PRD to derive from approved UR and recorded Brownfield Review. |
+| PRD | derived_from | UR | Revision 1 derives from approved UR revision 1 and recorded Brownfield Review. |
+| PRD | approved_by | `Approval: PRD` | Exact approval provided on 2026-07-15 for revision 1 after the PRD artefact was persisted and same-run, same-gate and revision revalidation. |
+| SD | derived_from | PRD | Revision 1 derives from approved PRD revision 1. Defines breadcrumb derivation, narration output, collapse mapping, locale-key structure, implementation plan and regression-test plan. |
+| SD | approved_by | `Approval: SD` | Exact approval provided on 2026-07-15 for revision 1 after the SD artefact was persisted and same-run, same-gate and revision revalidation. |
+| TP | derived_from | SD | Revision 1 derives from approved SD revision 1. Defines 12 tasks (SO-01–SO-12), 14 tests (BT-01–BT-14), acceptance matrix and verification sequence. |
+| TP | approved_by | `Approval: TP` | Exact approval provided on 2026-07-15 for revision 1 after same-run, same-gate and revision revalidation. |
+| Brownfield Analysis | verifies | TP | Revision 1 passed: implementation path confirmed, reuse paths valid, no parallel-structure conflict, regression risk low (all additive). |
+| CD+Tests | implements | TP | Done — SO-01 through SO-10 implemented; BT-01 through BT-14 pass; all verification bundles green; 3 advisory findings fixed. |
+| TP Review | verifies | TP | Pass — 12/12 tasks fully_done. |
+| Clean Implementation Review | verifies | CD+Tests | Pass — clean primary solution, no fallbacks/parallel structures. |
+| CR | reviews | CD+Tests | Pass — 3 advisory findings fixed. |
+| QA Report | tests | TP | Revision 1 pass — all evidence strong, no blocking risk. |
 
 ## Next Allowed Action
 
-- next_allowed_action: Draft the compact PRD and request exact `Approval: PRD`.
-- forbidden_until_then: SD, TP, Brownfield Analysis, implementation, QA and release claims before approved PRD.
+- next_allowed_action: Request exact `Approval: QA`.
+- forbidden_until_then: UAT, release and automatic VCS actions before QA approval.
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
 | UR | approved | Exact `Approval: UR` provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
+| PRD | approved | Exact `Approval: PRD` provided on 2026-07-15 after the PRD artefact was persisted and same-run, same-gate and revision revalidation. |
+| SD | approved | Exact `Approval: SD` provided on 2026-07-15 after the SD artefact was persisted and same-run, same-gate and revision revalidation. |
+| TP | approved | Exact `Approval: TP` provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
+| QA | pending | QA Report revision 1 pass; exact `Approval: QA` requested. |
 
 ## Artefacts
 
@@ -84,6 +99,15 @@ machine contract.
 |---|---|---|---|
 | UR | `.agdf/control/artefacts/agdf-state-orientation/UR.md` | approved | Exact approval recorded after revalidation. Three design questions resolved as specification. |
 | Brownfield Review | `.agdf/control/artefacts/agdf-state-orientation/BROWNFIELD_REVIEW.md` | done | `pass`; `structured_slice` selected; existing owners and reuse paths confirmed; parallel-structure risk to `agdf-human-decision-surface` identified and mitigated. |
+| PRD | `.agdf/control/artefacts/agdf-state-orientation/PRD.md` | approved | 11 functional requirements, 13 acceptance criteria, non-overlapping file sections defined. Exact approval recorded after artefact persistence and revalidation. |
+| SD | `.agdf/control/artefacts/agdf-state-orientation/SD.md` | approved | Breadcrumb derivation algorithm, narration output logic, collapse mapping, locale-key structure, 8-task implementation plan, 14-test regression plan. Exact approval recorded after artefact persistence and revalidation. |
+| TP | `.agdf/control/artefacts/agdf-state-orientation/TP.md` | approved | 12 tasks (SO-01–SO-12), 14 tests (BT-01–BT-14), acceptance matrix, verification sequence. Exact approval recorded after revalidation. |
+| Brownfield Analysis | `.agdf/control/artefacts/agdf-state-orientation/BROWNFIELD_ANALYSIS.md` | done | Implementation path verified; all target functions confirmed; no parallel-structure conflict; regression risk low. |
+| CD+Tests | `.agdf/control/artefacts/agdf-state-orientation/CD_TESTS.md` | done | 11 tasks implemented, 14 tests pass, 3 advisories fixed, release note recorded. |
+| QA Report | `.agdf/control/artefacts/agdf-state-orientation/QA_REPORT.md` | pass | All evidence strong; no blocking risk; decision: pass. |
+| TP Review | inline (TP Coverage in chat) | done | 12/12 tasks fully_done. |
+| Clean Implementation Review | inline (Clean Review in chat) | done | Pass — clean primary solution, no fallbacks/parallel structures. |
+| CR | inline (Code Review in chat) | done | Pass — 3 advisory findings fixed. |
 
 ## Evidence
 
@@ -101,9 +125,9 @@ machine contract.
 
 | Missing | Reason |
 |---|---|
-| Approved PRD | Not yet drafted |
-| Regression-test coverage | Expected at TP/CD+Tests |
-| Live CLI rendering evidence | Expected at CD+Tests |
+| `Approval: QA` | Requested |
+| `Approval: UAT` | After QA pass |
+| Context Graph update (CG-RUN-STATUS-CARD) | Deferred to OR closeout |
 | `agdf-human-decision-surface` UAT pass | Sequencing risk remains open |
 
 ## Risks
@@ -134,5 +158,5 @@ machine contract.
 
 ## Closeout
 
-- next_step: Draft the compact PRD and request `Approval: PRD`
-- quality_outlook: Define non-overlapping file sections with `agdf-human-decision-surface`; add regression coverage for breadcrumb, narration and collapse
+- next_step: Request `Approval: QA`
+- quality_outlook: Context Graph update at OR closeout; sequencing risk with agdf-human-decision-surface monitored

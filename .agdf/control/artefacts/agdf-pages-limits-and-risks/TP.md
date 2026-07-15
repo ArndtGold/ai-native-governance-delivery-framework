@@ -4,7 +4,7 @@
 
 - work item: `agdf-pages-limits-and-risks`
 - derived from: `.agdf/control/artefacts/agdf-pages-limits-and-risks/SD.md`
-- gate approval: `Approval: TP` pending post-artefact confirmation
+- gate approval: exact `Approval: TP` received on 2026-07-15 after canonical run, current-gate and revision revalidation
 
 ## 1. Implementation Tasks
 
@@ -55,4 +55,4 @@ The slice is complete only when PLR-01 through PLR-08 have traceable evidence, t
 
 ## 7. Gate Decision
 
-This Task And Test Plan is ready for user confirmation. After valid post-artefact `Approval: TP`, perform pre-implementation Brownfield Analysis, then CD+Tests.
+This Task And Test Plan is approved with exact `Approval: TP`. Revalidate the existing pre-implementation Brownfield Analysis against the current repository before refreshing CD+Tests and mandatory reviews.

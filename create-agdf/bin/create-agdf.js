@@ -2333,6 +2333,40 @@ function postApprovalTransition(missingApproval) {
   };
 }
 
+const BREADCRUMB_PATH_TEMPLATES = {
+  structured_delivery: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
+  structured_slice: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
+  verified_change: ["UR", "Verified Change", "OR"],
+  quick_task: ["UR", "Quick Task"],
+  block: ["UR", "Block"],
+  undecided: ["UR"],
+};
+
+const BREADCRUMB_STANDARD_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
+
+function buildBreadcrumbPath(modeSliceDecision, currentGate, runState) {
+  const gates = BREADCRUMB_PATH_TEMPLATES[modeSliceDecision] ?? ["UR"];
+  return gates.map((gate) => {
+    if (BREADCRUMB_STANDARD_GATES.includes(gate)) {
+      if (gateApprovalStatus(runState, gate) === "approved") return { gate, status: "fulfilled" };
+      if (gate === currentGate) return { gate, status: "current" };
+      return { gate, status: "open" };
+    }
+    if (gate === currentGate) return { gate, status: "current" };
+    if ((gate === "Verified Change" || gate === "Quick Task") && currentGate === "OR")
+      return { gate, status: "fulfilled" };
+    if (gate === "Verified Change" && modeSliceDecision === "verified_change")
+      return { gate, status: "current" };
+    if (gate === "Quick Task" && modeSliceDecision === "quick_task")
+      return { gate, status: "current" };
+    if (gate === "Block" && modeSliceDecision === "block")
+      return { gate, status: "current" };
+    if (gate === "OR" && currentGate === "OR")
+      return { gate, status: "current" };
+    return { gate, status: "open" };
+  });
+}
+
 function buildStatusCard({
   status,
   currentGate,
@@ -2360,6 +2394,11 @@ function buildStatusCard({
     status,
     current_gate: currentGate,
     mode_slice_decision: runState.mode_slice_decision?.decision || "undecided",
+    breadcrumb: buildBreadcrumbPath(
+      runState.mode_slice_decision?.decision || "undecided",
+      currentGate,
+      runState,
+    ),
     allowed_now: allowed,
     forbidden_now: forbidden,
     blocking_condition: blockingReason || "none",

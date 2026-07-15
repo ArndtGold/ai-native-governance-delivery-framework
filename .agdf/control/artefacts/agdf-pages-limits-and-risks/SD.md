@@ -4,7 +4,7 @@
 
 - work item: `agdf-pages-limits-and-risks`
 - derived from: `.agdf/control/artefacts/agdf-pages-limits-and-risks/PRD.md`
-- gate approval: `Approval: SD` pending post-artefact confirmation
+- gate approval: exact `Approval: SD` received on 2026-07-15 after canonical run, current-gate and revision revalidation
 
 ## 1. Design Decision
 
@@ -72,4 +72,4 @@ Only `pages/src/data/site.ts` and `pages/src/pages/index.astro` may be changed, 
 
 ## 9. Gate Decision
 
-This Solution Design is ready for user confirmation. After valid post-artefact `Approval: SD`, create the focused Task Plan. Implementation remains forbidden until `Approval: TP` and pre-implementation Brownfield Analysis are complete.
+This Solution Design is approved with exact `Approval: SD`. The existing Task Plan must be revalidated next; implementation remains non-authorizing until exact `Approval: TP` is restored.

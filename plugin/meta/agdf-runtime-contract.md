@@ -147,6 +147,65 @@ and `Allowed after approval` when a missing approval exists, `Next step` and
 `Quality outlook`. Keep mode, forbidden actions, evidence and next-skill detail
 in the surrounding control artefact when they are relevant.
 
+### Breadcrumb
+
+The compact human Run Status Card may include a single-line path-derived breadcrumb that
+shows the user's position in the delivery journey. It is derived from the Mode/Slice
+Decision and the Approvals table — not a fixed template.
+
+| Mode/Slice | Breadcrumb gates |
+|---|---|
+| structured_delivery / structured_slice | `UR · PRD · SD · TP · QA · UAT` |
+| verified_change | `UR · Verified Change · OR` |
+| quick_task | `UR · Quick Task` |
+| block | `UR · Block` |
+
+- `✓` fulfilled, `●` current, `○` open.
+- Non-applicable gates are absent (no `–` placeholders, no thinned standard template).
+- `verified_change` is one collapsed node, not a degraded standard route.
+- The breadcrumb is a derived, non-authorising projection. It does not add a new gate
+  model or override the Gate Transition Model.
+- The machine-readable `status_card` JSON may carry a derived `breadcrumb` array
+  `[{gate, status}]` for the presentation layer; this is additive and does not replace
+  any existing field.
+
+### Post-Acceptance Transition Narration
+
+After each accepted gate approval, the agent emits exactly one status line using the
+template:
+
+```text
+<what was satisfied> → <what the agent does next internally> → <user action: yes/no>
+```
+
+This narration is temporally and structurally separate from the Gate Transition Card:
+
+- The Gate Transition Card is **pre-approval** (in the orientation envelope); it is
+  subjunctive and contains the exact `Approval:` value.
+- The narration is **post-acceptance** (after the gate advanced); it is indicative and
+  does not contain the `Approval:` value.
+- Both never appear in the same assistant message.
+- The narration does not repeat the decision's effect (the card's job) and uses its own
+  template, not the card's three-question form.
+- For internal steps (Brownfield Review, Brownfield Analysis), the narration states what
+  the agent does next and that no user action is required, without exposing
+  `next_user_gate: none` or asking for a second approval.
+
+### Internal-State Collapse
+
+The derived-projection principle above applies explicitly to internal sub-states. The
+full Run Status Card (machine/audit projection) keeps all fields unchanged. Only the
+compact human card collapses internal sub-states to stable human labels:
+
+| Internal sub-state | Human label | Stays explicit |
+|---|---|---|
+| `verified_change`: missing/draft/invalid/eligible/executed | "Compact change under review" | `escalated` → "Escalated to structured delivery" |
+| `context_graph_required_action`: link/update/create/resolve_drift | "Project memory maintained" | `open_gap` → "Graph gap open" |
+| `multi_scope_state`: clear/ambiguous | (not shown) | `blocked` → "Ambiguous scope, clarification needed" |
+
+`open_gap` and `escalated` remain explicitly visible. The full machine projection retains
+all raw values unchanged.
+
 ## Quality Readiness Projection
 
 After CD+Tests, when any of the four review/QA artefacts exists, surfaces may show one compact

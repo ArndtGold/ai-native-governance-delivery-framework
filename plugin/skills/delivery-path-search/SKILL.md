@@ -13,7 +13,11 @@ The search is advisory and read-only. Canonical AGDF `gate-check` remains the on
 
 ## Runtime Contract
 
-Use `../../meta/agdf-runtime-contract.md` for canonical gate state, output discipline and Delivery Path Search boundaries. This skill must not maintain a second gate or scoring model.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/control-scaffold.md`
+- `../../meta/contracts/gate-transition.md`
+- `../../meta/contracts/quality.md`
 
 ## Trigger
 

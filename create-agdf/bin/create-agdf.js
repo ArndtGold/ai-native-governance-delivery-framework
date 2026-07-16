@@ -91,6 +91,15 @@ const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefini
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
+const contractModules = [
+  "gate-transition.md",
+  "interaction.md",
+  "modes.md",
+  "quality.md",
+  "context-graph.md",
+  "control-scaffold.md",
+  "closeout.md",
+];
 const globalOpenCodeSkillOwnershipMarker = "<!-- AGDF-GLOBAL-SKILL: ";
 const globalOpenCodeInstructionsOwnershipMarker = "<!-- AGDF-GLOBAL-INSTRUCTIONS -->";
 const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->";
@@ -119,6 +128,7 @@ const codexPluginFiles = [
   join("plugins", "agdf", "meta", "agdf-plugin.definition.json"),
   join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
   join("plugins", "agdf", "meta", "agdf-tenets.md"),
+  ...contractModules.map((moduleName) => join("plugins", "agdf", "meta", "contracts", moduleName)),
   ...codexSkillNames.map((skillName) => join("plugins", "agdf", "skills", skillName, "SKILL.md")),
 ];
 const controlFiles = [
@@ -184,12 +194,14 @@ const copilotInstructionFiles = [
 const copilotSkillFiles = [
   join(".github", "skills", "README.md"),
   join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
+  ...contractModules.map((moduleName) => join(".github", "skills", "contracts", moduleName)),
   ...copilotSkillNames.map((skillName) => join(".github", "skills", skillName, "SKILL.md")),
 ];
 const openCodeFiles = [
   join(".opencode", pluginDefinition.opencode.instructionsFileName),
   join(".opencode", "README.md"),
   join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
+  ...contractModules.map((moduleName) => join(".opencode", "contracts", moduleName)),
   ...openCodeSkillNames.map((skillName) => join(".opencode", "skills", skillName, "SKILL.md")),
 ];
 
@@ -582,6 +594,7 @@ function globalOpenCodeConfigPaths(configDir) {
   return {
     instructions: join(configDir, pluginDefinition.opencode.instructionsFileName),
     runtimeContract: join(configDir, pluginDefinition.opencode.runtimeContractFileName),
+    contracts: join(configDir, "contracts"),
     skills: join(configDir, "skills"),
   };
 }
@@ -605,6 +618,13 @@ function assertGlobalOpenCodeSurfaceWritable(configDir) {
   const paths = globalOpenCodeConfigPaths(configDir);
   assertGlobalOpenCodeFileWritable(paths.instructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   assertGlobalOpenCodeFileWritable(paths.runtimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
+  for (const moduleName of contractModules) {
+    assertGlobalOpenCodeFileWritable(
+      join(paths.contracts, moduleName),
+      globalOpenCodeRuntimeContractOwnershipMarker,
+      "first-line",
+    );
+  }
   for (const skillName of globalOpenCodeSkillNames) {
     assertGlobalOpenCodeFileWritable(
       join(paths.skills, skillName, "SKILL.md"),
@@ -664,6 +684,15 @@ function installOpenCodeGlobalSurface(configDir) {
 
   writeOwnedGlobalOpenCodeFile(paths.instructions, globalInstructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   writeOwnedGlobalOpenCodeFile(paths.runtimeContract, globalRuntimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
+  for (const moduleName of contractModules) {
+    const generatedModule = readFileSync(join(generatedOpenCodeRoot, "contracts", moduleName), "utf8");
+    writeOwnedGlobalOpenCodeFile(
+      join(paths.contracts, moduleName),
+      `${globalOpenCodeRuntimeContractOwnershipMarker}\n${generatedModule}`,
+      globalOpenCodeRuntimeContractOwnershipMarker,
+      "first-line",
+    );
+  }
 
   for (let index = 0; index < openCodeSkillNames.length; index += 1) {
     const sourceName = openCodeSkillNames[index];
@@ -678,6 +707,7 @@ function installOpenCodeGlobalSurface(configDir) {
   return {
     instructions: paths.instructions,
     runtimeContract: paths.runtimeContract,
+    contracts: paths.contracts,
     skills: paths.skills,
   };
 }
@@ -760,14 +790,21 @@ function openCodePackageTransition(previousPackage, installedPackage) {
 function evaluateGlobalOpenCodeSurface(configDir) {
   const paths = globalOpenCodeConfigPaths(configDir);
   const skillCount = globalOpenCodeSkillNames.filter((skillName) => existsSync(join(paths.skills, skillName, "SKILL.md"))).length;
+  const contractCount = contractModules.filter((moduleName) => existsSync(join(paths.contracts, moduleName))).length;
   return {
     path: paths.skills,
     instructions: paths.instructions,
     runtime_contract: paths.runtimeContract,
+    contracts: paths.contracts,
     expected_skill_count: globalOpenCodeSkillNames.length,
     skill_count: skillCount,
+    expected_contract_count: contractModules.length,
+    contract_count: contractCount,
     present: existsSync(paths.skills),
-    complete: existsSync(paths.instructions) && existsSync(paths.runtimeContract) && skillCount === openCodeSkillNames.length,
+    complete: existsSync(paths.instructions)
+      && existsSync(paths.runtimeContract)
+      && contractCount === contractModules.length
+      && skillCount === openCodeSkillNames.length,
   };
 }
 
@@ -795,7 +832,11 @@ function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(
   if (!packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is not loadable from the OpenCode config directory.`);
   if (packageVersionStatus === "outdated") findings.push(`${pluginDefinition.opencode.npmPackage} version ${packageState.installed_version} is outdated; expected ${pluginDefinition.version}.`);
   if (packageVersionStatus === "unknown" && packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is loadable but its installed version is unknown.`);
-  if (!globalNativeSurface.complete) findings.push(`Global OpenCode native skill surface is incomplete (${globalNativeSurface.skill_count}/${globalNativeSurface.expected_skill_count} skills).`);
+  if (!globalNativeSurface.complete) {
+    findings.push(
+      `Global OpenCode native surface is incomplete (${globalNativeSurface.skill_count}/${globalNativeSurface.expected_skill_count} skills; ${globalNativeSurface.contract_count}/${globalNativeSurface.expected_contract_count} contract modules).`,
+    );
+  }
   if (!sessionSignals.active) findings.push("No active AGDF OpenCode session signal is visible in this process.");
   if (!repositorySurface) findings.push("Current repository does not contain the AGDF OpenCode surface.");
 

@@ -1,0 +1,32 @@
+## Brownfield Analysis
+- mode: pre_implementation_analysis
+- decision: pass
+- artefact: .agdf/control/artefacts/runtime-contract-modularization/BROWNFIELD_ANALYSIS.md
+- scope: Implement 12 tasks (RC-01 through RC-12) from approved TP. Create 7 module files, replace monolith with manifest, update 9 skills, agent router, integrity checker, sync script, installer, 4 test scripts, SOT_REGISTRY, and CONTEXT_GRAPH.
+- evidence:
+  - `plugin/meta/contracts/` — directory does not exist yet; clean new path, no existing owner conflict
+  - `plugin/meta/agdf-runtime-contract.md` — current monolith, 855 lines, content mapped to modules in PRD
+  - `plugin/skills/*/SKILL.md` — all 9 skills have `../../meta/agdf-runtime-contract.md` references identified via grep
+  - `plugin/scripts/check-runtime-integrity.mjs` — reads monolith at line 14, uses `read()` at lines 205 and 600; skill check at line 757; gate-check SoT string at line 779; German check at line 836
+  - `create-agdf/scripts/sync-package-assets.js` — `syncRuntimeContract()` at line 302; `syncSkill()` at line 309; `writeOpenCodeSkill()` at line 262
+  - `create-agdf/bin/create-agdf.js` — `codexPluginFiles` at line 97; `copilotSkillFiles` at line 191; `openCodeFiles` at line 196; `globalOpenCodeConfigPaths` at line 602; `assertGlobalOpenCodeSurfaceWritable` at line 625; `installOpenCodeGlobalSurface` at line 668; `evaluateGlobalOpenCodeSurface` at line 793
+  - `create-agdf/scripts/runtime-integrity-negative-test.js` — `runtimeContractPath` at line 13; modifications at lines 57-59, 73-75, 90-93, 151-153, 167-169
+  - `create-agdf/scripts/verified-change-test.js` — `readFileSync` at line 115
+  - `create-agdf/scripts/smoke-test.js` — `transitionContractPaths` at line 1231
+- missing_evidence: none
+- current_coverage:
+  - module content extraction: fully_done (PRD defines exact section-to-module mapping)
+  - reference graph: fully_done (all referencing files identified and listed in SD)
+  - integrity checker assertions: fully_done (SD describes each change precisely)
+  - sync/propagation: fully_done (SD describes path replacements for each surface)
+- reuse_strategy: refactor — pure restructure, no new content
+- risks:
+  - Heading-level mismatch could break `sectionAfterHeading()` regex — mitigated by preserving `##` headings exactly
+  - Generated surface path replacement could miss a new pattern — mitigated by keeping backward-compat `agdf-runtime-contract.md` replacement alongside new `contracts/` replacement
+  - `CONTEXT_GRAPH.md` reconciliation: refs need updating — handled in RC-12, reconciliation: resolved
+- context_graph_impact: link_only
+- context_graph_refs: CG-RUN-STATUS-CARD, CG-DELIVERY-PATH-SEARCH, CG-DOCUMENTATION-CEREMONY-BOUNDARY, CG-NATIVE-INTERACTION-AUTHORITY
+- context_graph_reconciliation: open_gap
+- context_graph_required_action: update
+- context_graph_gate_effect: none
+- required_next_step: CD+Tests — implement RC-01 through RC-12, then run validation suite

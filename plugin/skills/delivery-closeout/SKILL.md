@@ -20,7 +20,11 @@ It answers:
 This skill does not replace `qa-gate`, `release-or`, user approvals, or gate decisions.
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for closeout discipline, gate terms, Context Graph fields, and non-duplication rules.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/closeout.md`
+- `../../meta/contracts/context-graph.md`
+- `../../meta/contracts/gate-transition.md`
 
 ## Rules
 1. Delivery follows gate clarity.

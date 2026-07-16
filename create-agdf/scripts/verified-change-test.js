@@ -112,7 +112,7 @@ ${extra}
 
 try {
   const agentRouter = readFileSync(join(repoRoot, "plugin", "meta", "agdf-agent-router.md"), "utf8");
-  const runtimeContract = readFileSync(join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md"), "utf8");
+  const runtimeContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "modes.md"), "utf8");
   assert.match(agentRouter, /Use Verified Change only after approved UR and Brownfield Review/);
   assert.match(agentRouter, /missing or ambiguous record condition escalates to the declared structured target/);
   assert.match(runtimeContract, /`verified_change` is a compact, fail-closed path/);

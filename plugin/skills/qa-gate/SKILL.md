@@ -22,7 +22,11 @@ It answers:
 - whether blockers, critical risks, or missing evidence remain
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/quality.md`
+- `../../meta/contracts/context-graph.md`
+- `../../meta/contracts/gate-transition.md`
 
 QA-specific `decision` is exactly `pass | revise | block`.
 `pass` is allowed only when TP coverage, Brownfield fit, solution integrity, and relevant documentation/Context Graph impact are sufficiently evidenced.
@@ -100,7 +104,7 @@ Use this shape:
 - impact_codes:
 ```
 
-If Context Graph impact is relevant, include the fields from `../../meta/agdf-runtime-contract.md`.
+If Context Graph impact is relevant, include the fields from `../../meta/contracts/context-graph.md`.
 
 ### Compact Chat Output
 

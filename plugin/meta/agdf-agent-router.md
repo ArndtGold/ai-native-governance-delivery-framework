@@ -68,7 +68,15 @@ Never jump directly from `Approval: UR`, implicit consent, or a generic "start" 
 ## Runtime Contract
 For repeated output, gate, Quality Contract and Context Graph rules, use:
 
-`agdf-runtime-contract.md`
+- `contracts/gate-transition.md` for gate terms, Brownfield routing and transition rules
+- `contracts/interaction.md` for status cards, approval orientation and native interaction
+- `contracts/modes.md` for delivery-mode boundaries
+- `contracts/quality.md` for quality and output discipline
+- `contracts/context-graph.md` for persistence and reconciliation
+- `contracts/control-scaffold.md` for run state, CLI verification and Delivery Map
+- `contracts/closeout.md` for relevant-run and closeout boundaries
+
+`agdf-runtime-contract.md` remains the compatibility manifest for these modules.
 
 Skills may include short reminders, but they must not carry a second complete rule or code table.
 

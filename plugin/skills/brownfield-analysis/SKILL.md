@@ -19,7 +19,11 @@ The skill answers:
 - whether Context Graph impact exists without automatically creating a node
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/gate-transition.md`
+- `../../meta/contracts/context-graph.md`
+- `../../meta/contracts/quality.md`
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
 When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`.
@@ -96,7 +100,7 @@ When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, T
 7. Check SoT/runtime/product-semantics drift.
 8. Check primary visible ownership for UI/status/recovery paths.
 9. Check UI monolith risk for large surfaces or central hooks.
-10. Check Context Graph impact according to `../../meta/agdf-runtime-contract.md`.
+10. Check Context Graph impact according to `../../meta/contracts/context-graph.md`.
 11. Recommend the minimal clean implementation path.
 
 ## Output

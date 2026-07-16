@@ -15,6 +15,15 @@ const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefini
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
+const contractModules = [
+  "gate-transition.md",
+  "interaction.md",
+  "modes.md",
+  "quality.md",
+  "context-graph.md",
+  "control-scaffold.md",
+  "closeout.md",
+];
 
 function runJson(args) {
   try {
@@ -382,8 +391,10 @@ try {
   }
   if (!status.global_native_surface?.complete
     || status.global_native_surface.skill_count !== openCodeSkillNames.length
-    || status.global_native_surface.expected_skill_count !== openCodeSkillNames.length) {
-    throw new Error("opencode-status must prove the complete global native OpenCode skill surface.");
+    || status.global_native_surface.expected_skill_count !== openCodeSkillNames.length
+    || status.global_native_surface.contract_count !== contractModules.length
+    || status.global_native_surface.expected_contract_count !== contractModules.length) {
+    throw new Error("opencode-status must prove the complete global native OpenCode skill and contract surface.");
   }
   if (!openCodeGlobalConfig.instructions?.includes("AGDF.md")
     || openCodeGlobalConfig.permission?.question !== "allow"
@@ -403,6 +414,13 @@ try {
     const globalSkillPath = join(openCodeConfigTempDir, "skills", skillName, "SKILL.md");
     if (!existsSync(globalSkillPath) || !readFileSync(globalSkillPath, "utf8").includes(`AGDF-GLOBAL-SKILL: ${skillName} -->`)) {
       throw new Error(`opencode must generate an owned global skill adapter for ${skillName}.`);
+    }
+  }
+  for (const moduleName of contractModules) {
+    const globalContractPath = join(openCodeConfigTempDir, "contracts", moduleName);
+    if (!existsSync(globalContractPath)
+      || !readFileSync(globalContractPath, "utf8").startsWith("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->")) {
+      throw new Error(`opencode must generate an owned global contract module for ${moduleName}.`);
     }
   }
   if (status.session.active) {
@@ -751,6 +769,7 @@ run("codex-repo", [
   join("plugins", "agdf", "meta", "agdf-plugin.definition.json"),
   join("plugins", "agdf", "meta", "agdf-runtime-contract.md"),
   join("plugins", "agdf", "meta", "agdf-tenets.md"),
+  ...contractModules.map((moduleName) => join("plugins", "agdf", "meta", "contracts", moduleName)),
   ...["gate-check", "code-review", "qa-gate"].map((slug) => join("plugins", "agdf", "skills", `${pluginDefinition.codex.skillPrefix}${slug}`, "SKILL.md")),
 ]);
 run("copilot", [
@@ -769,6 +788,7 @@ run("copilot", [
   join(".github", "instructions", "agdf-governance.instructions.md"),
   join(".github", "skills", "README.md"),
   join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
+  ...contractModules.map((moduleName) => join(".github", "skills", "contracts", moduleName)),
   ...["gate-check", "code-review", "qa-gate"].map((slug) => join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}${slug}`, "SKILL.md")),
 ]);
 
@@ -882,6 +902,7 @@ run("opencode-repo", [
   join(".opencode", "AGDF.md"),
   join(".opencode", "README.md"),
   join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
+  ...contractModules.map((moduleName) => join(".opencode", "contracts", moduleName)),
   join(".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md"),
   join(".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}code-review`, "SKILL.md"),
   join(".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}qa-gate`, "SKILL.md"),
@@ -1229,9 +1250,9 @@ run("config", [
     join(generatedRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"),
   ];
   const transitionContractPaths = [
-    join(generatedRoot, "plugins", "agdf", "meta", "agdf-runtime-contract.md"),
-    join(generatedRoot, ".github", "skills", "agdf-runtime-contract.md"),
-    join(generatedRoot, ".opencode", "agdf-runtime-contract.md"),
+    join(generatedRoot, "plugins", "agdf", "meta", "contracts", "interaction.md"),
+    join(generatedRoot, ".github", "skills", "contracts", "interaction.md"),
+    join(generatedRoot, ".opencode", "contracts", "interaction.md"),
   ];
   const transitionLocalePaths = [
     join(generatedRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"),

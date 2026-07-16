@@ -18,8 +18,14 @@ Determine the earliest blocking user approval gate and derive:
 This skill must not create later artefacts such as PRD, SD, TP, CD, CR, QA, or UAT when the gate does not allow them.
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for gate terms, closeout discipline, and non-duplication rules.
-The canonical gate order and transition model live only in the Runtime Contract. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/gate-transition.md`
+- `../../meta/contracts/interaction.md`
+- `../../meta/contracts/control-scaffold.md`
+- `../../meta/contracts/modes.md`
+- `../../meta/contracts/quality.md`
+The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
 
 ## Agent-Native Control Path
 

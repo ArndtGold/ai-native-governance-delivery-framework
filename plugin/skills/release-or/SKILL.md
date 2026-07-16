@@ -25,7 +25,12 @@ It reports:
 - whether further quality follow-up or a separate delivery closeout is useful
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/closeout.md`
+- `../../meta/contracts/quality.md`
+- `../../meta/contracts/context-graph.md`
+- `../../meta/contracts/control-scaffold.md`
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
 When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
@@ -118,7 +123,7 @@ Use a compact structure:
 - quality_outlook:
 ```
 
-When Context Graph impact is relevant, include the fields from `../../meta/agdf-runtime-contract.md`.
+When Context Graph impact is relevant, include the fields from `../../meta/contracts/context-graph.md`.
 Include `context_graph_reconciliation` whenever Context Graph impact is present. If the value is `open_gap`, required next step must resolve or explicitly retain that gap before commit-ready or release-ready handoff.
 
 ## Forbidden

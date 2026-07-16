@@ -18,7 +18,10 @@ This skill answers:
 - is it maintainable or workaround-heavy
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/quality.md`
+- `../../meta/contracts/context-graph.md`
 
 Clean-review-specific output must make the primary solution, fallbacks, workarounds, parallel structures, exit criteria, and next cleanup/review step visible.
 

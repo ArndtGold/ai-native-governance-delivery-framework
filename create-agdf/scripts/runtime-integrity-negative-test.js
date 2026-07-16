@@ -10,7 +10,7 @@ const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-integrity-"));
 const integrityScript = join(fixtureRoot, "plugin", "scripts", "check-runtime-integrity.mjs");
 const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "VERIFIED_CHANGE.md");
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
-const runtimeContractPath = join(fixtureRoot, "plugin", "meta", "agdf-runtime-contract.md");
+const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 
@@ -54,9 +54,13 @@ try {
   expectIntegrityFailure(/OpenCode permissions must allow the native question tool/);
 
   resetPluginFixture();
+  unlinkSync(interactionContractPath);
+  expectIntegrityFailure(/runtime contract module interaction\.md missing/);
+
+  resetPluginFixture();
   writeFileSync(
-    runtimeContractPath,
-    readFileSync(runtimeContractPath, "utf8").replace("## Native Interaction Contract", "## Removed Native Interaction Contract"),
+    interactionContractPath,
+    readFileSync(interactionContractPath, "utf8").replace("## Native Interaction Contract", "## Removed Native Interaction Contract"),
     "utf8",
   );
   expectIntegrityFailure(/runtime contract Native Interaction Contract missing: ## Native Interaction Contract/);
@@ -71,8 +75,8 @@ try {
 
   resetPluginFixture();
   writeFileSync(
-    runtimeContractPath,
-    readFileSync(runtimeContractPath, "utf8").replace("`attempted_not_applied`", "`attempt_outcome_removed`"),
+    interactionContractPath,
+    readFileSync(interactionContractPath, "utf8").replace("`attempted_not_applied`", "`attempt_outcome_removed`"),
     "utf8",
   );
   expectIntegrityFailure(/Runtime Contract must define visible fallback attempt outcomes/);
@@ -87,8 +91,8 @@ try {
 
   resetPluginFixture();
   writeFileSync(
-    runtimeContractPath,
-    readFileSync(runtimeContractPath, "utf8").replace(
+    interactionContractPath,
+    readFileSync(interactionContractPath, "utf8").replace(
       "first the compact\napproval-time Run Status Card, then the Gate Transition Card, then exactly one",
       "first the Gate Transition Card, then the compact Run Status Card, then exactly one",
     ),
@@ -149,8 +153,8 @@ try {
 
   resetPluginFixture();
   writeFileSync(
-    runtimeContractPath,
-    readFileSync(runtimeContractPath, "utf8").replace("Never guess a path or emit a broken link", "Guess a path when convenient"),
+    interactionContractPath,
+    readFileSync(interactionContractPath, "utf8").replace("Never guess a path or emit a broken link", "Guess a path when convenient"),
     "utf8",
   );
   expectIntegrityFailure(/Human Decision Presentation Contract missing: Never guess a path or emit a broken link/);
@@ -165,8 +169,8 @@ try {
   ]) {
     resetPluginFixture();
     writeFileSync(
-      runtimeContractPath,
-      readFileSync(runtimeContractPath, "utf8").replace("## Gate Transition Card\n", `## Gate Transition Card\n\n${badPattern}\n`),
+      interactionContractPath,
+      readFileSync(interactionContractPath, "utf8").replace("## Gate Transition Card\n", `## Gate Transition Card\n\n${badPattern}\n`),
       "utf8",
     );
     expectIntegrityFailure(expected);

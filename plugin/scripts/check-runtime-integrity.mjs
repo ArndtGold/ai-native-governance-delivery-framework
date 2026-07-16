@@ -12,6 +12,16 @@ const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
 const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
+const contractsDir = join(pluginRoot, "meta", "contracts");
+const contractModules = [
+  "gate-transition.md",
+  "interaction.md",
+  "modes.md",
+  "quality.md",
+  "context-graph.md",
+  "control-scaffold.md",
+  "closeout.md",
+];
 const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
@@ -82,6 +92,15 @@ const failures = [];
 
 function read(path) {
   return readFileSync(path, "utf8");
+}
+
+function readAllContracts() {
+  return contractModules
+    .map((name) => {
+      const path = join(contractsDir, name);
+      return isFile(path) ? read(path) : "";
+    })
+    .join("\n\n");
 }
 
 function readJson(path, label) {
@@ -176,6 +195,9 @@ function assertRouterMatchesDefinition(pathLabel, content, surface) {
 }
 
 assertFile(runtimeContractPath, "runtime contract");
+for (const moduleName of contractModules) {
+  assertFile(join(contractsDir, moduleName), `runtime contract module ${moduleName}`);
+}
 assertFile(interactionLocalesPath, "interaction locale registry");
 assertFile(pluginDefinitionPath, "canonical AGDF plugin definition");
 assertFile(agentRouterPath, "canonical AGDF agent router");
@@ -202,7 +224,7 @@ if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath
 }
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
-const runtimeContract = isFile(runtimeContractPath) ? read(runtimeContractPath) : "";
+const runtimeContract = readAllContracts();
 const interactionLocales = isFile(interactionLocalesPath) ? readJson(interactionLocalesPath, "interaction locale registry") : null;
 const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
@@ -597,7 +619,7 @@ if (isFile(agentRouterPath)) {
 }
 
 if (isFile(runtimeContractPath)) {
-  const runtimeContract = read(runtimeContractPath);
+  const runtimeContract = readAllContracts();
   for (const required of [
     "## Native Interaction Contract",
     "`clarification`: asks for missing intent",
@@ -754,8 +776,8 @@ for (const skill of expectedSkills) {
       failures.push(`${skill}/SKILL.md description contains an unquoted colon-space sequence that Claude Code rejects as YAML`);
     }
   }
-  if (!skillMd.includes("../../meta/agdf-runtime-contract.md")) {
-    failures.push(`${skill}/SKILL.md missing runtime contract reference`);
+  if (!skillMd.includes("../../meta/contracts/")) {
+    failures.push(`${skill}/SKILL.md missing focused runtime contract module reference`);
   }
   if (skill === "gate-check") {
     for (const required of [
@@ -776,8 +798,8 @@ for (const skill of expectedSkills) {
     if (skillMd.includes("## Gate Transitions") || skillMd.includes("## Gate Order") || skillMd.includes("| State | Current gate or step | Allowed | Forbidden | Missing approval |")) {
       failures.push("gate-check must not duplicate the Runtime Contract gate transition table");
     }
-    if (!skillMd.includes("The canonical gate order and transition model live only in the Runtime Contract")) {
-      failures.push("gate-check must point to the Runtime Contract as gate transition SoT");
+    if (!skillMd.includes("The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`")) {
+      failures.push("gate-check must point to gate-transition.md as gate transition SoT");
     }
     for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
       if (!skillMd.includes(`| ${label} |`)) failures.push(`gate-check must render Run Status Card label: ${label}`);
@@ -834,6 +856,7 @@ for (const skill of expectedSkills) {
 for (const [pathLabel, content] of [
   ["plugin/meta/agdf-agent-router.md", read(agentRouterPath)],
   ["plugin/meta/agdf-runtime-contract.md", read(runtimeContractPath)],
+  ["plugin/meta/contracts/*.md", readAllContracts()],
 ]) {
   const normalized = stripAllowedGerman(content);
   for (const pattern of germanRuntimePatterns) {

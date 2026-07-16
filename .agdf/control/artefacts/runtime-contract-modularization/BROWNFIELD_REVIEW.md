@@ -1,0 +1,41 @@
+## Brownfield Analysis
+- mode: post_ur_review
+- decision: pass
+- mode_slice_decision: structured_slice
+- required_next_gate: PRD
+- artefact: .agdf/control/artefacts/runtime-contract-modularization/BROWNFIELD_REVIEW.md
+- scope: Split `plugin/meta/agdf-runtime-contract.md` (855 lines) into 7 thematic modules under `plugin/meta/contracts/`, replace monolith with thin manifest, update all references across plugin skills, agent router, integrity checker, sync script, installer, and tests.
+- evidence:
+  - `plugin/meta/agdf-runtime-contract.md` — current 855-line monolith, SoT registered in `SOT_REGISTRY.md`
+  - `plugin/skills/*/SKILL.md` — all 9 skills reference `../../meta/agdf-runtime-contract.md`
+  - `plugin/meta/agdf-agent-router.md` — references `agdf-runtime-contract.md` in Runtime Contract section
+  - `plugin/scripts/check-runtime-integrity.mjs` — reads monolith, performs ~50 `includes()` string checks on content
+  - `create-agdf/scripts/sync-package-assets.js` — copies monolith to generated Copilot/OpenCode surfaces with path replacements
+  - `create-agdf/bin/create-agdf.js` — lists monolith in `codexPluginFiles`, `copilotSkillFiles`, `openCodeFiles`; installs to global OpenCode config via `installOpenCodeGlobalSurface`
+  - `create-agdf/scripts/runtime-integrity-negative-test.js` — modifies monolith to test integrity checker rejection
+  - `create-agdf/scripts/verified-change-test.js` — reads monolith for `verified_change` content assertion
+  - `create-agdf/scripts/smoke-test.js` — checks generated copies for transition-card content
+  - `plugin/hooks/session-start.sh` — references monolith path (does not read content)
+  - `plugin/meta/agdf-plugin.definition.json` — `runtimeContractFileName: "agdf-runtime-contract.md"` config
+  - `.agdf/control/SOT_REGISTRY.md` — "Runtime contracts" domain points to monolith
+  - `.agdf/control/CONTEXT_GRAPH.md` — 4 active nodes reference monolith path
+- transparency: PRD/SD/TP needed but can stay small. The UR already defines scope, acceptance criteria and non-goals clearly. The change is a bounded refactor with no new product semantics. No gate semantics, approval formulas, or interaction contracts change.
+- missing_evidence: none
+- current_coverage:
+  - monolith content: fully_done (all 855 lines identified and mapped to modules)
+  - reference graph: fully_done (all referencing files identified via grep)
+  - sync/propagation path: fully_done (sync script, installer, test scripts all identified)
+- reuse_strategy: refactor — restructure existing content into modules without changing content itself
+- risks:
+  - Integrity checker reads monolith as single string; must be updated to read all modules and concatenate for `includes()` checks — low risk, mechanical change
+  - Negative tests modify the monolith; must be updated to modify module files instead — low risk, path change only
+  - `SOT_REGISTRY.md` and `CONTEXT_GRAPH.md` references need updating post-implementation — low risk, link updates
+  - Generated surfaces (Copilot, OpenCode, Codex) need contracts directory propagated — medium risk, sync script must copy directory and update path replacements
+  - Session-start hook references manifest path; manifest still exists at same path so no break — minimal risk
+- context_graph_impact: link_only
+- context_graph_refs: CG-RUN-STATUS-CARD, CG-DELIVERY-PATH-SEARCH, CG-DOCUMENTATION-CEREMONY-BOUNDARY, CG-NATIVE-INTERACTION-AUTHORITY
+- context_graph_reconciliation: open_gap
+- context_graph_required_action: update
+- context_graph_gate_effect: none
+- context_graph_evidence: 4 active Context Graph nodes reference `plugin/meta/agdf-runtime-contract.md`; after implementation, refs must point to specific modules. Reconciliation deferred to implementation/closeout.
+- required_next_step: Draft PRD at smallest justified depth, request `Approval: PRD`

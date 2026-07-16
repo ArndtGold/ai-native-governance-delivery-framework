@@ -17,7 +17,10 @@ It answers:
 - whether Brownfield, TP, or clean-review follow-up remains open
 
 ## Runtime Contract
-Use `../../meta/agdf-runtime-contract.md` for Quality Contract output, Context Graph fields, gate terms, and non-duplication rules.
+Use these focused runtime-contract modules:
+
+- `../../meta/contracts/quality.md`
+- `../../meta/contracts/context-graph.md`
 
 Code-review-specific output must make actual findings, missing review scope, evidence strength, and the next required step visible.
 

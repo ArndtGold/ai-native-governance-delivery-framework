@@ -4,10 +4,10 @@
   "version": "0.8.9",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "Arndt Gold",
-  "description": "Codex-first operating system for governed AI-assisted delivery.",
+  "description": "Operating system for governed AI-assisted delivery.",
   "claudeDescription": "AI Governance & Delivery Framework (AGDF) brings an operating system for governed AI-assisted delivery to Claude Code, combining workflow skills, control templates and machine-readable repository checks for gate decisions, Brownfield analysis, task-plan review, QA decisions, durable run state and auditable closeout.",
-  "shortDescription": "Codex-first operating system for governed AI-assisted delivery.",
-  "longDescription": "AI Governance & Delivery Framework (AGDF) brings an operating system for governed AI-assisted delivery to Codex, combining workflow skills, control templates and machine-readable repository checks for gate decisions, Brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout.",
+  "shortDescription": "Operating system for governed AI-assisted delivery.",
+  "longDescription": "AI Governance & Delivery Framework (AGDF) brings an operating system for governed AI-assisted delivery, combining workflow skills, control templates and machine-readable repository checks for gate decisions, Brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout.",
   "homepage": "https://agdf.iself.eu",
   "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
   "license": "Apache-2.0",
@@ -44,7 +44,13 @@
   },
   "claude": {
     "skillPrefix": "",
-    "agentRouter": "meta/agdf-agent-router.md"
+    "agentRouter": "meta/agdf-agent-router.md",
+    "defaultPrompt": [
+      "Assess whether AGDF is proportionate for this repository and request before proposing any implementation. Explain AGDF's purpose and practical benefits, weigh governance overhead against the project's delivery risk, and recommend the lightest suitable path — or explicitly advise against AGDF where it would add more process than value.",
+      "Start this request under AGDF governance.",
+      "Create durable AGDF control state for this repository.",
+      "Close this delivery run with an auditable AGDF report."
+    ]
   },
   "copilot": {
     "skillPrefix": "agdf-",
@@ -97,7 +103,7 @@
           "decline"
         ],
         "dismissOutcome": "cancel",
-        "approvalValueTransport": "decorated_label_only",
+        "approvalValueTransport": "exact_option_value",
         "waitSafety": "deliberate_no_auto_resolution",
         "authorizationPath": "exact_text",
         "technicalPermissionOwner": "codex_host"
@@ -112,7 +118,7 @@
           "decline"
         ],
         "dismissOutcome": "cancel",
-        "approvalValueTransport": "decorated_label_only",
+        "approvalValueTransport": "exact_option_value",
         "waitSafety": "deliberate_no_auto_resolution",
         "authorizationPath": "exact_text",
         "technicalPermissionOwner": "claude_host"
@@ -127,7 +133,7 @@
           "decline"
         ],
         "dismissOutcome": "cancel",
-        "approvalValueTransport": "decorated_label_only",
+        "approvalValueTransport": "exact_option_value",
         "waitSafety": "deliberate_no_auto_resolution",
         "authorizationPath": "exact_text",
         "technicalPermissionOwner": "opencode_host"

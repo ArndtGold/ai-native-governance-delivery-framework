@@ -557,7 +557,7 @@ Surface adapter rules:
 
 | Surface | Native question adapter | Gate-safe use | Technical permission boundary |
 |---|---|---|---|
-| Codex | native `request_user_input` or equivalent short-question control when callable | invoke only when preflight proves `exact_option_value` or `separate_label_and_value`; the current canonical `decorated_label_only` capability uses exact text without invoking the adapter | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
+| Codex | native `request_user_input` or equivalent short-question control when callable | invoke on the first eligible attempt when preflight proves `exact_option_value`; if unavailable or not applied, use exact text without retry | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
 | Claude Code | `AskUserQuestion` | on the first eligible attempt, use only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if unavailable or not applied, use exact text without retry | Claude permissions and `ExitPlanMode` are not AGDF approval. |
 | OpenCode | built-in `question` | use with exact approval/revise/cancel options when `permission.question` permits it; explicit user deny selects exact-text fallback | `once`, `always`, `reject`, permission suggestions and auto mode are technical outcomes only. |
 | Fallback or non-interactive | concise exact text | wait for a new explicit user response; never synthesize or auto-resolve one | Host-specific technical permission remains separate. |

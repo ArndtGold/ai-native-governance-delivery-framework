@@ -287,7 +287,7 @@ for (const locale of ["en", "de"]) {
     }
   }
 }
-for (const [surface, expectedTransport] of [["codex", "decorated_label_only"], ["claude", "decorated_label_only"], ["opencode", "decorated_label_only"], ["fallback", "exact_option_value"]]) {
+for (const [surface, expectedTransport] of [["codex", "exact_option_value"], ["claude", "exact_option_value"], ["opencode", "exact_option_value"], ["fallback", "exact_option_value"]]) {
   const surfaceContract = pluginDefinition?.interactions?.surfaces?.[surface];
   if (surfaceContract?.approvalValueTransport !== expectedTransport || surfaceContract?.waitSafety !== "deliberate_no_auto_resolution" || surfaceContract?.authorizationPath !== "exact_text" || Object.hasOwn(surfaceContract ?? {}, "canonicalValueTransport")) {
     failures.push(`${surface} interaction adapter must declare fail-closed canonical value transport and exact-text authorization path`);
@@ -301,7 +301,6 @@ if (!runtimeContract.includes("one immediately preceding assistant message")
 for (const required of [
   "`decorated_label_only`: do not invoke it for an AGDF gate",
   "`Approval: <GateName> (Recommended)` is never a\nvalid AGDF approval option or authorization value",
-  "the current canonical `decorated_label_only` capability uses exact text without invoking the adapter",
 ]) {
   if (!runtimeContract.includes(required)) failures.push(`Runtime Contract decorated-only prohibition missing: ${required}`);
 }
@@ -375,7 +374,6 @@ if (!gateCheckSkill.includes("current gate") || !gateCheckSkill.includes("The pr
 if (pluginDefinition) {
   if (pluginDefinition.id !== "agdf") failures.push("canonical AGDF plugin definition id must be agdf");
   if (pluginDefinition.displayName !== "AI Governance & Delivery Framework") failures.push("canonical AGDF plugin definition must use the speaking display name");
-  if (!pluginDefinition.shortDescription?.includes("Codex-first")) failures.push("canonical AGDF plugin definition short description must state Codex-first positioning");
   if (pluginDefinition.codex?.skillPrefix !== "") failures.push("canonical AGDF plugin definition Codex skill prefix must be empty to avoid agdf:agdf-* plugin labels");
   if (pluginDefinition.claude?.skillPrefix !== "") failures.push("canonical AGDF plugin definition Claude Code skill prefix must be empty to avoid agdf:agdf-* plugin labels");
   if (pluginDefinition.codex?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Codex agent router must point to meta/agdf-agent-router.md");

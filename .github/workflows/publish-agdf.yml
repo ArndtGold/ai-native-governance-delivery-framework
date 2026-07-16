@@ -45,6 +45,9 @@ jobs:
       - name: Verify AGDF runtime and plugin metadata
         run: node plugin/scripts/check-runtime-integrity.mjs
 
+      - name: Verify versioned AGDF skill evaluations
+        run: npm --prefix create-agdf run eval:skills
+
       - name: Run create-agdf smoke test
         run: npm --prefix create-agdf run smoke-test
 

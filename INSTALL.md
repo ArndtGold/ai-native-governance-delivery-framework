@@ -724,7 +724,21 @@ For this repository itself:
 
 ```bash
 node plugin/scripts/check-runtime-integrity.mjs
+npm --prefix create-agdf run eval:skills
 ```
+
+The versioned corpus under `evals/` uses schema version `1` and an independently versioned `corpus_version`. It covers every canonical skill with normal, boundary and adversarial cases. The offline command materializes disposable repository fixtures, grades routing, gate and approval boundaries, required and forbidden actions, measured mutation limits, and artefact content against deterministic Quality Contract assertions. CI and publish validation require 100% for every deterministic threshold; missing, stale, malformed or unknown required evidence blocks fail-closed.
+
+Checked-in `deterministic_replay` observations are fingerprint-bound regression evidence, not proof that a live Codex, Claude Code or another host executed the cases during the current CI job. Refresh a replay only after reviewing the changed skill, routing, contract, case and fixture owners, then recompute and deliberately update the matching fingerprint in `evals/manifest.json`. The runner never rewrites observations or goldens.
+
+Live-host evidence is a separate, opt-in recording lane:
+
+```bash
+npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-check-normal
+npm --prefix create-agdf run eval:skills:record -- --surface claude --case gate-check-normal --persist
+```
+
+The recorder executes the selected skill in a disposable fixture workspace with bounded, read-only host settings, captures before/after mutations even on adapter failure or timeout, and labels provenance as `live_codex` or `live_claude`. `--persist` writes only a deterministically passing observation under `evals/observations/live/`; live evidence cannot override a stale fingerprint or any safety/quality failure.
 
 Maintainers may set `AGDF_RUNTIME_INTEGRITY_ROOT` to either the AGDF source-repository root or a
 staged/installed AGDF plugin root. The checker classifies that exact path as `source` or `installed`

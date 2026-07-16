@@ -29,9 +29,12 @@
     "test:verified-change": "node ./scripts/verified-change-test.js",
     "test:runtime-integrity-layout": "node ./scripts/runtime-integrity-layout-test.js",
     "test:runtime-integrity-negative": "node ./scripts/runtime-integrity-negative-test.js",
+    "test:skill-evals": "node ./scripts/skill-evals-test.js",
+    "eval:skills": "node ./scripts/run-skill-evals.js",
+    "eval:skills:record": "node ./scripts/record-skill-evals.js",
     "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
     "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
-    "smoke-test": "npm run sync-package-assets && npm run test:control-state && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+    "smoke-test": "npm run sync-package-assets && npm run test:control-state && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:skill-evals && npm run eval:skills && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
     "prepack": "npm run sync-package-assets"
   },
   "keywords": [

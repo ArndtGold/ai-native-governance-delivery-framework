@@ -237,7 +237,11 @@ Non-sensitive feedback, examples and contributions are welcome through [GitHub I
 
 ```bash
 npm --prefix create-agdf run smoke-test
+npm --prefix create-agdf run eval:skills
+npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-check-normal
 ```
+
+`eval:skills` is the credential-free deterministic CI lane. The recorder is an explicit supporting-evidence lane; it uses a disposable repository, records live provenance and refuses to persist a failing or mutation-violating result.
 
 The repository is licensed under [Apache-2.0](../LICENSE). No separate public `CONTRIBUTING.md`, `SECURITY.md` or private security-reporting channel is currently published. Do not treat a public issue as a private vulnerability disclosure.
 

@@ -29,6 +29,9 @@ jobs:
       - name: Verify AGDF delivery-map gate
         run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active
 
+      - name: Verify versioned AGDF skill evaluations
+        run: npm --prefix create-agdf run eval:skills
+
       - name: Verify create-agdf package
         run: npm --prefix create-agdf run smoke-test
 

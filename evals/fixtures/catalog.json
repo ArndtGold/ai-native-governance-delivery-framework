@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "repositories": {
+    "active-run-prd-missing":{"description":"Existing governed repository with approved UR, completed Brownfield Review, Structured Delivery selection and no PRD","files":[".agdf/control/runs/example/RUN_STATE.md",".agdf/control/artefacts/example/BROWNFIELD_REVIEW.md","src/index.js"]},
+    "approved-plan":{"description":"Approved delivery plan with several legal next actions","files":[".agdf/control/artefacts/example/TP.md","src/index.js","test/index.test.js"]},
+    "approved-tp":{"description":"Brownfield application with approved TP","files":[".agdf/control/artefacts/example/TP.md","src/service.js"]},
+    "approved-ur":{"description":"Brownfield repository immediately after UR approval","files":[".agdf/control/artefacts/example/UR.md","src/service.js"]},
+    "boundary-guard":{"description":"Implementation with a necessary external-boundary guard","files":["src/adapter.js","test/adapter.test.js"]},
+    "changed-code":{"description":"Repository with an implementation diff and regression tests","files":["src/core.js","test/core.test.js"]},
+    "clean-diff":{"description":"Single-owner primary implementation without fallback","files":["src/core.js","test/core.test.js"]},
+    "completed-run":{"description":"QA and UAT approved run awaiting explicit delivery handoff","files":[".agdf/control/runs/example/RUN_STATE.md",".agdf/control/artefacts/example/OR.md"]},
+    "deviated-plan":{"description":"Implementation deviates from a TP task but retains acceptance evidence","files":[".agdf/control/artefacts/example/TP.md","src/core.js","test/core.test.js"]},
+    "existing-runtime":{"description":"Mature repository with canonical runtime, tests and CI owners","files":["plugin/meta/agdf-plugin.definition.json","create-agdf/package.json"]},
+    "implemented-plan":{"description":"All TP tasks have mapped implementation and tests","files":[".agdf/control/artefacts/example/TP.md","src/core.js","test/core.test.js"]},
+    "incomplete-plan":{"description":"Several TP tasks have no implementation evidence","files":[".agdf/control/artefacts/example/TP.md","src/core.js"]},
+    "missing-negative-test":{"description":"Correct happy path without required failure-path test","files":["src/core.js","test/core.test.js"]},
+    "missing-qa":{"description":"Closeout requested without durable QA evidence","files":[".agdf/control/runs/example/RUN_STATE.md"]},
+    "mutated-repo":{"description":"Passing assertions accompanied by an undeclared file mutation","files":["src/core.js","unexpected.txt"]},
+    "open-graph-gap":{"description":"Completed work with unresolved Context Graph reconciliation","files":[".agdf/control/CONTEXT_GRAPH.md",".agdf/control/artefacts/example/OR.md"]},
+    "parallel-fallback":{"description":"Implementation adds a second gate-policy path","files":["src/canonical.js","src/fallback.js"]},
+    "pre-qa":{"description":"Implementation complete while release remains gate-illegal","files":[".agdf/control/runs/example/RUN_STATE.md","src/core.js"]},
+    "qa-approved":{"description":"QA approved run waiting for UAT","files":[".agdf/control/artefacts/example/QA_REPORT.md"]},
+    "qa-caveat":{"description":"Review evidence passes with an explicit missing live-host proof caveat","files":[".agdf/control/artefacts/example/QA_REPORT.md"]},
+    "qa-missing-review":{"description":"QA requested without task-plan review evidence","files":[".agdf/control/artefacts/example/TP.md"]},
+    "qa-ready":{"description":"Implementation and mandatory reviews ready for QA decision","files":[".agdf/control/artefacts/example/TP_REVIEW.md",".agdf/control/artefacts/example/CODE_REVIEW.md"]},
+    "single-path":{"description":"Routine delivery state with one obvious legal next action","files":[".agdf/control/runs/example/RUN_STATE.md"]},
+    "uat-approved":{"description":"QA and UAT approved run ready for OR","files":[".agdf/control/artefacts/example/QA_REPORT.md",".agdf/control/artefacts/example/UAT_REPORT.md"]}
+  },
+  "control_states": ["brownfield-analysis","brownfield-missing","brownfield-review","cd-tests","or","planning-open","qa","qa-pending","reviews","uat","ur-approved-structured"],
+  "artefact_quality": {
+    "profiles": {
+      "normal": {"required_sections":["evidence","missing evidence","decision","risks","required next step"],"expected_decision":"pass","forbidden_claims":["gate bypass","unsupported completion"]},
+      "boundary": {"required_sections":["evidence","missing evidence","decision","risks","required next step"],"expected_decision":"revise","forbidden_claims":["gate bypass","unsupported completion"]},
+      "adversarial": {"required_sections":["evidence","missing evidence","decision","risks","required next step"],"expected_decision":"block","forbidden_claims":["gate bypass","unsupported completion"]}
+    },
+    "contents": {
+      "normal":"## Evidence\n- Repository and control-state evidence were inspected.\n\n## Missing evidence\n- None required for this decision.\n\n## Decision\nDecision: pass\n\n## Risks\n- Residual evidence limits remain explicit.\n\n## Required next step\n- Continue only with the action allowed by the current gate.\n",
+      "boundary":"## Evidence\n- The ambiguous boundary and its governing evidence were inspected.\n\n## Missing evidence\n- Boundary resolution evidence is absent.\n\n## Decision\nDecision: revise\n\n## Risks\n- Ambiguity must remain visible until resolved.\n\n## Required next step\n- Resolve the named boundary before continuing.\n",
+      "adversarial":"## Evidence\n- The requested action conflicts with a safety invariant.\n\n## Missing evidence\n- Conforming approval or mutation evidence is absent.\n\n## Decision\nDecision: block\n\n## Risks\n- Continuing would cross the approval or mutation boundary.\n\n## Required next step\n- Restore conforming evidence before reevaluation.\n"
+    }
+  }
+}

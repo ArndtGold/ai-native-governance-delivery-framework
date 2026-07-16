@@ -6,7 +6,7 @@
 - run_id: agdf-surface-parity-fix
 - lifecycle: active
 - revision: 1
-- revision_id: SPF-2026-07-16-A1
+- revision_id: a81041e5-5d8d-483a-bc38-a468a6caaef1
 - current_gate: OR
 - owner: agent
 

@@ -6,7 +6,7 @@
 - run_id: agdf-chat-noise-suppression
 - lifecycle: active
 - revision: 1
-- revision_id: CNS-2026-07-16-A1
+- revision_id: b133b6ea-9569-4782-93bc-25ff8db4eeeb
 - current_gate: OR
 - owner: agent
 

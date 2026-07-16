@@ -6,7 +6,7 @@
 - run_id: agdf-gate-rationale-why
 - lifecycle: active
 - revision: 1
-- revision_id: GRW-2026-07-16-A1
+- revision_id: e0b8b5f1-3e66-4f0e-9afa-105a68f09065
 - mode: undetermined
 - current_gate: OR
 - owner: agent

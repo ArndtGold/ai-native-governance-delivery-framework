@@ -125,6 +125,17 @@ After each accepted gate approval is persisted, emit exactly one narration line 
 
 When rendering the compact human Run Status Card, collapse internal sub-states (`verified_change` sub-states, `context_graph_required_action`, `multi_scope_state`) to stable human labels. `escalated`, `open_gap` and `blocked` remain explicitly visible. The full machine/audit projection retains all raw values unchanged. See the Runtime Contract §Internal-State Collapse for the complete mapping table.
 
+### On-Demand "Why?" Response
+
+When the user asks "why?" or "Warum?" at any gate or internal step, respond with a `status` interaction (not `gate_approval`):
+
+1. Pull the curated rationale from `gateRationale()` in the resolved locale.
+2. Compose one fulfilled line from the selected run's Approvals table and artefact status.
+3. Compose one protects-against line from the gate's rationale and the existing `primary.actions` copy.
+4. Do not show approval controls. Do not advance any gate. Do not merge with the approval envelope.
+
+The response is deterministic: same gate, same question, same answer. The `gate_approval` options remain exactly `approve | revise | decline | cancel`; no "why" option is added. See the Runtime Contract §Gate-Rationale-Registry and §On-Demand "Why?" Interaction for the full contract.
+
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.
 2. The earliest blocking gate wins.

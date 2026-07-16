@@ -545,6 +545,39 @@ fallback and human CLI output use the configured project chat language from
 
 The locale changes presentation only. It must not change gate meaning, option ordering, readiness, validation, revalidation or persistence. Host-provided free-text labels and skip actions are not AGDF-owned approval options and must never advance a gate.
 
+### Gate-Rationale-Registry
+
+The locale registry contains a deterministic, localized `gateRationale` section with one
+curated one-liner per gate and internal step. The agent retrieves rationale strings via
+the `gateRationale()` function; it does not generate rationale prose. Rationale strings
+are the same across invocations for the same gate and locale.
+
+The registry covers all user gates (`UR`, `PRD`, `SD`, `TP`, `QA`, `UAT`) and all internal
+steps (`Brownfield Review`, `Mode/Slice Decision`, `Brownfield Analysis`, `CD+Tests`, `CR`,
+`OR`). Each string stays within the declared `lengthBudgets.description` budget. Key parity
+across locale packs is enforced by the existing `validateLocaleRegistry` baseline
+comparison.
+
+A one-liner cannot explain the full protective function. The user needs enough to accept
+that the gate makes sense, not the complete rationale. Deeper context is available on
+demand through the "Why?" interaction.
+
+### On-Demand "Why?" Interaction
+
+When the user asks "why?" at any gate or internal step, the agent responds with a `status`
+interaction containing the curated rationale (Gate-Rationale-Registry) plus one line of
+fulfilled/protects context composed from existing state.
+
+- The response is deterministic, non-authorizing, and does not display approval controls.
+- It is a separate `status` interaction, never merged with the `gate_approval` sequence.
+- The `gate_approval` options remain exactly `approve | revise | decline | cancel`; no
+  "why" option is added.
+- The response never breaks `APPROVAL_SEQUENCE` or `validateApprovalOrientationSnapshot`.
+- Default output is unchanged when the user does not ask.
+- The fulfilled line is composed from the selected run's Approvals table and artefact
+  status; the protects-against line is composed from the gate's rationale and existing
+  `primary.actions` copy. The agent does not generate new prose.
+
 ### Human Decision Presentation Contract
 
 The primary user surface is a pure projection of the selected canonical run.

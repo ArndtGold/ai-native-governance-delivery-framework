@@ -14,6 +14,7 @@ import {
   formatArtefactRefs,
   gateOptions,
   gateTitle,
+  gateRationale,
   normalizeInteractionOutcome,
   normalizedRunTitle,
   resolveHumanRunTitle,
@@ -256,3 +257,47 @@ longLocale.locales.fr.interaction.reviseLabel += "R";
 assert.equal(validateLocaleRegistry(longLocale).valid, false);
 
 console.log("interaction presentation tests passed");
+
+const RATIONALE_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT", "Brownfield Review", "Mode/Slice Decision", "Brownfield Analysis", "CD+Tests", "CR", "OR"];
+
+for (const gate of RATIONALE_GATES) {
+  const enRationale = gateRationale(registry, "en", gate);
+  const deRationale = gateRationale(registry, "de", gate);
+  assert.ok(enRationale && enRationale !== gate, `en rationale for ${gate} must be a curated string`);
+  assert.ok(deRationale && deRationale !== gate, `de rationale for ${gate} must be a curated string`);
+  assert.ok(enRationale.length <= 160, `en rationale for ${gate} within budget`);
+  assert.ok(deRationale.length <= 160, `de rationale for ${gate} within budget`);
+}
+
+assert.equal(gateRationale(registry, "de", "UR"), registry.locales.de.gateRationale.UR);
+assert.equal(gateRationale(registry, "en", "UR"), registry.locales.en.gateRationale.UR);
+assert.equal(gateRationale(registry, "de", "UR"), gateRationale(registry, "de", "UR"), "deterministic: same call returns same value");
+assert.equal(gateRationale(registry, "fr", "UR"), registry.locales.en.gateRationale.UR, "unsupported locale falls back to en");
+
+assert.ok(registry.locales.en.interaction.why && registry.locales.en.interaction.why.label, "en interaction.why.label exists");
+assert.ok(registry.locales.de.interaction.why && registry.locales.de.interaction.why.label, "de interaction.why.label exists");
+assert.ok(registry.locales.en.interaction.why.fulfilledPrefix, "en interaction.why.fulfilledPrefix exists");
+assert.ok(registry.locales.de.interaction.why.protectsPrefix, "de interaction.why.protectsPrefix exists");
+assert.ok(registry.locales.en.interaction.why.label.length <= 40, "en why.label within budget");
+assert.ok(registry.locales.de.interaction.why.label.length <= 40, "de why.label within budget");
+
+const whyOptions = gateOptions(registry, "de", "UR");
+assert.deepEqual(whyOptions.map((option) => option.outcome), ["approve", "revise", "decline"], "gateOptions unchanged — no why option");
+assert.ok(!whyOptions.some((option) => option.outcome === "why"), "no why option in gateOptions");
+
+const missingRationale = structuredClone(registry);
+delete missingRationale.locales.de.gateRationale;
+assert.equal(validateLocaleRegistry(missingRationale).valid, false, "missing gateRationale in de causes validation failure");
+assert.ok(validateLocaleRegistry(missingRationale).errors.some((error) => error.startsWith("incomplete_locale")), "incomplete_locale error for missing gateRationale");
+
+const missingWhy = structuredClone(registry);
+delete missingWhy.locales.en.interaction.why;
+assert.equal(validateLocaleRegistry(missingWhy).valid, false, "missing interaction.why in en causes validation failure");
+
+for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+  const statusCard = { run_id: "r", status: "open", current_gate: gate, missing_approval: `Approval: ${gate}`, next_gate_after_approval: "next", next_step: "Continue." };
+  const snapshot = buildApprovalOrientationSnapshot({ ready: true, statusCard, humanPresentation: { runTitle: "Run", gateTitle: gate, artefactRefs: [] }, revisionId: "rev", registry, requestedLocale: "de" });
+  assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] }, `snapshot valid for ${gate} with gateRationale present`);
+}
+
+console.log("gate rationale and why tests passed");

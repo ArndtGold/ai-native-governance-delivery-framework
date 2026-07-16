@@ -64,7 +64,7 @@ export function validateLocaleRegistry(registry) {
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key === "primary.quality"
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key === "primary.quality"
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -95,6 +95,10 @@ export function localePack(registry, requestedLocale) {
 
 export function gateTitle(registry, requestedLocale, gate) {
   return localePack(registry, requestedLocale).gateTitles[gate] || String(gate || "");
+}
+
+export function gateRationale(registry, requestedLocale, gate) {
+  return localePack(registry, requestedLocale).gateRationale?.[gate] || String(gate || "");
 }
 
 function stripMarkdown(value) {

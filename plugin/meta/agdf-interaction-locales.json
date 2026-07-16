@@ -98,7 +98,12 @@
         "declineLabel": "Decline",
         "declineDescription": "Reject this gate deliberately; authority remains unchanged.",
         "cancelLabel": "Cancel",
-        "cancelDescription": "Close this decision without approving or declining it."
+        "cancelDescription": "Close this decision without approving or declining it.",
+        "why": {
+          "label": "Why?",
+          "fulfilledPrefix": "Fulfilled:",
+          "protectsPrefix": "Protects against:"
+        }
       },
       "artefacts": {
         "notYetCreated": "not yet created"
@@ -156,6 +161,20 @@
             "UAT": { "agentNext": "Agent prepares the delivery report" }
           }
         }
+      },
+      "gateRationale": {
+        "UR": "UR clarifies what you want, why and for whom — before anything gets built that nobody needed.",
+        "PRD": "PRD defines product behavior before the solution design locks it in.",
+        "SD": "Solution design fixes ownership, architecture and dependencies — before code makes them permanent.",
+        "TP": "Task plan makes acceptance criteria and tests binding, so QA can measure later.",
+        "QA": "QA evaluates real evidence before a release relies on assumptions.",
+        "UAT": "UAT requires deliberate acceptance before the run counts as delivered.",
+        "Brownfield Review": "Checks whether existing systems, owners and conventions are affected, so nothing breaks or duplicates.",
+        "Mode/Slice Decision": "Decides the proportionate delivery scope, so the process fits the change — not the other way around.",
+        "Brownfield Analysis": "Verifies reuse paths, owners and regression risk before code exists.",
+        "CD+Tests": "Implementation and tests produce evidence — not just code.",
+        "CR": "Code review is mandatory before QA decides.",
+        "OR": "The delivery report makes the run auditable — not just claimed."
       }
     },
     "de": {
@@ -248,7 +267,12 @@
         "declineLabel": "Ablehnen",
         "declineDescription": "Dieses Gate bewusst ablehnen; die Berechtigung bleibt unverändert.",
         "cancelLabel": "Abbrechen",
-        "cancelDescription": "Diese Entscheidung ohne Freigabe oder Ablehnung schließen."
+        "cancelDescription": "Diese Entscheidung ohne Freigabe oder Ablehnung schließen.",
+        "why": {
+          "label": "Warum?",
+          "fulfilledPrefix": "Erfüllt:",
+          "protectsPrefix": "Schützt vor:"
+        }
       },
       "artefacts": {
         "notYetCreated": "noch nicht erstellt"
@@ -306,6 +330,20 @@
             "UAT": { "agentNext": "Agent bereitet den Lieferbericht vor" }
           }
         }
+      },
+      "gateRationale": {
+        "UR": "UR klärt, was du willst, warum und für wen — bevor etwas gebaut wird, das niemand brauchte.",
+        "PRD": "PRD definiert das Produktverhalten, bevor das Lösungsdesign es zementiert.",
+        "SD": "Lösungsdesign legt Ownership, Architektur und Abhängigkeiten fest — bevor Code sie faktisch zementiert.",
+        "TP": "Taskplan macht Akzeptanzkriterien und Tests verbindlich, damit QA später messen kann.",
+        "QA": "QA bewertet die echten Nachweise, bevor eine Freigabe auf Vermutungen basiert.",
+        "UAT": "UAT verlangt eine bewusste Abnahme, bevor der Lauf als geliefert gilt.",
+        "Brownfield Review": "Prüft, ob bestehende Systeme, Owners und Konventionen betroffen sind, damit nichts kaputt geht oder doppelt entsteht.",
+        "Mode/Slice Decision": "Entscheidet den angemessenen Lieferumfang, damit der Prozess zur Veränderung passt — nicht umgekehrt.",
+        "Brownfield Analysis": "Verifiziert Wiederverwendung, Owners und Regressionstests, bevor Code existiert.",
+        "CD+Tests": "Implementierung und Tests liefern Nachweise — nicht nur Code.",
+        "CR": "Code-Review ist verpflichtend, bevor QA entscheidet.",
+        "OR": "Der Lieferbericht macht den Lauf auditierbar — nicht nur behauptet."
       }
     }
   }

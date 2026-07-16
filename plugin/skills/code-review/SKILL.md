@@ -84,6 +84,11 @@ Use this compact structure:
 - `block`: a hard defect, security risk, data-integrity risk, or unresolved critical uncertainty remains.
 - `not_applicable`: no code changes were present for review.
 
+### Compact Chat Output
+
+At `pass`: one line — `Code Review: pass — <one-line summary>`.
+At `revise`/`block`: show blocking findings with file references. Full report remains in durable file or inline evidence as specified.
+
 ## Forbidden
 This skill must not:
 

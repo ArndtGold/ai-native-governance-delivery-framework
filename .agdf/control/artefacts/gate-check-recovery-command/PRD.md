@@ -1,9 +1,10 @@
 # PRD: Consistent Gate Recovery and Approval Readiness
 
-Status: draft
+Status: approved
 Gate: PRD
-Gate approval: pending
-Date: 2026-07-15
+Gate approval: `Approval: PRD` provided in session on 2026-07-16 after revision-2 revalidation
+Date: 2026-07-16
+Revision: 2
 Derived from: `.agdf/control/artefacts/gate-check-recovery-command/UR.md`
 
 ## 1. Product Outcome
@@ -29,16 +30,22 @@ present and the only missing condition is the exact approval:
 
 - `status` is `open`;
 - `interaction_kind` is `gate_approval`;
-- `native_attempt_required` is `true` before the first adapter attempt;
-- the configured surface makes exactly one deliberate-input native attempt for that revalidated
-  approval interaction;
-- unavailable or unapplied native presentation falls back once to the unchanged exact approval;
+- native capability is evaluated independently from gate readiness;
+- `native_attempt_required` is `true` only when the configured surface currently proves
+  `exact_option_value` or `separate_label_and_value` transport with deliberate, non-defaulted input;
+- `decorated_label_only`, missing, conflicting, unsafe or unknown transport reports
+  `native_attempt_required: false` and uses the unchanged exact-text approval without invoking the adapter;
+- only an eligible configured surface makes exactly one deliberate-input native attempt for that
+  revalidated approval interaction;
+- unavailable or unapplied eligible native presentation falls back once to the unchanged exact approval;
 - same-run, same-gate, artefact and revision revalidation remains mandatory before persistence.
 
-The user-facing rule is: whenever a gate is decision-ready and its exact approval is missing,
-AGDF attempts the configured native approval control once. Decision-ready means exactly one run is
-selected, the required durable artefact exists, gate and revision are current, and no blocker other
-than the missing exact approval remains.
+The user-facing rule is: whenever a gate is decision-ready and its exact approval is missing, AGDF
+presents one deliberate decision request. It uses a native approval control once only when the surface
+can preserve the exact authorization value independently from visible recommendation or localization
+decoration. Otherwise it uses exact text immediately. Decision-ready means exactly one run is selected,
+the required durable artefact exists, gate and revision are current, and no blocker other than the
+missing exact approval remains.
 
 ### 2.3 Native presentation evidence
 
@@ -53,6 +60,10 @@ reports that no control was visible and no choice was made, classify the attempt
 `attempted_not_applied`. Treat the returned value as non-authoritative `no_response` or `invalid`,
 do not persist it, do not retry the native control automatically, and use the exact-text fallback.
 A host-decorated value such as `Approval: PRD (Recommended)` is not the exact approval value.
+AGDF must not deliberately render or request any `Approval: <Gate> (Recommended)` option. If a host
+question adapter requires recommendation decoration and exposes no separate canonical value field,
+that adapter is ineligible for gate approval and must not be invoked. Exact text is then the primary
+interaction for that surface capability, not a recovery after showing an invalid option.
 
 The no-retry rule is scoped to one approval interaction and its immutable presentation snapshot.
 It is not a session-wide native-control disable. A fresh explicit decision request after successful
@@ -92,6 +103,16 @@ approval control or be overridden from prompt text.
   revalidated interaction snapshot. A fresh explicit decision request or changed artefact revision,
   after successful revalidation, receives a new first native attempt; prior failure does not create
   a session-wide disable.
+- **PRD-11 Readiness-capability separation:** A decision-ready gate remains `gate_approval` even when
+  native transport is ineligible; native eligibility changes the presentation path, never gate status.
+- **PRD-12 Decorated-option prevention:** AGDF never invokes an adapter that can return only a
+  decorated approval label and never deliberately renders `Approval: <Gate> (Recommended)`.
+- **PRD-13 Codex exact-text boundary:** While Codex `request_user_input` requires recommendation
+  decoration and exposes no separate label/value transport, Codex gate approval uses exact text and
+  `request_user_input` is not invoked.
+- **PRD-14 Executable orchestration guard:** Canonical capability metadata, executable preflight,
+  gate-check projection and agent-facing skill instructions agree mechanically on adapter eligibility;
+  agent guidance must not permit a direct native call that bypasses a failed preflight.
 
 ## 4. Acceptance Criteria
 
@@ -99,7 +120,8 @@ approval control or be overridden from prompt text.
    `--all-active` recovery suggestion.
 2. Equivalent `doctor` and `delivery-map` aggregate guidance retains valid `--all-active` behavior.
 3. `gate-check --all-active` exits non-zero with concise stderr and no stack trace.
-4. A selected durable UR fixture with only `Approval: UR` missing reports the ready state contract.
+4. A selected durable UR fixture with only `Approval: UR` missing reports `status: open` and
+   `interaction_kind: gate_approval` independently from native capability.
 5. Equivalent ready PRD, SD, TP, QA and UAT fixtures preserve the same readiness invariant.
 6. Missing-artifact, ambiguous-run, stale-revision and mismatched-gate fixtures remain non-ready.
 7. Focused tests fail when executable projection contradicts the canonical native-interaction rule.
@@ -113,13 +135,26 @@ approval control or be overridden from prompt text.
     same-gate, durable-artefact and revision revalidation.
 13. A second native invocation without a fresh explicit decision request or new revalidated snapshot
     is rejected as an automatic retry of the same interaction.
-14. A changed PRD revision followed by successful revalidation reports
-    `native_attempt_required: true` and receives one new first native attempt even when the previous
-    revision ended as `attempted_not_applied`.
+14. A changed PRD revision followed by successful revalidation creates a fresh interaction. It
+    receives one new first native attempt only when current transport is eligible; otherwise it uses
+    exact text immediately even when the previous revision ended as `attempted_not_applied`.
 15. A fresh explicit request to reopen an unchanged decision, followed by successful revalidation,
-    receives one new first attempt; absence of such a request does not trigger a retry.
+    receives one new first attempt only when current transport is eligible; decorated-only transport
+    remains exact-text-only. Absence of such a request does not trigger a retry.
 16. No state or session flag permanently disables native approval controls solely because an earlier
     eligible interaction was unavailable, unapplied, cancelled or invalid.
+17. A Codex fixture with `approvalValueTransport: decorated_label_only` reports
+    `native_attempt_required: false`, reason `decorated_only`, invokes no native adapter and presents
+    the exact textual value `Approval: <Gate>`.
+18. No generated snapshot, locale option, Codex tool payload or agent-facing instruction contains or
+    requests `Approval: <Gate> (Recommended)` as an AGDF approval option.
+19. A surface with verified `exact_option_value` or `separate_label_and_value` transport remains
+    eligible for one native attempt; the decorated-only correction must not disable conforming hosts.
+20. Integrity coverage fails if plugin metadata says `decorated_label_only` while the Runtime Contract,
+    gate-check skill or executable projection still instructs the agent to invoke that adapter.
+21. The live regression scenario is reproducible as a prevented call: Codex recommendation-only
+    transport is observed, preflight returns ineligible, no `request_user_input` call occurs, and
+    authority remains with exact text after same-run and same-gate revalidation.
 
 ## 5. Non-Goals
 
@@ -127,6 +162,8 @@ approval control or be overridden from prompt text.
 - No new CLI flag or machine-output field.
 - No change to gate order, approval formula or persistence authority.
 - No redesign of native buttons, labels, localization, accessibility or host rendering.
+- No attempt to remove or alter host-owned recommendation decoration; AGDF avoids an incompatible
+  adapter rather than changing Codex UI behavior.
 - No claim that repository tests can prove host-owned visible rendering.
 - No duplicate status renderer, readiness evaluator or interaction policy owner.
 
@@ -137,6 +174,10 @@ approval control or be overridden from prompt text.
 - Preserve `plugin/meta/agdf-runtime-contract.md` and `plugin/skills/gate-check/SKILL.md` as canonical
   policy owners; extend existing integrity checks only where needed for deterministic parity proof.
 - Reuse existing locale, candidate-run, exact-text fallback and post-response revalidation paths.
+- Treat `plugin/meta/agdf-plugin.definition.json` as the canonical surface-capability owner. For the
+  currently observed Codex contract it records `decorated_label_only` plus `authorizationPath: exact_text`.
+- Extend `create-agdf/lib/interaction-presentation.js` and its focused tests only through the existing
+  capability preflight; do not add a parallel adapter-eligibility evaluator.
 
 ## 7. Risks
 
@@ -150,9 +191,12 @@ approval control or be overridden from prompt text.
   invocation output must therefore remain separate from presentation and deliberate-input evidence.
 - Treating one failed attempt as a session-wide safety decision would silently violate the native-first
   contract for later revisions; retry identity must be bound to the revalidated interaction snapshot.
+- Tests of the capability helper alone cannot prevent an agent from directly invoking a host tool;
+  generated agent instructions and Runtime Integrity must make bypassing a failed preflight a visible
+  contract violation.
+- Calling every callable question adapter "native-first" would conflate callability with canonical
+  value transport; eligibility must require both deliberate waiting and exact authorization transport.
 
 ## 8. Required Next Step
 
-Review this PRD and approve it only with:
-
-`Approval: PRD`
+Draft the compact Solution Design and request exact `Approval: SD`; implementation remains forbidden.

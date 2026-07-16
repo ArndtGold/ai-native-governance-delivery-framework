@@ -105,6 +105,11 @@ Evidence confidence:
 - `medium`
 - `low`
 
+### Compact Chat Output
+
+At `pass`: one line — `TP Review: pass — <X>/<total> tasks fully_done`.
+At `revise`/`block`: show incomplete tasks with missing evidence.
+
 ## Forbidden
 This skill must not:
 

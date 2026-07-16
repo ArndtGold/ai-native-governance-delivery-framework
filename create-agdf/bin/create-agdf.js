@@ -1531,6 +1531,13 @@ function filled(value) {
   return Boolean(value && !isPlaceholderValue(value) && value.trim() !== "");
 }
 
+function runSelectionRecovery(target) {
+  const directSelection = "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run";
+  return ["doctor", "delivery-map"].includes(target)
+    ? `${directSelection}, or use --all-active to evaluate every active run independently.`
+    : `${directSelection}.`;
+}
+
 function parseQualityContracts(content) {
   const parsed = JSON.parse(content);
   if (!Array.isArray(parsed.contracts) || parsed.contracts.length === 0) {
@@ -1627,7 +1634,7 @@ function evaluateDoctor(targetDir, selection = {}) {
         selectedRunState.resolution_error.split(":")[0] || "AGDF_ACTIVE_RUN_UNRESOLVED",
         `Run selection failed: ${selectedRunState.resolution_error}`,
         runPath,
-        "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run, or use --all-active to evaluate every active run independently.",
+        runSelectionRecovery(selection.target),
       );
     } else {
       const currentGateLine = run.match(/^- current_gate:[^\S\r\n]*(.*)$/m)?.[1]?.trim() ?? "";
@@ -2344,6 +2351,12 @@ const BREADCRUMB_PATH_TEMPLATES = {
 
 const BREADCRUMB_STANDARD_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 
+function isReadyUserGateApproval({ status, currentGate, missingApproval }) {
+  return status === "open"
+    && BREADCRUMB_STANDARD_GATES.includes(currentGate)
+    && missingApproval === `Approval: ${currentGate}`;
+}
+
 function buildBreadcrumbPath(modeSliceDecision, currentGate, runState) {
   const gates = BREADCRUMB_PATH_TEMPLATES[modeSliceDecision] ?? ["UR"];
   return gates.map((gate) => {
@@ -2381,7 +2394,7 @@ function buildStatusCard({
 }) {
   const qualityOutlook = deriveQualityOutlook(runState, findings);
   const postApproval = postApprovalTransition(missingApproval);
-  const isUserGateApproval = missingApproval !== "none";
+  const isUserGateApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
   const nativeAttemptRequired = false;
   const interactionKind = status === "open" && isUserGateApproval ? "gate_approval" : status === "blocked" ? "blocked" : "status";
@@ -2529,9 +2542,9 @@ function transitionDecisionForRunState(runState, verifiedChange = null) {
 
   if (!isGateSatisfied(runState, "UR")) {
     return {
-      status: "blocked",
+      status: "open",
       current_gate: "UR",
-      blocking_reason: "missing_exact_approval",
+      blocking_reason: "none",
       missing_approval: "Approval: UR",
       allowed: ["clarify user need", "formulate and persist UR", "record evidence", "request exact UR approval"],
       forbidden: ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"],
@@ -2847,7 +2860,7 @@ function evaluateGateCheck(targetDir, selection = {}) {
     enumerable: false,
   });
   attachApprovalOrientationSnapshot(statusCard, {
-    ready: status === "open" && missingApproval === `Approval: ${currentGate}`,
+    ready: isReadyUserGateApproval({ status, currentGate, missingApproval }),
     humanPresentation,
     revisionId: extractField(runState.content ?? "", "revision_id"),
     registry: interactionLocales,
@@ -3280,4 +3293,9 @@ async function main() {
   printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents);
 }
 
-await main();
+try {
+  await main();
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+}

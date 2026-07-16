@@ -102,6 +102,12 @@ Use this shape:
 
 If Context Graph impact is relevant, include the fields from `../../meta/agdf-runtime-contract.md`.
 
+### Compact Chat Output
+
+At `pass`: one line — `QA: pass — <one-line summary>`. Reference the durable QA report
+path. Do not show the Quality Readiness projection or evidence inventory in chat.
+At `revise`/`block`: show the decisive dimension, reason and next action.
+
 ## Decision Guidance
 - `pass`: required TP tasks are done, evidence is strong, no blocking Brownfield or solution-integrity risk remains.
 - `revise`: implementation is plausible but missing evidence, partial tasks, UX gaps, or fixable integrity issues remain.

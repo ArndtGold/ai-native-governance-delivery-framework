@@ -91,6 +91,11 @@ Use this compact structure:
 - `revise`: solution works but contains avoidable fallback, unclear ownership, or missing evidence.
 - `block`: solution creates a second SoT, a second owner, unbounded fallback, or masks unresolved product semantics.
 
+### Compact Chat Output
+
+At `pass`: one line — `Clean Review: pass — <one-line summary>`.
+At `revise`/`block`: show the specific fallback/workaround/parallel-structure risk with file references.
+
 ## Forbidden
 This skill must not:
 

@@ -69,7 +69,7 @@ For a ready `gate_approval`:
 7. Distinguish internal process steps from user decisions in natural language. For example, after `Approval: TP`, say that pre-implementation Brownfield Analysis runs next and that no further user action is required now; do not expose `next_user_gate: none` or `user_action_required: no`, and do not ask for a second approval for Brownfield Analysis.
 8. Ask exactly one question that names the selected `run_id` and `current_gate`.
 9. Offer options in stable order: exact `Approval: <GateName>`, localized revise and localized decline. Add explicit cancel only where supported after decline; otherwise host dismissal maps to cancel. Never preselect, skip, auto-submit or reorder an option.
-10. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution; otherwise request the same exact approval in concise text.
+10. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution and can transport `exact_option_value` or `separate_label_and_value`; never invoke a `decorated_label_only` adapter. Otherwise request the same exact approval in concise text.
 11. Render both cards once in that single complete assistant message. Never merge, reverse, omit or duplicate them; the action heading does not replace either card. If the native attempt is unavailable or not applied, continue to exact text without repeating either card.
 12. Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence.
 13. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
@@ -88,7 +88,7 @@ For the transition card, use the complete resolved locale pack. The initial Germ
 
 The primary option is derived exactly as `Approval: <GateName>` from the evaluated current gate; only explanatory copy and non-authoritative outcome labels are localized. Concrete localized copy belongs to the user-facing interaction layer or the approved delivery artefact, not to English runtime rules.
 
-Make exactly one native-attempt for the ready gate. If the host does not render,
+Make exactly one native-attempt for the eligible ready gate. If the host does not render,
 apply or safely return the native question on that attempt, switch immediately
 to the exact textual approval. Do not ask the user to request the buttons again
 and do not create a retry loop or simulated control.
@@ -102,7 +102,7 @@ only after fresh run/gate/artefact revalidation; never retry automatically.
 
 Surface behavior:
 
-- Codex: invoke the native short-question/request-user-input control on the first eligible attempt when callable, ask one gate question and omit auto-resolution; if it is not rendered or applied, use exact text immediately.
+- Codex: invoke the native short-question/request-user-input control only when preflight proves `exact_option_value` or `separate_label_and_value`, and omit auto-resolution. The canonical `decorated_label_only` capability must use exact text without invoking the adapter. `Approval: <GateName> (Recommended)` is never a valid option or approval.
 - Claude Code: invoke `AskUserQuestion` on the first eligible attempt only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if it is not rendered or applied, use exact text immediately. Claude permissions and `ExitPlanMode` remain separate.
 - OpenCode: use built-in `question` when permitted. Preserve explicit `permission.question` denial and use exact text in that case. `once`, `always`, `reject` and auto mode never become gate input.
 - Other, unavailable or non-interactive surfaces: use exact textual approval and wait for a new explicit user response.
@@ -232,6 +232,7 @@ from the same snapshot and are shown exactly once.
 
 If this skill creates or updates control artefacts, do not paste full file bodies into the chat.
 List paths, summarize the decision, name the blocker or approval needed, and keep the durable content in the files.
+See the Runtime Contract §Chat and Tool-Call Discipline for tool-call batching and skill output compaction rules.
 
 ## Forbidden
 This skill must not:

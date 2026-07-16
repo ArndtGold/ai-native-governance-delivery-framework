@@ -1319,27 +1319,25 @@ run("config", [
 - next_allowed_action: Request exact UR approval.
 `, "utf8");
 
-    let failed = false;
-    try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
-    } catch (error) {
-      failed = true;
-      const gateCheckReport = JSON.parse(error.stdout.toString());
-      if (gateCheckReport.status !== "blocked") {
-        throw new Error(`Gate-check should block implicit consent, got ${gateCheckReport.status}.`);
-      }
-      if (gateCheckReport.current_gate !== "UR") {
-        throw new Error(`Gate-check should remain at UR for implicit consent, got ${gateCheckReport.current_gate}.`);
-      }
-      if (gateCheckReport.missing_approval !== "Approval: UR") {
-        throw new Error(`Gate-check should require exact UR approval, got ${gateCheckReport.missing_approval}.`);
-      }
-      if (!gateCheckReport.forbidden.includes("implement code")) {
-        throw new Error("Gate-check should forbid implementation when consent is only implicit.");
-      }
+    const gateCheckReport = JSON.parse(execFileSync(
+      process.execPath,
+      [binPath, "gate-check", "--dir", tempDir, "--json"],
+      { encoding: "utf8", stdio: "pipe" },
+    ));
+    if (gateCheckReport.status !== "open") {
+      throw new Error(`Gate-check should keep approval-ready implicit consent open, got ${gateCheckReport.status}.`);
     }
-    if (!failed) {
-      throw new Error("Gate-check should exit non-zero when consent is only implicit.");
+    if (gateCheckReport.current_gate !== "UR") {
+      throw new Error(`Gate-check should remain at UR for implicit consent, got ${gateCheckReport.current_gate}.`);
+    }
+    if (gateCheckReport.missing_approval !== "Approval: UR") {
+      throw new Error(`Gate-check should require exact UR approval, got ${gateCheckReport.missing_approval}.`);
+    }
+    if (gateCheckReport.interaction_kind !== "gate_approval") {
+      throw new Error(`Gate-check should classify ready UR as gate_approval, got ${gateCheckReport.interaction_kind}.`);
+    }
+    if (!gateCheckReport.forbidden.includes("implement code")) {
+      throw new Error("Gate-check should forbid implementation when consent is only implicit.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

@@ -402,6 +402,42 @@ When a skill creates or updates `.agdf/control/` files, gate artefacts, reviews,
 Do not paste full control files, full artefact bodies, full templates or full generated reports into the chat unless the user explicitly asks to see the full content.
 For larger or more formal work, create or update the durable artefacts fully, then reference them by path and summarize what changed.
 
+### Chat and Tool-Call Discipline
+
+Chat output shows decisions and outcomes. Files show evidence and detail. The agent
+minimises both the number of tool calls and the amount of accompanying chat text. This
+is surface-agnostic: it changes agent behaviour and framework text, not host rendering.
+Whether a host renders a tool-call block visibly is a host concern; the framework ensures
+the agent makes fewer calls and produces less text around them.
+
+Skill output compaction:
+
+- QA, Code Review, TP Review and Clean Implementation Review output is 1 line at `pass`:
+  `<skill>: pass — <one-line summary>`.
+- At `revise`/`block`: the decisive dimension, reason and next action. The Quality
+  Readiness projection is shown only at `revise`/`block`, not at `pass`.
+- Full reports remain in durable files; the chat references the path.
+
+Tool-call batching:
+
+- `RUN_STATE.md` is written once per user gate approval, not once per field change. The
+  agent keeps intermediate state in memory between gate approvals and writes the complete
+  updated state in one operation.
+- The agent does not `read` existing artefacts for format reference. Skill instructions
+  carry the format/structure inline. If a specific existing artefact must be inspected
+  for content (not format), the read has no accompanying commentary.
+- Artefact writes are silent: the agent names the path and a 1-line summary only when an
+  artefact is first created or significantly changed — not on every state update.
+- Validation commands (tests, integrity, diff) show pass/fail only. Full output appears
+  only on failure.
+
+Always visible:
+
+- Gate decisions (Run Status Card, Gate Transition Card, approval question).
+- Post-acceptance narration (1 line per gate transition).
+- Delivery summary (UAT/OR compact summary).
+- Errors, blockers and evidence at `revise`/`block`.
+
 ## Relevant Run
 
 A relevant run is any run that changes durable state, creates or updates an AGDF artefact, changes code or runtime behaviour, performs a gate decision, blocks on a governance condition, produces QA/UAT/release evidence, or closes a delivery slice.
@@ -497,6 +533,9 @@ with safe deliberate waiting. Decorated-only, missing, conflicting or unknown ca
 `unavailable_before_invocation`; unsafe waiting fails closed to `unsafe_to_wait`. Both expose false and use
 exact text without invoking the adapter. A report-only CLI evaluation has no verified current host adapter
 and therefore exposes false. Hooks may prepare context but must not answer, approve or replace an eligible attempt.
+An adapter that requires a visible suffix such as `(Recommended)` on its approving option is
+`decorated_label_only`: do not invoke it for an AGDF gate. `Approval: <GateName> (Recommended)` is never a
+valid AGDF approval option or authorization value; use the undecorated exact-text fallback instead.
 
 The first eligible native-attempt has a single bounded outcome: the declared
 host control is presented, or the agent immediately uses the exact-text
@@ -518,7 +557,7 @@ Surface adapter rules:
 
 | Surface | Native question adapter | Gate-safe use | Technical permission boundary |
 |---|---|---|---|
-| Codex | native `request_user_input` or equivalent short-question control when callable | on the first eligible attempt, present one gate question with auto-resolution omitted; if unavailable or not applied, use exact text without retry | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
+| Codex | native `request_user_input` or equivalent short-question control when callable | invoke only when preflight proves `exact_option_value` or `separate_label_and_value`; the current canonical `decorated_label_only` capability uses exact text without invoking the adapter | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
 | Claude Code | `AskUserQuestion` | on the first eligible attempt, use only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if unavailable or not applied, use exact text without retry | Claude permissions and `ExitPlanMode` are not AGDF approval. |
 | OpenCode | built-in `question` | use with exact approval/revise/cancel options when `permission.question` permits it; explicit user deny selects exact-text fallback | `once`, `always`, `reject`, permission suggestions and auto mode are technical outcomes only. |
 | Fallback or non-interactive | concise exact text | wait for a new explicit user response; never synthesize or auto-resolve one | Host-specific technical permission remains separate. |

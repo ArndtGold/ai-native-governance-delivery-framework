@@ -298,6 +298,20 @@ if (!runtimeContract.includes("one immediately preceding assistant message")
   || !gateCheckSkill.includes("Do not invoke the native question tool until the complete two-card envelope is visible")) {
   failures.push("Approval orientation must be complete in one assistant message before native invocation");
 }
+for (const required of [
+  "`decorated_label_only`: do not invoke it for an AGDF gate",
+  "`Approval: <GateName> (Recommended)` is never a\nvalid AGDF approval option or authorization value",
+  "the current canonical `decorated_label_only` capability uses exact text without invoking the adapter",
+]) {
+  if (!runtimeContract.includes(required)) failures.push(`Runtime Contract decorated-only prohibition missing: ${required}`);
+}
+for (const required of [
+  "never invoke a `decorated_label_only` adapter",
+  "Make exactly one native-attempt for the eligible ready gate",
+  "`Approval: <GateName> (Recommended)` is never a valid option or approval",
+]) {
+  if (!gateCheckSkill.includes(required)) failures.push(`gate-check decorated-only prohibition missing: ${required}`);
+}
 if (!runtimeContract.includes("first visible line of that envelope is the localized action-oriented title")
   || !runtimeContract.includes("must not become\nthe primary heading")
   || !gateCheckSkill.includes("Its first visible line is the localized action-oriented gate title")

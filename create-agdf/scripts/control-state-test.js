@@ -198,6 +198,7 @@ try {
 | PRD | derived_from | UR | approved | fixture |
 | SD | derived_from | PRD | approved | fixture |
 | TP | derived_from | SD | approved | fixture |
+| QA_REPORT | tests | TP | pass | fixture |
 
 ## Closeout
 
@@ -216,6 +217,97 @@ try {
   assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
   assert.equal(Object.hasOwn(qaReviseReport.status_card, "approvalOrientation"), false, "approval orientation must not change public JSON keys");
   rmSync(qaReviseRoot, { recursive: true, force: true });
+
+  for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+    const readyRoot = mkdtempSync(join(tmpdir(), `agdf-ready-${gate.toLowerCase()}-`));
+    execFileSync(process.execPath, [cli, "init", "--dir", readyRoot]);
+    rmSync(join(readyRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
+    const runId = `ready-${gate.toLowerCase()}`;
+    execFileSync(process.execPath, [cli, "run-create", "--dir", readyRoot, "--run", runId]);
+    const artefactDir = join(readyRoot, ".agdf", "control", "artefacts", runId);
+    mkdirSync(artefactDir, { recursive: true });
+    for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md", "CD_TESTS.md", "CODE_REVIEW.md"]) {
+      writeFileSync(join(artefactDir, name), `# ${name}\n`);
+    }
+    const gateIndex = ["UR", "PRD", "SD", "TP", "QA", "UAT"].indexOf(gate);
+    const approvals = ["UR", "PRD", "SD", "TP", "QA", "UAT"].map((candidate, index) =>
+      `| ${candidate} | ${index < gateIndex ? "approved" : "missing"} | ${index < gateIndex ? `Approval: ${candidate}` : ""} |`,
+    ).join("\n");
+    writeFileSync(join(readyRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md"), `# AGDF Run State
+
+## Run Meta
+
+- control_state_version: 2
+- run_id: ${runId}
+- lifecycle: active
+- revision: 1
+- revision_id: 22222222-2222-4222-8222-${String(gateIndex + 1).padStart(12, "0")}
+- mode: structured_delivery
+- current_gate: ${gate}
+- decision: in_progress
+- owner: test
+
+## Objective
+
+Ready ${gate} approval fixture.
+
+## Approvals
+
+| Gate | Status | Evidence |
+|---|---|---|
+${approvals}
+
+## Artefacts
+
+| Type | Path | Status | Notes |
+|---|---|---|---|
+| UR | .agdf/control/artefacts/${runId}/UR.md | approved | ready |
+| Brownfield Review | .agdf/control/artefacts/${runId}/BROWNFIELD_REVIEW.md | done | ready |
+| PRD | .agdf/control/artefacts/${runId}/PRD.md | approved | ready |
+| SD | .agdf/control/artefacts/${runId}/SD.md | approved | ready |
+| TP | .agdf/control/artefacts/${runId}/TP.md | approved | ready |
+| Brownfield Analysis | .agdf/control/artefacts/${runId}/BROWNFIELD_ANALYSIS.md | done | ready |
+| CD+Tests | .agdf/control/artefacts/${runId}/CD_TESTS.md | done | ready |
+| CR | .agdf/control/artefacts/${runId}/CODE_REVIEW.md | done | ready |
+| QA | .agdf/control/artefacts/${runId}/QA_REPORT.md | pass | ready |
+
+## Mode / Slice Decision
+
+- decision: structured_delivery
+- required_next_gate: PRD
+- scope_reason: Gate-readiness matrix fixture.
+- evidence: fixture
+
+## Artefact Chain
+
+| From | Relationship | To | Status | Evidence |
+|---|---|---|---|---|
+| UR | approved_by | Approval: UR | approved | fixture |
+| PRD | derived_from | UR | approved | fixture |
+| SD | derived_from | PRD | approved | fixture |
+| TP | derived_from | SD | approved | fixture |
+| QA_REPORT | tests | TP | pass | fixture |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Ready fixture | test | ${gate} | direct |
+
+## Next Allowed Action
+
+- next_allowed_action: Request exact Approval: ${gate}.
+`);
+    const ready = spawnSync(process.execPath, [cli, "gate-check", "--dir", readyRoot, "--run", runId, "--json"], { encoding: "utf8" });
+    assert.equal(ready.status, 0, ready.stderr);
+    const report = JSON.parse(ready.stdout);
+    assert.equal(report.status, "open", `${gate} ready gate must remain open independently of native capability`);
+    assert.equal(report.current_gate, gate);
+    assert.equal(report.missing_approval, `Approval: ${gate}`);
+    assert.equal(report.interaction_kind, "gate_approval");
+    assert.equal(report.native_attempt_required, false, "report-only evaluation has no verified host adapter capability");
+    rmSync(readyRoot, { recursive: true, force: true });
+  }
   const legacyMode = parseControlState(
     controlStateFixture.replace("## Mode/Slice Decision", "## Mode / Slice Decision"),
     { userGates: ["QA"], internalSteps: [] },
@@ -320,6 +412,7 @@ try {
   const illegalAllActive = spawnSync(process.execPath, [cli, "gate-check", "--dir", cliRoot, "--all-active"], { encoding: "utf8" });
   assert.notEqual(illegalAllActive.status, 0);
   assert.match(illegalAllActive.stderr, /--all-active is supported only/);
+  assert.doesNotMatch(illegalAllActive.stderr, /\n\s+at\s|node:internal|file:\/\//, "expected option errors must not expose a Node stack trace");
   const missingRenderSelector = spawnSync(process.execPath, [cli, "run-render-legacy", "--dir", cliRoot], { encoding: "utf8" });
   assert.notEqual(missingRenderSelector.status, 0);
   assert.match(missingRenderSelector.stderr, /requires --run/);
@@ -345,6 +438,9 @@ try {
       assert.ok(report.candidate_runs.every((candidate) => candidate.display_title && candidate.current_gate));
       assert.equal(report.native_attempt_required, false, "ambiguous runs must never require a native approval attempt");
       assert.notEqual(report.interaction_kind, "gate_approval", "ambiguous runs must remain clarification/blocked interactions");
+      assert.ok(findings.every((finding) => !finding.next_step.includes("--all-active")), "gate-check recovery must not advertise its rejected --all-active option");
+    } else {
+      assert.ok(findings.some((finding) => finding.next_step.includes("--all-active")), `${target} recovery must retain supported aggregate selection`);
     }
   }
   rmSync(ambiguousRoot, { recursive: true, force: true });

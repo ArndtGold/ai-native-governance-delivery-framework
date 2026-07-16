@@ -10,6 +10,7 @@ import {
 } from "../lib/cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
 import { runCli } from "../lib/cli/application.js";
+import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -146,7 +147,7 @@ function installerRecording(outputs) {
 }
 
 {
-  const recording = installerRecording(["", "", "", "agdf@agdf 0.9.1\n"]);
+  const recording = installerRecording(["", "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
   installCodexGlobalPlugin({ exec: recording.exec, io: recording.io.io });
   assert.deepEqual(recording.calls.map(({ command, args }) => [command, args]), [
     ["codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"]],
@@ -158,7 +159,7 @@ function installerRecording(outputs) {
 }
 
 {
-  const recording = installerRecording(["", "", "agdf@agdf 0.9.1\n", "", "agdf@agdf 0.9.1\n"]);
+  const recording = installerRecording(["", "", `agdf@agdf ${pluginDefinition.version}\n`, "", `agdf@agdf ${pluginDefinition.version}\n`]);
   installClaudeGlobalPlugin({ exec: recording.exec, io: recording.io.io });
   assert.deepEqual(recording.calls[3].args, ["plugin", "update", "agdf@agdf"]);
 }

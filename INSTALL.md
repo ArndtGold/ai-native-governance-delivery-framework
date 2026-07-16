@@ -726,6 +726,11 @@ For this repository itself:
 node plugin/scripts/check-runtime-integrity.mjs
 ```
 
+Maintainers may set `AGDF_RUNTIME_INTEGRITY_ROOT` to either the AGDF source-repository root or a
+staged/installed AGDF plugin root. The checker classifies that exact path as `source` or `installed`
+from canonical layout markers and fails closed for partial or ambiguous layouts; it does not search
+arbitrary parent directories. Normal direct execution needs no override.
+
 For the website:
 
 ```bash

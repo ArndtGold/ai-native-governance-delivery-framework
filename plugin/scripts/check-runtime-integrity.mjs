@@ -1,12 +1,89 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
-const repoRoot = process.env.AGDF_RUNTIME_INTEGRITY_ROOT
-  ? resolve(process.env.AGDF_RUNTIME_INTEGRITY_ROOT)
-  : fileURLToPath(new URL("../..", import.meta.url));
-const pluginRoot = join(repoRoot, "plugin");
-const marketplacePath = join(repoRoot, ".claude-plugin", "marketplace.json");
+const scriptPluginRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+
+function isFile(path) {
+  if (!path) return false;
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function isDirectory(path) {
+  if (!path) return false;
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+function samePath(left, right) {
+  try {
+    return realpathSync(left) === realpathSync(right);
+  } catch {
+    return false;
+  }
+}
+
+function hasPluginLayout(root) {
+  return [
+    ".codex-plugin/plugin.json",
+    ".claude-plugin/plugin.json",
+    "meta/agdf-plugin.definition.json",
+    "meta/agdf-runtime-contract.md",
+    "hooks/hooks.json",
+    "scripts/check-runtime-integrity.mjs",
+  ].every((path) => isFile(join(root, path)))
+    && ["skills", "control"].every((path) => isDirectory(join(root, path)));
+}
+
+function hasSourceLayout(root) {
+  return hasPluginLayout(join(root, "plugin"))
+    && [
+      ".claude-plugin/marketplace.json",
+      "agdf/package.json",
+      "create-agdf/package.json",
+      "pages/package.json",
+      "LICENSE",
+    ].every((path) => isFile(join(root, path)));
+}
+
+function invalidLayout(root) {
+  console.error("[agdf-runtime-integrity] FAIL");
+  console.error(`- AGDF_RUNTIME_INTEGRITY_LAYOUT_INVALID: ${root}`);
+  process.exit(1);
+}
+
+function classifyLayout(root) {
+  const source = hasSourceLayout(root);
+  const installed = hasPluginLayout(root);
+  if (source === installed) invalidLayout(root);
+  return source
+    ? { mode: "source", repoRoot: root, pluginRoot: join(root, "plugin") }
+    : { mode: "installed", repoRoot: null, pluginRoot: root };
+}
+
+function resolveLayout() {
+  if (process.env.AGDF_RUNTIME_INTEGRITY_ROOT) {
+    return classifyLayout(resolve(process.env.AGDF_RUNTIME_INTEGRITY_ROOT));
+  }
+
+  const parentRoot = dirname(scriptPluginRoot);
+  const sourceIntent = samePath(join(parentRoot, "plugin"), scriptPluginRoot)
+    && (isFile(join(parentRoot, "package.json"))
+      || isDirectory(join(parentRoot, "create-agdf"))
+      || isDirectory(join(parentRoot, "agdf")));
+  return classifyLayout(sourceIntent ? parentRoot : scriptPluginRoot);
+}
+
+const { mode: validationMode, repoRoot, pluginRoot } = resolveLayout();
+const sourceMode = validationMode === "source";
+const marketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
@@ -28,16 +105,16 @@ const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
 const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const codexComposerIconPath = join(pluginRoot, "assets", "agdf-icon.svg");
 const codexLogoPath = join(pluginRoot, "assets", "agdf-logo.svg");
-const agdfPackagePath = join(repoRoot, "agdf", "package.json");
-const createAgdfPackagePath = join(repoRoot, "create-agdf", "package.json");
-const pagesPackagePath = join(repoRoot, "pages", "package.json");
-const pagesSiteDataPath = join(repoRoot, "pages", "src", "data", "site.ts");
-const pagesSkillsPath = join(repoRoot, "pages", "src", "data", "skills.ts");
-const pagesIndexPath = join(repoRoot, "pages", "src", "pages", "index.astro");
-const syncPackageAssetsPath = join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js");
-const createAgdfCliPath = join(repoRoot, "create-agdf", "bin", "create-agdf.js");
-const activeRunStatePath = join(repoRoot, ".agdf", "control", "AGDF_RUN.md");
-const rootLicensePath = join(repoRoot, "LICENSE");
+const agdfPackagePath = sourceMode ? join(repoRoot, "agdf", "package.json") : null;
+const createAgdfPackagePath = sourceMode ? join(repoRoot, "create-agdf", "package.json") : null;
+const pagesPackagePath = sourceMode ? join(repoRoot, "pages", "package.json") : null;
+const pagesSiteDataPath = sourceMode ? join(repoRoot, "pages", "src", "data", "site.ts") : null;
+const pagesSkillsPath = sourceMode ? join(repoRoot, "pages", "src", "data", "skills.ts") : null;
+const pagesIndexPath = sourceMode ? join(repoRoot, "pages", "src", "pages", "index.astro") : null;
+const syncPackageAssetsPath = sourceMode ? join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js") : null;
+const createAgdfCliPath = sourceMode ? join(repoRoot, "create-agdf", "bin", "create-agdf.js") : null;
+const activeRunStatePath = sourceMode ? join(repoRoot, ".agdf", "control", "AGDF_RUN.md") : null;
+const rootLicensePath = sourceMode ? join(repoRoot, "LICENSE") : null;
 const pluginLicensePath = join(pluginRoot, "LICENSE");
 const controlRoot = join(pluginRoot, "control");
 const skillRoot = join(pluginRoot, "skills");
@@ -109,14 +186,6 @@ function readJson(path, label) {
   } catch (error) {
     failures.push(`${label} must be readable JSON`);
     return null;
-  }
-}
-
-function isFile(path) {
-  try {
-    return statSync(path).isFile();
-  } catch {
-    return false;
   }
 }
 
@@ -201,26 +270,29 @@ for (const moduleName of contractModules) {
 assertFile(interactionLocalesPath, "interaction locale registry");
 assertFile(pluginDefinitionPath, "canonical AGDF plugin definition");
 assertFile(agentRouterPath, "canonical AGDF agent router");
-assertFile(marketplacePath, "plugin marketplace");
 assertFile(codexPluginPath, "Codex plugin manifest");
 assertFile(claudePluginPath, "Claude plugin manifest");
 assertFile(codexComposerIconPath, "Codex plugin composer icon");
 assertFile(codexLogoPath, "Codex plugin logo");
-assertFile(agdfPackagePath, "agdf CLI package manifest");
 assertFile(hooksConfigPath, "Codex plugin default hooks config");
 assertFile(sessionStartHookPath, "AGDF SessionStart hook");
-assertFile(createAgdfPackagePath, "create-agdf package manifest");
-assertFile(pagesPackagePath, "Pages package manifest");
-assertFile(pagesSiteDataPath, "Pages site data");
-assertFile(pagesSkillsPath, "Pages skill data");
-assertFile(pagesIndexPath, "Pages index");
-assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
 assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
-assertFile(rootLicensePath, "root LICENSE");
 assertFile(pluginLicensePath, "plugin LICENSE");
 
-if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath) !== read(pluginLicensePath)) {
-  failures.push("plugin/LICENSE must be byte-identical to the root LICENSE");
+if (sourceMode) {
+  assertFile(marketplacePath, "plugin marketplace");
+  assertFile(agdfPackagePath, "agdf CLI package manifest");
+  assertFile(createAgdfPackagePath, "create-agdf package manifest");
+  assertFile(pagesPackagePath, "Pages package manifest");
+  assertFile(pagesSiteDataPath, "Pages site data");
+  assertFile(pagesSkillsPath, "Pages skill data");
+  assertFile(pagesIndexPath, "Pages index");
+  assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
+  assertFile(rootLicensePath, "root LICENSE");
+
+  if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath) !== read(pluginLicensePath)) {
+    failures.push("plugin/LICENSE must be byte-identical to the root LICENSE");
+  }
 }
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
@@ -558,8 +630,8 @@ if (isFile(createAgdfCliPath)) {
   }
 }
 
-const openCodeNpmPluginPath = join(repoRoot, "create-agdf", "opencode-plugin.js");
-if (isFile(openCodeNpmPluginPath)) {
+const openCodeNpmPluginPath = sourceMode ? join(repoRoot, "create-agdf", "opencode-plugin.js") : null;
+if (sourceMode && isFile(openCodeNpmPluginPath)) {
   const openCodeNpmPlugin = read(openCodeNpmPluginPath);
   if (!openCodeNpmPlugin.includes("experimental.session.compacting") || !openCodeNpmPlugin.includes("AGDF_CONTROL_DIR")) {
     failures.push("OpenCode npm plugin must preserve AGDF runtime context hooks");
@@ -736,14 +808,16 @@ if (isFile(runtimeContractPath)) {
   }
 }
 
-const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;
-const agdfMarketplaceEntry = marketplace?.plugins?.find((plugin) => plugin?.name === "agdf");
-if (!agdfMarketplaceEntry) {
-  failures.push("plugin marketplace must expose agdf");
-} else {
-  if (agdfMarketplaceEntry.source !== "./plugin/") failures.push("plugin marketplace agdf source must point to ./plugin/");
-  if (Object.hasOwn(agdfMarketplaceEntry, "policy")) failures.push("Claude plugin marketplace agdf entry must not use unsupported policy field");
-  if (agdfMarketplaceEntry.category !== "Productivity") failures.push("plugin marketplace agdf category must be Productivity");
+if (sourceMode) {
+  const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;
+  const agdfMarketplaceEntry = marketplace?.plugins?.find((plugin) => plugin?.name === "agdf");
+  if (!agdfMarketplaceEntry) {
+    failures.push("plugin marketplace must expose agdf");
+  } else {
+    if (agdfMarketplaceEntry.source !== "./plugin/") failures.push("plugin marketplace agdf source must point to ./plugin/");
+    if (Object.hasOwn(agdfMarketplaceEntry, "policy")) failures.push("Claude plugin marketplace agdf entry must not use unsupported policy field");
+    if (agdfMarketplaceEntry.category !== "Productivity") failures.push("plugin marketplace agdf category must be Productivity");
+  }
 }
 
 const actualSkills = readdirSync(skillRoot)
@@ -1014,4 +1088,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`[agdf-runtime-integrity] ok (${expectedSkills.length} skills and ${expectedControlFiles.length} control files checked)`);
+console.log(`[agdf-runtime-integrity] ok (mode=${validationMode}; ${expectedSkills.length} skills and ${expectedControlFiles.length} control files checked)`);

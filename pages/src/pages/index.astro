@@ -681,24 +681,7 @@ const discoveryGroups = [
   </div>
 </section>
 
-<!-- ==================== DESIGN ==================== -->
-<section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-      <Icon name="boundary" class="h-8 w-8" />
-    </div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
-    <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
-  </div>
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    {notFor.map((item, i) => (
-      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
-        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
-        <p class="text-sm leading-relaxed text-dark-200">{item}</p>
-      </div>
-    ))}
-  </div>
-</section>
+
 
 <!-- ==================== LIMITS AND OPERATING CONDITIONS ==================== -->
 <section id="limits" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
@@ -1176,6 +1159,25 @@ const discoveryGroups = [
       </div>
     </div>
 </section>
+
+  <!-- ==================== What AGDF Is Not ==================== -->
+  <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+    <div data-reveal class="mb-12 text-center">
+      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
+        <Icon name="boundary" class="h-8 w-8" />
+      </div>
+      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
+      <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {notFor.map((item, i) => (
+          <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
+            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
+            <p class="text-sm leading-relaxed text-dark-200">{item}</p>
+          </div>
+      ))}
+    </div>
+  </section>
 
   <!-- ==================== AUTHOR ==================== -->
 <section id="author" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">

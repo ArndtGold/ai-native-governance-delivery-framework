@@ -26,9 +26,9 @@ Use a different target when Codex is not your agent surface:
 
 For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
 
-## Full command reference
+## Command overview
 
-The commands below are the complete package reference. The Quick Start above is the recommended entry point; these commands cover the remaining surfaces, repository-local variants and validation paths.
+The Quick Start above is the recommended entry point. For the exact current command and option reference, run `npx --yes @agdf/cli@latest --help`; the groups below explain the supported surfaces, validation paths and canonical run lifecycle.
 
 Preferred long-term CLI shape:
 
@@ -46,6 +46,22 @@ npx --yes @agdf/cli@latest gate-check --status-card
 npx --yes @agdf/cli@latest gate-check --json
 ```
 
+Operational validation and bounded planning:
+
+```bash
+npx --yes @agdf/cli@latest delivery-map --json
+npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
+npx --yes @agdf/cli@latest delivery-path-search --surface claude --json
+```
+
+Canonical run lifecycle:
+
+```bash
+npx --yes @agdf/cli@latest run-create --run <run_id>
+npx --yes @agdf/cli@latest run-migrate [--run <run_id>]
+npx --yes @agdf/cli@latest run-render-legacy --run <run_id>
+```
+
 Backward-compatible scaffold usage:
 
 ```bash
@@ -61,13 +77,16 @@ npm create agdf@latest -- init
 npm create agdf@latest -- config --language en
 npm create agdf@latest -- doctor
 npm create agdf@latest -- gate-check
+npm create agdf@latest -- delivery-map
+npm create agdf@latest -- delivery-path-search --surface codex
+npm create agdf@latest -- delivery-path-search --surface claude
 ```
 
 Optional flags:
 
 - `--dir <path>` write into a specific directory
 - `--force` overwrite existing generated files
-- `--language <de|en>` or `--lang <de|en>` persist the preferred AGDF artefact and chat language
+- `--language <tag>` or `--lang <tag>` persist a BCP 47 language tag such as `de`, `en` or `fr-CA`
 
 If no language is provided, `create-agdf` derives the preference from the local system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale) and falls back to `en`.
 

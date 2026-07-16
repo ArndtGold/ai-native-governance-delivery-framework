@@ -112,7 +112,7 @@ const pagesSiteDataPath = sourceMode ? join(repoRoot, "pages", "src", "data", "s
 const pagesSkillsPath = sourceMode ? join(repoRoot, "pages", "src", "data", "skills.ts") : null;
 const pagesIndexPath = sourceMode ? join(repoRoot, "pages", "src", "pages", "index.astro") : null;
 const syncPackageAssetsPath = sourceMode ? join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js") : null;
-const createAgdfCliPath = sourceMode ? join(repoRoot, "create-agdf", "bin", "create-agdf.js") : null;
+const createAgdfOpenCodeInstallerPath = sourceMode ? join(repoRoot, "create-agdf", "lib", "installers", "opencode.js") : null;
 const activeRunStatePath = sourceMode ? join(repoRoot, ".agdf", "control", "AGDF_RUN.md") : null;
 const rootLicensePath = sourceMode ? join(repoRoot, "LICENSE") : null;
 const pluginLicensePath = join(pluginRoot, "LICENSE");
@@ -623,9 +623,9 @@ if (isFile(syncPackageAssetsPath)) {
   }
 }
 
-if (isFile(createAgdfCliPath)) {
-  const createAgdfCli = read(createAgdfCliPath);
-  if (!createAgdfCli.includes("globalOpenCodeBoundary") || !createAgdfCli.includes("globalOpenCodeSkillOwnershipMarker")) {
+if (isFile(createAgdfOpenCodeInstallerPath)) {
+  const createAgdfOpenCodeInstaller = read(createAgdfOpenCodeInstallerPath);
+  if (!createAgdfOpenCodeInstaller.includes("globalOpenCodeBoundary") || !createAgdfOpenCodeInstaller.includes("globalOpenCodeSkillOwnershipMarker")) {
     failures.push("OpenCode global native-surface ownership and fail-closed boundary must remain in the canonical installer path");
   }
 }

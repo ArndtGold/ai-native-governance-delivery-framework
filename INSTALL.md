@@ -17,6 +17,8 @@ Before running a command, install Node.js 18 or later with npm and the selected 
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own AGDF instructions and control state.
 
+For the exact current command and option reference, including canonical run lifecycle commands, run `npx --yes @agdf/cli@latest --help`.
+
 ### Update, disable or remove
 
 Re-run the relevant installation command to update an installed AGDF surface. There is currently no AGDF-specific remove or disable command. For opt-out or removal, use the selected agent's native plugin/configuration management and review user-owned repository files before changing them; do not treat generated fragments as authorization to delete existing user configuration.

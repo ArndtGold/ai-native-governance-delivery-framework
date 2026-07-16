@@ -24,6 +24,7 @@
     "test:delivery-path-search": "node ./scripts/delivery-path-search-test.js",
     "test:delivery-path-search-unit": "node ./scripts/delivery-path-search-unit-test.js",
     "test:delivery-path-search-generator": "node ./scripts/delivery-path-search-generator-test.js",
+    "test:cli-modularization": "node ./scripts/cli-modularization-test.js",
     "test:control-state": "node ./scripts/control-state-test.js",
     "test:interaction-presentation": "node ./scripts/interaction-presentation-test.js",
     "test:verified-change": "node ./scripts/verified-change-test.js",
@@ -34,7 +35,7 @@
     "eval:skills:record": "node ./scripts/record-skill-evals.js",
     "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
     "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
-    "smoke-test": "npm run sync-package-assets && npm run test:control-state && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:skill-evals && npm run eval:skills && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+    "smoke-test": "npm run sync-package-assets && npm run test:cli-modularization && npm run test:control-state && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:skill-evals && npm run eval:skills && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
     "prepack": "npm run sync-package-assets"
   },
   "keywords": [

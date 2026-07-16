@@ -50,6 +50,16 @@
 - risks: host tool schemas and timeout behavior can drift; mitigated by descriptive capability metadata, deterministic integrity/generation tests and fail-closed textual fallback.
 - exit_criteria: canonical/runtime and generated-surface tests pass for all declared adapters, OpenCode explicit allow/deny preservation is proven, and QA confirms that supporting live probes are not presented as gate-enforcement evidence.
 
+### CG-CREATE-AGDF-CLI-COMPOSITION
+
+- situation: The published `create-agdf` CLI had accumulated command discovery, parsing, orchestration, installers, scaffolding and control evaluation in one executable entry point, making ownership and isolated verification difficult.
+- refs: create-agdf/bin/create-agdf.js; create-agdf/lib/cli/; create-agdf/lib/installers/; create-agdf/lib/scaffold/; create-agdf/lib/control-evaluation/; .agdf/control/artefacts/create-agdf-cli-modularization/SD.md; .agdf/control/artefacts/create-agdf-cli-modularization/OR.md
+- evidence: UAT-approved implementation leaves the executable as an 11-line composition root, assigns the approved responsibilities to 16 focused modules, uses a single immutable command registry and explicit handler map, and passes focused modularization, aggregate package smoke, release-bootstrap and Runtime Integrity verification.
+- decision: The bin file owns process startup only. CLI application/registry/parser/runtime context, installer adapters, scaffold planning/writing/presentation and control evaluation remain separate acyclic owners under `create-agdf/lib/`; public command, output and exit-code compatibility is preserved at those boundaries.
+- invariants: command inventory has one canonical registry; dispatch uses explicit injected handlers; library modules return exit codes instead of terminating the process; subprocess and IO boundaries remain injectable; dependencies point from the composition root toward focused owners without import cycles; generated package assets follow their canonical owners.
+- risks: Native Windows execution was unavailable during this run, so Windows assurance remains limited to preserved command construction and cross-platform automated evidence; future commands can regress the boundary if added directly to the bin instead of the registry and focused owner.
+- exit_criteria: Any CLI command or responsibility change updates its focused owner, registry where applicable, deterministic tests, package assets and user-facing command routing; the bin remains a thin composition root and the import-cycle check remains green.
+
 ## Retired Context Nodes
 
 | Node | Reason | Replacement |

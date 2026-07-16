@@ -17,6 +17,7 @@ function write(path, content) {
 
 function run(target = "gate-check") {
   const result = spawnSync(process.execPath, [cli, target, "--dir", root, "--json"], { encoding: "utf8" });
+  if (!result.stdout.trim()) throw new Error(`Verified Change CLI produced no JSON: ${result.stderr.trim()}`);
   return { result, report: JSON.parse(result.stdout) };
 }
 

@@ -1,0 +1,28 @@
+# Orchestration Report — create-agdf CLI modularization
+
+- gate: OR after approved UAT
+- report_mode: OR-full
+- artefact: `.agdf/control/artefacts/create-agdf-cli-modularization/OR.md`
+- status: pass
+- delivered: The `create-agdf` executable is an 11-line composition root over 16 focused, acyclic modules for CLI orchestration, command inventory and parsing, runtime context, installers, scaffolding and control evaluation. Public commands, output contracts, exit semantics and generated-file behaviour remain compatible. README, installation and agent-facing guidance now route exact command discovery to `--help` and identify the canonical module owners.
+- intentionally_not_delivered: No command redesign, new product semantics, automatic commit, push, pull request or release action. Native Windows execution was not fabricated where no Windows runtime was available.
+- evidence: Approved UR, PRD, SD, TP, QA and UAT; TP Review 14/14; Clean Implementation Review pass; Code Review pass; QA Report revision 2 pass; focused modularization test, aggregate package smoke, release-bootstrap test, Runtime Integrity check, packed module inventory and documentation drift checks pass.
+- missing_evidence: Native Windows runtime execution remains unavailable; existing Windows command construction is preserved and the limitation is explicit.
+- risks: Future commands could bypass the registry or re-concentrate responsibility in the bin; the focused ownership and import-cycle tests are the retained regression guard. Three unrelated pre-existing invalid revision IDs can still block repository-wide `delivery-map --all-active`, while the selected run remains valid.
+- retained_fallbacks: none
+- tp_coverage: pass — CM-01 through CM-14 and BT-01 through BT-20 are covered; platform and unrelated-run limitations are disclosed.
+- brownfield_fit: pass — package boundaries, public bootstrap shape, generated assets and overlapping installer work remain isolated.
+- solution_integrity: pass — one primary implementation, explicit owners and no shims, duplicate registries or parallel runtime paths.
+- documentation_impact: resolved — root/package installation and command guidance now match the modular runtime ownership and current CLI surface.
+- Situation: Stable CLI composition and dependency-direction knowledge is reusable beyond this run.
+- context_graph_impact: new_node_required
+- context_graph_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: `.agdf/control/CONTEXT_GRAPH.md#cg-create-agdf-cli-composition`
+- memory_target: context_graph
+- memory_reason: Preserve the composition-root boundary, focused owners and regression invariants for future CLI changes.
+- memory_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`; `.agdf/control/artefacts/create-agdf-cli-modularization/SD.md`
+- required_next_step: Use `delivery-closeout` only when an explicit commit, push or pull-request handoff is requested.
+- quality_outlook: pass — plan coverage, solution integrity, code quality, QA and UAT are complete; no selected-run blocker remains.

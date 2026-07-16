@@ -159,12 +159,15 @@ authoritative reusable format, not AGDF's internal project backlog.
 | `copilot` | Add `AGENTS.md`, Copilot instructions, skills and control templates. |
 | `both` | Prepare the repository-file and plugin surfaces together. |
 | `init` | Create durable `.agdf/control` files when repository-owned control state is required. |
-| `config --language de\|en` | Persist the project language without creating the full control scaffold. |
+| `config --language <tag>` | Persist a BCP 47 project language such as `de`, `en` or `fr-CA` without creating the full control scaffold. |
 | `doctor [--json]` | Check whether the durable control state is consistent and actionable. |
 | `gate-check [--json]` | Report the current gate, blockers and next permitted action. |
 | `gate-check --status-card` | Print compact interactive gate status without full JSON. |
 | `delivery-map [--json]` | Report artefact relationships, evidence, risks and Context Graph effects. |
 | `delivery-path-search --surface <name> [--json]` | Compare bounded high-impact delivery paths before implementation; advisory only. |
+| `run-create --run <run_id>` | Create a canonical run-scoped `RUN_STATE.md`. |
+| `run-migrate [--run <run_id>]` | Explicitly migrate legacy run state into the canonical run-scoped layout. |
+| `run-render-legacy --run <run_id>` | Render the selected canonical run as a non-authoritative legacy projection. |
 
 Examples:
 

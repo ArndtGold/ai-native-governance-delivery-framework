@@ -200,7 +200,7 @@ if (args.join(" ") === "plugin list") {
     if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
       throw new Error(`Codex global bootstrap command order changed: ${calls.join(" | ")}`);
     }
-    if (!output.includes(`AGDF version: ${pluginDefinition.version} (verified)`) || !output.includes("Verification: healthy")) {
+    if (!output.includes(`Version: ${pluginDefinition.version} (verified)`) || !output.includes("Installation: healthy") || !output.includes("Verification: healthy")) {
       throw new Error("Codex global bootstrap must report verified plugin version.");
     }
   } finally {
@@ -263,7 +263,7 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
     if (calls.some((call) => call === "plugin add arndtgold/ai-native-governance-delivery-framework")) {
       throw new Error("Claude bootstrap must not call unsupported plugin add.");
     }
-    if (!output.includes(`AGDF version: ${pluginDefinition.version} (verified)`) || !output.includes("Verification: healthy")) {
+    if (!output.includes(`Version: ${pluginDefinition.version} (verified)`) || !output.includes("Installation: healthy") || !output.includes("Verification: healthy")) {
       throw new Error("Claude install must report verified plugin version when exposed.");
     }
   } finally {
@@ -315,7 +315,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
 }
 `);
     const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
-    if (!output.includes(`AGDF version: unknown; expected ${pluginDefinition.version} (unknown)`) || !output.includes("Verification: degraded")) {
+    if (!output.includes(`Version: unknown; expected ${pluginDefinition.version} (unknown)`) || !output.includes("Installation: degraded") || !output.includes("Verification: degraded")) {
       throw new Error("Claude bootstrap must report verification limitation when list output has no version.");
     }
   } finally {
@@ -370,7 +370,7 @@ try {
     || status.package.version_status !== "current") {
     throw new Error("opencode-status must report matching installed and expected package versions as current.");
   }
-  if (!installOutput.includes(`AGDF version: ${pluginDefinition.version} (verified; transition installed)`)
+  if (!installOutput.includes(`Version: ${pluginDefinition.version} (verified; transition installed)`)
     || !installOutput.includes("Verification: healthy")
     || !installOutput.includes("Installation scope: global")
     || !installOutput.includes("Restart required: yes")) {
@@ -617,10 +617,10 @@ function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
   const unchanged = runOpenCodeCli(["opencode", "--dir", updated.tempDir], { encoding: "utf8", stdio: "pipe" });
   const unknown = runOpenCodeWithPreinstalledVersion("", false);
   try {
-    if (!updated.output.includes(`AGDF version: 0.0.1 -> ${pluginDefinition.version} (verified)`)) {
+    if (!updated.output.includes(`Version: 0.0.1 -> ${pluginDefinition.version} (verified)`)) {
       throw new Error("opencode update must report an observable previous-to-installed version transition.");
     }
-    if (!unchanged.includes(`AGDF version: ${pluginDefinition.version} (verified; transition unchanged)`)) {
+    if (!unchanged.includes(`Version: ${pluginDefinition.version} (verified; transition unchanged)`)) {
       throw new Error("opencode repeat install must report an unchanged version transition.");
     }
     if (!unknown.output.includes("transition unknown")) {

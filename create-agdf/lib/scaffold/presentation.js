@@ -3,11 +3,11 @@ import { join } from "node:path";
 import { pluginDefinition } from "../cli/runtime-context.js";
 import { printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult } from "../lifecycle/result.js";
-import { agdfFragmentPath, openCodeConfigFragmentPath } from "./plan.js";
+import { agdfFragmentPath } from "./plan.js";
 
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
 
-export function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents = [], { verbose = false, json = false, io = console } = {}) {
+export function printNextSteps(target, destination, files, wroteAgentsFragment, removedOpenCodeAgents = [], { verbose = false, json = false, io = console } = {}) {
   const repositorySurface = { "codex-repo": "codex", "opencode-repo": "opencode", copilot: "copilot" }[target];
   const verified = files.every((file) => {
     const path = join(destination, file.path);
@@ -17,7 +17,7 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
     const nextAction = repositorySurface === "codex"
       ? "Restart Codex, open /plugins, select This repository and install agdf; then start a new task with: Run an AGDF gate check for this request."
       : repositorySurface === "opencode"
-        ? "Restart OpenCode in this repository so it loads the generated AGDF repository configuration."
+        ? "Restart OpenCode in this repository so the global AGDF plugin observes the durable control configuration."
         : "Run /instructions in GitHub Copilot CLI to confirm that the generated AGDF repository instructions are visible.";
     printLifecycleResult(createLifecycleResult({
       operation: "repository_setup",
@@ -90,15 +90,10 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
     io.log(`- Optional global Claude Code install: ${pluginInstallCommand}`);
   }
   if (target === "opencode-repo") {
-    if (wroteOpenCodeConfigFragment) {
-      io.log(`- Existing opencode.json detected. Review ${openCodeConfigFragmentPath} and merge its owned entries so OpenCode loads .opencode/AGDF.md; preserve an explicit permission.question decision.`);
-    }
-    io.log(`- OpenCode will install the ${pluginDefinition.opencode.npmPackage} npm plugin from opencode.json at startup.`);
-    io.log("- Optional: also add create-agdf to ~/.config/opencode/opencode.json plugin[] for a user-wide OpenCode hook.");
-    io.log("- The global hook does not replace repository instructions or native skills; this repository's .opencode files remain the AGDF source of truth.");
-    io.log("- Start OpenCode in this repository; it will load opencode.json, .opencode/AGDF.md and the native AGDF skills.");
-    io.log("- Load agdf-gate-check through OpenCode's native skill tool for new build/change intent or unclear approval before later artefacts or implementation.");
-    io.log("- Run npx --yes @agdf/cli@latest init when the repository needs live AGDF control files.");
+    io.log("- Install the global OpenCode surface once with npx --yes @agdf/cli@latest opencode if it is not already installed.");
+    io.log("- Start or restart OpenCode in this repository; valid .agdf/control/config.json activates the global AGDF runtime here.");
+    io.log("- Load agdf-global-gate-check through OpenCode's native skill tool for new build/change intent or unclear approval before later artefacts or implementation.");
+    io.log("- Existing .opencode files are left untouched as a compatibility path; this command does not copy a second runtime surface.");
   }
   if (target === "copilot" || target === "both") {
     io.log("- In GitHub Copilot CLI, run /instructions after the AGENTS.md step is complete to confirm that AGDF instructions and the repository skills are visible.");

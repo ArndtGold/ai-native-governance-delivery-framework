@@ -4,6 +4,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import process from "node:process";
 import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
+import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
 
 const contractModules = ["gate-transition.md", "interaction.md", "modes.md", "quality.md", "context-graph.md", "control-scaffold.md", "closeout.md"];
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => pluginDefinition.opencode.skillPrefix + skill.slug);
@@ -169,9 +170,9 @@ function globalOpenCodeBoundary() {
     "## Global OpenCode Surface Boundary",
     "",
     "This skill is globally discoverable, but global plugin or skill presence is not repository governance activation.",
-    "Before applying AGDF gates, later artefacts or implementation guidance, inspect the current repository for `.opencode/AGDF.md`, `.opencode/skills/agdf-gate-check/SKILL.md` and `.agdf/control/`.",
-    "If the repository surface is absent, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo` in this repository.",
-    "When the repository surface exists, its local instructions, native skills and `.agdf/control/` state are authoritative.",
+    "Before applying AGDF gates, later artefacts or implementation guidance, inspect the current repository for valid `.agdf/control/config.json` durable control.",
+    "If durable control is missing or invalid, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo` in this repository.",
+    "When durable control is valid, use the global `agdf-global-*` skill surface; existing local OpenCode assets remain a compatibility path.",
     "",
   ].join("\n");
 }
@@ -198,7 +199,7 @@ export function installOpenCodeGlobalSurface(configDir) {
     "AGDF native skills are globally discoverable through OpenCode.",
     "",
     globalOpenCodeBoundary(),
-    "The repository-local `.opencode/AGDF.md`, `.opencode/skills/` and `.agdf/control/` files remain the source of truth for active governance.",
+    "Valid `.agdf/control/` is the repository source of truth for active governance; legacy `.opencode/` assets remain supported without being required.",
     "",
     toGlobalOpenCodeContent(generatedInstructions),
   ].join("\n");
@@ -241,11 +242,6 @@ function readOpenCodeConfig(configPath) {
   } catch (error) {
     return { exists: true, parseError: error.message, config: {} };
   }
-}
-
-function isOpenCodeRepositorySurfacePresent(targetDir) {
-  return existsSync(join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName))
-    && existsSync(join(targetDir, ".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md"));
 }
 
 function resolveOpenCodePackage(configDir) {
@@ -343,8 +339,9 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
     version: process.env.AGDF_PLUGIN_VERSION || "",
     control_dir: process.env.AGDF_CONTROL_DIR || "",
     repository_surface: process.env.AGDF_OPENCODE_REPOSITORY_SURFACE === "1",
+    repository_activation: process.env.AGDF_OPENCODE_REPOSITORY_ACTIVATION || "",
   };
-  const repositorySurface = isOpenCodeRepositorySurfacePresent(targetDir);
+  const repositoryActivation = evaluateOpenCodeRepositoryActivation(targetDir);
   const gateCheckSkillPath = join(targetDir, ".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md");
 
   const findings = [];
@@ -360,7 +357,11 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
     );
   }
   if (!sessionSignals.active) findings.push("No active AGDF OpenCode session signal is visible in this process.");
-  if (!repositorySurface) findings.push("Current repository does not contain the AGDF OpenCode surface.");
+  if (!repositoryActivation.active) {
+    findings.push(repositoryActivation.state === "invalid_control"
+      ? "Current repository has invalid AGDF durable control configuration."
+      : "Current repository does not contain valid AGDF durable control configuration.");
+  }
 
   return {
     schema_version: "1",
@@ -383,21 +384,30 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
     },
     global_native_surface: globalNativeSurface,
     session: sessionSignals,
+    repository_activation: repositoryActivation.state,
+    repository_control: {
+      path: repositoryActivation.config_path,
+      diagnostic: repositoryActivation.diagnostic,
+      ...(repositoryActivation.error ? { error: repositoryActivation.error } : {}),
+    },
     repository_surface: {
       path: targetDir,
-      present: repositorySurface,
+      present: repositoryActivation.active,
+      legacy_present: repositoryActivation.legacy_surface,
       instructions: join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName),
       gate_check_agent: gateCheckSkillPath,
       gate_check_skill: gateCheckSkillPath,
     },
-    visible_entrypoint: repositorySurface ? `${pluginDefinition.opencode.skillPrefix}gate-check (native skill)` : "none until opencode-repo is installed for this repository",
+    visible_entrypoint: repositoryActivation.active ? `${pluginDefinition.opencode.globalSkillPrefix}gate-check (native skill)` : "none until durable AGDF control is configured for this repository",
     findings,
     next_step: packageVersionStatus !== "current"
       ? "Run npx --yes @agdf/cli@latest opencode to install or repair the OpenCode package version."
       : !globalNativeSurface.complete
       ? "Run npx --yes @agdf/cli@latest opencode to install or repair the global native OpenCode skill surface."
-      : repositorySurface
-      ? `Restart OpenCode if needed, then load ${pluginDefinition.opencode.skillPrefix}gate-check through the native skill tool for new build/change intent.`
+      : repositoryActivation.state === "invalid_control"
+      ? "Repair .agdf/control/config.json so it contains valid artifact_language, chat_language and runtime_language values."
+      : repositoryActivation.active
+      ? `Restart OpenCode if needed, then load ${pluginDefinition.opencode.globalSkillPrefix}gate-check through the native skill tool for new build/change intent.`
       : "Run npx --yes @agdf/cli@latest opencode-repo in repositories where AGDF governance should be active and reviewable.",
   };
 }
@@ -431,7 +441,9 @@ export function printOpenCodeStatus(report, json, io = console) {
   io.log(`Session active signal: ${report.session.active ? "yes" : "no"}`);
   if (report.session.version) io.log(`Session plugin version: ${report.session.version}`);
   if (report.session.control_dir) io.log(`Session control dir: ${report.session.control_dir}`);
-  io.log(`Repository surface: ${report.repository_surface.present ? "present" : "missing"}`);
+  io.log(`Repository activation: ${report.repository_activation}`);
+  io.log(`Repository control: ${report.repository_control.path} (${report.repository_control.diagnostic})`);
+  io.log(`Legacy repository surface: ${report.repository_surface.legacy_present ? "present" : "absent"}`);
   io.log(`Visible entrypoint: ${report.visible_entrypoint}`);
   io.log(`Next step: ${report.next_step}`);
 

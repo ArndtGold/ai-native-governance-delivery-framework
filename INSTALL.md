@@ -11,11 +11,11 @@ Before running a command, install Node.js 18 or later with npm and the selected 
 | Codex available in your personal environment | `npx --yes @agdf/cli@latest codex` | Installs or updates the global plugin and verifies its version through the Codex CLI. | Start a new Codex task and ask: `Run an AGDF gate check for this request.` |
 | Codex only for one repository | `npx --yes @agdf/cli@latest codex-repo` | Writes the local marketplace and plugin files; restart Codex, open `/plugins`, select **This repository**, then install `agdf`. | Start a new task in that repository and ask for a gate check. |
 | Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after restart. | Use `/gate-check` for new build or change intent. |
-| OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Install the repository surface before expecting governance to be active. |
-| OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes repository instructions, native skills, permissions and control templates. Re-run `opencode-status --json` from that repository. | Load `agdf-gate-check` through OpenCode's native skill tool. |
+| OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
+| OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
 | GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | Writes repository instructions, visible skills and control templates. Verify with `/instructions`. | Start a repository task; AGDF instructions and skills are then visible to Copilot. |
 
-The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own AGDF instructions and control state.
+The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
 For the exact current command and option reference, including canonical run lifecycle commands, run `npx --yes @agdf/cli@latest --help`.
 
@@ -463,48 +463,27 @@ Expect `status: "configured"`, a loadable current `create-agdf` package and a co
 
 *UI example: OpenCode shows the loaded `create-agdf` npm plugin and AGDF interaction. It does not prove repository governance activation, an active session, tool enforcement or the current release version; use `opencode-status --json` for those facts.*
 
-Then run this inside each target Git repository you want to equip with AGDF governance files for OpenCode:
+Then run this inside each target Git repository you want to activate for the already-installed AGDF OpenCode runtime:
 
 ```bash
 npx --yes @agdf/cli@latest opencode-repo
 ```
 
-Run the same status command from that repository. The repository surface should be present and the visible entrypoint should name `agdf-gate-check (native skill)`; then load that skill for new build or change intent.
+Run the same status command from that repository. `repository_activation` should be `active` and the visible entrypoint should name `agdf-global-gate-check (native skill)`; then load that skill for new build or change intent.
 
 This writes:
 
 ```text
-opencode.json
-.opencode/AGDF.md
-.opencode/agdf-runtime-contract.md
-.opencode/skills/agdf-*/SKILL.md
 .agdf/control/config.json
 .agdf/control/templates/**
 ```
 
-`opencode.json` contains both:
+`opencode-repo` neither writes nor modifies `opencode.json`, `.opencode/AGDF.md`, copied contracts or copied skills. OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package is therefore the one npm-loadable AGDF OpenCode plugin, while valid `.agdf/control/config.json` is the repository-specific activation marker.
 
-```json
-{
-  "plugin": ["create-agdf"],
-  "instructions": [".opencode/AGDF.md"],
-  "permission": {
-    "question": "allow",
-    "edit": "ask",
-    "bash": "ask",
-    "skill": {
-      "agdf-*": "allow"
-    }
-  }
-}
-```
-
-OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package therefore acts as the npm-loadable AGDF OpenCode plugin, while `.opencode/AGDF.md`, `.opencode/skills/agdf-*/SKILL.md` and OpenCode permissions keep the repository-specific AGDF routing and execution boundary visible.
-
-AGDF for OpenCode has a global discoverability layer and a repository governance layer:
+AGDF for OpenCode has a single global runtime surface and a repository activation marker:
 
 - global npm plugin and native skills through `~/.config/opencode/opencode.json` and `~/.config/opencode/skills/agdf-global-*/`
-- repository-local governance surface through the target repository's `opencode.json`, `.opencode/AGDF.md`, `.opencode/skills/` and `.agdf/control/`
+- repository activation through the target repository's valid `.agdf/control/config.json`
 
 The global install updates `~/.config/opencode/opencode.json` and generates the nine native skill adapters under `~/.config/opencode/skills/`:
 
@@ -516,17 +495,13 @@ The global install updates `~/.config/opencode/opencode.json` and generates the 
 }
 ```
 
-The global plugin and native skills do not replace repository instructions or durable control files. Global skills fail closed when the current repository has no AGDF surface. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
+The global plugin and native skills do not replace durable control files. Global skills fail closed when the current repository has no valid `.agdf/control/config.json`. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
 
-If `opencode.json` already exists, AGDF keeps it unchanged and writes `opencode.agdf.json` as a merge fragment. Review and merge its owned `plugin`, `instructions` and permission entries so OpenCode loads the AGDF npm plugin, `.opencode/AGDF.md` and the native `question` tool. Preserve an explicit user `permission.question` decision; `deny` selects AGDF's exact-text fallback.
+Existing `opencode.json` and `.opencode/` assets remain untouched as a supported legacy compatibility path. Global adapters use `agdf-global-` because OpenCode does not provide a verified preference rule for same-named legacy project skills. Explicit `permission.question: deny` remains unchanged; it selects AGDF's exact-text fallback.
 
-OpenCode also supports project-local plugins under `.opencode/plugins/`, but AGDF's default OpenCode path uses the npm plugin declared in `opencode.json` or, optionally, the same npm plugin declared in global OpenCode config. Project skills use the canonical `agdf-` prefix; global adapters use `agdf-global-` because OpenCode does not prefer a same-named project skill over a global skill.
+At runtime, global `AGDF.md` and `skills/agdf-global-*/` provide discovery and shared guidance; `.agdf/control/` supplies the repository-owned activation and delivery state. OpenCode permission results and auto mode remain technical controls, not AGDF gate authority.
 
-OpenCode also makes AGDF's control story visible at runtime: global `AGDF.md` and `skills/agdf-global-*/` provide discoverability, while repository `.opencode/AGDF.md` carries the active rules, `.opencode/skills/agdf-*/` carries repository adapters, `.agdf/control/` remains authoritative, `permission.question` enables native presentation, and `permission.edit`/`permission.bash` stay on `ask`. OpenCode permission results and auto mode remain technical controls, not AGDF gate authority.
-
-The generated `.opencode/skills/agdf-*/SKILL.md` files are discovered and loaded through OpenCode's native `skill` tool. They remain generated from the canonical AGDF skills and do not introduce a parallel OpenCode-only policy owner.
-
-Load `agdf-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
+Load `agdf-global-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
 
 ```bash
 npx --yes create-agdf@latest doctor --json

@@ -1,16 +1,34 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
+import { evaluateOpenCodeRepositoryActivation } from "./lib/installers/opencode-activation.js";
 
 const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 
 export const AGDFPlugin = async ({ directory, client }) => {
   const controlDir = `${directory}/.agdf/control`;
-  const hasRepositorySurface = () => existsSync(`${directory}/.opencode/AGDF.md`) && existsSync(`${directory}/.opencode/skills/agdf-gate-check/SKILL.md`);
-  const status = () => ({
-    active: true,
+  const activation = () => evaluateOpenCodeRepositoryActivation(directory);
+  const status = () => {
+    const repositoryActivation = activation();
+    return {
+    active: repositoryActivation.active,
     version: packageJson.version,
     controlDir,
-    repositorySurface: hasRepositorySurface(),
-  });
+    repositoryActivation: repositoryActivation.state,
+    repositorySurface: repositoryActivation.legacy_surface,
+    };
+  };
+
+  const activeGuidance = [
+    "## AGDF Runtime Reminder",
+    "This repository is AGDF-active through `.agdf/control/config.json`; use the globally installed AGDF runtime surface.",
+    "For new build/change intent or unclear approval, load the native `agdf-global-gate-check` skill before later artefacts or implementation.",
+    "Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
+  ].join("\n");
+
+  const inactiveGuidance = [
+    "## AGDF Plugin Notice",
+    "The AGDF OpenCode npm plugin is loaded, but this repository has no valid `.agdf/control/config.json`.",
+    "Do not apply AGDF gates from the global plugin alone. Create or repair durable AGDF control state with `npx --yes @agdf/cli@latest opencode-repo` when governance should be active here.",
+  ].join("\n");
 
   return {
     event: async ({ event }) => {
@@ -20,7 +38,7 @@ export const AGDFPlugin = async ({ directory, client }) => {
           body: {
             service: "agdf",
             level: "info",
-            message: currentStatus.repositorySurface ? "AGDF OpenCode active" : "AGDF OpenCode global hook active without repository surface",
+            message: currentStatus.active ? "AGDF OpenCode active through durable control" : "AGDF OpenCode global hook active without durable control",
             extra: currentStatus,
           },
         });
@@ -29,29 +47,19 @@ export const AGDFPlugin = async ({ directory, client }) => {
 
     "shell.env": async (_input, output) => {
       const currentStatus = status();
-      output.env.AGDF_PLUGIN_ACTIVE = "1";
+      output.env.AGDF_PLUGIN_ACTIVE = currentStatus.active ? "1" : "0";
       output.env.AGDF_PLUGIN_VERSION = currentStatus.version;
       output.env.AGDF_CONTROL_DIR = controlDir;
       output.env.AGDF_OPENCODE_REPOSITORY_SURFACE = currentStatus.repositorySurface ? "1" : "0";
+      output.env.AGDF_OPENCODE_REPOSITORY_ACTIVATION = currentStatus.repositoryActivation;
+    },
+
+    "experimental.chat.system.transform": async (_input, output) => {
+      output.system.push(activation().active ? activeGuidance : inactiveGuidance);
     },
 
     "experimental.session.compacting": async (_input, output) => {
-      if (!hasRepositorySurface()) {
-        output.context.push([
-          "## AGDF Plugin Notice",
-          "The AGDF OpenCode npm plugin is loaded, but this repository does not contain the AGDF OpenCode surface.",
-          "Do not apply AGDF gates from the global plugin alone; repository instructions, native skills and control files are the source of truth.",
-          "Run `npx --yes @agdf/cli@latest opencode-repo` in this repository when AGDF governance should be active here.",
-        ].join("\n"));
-        return;
-      }
-
-      output.context.push([
-        "## AGDF Runtime Reminder",
-        "Use `.opencode/AGDF.md`, `.opencode/skills/` and `.agdf/control/` as the AGDF source for this OpenCode session.",
-        "For new build/change intent or unclear approval, load the native `agdf-gate-check` skill before later artefacts or implementation.",
-        "Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
-      ].join("\n"));
+      output.context.push(activation().active ? activeGuidance : inactiveGuidance);
     },
   };
 };

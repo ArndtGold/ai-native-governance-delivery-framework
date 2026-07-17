@@ -13,6 +13,8 @@ import {
 } from "../lib/lifecycle/operations.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { installOpenCodeGlobalPlugin } from "../lib/installers/opencode.js";
+import { evaluateOpenCodeRepositoryActivation } from "../lib/installers/opencode-activation.js";
+import AGDFPlugin from "../opencode-plugin.js";
 import { evaluateGeneralStatus } from "../lib/lifecycle/status.js";
 
 const success = createLifecycleResult({
@@ -170,5 +172,36 @@ const ambiguousRun = evaluateGeneralStatus(blockedRoot, { surface: "codex" }, {
 });
 assert.equal(ambiguousRun.delivery.status, "unknown");
 assert.match(ambiguousRun.delivery.evidence[0], /AGDF_ACTIVE_RUN_AMBIGUOUS/);
+
+const activationRoot = mkdtempSync(join(tmpdir(), "agdf-opencode-activation-"));
+assert.equal(evaluateOpenCodeRepositoryActivation(activationRoot).state, "inactive");
+mkdirSync(join(activationRoot, ".agdf", "control"), { recursive: true });
+writeFileSync(join(activationRoot, ".agdf", "control", "config.json"), "{invalid\n");
+assert.equal(evaluateOpenCodeRepositoryActivation(activationRoot).state, "invalid_control");
+writeFileSync(join(activationRoot, ".agdf", "control", "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "en", runtime_language: "en" }));
+assert.equal(evaluateOpenCodeRepositoryActivation(activationRoot).state, "active");
+mkdirSync(join(activationRoot, ".opencode", "skills", "agdf-gate-check"), { recursive: true });
+writeFileSync(join(activationRoot, ".opencode", "AGDF.md"), "legacy\n");
+writeFileSync(join(activationRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"), "legacy\n");
+assert.equal(evaluateOpenCodeRepositoryActivation(activationRoot).state, "legacy_compatible");
+
+const pluginLogs = [];
+const hooks = await AGDFPlugin({ directory: activationRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } });
+const activeSystem = { system: [] };
+await hooks["experimental.chat.system.transform"]({}, activeSystem);
+assert.match(activeSystem.system.join("\n"), /agdf-global-gate-check/);
+const activeEnvironment = { env: {} };
+await hooks["shell.env"]({}, activeEnvironment);
+assert.equal(activeEnvironment.env.AGDF_PLUGIN_ACTIVE, "1");
+assert.equal(activeEnvironment.env.AGDF_OPENCODE_REPOSITORY_ACTIVATION, "legacy_compatible");
+
+const inactiveRoot = mkdtempSync(join(tmpdir(), "agdf-opencode-inactive-"));
+const inactiveHooks = await AGDFPlugin({ directory: inactiveRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } });
+const inactiveSystem = { system: [] };
+await inactiveHooks["experimental.chat.system.transform"]({}, inactiveSystem);
+assert.match(inactiveSystem.system.join("\n"), /no valid `.agdf\/control\/config.json`/);
+const inactiveEnvironment = { env: {} };
+await inactiveHooks["shell.env"]({}, inactiveEnvironment);
+assert.equal(inactiveEnvironment.env.AGDF_PLUGIN_ACTIVE, "0");
 
 console.log("lifecycle tests passed");

@@ -39,9 +39,9 @@ import {
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
 import { evaluateGeneralStatus } from "../lifecycle/status.js";
-import { agdfFragmentPath, generatedFilesForTarget, openCodeConfigFragmentPath } from "../scaffold/plan.js";
+import { agdfFragmentPath, generatedFilesForTarget } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
-import { assertGeneratedWritePlan, removeOwnedLegacyOpenCodeAgents, writeGeneratedFile } from "../scaffold/write.js";
+import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
 import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { CliUsageError, parseArgs } from "./parse-args.js";
@@ -308,7 +308,6 @@ function runUninstall(options, { io, env, exec }) {
 function runScaffold(options, io) {
   const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
   const wroteAgentsFragment = files.some((file) => file.path === agdfFragmentPath);
-  const wroteOpenCodeConfigFragment = files.some((file) => file.path === openCodeConfigFragmentPath);
   let removedOpenCodeAgents = [];
 
   try {
@@ -316,13 +315,14 @@ function runScaffold(options, io) {
     for (const file of files) {
       writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
     }
-    if (options.target === "opencode-repo") removedOpenCodeAgents = removeOwnedLegacyOpenCodeAgents(options.dir);
+    // Legacy OpenCode assets are intentionally preserved. A future explicit migration command
+    // may remove only ownership-proven files after its precedence behavior is verified.
   } catch (error) {
     io.error(error.message);
     return 1;
   }
 
-  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents, { verbose: options.verbose, json: options.json, io });
+  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, removedOpenCodeAgents, { verbose: options.verbose, json: options.json, io });
   return 0;
 }
 

@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: deterministic-agent-ux
-- lifecycle: active
-- revision: 17
-- revision_id: 2563dc8f-20a5-464d-b319-608f00141ef2
+- lifecycle: completed
+- revision: 18
+- revision_id: 2592aa37-0b6c-4604-8b62-71e37d8c74fe
 - mode: structured_delivery
-- current_gate: UAT
-- decision: in_progress
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -22,11 +22,11 @@ deterministic, render-ready presentation path without changing gate authority.
 
 | Question | Answer |
 |---|---|
-| What is known? | DAU-01 through DAU-10 and all mandatory reviews pass. QA approval was accepted after fresh revalidation. Live Codex evidence and the repository-conformance boundary are captured in `UAT_EVIDENCE.md`. |
-| What is approved? | UR revision 2, PRD revision 3, SD revision 3, TP revision 1 and the QA pass report are approved. |
-| What is missing? | Deliberate UAT acceptance of the delivered behavior and disclosed live-surface limits. |
-| What is the next allowed action? | Request exact UAT approval for `UAT_EVIDENCE.md`. |
-| What is explicitly forbidden right now? | Release and automatic commit, push or pull-request actions before UAT approval and an explicit delivery request. |
+| What is known? | DAU-01 through DAU-10 and all mandatory reviews pass. UAT accepted the delivered behavior with the disclosed live-surface limits retained. |
+| What is approved? | UR revision 2, PRD revision 3, SD revision 3, TP revision 1, QA pass report and UAT are approved. |
+| What is missing? | No required delivery artefact or user approval. Authenticated live Claude Code, OpenCode and GitHub Copilot observations remain intentionally unverified. |
+| What is the next allowed action? | No further delivery step. A separately requested delivery handoff may prepare VCS actions without executing them automatically. |
+| What is explicitly forbidden right now? | Automatic commit, push, pull request, publish or release; unverified live-host behavior must not be claimed. |
 
 ## Approvals
 
@@ -37,7 +37,7 @@ deterministic, render-ready presentation path without changing gate authority.
 | SD | approved | Exact `Approval: SD` accepted for revision 3 on 2026-07-17 after selected-run, same-gate and durable-artefact revalidation. |
 | TP | approved | Exact `Approval: TP` accepted for revision 1 on 2026-07-17 after selected-run, same-gate and durable-artefact revalidation. |
 | QA | approved | Exact `Approval: QA` accepted for the pass report on 2026-07-17 after selected-run, same-gate, revision and durable-report revalidation. |
-| UAT | missing | none |
+| UAT | approved | Exact `Approval: UAT` received on 2026-07-17 after selected-run, same-gate, revision and durable-evidence revalidation. |
 
 ## Artefacts
 
@@ -55,7 +55,8 @@ deterministic, render-ready presentation path without changing gate authority.
 | Clean Implementation Review | `.agdf/control/artefacts/deterministic-agent-ux/CLEAN_IMPLEMENTATION_REVIEW.md` | done | Pass; canonical owners reused and no parallel structure remains. |
 | CR | `.agdf/control/artefacts/deterministic-agent-ux/CODE_REVIEW.md` | done | Pass; no remaining correctness, compatibility, security or maintainability finding. |
 | QA | `.agdf/control/artefacts/deterministic-agent-ux/QA_REPORT.md` | passed | QA pass decision approved on 2026-07-17 after fresh gate revalidation. |
-| UAT Evidence | `.agdf/control/artefacts/deterministic-agent-ux/UAT_EVIDENCE.md` | ready | Live Codex exact-text behavior and cross-surface repository evidence are captured with explicit limits. |
+| UAT Evidence | `.agdf/control/artefacts/deterministic-agent-ux/UAT_EVIDENCE.md` | accepted | Exact UAT approval accepts the delivered behavior while the disclosed live-host limitations remain explicit. |
+| OR | `.agdf/control/artefacts/deterministic-agent-ux/OR.md` | pass | All delivery gates are complete; VCS and release actions remain separately user-controlled. |
 
 ## Mode/Slice Decision
 
@@ -103,7 +104,9 @@ deterministic, render-ready presentation path without changing gate authority.
 | Code Review | reviews | CD+Tests | done | Pass; review-time findings were resolved and no meaningful finding remains. |
 | QA_REPORT | tests | TP | passed | `.agdf/control/artefacts/deterministic-agent-ux/QA_REPORT.md`; `qa-gate` decision pass with separate approval evidence in the following relationship. |
 | QA Report | approved_by | `Approval: QA` | approved | Exact approval accepted on 2026-07-17 after selected-run, same-gate, revision and durable-report revalidation. |
-| UAT Evidence | validates | QA Report | ready | Live Codex behavior and repository conformance are documented with unverified native and cross-host behavior kept explicit. |
+| UAT Evidence | validates | QA Report | accepted | Live Codex behavior and repository conformance are accepted with unverified native and cross-host behavior kept explicit. |
+| UAT Evidence | accepted_by | `Approval: UAT` | approved | Exact approval accepted on 2026-07-17 after selected-run, same-gate, revision and durable-evidence revalidation. |
+| OR | closes | UAT Evidence | pass | Full closeout records delivered scope, retained limits and the separate VCS/release authority boundary. |
 
 ## Context Graph Impact
 
@@ -122,5 +125,5 @@ deterministic, render-ready presentation path without changing gate authority.
 
 ## Closeout
 
-- next_allowed_action: Request exact UAT approval for `.agdf/control/artefacts/deterministic-agent-ux/UAT_EVIDENCE.md`.
-- quality_outlook: QA is approved; UAT should evaluate the visible Codex flow and accept or reject the disclosed cross-surface evidence limits.
+- next_allowed_action: No further delivery step. A separately requested delivery handoff may prepare VCS actions; it must not execute them automatically.
+- quality_outlook: Preserve the truthful distinction between deterministic repository conformance and unverified host-visible behavior.

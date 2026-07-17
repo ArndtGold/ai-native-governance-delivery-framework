@@ -426,8 +426,8 @@ try {
   if (status.session.active) {
     throw new Error("opencode-status must not claim an active session from config evidence alone.");
   }
-  if (status.repository_surface.present || status.visible_entrypoint !== "none until opencode-repo is installed for this repository") {
-    throw new Error("opencode-status must keep global installation separate from repository surface activation.");
+  if (status.repository_activation !== "inactive" || status.repository_surface.present || status.visible_entrypoint !== "none until durable AGDF control is configured for this repository") {
+    throw new Error("opencode-status must keep global installation separate from durable repository activation.");
   }
 
   execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", openCodeConfigTempDir, "--force"], { encoding: "utf8", stdio: "pipe" });
@@ -436,12 +436,12 @@ try {
     stdio: "pipe",
     env: { ...process.env, OPENCODE_CONFIG_DIR: openCodeConfigTempDir },
   }));
-  if (!status.repository_surface.present || status.visible_entrypoint !== "agdf-gate-check (native skill)") {
-    throw new Error("opencode-status should detect the repository surface after opencode-repo generation.");
+  if (status.repository_activation !== "active" || !status.repository_surface.present || status.visible_entrypoint !== "agdf-global-gate-check (native skill)") {
+    throw new Error("opencode-status should detect durable repository activation after opencode-repo generation.");
   }
   if (status.schema_version !== "1"
     || status.repository_surface.gate_check_agent !== status.repository_surface.gate_check_skill
-    || !status.repository_surface.gate_check_skill.endsWith(join(".opencode", "skills", "agdf-gate-check", "SKILL.md"))) {
+    || status.repository_surface.legacy_present) {
     throw new Error("opencode-status schema v1 must preserve gate_check_agent as a native-skill compatibility alias.");
   }
 } finally {
@@ -698,56 +698,8 @@ function run(target, expectedFiles) {
       }
     }
 
-    if (target === "opencode-repo") {
-      const openCodeConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
-      if (!openCodeConfig.instructions?.includes(".opencode/AGDF.md")) {
-        throw new Error("OpenCode config must load .opencode/AGDF.md instructions.");
-      }
-      if (!openCodeConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
-        throw new Error(`OpenCode config must load the ${pluginDefinition.opencode.npmPackage} npm plugin.`);
-      }
-      if (openCodeConfig.permission?.edit !== "ask"
-        || openCodeConfig.permission?.bash !== "ask"
-        || openCodeConfig.permission?.question !== "allow"
-        || openCodeConfig.permission?.skill?.["agdf-*"] !== "allow") {
-        throw new Error("OpenCode config must allow native questions, keep edit and bash on explicit approval and explicitly allow native AGDF skills.");
-      }
-
-      const openCodeInstructions = readFileSync(join(tempDir, ".opencode", "AGDF.md"), "utf8");
-      if (!openCodeInstructions.includes("| `agdf-gate-check` |")) {
-        throw new Error("OpenCode instructions must route prefixed native AGDF skills.");
-      }
-      if (openCodeInstructions.includes("| `gate-check` |")) {
-        throw new Error("OpenCode instructions must not contain unprefixed skill routing.");
-      }
-      if (!openCodeInstructions.includes("global npm/native-skill discoverability layer") || !openCodeInstructions.includes("repository files remain the AGDF source of truth")) {
-        throw new Error("OpenCode instructions must distinguish global discoverability from the repository-local AGDF source of truth.");
-      }
-      if (!openCodeInstructions.includes("loaded on demand through OpenCode's native `skill` tool") || openCodeInstructions.includes("mode: subagent")) {
-        throw new Error("OpenCode instructions must expose native skills without retaining the legacy subagent route.");
-      }
-      if (!openCodeInstructions.includes("explicit user `permission.question: deny` remains authoritative")
-        || !openCodeInstructions.includes("never convert an OpenCode permission outcome or auto mode into gate approval")) {
-        throw new Error("OpenCode instructions must preserve explicit question denial and separate technical permission from gate approval.");
-      }
-
-      for (const skillName of openCodeSkillNames) {
-        const skillPath = join(tempDir, ".opencode", "skills", skillName, "SKILL.md");
-        if (!existsSync(skillPath)) {
-          throw new Error(`OpenCode surface routes ${skillName} but does not expose .opencode/skills/${skillName}/SKILL.md.`);
-        }
-        const skillContent = readFileSync(skillPath, "utf8");
-        const frontmatterMatches = skillContent.match(/^---$/gm) ?? [];
-        if (frontmatterMatches.length !== 2) {
-          throw new Error(`OpenCode skill ${skillName} must contain exactly one YAML frontmatter block.`);
-        }
-        if (!skillContent.startsWith(`---\nname: ${skillName}\n`) || !skillContent.includes("\ndescription:") || !skillContent.includes("\n---\n\n# ")) {
-          throw new Error(`OpenCode skill ${skillName} must render valid native skill metadata before the body.`);
-        }
-      }
-      if (existsSync(join(tempDir, ".opencode", "agents"))) {
-        throw new Error("OpenCode surface must not generate a parallel AGDF agents directory.");
-      }
+    if (target === "opencode-repo" && (existsSync(join(tempDir, "opencode.json")) || existsSync(join(tempDir, ".opencode")))) {
+      throw new Error("opencode-repo must activate durable control without copying an OpenCode runtime surface.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -893,19 +845,11 @@ run("both", [
   join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}release-or`, "SKILL.md"),
 ]);
 run("opencode-repo", [
-  "opencode.json",
   join(".agdf", "control", "config.json"),
   join(".agdf", "control", "README.md"),
   join(".agdf", "control", "templates", "AGDF_RUN.md"),
   join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
-  join(".opencode", "AGDF.md"),
-  join(".opencode", "README.md"),
-  join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
-  ...contractModules.map((moduleName) => join(".opencode", "contracts", moduleName)),
-  join(".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md"),
-  join(".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}code-review`, "SKILL.md"),
-  join(".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}qa-gate`, "SKILL.md"),
 ]);
 
 {
@@ -932,14 +876,11 @@ run("opencode-repo", [
 
     execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir, "--force"], { stdio: "pipe" });
 
-    if (existsSync(legacyAgentPath)) {
-      throw new Error("opencode-repo migration must remove an owned legacy AGDF agent.");
+    if (!existsSync(legacyAgentPath)) {
+      throw new Error("opencode-repo migration must preserve owned legacy OpenCode assets by default.");
     }
     if (!existsSync(userAgentPath)) {
       throw new Error("opencode-repo migration must preserve unrelated user-owned agents.");
-    }
-    if (!existsSync(join(tempDir, ".opencode", "skills", `${pluginDefinition.opencode.skillPrefix}gate-check`, "SKILL.md"))) {
-      throw new Error("opencode-repo migration must create the native gate-check skill.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -953,20 +894,12 @@ run("opencode-repo", [
     writeFileSync(join(tempDir, "opencode.json"), '{\n  "$schema": "https://opencode.ai/config.json",\n  "permission": { "question": "deny" }\n}\n', "utf8");
     const output = execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir, "--verbose"], { encoding: "utf8", stdio: "pipe" });
 
-    if (!existsSync(join(tempDir, "opencode.agdf.json"))) {
-      throw new Error("OpenCode target should write opencode.agdf.json when opencode.json already exists.");
-    }
-
     const existingConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
-    const fragmentConfig = JSON.parse(readFileSync(join(tempDir, "opencode.agdf.json"), "utf8"));
     if (existingConfig.instructions?.includes(".opencode/AGDF.md") || existingConfig.permission.question !== "deny") {
       throw new Error("OpenCode target must not overwrite an existing opencode.json or its explicit question denial without --force.");
     }
-    if (fragmentConfig.permission?.question !== "allow") {
-      throw new Error("OpenCode AGDF config fragment must declare the native question default for reviewed merge.");
-    }
-    if (!output.includes("preserve an explicit permission.question decision")) {
-      throw new Error("OpenCode existing-config guidance must preserve explicit question decisions.");
+    if (existsSync(join(tempDir, "opencode.agdf.json")) || !output.includes("does not copy a second runtime surface")) {
+      throw new Error("OpenCode activation must preserve existing configuration without writing a second config surface.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

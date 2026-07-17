@@ -3,10 +3,8 @@ import { join } from "node:path";
 import { generatedRoot, languageConfigContent, pluginDefinition } from "../cli/runtime-context.js";
 
 export const agdfFragmentPath = "AGENTS.agdf.md";
-export const openCodeConfigFragmentPath = "opencode.agdf.json";
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
-const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
 const contractModules = [
   "gate-transition.md",
@@ -110,13 +108,6 @@ const copilotSkillFiles = [
   join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
   ...contractModules.map((moduleName) => join(".github", "skills", "contracts", moduleName)),
   ...copilotSkillNames.map((skillName) => join(".github", "skills", skillName, "SKILL.md")),
-];
-const openCodeFiles = [
-  join(".opencode", pluginDefinition.opencode.instructionsFileName),
-  join(".opencode", "README.md"),
-  join(".opencode", pluginDefinition.opencode.runtimeContractFileName),
-  ...contractModules.map((moduleName) => join(".opencode", "contracts", moduleName)),
-  ...openCodeSkillNames.map((skillName) => join(".opencode", "skills", skillName, "SKILL.md")),
 ];
 
 function loadAsset(relativePath) {
@@ -252,19 +243,6 @@ export function generatedFilesForTarget(target, targetDir, force, languagePrefer
 
   if (target === "opencode-repo") {
     addLanguageConfig(files, languagePreference);
-    const openCodeConfigTargetPath = existsSync(join(targetDir, "opencode.json")) && !force ? openCodeConfigFragmentPath : "opencode.json";
-    files.push({
-      path: openCodeConfigTargetPath,
-      content: loadAsset("opencode.json"),
-    });
-
-    for (const openCodePath of openCodeFiles) {
-      files.push({
-        path: openCodePath,
-        content: loadAsset(openCodePath),
-      });
-    }
-
     for (const controlPath of controlFiles) {
       files.push({
         path: controlPath,
@@ -275,4 +253,3 @@ export function generatedFilesForTarget(target, targetDir, force, languagePrefer
 
   return files;
 }
-

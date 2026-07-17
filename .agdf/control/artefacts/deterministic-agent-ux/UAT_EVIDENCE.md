@@ -1,6 +1,6 @@
 # UAT Evidence: Deterministic Agent UX
 
-Status: ready_for_decision
+Status: accepted
 Date: 2026-07-17
 Surface observed: Codex desktop chat with repository-local AGDF validation
 
@@ -41,3 +41,11 @@ native approval adapter where none was verified.
 
 The evidence is ready for deliberate UAT acceptance, revision request or decline. Acceptance permits
 OR preparation only; VCS and release actions remain separately user-controlled.
+
+## UAT Decision
+
+- decision: accepted_with_disclosed_limitations
+- approval: Exact `Approval: UAT` received on 2026-07-17 after selected-run, same-gate, revision and durable-evidence revalidation.
+- decisive_reason: The user accepted the deterministic approval projection, three-role operating model and synchronized repository semantics within the stated scope.
+- retained_limitations: No authenticated live Claude Code, OpenCode or GitHub Copilot session was exercised; no native Codex option control was invoked because safe canonical-value transport was not evidenced.
+- release_effect: OR and a separately requested delivery handoff are allowed. Commit, push, pull request, publish and release remain separate explicit user decisions.

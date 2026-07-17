@@ -56,7 +56,9 @@ try {
     encoding: "utf8",
   });
 
-  if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest init")) {
+  if (!helpOutput.includes("Primary commands:")
+    || !helpOutput.includes("Advanced / Compatibility")
+    || !helpOutput.includes("npx --yes @agdf/cli@latest init")) {
     throw new Error("agdf help output must present the primary AGDF CLI shape.");
   }
 

@@ -44,8 +44,11 @@ try {
     },
   });
 
-  if (!output.includes("AGDF Codex plugin version verified:")) {
-    throw new Error("Clean public bootstrap did not report verified Codex plugin output.");
+  if (!output.includes(`AGDF version: ${expectedVersion} (verified)`)
+    || !output.includes("Installation scope: global")
+    || !output.includes("Verification: healthy")
+    || !output.includes("Restart required: yes")) {
+    throw new Error("Clean public bootstrap did not report the verified global lifecycle Success Card.");
   }
 
   const calls = readFileSync(logPath, "utf8").trim().split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line).join(" "));

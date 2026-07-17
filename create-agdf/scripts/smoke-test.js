@@ -801,7 +801,7 @@ run("copilot", [
     const instructionsPath = join(tempDir, ".github", "copilot-instructions.md");
     const agentsPath = join(tempDir, "AGENTS.md");
     writeFileSync(instructionsPath, "stale generated instructions\n", "utf8");
-    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en"], { encoding: "utf8", stdio: "pipe" });
+    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en", "--verbose"], { encoding: "utf8", stdio: "pipe" });
     const config = JSON.parse(readFileSync(configPath, "utf8"));
     if (config.artifact_language !== "de" || config.chat_language !== "de") {
       throw new Error("Copilot rerun must preserve an existing AGDF language config without --force.");
@@ -836,7 +836,7 @@ run("copilot", [
       throw new Error("Copilot bootstrap must create the AGDF fragment when user-owned AGENTS.md exists.");
     }
     writeFileSync(join(tempDir, "AGENTS.agdf.md"), "stale fragment\n", "utf8");
-    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en"], { encoding: "utf8", stdio: "pipe" });
+    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en", "--verbose"], { encoding: "utf8", stdio: "pipe" });
     const fragment = readFileSync(join(tempDir, "AGENTS.agdf.md"), "utf8");
     if (fragment === "stale fragment\n" || !fragment.includes("## Surface Convention")) {
       throw new Error("Copilot rerun must refresh AGENTS.agdf.md while preserving user AGENTS.md.");
@@ -951,7 +951,7 @@ run("opencode-repo", [
 
   try {
     writeFileSync(join(tempDir, "opencode.json"), '{\n  "$schema": "https://opencode.ai/config.json",\n  "permission": { "question": "deny" }\n}\n', "utf8");
-    const output = execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+    const output = execFileSync(process.execPath, [binPath, "opencode-repo", "--dir", tempDir, "--verbose"], { encoding: "utf8", stdio: "pipe" });
 
     if (!existsSync(join(tempDir, "opencode.agdf.json"))) {
       throw new Error("OpenCode target should write opencode.agdf.json when opencode.json already exists.");

@@ -44,7 +44,7 @@ try {
     },
   });
 
-  if (!output.includes(`AGDF version: ${expectedVersion} (verified)`)
+  if (!output.includes(`Version: ${expectedVersion} (verified)`)
     || !output.includes("Installation scope: global")
     || !output.includes("Verification: healthy")
     || !output.includes("Restart required: yes")) {

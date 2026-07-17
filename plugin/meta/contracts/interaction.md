@@ -274,6 +274,15 @@ Surface adapter rules:
 
 Native structured questions are for real decision points. Prefer repository inspection over clarification and do not show them for status reporting, discoverable facts, routine read-only work or repeated non-ready gate prompts.
 
+### Read-only request orientation
+
+For a newly classified read-only request that does not require a run decision, render the localized
+`primary.readOnlyOrientationDescription` sentence exactly once before the findings. This is a visible
+orientation, not durable state: do not create a run, write control files, request gate approval or
+repeat the sentence later in the same request. Existing-run status inspection remains read-only and
+uses the existing status projection; this branch must not create a second status-card or narration
+owner.
+
 Exact textual approvals remain canonical and fully supported on every surface. If native capability availability or safety is unknown, use the textual fallback. Host permission, plan approval, native question presentation, timeout/default behavior, hook output and agent messages never carry AGDF gate authority by themselves.
 
 ### Interaction Locale Contract
@@ -367,4 +376,3 @@ Missing input, timeout, cancellation and empty input are not decline. Only
 `approve` backed by the exact revalidated `Approval: <GateName>` value may
 advance a gate. Clarification, blocked, internal-step and status-only
 interactions must not display gate-approval controls.
-

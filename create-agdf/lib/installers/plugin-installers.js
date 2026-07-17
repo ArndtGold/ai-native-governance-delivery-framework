@@ -3,46 +3,75 @@ import { pluginDefinition } from "../cli/runtime-context.js";
 
 export function installCodexGlobalPlugin({ exec = execFileSync, io = console } = {}) {
   const expectedVersion = pluginDefinition.version;
-
-  try {
-    exec("codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
-    exec("codex", ["plugin", "marketplace", "upgrade", "agdf"], { stdio: "inherit" });
-    exec("codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], { stdio: "inherit" });
-    const listOutput = exec("codex", ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
-    const installedVersion = pluginVersionFromList(listOutput, "agdf@agdf");
-    if (installedVersion !== expectedVersion) {
-      throw new Error(versionMismatchMessage("Codex", "agdf@agdf", expectedVersion, installedVersion, "codex plugin marketplace upgrade agdf && codex plugin add agdf --marketplace agdf"));
-    }
-    io.log(`AGDF Codex plugin version verified: ${installedVersion}.`);
-  } catch (error) {
-    if (error.message?.startsWith("AGDF Codex plugin version mismatch")) throw error;
-    throw new Error(`Failed to install the AGDF Codex plugin. Make sure the Codex CLI is installed and available on PATH, then rerun this command. ${commandErrorText(error)}`.trim());
+  runPluginPhase(exec, "codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], "marketplace", { stdio: "inherit" });
+  runPluginPhase(exec, "codex", ["plugin", "marketplace", "upgrade", "agdf"], "marketplace", { stdio: "inherit" });
+  runPluginPhase(exec, "codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], "plugin_operation", { stdio: "inherit" });
+  const listOutput = runPluginPhase(exec, "codex", ["plugin", "list"], "verification", { encoding: "utf8", stdio: "pipe" });
+  const installedVersion = pluginVersionFromList(listOutput, "agdf@agdf");
+  if (installedVersion !== expectedVersion) {
+    throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedVersion, installedVersion, "codex plugin marketplace upgrade agdf && codex plugin add agdf --marketplace agdf"));
   }
+  return { surface: "codex", expectedVersion, installedVersion, verificationStatus: "healthy", evidence: ["codex plugin list"] };
 }
 
 export function installClaudeGlobalPlugin({ exec = execFileSync, io = console } = {}) {
   const expectedVersion = pluginDefinition.version;
-
-  try {
-    exec("claude", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], { stdio: "inherit" });
-    exec("claude", ["plugin", "marketplace", "update", "agdf"], { stdio: "inherit" });
-    const beforeList = exec("claude", ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
-    const alreadyInstalled = pluginListHasPlugin(beforeList, "agdf@agdf");
-    exec("claude", ["plugin", alreadyInstalled ? "update" : "install", "agdf@agdf"], { stdio: "inherit" });
-    const afterList = exec("claude", ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
-    const installedVersion = pluginVersionFromList(afterList, "agdf@agdf");
-    if (installedVersion) {
-      if (installedVersion !== expectedVersion) {
-        throw new Error(versionMismatchMessage("Claude Code", "agdf@agdf", expectedVersion, installedVersion, "claude plugin marketplace update agdf && claude plugin update agdf@agdf"));
-      }
-      io.log(`AGDF Claude Code plugin version verified: ${installedVersion}.`);
-    } else {
-      io.log("AGDF Claude Code plugin installed or updated. Claude Code did not expose a plugin version in `claude plugin list`; verify with `claude plugin list` after restart if needed.");
-    }
-  } catch (error) {
-    if (error.message?.startsWith("AGDF Claude Code plugin version mismatch")) throw error;
-    throw new Error(`Failed to install the AGDF Claude Code plugin. Make sure the Claude Code CLI is installed and available on PATH, then rerun this command. ${commandErrorText(error)}`.trim());
+  runPluginPhase(exec, "claude", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], "marketplace", { stdio: "inherit" });
+  runPluginPhase(exec, "claude", ["plugin", "marketplace", "update", "agdf"], "marketplace", { stdio: "inherit" });
+  const beforeList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", { encoding: "utf8", stdio: "pipe" });
+  const alreadyInstalled = pluginListHasPlugin(beforeList, "agdf@agdf");
+  runPluginPhase(exec, "claude", ["plugin", alreadyInstalled ? "update" : "install", "agdf@agdf"], "plugin_operation", { stdio: "inherit" });
+  const afterList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", { encoding: "utf8", stdio: "pipe" });
+  const installedVersion = pluginVersionFromList(afterList, "agdf@agdf");
+  if (installedVersion && installedVersion !== expectedVersion) {
+    throw lifecycleAdapterError("version", versionMismatchMessage("Claude Code", "agdf@agdf", expectedVersion, installedVersion, "claude plugin marketplace update agdf && claude plugin update agdf@agdf"));
   }
+  return {
+    surface: "claude",
+    expectedVersion,
+    installedVersion,
+    verificationStatus: installedVersion ? "healthy" : "degraded",
+    evidence: ["claude plugin list", ...(installedVersion ? [] : ["host_did_not_expose_version"])],
+  };
+}
+
+export function inspectPluginSurface(surface, exec = execFileSync) {
+  const executable = surface === "claude" ? "claude" : "codex";
+  const pluginId = "agdf@agdf";
+  try {
+    const output = exec(executable, ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
+    const installed = pluginListHasPlugin(output, pluginId);
+    const version = installed ? pluginVersionFromList(output, pluginId) : "";
+    return {
+      status: !installed ? "not_installed" : version === pluginDefinition.version ? "healthy" : "degraded",
+      surface,
+      version: version || null,
+      expected_version: pluginDefinition.version,
+      evidence: [`${executable} plugin list`, ...(installed && !version ? ["host_did_not_expose_version"] : [])],
+    };
+  } catch (error) {
+    return { status: "unknown", surface, version: null, expected_version: pluginDefinition.version, evidence: [commandErrorText(error)] };
+  }
+}
+
+function runPluginPhase(exec, executable, args, phase, options) {
+  try {
+    return exec(executable, args, options);
+  } catch (error) {
+    const effectivePhase = error?.code === "ENOENT" ? "executable" : phase;
+    throw lifecycleAdapterError(effectivePhase, commandErrorText(error) || `${executable} ${args.join(" ")} failed`, {
+      executable,
+      args,
+    });
+  }
+}
+
+function lifecycleAdapterError(phase, message, evidence = {}) {
+  const error = new Error(message);
+  error.name = "LifecycleAdapterError";
+  error.phase = phase;
+  error.evidence = evidence;
+  return error;
 }
 
 function commandErrorText(error) {

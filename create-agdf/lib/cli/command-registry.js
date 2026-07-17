@@ -13,9 +13,12 @@ export const commandRegistry = Object.freeze([
   command("codex", { preferred: [""], scaffold: [""] }),
   command("codex-repo", { preferred: [""], scaffold: [""] }),
   command("claude", { preferred: [""], scaffold: [""] }),
-  command("copilot", { scaffold: [""] }),
+  command("copilot", { preferred: [""], scaffold: [""] }),
   command("opencode", { preferred: [""], scaffold: [""] }),
   command("opencode-status", { preferred: [""], scaffold: [""] }),
+  command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
+  command("disable", { preferred: [" --surface <surface> [--scope repository] [--dir <path>]"] }),
+  command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [""], scaffold: [""] }),
   command("both", { scaffold: [""] }),
   command("init", { preferred: [""], scaffold: [""] }),
@@ -52,6 +55,16 @@ export function validateCommandOptions(options) {
   if (options.target === "run-render-legacy" && !options.runId) {
     throw new Error("run-render-legacy requires --run");
   }
+  if (["disable", "uninstall"].includes(options.target) && ["", "generic", undefined].includes(options.surface)) {
+    throw new Error(`${options.target} requires an explicit --surface`);
+  }
+  if (options.target === "disable" && options.scope && options.scope !== "repository") {
+    throw new Error("disable supports repository scope only");
+  }
+  if (options.target === "uninstall" && options.scope !== "global") {
+    throw new Error("uninstall requires explicit --scope global");
+  }
+  if (options.confirm && options.target !== "uninstall") throw new Error("--confirm is supported only by uninstall");
   return options;
 }
 
@@ -62,10 +75,12 @@ function usageLines(group, prefix) {
 }
 
 export function renderUsage() {
-  return `create-agdf
+  return `AGDF CLI
 
-Preferred AGDF CLI:
+Primary commands:
 ${usageLines("preferred", "npx --yes @agdf/cli@latest ")}
+
+Advanced / Compatibility
 
 Scaffold-compatible npm create usage:
 ${usageLines("scaffold", "npm create agdf@latest -- ")}
@@ -85,6 +100,9 @@ Options:
   --all-active   Evaluate every active run (doctor and delivery-map only)
   --surface <codex|claude|copilot|opencode|generic>
                  Declare the active Delivery Path Search surface
+  --scope <repository|global>
+                 Select the lifecycle mutation scope
+  --confirm      Apply a previously previewed global uninstall plan
   --fixture <path>
                  Use deterministic evaluator/candidate fixtures instead of a live evaluator
   --persist      Persist the redacted Delivery Path Search result under the current scope

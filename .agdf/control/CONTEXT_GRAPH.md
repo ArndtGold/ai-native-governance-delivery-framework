@@ -18,6 +18,7 @@
 - refs: plugin/meta/contracts/interaction.md; plugin/meta/contracts/control-scaffold.md; create-agdf/bin/create-agdf.js; plugin/control/templates/AGDF_RUN.md; plugin/control/templates/artefacts/OR.md
 - evidence: Existing fields include `next_allowed_action` and `quality_outlook`; the approved UR narrows this run to making the projection explicit and machine-readable.
 - exit_criteria: Runtime contract, CLI JSON/text output, templates and smoke tests consistently expose the Run Status Card without creating a second gate model.
+- lifecycle_extension_2026_07_16: General lifecycle status composes installation, repository activation and delivery as independent sections. A healthy installation and blocked delivery are intentionally valid together; delivery continues to derive from doctor/gate-check and lifecycle status never becomes a second gate evaluator. Fresh read-only request orientation reuses this projection, emits once and creates no run.
 
 ### CG-DELIVERY-PATH-SEARCH
 
@@ -49,6 +50,7 @@
 - invariants: only deliberate user input that passes selected-run, current-gate and durable-artefact validation immediately before persistence can become an AGDF approval; exact text remains a universal fallback; explicit user surface permissions are preserved; no native response writes control state directly. Ready gate classification is independent from adapter availability: `native_attempt_required` is true only after exact-value transport and deliberate-wait capability are proven, while decorated-only, missing, unsafe or conflicting capability fails closed before invocation without changing gate authority.
 - risks: host tool schemas and timeout behavior can drift; mitigated by descriptive capability metadata, deterministic integrity/generation tests and fail-closed textual fallback.
 - exit_criteria: canonical/runtime and generated-surface tests pass for all declared adapters, OpenCode explicit allow/deny preservation is proven, and QA confirms that supporting live probes are not presented as gate-enforcement evidence.
+- installer_integration_2026_07_16: `installer-output-parity` consumes this node and does not own approval transport metadata or fallback policy. The observed Codex recommended-label constraint remains linked to `agdf-human-decision-surface` live UAT; installer docs state capability dependence and exact-text authority without claiming host-visible button proof.
 
 ### CG-CREATE-AGDF-CLI-COMPOSITION
 
@@ -59,6 +61,7 @@
 - invariants: command inventory has one canonical registry; dispatch uses explicit injected handlers; library modules return exit codes instead of terminating the process; subprocess and IO boundaries remain injectable; dependencies point from the composition root toward focused owners without import cycles; generated package assets follow their canonical owners.
 - risks: Native Windows execution was unavailable during this run, so Windows assurance remains limited to preserved command construction and cross-platform automated evidence; future commands can regress the boundary if added directly to the bin instead of the registry and focused owner.
 - exit_criteria: Any CLI command or responsibility change updates its focused owner, registry where applicable, deterministic tests, package assets and user-facing command routing; the bin remains a thin composition root and the import-cycle check remains green.
+- lifecycle_extension_2026_07_16: Additive `status`, `disable` and `uninstall` commands route through the existing registry/parser/application owners. Shared lifecycle result/presentation modules normalize human and JSON results; installer/scaffold adapters retain surface ownership; disable/uninstall use preview, explicit scope and ownership proof rather than adding deletion policy to the composition root.
 
 ## Retired Context Nodes
 

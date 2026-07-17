@@ -41,6 +41,8 @@ export function parseArgs(argv, dependencies = {}) {
   let generationCostUnits = 5;
   let runId;
   let allActive = false;
+  let scope;
+  let confirm = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -52,6 +54,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--persist") { persist = true; continue; }
     if (arg === "--generate-candidates") { generateCandidates = true; continue; }
     if (arg === "--all-active") { allActive = true; continue; }
+    if (arg === "--confirm") { confirm = true; continue; }
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
@@ -59,13 +62,16 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
-    if (["--surface", "--fixture", "--model", "--generator-model", "--max-generated-candidates", "--generation-timeout-ms", "--generation-cost-units"].includes(arg)) {
+    if (["--surface", "--scope", "--fixture", "--model", "--generator-model", "--max-generated-candidates", "--generation-timeout-ms", "--generation-cost-units"].includes(arg)) {
       const next = requiredValue(args, i, arg);
       if (arg === "--surface") {
         if (!["codex", "claude", "copilot", "opencode", "generic"].includes(next)) {
           throw new CliUsageError("Unsupported surface. Use codex, claude, copilot, opencode or generic.");
         }
         surface = next;
+      } else if (arg === "--scope") {
+        if (!["repository", "global"].includes(next)) throw new CliUsageError("Unsupported scope. Use repository or global.");
+        scope = next;
       } else if (arg === "--fixture") fixture = next;
       else if (arg === "--model") model = next;
       else if (arg === "--generator-model") generatorModel = next;
@@ -133,6 +139,8 @@ export function parseArgs(argv, dependencies = {}) {
       generateCandidates,
       runId,
       allActive,
+      scope,
+      confirm,
       generatorModel,
       maxGeneratedCandidates,
       generationTimeoutMs,

@@ -64,6 +64,11 @@ Use the Runtime Contract's Native Interaction Contract to classify every candida
 
 Prefer inspection over asking. Do not invoke a structured question for status reporting, facts available in the repository, routine read-only work or a gate that is not ready. Do not repeatedly prompt for the same non-ready gate.
 
+For a fresh request classified as read-only with no required run decision, emit the locale pack's
+`primary.readOnlyOrientationDescription` sentence once before the findings. This path creates no run, persists
+nothing, requests no approval and reuses the existing status projection. Do not repeat the sentence
+during the same request.
+
 For a ready `gate_approval`:
 
 1. Resolve exactly one selected run and evaluate the current gate.

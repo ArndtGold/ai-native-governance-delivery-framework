@@ -15,12 +15,28 @@ const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_N
 const npmCommand = testNpmCliPath ? process.execPath : process.platform === "win32" ? process.execPath : "npm";
 const npmPrefixArgs = testNpmCliPath ? [testNpmCliPath] : process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
 
+export function openCodeNpmInvocation(args) {
+  return { executable: npmCommand, args: [...npmPrefixArgs, ...args] };
+}
+
+function openCodeLifecycleError(phase, message, evidence = {}) {
+  const error = new Error(message);
+  error.name = "LifecycleAdapterError";
+  error.phase = phase;
+  error.evidence = evidence;
+  return error;
+}
+
 export function defaultOpenCodeConfigDir() {
   return process.env.OPENCODE_CONFIG_DIR || join(homedir(), ".config", "opencode");
 }
 
 export function installOpenCodeGlobalPlugin(configDir) {
-  assertGlobalOpenCodeSurfaceWritable(configDir);
+  try {
+    assertGlobalOpenCodeSurfaceWritable(configDir);
+  } catch (error) {
+    throw openCodeLifecycleError("ownership_preflight", error.message, { configDir });
+  }
   const previousPackage = resolveOpenCodePackage(configDir);
   const configPath = join(configDir, "opencode.json");
   let config = {};
@@ -29,12 +45,12 @@ export function installOpenCodeGlobalPlugin(configDir) {
     try {
       config = JSON.parse(readFileSync(configPath, "utf8"));
     } catch {
-      throw new Error(`Refusing to update unreadable OpenCode config: ${configPath}`);
+      throw openCodeLifecycleError("configuration", `Refusing to update unreadable OpenCode config: ${configPath}`, { configPath });
     }
   }
 
   if (config.plugin !== undefined && !Array.isArray(config.plugin)) {
-    throw new Error(`Refusing to update OpenCode config with non-array plugin field: ${configPath}`);
+    throw openCodeLifecycleError("configuration", `Refusing to update OpenCode config with non-array plugin field: ${configPath}`, { configPath });
   }
 
   const plugins = [...(config.plugin ?? [])];
@@ -50,7 +66,7 @@ export function installOpenCodeGlobalPlugin(configDir) {
   };
 
   if (nextConfig.instructions !== undefined && !Array.isArray(nextConfig.instructions)) {
-    throw new Error(`Refusing to update OpenCode config with non-array instructions field: ${configPath}`);
+    throw openCodeLifecycleError("configuration", `Refusing to update OpenCode config with non-array instructions field: ${configPath}`, { configPath });
   }
   nextConfig.instructions = [...(nextConfig.instructions ?? [])];
   if (!nextConfig.instructions.includes("AGDF.md")) nextConfig.instructions.push("AGDF.md");
@@ -71,14 +87,22 @@ export function installOpenCodeGlobalPlugin(configDir) {
   mkdirSync(configDir, { recursive: true });
   try {
     const packageSpecifier = `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`;
-    execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", "--save-prod", "--save-exact", packageSpecifier], {
+    const invocation = openCodeNpmInvocation(["install", "--silent", "--save-prod", "--save-exact", packageSpecifier]);
+    execFileSync(invocation.executable, invocation.args, {
       cwd: configDir,
       stdio: "pipe",
     });
   } catch (error) {
-    throw new Error(`Failed to install ${pluginDefinition.opencode.npmPackage} into the OpenCode config directory: ${(error.stderr || error.message).toString().trim()}`);
+    throw openCodeLifecycleError("plugin_operation", `Failed to install ${pluginDefinition.opencode.npmPackage} into the OpenCode config directory: ${(error.stderr || error.message).toString().trim()}`, {
+      executable: npmCommand,
+      args: [...npmPrefixArgs, "install"],
+    });
   }
-  writeFileSync(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf8");
+  try {
+    writeFileSync(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf8");
+  } catch (error) {
+    throw openCodeLifecycleError("configuration", `Failed to write OpenCode config ${configPath}: ${error.message}`, { configPath });
+  }
   const installedPackage = resolveOpenCodePackage(configDir);
 
   return {

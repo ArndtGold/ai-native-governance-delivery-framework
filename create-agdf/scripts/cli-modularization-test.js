@@ -17,6 +17,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
+  "status", "disable", "uninstall",
   "opencode-repo", "both", "init", "config", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",
   "run-render-legacy",
@@ -28,7 +29,8 @@ assert.equal(new Set(commandRegistry.map(({ handler }) => handler)).size, expect
 
 const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
-assert.match(usage, /Preferred AGDF CLI:/);
+assert.match(usage, /Primary commands:/);
+assert.match(usage, /Advanced \/ Compatibility/);
 assert.match(usage, /Scaffold-compatible npm create usage:/);
 assert.match(usage, /Backward-compatible create-agdf usage:/);
 
@@ -55,6 +57,8 @@ assert.deepEqual(parsed.options, {
   generateCandidates: true,
   runId: "run-a",
   allActive: false,
+  scope: undefined,
+  confirm: false,
   generatorModel: "g",
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
@@ -64,6 +68,9 @@ assert.deepEqual(parsed.options, {
 const alias = parseArgs(["--target", "config", "--lang", "de"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(alias.options.target, "config");
 assert.deepEqual(alias.options.language, { language: "de" });
+const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(uninstallArgs.options.scope, "global");
+assert.equal(uninstallArgs.options.confirm, true);
 
 for (const fixture of [
   [["doctor", "--run"], "Missing value for --run"],
@@ -84,6 +91,10 @@ assert.doesNotThrow(() => validateCommandOptions({ target: "delivery-map", allAc
 assert.throws(() => validateCommandOptions({ target: "gate-check", allActive: true }), /supported only/);
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "codex" }));
+assert.throws(() => validateCommandOptions({ target: "disable", surface: "generic" }), /explicit --surface/);
+assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "codex" }), /--scope global/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", confirm: true }));
 
 const bin = readFileSync(join(packageRoot, "bin", "create-agdf.js"), "utf8");
 assert.match(bin, /from "\.\.\/lib\/cli\/application\.js"/);
@@ -162,6 +173,22 @@ function installerRecording(outputs) {
   const recording = installerRecording(["", "", `agdf@agdf ${pluginDefinition.version}\n`, "", `agdf@agdf ${pluginDefinition.version}\n`]);
   installClaudeGlobalPlugin({ exec: recording.exec, io: recording.io.io });
   assert.deepEqual(recording.calls[3].args, ["plugin", "update", "agdf@agdf"]);
+}
+
+{
+  let call = 0;
+  assert.throws(() => installClaudeGlobalPlugin({
+    exec() {
+      call += 1;
+      if (call === 2) throw Object.assign(new Error("marketplace failed"), { stderr: "Git executable is missing or unsafe" });
+      return "";
+    },
+  }), (error) => {
+    assert.equal(error.phase, "marketplace");
+    assert.match(error.message, /Git executable is missing or unsafe/);
+    assert.doesNotMatch(error.message, /Claude Code CLI is installed/);
+    return true;
+  });
 }
 
 const moduleRoots = ["cli", "installers", "scaffold", "control-evaluation"];

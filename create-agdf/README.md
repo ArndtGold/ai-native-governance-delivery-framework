@@ -21,7 +21,7 @@ Use a different target when Codex is not your agent surface:
 | Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin for Claude Code. |
 | OpenCode, user-wide discovery | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
 | OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Repository instructions, native skills, permissions and control templates. |
-| GitHub Copilot | `npm create agdf@latest -- copilot` | Repository instructions, visible skills and control templates. |
+| GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | Repository instructions, visible skills and control templates. |
 | Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
 For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
@@ -39,6 +39,9 @@ npx --yes @agdf/cli@latest claude
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
+npx --yes @agdf/cli@latest status --surface codex
+npx --yes @agdf/cli@latest disable --surface codex --scope repository
+npx --yes @agdf/cli@latest uninstall --surface codex --scope global
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest doctor
@@ -61,6 +64,8 @@ npx --yes @agdf/cli@latest run-create --run <run_id>
 npx --yes @agdf/cli@latest run-migrate [--run <run_id>]
 npx --yes @agdf/cli@latest run-render-legacy --run <run_id>
 ```
+
+### Advanced / Compatibility
 
 Backward-compatible scaffold usage:
 
@@ -87,6 +92,8 @@ Optional flags:
 - `--dir <path>` write into a specific directory
 - `--force` overwrite existing generated files
 - `--language <tag>` or `--lang <tag>` persist a BCP 47 language tag such as `de`, `en` or `fr-CA`
+- `--scope <repository|global>` select an explicit lifecycle mutation scope
+- `--confirm` apply a global uninstall after reviewing the default non-mutating preview
 
 If no language is provided, `create-agdf` derives the preference from the local system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale) and falls back to `en`.
 
@@ -98,6 +105,9 @@ If no language is provided, `create-agdf` derives the preference from the local 
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
 - `opencode` installs the AGDF npm plugin and nine native skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, session signals and repository surface presence
+- `status` reports installation, repository activation and delivery separately without mutating state
+- `disable` writes a supported repository-local opt-out while retaining global capability and durable control state
+- `uninstall` previews and, only with `--confirm`, applies a selected global removal through supported native/owned operations
 - `opencode-repo` writes `opencode.json`, `.opencode/AGDF.md`, prefixed native OpenCode skills under `.opencode/skills/`, explicit question/edit/bash/skill permissions, and AGDF control templates under `.agdf/control/`
 - `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository

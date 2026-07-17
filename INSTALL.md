@@ -13,7 +13,7 @@ Before running a command, install Node.js 18 or later with npm and the selected 
 | Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after restart. | Use `/gate-check` for new build or change intent. |
 | OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Install the repository surface before expecting governance to be active. |
 | OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes repository instructions, native skills, permissions and control templates. Re-run `opencode-status --json` from that repository. | Load `agdf-gate-check` through OpenCode's native skill tool. |
-| GitHub Copilot | `npm create agdf@latest -- copilot` | Writes repository instructions, visible skills and control templates. Verify with `/instructions`. | Start a repository task; AGDF instructions and skills are then visible to Copilot. |
+| GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | Writes repository instructions, visible skills and control templates. Verify with `/instructions`. | Start a repository task; AGDF instructions and skills are then visible to Copilot. |
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own AGDF instructions and control state.
 
@@ -21,7 +21,38 @@ For the exact current command and option reference, including canonical run life
 
 ### Update, disable or remove
 
-Re-run the relevant installation command to update an installed AGDF surface. There is currently no AGDF-specific remove or disable command. For opt-out or removal, use the selected agent's native plugin/configuration management and review user-owned repository files before changing them; do not treat generated fragments as authorization to delete existing user configuration.
+Re-run the relevant installation command to update an installed AGDF surface. Inspect technical
+installation health, repository activation and delivery state separately:
+
+```bash
+npx --yes @agdf/cli@latest status --surface codex
+npx --yes @agdf/cli@latest status --surface claude
+npx --yes @agdf/cli@latest status --surface opencode
+```
+
+A healthy installation and blocked delivery are valid at the same time. `status` is read-only: it
+does not initialize control state, silently select an ambiguous run or change host configuration.
+
+Prefer repository-local opt-out when AGDF should remain globally available:
+
+```bash
+npx --yes @agdf/cli@latest disable --surface codex --scope repository
+```
+
+This writes only an exact AGDF Codex repository plugin-state section, retains `.agdf/control` and
+requires a host restart. Unsupported or unowned repository configuration fails closed.
+
+Global removal always requires an explicit surface and scope. Without `--confirm` it is a
+non-mutating preview:
+
+```bash
+npx --yes @agdf/cli@latest uninstall --surface codex --scope global
+npx --yes @agdf/cli@latest uninstall --surface codex --scope global --confirm
+```
+
+The same shape applies to `claude` and `opencode`. AGDF invokes supported native removal and removes
+only exact known entries or marker-proven generated state. Repository files, `.agdf/control`,
+user-authored files and ambiguous configuration are retained. Review the preview before confirmation.
 
 ## Advanced planning and runtime reference
 
@@ -40,7 +71,15 @@ Codex is the primary plugin-packaging surface for AGDF.
 OpenCode is the reference runtime for showing how AGDF can combine repository instructions, native skills, permission gates and plugins in one target surface.
 The AGDF control model itself is surface-neutral and is reused for Claude Code, GitHub Copilot and OpenCode.
 
-At a real decision point, AGDF may present a native structured question: Codex uses its short-question control when callable, Claude Code can use `AskUserQuestion` only without auto-continue authority, and OpenCode uses its built-in `question` tool. These controls improve presentation only. Exact textual approvals remain supported, and AGDF revalidates the selected run, current gate and durable artefact before persisting an approval. Command/edit/network permissions, Claude plan approval and OpenCode permission or auto-mode outcomes never count as AGDF gate approval.
+At a real decision point, AGDF may present a native structured question only when the loaded host can
+wait for deliberate input and transport the canonical value without decoration. The currently
+observed Codex question schema requires a recommended-label decoration and exposes no separate exact
+value, so AGDF must use the exact-text path there. `Approval: <GateName> (Recommended)` is invalid;
+the unchanged `Approval: <GateName>` text remains authoritative. Claude Code and OpenCode are subject
+to the same capability preflight. These controls improve presentation only. AGDF revalidates the
+selected run, current gate and durable artefact before persisting an approval. Command/edit/network
+permissions, Claude plan approval and OpenCode permission or auto-mode outcomes never count as AGDF
+gate approval.
 
 Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
 

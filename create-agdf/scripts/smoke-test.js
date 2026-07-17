@@ -130,7 +130,7 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Preferred AGDF CLI:") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("--status-card") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Primary commands:") || !helpOutput.includes("Advanced / Compatibility") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest status") || !helpOutput.includes("npx --yes @agdf/cli@latest disable") || !helpOutput.includes("npx --yes @agdf/cli@latest uninstall") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("--status-card") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 
@@ -200,7 +200,7 @@ if (args.join(" ") === "plugin list") {
     if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
       throw new Error(`Codex global bootstrap command order changed: ${calls.join(" | ")}`);
     }
-    if (!output.includes(`AGDF Codex plugin version verified: ${pluginDefinition.version}`)) {
+    if (!output.includes(`AGDF version: ${pluginDefinition.version} (verified)`) || !output.includes("Verification: healthy")) {
       throw new Error("Codex global bootstrap must report verified plugin version.");
     }
   } finally {
@@ -263,7 +263,7 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
     if (calls.some((call) => call === "plugin add arndtgold/ai-native-governance-delivery-framework")) {
       throw new Error("Claude bootstrap must not call unsupported plugin add.");
     }
-    if (!output.includes(`AGDF Claude Code plugin version verified: ${pluginDefinition.version}`)) {
+    if (!output.includes(`AGDF version: ${pluginDefinition.version} (verified)`) || !output.includes("Verification: healthy")) {
       throw new Error("Claude install must report verified plugin version when exposed.");
     }
   } finally {
@@ -315,7 +315,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
 }
 `);
     const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
-    if (!output.includes("did not expose a plugin version")) {
+    if (!output.includes(`AGDF version: unknown; expected ${pluginDefinition.version} (unknown)`) || !output.includes("Verification: degraded")) {
       throw new Error("Claude bootstrap must report verification limitation when list output has no version.");
     }
   } finally {
@@ -370,11 +370,11 @@ try {
     || status.package.version_status !== "current") {
     throw new Error("opencode-status must report matching installed and expected package versions as current.");
   }
-  if (!installOutput.includes(`Package version: ${pluginDefinition.version}`)
-    || !installOutput.includes(`Expected version: ${pluginDefinition.version}`)
-    || !installOutput.includes("Version status: current")
-    || !installOutput.includes(`Version transition: new install (${pluginDefinition.version})`)) {
-    throw new Error("opencode install must report package version, expected version, current status and new-install transition.");
+  if (!installOutput.includes(`AGDF version: ${pluginDefinition.version} (verified; transition installed)`)
+    || !installOutput.includes("Verification: healthy")
+    || !installOutput.includes("Installation scope: global")
+    || !installOutput.includes("Restart required: yes")) {
+    throw new Error("opencode install must report the shared verified global lifecycle Success Card.");
   }
   const npmArgs = readJsonLines(openCodeNpmLog).at(-1);
   if (!npmArgs.includes("--save-exact")
@@ -617,13 +617,13 @@ function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
   const unchanged = runOpenCodeCli(["opencode", "--dir", updated.tempDir], { encoding: "utf8", stdio: "pipe" });
   const unknown = runOpenCodeWithPreinstalledVersion("", false);
   try {
-    if (!updated.output.includes(`Version transition: 0.0.1 -> ${pluginDefinition.version}`)) {
+    if (!updated.output.includes(`AGDF version: 0.0.1 -> ${pluginDefinition.version} (verified)`)) {
       throw new Error("opencode update must report an observable previous-to-installed version transition.");
     }
-    if (!unchanged.includes(`Version transition: unchanged (${pluginDefinition.version})`)) {
+    if (!unchanged.includes(`AGDF version: ${pluginDefinition.version} (verified; transition unchanged)`)) {
       throw new Error("opencode repeat install must report an unchanged version transition.");
     }
-    if (!unknown.output.includes("Version transition: unknown")) {
+    if (!unknown.output.includes("transition unknown")) {
       throw new Error("opencode must not invent a transition when the previous package version is unreadable.");
     }
   } finally {

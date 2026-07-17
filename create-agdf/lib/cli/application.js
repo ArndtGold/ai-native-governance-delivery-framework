@@ -28,6 +28,16 @@ import {
   installClaudeGlobalPlugin,
   installCodexGlobalPlugin,
 } from "../installers/plugin-installers.js";
+import {
+  applyLifecyclePlan,
+  planGlobalUninstall,
+  planRepositoryDisable,
+  verifyGlobalUninstall,
+  verifyRepositoryDisabled,
+} from "../lifecycle/operations.js";
+import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
+import { createLifecycleResult, lifecycleFailure } from "../lifecycle/result.js";
+import { evaluateGeneralStatus } from "../lifecycle/status.js";
 import { agdfFragmentPath, generatedFilesForTarget, openCodeConfigFragmentPath } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
 import { assertGeneratedWritePlan, removeOwnedLegacyOpenCodeAgents, writeGeneratedFile } from "../scaffold/write.js";
@@ -96,43 +106,184 @@ function createHandlers({ io, env, exec }) {
       printOpenCodeStatus(report, options.json, io);
       return report.status === "configured" ? 0 : 1;
     }],
-    ["codex", () => {
+    ["status", (options) => {
+      const report = evaluateGeneralStatus(options.dir, {
+        ...options,
+        configDir: env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir(),
+      }, { exec });
+      printGeneralStatus(report, { json: options.json, locale: options.language.chat_language, io });
+      return report.installation.status === "healthy" ? 0 : 1;
+    }],
+    ["disable", (options) => runDisable(options, { io, exec })],
+    ["uninstall", (options) => runUninstall(options, { io, env, exec })],
+    ["codex", (options) => {
       try {
-        installCodexGlobalPlugin(installerAdapters);
-        io.log("AGDF Codex plugin installed globally.");
-        io.log("Run npx --yes @agdf/cli@latest codex-repo in a repository when you want to test AGDF from repository-local plugin files.");
+        const installed = installCodexGlobalPlugin(installerAdapters);
+        printLifecycleResult(installResult(installed, {
+          restartRequired: true,
+          nextAction: "Restart Codex, then run npx --yes @agdf/cli@latest codex-repo in a repository where AGDF should be active.",
+        }), { json: options.json, locale: options.language.chat_language, io });
         return 0;
       } catch (error) {
-        io.error(error.message);
+        printInstallFailure("codex", error, options, io);
         return 1;
       }
     }],
-    ["claude", () => {
+    ["claude", (options) => {
       try {
-        installClaudeGlobalPlugin(installerAdapters);
-        io.log("AGDF Claude Code plugin installed globally.");
+        const installed = installClaudeGlobalPlugin(installerAdapters);
+        printLifecycleResult(installResult(installed, {
+          restartRequired: true,
+          nextAction: "Restart Claude Code, then verify the plugin in a new session.",
+        }), { json: options.json, locale: options.language.chat_language, io });
         return 0;
       } catch (error) {
-        io.error(error.message);
+        printInstallFailure("claude", error, options, io);
         return 1;
       }
     }],
     ["opencode", (options) => {
       const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
       try {
-        const result = installOpenCodeGlobalPlugin(configDir);
-        installOpenCodeGlobalSurface(configDir);
-        io.log(`AGDF OpenCode global plugin ${result.added ? "installed" : "already present"}: ${result.configPath}`);
-        const report = evaluateOpenCodeStatus(options.dir, configDir, result.transition);
-        printOpenCodeStatus(report, false, io);
-        io.log("Restart OpenCode so it loads the updated global plugin config.");
-        return 0;
+        const result = runLifecyclePhase("plugin_operation", () => installOpenCodeGlobalPlugin(configDir));
+        runLifecyclePhase("global_surface", () => installOpenCodeGlobalSurface(configDir));
+        const report = runLifecyclePhase("verification", () => evaluateOpenCodeStatus(options.dir, configDir, result.transition));
+        const verificationHealthy = report.status === "configured"
+          && report.package.version_status === "current"
+          && report.global_native_surface.complete;
+        printLifecycleResult(createLifecycleResult({
+          operation: result.transition.status === "updated" ? "update" : "install",
+          result: verificationHealthy ? "success" : "partial",
+          surface: "opencode",
+          scope: "global",
+          version: {
+            expected: report.package.expected_version,
+            installed: report.package.installed_version,
+            previous: result.transition.previous_version,
+            status: report.package.version_status === "current" ? "verified" : "unknown",
+            transition: result.transition.status,
+          },
+          verification: { status: verificationHealthy ? "healthy" : "degraded", evidence: [report.global_config.path, report.global_native_surface.path] },
+          restart: { required: true, reason: "host_reload" },
+          next_action: { kind: "restart", text: "Restart OpenCode so it loads the updated global plugin config." },
+        }), { json: options.json, locale: options.language.chat_language, io });
+        return verificationHealthy ? 0 : 1;
       } catch (error) {
-        io.error(error.message);
+        printInstallFailure("opencode", error, options, io);
         return 1;
       }
     }],
   ]);
+}
+
+function runLifecyclePhase(phase, operation) {
+  try {
+    return operation();
+  } catch (error) {
+    if (!error.phase) error.phase = phase;
+    if (!error.evidence) error.evidence = {};
+    throw error;
+  }
+}
+
+function installResult(installed, { restartRequired, nextAction }) {
+  return createLifecycleResult({
+    operation: "install",
+    result: "success",
+    surface: installed.surface,
+    scope: "global",
+    version: { expected: installed.expectedVersion, installed: installed.installedVersion, status: installed.installedVersion ? "verified" : "unknown" },
+    verification: { status: installed.verificationStatus, evidence: installed.evidence },
+    restart: { required: restartRequired, reason: restartRequired ? "host_reload" : "none" },
+    next_action: { kind: restartRequired ? "restart" : "prompt", text: nextAction },
+  });
+}
+
+function printInstallFailure(surface, error, options, io) {
+  const report = lifecycleFailure({
+    operation: "install",
+    surface,
+    scope: "global",
+    phase: error.phase || "plugin_operation",
+    message: error.message,
+    evidence: [error.evidence ?? {}],
+    nextAction: `Resolve the ${error.phase || "plugin operation"} failure and rerun npx --yes @agdf/cli@latest ${surface}.`,
+  });
+  if (options.json) printLifecycleResult(report, { json: true, io });
+  else {
+    io.error(error.message);
+    printLifecycleResult(report, { locale: options.language.chat_language, io });
+  }
+}
+
+function runDisable(options, { io, exec }) {
+  try {
+    const plan = planRepositoryDisable(options.dir, options.surface);
+    const applied = applyLifecyclePlan(plan, exec ? { exec } : {});
+    const verified = applied.status === "success" ? verifyRepositoryDisabled(options.dir) : { status: "failed", evidence: [] };
+    const result = applied.status === "success" && verified.status !== "healthy" ? "failed" : applied.status;
+    const report = createLifecycleResult({
+      operation: "disable",
+      result,
+      surface: options.surface,
+      scope: "repository",
+      verification: { status: verified.status === "healthy" ? "healthy" : "degraded", evidence: [...applied.completed.map((item) => item.path || item.executable), ...verified.evidence] },
+      restart: { required: result === "success", reason: result === "success" ? "host_reload" : "none" },
+      next_action: result === "success"
+        ? { kind: "restart", text: "Restart the host in this repository; global AGDF availability and .agdf/control are retained." }
+        : { kind: "verify", text: "Inspect the reported repository configuration failure before retrying disable." },
+      changes: applied.completed,
+      retained: applied.retained,
+      failure: applied.error
+        ? { phase: "repository_configuration", message: applied.error.message }
+        : result === "failed" ? { phase: "verification", message: "Repository disable postcondition was not observed." } : null,
+    });
+    printLifecycleResult(report, { json: options.json, locale: options.language.chat_language, io });
+    return result === "success" ? 0 : 1;
+  } catch (error) {
+    io.error(error.message);
+    return 1;
+  }
+}
+
+function runUninstall(options, { io, env, exec }) {
+  try {
+    const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
+    const plan = planGlobalUninstall(options.surface, { configDir });
+    if (!options.confirm) {
+      const preview = createLifecycleResult({
+        operation: "uninstall", result: "preview", surface: options.surface, scope: "global",
+        verification: { status: "unknown", evidence: ["non_mutating_preview"] },
+        restart: { required: false },
+        next_action: { kind: "confirm", text: `Review this preview, then rerun with --surface ${options.surface} --scope global --confirm; ownership is revalidated before apply.` },
+        changes: plan.mutations, retained: plan.retained,
+      });
+      printLifecycleResult(preview, { json: options.json, locale: options.language.chat_language, io });
+      return 0;
+    }
+    const applied = applyLifecyclePlan(plan, exec ? { exec } : {});
+    const verified = applied.status === "success"
+      ? verifyGlobalUninstall(plan, options.dir, { configDir, exec })
+      : { status: "failed", evidence: [] };
+    const result = applied.status === "success" && verified.status !== "healthy" ? "failed" : applied.status;
+    const report = createLifecycleResult({
+      operation: "uninstall", result, surface: options.surface, scope: "global",
+      verification: { status: verified.status === "healthy" ? "healthy" : "degraded", evidence: [...applied.completed.map((item) => item.path || item.executable), ...verified.evidence] },
+      restart: { required: result === "success", reason: result === "success" ? "host_reload" : "none" },
+      next_action: result === "success"
+        ? { kind: "restart", text: "Restart the host; the uninstall postcondition has already been verified." }
+        : { kind: "verify", text: "Inspect the reported uninstall or verification failure before retrying." },
+      changes: applied.completed, retained: applied.retained,
+      failure: applied.error
+        ? { phase: "plugin_operation", message: applied.error.message }
+        : result === "failed" ? { phase: "verification", message: "Global uninstall postcondition was not observed." } : null,
+    });
+    printLifecycleResult(report, { json: options.json, locale: options.language.chat_language, io });
+    return result === "success" ? 0 : 1;
+  } catch (error) {
+    io.error(error.message);
+    return 1;
+  }
 }
 
 function runScaffold(options, io) {

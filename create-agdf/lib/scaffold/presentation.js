@@ -1,5 +1,8 @@
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pluginDefinition } from "../cli/runtime-context.js";
+import { printLifecycleResult } from "../lifecycle/presentation.js";
+import { createLifecycleResult } from "../lifecycle/result.js";
 import { agdfFragmentPath, openCodeConfigFragmentPath } from "./plan.js";
 
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
@@ -27,6 +30,27 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
     for (const preserved of preservedFiles) io.log(`- ${preserved}`);
   }
 
+  if (target === "codex-repo") {
+    const verified = files.every((file) => {
+      const path = join(destination, file.path);
+      return existsSync(path) && readFileSync(path, "utf8") === file.content;
+    });
+    printLifecycleResult(createLifecycleResult({
+      operation: "repository_setup",
+      result: verified ? "success" : "partial",
+      surface: "codex",
+      scope: "repository",
+      version: { expected: pluginDefinition.version, status: "expected" },
+      verification: { status: verified ? "healthy" : "degraded", evidence: files.map((file) => file.path) },
+      restart: { required: true, reason: "host_reload_and_repository_plugin_activation" },
+      next_action: {
+        kind: "host_action",
+        text: "Restart Codex, open /plugins, select This repository and install agdf; then start a new task with: Run an AGDF gate check for this request.",
+      },
+    }), { locale: JSON.parse(files.find((file) => file.path === join(".agdf", "control", "config.json"))?.content ?? "{}").chat_language, io });
+    return;
+  }
+
   io.log("");
   io.log("Next steps:");
   const languageConfig = files.find((file) => file.path === join(".agdf", "control", "config.json"));
@@ -48,7 +72,7 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
   if (wroteAgentsFragment) {
     io.log(`- Existing AGENTS.md detected. Merge ${agdfFragmentPath} into your current AGENTS.md before using Copilot with AGDF.`);
   }
-  if (target === "codex-repo" || target === "both") {
+  if (target === "both") {
     io.log("- Restart Codex in this repository, open /plugins, select This repository and install agdf.");
     io.log("- Start a new Codex thread in this repository and ask: Run an AGDF gate check for this request.");
   }

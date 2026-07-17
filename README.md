@@ -2,7 +2,35 @@
 
 # AI-native Governance & Delivery Framework
 
-Ein deutschsprachiger Diskussionsentwurf für Softwareentwicklung mit KI-Agenten.
+Ein installierbares, kontrollorientiertes Plugin und deutschsprachiger Diskussionsentwurf für
+Softwareentwicklung mit KI-Agenten.
+
+## Installieren und prüfen
+
+Für Codex ist der primäre Einstieg:
+
+```bash
+npx --yes @agdf/cli@latest codex
+```
+
+Der Abschluss zeigt Version, Installationsscope, Verifikation, Neustartbedarf und genau eine nächste
+Aktion. In einem Repository kannst du danach den lokalen Codex-Weg einrichten:
+
+```bash
+npx --yes @agdf/cli@latest codex-repo
+npx --yes @agdf/cli@latest status --surface codex
+```
+
+Claude Code und OpenCode verwenden dieselbe primäre Befehlsfamilie:
+
+```bash
+npx --yes @agdf/cli@latest claude
+npx --yes @agdf/cli@latest opencode
+```
+
+Alle Installations-, Status-, Deaktivierungs- und Entfernungsschritte stehen in [INSTALL.md](INSTALL.md).
+AGDF ist ein unabhängiges Projekt und kein Standard; die installierbare Runtime ersetzt weder
+Produktverantwortung noch Engineering-, Security-, Test- oder Abnahmeentscheidungen.
 
 Der Entwurf fragt:
 
@@ -20,8 +48,9 @@ Der Arbeitslauf muss belegbar bleiben.
 
 ## Status
 
-Dieses Repository ist ein öffentlicher Diskussionsentwurf.
-Es ist noch kein fertiges Tool, kein Pflichtprozess und kein Standard.
+Dieses Repository ist ein öffentlicher Diskussionsentwurf mit einer installierbaren Plugin- und
+CLI-Runtime. AGDF ist kein Pflichtprozess und kein Standard; die Runtime bleibt ein sich
+entwickelndes Produkt und ihre Fähigkeiten unterscheiden sich je Coding-Agent-Oberfläche.
 
 Ziel ist zuerst, die Beobachtung zu prüfen:
 

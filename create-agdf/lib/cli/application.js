@@ -111,7 +111,7 @@ function createHandlers({ io, env, exec }) {
         ...options,
         configDir: env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir(),
       }, { exec });
-      printGeneralStatus(report, { json: options.json, locale: options.language.chat_language, io });
+      printGeneralStatus(report, { json: options.json, io });
       return report.installation.status === "healthy" ? 0 : 1;
     }],
     ["disable", (options) => runDisable(options, { io, exec })],
@@ -122,7 +122,8 @@ function createHandlers({ io, env, exec }) {
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
           nextAction: "Restart Codex, then run npx --yes @agdf/cli@latest codex-repo in a repository where AGDF should be active.",
-        }), { json: options.json, locale: options.language.chat_language, io });
+        }), { json: options.json, io });
+        printVerboseHostOutput(installed, options, io);
         return 0;
       } catch (error) {
         printInstallFailure("codex", error, options, io);
@@ -135,7 +136,8 @@ function createHandlers({ io, env, exec }) {
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
           nextAction: "Restart Claude Code, then verify the plugin in a new session.",
-        }), { json: options.json, locale: options.language.chat_language, io });
+        }), { json: options.json, io });
+        printVerboseHostOutput(installed, options, io);
         return 0;
       } catch (error) {
         printInstallFailure("claude", error, options, io);
@@ -166,7 +168,7 @@ function createHandlers({ io, env, exec }) {
           verification: { status: verificationHealthy ? "healthy" : "degraded", evidence: [report.global_config.path, report.global_native_surface.path] },
           restart: { required: true, reason: "host_reload" },
           next_action: { kind: "restart", text: "Restart OpenCode so it loads the updated global plugin config." },
-        }), { json: options.json, locale: options.language.chat_language, io });
+        }), { json: options.json, io });
         return verificationHealthy ? 0 : 1;
       } catch (error) {
         printInstallFailure("opencode", error, options, io);
@@ -194,9 +196,18 @@ function installResult(installed, { restartRequired, nextAction }) {
     scope: "global",
     version: { expected: installed.expectedVersion, installed: installed.installedVersion, status: installed.installedVersion ? "verified" : "unknown" },
     verification: { status: installed.verificationStatus, evidence: installed.evidence },
+    installation: { status: installed.verificationStatus },
+    activation: { status: restartRequired ? "pending_restart" : "active" },
+    delivery: { status: "not_evaluated" },
     restart: { required: restartRequired, reason: restartRequired ? "host_reload" : "none" },
     next_action: { kind: restartRequired ? "restart" : "prompt", text: nextAction },
   });
+}
+
+function printVerboseHostOutput(installed, options, io) {
+  if (!options.verbose || options.json || !installed.nativeOutput?.length) return;
+  io.log("Host command output:");
+  for (const output of installed.nativeOutput) io.log(output);
 }
 
 function printInstallFailure(surface, error, options, io) {
@@ -212,7 +223,7 @@ function printInstallFailure(surface, error, options, io) {
   if (options.json) printLifecycleResult(report, { json: true, io });
   else {
     io.error(error.message);
-    printLifecycleResult(report, { locale: options.language.chat_language, io });
+    printLifecycleResult(report, { io });
   }
 }
 
@@ -238,7 +249,7 @@ function runDisable(options, { io, exec }) {
         ? { phase: "repository_configuration", message: applied.error.message }
         : result === "failed" ? { phase: "verification", message: "Repository disable postcondition was not observed." } : null,
     });
-    printLifecycleResult(report, { json: options.json, locale: options.language.chat_language, io });
+    printLifecycleResult(report, { json: options.json, io });
     return result === "success" ? 0 : 1;
   } catch (error) {
     io.error(error.message);
@@ -258,7 +269,7 @@ function runUninstall(options, { io, env, exec }) {
         next_action: { kind: "confirm", text: `Review this preview, then rerun with --surface ${options.surface} --scope global --confirm; ownership is revalidated before apply.` },
         changes: plan.mutations, retained: plan.retained,
       });
-      printLifecycleResult(preview, { json: options.json, locale: options.language.chat_language, io });
+      printLifecycleResult(preview, { json: options.json, io });
       return 0;
     }
     const applied = applyLifecyclePlan(plan, exec ? { exec } : {});
@@ -278,7 +289,7 @@ function runUninstall(options, { io, env, exec }) {
         ? { phase: "plugin_operation", message: applied.error.message }
         : result === "failed" ? { phase: "verification", message: "Global uninstall postcondition was not observed." } : null,
     });
-    printLifecycleResult(report, { json: options.json, locale: options.language.chat_language, io });
+    printLifecycleResult(report, { json: options.json, io });
     return result === "success" ? 0 : 1;
   } catch (error) {
     io.error(error.message);
@@ -303,7 +314,7 @@ function runScaffold(options, io) {
     return 1;
   }
 
-  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents, io);
+  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents, { verbose: options.verbose, json: options.json, io });
   return 0;
 }
 

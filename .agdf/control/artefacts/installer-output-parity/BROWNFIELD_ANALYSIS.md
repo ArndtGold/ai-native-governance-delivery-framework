@@ -1,11 +1,45 @@
 # Brownfield Analysis: Coherent AGDF Installation Lifecycle
 
-Status: done
+Status: done; revision 4
 Mode: pre_implementation_analysis
 Decision: pass
-Revision: 2
-Date: 2026-07-16
-Based on: approved `TP.md` revision 2 and current repository evidence
+Revision: 4
+Date: 2026-07-17
+Based on: approved `TP.md` revision 4 and current repository evidence
+
+## Revision 4 Pre-Implementation Analysis
+
+- mode: pre_implementation_analysis
+- decision: pass
+- mode_slice_decision: structured_slice
+- required_next_gate: none
+- scope: MSC-01 through MSC-08 only; canonical surface propagation, additive lifecycle result,
+  English renderer, verbose diagnostics, existing installer/scaffold integration and focused tests.
+- evidence: `lifecycle/result.js`, `lifecycle/presentation.js`, `cli/parse-args.js`,
+  `cli/application.js`, `installers/plugin-installers.js`, `scaffold/presentation.js`,
+  `lifecycle-test.js` and `cli-modularization-test.js` are existing extension owners.
+- current_coverage: surface validation, English rendering, additive activation/delivery projections,
+  captured native success output and verbose routing are not done; the existing result, renderer,
+  parser, installer and scaffold boundaries are suitable for extension.
+- reuse_strategy: extend those owners in place; preserve `lifecycle/status.js` as the delivery
+  composition authority and `agdf-interaction-locales.json` for chat/approval only.
+- parallel_structure_risk: low if presentation remains one module; high if installer-specific cards,
+  a second surface registry or a new locale layer are added.
+- risks: Capturing plugin output must preserve exit/phase behavior; repository setup has different
+  surface evidence; a pending restart must never be mapped to delivery. All are covered by the
+  existing isolated-fixture owners.
+- context_graph_impact: update_existing_node
+- required_next_step: execute MSC-01 through MSC-08 through the existing-owner implementation path.
+
+### Revision 3 Finding Resolved
+
+The TP names `node create-agdf/scripts/cli-test.js`, but this file does not exist. The current focused
+CLI regression owner is `node create-agdf/scripts/cli-modularization-test.js`. This is a plan-evidence
+defect, not a product or design change. TP revision 4 now names
+`node create-agdf/scripts/cli-modularization-test.js` and received renewed exact approval on
+2026-07-17. The implementation path passes without a parallel-structure or ownership finding.
+
+## Revision 2 Baseline
 
 ## Scope
 

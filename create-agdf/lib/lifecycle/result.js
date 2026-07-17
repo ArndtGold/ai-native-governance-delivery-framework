@@ -1,6 +1,7 @@
 const OPERATIONS = new Set(["install", "update", "status", "disable", "uninstall", "repository_setup"]);
 const RESULTS = new Set(["success", "partial", "failed", "preview"]);
 const SCOPES = new Set(["global", "repository"]);
+const SURFACES = new Set(["codex", "claude", "copilot", "opencode", "generic"]);
 
 function text(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -24,6 +25,15 @@ export function createLifecycleResult(input = {}) {
       status: text(input.verification?.status) || "unknown",
       evidence: [...(input.verification?.evidence ?? [])].map(String),
     },
+    installation: {
+      status: text(input.installation?.status) || text(input.verification?.status) || "unknown",
+    },
+    activation: {
+      status: text(input.activation?.status) || (input.restart?.required ? "pending_restart" : "active"),
+    },
+    delivery: {
+      status: text(input.delivery?.status) || "not_evaluated",
+    },
     restart: {
       required: Boolean(input.restart?.required),
       reason: text(input.restart?.reason) || "none",
@@ -44,7 +54,7 @@ export function assertLifecycleResult(value) {
   if (value?.schema_version !== 1) throw new Error("Lifecycle result requires schema_version 1.");
   if (!OPERATIONS.has(value.operation)) throw new Error(`Unsupported lifecycle operation: ${value.operation || "missing"}.`);
   if (!RESULTS.has(value.result)) throw new Error(`Unsupported lifecycle result: ${value.result || "missing"}.`);
-  if (!value.surface) throw new Error("Lifecycle result requires a surface.");
+  if (!SURFACES.has(value.surface)) throw new Error(`Unsupported lifecycle surface: ${value.surface || "missing"}.`);
   if (!SCOPES.has(value.scope)) throw new Error(`Unsupported lifecycle scope: ${value.scope || "missing"}.`);
   if (!value.next_action || Array.isArray(value.next_action) || !text(value.next_action.text)) {
     throw new Error("Lifecycle result requires exactly one next action.");

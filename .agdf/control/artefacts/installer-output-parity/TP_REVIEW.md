@@ -30,3 +30,19 @@ Plan: `TP.md` revision 2
 - out_of_scope_changes: none observed
 - risks: host-visible native controls and restart/plugin activation remain unproven; linked dependency UAT is still revise
 - required_next_step: renew Clean Implementation Review, Code Review and QA for the UAT remediation, then continue UAT without converting unavailable host evidence into pass
+
+## TP Revision 4 Coverage
+
+| task_id | status | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|
+| MSC-01 | fully_done | result invariants and canonical-surface fixtures | none | none |
+| MSC-02 | fully_done | frozen English renderer and locale-invariance fixture | no live host rendering | none before UAT |
+| MSC-03 | fully_done | parser, help and quiet/verbose CLI fixtures | none | none |
+| MSC-04 | fully_done | captured adapter output, phase order and failure fixture | real host output remains UAT scope | none before UAT |
+| MSC-05 | fully_done | shared surface labels and repository-card integration in established owners | host activation/restart is unverified | none before UAT |
+| MSC-06 | fully_done | existing lifecycle status and mutation safety fixtures remain green | none | none |
+| MSC-07 | fully_done | focused tests plus aggregate/package smoke and release bootstrap | none | none |
+| MSC-08 | fully_done | synced package assets, package README, runtime integrity and aggregate smoke | no new Context Graph node required | none |
+
+Summary: pass — 8/8 MSC tasks fully_done. The only deferred evidence is explicitly host-visible UAT,
+not a TP implementation gap.

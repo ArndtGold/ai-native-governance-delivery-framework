@@ -45,3 +45,26 @@ Decision owner: `qa-gate`
 - risks: UAT remains revise until that missing host evidence is either performed or deliberately left unaccepted.
 - required_next_step: obtain renewed exact QA approval for this post-QA code delta before continuing UAT.
 - impact_codes: none registered for this repository.
+
+## TP Revision 4 QA Gate
+
+Decision owner: `qa-gate`
+
+| Dimension | Status | Evidence |
+|---|---|---|
+| Plan coverage | pass | TP Revision 4 section in `TP_REVIEW.md`: 8/8 MSC tasks fully done |
+| Solution integrity | pass | TP Revision 4 section in `CLEAN_IMPLEMENTATION_REVIEW.md` |
+| Code quality | pass | TP Revision 4 section in `CODE_REVIEW.md` |
+| QA decision | pass | deterministic lifecycle, CLI, bootstrap and package smoke evidence |
+
+- decision: pass
+- evidence: approved TP revision 4; passing Brownfield Analysis; focused lifecycle and CLI tests;
+  full create-agdf smoke; public release-bootstrap smoke; runtime integrity; package smoke; Doctor pass.
+- missing_evidence: host-visible restart, activation and native approval UI behavior remain UAT scope.
+- workspace_scope: repository-wide `git diff --check` reports one pre-existing trailing-whitespace
+  warning in unrelated `README.md`; implementation-owned paths are clean and the warning is not
+  silently attributed to this slice.
+- risks: host command wording may evolve; it is shown only in verbose diagnostics and does not decide
+  activation or delivery.
+- required_next_step: request exact `Approval: QA`; after approval, prepare bounded UAT only.
+- impact_codes: none registered for this repository.

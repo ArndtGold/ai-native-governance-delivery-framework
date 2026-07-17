@@ -92,10 +92,15 @@ Optional flags:
 - `--dir <path>` write into a specific directory
 - `--force` overwrite existing generated files
 - `--language <tag>` or `--lang <tag>` persist a BCP 47 language tag such as `de`, `en` or `fr-CA`
+- `--verbose` show captured host installer output and generated-file details after the concise lifecycle card
 - `--scope <repository|global>` select an explicit lifecycle mutation scope
 - `--confirm` apply a global uninstall after reviewing the default non-mutating preview
 
 If no language is provided, `create-agdf` derives the preference from the local system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale) and falls back to `en`.
+
+Lifecycle cards and CLI-owned status labels are always English so they remain comparable across
+machines and coding agents. `--language` continues to control project chat and artefact language;
+it does not localize the CLI lifecycle card.
 
 ## Targets and existing AGENTS.md
 

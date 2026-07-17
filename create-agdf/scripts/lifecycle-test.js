@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createLifecycleResult } from "../lib/lifecycle/result.js";
-import { lifecycleCardLines } from "../lib/lifecycle/presentation.js";
+import { lifecycleCardLines, printLifecycleResult } from "../lib/lifecycle/presentation.js";
 import {
   applyLifecyclePlan,
   planGlobalUninstall,
@@ -23,8 +23,27 @@ const success = createLifecycleResult({
   next_action: { kind: "prompt", text: "Start a new task." },
 });
 assert.deepEqual(lifecycleCardLines(success).slice(1).map((line) => line.split(":")[0]), [
-  "Result", "Surface", "Installation scope", "AGDF version", "Verification", "Restart required", "Next action",
+  "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Verification", "Restart required", "Next action",
 ]);
+assert.equal(lifecycleCardLines(success)[0], "AGDF installation complete");
+assert.equal(success.installation.status, "healthy");
+assert.equal(success.activation.status, "pending_restart");
+assert.equal(success.delivery.status, "not_evaluated");
+assert.throws(() => createLifecycleResult({
+  operation: "install", result: "success", surface: "unsupported", scope: "global",
+  next_action: { text: "Continue" },
+}), /Unsupported lifecycle surface/);
+assert.throws(() => createLifecycleResult({
+  operation: "install", result: "success", scope: "global", next_action: { text: "Continue" },
+}), /Unsupported lifecycle surface/);
+for (const [surface, label] of Object.entries({ codex: "Codex", claude: "Claude Code", copilot: "GitHub Copilot", opencode: "OpenCode", generic: "Generic coding agent" })) {
+  const report = createLifecycleResult({ operation: "status", result: "success", surface, scope: "global", next_action: { text: "Continue" } });
+  assert.equal(lifecycleCardLines(report)[1], `Surface: ${label}`);
+}
+assert.deepEqual(lifecycleCardLines(success), lifecycleCardLines(success, "de"), "Lifecycle cards must not vary with project locale.");
+const rendered = [];
+printLifecycleResult(success, { io: { log(line) { rendered.push(line); } } });
+assert.equal(rendered.some((line) => line.startsWith("Repository delivery:")), true);
 assert.throws(() => createLifecycleResult({
   operation: "install", result: "success", surface: "codex", scope: "global",
   version: { status: "verified" }, next_action: { text: "Continue" },

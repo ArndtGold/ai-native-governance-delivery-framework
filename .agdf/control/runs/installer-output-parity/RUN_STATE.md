@@ -5,10 +5,10 @@
 - control_state_version: 2
 - run_id: installer-output-parity
 - lifecycle: active
-- revision: 19
-- revision_id: bc72be4a-52a3-43a8-adff-bb3a109e3873
-- mode: structured_delivery
-- current_gate: UAT
+- revision: 33
+- revision_id: 3e517e4a-53d5-4e17-bf29-585d5cf6e00d
+- mode: structured_slice
+- current_gate: OR
 - owner: agent
 
 ## Objective
@@ -21,10 +21,10 @@ keeping technical health distinct from delivery gate state.
 | Question | Answer |
 |---|---|
 | What is known? | The current installer verifies versions reliably, but success output, technical health, repository delivery state, first-run orientation, CLI discovery, opt-out and `codex-repo` completion are fragmented. The loaded Codex question tool decorates its recommended option while the canonical plugin definition declares exact-value transport, so safe fallback behavior and the advertised native-button capability diverge. OpenCode already provides the richest status baseline. Claude installation also catches every failure as a possible missing Claude CLI even when the upstream marketplace error identifies Git as missing or unsafe. |
-| What is approved? | UR, PRD, SD, TP revision 2 and the post-UAT QA delta are approved by exact user approvals. |
-| What is missing? | Real Codex activation/restart evidence and exact `Approval: UAT`; the current UAT report remains revise. |
-| What is the next allowed action? | Choose whether to authorize bounded real-host UAT or retain the activation/restart gaps as unaccepted. |
-| What is explicitly forbidden right now? | Claim UAT pass, release, mutate real host plugin state without explicit authorization or perform automatic VCS delivery. |
+| What is approved? | Revision-2 UR, multi-surface PRD, solution design, revision-4 task plan, passing revision-4 QA report and UAT are approved exactly. |
+| What is missing? | Real host restart/activation evidence remains unverified; no VCS handoff has been requested. |
+| What is the next allowed action? | Retain the UAT limitation in any handoff; perform separately authorized live-host UAT only if that proof is required. |
+| What is explicitly forbidden right now? | Automatic release, push, PR or commit; real host activation must not be claimed without evidence. |
 
 ## Source And Scope State
 
@@ -40,47 +40,49 @@ keeping technical health distinct from delivery gate state.
 | Run status | Value |
 |---|---|
 | Status | open |
-| Current gate | UAT |
-| Allowed now | Prepare explicitly authorized bounded host UAT or keep the current revise decision |
-| Blocked by | missing real activation/restart evidence and user acceptance |
-| Missing approval | `Approval: UAT` |
-| Next gate after approval | OR |
-| Allowed after approval | Prepare the auditable delivery report; release and VCS actions remain separately gated |
-| Next step | Decide whether real-host UAT may change Codex plugin configuration and require restart |
-| Quality outlook | Delta QA is approved; exact-text and non-mutating lifecycle paths pass, but host activation/restart remain unverified |
+| Current gate | OR |
+| Allowed now | Prepare a delivery handoff only when separately requested; retain the UAT limitation |
+| Blocked by | none |
+| Missing approval | none |
+| Next gate after approval | none |
+| Allowed after approval | none |
+| Next step | Await an explicit delivery-handoff request or separately authorized live-host UAT |
+| Quality outlook | Prove one English card contract across all passed coding-agent surfaces while preserving stable machine values and truthful activation/delivery separation |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` received from the user on 2026-07-16. |
-| PRD | approved | Exact `Approval: PRD` received from the user on 2026-07-16. |
-| SD | approved | Exact `Approval: SD` received from the user on 2026-07-16. |
-| TP | approved | Revision 2 received exact `Approval: TP` on 2026-07-16. |
-| QA | approved | Renewed exact `Approval: QA` received on 2026-07-17 after same-run, same-gate, revision 18 and delta QA-report revalidation. |
+| UR | approved | Revision 2 received exact `Approval: UR` on 2026-07-17 after same-run, same-gate and revision-20 revalidation. |
+| PRD | approved | Revision 2 received exact `Approval: PRD` on 2026-07-17 after same-run, same-gate and revision-24 revalidation. |
+| SD | approved | Revision 2 received exact `Approval: SD` on 2026-07-17 after same-run, same-gate and revision-25 revalidation. |
+| TP | approved | Revision 4 received exact `Approval: TP` on 2026-07-17 after same-run, same-gate and revision-28 revalidation. |
+| QA | approved | TP Revision 4 QA report passed and received exact `Approval: QA` on 2026-07-17 after same-run, same-gate and revision-30 revalidation. |
+| UAT | approved | Exact `Approval: UAT` received on 2026-07-17 after same-run, same-gate and revision-31 revalidation. |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | `.agdf/control/artefacts/installer-output-parity/UR.md` | approved | Exact `Approval: UR` recorded on 2026-07-16 |
-| Brownfield Review | `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_REVIEW.md` | done | Structured Delivery selected from existing-owner and safety evidence |
-| PRD | `.agdf/control/artefacts/installer-output-parity/PRD.md` | approved | Exact `Approval: PRD` recorded on 2026-07-16 |
-| SD | `.agdf/control/artefacts/installer-output-parity/SD.md` | approved | Exact `Approval: SD` recorded on 2026-07-16 |
-| TP | `.agdf/control/artefacts/installer-output-parity/TP.md` | approved | Revision 2 approved exactly on 2026-07-16 |
-| Brownfield Analysis | `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_ANALYSIS.md` | done | Revision 2 passes after TP removed overlapping interaction ownership |
-| CD+Tests | `.agdf/control/artefacts/installer-output-parity/CD_TESTS.md` | done | IOP-01 through IOP-12 implemented; focused and aggregate verification pass |
-| TP Review | `.agdf/control/artefacts/installer-output-parity/TP_REVIEW.md` | done | 12/13 fully done; IOP-13 is explicitly post-QA |
-| Clean Implementation Review | `.agdf/control/artefacts/installer-output-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | done | pass; existing owners reused without a second SoT |
-| CR | `.agdf/control/artefacts/installer-output-parity/CODE_REVIEW.md` | done | pass; no meaningful finding remains in reviewed scope |
-| QA | `.agdf/control/artefacts/installer-output-parity/QA_REPORT.md` | pass | original and renewed delta QA approvals recorded; latest exact approval received on 2026-07-17 |
+| UR | `.agdf/control/artefacts/installer-output-parity/UR.md` | approved | Revision 2 adds the English-default CLI and improved Success Card delta; exact approval recorded on 2026-07-17 |
+| Brownfield Review | `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_REVIEW.md` | done | Revision-2 delta selects a bounded Structured Slice and existing-owner reuse |
+| PRD | `.agdf/control/artefacts/installer-output-parity/PRD.md` | approved | Revision-2 English multi-surface CLI and Success Card contract approved exactly on 2026-07-17 |
+| SD | `.agdf/control/artefacts/installer-output-parity/SD.md` | approved | Revision-2 shared surface/result/renderer and verbose-output design approved exactly on 2026-07-17 |
+| TP | `.agdf/control/artefacts/installer-output-parity/TP.md` | approved | Revision-4 corrected focused CLI verification command approved exactly on 2026-07-17 |
+| Brownfield Analysis | `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_ANALYSIS.md` | done | Revision-4 analysis passes; existing-owner implementation path is clear |
+| CD+Tests | `.agdf/control/artefacts/installer-output-parity/CD_TESTS.md` | done | TP Revision 4 MSC-01 through MSC-08 implemented; focused, aggregate, bootstrap and package smoke evidence passes |
+| TP Review | `.agdf/control/artefacts/installer-output-parity/TP_REVIEW.md` | done | TP Revision 4: 8/8 MSC tasks fully done; host activation remains UAT evidence |
+| Clean Implementation Review | `.agdf/control/artefacts/installer-output-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | done | TP Revision 4 pass; existing owners reused without a second SoT |
+| CR | `.agdf/control/artefacts/installer-output-parity/CODE_REVIEW.md` | done | TP Revision 4 pass; no meaningful finding remains in reviewed scope |
+| QA | `.agdf/control/artefacts/installer-output-parity/QA_REPORT.md` | pass | TP Revision 4 qa-gate pass; exact approval recorded on 2026-07-17 |
 | UAT | `.agdf/control/artefacts/installer-output-parity/UAT_REPORT.md` | revise | non-mutating scenarios pass after one remediation; real activation and restart remain unverified |
+| OR | `.agdf/control/artefacts/installer-output-parity/OR.md` | revise | all gates approved; retain the UAT host-evidence limitation before any delivery handoff |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Prioritized installation UX outcomes | User request on 2026-07-16 | Success Card, health/delivery split, read-only orientation, README/CLI simplification, lifecycle commands and `codex-repo` automation | direct |
+| Prioritized installation UX outcomes | User requests on 2026-07-16 and 2026-07-17 | Success Card, English CLI default, installation/activation/delivery split, read-only orientation, README/CLI simplification, lifecycle commands and `codex-repo` automation | direct |
 | Codex native approval transport gap | Current Codex `request_user_input` schema; `plugin/meta/agdf-plugin.definition.json`; `plugin/meta/contracts/interaction.md` | Host decorates the recommended label while canonical metadata declares exact-value transport; exact text remains the safe authority path | direct |
 | Native Windows Claude failure | User-provided PowerShell output on 2026-07-16 | Marketplace refresh rejects Git as missing or unsafe while `git` itself is callable | direct |
 | Current installer and status owners | `create-agdf/lib/installers/`; `create-agdf/lib/cli/`; `create-agdf/lib/control-evaluation/` | Existing install, command and status behavior | direct |
@@ -98,31 +100,29 @@ keeping technical health distinct from delivery gate state.
 
 ## Mode / Slice Decision
 
-- decision: `structured_delivery`
-- required_next_gate: `TP`
-- scope_reason: Public CLI commands and JSON, installer presentation and failure classification,
-  destructive lifecycle operations, repository-local bootstrap, runtime interaction semantics and
-  three documentation owners change together. The scope is not safe as Quick Task, Verified Change
-  or one Structured Slice.
-- evidence: `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_REVIEW.md`;
-  `create-agdf/lib/cli/`; `create-agdf/lib/installers/`; `create-agdf/lib/scaffold/`;
-  `plugin/meta/contracts/interaction.md`; `README.md`; `INSTALL.md`; `create-agdf/README.md`.
-- transparency_note: Brownfield Analysis found that TP revision 1 duplicated an active interaction
-  owner's scope. Revision 2 keeps the lifecycle implementation here and converts approval capability
-  work into an explicit dependency. Implementation remains forbidden until revision 2 is approved
-  and the Brownfield recheck passes.
+- decision: `structured_slice`
+- required_next_gate: `PRD`
+- scope_reason: Revision 2 is bounded to the existing lifecycle result/presentation boundary, CLI
+  call sites, scaffold completion and focused tests. It changes public semantics but does not reopen
+  destructive lifecycle operations or approval authority.
+- evidence: `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_REVIEW.md` revision 2;
+  `create-agdf/lib/lifecycle/`; `create-agdf/lib/cli/application.js`;
+  `create-agdf/scripts/lifecycle-test.js`; release-bootstrap smoke.
+- transparency_note: Existing Structured Delivery artefacts remain historical baseline evidence;
+  only concise PRD, SD, TP, implementation and QA deltas are reopened.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | `Approval: UR` | Exact user approval recorded on 2026-07-16. |
+| UR | approved_by | `Approval: UR` | Revision-2 exact user approval recorded on 2026-07-17 after revision-20 revalidation. |
 | Brownfield Review | sizes | `structured_delivery` | `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_REVIEW.md` |
 | PRD | derived_from | UR | `.agdf/control/artefacts/installer-output-parity/PRD.md` |
-| PRD | approved_by | `Approval: PRD` | Exact user approval recorded on 2026-07-16. |
+| PRD | approved_by | `Approval: PRD` | Revision-2 exact user approval recorded on 2026-07-17 after revision-24 revalidation. |
 | SD | derived_from | PRD | `.agdf/control/artefacts/installer-output-parity/SD.md` |
-| SD | approved_by | `Approval: SD` | Exact user approval recorded on 2026-07-16. |
+| SD | approved_by | `Approval: SD` | Revision-2 exact user approval recorded on 2026-07-17 after revision-25 revalidation. |
 | TP | derived_from | SD | `.agdf/control/artefacts/installer-output-parity/TP.md` |
+| TP revision 3 | approved_by | `Approval: TP` | Exact user approval recorded on 2026-07-17 after revision-26 revalidation. |
 | TP revision 1 | approved_by | `Approval: TP` | Exact user approval recorded on 2026-07-16; superseded by Brownfield ownership finding. |
 | Brownfield Analysis | verifies | TP revision 1 | Decision `revise`; `.agdf/control/artefacts/installer-output-parity/BROWNFIELD_ANALYSIS.md` |
 | TP revision 2 | derived_from | Brownfield Analysis | Removes parallel interaction ownership and preserves linked UAT dependency. |
@@ -149,5 +149,5 @@ keeping technical health distinct from delivery gate state.
 
 ## Closeout
 
-- next_allowed_action: Decide whether bounded real-host UAT may change Codex plugin configuration and require restart.
-- quality_outlook: Delta QA is approved; UAT remains revise because real activation and restart are unverified.
+- next_allowed_action: Await an explicit delivery-handoff request or separately authorized live-host UAT; do not perform VCS actions automatically.
+- quality_outlook: Keep one English lifecycle card across Codex, Claude Code, OpenCode and GitHub Copilot without coupling activation state to delivery authority or changing project chat/artefact localization.

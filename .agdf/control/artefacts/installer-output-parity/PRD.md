@@ -1,10 +1,141 @@
 # PRD: Coherent AGDF Installation Lifecycle
 
-Status: approved
+Status: approved; revision 2
 Gate: PRD
-Date: 2026-07-16
-Derived from: approved `UR.md` and completed `BROWNFIELD_REVIEW.md`
-Gate approval: Approval: PRD
+Date: 2026-07-17
+Derived from: approved `UR.md` revision 2 and completed `BROWNFIELD_REVIEW.md` revision 2
+Gate approval: revision 1 approved on 2026-07-16; revision 2 approved with exact `Approval: PRD` on 2026-07-17
+
+## Revision 2 Product Delta: Canonical English CLI Success Card
+
+### Product Decision
+
+AGDF-owned CLI presentation uses English as its canonical and unconditional default. Repository
+`chat_language` and `artifact_language` continue to control agent conversations and durable AGDF
+artefacts; they do not localize CLI commands, labels, status copy or lifecycle cards. CLI
+localization is not offered implicitly through the operating-system locale. Any future localized CLI
+mode must be explicit and complete for the rendered surface.
+
+The lifecycle completion card becomes the concise primary success surface for every supported coding
+agent. The caller passes the canonical coding-agent `surface`; the shared renderer never assumes
+Codex and never infers a surface from the current directory, operating system or installed tools. On
+a successful native host operation, normal mode suppresses repetitive host success chatter and
+internal marketplace or cache paths while retaining the captured evidence for verification.
+`--verbose` prints the native phase output and technical paths before the same final card. On
+failure, the relevant upstream error and recovery evidence remain visible even without `--verbose`.
+
+### Coding-Agent Surface Contract
+
+Every lifecycle result contains one explicit canonical surface value:
+
+| Canonical value | Human label | Source |
+|---|---|---|
+| `codex` | Codex | implied by `codex` / `codex-repo`, or passed through `--surface codex` |
+| `claude` | Claude Code | implied by `claude`, or passed through `--surface claude` |
+| `opencode` | OpenCode | implied by `opencode` / `opencode-repo`, or passed through `--surface opencode` |
+| `copilot` | GitHub Copilot | implied by `copilot`, or passed through `--surface copilot` |
+| `generic` | Generic coding agent | only for commands that explicitly support a generic surface |
+
+Install and repository-setup commands derive the parameter deterministically from their command
+target. Shared lifecycle commands such as `status`, `disable` and `uninstall` consume the explicit
+`--surface` value according to their existing validation rules. The normalized surface is passed
+through the lifecycle result into presentation; presentation owns only the human label. Missing,
+generic or unsupported surfaces must fail closed where the operation requires a concrete host.
+
+Surface-specific capability data determines activation wording and the one next action. It may not
+fork the card layout, English-language contract, installation-health semantics or delivery authority.
+
+### Human Success Card
+
+Every supported coding agent uses the same semantic card. This is the Codex instance of that shared
+contract:
+
+```text
+AGDF installation completed
+
+Surface: Codex
+Version: 0.9.6 (verified)
+Installation scope: global
+Installation: healthy
+Activation: pending restart
+Repository delivery: not evaluated
+
+Next action: Restart Codex.
+```
+
+Rules:
+
+1. The title describes the completed operation and replaces the redundant `Result: success` row.
+2. `Surface` maps the passed canonical parameter to the human product name; commands and machine
+   values remain canonical English.
+3. Version shows the installed version and verification. Update output may show the previous and new
+   version; unchanged output says `already current` rather than `added` or `installed`.
+4. `Installation` reports technical plugin/package health only.
+5. `Activation` reports host loading state. A required restart produces `pending restart`; internal
+   reasons such as `host_reload` belong to JSON or verbose detail.
+6. `Repository delivery` derives only from repository control evidence. A global install without a
+   selected repository reports `not evaluated`; restart state never implies `blocked` delivery.
+7. The card contains one `Next action`. Repository setup may use its one action as the first prompt
+   once no host action remains.
+8. Labels, human values and next-action copy are all English. A German system or project language
+   must not create a mixed-language card.
+
+### Lifecycle Result Compatibility
+
+The schema-v1 lifecycle result remains the sole JSON and human presentation source. It gains only
+additive projections where required:
+
+- `installation.status`: `healthy | degraded | not_installed | unknown`
+- `activation.status`: `active | pending_restart | inactive | unknown`
+- `activation.reason`: existing canonical reason such as `host_reload | none | unknown`
+- `delivery.status`: existing delivery vocabulary or `not_evaluated`
+
+Existing `verification`, `restart`, version, change, retained-state and failure fields remain
+compatible. The renderer must derive new projections from existing verified evidence where possible;
+it must not introduce another host or gate evaluator.
+
+### Standard And Verbose Output
+
+- Normal success: one concise AGDF card; no duplicate marketplace/cache-root lines.
+- Verbose success: captured native output and technical paths, followed by the identical final card.
+- Failure or partial result: phase-specific upstream error and recovery evidence remain visible in
+  normal mode; verbose may add full captured diagnostics.
+- JSON: no human card and no localization; stable machine values only.
+- `--language` and `--lang` continue to configure project chat and artefact language. They do not
+  change CLI presentation.
+
+### Revision 2 Acceptance Criteria
+
+1. `codex`, `claude`, `opencode`, `copilot`, repository setup, status, disable and uninstall render
+   AGDF-owned lifecycle output in English under German and English system/project locales.
+2. Successful standard output ends with exactly one outcome-specific card and does not repeat
+   marketplace/cache-root detail emitted by successful native phases.
+3. `--verbose` exposes preserved native output and technical paths; normal failures still preserve
+   the decisive upstream error and recovery guidance.
+4. The card distinguishes installation, activation and repository delivery; pending restart never
+   becomes a delivery-gate decision.
+5. Install, update and unchanged fixtures render truthful version-transition language.
+6. JSON values and existing schema-v1 fields remain compatible; additive activation/delivery fields
+   are deterministic and validated.
+7. Project chat and artefact language configuration remains unchanged, including German interaction
+   and approval surfaces.
+8. Focused lifecycle, CLI, scaffold, smoke and clean release-bootstrap tests pass and reject
+   mixed-language cards.
+9. Surface-matrix fixtures prove `codex` → Codex, `claude` → Claude Code, `opencode` → OpenCode and
+   `copilot` → GitHub Copilot through the same renderer, with surface-specific activation and next
+   actions but identical card structure.
+10. No supported operation silently defaults to Codex when another coding-agent surface was passed
+    or implied by the command target.
+
+### Revision 2 Non-Goals
+
+- No removal of German interaction or agent-chat localization.
+- No localized CLI implementation or automatic OS-locale selection.
+- No change to host installation commands, approval authority, delivery-gate evaluation, destructive
+  lifecycle operations or repository activation policy.
+- No new presentation module, locale registry or second lifecycle/status evaluator.
+
+## Revision 1 Baseline
 
 ## 1. Product Goal
 

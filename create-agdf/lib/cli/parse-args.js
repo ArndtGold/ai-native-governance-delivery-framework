@@ -27,6 +27,7 @@ export function parseArgs(argv, dependencies = {}) {
   let dir = ".";
   let force = false;
   let json = false;
+  let verbose = false;
   let statusCard = false;
   let language;
   let dirExplicit = false;
@@ -50,6 +51,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--help" || arg === "-h") return { kind: "help" };
     if (arg === "--force") { force = true; continue; }
     if (arg === "--json") { json = true; continue; }
+    if (arg === "--verbose") { verbose = true; continue; }
     if (arg === "--status-card") { statusCard = true; continue; }
     if (arg === "--persist") { persist = true; continue; }
     if (arg === "--generate-candidates") { generateCandidates = true; continue; }
@@ -129,6 +131,7 @@ export function parseArgs(argv, dependencies = {}) {
       dir: resolve(cwd, dir),
       force,
       json,
+      verbose,
       statusCard,
       dirExplicit,
       language: languagePreference(language),

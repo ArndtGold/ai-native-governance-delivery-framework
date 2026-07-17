@@ -95,6 +95,7 @@ Options:
                  Set AGDF chat and artefact language. Defaults to detected system locale.
   --lang <tag>   Alias for --language
   --json         Print machine-readable command output as JSON
+  --verbose       Print captured host command output and generated-file details
   --status-card  Print compact gate-check status-card output for interactive use
   --run <run_id> Select one canonical run
   --all-active   Evaluate every active run (doctor and delivery-map only)

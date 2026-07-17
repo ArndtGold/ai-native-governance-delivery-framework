@@ -7,14 +7,43 @@ import { agdfFragmentPath, openCodeConfigFragmentPath } from "./plan.js";
 
 const pluginInstallCommand = "npx --yes @agdf/cli@latest claude";
 
-export function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents = [], io = console) {
-  io.log("");
-  io.log(`AGDF bootstrap complete in ${destination}`);
-  io.log("");
-  io.log("Generated:");
-  for (const file of files) {
-    const action = file.action ? `${file.action}: ` : "";
-    io.log(`- ${action}${file.path}`);
+export function printNextSteps(target, destination, files, wroteAgentsFragment, wroteOpenCodeConfigFragment, removedOpenCodeAgents = [], { verbose = false, json = false, io = console } = {}) {
+  const repositorySurface = { "codex-repo": "codex", "opencode-repo": "opencode", copilot: "copilot" }[target];
+  const verified = files.every((file) => {
+    const path = join(destination, file.path);
+    return existsSync(path) && readFileSync(path, "utf8") === file.content;
+  });
+  if (repositorySurface) {
+    const nextAction = repositorySurface === "codex"
+      ? "Restart Codex, open /plugins, select This repository and install agdf; then start a new task with: Run an AGDF gate check for this request."
+      : repositorySurface === "opencode"
+        ? "Restart OpenCode in this repository so it loads the generated AGDF repository configuration."
+        : "Run /instructions in GitHub Copilot CLI to confirm that the generated AGDF repository instructions are visible.";
+    printLifecycleResult(createLifecycleResult({
+      operation: "repository_setup",
+      result: verified ? "success" : "partial",
+      surface: repositorySurface,
+      scope: "repository",
+      version: { expected: pluginDefinition.version, status: "expected" },
+      verification: { status: verified ? "healthy" : "degraded", evidence: files.map((file) => file.path) },
+      installation: { status: verified ? "healthy" : "degraded" },
+      activation: { status: "pending_restart" },
+      delivery: { status: "not_evaluated" },
+      restart: { required: true, reason: "host_reload_and_repository_plugin_activation" },
+      next_action: { kind: "host_action", text: nextAction },
+    }), { json, io });
+    if (!verbose || json) return;
+  }
+
+  if (verbose) {
+    io.log("");
+    io.log(`AGDF bootstrap complete in ${destination}`);
+    io.log("");
+    io.log("Generated:");
+    for (const file of files) {
+      const action = file.action ? `${file.action}: ` : "";
+      io.log(`- ${action}${file.path}`);
+    }
   }
 
   if (removedOpenCodeAgents.length > 0) {
@@ -30,26 +59,7 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
     for (const preserved of preservedFiles) io.log(`- ${preserved}`);
   }
 
-  if (target === "codex-repo") {
-    const verified = files.every((file) => {
-      const path = join(destination, file.path);
-      return existsSync(path) && readFileSync(path, "utf8") === file.content;
-    });
-    printLifecycleResult(createLifecycleResult({
-      operation: "repository_setup",
-      result: verified ? "success" : "partial",
-      surface: "codex",
-      scope: "repository",
-      version: { expected: pluginDefinition.version, status: "expected" },
-      verification: { status: verified ? "healthy" : "degraded", evidence: files.map((file) => file.path) },
-      restart: { required: true, reason: "host_reload_and_repository_plugin_activation" },
-      next_action: {
-        kind: "host_action",
-        text: "Restart Codex, open /plugins, select This repository and install agdf; then start a new task with: Run an AGDF gate check for this request.",
-      },
-    }), { locale: JSON.parse(files.find((file) => file.path === join(".agdf", "control", "config.json"))?.content ?? "{}").chat_language, io });
-    return;
-  }
+  if (repositorySurface) return;
 
   io.log("");
   io.log("Next steps:");

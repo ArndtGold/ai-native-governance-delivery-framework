@@ -1,9 +1,85 @@
 # Brownfield Review: AGDF Installation and First-Run UX
 
-Status: done
+Status: done; revision 2 delta
 Mode: post_ur_review
-Date: 2026-07-16
-Based on: approved `UR.md`
+Date: 2026-07-17
+Based on: approved `UR.md` revision 2
+
+## Revision 2 Delta Decision
+
+- decision: pass
+- mode_slice_decision: structured_slice
+- required_next_gate: PRD
+- scope: Make AGDF-owned CLI presentation canonically English and revise the lifecycle Success Card
+  without changing project chat/artefact localization, gate authority or host-native operations.
+- scope_reason: The delta is bounded to the existing lifecycle result/presentation boundary, its CLI
+  call sites, scaffold completion and focused lifecycle/bootstrap tests. It changes public output and
+  may extend the schema-v1 result compatibly, so it is too semantic for Quick Task or Verified Change,
+  but it does not reopen the original destructive lifecycle or cross-host installation design.
+- transparency: The existing Structured Delivery artefacts remain baseline evidence. Only concise
+  PRD, SD and TP deltas are required before implementation; unrelated installer, approval and
+  lifecycle-operation scope stays closed.
+
+## Revision 2 Existing-System Coverage
+
+| Concern | Coverage | Existing owner and evidence | Reuse direction |
+|---|---|---|---|
+| English CLI presentation | partially_done | Most CLI surfaces already emit fixed English; `create-agdf/lib/lifecycle/presentation.js` alone selects `primary.lifecycleResult` from the project chat locale | decouple lifecycle CLI copy from `chat_language`; do not change agent-chat locale resolution |
+| Mixed lifecycle card values | partially_done | Localized labels are combined with stable English enums such as `success`, `verified` and `healthy` | render one canonical English vocabulary; retain stable JSON values |
+| Installation health | fully_done | `verification.status` and installer version evidence already drive the lifecycle result | relabel through the existing result rather than add a second verifier |
+| Host activation | partially_done | `restart.required` and `restart.reason` exist, but the human card exposes only a yes/no restart row | derive or compatibly add an explicit activation projection from existing restart evidence |
+| Repository delivery | fully_done in `status`, not evaluated by global install | `lifecycle/status.js` composes doctor/gate-check authority; install results have no selected repository delivery evidence | never infer delivery from restart; show `not evaluated` only when the shared result contract explicitly represents it |
+| Project language | fully_done and separately owned | `runtime-context.js`, `.agdf/control/config.json` and the interaction locale registry govern chat and artefacts | preserve unchanged; CLI English must not delete German interaction packs or alter generated config |
+| Idempotent version transition | fully_done in data, partially_done in presentation | lifecycle `version.transition` already distinguishes installed, updated and unchanged | reuse the transition for truthful English outcome copy |
+| Marketplace/cache paths | host-owned in observed Codex output | `plugin-installers.js` deliberately streams native Codex output before the AGDF card | keep the final AGDF card free of internal paths; PRD must decide whether normal mode may summarize instead of streaming native detail, because duplicate native lines cannot be removed while also preserving them verbatim |
+| Regression coverage | partially_done | `lifecycle-test.js`, `smoke-test.js` and `release-bootstrap-smoke-test.js` assert the current ordered card | extend these fixtures for German environment/project locale, activation/delivery separation and mixed-language rejection |
+
+## Revision 2 Reuse Strategy
+
+- Reuse `create-agdf/lib/lifecycle/result.js` as the only lifecycle result schema and
+  `create-agdf/lib/lifecycle/presentation.js` as the only human Success Card renderer.
+- Stop passing `options.language.chat_language` into lifecycle/status rendering. Keep that language
+  object for generated AGDF chat and artefact configuration only.
+- Reuse existing `restart` evidence for activation; do not create a second host probe.
+- Reuse `lifecycle/status.js` plus doctor/gate-check for repository delivery. Global installation must
+  not manufacture a delivery blocker when no repository/run was evaluated.
+- Keep `plugin/meta/agdf-interaction-locales.json` as interaction-copy ownership. Removing its German
+  lifecycle keys is optional cleanup only if runtime-integrity consumers permit it; it is not a new
+  CLI localization framework.
+- Extend existing lifecycle and bootstrap fixtures. Do not introduce snapshot infrastructure or a
+  second presentation module.
+
+## Revision 2 Impact And Risks
+
+- affected modules: lifecycle result/presentation, CLI lifecycle call sites, scaffold completion,
+  focused lifecycle/smoke/bootstrap tests and concise CLI documentation.
+- compatibility: JSON enum values and existing commands remain stable. Any added activation/delivery
+  fields must be additive within schema v1 or require an explicit schema decision in SD.
+- primary visible owner: the final AGDF lifecycle card. Host-native command output remains a separate
+  upstream surface and must not be silently claimed as AGDF-localized copy.
+- parallel_structure_risk: low if the existing lifecycle renderer is extended; high if a new
+  installer-only card or separate locale registry is introduced.
+- product_semantics_risk: activation and delivery must remain different state domains. A restart can
+  make activation pending but cannot authorize or classify a repository delivery gate.
+- missing_evidence: PRD must settle normal-versus-verbose handling of host-native detail and the exact
+  compact card rows; SD must settle additive schema shape before implementation.
+
+## Revision 2 Context Graph
+
+- context_graph_impact: update_existing_node
+- context_graph_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`; `CG-RUN-STATUS-CARD`
+- context_graph_required_action: update after the approved design fixes the CLI-language and
+  installation/activation/delivery invariants
+- context_graph_gate_effect: none
+- context_graph_evidence: both concepts already exist and own the affected composition/status
+  boundaries; no new governance node is justified.
+
+## Revision 2 Required Next Step
+
+Draft a concise PRD delta that fixes the exact English Success Card contract and decides how normal
+output treats host-native detail, then request `Approval: PRD`.
+
+## Revision 1 Baseline
 
 ## Decision
 

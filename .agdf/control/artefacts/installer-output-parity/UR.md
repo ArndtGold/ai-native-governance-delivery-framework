@@ -1,9 +1,9 @@
 # UR: Make AGDF Installation and First-Run UX Coherent
 
-Status: approved
+Status: approved; revision 2
 Gate: UR
-Gate approval: `Approval: UR`
-Date: 2026-07-16
+Gate approval: revision 1 approved on 2026-07-16; revision 2 approved with exact `Approval: UR` on 2026-07-17
+Date: 2026-07-17
 Owner: agent
 
 ## 1. Problem
@@ -42,9 +42,23 @@ is governed, whether delivery is merely blocked at a gate, and what single actio
 
 ### P0: installation completion and health
 
-- End successful Codex, Claude Code and OpenCode installation with one recognizable localized
-  Success Card containing AGDF version, installation scope, verification result, restart requirement
-  and exactly one first prompt or next action.
+- Make English the canonical default language for AGDF-owned CLI presentation, independent of the
+  operating-system locale and repository `chat_language` or `artifact_language`. Project language
+  preferences continue to govern agent chat and durable artefacts, not CLI output.
+- End successful Codex, Claude Code and OpenCode installation with one recognizable English Success
+  Card containing AGDF version, installation scope, installation health, activation state, repository
+  delivery state when it can be evaluated, restart requirement and exactly one first prompt or next
+  action.
+- Never mix presentation languages inside one AGDF-owned CLI result. Any future localized CLI mode
+  must be explicit, complete for the rendered surface and fall back as a whole to English.
+- Keep commands, options, machine values and error codes in English. Human labels may be localized
+  only by a future explicit CLI locale, without changing canonical machine values.
+- Report restart as an activation state such as `pending restart`; do not infer that repository
+  delivery is blocked by restart. When no repository delivery state was evaluated, report it as not
+  evaluated or omit it according to the shared card contract.
+- Make idempotent outcomes truthful (`installed`, `updated` or `already current`), collapse duplicate
+  marketplace-root lines in the AGDF summary and keep internal marketplace/cache paths behind
+  `--verbose` while preserving host-native output.
 - Preserve host-native command output before the final AGDF card.
 - Separate technical installation health from repository delivery state in human and JSON status
   output, for example `installation: healthy` and `delivery: blocked`, without weakening either
@@ -127,6 +141,16 @@ is governed, whether delivery is merely blocked at a gate, and what single actio
     output, read-only no-mutation, lifecycle safety and partial host-capability paths.
 15. Package smoke, release-bootstrap smoke, runtime integrity, selected-run doctor and whitespace
     validation pass without weakening existing assertions.
+16. AGDF-owned CLI output defaults completely to English regardless of system locale or project
+    language configuration; existing project chat and artefact language behavior remains unchanged.
+17. The Success Card distinguishes installation health, host activation and repository delivery and
+    never maps a pending restart to a delivery-gate decision.
+18. The standard card presents user-relevant outcome and next steps without duplicate internal paths;
+    technical marketplace/cache details remain available through `--verbose` or preserved host output.
+19. First install, update and unchanged fixtures use truthful action wording and never claim that an
+    already-present plugin was newly added by AGDF.
+20. Human lifecycle fixtures cover English default output under German and English environment
+    locales and reject mixed-language cards.
 
 ## 6. Existing Sources Of Truth
 
@@ -162,6 +186,8 @@ is governed, whether delivery is merely blocked at a gate, and what single actio
 - README changes must not replace the honest independent-project and discussion-draft positioning
   with unsupported maturity claims.
 - Read-only orientation belongs in the interaction layer and must not become repetitive session noise.
+- Existing localized lifecycle rendering conflicts with revision 2. PRD, SD and TP must be revised
+  after approval so English CLI presentation is separated from project chat/artefact localization.
 
 ## 8. Next Step
 

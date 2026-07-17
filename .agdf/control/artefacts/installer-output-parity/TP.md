@@ -1,12 +1,80 @@
 # Task Plan: Coherent AGDF Installation Lifecycle
 
-Status: approved
+Status: approved; revision 4
 Gate: TP
-Date: 2026-07-16
-Derived from: approved `SD.md`
-Revision: 2
-Revision reason: pre-implementation Brownfield Analysis removed overlapping interaction ownership
-Gate approval: Approval: TP
+Date: 2026-07-17
+Derived from: approved `SD.md` revision 2
+Revision: 4
+Revision reason: correct the pre-implementation verification command to the existing focused CLI test
+Gate approval: revision 3 approved on 2026-07-17; revision 4 approved with exact `Approval: TP` on 2026-07-17
+
+## Revision 3 Delta Scope
+
+Implement only the approved English multi-surface lifecycle-card slice. Reuse lifecycle result,
+presentation, CLI parser/application, installer adapters and scaffold presentation. Do not reopen
+existing disable/uninstall safety, approval transport, gate authority or unrelated onboarding work.
+
+## Revision 3 Tasks
+
+| task_id | Task | Owner | Evidence / acceptance |
+|---|---|---|---|
+| MSC-01 | Validate canonical lifecycle surfaces and add additive schema-v1 `installation`, `activation` and `delivery` projections in `lifecycle/result.js`, preserving existing fields and values. | agent | Unit fixtures cover all five canonical surface values, missing/unsupported rejection, default `not_evaluated` delivery and restart-derived activation. |
+| MSC-02 | Replace lifecycle locale lookup with one frozen English renderer, operation titles, surface labels and readable state formatting in `lifecycle/presentation.js`. | agent | German and English project/system locale fixtures render byte-identical English cards; JSON output remains unchanged. |
+| MSC-03 | Add `--verbose` through parser, command registry and CLI application; ensure lifecycle callers pass normalized coding-agent surface rather than project chat locale. | agent | Help/argument tests cover the flag; quiet output is default, verbose is opt-in and lifecycle operations receive the correct surface. |
+| MSC-04 | Capture successful Codex and Claude native plugin-phase output as structured evidence, replay it only in verbose mode, and preserve decisive error output in normal failure paths. | agent | Adapter fixtures prove phase order, quiet success, verbose diagnostics, Windows-safe invocation and failure evidence. |
+| MSC-05 | Route Codex, Claude Code and OpenCode global installs plus Codex, OpenCode and GitHub Copilot repository setup through the shared card with evidence-based activation and next actions. | agent | Surface matrix proves correct human label, no implicit Codex fallback, shared card shape and truthful surface-specific action. |
+| MSC-06 | Keep `status`, disable and uninstall compatible while rendering their AGDF-owned lifecycle/status copy in English and retaining existing delivery authority. | agent | Existing safety/status fixtures pass; a pending restart never produces a delivery decision. |
+| MSC-07 | Extend focused lifecycle, CLI, scaffold, installer and release-bootstrap tests for all card variants, locale invariance, verbose policy, repository delivery semantics and update/unchanged wording. | agent | All focused suites pass; regression tests fail on mixed language, duplicate normal success detail or surface misrouting. |
+| MSC-08 | Synchronize derived assets and update concise CLI documentation for English default and `--verbose`; reconcile the two existing Context Graph nodes. | agent | Runtime integrity, documentation/link checks, Context Graph evidence and aggregate smoke pass. |
+
+## Revision 3 Execution Order
+
+1. MSC-01 establishes result invariants and canonical surface validation.
+2. MSC-02 renders only from those invariants.
+3. MSC-03 propagates surface and verbose intent through command handling.
+4. MSC-04 and MSC-05 integrate native adapters and repository setup.
+5. MSC-06 preserves status/mutation boundaries.
+6. MSC-07 proves the public contract before MSC-08 synchronizes generated assets and documentation.
+
+## Revision 3 Acceptance Matrix
+
+| SD / PRD delta | Planned evidence |
+|---|---|
+| Explicit multi-surface propagation | MSC-01, MSC-03, MSC-05 surface matrix |
+| English invariant CLI card | MSC-02, MSC-07 locale fixtures |
+| Additive schema-v1 projections | MSC-01 result tests and JSON compatibility assertions |
+| Quiet default and verbose diagnostics | MSC-03, MSC-04, MSC-07 adapter/CLI fixtures |
+| Installation, activation and delivery separation | MSC-01, MSC-05, MSC-06 status fixtures |
+| Truthful update/unchanged language | MSC-02, MSC-07 lifecycle fixtures |
+| Shared repository setup card | MSC-05 scaffold fixtures |
+| Aggregate integrity and documentation | MSC-08 aggregate verification |
+
+## Revision 3 Verification Commands
+
+```text
+node create-agdf/scripts/lifecycle-test.js
+node create-agdf/scripts/cli-modularization-test.js
+node create-agdf/scripts/smoke-test.js
+AGDF_EXPECTED_VERSION="$(node -p \"JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version\")" node create-agdf/scripts/release-bootstrap-smoke-test.js
+node plugin/scripts/check-runtime-integrity.mjs
+node create-agdf/bin/create-agdf.js doctor --run installer-output-parity --json
+node create-agdf/bin/create-agdf.js gate-check --run installer-output-parity --json
+git diff --check
+```
+
+No focused or aggregate test may mutate the user's active plugins or real host configuration. Live
+host activation/restart remains a separately authorized UAT concern.
+
+## Revision 3 Constraints
+
+- Do not add a second lifecycle renderer, surface registry, locale registry or gate/status evaluator.
+- Do not change commands, destructive-operation scope, approval authority, interaction transport or
+  host-native operation sequences outside the capture/presentation boundary.
+- Do not remove existing JSON fields, project-language behavior, German interaction locale packs or
+  compatibility entry points.
+- Do not claim a host restart or activation completed from fixture evidence alone.
+
+## Revision 2 Baseline
 
 ## Scope
 

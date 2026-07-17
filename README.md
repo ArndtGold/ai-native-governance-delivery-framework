@@ -1,9 +1,8 @@
 ![Intro : AI-native Governance & Delivery Framework](assets/intro.png)
 
-# AI-native Governance & Delivery Framework
+# AI native Governance and Delivery Framework
 
-Ein installierbares, kontrollorientiertes Plugin und deutschsprachiger Diskussionsentwurf für
-Softwareentwicklung mit KI-Agenten.
+AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex, Claude Code und OpenCode. Zugleich ist es ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
 
 ## Installieren und prüfen
 
@@ -13,31 +12,43 @@ Für Codex ist der primäre Einstieg:
 npx --yes @agdf/cli@latest codex
 ```
 
-Der Abschluss zeigt Version, Installationsscope, Verifikation, Neustartbedarf und genau eine nächste
-Aktion. In einem Repository kannst du danach den lokalen Codex-Weg einrichten:
+Nach Abschluss zeigt die Installation Version, Installationsbereich, Prüfergebnis, erforderlichen Neustart und genau einen nächsten Schritt.
 
-```bash
-npx --yes @agdf/cli@latest codex-repo
-npx --yes @agdf/cli@latest status --surface codex
-```
-
-Claude Code und OpenCode verwenden dieselbe primäre Befehlsfamilie:
+Claude Code und OpenCode verwenden dieselbe Befehlsfamilie:
 
 ```bash
 npx --yes @agdf/cli@latest claude
 npx --yes @agdf/cli@latest opencode
 ```
 
-Alle Installations-, Status-, Deaktivierungs- und Entfernungsschritte stehen in [INSTALL.md](INSTALL.md).
-AGDF ist ein unabhängiges Projekt und kein Standard; die installierbare Runtime ersetzt weder
-Produktverantwortung noch Engineering-, Security-, Test- oder Abnahmeentscheidungen.
+Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
 
-Der Entwurf fragt:
+AGDF ist ein unabhängiges Projekt und kein verbindlicher Standard. Die installierbare Runtime ersetzt weder Produktverantwortung noch Engineering, Security, Test oder Abnahmeentscheidungen.
 
-Wie bleibt Softwareentwicklung kontrollierbar, wenn KI-Agenten nicht nur Code schreiben, sondern auch planen, prüfen,
-ändern und zusammenfassen?
+Der Entwurf stellt eine zentrale Frage:
 
-## In einem Satz
+Wie bleibt Softwareentwicklung kontrollierbar, wenn KI Agenten nicht nur Code schreiben, sondern auch planen, prüfen, ändern und Ergebnisse zusammenfassen?
+
+#### Passt AGDF überhaupt zu meinem Vorhaben?
+
+AGDF hilft, wenn KI gestützte Änderungen an bestehenden Systemen nachvollziehbare Entscheidungen zu Scope, Freigaben, Nachweisen und Verantwortung erfordern oder wenn sichtbar werden soll, welchen überprüfbaren Beitrag die KI zum Projektergebnis geleistet hat. Technische Nutzungswerte zeigen Aktivität, aber noch keinen nachgewiesenen Beitrag zum Projektergebnis.
+
+Bei kleinen, risikoarmen oder explorativen Aufgaben kann ein einfacherer Arbeitsweg sinnvoller sein als zusätzlicher Governance Aufwand.
+
+Prüfe die Eignung vor der Installation oder vor Beginn einer gesteuerten Umsetzung mit diesem Prompt:
+
+```text
+Prüfe vor einer Implementierung, ob AGDF für dieses Repository und die konkrete Anforderung angemessen ist.
+
+Erläutere den Zweck und den praktischen Nutzen von AGDF. Stelle den zusätzlichen Steuerungsaufwand dem Ausführungsrisiko gegenüber.
+
+Empfehle den einfachsten geeigneten Arbeitsweg. Rate ausdrücklich von AGDF ab, wenn der erwartbare Prozessaufwand größer ist als der praktische Mehrwert.
+```
+
+Die Einschätzung dient der Orientierung. Sie ist weder eine Freigabe zur Umsetzung noch ein Ersatz für menschliche Verantwortung.
+
+
+## Dieser Diskussionsentwurf in einem Satz 
 
 KI-Agenten brauchen nicht nur Prompts und Tools.
 Sie brauchen einen nachvollziehbaren Arbeitsrahmen aus Gates, Artefakten, Projektwissen und Nachweisen.

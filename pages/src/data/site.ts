@@ -223,20 +223,24 @@ export const agdfLimits = {
         "Security and privacy review",
         "Domain acceptance",
         "Regulatory certification",
-        "Good tests",
+        "Test design and test quality",
+        "Commercial approval and invoice validation",
         "Human judgment",
     ],
     dependsOn: [
-        "Correct repository control state",
+        "A correct and current repository state",
         "Complete and traceable evidence",
-        "Actually executed tests",
+        "Tests that were actually executed",
         "Honest human UAT",
+        "Reliable external usage and cost data",
         "Disciplined use by agents and teams",
     ],
-    framing: "AGDF makes delivery more governable. It does not make engineering judgment, verification or human responsibility optional.",
-    overhead: "AGDF reduces uncontrolled delivery risk, but it adds process overhead. Its value depends on choosing the smallest governance path that matches the change.",
-}
-
+    framing:
+        "AGDF makes delivery more governable. It does not make engineering judgment, verification or human responsibility optional.",
+    overhead:
+        "AGDF reduces the risk of uncontrolled delivery, but it also adds process overhead. Its value depends on selecting the smallest governance path appropriate to the specific change.\n" +
+        "AGDF neither measures compute usage nor validates invoices. It provides the delivery context needed to connect externally measured AI usage with approved work, verified results and demonstrated project contribution.",
+};
 export const aiActFit = [
     {
         title: "Risk stays visible",

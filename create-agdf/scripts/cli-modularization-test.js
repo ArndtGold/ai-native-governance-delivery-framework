@@ -47,6 +47,7 @@ assert.deepEqual(parsed.options, {
   dir: "/tmp/root/workspace",
   force: false,
   json: false,
+  verbose: false,
   statusCard: false,
   dirExplicit: true,
   language: { language: "default" },
@@ -68,6 +69,7 @@ assert.deepEqual(parsed.options, {
 const alias = parseArgs(["--target", "config", "--lang", "de"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(alias.options.target, "config");
 assert.deepEqual(alias.options.language, { language: "de" });
+assert.equal(parseArgs(["status", "--verbose"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.verbose, true);
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
@@ -159,14 +161,29 @@ function installerRecording(outputs) {
 
 {
   const recording = installerRecording(["", "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
-  installCodexGlobalPlugin({ exec: recording.exec, io: recording.io.io });
+  const installed = installCodexGlobalPlugin({ exec: recording.exec, io: recording.io.io });
   assert.deepEqual(recording.calls.map(({ command, args }) => [command, args]), [
     ["codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"]],
     ["codex", ["plugin", "marketplace", "upgrade", "agdf"]],
     ["codex", ["plugin", "add", "agdf", "--marketplace", "agdf"]],
     ["codex", ["plugin", "list"]],
   ]);
-  assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["inherit", "inherit", "inherit", "pipe"]);
+  assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["pipe", "pipe", "pipe", "pipe"]);
+  assert.deepEqual(installed.nativeOutput, []);
+}
+
+{
+  const quiet = recordingIo();
+  const outputs = ["marketplace added\n", "marketplace upgraded\n", "plugin added\n", `agdf@agdf ${pluginDefinition.version}\n`];
+  assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); } }), 0);
+  assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
+  assert.equal(quiet.out[0], "AGDF installation complete");
+
+  const verbose = recordingIo();
+  const verboseOutputs = ["marketplace added\n", "marketplace upgraded\n", "plugin added\n", `agdf@agdf ${pluginDefinition.version}\n`];
+  assert.equal(await runCli(["codex", "--verbose"], { io: verbose.io, exec() { return verboseOutputs.shift(); } }), 0);
+  assert.equal(verbose.out.includes("Host command output:"), true);
+  assert.equal(verbose.out.some((line) => line.includes("marketplace added")), true);
 }
 
 {

@@ -1,36 +1,45 @@
-import { interactionLocales } from "../cli/runtime-context.js";
+const surfaceLabels = Object.freeze({
+  codex: "Codex",
+  claude: "Claude Code",
+  copilot: "GitHub Copilot",
+  opencode: "OpenCode",
+  generic: "Generic coding agent",
+});
 
-function copy(locale) {
-  const language = String(locale ?? "").toLowerCase().split("-")[0];
-  return (interactionLocales.locales[language] ?? interactionLocales.locales[interactionLocales.fallbackLocale]).primary.lifecycleResult;
+function titleFor(report) {
+  if (report.result === "failed") return "AGDF installation failed";
+  if (report.result === "partial") return "AGDF installation partially completed";
+  if (report.operation === "repository_setup") return "AGDF repository setup complete";
+  return "AGDF installation complete";
 }
 
-export function lifecycleCardLines(report, locale = "en") {
-  const c = copy(locale);
+export function lifecycleCardLines(report) {
   const version = report.version.transition === "updated" && report.version.previous && report.version.installed
     ? `${report.version.previous} -> ${report.version.installed}`
-    : report.version.installed || (report.version.expected ? `${c.unknown}; expected ${report.version.expected}` : c.unknown);
+    : report.version.installed || (report.version.expected ? `unknown; expected ${report.version.expected}` : "unknown");
   const versionStatus = report.version.transition && report.version.transition !== "updated"
     ? `${report.version.status}; transition ${report.version.transition}`
     : report.version.status;
   return [
-    c.title,
-    `${c.result}: ${report.result}`,
-    `${c.surface}: ${report.surface}`,
-    `${c.scope}: ${report.scope}`,
-    `${c.version}: ${version} (${versionStatus})`,
-    `${c.verification}: ${report.verification.status}`,
-    `${c.restart}: ${report.restart.required ? c.yes : c.no}${report.restart.reason !== "none" ? ` (${report.restart.reason})` : ""}`,
-    `${c.next}: ${report.next_action.text}`,
+    titleFor(report),
+    `Surface: ${surfaceLabels[report.surface]}`,
+    `Version: ${version} (${versionStatus})`,
+    `Installation scope: ${report.scope}`,
+    `Installation: ${report.installation.status}`,
+    `Activation: ${report.activation.status}`,
+    `Repository delivery: ${report.delivery.status}`,
+    `Verification: ${report.verification.status}`,
+    `Restart required: ${report.restart.required ? "yes" : "no"}${report.restart.reason !== "none" ? ` (${report.restart.reason})` : ""}`,
+    `Next action: ${report.next_action.text}`,
   ];
 }
 
-export function printLifecycleResult(report, { json = false, locale = "en", io = console } = {}) {
+export function printLifecycleResult(report, { json = false, io = console } = {}) {
   if (json) {
     io.log(JSON.stringify(report, null, 2));
     return;
   }
-  for (const line of lifecycleCardLines(report, locale)) io.log(line);
+  for (const line of lifecycleCardLines(report)) io.log(line);
   if (report.failure) io.log(`Failure phase: ${report.failure.phase}: ${report.failure.message}`);
   if (report.retained.length) {
     io.log("Retained:");
@@ -38,15 +47,14 @@ export function printLifecycleResult(report, { json = false, locale = "en", io =
   }
 }
 
-export function printGeneralStatus(report, { json = false, locale = "en", io = console } = {}) {
+export function printGeneralStatus(report, { json = false, io = console } = {}) {
   if (json) {
     io.log(JSON.stringify(report, null, 2));
     return;
   }
-  const c = copy(locale);
-  io.log(c.statusTitle);
-  io.log(`${c.installation}: ${report.installation.status}${report.installation.version ? ` (${report.installation.version})` : ""}`);
-  io.log(`${c.repository}: ${report.repository.status}`);
-  io.log(`${c.delivery}: ${report.delivery.status}${report.delivery.current_gate ? ` (${report.delivery.current_gate})` : ""}`);
-  io.log(`${c.next}: ${report.next_action.text}`);
+  io.log("AGDF status");
+  io.log(`Installation: ${report.installation.status}${report.installation.version ? ` (${report.installation.version})` : ""}`);
+  io.log(`Repository: ${report.repository.status}`);
+  io.log(`Delivery: ${report.delivery.status}${report.delivery.current_gate ? ` (${report.delivery.current_gate})` : ""}`);
+  io.log(`Next action: ${report.next_action.text}`);
 }

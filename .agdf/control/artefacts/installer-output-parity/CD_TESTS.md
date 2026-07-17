@@ -54,3 +54,26 @@ directs the user to restart the host while retaining the healthy global installa
 fixture reproduces the combined state and verifies the corrected action. The focused lifecycle/CLI
 tests, full package smoke, 27/27 skill evals, release-bootstrap smoke and `git diff --check` pass after
 the delta.
+
+## TP Revision 4 Lifecycle-Card Delta
+
+Status: done
+Date: 2026-07-17
+
+- Implemented the approved MSC-01 through MSC-08 slice in the established lifecycle, CLI,
+  installer and scaffold owners. The shared card is English-only, labels all canonical coding-agent
+  surfaces, keeps installation, activation and repository delivery separate, and remains concise by
+  default.
+- Successful Codex and Claude command output is captured and shown only with `--verbose`; errors
+  retain their phase-specific diagnostic output. Repository setup for Codex, OpenCode and Copilot
+  uses the same card without claiming host activation as complete.
+- Evidence: `node create-agdf/scripts/lifecycle-test.js`,
+  `node create-agdf/scripts/cli-modularization-test.js`, `npm --prefix create-agdf run smoke-test`,
+  `AGDF_EXPECTED_VERSION=… node create-agdf/scripts/release-bootstrap-smoke-test.js`,
+  `node plugin/scripts/check-runtime-integrity.mjs`, `npm --prefix agdf run smoke-test`, and
+  `doctor --run installer-output-parity --json` all pass.
+- Workspace note: repository-wide `git diff --check` still reports a pre-existing trailing whitespace
+  line in the unrelated root `README.md`; the implementation-owned files are clean and it is not
+  modified by this slice.
+- Boundary: no real host restart, plugin activation or native approval-button behavior was exercised;
+  those remain UAT evidence and are not represented as installed/active by the card.

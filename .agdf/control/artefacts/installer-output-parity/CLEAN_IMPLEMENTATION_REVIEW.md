@@ -26,3 +26,18 @@ Date: 2026-07-16
 - brownfield_fit: pass; the existing lifecycle status owner remains authoritative.
 - missing_evidence: real host restart remains UAT scope.
 - required_next_step: run delta Code Review and QA Gate.
+
+## TP Revision 4 Delta Review
+
+- decision: pass
+- primary_solution: extend the single lifecycle result and presentation owner, then pass concise/
+  verbose intent through the existing CLI, installers and scaffold boundary.
+- evidence: no second renderer, locale registry, surface registry or delivery evaluator was added;
+  `status` remains the delivery authority and project language remains outside CLI-card rendering.
+- fallbacks_retained: host-native output is retained as captured diagnostics and exact failures remain
+  visible; neither changes the success-card contract.
+- workaround_or_shim_risk: low; `--verbose` is an additive presentation flag, not an alternate flow.
+- parallel_structure_risk: none observed.
+- brownfield_fit: pass; all changes stay in the pre-approved extension owners.
+- missing_evidence: host restart and activation require UAT.
+- required_next_step: run the delta Code Review and QA Gate.

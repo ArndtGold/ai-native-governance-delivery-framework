@@ -3,24 +3,26 @@ import { pluginDefinition } from "../cli/runtime-context.js";
 
 export function installCodexGlobalPlugin({ exec = execFileSync, io = console } = {}) {
   const expectedVersion = pluginDefinition.version;
-  runPluginPhase(exec, "codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], "marketplace", { stdio: "inherit" });
-  runPluginPhase(exec, "codex", ["plugin", "marketplace", "upgrade", "agdf"], "marketplace", { stdio: "inherit" });
-  runPluginPhase(exec, "codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], "plugin_operation", { stdio: "inherit" });
+  const nativeOutput = [];
+  nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], "marketplace", captureOptions()));
+  nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "marketplace", "upgrade", "agdf"], "marketplace", captureOptions()));
+  nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], "plugin_operation", captureOptions()));
   const listOutput = runPluginPhase(exec, "codex", ["plugin", "list"], "verification", { encoding: "utf8", stdio: "pipe" });
   const installedVersion = pluginVersionFromList(listOutput, "agdf@agdf");
   if (installedVersion !== expectedVersion) {
     throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedVersion, installedVersion, "codex plugin marketplace upgrade agdf && codex plugin add agdf --marketplace agdf"));
   }
-  return { surface: "codex", expectedVersion, installedVersion, verificationStatus: "healthy", evidence: ["codex plugin list"] };
+  return { surface: "codex", expectedVersion, installedVersion, verificationStatus: "healthy", evidence: ["codex plugin list"], nativeOutput: nativeOutput.filter(Boolean).map(String) };
 }
 
 export function installClaudeGlobalPlugin({ exec = execFileSync, io = console } = {}) {
   const expectedVersion = pluginDefinition.version;
-  runPluginPhase(exec, "claude", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], "marketplace", { stdio: "inherit" });
-  runPluginPhase(exec, "claude", ["plugin", "marketplace", "update", "agdf"], "marketplace", { stdio: "inherit" });
+  const nativeOutput = [];
+  nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "marketplace", "add", "arndtgold/ai-native-governance-delivery-framework"], "marketplace", captureOptions()));
+  nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "marketplace", "update", "agdf"], "marketplace", captureOptions()));
   const beforeList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", { encoding: "utf8", stdio: "pipe" });
   const alreadyInstalled = pluginListHasPlugin(beforeList, "agdf@agdf");
-  runPluginPhase(exec, "claude", ["plugin", alreadyInstalled ? "update" : "install", "agdf@agdf"], "plugin_operation", { stdio: "inherit" });
+  nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", alreadyInstalled ? "update" : "install", "agdf@agdf"], "plugin_operation", captureOptions()));
   const afterList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", { encoding: "utf8", stdio: "pipe" });
   const installedVersion = pluginVersionFromList(afterList, "agdf@agdf");
   if (installedVersion && installedVersion !== expectedVersion) {
@@ -32,7 +34,12 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, io = console } 
     installedVersion,
     verificationStatus: installedVersion ? "healthy" : "degraded",
     evidence: ["claude plugin list", ...(installedVersion ? [] : ["host_did_not_expose_version"])],
+    nativeOutput: nativeOutput.filter(Boolean).map(String),
   };
+}
+
+function captureOptions() {
+  return { encoding: "utf8", stdio: "pipe" };
 }
 
 export function inspectPluginSurface(surface, exec = execFileSync) {

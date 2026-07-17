@@ -24,7 +24,7 @@ export const commandRegistry = Object.freeze([
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
   command("doctor", { preferred: [""], scaffold: [""], legacy: [" --json"] }),
-  command("gate-check", { preferred: [" --json"], scaffold: [""], legacy: [" --json"] }),
+  command("gate-check", { preferred: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { scaffold: [""] }),
   command("delivery-path-search", {
     preferred: [" --surface codex --json", " --surface claude --json"],
@@ -65,6 +65,10 @@ export function validateCommandOptions(options) {
     throw new Error("uninstall requires explicit --scope global");
   }
   if (options.confirm && options.target !== "uninstall") throw new Error("--confirm is supported only by uninstall");
+  if (options.approvalEnvelope && options.target !== "gate-check") throw new Error("--approval-envelope is supported only by gate-check");
+  if (options.approvalEnvelope && (options.json || options.statusCard || options.allActive)) {
+    throw new Error("--approval-envelope cannot be combined with --json, --status-card or --all-active");
+  }
   return options;
 }
 
@@ -76,6 +80,18 @@ function usageLines(group, prefix) {
 
 export function renderUsage() {
   return `AGDF CLI
+
+Operating model:
+  Chat/skill is the normal interaction surface.
+  .agdf/control is the durable source of truth.
+  The CLI validates, renders deterministic gate output and supports automation.
+
+Repeated local validation (after global installation):
+  agdf doctor
+  agdf gate-check --approval-envelope
+  agdf gate-check --json
+
+Bootstrap, installation and explicit refresh:
 
 Primary commands:
 ${usageLines("preferred", "npx --yes @agdf/cli@latest ")}
@@ -97,6 +113,8 @@ Options:
   --json         Print machine-readable command output as JSON
   --verbose       Print captured host command output and generated-file details
   --status-card  Print compact gate-check status-card output for interactive use
+  --approval-envelope
+                 Print the deterministic ready-gate cards and exact-text request
   --run <run_id> Select one canonical run
   --all-active   Evaluate every active run (doctor and delivery-map only)
   --surface <codex|claude|copilot|opencode|generic>

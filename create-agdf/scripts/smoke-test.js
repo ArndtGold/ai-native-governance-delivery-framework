@@ -1187,6 +1187,7 @@ run("config", [
 - run_id: tp-transition
 - mode: structured_delivery
 - current_gate: TP
+- revision_id: tp-transition-revision-1
 - decision: in_progress
 - owner: test
 
@@ -1238,6 +1239,25 @@ run("config", [
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
     }
+    if (report.approval_presentation?.blocks?.run_status_card?.markdown?.includes("Approval: TP")
+      || !report.approval_presentation?.blocks?.run_status_card?.markdown?.includes("Required decision: Task and Test Plan approval")
+      || !report.approval_presentation?.blocks?.gate_transition_card?.markdown?.includes("`Approval: TP`")) {
+      throw new Error(`Ready gate-check JSON must expose the neutral, additive approval presentation: ${JSON.stringify(report.approval_presentation)}`);
+    }
+    const cardApprovalCount = JSON.stringify(report.approval_presentation.blocks).split("Approval: TP").length - 1;
+    if (cardApprovalCount !== 1) {
+      throw new Error(`Ready gate-check cards must contain the exact approval value once, got ${cardApprovalCount}.`);
+    }
+    const envelope = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--approval-envelope"], { encoding: "utf8", stdio: "pipe" });
+    if (!envelope.includes("## Review and decide on task and test plan")
+      || !envelope.includes("Required decision: Task and Test Plan approval")
+      || !envelope.includes("To approve, reply exactly with `Approval: TP`")) {
+      throw new Error(`gate-check --approval-envelope must render both cards and the safe exact-text request: ${envelope}`);
+    }
+    const envelopeApprovalCount = envelope.split("Approval: TP").length - 1;
+    if (envelopeApprovalCount !== 2) {
+      throw new Error(`Approval envelope must contain the exact value once in the cards and once in the request, got ${envelopeApprovalCount}.`);
+    }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -1262,10 +1282,13 @@ run("config", [
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("separate localized Gate Transition Card")
+    if (!content.includes("validated canonical `approval_presentation`")
       || !content.includes("Bereit für deine Entscheidung")
       || !content.includes("Ready for your decision")
-      || !content.includes("Do not render a Markdown table")
+      || !content.includes("five status fields are selected run, readiness, current gate, human-readable required decision")
+      || !content.includes("The exact approval value appears only in the transition card across these two blocks")
+      || !content.includes("Re-evaluate the gate")
+      || !content.includes("GitHub Copilot: the current repository-instruction surface has no conforming native approval adapter")
       || !content.includes("do not ask for a second approval for Brownfield Analysis")) {
       throw new Error(`Generated gate-check surface must preserve transition-card UX and locale invariants: ${path}`);
     }

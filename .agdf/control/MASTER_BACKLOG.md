@@ -12,6 +12,7 @@
 
 | Priority | Key | Work item | Status | Artefacts | Current spec | Next step |
 |---:|---|---|---|---|---|---|
+| 1 | `deterministic-agent-ux` | [framework-maintenance] Make the agent-native interaction model explicit and approval presentation deterministically renderable across Codex, Claude Code, OpenCode and GitHub Copilot | Awaiting UAT | [UR](artefacts/deterministic-agent-ux/UR.md) · [Brownfield](artefacts/deterministic-agent-ux/BROWNFIELD_REVIEW.md) · [PRD](artefacts/deterministic-agent-ux/PRD.md) · [SD](artefacts/deterministic-agent-ux/SD.md) · [TP](artefacts/deterministic-agent-ux/TP.md) · [QA](artefacts/deterministic-agent-ux/QA_REPORT.md) | QA approved; [UAT evidence](artefacts/deterministic-agent-ux/UAT_EVIDENCE.md) captures live Codex behavior and disclosed limits | Request exact UAT approval; release and VCS actions remain separate |
 
 ## Planned / Parking Lot
 

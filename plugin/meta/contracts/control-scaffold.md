@@ -83,6 +83,7 @@ Helper commands are deterministic proof and automation interfaces, not the norma
 - `init` creates the machine-readable control scaffold.
 - `doctor --json` checks whether `.agdf/control/` is consistent and actionable; it is not the reviewer.
 - `gate-check --json` reports reproducible gate state; it does not replace the gate-check skill judgement.
+- `gate-check --approval-envelope` prints the canonical ready-gate cards and exact-text request from the same evaluation; it does not grant approval or replace the chat workflow.
 - `delivery-map --json` reports the delivery picture for CI, PRs, regression checks and audit trails.
 
 Machine-readable outputs should stay agent-friendly: stable decisions, blocking gate or current gate, missing approval, allowed outputs, forbidden outputs, next step, evidence and findings.
@@ -106,4 +107,3 @@ It must expose:
 
 Missing relationship evidence in the Artefact Chain is at least `revise` once the related gate artefact is approved or passed.
 Declared missing evidence, declared risk or Context Graph gate effect may escalate the delivery map to `warn`, `revise` or `block`.
-

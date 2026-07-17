@@ -63,8 +63,8 @@ export function validateLocaleRegistry(registry) {
     if (JSON.stringify(keys) !== JSON.stringify(baseline)) errors.push(`incomplete_locale:${locale}`);
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
-      const budget = key.startsWith("gateTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key === "primary.quality"
+      const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("gateRequiredDecisions.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -72,6 +72,7 @@ export function validateLocaleRegistry(registry) {
     for (const key of REQUIRED_GATES) {
       if (typeof pack.gateTitles?.[key] !== "string" || !pack.gateTitles[key].trim()) errors.push(`missing_gate_title:${locale}:${key}`);
       if (typeof pack.gateActionTitles?.[key] !== "string" || !pack.gateActionTitles[key].trim()) errors.push(`missing_gate_action_title:${locale}:${key}`);
+      if (typeof pack.gateRequiredDecisions?.[key] !== "string" || !pack.gateRequiredDecisions[key].trim()) errors.push(`missing_gate_required_decision:${locale}:${key}`);
     }
   }
   if (JSON.stringify(registry?.optionOrder) !== JSON.stringify(["approve", "revise", "decline", "cancel"])) errors.push("option_order");
@@ -303,21 +304,24 @@ export function buildApprovalOrientationSnapshot({
   const gate = String(statusCard.current_gate ?? "").trim();
   const runId = String(statusCard.run_id ?? "").trim();
   const expectedApproval = `Approval: ${gate}`;
-  if (!REQUIRED_GATES.includes(gate) || !runId || statusCard.status !== "open" || statusCard.missing_approval !== expectedApproval) return null;
+  if (!REQUIRED_GATES.includes(gate) || !/^[A-Za-z0-9._-]+$/.test(runId) || statusCard.status !== "open" || statusCard.missing_approval !== expectedApproval) return null;
 
   const locale = resolvePresentationLocale(registry, requestedLocale);
   const pack = localePack(registry, locale);
-  const runTitle = String(humanPresentation.runTitle ?? "").trim() || normalizedRunTitle(runId);
+  const runTitle = displaySafeTitle(humanPresentation.runTitle, normalizedRunTitle(runId));
   const currentGateTitle = String(humanPresentation.gateTitle ?? "").trim() || gateTitle(registry, locale, gate);
   const primaryHeading = String(pack.gateActionTitles?.[gate] ?? "").trim();
   const artefactRefs = Object.freeze([...(humanPresentation.artefactRefs ?? [])].map((ref) => Object.freeze({ ...ref })));
+  const nextGate = String(statusCard.next_gate_after_approval ?? "none");
+  const narration = pack.primary.narration.gates[gate] ?? {};
+  const nextDecision = narration.userAction
+    || (nextGate === "none" ? pack.primary.narration.noAction : `${pack.gateTitles[nextGate] ?? nextGate} ${pack.interaction.decisionFollows}`);
   const statusFields = Object.freeze([
-    Object.freeze({ id: "selected_run", label: pack.statusCard.run, value: `${runTitle} · ${runId}` }),
+    Object.freeze({ id: "selected_run", label: pack.statusCard.run, value: `${runTitle} · \`${runId}\`` }),
     Object.freeze({ id: "readiness_status", label: pack.statusCard.title, value: pack.interaction.ready }),
-    Object.freeze({ id: "current_gate", label: pack.statusCard.gate, value: `${gate} — ${currentGateTitle}` }),
-    Object.freeze({ id: "missing_approval", label: pack.statusCard.missing, value: expectedApproval }),
-    Object.freeze({ id: "next_action", label: pack.statusCard.step, value: pack.primary.actions[gate] ?? String(statusCard.next_step ?? "") }),
-    Object.freeze({ id: "quality_outlook", label: pack.statusCard.quality, value: pack.primary.quality }),
+    Object.freeze({ id: "current_gate", label: pack.statusCard.gate, value: `${currentGateTitle} (\`${gate}\`)` }),
+    Object.freeze({ id: "required_decision", label: pack.statusCard.requiredDecision, value: pack.gateRequiredDecisions[gate] }),
+    Object.freeze({ id: "next_action", label: pack.statusCard.step, value: pack.interaction.decisionInstruction }),
   ]);
   const options = Object.freeze(gateOptions(registry, locale, gate).map((option) => Object.freeze({ ...option })));
 
@@ -337,21 +341,29 @@ export function buildApprovalOrientationSnapshot({
     }),
     gate_transition_card: Object.freeze({
       semantic_block: "gate_transition_card",
-      title: `${currentGateTitle} · ${runTitle} · ${runId}`,
+      title: `${currentGateTitle} · ${runTitle} · \`${runId}\``,
       artefact_refs: artefactRefs,
       ready: pack.interaction.ready,
       approve_heading: pack.interaction.approveHeading,
       exact_approval: expectedApproval,
       approval_effect: pack.primary.afterApproval[gate] ?? pack.primary.actions[gate] ?? "",
       next_heading: pack.interaction.nextHeading,
-      next_gate: String(statusCard.next_gate_after_approval ?? "none"),
+      next_gate: nextGate,
+      next_transition: `${narration.agentNext ?? pack.primary.actions[gate] ?? ""}. ${nextDecision}.`,
     }),
-    approval_interaction: Object.freeze({ semantic_block: "approval_interaction", expected_approval: expectedApproval, options, authorizes: false }),
+    approval_interaction: Object.freeze({
+      semantic_block: "approval_interaction",
+      prompt: pack.interaction.decisionPrompt.replace("{gate}", currentGateTitle).replace("{run_id}", runId),
+      expected_approval: expectedApproval,
+      options,
+      exact_text_fallback: pack.interaction.exactTextRequest.replace("{approval}", expectedApproval),
+      authorizes: false,
+    }),
     authorizes: false,
   });
 }
 
-export function validateApprovalOrientationSnapshot(snapshot) {
+export function validateApprovalOrientationSnapshot(snapshot, { registry, expectedIdentity } = {}) {
   const errors = [];
   if (!plainObject(snapshot)) return Object.freeze({ valid: false, errors: Object.freeze(["snapshot_missing"]) });
   if (JSON.stringify(snapshot.sequence) !== JSON.stringify(APPROVAL_SEQUENCE)) errors.push("sequence");
@@ -362,14 +374,102 @@ export function validateApprovalOrientationSnapshot(snapshot) {
   if (!heading || snapshot.compact_status_card?.primary_heading_level !== 2) errors.push("primary_heading");
   if (String(snapshot.compact_status_card?.title ?? "").trim() !== heading) errors.push("primary_heading_owner");
   if (/^(?:(?:agdf[- ]?status(?: card|karte)?|run status card|gate transition card)(?:\b|\s*[-:—·])|(?:UR|PRD|SD|TP|QA|UAT)(?:\s*[-:—·]|$))/i.test(heading)) errors.push("generic_primary_heading");
+  if (/^(?:approve|accept|authorize|freigeben|genehmigen|abnehmen)\b|(?:freigeben|genehmigen|abnehmen)$/i.test(heading)) errors.push("approval_biased_heading");
   const fieldIds = snapshot.compact_status_card?.fields?.map((field) => field?.id);
-  if (JSON.stringify(fieldIds) !== JSON.stringify(["selected_run", "readiness_status", "current_gate", "missing_approval", "next_action", "quality_outlook"])) errors.push("status_fields");
+  if (JSON.stringify(fieldIds) !== JSON.stringify(["selected_run", "readiness_status", "current_gate", "required_decision", "next_action"])) errors.push("status_fields");
+  if (!String(snapshot.revision_id ?? "").trim()) errors.push("revision_identity");
+  const runIdentitySuffix = ` · \`${String(snapshot.run_id ?? "")}\``;
+  if (!String(snapshot.compact_status_card?.fields?.[0]?.value ?? "").endsWith(runIdentitySuffix)
+    || !String(snapshot.gate_transition_card?.title ?? "").endsWith(runIdentitySuffix)) errors.push("identity_projection");
   const expectedApproval = `Approval: ${String(snapshot.current_gate ?? "").trim()}`;
+  const inCardApprovalCount = JSON.stringify({
+    compact_status_card: snapshot.compact_status_card,
+    gate_transition_card: snapshot.gate_transition_card,
+  }).split(expectedApproval).length - 1;
+  if (inCardApprovalCount !== 1) errors.push("approval_card_occurrence");
+  const artefactOrder = snapshot.gate_transition_card?.artefact_refs?.map((ref) => ref?.type);
+  if (JSON.stringify(artefactOrder) !== JSON.stringify(ARTEFACT_ORDER)) errors.push("artefact_order");
+  if (snapshot.gate_transition_card?.artefact_refs?.some((ref) => ref?.exists && safeArtefactPath(ref.path) !== ref.path)) errors.push("unsafe_artefact_ref");
+  if (!String(snapshot.gate_transition_card?.approval_effect ?? "").trim() || !String(snapshot.gate_transition_card?.next_transition ?? "").trim()) errors.push("transition_content");
+  if (!String(snapshot.approval_interaction?.prompt ?? "").trim() || !String(snapshot.approval_interaction?.exact_text_fallback ?? "").includes(expectedApproval)) errors.push("approval_interaction_copy");
+  if (JSON.stringify(snapshot.approval_interaction?.options?.map((option) => option?.outcome)) !== JSON.stringify(["approve", "revise", "decline"])) errors.push("option_order");
   if (!REQUIRED_GATES.includes(snapshot.current_gate)
     || snapshot.gate_transition_card?.exact_approval !== expectedApproval
     || snapshot.approval_interaction?.expected_approval !== expectedApproval
     || snapshot.approval_interaction?.options?.[0]?.value !== expectedApproval) errors.push("canonical_approval");
+  if (plainObject(expectedIdentity)) {
+    if (["run_id", "revision_id", "current_gate", "presentation_language"]
+      .some((key) => String(snapshot[key] ?? "") !== String(expectedIdentity[key] ?? ""))) errors.push("stale_identity");
+  }
+  if (plainObject(registry) && REQUIRED_GATES.includes(snapshot.current_gate)) {
+    const locale = String(snapshot.presentation_language ?? "");
+    const pack = localePack(registry, locale);
+    const gate = snapshot.current_gate;
+    const fields = snapshot.compact_status_card?.fields ?? [];
+    const localizedOptions = gateOptions(registry, locale, gate);
+    const localizedGateTitle = gateTitle(registry, locale, gate);
+    const nextGate = String(snapshot.gate_transition_card?.next_gate ?? "none");
+    const narration = pack.primary.narration.gates[gate] ?? {};
+    const nextDecision = narration.userAction
+      || (nextGate === "none" ? pack.primary.narration.noAction : `${pack.gateTitles[nextGate] ?? nextGate} ${pack.interaction.decisionFollows}`);
+    const nextTransition = `${narration.agentNext ?? pack.primary.actions[gate] ?? ""}. ${nextDecision}.`;
+    const localeConsistent = resolvePresentationLocale(registry, locale) === locale
+      && heading === pack.gateActionTitles?.[gate]
+      && fields[0]?.label === pack.statusCard.run
+      && fields[1]?.label === pack.statusCard.title
+      && fields[1]?.value === pack.interaction.ready
+      && fields[2]?.label === pack.statusCard.gate
+      && fields[2]?.value === `${localizedGateTitle} (\`${gate}\`)`
+      && fields[3]?.label === pack.statusCard.requiredDecision
+      && fields[3]?.value === pack.gateRequiredDecisions?.[gate]
+      && fields[4]?.label === pack.statusCard.step
+      && fields[4]?.value === pack.interaction.decisionInstruction
+      && String(snapshot.gate_transition_card?.title ?? "").startsWith(`${localizedGateTitle} · `)
+      && snapshot.gate_transition_card?.ready === pack.interaction.ready
+      && snapshot.gate_transition_card?.approve_heading === pack.interaction.approveHeading
+      && snapshot.gate_transition_card?.approval_effect === (pack.primary.afterApproval?.[gate] ?? pack.primary.actions?.[gate] ?? "")
+      && snapshot.gate_transition_card?.next_heading === pack.interaction.nextHeading
+      && snapshot.gate_transition_card?.next_transition === nextTransition
+      && snapshot.approval_interaction?.prompt === pack.interaction.decisionPrompt.replace("{gate}", localizedGateTitle).replace("{run_id}", snapshot.run_id)
+      && snapshot.approval_interaction?.exact_text_fallback === pack.interaction.exactTextRequest.replace("{approval}", expectedApproval)
+      && JSON.stringify(snapshot.approval_interaction?.options) === JSON.stringify(localizedOptions);
+    if (!localeConsistent) errors.push("locale_consistency");
+  }
   return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
+}
+
+export function renderApprovalOrientationSnapshot(snapshot, validation = {}) {
+  if (!validateApprovalOrientationSnapshot(snapshot, validation).valid) return null;
+  const statusMarkdown = [
+    `## ${snapshot.compact_status_card.primary_heading}`,
+    ...snapshot.compact_status_card.fields.map((field) => `${field.label}: ${field.value}`),
+  ].join("\n");
+  const transition = snapshot.gate_transition_card;
+  const transitionMarkdown = [
+    transition.title,
+    formatArtefactRefs(transition.artefact_refs),
+    transition.ready,
+    "",
+    transition.approve_heading,
+    `\`${transition.exact_approval}\` ${transition.approval_effect}`,
+    "",
+    transition.next_heading,
+    transition.next_transition,
+  ].join("\n");
+  return Object.freeze({
+    schema_version: "1",
+    run_id: snapshot.run_id,
+    revision_id: snapshot.revision_id,
+    current_gate: snapshot.current_gate,
+    presentation_language: snapshot.presentation_language,
+    sequence: snapshot.sequence,
+    blocks: Object.freeze({
+      run_status_card: Object.freeze({ markdown: statusMarkdown }),
+      gate_transition_card: Object.freeze({ markdown: transitionMarkdown }),
+    }),
+    approval_interaction: snapshot.approval_interaction,
+    authorizes: false,
+  });
 }
 
 export function attachApprovalOrientationSnapshot(statusCard, options = {}) {

@@ -20,10 +20,12 @@ import {
   resolveHumanRunTitle,
   resolvePresentationLocale,
   reconcileRunScope,
+  renderApprovalOrientationSnapshot,
   normalizeReconciliationText,
   validateLocaleRegistry,
   validateApprovalOrientationSnapshot,
 } from "../lib/interaction-presentation.js";
+import { printApprovalEnvelope } from "../lib/control-evaluation/gate-check.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 
@@ -172,13 +174,15 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(snapshot.compact_status_card.primary_heading_level, 2);
   assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] });
   assert.deepEqual(snapshot.compact_status_card.fields.map((field) => field.id), [
-    "selected_run", "readiness_status", "current_gate", "missing_approval", "next_action", "quality_outlook",
+    "selected_run", "readiness_status", "current_gate", "required_decision", "next_action",
   ]);
   assert.equal(snapshot.run_id, "approval-run");
   assert.equal(snapshot.revision_id, "revision-1");
   assert.equal(snapshot.current_gate, gate);
   assert.equal(snapshot.presentation_language, "de");
   assert.equal(snapshot.compact_status_card.fields[1].value, "Bereit für deine Entscheidung");
+  assert.equal(snapshot.compact_status_card.fields[3].value, registry.locales.de.gateRequiredDecisions[gate]);
+  assert.equal(snapshot.compact_status_card.fields.some((field) => field.value.includes(`Approval: ${gate}`)), false);
   assert.equal(snapshot.gate_transition_card.exact_approval, `Approval: ${gate}`);
   assert.equal(snapshot.approval_interaction.options[0].value, `Approval: ${gate}`);
   assert.equal(snapshot.approval_interaction.authorizes, false);
@@ -186,6 +190,16 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(Object.isFrozen(snapshot), true);
   assert.equal(Object.isFrozen(snapshot.compact_status_card.fields), true);
   assert.equal(Object.isFrozen(snapshot.approval_interaction.options), true);
+  const rendered = renderApprovalOrientationSnapshot(snapshot, {
+    registry,
+    expectedIdentity: { run_id: "approval-run", revision_id: "revision-1", current_gate: gate, presentation_language: "de" },
+  });
+  assert.equal(rendered.schema_version, "1");
+  assert.match(rendered.blocks.run_status_card.markdown, new RegExp(`^## ${registry.locales.de.gateActionTitles[gate]}`));
+  assert.equal(rendered.blocks.run_status_card.markdown.includes(`Approval: ${gate}`), false);
+  assert.equal((`${rendered.blocks.run_status_card.markdown}\n${rendered.blocks.gate_transition_card.markdown}`.match(new RegExp(`Approval: ${gate}`, "g")) ?? []).length, 1);
+  assert.match(rendered.approval_interaction.exact_text_fallback, new RegExp(`Approval: ${gate}`));
+  assert.equal(rendered.authorizes, false);
 }
 
 for (const [mutation, expectedError] of [
@@ -195,13 +209,44 @@ for (const [mutation, expectedError] of [
   [(snapshot) => { snapshot.compact_status_card.primary_heading = "AGDF Status"; }, "generic_primary_heading"],
   [(snapshot) => { snapshot.compact_status_card.title = "AGDF Status — TP"; }, "primary_heading_owner"],
   [(snapshot) => { snapshot.compact_status_card.primary_heading = "Run Status Card — TP"; snapshot.compact_status_card.title = snapshot.compact_status_card.primary_heading; }, "generic_primary_heading"],
+  [(snapshot) => { snapshot.compact_status_card.primary_heading = "Approve user requirements"; snapshot.compact_status_card.title = snapshot.compact_status_card.primary_heading; }, "approval_biased_heading"],
   [(snapshot) => { snapshot.compact_status_card.primary_heading_level = 3; }, "primary_heading"],
+  [(snapshot) => { snapshot.compact_status_card.fields[3].value = "Approval: UR"; }, "approval_card_occurrence"],
+  [(snapshot) => { snapshot.run_id = "different-run"; }, "identity_projection"],
+  [(snapshot) => { snapshot.gate_transition_card.artefact_refs[0].path = "../unsafe/UR.md"; snapshot.gate_transition_card.artefact_refs[0].exists = true; }, "unsafe_artefact_ref"],
+  [(snapshot) => { snapshot.gate_transition_card.next_transition = ""; }, "transition_content"],
   [(snapshot) => { snapshot.approval_interaction.options[0].value = "Approval: TP (Recommended)"; }, "canonical_approval"],
 ]) {
   const invalid = structuredClone(preflightSnapshot);
   mutation(invalid);
-  assert.equal(validateApprovalOrientationSnapshot(invalid).valid, false);
+  assert.equal(validateApprovalOrientationSnapshot(invalid).valid, false, expectedError);
   assert.ok(validateApprovalOrientationSnapshot(invalid).errors.includes(expectedError));
+  assert.equal(renderApprovalOrientationSnapshot(invalid), null);
+}
+
+{
+  const stale = structuredClone(preflightSnapshot);
+  stale.revision_id = "stale-revision";
+  const validation = {
+    registry,
+    expectedIdentity: { run_id: "alpha-run", revision_id: "preflight-revision", current_gate: "UR", presentation_language: "de" },
+  };
+  assert.ok(validateApprovalOrientationSnapshot(stale, validation).errors.includes("stale_identity"));
+  assert.equal(renderApprovalOrientationSnapshot(stale, validation), null);
+}
+
+{
+  const mixedLocale = structuredClone(preflightSnapshot);
+  mixedLocale.compact_status_card.fields[3].label = registry.locales.en.statusCard.requiredDecision;
+  assert.ok(validateApprovalOrientationSnapshot(mixedLocale, { registry }).errors.includes("locale_consistency"));
+  assert.equal(renderApprovalOrientationSnapshot(mixedLocale, { registry }), null);
+}
+
+{
+  const missingRevision = structuredClone(preflightSnapshot);
+  missingRevision.revision_id = "";
+  assert.ok(validateApprovalOrientationSnapshot(missingRevision).errors.includes("revision_identity"));
+  assert.equal(renderApprovalOrientationSnapshot(missingRevision), null);
 }
 
 const readyStatus = { run_id: "r", status: "open", current_gate: "QA", missing_approval: "Approval: QA" };
@@ -225,6 +270,55 @@ assert.equal(attachedSnapshot.revision_id, "revision-attach");
 assert.deepEqual(Object.keys(attachedStatus), publicKeysBefore);
 assert.equal(JSON.stringify(attachedStatus).includes("approvalOrientation"), false);
 assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card missing/);
+
+{
+  const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
+  const lines = [];
+  const output = printApprovalEnvelope({ status: "open", approval_presentation: rendered }, { io: { log: (line = "") => lines.push(String(line)) } });
+  assert.equal(output.outcome, "rendered");
+  assert.equal(output.requested_decision, true);
+  assert.equal(lines.length, 5);
+  assert.match(lines[0], /^## Nutzeranforderungen prüfen und entscheiden/);
+  assert.match(lines.at(-1), /Approval: UR/);
+}
+
+{
+  const lines = [];
+  const readyReport = {
+    status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
+    status_card: { presentation_language: "en" },
+    approval_presentation: null,
+  };
+  const output = printApprovalEnvelope(readyReport, {
+    io: { log: (line = "") => lines.push(String(line)) },
+    reEvaluate: () => ({ ...readyReport }),
+  });
+  assert.equal(output.outcome, "exact_text_recovery");
+  assert.equal(output.requested_decision, true);
+  assert.match(lines[0], /could not be rendered safely/);
+  assert.match(lines[1], /Approval: UR/);
+}
+
+{
+  const lines = [];
+  const readyReport = {
+    status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
+    status_card: { presentation_language: "en" },
+    approval_presentation: null,
+  };
+  const output = printApprovalEnvelope(readyReport, {
+    io: { log: (line = "") => lines.push(String(line)) },
+    reEvaluate: () => ({ ...readyReport, status: "blocked", blocking_reason: "stale_revision", missing_approval: "none" }),
+  });
+  assert.equal(output.outcome, "non_ready");
+  assert.equal(output.requested_decision, false);
+  assert.match(lines[0], /stale_revision/);
+  assert.doesNotMatch(lines[0], /Approval:/);
+}
 
 const readiness = buildQualityReadiness({
   planCoverage: "pass",
@@ -256,6 +350,9 @@ assert.equal(validateLocaleRegistry(incomplete).valid, false);
 const missingActionTitle = structuredClone(registry);
 delete missingActionTitle.locales.de.gateActionTitles.TP;
 assert.equal(validateLocaleRegistry(missingActionTitle).valid, false);
+const missingRequiredDecision = structuredClone(registry);
+delete missingRequiredDecision.locales.de.gateRequiredDecisions.TP;
+assert.equal(validateLocaleRegistry(missingRequiredDecision).valid, false);
 
 const longLocale = structuredClone(registry);
 longLocale.locales.fr = structuredClone(longLocale.locales.en);
@@ -305,7 +402,7 @@ assert.equal(validateLocaleRegistry(missingWhy).valid, false, "missing interacti
 
 for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   const statusCard = { run_id: "r", status: "open", current_gate: gate, missing_approval: `Approval: ${gate}`, next_gate_after_approval: "next", next_step: "Continue." };
-  const snapshot = buildApprovalOrientationSnapshot({ ready: true, statusCard, humanPresentation: { runTitle: "Run", gateTitle: gate, artefactRefs: [] }, revisionId: "rev", registry, requestedLocale: "de" });
+  const snapshot = buildApprovalOrientationSnapshot({ ready: true, statusCard, humanPresentation: { runTitle: "Run", gateTitle: gate, artefactRefs: refs }, revisionId: "rev", registry, requestedLocale: "de" });
   assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] }, `snapshot valid for ${gate} with gateRationale present`);
 }
 

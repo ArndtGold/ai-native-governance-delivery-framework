@@ -19,6 +19,28 @@ The OpenCode global layer only makes AGDF discoverable. It does **not** activate
 
 For the exact current command and option reference, including canonical run lifecycle commands, run `npx --yes @agdf/cli@latest --help`.
 
+## Normal operating model
+
+After installation, the coding-agent chat and AGDF skills are the normal interaction surface.
+`.agdf/control/` is the durable source of truth for selected runs, artefacts, approvals and evidence.
+The CLI validates or renders that state for deterministic checks, CI and audit; it is not a second gate
+system and is not required for every conversational status check.
+
+Use registry-resolved `npx --yes @agdf/cli@latest ...` for bootstrap, installation, explicit refresh or
+when no local executable exists. For repeated local validation, install the wrapper once and avoid a
+fresh registry resolution:
+
+```bash
+npm install -g @agdf/cli
+agdf doctor
+agdf gate-check --approval-envelope
+agdf gate-check --json
+```
+
+`--approval-envelope` prints the canonical ready-gate cards and exact-text request. It does not approve
+a gate. `--json` exposes the same additive `approval_presentation` for a safe native adapter or
+automation.
+
 ### Update, disable or remove
 
 Re-run the relevant installation command to update an installed AGDF surface. Inspect technical
@@ -319,6 +341,7 @@ The primary CLI package is `agdf`. Use it when command semantics matter:
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest doctor
 npx --yes @agdf/cli@latest gate-check --status-card
+npx --yes @agdf/cli@latest gate-check --approval-envelope
 npx --yes @agdf/cli@latest gate-check --json
 ```
 

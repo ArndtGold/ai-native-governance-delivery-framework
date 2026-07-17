@@ -205,7 +205,7 @@ function writeCopilotInstructions() {
     "- Do not infer gate approval from generic consent such as \"ok\", \"go ahead\", \"do it\", \"continue\", \"leg los\" or \"approved\".",
     "- Do not treat chat history as the source of truth for gate state, approvals, evidence or delivery status.",
     "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
-    "- For interactive checks, prefer `npx --yes @agdf/cli@latest gate-check --status-card`. Use `gate-check --json` for automation or audit evidence and summarize the status card instead of mirroring full JSON into chat.",
+    "- For deterministic ready-gate rendering, prefer an installed `agdf gate-check --approval-envelope`; use `agdf gate-check --json` for native-adapter input, automation or audit evidence. Reserve `npx ...@latest` for bootstrap, installation, refresh or a missing local executable.",
     "",
   ];
 
@@ -300,7 +300,7 @@ function writeOpenCodeReadme(skillSlugs) {
     "- `.opencode/skills/` contains native OpenCode skills generated from the canonical AGDF skills.",
     "- For new build/change intent or unclear approval, load `agdf-gate-check` through OpenCode's native `skill` tool.",
     "- Use `npx --yes @agdf/cli@latest opencode-status --json` to distinguish global hook/native-skill configuration, package loadability, session activity and this repository surface.",
-    "- Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive gate state; reserve full `--json` output for automation or audit evidence.",
+    "- For deterministic ready-gate rendering, prefer an installed `agdf gate-check --approval-envelope`; reserve `agdf gate-check --json` for native-adapter input, automation or audit evidence and use `npx ...@latest` only for bootstrap, refresh or a missing local executable.",
     "- `.opencode/agdf-runtime-contract.md` is the shared gate and output contract.",
     "",
     "## Skills",

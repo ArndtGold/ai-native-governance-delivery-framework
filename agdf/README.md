@@ -13,8 +13,9 @@ GitHub Copilot and OpenCode.
 
 ## Prerequisites
 
-AGDF is distributed as an npm package and run through `npx`, so Node.js and
-npm must be installed first (npm bundles `npx`).
+AGDF is distributed as an npm package. Use `npx` for bootstrap or explicit
+refresh, or install the wrapper once for repeated local `agdf` checks. Node.js
+and npm must be installed first (npm bundles `npx`).
 
 Check whether you already have them:
 
@@ -31,6 +32,15 @@ If either command fails, install Node.js 18 or later:
 - **Any OS:** download the LTS installer from https://nodejs.org
 
 Then re-run `node -v` and `npm -v` to confirm before continuing.
+
+## Operating model
+
+- Chat and AGDF skills are the normal interaction surface.
+- `.agdf/control/` is the durable source of truth.
+- The CLI is a deterministic validator, renderer and automation interface, not a second gate system.
+
+Use `npx ...@latest` for the installation commands below. After global CLI installation, prefer the
+local `agdf` executable for repeated gate checks.
 
 ## Quick Start
 
@@ -116,6 +126,7 @@ npm install -g @agdf/cli
 agdf init
 agdf doctor
 agdf gate-check --status-card
+agdf gate-check --approval-envelope
 agdf gate-check --json
 ```
 
@@ -129,7 +140,7 @@ Use it to:
 
 - install AGDF instructions and skills into a target repository
 - initialize durable `.agdf/control` state when a repository should own it
-- run compact interactive checks such as `gate-check --status-card` and deterministic validators such as `doctor` and `gate-check --json`
+- render ready-gate cards with `gate-check --approval-envelope`, run compact status checks with `--status-card`, and produce deterministic evidence with `doctor` or `gate-check --json`
 - prepare Codex, GitHub Copilot and OpenCode surfaces from the same source of
   truth while keeping Claude Code installation explicitly separate
 

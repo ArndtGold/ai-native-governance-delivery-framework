@@ -29,6 +29,7 @@ export function parseArgs(argv, dependencies = {}) {
   let json = false;
   let verbose = false;
   let statusCard = false;
+  let approvalEnvelope = false;
   let language;
   let dirExplicit = false;
   let surface = "generic";
@@ -53,6 +54,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--json") { json = true; continue; }
     if (arg === "--verbose") { verbose = true; continue; }
     if (arg === "--status-card") { statusCard = true; continue; }
+    if (arg === "--approval-envelope") { approvalEnvelope = true; continue; }
     if (arg === "--persist") { persist = true; continue; }
     if (arg === "--generate-candidates") { generateCandidates = true; continue; }
     if (arg === "--all-active") { allActive = true; continue; }
@@ -133,6 +135,7 @@ export function parseArgs(argv, dependencies = {}) {
       json,
       verbose,
       statusCard,
+      approvalEnvelope,
       dirExplicit,
       language: languagePreference(language),
       surface,

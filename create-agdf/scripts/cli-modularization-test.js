@@ -49,6 +49,7 @@ assert.deepEqual(parsed.options, {
   json: false,
   verbose: false,
   statusCard: false,
+  approvalEnvelope: false,
   dirExplicit: true,
   language: { language: "default" },
   surface: "codex",
@@ -70,6 +71,7 @@ const alias = parseArgs(["--target", "config", "--lang", "de"], { cwd: "/tmp/roo
 assert.equal(alias.options.target, "config");
 assert.deepEqual(alias.options.language, { language: "de" });
 assert.equal(parseArgs(["status", "--verbose"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.verbose, true);
+assert.equal(parseArgs(["gate-check", "--approval-envelope"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.approvalEnvelope, true);
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
@@ -91,6 +93,9 @@ for (const fixture of [
 assert.doesNotThrow(() => validateCommandOptions({ target: "doctor", allActive: true }));
 assert.doesNotThrow(() => validateCommandOptions({ target: "delivery-map", allActive: true }));
 assert.throws(() => validateCommandOptions({ target: "gate-check", allActive: true }), /supported only/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true }));
+assert.throws(() => validateCommandOptions({ target: "doctor", approvalEnvelope: true }), /supported only/);
+assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true, json: true }), /cannot be combined/);
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "codex" }));

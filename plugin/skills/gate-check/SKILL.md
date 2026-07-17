@@ -44,7 +44,7 @@ If required control files are missing, do not automatically create a full `.agdf
 The default first action is to draft the minimal UR in the response and request `Approval: UR`.
 Use `init` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
 
-Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, when CI or PR evidence is needed, or when a repository-local automation needs JSON output:
+Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, when CI or PR evidence is needed, when deterministic ready-gate rendering is required, or when a repository-local automation needs JSON output. Prefer an already installed `agdf` executable; use registry-resolved `npx ...@latest` only for bootstrap, installation, explicit refresh or when no local executable exists:
 
 ```bash
 npx --yes @agdf/cli@latest init
@@ -52,6 +52,11 @@ npx --yes @agdf/cli@latest doctor --json
 npx --yes @agdf/cli@latest gate-check --json
 npx --yes @agdf/cli@latest delivery-map --json
 ```
+
+For repeated local checks, use `agdf doctor --json`, `agdf gate-check --json` or
+`agdf gate-check --approval-envelope`. The last command prints the validated
+two-card exact-text interaction; JSON exposes the same `approval_presentation`
+for a native-capable adapter.
 
 `init` creates the control scaffold. `doctor` checks whether `.agdf/control/` is actionable. `gate-check` consumes that result and the selected canonical run record to report the operative process decision: `open | blocked`, current gate, blocking reason, missing approval, allowed outputs, forbidden outputs, next allowed action and evidence references.
 `delivery-map` reports the durable delivery picture: active artefacts, approvals, Artefact Chain relationships, evidence refs, missing evidence, risks, Context Graph gate effect and machine-readable findings.
@@ -73,15 +78,15 @@ For a ready `gate_approval`:
 
 1. Resolve exactly one selected run and evaluate the current gate.
 2. Confirm the required durable artefact is present and ready before presenting a question.
-3. Build one immutable, non-authorizing presentation snapshot from the selected evaluated run and current revision identity.
-4. Compose one Approval Orientation Envelope as one immediately preceding assistant message containing two distinct blocks. Render the compact localized approval-time Run Status Card first. Its first visible line is the localized action-oriented gate title as a level-two Markdown heading or equivalent accessible host heading; generic AGDF/card labels and raw gate IDs cannot be the primary heading. It contains exactly selected run, readiness status, current gate, missing exact approval, one next action and quality outlook; omit raw keys, machine statuses, evidence, diagnostics and allowed/forbidden inventories.
-5. In the same assistant message, render a separate localized Gate Transition Card second, immediately before any native question or exact-text fallback. It includes the deterministic human run title and `UR · PRD · SD · TP` links from the selected run. Never put either card only into the question, button description or hidden tool context. Do not invoke the native question tool until the complete two-card envelope is visible.
-6. Compose the transition card as one human-readable gate title with `run_id`, one ready-for-decision line, one short approval-effect block and one short next-transition block. It must answer only: where am I, what does this decision do, and what happens next. Run and gate identity may anchor both cards; do not duplicate status rows, action inventories or the native question.
+3. Consume the validated canonical `approval_presentation` for the same selected run, gate and revision. Do not compose or rewrite headings, fields, card order, locale copy or Markdown in the model.
+4. Emit its complete `run_status_card` block first and `gate_transition_card` block second in one immediately preceding assistant message. The first heading is neutral; the five status fields are selected run, readiness, current gate, human-readable required decision and a neutral approve/revise/decline instruction. The exact approval value appears only in the transition card across these two blocks.
+5. Never put either card only into the question, button description or hidden tool context. Do not invoke a native question until both rendered blocks are visible.
+6. If the projection is absent or invalid, render no partial card and invoke no native control. Re-evaluate the gate. Use only the exact-text request when the same gate is still ready and its canonical value is independently valid; otherwise report the non-ready reason and request no decision.
 7. Distinguish internal process steps from user decisions in natural language. For example, after `Approval: TP`, say that pre-implementation Brownfield Analysis runs next and that no further user action is required now; do not expose `next_user_gate: none` or `user_action_required: no`, and do not ask for a second approval for Brownfield Analysis.
 8. Ask exactly one question that names the selected `run_id` and `current_gate`.
 9. Offer options in stable order: exact `Approval: <GateName>`, localized revise and localized decline. Add explicit cancel only where supported after decline; otherwise host dismissal maps to cancel. Never preselect, skip, auto-submit or reorder an option.
 10. Use the surface adapter declared in the canonical plugin definition only when it can wait for deliberate input without auto-resolution and can transport `exact_option_value` or `separate_label_and_value`; never invoke a `decorated_label_only` adapter. Otherwise request the same exact approval in concise text.
-11. Render both cards once in that single complete assistant message. Never merge, reverse, omit or duplicate them; the action heading does not replace either card. If the native attempt is unavailable or not applied, continue to exact text without repeating either card.
+11. Render both supplied cards once in that single complete assistant message. Never merge, reverse, omit, duplicate or reconstruct them; the decision heading does not replace either card. If the native attempt is unavailable or not applied, continue to exact text without repeating either card.
 12. Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence.
 13. Reject a missing artefact, ambiguous or wrong run, wrong gate, stale expected gate, timeout/default, hook-supplied answer, agent message, technical permission outcome or plan approval.
 14. Persist accepted input only through the existing control-state workflow.
@@ -95,7 +100,7 @@ A hook, permission result or session context message cannot replace an eligible 
 
 Before composing the question, resolve the configured chat locale from `.agdf/control/config.json` through `plugin/meta/agdf-interaction-locales.json`: exact complete pack, language subtag, then English fallback. German and English are initial packs, not a closed language list. Keep `Approval: <GateName>` exactly unchanged in every language, and do not mix presentation languages within one interaction. Labels and descriptions use the same resolved locale; host-owned UI chrome remains host-owned and may use a different language.
 
-For the transition card, use the complete resolved locale pack. The initial German pack includes `Bereit für deine Entscheidung`, `Jetzt freigeben` and `Danach`; the initial English pack includes `Ready for your decision`, `Approve now` and `Next`. Keep each card in one locale. Use a localized human-readable gate title rather than an internal status label, while leaving the exact gate identifier and approval value unchanged. Do not render a Markdown table, dashboard rows, raw control-state keys, diagnostic codes, evidence lists, a duplicated gate question or a false user gate in the approval-time card.
+The canonical renderer resolves the complete locale pack. The initial German pack includes `Bereit für deine Entscheidung`, `Jetzt freigeben` and `Danach`; the initial English pack includes `Ready for your decision`, `Approve now` and `Next`. Verify that the supplied blocks use one locale and a neutral decision heading while leaving the exact gate identifier and approval value unchanged. Do not model-edit the supplied Markdown.
 
 The primary option is derived exactly as `Approval: <GateName>` from the evaluated current gate; only explanatory copy and non-authoritative outcome labels are localized. Concrete localized copy belongs to the user-facing interaction layer or the approved delivery artefact, not to English runtime rules.
 
@@ -116,6 +121,7 @@ Surface behavior:
 - Codex: invoke the native short-question/request-user-input control only when preflight proves `exact_option_value` or `separate_label_and_value`, and omit auto-resolution. The canonical `decorated_label_only` capability must use exact text without invoking the adapter. `Approval: <GateName> (Recommended)` is never a valid option or approval.
 - Claude Code: invoke `AskUserQuestion` on the first eligible attempt only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if it is not rendered or applied, use exact text immediately. Claude permissions and `ExitPlanMode` remain separate.
 - OpenCode: use built-in `question` when permitted. Preserve explicit `permission.question` denial and use exact text in that case. `once`, `always`, `reject` and auto mode never become gate input.
+- GitHub Copilot: the current repository-instruction surface has no conforming native approval adapter. Transmit the canonical rendered cards followed by the exact-text request; never claim or simulate a native control. Copilot tool confirmations, plan interactions and repository permissions remain separate.
 - Other, unavailable or non-interactive surfaces: use exact textual approval and wait for a new explicit user response.
 
 Localized labels such as `Überarbeiten`/`Revise`, `Ablehnen`/`Decline` and `Abbrechen`/`Cancel` are presentation mappings to stable non-approval outcomes only. A label, description, option position or recommendation never authorizes a gate. Host-provided free-text or `Überspringen`/`Skip` actions never advance an AGDF gate.

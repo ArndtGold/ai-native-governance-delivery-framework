@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, formatArtefactRefs, gateTitle, localePack, resolveHumanRunTitle } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, formatArtefactRefs, gateTitle, localePack, renderApprovalOrientationSnapshot, resolveHumanRunTitle } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -291,10 +291,11 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     value: humanPresentation,
     enumerable: false,
   });
-  attachApprovalOrientationSnapshot(statusCard, {
+  const revisionId = extractField(runState.content ?? "", "revision_id");
+  const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
     ready: isReadyUserGateApproval({ status, currentGate, missingApproval }),
     humanPresentation,
-    revisionId: extractField(runState.content ?? "", "revision_id"),
+    revisionId,
     registry: interactionLocales,
     requestedLocale: presentationLocale,
   });
@@ -322,6 +323,15 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     native_attempt_required: statusCard.native_attempt_required,
     candidate_runs: runState.candidate_runs ?? [],
     status_card: statusCard,
+    approval_presentation: renderApprovalOrientationSnapshot(approvalOrientation, {
+      registry: interactionLocales,
+      expectedIdentity: {
+        run_id: statusCard.run_id,
+        revision_id: revisionId,
+        current_gate: currentGate,
+        presentation_language: statusCard.presentation_language,
+      },
+    }),
     delivery_map: {
       relationships: deliveryMap.relationships,
       mode_slice_decision: runState.mode_slice_decision,
@@ -333,6 +343,51 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     verified_change: verifiedChange,
     doctor_report: doctorReport,
   };
+}
+
+function canonicalApprovalForReport(report) {
+  const gate = String(report?.current_gate ?? "").trim();
+  const approval = String(report?.missing_approval ?? "").trim();
+  return isReadyUserGateApproval({ status: report?.status, currentGate: gate, missingApproval: approval })
+    ? approval
+    : "";
+}
+
+export function printApprovalEnvelope(report, { io = console, reEvaluate } = {}) {
+  if (report?.approval_presentation) {
+    io.log(report.approval_presentation.blocks.run_status_card.markdown);
+    io.log("");
+    io.log(report.approval_presentation.blocks.gate_transition_card.markdown);
+    io.log("");
+    io.log(report.approval_presentation.approval_interaction.exact_text_fallback);
+    return Object.freeze({ outcome: "rendered", requested_decision: true, status: report.status });
+  }
+
+  const initialApproval = canonicalApprovalForReport(report);
+  let refreshed = report;
+  if (initialApproval && typeof reEvaluate === "function") {
+    try {
+      refreshed = reEvaluate();
+    } catch {
+      refreshed = { ...report, status: "blocked", blocking_reason: "fresh_gate_evaluation_failed", missing_approval: "none" };
+    }
+  }
+  const pack = localePack(interactionLocales, refreshed?.status_card?.presentation_language || report?.status_card?.presentation_language || "en");
+  const refreshedApproval = canonicalApprovalForReport(refreshed);
+  if (initialApproval && refreshedApproval) {
+    io.log(pack.interaction.presentationFailure);
+    io.log(pack.interaction.exactTextRequest.replace("{approval}", refreshedApproval));
+    return Object.freeze({ outcome: "exact_text_recovery", requested_decision: true, status: refreshed.status });
+  }
+
+  const blockingReason = String(refreshed?.blocking_reason ?? "").trim();
+  const reason = String(
+    blockingReason && blockingReason !== "none"
+      ? blockingReason
+      : refreshed?.next_allowed_action || "gate_not_ready",
+  ).trim();
+  io.log(pack.interaction.nonReadyDecision.replace("{reason}", reason));
+  return Object.freeze({ outcome: "non_ready", requested_decision: false, status: refreshed?.status || "blocked" });
 }
 
 function printGateCheckStatusCard(report, io) {

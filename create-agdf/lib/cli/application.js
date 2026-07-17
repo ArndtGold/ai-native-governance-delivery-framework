@@ -9,6 +9,7 @@ import {
 import {
   buildStatusCard,
   evaluateGateCheck,
+  printApprovalEnvelope,
   postApprovalTransition,
   printGateCheckReport,
 } from "../control-evaluation/gate-check.js";
@@ -83,6 +84,13 @@ function createHandlers({ io, env, exec }) {
     }],
     ["gate-check", (options) => {
       const report = evaluateGateCheck(options.dir, options);
+      if (options.approvalEnvelope) {
+        const output = printApprovalEnvelope(report, {
+          io,
+          reEvaluate: () => evaluateGateCheck(options.dir, options),
+        });
+        return output.status === "blocked" ? 2 : 0;
+      }
       printGateCheckReport(report, options.json, options.statusCard, io);
       return report.status === "blocked" ? 2 : 0;
     }],

@@ -14,6 +14,7 @@
         "run": "Selected run",
         "humanTitle": "Run title",
         "gate": "Current gate",
+        "requiredDecision": "Required decision",
         "blocked": "Blocked by",
         "missing": "Missing approval",
         "outcome": "Outcome after approval",
@@ -81,17 +82,31 @@
         "Block": "Block"
       },
       "gateActionTitles": {
-        "UR": "Approve user requirements",
-        "PRD": "Approve product requirements",
-        "SD": "Approve solution design",
-        "TP": "Approve task and test plan",
-        "QA": "Approve quality decision",
-        "UAT": "Accept delivery result"
+        "UR": "Review and decide on user requirements",
+        "PRD": "Review and decide on product requirements",
+        "SD": "Review and decide on solution design",
+        "TP": "Review and decide on task and test plan",
+        "QA": "Review and decide on quality assurance",
+        "UAT": "Review and decide on user acceptance"
+      },
+      "gateRequiredDecisions": {
+        "UR": "User Requirements approval",
+        "PRD": "Product Requirements approval",
+        "SD": "Solution Design approval",
+        "TP": "Task and Test Plan approval",
+        "QA": "Quality Assurance approval",
+        "UAT": "User Acceptance decision"
       },
       "interaction": {
         "ready": "Ready for your decision",
         "approveHeading": "Approve now",
         "nextHeading": "Next",
+        "decisionInstruction": "Choose approve, request revision or decline.",
+        "decisionPrompt": "Choose approve, request revision or decline for {gate} in run {run_id}.",
+        "exactTextRequest": "To approve, reply exactly with `{approval}`; otherwise request revision or decline.",
+        "decisionFollows": "will be the next user decision",
+        "presentationFailure": "Approval cards could not be rendered safely.",
+        "nonReadyDecision": "No decision requested: {reason}.",
         "approveDescription": "Approve this gate with the exact authorization value.",
         "reviseLabel": "Revise",
         "reviseDescription": "Keep the gate open and request changes.",
@@ -201,6 +216,7 @@
         "run": "Ausgewählter Run",
         "humanTitle": "Run-Titel",
         "gate": "Aktuelles Gate",
+        "requiredDecision": "Erforderliche Entscheidung",
         "blocked": "Blockiert durch",
         "missing": "Fehlende Freigabe",
         "outcome": "Ergebnis nach Freigabe",
@@ -268,17 +284,31 @@
         "Block": "Block"
       },
       "gateActionTitles": {
-        "UR": "Nutzeranforderung freigeben",
-        "PRD": "Produktanforderungen freigeben",
-        "SD": "Lösungsdesign freigeben",
-        "TP": "Umsetzungsplan freigeben",
-        "QA": "Qualitätsentscheidung freigeben",
-        "UAT": "Ergebnis abnehmen"
+        "UR": "Nutzeranforderungen prüfen und entscheiden",
+        "PRD": "Produktanforderungen prüfen und entscheiden",
+        "SD": "Lösungsdesign prüfen und entscheiden",
+        "TP": "Aufgaben- und Testplan prüfen und entscheiden",
+        "QA": "Qualitätssicherung prüfen und entscheiden",
+        "UAT": "Nutzerabnahme prüfen und entscheiden"
+      },
+      "gateRequiredDecisions": {
+        "UR": "Freigabe der Nutzeranforderungen",
+        "PRD": "Freigabe der Produktanforderungen",
+        "SD": "Freigabe des Lösungsdesigns",
+        "TP": "Freigabe des Aufgaben- und Testplans",
+        "QA": "Freigabe der Qualitätssicherung",
+        "UAT": "Entscheidung über die Nutzerabnahme"
       },
       "interaction": {
         "ready": "Bereit für deine Entscheidung",
         "approveHeading": "Jetzt freigeben",
         "nextHeading": "Danach",
+        "decisionInstruction": "Freigeben, Überarbeitung anfordern oder ablehnen.",
+        "decisionPrompt": "Für {gate} im Run {run_id}: freigeben, Überarbeitung anfordern oder ablehnen.",
+        "exactTextRequest": "Zur Freigabe exakt mit `{approval}` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
+        "decisionFollows": "ist die nächste Nutzerentscheidung",
+        "presentationFailure": "Die Freigabekarten konnten nicht sicher dargestellt werden.",
+        "nonReadyDecision": "Keine Entscheidung angefordert: {reason}.",
         "approveDescription": "Dieses Gate mit dem exakten Freigabewert autorisieren.",
         "reviseLabel": "Überarbeiten",
         "reviseDescription": "Das Gate offen lassen und Änderungen anfordern.",

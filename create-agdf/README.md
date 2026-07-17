@@ -6,6 +6,11 @@ AGDF is useful when AI-assisted work can affect an existing system and a team ne
 
 ## Quick start
 
+AGDF's normal operating model has three roles: chat/skills provide the user interaction,
+`.agdf/control/` owns durable state and the CLI validates or renders that state. The CLI is not a
+second gate system. Use `npx ...@latest` below for installation and explicit refresh; after
+`npm install -g @agdf/cli`, prefer `agdf ...` for repeated local checks.
+
 If you use Codex, this is the recommended first installation:
 
 ```bash
@@ -46,6 +51,7 @@ npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
 npx --yes @agdf/cli@latest doctor
 npx --yes @agdf/cli@latest gate-check --status-card
+npx --yes @agdf/cli@latest gate-check --approval-envelope
 npx --yes @agdf/cli@latest gate-check --json
 ```
 
@@ -209,7 +215,11 @@ npx --yes create-agdf@latest gate-check --json
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
 
-Use `gate-check --status-card` for compact interactive output, especially in OpenCode where shell output is highly visible. Keep `gate-check --json` for automation, CI, regression evidence and audit trails.
+Use an installed `agdf gate-check --approval-envelope` to print deterministic ready-gate cards and the
+exact-text request without a fresh registry lookup. Use `gate-check --status-card` for compact
+operational detail and keep `gate-check --json` for native-adapter input, automation, CI, regression
+evidence and audit trails. The CLI output validates and renders the selected run; it does not replace
+the agent-native workflow or approve a gate.
 
 Use `delivery-path-search` only for high-impact planning decisions with several materially different next steps:
 

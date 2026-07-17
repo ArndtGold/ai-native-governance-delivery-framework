@@ -6,6 +6,14 @@ AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex, Claude Cod
 
 ## Installieren und prüfen
 
+Im normalen Betrieb gibt es keine zwei konkurrierenden Bedienoberflächen:
+
+1. **Chat und Skills** sind die primäre Interaktion für Entscheidungen und nächste Schritte.
+2. **`.agdf/control/`** ist die dauerhafte Quelle für Scope, Freigaben und Nachweise.
+3. **Die CLI** validiert diesen Zustand, rendert entscheidungsreife Karten deterministisch und liefert Automationsnachweise.
+
+`npx ...@latest` ist für Installation, Bootstrap und bewusste Aktualisierung gedacht. Wer wiederholt lokale Prüfungen ausführt, kann einmalig `npm install -g @agdf/cli` verwenden und danach beispielsweise `agdf gate-check --approval-envelope` aufrufen.
+
 Für Codex ist der primäre Einstieg:
 
 ```bash

@@ -103,7 +103,7 @@ try {
   resetPluginFixture();
   writeFileSync(
     gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replace("Render both cards once", "Render one card once"),
+    readFileSync(gateCheckPath, "utf8").replace("Render both supplied cards once", "Render one supplied card once"),
     "utf8",
   );
   expectIntegrityFailure(/render both approval cards once across native and fallback paths/);
@@ -112,7 +112,7 @@ try {
   writeFileSync(
     gateCheckPath,
     readFileSync(gateCheckPath, "utf8").replace(
-      "Do not invoke the native question tool until the complete two-card envelope is visible",
+      "Do not invoke a native question until both rendered blocks are visible",
       "The native question tool may be invoked after the first card",
     ),
     "utf8",
@@ -123,12 +123,12 @@ try {
   writeFileSync(
     gateCheckPath,
     readFileSync(gateCheckPath, "utf8").replace(
-      "Never merge, reverse, omit or duplicate them",
+      "Never merge, reverse, omit, duplicate or reconstruct them",
       "The cards may be combined when concise",
     ),
     "utf8",
   );
-  expectIntegrityFailure(/one action-oriented primary heading without replacing or merging the ordered cards/);
+  expectIntegrityFailure(/one neutral primary heading without replacing or merging the ordered cards/);
 
   resetPluginFixture();
   writeFileSync(

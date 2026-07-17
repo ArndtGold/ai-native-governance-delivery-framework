@@ -340,23 +340,24 @@ if (!runtimeContract.includes("Before presenting `gate_approval` for any user ga
   || !runtimeContract.includes("buttons or exact-text fallback may appear only after both cards")) {
   failures.push("Runtime Contract must require the compact Status Card and Gate Transition Card before every gate approval");
 }
-if (!gateCheckSkill.includes("Render the compact localized approval-time Run Status Card first")
-  || !gateCheckSkill.includes("render a separate localized Gate Transition Card second")
-  || !gateCheckSkill.includes("where am I, what does this decision do, and what happens next")) {
+if (!gateCheckSkill.includes("complete `run_status_card` block first and `gate_transition_card` block second")
+  || !gateCheckSkill.includes("five status fields are selected run, readiness, current gate, human-readable required decision")
+  || !gateCheckSkill.includes("exact approval value appears only in the transition card")) {
   failures.push("gate-check must require the compact Status Card then three-part Gate Transition Card before approval");
 }
 if (!runtimeContract.includes("first the compact\napproval-time Run Status Card, then the Gate Transition Card, then exactly one")
   || !runtimeContract.includes("one immutable,\nnon-authorizing presentation snapshot")) {
   failures.push("Runtime Contract must define fixed two-card ordering from one non-authorizing snapshot");
 }
-if (!gateCheckSkill.includes("Render both cards once") || !gateCheckSkill.includes("without repeating either card")) {
+if (!gateCheckSkill.includes("Render both supplied cards once") || !gateCheckSkill.includes("without repeating either card")) {
   failures.push("gate-check must render both approval cards once across native and fallback paths");
 }
 for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   for (const locale of ["en", "de"]) {
     if (!interactionLocales?.locales?.[locale]?.gateActionTitles?.[gate]) {
-      failures.push(`Interaction locale ${locale} missing action-oriented gate title for ${gate}`);
+      failures.push(`Interaction locale ${locale} missing neutral decision gate title for ${gate}`);
     }
+    if (!interactionLocales?.locales?.[locale]?.gateRequiredDecisions?.[gate]) failures.push(`Interaction locale ${locale} missing required decision copy for ${gate}`);
   }
 }
 for (const locale of ["en", "de"]) {
@@ -389,7 +390,7 @@ for (const [surface, expectedTransport] of [["codex", "exact_option_value"], ["c
 }
 if (!runtimeContract.includes("one immediately preceding assistant message")
   || !runtimeContract.includes("Do not invoke the\nnative question tool until the complete two-card envelope is visible")
-  || !gateCheckSkill.includes("Do not invoke the native question tool until the complete two-card envelope is visible")) {
+  || !gateCheckSkill.includes("Do not invoke a native question until both rendered blocks are visible")) {
   failures.push("Approval orientation must be complete in one assistant message before native invocation");
 }
 for (const required of [
@@ -405,17 +406,26 @@ for (const required of [
 ]) {
   if (!gateCheckSkill.includes(required)) failures.push(`gate-check decorated-only prohibition missing: ${required}`);
 }
-if (!runtimeContract.includes("first visible line of that envelope is the localized action-oriented title")
+if (!runtimeContract.includes("first visible line of that envelope is the localized neutral decision title")
   || !runtimeContract.includes("must not become\nthe primary heading")
-  || !gateCheckSkill.includes("Its first visible line is the localized action-oriented gate title")
-  || !gateCheckSkill.includes("Never merge, reverse, omit or duplicate them")) {
-  failures.push("Approval orientation must enforce one action-oriented primary heading without replacing or merging the ordered cards");
+  || !gateCheckSkill.includes("The first heading is neutral")
+  || !gateCheckSkill.includes("Never merge, reverse, omit, duplicate or reconstruct them")) {
+  failures.push("Approval orientation must enforce one neutral primary heading without replacing or merging the ordered cards");
 }
 if (!gateCheckSkill.includes("after `Approval: TP`") || !gateCheckSkill.includes("pre-implementation Brownfield Analysis") || !gateCheckSkill.includes("do not expose `next_user_gate: none`") || !gateCheckSkill.includes("do not ask for a second approval")) {
   failures.push("gate-check must distinguish the internal Brownfield step from the next user gate");
 }
-if (!gateCheckSkill.includes("Bereit für deine Entscheidung") || !gateCheckSkill.includes("Ready for your decision") || !gateCheckSkill.includes("Keep each card in one locale")) {
+if (!runtimeContract.includes("GitHub Copilot | none in the current AGDF repository-instruction surface")
+  || !gateCheckSkill.includes("GitHub Copilot: the current repository-instruction surface has no conforming native approval adapter")) {
+  failures.push("Runtime surfaces must preserve Copilot exact-text behavior without claiming a native adapter");
+}
+if (!gateCheckSkill.includes("Bereit für deine Entscheidung") || !gateCheckSkill.includes("Ready for your decision") || !gateCheckSkill.includes("supplied blocks use one locale")) {
   failures.push("gate-check must define deterministic German and English-default transition-card composition");
+}
+if (!runtimeContract.includes("contains exactly five operational")
+  || !runtimeContract.includes("appears exactly once, in the Gate Transition Card")
+  || !runtimeContract.includes("Otherwise report the current non-ready reason and request no")) {
+  failures.push("Approval orientation must enforce the five-field, single-token and branched recovery contract");
 }
 const gateTransitionCard = sectionAfterHeading(runtimeContract, "Gate Transition Card");
 for (const required of [

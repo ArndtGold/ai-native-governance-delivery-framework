@@ -116,21 +116,39 @@ before invoking any native question tool or emitting an exact-text approval
 request. Splitting the cards across separate assistant turns or invoking the
 tool after only one card is a failed interaction, not a valid presentation.
 
-The first visible line of that envelope is the localized action-oriented title
+The first visible line of that envelope is the localized neutral decision title
 of the current user gate, rendered as a level-two Markdown heading or equivalent
 accessible host heading inside the compact approval-time Run Status Card.
 `AGDF Status`, `Run Status Card`, `Gate Transition Card`, raw gate identifiers
 and machine values are semantic or diagnostic labels only and must not become
-the primary heading. The action title appears exactly once and does not replace,
+the primary heading. Approval-directed titles such as `Approve solution design`
+are also invalid. The decision title appears exactly once and does not replace,
 merge or reorder either required card block.
 
-The compact approval-time Run Status Card contains exactly six operational
-fields: selected run, readiness status, current gate, missing exact approval,
-one next action and quality outlook. It uses localized human-readable labels
+The compact approval-time Run Status Card contains exactly five operational
+fields: selected run, readiness status, current gate, a localized human-readable
+required decision and one neutral instruction to choose approve, request revision
+or decline. It does not contain the exact approval value or quality outlook. It uses localized human-readable labels
 and must not contain evidence, diagnostic codes, raw control-state keys,
 allowed/forbidden inventories or machine values. The complete Run Status Card remains the operational,
 CLI and audit projection and remains available for complete detail outside the
 approval-time compact view.
+
+The first scan across both cards reveals the requested decision, readiness,
+required approval, approval effect, remaining boundary and next transition.
+Identity and artefact references provide supporting context without competing
+with that sequence. Across the two cards, the exact `Approval: <GateName>` value
+appears exactly once, in the Gate Transition Card. The later native prompt or
+exact-text request may repeat it only as the required input.
+
+The canonical `interaction-presentation.js` owner builds and validates one
+immutable snapshot, then renders both complete Markdown blocks and the approval
+interaction. The public additive `approval_presentation` schema contains
+`schema_version`, selected run/revision/gate/locale identity, fixed sequence,
+both rendered blocks, canonical prompt/options/exact-text fallback and
+`authorizes: false`. It is a valid object only for a ready user gate and `null`
+otherwise. Agents and surface adapters transmit these blocks without rebuilding
+headings, fields, ordering, locale copy or Markdown.
 
 The Gate Transition Card is the second orientation message. It is derived from
 the same snapshot and canonical post-approval transition, but it is not another
@@ -152,7 +170,7 @@ The card answers exactly three user questions, in this order:
 Use this compact composition:
 
 ```text
-<localized gate title> · <human run title> · <run_id>
+<localized gate title> · <human run title> · `<run_id>`
 <UR link or localized missing text> · <PRD link or localized missing text> · <SD link or localized missing text> · <TP link or localized missing text>
 <localized ready-for-decision line>
 
@@ -184,6 +202,12 @@ For `Approval: TP`, the effect is permission to run pre-implementation
 Brownfield Analysis, implementation remains gated until that analysis passes,
 and the next block states plainly that no further user decision is required
 now. Brownfield Analysis must not be presented as a user gate.
+
+If snapshot validation or rendering fails, emit no partial card and forbid native
+invocation. Perform a fresh gate evaluation. Show only the localized exact-text
+request when the same gate remains ready and the canonical approval value is
+independently valid. Otherwise report the current non-ready reason and request no
+decision. Never patch, guess or model-reconstruct missing presentation content.
 
 
 ## Native Interaction Contract
@@ -230,7 +254,7 @@ Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. build one immutable non-authorizing presentation snapshot, emit its compact Run Status Card and Gate Transition Card in that order immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
+3. consume one validated canonical `approval_presentation`, emit its compact Run Status Card and Gate Transition Card verbatim in that order immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
@@ -261,6 +285,13 @@ exact approval value and confirms that authority is unchanged. A fresh explicit
 user request may reopen the unchanged decision after revalidation; it is not an
 automatic retry.
 
+For deterministic local projection, use an already installed `agdf gate-check
+--json` and consume `approval_presentation`, or use `agdf gate-check
+--approval-envelope` on an exact-text surface. These are renderer/validator
+helpers, not a second UX or gate authority. Do not require a registry-resolved
+`npx ...@latest` call for each normal interaction. `npx` remains the explicit
+bootstrap, installation, refresh or missing-local-executable path.
+
 A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. A localized label, description, option position, recommendation style or host action never authorizes a gate. Revise, decline and cancel outcomes never advance a gate.
 
 Surface adapter rules:
@@ -270,6 +301,7 @@ Surface adapter rules:
 | Codex | native `request_user_input` or equivalent short-question control when callable | invoke on the first eligible attempt when preflight proves `exact_option_value`; if unavailable or not applied, use exact text without retry | Codex command, edit, network, external-directory and app-action approvals remain host-owned `tool_permission`. |
 | Claude Code | `AskUserQuestion` | on the first eligible attempt, use only when no timeout can auto-continue and no hook supplies `answers` or `updatedInput`; if unavailable or not applied, use exact text without retry | Claude permissions and `ExitPlanMode` are not AGDF approval. |
 | OpenCode | built-in `question` | use with exact approval/revise/cancel options when `permission.question` permits it; explicit user deny selects exact-text fallback | `once`, `always`, `reject`, permission suggestions and auto mode are technical outcomes only. |
+| GitHub Copilot | none in the current AGDF repository-instruction surface | transmit the canonical rendered cards followed by the exact-text request; never claim or simulate a native approval control | Copilot tool confirmations, plan interactions and repository permissions are not AGDF approval. |
 | Fallback or non-interactive | concise exact text | wait for a new explicit user response; never synthesize or auto-resolve one | Host-specific technical permission remains separate. |
 
 Native structured questions are for real decision points. Prefer repository inspection over clarification and do not show them for status reporting, discoverable facts, routine read-only work or repeated non-ready gate prompts.
@@ -352,8 +384,10 @@ For every primary chat card:
 2. Show `UR · PRD · SD · TP` in that stable order. Existing selected-run
    artefacts are links with readable labels; missing artefacts use localized
    non-link text. Never guess a path or emit a broken link.
-3. Use a localized visible gate title while preserving the exact gate identifier
-   and `Approval: <GateName>` authorization value.
+3. Use a localized neutral decision title while preserving the exact gate identifier
+   and `Approval: <GateName>` authorization value. The technical value appears
+   once across the two cards, in the transition card; the later input control may
+   repeat it as the required value.
 4. Keep primary copy decision-oriented. Raw keys such as `next_user_gate`,
    `mode_slice_decision` and `required_next_gate`, diagnostic codes and machine
    status values belong to JSON or audit detail, not the primary interaction.

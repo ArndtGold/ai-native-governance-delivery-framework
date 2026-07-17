@@ -36,7 +36,7 @@ import {
   verifyRepositoryDisabled,
 } from "../lifecycle/operations.js";
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
-import { createLifecycleResult, lifecycleFailure } from "../lifecycle/result.js";
+import { createLifecycleResult, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
 import { evaluateGeneralStatus } from "../lifecycle/status.js";
 import { agdfFragmentPath, generatedFilesForTarget, openCodeConfigFragmentPath } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
@@ -121,12 +121,12 @@ function createHandlers({ io, env, exec }) {
         const installed = installCodexGlobalPlugin(installerAdapters);
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
-          nextAction: "Restart Codex, then run npx --yes @agdf/cli@latest codex-repo in a repository where AGDF should be active.",
+          nextAction: globalInstallRestartAction(options.target).text,
         }), { json: options.json, io });
         printVerboseHostOutput(installed, options, io);
         return 0;
       } catch (error) {
-        printInstallFailure("codex", error, options, io);
+        printInstallFailure(options.target, error, options, io);
         return 1;
       }
     }],
@@ -135,12 +135,12 @@ function createHandlers({ io, env, exec }) {
         const installed = installClaudeGlobalPlugin(installerAdapters);
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
-          nextAction: "Restart Claude Code, then verify the plugin in a new session.",
+          nextAction: globalInstallRestartAction(options.target).text,
         }), { json: options.json, io });
         printVerboseHostOutput(installed, options, io);
         return 0;
       } catch (error) {
-        printInstallFailure("claude", error, options, io);
+        printInstallFailure(options.target, error, options, io);
         return 1;
       }
     }],
@@ -156,7 +156,7 @@ function createHandlers({ io, env, exec }) {
         printLifecycleResult(createLifecycleResult({
           operation: result.transition.status === "updated" ? "update" : "install",
           result: verificationHealthy ? "success" : "partial",
-          surface: "opencode",
+          surface: options.target,
           scope: "global",
           version: {
             expected: report.package.expected_version,
@@ -167,11 +167,11 @@ function createHandlers({ io, env, exec }) {
           },
           verification: { status: verificationHealthy ? "healthy" : "degraded", evidence: [report.global_config.path, report.global_native_surface.path] },
           restart: { required: true, reason: "host_reload" },
-          next_action: { kind: "restart", text: "Restart OpenCode so it loads the updated global plugin config." },
+          next_action: globalInstallRestartAction(options.target),
         }), { json: options.json, io });
         return verificationHealthy ? 0 : 1;
       } catch (error) {
-        printInstallFailure("opencode", error, options, io);
+        printInstallFailure(options.target, error, options, io);
         return 1;
       }
     }],

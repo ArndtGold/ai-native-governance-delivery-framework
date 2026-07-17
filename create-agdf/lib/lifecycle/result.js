@@ -2,6 +2,11 @@ const OPERATIONS = new Set(["install", "update", "status", "disable", "uninstall
 const RESULTS = new Set(["success", "partial", "failed", "preview"]);
 const SCOPES = new Set(["global", "repository"]);
 const SURFACES = new Set(["codex", "claude", "copilot", "opencode", "generic"]);
+const GLOBAL_INSTALL_RESTART_ACTIONS = Object.freeze({
+  codex: "Restart Codex.",
+  claude: "Restart Claude Code.",
+  opencode: "Restart OpenCode.",
+});
 
 function text(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -64,6 +69,12 @@ export function assertLifecycleResult(value) {
   }
   if (value.result === "failed" && !value.failure) throw new Error("Failed lifecycle results require failure evidence.");
   return value;
+}
+
+export function globalInstallRestartAction(surface) {
+  const action = GLOBAL_INSTALL_RESTART_ACTIONS[surface];
+  if (!action) throw new Error(`Unsupported global installation restart surface: ${surface || "missing"}.`);
+  return Object.freeze({ kind: "restart", text: action });
 }
 
 export function lifecycleFailure({ operation, surface, scope, phase, message, evidence = [], nextAction }) {

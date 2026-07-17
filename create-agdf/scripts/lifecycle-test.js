@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createLifecycleResult } from "../lib/lifecycle/result.js";
+import { createLifecycleResult, globalInstallRestartAction } from "../lib/lifecycle/result.js";
 import { lifecycleCardLines, printLifecycleResult } from "../lib/lifecycle/presentation.js";
 import {
   applyLifecyclePlan,
@@ -22,6 +22,10 @@ const success = createLifecycleResult({
   restart: { required: true, reason: "host_reload" },
   next_action: { kind: "prompt", text: "Start a new task." },
 });
+assert.deepEqual(globalInstallRestartAction("codex"), { kind: "restart", text: "Restart Codex." });
+assert.deepEqual(globalInstallRestartAction("claude"), { kind: "restart", text: "Restart Claude Code." });
+assert.deepEqual(globalInstallRestartAction("opencode"), { kind: "restart", text: "Restart OpenCode." });
+assert.throws(() => globalInstallRestartAction("copilot"), /Unsupported global installation restart surface/);
 assert.deepEqual(lifecycleCardLines(success).slice(1).map((line) => line.split(":")[0]), [
   "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Verification", "Restart required", "Next action",
 ]);

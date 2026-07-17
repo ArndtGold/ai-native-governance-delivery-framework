@@ -178,12 +178,22 @@ function installerRecording(outputs) {
   assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); } }), 0);
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
   assert.equal(quiet.out[0], "AGDF installation complete");
+  assert.equal(quiet.out.at(-1), "Next action: Restart Codex.");
+  assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
 
   const verbose = recordingIo();
   const verboseOutputs = ["marketplace added\n", "marketplace upgraded\n", "plugin added\n", `agdf@agdf ${pluginDefinition.version}\n`];
   assert.equal(await runCli(["codex", "--verbose"], { io: verbose.io, exec() { return verboseOutputs.shift(); } }), 0);
   assert.equal(verbose.out.includes("Host command output:"), true);
   assert.equal(verbose.out.some((line) => line.includes("marketplace added")), true);
+}
+
+{
+  const quiet = recordingIo();
+  const outputs = ["", "", "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+  assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); } }), 0);
+  assert.equal(quiet.out.at(-1), "Next action: Restart Claude Code.");
+  assert.equal(quiet.out.some((line) => line.includes("new session")), false, "global installation must not add a second post-restart action");
 }
 
 {

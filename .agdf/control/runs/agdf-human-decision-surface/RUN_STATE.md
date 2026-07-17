@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-human-decision-surface
-- lifecycle: active
-- revision: 14
-- revision_id: 1475E839-A331-46C5-95FF-D8527AF3FB4F
+- lifecycle: completed
+- revision: 15
+- revision_id: 8DBD9FE3-379E-4B33-AE79-86680B7D9273
 - mode: structured_slice
-- current_gate: UAT
-- decision: in_progress
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -21,11 +21,11 @@ clarification, blocked and approval interactions without changing gate authority
 
 | Question | Answer |
 |---|---|
-| What is known? | Live feedback exposed three distinct gaps: generic visual-title dominance, native invocation without presentation evidence, and collapse of the mandatory Run Status Card plus Gate Transition Card sequence into one block. |
-| What is approved? | UR revision 2, PRD revision 4, SD revision 3, TP revision 3 and QA Report revision 2 are exactly approved. |
-| What is missing? | Fresh candidate-runtime evidence that the running agent emits Run Status Card, Gate Transition Card and then control/fallback in order; current UAT decision is `revise`. |
-| What is the next allowed action? | Reload or reinstall the candidate runtime in a fresh session and repeat the end-to-end UAT sequence check. |
-| What is explicitly forbidden right now? | `Approval: UAT`, UAT pass, release, commit, push and PR claims before the failed end-to-end sequence is corrected and retested. |
+| What is known? | Fresh AGDF 0.9.8 UAT visibly rendered the localized Run Status Card, separate Gate Transition Card and one exact-text fallback in the required order. |
+| What is approved? | UR revision 2, PRD revision 4, SD revision 3, TP revision 3, QA Report revision 2 and UAT are exactly approved. |
+| What is missing? | No delivery artefact or approval; native-host rendering evidence remains intentionally unverified and is not claimed. |
+| What is the next allowed action? | No further delivery step; prepare VCS handoff only when explicitly requested. |
+| What is explicitly forbidden right now? | Claiming a live native-button pass, or performing release, commit, push or PR without separate explicit instruction. |
 
 ## Source And Scope State
 
@@ -38,13 +38,13 @@ clarification, blocked and approval interactions without changing gate authority
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UAT |
-| Allowed now | Reload the candidate runtime and repeat the live end-to-end sequence check |
-| Blocked by | Current UAT `revise`: native QA attempt skipped both required cards before the control |
-| Missing approval | none while UAT evidence is failing |
-| Next step | Fresh-session candidate UAT for `Run Status Card -> Gate Transition Card -> control/fallback` |
-| Quality outlook | Enforce one immutable visible sequence: Run Status Card, Gate Transition Card, then control/fallback |
+| Status | pass |
+| Current gate | OR |
+| Allowed now | Report completed delivery state; prepare VCS handoff only when explicitly requested |
+| Blocked by | none |
+| Missing approval | none |
+| Next step | No further delivery step |
+| Quality outlook | Preserve the immutable visible sequence and disclose native-host evidence boundaries |
 
 ## Mode / Slice Decision
 
@@ -74,6 +74,8 @@ clarification, blocked and approval interactions without changing gate authority
 | QA_REPORT | tests | TP | Revision 2 passes from complete HDS-16 through HDS-23 evidence; exact QA approval is pending. |
 | QA | approved_by | `Approval: QA` | Exact approval provided on 2026-07-15 for QA Report revision 2 after same-run, same-gate and report revalidation. |
 | UAT Report | revises | PRD | Live feedback requires a mechanically enforced primary-heading hierarchy before refreshed downstream delivery. |
+| UAT | approved_by | `Approval: UAT` | Exact approval provided on 2026-07-17 after fresh AGDF 0.9.8 visible-sequence evidence and same-run, same-gate, revision-14 revalidation. |
+| OR | verifies | full run | `.agdf/control/artefacts/agdf-human-decision-surface/OR.md` records passing closeout with the native-host evidence boundary retained. |
 
 ## Evidence
 
@@ -91,8 +93,8 @@ clarification, blocked and approval interactions without changing gate authority
 
 ## Next Allowed Action
 
-- next_allowed_action: Reload or reinstall the candidate runtime in a fresh session and repeat the end-to-end UAT sequence check.
-- forbidden_until_then: `Approval: UAT`, UAT pass, release, commit, push and PR claims before corrected fresh-session evidence.
+- next_allowed_action: No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.
+- forbidden_until_then: none; native-host rendering proof remains an explicitly disclosed evidence boundary.
 
 ## Approvals
 
@@ -103,7 +105,7 @@ clarification, blocked and approval interactions without changing gate authority
 | SD | approved | Exact `Approval: SD` provided for revision 3 on 2026-07-15 after revalidation. |
 | TP | approved | Exact `Approval: TP` provided for revision 3 on 2026-07-15 after revalidation. |
 | QA | approved | Exact `Approval: QA` provided for QA Report revision 2 on 2026-07-15 after revalidation. |
-| UAT | revise | Live visual-hierarchy finding reopened the chain at PRD. |
+| UAT | approved | Exact `Approval: UAT` provided on 2026-07-17 after fresh AGDF 0.9.8 visible-sequence evidence and revision-14 revalidation. |
 
 ## Artefacts
 
@@ -118,4 +120,19 @@ clarification, blocked and approval interactions without changing gate authority
 | CD+Tests | `.agdf/control/artefacts/agdf-human-decision-surface/CD_TESTS.md` | done | Revision 2 implements HDS-16 through HDS-22; full package and integrity verification passed. |
 | CR | `.agdf/control/artefacts/agdf-human-decision-surface/CODE_REVIEW.md` | done | Revision 2 mandatory review chain passed after title-owner and metadata-path corrections. |
 | QA | `.agdf/control/artefacts/agdf-human-decision-surface/QA_REPORT.md` | pass | Revision 2 passes and exact QA approval is recorded. |
-| UAT Report | `.agdf/control/artefacts/agdf-human-decision-surface/UAT_REPORT.md` | revise | Live visual hierarchy finding reopened the PRD. |
+| UAT Report | `.agdf/control/artefacts/agdf-human-decision-surface/UAT_REPORT.md` | accepted | Fresh 0.9.8 two-card-then-fallback sequence accepted with native-host limitations disclosed. |
+| OR | `.agdf/control/artefacts/agdf-human-decision-surface/OR.md` | pass | Full closeout; native-host rendering remains explicitly unverified. |
+
+## Context Graph Impact
+
+- context_graph_impact: link_only
+- context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-RUN-STATUS-CARD`
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Existing nodes already own the exact approval authority and compact status projection extended by this run.
+
+## Closeout
+
+- next_allowed_action: No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.
+- quality_outlook: Preserve visible ordering, exact-text authority and truthful native-host evidence boundaries.

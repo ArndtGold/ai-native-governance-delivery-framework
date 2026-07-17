@@ -4,10 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-surface-parity-fix
-- lifecycle: active
-- revision: 1
-- revision_id: a81041e5-5d8d-483a-bc38-a468a6caaef1
+- lifecycle: completed
+- revision: 2
+- revision_id: 32D0C50B-4EC3-4480-8642-CFF6B4620DC6
+- mode: structured_slice
 - current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -18,10 +20,10 @@ Fix surface parity defects: approvalValueTransport, defaultPrompt, descriptions.
 
 | Run status | Value |
 |---|---|
-| Status | open |
+| Status | pass |
 | Current gate | OR |
 | Missing approval | none |
-| Next step | Delivery closeout; VCS on explicit instruction |
+| Next step | No further delivery step; VCS only on explicit instruction |
 
 ## Approvals
 
@@ -46,3 +48,8 @@ Fix surface parity defects: approvalValueTransport, defaultPrompt, descriptions.
 | TP | artefacts/agdf-surface-parity-fix/TP.md | approved |
 | QA | artefacts/agdf-surface-parity-fix/QA_REPORT.md | passed |
 | OR | artefacts/agdf-surface-parity-fix/OR.md | pass |
+
+## Closeout
+
+- next_allowed_action: No further delivery step. Commit, push, PR or release requires separate explicit instruction.
+- quality_outlook: No further technical follow-up is required for the approved surface-parity scope.

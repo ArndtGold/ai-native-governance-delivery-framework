@@ -4,9 +4,9 @@
 
 - control_state_version: 2
 - run_id: agdf-self-maintenance-overhead-reduction
-- lifecycle: active
-- revision: 13
-- revision_id: a0b4ca7e-cd78-4fe7-9e00-ab0eff14ecfb
+- lifecycle: completed
+- revision: 14
+- revision_id: 630FF0FE-86A0-47FE-B56F-5C62BAC0510B
 - mode: structured_slice
 - current_gate: OR
 - decision: pass

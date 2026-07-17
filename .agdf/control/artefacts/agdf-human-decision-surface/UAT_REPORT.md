@@ -1,7 +1,7 @@
 # UAT Report: Human Decision Surface
 
-Status: revise
-Date: 2026-07-15
+Status: accepted
+Date: 2026-07-17
 Based on: `.agdf/control/artefacts/agdf-human-decision-surface/QA_REPORT.md`
 
 ## Acceptance Scope
@@ -60,12 +60,21 @@ runtime, not the current cached `0.8.0` skill copy.
   `native_attempt_required: true` even though this durable UAT report remains `Status: revise` and
   names failing end-to-end evidence. The projection is non-authoritative and must fail closed; no UAT
   control was shown.
+- Fresh AGDF 0.9.8 UAT on 2026-07-17 visibly rendered the localized action-oriented Run Status Card
+  first, the separate Gate Transition Card second, stable `UR · PRD · SD · TP` links, and then one
+  exact-text fallback. The fallback visibly reported `unavailable_before_invocation`, preserved the
+  undecorated `Approval: UAT` value and did not invoke a decorated native option.
+- The user then supplied exact `Approval: UAT` for `agdf-human-decision-surface` after same-run,
+  same-gate and revision-14 revalidation.
 
 ## Decision
 
-- decision: revise
-- missing_evidence: Exact QA approval and end-to-end evidence that the running agent emits both
-  required cards immediately before the control or fallback without relying only on repository
-  snapshot tests.
-- required_next_step: Keep UAT at `revise`; obtain exact QA approval through a valid fallback, then
-  resolve and retest the end-to-end orchestration gap before UAT can pass.
+- decision: accepted_with_disclosed_limitations
+- accepted_evidence: The fresh 0.9.8 task visibly demonstrated the required two-card order followed
+  by one safe exact-text fallback, and the user deliberately provided exact `Approval: UAT` after
+  revalidation.
+- missing_evidence: Native approve/revise/decline rendering, dismissal mapping and screen-reader
+  behavior were not live-proven because native preflight was unavailable; repository tests remain
+  the evidence for those branches and no host-visible native pass is claimed.
+- required_next_step: Produce OR with the native-host evidence boundary retained; VCS and release
+  actions require separate explicit instruction.

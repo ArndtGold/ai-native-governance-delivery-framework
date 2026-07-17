@@ -45,7 +45,6 @@ Owner: agent
   `validateApprovalOrientationSnapshot`.
 - No automatic rationale display in default card output (on-demand only).
 - No commit, push, PR or release action performed.
-- No Context Graph update (deferred to closeout).
 
 ## 4. TP Coverage
 
@@ -77,6 +76,7 @@ Delivery closeout is ready. Commit, push, PR or release require explicit instruc
 
 - context_graph_impact: update_existing_node
 - context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-RUN-STATUS-CARD`
-- context_graph_reconciliation: open (update at closeout)
-- context_graph_required_action: update
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
 - context_graph_gate_effect: none
+- context_graph_evidence: `CG-NATIVE-INTERACTION-AUTHORITY` and `CG-RUN-STATUS-CARD` record the delivered deterministic, non-authorizing rationale and on-demand `Why?` semantics.

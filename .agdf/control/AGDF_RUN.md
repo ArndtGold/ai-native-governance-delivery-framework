@@ -1,17 +1,17 @@
 <!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->
 <!-- canonical_source: .agdf/control/runs/agdf-self-maintenance-overhead-reduction/RUN_STATE.md -->
 <!-- run_id: agdf-self-maintenance-overhead-reduction -->
-<!-- revision_id: a0b4ca7e-cd78-4fe7-9e00-ab0eff14ecfb -->
-<!-- sha256: fc37830799831bc327744eb24be84f59d7666a0674d89ff816a90a7f61dca9bd -->
+<!-- revision_id: 630FF0FE-86A0-47FE-B56F-5C62BAC0510B -->
+<!-- sha256: e9f6ec354082745c7287fa20eecb9f47d13970105c4ab67dbba3e6ee94f7b30d -->
 # AGDF Run State
 
 ## Run Meta
 
 - control_state_version: 2
 - run_id: agdf-self-maintenance-overhead-reduction
-- lifecycle: active
-- revision: 13
-- revision_id: a0b4ca7e-cd78-4fe7-9e00-ab0eff14ecfb
+- lifecycle: completed
+- revision: 14
+- revision_id: 630FF0FE-86A0-47FE-B56F-5C62BAC0510B
 - mode: structured_slice
 - current_gate: OR
 - decision: pass

@@ -4,11 +4,11 @@
 
 - control_state_version: 2
 - run_id: native-gate-buttons-live
-- lifecycle: active
-- revision: 48
-- revision_id: 60728A9C-3E50-4A1B-6D7E-F8091A2B3C4D
+- lifecycle: completed
+- revision: 49
+- revision_id: DDDC4F09-218B-4D90-B12C-E4D738225F84
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: OR
 - decision: decline
 - owner: agent
 
@@ -22,9 +22,9 @@ Deliver and live-verify native Codex and Claude Code gate-approval buttons witho
 |---|---|
 | What is known? | Fresh qa-gate decision is pass: NGB-01 through NGB-17 are fully done, all mandatory reviews pass and full tests remain green after the CR fix. |
 | What is approved? | UR, PRD, SD, revised TP and the fresh passing QA report are approved. |
-| What is missing? | UAT acceptance; the deliberate user decision was decline and no `Approval: UAT` exists. |
-| What is the next allowed action? | Await explicit user direction to revise the experience or justify a new UAT attempt after a change. |
-| What is explicitly forbidden right now? | Release and automatic VCS actions before deliberate UAT approval and separate delivery authorization. |
+| What is missing? | No closeout artefact; UAT was deliberately declined and no acceptance is claimed. |
+| What is the next allowed action? | Close the declined scope as superseded by `agdf-human-decision-surface`; no further delivery step. |
+| What is explicitly forbidden right now? | Treating the declined UAT as approval, release readiness or permission for VCS actions. |
 
 ## Approvals
 
@@ -53,6 +53,7 @@ Deliver and live-verify native Codex and Claude Code gate-approval buttons witho
 | CR | .agdf/control/artefacts/native-gate-buttons-live/CODE_REVIEW.md | done | Mandatory diff review passes after resolving one maintainability finding; no actionable finding remains. |
 | QA | .agdf/control/artefacts/native-gate-buttons-live/QA_REPORT.md | pass | Fresh qa-gate pass covers NGB-01 through NGB-17, all mandatory reviews and post-fix full tests; exact QA approval recorded after revalidation. |
 | UAT | .agdf/control/artefacts/native-gate-buttons-live/UAT_REPORT.md | declined | User deliberately declined acceptance; TP workflow remains incomplete and delivery actions remain forbidden. |
+| OR | .agdf/control/artefacts/native-gate-buttons-live/OR.md | revise | Declined UAT is preserved; the scope is superseded by `agdf-human-decision-surface`. |
 
 ## Evidence
 
@@ -85,5 +86,5 @@ Deliver and live-verify native Codex and Claude Code gate-approval buttons witho
 
 ## Closeout
 
-- next_allowed_action: Await explicit user direction to revise the experience or justify a new UAT attempt after a change; do not repeat the same approval prompt automatically.
-- quality_outlook: Preserve the exact-text fallback and avoid a custom UI workaround until host support exists.
+- next_allowed_action: No further delivery step. Continue any revised human-decision UX only through `agdf-human-decision-surface`.
+- quality_outlook: Preserve the declined UAT as durable evidence and keep exact-text fallback authority intact in the successor run.

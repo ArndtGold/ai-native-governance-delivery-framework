@@ -4,11 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-gate-rationale-why
-- lifecycle: active
-- revision: 1
-- revision_id: e0b8b5f1-3e66-4f0e-9afa-105a68f09065
-- mode: undetermined
+- lifecycle: completed
+- revision: 2
+- revision_id: 0802C0AA-A4A8-41D5-801E-D7AF92BC911A
+- mode: structured_slice
 - current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -22,10 +23,10 @@ output.
 
 | Question | Answer |
 |---|---|
-| What is known? | All gates approved including UAT. Delivery ready for OR. |
+| What is known? | All gates are approved through UAT, OR is `pass`, and the required Context Graph reconciliation is resolved. |
 | What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP`, `Approval: QA` and `Approval: UAT` provided on 2026-07-16. |
-| What is missing? | OR (delivery report). |
-| What is the next allowed action? | Produce OR or delivery closeout; prepare VCS handoff only when requested. |
+| What is missing? | No delivery artefact or approval; VCS delivery remains a separate explicit action. |
+| What is the next allowed action? | No further delivery step; prepare VCS handoff only when explicitly requested. |
 | What is explicitly forbidden right now? | Automatic commit, push, PR or release. |
 
 ## Source And Scope State
@@ -39,15 +40,15 @@ output.
 
 | Run status | Value |
 |---|---|
-| Status | open |
+| Status | pass |
 | Current gate | OR |
-| Allowed now | Produce OR or delivery closeout; prepare VCS handoff only when requested |
+| Allowed now | Report completed delivery state; prepare VCS handoff only when explicitly requested |
 | Blocked by | none |
 | Missing approval | none |
 | Next gate after approval | none |
 | Allowed after approval | none |
-| Next step | Produce OR |
-| Quality outlook | All evidence strong; Context Graph update at closeout |
+| Next step | No further delivery step |
+| Quality outlook | Rationale semantics and Context Graph ownership are aligned; no further technical follow-up is required |
 
 ## Approvals
 
@@ -88,3 +89,17 @@ output.
 
 - Concurrent modification of `agdf-interaction-locales.json` with `agdf-state-orientation` (if Slice A is still open) and `agdf-human-decision-surface` (if UAT revise touches locale keys). Mitigated by additive-only locale keys and separate sections.
 - Rationale one-liners must stay within `lengthBudgets.description` (160 chars).
+
+## Context Graph Impact
+
+- context_graph_impact: update_existing_node
+- context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-RUN-STATUS-CARD`
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: Both nodes now record the deterministic, non-authorizing Gate-Rationale Registry and on-demand `Why?` status interaction delivered by this run.
+
+## Closeout
+
+- next_allowed_action: No further delivery step. Commit, push, PR or release requires separate explicit instruction.
+- quality_outlook: No further technical follow-up is required for the approved rationale and `Why?` interaction scope.

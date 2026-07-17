@@ -4,10 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-chat-noise-suppression
-- lifecycle: active
-- revision: 1
-- revision_id: b133b6ea-9569-4782-93bc-25ff8db4eeeb
+- lifecycle: completed
+- revision: 2
+- revision_id: 5F812109-D6AD-452D-86A2-4DFBA6294250
+- mode: structured_slice
 - current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -18,10 +20,10 @@ Codify chat and tool-call discipline in the AGDF runtime contract and 5 skills.
 
 | Run status | Value |
 |---|---|
-| Status | open |
+| Status | pass |
 | Current gate | OR |
 | Missing approval | none |
-| Next step | Delivery closeout; VCS on explicit instruction |
+| Next step | No further delivery step; VCS only on explicit instruction |
 
 ## Approvals
 
@@ -46,3 +48,8 @@ Codify chat and tool-call discipline in the AGDF runtime contract and 5 skills.
 | TP | artefacts/agdf-chat-noise-suppression/TP.md | approved |
 | QA | artefacts/agdf-chat-noise-suppression/QA_REPORT.md | passed |
 | OR | artefacts/agdf-chat-noise-suppression/OR.md | pass |
+
+## Closeout
+
+- next_allowed_action: No further delivery step. Commit, push, PR or release requires separate explicit instruction.
+- quality_outlook: No further technical follow-up is required for the approved chat-noise-suppression scope.

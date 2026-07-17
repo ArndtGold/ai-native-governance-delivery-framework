@@ -4,9 +4,9 @@
 
 - control_state_version: 2
 - run_id: agdf-state-orientation
-- lifecycle: active
-- revision: 9
-- revision_id: A9B0C1D2-E3F4-5678-9ABC-F90123456789
+- lifecycle: completed
+- revision: 11
+- revision_id: BD04FEDC-0CD1-442F-A1BC-8C24BDD2BC47
 - mode: structured_slice
 - current_gate: OR
 - decision: pass
@@ -24,11 +24,11 @@ machine contract.
 
 | Question | Answer |
 |---|---|
-| What is known? | All four user gates approved (UR, PRD, SD, TP). Brownfield Review: `structured_slice`. Pre-implementation Brownfield Analysis: `pass`. Implementation path verified — all target functions confirmed at expected locations, no parallel-structure conflict, regression risk low (all additive). |
-| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD` and `Approval: TP` provided on 2026-07-15 after revalidation. |
-| What is missing? | Implementation of SO-01 through SO-10; test evidence BT-01 through BT-14; verification bundle (SO-11); review chain (SO-12). |
-| What is the next allowed action? | Implement SO-01 through SO-10, run tests, record CD+Tests evidence. |
-| What is explicitly forbidden right now? | QA pass, UAT and release claims before CD+Tests, reviews and QA gate. |
+| What is known? | SO-01 through SO-12 are implemented; BT-01 through BT-14, mandatory reviews, QA and UAT pass. |
+| What is approved? | Exact approvals for UR, PRD, SD, TP, QA and UAT are recorded after revalidation. |
+| What is missing? | No delivery artefact or approval; VCS delivery remains a separate explicit action. |
+| What is the next allowed action? | No further delivery step; prepare VCS handoff only when explicitly requested. |
+| What is explicitly forbidden right now? | Release and automatic VCS actions without separate explicit instruction. |
 
 ## Source And Scope State
 
@@ -41,15 +41,15 @@ machine contract.
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UAT |
-| Allowed now | Request `Approval: UAT`; prepare non-operative delivery summary |
-| Blocked by | Missing `Approval: UAT` |
-| Missing approval | `Approval: UAT` |
-| Next gate after approval | OR |
-| Allowed after approval | Produce OR or delivery closeout; prepare VCS handoff only when requested |
-| Next step | Request exact `Approval: UAT` |
-| Quality outlook | Context Graph update at OR closeout; sequencing risk monitored |
+| Status | pass |
+| Current gate | OR |
+| Allowed now | Report completed delivery state; prepare VCS handoff only when explicitly requested |
+| Blocked by | none |
+| Missing approval | none |
+| Next gate after approval | none |
+| Allowed after approval | none; all user gates are complete |
+| Next step | No further delivery step |
+| Quality outlook | Preserve path-derived orientation and stable human labels as delivery modes evolve |
 
 ## Mode / Slice Decision
 
@@ -78,11 +78,13 @@ machine contract.
 | CR | reviews | CD+Tests | Pass — 3 advisory findings fixed. |
 | QA_REPORT | tests | TP | Revision 1 pass — all evidence strong, no blocking risk. |
 | QA | approved_by | `Approval: QA` | Exact approval provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
+| UAT | approved_by | `Approval: UAT` | Exact approval provided on 2026-07-17 after visible breadcrumb evidence and same-run, same-gate, revision-10 revalidation. |
+| OR | verifies | full run | `.agdf/control/artefacts/agdf-state-orientation/OR.md` records passing closeout and resolved Context Graph impact. |
 
 ## Next Allowed Action
 
-- next_allowed_action: Request exact `Approval: UAT`.
-- forbidden_until_then: Release and automatic VCS actions before UAT approval.
+- next_allowed_action: No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.
+- forbidden_until_then: none.
 
 ## Approvals
 
@@ -93,6 +95,7 @@ machine contract.
 | SD | approved | Exact `Approval: SD` provided on 2026-07-15 after the SD artefact was persisted and same-run, same-gate and revision revalidation. |
 | TP | approved | Exact `Approval: TP` provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
 | QA | approved | Exact `Approval: QA` provided on 2026-07-15 after same-run, same-gate and revision revalidation. |
+| UAT | approved | Exact `Approval: UAT` provided on 2026-07-17 after same-run, same-gate and revision-10 revalidation. |
 
 ## Artefacts
 
@@ -109,6 +112,8 @@ machine contract.
 | TP Review | inline (TP Coverage in chat) | done | 12/12 tasks fully_done. |
 | Clean Implementation Review | inline (Clean Review in chat) | done | Pass — clean primary solution, no fallbacks/parallel structures. |
 | CR | inline (Code Review in chat) | done | Pass — 3 advisory findings fixed. |
+| UAT | `.agdf/control/artefacts/agdf-state-orientation/UAT_REPORT.md` | accepted | Visible breadcrumb and exact approval accepted; deterministic tests cover narration and internal-state variants. |
+| OR | `.agdf/control/artefacts/agdf-state-orientation/OR.md` | pass | Full closeout with Context Graph reconciliation resolved. |
 
 ## Evidence
 
@@ -126,9 +131,7 @@ machine contract.
 
 | Missing | Reason |
 |---|---|
-| `Approval: UAT` | Requested |
-| Context Graph update (CG-RUN-STATUS-CARD) | Deferred to OR closeout |
-| `agdf-human-decision-surface` UAT pass | Sequencing risk remains open |
+| None blocking | UAT accepted, Context Graph reconciled and the related human-decision-surface run is completed. |
 
 ## Risks
 
@@ -141,10 +144,10 @@ machine contract.
 
 - context_graph_impact: update_existing_node
 - context_graph_refs: `CG-RUN-STATUS-CARD` (CONTEXT_GRAPH.md:15)
-- context_graph_reconciliation: open_gap
-- context_graph_required_action: update
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: `CG-RUN-STATUS-CARD` already covers compact status projection; Slice A extends it with path visibility, transition narration and internal-state collapse. Node update deferred to OR closeout.
+- context_graph_evidence: `CG-RUN-STATUS-CARD` records the delivered breadcrumb, post-acceptance narration and internal-state projection invariants.
 
 ## Knowledge Persistence Decision
 
@@ -158,5 +161,5 @@ machine contract.
 
 ## Closeout
 
-- next_step: Request `Approval: UAT`
-- quality_outlook: Context Graph update at OR closeout; sequencing risk monitored
+- next_step: No further delivery step; VCS and release actions require separate explicit instruction.
+- quality_outlook: Preserve path-derived orientation and stable human labels as delivery modes evolve.

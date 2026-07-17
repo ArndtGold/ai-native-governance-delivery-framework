@@ -19,6 +19,8 @@
 - evidence: Existing fields include `next_allowed_action` and `quality_outlook`; the approved UR narrows this run to making the projection explicit and machine-readable.
 - exit_criteria: Runtime contract, CLI JSON/text output, templates and smoke tests consistently expose the Run Status Card without creating a second gate model.
 - lifecycle_extension_2026_07_16: General lifecycle status composes installation, repository activation and delivery as independent sections. A healthy installation and blocked delivery are intentionally valid together; delivery continues to derive from doctor/gate-check and lifecycle status never becomes a second gate evaluator. Fresh read-only request orientation reuses this projection, emits once and creates no run.
+- rationale_extension_2026_07_16: The compact default projection stays concise; deterministic localized gate and internal-step rationale is retrieved only through the non-authorizing on-demand `Why?` status interaction. The same gate and locale produce the same curated explanation without adding approval controls or changing gate state.
+- state_orientation_extension_2026_07_17: The compact human projection derives a breadcrumb from the selected Mode/Slice Decision and approvals, emits one separate post-acceptance transition narration and collapses internal sub-states to stable human labels. Machine/audit output remains unchanged; missing or unknown derivation inputs fail closed instead of selecting a fixed path template.
 
 ### CG-DELIVERY-PATH-SEARCH
 
@@ -50,6 +52,7 @@
 - invariants: only deliberate user input that passes selected-run, current-gate and durable-artefact validation immediately before persistence can become an AGDF approval; exact text remains a universal fallback; explicit user surface permissions are preserved; no native response writes control state directly. Ready gate classification is independent from adapter availability: `native_attempt_required` is true only after exact-value transport and deliberate-wait capability are proven, while decorated-only, missing, unsafe or conflicting capability fails closed before invocation without changing gate authority.
 - risks: host tool schemas and timeout behavior can drift; mitigated by descriptive capability metadata, deterministic integrity/generation tests and fail-closed textual fallback.
 - exit_criteria: canonical/runtime and generated-surface tests pass for all declared adapters, OpenCode explicit allow/deny preservation is proven, and QA confirms that supporting live probes are not presented as gate-enforcement evidence.
+- rationale_extension_2026_07_16: Gate rationale is presentation-only. The on-demand `Why?` path uses the existing `status` interaction, never adds an approval option, never advances a gate and leaves exact approval authority unchanged; locale parity, length budgets and deterministic retrieval are regression-tested.
 - installer_integration_2026_07_16: `installer-output-parity` consumes this node and does not own approval transport metadata or fallback policy. The observed Codex recommended-label constraint remains linked to `agdf-human-decision-surface` live UAT; installer docs state capability dependence and exact-text authority without claiming host-visible button proof.
 
 ### CG-CREATE-AGDF-CLI-COMPOSITION

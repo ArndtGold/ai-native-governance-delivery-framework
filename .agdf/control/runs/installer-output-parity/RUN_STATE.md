@@ -4,11 +4,12 @@
 
 - control_state_version: 2
 - run_id: installer-output-parity
-- lifecycle: active
-- revision: 33
-- revision_id: 3e517e4a-53d5-4e17-bf29-585d5cf6e00d
+- lifecycle: completed
+- revision: 34
+- revision_id: 8BDC042D-6538-4DB3-9A1A-5C10AC5CA385
 - mode: structured_slice
 - current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -22,8 +23,8 @@ keeping technical health distinct from delivery gate state.
 |---|---|
 | What is known? | The current installer verifies versions reliably, but success output, technical health, repository delivery state, first-run orientation, CLI discovery, opt-out and `codex-repo` completion are fragmented. The loaded Codex question tool decorates its recommended option while the canonical plugin definition declares exact-value transport, so safe fallback behavior and the advertised native-button capability diverge. OpenCode already provides the richest status baseline. Claude installation also catches every failure as a possible missing Claude CLI even when the upstream marketplace error identifies Git as missing or unsafe. |
 | What is approved? | Revision-2 UR, multi-surface PRD, solution design, revision-4 task plan, passing revision-4 QA report and UAT are approved exactly. |
-| What is missing? | Real host restart/activation evidence remains unverified; no VCS handoff has been requested. |
-| What is the next allowed action? | Retain the UAT limitation in any handoff; perform separately authorized live-host UAT only if that proof is required. |
+| What is missing? | No delivery artefact or approval; real host restart/activation evidence remains intentionally unverified and no VCS handoff has been requested. |
+| What is the next allowed action? | No further delivery step; retain the host-evidence limitation in any later handoff. |
 | What is explicitly forbidden right now? | Automatic release, push, PR or commit; real host activation must not be claimed without evidence. |
 
 ## Source And Scope State
@@ -39,14 +40,14 @@ keeping technical health distinct from delivery gate state.
 
 | Run status | Value |
 |---|---|
-| Status | open |
+| Status | pass |
 | Current gate | OR |
 | Allowed now | Prepare a delivery handoff only when separately requested; retain the UAT limitation |
 | Blocked by | none |
 | Missing approval | none |
 | Next gate after approval | none |
 | Allowed after approval | none |
-| Next step | Await an explicit delivery-handoff request or separately authorized live-host UAT |
+| Next step | No further delivery step; VCS only on explicit instruction |
 | Quality outlook | Prove one English card contract across all passed coding-agent surfaces while preserving stable machine values and truthful activation/delivery separation |
 
 ## Approvals
@@ -75,8 +76,8 @@ keeping technical health distinct from delivery gate state.
 | Clean Implementation Review | `.agdf/control/artefacts/installer-output-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | done | TP Revision 4 pass; existing owners reused without a second SoT |
 | CR | `.agdf/control/artefacts/installer-output-parity/CODE_REVIEW.md` | done | TP Revision 4 pass; no meaningful finding remains in reviewed scope |
 | QA | `.agdf/control/artefacts/installer-output-parity/QA_REPORT.md` | pass | TP Revision 4 qa-gate pass; exact approval recorded on 2026-07-17 |
-| UAT | `.agdf/control/artefacts/installer-output-parity/UAT_REPORT.md` | revise | non-mutating scenarios pass after one remediation; real activation and restart remain unverified |
-| OR | `.agdf/control/artefacts/installer-output-parity/OR.md` | revise | all gates approved; retain the UAT host-evidence limitation before any delivery handoff |
+| UAT | `.agdf/control/artefacts/installer-output-parity/UAT_REPORT.md` | accepted | exact UAT approval accepts the delivered behavior within the disclosed non-mutating scope; real activation and restart remain unverified |
+| OR | `.agdf/control/artefacts/installer-output-parity/OR.md` | pass | all gates approved; the host-evidence limitation remains explicit and is not claimed as proof |
 
 ## Evidence
 
@@ -149,5 +150,5 @@ keeping technical health distinct from delivery gate state.
 
 ## Closeout
 
-- next_allowed_action: Await an explicit delivery-handoff request or separately authorized live-host UAT; do not perform VCS actions automatically.
+- next_allowed_action: No further delivery step. Commit, push, PR, publish or release requires separate explicit instruction.
 - quality_outlook: Keep one English lifecycle card across Codex, Claude Code, OpenCode and GitHub Copilot without coupling activation state to delivery authority or changing project chat/artefact localization.

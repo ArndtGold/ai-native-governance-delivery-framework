@@ -8,7 +8,7 @@ Report mode: OR-full
 
 - gate: OR; all user approvals through UAT are recorded.
 - artefact: `.agdf/control/artefacts/installer-output-parity/OR.md`
-- status: revise
+- status: pass
 - delivered: English shared lifecycle cards; additive installation, activation and repository-delivery
   projections; canonical surface labels; quiet default with `--verbose` host diagnostics; shared
   Codex/Claude/OpenCode global and Codex/OpenCode/Copilot repository presentation; updated package
@@ -22,8 +22,9 @@ Report mode: OR-full
   evaluator was introduced.
 - evidence: focused lifecycle and CLI tests, create-agdf aggregate smoke, public bootstrap smoke,
   runtime integrity, package smoke and Doctor all pass.
-- missing_evidence: live host activation and restart behavior; the UAT report remains `revise` for
-  this deliberate non-mutating boundary.
+- missing_evidence: live host activation and restart behavior remain intentionally unverified; exact
+  `Approval: UAT` accepted the delivered behavior within the disclosed non-mutating boundary and does
+  not convert that limitation into host proof.
 - risks: host command wording may change; it is diagnostic-only. Exact textual approval remains the
   portable authority path while native approval controls are unavailable.
 - retained_fallbacks: exact textual approval for unavailable native controls; exit criterion is a
@@ -35,8 +36,8 @@ Report mode: OR-full
   `CG-RUN-STATUS-CARD`
 - context_graph_reconciliation: resolved
 - context_graph_required_action: none
-- required_next_step: retain the UAT limitation in any handoff; perform a separate user-authorized
-  live-host UAT only if activation/restart proof is required before delivery.
+- required_next_step: no further delivery step; retain the disclosed host-evidence limitation in any
+  later handoff, and perform separate live-host verification only if explicitly requested.
 - quality_outlook: preserve the truthful distinction between verified installation, pending host
   activation and repository delivery authority.
 

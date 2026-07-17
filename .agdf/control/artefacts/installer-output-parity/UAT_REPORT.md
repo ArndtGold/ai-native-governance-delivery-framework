@@ -1,6 +1,6 @@
 # UAT Report: Coherent AGDF Installation Lifecycle
 
-Status: revise
+Status: accepted
 Date: 2026-07-16
 Scope: user-selected non-mutating UAT
 
@@ -19,11 +19,11 @@ Scope: user-selected non-mutating UAT
 
 ## Decision
 
-- decision: revise
-- decisive_reason: real Codex repository activation and restart behavior remain unverified, as intentionally required by the selected non-mutating scope.
+- decision: accepted_with_disclosed_limitations
+- decisive_reason: Exact `Approval: UAT` was recorded on 2026-07-17 after renewed QA and accepted the delivered behavior within the explicitly non-mutating UAT scope; real Codex repository activation and restart behavior remain unverified and are not claimed.
 - remediation_completed: corrected the disabled-repository status next action; focused and aggregate regression evidence pass.
-- required_next_step: renew QA approval for the post-QA code delta, then either authorize bounded host UAT or keep activation/restart explicitly unaccepted.
-- release_effect: blocked; no UAT pass or release claim is permitted.
+- required_next_step: no further delivery step; a separately authorized live-host verification may be performed later if activation/restart proof is desired.
+- release_effect: delivery closeout is allowed; commit, push, PR, publish and release still require separate explicit instruction.
 
 ## Safety
 

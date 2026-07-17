@@ -39,3 +39,12 @@ Report mode: OR-full
   live-host UAT only if activation/restart proof is required before delivery.
 - quality_outlook: preserve the truthful distinction between verified installation, pending host
   activation and repository delivery authority.
+
+## CI Regression Follow-up
+
+- The aggregate source smoke retained the former localized `AGDF version:` assertion and therefore
+  failed after the approved English card change. Its Codex, Claude and OpenCode assertions now use
+  the stable `Version:` field and also require the separate `Installation:` and `Verification:`
+  health fields where applicable.
+- Verification: `node create-agdf/scripts/smoke-test.js`,
+  `npm --prefix create-agdf run smoke-test` and `npm --prefix agdf run smoke-test` pass.

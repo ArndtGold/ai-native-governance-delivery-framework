@@ -59,7 +59,7 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
     for (const preserved of preservedFiles) io.log(`- ${preserved}`);
   }
 
-  if (repositorySurface) return;
+  if (repositorySurface && !verbose) return;
 
   io.log("");
   io.log("Next steps:");

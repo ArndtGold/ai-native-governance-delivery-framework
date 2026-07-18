@@ -904,7 +904,7 @@ const discoveryGroups = [
         <div class="mt-6">
           <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Reference runtime</div>
           <h3 class="mb-3 text-2xl font-bold sm:text-3xl">One runtime, multiple surfaces.</h3>
-          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode combines a global npm/native-skill surface with repository-local skills, instructions and permission gates. The global layer does not replace the repository-local AGDF source of truth.</p>
+          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode uses one global npm/native-skill surface; a repository becomes active through valid durable AGDF control in .agdf/control/config.json. The global runtime does not replace that repository-owned control state. Existing repository-local OpenCode skills and instructions remain supported as legacy compatibility, but are no longer required for new setups.</p>
         </div>
       </div>
     </div>

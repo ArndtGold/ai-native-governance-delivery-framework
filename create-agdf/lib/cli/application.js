@@ -7,18 +7,6 @@ import {
   writeLegacyProjection,
 } from "../control-state/index.js";
 import {
-  buildStatusCard,
-  evaluateGateCheck,
-  printApprovalEnvelope,
-  postApprovalTransition,
-  printGateCheckReport,
-} from "../control-evaluation/gate-check.js";
-import {
-  evaluateDeliveryMap,
-  printDeliveryMapReport,
-} from "../control-evaluation/delivery-map.js";
-import { evaluateDoctor, printDoctorReport } from "../control-evaluation/doctor.js";
-import {
   defaultOpenCodeConfigDir,
   evaluateOpenCodeStatus,
   installOpenCodeGlobalPlugin,
@@ -43,19 +31,19 @@ import { agdfFragmentPath, generatedFilesForTarget } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
-import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { CliUsageError, parseArgs } from "./parse-args.js";
+import { pluginDefinition } from "./runtime-context.js";
+import { createValidationHandlers } from "./validation-handlers.js";
 
-const deliveryMapDependencies = Object.freeze({
-  evaluateDoctor,
-  buildStatusCard,
-  postApprovalTransition,
-});
-
-function createHandlers({ io, env, exec }) {
-  const installerAdapters = exec ? { exec, io } : { io };
+function createHandlers({ io, env, exec, prepare }) {
+  const installerAdapters = {
+    ...(exec ? { exec } : {}),
+    ...(prepare ? { prepare } : {}),
+    ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
+  };
   const scaffoldHandler = (options) => runScaffold(options, io);
   return new Map([
+    ...createValidationHandlers(io),
     ["codex-repo", scaffoldHandler],
     ["copilot", scaffoldHandler],
     ["opencode-repo", scaffoldHandler],
@@ -76,37 +64,6 @@ function createHandlers({ io, env, exec }) {
       writeLegacyProjection(output, selected.run.path);
       io.log(output);
       return 0;
-    }],
-    ["doctor", (options) => {
-      const report = evaluateDoctor(options.dir, options);
-      printDoctorReport(report, options.json, io);
-      return report.status === "block" ? 2 : 0;
-    }],
-    ["gate-check", (options) => {
-      const report = evaluateGateCheck(options.dir, options);
-      if (options.approvalEnvelope) {
-        const output = printApprovalEnvelope(report, {
-          io,
-          reEvaluate: () => evaluateGateCheck(options.dir, options),
-        });
-        return output.status === "blocked" ? 2 : 0;
-      }
-      printGateCheckReport(report, options.json, options.statusCard, io);
-      return report.status === "blocked" ? 2 : 0;
-    }],
-    ["delivery-map", (options) => {
-      const report = evaluateDeliveryMap(options.dir, options, deliveryMapDependencies);
-      printDeliveryMapReport(report, options.json, io);
-      return report.status === "block" ? 2 : 0;
-    }],
-    ["delivery-path-search", async (options) => {
-      try {
-        const result = await executeDeliveryPathSearch(options, io);
-        return result.status === "recommendation" ? 0 : 2;
-      } catch (error) {
-        io.error(`Delivery Path Search failed: ${error.message}`);
-        return 2;
-      }
     }],
     ["opencode-status", (options) => {
       const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
@@ -198,7 +155,7 @@ function runLifecyclePhase(phase, operation) {
 
 function installResult(installed, { restartRequired, nextAction }) {
   return createLifecycleResult({
-    operation: "install",
+    operation: installed.operation ?? "install",
     result: "success",
     surface: installed.surface,
     scope: "global",
@@ -329,6 +286,11 @@ function runScaffold(options, io) {
 export async function runCli(argv = process.argv.slice(2), adapters = {}) {
   const io = adapters.io ?? console;
   const env = adapters.env ?? process.env;
+  if (argv.includes("--version")) {
+    const output = { name: "create-agdf", version: pluginDefinition.version };
+    io.log(argv.includes("--json") ? JSON.stringify(output) : output.version);
+    return 0;
+  }
   let parsed;
   try {
     parsed = parseArgs(argv, adapters.parser);
@@ -353,7 +315,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
   }
   const command = resolveCommand(options.target);
   if (!command) throw new Error(`No handler is registered for ${options.target}.`);
-  const handler = createHandlers({ io, env, exec: adapters.exec }).get(command.handler);
+  const handler = createHandlers({ io, env, exec: adapters.exec, prepare: adapters.prepare }).get(command.handler);
   if (!handler) throw new Error(`No implementation is registered for ${command.name}.`);
   return await handler(options);
 }

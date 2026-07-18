@@ -117,7 +117,8 @@ const interactionContract = readFileSync(join(import.meta.dirname, "..", "..", "
 const gateCheckSkill = readFileSync(join(import.meta.dirname, "..", "..", "plugin", "skills", "gate-check", "SKILL.md"), "utf8");
 assert.equal((interactionContract.match(/^### Read-only request orientation$/gm) ?? []).length, 1);
 assert.match(interactionContract, /do not create a run, write control files, request gate approval or\s+repeat the sentence/);
-assert.match(gateCheckSkill, /fresh request classified as read-only[\s\S]*creates no run, persists\s+nothing, requests no approval/);
+assert.match(gateCheckSkill, /For status, blocked, read-only or rationale interactions,[\s\S]*without asking for approval/);
+assert.doesNotMatch(gateCheckSkill, /Surface behavior:/);
 assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" } }).eligible, true);
 assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" } }).native_attempt_required, true);
 assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" } }).reason, "exact_transport");

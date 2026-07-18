@@ -56,7 +56,7 @@ try {
     encoding: "utf8",
   });
 
-  if (!helpOutput.includes("Primary commands:")
+  if (!helpOutput.includes("Bootstrap and lifecycle commands:")
     || !helpOutput.includes("Advanced / Compatibility")
     || !helpOutput.includes("npx --yes @agdf/cli@latest init")) {
     throw new Error("agdf help output must present the primary AGDF CLI shape.");

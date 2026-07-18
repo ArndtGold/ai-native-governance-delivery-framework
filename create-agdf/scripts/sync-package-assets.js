@@ -1,6 +1,7 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { syncPluginRuntime } from "./sync-plugin-runtime.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
@@ -59,8 +60,13 @@ function syncDirectory(sourceRoot, targetRoot) {
 }
 
 function syncPluginDirectory(sourceRoot, targetRoot) {
+  mkdirSync(targetRoot, { recursive: true });
+  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => entry !== "runtime"));
+  for (const entry of readdirSync(targetRoot)) {
+    if (!sourceEntries.has(entry)) rmSync(join(targetRoot, entry), { recursive: true, force: true });
+  }
   for (const entry of readdirSync(sourceRoot)) {
-    if (entry === ".claude-plugin" || entry === "scripts") continue;
+    if (entry === "runtime") continue;
 
     const sourcePath = join(sourceRoot, entry);
     const targetPath = join(targetRoot, entry);
@@ -405,6 +411,7 @@ function main() {
   rmSync(generatedOpenCodeAgentsRoot, { recursive: true, force: true });
   writeSkillsReadme(skillSlugs);
   writeOpenCodeReadme(skillSlugs);
+  syncPluginRuntime({ outputRoot: join(generatedCodexPluginRoot, "runtime") });
 }
 
 main();

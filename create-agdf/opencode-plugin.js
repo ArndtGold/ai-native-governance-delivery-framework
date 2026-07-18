@@ -21,7 +21,7 @@ export const AGDFPlugin = async ({ directory, client }) => {
     "## AGDF Runtime Reminder",
     "This repository is AGDF-active through `.agdf/control/config.json`; use the globally installed AGDF runtime surface.",
     "For new build/change intent or unclear approval, load the native `agdf-global-gate-check` skill before later artefacts or implementation.",
-    "Use `npx --yes @agdf/cli@latest gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
+    "Use the config-local `agdf/bin/agdf-local.js gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
   ].join("\n");
 
   const inactiveGuidance = [

@@ -99,6 +99,9 @@ lock.packages["node_modules/${pluginDefinition.opencode.npmPackage}"] = {
 fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + "\\n");
 const packageDir = path.join(prefix, "node_modules", ${JSON.stringify(pluginDefinition.opencode.npmPackage)});
 fs.mkdirSync(packageDir, { recursive: true });
+for (const entry of ["bin", "lib", "generated"]) {
+  fs.cpSync(path.join(${JSON.stringify(fileURLToPath(packageRoot))}, entry), path.join(packageDir, entry), { recursive: true });
+}
 fs.writeFileSync(path.join(packageDir, "package.json"), JSON.stringify({
   name: ${JSON.stringify(pluginDefinition.opencode.npmPackage)},
   version: ${JSON.stringify(pluginDefinition.version)},
@@ -130,7 +133,7 @@ if (packageJson.exports?.["./cli"] !== "./bin/create-agdf.js") {
 }
 
 const helpOutput = execFileSync(process.execPath, [binPath, "--help"], { encoding: "utf8" });
-if (!helpOutput.includes("Primary commands:") || !helpOutput.includes("Advanced / Compatibility") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest status") || !helpOutput.includes("npx --yes @agdf/cli@latest disable") || !helpOutput.includes("npx --yes @agdf/cli@latest uninstall") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("--status-card") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
+if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.includes("Advanced / Compatibility") || !helpOutput.includes("npx --yes @agdf/cli@latest codex-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest claude") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-status") || !helpOutput.includes("npx --yes @agdf/cli@latest opencode-repo") || !helpOutput.includes("npx --yes @agdf/cli@latest status") || !helpOutput.includes("npx --yes @agdf/cli@latest disable") || !helpOutput.includes("npx --yes @agdf/cli@latest uninstall") || !helpOutput.includes("npx --yes @agdf/cli@latest init") || !helpOutput.includes("agdf gate-check --approval-envelope") || !helpOutput.includes("agdf delivery-map --json") || !helpOutput.includes("Scaffold-compatible npm create usage:")) {
   throw new Error("CLI help must present agdf as the preferred CLI package and keep npm create compatibility.");
 }
 
@@ -174,6 +177,21 @@ if (!helpOutput.includes("Primary commands:") || !helpOutput.includes("Advanced 
   if (publishWorkflow.indexOf("Wait for @agdf/cli readiness") > publishWorkflow.indexOf("Run clean public bootstrap smoke test")) {
     throw new Error("Clean public bootstrap smoke test must run after @agdf/cli readiness.");
   }
+  const publishJobIndex = publishWorkflow.indexOf("\n  publish:");
+  const validateJob = publishWorkflow.slice(0, publishJobIndex);
+  const publishJob = publishWorkflow.slice(publishJobIndex);
+  if (!(validateJob.indexOf("Verify runtime-free source and plugin metadata") < validateJob.indexOf("Build release package assets")
+    && validateJob.indexOf("Build release package assets") < validateJob.indexOf("Verify built plugin integrity")
+    && validateJob.indexOf("Verify built plugin integrity") < validateJob.indexOf("Run create-agdf smoke test")
+    && validateJob.indexOf("Run create-agdf smoke test") < validateJob.indexOf("Verify create-agdf package contents"))) {
+    throw new Error("Publish validation must verify runtime-free source, build the plugin and verify installed/package layouts before publication eligibility.");
+  }
+  if (!(publishJob.indexOf("Build release package assets") < publishJob.indexOf("Verify built plugin integrity")
+    && publishJob.indexOf("Verify built plugin integrity") < publishJob.indexOf("Verify create-agdf package contents")
+    && publishJob.indexOf("Verify create-agdf package contents") < publishJob.indexOf("Publish create-agdf to npm")
+    && publishJob.includes("contents: read"))) {
+    throw new Error("Publish job must rebuild and verify the release-built plugin with read-only repository contents before npm publish.");
+  }
 }
 
 {
@@ -185,15 +203,17 @@ if (!helpOutput.includes("Primary commands:") || !helpOutput.includes("Advanced 
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
 if (args.join(" ") === "plugin list") {
   console.log("agdf@agdf ${pluginDefinition.version}");
 }
 `);
-    const output = runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath });
+    const dataRoot = join(tempDir, "agdf-data");
+    const output = runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: dataRoot });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     const expectedCalls = [
-      "plugin marketplace add arndtgold/ai-native-governance-delivery-framework",
-      "plugin marketplace upgrade agdf",
+      "plugin marketplace list --json",
+      `plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --json`,
       "plugin add agdf --marketplace agdf",
       "plugin list",
     ];
@@ -217,17 +237,18 @@ if (args.join(" ") === "plugin list") {
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
 if (args.join(" ") === "plugin list") {
   console.log("agdf@agdf 0.0.0");
 }
 `);
     let failed = false;
     try {
-      runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath });
+      runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     } catch (error) {
       failed = true;
       const stderr = error.stderr.toString();
-      if (!stderr.includes(`expected ${pluginDefinition.version}`) || !stderr.includes("observed 0.0.0") || !stderr.includes("codex plugin marketplace upgrade agdf")) {
+      if (!stderr.includes(`expected ${pluginDefinition.version}`) || !stderr.includes("observed 0.0.0") || !stderr.includes("@agdf/cli@latest codex")) {
         throw new Error(`Codex mismatch error must be actionable, got: ${stderr}`);
       }
     }
@@ -247,6 +268,7 @@ if (args.join(" ") === "plugin list") {
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin marketplace list --json") console.log("[]");
 if (args.join(" ") === "plugin list") {
   if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf ${pluginDefinition.version}");
   process.exit(0);
@@ -255,9 +277,10 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
   fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
 }
 `);
-    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
+    const dataRoot = join(tempDir, "agdf-data");
+    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: dataRoot });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
-    if (!calls.includes("plugin marketplace add arndtgold/ai-native-governance-delivery-framework") || !calls.includes("plugin marketplace update agdf") || !calls.includes("plugin install agdf@agdf")) {
+    if (!calls.includes(`plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --scope user`) || !calls.includes("plugin marketplace update agdf") || !calls.includes("plugin install agdf@agdf")) {
       throw new Error(`Claude first install must use marketplace add/update and plugin install: ${calls.join(" | ")}`);
     }
     if (calls.some((call) => call === "plugin add arndtgold/ai-native-governance-delivery-framework")) {
@@ -282,11 +305,12 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin marketplace list --json") console.log("[]");
 if (args.join(" ") === "plugin list") {
   console.log("agdf@agdf ${pluginDefinition.version}");
 }
 `);
-    runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
+    runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     if (!calls.includes("plugin update agdf@agdf") || calls.includes("plugin install agdf@agdf")) {
       throw new Error(`Claude existing install must use plugin update only: ${calls.join(" | ")}`);
@@ -306,6 +330,7 @@ if (args.join(" ") === "plugin list") {
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin marketplace list --json") console.log("[]");
 if (args.join(" ") === "plugin list") {
   if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf");
   process.exit(0);
@@ -314,7 +339,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
   fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
 }
 `);
-    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath });
+    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     if (!output.includes(`Version: unknown; expected ${pluginDefinition.version} (unknown)`) || !output.includes("Installation: degraded") || !output.includes("Verification: degraded")) {
       throw new Error("Claude bootstrap must report verification limitation when list output has no version.");
     }
@@ -410,10 +435,31 @@ try {
     || globalInstructions.includes("global adapters use the `agdf-*` namespace")) {
     throw new Error("opencode global instructions must keep the collision-safe agdf-global-* namespace current.");
   }
+  let fullBoundaryCount = (globalInstructions.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
+  let activationGuardCount = 0;
   for (const skillName of globalOpenCodeSkillNames) {
     const globalSkillPath = join(openCodeConfigTempDir, "skills", skillName, "SKILL.md");
-    if (!existsSync(globalSkillPath) || !readFileSync(globalSkillPath, "utf8").includes(`AGDF-GLOBAL-SKILL: ${skillName} -->`)) {
+    const globalSkill = existsSync(globalSkillPath) ? readFileSync(globalSkillPath, "utf8") : "";
+    if (!globalSkill.includes(`AGDF-GLOBAL-SKILL: ${skillName} -->`)) {
       throw new Error(`opencode must generate an owned global skill adapter for ${skillName}.`);
+    }
+    fullBoundaryCount += (globalSkill.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
+    activationGuardCount += (globalSkill.match(/## Repository Activation Guard/g) ?? []).length;
+  }
+  if (fullBoundaryCount !== 1 || activationGuardCount !== globalOpenCodeSkillNames.length) {
+    throw new Error(`opencode must install one full global boundary and ${globalOpenCodeSkillNames.length} compact skill guards.`);
+  }
+  const localValidatorPath = join(openCodeConfigTempDir, "agdf", "bin", "agdf-local.js");
+  if (!existsSync(localValidatorPath)
+    || status.global_native_surface.local_validator?.machine_validation !== "owned_version_matched") {
+    throw new Error("opencode must expose an exact-version config-local validator entrypoint.");
+  }
+  for (const command of ["doctor", "gate-check", "delivery-map"]) {
+    const localExecution = spawnSync(process.execPath, [localValidatorPath, command, "--dir", openCodeConfigTempDir, "--json"], { encoding: "utf8" });
+    let report = null;
+    try { report = JSON.parse(localExecution.stdout); } catch {}
+    if (localExecution.status !== 2 || !report?.schema_version) {
+      throw new Error(`opencode config-local validator must execute ${command} offline and fail only on the intentionally missing control fixture.`);
     }
   }
   for (const moduleName of contractModules) {
@@ -1215,15 +1261,13 @@ run("config", [
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("validated canonical `approval_presentation`")
-      || !content.includes("Bereit für deine Entscheidung")
-      || !content.includes("Ready for your decision")
-      || !content.includes("five status fields are selected run, readiness, current gate, human-readable required decision")
-      || !content.includes("The exact approval value appears only in the transition card across these two blocks")
-      || !content.includes("Re-evaluate the gate")
-      || !content.includes("GitHub Copilot: the current repository-instruction surface has no conforming native approval adapter")
-      || !content.includes("do not ask for a second approval for Brownfield Analysis")) {
-      throw new Error(`Generated gate-check surface must preserve transition-card UX and locale invariants: ${path}`);
+    if (!content.includes("Consume the canonical `approval_presentation` verbatim")
+      || !content.includes("Select exactly one run and evaluate its current gate")
+      || !content.includes("Confirm that the required durable artefact is present and ready")
+      || !content.includes("Revalidate the same run, gate and revision")
+      || !content.includes("Persist only a currently valid exact approval")
+      || content.includes("Surface behavior:")) {
+      throw new Error(`Generated gate-check surface must preserve compact orchestration and single contract ownership: ${path}`);
     }
   }
 

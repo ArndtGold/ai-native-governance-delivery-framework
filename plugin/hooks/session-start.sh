@@ -24,7 +24,7 @@ try {
     console.log(`Language policy: write durable AGDF artefacts in ${artefacts} and user-facing responses in ${chat} unless the user explicitly asks otherwise. Runtime rules stay ${runtime}.`);
   }
 } catch {
-  console.log("Project config: .agdf/control/config.json exists but is not valid JSON. Run npx --yes @agdf/cli@latest doctor.");
+  console.log("Project config: .agdf/control/config.json exists but is not valid JSON. Run the surface-local AGDF validator's doctor command.");
 }
 NODE
 )"

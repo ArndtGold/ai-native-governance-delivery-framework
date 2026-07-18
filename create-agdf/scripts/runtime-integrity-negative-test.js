@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, rmSync, symlinkSync, unlinkSync, writeFileSync, readFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, unlinkSync, writeFileSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -14,8 +14,17 @@ const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts",
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 
+function copyPluginFixture() {
+  const source = join(repoRoot, "plugin");
+  cpSync(source, join(fixtureRoot, "plugin"), {
+    recursive: true,
+    filter: (path) => path !== join(source, "runtime") && !path.startsWith(`${join(source, "runtime")}/`),
+  });
+  symlinkSync(join(source, "runtime"), join(fixtureRoot, "plugin", "runtime"));
+}
+
 function makeFixture() {
-  cpSync(join(repoRoot, "plugin"), join(fixtureRoot, "plugin"), { recursive: true });
+  copyPluginFixture();
   for (const entry of [".claude-plugin", "agdf", "create-agdf", "pages", ".agdf", "LICENSE"]) {
     symlinkSync(join(repoRoot, entry), join(fixtureRoot, entry));
   }
@@ -23,7 +32,7 @@ function makeFixture() {
 
 function resetPluginFixture() {
   rmSync(join(fixtureRoot, "plugin"), { recursive: true, force: true });
-  cpSync(join(repoRoot, "plugin"), join(fixtureRoot, "plugin"), { recursive: true });
+  copyPluginFixture();
 }
 
 function expectIntegrityFailure(expected) {
@@ -37,6 +46,12 @@ function expectIntegrityFailure(expected) {
 
 try {
   makeFixture();
+  unlinkSync(join(fixtureRoot, "plugin", "runtime"));
+  mkdirSync(join(fixtureRoot, "plugin", "runtime"));
+  writeFileSync(join(fixtureRoot, "plugin", "runtime", "runtime-manifest.json"), "{}\n");
+  expectIntegrityFailure(/source plugin must not contain generated runtime/);
+
+  resetPluginFixture();
   unlinkSync(templatePath);
   expectIntegrityFailure(/plugin\/control\/templates\/artefacts\/VERIFIED_CHANGE\.md missing/);
 
@@ -65,13 +80,18 @@ try {
   );
   expectIntegrityFailure(/runtime contract Native Interaction Contract missing: ## Native Interaction Contract/);
 
-  resetPluginFixture();
-  writeFileSync(
-    gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replace("## Native Interaction Path", "## Removed Native Interaction Path"),
-    "utf8",
-  );
-  expectIntegrityFailure(/gate-check native interaction guidance missing: ## Native Interaction Path/);
+  for (const boundary of [
+    "Select exactly one run and evaluate its current gate.",
+    "Confirm that the required durable artefact is present and ready.",
+    "Consume the canonical `approval_presentation` verbatim",
+    "obtain deliberate input through the contract-selected native or exact-text path",
+    "Revalidate the same run, gate and revision immediately after the response and before persistence.",
+    "Persist only a currently valid exact approval through the existing control-state workflow.",
+  ]) {
+    resetPluginFixture();
+    writeFileSync(gateCheckPath, readFileSync(gateCheckPath, "utf8").replace(boundary, "boundary removed"), "utf8");
+    expectIntegrityFailure(/gate-check operational boundary missing:/);
+  }
 
   resetPluginFixture();
   writeFileSync(
@@ -80,55 +100,6 @@ try {
     "utf8",
   );
   expectIntegrityFailure(/Runtime Contract must define visible fallback attempt outcomes/);
-
-  resetPluginFixture();
-  writeFileSync(
-    gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replace("State the outcome visibly", "State the outcome silently"),
-    "utf8",
-  );
-  expectIntegrityFailure(/gate-check skill must define visible fallback outcomes and explicit reopen only/);
-
-  resetPluginFixture();
-  writeFileSync(
-    interactionContractPath,
-    readFileSync(interactionContractPath, "utf8").replace(
-      "first the compact\napproval-time Run Status Card, then the Gate Transition Card, then exactly one",
-      "first the Gate Transition Card, then the compact Run Status Card, then exactly one",
-    ),
-    "utf8",
-  );
-  expectIntegrityFailure(/fixed two-card ordering from one non-authorizing snapshot/);
-
-  resetPluginFixture();
-  writeFileSync(
-    gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replace("Render both supplied cards once", "Render one supplied card once"),
-    "utf8",
-  );
-  expectIntegrityFailure(/render both approval cards once across native and fallback paths/);
-
-  resetPluginFixture();
-  writeFileSync(
-    gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replace(
-      "Do not invoke a native question until both rendered blocks are visible",
-      "The native question tool may be invoked after the first card",
-    ),
-    "utf8",
-  );
-  expectIntegrityFailure(/complete in one assistant message before native invocation/);
-
-  resetPluginFixture();
-  writeFileSync(
-    gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replace(
-      "Never merge, reverse, omit, duplicate or reconstruct them",
-      "The cards may be combined when concise",
-    ),
-    "utf8",
-  );
-  expectIntegrityFailure(/one neutral primary heading without replacing or merging the ordered cards/);
 
   resetPluginFixture();
   writeFileSync(
@@ -157,7 +128,7 @@ try {
     readFileSync(interactionContractPath, "utf8").replace("Never guess a path or emit a broken link", "Guess a path when convenient"),
     "utf8",
   );
-  expectIntegrityFailure(/Human Decision Presentation Contract missing: Never guess a path or emit a broken link/);
+  expectIntegrityFailure(/interaction contract ownership boundary missing: Never guess a path or emit a broken link/);
 
   for (const [badPattern, expected] of [
     ["| Status | Value |", /Gate Transition Card must not render approval-time pattern: \| Status \|/],

@@ -70,13 +70,13 @@ export function printNextSteps(target, destination, files, wroteAgentsFragment, 
   }
   if (target === "init") {
     io.log("- Create or migrate a canonical run, then fill its RUN_STATE.md with the current gate, evidence and next allowed action.");
-    io.log("- Run npx --yes @agdf/cli@latest doctor to check the control state before the next agent run.");
+    io.log("- Run the installed `agdf doctor` to check the control state before the next agent run.");
     io.log("- Commit the live control files once they represent the repository's current delivery state.");
     return;
   }
   if (target === "config") {
     io.log("- Restart or start a new agent session so the AGDF SessionStart hook reads the updated project language config.");
-    io.log("- Run npx --yes @agdf/cli@latest doctor when this repository also uses durable AGDF control state.");
+    io.log("- Run the installed `agdf doctor` when this repository also uses durable AGDF control state.");
     return;
   }
   if (wroteAgentsFragment) {

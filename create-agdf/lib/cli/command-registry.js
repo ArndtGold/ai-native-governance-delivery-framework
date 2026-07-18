@@ -23,16 +23,16 @@ export const commandRegistry = Object.freeze([
   command("both", { scaffold: [""] }),
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
-  command("doctor", { preferred: [""], scaffold: [""], legacy: [" --json"] }),
-  command("gate-check", { preferred: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
-  command("delivery-map", { scaffold: [""] }),
+  command("doctor", { local: [""], scaffold: [""], legacy: [" --json"] }),
+  command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
+  command("delivery-map", { local: [" --json"], scaffold: [""] }),
   command("delivery-path-search", {
-    preferred: [" --surface codex --json", " --surface claude --json"],
+    local: [" --surface codex --json", " --surface claude --json"],
     scaffold: [" --surface codex", " --surface claude"],
   }),
-  command("run-create", { preferred: [" --run <run_id>"] }),
-  command("run-migrate", { preferred: [" [--run <run_id>]"] }),
-  command("run-render-legacy", { preferred: [" --run <run_id>"] }),
+  command("run-create", { local: [" --run <run_id>"] }),
+  command("run-migrate", { local: [" [--run <run_id>]"] }),
+  command("run-render-legacy", { local: [" --run <run_id>"] }),
 ]);
 
 const commandByName = new Map(commandRegistry.map((entry) => [entry.name, entry]));
@@ -87,13 +87,11 @@ Operating model:
   The CLI validates, renders deterministic gate output and supports automation.
 
 Repeated local validation (after global installation):
-  agdf doctor
-  agdf gate-check --approval-envelope
-  agdf gate-check --json
+${usageLines("local", "agdf ")}
 
 Bootstrap, installation and explicit refresh:
 
-Primary commands:
+Bootstrap and lifecycle commands:
 ${usageLines("preferred", "npx --yes @agdf/cli@latest ")}
 
 Advanced / Compatibility

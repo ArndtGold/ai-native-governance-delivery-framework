@@ -24,6 +24,8 @@ import {
   validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
 import { parseControlState } from "../lib/control-state/run-state-parser.js";
+import { postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
 
 const pluginRoot = join(import.meta.dirname, "..", "..", "plugin");
@@ -137,6 +139,20 @@ try {
     assert.equal(malformedState.artefacts.get("OR")?.path_format, "invalid", `${malformed} must remain invalid`);
   }
   assert.equal(parsedControlState.mode_slice_decision.decision, "structured_slice");
+  const atomicBrownfieldFixture = controlStateFixture.replace(
+    "| Brownfield Review | BROWNFIELD_REVIEW.md | done | reviewed |",
+    "| UR | UR.md | approved | durable |\n| Brownfield Review | BROWNFIELD_REVIEW.md | done | reviewed |",
+  );
+  const atomicBrownfield = parseControlState(atomicBrownfieldFixture, { userGates: ["UR", "PRD"], internalSteps: ["Brownfield Review"] });
+  assert.equal(transitionDecisionForRunState(atomicBrownfield).current_gate, "PRD", "completed Brownfield Review and mode selection route atomically");
+  const interruptedBrownfield = parseControlState(atomicBrownfieldFixture.replace(/## Mode\/Slice Decision[\s\S]*$/, ""), {
+    userGates: ["UR", "PRD"], internalSteps: ["Brownfield Review"],
+  });
+  assert.equal(transitionDecisionForRunState(interruptedBrownfield).current_gate, "Mode/Slice Decision", "interrupted atomic routing fails closed to recovery");
+  const invalidBrownfieldEvidence = parseControlState(atomicBrownfieldFixture.replace("- evidence: BROWNFIELD_REVIEW.md", "- evidence:"), {
+    userGates: ["UR", "PRD"], internalSteps: ["Brownfield Review"],
+  });
+  assert.equal(transitionDecisionForRunState(invalidBrownfieldEvidence).current_gate, "Mode/Slice Decision", "unevidenced routing fails closed to recovery");
   const qaReviseRoot = mkdtempSync(join(tmpdir(), "agdf-qa-revise-"));
   execFileSync(process.execPath, [cli, "init", "--dir", qaReviseRoot]);
   rmSync(join(qaReviseRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });
@@ -584,14 +600,14 @@ ${approvals}
     assert.equal((rendered.match(/\u00b7/g) || []).length, 2, "BT-02: 2 separators for 3 entries");
   }
 
-  // BT-03: Breadcrumb for quick_task
+  // BT-03: Post-UR quick_task is presented as Compact Delivery without changing the mode value
   {
     const breadcrumb = [
       { gate: "UR", status: "fulfilled" },
-      { gate: "Quick Task", status: "current" },
+      { gate: "Compact Delivery", status: "current" },
     ];
     const rendered = buildBreadcrumb(breadcrumb, localeRegistry, "en");
-    assert.ok(rendered.includes("Quick task"), "BT-03: quick task label present");
+    assert.ok(rendered.includes("Compact Delivery"), "BT-03: compact delivery label present");
     assert.equal((rendered.match(/\u00b7/g) || []).length, 1, "BT-03: 1 separator for 2 entries");
   }
 
@@ -610,6 +626,11 @@ ${approvals}
     const narration = buildTransitionNarration("UR", localeRegistry, "en");
     assert.ok(narration.includes("Brownfield Review"), "BT-05: UR narration mentions Brownfield Review");
     assert.ok(narration.includes("no user action"), "BT-05: UR narration says no user action");
+    const transition = postApprovalTransition("Approval: UR");
+    assert.equal(transition.internal_next_step, "Brownfield Review and proportional routing");
+    assert.equal(transition.user_action_required, "no");
+    assert.equal(transition.next_user_gate, "none");
+    assert.ok(!transition.allowed_after_approval.includes("PRD"), "BT-05: UR transition does not preselect PRD");
   }
 
   // BT-06: Narration is a string, not a card object (non-overlap)

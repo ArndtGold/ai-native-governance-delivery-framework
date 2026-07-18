@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { generatedRoot, languageConfigContent, pluginDefinition } from "../cli/runtime-context.js";
+export { doctorRequiredFiles } from "../control-evaluation/required-files.js";
 
 export const agdfFragmentPath = "AGENTS.agdf.md";
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
@@ -91,13 +92,6 @@ const artefactTemplateFiles = [
   join(".agdf", "control", "templates", "artefacts", "TP.md"),
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
   join(".agdf", "control", "templates", "artefacts", "OR.md"),
-];
-export const doctorRequiredFiles = [
-  join(".agdf", "control", "AGDF_RUN.md"),
-  join(".agdf", "control", "MASTER_BACKLOG.md"),
-  join(".agdf", "control", "SOT_REGISTRY.md"),
-  join(".agdf", "control", "CONTEXT_GRAPH.md"),
-  join(".agdf", "control", "AGENT_QUALITY_CONTRACTS.json"),
 ];
 const copilotInstructionFiles = [
   join(".github", "copilot-instructions.md"),

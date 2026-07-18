@@ -7,13 +7,14 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const sourcePluginRoot = join(repoRoot, "plugin");
+const generatedPluginRoot = join(repoRoot, "create-agdf", "generated", "plugins", "agdf");
 const sourceIntegrityScript = join(sourcePluginRoot, "scripts", "check-runtime-integrity.mjs");
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-integrity-layout-"));
 const installedPluginRoot = join(fixtureRoot, "installed-agdf");
 
 function stageInstalledPlugin() {
   rmSync(installedPluginRoot, { recursive: true, force: true });
-  cpSync(sourcePluginRoot, installedPluginRoot, { recursive: true });
+  cpSync(generatedPluginRoot, installedPluginRoot, { recursive: true });
 }
 
 function runIntegrity(script, root) {

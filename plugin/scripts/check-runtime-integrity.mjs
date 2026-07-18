@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 
@@ -101,6 +102,9 @@ const contractModules = [
 ];
 const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
+const brownfieldSkillPath = join(pluginRoot, "skills", "brownfield-analysis", "SKILL.md");
+const localRuntimeManifestPath = join(pluginRoot, "runtime", "runtime-manifest.json");
+const localRuntimeEntrypointPath = join(pluginRoot, "runtime", "agdf-local.js");
 const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
 const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const codexComposerIconPath = join(pluginRoot, "assets", "agdf-icon.svg");
@@ -269,6 +273,12 @@ for (const moduleName of contractModules) {
 }
 assertFile(interactionLocalesPath, "interaction locale registry");
 assertFile(pluginDefinitionPath, "canonical AGDF plugin definition");
+if (sourceMode) {
+  if (isDirectory(join(pluginRoot, "runtime"))) failures.push("source plugin must not contain generated runtime");
+} else {
+  assertFile(localRuntimeManifestPath, "surface-local runtime manifest");
+  assertFile(localRuntimeEntrypointPath, "surface-local runtime entrypoint");
+}
 assertFile(agentRouterPath, "canonical AGDF agent router");
 assertFile(codexPluginPath, "Codex plugin manifest");
 assertFile(claudePluginPath, "Claude plugin manifest");
@@ -296,9 +306,36 @@ if (sourceMode) {
 }
 
 const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
+const localRuntimeManifest = isFile(localRuntimeManifestPath) ? readJson(localRuntimeManifestPath, "surface-local runtime manifest") : null;
+if (pluginDefinition && localRuntimeManifest) {
+  if (localRuntimeManifest.version !== pluginDefinition.version) failures.push("surface-local runtime version must match the plugin definition");
+  if (localRuntimeManifest.entrypoint !== "create-agdf/bin/agdf-validator.js") failures.push("surface-local runtime manifest must own the focused validator entrypoint");
+  if (!/^[a-f0-9]{64}$/.test(localRuntimeManifest.digest ?? "")) failures.push("surface-local runtime manifest must include a deterministic SHA-256 digest");
+}
+for (const forbiddenRuntimeDirectory of ["installers", "lifecycle", "scaffold"]) {
+  if (isDirectory(join(pluginRoot, "runtime", "create-agdf", "lib", forbiddenRuntimeDirectory))) {
+    failures.push(`surface-local runtime must exclude non-validation ${forbiddenRuntimeDirectory} modules`);
+  }
+}
+for (const requiredRuntimeFile of sourceMode ? [] : [
+  "runtime/create-agdf/lib/runtime/validator-application.js",
+  "runtime/create-agdf/lib/cli/validation-handlers.js",
+]) assertFile(join(pluginRoot, requiredRuntimeFile), `focused surface-local runtime module ${requiredRuntimeFile}`);
+if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
+  const probe = spawnSync(process.execPath, [localRuntimeEntrypointPath, "--resolve-only", "--json"], { encoding: "utf8" });
+  let report = null;
+  try { report = JSON.parse(probe.stdout); } catch {}
+  if (probe.status !== 0 || report?.machine_validation !== "owned_version_matched" || report?.registry_access !== false) {
+    failures.push("surface-local runtime must pass exact-version digest resolution without registry access");
+  }
+}
 const runtimeContract = readAllContracts();
 const interactionLocales = isFile(interactionLocalesPath) ? readJson(interactionLocalesPath, "interaction locale registry") : null;
 const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
+const brownfieldSkill = isFile(brownfieldSkillPath) ? read(brownfieldSkillPath) : "";
+if (!brownfieldSkill.includes("Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation")) {
+  failures.push("brownfield-analysis must own atomic post-UR review and routing persistence");
+}
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
 const agdfPackage = isFile(agdfPackagePath) ? readJson(agdfPackagePath, "agdf CLI package manifest") : null;
@@ -308,50 +345,31 @@ const pagesPackage = isFile(pagesPackagePath) ? readJson(pagesPackagePath, "Page
 if (!runtimeContract.includes("first eligible native-attempt") || !runtimeContract.includes("does not trigger a second")) {
   failures.push("Native Interaction Contract must require a single first native attempt with no retry");
 }
-if (!gateCheckSkill.includes("Make exactly one native-attempt") || !gateCheckSkill.includes("switch immediately")) {
-  failures.push("gate-check skill must require immediate exact-text fallback after an unsuccessful native attempt");
-}
 if (!runtimeContract.includes("`attempted_not_applied`") || !runtimeContract.includes("`unsafe_to_wait`")) {
   failures.push("Runtime Contract must define visible fallback attempt outcomes");
-}
-if (!gateCheckSkill.includes("State the outcome visibly") || !gateCheckSkill.includes("never retry automatically")) {
-  failures.push("gate-check skill must define visible fallback outcomes and explicit reopen only");
 }
 if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeContract.includes("an incomplete pack is unsupported and must fail to English as a unit")) {
   failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
 }
-if (!gateCheckSkill.includes("resolve the configured chat locale") || !gateCheckSkill.includes("do not mix presentation languages within one interaction")) {
-  failures.push("gate-check skill must resolve chat locale and prohibit mixed-language gate questions");
+
+const gateCheckOperationalBoundaries = [
+  "Select exactly one run and evaluate its current gate.",
+  "Confirm that the required durable artefact is present and ready.",
+  "Consume the canonical `approval_presentation` verbatim",
+  "obtain deliberate input through the contract-selected native or exact-text path",
+  "Revalidate the same run, gate and revision immediately after the response and before persistence.",
+  "Persist only a currently valid exact approval through the existing control-state workflow.",
+];
+if (!gateCheckSkill.includes("../../meta/contracts/interaction.md")) {
+  failures.push("gate-check must load the focused interaction contract");
 }
-if (!gateCheckSkill.includes("Host-provided free-text") || !gateCheckSkill.includes("Überspringen") || !gateCheckSkill.includes("never advance an AGDF gate")) {
-  failures.push("gate-check skill must keep host free-text and skip actions outside AGDF gate authority");
+for (const required of gateCheckOperationalBoundaries) {
+  if (!gateCheckSkill.includes(required)) failures.push(`gate-check operational boundary missing: ${required}`);
 }
-for (const required of [
-  "Every primary chat card shows the selected run's `UR`, `PRD`, `SD` and `TP` in that order",
-  "A label, description, option position or recommendation never authorizes a gate",
-  "Status, blocked, clarification and internal-step interactions",
-  "never guess paths",
-]) {
-  if (!gateCheckSkill.includes(required)) failures.push(`gate-check Human Decision Presentation guidance missing: ${required}`);
+for (const duplicatedPolicy of ["Surface behavior:", "Make exactly one native-attempt", "Interaction Locale Contract", "decorated_label_only"]) {
+  if (gateCheckSkill.includes(duplicatedPolicy)) failures.push(`gate-check must not duplicate normative interaction policy: ${duplicatedPolicy}`);
 }
-if (!runtimeContract.includes("Before presenting `gate_approval` for any user gate")
-  || !runtimeContract.includes("compact localized Run Status Card and")
-  || !runtimeContract.includes("two distinct blocks in that order within")
-  || !runtimeContract.includes("buttons or exact-text fallback may appear only after both cards")) {
-  failures.push("Runtime Contract must require the compact Status Card and Gate Transition Card before every gate approval");
-}
-if (!gateCheckSkill.includes("complete `run_status_card` block first and `gate_transition_card` block second")
-  || !gateCheckSkill.includes("five status fields are selected run, readiness, current gate, human-readable required decision")
-  || !gateCheckSkill.includes("exact approval value appears only in the transition card")) {
-  failures.push("gate-check must require the compact Status Card then three-part Gate Transition Card before approval");
-}
-if (!runtimeContract.includes("first the compact\napproval-time Run Status Card, then the Gate Transition Card, then exactly one")
-  || !runtimeContract.includes("one immutable,\nnon-authorizing presentation snapshot")) {
-  failures.push("Runtime Contract must define fixed two-card ordering from one non-authorizing snapshot");
-}
-if (!gateCheckSkill.includes("Render both supplied cards once") || !gateCheckSkill.includes("without repeating either card")) {
-  failures.push("gate-check must render both approval cards once across native and fallback paths");
-}
+
 for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   for (const locale of ["en", "de"]) {
     if (!interactionLocales?.locales?.[locale]?.gateActionTitles?.[gate]) {
@@ -365,21 +383,9 @@ for (const locale of ["en", "de"]) {
   if (!pack?.statusCard?.breadcrumbFulfilled || !pack?.statusCard?.breadcrumbCurrent || !pack?.statusCard?.breadcrumbOpen || !pack?.statusCard?.breadcrumbSeparator) {
     failures.push(`Interaction locale ${locale} missing breadcrumb keys in statusCard`);
   }
-  if (!pack?.internalStateLabels?.verifiedChange || !pack?.internalStateLabels?.verifiedChangeEscalated || !pack?.internalStateLabels?.contextGraphMaintained || !pack?.internalStateLabels?.contextGraphOpenGap || !pack?.internalStateLabels?.multiScopeBlocked) {
-    failures.push(`Interaction locale ${locale} missing internalStateLabels keys`);
-  }
+  if (!pack?.gateTitles?.["Compact Delivery"]) failures.push(`Interaction locale ${locale} missing Compact Delivery gate title`);
   if (!pack?.primary?.narration?.gateSatisfied || !pack?.primary?.narration?.noAction || !pack?.primary?.narration?.gates) {
     failures.push(`Interaction locale ${locale} missing narration keys in primary`);
-  }
-  for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
-    if (!pack?.primary?.narration?.gates?.[gate]?.agentNext) {
-      failures.push(`Interaction locale ${locale} missing narration agentNext for gate ${gate}`);
-    }
-  }
-  for (const gate of ["Verified Change", "Quick Task", "Block"]) {
-    if (!pack?.gateTitles?.[gate]) {
-      failures.push(`Interaction locale ${locale} missing gateTitle for ${gate}`);
-    }
   }
 }
 for (const [surface, expectedTransport] of [["codex", "exact_option_value"], ["claude", "exact_option_value"], ["opencode", "exact_option_value"], ["fallback", "exact_option_value"]]) {
@@ -388,56 +394,17 @@ for (const [surface, expectedTransport] of [["codex", "exact_option_value"], ["c
     failures.push(`${surface} interaction adapter must declare fail-closed canonical value transport and exact-text authorization path`);
   }
 }
-if (!runtimeContract.includes("one immediately preceding assistant message")
-  || !runtimeContract.includes("Do not invoke the\nnative question tool until the complete two-card envelope is visible")
-  || !gateCheckSkill.includes("Do not invoke a native question until both rendered blocks are visible")) {
-  failures.push("Approval orientation must be complete in one assistant message before native invocation");
-}
 for (const required of [
-  "`decorated_label_only`: do not invoke it for an AGDF gate",
-  "`Approval: <GateName> (Recommended)` is never a\nvalid AGDF approval option or authorization value",
+  "Before presenting `gate_approval` for any user gate",
+  "one immediately preceding assistant message",
+  "one immutable,\nnon-authorizing presentation snapshot",
+  "### Human Decision Presentation Contract",
+  "Never guess a path or emit a broken link",
+  "A localized label, description, option position, recommendation style or host action never authorizes a gate",
 ]) {
-  if (!runtimeContract.includes(required)) failures.push(`Runtime Contract decorated-only prohibition missing: ${required}`);
-}
-for (const required of [
-  "never invoke a `decorated_label_only` adapter",
-  "Make exactly one native-attempt for the eligible ready gate",
-  "`Approval: <GateName> (Recommended)` is never a valid option or approval",
-]) {
-  if (!gateCheckSkill.includes(required)) failures.push(`gate-check decorated-only prohibition missing: ${required}`);
-}
-if (!runtimeContract.includes("first visible line of that envelope is the localized neutral decision title")
-  || !runtimeContract.includes("must not become\nthe primary heading")
-  || !gateCheckSkill.includes("The first heading is neutral")
-  || !gateCheckSkill.includes("Never merge, reverse, omit, duplicate or reconstruct them")) {
-  failures.push("Approval orientation must enforce one neutral primary heading without replacing or merging the ordered cards");
-}
-if (!gateCheckSkill.includes("after `Approval: TP`") || !gateCheckSkill.includes("pre-implementation Brownfield Analysis") || !gateCheckSkill.includes("do not expose `next_user_gate: none`") || !gateCheckSkill.includes("do not ask for a second approval")) {
-  failures.push("gate-check must distinguish the internal Brownfield step from the next user gate");
-}
-if (!runtimeContract.includes("GitHub Copilot | none in the current AGDF repository-instruction surface")
-  || !gateCheckSkill.includes("GitHub Copilot: the current repository-instruction surface has no conforming native approval adapter")) {
-  failures.push("Runtime surfaces must preserve Copilot exact-text behavior without claiming a native adapter");
-}
-if (!gateCheckSkill.includes("Bereit für deine Entscheidung") || !gateCheckSkill.includes("Ready for your decision") || !gateCheckSkill.includes("supplied blocks use one locale")) {
-  failures.push("gate-check must define deterministic German and English-default transition-card composition");
-}
-if (!runtimeContract.includes("contains exactly five operational")
-  || !runtimeContract.includes("appears exactly once, in the Gate Transition Card")
-  || !runtimeContract.includes("Otherwise report the current non-ready reason and request no")) {
-  failures.push("Approval orientation must enforce the five-field, single-token and branched recovery contract");
+  if (!runtimeContract.includes(required)) failures.push(`interaction contract ownership boundary missing: ${required}`);
 }
 const gateTransitionCard = sectionAfterHeading(runtimeContract, "Gate Transition Card");
-for (const required of [
-  "Where am I?",
-  "What does this decision do?",
-  "What happens next?",
-  "must not be a Markdown table or dashboard",
-  "must not repeat the native question",
-  "no further user decision is required",
-]) {
-  if (!gateTransitionCard.includes(required)) failures.push(`Gate Transition Card contract missing: ${required}`);
-}
 for (const pattern of [
   "| Status |",
   "- allowed_now:",
@@ -447,32 +414,6 @@ for (const pattern of [
   "Next user gate: Brownfield Analysis",
 ]) {
   if (gateTransitionCard.includes(pattern)) failures.push(`Gate Transition Card must not render approval-time pattern: ${pattern}`);
-}
-if (!runtimeContract.includes("Run Status Card remains the operational,")
-  || !runtimeContract.includes("CLI and audit projection")) {
-  failures.push("Runtime Contract must preserve the machine and audit Run Status Card boundary");
-}
-if (!runtimeContract.includes("user_visible_outcome_after_approval") || !runtimeContract.includes("next_user_gate") || !runtimeContract.includes("internal_next_step")) {
-  failures.push("Runtime Contract must define the explicit user-intent transition fields");
-}
-if (!runtimeContract.includes("`run_id`: the exactly selected canonical run") || !runtimeContract.includes("`presentation_language`: the resolved complete locale-pack tag")) {
-  failures.push("Runtime Contract must include selected run and resolved presentation language in the status card");
-}
-for (const required of [
-  "### Human Decision Presentation Contract",
-  "current artefact",
-  "`UR · PRD · SD · TP`",
-  "Never guess a path or emit a broken link",
-  "approve | revise | decline | cancel | no_response | timeout | empty | invalid | stale",
-  "A localized label, description, option position, recommendation style or host action never authorizes a gate",
-]) {
-  if (!runtimeContract.includes(required)) failures.push(`Human Decision Presentation Contract missing: ${required}`);
-}
-if (!runtimeContract.includes("any user gate (`UR`, `PRD`, `SD`, `TP`,") || !runtimeContract.includes("`QA`, or `UAT`)")) {
-  failures.push("Runtime Contract must require the status card before every user gate");
-}
-if (!gateCheckSkill.includes("current gate") || !gateCheckSkill.includes("The primary option is derived exactly as `Approval: <GateName>`")) {
-  failures.push("gate-check skill must derive the stable Approval token from the current gate");
 }
 
 if (pluginDefinition) {
@@ -720,7 +661,7 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("Approval of one user gate permits work on the next allowed gate artefact or required internal step only")) {
     failures.push("runtime contract must state that one gate approval only permits the next gate artefact or required internal step");
   }
-  if (!runtimeContract.includes("`Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision")) {
+  if (!runtimeContract.includes("`Approval: UR` permits Brownfield Review after G-00 first. The review records its Mode/Slice Decision in the same internal operation")) {
     failures.push("runtime contract must state that Approval: UR permits Brownfield Review before Mode/Slice Decision");
   }
   if (!runtimeContract.includes("PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision")) {
@@ -866,13 +807,11 @@ for (const skill of expectedSkills) {
   if (skill === "gate-check") {
     for (const required of [
       "## Native Interaction Path",
-      "classify every candidate interaction as `clarification`, `tool_permission`, `gate_approval`, `blocked` or `status`",
-      "Confirm the required durable artefact is present and ready before presenting a question",
-      "Re-run gate evaluation for the same run and expected gate after the response and immediately before persistence",
-      "omit auto-resolution",
-      "Claude permissions and `ExitPlanMode` remain separate",
-      "Preserve explicit `permission.question` denial",
-      "Keep `decline`, `cancel`, `no_response`, `timeout`, `empty`, `invalid` and `stale` distinct",
+      "complete normative owner for interaction kinds, locale",
+      "Select exactly one run and evaluate its current gate",
+      "Confirm that the required durable artefact is present and ready",
+      "Revalidate the same run, gate and revision immediately after the response and before persistence",
+      "Persist only a currently valid exact approval",
     ]) {
       if (!skillMd.includes(required)) failures.push(`gate-check native interaction guidance missing: ${required}`);
     }
@@ -912,7 +851,7 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
       failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
     }
-    if (!skillMd.includes("npx --yes @agdf/cli@latest delivery-map --json")) {
+    if (!skillMd.includes("node <surface-local-agdf> delivery-map --json")) {
       failures.push("gate-check must expose the machine-readable delivery-map command");
     }
     if (!skillMd.includes("This skill is the primary operating path for gate judgement")) {

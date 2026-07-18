@@ -300,16 +300,17 @@ npx --yes @agdf/cli@latest codex-repo
 
 Then restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
 
-The global command wraps the Codex marketplace installation commands:
+The global command stages the complete release-built plugin, including its exact-version local
+validator, in an AGDF-owned user-data directory. It then registers that durable local marketplace
+with Codex and verifies the installed plugin version. The Git checkout remains a runtime-free source
+tree; `plugin/runtime/` is not committed.
 
-```bash
-codex plugin marketplace add arndtgold/ai-native-governance-delivery-framework
-codex plugin add agdf --marketplace agdf
-```
+If an existing `agdf` marketplace points exactly to the former AGDF GitHub repository, rerunning the
+command migrates it to the durable local marketplace. A same-name foreign or unreadable marketplace
+is never removed. Failed migration restores the prior owned marketplace state and reports recovery
+evidence instead of claiming installation success.
 
-This installs AGDF into your Codex environment.
-
-Then start a new Codex thread and ask:
+Then start a new Codex task and ask:
 
 ```text
 Run an AGDF gate check for this request.

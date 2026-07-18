@@ -28,10 +28,10 @@ export function postApprovalTransition(missingApproval) {
   const transitions = new Map([
     ["Approval: UR", {
       next_gate_after_approval: "Brownfield Review",
-      allowed_after_approval: "Run Brownfield Review and record Mode/Slice Decision before PRD or implementation.",
-      internal_next_step: "Brownfield Review and Mode/Slice Decision",
-      next_user_gate: "PRD",
-      user_action_required: "yes",
+      allowed_after_approval: "Run Brownfield Review and proportional routing as one internal operation; no user action is required now.",
+      internal_next_step: "Brownfield Review and proportional routing",
+      next_user_gate: "none",
+      user_action_required: "no",
     }],
     ["Approval: PRD", {
       next_gate_after_approval: "SD",
@@ -80,7 +80,7 @@ const BREADCRUMB_PATH_TEMPLATES = {
   structured_delivery: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
   structured_slice: ["UR", "PRD", "SD", "TP", "QA", "UAT"],
   verified_change: ["UR", "Verified Change", "OR"],
-  quick_task: ["UR", "Quick Task"],
+  quick_task: ["UR", "Compact Delivery"],
   block: ["UR", "Block"],
   undecided: ["UR"],
 };
@@ -102,11 +102,11 @@ function buildBreadcrumbPath(modeSliceDecision, currentGate, runState) {
       return { gate, status: "open" };
     }
     if (gate === currentGate) return { gate, status: "current" };
-    if ((gate === "Verified Change" || gate === "Quick Task") && currentGate === "OR")
+    if ((gate === "Verified Change" || gate === "Compact Delivery") && currentGate === "OR")
       return { gate, status: "fulfilled" };
     if (gate === "Verified Change" && modeSliceDecision === "verified_change")
       return { gate, status: "current" };
-    if (gate === "Quick Task" && modeSliceDecision === "quick_task")
+    if (gate === "Compact Delivery" && modeSliceDecision === "quick_task")
       return { gate, status: "current" };
     if (gate === "Block" && modeSliceDecision === "block")
       return { gate, status: "current" };

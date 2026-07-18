@@ -35,16 +35,17 @@ Skip for routine questions, obvious local fixes and approved implementation with
 1. Run AGDF gate-check and inspect durable control state.
 2. Confirm that search is allowed and implementation is not occurring during exploration.
 3. Declare the active surface and its enforcement level.
-4. Invoke the shared CLI runtime:
+4. Resolve the exact-version surface-local validator using the same ownership rules as `gate-check`. Do not search `PATH`, query a registry, install a package or invoke `npx ...@latest` during routine planning. If no owned or explicitly configured exact-version validator is available, report `machine_validation: unavailable` or `machine_validation: external_required` and stop the machine-evaluated search.
+5. Invoke the shared CLI runtime:
 
 ```bash
-npx --yes @agdf/cli@latest delivery-path-search --surface <surface> --json
+node <surface-local-agdf> delivery-path-search --surface <surface> --json
 ```
 
 Optional AI-native candidate generation is explicit:
 
 ```bash
-npx --yes @agdf/cli@latest delivery-path-search \
+node <surface-local-agdf> delivery-path-search \
   --surface codex \
   --generate-candidates \
   --json
@@ -52,9 +53,9 @@ npx --yes @agdf/cli@latest delivery-path-search \
 
 It supplements the deterministic baseline with at most one bounded generator call. Treat proposals as untrusted until the canonical core validates schema, gate action, scope, duplicates and material diversity. Report generation provenance, budgets, rejections and failure. Never hide deterministic fallback or switch providers automatically.
 
-5. Treat facts, repository evidence, assumptions and model judgements separately.
-6. Return exactly one recommendation or `no_safe_recommendation`.
-7. Run canonical AGDF gate-check after search. Never translate a recommendation into permission.
+6. Treat facts, repository evidence, assumptions and model judgements separately.
+7. Return exactly one recommendation or `no_safe_recommendation`.
+8. Run canonical AGDF gate-check after search. Never translate a recommendation into permission.
 
 ## Enforcement
 

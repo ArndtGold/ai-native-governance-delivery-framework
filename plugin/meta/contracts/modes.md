@@ -24,6 +24,18 @@ Use this compact output shape when no formal gate artefact is required:
 
 Do not add a separate `Quality outlook` line for pure Quick Tasks unless the task became a relevant run.
 
+### Quick Task and Compact Delivery
+
+Use **Quick Task** for ungated questions, reviews, debugging and eligible narrow fixes that introduce
+no new product semantics or formal artefacts. When an approved UR is followed by a Brownfield Review
+that selects the persisted `quick_task` mode, use **Compact Delivery** as the human-facing label. The
+stored and JSON value remains `quick_task`; Compact Delivery is not a new mode or approval gate.
+
+Brownfield Review owns the Mode/Slice selection. A completed review records its decision, scope
+reason, evidence and required next depth in the same internal operation. `Mode/Slice Decision` remains
+only a fail-closed recovery step for incomplete or legacy records and is not a normal second user
+decision.
+
 ### Verified Change
 
 `verified_change` is a compact, fail-closed path for a bounded user-visible change with one canonical owner and deterministic proof. It is neither a prose exception nor a new user approval gate.
@@ -88,4 +100,3 @@ For narrow defect work, a repository may use a lightweight bug scope instead of 
 
 The Bug Lightweight Track does not remove QA, OR, evidence, Brownfield fit or exact approvals required by the target repository.
 If the bug grows beyond the stated boundary, escalate to normal AGDF gate flow.
-

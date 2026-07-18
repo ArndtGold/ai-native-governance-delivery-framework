@@ -26,6 +26,12 @@ jobs:
       - name: Sync generated package assets
         run: npm --prefix create-agdf run sync-package-assets
 
+      - name: Verify built plugin integrity
+        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+
+      - name: Verify release package contents
+        run: npm --prefix create-agdf run test:package-contents
+
       - name: Verify AGDF delivery-map gate
         run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active
 

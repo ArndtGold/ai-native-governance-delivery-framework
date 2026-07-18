@@ -57,7 +57,7 @@ They must not override AGDF gates, approvals or the Runtime Contract.
 - Approval of one user gate permits work on the next allowed gate artefact or required internal step only. It does not permit implementation unless the approved gate is `TP` and required internal implementation prerequisites are satisfied.
 - Gates must never be skipped or inferred from urgency, tone, chat history, task wording or an instruction to "start". The next allowed action is always the next unsatisfied gate or internal mandatory step.
 - Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact. They forbid later-gate work and implementation. For a fresh request, the default allowed work is to draft a minimal UR in the response and request `Approval: UR`. Initialize or write `.agdf/control/` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
-- `Approval: UR` permits Brownfield Review after G-00 first, then a Mode/Slice Decision. It never permits implementation by itself.
+- `Approval: UR` permits Brownfield Review after G-00 first. The review records its Mode/Slice Decision in the same internal operation when evidence is sufficient; the user is told that no action is required now. A separate `Mode/Slice Decision` step is fail-closed recovery for incomplete or legacy review state, not a normal user decision. UR approval never permits implementation by itself and does not preselect PRD.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
 - The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in the selected canonical `RUN_STATE.md` or an equivalent linked control artefact.
 - `Approval: PRD` permits Solution Design drafting, not implementation.
@@ -76,6 +76,9 @@ After an approved and durable UR, perform a lightweight `Brownfield Review` befo
 
 This review is not a new user approval gate, not PRD, not SD, not TP and not implementation permission.
 It is the sizing and routing step that decides how much later gate discipline is actually needed.
+When evidence is sufficient, persist the review and Mode/Slice selection together; do not expose a
+second routine user decision. Keep the standalone Mode/Slice step only for fail-closed recovery when
+the review record is incomplete or legacy.
 
 Its output is limited to:
 
@@ -131,4 +134,3 @@ The `brownfield-analysis` skill has two explicit modes:
 - `pre_implementation_analysis`: implementation-preparation analysis after approved durable TP; verifies reuse path, owners, regression risk and fit before `CD+Tests`.
 
 Do not mix the modes silently. Name the active mode in Brownfield output.
-

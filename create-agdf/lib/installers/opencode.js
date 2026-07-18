@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import process from "node:process";
 import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
+import { resolveLocalValidator } from "../runtime/local-validator.js";
 
 const contractModules = ["gate-transition.md", "interaction.md", "modes.md", "quality.md", "context-graph.md", "control-scaffold.md", "closeout.md"];
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => pluginDefinition.opencode.skillPrefix + skill.slug);
@@ -12,6 +13,7 @@ const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => plugin
 const globalOpenCodeSkillOwnershipMarker = "<!-- AGDF-GLOBAL-SKILL: ";
 const globalOpenCodeInstructionsOwnershipMarker = "<!-- AGDF-GLOBAL-INSTRUCTIONS -->";
 const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->";
+const globalOpenCodeValidatorOwnershipMarker = "// AGDF-GLOBAL-LOCAL-VALIDATOR";
 const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
 const npmCommand = testNpmCliPath ? process.execPath : process.platform === "win32" ? process.execPath : "npm";
 const npmPrefixArgs = testNpmCliPath ? [testNpmCliPath] : process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
@@ -119,6 +121,7 @@ function globalOpenCodeConfigPaths(configDir) {
     runtimeContract: join(configDir, pluginDefinition.opencode.runtimeContractFileName),
     contracts: join(configDir, "contracts"),
     skills: join(configDir, "skills"),
+    localValidator: join(configDir, "agdf", "bin", "agdf-local.js"),
   };
 }
 
@@ -141,6 +144,7 @@ function assertGlobalOpenCodeSurfaceWritable(configDir) {
   const paths = globalOpenCodeConfigPaths(configDir);
   assertGlobalOpenCodeFileWritable(paths.instructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   assertGlobalOpenCodeFileWritable(paths.runtimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
+  assertGlobalOpenCodeFileWritable(paths.localValidator, globalOpenCodeValidatorOwnershipMarker, "first-line");
   for (const moduleName of contractModules) {
     assertGlobalOpenCodeFileWritable(
       join(paths.contracts, moduleName),
@@ -177,6 +181,16 @@ function globalOpenCodeBoundary() {
   ].join("\n");
 }
 
+function globalOpenCodeActivationGuard() {
+  return [
+    "## Repository Activation Guard",
+    "",
+    "Apply AGDF governance only when this repository has valid `.agdf/control/config.json` durable control.",
+    "If it is missing or invalid, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo`; the global installation alone is not activation.",
+    "",
+  ].join("\n");
+}
+
 function toGlobalOpenCodeContent(content) {
   let next = content;
   for (const skill of pluginDefinition.skillSet) {
@@ -204,9 +218,11 @@ export function installOpenCodeGlobalSurface(configDir) {
     toGlobalOpenCodeContent(generatedInstructions),
   ].join("\n");
   const globalRuntimeContract = `${globalOpenCodeRuntimeContractOwnershipMarker}\n${generatedRuntimeContract}`;
+  const localValidator = `${globalOpenCodeValidatorOwnershipMarker}\nimport process from "node:process";\nimport { fileURLToPath } from "node:url";\nimport { runLocalValidator } from "../../node_modules/create-agdf/lib/runtime/local-validator.js";\n\nconst ownedPackageRoot = fileURLToPath(new URL("../../node_modules/create-agdf", import.meta.url));\nprocess.exitCode = runLocalValidator({ ownedPackageRoot, expectedVersion: ${JSON.stringify(pluginDefinition.version)}, surface: "opencode" }, process.argv.slice(2));\n`;
 
   writeOwnedGlobalOpenCodeFile(paths.instructions, globalInstructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   writeOwnedGlobalOpenCodeFile(paths.runtimeContract, globalRuntimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
+  writeOwnedGlobalOpenCodeFile(paths.localValidator, localValidator, globalOpenCodeValidatorOwnershipMarker, "first-line");
   for (const moduleName of contractModules) {
     const generatedModule = readFileSync(join(generatedOpenCodeRoot, "contracts", moduleName), "utf8");
     writeOwnedGlobalOpenCodeFile(
@@ -223,7 +239,7 @@ export function installOpenCodeGlobalSurface(configDir) {
     const sourcePath = join(generatedOpenCodeRoot, "skills", sourceName, "SKILL.md");
     const sourceContent = readFileSync(sourcePath, "utf8");
     const marker = `${globalOpenCodeSkillOwnershipMarker}${skillName} -->`;
-    const content = toGlobalOpenCodeContent(sourceContent).replace(/^(---[\s\S]*?\n---\n)/, `$1${marker}\n\n${globalOpenCodeBoundary()}`);
+    const content = toGlobalOpenCodeContent(sourceContent).replace(/^(---[\s\S]*?\n---\n)/, `$1${marker}\n\n${globalOpenCodeActivationGuard()}`);
     writeOwnedGlobalOpenCodeFile(join(paths.skills, skillName, "SKILL.md"), content, marker, "after-frontmatter");
   }
 
@@ -232,6 +248,7 @@ export function installOpenCodeGlobalSurface(configDir) {
     runtimeContract: paths.runtimeContract,
     contracts: paths.contracts,
     skills: paths.skills,
+    localValidator: paths.localValidator,
   };
 }
 
@@ -309,6 +326,12 @@ function evaluateGlobalOpenCodeSurface(configDir) {
   const paths = globalOpenCodeConfigPaths(configDir);
   const skillCount = globalOpenCodeSkillNames.filter((skillName) => existsSync(join(paths.skills, skillName, "SKILL.md"))).length;
   const contractCount = contractModules.filter((moduleName) => existsSync(join(paths.contracts, moduleName))).length;
+  const validatorResolution = resolveLocalValidator({
+    ownedPackageRoot: join(configDir, "node_modules", pluginDefinition.opencode.npmPackage),
+    runtimeRoot: join(configDir, "agdf"),
+    expectedVersion: pluginDefinition.version,
+    surface: "opencode",
+  });
   return {
     path: paths.skills,
     instructions: paths.instructions,
@@ -318,11 +341,18 @@ function evaluateGlobalOpenCodeSurface(configDir) {
     skill_count: skillCount,
     expected_contract_count: contractModules.length,
     contract_count: contractCount,
+    local_validator: {
+      path: paths.localValidator,
+      present: existsSync(paths.localValidator),
+      ...validatorResolution.envelope,
+    },
     present: existsSync(paths.skills),
     complete: existsSync(paths.instructions)
       && existsSync(paths.runtimeContract)
       && contractCount === contractModules.length
-      && skillCount === openCodeSkillNames.length,
+      && skillCount === openCodeSkillNames.length
+      && existsSync(paths.localValidator)
+      && validatorResolution.envelope.machine_validation === "owned_version_matched",
   };
 }
 

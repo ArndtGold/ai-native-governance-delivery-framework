@@ -35,7 +35,7 @@ For prerequisites, all surface-specific flows and operational boundaries, use th
 
 The Quick Start above is the recommended entry point. For the exact current command and option reference, run `npx --yes @agdf/cli@latest --help`; the groups below explain the supported surfaces, validation paths and canonical run lifecycle.
 
-Preferred long-term CLI shape:
+Installation, activation and explicit lifecycle changes:
 
 ```bash
 npx --yes @agdf/cli@latest codex
@@ -49,26 +49,26 @@ npx --yes @agdf/cli@latest disable --surface codex --scope repository
 npx --yes @agdf/cli@latest uninstall --surface codex --scope global
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
-npx --yes @agdf/cli@latest doctor
-npx --yes @agdf/cli@latest gate-check --status-card
-npx --yes @agdf/cli@latest gate-check --approval-envelope
-npx --yes @agdf/cli@latest gate-check --json
 ```
 
-Operational validation and bounded planning:
+Repeated operational validation and bounded planning use the installed, version-pinned local command:
 
 ```bash
-npx --yes @agdf/cli@latest delivery-map --json
-npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
-npx --yes @agdf/cli@latest delivery-path-search --surface claude --json
+agdf doctor
+agdf gate-check --status-card
+agdf gate-check --approval-envelope
+agdf gate-check --json
+agdf delivery-map --json
+agdf delivery-path-search --surface codex --json
+agdf delivery-path-search --surface claude --json
 ```
 
 Canonical run lifecycle:
 
 ```bash
-npx --yes @agdf/cli@latest run-create --run <run_id>
-npx --yes @agdf/cli@latest run-migrate [--run <run_id>]
-npx --yes @agdf/cli@latest run-render-legacy --run <run_id>
+agdf run-create --run <run_id>
+agdf run-migrate [--run <run_id>]
+agdf run-render-legacy --run <run_id>
 ```
 
 ### Advanced / Compatibility
@@ -122,6 +122,14 @@ it does not localize the CLI lifecycle card.
 - `opencode-repo` writes durable AGDF control configuration and templates under `.agdf/control/`; it does not copy a second OpenCode runtime surface
 - `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
+
+The `codex` and `claude` commands install from the complete plugin built into the released
+`create-agdf` package. They atomically stage it under an AGDF-owned user-data marketplace, register
+that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
+contains no generated runtime bytes, and routine installed validation does not depend on the GitHub
+checkout, npm cache, PATH or registry. Rerunning either command performs the explicit update and
+migrates only the exact known legacy AGDF GitHub marketplace; foreign same-name registrations fail
+closed and failed host operations restore the prior owned stage.
 
 If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. The generated `.github/copilot-instructions.md` keeps Copilot pointed at `AGENTS.md`, `.github/skills/` and `.agdf/control/` without duplicating the full AGDF rule model. Use `--force` only when you explicitly want to overwrite generated files.
 
@@ -224,7 +232,7 @@ the agent-native workflow or approve a gate.
 Use `delivery-path-search` only for high-impact planning decisions with several materially different next steps:
 
 ```bash
-npx --yes @agdf/cli@latest delivery-path-search --surface codex --json
+agdf delivery-path-search --surface codex --json
 ```
 
 The runtime uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex and Claude Code are executable, tool-enforced evaluator adapters and support opt-in `--generate-candidates`; generated proposals supplement the deterministic baseline and are deterministically validated before evaluation. Copilot and OpenCode reuse the same skill and contracts as instruction-only surfaces until conforming executable adapters are available.

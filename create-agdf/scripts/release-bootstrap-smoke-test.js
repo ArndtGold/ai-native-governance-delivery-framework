@@ -23,6 +23,7 @@ writeFileSync(fakeCodexPath, `#!/usr/bin/env node
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.AGDF_BOOTSTRAP_CODEX_LOG, JSON.stringify(args) + "\\n");
+if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
 if (args.join(" ") === "plugin add agdf --marketplace agdf") fs.writeFileSync(process.env.AGDF_BOOTSTRAP_MARKER, "installed\\n");
 if (args.join(" ") === "plugin list") console.log("agdf@agdf " + process.env.AGDF_EXPECTED_VERSION);
 `, "utf8");
@@ -40,6 +41,7 @@ try {
       AGDF_BOOTSTRAP_CODEX_LOG: logPath,
       AGDF_BOOTSTRAP_MARKER: markerPath,
       AGDF_EXPECTED_VERSION: expectedVersion,
+      AGDF_DATA_DIR: join(homeDir, "agdf-data"),
       PATH: `${binDir}${delimiter}${process.env.PATH}`,
     },
   });
@@ -53,8 +55,8 @@ try {
 
   const calls = readFileSync(logPath, "utf8").trim().split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line).join(" "));
   const expectedCalls = [
-    "plugin marketplace add arndtgold/ai-native-governance-delivery-framework",
-    "plugin marketplace upgrade agdf",
+    "plugin marketplace list --json",
+    `plugin marketplace add ${join(homeDir, "agdf-data", "marketplaces", "agdf")} --json`,
     "plugin add agdf --marketplace agdf",
     "plugin list",
   ];
@@ -63,7 +65,7 @@ try {
   }
 
   if (!existsSync(markerPath)) throw new Error("Clean public bootstrap did not produce the expected isolated installation marker.");
-  console.log("Clean public bootstrap smoke test passed with unchanged command shape.");
+  console.log("Clean public bootstrap smoke test passed with release-built local marketplace distribution.");
 } finally {
   rmSync(tempDir, { recursive: true, force: true });
 }

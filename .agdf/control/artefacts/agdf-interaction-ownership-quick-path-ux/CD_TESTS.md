@@ -1,0 +1,51 @@
+# Code Deliverables and Tests: Lean Interaction Ownership and Local Validation
+
+Status: done
+Date: 2026-07-18
+Based on: approved `TP.md`
+
+## Task Evidence
+
+| task_id | status | implementation evidence | test evidence |
+|---|---|---|---|
+| LIR-01 | done | `interaction.md` remains normative; `gate-check/SKILL.md` retains six orchestration responsibilities only | interaction presentation and Runtime Integrity |
+| LIR-02 | done | integrity checks assert owner/reference/boundaries instead of duplicated surface prose | positive integrity plus independent negative mutations |
+| LIR-03 | done | Brownfield skill and transition contract require same-operation review/routing persistence; incomplete state is recovery only | completed, interrupted, invalid-evidence and legacy control-state fixtures |
+| LIR-04 | done | `quick_task` persists unchanged while breadcrumb locale projection renders Compact Delivery/Kompakte Lieferung | control-state and interaction presentation fixtures |
+| LIR-05 | done | OpenCode generator emits the full boundary once in `AGDF.md` and one compact guard per skill | clean-install count/content smoke |
+| LIR-06 | done | existing ownership markers, collision-safe names, permissions and config preservation remain in the same installer | lifecycle and OpenCode smoke fixtures |
+| LIR-07 | done | version query, shared validation handlers and fail-closed local resolver added | CLI modularization and local-validator cases |
+| LIR-08 | done | deterministic 352 KB focused payload and digest manifest generated under `plugin/runtime/`; installer/lifecycle/scaffold modules excluded | byte-reproduction, digest/tamper and installed-layout integrity evidence |
+| LIR-09 | done | OpenCode owned wrapper delegates to its exact config-local package; status reports availability separately | match, mismatch, missing package and command-execution smoke fixtures |
+| LIR-10 | done | routine help, skills, hooks and docs use local validation; registry resolution remains lifecycle-only | scoped source assertions and aggregate smoke |
+| LIR-11 | done | canonical sync propagates runtime and skills; SoT and three existing Context Graph nodes updated | deterministic sync and Runtime Integrity |
+| LIR-12 | done | focused and aggregate evidence completed; live authenticated host behavior remains explicitly UAT-only | aggregate smoke, 27/27 deterministic skill evals and `git diff --check` |
+
+## Test Evidence
+
+| test_id | result | evidence |
+|---|---|---|
+| LIR-T01 | pass | `test:interaction-presentation`, positive Runtime Integrity, `test:runtime-integrity-negative` |
+| LIR-T02 | pass | `test:control-state` atomic completed/interrupted/invalid/legacy routing cases |
+| LIR-T03 | pass | `test:control-state` BT-03/BT-05 and unchanged `quick_task` value |
+| LIR-T04 | pass | OpenCode aggregate smoke: one full boundary, nine guards, config/permission preservation |
+| LIR-T05 | pass | `test:local-validator`: all availability states, corruption, path escape and literal argv metacharacters |
+| LIR-T06 | pass | byte-reproducible generator, manifest digest probe, tamper rejection and installed-layout integrity |
+| LIR-T07 | pass | OpenCode exact package status plus missing/mismatch/legacy smoke cases |
+| LIR-T08 | pass | shared Codex/Claude plugin runtime executed doctor, gate-check and delivery-map with `registry_access: false`; OpenCode smoke executes the same three commands through its config-local wrapper |
+| LIR-T09 | pass | help/README/source assertions reject routine `@latest`; lifecycle guidance remains explicit |
+| LIR-T10 | pass | focused runtime excludes installers/lifecycle/scaffold; shared validation handlers remain the single command owner |
+| LIR-T11 | pass | sync output, generated surface smoke and focused contract references pass |
+| LIR-T12 | pass | `npm --prefix create-agdf run smoke-test`; Runtime Integrity; `git diff --check` |
+
+## Evidence Boundary
+
+- Repository fixtures and local runtime execution prove deterministic conformance and offline behavior.
+- The 27/27 skill eval result is deterministic replay, not live host execution.
+- No authenticated Codex, Claude or OpenCode UI behavior, registry publication or release was claimed.
+
+## Result
+
+- result: pass
+- missing_evidence: direct authenticated host UAT only; it is not required for repository QA but remains required before host-behavior claims.
+- required_next_step: complete TP, clean implementation and code reviews, then run `qa-gate`.

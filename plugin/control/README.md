@@ -66,9 +66,9 @@ npx --yes @agdf/cli@latest config --language en
 Then check whether the live state is actionable:
 
 ```bash
-npx --yes @agdf/cli@latest doctor
-npx --yes @agdf/cli@latest doctor --json
-npx --yes @agdf/cli@latest gate-check --json
+agdf doctor
+agdf doctor --json
+agdf gate-check --json
 ```
 
 `doctor` does not replace agent judgment. It catches basic control failures: missing live files, missing current gate, missing next allowed action, empty evidence, empty backlog pointer, empty source-of-truth registry, duplicate active SoT rows and invalid quality contracts.

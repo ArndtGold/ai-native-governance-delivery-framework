@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { aggregate, resolveRuns, verifyLegacyProjection } from '../control-state/index.js';
-import { doctorRequiredFiles } from '../scaffold/plan.js';
+import { doctorRequiredFiles } from './required-files.js';
 import { analyzeDeliveryMap } from './delivery-map.js';
 import { evaluateVerifiedChange } from './verified-change.js';
 import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState } from './run-state.js';

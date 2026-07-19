@@ -65,3 +65,21 @@ Based on: approved `TP.md`
   installed-host behavior remains UAT evidence after a released package is installed.
 - result: pass
 - required_next_step: rerun TP, clean implementation and actual-diff reviews, then QA.
+
+## UAT Revision Evidence — Deterministic Operational Status Presentation — 2026-07-19
+
+| Requirement | Implementation | Regression evidence | Result |
+|---|---|---|---|
+| Single presentation owner | `interaction-presentation.js` renders additive immutable `status_presentation`; `status_card` remains unchanged | Direct renderer tests plus source/generated Runtime Integrity | pass |
+| No agent reconstruction | Gate-check consumes `status_presentation.markdown` verbatim and no longer contains a table template | Positive assertion plus independent negative mutation | pass |
+| CLI parity and fail-closed behavior | `--status-card` emits the canonical block; a missing projection returns exit status 2 | Blocked, ready-gate, internal-step, OR and missing-projection fixtures | pass |
+| Compact intent | Chat card contains selected run/path, status, gate, current/forbidden authority, blocker, approval transition, next step and quality; raw evidence remains in JSON | German, English fallback, HTML/pipe escaping and no-audit-dump assertions | pass |
+| Approval separation | Existing five-field `approval_presentation` remains a separate ready-gate-only projection | Approval identity/order/value-count tests remain green | pass |
+
+- aggregate_evidence: full `create-agdf` smoke; full `@agdf/cli` smoke; 27/27 deterministic
+  skill evaluations; Runtime Integrity positive/negative; byte-identical builds; 218-file package;
+  canonical sync; `git diff --check`.
+- evidence_boundary: the source CLI proves deterministic rendering; the installed 0.10.2 cache is
+  intentionally unchanged and cannot evidence the unreleased additive field.
+- result: pass
+- required_next_step: refresh mandatory reviews and QA.

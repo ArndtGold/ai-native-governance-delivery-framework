@@ -28,3 +28,17 @@ Date: 2026-07-18
   remain authoritative.
 - brownfield_fit: pass; explicit user decisions and unowned configuration remain untouched.
 - required_next_step: complete actual-diff Code Review.
+
+## UAT Revision Review — Deterministic Operational Status Presentation — 2026-07-19
+
+- decision: pass
+- primary_solution: extend the existing `interaction-presentation.js` owner and route the existing
+  gate-check CLI/skill through its additive immutable projection.
+- fallbacks_retained: explicit `unversioned` identity only for fresh legacy-compatible status output;
+  approval presentation still requires a real durable revision.
+- workaround_or_shim_risk: none; the former private CLI formatter and skill table were removed rather
+  than wrapped or kept as compatibility paths.
+- parallel_structure_risk: none; `status_card` owns data and one presentation module owns Markdown.
+- brownfield_fit: pass; the change reuses current locale, human-title, breadcrumb and gate evaluation
+  owners and keeps full audit evidence out of the compact primary card.
+- required_next_step: complete actual-diff Code Review.

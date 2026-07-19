@@ -21,11 +21,12 @@ import {
   resolvePresentationLocale,
   reconcileRunScope,
   renderApprovalOrientationSnapshot,
+  renderOperationalStatusCard,
   normalizeReconciliationText,
   validateLocaleRegistry,
   validateApprovalOrientationSnapshot,
 } from "../lib/interaction-presentation.js";
-import { printApprovalEnvelope } from "../lib/control-evaluation/gate-check.js";
+import { printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 
@@ -70,6 +71,51 @@ assert.equal(resolveHumanRunTitle({ urHeading: "# UR title", runContent: "## Obj
 assert.equal(resolveHumanRunTitle({ runContent: "## Objective\n\nObjective title\nmore", runId: "fallback-run" }), "Objective title");
 assert.equal(resolveHumanRunTitle({ runContent: "", runId: "fallback-run" }), "Fallback Run");
 assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
+
+{
+  const presentation = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de-AT",
+    mode: "structured_delivery",
+    status: "blocked",
+    current_gate: "QA",
+    mode_slice_decision: "structured_delivery",
+    breadcrumb: [{ gate: "UR", status: "fulfilled" }, { gate: "QA", status: "current" }],
+    delivery_state: "active",
+    allowed_now: ["review <evidence>", "keep a | literal"],
+    forbidden_now: ["release"],
+    blocking_condition: "missing evidence",
+    missing_approval: "none",
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+    user_visible_outcome_after_approval: "none",
+    internal_next_step: "refresh QA",
+    next_user_gate: "none",
+    user_action_required: "no",
+    evidence: [{ evidence: "Direct fixture", source: "test" }],
+    next_skill: "qa-gate",
+    next_step: "Refresh the report.",
+    quality_outlook: "Keep status parity.",
+  }, {
+    registry,
+    revisionId: "status-revision",
+    humanPresentation: { runTitle: "Status run", gateTitle: "Qualitätssicherung", artefactRefs: refs },
+  });
+  assert.equal(presentation.semantic_block, "run_status_card");
+  assert.equal(presentation.presentation_language, "de");
+  assert.equal(presentation.revision_id, "status-revision");
+  assert.equal(presentation.authorizes, false);
+  assert.equal(Object.isFrozen(presentation), true);
+  assert.match(presentation.markdown, /^## AGDF-Statuskarte/);
+  assert.match(presentation.markdown, /review &lt;evidence&gt;<br>keep a \\\| literal/);
+  assert.match(presentation.markdown, /Aktuell verboten \| release/);
+  assert.doesNotMatch(presentation.markdown, /Direct fixture/);
+  assert.equal(renderOperationalStatusCard(null, { registry, humanPresentation: {} }), null);
+  assert.equal(renderOperationalStatusCard({ run_id: "status-run", current_gate: "QA", presentation_language: "de" }, { registry, revisionId: "", humanPresentation: {} }).revision_id, "unversioned");
+  const failedLines = [];
+  assert.equal(printGateCheckReport({ status_card: { presentation_language: "de" }, status_presentation: null }, false, true, { log: (line) => failedLines.push(line) }), false);
+  assert.match(failedLines[0], /Statuskarte nicht sicher darstellbar/);
+}
 
 const candidates = buildRunCandidates([
   { run_id: "closed", valid: true, meta: { lifecycle: "completed" } },

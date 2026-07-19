@@ -30,12 +30,9 @@ npx --yes @agdf/cli@latest opencode
 ```
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
+Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md) und nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
 
 AGDF ist ein unabhängiges Projekt und kein verbindlicher Standard. Die installierbare Runtime ersetzt weder Produktverantwortung noch Engineering, Security, Test oder Abnahmeentscheidungen.
-
-Der Entwurf stellt eine zentrale Frage:
-
-Wie bleibt Softwareentwicklung kontrollierbar, wenn KI Agenten nicht nur Code schreiben, sondern auch planen, prüfen, ändern und Ergebnisse zusammenfassen?
 
 #### Passt AGDF überhaupt zu meinem Vorhaben?
 
@@ -207,28 +204,6 @@ Besonders interessant sind Fragen wie:
 Beiträge sind willkommen:
 Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Requests.
 
-## Runtime und Setup
-
-### AGDF als Plugin mit einem Coding Agent anwenden
-
-Installation und Einrichtung für Codex, Claude Code, GitHub Copilot und kombinierte Oberflächen findest du in [@agdf/cli on npm](https://www.npmjs.com/package/@agdf/cli).
-
-Danach kannst du direkt einsteigen:
-
-1. Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md).
-2. Nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
-
-#### Passt AGDF zu Deinem Vorhaben?
-
-AGDF hilft, wenn KI-gestützte Änderungen an bestehenden Systemen nachvollziehbare Entscheidungen zu Scope, Freigaben, Nachweisen oder Zusammenarbeit brauchen. Bei kleinen, risikoarmen oder explorativen Aufgaben kann ein leichterer Arbeitsweg sinnvoller sein als zusätzlicher Governance-Aufwand.
-
-Prüfe die Eignung vor Installation oder gesteuerter Umsetzung mit diesem Prompt:
-
-```text
-Assess whether AGDF is proportionate for this repository and request before proposing any implementation. Explain AGDF's purpose and practical benefits, weigh governance overhead against the project's delivery risk, and recommend the lightest suitable path — or explicitly advise against AGDF where it would add more process than value.
-```
-
-Die Einschätzung ist eine Orientierung, keine Freigabe für Umsetzung oder ein Ersatz für menschliche Verantwortung.
 ## Language note
 
 AGDF is German-first by design.

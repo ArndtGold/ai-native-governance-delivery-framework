@@ -369,6 +369,16 @@ for (const required of gateCheckOperationalBoundaries) {
 for (const duplicatedPolicy of ["Surface behavior:", "Make exactly one native-attempt", "Interaction Locale Contract", "decorated_label_only"]) {
   if (gateCheckSkill.includes(duplicatedPolicy)) failures.push(`gate-check must not duplicate normative interaction policy: ${duplicatedPolicy}`);
 }
+if (!gateCheckSkill.includes("`status_presentation.markdown` verbatim")) {
+  failures.push("gate-check must consume the deterministic operational status presentation");
+}
+if (gateCheckSkill.includes("| Run status | Value |")) {
+  failures.push("gate-check must not maintain a second operational status-card template");
+}
+if (!runtimeContract.includes("### Deterministic Operational Presentation")
+  || !/must\s+not reconstruct a table/.test(runtimeContract)) {
+  failures.push("interaction contract must own deterministic operational status presentation");
+}
 
 for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   for (const locale of ["en", "de"]) {
@@ -824,11 +834,8 @@ for (const skill of expectedSkills) {
     if (!skillMd.includes("The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`")) {
       failures.push("gate-check must point to gate-transition.md as gate transition SoT");
     }
-    for (const label of ["Status", "Current gate", "Allowed now", "Blocked by", "Missing approval", "Next step", "Quality outlook"]) {
-      if (!skillMd.includes(`| ${label} |`)) failures.push(`gate-check must render Run Status Card label: ${label}`);
-    }
-    if (!skillMd.includes("Next gate after approval") || !skillMd.includes("Allowed after approval")) {
-      failures.push("gate-check must render post-approval Run Status Card fields when an approval is missing");
+    if (!skillMd.includes("`status_presentation.markdown` verbatim") || !skillMd.includes("Do not maintain or render a skill-local table template")) {
+      failures.push("gate-check must delegate operational status rendering to the canonical projection");
     }
     if (!skillMd.includes("A decision value without scope reason and evidence is still missing")) {
       failures.push("gate-check must require evidenced Mode/Slice Decision before later work");

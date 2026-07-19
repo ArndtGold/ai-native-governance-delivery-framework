@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-interaction-ownership-quick-path-ux
 - lifecycle: active
-- revision: 18
-- revision_id: 02ADCEDB-206F-412D-9048-97A50A1BA522
+- revision: 21
+- revision_id: 2DAFDD03-690B-4C26-AC5B-250089AFC71B
 - mode: structured_delivery
 - current_gate: UAT
 - decision: ready_for_decision
@@ -21,10 +21,10 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 | Question | Answer |
 |---|---|
-| What is known? | Interaction ownership, Compact Delivery and OpenCode boundary work remains reviewed. Release-built runtime distribution is completed, and the three reproduced OpenCode/release-or defects are fixed with direct regressions. |
-| What is approved? | Expanded UR, PRD, SD, TP and the passing QA report; exact `Approval: QA` was provided on 2026-07-19 after revision-17 revalidation. |
-| What is missing? | Exact `Approval: UAT`; a refreshed authenticated OpenCode installation remains unobserved and is disclosed as an acceptance limitation. |
-| What is the next allowed action? | Review the UAT evidence and decide whether to accept the delivered repository behavior with the disclosed live-host limitation. |
+| What is known? | Interaction ownership, Compact Delivery, local validation and OpenCode/release-or fixes remain reviewed; operational status Markdown is now a compact code-owned projection consumed by CLI and skills. |
+| What is approved? | Expanded UR, PRD, SD, TP and refreshed QA; exact `Approval: QA` was provided on 2026-07-19 after revision-20 revalidation. |
+| What is missing? | Exact `Approval: UAT`; released installed-host consumption and authenticated refreshed OpenCode behavior remain disclosed acceptance limitations. |
+| What is the next allowed action? | Review the refreshed UAT evidence and decide whether to accept the repository behavior with the disclosed release/install boundary. |
 | What is explicitly forbidden right now? | OR, release claims and automatic VCS actions before UAT approval. |
 
 ## Source And Scope State
@@ -42,11 +42,11 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 |---|---|
 | Status | open |
 | Current gate | UAT |
-| Allowed now | Review UAT evidence; approve, request revision or decline |
+| Allowed now | Review refreshed UAT evidence; approve, request revision or decline |
 | Blocked by | Missing exact UAT approval |
 | Missing approval | `Approval: UAT` |
-| Next step | User reviews the disclosed acceptance scope and decides UAT |
-| Quality outlook | Preserve explicit user configuration and require refreshed installed-host evidence in UAT |
+| Next step | User reviews the refreshed acceptance scope and decides UAT |
+| Quality outlook | Preserve compact semantic parity and keep installed-host behavior as explicit UAT evidence |
 
 ## Approvals
 
@@ -56,8 +56,8 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | PRD | approved | `Approval: PRD` provided on 2026-07-18 after revision-8 revalidation |
 | SD | approved | `Approval: SD` provided on 2026-07-18 after revision-11 revalidation |
 | TP | approved | `Approval: TP` provided on 2026-07-18 after revision-12 revalidation |
-| QA | approved | `Approval: QA` provided on 2026-07-19 after revision-17 revalidation |
-| UAT | missing | UAT evidence is ready; exact approval not yet provided |
+| QA | approved | `Approval: QA` provided on 2026-07-19 after revision-20 revalidation |
+| UAT | missing | Refreshed UAT evidence is ready; exact approval not yet provided |
 
 ## Artefacts
 
@@ -68,13 +68,13 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | PRD | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/PRD.md | approved | `Approval: PRD` provided on 2026-07-18 |
 | SD | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/SD.md | approved | `Approval: SD` provided on 2026-07-18 |
 | TP | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/TP.md | approved | `Approval: TP` provided on 2026-07-18 |
-| Brownfield Analysis | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/BROWNFIELD_ANALYSIS.md | done | Pass; QA revision reuses existing installer, validator and integrity owners |
-| CD+Tests | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CD_TESTS.md | done | LIR-01 through LIR-12 plus three reproduced-finding regressions pass |
-| TP Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/TASK_PLAN_REVIEW.md | done | Pass; 12/12 tasks fully done after revision reconciliation |
-| Clean Implementation Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CLEAN_IMPLEMENTATION_REVIEW.md | done | Pass; one installer/validator owner and no root module-semantics change |
-| CR | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CODE_REVIEW.md | done | Pass after preflight and status-validation gaps were fixed |
+| Brownfield Analysis | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/BROWNFIELD_ANALYSIS.md | done | Pass; UAT revision reuses the existing status-data and presentation owners |
+| CD+Tests | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CD_TESTS.md | done | LIR-01 through LIR-12 plus deterministic operational status regressions pass |
+| TP Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/TASK_PLAN_REVIEW.md | done | Pass; 12/12 tasks fully done after UAT revision reconciliation |
+| Clean Implementation Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CLEAN_IMPLEMENTATION_REVIEW.md | done | Pass; one data owner, one Markdown owner and no fallback template |
+| CR | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CODE_REVIEW.md | done | Pass after escaping, fail-closed output and compatibility findings were fixed |
 | QA | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/QA_REPORT.md | pass | Refreshed qa-gate pass accepted through exact `Approval: QA` on 2026-07-19 |
-| UAT | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/UAT_EVIDENCE.md | ready_for_decision | Repository behavior is evidenced; authenticated refreshed OpenCode installation remains a disclosed limitation |
+| UAT | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/UAT_EVIDENCE.md | ready_for_decision | Revision request resolved; released installed-host consumption remains disclosed |
 | OR |  | missing | Not allowed |
 
 ## Mode / Slice Decision
@@ -108,6 +108,10 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | QA_REPORT | tests | TP | 12/12 task coverage, aggregate smoke, Runtime Integrity and 27/27 skill evaluations pass |
 | QA Report | approved_by | `Approval: QA` | Exact approval provided on 2026-07-19 after revision-17 revalidation |
 | UAT Evidence | evaluates | accepted QA scope | Repository behavior and explicit live-host evidence boundary are ready for user acceptance |
+| UAT Revision | supersedes | QA revision 17 | Operational chat status still permitted agent-side reconstruction |
+| Refreshed QA_REPORT | tests | TP | Canonical status renderer, CLI parity, fail-closed output and no-template integrity pass |
+| Refreshed QA Report | approved_by | `Approval: QA` | Exact approval provided on 2026-07-19 after revision-20 revalidation |
+| Refreshed UAT Evidence | evaluates | refreshed QA scope | Deterministic status behavior and external evidence boundary are ready for acceptance |
 
 ## Evidence
 
@@ -154,9 +158,9 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 ## Closeout
 
-- delivered: LIR-01 through LIR-12, completed release-built runtime dependency, three reproduced-finding fixes, focused/aggregate tests, refreshed 12/12 TP Review, Clean Review, Code Review, QA Gate pass and Context Graph reconciliation.
-- not_delivered: Exact UAT approval, authenticated refreshed OpenCode observation, OR, release and VCS publication.
+- delivered: LIR-01 through LIR-12, release-built runtime dependency, three reproduced-finding fixes, deterministic operational status presentation, focused/aggregate tests, refreshed 12/12 TP Review, Clean Review, Code Review, QA Gate pass and Context Graph reconciliation.
+- not_delivered: UAT acceptance, authenticated released-host observation, OR, release and VCS publication.
 - verification_performed: deterministic generation/digest checks, offline local command execution, OpenCode wrapper fixtures, Runtime Integrity positive/negative, 27/27 skill evals, aggregate smoke and diff check.
 - unverified: direct authenticated Codex/Claude/OpenCode host observation and Windows-native execution.
-- next_allowed_action: Request exact `Approval: UAT` for the prepared acceptance evidence.
-- quality_outlook: Preserve explicit host configuration and keep released-package installation as UAT evidence.
+- next_allowed_action: Request exact `Approval: UAT` for the refreshed acceptance evidence.
+- quality_outlook: Preserve compact semantic parity and keep released-package installation as UAT evidence.

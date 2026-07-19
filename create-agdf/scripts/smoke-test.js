@@ -1084,7 +1084,10 @@ run("config", [
     } catch (error) {
       failed = true;
       const output = error.stdout.toString();
-      if (!output.includes("AGDF status-card: blocked") || !output.includes("Current gate: UR") || !output.includes("Next step:")) {
+      if (!output.includes("## AGDF status-card")
+        || !output.includes("| Status | blocked |")
+        || !output.includes("| Current gate | User requirements (`UR`) |")
+        || !output.includes("| Next step |")) {
         throw new Error("gate-check --status-card should print compact status-card fields.");
       }
       if (output.includes("doctor_report") || output.includes("delivery_map")) {
@@ -1172,7 +1175,10 @@ run("config", [
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
     execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "locale-card"], { stdio: "pipe" });
     const german = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;
-    if (!german.includes("AGDF-Statuskarte:") || !german.includes("Ausgewählter Run: locale-card") || !german.includes("Run-Titel:") || !german.includes("Aktuelles Gate: UR — Nutzeranforderungen") || !german.includes("Artefakte:") || !german.includes("Fehlende Freigabe: Approval: UR")) {
+    if (!german.includes("## AGDF-Statuskarte")
+      || !german.includes("| Ausgewählter Run |") || !german.includes("`locale-card`")
+      || !german.includes("| Aktuelles Gate | Nutzeranforderungen (`UR`) |")
+      || !german.includes("| Fehlende Freigabe | Approval: UR |")) {
       throw new Error("German chat language should render a German status card while preserving the exact English approval token.");
     }
     for (const rawPrimary of ["internal_next_step", "next_user_gate", "mode_slice_decision", "Internal next step", "Allowed now:"]) {
@@ -1182,7 +1188,10 @@ run("config", [
     const config = JSON.parse(readFileSync(configPath, "utf8"));
     writeFileSync(configPath, `${JSON.stringify({ ...config, chat_language: "fr" }, null, 2)}\n`, "utf8");
     const fallback = spawnSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "locale-card", "--status-card"], { encoding: "utf8" }).stdout;
-    if (!fallback.includes("AGDF status-card:") || !fallback.includes("Selected run: locale-card") || !fallback.includes("Run title:") || !fallback.includes("Current gate: UR — User requirements") || !fallback.includes("Artefacts:") || !fallback.includes("Missing approval: Approval: UR")) {
+    if (!fallback.includes("## AGDF status-card")
+      || !fallback.includes("| Selected run |") || !fallback.includes("`locale-card`")
+      || !fallback.includes("| Current gate | User requirements (`UR`) |")
+      || !fallback.includes("| Missing approval | Approval: UR |")) {
       throw new Error("Unsupported chat language should fall back deterministically to English status-card copy.");
     }
   } finally {
@@ -1255,6 +1264,13 @@ run("config", [
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
     }
+    if (report.status_presentation?.run_id !== "tp-transition"
+      || report.status_presentation?.revision_id !== report.approval_presentation?.revision_id
+      || !report.status_presentation?.markdown?.includes("| Allowed now |")
+      || !report.status_presentation?.markdown?.includes("request exact TP approval")
+      || report.status_presentation?.authorizes !== false) {
+      throw new Error(`Gate-check JSON must expose one deterministic operational status presentation: ${JSON.stringify(report.status_presentation)}`);
+    }
     if (report.approval_presentation?.blocks?.run_status_card?.markdown?.includes("Approval: TP")
       || !report.approval_presentation?.blocks?.run_status_card?.markdown?.includes("Required decision: Task and Test Plan approval")
       || !report.approval_presentation?.blocks?.gate_transition_card?.markdown?.includes("`Approval: TP`")) {
@@ -1299,6 +1315,8 @@ run("config", [
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
     if (!content.includes("Consume the canonical `approval_presentation` verbatim")
+      || !content.includes("`status_presentation.markdown` verbatim")
+      || content.includes("| Run status | Value |")
       || !content.includes("Select exactly one run and evaluate its current gate")
       || !content.includes("Confirm that the required durable artefact is present and ready")
       || !content.includes("Revalidate the same run, gate and revision")
@@ -1933,7 +1951,9 @@ ${internalRows}
       throw new Error("A report-only ready gate must remain a gate approval while failing closed before native invocation without host capability evidence.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
-    if (!statusCardOutput.includes("Next gate after approval: SD — Solution design") || !statusCardOutput.includes("Allowed after approval: Draft the solution design; implementation remains blocked.") || statusCardOutput.includes("User action required:")) {
+    if (!statusCardOutput.includes("| Next gate after approval | SD |")
+      || !statusCardOutput.includes("| Allowed after approval | Draft Solution Design; implementation remains forbidden. |")
+      || statusCardOutput.includes("| User action required |")) {
       throw new Error("gate-check --status-card should print post-approval transition lines for missing approval cases.");
     }
     if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {
@@ -2020,8 +2040,8 @@ ${internalRows}
       throw new Error("Internal-step status card should distinguish its next internal step from user approval.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
-    if (statusCardOutput.includes("Next gate after approval:") || statusCardOutput.includes("Allowed after approval:")) {
-      throw new Error("Internal-step status card should omit post-approval transition lines.");
+    if (!statusCardOutput.includes("| Next gate after approval | none |") || !statusCardOutput.includes("| Allowed after approval | none |")) {
+      throw new Error("Internal-step status card should deterministically render empty post-approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -2097,8 +2117,8 @@ ${internalRows}
       throw new Error("OR handoff should not expose post-approval transition fields.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
-    if (statusCardOutput.includes("Next gate after approval:") || statusCardOutput.includes("Allowed after approval:")) {
-      throw new Error("OR handoff status card should omit post-approval transition lines.");
+    if (!statusCardOutput.includes("| Next gate after approval | none |") || !statusCardOutput.includes("| Allowed after approval | none |")) {
+      throw new Error("OR handoff status card should deterministically render empty post-approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

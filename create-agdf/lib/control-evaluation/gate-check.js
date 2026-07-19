@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, formatArtefactRefs, gateTitle, localePack, renderApprovalOrientationSnapshot, resolveHumanRunTitle } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderOperationalStatusCard, resolveHumanRunTitle } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -292,6 +292,11 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     enumerable: false,
   });
   const revisionId = extractField(runState.content ?? "", "revision_id");
+  const statusPresentation = renderOperationalStatusCard(statusCard, {
+    registry: interactionLocales,
+    humanPresentation,
+    revisionId,
+  });
   const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
     ready: isReadyUserGateApproval({ status, currentGate, missingApproval }),
     humanPresentation,
@@ -323,6 +328,7 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     native_attempt_required: statusCard.native_attempt_required,
     candidate_runs: runState.candidate_runs ?? [],
     status_card: statusCard,
+    status_presentation: statusPresentation,
     approval_presentation: renderApprovalOrientationSnapshot(approvalOrientation, {
       registry: interactionLocales,
       expectedIdentity: {
@@ -392,28 +398,12 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
 
 function printGateCheckStatusCard(report, io) {
   const card = report.status_card;
-  const labels = localePack(interactionLocales, card.presentation_language).statusCard;
-  const primary = localePack(interactionLocales, card.presentation_language).primary;
-  const presentation = card.humanPresentation ?? {
-    runTitle: card.run_id,
-    gateTitle: gateTitle(interactionLocales, card.presentation_language, card.current_gate),
-    artefactRefs: buildArtefactRefs({}, interactionLocales, card.presentation_language),
-  };
-  io.log(`${labels.title}: ${primary.status[card.status] ?? card.status}`);
-  io.log(`${labels.run}: ${card.run_id}`);
-  io.log(`${labels.humanTitle}: ${presentation.runTitle}`);
-  io.log(`${labels.gate}: ${card.current_gate} — ${presentation.gateTitle}`);
-  io.log(`${labels.lifecycle}: ${primary.lifecycle[card.delivery_state] ?? primary.lifecycle.unknown}`);
-  io.log(`${labels.artefacts}: ${formatArtefactRefs(presentation.artefactRefs)}`);
-  io.log(`${labels.blocked}: ${card.blocking_condition === "none" ? primary.none : primary.blocked}`);
-  io.log(`${labels.missing}: ${card.missing_approval === "none" ? primary.none : card.missing_approval}`);
-  if (card.next_gate_after_approval !== "none") {
-    io.log(`${labels.nextGate}: ${card.next_gate_after_approval} — ${gateTitle(interactionLocales, card.presentation_language, card.next_gate_after_approval)}`);
-    io.log(`${labels.allowedAfter}: ${primary.afterApproval[card.current_gate] ?? primary.actions[card.current_gate]}`);
+  if (!report.status_presentation?.markdown) {
+    io.log(localePack(interactionLocales, card?.presentation_language || "en").interaction.statusPresentationFailure);
+    return false;
   }
-  io.log(`${labels.allowed}: ${primary.actions[card.current_gate] ?? primary.none}`);
-  io.log(`${labels.step}: ${primary.actions[card.current_gate] ?? primary.none}`);
-  io.log(`${labels.quality}: ${primary.quality}`);
+  io.log(report.status_presentation.markdown);
+  const primary = localePack(interactionLocales, card.presentation_language).primary;
   const readiness = qualityReadinessForRunState(card.runState, report.next_allowed_action);
   if (readiness) {
     const quality = localePack(interactionLocales, card.presentation_language).qualityReadiness;
@@ -429,17 +419,17 @@ function printGateCheckStatusCard(report, io) {
     io.log(`${quality.nextAction}: ${readiness.next_action || primary.none}`);
     io.log(`${quality.decisionOwner}: ${quality.decisionOwnerValue}`);
   }
+  return true;
 }
 
 export function printGateCheckReport(report, json, statusCard = false, io = console) {
   if (json) {
     io.log(JSON.stringify(report, null, 2));
-    return;
+    return true;
   }
 
   if (statusCard) {
-    printGateCheckStatusCard(report, io);
-    return;
+    return printGateCheckStatusCard(report, io);
   }
 
   io.log(`AGDF gate-check: ${report.status}`);
@@ -456,4 +446,5 @@ export function printGateCheckReport(report, json, statusCard = false, io = cons
   for (const item of report.forbidden) io.log(`- ${item}`);
   io.log("");
   io.log(`Next allowed action: ${report.next_allowed_action}`);
+  return true;
 }

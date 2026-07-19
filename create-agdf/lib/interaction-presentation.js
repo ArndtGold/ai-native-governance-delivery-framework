@@ -269,6 +269,86 @@ export function formatArtefactRefs(refs) {
   return refs.map((ref) => ref.exists ? `[${ref.label}](${ref.path})` : ref.missingLabel).join(" · ");
 }
 
+function markdownCell(value) {
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("|", "\\|")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replace(/\r?\n/g, "<br>");
+}
+
+function operationalList(value, none) {
+  if (!Array.isArray(value) || value.length === 0) return none;
+  return value.map((item) => String(item ?? "").trim()).filter(Boolean).join("\n") || none;
+}
+
+function operationalBreadcrumb(value, labels) {
+  if (!Array.isArray(value) || value.length === 0) return "";
+  const marker = {
+    fulfilled: labels.breadcrumbFulfilled,
+    current: labels.breadcrumbCurrent,
+    open: labels.breadcrumbOpen,
+  };
+  return value.map((item) => `${marker[item?.status] ?? labels.breadcrumbOpen} ${String(item?.gate ?? "").trim()}`)
+    .filter((item) => item.trim())
+    .join(labels.breadcrumbSeparator);
+}
+
+export function renderOperationalStatusCard(statusCard, {
+  registry,
+  humanPresentation,
+  revisionId = "",
+} = {}) {
+  if (!plainObject(statusCard) || !plainObject(humanPresentation)) return null;
+  const runId = String(statusCard.run_id ?? "").trim();
+  const currentGate = String(statusCard.current_gate ?? "").trim();
+  const revision = String(revisionId ?? "").trim() || "unversioned";
+  const locale = resolvePresentationLocale(registry, statusCard.presentation_language);
+  if (!runId || !currentGate || !locale) return null;
+
+  const pack = localePack(registry, locale);
+  const labels = pack.statusCard;
+  const primary = pack.primary;
+  const none = primary.none;
+  const gateLabel = String(humanPresentation.gateTitle ?? "").trim() || gateTitle(registry, locale, currentGate);
+  const runTitle = displaySafeTitle(humanPresentation.runTitle, normalizedRunTitle(runId));
+  const breadcrumb = operationalBreadcrumb(statusCard.breadcrumb, labels);
+  const rows = [
+    [labels.run, `${runTitle} · \`${runId}\``],
+    ...(breadcrumb ? [[labels.breadcrumb, breadcrumb]] : []),
+    [labels.status, primary.status[statusCard.status] ?? statusCard.status],
+    [labels.gate, `${gateLabel} (\`${currentGate}\`)`],
+    [labels.allowed, operationalList(statusCard.allowed_now, none)],
+    [labels.forbidden, operationalList(statusCard.forbidden_now, none)],
+    [labels.blocked, statusCard.blocking_condition === "none" ? none : statusCard.blocking_condition],
+    [labels.missing, statusCard.missing_approval === "none" ? none : statusCard.missing_approval],
+    [labels.nextGate, statusCard.next_gate_after_approval === "none" ? none : statusCard.next_gate_after_approval],
+    [labels.allowedAfter, statusCard.allowed_after_approval === "none" ? none : statusCard.allowed_after_approval],
+    [labels.step, statusCard.next_step || none],
+    [labels.quality, statusCard.quality_outlook || none],
+  ];
+  const markdown = [
+    `## ${labels.title}`,
+    "",
+    `| ${labels.field} | ${labels.value} |`,
+    "|---|---|",
+    ...rows.map(([label, value]) => `| ${markdownCell(label)} | ${markdownCell(value)} |`),
+  ].join("\n");
+
+  return Object.freeze({
+    schema_version: "1",
+    semantic_block: "run_status_card",
+    run_id: runId,
+    revision_id: revision,
+    current_gate: currentGate,
+    presentation_language: locale,
+    markdown,
+    authorizes: false,
+  });
+}
+
 export function gateOptions(registry, requestedLocale, gate, { includeCancel = false } = {}) {
   const pack = localePack(registry, requestedLocale);
   const options = [

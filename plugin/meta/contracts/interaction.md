@@ -40,6 +40,29 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 `next_gate_after_approval` and `allowed_after_approval` must be `none` when no approval is missing, when the current step is internal, or when the run is in OR/completed handoff. They must not imply implementation, QA, release, commit, push or PR authority unless the existing gate model already allows that authority.
 
+### Deterministic Operational Presentation
+
+`status_card` is the canonical machine/audit projection. The same evaluation also exposes an additive
+`status_presentation` object with selected run/revision/gate/locale identity, `semantic_block:
+run_status_card`, one compact Markdown block with localized labels and canonical evaluated values,
+and `authorizes: false`. The full raw and evidence-bearing projection remains available unchanged in
+`status_card` JSON for audit and automation; it is not duplicated into the primary chat card.
+Fresh legacy-compatible control state without a durable revision uses the explicit non-authorizing
+identity `unversioned`; ready approval presentation remains impossible without a real revision.
+
+`interaction-presentation.js` is the only owner that may select, label, order, localize and render the
+operational status fields. The gate-check CLI, skills and surface adapters consume
+`status_presentation.markdown` verbatim. They may add concise surrounding explanation, but they must
+not reconstruct a table, omit or rename fields, substitute generic gate actions for evaluated
+`allowed_now`/`forbidden_now`, or maintain another status-card template. If the projection is missing
+or its selected run, revision, gate or locale identity is stale, presentation fails closed rather
+than falling back to model-generated status Markdown.
+
+This determinism protects semantic parity, permission boundaries and evidence visibility across
+hosts. It does not standardize host chrome or unrelated conversational prose. `approval_presentation`
+remains the separate decision-time projection and is present only for a ready user gate; both public
+presentations derive from the same `status_card` snapshot and neither grants approval.
+
 
 ### Breadcrumb
 

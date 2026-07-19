@@ -24,7 +24,8 @@ export function createValidationHandlers(io = console) {
         const output = printApprovalEnvelope(report, { io, reEvaluate: () => evaluateGateCheck(options.dir, options) });
         return output.status === "blocked" ? 2 : 0;
       }
-      printGateCheckReport(report, options.json, options.statusCard, io);
+      const presentationRendered = printGateCheckReport(report, options.json, options.statusCard, io);
+      if (presentationRendered === false) return 2;
       return report.status === "blocked" ? 2 : 0;
     }],
     ["delivery-map", (options) => {

@@ -96,6 +96,14 @@ try {
 
   resetPluginFixture();
   writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replaceAll("`status_presentation.markdown` verbatim", "status presentation removed"),
+    "utf8",
+  );
+  expectIntegrityFailure(/gate-check must consume the deterministic operational status presentation/);
+
+  resetPluginFixture();
+  writeFileSync(
     interactionContractPath,
     readFileSync(interactionContractPath, "utf8").replace("`attempted_not_applied`", "`attempt_outcome_removed`"),
     "utf8",

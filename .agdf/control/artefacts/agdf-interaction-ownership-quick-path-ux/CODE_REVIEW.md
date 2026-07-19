@@ -25,3 +25,22 @@ Date: 2026-07-18
   `opencode.jsonc` remain preserved.
 - missing_evidence: refreshed installed OpenCode execution is UAT-only.
 - required_next_step: run `qa-gate` with refreshed evidence.
+
+## UAT Revision Review — Deterministic Operational Status Presentation — 2026-07-19
+
+- decision: pass
+- findings: none after review-found status-label, HTML-escaping, missing-projection exit-status and
+  unversioned fresh-control compatibility issues were corrected.
+- reviewed_scope: renderer field selection and Markdown escaping; locale completeness/budgets;
+  additive report schema; CLI output/exit path; generated skill propagation; Runtime Integrity and
+  deterministic eval fingerprint.
+- excluded_scope: the unrelated `README.md` documentation edit was preserved and not attributed to
+  this status-presentation revision.
+- correctness: actual evaluated `allowed_now`, `forbidden_now`, blocker, approval transition, next
+  step and quality values are rendered without generic-action substitution.
+- security_and_data_integrity: durable text escapes HTML and table delimiters; the presentation is
+  immutable and non-authorizing; missing rendering fails closed.
+- compatibility: existing `status_card` and `approval_presentation` schemas remain unchanged;
+  `status_presentation` is additive and fresh unversioned control remains inspectable.
+- missing_evidence: released installed-host consumption remains UAT-only.
+- required_next_step: run `qa-gate` with refreshed evidence.

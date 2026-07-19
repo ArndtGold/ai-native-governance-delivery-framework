@@ -51,3 +51,24 @@ precedence.
 
 Accept the delivered repository behavior and the disclosed external-evidence limits with exact
 `Approval: UAT`, or decline/revise and identify the additional observation required.
+
+## Revision Request — 2026-07-19
+
+UAT identified that the operational status data was deterministic while the gate-check skill still
+permitted agent-side Markdown reconstruction. Acceptance is withdrawn until one code-owned
+operational projection is consumed verbatim by the skill and CLI and the refreshed QA evidence passes.
+
+## Revision Resolution — 2026-07-19
+
+- Refreshed QA passed and was accepted through exact `Approval: QA` after selected-run, same-gate,
+  revision-20 and durable-report revalidation.
+- `gate-check --json` now exposes immutable additive `status_presentation` with run, revision, gate
+  and locale identity; `--status-card` and gate-check skills consume its Markdown verbatim.
+- The former skill table and private CLI field-selection path were removed. Runtime Integrity rejects
+  reconstruction, and missing presentation returns a failing CLI exit status.
+- The primary card remains compact; complete raw evidence stays in unchanged `status_card` JSON.
+- Source/runtime/package tests pass, but the installed 0.10.2 plugin remains unchanged. Live
+  consumption of this unreleased projection therefore remains explicitly unobserved.
+
+The revision request is resolved. UAT may now accept the refreshed repository behavior and its
+disclosed release/install evidence boundary.

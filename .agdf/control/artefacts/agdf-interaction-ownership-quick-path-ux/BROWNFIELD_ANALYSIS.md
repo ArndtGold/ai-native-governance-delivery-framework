@@ -161,3 +161,27 @@ persisted enum, runtime package or host-specific policy owner stops implementati
 - parallel_structure_risk: none; the nested package is metadata for the existing owned validator
   wrapper, not a new runtime or package dependency.
 - required_next_step: implement the bounded QA revision and refresh CD+Tests and mandatory reviews.
+
+## UAT Revision Addendum — Deterministic Operational Status Presentation — 2026-07-19
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- scope: Close the discovered gap between deterministic `status_card` data and agent-reconstructed
+  operational status Markdown without changing gate policy, approval authority or persisted state.
+- current_coverage: `partially_done`; `buildStatusCard` already owns the canonical data,
+  `interaction-presentation.js` already owns deterministic human presentation, and the CLI has a
+  private operational printer, but the gate-check skill still carries a second table template.
+- intent: Every AGDF-owned human status surface must transmit a code-owned projection of the selected
+  canonical snapshot. Agents and adapters may frame it with concise context, but must not select,
+  omit, rename, reorder or reconstruct status-card fields. Determinism protects meaning and evidence
+  parity across hosts; it is not intended to freeze host chrome or surrounding prose.
+- reuse_strategy: extend `interaction-presentation.js` with one operational status renderer, expose
+  its immutable result from `gate-check`, make the CLI and skill consume it, and delete the duplicate
+  skill table. Do not create another evaluator, locale registry or surface renderer.
+- compatibility: retain `status_card` JSON unchanged; add `status_presentation` additively and keep
+  `approval_presentation` limited to ready user gates.
+- regression_impact: interaction presentation tests, gate-check smoke, Runtime Integrity positive and
+  negative checks, generated-surface synchronization and deterministic skill evaluations.
+- parallel_structure_risk: controlled by making the existing presentation module the only Markdown
+  owner and routing the existing CLI printer through the same public projection.
+- required_next_step: implement this bounded defect correction, then repeat review and QA before UAT.

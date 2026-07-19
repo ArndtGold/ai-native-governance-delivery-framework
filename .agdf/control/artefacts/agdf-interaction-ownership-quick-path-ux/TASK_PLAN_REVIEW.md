@@ -43,3 +43,17 @@ Date: 2026-07-18
   not changed.
 - missing_evidence: refreshed live OpenCode installation remains UAT-only.
 - required_next_step: perform clean implementation and actual-diff Code Review.
+
+## UAT Revision Review — Deterministic Operational Status Presentation — 2026-07-19
+
+- decision: pass
+- fully_done: 12/12
+- revision_mapping: renderer ownership and skill reduction complete LIR-01/LIR-02; canonical sync,
+  generated-surface enforcement and aggregate regression evidence complete LIR-11/LIR-12.
+- acceptance_coverage: AC-01 and AC-04 remain fully done with direct operational renderer evidence.
+- evidence_confidence: high; code-owned JSON/Markdown identity, locale labels, escaping, CLI parity,
+  fail-closed missing projection and duplicate-template rejection are exercised directly.
+- out_of_scope_changes: the separate `README.md` documentation edit is preserved and excluded from
+  this revision's implementation attribution; `status_card` JSON and approval authority remain compatible.
+- missing_evidence: released installed-host observation remains UAT-only.
+- required_next_step: perform Clean Implementation and actual-diff Code Review.

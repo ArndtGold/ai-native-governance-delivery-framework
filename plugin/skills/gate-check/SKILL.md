@@ -85,10 +85,11 @@ This skill owns only these operational responsibilities:
 5. Revalidate the same run, gate and revision immediately after the response and before persistence.
 6. Persist only a currently valid exact approval through the existing control-state workflow.
 
-For status, blocked, read-only or rationale interactions, consume the same canonical projection and
-locale contract without asking for approval. Internal process steps remain distinct from user
-decisions. If the projection, adapter evidence or revalidation is missing, follow the contract's
-fail-closed outcome and leave authority unchanged.
+For status, blocked, read-only or rationale interactions, consume the canonical
+`status_presentation.markdown` verbatim and apply the locale contract without asking for approval.
+Do not reconstruct its fields, ordering, labels or Markdown from `status_card` JSON. Internal process
+steps remain distinct from user decisions. If the projection, adapter evidence or revalidation is
+missing, follow the contract's fail-closed outcome and leave authority unchanged.
 
 ## Rules
 1. Fail closed when a required approval or artefact status is missing.
@@ -163,23 +164,15 @@ If a status is not explicit, do not assume it is satisfied.
 12. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
 
 ## Output
-Keep the result short and operational. Render the Runtime Contract's compact human-facing Run Status Card rather than a surface-specific summary:
-
-| Run status | Value |
-|---|---|
-| Status | `open | blocked` |
-| Current gate | `<GateName or internal step>` |
-| Allowed now | `<currently allowed outputs>` |
-| Blocked by | `<blocking condition or none>` |
-| Missing approval | `Approval: <GateName> | none` |
-| Next step | `<single permissible next step>` |
-| Quality outlook | `<next meaningful quality focus or none>` |
-
-When an approval is missing, also include `Next gate after approval` and `Allowed after approval` exactly as constrained by the Runtime Contract. Keep forbidden outputs, evidence and next-skill detail in the concise surrounding text when relevant; they are not extra status-card rows.
+Keep the result short and operational. For a status-only response, consume the Runtime Contract's
+code-owned `status_presentation.markdown` verbatim. It is the compact localized operational Run
+Status Card and already includes current and post-approval authority, next-step and quality fields.
+Keep full raw evidence in `status_card` JSON or concise surrounding detail when relevant; do not turn
+the primary chat card into an audit dump. Do not maintain or render a skill-local table template.
 
 This complete operational status table remains the status-reporting and detail
 surface. When the same response immediately requests a ready gate approval,
-render its six-field compact approval-time projection first, then the Gate
+render its five-field compact approval-time projection first, then the Gate
 Transition Card in the same immediately preceding assistant message, then
 invoke exactly one native question or exact-text fallback. Both cards derive
 from the same snapshot and are shown exactly once.

@@ -11,7 +11,9 @@ const integrityScript = join(fixtureRoot, "plugin", "scripts", "check-runtime-in
 const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "VERIFIED_CHANGE.md");
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
+const qualityContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "quality.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
+const cleanReviewPath = join(fixtureRoot, "plugin", "skills", "clean-implementation-review", "SKILL.md");
 const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 
@@ -163,6 +165,22 @@ try {
     );
     expectIntegrityFailure(expected);
   }
+
+  resetPluginFixture();
+  writeFileSync(
+    qualityContractPath,
+    readFileSync(qualityContractPath, "utf8").replaceAll("design_gap", "design-classification-removed"),
+    "utf8",
+  );
+  expectIntegrityFailure(/quality contract missing normalized review-gap invariant: design_gap/);
+
+  resetPluginFixture();
+  writeFileSync(
+    cleanReviewPath,
+    `${readFileSync(cleanReviewPath, "utf8")}\n| gap_type | meaning | routing_target |\n|---|---|---|\n`,
+    "utf8",
+  );
+  expectIntegrityFailure(/clean-implementation-review SKILL\.md must not duplicate the complete normalized gap mapping/);
 
   console.log("Runtime integrity negative tests passed");
 } finally {

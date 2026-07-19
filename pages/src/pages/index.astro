@@ -600,8 +600,8 @@ const discoveryGroups = [
       <div class="surface p-4 sm:p-5">
         <div class="grid gap-4 lg:grid-cols-3">
           <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4">
-            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Approved plan</div>
-            {["Acceptance criteria", "Tests", "Scope"].map((item) => (
+            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Approved PRD contract</div>
+            {["UX acceptance criterion", "Working mode + effective state", "Activation + recovery path"].map((item) => (
               <div class="mb-3 flex items-center gap-3 rounded-lg border border-dark-700/80 bg-dark-950 p-3 text-sm text-dark-100">
                 <span class="h-2 w-2 rounded-full bg-agdf-400 shadow-[0_0_8px_var(--agdf-glow)]"></span>
                 {item}
@@ -621,10 +621,10 @@ const discoveryGroups = [
           <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4">
             <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Review result</div>
             {[
-              ["pass", "Task 1 covered", "text-agdf-300"],
-              ["pass", "AC 2 covered", "text-agdf-300"],
-              ["block", "Test missing", "text-red-300"],
-              ["revise", "UI evidence missing", "text-yellow-300"],
+              ["fulfilled", "PRD -> mode/state -> task -> visible evidence", "text-agdf-300"],
+              ["requirements_gap", "Missing UX criterion -> PRD revision", "text-red-300"],
+              ["not_verifiable", "Visible behavior has code-only evidence", "text-red-300"],
+              ["partial", "Recovery evidence incomplete", "text-yellow-300"],
             ].map(([state, item, color]) => (
               <div class="mb-2 flex items-center justify-between gap-3 rounded-lg border border-dark-700/80 bg-dark-950 p-3 text-sm">
                 <span class="text-dark-100">{item}</span>
@@ -633,7 +633,7 @@ const discoveryGroups = [
             ))}
           </div>
         </div>
-        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-950/20 p-4 text-center font-semibold text-red-200 shadow-[0_0_32px_-20px_rgba(239,68,68,0.6)]">Only partially done until evidence closes the gap.</div>
+        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-950/20 p-4 text-center font-semibold text-red-200 shadow-[0_0_32px_-20px_rgba(239,68,68,0.6)]">Incomplete UX Intent Fidelity prevents a QA pass.</div>
       </div>
     </div>
   </div>
@@ -883,13 +883,9 @@ const discoveryGroups = [
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">meta/</span> <span class="text-dark-200/50">agdf-agent-router.md, agdf-constitution.md, agdf-runtime-contract.md</span></div>
             <div class="ml-4 text-dark-200"><span class="text-agdf-400">skills/</span></div>
             <div class="ml-8 text-dark-200/50">Codex and Claude Code use the plugin namespace, so skill folders stay unprefixed.</div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">gate-check/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">brownfield-analysis/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">qa-gate/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">task-plan-review/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">clean-implementation-review/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">release-or/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            <div class="ml-8 text-dark-200"><span class="text-agdf-300">delivery-closeout/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
+            {skills.map(skill => (
+              <div class="ml-8 text-dark-200"><span class="text-agdf-300">{skill.name}/</span> <span class="text-dark-200/50">SKILL.md, HELP.md</span></div>
+            ))}
             <div class="mt-2 text-dark-200/50">.claude-plugin/</div>
             <div class="ml-4 text-dark-200/50">marketplace.json</div>
             <div class="mt-2 text-dark-200/50">target repository after <span class="text-dark-200">npm create agdf -- opencode</span></div>

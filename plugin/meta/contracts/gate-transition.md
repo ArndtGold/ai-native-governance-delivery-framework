@@ -99,6 +99,31 @@ Mode/Slice Decision rules:
 
 A Mode/Slice Decision without scope reason and evidence is not recorded. Treat it as missing and keep the next step at `Mode/Slice Decision`.
 
+### UI/UX Impact And UX Intent Definition
+
+The existing `brownfield-analysis` `post_ur_review` mode is the single proportional routing owner for
+both Greenfield and Brownfield delivery. It records:
+
+- `delivery_context: greenfield | brownfield`
+- `ui_ux_impact: none | low | medium | high`
+- `ui_ux_impact_reason`
+- `ux_intent_definition_required: yes | no`
+
+Classify impact as:
+
+- `none`: no user-facing capability, decision, state, feedback or recovery behavior changes;
+- `low`: a bounded user-facing change preserves unambiguous intent, working modes, effective-state,
+  activation and recovery semantics;
+- `medium`: a bounded capability materially changes its primary action, working mode, effective
+  state, visible state type, blocker, activation or recovery behavior; or
+- `high`: the change spans capabilities or modes, creates competing or safety-relevant authority,
+  adds high-consequence decisions or materially changes cross-surface activation and recovery.
+
+`medium | high` requires `ux-intent-definition` before PRD readiness. `low` requires it when any
+mandatory PRD UX semantics remain ambiguous. `none` records the analytical decision
+`not_applicable`. The skill is an internal, non-authorizing step: it adds no gate, approval value or
+implementation permission. A required `blocked` result keeps PRD readiness closed.
+
 
 ## Gate Transition Model
 

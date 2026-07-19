@@ -35,6 +35,11 @@ When `.agdf/control/` is present, persist or link `post_ur_review` output under 
 
 Do not mix both modes silently. Name the active mode in the output.
 
+In `post_ur_review`, also record `delivery_context`, `ui_ux_impact`, `ui_ux_impact_reason` and
+`ux_intent_definition_required` using the single classification and routing contract in
+`../../meta/contracts/gate-transition.md`. Greenfield records make existing-system evidence explicitly
+not applicable; Brownfield records cite repository evidence. Do not create a second Greenfield router.
+
 ## Rules
 1. Brownfield first: understand the existing codebase before PRD/SD decisions when existing-system impact is possible, and again before implementation.
 2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must visibly decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen. Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation; mark the review `done` only after both the artefact and canonical run projection are complete. An interrupted, incomplete or legacy record stays at fail-closed `Mode/Slice Decision` recovery without another user approval.
@@ -123,6 +128,10 @@ Use a concise structure:
 - context_graph_impact:
 - required_next_step:
 ```
+
+For `post_ur_review`, include the four UI/UX routing fields immediately after `scope`. If UX intent
+definition is required, its `ready | blocked | not_applicable` result must be visible before PRD
+readiness. A required `blocked` result is at least `revise` for this routing step.
 
 ## Pass / Revise / Block Guidance
 - `pass`: existing owners are understood, reuse path is clear, and no blocking drift or parallel structure risk remains.

@@ -11,8 +11,8 @@ import { persistLiveObservation, recordLiveCase } from "../lib/skill-evals/live-
 const root = fileURLToPath(new URL("../..", import.meta.url));
 const report = runSkillEvals(root);
 assert.equal(report.status, "pass");
-assert.equal(report.canonical_skills, 9);
-assert.ok(report.cases >= 27);
+assert.equal(report.canonical_skills, 10);
+assert.ok(report.cases >= 30);
 assert.match(report.evidence_boundary, /not live host/);
 const sample = JSON.parse(readFileSync(new URL("../../evals/cases/gate-check.json", import.meta.url)))[0];
 const qualityProfile = { required_sections: ["evidence", "missing evidence", "decision", "risks", "required next step"], expected_decision: "pass", forbidden_claims: ["unsupported completion"] };

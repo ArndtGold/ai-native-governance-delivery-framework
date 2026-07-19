@@ -24,6 +24,8 @@ Use these focused runtime-contract modules:
 - `../../meta/contracts/context-graph.md`
 
 Clean-review-specific output must make the primary solution, fallbacks, workarounds, parallel structures, exit criteria, and next cleanup/review step visible.
+Applicable findings must use `../../meta/contracts/quality.md` §Normalized Review Gaps. This skill
+must distinguish a missing upstream decision from implementation that violates an approved decision.
 
 ## Rules
 1. Clean primary solution before fallback.
@@ -35,6 +37,10 @@ Clean-review-specific output must make the primary solution, fallbacks, workarou
 7. Maintainability matters; "works somehow" is not enough.
 8. Async execute paths must not decide product rules again.
 9. Shared finalization or merge rules belong in one owner.
+10. Missing canonical ownership, fallback policy, exit criteria or parallel-structure decisions are
+    upstream gaps; do not invent those decisions during review.
+11. Actual code that violates an approved design or plan is an implementation gap.
+12. Missing, unknown or contradictory classifications fail closed and stay open.
 
 ## When To Use
 - after `CD+Tests`
@@ -89,6 +95,16 @@ Use this compact structure:
 - required_next_step:
 ```
 
+When findings exist, append:
+
+```text
+## Normalized Findings
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+```
+
+Use the shared Quality Contract for meanings and routes; do not copy its complete mapping here.
+
 ## Pass / Revise / Block Guidance
 - `pass`: primary solution is clean, tested, and integrated with existing owners.
 - `revise`: solution works but contains avoidable fallback, unclear ownership, or missing evidence.
@@ -106,3 +122,5 @@ This skill must not:
 - hide unjustified workarounds
 - treat green tests as proof of solution integrity
 - decide final QA
+- create a missing design, plan or product decision during review
+- silently repair or reclassify an invalid normalized finding

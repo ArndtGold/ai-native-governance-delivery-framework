@@ -83,6 +83,64 @@ Structured Delivery skills use this shape when relevant:
 - `required_next_step`: exactly the next clean step
 - `impact_codes`: affected Quality Contract codes, if the target repo has a registry
 
+
+## Normalized Review Gaps
+
+This section is the sole normative owner for review-gap classification and routing. An applicable
+finding from Task Plan Review, Clean Implementation Review or Code Review carries exactly one
+normalized gap type and one routing target:
+
+| gap_type | meaning | routing_target |
+|---|---|---|
+| `requirements_gap` | approved product behavior or an acceptance criterion is missing or contradictory | `PRD`; use `UR` only when user intent or scope changed |
+| `design_gap` | technical ownership, architecture, fallback policy, exit criterion or a prohibited parallel structure was not decided | `SD` |
+| `plan_gap` | an approved requirement or design obligation lacks an executable task, test or evidence mapping | `TP` |
+| `implementation_gap` | code or a surface does not fulfil an approved requirement, design or task | `CD+Tests` |
+| `evidence_gap` | required test, runtime or visible evidence is absent or insufficient | `evidence_obligation` |
+| `emergent_risk` | implementation exposes a concrete risk not reasonably decidable from approved artefacts | earliest affected `UR | PRD | SD | TP | CD+Tests | evidence_obligation` target after explicit assessment |
+
+Normalized finding rows use these fields in order:
+
+`finding_id | gap_type | routing_target | gap_status | evidence | required_next_step`
+
+- `finding_id` is stable within the durable review report.
+- `gap_type` is exactly one type from the table above.
+- `routing_target` is exactly `UR | PRD | SD | TP | CD+Tests | evidence_obligation` and must agree
+  with the fixed route above. `requirements_gap` may use `UR` only with evidence of changed user
+  intent or scope. `emergent_risk` requires an explicit earliest-owner assessment.
+- `gap_status` is exactly `open | resolved`.
+- `evidence` names concrete source, diff, test, observation or missing proof.
+- `required_next_step` is exactly one executable action consistent with the routing target.
+
+Missing, unknown or contradictory fields fail closed as an open gap. Consumers must not silently
+reclassify a finding. Classification is non-authorizing: it cannot edit or approve UR, PRD, SD or TP,
+advance a gate or replace a review decision. `qa-gate` consumes the normalized findings and cannot
+return `pass` while any applicable finding is open or invalid.
+
+`none` is permitted only as a presentation sentinel on a fulfilled UX Intent Fidelity row.
+It is not a seventh normalized finding type and must not appear in a normalized finding row.
+
+A consumer may repeat the field order and allowed scalar values needed to emit valid output. It must
+reference this section for meanings and routes instead of maintaining a second complete mapping.
+
+## UX Intent Fidelity
+
+When an approved PRD contains applicable UX criteria, `task-plan-review` produces an additional
+evidence matrix with these columns in order:
+
+`prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type`
+
+`fidelity_status` is exactly `fulfilled | partial | missing | not_verifiable`. A fulfilled row uses
+the `none` sentinel. Any non-fulfilled row uses the applicable normalized type from `Normalized
+Review Gaps`; it may also emit the normalized finding shape when routing detail is required.
+
+This matrix verifies PRD-to-TP coverage and TP-to-code/surface fulfilment. It does not create product
+requirements and does not decide QA. A missing implementation-relevant PRD requirement is a
+`requirements_gap` and routes to PRD revision. `qa-gate` consumes this evidence and cannot return
+`pass` while an applicable row is `partial`, `missing` or `not_verifiable`, or while a visible-behavior
+claim has code evidence without visible evidence. The four-row Quality Readiness projection and
+`qa-gate` sole decision ownership remain unchanged.
+
 A skill may briefly remind this shape, but must not duplicate a complete code or rule matrix.
 
 
@@ -97,4 +155,3 @@ It must distinguish:
 - interpretations
 - missing evidence
 - the next permissible step
-

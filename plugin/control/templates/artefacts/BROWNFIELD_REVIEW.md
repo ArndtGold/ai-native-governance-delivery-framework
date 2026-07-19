@@ -17,6 +17,18 @@ Status: `draft | done | not_applicable | superseded`
 
 What approved UR scope is being sized and routed?
 
+## UI / UX Impact Routing
+
+- delivery_context: `greenfield | brownfield`
+- ui_ux_impact: `none | low | medium | high`
+- ui_ux_impact_reason:
+- ux_intent_definition_required: `yes | no`
+- ux_intent_definition_result: `ready | blocked | not_applicable`
+
+Use the single classification contract in `meta/contracts/gate-transition.md`. A required `blocked`
+result prevents PRD readiness. Greenfield explicitly marks existing-system evidence not applicable;
+Brownfield cites repository evidence.
+
 ## Existing-System View
 
 | Area | Existing owner or artefact | Evidence | Impact |

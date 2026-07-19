@@ -17,6 +17,9 @@ const required = [
   "generated/plugins/agdf/runtime/create-agdf/bin/agdf-validator.js",
   "generated/plugins/agdf/runtime/create-agdf/lib/runtime/validator-application.js",
   "generated/plugins/agdf/scripts/check-runtime-integrity.mjs",
+  "generated/plugins/agdf/skills/ux-intent-definition/SKILL.md",
+  "generated/plugins/agdf/skills/ux-intent-definition/HELP.md",
+  "generated/plugins/agdf/control/templates/artefacts/UX_INTENT_DEFINITION.md",
 ];
 for (const path of required) {
   assert.equal(files.filter((candidate) => candidate === path).length, 1, `package must contain ${path} exactly once`);

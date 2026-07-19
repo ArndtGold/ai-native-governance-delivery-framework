@@ -81,30 +81,36 @@ export const workflowSteps = [
     },
     {
         step: "05",
-        title: "PRD / SD / TP",
-        command: "as needed",
-        desc: "Create only the artefact depth the reviewed change size justifies. Do not ritualize."
+        title: "Conditional: UX Intent Definition",
+        command: "/ux-intent-definition",
+        desc: "Post-UR routing records Greenfield or Brownfield and UI/UX impact. Before PRD approval, define testable UX intent for medium/high impact and ambiguous low-impact work. Record working modes, effective state, visible state types and ownership, activation, blockers, recovery and transitions. This fail-closed analysis is not a gate; none is explicitly not applicable."
     },
     {
         step: "06",
+        title: "PRD / SD / TP",
+        command: "as needed",
+        desc: "Define UX acceptance criteria before PRD approval. The approved PRD is the sole product authority; SD owns technical design and TP maps every criterion to tasks, tests and visible evidence."
+    },
+    {
+        step: "07",
         title: "Implementation Prep",
         command: "/brownfield-analysis",
         desc: "Before non-trivial code, map reuse strategy, contracts, regressions and test evidence per task."
     },
     {
-        step: "07",
+        step: "08",
         title: "CD + Reviews",
         command: "CD+Tests",
-        desc: "Implement narrowly, run checks, then verify TP coverage, code quality and clean implementation."
-    },
-    {
-        step: "08",
-        title: "QA Decision",
-        command: "/qa-gate",
-        desc: "Decide pass, revise or block from TP coverage, Brownfield fit, integrity and evidence."
+        desc: "Implement narrowly and run checks. Task Plan Review then verifies UX Intent Fidelity from approved PRD criterion through working mode/state and task to visible evidence; review does not invent missing criteria."
     },
     {
         step: "09",
+        title: "QA Decision",
+        command: "/qa-gate",
+        desc: "Consume UX Intent Fidelity with TP coverage, Brownfield fit and integrity. QA cannot pass partial, missing or not-verifiable criteria, or visible-behavior claims supported only by code evidence."
+    },
+    {
+        step: "10",
         title: "OR + Closeout",
         command: "/release-or",
         desc: "Record audit status, open gaps, risks, persistence target and the next allowed delivery action."
@@ -175,6 +181,10 @@ export const versionEvidence = {
 }
 
 export const prevention = [
+    {
+        title: "UX Requirements After The Code",
+        desc: "Working modes, effective state, blockers or recovery are discovered only during review, turning missing product requirements into avoidable rework."
+    },
     {
         title: "Silent Scope Drift",
         desc: "Prompt, design and code describe different products, so teams review output that no longer matches the approved intent."

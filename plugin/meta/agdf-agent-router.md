@@ -14,6 +14,7 @@ Therefore plugin skill names are intentionally unprefixed:
 - `gate-check`
 - `delivery-path-search`
 - `brownfield-analysis`
+- `ux-intent-definition`
 - `task-plan-review`
 - `clean-implementation-review`
 - `code-review`
@@ -40,6 +41,10 @@ Do not infer active scope from branch names, uncommitted workspace deltas, chat 
 If multiple active scopes are plausible, list the evidenced lines and route to `gate-check` or workstate clarification instead of choosing silently.
 After `Approval: UR`, run lightweight Brownfield Review before PRD when Brownfield, ownership, runtime, policy, persistence, architecture, UI or UX impact is possible.
 Brownfield Review must produce a Mode/Slice Decision: `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`.
+That same review records the shared UI/UX impact classification. Run `ux-intent-definition` before
+PRD readiness for medium/high impact and for low impact with ambiguous mandatory PRD semantics. It is
+an internal analytical step, not a gate or product authority; a required blocked result keeps PRD
+readiness closed.
 Make that decision visible before coding or drafting later artefacts: state the selected path, scope reason, evidence and next required gate in the live control state or linked artefact.
 Do not assume the full PRD/SD/TP chain before that decision; use only as much gate depth as the reviewed change size justifies. A user-visible change is not automatically Verified Change eligible; any missing or ambiguous record condition escalates to the declared structured target before implementation.
 
@@ -52,6 +57,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 |---|---|---|
 | `delivery-path-search` | high-impact planning decisions with several plausible next delivery steps before implementation | read-only advisory search; never grants gate permission or replaces gate-check |
 | `brownfield-analysis` | after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems | clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission |
+| `ux-intent-definition` | after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness | non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth |
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |

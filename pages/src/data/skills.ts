@@ -41,6 +41,14 @@ export const skills: Skill[] = [
         discovery: discoveryBySlug["brownfield-analysis"]
     },
     {
+        name: "ux-intent-definition",
+        family: "Analysis",
+        short: "Define UX intent before PRD approval",
+        description: "Produces structured, testable PRD input for user intent, success, working modes, effective state, visible ownership, activation, blockers, recovery and transitions while failing closed on unresolved product semantics.",
+        when: "Post-UR routing finds medium/high UI/UX impact or ambiguous mandatory semantics in a low-impact change.",
+        discovery: discoveryBySlug["ux-intent-definition"]
+    },
+    {
         name: "task-plan-review",
         family: "Review",
         short: "Plan coverage evidence",

@@ -1,0 +1,94 @@
+---
+name: ux-intent-definition
+description: Use this skill after approved UR and post-UR routing when UI/UX impact is medium or high, or low with ambiguous product semantics, to define user intent, success, working modes, effective state, visible state ownership, activation, blockers, recovery and transitions as structured PRD input; fail closed when evidence or product decisions are unresolved. This internal analysis never grants gate permission or replaces the approved PRD.
+---
+
+# ux-intent-definition
+
+## Purpose
+
+Create structured, testable UX intent input before PRD approval so implementation reviews verify an
+approved product promise instead of inventing requirements after code exists.
+
+## Runtime Contract
+
+Use:
+
+- `../../meta/contracts/gate-transition.md` for impact routing, authority and revision behavior;
+- `../../meta/contracts/quality.md` for evidence and fail-closed output discipline.
+
+## Authority
+
+This is an internal analytical skill, not a user gate. It cannot approve artefacts, grant
+implementation permission, change approved UR/PRD intent, prescribe technical design or become a
+parallel product source of truth. Proposed criteria become authoritative only when incorporated into
+and approved as PRD content. Technical storage, derivation and component ownership remain SD concerns.
+
+## Inputs
+
+- approved UR and its intent, success signal, primary action and persona/context;
+- post-UR `delivery_context`, `ui_ux_impact`, reason and required flag;
+- existing behavior/ownership evidence for Brownfield work;
+- known working modes, state semantics, activation, blockers, recovery and transitions.
+
+## Workflow
+
+1. Confirm the approved UR and routing evidence. If required evidence is absent or conflicts, block.
+2. Identify the primary user intent, observable success and primary decision/action.
+3. For every relevant working mode, define effective state and visible state types.
+4. Separate `effective_state_authority_by_mode` from
+   `primary_state_presentation_owner_by_mode`; do not turn either into technical ownership.
+5. Define activation/deactivation, blockers with visible next actions, actionable recovery (including
+   visible retry for recoverable transient failure) and relevant state transitions.
+6. Propose observable PRD acceptance criteria and identify open product questions.
+7. Return exactly one decision: `ready | blocked | not_applicable`.
+
+## Decision Rules
+
+- `ready`: every required output is reliable enough for PRD drafting.
+- `blocked`: user intent, modes, effective state, authority, activation, blockers, recovery, transitions
+  or Brownfield evidence is missing, contradictory or materially ambiguous.
+- `not_applicable`: routing proves that no relevant user-facing intent, state or recovery behavior changes.
+
+A conflict with approved UR routes to UR revision. A material product change discovered after PRD
+approval routes to PRD revision, or UR revision when intent/scope changes. Never resolve the conflict
+silently. A required blocked result prevents PRD readiness.
+
+## Output
+
+Populate each field or use an explicit, justified `not_applicable`:
+
+```text
+- decision: ready | blocked | not_applicable
+- blocking_reason:
+- primary_user_intent:
+- success_signal:
+- primary_decision_or_action:
+- working_modes:
+- effective_state_by_mode:
+- visible_state_types:
+- effective_state_authority_by_mode:
+- primary_state_presentation_owner_by_mode:
+- activation_paths:
+- blockers:
+- recovery_paths:
+- relevant_state_transitions:
+- proposed_prd_acceptance_criteria:
+- open_product_questions:
+- affected_outputs:
+- evidence:
+- missing_evidence:
+- required_next_step:
+```
+
+For `blocked`, `blocking_reason`, `open_product_questions`, `affected_outputs`, `evidence`,
+`missing_evidence` and `required_next_step` are mandatory. When durable control state exists, write
+the result to `.agdf/control/artefacts/<key>/UX_INTENT_DEFINITION.md` without a Gate or approval field.
+
+## Forbidden
+
+- invent product intent or silently choose between conflicting modes/state authorities;
+- bypass UR/PRD revision or claim PRD readiness from a blocked result;
+- add a gate, approval value or implementation permission;
+- prescribe components, persistence, endpoints, styles or other technical design;
+- treat supporting analysis as authoritative beside the approved PRD.

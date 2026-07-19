@@ -31,6 +31,8 @@ Use these focused runtime-contract modules:
 QA-specific `decision` is exactly `pass | revise | block`.
 `pass` is allowed only when TP coverage, Brownfield fit, solution integrity, and relevant documentation/Context Graph impact are sufficiently evidenced.
 `sot_drift` must not pass silently as a warning.
+Consume applicable findings through `../../meta/contracts/quality.md` §Normalized Review Gaps.
+QA must not maintain a second mapping or reclassify review findings.
 
 When post-CD+Tests review evidence exists, present the Runtime Contract's derived Quality
 Readiness projection before the detailed QA report: Plan coverage, Solution integrity, Code
@@ -48,6 +50,11 @@ Gate Transition Card or the durable QA report.
 6. Solution integrity is mandatory.
 7. Always output exactly one decision: `pass`, `revise`, or `block`.
 8. Open risks, missing tests, partial TP coverage, or side effects must be visible.
+9. Applicable UX Intent Fidelity rows must all be `fulfilled` with suitable visible evidence before `pass`.
+10. A `requirements_gap` routes to PRD revision; QA must not invent or accept the missing criterion.
+11. Any applicable normalized finding that is `open`, missing, unknown, contradictory or supported by
+    insufficient evidence prevents `pass`.
+12. A `resolved` finding counts only when its durable review evidence proves the routed correction or decision.
 
 ## When To Use
 - after `CD+Tests`
@@ -82,14 +89,16 @@ If evidence is missing, lower the decision accordingly.
 2. Verify TP coverage.
 3. Verify P0/P1 completion.
 4. Verify Brownfield fit.
-5. Verify solution integrity.
-6. Verify tests and evidence strength.
-7. Verify documentation and Context Graph impact if relevant.
-8. Decide:
+5. Verify UX Intent Fidelity when applicable, including visible evidence for visible-behavior claims.
+6. Consume normalized findings without reclassification; fail closed on every open or invalid row.
+7. Verify solution integrity.
+8. Verify tests and evidence strength.
+9. Verify documentation and Context Graph impact if relevant.
+10. Decide:
    - `pass`
    - `revise`
    - `block`
-9. State the single required next step.
+11. State the single required next step.
 
 ## Output
 Use this shape:
@@ -125,3 +134,4 @@ This skill must not:
 - replace UAT
 - treat missing reviews as completed
 - downgrade SoT drift to harmless warning
+- silently repair, normalize or reroute a review finding

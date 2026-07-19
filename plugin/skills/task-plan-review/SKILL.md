@@ -27,6 +27,8 @@ Use these focused runtime-contract modules:
 
 TP-specific output must evaluate every relevant `task_id` with completion status, AC coverage, evidence, missing evidence, and QA-relevant gaps.
 If `context_graph_required_action` is not `none`, the affected task is complete only if follow-up, evidence, or an intentionally open gap is visible.
+Applicable review gaps must use `../../meta/contracts/quality.md` §Normalized Review Gaps. This skill
+must not maintain its own type-to-route mapping.
 
 ## Rules
 1. The Task Plan is the reference, not plausible code.
@@ -39,6 +41,12 @@ If `context_graph_required_action` is not `none`, the affected task is complete 
 8. P0/P1 gaps must be handed to QA.
 9. Out-of-scope changes must be reported.
 10. When evidence is unclear, fail closed to at least `partially_done`.
+11. When approved PRD UX criteria apply, verify both PRD-to-TP coverage and TP-to-code/surface fulfilment.
+12. Never invent a missing UX requirement. Report `requirements_gap` and route it to PRD revision.
+13. Visible behavior requires visible evidence; code evidence alone is `not_verifiable`.
+14. A fulfilled UX Intent Fidelity row uses `none`; every non-fulfilled applicable row uses one
+    normalized gap type and a contract-valid route.
+15. Missing, unknown or contradictory classifications fail closed and stay open.
 
 ## Clarifications
 ### TP Slice Before Target State
@@ -90,6 +98,27 @@ Use this compact structure:
 - required_next_step:
 ```
 
+When applicable, append:
+
+```text
+## UX Intent Fidelity
+| prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type |
+|---|---|---|---|---|---|
+```
+
+Use `fulfilled | partial | missing | not_verifiable` for `fidelity_status` and
+the shared Quality Contract for `gap_type`. `none` is allowed only on a fulfilled row.
+
+When an applicable gap needs routing detail, append:
+
+```text
+## Normalized Findings
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+```
+
+Use only contract-defined values. Do not reconstruct the type-to-route mapping locally.
+
 Completion status:
 
 - `fully_done`
@@ -122,3 +151,7 @@ This skill must not:
 - hide partial work
 - upgrade missing evidence into confidence
 - reinterpret the TP scope
+- create or silently repair product requirements
+- treat code existence as visible UX evidence
+- emit `none` as a normalized finding type
+- silently repair or reclassify an invalid finding

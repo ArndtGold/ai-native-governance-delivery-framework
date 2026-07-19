@@ -137,6 +137,7 @@ const expectedControlFiles = [
   "templates/artefacts/BROWNFIELD_REVIEW.md",
   "templates/artefacts/VERIFIED_CHANGE.md",
   "templates/artefacts/PRD.md",
+  "templates/artefacts/UX_INTENT_DEFINITION.md",
   "templates/artefacts/SD.md",
   "templates/artefacts/TP.md",
   "templates/artefacts/QA_REPORT.md",
@@ -515,6 +516,37 @@ if (pluginDefinition && isFile(pagesSkillsPath)) {
 
 if (isFile(pagesIndexPath) && !read(pagesIndexPath).includes("{skills.length} Core Workflow Skills")) {
   failures.push("Pages skill heading must derive its count from skills.length");
+}
+
+if (isFile(pagesSiteDataPath)) {
+  const pagesSiteData = read(pagesSiteDataPath);
+  for (const requiredWorkflowPhrase of [
+    "Conditional: UX Intent Definition",
+    "Post-UR routing records Greenfield or Brownfield and UI/UX impact",
+    "This fail-closed analysis is not a gate",
+    "The approved PRD is the sole product authority",
+    "Task Plan Review then verifies UX Intent Fidelity",
+    "QA cannot pass partial, missing or not-verifiable criteria",
+  ]) {
+    if (!pagesSiteData.includes(requiredWorkflowPhrase)) {
+      failures.push(`Pages workflow must preserve UX-intent lifecycle phrase: ${requiredWorkflowPhrase}`);
+    }
+  }
+}
+
+if (isFile(pagesIndexPath)) {
+  const pagesIndex = read(pagesIndexPath);
+  for (const requiredFidelityPhrase of [
+    "Approved PRD contract",
+    "requirements_gap",
+    "not_verifiable",
+    "Incomplete UX Intent Fidelity prevents a QA pass",
+    "{skills.map(skill => (",
+  ]) {
+    if (!pagesIndex.includes(requiredFidelityPhrase)) {
+      failures.push(`Pages fidelity evidence must preserve phrase: ${requiredFidelityPhrase}`);
+    }
+  }
 }
 
 if (codexPlugin && pluginDefinition) {
@@ -911,6 +943,8 @@ const contextGraphTemplatePath = join(controlRoot, "templates", "CONTEXT_GRAPH.m
 const sotRegistryTemplatePath = join(controlRoot, "templates", "SOT_REGISTRY.md");
 const qualityContractsPath = join(controlRoot, "templates", "AGENT_QUALITY_CONTRACTS.json");
 const brownfieldReviewTemplatePath = join(controlRoot, "templates", "artefacts", "BROWNFIELD_REVIEW.md");
+const uxIntentTemplatePath = join(controlRoot, "templates", "artefacts", "UX_INTENT_DEFINITION.md");
+const prdTemplatePath = join(controlRoot, "templates", "artefacts", "PRD.md");
 const verifiedChangeTemplatePath = join(controlRoot, "templates", "artefacts", "VERIFIED_CHANGE.md");
 const orTemplatePath = join(controlRoot, "templates", "artefacts", "OR.md");
 const backlogTemplatePath = join(controlRoot, "templates", "MASTER_BACKLOG.md");
@@ -980,8 +1014,81 @@ if (isFile(sotRegistryTemplatePath)) {
 
 if (isFile(brownfieldReviewTemplatePath)) {
   const brownfieldReviewTemplate = read(brownfieldReviewTemplatePath);
-  for (const required of ["Existing-System View", "Reuse And Parallel-Structure Risk", "Mode / Slice Decision", "transparency_note", "Next Permissible Step"]) {
+  for (const required of ["Existing-System View", "Reuse And Parallel-Structure Risk", "Mode / Slice Decision", "transparency_note", "Next Permissible Step", "delivery_context", "ui_ux_impact", "ui_ux_impact_reason", "ux_intent_definition_required", "ux_intent_definition_result"]) {
     if (!brownfieldReviewTemplate.includes(required)) failures.push(`BROWNFIELD_REVIEW.md missing control field: ${required}`);
+  }
+}
+
+if (isFile(uxIntentTemplatePath)) {
+  const template = read(uxIntentTemplatePath);
+  for (const required of ["Decision: ready | blocked | not_applicable", "effective_state_authority_by_mode", "primary_state_presentation_owner_by_mode", "recovery_paths", "Proposed PRD Acceptance Criteria", "non-authorizing analytical input"]) {
+    if (!template.includes(required)) failures.push(`UX_INTENT_DEFINITION.md missing contract field: ${required}`);
+  }
+  if (/^Gate:|^Gate approval:|Approval:/m.test(template)) failures.push("UX_INTENT_DEFINITION.md must not carry gate or approval authority");
+}
+
+if (isFile(prdTemplatePath)) {
+  const template = read(prdTemplatePath);
+  for (const required of ["UX Intent And Success", "Working Modes And Effective State", "effective_state_authority", "primary_state_presentation_owner", "Activation, Blockers, Recovery And Transitions", "visible retry", "stable `criterion_id`"]) {
+    if (!template.includes(required)) failures.push(`PRD.md missing mandatory UX requirement: ${required}`);
+  }
+}
+
+if (isFile(join(skillRoot, "ux-intent-definition", "SKILL.md"))) {
+  const skill = read(join(skillRoot, "ux-intent-definition", "SKILL.md"));
+  for (const required of ["ready | blocked | not_applicable", "effective_state_authority_by_mode", "primary_state_presentation_owner_by_mode", "A required blocked result prevents PRD readiness", "not a user gate"]) {
+    if (!skill.includes(required)) failures.push(`ux-intent-definition SKILL.md missing invariant: ${required}`);
+  }
+}
+
+const normalizedGapFieldOrder = "finding_id | gap_type | routing_target | gap_status | evidence | required_next_step";
+const normalizedGapMappingHeader = "| gap_type | meaning | routing_target |";
+const qualityContractPath = join(contractsDir, "quality.md");
+if (isFile(qualityContractPath)) {
+  const contract = read(qualityContractPath);
+  for (const required of [
+    "## Normalized Review Gaps",
+    normalizedGapFieldOrder,
+    "requirements_gap",
+    "design_gap",
+    "plan_gap",
+    "implementation_gap",
+    "evidence_gap",
+    "emergent_risk",
+    "UR | PRD | SD | TP | CD+Tests | evidence_obligation",
+    "gap_status` is exactly `open | resolved",
+    "It is not a seventh normalized finding type",
+  ]) {
+    if (!contract.includes(required)) failures.push(`quality contract missing normalized review-gap invariant: ${required}`);
+  }
+}
+
+for (const skillName of ["task-plan-review", "clean-implementation-review", "code-review", "qa-gate"]) {
+  const path = join(skillRoot, skillName, "SKILL.md");
+  if (!isFile(path)) continue;
+  const skill = read(path);
+  for (const required of ["§Normalized Review Gaps", "fail closed"]) {
+    if (!skill.includes(required)) failures.push(`${skillName} SKILL.md missing normalized review-gap consumer invariant: ${required}`);
+  }
+  if (skillName !== "qa-gate" && !skill.includes(normalizedGapFieldOrder)) {
+    failures.push(`${skillName} SKILL.md missing normalized finding field order`);
+  }
+  if (skill.includes(normalizedGapMappingHeader)) {
+    failures.push(`${skillName} SKILL.md must not duplicate the complete normalized gap mapping`);
+  }
+}
+
+if (isFile(join(skillRoot, "task-plan-review", "SKILL.md"))) {
+  const skill = read(join(skillRoot, "task-plan-review", "SKILL.md"));
+  for (const required of ["## UX Intent Fidelity", "prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type", "requirements_gap", "not_verifiable"]) {
+    if (!skill.includes(required)) failures.push(`task-plan-review SKILL.md missing UX fidelity invariant: ${required}`);
+  }
+}
+
+if (isFile(join(skillRoot, "qa-gate", "SKILL.md"))) {
+  const skill = read(join(skillRoot, "qa-gate", "SKILL.md"));
+  for (const required of ["UX Intent Fidelity", "visible evidence", "requirements_gap"]) {
+    if (!skill.includes(required)) failures.push(`qa-gate SKILL.md missing UX fidelity consumption: ${required}`);
   }
 }
 

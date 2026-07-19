@@ -114,7 +114,7 @@ it does not localize the CLI lifecycle card.
 - `codex-repo` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `claude` installs the AGDF plugin globally for Claude Code
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
-- `opencode` installs the AGDF npm plugin and nine native skills as a user-wide OpenCode surface
+- `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
 - `disable` writes a supported repository-local opt-out while retaining global capability and durable control state
@@ -161,7 +161,7 @@ npm create agdf@latest -- opencode-repo
 OpenCode loads the AGDF npm plugin and global native skills from global OpenCode config. Global adapters use the collision-safe `agdf-global-` prefix, including `agdf-global-gate-check`. `opencode-repo` adds the durable `.agdf/control/config.json` marker and control templates; it does not write `opencode.json`, `.opencode/AGDF.md`, copied contracts or copied skills.
 The global skills load on demand through OpenCode's native `skill` tool. Use `agdf-global-gate-check` first for new build/change intent or unclear approval. Existing local `.opencode/` assets remain supported as a compatibility path and are not deleted.
 The built-in `question` tool can present a gate choice, but `.agdf/control/` and exact post-response validation remain authoritative; technical permission and auto-mode outcomes never approve an AGDF gate. Explicit `permission.question: deny` remains unchanged and uses exact-text fallback.
-The global layer makes the nine native AGDF skills discoverable, but does not activate repository governance by itself. Global skills fail closed until the current repository has valid `.agdf/control/config.json`. Use `opencode-repo` to create the durable activation marker.
+The global layer makes the ten native AGDF skills discoverable, but does not activate repository governance by itself. Global skills fail closed until the current repository has valid `.agdf/control/config.json`. Use `opencode-repo` to create the durable activation marker.
 
 ## Control scaffold
 

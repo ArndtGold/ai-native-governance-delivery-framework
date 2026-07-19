@@ -23,6 +23,8 @@ Use these focused runtime-contract modules:
 - `../../meta/contracts/context-graph.md`
 
 Code-review-specific output must make actual findings, missing review scope, evidence strength, and the next required step visible.
+Applicable findings must use `../../meta/contracts/quality.md` §Normalized Review Gaps. Concrete diff
+defects remain Code Review findings; missing upstream constraints route to their authoritative owner.
 
 ## Rules
 1. Review the actual diff and impacted code, not intent alone.
@@ -33,6 +35,9 @@ Code-review-specific output must make actual findings, missing review scope, evi
 6. Brownfield owners and existing conventions are binding unless deviation is justified.
 7. Distinguish blocking defects from fixable review findings.
 8. CR does not grant QA pass.
+9. Do not turn Code Review into a static requirements checklist or invent missing upstream constraints.
+10. A genuinely new implementation risk uses `emergent_risk` with an explicit earliest-owner assessment.
+11. Missing, unknown or contradictory classifications fail closed and stay open.
 
 ## When To Use
 - after `CD+Tests`
@@ -81,6 +86,16 @@ Use this compact structure:
 - required_next_step:
 ```
 
+When findings exist, append:
+
+```text
+## Normalized Findings
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+```
+
+Use the shared Quality Contract for meanings and routes; do not copy its complete mapping here.
+
 ## Decision Guidance
 - `pass`: no meaningful review finding remains evident in reviewed scope.
 - `revise`: fixable correctness, regression, or maintainability issues remain.
@@ -100,3 +115,5 @@ This skill must not:
 - hide missing review scope
 - generate style-only findings
 - duplicate TP Review or QA as if they were the same step
+- invent a requirement, design decision or plan obligation to justify a finding
+- silently repair or reclassify an invalid normalized finding

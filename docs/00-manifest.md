@@ -20,18 +20,6 @@ weit ein Vorgang fortgeschritten ist.
 
 Sie beantworten aber nicht automatisch die Steuerungsfrage.
 
-Ein typischer Satz aus der Praxis lautet:
-
-> „Wir haben in Jira zu diesem Thema über 1000 Tickets, aber wir wissen nicht, was davon tatsächlich umgesetzt wurde."
-
-Das ist kein reines Tool-Problem. Es zeigt eine Lücke zwischen Aktivität und fachlicher Nachvollziehbarkeit.
-
-Ein Board zeigt, woran gearbeitet wird.
-Dieser Entwurf fragt, warum daran gearbeitet werden darf.
-
-Softwareentwicklung mit KI-Agenten braucht deshalb mehr als bessere Tools. Sie braucht einen Arbeitsrahmen, der Scope,
-Freigabe, Nachvollziehbarkeit, Qualitätsnachweise, Rollen, Verantwortung und Änderungen sichtbar macht.
-
 ## Eine Analogie
 
 ![Komplexitaet durch Struktur beherrschbar machen](../assets/komplexitaet-durch-struktur-beherrschbar-machen.png)
@@ -279,3 +267,12 @@ Wichtige Fragen sind:
 8. Welche Teile dieses Ansatzes sollten durch Tooling unterstützt werden?
 9. Was muss menschliches Review und menschliches Urteil bleiben?
 10. Wie kann dieser Ansatz Brownfield-Modernisierung unterstützen, ohne bestehende Lieferprozesse zu überfrachten?
+
+
+## Nächster Schritt
+
+Als nächstes wird der Überblick des Frameworks beschrieben.
+
+Das nächste Dokument ist daher:
+
+[01 - Überblick](01-framework-ueberblick.md)

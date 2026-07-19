@@ -14,6 +14,7 @@ const globalOpenCodeSkillOwnershipMarker = "<!-- AGDF-GLOBAL-SKILL: ";
 const globalOpenCodeInstructionsOwnershipMarker = "<!-- AGDF-GLOBAL-INSTRUCTIONS -->";
 const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->";
 const globalOpenCodeValidatorOwnershipMarker = "// AGDF-GLOBAL-LOCAL-VALIDATOR";
+const globalOpenCodeValidatorPackageOwner = "create-agdf";
 const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
 const npmCommand = testNpmCliPath ? process.execPath : process.platform === "win32" ? process.execPath : "npm";
 const npmPrefixArgs = testNpmCliPath ? [testNpmCliPath] : process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
@@ -74,16 +75,23 @@ export function installOpenCodeGlobalPlugin(configDir) {
   nextConfig.instructions = [...(nextConfig.instructions ?? [])];
   if (!nextConfig.instructions.includes("AGDF.md")) nextConfig.instructions.push("AGDF.md");
 
+  const canonicalPermissions = pluginDefinition.opencode.permissions;
   if (nextConfig.permission === undefined) {
-    nextConfig.permission = { question: "allow", skill: { "agdf-*": "allow" } };
+    nextConfig.permission = JSON.parse(JSON.stringify(canonicalPermissions));
   } else if (nextConfig.permission && typeof nextConfig.permission === "object" && !Array.isArray(nextConfig.permission)) {
     nextConfig.permission = { ...nextConfig.permission };
-    if (nextConfig.permission.question === undefined) nextConfig.permission.question = "allow";
+    for (const permissionName of ["question", "edit", "bash"]) {
+      if (nextConfig.permission[permissionName] === undefined) {
+        nextConfig.permission[permissionName] = canonicalPermissions[permissionName];
+      }
+    }
     if (nextConfig.permission.skill === undefined) {
-      nextConfig.permission.skill = { "agdf-*": "allow" };
+      nextConfig.permission.skill = { ...canonicalPermissions.skill };
     } else if (nextConfig.permission.skill && typeof nextConfig.permission.skill === "object" && !Array.isArray(nextConfig.permission.skill)) {
       nextConfig.permission.skill = { ...nextConfig.permission.skill };
-      if (nextConfig.permission.skill["agdf-*"] === undefined) nextConfig.permission.skill["agdf-*"] = "allow";
+      for (const [skillPattern, decision] of Object.entries(canonicalPermissions.skill)) {
+        if (nextConfig.permission.skill[skillPattern] === undefined) nextConfig.permission.skill[skillPattern] = decision;
+      }
     }
   }
 
@@ -122,7 +130,33 @@ function globalOpenCodeConfigPaths(configDir) {
     contracts: join(configDir, "contracts"),
     skills: join(configDir, "skills"),
     localValidator: join(configDir, "agdf", "bin", "agdf-local.js"),
+    localValidatorPackage: join(configDir, "agdf", "package.json"),
   };
+}
+
+function readGlobalOpenCodeValidatorPackage(path) {
+  if (!existsSync(path)) return null;
+  let existing;
+  try {
+    existing = JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
+  return existing;
+}
+
+function globalOpenCodeValidatorPackageIsValid(path) {
+  const manifest = readGlobalOpenCodeValidatorPackage(path);
+  return manifest?.type === "module"
+    && manifest?.agdf?.owner === globalOpenCodeValidatorPackageOwner
+    && manifest?.agdf?.surface === "opencode-global-validator";
+}
+
+function assertGlobalOpenCodeValidatorPackageWritable(path) {
+  if (!existsSync(path)) return;
+  if (!globalOpenCodeValidatorPackageIsValid(path)) {
+    throw new Error(`Refusing to overwrite unowned global OpenCode validator package: ${path}`);
+  }
 }
 
 function globalOpenCodeOwnershipMarkerIsValid(content, marker, placement) {
@@ -145,6 +179,7 @@ function assertGlobalOpenCodeSurfaceWritable(configDir) {
   assertGlobalOpenCodeFileWritable(paths.instructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   assertGlobalOpenCodeFileWritable(paths.runtimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
   assertGlobalOpenCodeFileWritable(paths.localValidator, globalOpenCodeValidatorOwnershipMarker, "first-line");
+  assertGlobalOpenCodeValidatorPackageWritable(paths.localValidatorPackage);
   for (const moduleName of contractModules) {
     assertGlobalOpenCodeFileWritable(
       join(paths.contracts, moduleName),
@@ -202,6 +237,7 @@ function toGlobalOpenCodeContent(content) {
 }
 
 export function installOpenCodeGlobalSurface(configDir) {
+  assertGlobalOpenCodeSurfaceWritable(configDir);
   const paths = globalOpenCodeConfigPaths(configDir);
   const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
   const generatedInstructions = readFileSync(join(generatedOpenCodeRoot, pluginDefinition.opencode.instructionsFileName), "utf8");
@@ -223,6 +259,16 @@ export function installOpenCodeGlobalSurface(configDir) {
   writeOwnedGlobalOpenCodeFile(paths.instructions, globalInstructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   writeOwnedGlobalOpenCodeFile(paths.runtimeContract, globalRuntimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
   writeOwnedGlobalOpenCodeFile(paths.localValidator, localValidator, globalOpenCodeValidatorOwnershipMarker, "first-line");
+  mkdirSync(dirname(paths.localValidatorPackage), { recursive: true });
+  writeFileSync(paths.localValidatorPackage, `${JSON.stringify({
+    name: "agdf-opencode-validator-runtime",
+    private: true,
+    type: "module",
+    agdf: {
+      owner: globalOpenCodeValidatorPackageOwner,
+      surface: "opencode-global-validator",
+    },
+  }, null, 2)}\n`, "utf8");
   for (const moduleName of contractModules) {
     const generatedModule = readFileSync(join(generatedOpenCodeRoot, "contracts", moduleName), "utf8");
     writeOwnedGlobalOpenCodeFile(
@@ -249,6 +295,7 @@ export function installOpenCodeGlobalSurface(configDir) {
     contracts: paths.contracts,
     skills: paths.skills,
     localValidator: paths.localValidator,
+    localValidatorPackage: paths.localValidatorPackage,
   };
 }
 
@@ -352,6 +399,7 @@ function evaluateGlobalOpenCodeSurface(configDir) {
       && contractCount === contractModules.length
       && skillCount === openCodeSkillNames.length
       && existsSync(paths.localValidator)
+      && globalOpenCodeValidatorPackageIsValid(paths.localValidatorPackage)
       && validatorResolution.envelope.machine_validation === "owned_version_matched",
   };
 }

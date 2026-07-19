@@ -492,7 +492,12 @@ The global install updates `~/.config/opencode/opencode.json` and generates the 
 {
   "plugin": ["create-agdf"],
   "instructions": ["AGDF.md"],
-  "permission": { "question": "allow", "skill": { "agdf-*": "allow" } }
+  "permission": {
+    "question": "allow",
+    "edit": "ask",
+    "bash": "ask",
+    "skill": { "agdf-*": "allow" }
+  }
 }
 ```
 
@@ -505,10 +510,10 @@ At runtime, global `AGDF.md` and `skills/agdf-global-*/` provide discovery and s
 Load `agdf-global-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
 
 ```bash
-npx --yes create-agdf@latest doctor --json
-npx --yes create-agdf@latest gate-check --status-card
-npx --yes create-agdf@latest gate-check --json
-npx --yes create-agdf@latest delivery-map --json
+node ~/.config/opencode/agdf/bin/agdf-local.js doctor --json
+node ~/.config/opencode/agdf/bin/agdf-local.js gate-check --status-card
+node ~/.config/opencode/agdf/bin/agdf-local.js gate-check --json
+node ~/.config/opencode/agdf/bin/agdf-local.js delivery-map --json
 ```
 
 ## GitHub Actions and rollout boundary

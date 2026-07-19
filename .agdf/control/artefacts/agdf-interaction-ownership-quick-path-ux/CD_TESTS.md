@@ -49,3 +49,19 @@ Based on: approved `TP.md`
 - result: pass
 - missing_evidence: direct authenticated host UAT only; it is not required for repository QA but remains required before host-behavior claims.
 - required_next_step: complete TP, clean implementation and code reviews, then run `qa-gate`.
+
+## QA Revision Evidence — 2026-07-19
+
+| Finding | Implementation | Regression evidence | Result |
+|---|---|---|---|
+| Duplicate release-or rule number | Canonical rule 16 corrected in `plugin/skills/release-or/SKILL.md`; sync regenerates all surfaces | Runtime Integrity requires a sequential Rules section; negative mutation restores the duplicate and fails | pass |
+| OpenCode module warning | Global surface owns `agdf/package.json` with `type: module`; preflight and status verify owner, surface and module type | Clean-install validator probe returns version-matched JSON with empty stderr; unowned package collision fails before mutation | pass |
+| Missing canonical permissions | Installer fills missing `question`, `edit`, `bash` and skill defaults from `agdf-plugin.definition.json` | Clean/partial config fixtures receive defaults; explicit question/edit/bash and unrelated skill decisions remain unchanged | pass |
+
+- aggregate_evidence: `npm --prefix create-agdf run smoke-test`; `npm --prefix agdf run smoke-test`;
+  source Runtime Integrity; 27/27 deterministic skill evals; byte-identical package builds; 218-file
+  package contents; `git diff --check`.
+- evidence_boundary: the real global OpenCode installation was inspected but not mutated; refreshed
+  installed-host behavior remains UAT evidence after a released package is installed.
+- result: pass
+- required_next_step: rerun TP, clean implementation and actual-diff reviews, then QA.

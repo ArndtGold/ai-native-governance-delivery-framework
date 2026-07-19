@@ -1,7 +1,9 @@
 # UAT Evidence: Release-Built Plugin Runtime Distribution
 
-Status: ready_for_decision
-Date: 2026-07-18
+Status: accepted
+Date: 2026-07-19
+Gate approval: `Approval: UAT` accepted on 2026-07-19 after selected-run, same-gate,
+revision and evidence-boundary revalidation.
 
 ## User-Visible Acceptance Scope
 
@@ -48,5 +50,5 @@ release path, not that those external executions have already occurred successfu
 
 ## Decision Requested
 
-Accept the delivered repository behavior and all disclosed external-evidence limits with exact
-`Approval: UAT`, or request revision/decline while naming the additional observation required.
+The delivered repository behavior and all disclosed external-evidence limits were accepted through
+exact UAT approval. This acceptance does not authorize publication, release or VCS actions.

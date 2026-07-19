@@ -12,6 +12,7 @@ const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefa
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
+const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 
 function copyPluginFixture() {
@@ -100,6 +101,14 @@ try {
     "utf8",
   );
   expectIntegrityFailure(/Runtime Contract must define visible fallback attempt outcomes/);
+
+  resetPluginFixture();
+  writeFileSync(
+    releaseOrPath,
+    readFileSync(releaseOrPath, "utf8").replace("16. After writing or updating", "15. After writing or updating"),
+    "utf8",
+  );
+  expectIntegrityFailure(/release-or Rules numbering must be sequential from 1/);
 
   resetPluginFixture();
   writeFileSync(

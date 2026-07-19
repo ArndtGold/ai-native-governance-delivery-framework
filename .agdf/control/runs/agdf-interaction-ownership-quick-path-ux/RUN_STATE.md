@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-interaction-ownership-quick-path-ux
 - lifecycle: active
-- revision: 16
-- revision_id: 8DFE3F1F-89C8-4CEB-865B-CA621B16847A
+- revision: 18
+- revision_id: 02ADCEDB-206F-412D-9048-97A50A1BA522
 - mode: structured_delivery
-- current_gate: QA
-- decision: revise
+- current_gate: UAT
+- decision: ready_for_decision
 - owner: agent
 
 ## Objective
@@ -21,11 +21,11 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 | Question | Answer |
 |---|---|
-| What is known? | Interaction ownership, Compact Delivery and OpenCode boundary work remains reviewed. The source-bundled Codex/Claude runtime architecture is superseded by approved run `automatic-version-asset-sync`. |
-| What is approved? | Expanded UR, PRD, SD and TP; exact `Approval: TP` was provided on 2026-07-18 after revision-12 revalidation. |
-| What is missing? | Revised runtime/package/installer implementation and QA evidence from the overlapping approved run. |
-| What is the next allowed action? | Complete `automatic-version-asset-sync`, then rerun affected reviews and QA. |
-| What is explicitly forbidden right now? | Requesting QA approval, UAT, release claims and automatic VCS actions while the architecture is superseded. |
+| What is known? | Interaction ownership, Compact Delivery and OpenCode boundary work remains reviewed. Release-built runtime distribution is completed, and the three reproduced OpenCode/release-or defects are fixed with direct regressions. |
+| What is approved? | Expanded UR, PRD, SD, TP and the passing QA report; exact `Approval: QA` was provided on 2026-07-19 after revision-17 revalidation. |
+| What is missing? | Exact `Approval: UAT`; a refreshed authenticated OpenCode installation remains unobserved and is disclosed as an acceptance limitation. |
+| What is the next allowed action? | Review the UAT evidence and decide whether to accept the delivered repository behavior with the disclosed live-host limitation. |
+| What is explicitly forbidden right now? | OR, release claims and automatic VCS actions before UAT approval. |
 
 ## Source And Scope State
 
@@ -41,12 +41,12 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | Run status | Value |
 |---|---|
 | Status | open |
-| Current gate | QA |
-| Allowed now | Preserve valid reviewed work and reconcile revised runtime/package/installer evidence |
-| Blocked by | Superseded Codex/Claude runtime distribution architecture |
-| Missing approval | none; QA revision is required first |
-| Next step | Complete overlapping run `automatic-version-asset-sync` and rerun QA |
-| Quality outlook | Keep valid interaction evidence while replacing only the superseded runtime distribution slice |
+| Current gate | UAT |
+| Allowed now | Review UAT evidence; approve, request revision or decline |
+| Blocked by | Missing exact UAT approval |
+| Missing approval | `Approval: UAT` |
+| Next step | User reviews the disclosed acceptance scope and decides UAT |
+| Quality outlook | Preserve explicit user configuration and require refreshed installed-host evidence in UAT |
 
 ## Approvals
 
@@ -56,8 +56,8 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | PRD | approved | `Approval: PRD` provided on 2026-07-18 after revision-8 revalidation |
 | SD | approved | `Approval: SD` provided on 2026-07-18 after revision-11 revalidation |
 | TP | approved | `Approval: TP` provided on 2026-07-18 after revision-12 revalidation |
-| QA | missing | QA decision revised before approval because runtime distribution architecture changed |
-| UAT | missing | Not allowed |
+| QA | approved | `Approval: QA` provided on 2026-07-19 after revision-17 revalidation |
+| UAT | missing | UAT evidence is ready; exact approval not yet provided |
 
 ## Artefacts
 
@@ -68,12 +68,13 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | PRD | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/PRD.md | approved | `Approval: PRD` provided on 2026-07-18 |
 | SD | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/SD.md | approved | `Approval: SD` provided on 2026-07-18 |
 | TP | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/TP.md | approved | `Approval: TP` provided on 2026-07-18 |
-| Brownfield Analysis | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/BROWNFIELD_ANALYSIS.md | done | Pass; existing owners, overlap boundary and clean runtime seam confirmed |
-| CD+Tests | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CD_TESTS.md | done | LIR-01 through LIR-12 and LIR-T01 through LIR-T12 pass |
-| TP Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/TASK_PLAN_REVIEW.md | done | 12/12 tasks fully done |
-| Clean Implementation Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CLEAN_IMPLEMENTATION_REVIEW.md | done | Pass; no parallel evaluator or unnecessary runtime payload |
-| CR | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CODE_REVIEW.md | done | Pass; no meaningful open finding |
-| QA | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/QA_REPORT.md | revise | Runtime/package/installer evidence superseded; no exact QA approval was provided |
+| Brownfield Analysis | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/BROWNFIELD_ANALYSIS.md | done | Pass; QA revision reuses existing installer, validator and integrity owners |
+| CD+Tests | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CD_TESTS.md | done | LIR-01 through LIR-12 plus three reproduced-finding regressions pass |
+| TP Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/TASK_PLAN_REVIEW.md | done | Pass; 12/12 tasks fully done after revision reconciliation |
+| Clean Implementation Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CLEAN_IMPLEMENTATION_REVIEW.md | done | Pass; one installer/validator owner and no root module-semantics change |
+| CR | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CODE_REVIEW.md | done | Pass after preflight and status-validation gaps were fixed |
+| QA | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/QA_REPORT.md | pass | Refreshed qa-gate pass accepted through exact `Approval: QA` on 2026-07-19 |
+| UAT | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/UAT_EVIDENCE.md | ready_for_decision | Repository behavior is evidenced; authenticated refreshed OpenCode installation remains a disclosed limitation |
 | OR |  | missing | Not allowed |
 
 ## Mode / Slice Decision
@@ -104,7 +105,9 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | TP Review | verifies | CD+Tests | 12/12 tasks fully done |
 | Clean Implementation Review | verifies | CD+Tests | Clean shared-owner solution passes |
 | Code Review | reviews | implementation diff | Pass; no meaningful finding remains |
-| QA Report | evaluates | reviews and tests | QA Gate decision pass; exact approval pending |
+| QA_REPORT | tests | TP | 12/12 task coverage, aggregate smoke, Runtime Integrity and 27/27 skill evaluations pass |
+| QA Report | approved_by | `Approval: QA` | Exact approval provided on 2026-07-19 after revision-17 revalidation |
+| UAT Evidence | evaluates | accepted QA scope | Repository behavior and explicit live-host evidence boundary are ready for user acceptance |
 
 ## Evidence
 
@@ -151,9 +154,9 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 ## Closeout
 
-- delivered: LIR-01 through LIR-12, focused/aggregate tests, 12/12 TP Review, Clean Review, Code Review, QA Gate pass and Context Graph reconciliation.
-- not_delivered: Exact QA approval, UAT, OR, release and VCS publication.
+- delivered: LIR-01 through LIR-12, completed release-built runtime dependency, three reproduced-finding fixes, focused/aggregate tests, refreshed 12/12 TP Review, Clean Review, Code Review, QA Gate pass and Context Graph reconciliation.
+- not_delivered: Exact UAT approval, authenticated refreshed OpenCode observation, OR, release and VCS publication.
 - verification_performed: deterministic generation/digest checks, offline local command execution, OpenCode wrapper fixtures, Runtime Integrity positive/negative, 27/27 skill evals, aggregate smoke and diff check.
 - unverified: direct authenticated Codex/Claude/OpenCode host observation and Windows-native execution.
-- next_allowed_action: Complete `automatic-version-asset-sync`, reconcile affected reviews and rerun QA.
-- quality_outlook: Preserve passed interaction/ceremony work and replace only the superseded source-runtime distribution evidence.
+- next_allowed_action: Request exact `Approval: UAT` for the prepared acceptance evidence.
+- quality_outlook: Preserve explicit host configuration and keep released-package installation as UAT evidence.

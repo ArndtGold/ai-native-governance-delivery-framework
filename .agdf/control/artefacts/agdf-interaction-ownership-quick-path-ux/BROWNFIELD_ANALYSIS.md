@@ -144,3 +144,20 @@ persisted enum, runtime package or host-specific policy owner stops implementati
   observation are not preconditions; they remain TP verification/UAT evidence.
 - required_next_step: proceed to `CD+Tests` for LIR-01 through LIR-12 and record evidence by task/test
   ID. No earlier gate reopens.
+
+## QA Revision Addendum — 2026-07-19
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- scope: Correct the upstream release-or rule number, remove OpenCode validator module warnings and
+  complete missing canonical OpenCode permissions under LIR-06, LIR-09, LIR-11 and LIR-12.
+- current_coverage: `partially_done` at entry; all three defects reproduced in canonical source or the
+  authenticated global OpenCode configuration.
+- reuse_strategy: extend `opencode.js`, existing smoke fixtures, Runtime Integrity and canonical sync;
+  do not create another installer or validation owner.
+- ownership_boundary: use an AGDF-owned `agdf/package.json` to scope ESM behavior instead of changing
+  the user-owned OpenCode config-root package semantics; preserve every explicit user permission and
+  leave unowned `opencode.jsonc` untouched.
+- parallel_structure_risk: none; the nested package is metadata for the existing owned validator
+  wrapper, not a new runtime or package dependency.
+- required_next_step: implement the bounded QA revision and refresh CD+Tests and mandatory reviews.

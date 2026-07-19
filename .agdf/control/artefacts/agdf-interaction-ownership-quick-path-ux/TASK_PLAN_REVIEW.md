@@ -30,3 +30,16 @@ Date: 2026-07-18
 - risks: direct authenticated host presentation remains unverified and must not be inferred from fixtures.
 - evidence_confidence: high for repository/runtime conformance; not applicable for live host UX.
 - required_next_step: perform clean implementation and code reviews.
+
+## QA Revision Review — 2026-07-19
+
+- decision: pass
+- fully_done: 12/12
+- revision_mapping: release-or numbering and propagation are LIR-11/LIR-12; canonical permission
+  completion and preservation are LIR-06/LIR-12; warning-free config-local validator execution and
+  owned metadata are LIR-09/LIR-12.
+- acceptance_coverage: AC-03, AC-04 and AC-05 remain done with stronger direct regression evidence.
+- out_of_scope_changes: none; unowned `opencode.jsonc` and the real global OpenCode installation were
+  not changed.
+- missing_evidence: refreshed live OpenCode installation remains UAT-only.
+- required_next_step: perform clean implementation and actual-diff Code Review.

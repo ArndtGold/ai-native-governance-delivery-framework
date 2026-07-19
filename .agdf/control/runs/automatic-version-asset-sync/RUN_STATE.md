@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: automatic-version-asset-sync
-- lifecycle: active
-- revision: 11
-- revision_id: DF754A76-D5BF-4231-B8DC-8A6ECB1BEA9C
+- lifecycle: completed
+- revision: 12
+- revision_id: 50FB0610-6EDA-407F-A51C-E1029B522E56
 - mode: structured_delivery
-- current_gate: UAT
-- decision: ready
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -22,22 +22,22 @@ install the complete exact-version plugin for Codex and Claude.
 | Question | Answer |
 |---|---|
 | What is known? | The publish action can generate runtime inside the package workspace, but current Codex/Claude adapters register the GitHub repository and load `./plugin/` directly. Removing source `plugin/runtime` therefore also requires built-plugin staging and installer migration. |
-| What is approved? | Exact UR, PRD, SD, TP and QA approvals; Brownfield Review selected structured delivery. |
-| What is missing? | Exact `Approval: UAT`. |
-| What is the next allowed action? | Review the UAT evidence and decide whether repository conformance with the disclosed live-evidence limits is acceptable. |
-| What is explicitly forbidden right now? | Live host mutation, publication, release and VCS delivery actions. |
+| What is approved? | Exact UR, PRD, SD, TP, QA and UAT approvals; OR passes with the disclosed external-evidence limits retained. |
+| What is missing? | No delivery artefact or approval; authenticated Claude migration, native Windows interruption and live publication remain unobserved evidence boundaries. |
+| What is the next allowed action? | Continue the already-approved QA revision in `agdf-interaction-ownership-quick-path-ux`; VCS delivery remains separately instructed. |
+| What is explicitly forbidden right now? | Automatic publication, release, commit, push or pull request. |
 
 ## Run Status Card
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UAT |
-| Allowed now | Review the UAT evidence; approve, request revision or decline |
-| Blocked by | Missing exact UAT approval |
-| Missing approval | `Approval: UAT` |
-| Next step | User reviews the disclosed evidence boundary and decides the UAT gate |
-| Quality outlook | Do not convert repository proof into claims of authenticated host, native Windows or live publish execution |
+| Status | pass |
+| Current gate | OR |
+| Allowed now | Report completed delivery state; prepare VCS handoff only when explicitly requested |
+| Blocked by | none |
+| Missing approval | none |
+| Next step | Continue the approved OpenCode QA revision in the separate interaction/quick-path run |
+| Quality outlook | Keep authenticated Claude migration, native Windows interruption and live publication claims explicitly unproven |
 
 ## Approvals
 
@@ -48,7 +48,7 @@ install the complete exact-version plugin for Codex and Claude.
 | SD | approved | `Approval: SD` provided on 2026-07-18 after revision-4 revalidation |
 | TP | approved | `Approval: TP` provided on 2026-07-18 after revision-5 revalidation |
 | QA | approved | `Approval: QA` provided on 2026-07-18 after revision-10 revalidation |
-| UAT | missing | UAT evidence is ready; exact approval not yet provided |
+| UAT | approved | `Approval: UAT` provided on 2026-07-19 after revision-11 revalidation |
 
 ## Artefacts
 
@@ -66,7 +66,8 @@ install the complete exact-version plugin for Codex and Claude.
 | Clean Implementation Review | .agdf/control/artefacts/automatic-version-asset-sync/CLEAN_IMPLEMENTATION_REVIEW.md | pass | One build owner and one staging owner; bounded compatibility paths only |
 | CR | .agdf/control/artefacts/automatic-version-asset-sync/CODE_REVIEW.md | done | Pass after review-found recovery and integrity gaps were fixed and retested |
 | QA | .agdf/control/artefacts/automatic-version-asset-sync/QA_REPORT.md | pass | qa-gate pass and exact approval recorded |
-| UAT | .agdf/control/artefacts/automatic-version-asset-sync/UAT_EVIDENCE.md | ready | Repository conformance and explicit live-evidence limits are ready for decision |
+| UAT | .agdf/control/artefacts/automatic-version-asset-sync/UAT_EVIDENCE.md | approved | Repository conformance and explicit live-evidence limits accepted |
+| OR | .agdf/control/artefacts/automatic-version-asset-sync/OR.md | pass | Full closeout with external evidence boundaries retained |
 
 ## Mode/Slice Decision
 
@@ -91,7 +92,9 @@ install the complete exact-version plugin for Codex and Claude.
 | Brownfield Analysis | verifies | TP | pass | Existing owners, overlap, compatibility and regression seams confirmed |
 | QA_REPORT | tests | TP | pass | 13/13 task coverage, Brownfield fit, clean review, code review and aggregate evidence pass |
 | QA_REPORT | approved_by | `Approval: QA` | approved | Exact approval after revision-10 revalidation |
-| UAT_EVIDENCE | accepts | QA_REPORT | ready | Repository conformance and explicit live-evidence limits prepared for user decision |
+| UAT_EVIDENCE | accepts | QA_REPORT | approved | Repository conformance and explicit live-evidence limits accepted after revision-11 revalidation |
+| UAT_EVIDENCE | approved_by | `Approval: UAT` | approved | Exact approval after revision-11 revalidation |
+| OR | closes | UAT_EVIDENCE | pass | Full closeout retains external evidence boundaries and forbids automatic VCS/release actions |
 
 ## Evidence
 
@@ -119,7 +122,7 @@ install the complete exact-version plugin for Codex and Claude.
 
 ## Closeout
 
-- delivered: approved UR/PRD/SD/TP/QA, Brownfield Review/Analysis, CD+Tests, mandatory reviews and UAT evidence.
-- not_delivered: exact UAT approval, authenticated live host migration/restart, native Windows interruption, live publication, release and VCS actions.
-- next_allowed_action: Request exact `Approval: UAT` for the prepared evidence boundary.
+- delivered: approved UR/PRD/SD/TP/QA/UAT, Brownfield Review/Analysis, CD+Tests, mandatory reviews and full OR.
+- not_delivered: authenticated Claude migration/restart, native Windows interruption, live publication, release and VCS actions.
+- next_allowed_action: Continue the approved QA revision in `agdf-interaction-ownership-quick-path-ux`; VCS delivery remains separately instructed.
 - quality_outlook: Keep authenticated host, native Windows and live publication claims explicitly unproven unless separately observed.

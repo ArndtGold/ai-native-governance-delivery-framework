@@ -1,27 +1,29 @@
 # QA Report: Lean Interaction Ownership and Local Validation
 
-Status: revise
+Status: pass
 Gate: QA
-Date: 2026-07-18
+Date: 2026-07-19
 Decision owner: `qa-gate`
+Gate approval: exact `Approval: QA` accepted on 2026-07-19 after selected-run, same-gate,
+revision and durable-report revalidation.
 
 ## Quality Readiness
 
 | Dimension | Result | Decisive evidence |
 |---|---|---|
 | Plan coverage | pass | 12/12 TP tasks `fully_done` |
-| Solution integrity | revise | the source-runtime packaging assumption is superseded by the approved release-built distribution UR |
-| Code quality | pass | actual-diff review has no meaningful open finding |
-| QA decision | revise | runtime/package/installer evidence must be regenerated under `automatic-version-asset-sync` |
+| Solution integrity | pass | release-built runtime distribution is UAT-approved and the QA revision preserves one installer/validator owner |
+| Code quality | pass | actual-diff review has no remaining finding after preflight/status corrections |
+| QA decision | pass | all superseded evidence is replaced and the three reproduced OpenCode findings have direct regressions |
 
 ## QA Gate
 
-- decision: revise
-- evidence: approved TP; passing Brownfield Analysis; `CD_TESTS.md`; 12/12 TP Review; clean implementation pass; Code Review pass; aggregate create-agdf smoke; Runtime Integrity; 27/27 deterministic skill evals; local full-plugin and OpenCode wrapper execution.
-- missing_evidence: release-built package layout, durable Codex/Claude marketplace migration and offline installed-runtime evidence required by the approved follow-up UR; direct authenticated host UAT remains later evidence.
-- risks: host schemas can drift and Windows-native execution was not observed; exact-text fallback, path-safe argument vectors, deterministic fixtures and fail-closed availability mitigate repository risk.
-- required_next_step: complete `automatic-version-asset-sync` through implementation and reviews, then rerun the affected runtime/package/installer QA evidence before requesting QA approval.
-- impact_codes: `AGDF_QA_SUPERSEDED_ARCHITECTURE`
+- decision: pass
+- evidence: approved TP; refreshed Brownfield Analysis; 12/12 TP Review; clean implementation and Code Review pass; UAT-approved release-built distribution; full `create-agdf` and `@agdf/cli` smoke; Runtime Integrity positive/negative; 27/27 deterministic skill evals; byte-identical builds; 218-file package; warning-free OpenCode wrapper fixture; missing/default/explicit permission fixtures; ownership collision fixture; `git diff --check`.
+- missing_evidence: installation of a future released package into the authenticated OpenCode host and native Windows execution remain UAT evidence, not repository QA proof.
+- risks: OpenCode config schema and Node module resolution may evolve; canonical metadata, status validation, ownership preflight and empty-stderr regression evidence fail closed around current behavior.
+- required_next_step: QA approval is accepted; review the prepared UAT evidence for the refreshed global OpenCode installation scope.
+- impact_codes: `AGDF_QA_OPENCODE_INSTALLER_REVISION_PASS`; `AGDF_QA_SUPERSEDED_ARCHITECTURE_RESOLVED`
 
 ## Revision Addendum — 2026-07-18
 

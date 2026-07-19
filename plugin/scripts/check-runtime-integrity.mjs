@@ -864,6 +864,14 @@ for (const skill of expectedSkills) {
       failures.push("gate-check must classify CLI reports as validators, not the primary workflow");
     }
   }
+  if (skill === "release-or") {
+    const rulesSection = skillMd.match(/## Rules\r?\n([\s\S]*?)(?=\r?\n## )/)?.[1] ?? "";
+    const ruleNumbers = [...rulesSection.matchAll(/^(\d+)\. /gm)].map((match) => Number(match[1]));
+    const expectedRuleNumbers = ruleNumbers.map((_, index) => index + 1);
+    if (ruleNumbers.length === 0 || JSON.stringify(ruleNumbers) !== JSON.stringify(expectedRuleNumbers)) {
+      failures.push(`release-or Rules numbering must be sequential from 1, got ${ruleNumbers.join(", ") || "none"}`);
+    }
+  }
 
   for (const [pathLabel, content] of [
     [`${skill}/SKILL.md`, skillMd],

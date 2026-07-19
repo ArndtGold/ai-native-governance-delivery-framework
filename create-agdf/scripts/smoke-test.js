@@ -1,5 +1,5 @@
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { delimiter, join } from "node:path";
+import { delimiter, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -409,10 +409,16 @@ try {
     throw new Error("opencode must install the exact registry package without a local package or npx-cache source.");
   }
   const installedManifest = JSON.parse(readFileSync(join(openCodeConfigTempDir, "package.json"), "utf8"));
+  const validatorPackageManifest = JSON.parse(readFileSync(join(openCodeConfigTempDir, "agdf", "package.json"), "utf8"));
   const installedLock = readFileSync(join(openCodeConfigTempDir, "package-lock.json"), "utf8");
   if (installedManifest.dependencies?.[pluginDefinition.opencode.npmPackage] !== pluginDefinition.version
     || installedLock.includes("file:") || installedLock.includes(".npm/_npx")) {
     throw new Error("opencode clean install must persist an exact registry dependency without a file source.");
+  }
+  if (validatorPackageManifest.type !== "module"
+    || validatorPackageManifest.agdf?.owner !== "create-agdf"
+    || validatorPackageManifest.agdf?.surface !== "opencode-global-validator") {
+    throw new Error("opencode must scope ESM semantics to its owned local-validator package.");
   }
   if (!status.global_native_surface?.complete
     || status.global_native_surface.skill_count !== openCodeSkillNames.length
@@ -423,8 +429,17 @@ try {
   }
   if (!openCodeGlobalConfig.instructions?.includes("AGDF.md")
     || openCodeGlobalConfig.permission?.question !== "allow"
+    || openCodeGlobalConfig.permission?.edit !== "ask"
+    || openCodeGlobalConfig.permission?.bash !== "ask"
     || openCodeGlobalConfig.permission?.skill?.["agdf-*"] !== "allow") {
-    throw new Error("opencode must add the owned global AGDF instructions, native question permission and explicit skill permission.");
+    throw new Error("opencode must add the owned global AGDF instructions and canonical missing permissions.");
+  }
+  const validatorProbe = spawnSync(process.execPath, [join(openCodeConfigTempDir, "agdf", "bin", "agdf-local.js"), "--resolve-only", "--json"], {
+    encoding: "utf8",
+  });
+  if (validatorProbe.status !== 0 || validatorProbe.stderr !== ""
+    || JSON.parse(validatorProbe.stdout).machine_validation !== "owned_version_matched") {
+    throw new Error(`opencode local validator must resolve without stderr warnings: ${validatorProbe.stderr}`);
   }
   if (!existsSync(join(openCodeConfigTempDir, "AGDF.md"))
     || !existsSync(join(openCodeConfigTempDir, "agdf-runtime-contract.md"))) {
@@ -503,7 +518,7 @@ try {
     "$schema": "https://opencode.ai/config.json",
     plugin: ["user-plugin"],
     instructions: ["user.md"],
-    permission: { edit: "ask", bash: "ask", skill: { "user-*": "deny" } },
+    permission: { edit: "allow", bash: "deny", skill: { "user-*": "deny" } },
   }, null, 2), "utf8");
   writeFileSync(join(tempDir, "package.json"), JSON.stringify({
     name: "preservation-fixture",
@@ -527,7 +542,7 @@ try {
   runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
   const preservedConfig = JSON.parse(readFileSync(join(tempDir, "opencode.json"), "utf8"));
   if (!preservedConfig.plugin.includes("user-plugin") || !preservedConfig.instructions.includes("user.md")
-    || preservedConfig.permission.edit !== "ask" || preservedConfig.permission.bash !== "ask"
+    || preservedConfig.permission.edit !== "allow" || preservedConfig.permission.bash !== "deny"
     || preservedConfig.permission.question !== "allow"
     || preservedConfig.permission.skill["user-*"] !== "deny" || !preservedConfig.permission.skill["agdf-*"]) {
     throw new Error("opencode global install must preserve unrelated config and add only owned entries.");
@@ -569,6 +584,9 @@ for (const explicitQuestionDecision of ["allow", "deny"]) {
     if (config.permission.question !== explicitQuestionDecision) {
       throw new Error(`opencode global install must preserve explicit question ${explicitQuestionDecision}.`);
     }
+    if (config.permission.edit !== "ask" || config.permission.bash !== "ask") {
+      throw new Error("opencode global install must fill missing canonical edit/bash permissions.");
+    }
     if (config.permission.skill?.["agdf-*"] !== "allow") {
       throw new Error("opencode global install must add its owned skill permission beside an explicit question decision.");
     }
@@ -592,6 +610,25 @@ for (const explicitQuestionDecision of ["allow", "deny"]) {
   }
   if (!rejected || readFileSync(configPath, "utf8") !== originalConfig || existsSync(join(tempDir, "node_modules"))) {
     throw new Error("opencode global install must preflight collisions before mutating config or installing the package.");
+  }
+  rmSync(tempDir, { recursive: true, force: true });
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-validator-package-collision-"));
+  const validatorPackagePath = join(tempDir, "agdf", "package.json");
+  const originalConfig = JSON.stringify({ plugin: ["user-plugin"] }, null, 2) + "\n";
+  mkdirSync(dirname(validatorPackagePath), { recursive: true });
+  writeFileSync(join(tempDir, "opencode.json"), originalConfig, "utf8");
+  writeFileSync(validatorPackagePath, JSON.stringify({ name: "user-owned-package", type: "commonjs" }, null, 2) + "\n", "utf8");
+  let rejected = false;
+  try {
+    runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  } catch (error) {
+    rejected = String(error.stderr || error.stdout || error.message).includes("Refusing to overwrite unowned global OpenCode validator package");
+  }
+  if (!rejected || readFileSync(join(tempDir, "opencode.json"), "utf8") !== originalConfig || existsSync(join(tempDir, "node_modules"))) {
+    throw new Error("opencode global install must preflight an unowned validator package before config or package mutation.");
   }
   rmSync(tempDir, { recursive: true, force: true });
 }

@@ -376,6 +376,36 @@ if (!gateCheckSkill.includes("`status_presentation.markdown` verbatim")) {
 if (gateCheckSkill.includes("| Run status | Value |")) {
   failures.push("gate-check must not maintain a second operational status-card template");
 }
+if (!gateCheckSkill.includes("## Repository Activation Diagnosis")) {
+  failures.push("gate-check must own the repository activation diagnosis section");
+}
+if (!gateCheckSkill.includes("`doctor --json` on the resolved surface-local validator is the sole canonical, code-owned, tool-shell-safe activation probe")) {
+  failures.push("gate-check must name doctor --json as the sole canonical activation probe");
+}
+if (!gateCheckSkill.includes("must not be used as the only proof of activation")) {
+  failures.push("gate-check must forbid AGDF_* env vars as sole activation proof");
+}
+if (!gateCheckSkill.includes("must not be used as proof of presence or absence of `.agdf/control/config.json`")) {
+  failures.push("gate-check must forbid relative glob/grep as activation proof");
+}
+for (const antiPattern of [
+  "AGDF_CONTROL_DIR` to confirm",
+  "AGDF_CONTROL_DIR` to verify",
+  "AGDF_CONTROL_DIR` to check",
+  "relative glob to confirm",
+  "relative glob to verify",
+]) {
+  if (gateCheckSkill.includes(antiPattern)) failures.push(`gate-check must not instruct agents to use anti-pattern diagnosis: ${antiPattern}`);
+}
+if (!runtimeContract.includes("### Repository Activation Diagnosis Boundary")) {
+  failures.push("control-scaffold contract must own the repository activation diagnosis boundary");
+}
+if (!runtimeContract.includes("not an agent-facing diagnosis proof")) {
+  failures.push("control-scaffold contract must classify AGDF_* env vars as non-agent-facing diagnosis");
+}
+if (!runtimeContract.includes("must not be used as proof of presence or absence of `.agdf/control/config.json`")) {
+  failures.push("control-scaffold contract must forbid relative glob/grep as activation proof");
+}
 if (!runtimeContract.includes("### Deterministic Operational Presentation")
   || !/must\s+not reconstruct a table/.test(runtimeContract)) {
   failures.push("interaction contract must own deterministic operational status presentation");

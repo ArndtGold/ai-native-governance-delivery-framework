@@ -1,8 +1,3 @@
-<!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->
-<!-- canonical_source: .agdf/control/runs/activation-diagnosis-determinism/RUN_STATE.md -->
-<!-- run_id: activation-diagnosis-determinism -->
-<!-- revision_id: 3dfc2775-e8ae-4f04-936e-957bc60660d6 -->
-<!-- sha256: 4b03751b624cd68331388bc8f7c1ae81590669b5c6fd4b364ae423099ffa048f -->
 # AGDF Run State
 
 ## Run Meta

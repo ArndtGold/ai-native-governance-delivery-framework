@@ -89,6 +89,10 @@ Helper commands are deterministic proof and automation interfaces, not the norma
 Machine-readable outputs should stay agent-friendly: stable decisions, blocking gate or current gate, missing approval, allowed outputs, forbidden outputs, next step, evidence and findings.
 They make the repository state checkable, but they do not replace the native skill workflow or the durable control artefacts.
 
+### Repository Activation Diagnosis Boundary
+
+`doctor --json` on the resolved surface-local validator is the sole canonical, code-owned, tool-shell-safe activation probe. Plugin `AGDF_*` environment variables set by the OpenCode `shell.env` hook are an internal plugin status channel consumed by `opencode-status`, not an agent-facing diagnosis proof; host shell-env propagation to spawned tool shells is not guaranteed and is OpenCode-owned. A relative glob or `grep` for `.agdf/control/config.json` must not be used as proof of presence or absence of `.agdf/control/config.json`; an absolute `read` or the canonical CLI probe is required.
+
 ## Delivery Map
 
 `delivery-map --json` is the machine-readable delivery picture for the selected canonical control state.

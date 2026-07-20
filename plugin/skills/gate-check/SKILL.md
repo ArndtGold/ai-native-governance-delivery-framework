@@ -69,6 +69,12 @@ for a native-capable adapter.
 
 The CLI reports are validators and JSON evidence, not the primary user experience, not a required ritual for normal work and not a second rule system. If a report says `blocked`, do not continue with later-gate artefacts until the reported blocker is resolved.
 
+## Repository Activation Diagnosis
+
+`doctor --json` on the resolved surface-local validator is the sole canonical, code-owned, tool-shell-safe activation probe. Determine whether a repository is AGDF-active through `doctor --json` (or `gate-check --json` for a selected run), not through plugin `AGDF_*` environment variables, not through a relative glob, not through a relative `grep`, and not through a relative `read` of `.agdf/control/config.json`.
+
+Plugin `AGDF_*` environment variables set by the OpenCode `shell.env` hook are convenience only and must not be used as the only proof of activation; host shell-env propagation to spawned tool shells is not guaranteed and is OpenCode-owned, not AGDF-owned. A relative glob or `grep` for `.agdf/control/config.json` must not be used as proof of presence or absence of `.agdf/control/config.json`; an absolute `read` or the canonical CLI probe is required.
+
 ## Native Interaction Path
 
 `../../meta/contracts/interaction.md` is the complete normative owner for interaction kinds, locale,

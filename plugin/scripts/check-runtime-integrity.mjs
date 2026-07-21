@@ -400,6 +400,28 @@ for (const antiPattern of [
 if (!runtimeContract.includes("### Repository Activation Diagnosis Boundary")) {
   failures.push("control-scaffold contract must own the repository activation diagnosis boundary");
 }
+if (!runtimeContract.includes("### Scope Classification Card")) {
+  failures.push("interaction contract must own the scope classification card section");
+}
+if (!gateCheckSkill.includes("scope_classification.markdown` verbatim")) {
+  failures.push("gate-check must consume the canonical scope classification projection verbatim");
+}
+if (gateCheckSkill.includes("## Scope Classification Card Template") || gateCheckSkill.includes("| Classification | Mode | Boundary |")) {
+  failures.push("gate-check must not maintain a skill-local scope classification card template");
+}
+const interactionPresentationPath = join(pluginRoot, "..", "create-agdf", "lib", "interaction-presentation.js");
+if (sourceMode && isFile(interactionPresentationPath)) {
+  const interactionPresentation = read(interactionPresentationPath);
+  if (!interactionPresentation.includes("export function renderScopeClassificationCard")) {
+    failures.push("interaction-presentation.js must export renderScopeClassificationCard");
+  }
+}
+for (const locale of ["en", "de"]) {
+  const pack = interactionLocales?.locales?.[locale];
+  if (!pack?.scopeClassification?.title || !pack?.scopeClassification?.mode?.quick_task || !pack?.scopeClassification?.challenge) {
+    failures.push(`Interaction locale ${locale} missing scopeClassification section keys`);
+  }
+}
 if (!runtimeContract.includes("not an agent-facing diagnosis proof")) {
   failures.push("control-scaffold contract must classify AGDF_* env vars as non-agent-facing diagnosis");
 }

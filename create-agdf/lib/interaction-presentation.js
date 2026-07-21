@@ -349,6 +349,69 @@ export function renderOperationalStatusCard(statusCard, {
   });
 }
 
+export function renderScopeClassificationCard(classification, {
+  registry,
+  requestedLocale,
+} = {}) {
+  if (!plainObject(classification)) return null;
+  const outcome = String(classification.outcome ?? "").trim();
+  const mode = String(classification.mode ?? "").trim();
+  const trivialBoundary = String(classification.trivial_boundary ?? "").trim();
+  const urTriggerEvaluation = String(classification.ur_trigger_evaluation ?? "").trim();
+  const allowedSummary = String(classification.allowed_summary ?? "").trim();
+  const forbiddenSummary = String(classification.forbidden_summary ?? "").trim();
+  const escalationTriggers = Array.isArray(classification.escalation_triggers)
+    ? classification.escalation_triggers.map((item) => String(item ?? "").trim()).filter(Boolean)
+    : [];
+  const challengePath = String(classification.challenge_path ?? "").trim();
+
+  if (outcome !== "ungated") return null;
+  if (!["quick_task", "verified_change"].includes(mode)) return null;
+  if (!["inside", "outside"].includes(trivialBoundary)) return null;
+  if (!urTriggerEvaluation || !allowedSummary || !forbiddenSummary || !challengePath) return null;
+  if (escalationTriggers.length === 0) return null;
+
+  let locale;
+  try {
+    locale = resolvePresentationLocale(registry, requestedLocale);
+  } catch {
+    return null;
+  }
+  if (!locale) return null;
+
+  const pack = localePack(registry, locale);
+  const labels = pack?.scopeClassification;
+  if (!plainObject(labels)) return null;
+
+  const modeLabel = labels.mode?.[mode] ?? mode;
+  const boundaryLabel = labels.boundary?.[trivialBoundary] ?? trivialBoundary;
+
+  const rows = [
+    [labels.classification, `${modeLabel} · ${boundaryLabel}`],
+    [labels.grounds, urTriggerEvaluation],
+    [labels.allowed, allowedSummary],
+    [labels.forbidden, forbiddenSummary],
+    [labels.escalation, escalationTriggers.join("; ")],
+    [labels.challenge, challengePath],
+  ];
+
+  const markdown = [
+    `## ${labels.title ?? "AGDF scope classification"}`,
+    "",
+    `| ${labels.field ?? "Field"} | ${labels.value ?? "Value"} |`,
+    "|---|---|",
+    ...rows.map(([label, value]) => `| ${markdownCell(label)} | ${markdownCell(value)} |`),
+  ].join("\n");
+
+  return Object.freeze({
+    schema_version: "1",
+    semantic_block: "scope_classification_card",
+    presentation_language: locale,
+    markdown,
+    authorizes: false,
+  });
+}
+
 export function gateOptions(registry, requestedLocale, gate, { includeCancel = false } = {}) {
   const pack = localePack(registry, requestedLocale);
   const options = [

@@ -169,6 +169,15 @@ If a status is not explicit, do not assume it is satisfied.
 11. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means draft the minimal UR in the response, then request `Approval: UR`. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
 12. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
 
+### Scope Classification Output
+When this skill classifies a fresh scope as ungated (Quick Task or Trivial Change Boundary), consume
+`scope_classification.markdown` verbatim from `renderScopeClassificationCard` in
+`../../meta/contracts/interaction.md` § Scope Classification Card. The card is a compact, localized,
+non-authorizing projection: mode, boundary, UR-trigger evaluation, one allowed line, one forbidden
+line, escalation triggers and the challenge path. Do not maintain or render a skill-local
+classification card template. If the renderer returns `null`, fail closed to the existing ceremony
+and do not model-reconstruct Markdown.
+
 ## Output
 Keep the result short and operational. For a status-only response, consume the Runtime Contract's
 code-owned `status_presentation.markdown` verbatim. It is the compact localized operational Run

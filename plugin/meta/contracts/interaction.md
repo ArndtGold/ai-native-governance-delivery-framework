@@ -338,6 +338,25 @@ repeat the sentence later in the same request. Existing-run status inspection re
 uses the existing status projection; this branch must not create a second status-card or narration
 owner.
 
+### Scope Classification Card
+
+When `gate-check` classifies a fresh scope as ungated (Quick Task or Trivial Change Boundary),
+the agent consumes the canonical `scope_classification.markdown` verbatim from
+`renderScopeClassificationCard` in `create-agdf/lib/interaction-presentation.js`. The card is a
+compact, localized, non-authorizing projection of the classification: mode, boundary result,
+UR-trigger evaluation, one currently-allowed line, one remains-forbidden line, escalation triggers
+and the challenge path. It carries `authorizes: false` and never renders approval controls.
+
+The card renders exactly once per fresh-scope ungated classification, before work proceeds. It must
+not appear for gated scopes, internal steps of a selected run, or as a substitute for the two-card
+approval envelope. Read-only requests keep the single read-only orientation sentence above; the
+scope classification card and the read-only orientation are mutually exclusive for the same request.
+
+If the classification input is missing, unknown, contradictory or the locale section is incomplete,
+the renderer returns `null` and the agent fails closed to the existing ceremony — never
+model-reconstructed Markdown. The card introduces no gate, no approval value, no persistence and no
+second presentation owner. `gate-check` must not maintain a skill-local card template.
+
 Exact textual approvals remain canonical and fully supported on every surface. If native capability availability or safety is unknown, use the textual fallback. Host permission, plan approval, native question presentation, timeout/default behavior, hook output and agent messages never carry AGDF gate authority by themselves.
 
 ### Interaction Locale Contract

@@ -22,6 +22,7 @@ import {
   reconcileRunScope,
   renderApprovalOrientationSnapshot,
   renderOperationalStatusCard,
+  renderScopeClassificationCard,
   normalizeReconciliationText,
   validateLocaleRegistry,
   validateApprovalOrientationSnapshot,
@@ -454,3 +455,44 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
 }
 
 console.log("gate rationale and why tests passed");
+
+const validClassification = {
+  outcome: "ungated",
+  mode: "quick_task",
+  trivial_boundary: "inside",
+  ur_trigger_evaluation: "No new product semantics, functional change or user-visible behaviour.",
+  allowed_summary: "Draft the minimal artefact and proceed with the quick task.",
+  forbidden_summary: "PRD, SD, TP, implementation of gated scope, QA, release.",
+  escalation_triggers: ["New product semantics discovered", "Boundary proves ambiguous"],
+  challenge_path: "Override toward the UR gate by requesting a durable UR.",
+};
+
+const scopeCardEn = renderScopeClassificationCard(validClassification, { registry, requestedLocale: "en" });
+assert.ok(scopeCardEn, "valid classification returns a card");
+assert.equal(scopeCardEn.semantic_block, "scope_classification_card");
+assert.equal(scopeCardEn.authorizes, false);
+assert.ok(scopeCardEn.markdown.includes("Quick Task"), "card shows mode label");
+assert.ok(scopeCardEn.markdown.includes("Challenge path"), "card shows challenge path field (SCC-5)");
+assert.ok(!scopeCardEn.markdown.includes("Approval:"), "card must not contain approval vocabulary (SCC-2)");
+assert.ok(!scopeCardEn.markdown.includes("approve"), "card must not contain approval-option vocabulary (SCC-2)");
+
+const scopeCardEnRepeat = renderScopeClassificationCard(validClassification, { registry, requestedLocale: "en" });
+assert.equal(scopeCardEnRepeat.markdown, scopeCardEn.markdown, "byte-identical repeat render (SCC-1)");
+
+const scopeCardDe = renderScopeClassificationCard(validClassification, { registry, requestedLocale: "de" });
+assert.ok(scopeCardDe, "valid classification returns a de card");
+assert.ok(scopeCardDe.markdown.includes("Widerspruchspfad"), "de card shows localized challenge path");
+assert.equal(scopeCardDe.presentation_language, "de");
+
+const incompleteRegistry = JSON.parse(JSON.stringify(registry));
+delete incompleteRegistry.locales.de.scopeClassification;
+const scopeCardFallback = renderScopeClassificationCard(validClassification, { registry: incompleteRegistry, requestedLocale: "de" });
+assert.equal(scopeCardFallback, null, "incomplete de pack fails closed to null (SCC-6)");
+
+assert.equal(renderScopeClassificationCard(null, { registry, requestedLocale: "en" }), null, "null input returns null");
+assert.equal(renderScopeClassificationCard({ outcome: "gated" }, { registry, requestedLocale: "en" }), null, "gated outcome returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, mode: "unknown" }, { registry, requestedLocale: "en" }), null, "unknown mode returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: [] }, { registry, requestedLocale: "en" }), null, "empty escalation triggers returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, challenge_path: "" }, { registry, requestedLocale: "en" }), null, "missing challenge path returns null");
+
+console.log("scope classification card tests passed");

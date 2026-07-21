@@ -27,9 +27,12 @@
     "qa-ready":{"description":"Implementation and mandatory reviews ready for QA decision","files":[".agdf/control/artefacts/example/TP_REVIEW.md",".agdf/control/artefacts/example/CODE_REVIEW.md"]},
     "single-path":{"description":"Routine delivery state with one obvious legal next action","files":[".agdf/control/runs/example/RUN_STATE.md"]},
     "uat-approved":{"description":"QA and UAT approved run ready for OR","files":[".agdf/control/artefacts/example/QA_REPORT.md",".agdf/control/artefacts/example/UAT_REPORT.md"]},
-    "unevidenced-mode-slice":{"description":"Brownfield Review done with a Mode/Slice value but no scope reason or evidence","files":[".agdf/control/runs/example/RUN_STATE.md"]}
+    "unevidenced-mode-slice":{"description":"Brownfield Review done with a Mode/Slice value but no scope reason or evidence","files":[".agdf/control/runs/example/RUN_STATE.md"]},
+    "fresh-ungated-trivial":{"description":"Fresh scope classified as ungated Quick Task inside the trivial change boundary","files":["src/core.js"]},
+    "fresh-ambiguous-boundary":{"description":"Fresh scope whose boundary classification is ambiguous","files":["src/core.js","plugin/meta/contracts/gate-transition.md"]},
+    "fresh-gated-scope":{"description":"Fresh scope that requires a durable UR due to new product semantics","files":[".agdf/control/artefacts/example/UR.md"]}
   },
-  "control_states": ["brownfield-analysis","brownfield-missing","brownfield-review","cd-tests","mode-slice-unevidenced","or","planning-open","prd-approval-no-artefact","prd-approved","qa","qa-pending","reviews","uat","ur-approved-structured"],
+  "control_states": ["brownfield-analysis","brownfield-missing","brownfield-review","cd-tests","fresh-ungated","fresh-ambiguous","fresh-gated","mode-slice-unevidenced","or","planning-open","prd-approval-no-artefact","prd-approved","qa","qa-pending","reviews","uat","ur-approved-structured"],
   "artefact_quality": {
     "profiles": {
       "normal": {"required_sections":["evidence","missing evidence","decision","risks","required next step"],"expected_decision":"pass","forbidden_claims":["gate bypass","unsupported completion"]},

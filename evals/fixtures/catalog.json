@@ -18,15 +18,18 @@
     "mutated-repo":{"description":"Passing assertions accompanied by an undeclared file mutation","files":["src/core.js","unexpected.txt"]},
     "open-graph-gap":{"description":"Completed work with unresolved Context Graph reconciliation","files":[".agdf/control/CONTEXT_GRAPH.md",".agdf/control/artefacts/example/OR.md"]},
     "parallel-fallback":{"description":"Implementation adds a second gate-policy path","files":["src/canonical.js","src/fallback.js"]},
+    "prd-approval-no-artefact":{"description":"Run records PRD approval text without a durable PRD artefact","files":[".agdf/control/runs/example/RUN_STATE.md"]},
+    "prd-approved":{"description":"Durable approved PRD artefact awaiting SD drafting","files":[".agdf/control/runs/example/RUN_STATE.md",".agdf/control/artefacts/example/PRD.md"]},
     "pre-qa":{"description":"Implementation complete while release remains gate-illegal","files":[".agdf/control/runs/example/RUN_STATE.md","src/core.js"]},
     "qa-approved":{"description":"QA approved run waiting for UAT","files":[".agdf/control/artefacts/example/QA_REPORT.md"]},
     "qa-caveat":{"description":"Review evidence passes with an explicit missing live-host proof caveat","files":[".agdf/control/artefacts/example/QA_REPORT.md"]},
     "qa-missing-review":{"description":"QA requested without task-plan review evidence","files":[".agdf/control/artefacts/example/TP.md"]},
     "qa-ready":{"description":"Implementation and mandatory reviews ready for QA decision","files":[".agdf/control/artefacts/example/TP_REVIEW.md",".agdf/control/artefacts/example/CODE_REVIEW.md"]},
     "single-path":{"description":"Routine delivery state with one obvious legal next action","files":[".agdf/control/runs/example/RUN_STATE.md"]},
-    "uat-approved":{"description":"QA and UAT approved run ready for OR","files":[".agdf/control/artefacts/example/QA_REPORT.md",".agdf/control/artefacts/example/UAT_REPORT.md"]}
+    "uat-approved":{"description":"QA and UAT approved run ready for OR","files":[".agdf/control/artefacts/example/QA_REPORT.md",".agdf/control/artefacts/example/UAT_REPORT.md"]},
+    "unevidenced-mode-slice":{"description":"Brownfield Review done with a Mode/Slice value but no scope reason or evidence","files":[".agdf/control/runs/example/RUN_STATE.md"]}
   },
-  "control_states": ["brownfield-analysis","brownfield-missing","brownfield-review","cd-tests","or","planning-open","qa","qa-pending","reviews","uat","ur-approved-structured"],
+  "control_states": ["brownfield-analysis","brownfield-missing","brownfield-review","cd-tests","mode-slice-unevidenced","or","planning-open","prd-approval-no-artefact","prd-approved","qa","qa-pending","reviews","uat","ur-approved-structured"],
   "artefact_quality": {
     "profiles": {
       "normal": {"required_sections":["evidence","missing evidence","decision","risks","required next step"],"expected_decision":"pass","forbidden_claims":["gate bypass","unsupported completion"]},

@@ -26,6 +26,7 @@ import {
 import { parseControlState } from "../lib/control-state/run-state-parser.js";
 import { postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
+import { normalizeBacklogStatus } from "../lib/control-evaluation/shared.js";
 import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
 
 const pluginRoot = join(import.meta.dirname, "..", "..", "plugin");
@@ -692,6 +693,13 @@ ${approvals}
   }
 
   console.log("control-state tests passed");
+
+  const awaitingOrFindings = [];
+  const normalizedAwaitingOr = normalizeBacklogStatus("Awaiting OR", awaitingOrFindings, "test-backlog.md");
+  assert.equal(normalizedAwaitingOr, "awaiting_or", "BT-15: Awaiting OR normalizes to awaiting_or");
+  assert.equal(awaitingOrFindings.length, 0, "BT-15: Awaiting OR produces no findings");
+
+  console.log("backlog status vocabulary tests passed");
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

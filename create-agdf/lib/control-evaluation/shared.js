@@ -56,6 +56,7 @@ const backlogStatusLabels = new Map([
   ["blocked", "blocked"],
   ["awaiting qa", "awaiting_qa"],
   ["awaiting uat", "awaiting_uat"],
+  ["awaiting or", "awaiting_or"],
   ["completed", "completed"],
   ["superseded", "superseded"],
   ["abandoned", "abandoned"],

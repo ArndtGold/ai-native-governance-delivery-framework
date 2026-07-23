@@ -2,16 +2,18 @@
 
 Status: approved
 Gate: SD
-Revision: 1
+Revision: 2
 Date: 2026-07-23
 Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md`
-Gate approval: Exact `Approval: SD` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation.
+Gate approval: Exact `Approval: SD` accepted on 2026-07-23 for revision 2 after same-run,
+same-revision and durable-artefact revalidation.
 
 ## Design Summary
 
 Extend the existing OpenCode lifecycle/status owner with deterministic installed-host and plugin-SDK
-inspection, keep static global instructions as the fail-closed governance owner, defensively harden
-the two existing dynamic hooks, and add one conforming OpenCode Delivery Path Search evaluator.
+inspection plus fail-safe exact-version SDK alignment during installation, keep static global
+instructions as the fail-closed governance owner, defensively harden the two existing dynamic hooks,
+and add one conforming OpenCode Delivery Path Search evaluator.
 
 The evaluator uses an AGDF-owned global OpenCode agent, `opencode run --pure --agent
 agdf-evaluator --format json`, an invocation-local deny policy supplied through
@@ -104,8 +106,9 @@ missing hook declarations, then version warnings, without suppressing existing i
 activation findings.
 
 Install verification consumes the same report and may return `partial`/degraded evidence when the
-SDK is uninspectable or hook declarations are missing. Version divergence alone remains a warning
-and never triggers package mutation.
+SDK is uninspectable, hook declarations are missing or install-time alignment did not produce a
+verified match. `opencode-status` consumes only this read-only report and never triggers package
+mutation.
 
 ### SD-04 — Static instruction ownership and defensive hooks
 
@@ -239,6 +242,53 @@ not unconditional `tool_enforced`:
 The function validates evidence provenance and must not accept arbitrary non-empty strings as proof.
 Codex, Claude, Copilot and generic behavior remain unchanged.
 
+### SD-11 — Fail-safe install-time SDK alignment
+
+Keep `installOpenCodeGlobalPlugin()` as the sole package-install owner and extend its returned result
+with a typed `sdk_alignment` envelope:
+
+```text
+{
+  status:
+    "already_matching | aligned | not_attempted | unavailable | failed | verification_failed",
+  attempted,
+  host_version,
+  previous_version,
+  target_version,
+  installed_version,
+  error
+}
+```
+
+The install flow is:
+
+1. Install or update the AGDF package through the existing exact, no-shell npm invocation.
+2. Probe the OpenCode host and installed SDK through the existing read-only helper.
+3. Return `already_matching` without another npm write when exact versions already match.
+4. Return `not_attempted` without mutation when the host or installed SDK is uninspectable, or the
+   host output is not an exact validated semantic version.
+5. For a proven divergence, query the configured npm registry for exactly
+   `@opencode-ai/plugin@<host-version>` without a shell. Treat an absent exact package as
+   `unavailable`; do not substitute `latest`, a range or another version.
+6. When the exact version resolves, invoke npm in the OpenCode config directory with
+   `install --silent --ignore-scripts --no-audit --no-fund --save-prod --save-exact` and that exact
+   package specifier. No prompt or TTY is used.
+7. Re-run the installed SDK/version/hook probe regardless of npm success. Report `aligned` only when
+   the observed SDK exactly matches the host and both required hook declarations are supported.
+8. Classify registry, npm and post-verification failures without throwing away the successful AGDF
+   package installation. Preserve the observed final versions and error in `sdk_alignment`; the CLI
+   returns a partial/degraded lifecycle result with one repair/retry action.
+
+The package manager remains responsible for its own manifest/lock/node_modules transaction. AGDF
+does not edit those files directly, does not modify the OpenCode host or unrelated dependencies and
+does not attempt a second rollback install after a failed package-manager transaction. The
+mandatory post-probe prevents a partial or unexpected final state from being reported as healthy.
+
+The application layer maps `sdk_alignment` to existing lifecycle verification evidence and one
+compact human alignment line. It does not add a second lifecycle schema or mutate status output.
+Install is healthy only for `already_matching | aligned` together with the existing package,
+global-surface and hook checks.
+
 ## Failure Taxonomy
 
 | Code | Meaning | Outcome |
@@ -260,6 +310,16 @@ opencode-status
   -> host probe + SDK declaration probe
   -> additive status report
   -> human/JSON output
+
+opencode install
+  -> existing exact AGDF package install
+  -> read-only host/SDK probe
+  -> matching: no SDK write
+  -> divergent: exact-version registry resolution
+  -> unavailable/uninspectable: retained observed state + partial result
+  -> available: exact SDK npm install with scripts disabled
+  -> mandatory post-probe
+  -> verified match + hooks: healthy; otherwise partial with recovery
 
 delivery-path-search --surface opencode
   -> current invocation preflight under deny environment
@@ -292,10 +352,13 @@ directly.
 ## Verification Design
 
 - Unit tests: package-root resolution, declaration states, version-state derivation, capability
-  evidence validation, event-stream parsing and failure mapping.
+  evidence validation, exact host-version validation, SDK-alignment state derivation, event-stream
+  parsing and failure mapping.
 - Lifecycle/smoke tests: installed SDK fixtures, additive status JSON/human output, owned-agent
-  installation/collision/preservation/uninstall, explicit permission preservation and defensive
-  hook shapes.
+  installation/collision/preservation/uninstall, already-matching no-op, exact divergent alignment,
+  unavailable exact version, uninspectable host/SDK, npm failure, post-verification failure, no
+  prompt/TTY, unrelated dependency preservation, explicit permission preservation and defensive hook
+  shapes.
 - Shared evaluator contract: OpenCode fixture adapter produces the same validated evaluation as
   Codex/Claude.
 - Negative transport tests: every failure code, no search-core call, no recommendation, exit `2`,
@@ -309,8 +372,10 @@ directly.
 ## Compatibility And Security
 
 - Status additions are backward-compatible and do not rename current fields.
-- Host/SDK drift is warning-only and non-mutating.
+- Host/SDK drift remains warning-only in read-only status. Only the explicit `opencode` install
+  lifecycle may align the SDK, and only to the exact validated host version.
 - No shell interpolation is used for binary execution.
+- SDK alignment disables package lifecycle scripts and never targets `latest` or a range.
 - Child-process prompts contain only the bounded existing evaluator input.
 - Explicit OpenCode user configuration is never overwritten.
 - Deny policy is invocation-local and more restrictive than normal OpenCode operation.
@@ -323,4 +388,6 @@ The design is ready for Task/Test Plan drafting when:
 1. ownership remains within the named existing modules;
 2. the additive status and failure schemas are accepted;
 3. the invocation-local deny policy and preflight boundary are accepted;
-4. no candidate-generation, gate, interaction, release or auto-alignment scope is introduced.
+4. exact SDK alignment is confined to the existing install lifecycle, with status remaining
+   read-only and no prompt, host update or second package owner;
+5. no candidate-generation, gate, interaction or release scope is introduced.

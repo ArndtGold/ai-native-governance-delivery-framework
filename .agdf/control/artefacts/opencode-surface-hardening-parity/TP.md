@@ -2,16 +2,20 @@
 
 Status: approved
 Gate: TP
-Revision: 1
+Revision: 2
 Date: 2026-07-23
 Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/SD.md`
-Gate approval: Exact `Approval: TP` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation.
+Gate approval: Exact `Approval: TP` accepted on 2026-07-23 for revision 2 after same-run,
+same-revision and durable-artefact revalidation.
 
 ## Delivery Boundary
 
 Implement the approved OpenCode structured slice only. Do not change gate order, approval values,
 the Interaction Contract, shared search/scoring semantics, Candidate Generation availability,
 user-owned OpenCode permission decisions, release state or VCS state.
+
+Automatic SDK alignment is confined to the explicit `opencode` install lifecycle, targets only the
+exact validated host version and must not make `opencode-status` mutating.
 
 Implementation starts only after exact TP approval and a passing
 `pre_implementation_analysis` Brownfield Analysis.
@@ -48,12 +52,13 @@ Implementation starts only after exact TP approval and a passing
   1. Probe the OpenCode host version without a shell.
   2. Resolve the SDK declaration entry and exact two hook names.
   3. Add the approved additive JSON fields and human output.
-  4. Add warning-only host/SDK divergence to install/status evaluation.
+  4. Add warning-only host/SDK divergence to read-only status evaluation and expose the observed
+     post-install result without performing alignment from status.
   5. Preserve installation, activation and session evidence separation.
 - Acceptance:
   - both present, one missing, both missing and uninspectable fixtures produce stable states;
   - `live_invocation_observed` remains false without independent runtime evidence;
-  - 1.18.3/1.17.11 is visible as divergent and no package is modified;
+  - 1.18.3/1.17.11 is visible as divergent and status inspection modifies no package;
   - existing schema-v1 fields and next actions remain compatible.
 - Tests:
   - fixture matrix in smoke/focused tests;
@@ -203,7 +208,8 @@ Implementation starts only after exact TP approval and a passing
 - Work:
   1. Describe baseline `instruction_only` versus invocation-scoped `tool_enforced`.
   2. Explain SDK declaration versus live invocation evidence.
-  3. Document warning-only version divergence and stop-then-instruction-only recovery.
+  3. Document read-only warning-only version divergence, exact install-time SDK alignment and
+     stop-then-instruction-only evaluator recovery.
   4. Keep OpenCode Candidate Generation unavailable.
   5. Synchronize derived surfaces from canonical owners.
 - Acceptance:
@@ -263,6 +269,49 @@ Implementation starts only after exact TP approval and a passing
     pass;
   - no VCS, release or publish action occurs.
 
+### OHP-11 — Add fail-safe exact-version SDK alignment to OpenCode install
+
+- Requirements: PRD-OC-03, PRD-OC-13; SD-03, SD-11; AC-02, AC-13, AC-14
+- Depends on: OHP-01, OHP-02
+- Paths:
+  - `create-agdf/lib/installers/opencode.js`
+  - `create-agdf/lib/cli/application.js`
+  - `create-agdf/scripts/opencode-hardening-test.js`
+  - `create-agdf/scripts/lifecycle-test.js`
+  - `create-agdf/scripts/smoke-test.js` only for end-to-end lifecycle assertions
+- Work:
+  1. Add exact host-version validation and the typed `sdk_alignment` result envelope to the existing
+     OpenCode installer owner.
+  2. Return `already_matching` without registry or install calls when host and SDK already match.
+  3. Return `not_attempted` without SDK mutation when host/SDK evidence or the exact host version is
+     uninspectable.
+  4. For proven divergence, resolve only
+     `@opencode-ai/plugin@<exact-validated-host-version>` through the configured npm invocation.
+  5. Install the exact package with scripts, audit, funding output, shell and prompts disabled; do
+     not target `latest`, a range or another version.
+  6. Re-probe installed SDK version and hook declarations after success and failure.
+  7. Report `aligned` only for an exact observed match with both required declarations; otherwise
+     return `unavailable | failed | verification_failed` with previous, target and observed final
+     versions plus one repair/retry action.
+  8. Map unresolved alignment to an existing partial/degraded lifecycle result and keep
+     `opencode-status` read-only.
+- Acceptance:
+  - already-matching performs no registry or SDK-install invocation;
+  - 1.18.3/1.17.11 targets exactly `@opencode-ai/plugin@1.18.3`, post-verifies 1.18.3 and reports
+    `aligned`;
+  - invalid/uninspectable host output, absent exact registry version, npm failure, version mismatch
+    after install and missing hook declarations never report healthy alignment;
+  - failure output exposes the observed final versions and exactly one recovery action;
+  - OpenCode host, unrelated dependencies, permissions and status inspection remain unchanged;
+  - execution is deterministic without a TTY and never uses a shell or package lifecycle scripts.
+- Tests:
+  - injected npm/host/resolver transcript matrix covering every alignment state;
+  - argument assertions for exact package specifier, `--save-exact`, `--ignore-scripts`,
+    `--no-audit`, `--no-fund` and absence of `latest`, ranges or prompt flags;
+  - no-call assertions for matching and uninspectable cases;
+  - post-probe and partial lifecycle JSON/human presentation assertions;
+  - regression assertion that `opencode-status` performs no registry or install invocation.
+
 ## Requirement Coverage
 
 | Requirement | Tasks |
@@ -279,13 +328,15 @@ Implementation starts only after exact TP approval and a passing
 | PRD-OC-10 | OHP-07, OHP-08 |
 | PRD-OC-11 | OHP-04, OHP-05 |
 | PRD-OC-12 | OHP-07, OHP-08, OHP-09 |
+| PRD-OC-13 | OHP-11 |
 
 ## UX Intent Fidelity Plan
 
 | PRD criterion | Working mode/state | Task | Required visible evidence |
 |---|---|---|---|
 | Declaration evidence is not live proof | Status inspection | OHP-02, OHP-08 | JSON/human status and docs show `sdk_declaration` evidence and no live claim. |
-| Versions stay separate and warning-only | Status inspection | OHP-02 | Host, SDK and AGDF versions plus divergence warning; no mutation. |
+| Versions stay separate and warning-only | Status inspection | OHP-02, OHP-11 | Host, SDK and AGDF versions plus divergence warning; status performs no mutation. |
+| Install repairs resolvable drift safely | OpenCode installation | OHP-11 | Matching no-op, exact aligned success and typed unavailable/failed/post-verification fixtures with one recovery action. |
 | Static guidance remains fail-closed | Active plugin guidance | OHP-03 | Hook-absent skill eval and static instruction fixture. |
 | `tool_enforced` is invocation-scoped | Executable evaluator | OHP-05, OHP-07, OHP-10 | Current preflight evidence and stale-evidence rejection. |
 | Failure stops executable evaluation | Degraded recovery | OHP-07 | Typed result, null recommendation, exit `2`, instruction-only next action. |
@@ -295,7 +346,7 @@ Implementation starts only after exact TP approval and a passing
 
 After implementation:
 
-1. `agdf:task-plan-review` maps OHP-01 through OHP-10 to code, tests and visible evidence.
+1. `agdf:task-plan-review` maps OHP-01 through OHP-11 to code, tests and visible evidence.
 2. `agdf:clean-implementation-review` verifies one status owner, one instruction owner, one
    evaluator adapter and no scoring/policy fork.
 3. `agdf:code-review` reviews the complete diff, permission handling, parser trust boundaries,
@@ -309,7 +360,8 @@ Stop and route back to SD or PRD if implementation discovers:
 
 - `--pure` cannot load an ownership-proven evaluator agent without unsafe configuration mutation;
 - effective deny permissions cannot be proven from stable OpenCode mechanisms;
-- the only executable path requires automatic SDK alignment;
+- SDK alignment requires `latest`, a range, shell interpolation, package lifecycle scripts, a TTY,
+  status mutation, host modification or a second package owner;
 - OpenCode event output cannot identify a deterministic final assistant payload;
 - shared search/scoring or gate semantics must change;
 - Candidate Generation must be added;
@@ -317,6 +369,6 @@ Stop and route back to SD or PRD if implementation discovers:
 
 ## Completion Evidence
 
-The implementation phase is complete only when OHP-01 through OHP-09 are fully evidenced and OHP-10
-has either successful real evidence or an explicit unresolved QA evidence gap. Completion does not
-authorize QA, UAT, release or VCS actions.
+The implementation phase is complete only when OHP-01 through OHP-09 and OHP-11 are fully evidenced
+and OHP-10 has either successful real evidence or an explicit unresolved QA evidence gap.
+Completion does not authorize QA, UAT, release or VCS actions.

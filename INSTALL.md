@@ -458,7 +458,7 @@ Verify the global installation, then restart OpenCode so an already-running app 
 npx --yes @agdf/cli@latest opencode-status --json
 ```
 
-Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. The report also separates the installed OpenCode host version from the installed `@opencode-ai/plugin` SDK version, warns without auto-aligning when they diverge, and reports each required experimental hook as `declared_supported`, `declared_missing` or `uninspectable`. This is SDK declaration evidence, not proof of live hook invocation. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
+Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. The report also separates the installed OpenCode host version from the installed `@opencode-ai/plugin` SDK version, warns when they diverge, and reports each required experimental hook as `declared_supported`, `declared_missing` or `uninspectable`. The status command is read-only; the explicit `opencode` install command attempts to align a divergent SDK only to the exact detected host version and reports a partial result when exact alignment is unavailable or cannot be verified. Hook status is SDK declaration evidence, not proof of live hook invocation. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
 
 ![OpenCode showing the active create-agdf plugin in its Plugins panel alongside an AGDF plugin suitability assessment.](pages/public/assets/opencode-agdf-plugin-proof.png)
 

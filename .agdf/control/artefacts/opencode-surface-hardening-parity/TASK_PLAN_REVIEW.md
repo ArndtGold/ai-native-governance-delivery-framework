@@ -1,6 +1,7 @@
 # Task Plan Review: OpenCode Surface Hardening and Evaluator Parity
 
 Status: revise
+Revision: 2
 Date: 2026-07-23
 
 ## TP Coverage
@@ -17,13 +18,15 @@ Date: 2026-07-23
 | OHP-08 | fully_done | INSTALL, package README, Runtime Contract, CLI examples and synced generated assets | none | none |
 | OHP-09 | fully_done | Full smoke, Runtime Integrity, Pages check/build, doctor, gate-check and diff check | none | none |
 | OHP-10 | partially_done | Installed SDK and real Primary-Agent preflight passed; zero-mutation proof captured | Authenticated evaluator response unavailable: host returned 401 `No provider available` | prevents QA pass |
+| OHP-11 | fully_done | Existing installer owns exact-version validation, matching no-op, registry/install path, mandatory post-probe and lifecycle recovery; focused matrix, CLI smoke, full smoke and Runtime Integrity pass | Live global divergent-to-aligned run not executed because the installed SDK was already matching; deterministic evidence satisfies the implementation task | none |
 
 ## UX Intent Fidelity
 
 | prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type |
 |---|---|---|---|---|---|
 | Declaration evidence is not live proof | Status inspection | OHP-02, OHP-08 | JSON/human status and docs retain `sdk_declaration` and `live_invocation_observed: false` | fulfilled | none |
-| Versions stay separate and warning-only | Status inspection | OHP-02 | Live host 1.18.3 / SDK 1.17.11 divergence; no alignment | fulfilled | none |
+| Versions stay separate and warning-only | Status inspection | OHP-02, OHP-11 | Live status reports host/SDK 1.18.3 matching; no-npm fixture proves status remains read-only while divergent fixtures retain warning-only state | fulfilled | none |
+| Install repairs resolvable drift safely | OpenCode installation | OHP-11 | Matching no-op, exact 1.18.3 alignment, unavailable/failed/post-verification fixtures and partial JSON/human recovery output | fulfilled | none |
 | Static guidance remains fail-closed | Active plugin guidance | OHP-03 | Static boundary plus hook-absent deterministic replay | fulfilled | none |
 | `tool_enforced` is invocation-scoped | Executable evaluator | OHP-05, OHP-07, OHP-10 | Preflight and stale-evidence tests pass; no-evaluation result downgrades | partial | evidence_gap |
 | Failure stops executable evaluation | Degraded recovery | OHP-07 | Typed result, null recommendation, exit 2 and no persistence | fulfilled | none |
@@ -37,10 +40,9 @@ Date: 2026-07-23
 
 ## Summary
 
-- fully_done: 9
+- fully_done: 10
 - partially_done: 1
 - not_done: 0
 - out_of_scope_changes: none
 - risks: Live `tool_enforced` availability is intentionally unclaimed until TPR-01 is resolved.
-- required_next_step: Resolve TPR-01 and rerun QA.
-
+- required_next_step: Run QA with OHP-11 fully covered and TPR-01 retained as the sole open evidence obligation.

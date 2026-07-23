@@ -115,10 +115,19 @@ function createHandlers({ io, env, exec, prepare }) {
         const result = runLifecyclePhase("plugin_operation", () => installOpenCodeGlobalPlugin(configDir));
         runLifecyclePhase("global_surface", () => installOpenCodeGlobalSurface(configDir));
         const report = runLifecyclePhase("verification", () => evaluateOpenCodeStatus(options.dir, configDir, result.transition));
+        const alignmentHealthy = ["already_matching", "aligned"].includes(result.sdk_alignment.status);
         const verificationHealthy = report.status === "configured"
           && report.package.version_status === "current"
           && report.global_native_surface.complete
-          && report.experimental_hooks.aggregate === "declared_supported";
+          && report.experimental_hooks.aggregate === "declared_supported"
+          && report.host_sdk_version.status === "matching"
+          && alignmentHealthy;
+        const nextAction = verificationHealthy
+          ? globalInstallRestartAction(options.target)
+          : {
+              kind: "recovery",
+              text: `Retry the OpenCode installation to align @opencode-ai/plugin to ${result.sdk_alignment.target_version || "the exact host version"}; observed SDK: ${result.sdk_alignment.installed_version || "unknown"}.`,
+            };
         printLifecycleResult(createLifecycleResult({
           operation: result.transition.status === "updated" ? "update" : "install",
           result: verificationHealthy ? "success" : "partial",
@@ -140,13 +149,15 @@ function createHandlers({ io, env, exec, prepare }) {
               `plugin_sdk=${report.plugin_sdk.installed_version || "unknown"}`,
               `experimental_hooks=${report.experimental_hooks.aggregate}`,
               `host_sdk_version=${report.host_sdk_version.status};policy=${report.host_sdk_version.policy}`,
+              `sdk_alignment=${result.sdk_alignment.status};target=${result.sdk_alignment.target_version || "unknown"};installed=${result.sdk_alignment.installed_version || "unknown"}`,
             ],
           },
           restart: { required: true, reason: "host_reload" },
-          next_action: globalInstallRestartAction(options.target),
+          next_action: nextAction,
         }), { json: options.json, io });
         if (!options.json) {
           io.log(`OpenCode host / plugin SDK: ${report.host.installed_version || "unknown"} / ${report.plugin_sdk.installed_version || "unknown"} (${report.host_sdk_version.status}; ${report.host_sdk_version.policy})`);
+          io.log(`Plugin SDK alignment: ${result.sdk_alignment.status} (target ${result.sdk_alignment.target_version || "unknown"}; installed ${result.sdk_alignment.installed_version || "unknown"})`);
           io.log(`Experimental hook declarations: ${report.experimental_hooks.aggregate} (SDK declaration evidence; live invocation not observed)`);
         }
         return verificationHealthy ? 0 : 1;

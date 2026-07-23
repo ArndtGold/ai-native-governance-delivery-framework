@@ -116,11 +116,13 @@ export function installOpenCodeGlobalPlugin(configDir) {
     throw openCodeLifecycleError("configuration", `Failed to write OpenCode config ${configPath}: ${error.message}`, { configPath });
   }
   const installedPackage = resolveOpenCodePackage(configDir);
+  const sdkAlignment = alignOpenCodePluginSdk(configDir);
 
   return {
     configPath,
     added: !alreadyInstalled,
     transition: openCodePackageTransition(previousPackage, installedPackage),
+    sdk_alignment: sdkAlignment,
   };
 }
 
@@ -519,6 +521,131 @@ export function evaluateOpenCodeHostSdk(configDir, dependencies = {}) {
   };
 }
 
+const exactOpenCodeVersionPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
+function openCodeSdkAlignmentResult(status, initial, overrides = {}) {
+  return {
+    status,
+    attempted: false,
+    host_version: initial.host.installed_version || null,
+    previous_version: initial.plugin_sdk.installed_version || null,
+    target_version: null,
+    installed_version: initial.plugin_sdk.installed_version || null,
+    error: "",
+    ...overrides,
+  };
+}
+
+function openCodeRegistryVersion(raw) {
+  const value = String(raw ?? "").trim();
+  if (!value) return "";
+  try {
+    const parsed = JSON.parse(value);
+    return typeof parsed === "string" ? parsed.trim() : "";
+  } catch {
+    return value;
+  }
+}
+
+function openCodeSdkUnavailable(error) {
+  return /(?:ETARGET|E404|404 Not Found|No matching version)/i.test(
+    (error?.stderr || error?.message || "").toString(),
+  );
+}
+
+export function alignOpenCodePluginSdk(configDir, dependencies = {}) {
+  const initial = evaluateOpenCodeHostSdk(configDir, dependencies);
+  const hostVersion = initial.host.installed_version || "";
+  const sdkVersion = initial.plugin_sdk.installed_version || "";
+  if (!initial.host.inspectable || !initial.plugin_sdk.loadable || !exactOpenCodeVersionPattern.test(hostVersion)) {
+    return openCodeSdkAlignmentResult("not_attempted", initial, {
+      target_version: exactOpenCodeVersionPattern.test(hostVersion) ? hostVersion : null,
+      error: !initial.host.inspectable
+        ? initial.host.error || "OpenCode host version is not inspectable."
+        : !initial.plugin_sdk.loadable
+          ? initial.plugin_sdk.error || "OpenCode plugin SDK is not inspectable."
+          : `OpenCode host version is not an exact semantic version: ${hostVersion || "unknown"}`,
+    });
+  }
+  if (sdkVersion === hostVersion) {
+    return openCodeSdkAlignmentResult("already_matching", initial, {
+      target_version: hostVersion,
+    });
+  }
+
+  const run = dependencies.execFileSync ?? execFileSync;
+  const packageSpecifier = `@opencode-ai/plugin@${hostVersion}`;
+  const registryInvocation = openCodeNpmInvocation(["view", packageSpecifier, "version", "--json"]);
+  try {
+    const availableVersion = openCodeRegistryVersion(run(registryInvocation.executable, registryInvocation.args, {
+      cwd: configDir,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 15000,
+    }));
+    if (availableVersion !== hostVersion) {
+      return openCodeSdkAlignmentResult("unavailable", initial, {
+        target_version: hostVersion,
+        error: `Exact plugin SDK version is unavailable: ${packageSpecifier}`,
+      });
+    }
+  } catch (error) {
+    return openCodeSdkAlignmentResult(openCodeSdkUnavailable(error) ? "unavailable" : "failed", initial, {
+      target_version: hostVersion,
+      error: (error.stderr || error.message || "plugin SDK registry lookup failed").toString().trim(),
+    });
+  }
+
+  const installInvocation = openCodeNpmInvocation([
+    "install",
+    "--silent",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "--save-prod",
+    "--save-exact",
+    packageSpecifier,
+  ]);
+  let installError = null;
+  try {
+    run(installInvocation.executable, installInvocation.args, {
+      cwd: configDir,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 60000,
+    });
+  } catch (error) {
+    installError = error;
+  }
+
+  const observed = evaluateOpenCodeHostSdk(configDir, dependencies);
+  const verified = observed.plugin_sdk.installed_version === hostVersion
+    && observed.experimental_hooks.aggregate === "declared_supported";
+  if (installError) {
+    return openCodeSdkAlignmentResult("failed", initial, {
+      attempted: true,
+      target_version: hostVersion,
+      installed_version: observed.plugin_sdk.installed_version || null,
+      error: (installError.stderr || installError.message || "plugin SDK installation failed").toString().trim(),
+    });
+  }
+  if (!verified) {
+    return openCodeSdkAlignmentResult("verification_failed", initial, {
+      attempted: true,
+      target_version: hostVersion,
+      installed_version: observed.plugin_sdk.installed_version || null,
+      error: observed.plugin_sdk.installed_version !== hostVersion
+        ? `Observed plugin SDK ${observed.plugin_sdk.installed_version || "unknown"} after targeting ${hostVersion}.`
+        : `Plugin SDK ${hostVersion} does not declare all required experimental hooks.`,
+    });
+  }
+  return openCodeSdkAlignmentResult("aligned", initial, {
+    attempted: true,
+    target_version: hostVersion,
+    installed_version: observed.plugin_sdk.installed_version,
+  });
+}
+
 function openCodePackageVersionStatus(packageState) {
   if (!packageState.loadable) return "unloadable";
   if (!packageState.installed_version) return "unknown";
@@ -680,7 +807,7 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
       : hostSdk.experimental_hooks.aggregate === "degraded"
       ? "Use static AGDF instructions and review OpenCode compatibility before relying on dynamic hook injection."
       : hostSdk.host_sdk_version.status === "divergent"
-      ? "Review OpenCode host/plugin-SDK compatibility; AGDF reports this divergence but does not align versions automatically."
+      ? "Run npx --yes @agdf/cli@latest opencode to align the plugin SDK to the exact OpenCode host version; status itself remains read-only."
       : repositoryActivation.state === "invalid_control"
       ? "Repair .agdf/control/config.json so it contains valid artifact_language, chat_language and runtime_language values."
       : repositoryActivation.active

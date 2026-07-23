@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: opencode-surface-hardening-parity
 - lifecycle: active
-- revision: 11
-- revision_id: c1ba5ce0-5ec7-4c83-9554-a81496fa59e6
+- revision: 16
+- revision_id: 324e06ae-eafa-479b-a26d-5610963df90d
 - mode: structured_delivery
 - current_gate: QA
 - decision: revise
@@ -21,20 +21,20 @@ preflight-gated executable Delivery Path Search evaluator without overstating ho
 
 | Question | Answer |
 |---|---|
-| What is known? | OHP-01 through OHP-09 are implemented and reviewed; installed status reports host 1.18.3, SDK 1.17.11, both hook declarations and warning-only divergence. |
-| What is approved? | UR revision 1, PRD revision 1, SD revision 1 and TP revision 1 are approved; Brownfield Review selected a structured slice. |
-| What is missing? | OHP-10 lacks one authenticated contract-valid live evaluator response; the current host returned HTTP 401 `No provider available`. |
-| What is the next allowed action? | Configure an authenticated OpenCode provider, rerun the bounded live evaluator probe and then rerun QA. |
-| What is explicitly forbidden right now? | QA pass, UAT, release and VCS actions while TPR-01 is open. |
+| What is known? | OHP-11 is implemented in the existing installer: exact-version alignment, matching no-op, mandatory post-probe, partial recovery and read-only status tests pass. The live host and SDK both report 1.18.3 with supported hook declarations. |
+| What is approved? | UR, PRD, SD and TP revision 2 are approved; Brownfield Analysis revision 2 passes and authorizes OHP-11 implementation. |
+| What is missing? | Only OHP-10's authenticated contract-valid live evaluator response; the available host previously returned HTTP 401 `No provider available`. |
+| What is the next allowed action? | Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation and rerun QA. |
+| What is explicitly forbidden right now? | QA approval, UAT, release and VCS actions while TPR-01 remains open. |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation. |
+| UR | approved | Exact `Approval: UR` accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented. |
+| PRD | approved | Exact `Approval: PRD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |
+| SD | approved | Exact `Approval: SD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |
+| TP | approved | Exact `Approval: TP` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |
 | QA | missing | none |
 | UAT | missing | none |
 
@@ -42,19 +42,19 @@ preflight-gated executable Delivery Path Search evaluator without overstating ho
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md` | approved | Revision 1 defines the approved hardening and evaluator-parity boundary. |
-| Brownfield Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md` | done | Existing owners support a bounded structured slice; UI/UX impact is medium and requires UX Intent Definition. |
-| UX Intent Definition | `.agdf/control/artefacts/opencode-surface-hardening-parity/UX_INTENT_DEFINITION.md` | ready | Warning-only version policy and stop-then-instruction-only recovery are resolved as PRD input. |
+| UR | `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md` | approved | Revision 2 adds automatic exact-version SDK alignment to the approved install scope. |
+| Brownfield Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md` | done | Revision 2 reuses the existing npm/install/status owners and retains a structured slice with medium UI/UX impact. |
+| UX Intent Definition | `.agdf/control/artefacts/opencode-surface-hardening-parity/UX_INTENT_DEFINITION.md` | ready | Revision 2 defines aligned, unchanged, unavailable, failed and read-only status states as PRD input. |
 | Verified Change | `.agdf/control/artefacts/opencode-surface-hardening-parity/VERIFIED_CHANGE.md` | missing | Mode is not selected before Brownfield Review. |
-| PRD | `.agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md` | approved | Revision 1 defines observable capability evidence, warning-only drift, fail-closed evaluator recovery and acceptance criteria. |
-| SD | `.agdf/control/artefacts/opencode-surface-hardening-parity/SD.md` | approved | Revision 1 defines installed-SDK probing, static/dynamic guidance ownership, an invocation-scoped deny preflight, the OpenCode evaluator and typed fail-closed CLI results. |
-| TP | `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md` | approved | Revision 1 maps ten ordered implementation, regression, documentation and live-evidence tasks to every PRD requirement. |
-| Brownfield Analysis | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_ANALYSIS.md` | done | Pre-implementation analysis confirms clean existing owners, isolated source paths and the approved reuse order. |
-| CD+Tests | `.agdf/control/artefacts/opencode-surface-hardening-parity/CD_TESTS.md` | done | OHP-01 through OHP-09 and deterministic OHP-10 evidence are complete; full smoke and Runtime Integrity pass. |
-| TP Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/TASK_PLAN_REVIEW.md` | revise | 9/10 tasks fully done; OHP-10 is partial because live authentication is unavailable. |
-| Clean Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Existing owners remain authoritative; no scoring, gate or policy fork was introduced. |
-| CR | `.agdf/control/artefacts/opencode-surface-hardening-parity/CODE_REVIEW.md` | done | Pass after resolving Primary-Agent, manifest-resolution, error-classification and no-evaluation enforcement findings. |
-| QA | `.agdf/control/artefacts/opencode-surface-hardening-parity/QA_REPORT.md` | revise | Open evidence obligation TPR-01 prevents QA pass. |
+| PRD | `.agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md` | approved | Revision 2 adds fail-safe, non-interactive exact-host-version SDK alignment and keeps status read-only. |
+| SD | `.agdf/control/artefacts/opencode-surface-hardening-parity/SD.md` | approved | Revision 2 keeps one installer owner, defines exact registry targeting, typed alignment outcomes, mandatory post-verification and partial recovery. |
+| TP | `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md` | approved | Revision 2 adds OHP-11 for exact SDK alignment, complete negative coverage, post-verification and status read-only regression proof. |
+| Brownfield Analysis | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_ANALYSIS.md` | done | Revision 2 confirms one installer/probe/lifecycle path, clean code paths and the OHP-11 reuse/test order. |
+| CD+Tests | `.agdf/control/artefacts/opencode-surface-hardening-parity/CD_TESTS.md` | done | Revision 2 adds fully tested OHP-11 alignment behavior; complete smoke, package and Runtime Integrity checks pass. |
+| TP Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/TASK_PLAN_REVIEW.md` | revise | 10/11 tasks fully done; only OHP-10 is partial because live authentication is unavailable. |
+| Clean Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 2 confirms one package owner, no rollback loop, no status mutation and no policy fork. |
+| CR | `.agdf/control/artefacts/opencode-surface-hardening-parity/CODE_REVIEW.md` | done | Revision 2 passes after exact-target, timeout, post-probe, failure and lifecycle review. |
+| QA | `.agdf/control/artefacts/opencode-surface-hardening-parity/QA_REPORT.md` | revise | OHP-11 is green; open TPR-01 still prevents QA pass. |
 
 ## Mode/Slice Decision
 
@@ -75,20 +75,20 @@ preflight-gated executable Delivery Path Search evaluator without overstating ho
 
 | From | Relationship | To | Status | Evidence |
 |---|---|---|---|---|
-| UR | approved_by | `Approval: UR` | approved | Exact approval accepted on 2026-07-23 after selected-run, same-gate, revision and durable-artefact revalidation. |
-| Brownfield Review | sizes | `structured_slice` | done | Existing OpenCode and Delivery Path Search owners are evidenced; medium UI/UX impact requires UX Intent Definition before PRD readiness. |
-| PRD | derived_from | UR | ready | Revision 1 incorporates the approved scope, Brownfield owners and ready UX Intent Definition. |
-| PRD | approved_by | `Approval: PRD` | approved | Exact approval accepted on 2026-07-23 after selected-run, same-gate, revision and durable-artefact revalidation. |
-| SD | derived_from | PRD | ready | Revision 1 preserves all approved visible states, warning-only version policy, fail-closed recovery and evidence boundaries. |
-| SD | approved_by | `Approval: SD` | approved | Exact approval accepted on 2026-07-23 after selected-run, same-gate, revision and durable-artefact revalidation. |
-| TP | derived_from | SD | ready | Revision 1 maps the approved resolver, status, static guidance, evaluator, preflight, fallback, documentation and evidence design to OHP-01 through OHP-10. |
-| TP | approved_by | `Approval: TP` | approved | Exact approval accepted on 2026-07-23 after selected-run, same-gate, revision and durable-artefact revalidation. |
-| Brownfield Analysis | prepares | OHP-01 through OHP-10 | done | Existing owners, worktree isolation, permission precedence, regression surface and clean implementation order are evidenced. |
-| CD+Tests | implements | OHP-01 through OHP-10 | partial | OHP-01 through OHP-09 are complete; OHP-10 has live status/preflight evidence but no authenticated evaluator payload. |
-| TP Review | verifies | TP | revise | 9/10 fully done; TPR-01 routes the remaining live evidence to `evidence_obligation`. |
-| Clean Review | verifies | solution integrity | pass | One owner per lifecycle, instruction, evaluator, capability and search concern. |
-| Code Review | verifies | implementation diff | pass | No open code finding remains. |
-| QA | consumes | reviews and evidence | revise | TPR-01 remains open. |
+| UR | approved_by | `Approval: UR` | approved | Exact approval accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented. |
+| Brownfield Review | sizes | `structured_slice` | done | Revision 2 evidences the existing npm/install/status owners; medium UI/UX impact is resolved by UX Intent Definition revision 2. |
+| PRD | derived_from | UR | ready | Revision 2 incorporates automatic exact-version alignment, read-only status and fail-safe recovery. |
+| PRD | approved_by | `Approval: PRD` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |
+| SD | derived_from | PRD | ready | Revision 2 adds exact install-time SDK alignment while preserving read-only status, warning-only divergence and fail-closed evaluator boundaries. |
+| SD | approved_by | `Approval: SD` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |
+| TP | derived_from | SD | ready | Revision 2 preserves OHP-01 through OHP-10 and adds OHP-11 for the approved exact install-time SDK alignment design. |
+| TP | approved_by | `Approval: TP` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |
+| Brownfield Analysis | prepares | OHP-11 | done | Revision 2 evidences the existing installer, read-only probe, lifecycle projection, clean paths and regression surface. |
+| CD+Tests | implements | OHP-01 through OHP-11 | partial | OHP-01 through OHP-09 and OHP-11 are complete; OHP-10 lacks only an authenticated evaluator payload. |
+| TP Review | verifies | TP | revise | 10/11 fully done; TPR-01 routes the remaining live evidence to `evidence_obligation`. |
+| Clean Review | verifies | solution integrity | pass | One installer/probe/lifecycle path; no rollback loop, status mutation or policy fork. |
+| Code Review | verifies | implementation diff | pass | No open code finding remains after revision-2 alignment review. |
+| QA | consumes | reviews and evidence | revise | OHP-11 passes; TPR-01 remains the sole open finding. |
 
 ## Missing Evidence
 
@@ -98,8 +98,20 @@ preflight-gated executable Delivery Path Search evaluator without overstating ho
 
 - Live `tool_enforced` availability must remain unclaimed until TPR-01 is resolved.
 - Experimental hook declaration evidence remains distinct from observed hook execution.
+- Install-time SDK alignment must target only the exact detected host version and must not turn
+  read-only status into a mutating path.
+
+## Context Graph
+
+- context_graph_impact: `update_existing_node`
+- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `update`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: The node records OpenCode's instruction-only baseline, invocation-scoped
+  conditional enforcement and unresolved live evidence boundary.
 
 ## Closeout
 
 - next_allowed_action: Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation and rerun QA.
-- quality_outlook: Deterministic implementation, plan coverage, solution integrity and code quality are green; QA remains revise on one live evidence obligation.
+- quality_outlook: OHP-11 implementation, deterministic evidence, solution integrity and code quality pass; QA remains revise only on the pre-existing authenticated evaluator evidence obligation.

@@ -2,6 +2,7 @@
 
 Status: done
 Gate: CD+Tests
+Revision: 2
 Date: 2026-07-23
 Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md`
 
@@ -18,6 +19,12 @@ Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md`
   evaluations cannot produce a final `tool_enforced` claim.
 - Updated capability truth, INSTALL, package documentation, CLI examples, Runtime Contract and
   generated assets. Candidate Generation remains Codex/Claude-only.
+- Added OHP-11 in the existing OpenCode installer: an already matching SDK is a no-op; proven
+  divergence resolves and installs only the exact validated host version with scripts/audit/funding
+  disabled; every outcome is post-probed and unresolved alignment becomes a partial lifecycle
+  result with one retry action.
+- Kept `opencode-status` read-only and updated install/status documentation to distinguish
+  warning-only observation from explicit install-time alignment.
 
 ## Deterministic Evidence
 
@@ -34,12 +41,17 @@ Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md`
 | `git diff --check` | pass |
 | Selected-run `doctor` | pass, zero findings |
 | Selected-run `gate-check` | open at CD+Tests before review artefacts |
+| OHP-11 alignment fixture matrix | pass: matching, aligned, SDK/host uninspectable, unavailable registry version, registry/install failure, version mismatch and missing hooks |
+| OHP-11 CLI lifecycle fixtures | pass: healthy aligned install, partial unavailable JSON/human output, exact npm arguments and status no-npm proof |
 
 ## Live OpenCode Evidence
 
-- Installed status probe: OpenCode host `1.18.3`; installed `@opencode-ai/plugin` `1.17.11`;
-  divergence `divergent` with `warn_only`; both required hook declarations
-  `declared_supported`; `live_invocation_observed: false`.
+- Current installed status probe: OpenCode host `1.18.3`; installed
+  `@opencode-ai/plugin` `1.18.3`; version state `matching` with `warn_only` policy; both required
+  hook declarations `declared_supported`; `live_invocation_observed: false`.
+- The current global SDK had already been manually aligned before implementation, so the new
+  divergent-to-aligned installer path is proven deterministically rather than by mutating the live
+  global installation.
 - Temporary, non-global OpenCode config: generated `agdf-evaluator` was discovered by OpenCode as
   `primary`; preflight passed under the exact deny environment.
 - A bounded real evaluator call reached OpenCode but returned HTTP 401 `No provider available`.
@@ -52,4 +64,3 @@ Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md`
 
 No gate order, approval value, Interaction Contract, scoring policy, Candidate Generation, VCS,
 release or publish state was changed. Existing unrelated worktree changes were not modified.
-

@@ -71,13 +71,59 @@ const path = require("node:path");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(args) + "\\n");
 const expectedSpecifier = ${JSON.stringify(`${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`)};
+const sdkSpecifier = "@opencode-ai/plugin@1.18.3";
+const prefix = process.cwd();
+const packageJsonPath = path.join(prefix, "package.json");
+const lockPath = path.join(prefix, "package-lock.json");
+if (args[0] === "view") {
+  if (args[1] !== sdkSpecifier || args[2] !== "version" || args[3] !== "--json") {
+    console.error("unexpected fake npm view invocation: " + JSON.stringify(args));
+    process.exit(2);
+  }
+  if (process.env.FAKE_SDK_MODE === "unavailable") {
+    console.error("npm ERR! code ETARGET");
+    process.exit(1);
+  }
+  console.log(JSON.stringify("1.18.3"));
+  process.exit(0);
+}
+if (args[0] === "install" && args.at(-1) === sdkSpecifier) {
+  for (const required of ["--save-exact", "--ignore-scripts", "--no-audit", "--no-fund"]) {
+    if (!args.includes(required)) {
+      console.error("missing fake SDK npm argument " + required + ": " + JSON.stringify(args));
+      process.exit(2);
+    }
+  }
+  if (process.env.FAKE_SDK_MODE === "install-failed") {
+    console.error("SDK install failed");
+    process.exit(1);
+  }
+  let manifest = { name: "opencode-global-config", private: true };
+  if (fs.existsSync(packageJsonPath)) manifest = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+  manifest.dependencies = { ...(manifest.dependencies || {}), "@opencode-ai/plugin": "1.18.3" };
+  fs.writeFileSync(packageJsonPath, JSON.stringify(manifest, null, 2) + "\\n");
+  let lock = { name: manifest.name, lockfileVersion: 3, requires: true, packages: {} };
+  if (fs.existsSync(lockPath)) lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+  lock.packages = { ...(lock.packages || {}) };
+  lock.packages[""] = { ...(lock.packages[""] || {}), dependencies: manifest.dependencies };
+  lock.packages["node_modules/@opencode-ai/plugin"] = { version: "1.18.3" };
+  fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + "\\n");
+  const sdkDir = path.join(prefix, "node_modules", "@opencode-ai", "plugin");
+  fs.mkdirSync(path.join(sdkDir, "dist"), { recursive: true });
+  fs.writeFileSync(path.join(sdkDir, "package.json"), JSON.stringify({
+    name: "@opencode-ai/plugin",
+    version: "1.18.3",
+    types: "dist/index.d.ts"
+  }, null, 2) + "\\n");
+  fs.writeFileSync(path.join(sdkDir, "dist", "index.d.ts"), process.env.FAKE_SDK_MODE === "verification-failed"
+    ? "export type Hooks = {};\\n"
+    : 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\\n');
+  process.exit(0);
+}
 if (args.includes("--prefix") || !args.includes("--save-exact") || args.at(-1) !== expectedSpecifier) {
   console.error("unexpected fake npm invocation: " + JSON.stringify(args));
   process.exit(2);
 }
-const prefix = process.cwd();
-const packageJsonPath = path.join(prefix, "package.json");
-const lockPath = path.join(prefix, "package-lock.json");
 let manifest = { name: "opencode-global-config", private: true };
 if (fs.existsSync(packageJsonPath)) manifest = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 manifest.dependencies = { ...(manifest.dependencies || {}), ${JSON.stringify(pluginDefinition.opencode.npmPackage)}: ${JSON.stringify(pluginDefinition.version)} };
@@ -110,14 +156,25 @@ fs.writeFileSync(path.join(packageDir, "package.json"), JSON.stringify({
 }, null, 2) + "\\n");
 fs.writeFileSync(path.join(packageDir, "opencode-plugin.js"), "export default async function () { return {}; }\\n");
 const sdkDir = path.join(prefix, "node_modules", "@opencode-ai", "plugin");
-fs.mkdirSync(path.join(sdkDir, "dist"), { recursive: true });
-fs.writeFileSync(path.join(sdkDir, "package.json"), JSON.stringify({
-  name: "@opencode-ai/plugin",
-  version: "1.17.11",
-  types: "dist/index.d.ts"
-}, null, 2) + "\\n");
-fs.writeFileSync(path.join(sdkDir, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\\n');
+if (!fs.existsSync(path.join(sdkDir, "package.json"))) {
+  fs.mkdirSync(path.join(sdkDir, "dist"), { recursive: true });
+  fs.writeFileSync(path.join(sdkDir, "package.json"), JSON.stringify({
+    name: "@opencode-ai/plugin",
+    version: "1.17.11",
+    types: "dist/index.d.ts"
+  }, null, 2) + "\\n");
+  fs.writeFileSync(path.join(sdkDir, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\\n');
+}
 `);
+const openCodeHostBinDir = makeFakeExecutable(openCodeNpmFixtureDir, "opencode", `#!/usr/bin/env node
+if (process.argv[2] === "--version") {
+  process.stdout.write("1.18.3\\n");
+  process.exit(0);
+}
+process.exit(2);
+`);
+const openCodeHostBin = join(openCodeHostBinDir, "opencode");
+process.env.AGDF_OPENCODE_BIN = openCodeHostBin;
 
 function runOpenCodeCli(args, options = {}) {
   return execFileSync(process.execPath, [binPath, ...args], {
@@ -128,6 +185,7 @@ function runOpenCodeCli(args, options = {}) {
       FAKE_NPM_LOG: openCodeNpmLog,
       NODE_ENV: "test",
       AGDF_TEST_NPM_CLI_PATH: join(openCodeNpmBinDir, "npm"),
+      AGDF_OPENCODE_BIN: openCodeHostBin,
     },
   });
 }
@@ -414,12 +472,14 @@ try {
   if (!installOutput.includes(`Version: ${pluginDefinition.version} (verified; transition installed)`)
     || !installOutput.includes("Verification: healthy")
     || !installOutput.includes("OpenCode host / plugin SDK:")
+    || !installOutput.includes("Plugin SDK alignment: aligned (target 1.18.3; installed 1.18.3)")
     || !installOutput.includes("Experimental hook declarations: declared_supported")
     || !installOutput.includes("Installation scope: global")
     || !installOutput.includes("Restart required: yes")) {
     throw new Error("opencode install must report the shared verified global lifecycle Success Card.");
   }
-  const npmArgs = readJsonLines(openCodeNpmLog).at(-1);
+  const npmCallsAfterInstall = readJsonLines(openCodeNpmLog).length;
+  const npmArgs = readJsonLines(openCodeNpmLog).find((args) => args.at(-1) === `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`);
   if (!npmArgs.includes("--save-exact")
     || npmArgs.includes("--prefix")
     || npmArgs.at(-1) !== `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`
@@ -526,8 +586,51 @@ try {
     || status.repository_surface.legacy_present) {
     throw new Error("opencode-status schema v1 must preserve gate_check_agent as a native-skill compatibility alias.");
   }
+  if (readJsonLines(openCodeNpmLog).length !== npmCallsAfterInstall) {
+    throw new Error("opencode-status must remain read-only and never invoke npm.");
+  }
 } finally {
   rmSync(openCodeConfigTempDir, { recursive: true, force: true });
+}
+
+{
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-sdk-unavailable-"));
+  try {
+    let report = null;
+    let humanOutput = "";
+    try {
+      runOpenCodeCli(["opencode", "--dir", tempDir, "--json"], {
+        encoding: "utf8",
+        stdio: "pipe",
+        env: { FAKE_SDK_MODE: "unavailable" },
+      });
+    } catch (error) {
+      report = JSON.parse(error.stdout.toString());
+    }
+    rmSync(join(tempDir, "node_modules"), { recursive: true, force: true });
+    try {
+      runOpenCodeCli(["opencode", "--dir", tempDir], {
+        encoding: "utf8",
+        stdio: "pipe",
+        env: { FAKE_SDK_MODE: "unavailable" },
+      });
+    } catch (error) {
+      humanOutput = error.stdout.toString();
+    }
+    if (report?.result !== "partial"
+      || report.verification?.status !== "degraded"
+      || !report.verification?.evidence?.includes("sdk_alignment=unavailable;target=1.18.3;installed=1.17.11")
+      || report.next_action?.kind !== "recovery"
+      || !report.next_action?.text?.includes("@opencode-ai/plugin")
+      || !report.next_action?.text?.includes("observed SDK: 1.17.11")
+      || !humanOutput.includes("AGDF installation partially completed")
+      || !humanOutput.includes("Plugin SDK alignment: unavailable (target 1.18.3; installed 1.17.11)")
+      || !humanOutput.includes("Next action: Retry the OpenCode installation")) {
+      throw new Error("unavailable exact SDK alignment must return one observable partial lifecycle recovery result.");
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 }
 
 {

@@ -149,7 +149,7 @@ Then verify the visible installation state:
 npx --yes @agdf/cli@latest opencode-status --json
 ```
 
-The status command reports global configuration, package loadability, global native-skill completeness, installed host/plugin-SDK version divergence, declaration-level support for both experimental hooks, durable repository activation, legacy local-surface compatibility and session signals. SDK declarations are not proof that a live host invoked a hook, and host/SDK divergence is warning-only rather than auto-aligned. The command does not infer an active OpenCode session from config alone.
+The status command reports global configuration, package loadability, global native-skill completeness, installed host/plugin-SDK version divergence, declaration-level support for both experimental hooks, durable repository activation, legacy local-surface compatibility and session signals. SDK declarations are not proof that a live host invoked a hook. Status is read-only and keeps divergence warning-only; the explicit `opencode` install command attempts to align the SDK only to the exact detected host version and returns a partial result when alignment is unavailable, fails or cannot be verified. The command does not infer an active OpenCode session from config alone.
 In JSON schema version 1, `repository_surface.gate_check_agent` remains a deprecated compatibility alias for the native `gate_check_skill` path so existing status consumers keep working during the agent-to-skill migration.
 
 Use the `opencode-repo` target when a repository should opt into the globally installed AGDF OpenCode runtime:

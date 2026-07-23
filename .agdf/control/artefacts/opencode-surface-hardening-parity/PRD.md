@@ -2,16 +2,18 @@
 
 Status: approved
 Gate: PRD
-Revision: 1
+Revision: 2
 Date: 2026-07-23
 Derived from: `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md`
-Gate approval: Exact `Approval: PRD` accepted on 2026-07-23 after same-run, same-revision and durable-artefact revalidation.
+Gate approval: Exact `Approval: PRD` accepted on 2026-07-23 for revision 2 after same-run,
+same-revision and durable-artefact revalidation.
 
 ## Product Outcome
 
 An OpenCode user can determine the effective AGDF hook, version and Delivery Path Search evaluator
 capability before relying on it. Missing or unprovable stronger capability is visible, never
-silently inherited and always has one safe recovery path.
+silently inherited and always has one safe recovery path. A normal OpenCode installation also
+repairs a resolvable host/SDK version divergence automatically and verifies the observed result.
 
 ## Users And Primary Intent
 
@@ -25,16 +27,34 @@ silently inherited and always has one safe recovery path.
 
 1. Evidence strength is explicit: SDK declarations are not live hook execution proof.
 2. Host, plugin SDK and AGDF package versions are separate facts.
-3. Version divergence is warning-only; AGDF must not automatically align the host-owned SDK.
-4. `tool_enforced` is an invocation-scoped result, not a static surface promise.
-5. Failed or unavailable preflight stops the executable evaluator path and points to the existing
+3. `opencode-status` is read-only. The `opencode` install path automatically targets the exact
+   detected host version for the plugin SDK when that version is resolvable, then verifies the
+   installed result.
+4. Alignment never modifies the OpenCode host or unrelated dependencies. Unavailable, failed or
+   unverifiable alignment retains warning-only divergence reporting and one recovery action; it
+   never invents a matching state.
+5. `tool_enforced` is an invocation-scoped result, not a static surface promise.
+6. Failed or unavailable preflight stops the executable evaluator path and points to the existing
    instruction-only workflow; it does not continue as a weaker executable subprocess.
-6. Delivery Path Search remains advisory and canonical gate-check remains the authority.
-7. Existing OpenCode configuration and explicit permission decisions remain authoritative.
+7. Delivery Path Search remains advisory and canonical gate-check remains the authority.
+8. Existing OpenCode configuration and explicit permission decisions remain authoritative except
+   for the explicitly owned exact plugin-SDK dependency alignment.
 
 ## Working Modes And Visible States
 
-### Mode A: OpenCode Status Inspection
+### Mode A: OpenCode Installation And SDK Alignment
+
+The installer:
+
+- detects the installed OpenCode host version;
+- leaves an already matching SDK unchanged;
+- attempts to install only `@opencode-ai/plugin@<exact-host-version>` when the SDK diverges and that
+  exact version is resolvable;
+- verifies and reports the observed final host and SDK versions;
+- reports unavailable, failed or unverifiable alignment without modifying the host, prompting for
+  input or claiming a match.
+
+### Mode B: OpenCode Status Inspection
 
 The user sees:
 
@@ -51,14 +71,14 @@ Hook declaration states:
 
 `declared_supported` must not be presented as observed live invocation.
 
-### Mode B: Active Plugin Guidance
+### Mode C: Active Plugin Guidance
 
 Static global instructions preserve the minimum governance boundary even when neither experimental
 hook executes. Dynamic hooks may reinforce that boundary but must not become its sole owner.
 Plugin hook failures or unexpected host output shapes must not crash the session or silently claim
 that guidance was injected.
 
-### Mode C: Executable Delivery Path Search
+### Mode D: Executable Delivery Path Search
 
 The executable OpenCode evaluator is available only when the current invocation proves:
 
@@ -71,7 +91,7 @@ The executable OpenCode evaluator is available only when the current invocation 
 
 Only that invocation may report `tool_enforced`.
 
-### Mode D: Degraded Evaluator Recovery
+### Mode E: Degraded Evaluator Recovery
 
 When preflight is unavailable or fails:
 
@@ -100,8 +120,21 @@ hook execution. Unknown or unreadable evidence shall fail closed to `uninspectab
 ### PRD-OC-03 — Version transparency
 
 Install/status output shall report OpenCode host, plugin SDK and AGDF package versions separately.
-Host/SDK divergence shall create a warning with a safe diagnostic or repair action and shall never
-automatically update or align the SDK.
+`opencode-status` shall remain read-only. Host/SDK divergence shall create a warning with a safe
+diagnostic or repair action.
+
+### PRD-OC-13 — Fail-safe install-time SDK alignment
+
+The `opencode` install path shall:
+
+- leave an already matching SDK unchanged;
+- when host and SDK versions diverge, resolve and install only the exact host-version
+  `@opencode-ai/plugin` package;
+- post-verify the installed SDK version and hook declarations before reporting a healthy result;
+- not modify the OpenCode host, unrelated dependencies or explicit permission decisions;
+- avoid interactive prompts and behave deterministically without a TTY;
+- on unavailable, failed or unverifiable alignment, preserve and report the observed final state,
+  keep divergence warning-only and provide one retry or manual-repair action.
 
 ### PRD-OC-04 — Static fail-closed governance
 
@@ -157,7 +190,7 @@ parity.
 | Criterion | Observable evidence |
 |---|---|
 | AC-01 | Status fixtures cover both hooks present, one missing, both missing and uninspectable SDK states with stable JSON and human output. |
-| AC-02 | Status shows host, SDK and AGDF versions independently and warns on the observed 1.18.3/1.17.11 divergence without modifying either installation. |
+| AC-02 | Status shows host, SDK and AGDF versions independently, remains read-only and warns on divergence without modifying either installation. |
 | AC-03 | Hook-absent fixtures and skill evaluations prove that static instructions still block unactivated or ungated work. |
 | AC-04 | Defensive-hook tests cover missing output arrays and inactive/active repository guidance without host crashes. |
 | AC-05 | The OpenCode evaluator passes the shared evaluator fixture and contract tests without changing shared scoring or gate semantics. |
@@ -168,6 +201,8 @@ parity.
 | AC-10 | Capability matrix, CLI help/output, INSTALL, package README, Pages and generated/runtime-integrity assertions agree on baseline versus invocation-scoped enforcement. |
 | AC-11 | Existing explicit OpenCode permission decisions remain byte-equivalent except for separately owned AGDF additions. |
 | AC-12 | Candidate generation remains Codex/Claude-only and its existing tests remain unchanged in meaning. |
+| AC-13 | Install fixtures prove already-matching is unchanged, a resolvable divergence installs only the exact host-version SDK and post-verifies matching plus hook declarations. |
+| AC-14 | Uninspectable host, unavailable exact SDK, npm failure and failed post-verification never claim matching or healthy alignment, never modify the host, remain non-interactive and expose the observed final state plus one recovery action. |
 
 ## Non-Goals
 
@@ -176,13 +211,18 @@ parity.
 - Add OpenCode candidate generation.
 - Use in-host `permission.ask` as the primary evaluator enforcement mechanism.
 - Claim live hook invocation from SDK declaration inspection.
-- Automatically align or update the OpenCode host or plugin SDK.
+- Update, downgrade or otherwise modify the OpenCode host.
+- Align the SDK from `opencode-status`.
+- Add an interactive SDK-alignment question or require a TTY.
+- Select `latest`, a range or any SDK version other than the exact detected host version.
 - Perform VCS, release or publish actions in this run.
 
 ## Evidence Obligations
 
 - Repository tests prove deterministic contract and regression behavior.
 - A real installed-SDK probe proves declaration-level status behavior.
+- Install regression tests prove exact-version targeting, post-verification and safe failure
+  behavior without requiring registry mutation in deterministic fixtures.
 - A real bounded OpenCode evaluator probe is required before claiming live `tool_enforced`
   availability; fixture success alone is insufficient.
 - Documentation must preserve the boundary between repository evidence and live host observation.

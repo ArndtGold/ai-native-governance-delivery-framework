@@ -3,12 +3,14 @@
 Status: pass
 Mode: pre_implementation_analysis
 Decision: pass
+Revision: 2
 Date: 2026-07-23
 Approved plan: `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md`
 
 ## Scope
 
-Verify the clean implementation path for OHP-01 through OHP-10 before CD+Tests.
+Verify the clean implementation path for OHP-01 through OHP-11 before revised CD+Tests, with
+OHP-11 as the only newly authorized code delta.
 
 ## Existing-System Evidence
 
@@ -26,16 +28,20 @@ Verify the clean implementation path for OHP-01 through OHP-10 before CD+Tests.
   `cli/validation-handlers.js` own enforcement classification, dispatch and exit behavior.
 - Existing lifecycle, smoke, delivery-path-search, package, Runtime Integrity and Pages checks cover
   the affected regression surface.
-- The OpenCode 1.18.3 CLI exposes the approved stable run flags; the installed 1.17.11 SDK declares
-  both experimental hook keys.
+- `openCodeNpmInvocation()` already centralizes platform-safe npm execution without a shell, and
+  `installOpenCodeGlobalPlugin()` is the sole OpenCode package-install owner.
+- `evaluateOpenCodeHostSdk()` already provides the read-only host, installed SDK, hook declaration
+  and version-divergence evidence required for pre- and post-alignment probes.
+- The local OpenCode host and SDK both currently report `1.18.3` after manual repair; the exact
+  registry version is resolvable.
 
 ## Worktree Isolation
 
-- Approved source paths under `create-agdf/lib`, `create-agdf/opencode-plugin.js`,
-  `create-agdf/scripts`, `plugin/meta`, `plugin/scripts`, documentation and `pages/src` are clean at
+- Approved code paths under `create-agdf/lib/installers/opencode.js`,
+  `create-agdf/lib/cli/application.js` and the focused test scripts are clean at the revised
   implementation baseline.
-- Pre-existing unrelated deletion of `.gitignore`, `.idea/`, dependency directories and generated
-  build outputs are outside this run and must remain isolated.
+- The current worktree changes are limited to this run's approved revision-2 control artefacts and
+  must remain isolated from the implementation diff.
 - `create-agdf/generated/**` is derived output produced by the existing sync/prepack flow; it must
   not become a hand-edited source owner.
 
@@ -50,16 +56,17 @@ Verify the clean implementation path for OHP-01 through OHP-10 before CD+Tests.
 | OpenCode evaluator and preflight | not_done | add one adapter beside existing evaluators |
 | Capability/CLI fallback | partially_done | extend existing dispatch and classification |
 | Documentation/tests | partially_done | update existing truth and regression owners |
+| Install-time SDK alignment | not_done | extend the existing installer and lifecycle projection only |
 
 ## Clean Implementation Order
 
-1. Implement and test pure resolver/status helpers.
-2. Harden static/dynamic guidance.
-3. Add owned evaluator-agent lifecycle symmetrically to install/status/uninstall.
-4. Add preflight and evaluator adapter using the shared mutation guard.
-5. Wire conditional enforcement and typed CLI fallback without entering the search core on failure.
-6. Synchronize docs, generated assets and Runtime Integrity.
-7. Run focused, aggregate and live evidence in that order.
+1. Add exact-version validation and typed alignment states beside the existing host/SDK probe.
+2. Extend the existing installer with matching no-op, exact registry resolution/install and
+   mandatory post-probe behavior.
+3. Map the alignment state through the existing lifecycle result and human output without extending
+   the status schema.
+4. Add focused transcript tests for all states, npm arguments, no-call paths and read-only status.
+5. Run focused lifecycle/OpenCode tests, smoke and Runtime Integrity before mandatory reviews.
 
 ## Risks And Controls
 
@@ -72,20 +79,26 @@ Verify the clean implementation path for OHP-01 through OHP-10 before CD+Tests.
 - Worktree mutation: retain before/after comparison on every success and failure path.
 - Derived-output drift: generate through existing sync scripts only.
 - Live evidence: do not claim tool enforcement if authentication or the real invocation is absent.
+- Registry/install failure: classify and post-probe the observed final state; never substitute
+  `latest`, a range or another version, and never report an unresolved result as healthy.
+- Package execution: reuse `openCodeNpmInvocation()`, disable lifecycle scripts/audit/funding output
+  for the SDK install and keep status free of registry/install calls.
 
 ## Context Graph
 
-- context_graph_impact: `link_only`
+- context_graph_impact: `update_existing_node`
 - context_graph_refs: `CG-DELIVERY-PATH-SEARCH`
-- context_graph_reconciliation: `open_gap`
-- context_graph_required_action: `link`
-- context_graph_gate_effect: `warning`
-- context_graph_evidence: The approved implementation preserves the existing portable search,
-  evaluator and gate-authority invariant; reconciliation is required before closeout.
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `update`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: `CG-DELIVERY-PATH-SEARCH` now records conditional OpenCode enforcement,
+  the instruction-only baseline and the still-unproven live tool-enforced claim.
 
 ## Result
 
-- missing_evidence: implementation, deterministic regression results and real OpenCode evaluator evidence
-- reuse_strategy: extend existing canonical owners; add only the missing OpenCode adapter and owned agent
+- missing_evidence: OHP-11 implementation and deterministic regression results; the historical real
+  OpenCode evaluator evidence obligation remains open
+- reuse_strategy: extend the existing OpenCode installer, read-only probe and lifecycle projection;
+  add no new package or status owner
 - parallel_structure_risk: controlled by the approved owner map and review obligations
-- required_next_step: implement OHP-01 through OHP-10 under CD+Tests, then run mandatory reviews
+- required_next_step: implement and test OHP-11 under revised CD+Tests, then refresh mandatory reviews

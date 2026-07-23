@@ -3,7 +3,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
-import { evaluateOpenCodeHostSdk, printOpenCodeStatus } from "../lib/installers/opencode.js";
+import { alignOpenCodePluginSdk, evaluateOpenCodeHostSdk, printOpenCodeStatus } from "../lib/installers/opencode.js";
 import {
   OPENCODE_DENY_PERMISSIONS,
   openCodeEvaluator,
@@ -75,6 +75,150 @@ try {
   });
   assert.equal(uninspectable.experimental_hooks.aggregate, "uninspectable");
   assert.equal(uninspectable.host_sdk_version.status, "unknown");
+
+  function writeSdk(version, declaration = 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\n') {
+    writeFileSync(join(sdkRoot, "package.json"), JSON.stringify({
+      name: "@opencode-ai/plugin",
+      version,
+      types: "dist/index.d.ts",
+    }));
+    writeFileSync(join(sdkRoot, "dist", "index.d.ts"), declaration);
+  }
+
+  function alignmentRunner({ hostVersion = "1.18.3", registry = "available", install = "success", postVersion = "1.18.3", postDeclaration } = {}) {
+    const calls = [];
+    const run = (file, args) => {
+      calls.push([file, [...args]]);
+      if (file === process.execPath) return JSON.stringify({
+        resolvedPath: join(sdkRoot, "dist", "index.js"),
+        manifestPath: join(sdkRoot, "package.json"),
+      });
+      if (file === "fixture-opencode" && args[0] === "--version") {
+        if (hostVersion === "uninspectable") throw new Error("host unavailable");
+        return `${hostVersion}\n`;
+      }
+      if (args[0] === "view") {
+        if (registry === "unavailable") {
+          const error = new Error("No matching version");
+          error.stderr = "npm ERR! code ETARGET";
+          throw error;
+        }
+        if (registry === "failed") throw new Error("registry offline");
+        return JSON.stringify(hostVersion);
+      }
+      if (args[0] === "install") {
+        if (install === "failed") throw new Error("install failed");
+        writeSdk(postVersion, postDeclaration);
+        return "";
+      }
+      throw new Error(`unexpected alignment call: ${file} ${args.join(" ")}`);
+    };
+    return { calls, run };
+  }
+
+  writeSdk("1.18.3");
+  const matchingRunner = alignmentRunner();
+  const matchingAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: matchingRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(matchingAlignment.status, "already_matching");
+  assert.equal(matchingAlignment.attempted, false);
+  assert.equal(matchingRunner.calls.some(([, args]) => args[0] === "view" || args[0] === "install"), false);
+
+  writeSdk("1.17.11");
+  const alignedRunner = alignmentRunner();
+  const aligned = alignOpenCodePluginSdk(temp, {
+    execFileSync: alignedRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(aligned.status, "aligned");
+  assert.equal(aligned.previous_version, "1.17.11");
+  assert.equal(aligned.target_version, "1.18.3");
+  assert.equal(aligned.installed_version, "1.18.3");
+  const alignmentInstallArgs = alignedRunner.calls.find(([, args]) => args[0] === "install")?.[1] ?? [];
+  for (const expected of ["--save-exact", "--ignore-scripts", "--no-audit", "--no-fund"]) {
+    assert.ok(alignmentInstallArgs.includes(expected));
+  }
+  assert.equal(alignmentInstallArgs.at(-1), "@opencode-ai/plugin@1.18.3");
+  assert.equal(alignmentInstallArgs.some((arg) => arg === "latest" || arg.includes("^") || arg.includes("~")), false);
+
+  writeSdk("1.17.11");
+  const unavailableRunner = alignmentRunner({ registry: "unavailable" });
+  const unavailableAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: unavailableRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(unavailableAlignment.status, "unavailable");
+  assert.equal(unavailableAlignment.installed_version, "1.17.11");
+  assert.equal(unavailableRunner.calls.some(([, args]) => args[0] === "install"), false);
+
+  writeSdk("1.17.11");
+  const hostMissingRunner = alignmentRunner({ hostVersion: "uninspectable" });
+  const hostMissingAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: hostMissingRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(hostMissingAlignment.status, "not_attempted");
+  assert.equal(hostMissingRunner.calls.some(([, args]) => args[0] === "view" || args[0] === "install"), false);
+
+  rmSync(join(sdkRoot, "package.json"));
+  const sdkMissingRunner = alignmentRunner();
+  const sdkMissingAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: sdkMissingRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(sdkMissingAlignment.status, "not_attempted");
+  assert.equal(sdkMissingRunner.calls.some(([, args]) => args[0] === "view" || args[0] === "install"), false);
+
+  writeSdk("1.17.11");
+  const invalidHostRunner = alignmentRunner({ hostVersion: "OpenCode 1.18.3" });
+  const invalidHostAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: invalidHostRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(invalidHostAlignment.status, "not_attempted");
+  assert.equal(invalidHostAlignment.target_version, null);
+
+  writeSdk("1.17.11");
+  const failedRunner = alignmentRunner({ install: "failed" });
+  const failedAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: failedRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(failedAlignment.status, "failed");
+  assert.equal(failedAlignment.installed_version, "1.17.11");
+  assert.match(failedAlignment.error, /install failed/);
+
+  writeSdk("1.17.11");
+  const registryFailedRunner = alignmentRunner({ registry: "failed" });
+  const registryFailedAlignment = alignOpenCodePluginSdk(temp, {
+    execFileSync: registryFailedRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(registryFailedAlignment.status, "failed");
+  assert.equal(registryFailedAlignment.attempted, false);
+  assert.match(registryFailedAlignment.error, /registry offline/);
+
+  writeSdk("1.17.11");
+  const versionMismatchRunner = alignmentRunner({ postVersion: "1.17.11" });
+  const versionMismatch = alignOpenCodePluginSdk(temp, {
+    execFileSync: versionMismatchRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(versionMismatch.status, "verification_failed");
+  assert.equal(versionMismatch.installed_version, "1.17.11");
+  assert.match(versionMismatch.error, /Observed plugin SDK 1\.17\.11/);
+
+  writeSdk("1.17.11");
+  const verificationRunner = alignmentRunner({ postVersion: "1.18.3", postDeclaration: "export type Hooks = {};\n" });
+  const verificationFailed = alignOpenCodePluginSdk(temp, {
+    execFileSync: verificationRunner.run,
+    openCodeBin: "fixture-opencode",
+  });
+  assert.equal(verificationFailed.status, "verification_failed");
+  assert.equal(verificationFailed.installed_version, "1.18.3");
+  assert.match(verificationFailed.error, /does not declare/);
 
   const env = openCodePermissionEnvironment({ SAFE: "1" });
   assert.equal(env.SAFE, "1");

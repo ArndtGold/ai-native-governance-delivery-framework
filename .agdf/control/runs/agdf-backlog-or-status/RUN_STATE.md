@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-backlog-or-status
-- lifecycle: active
-- revision: 1
-- revision_id: 4c71600d-fd48-4599-ac3b-009c4cf19ae6
+- lifecycle: completed
+- revision: 2
+- revision_id: d5bd65b7-8447-48fa-a6e7-c52fb420a53d
 - mode: verified_change
 - current_gate: OR
-- decision: ready_for_closeout
+- decision: completed
 - owner: agent
 
 ## Objective
@@ -21,10 +21,10 @@ in `MASTER_BACKLOG.md` without a doctor finding.
 
 | Question | Answer |
 |---|---|
-| What is known? | `backlogStatusLabels` in `shared.js` has no `awaiting_or` entry; every run awaiting OR production triggers `AGDF_BACKLOG_STATUS_UNKNOWN`. Observed 2026-07-21 in run `agdf-scope-classification-card`. |
+| What is known? | The executed Verified Change added canonical `awaiting_or` normalization, template parity and regression coverage; its Mini-Closeout is recorded in the same lifecycle-owned artefact. |
 | What is approved? | `Approval: UR` accepted on 2026-07-21 after same-run, same-gate, revision (`4c71600d`) and durable-artefact revalidation. |
-| What is missing? | Nothing — Verified Change executed and validated. |
-| What is the next allowed action? | Delivery closeout is ready. VCS actions require separate explicit user instruction. |
+| What is missing? | Nothing within the approved Verified Change scope. |
+| What is the next allowed action? | No run work remains; VCS or release actions require separate explicit user instruction. |
 | What is explicitly forbidden right now? | Automatic commit, push, PR, release. |
 
 ## Approvals
@@ -37,6 +37,7 @@ in `MASTER_BACKLOG.md` without a doctor finding.
 | TP | not_applicable | see PRD |
 | QA | not_applicable | see PRD |
 | UAT | not_applicable | see PRD |
+| OR | done | Mini-Closeout recorded in `.agdf/control/artefacts/agdf-backlog-or-status/VERIFIED_CHANGE.md`. |
 
 ## Artefacts
 
@@ -74,8 +75,18 @@ in `MASTER_BACKLOG.md` without a doctor finding.
 | UR | approved_by | `Approval: UR` | Exact approval accepted on 2026-07-21 after same-run, same-gate, revision and durable-artefact revalidation. |
 | UR | motivated_by | Doctor finding on "Awaiting OR" | `AGDF_BACKLOG_STATUS_UNKNOWN` observed 2026-07-21 in run `agdf-scope-classification-card`. |
 | UR | scoped_by | Non-Goals section of UR | Excludes gate order, lifecycle rules, CLI commands, schema-version bump, VCS actions. |
+| Verified Change | verified_by | Mini-Closeout | Pass; no missing evidence, retained fallback or Context Graph action remains. |
+
+## Context Graph Impact
+
+- context_graph_impact: none
+- context_graph_refs: none
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: The vocabulary-only change adds no reusable architecture or source-of-truth decision.
 
 ## Closeout
 
-- next_allowed_action: Delivery closeout is ready. VCS actions require separate explicit user instruction.
-- quality_outlook: Keep the vocabulary change minimal; no hidden consumer emerged.
+- next_allowed_action: No run work remains; VCS or release actions require separate explicit user instruction.
+- quality_outlook: Closeout is complete; preserve the historical Verified Change record without rebasing it onto unrelated later work.

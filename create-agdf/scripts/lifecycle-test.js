@@ -12,7 +12,7 @@ import {
   verifyRepositoryDisabled,
 } from "../lib/lifecycle/operations.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
-import { installOpenCodeGlobalPlugin } from "../lib/installers/opencode.js";
+import { installOpenCodeGlobalPlugin, installOpenCodeGlobalSurface } from "../lib/installers/opencode.js";
 import { evaluateOpenCodeRepositoryActivation } from "../lib/installers/opencode-activation.js";
 import AGDFPlugin from "../opencode-plugin.js";
 import { evaluateGeneralStatus } from "../lib/lifecycle/status.js";
@@ -124,6 +124,26 @@ const partialApply = applyLifecyclePlan(partialPlan, { exec() { throw new Error(
 assert.equal(partialApply.status, "partial");
 assert.equal(JSON.parse(readFileSync(join(partialConfig, "opencode.json"), "utf8")).plugin.length, 0);
 
+const evaluatorConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-evaluator-agent-"));
+const installedSurface = installOpenCodeGlobalSurface(evaluatorConfig);
+writeFileSync(join(evaluatorConfig, "opencode.json"), `${JSON.stringify({ plugin: [pluginDefinition.opencode.npmPackage], instructions: ["AGDF.md"] })}\n`);
+assert.equal(existsSync(installedSurface.evaluatorAgent), true);
+assert.match(readFileSync(installedSurface.evaluatorAgent, "utf8"), /AGDF-GLOBAL-AGENT: agdf-evaluator/);
+installOpenCodeGlobalSurface(evaluatorConfig);
+const userAgent = join(evaluatorConfig, "agents", "user-agent.md");
+writeFileSync(userAgent, "---\ndescription: user\n---\nuser-owned\n");
+const evaluatorUninstall = planGlobalUninstall("opencode", { configDir: evaluatorConfig });
+assert.ok(evaluatorUninstall.mutations.some((mutation) => mutation.path === installedSurface.evaluatorAgent));
+assert.equal(applyLifecyclePlan(evaluatorUninstall, { exec() {} }).status, "success");
+assert.equal(existsSync(installedSurface.evaluatorAgent), false);
+assert.equal(existsSync(userAgent), true);
+
+const evaluatorCollision = mkdtempSync(join(tmpdir(), "agdf-opencode-evaluator-collision-"));
+mkdirSync(join(evaluatorCollision, "agents"), { recursive: true });
+writeFileSync(join(evaluatorCollision, "agents", "agdf-evaluator.md"), "---\ndescription: user\n---\nunowned\n");
+assert.throws(() => installOpenCodeGlobalSurface(evaluatorCollision), /unowned global OpenCode file/);
+assert.equal(existsSync(join(evaluatorCollision, pluginDefinition.opencode.instructionsFileName)), false, "collision preflight must precede surface mutation");
+
 const invalidOpenCodeConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-invalid-"));
 writeFileSync(join(invalidOpenCodeConfig, "opencode.json"), "{invalid\n");
 assert.throws(() => installOpenCodeGlobalPlugin(invalidOpenCodeConfig), (error) => {
@@ -190,6 +210,9 @@ const hooks = await AGDFPlugin({ directory: activationRoot, client: { app: { log
 const activeSystem = { system: [] };
 await hooks["experimental.chat.system.transform"]({}, activeSystem);
 assert.match(activeSystem.system.join("\n"), /agdf-global-gate-check/);
+await hooks["experimental.chat.system.transform"]({}, null);
+await hooks["experimental.session.compacting"]({}, { context: null });
+assert.ok(pluginLogs.some((entry) => entry.body?.level === "warn" && /guidance degraded/.test(entry.body?.message)));
 const activeEnvironment = { env: {} };
 await hooks["shell.env"]({}, activeEnvironment);
 assert.equal(activeEnvironment.env.AGDF_PLUGIN_ACTIVE, "1");

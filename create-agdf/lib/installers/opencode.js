@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
 import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
@@ -14,6 +14,7 @@ const globalOpenCodeSkillOwnershipMarker = "<!-- AGDF-GLOBAL-SKILL: ";
 const globalOpenCodeInstructionsOwnershipMarker = "<!-- AGDF-GLOBAL-INSTRUCTIONS -->";
 const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->";
 const globalOpenCodeValidatorOwnershipMarker = "// AGDF-GLOBAL-LOCAL-VALIDATOR";
+const globalOpenCodeAgentOwnershipMarker = `<!-- AGDF-GLOBAL-AGENT: ${pluginDefinition.opencode.evaluatorAgentName} -->`;
 const globalOpenCodeValidatorPackageOwner = "create-agdf";
 const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
 const npmCommand = testNpmCliPath ? process.execPath : process.platform === "win32" ? process.execPath : "npm";
@@ -131,6 +132,7 @@ function globalOpenCodeConfigPaths(configDir) {
     skills: join(configDir, "skills"),
     localValidator: join(configDir, "agdf", "bin", "agdf-local.js"),
     localValidatorPackage: join(configDir, "agdf", "package.json"),
+    evaluatorAgent: join(configDir, "agents", `${pluginDefinition.opencode.evaluatorAgentName}.md`),
   };
 }
 
@@ -179,6 +181,7 @@ function assertGlobalOpenCodeSurfaceWritable(configDir) {
   assertGlobalOpenCodeFileWritable(paths.instructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   assertGlobalOpenCodeFileWritable(paths.runtimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
   assertGlobalOpenCodeFileWritable(paths.localValidator, globalOpenCodeValidatorOwnershipMarker, "first-line");
+  assertGlobalOpenCodeFileWritable(paths.evaluatorAgent, globalOpenCodeAgentOwnershipMarker, "after-frontmatter");
   assertGlobalOpenCodeValidatorPackageWritable(paths.localValidatorPackage);
   for (const moduleName of contractModules) {
     assertGlobalOpenCodeFileWritable(
@@ -212,6 +215,10 @@ function globalOpenCodeBoundary() {
     "Before applying AGDF gates, later artefacts or implementation guidance, inspect the current repository for valid `.agdf/control/config.json` durable control.",
     "If durable control is missing or invalid, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo` in this repository.",
     "When durable control is valid, use the global `agdf-global-*` skill surface; existing local OpenCode assets remain a compatibility path.",
+    "Only exact `Approval: <GateName>` values can advance AGDF gates; host permissions and plugin hooks never grant delivery authority.",
+    "Resolve and use the installed version-matched `agdf/bin/agdf-local.js` validator for deterministic checks.",
+    "If activation, approval, evidence or validator ownership is missing or unclear, stop before later artefacts or implementation.",
+    "Use `opencode-status --json` to inspect installed hook declarations, version divergence and evaluator availability without treating SDK declarations as live hook execution proof.",
     "",
   ].join("\n");
 }
@@ -255,10 +262,27 @@ export function installOpenCodeGlobalSurface(configDir) {
   ].join("\n");
   const globalRuntimeContract = `${globalOpenCodeRuntimeContractOwnershipMarker}\n${generatedRuntimeContract}`;
   const localValidator = `${globalOpenCodeValidatorOwnershipMarker}\nimport process from "node:process";\nimport { fileURLToPath } from "node:url";\nimport { runLocalValidator } from "../../node_modules/create-agdf/lib/runtime/local-validator.js";\n\nconst ownedPackageRoot = fileURLToPath(new URL("../../node_modules/create-agdf", import.meta.url));\nprocess.exitCode = runLocalValidator({ ownedPackageRoot, expectedVersion: ${JSON.stringify(pluginDefinition.version)}, surface: "opencode" }, process.argv.slice(2));\n`;
+  const evaluatorAgent = [
+    "---",
+    "description: Evaluate one AGDF Delivery Path Search candidate without tools or side effects.",
+    "mode: primary",
+    "permission:",
+    '  "*": deny',
+    "---",
+    globalOpenCodeAgentOwnershipMarker,
+    "",
+    "# AGDF Delivery Path Search evaluator",
+    "",
+    "Evaluate only the bounded candidate supplied in the user message.",
+    "Do not call tools, inspect files, delegate work or modify state.",
+    "Return only the requested JSON object; AGDF validates it independently.",
+    "",
+  ].join("\n");
 
   writeOwnedGlobalOpenCodeFile(paths.instructions, globalInstructions, globalOpenCodeInstructionsOwnershipMarker, "first-line");
   writeOwnedGlobalOpenCodeFile(paths.runtimeContract, globalRuntimeContract, globalOpenCodeRuntimeContractOwnershipMarker, "first-line");
   writeOwnedGlobalOpenCodeFile(paths.localValidator, localValidator, globalOpenCodeValidatorOwnershipMarker, "first-line");
+  writeOwnedGlobalOpenCodeFile(paths.evaluatorAgent, evaluatorAgent, globalOpenCodeAgentOwnershipMarker, "after-frontmatter");
   mkdirSync(dirname(paths.localValidatorPackage), { recursive: true });
   writeFileSync(paths.localValidatorPackage, `${JSON.stringify({
     name: "agdf-opencode-validator-runtime",
@@ -296,6 +320,7 @@ export function installOpenCodeGlobalSurface(configDir) {
     skills: paths.skills,
     localValidator: paths.localValidator,
     localValidatorPackage: paths.localValidatorPackage,
+    evaluatorAgent: paths.evaluatorAgent,
   };
 }
 
@@ -308,24 +333,64 @@ function readOpenCodeConfig(configPath) {
   }
 }
 
-function resolveOpenCodePackage(configDir) {
-  const packageName = pluginDefinition.opencode.npmPackage;
+export function resolveOpenCodeInstalledPackage(configDir, packageName, dependencies = {}) {
+  const run = dependencies.execFileSync ?? execFileSync;
   try {
-    const resolvedPath = execFileSync(process.execPath, ["-e", `process.stdout.write(require.resolve(${JSON.stringify(packageName)}))`], {
+    const probe = [
+      'const fs = require("node:fs");',
+      'const path = require("node:path");',
+      `const packageName = ${JSON.stringify(packageName)};`,
+      'let resolvedPath = "";',
+      'try { resolvedPath = require.resolve(packageName); } catch {}',
+      'let manifestPath = "";',
+      'for (const root of require.resolve.paths(packageName) || []) {',
+      '  const candidate = path.join(root, packageName, "package.json");',
+      '  if (fs.existsSync(candidate)) { manifestPath = candidate; break; }',
+      '}',
+      'if (!manifestPath) throw new Error(`installed package manifest not found: ${packageName}`);',
+      'process.stdout.write(JSON.stringify({ resolvedPath, manifestPath }));',
+    ].join("\n");
+    const rawResolution = run(process.execPath, ["-e", probe], {
       cwd: configDir,
       encoding: "utf8",
       stdio: "pipe",
     });
-    let installedVersion = "";
+    let resolvedPath = rawResolution;
+    let probedManifestPath = "";
     try {
-      const packageManifest = JSON.parse(readFileSync(join(dirname(resolvedPath), "package.json"), "utf8"));
-      installedVersion = typeof packageManifest.version === "string" && packageManifest.version.trim() ? packageManifest.version.trim() : "";
-    } catch {
-      installedVersion = "";
+      const parsed = JSON.parse(rawResolution);
+      resolvedPath = parsed.resolvedPath || parsed.manifestPath;
+      probedManifestPath = parsed.manifestPath;
+    } catch {}
+    let current = probedManifestPath ? dirname(probedManifestPath) : dirname(resolvedPath);
+    let manifestPath = "";
+    let packageRoot = "";
+    let manifest = null;
+    for (let depth = 0; depth < 20; depth += 1) {
+      const candidate = join(current, "package.json");
+      if (existsSync(candidate)) {
+        try {
+          const value = JSON.parse(readFileSync(candidate, "utf8"));
+          if (value?.name === packageName) {
+            manifestPath = candidate;
+            packageRoot = current;
+            manifest = value;
+            break;
+          }
+        } catch {}
+      }
+      const parent = dirname(current);
+      if (parent === current) break;
+      current = parent;
     }
+    if (!manifest) throw new Error(`resolved ${packageName} entry has no matching package manifest`);
+    const installedVersion = typeof manifest.version === "string" && manifest.version.trim() ? manifest.version.trim() : "";
     return {
       loadable: true,
       path: resolvedPath,
+      manifest_path: manifestPath,
+      package_root: packageRoot,
+      manifest,
       installed_version: installedVersion,
       error: "",
     };
@@ -333,10 +398,125 @@ function resolveOpenCodePackage(configDir) {
     return {
       loadable: false,
       path: "",
+      manifest_path: "",
+      package_root: "",
+      manifest: null,
       installed_version: "",
       error: (error.stderr || error.message || "package not resolvable").toString().trim(),
     };
   }
+}
+
+function resolveOpenCodePackage(configDir) {
+  return resolveOpenCodeInstalledPackage(configDir, pluginDefinition.opencode.npmPackage);
+}
+
+const requiredExperimentalHooks = [
+  "experimental.chat.system.transform",
+  "experimental.session.compacting",
+];
+
+function packageLocalPath(packageRoot, candidate) {
+  if (!packageRoot || !candidate) return "";
+  const path = resolve(packageRoot, candidate);
+  const relation = relative(packageRoot, path);
+  return relation === "" || (relation !== ".." && !relation.startsWith(`..${sep}`) && !isAbsolute(relation)) ? path : "";
+}
+
+function openCodeHostProbe(dependencies = {}) {
+  const executable = dependencies.openCodeBin ?? process.env.AGDF_OPENCODE_BIN ?? "opencode";
+  const run = dependencies.execFileSync ?? execFileSync;
+  try {
+    return {
+      name: "opencode",
+      executable,
+      inspectable: true,
+      installed_version: run(executable, ["--version"], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 5000,
+      }).trim(),
+      error: "",
+    };
+  } catch (error) {
+    return {
+      name: "opencode",
+      executable,
+      inspectable: false,
+      installed_version: "",
+      error: (error.stderr || error.message || "host version unavailable").toString().trim(),
+    };
+  }
+}
+
+function openCodeSdkProbe(configDir, dependencies = {}) {
+  const sdk = resolveOpenCodeInstalledPackage(configDir, "@opencode-ai/plugin", dependencies);
+  let declarationPath = "";
+  let declaration = "";
+  if (sdk.loadable) {
+    const declaredEntry = sdk.manifest?.types || sdk.manifest?.typings || "dist/index.d.ts";
+    declarationPath = packageLocalPath(sdk.package_root, declaredEntry);
+    if (declarationPath && existsSync(declarationPath)) {
+      try {
+        declaration = readFileSync(declarationPath, "utf8");
+      } catch (error) {
+        sdk.error = error.message;
+      }
+    } else {
+      sdk.error = `SDK declaration not found: ${declaredEntry}`;
+    }
+  }
+  const hooks = requiredExperimentalHooks.map((name) => ({
+    name,
+    state: !declaration
+      ? "uninspectable"
+      : declaration.includes(`"${name}"`)
+        ? "declared_supported"
+        : "declared_missing",
+  }));
+  const states = hooks.map((hook) => hook.state);
+  const aggregate = states.every((state) => state === "declared_supported")
+    ? "declared_supported"
+    : states.some((state) => state === "uninspectable")
+      ? "uninspectable"
+      : "degraded";
+  return {
+    package: {
+      name: "@opencode-ai/plugin",
+      loadable: sdk.loadable,
+      resolved_path: sdk.path,
+      manifest_path: sdk.manifest_path,
+      declaration_path: declarationPath,
+      installed_version: sdk.installed_version || null,
+      error: sdk.error,
+    },
+    hooks: {
+      evidence_level: "sdk_declaration",
+      aggregate,
+      hooks,
+      live_invocation_observed: false,
+    },
+  };
+}
+
+export function evaluateOpenCodeHostSdk(configDir, dependencies = {}) {
+  const host = openCodeHostProbe(dependencies);
+  const sdk = openCodeSdkProbe(configDir, dependencies);
+  return {
+    host,
+    plugin_sdk: sdk.package,
+    experimental_hooks: sdk.hooks,
+    host_sdk_version: {
+      status: !host.installed_version || !sdk.package.installed_version
+        ? "unknown"
+        : host.installed_version === sdk.package.installed_version
+          ? "matching"
+          : "divergent",
+      host_version: host.installed_version || null,
+      sdk_version: sdk.package.installed_version || null,
+      policy: "warn_only",
+    },
+  };
 }
 
 function openCodePackageVersionStatus(packageState) {
@@ -393,18 +573,24 @@ function evaluateGlobalOpenCodeSurface(configDir) {
       present: existsSync(paths.localValidator),
       ...validatorResolution.envelope,
     },
+    evaluator_agent: {
+      name: pluginDefinition.opencode.evaluatorAgentName,
+      path: paths.evaluatorAgent,
+      present: existsSync(paths.evaluatorAgent),
+    },
     present: existsSync(paths.skills),
     complete: existsSync(paths.instructions)
       && existsSync(paths.runtimeContract)
       && contractCount === contractModules.length
       && skillCount === openCodeSkillNames.length
       && existsSync(paths.localValidator)
+      && existsSync(paths.evaluatorAgent)
       && globalOpenCodeValidatorPackageIsValid(paths.localValidatorPackage)
       && validatorResolution.envelope.machine_validation === "owned_version_matched",
   };
 }
 
-export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(), transition = null) {
+export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeConfigDir(), transition = null, dependencies = {}) {
   const configPath = join(configDir, "opencode.json");
   const configState = readOpenCodeConfig(configPath);
   const plugins = Array.isArray(configState.config.plugin) ? configState.config.plugin : [];
@@ -412,6 +598,7 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
   const packageState = resolveOpenCodePackage(configDir);
   const packageVersionStatus = openCodePackageVersionStatus(packageState);
   const globalNativeSurface = evaluateGlobalOpenCodeSurface(configDir);
+  const hostSdk = evaluateOpenCodeHostSdk(configDir, dependencies);
   const sessionSignals = {
     active: process.env.AGDF_PLUGIN_ACTIVE === "1",
     version: process.env.AGDF_PLUGIN_VERSION || "",
@@ -433,6 +620,11 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
     findings.push(
       `Global OpenCode native surface is incomplete (${globalNativeSurface.skill_count}/${globalNativeSurface.expected_skill_count} skills; ${globalNativeSurface.contract_count}/${globalNativeSurface.expected_contract_count} contract modules).`,
     );
+  }
+  if (hostSdk.experimental_hooks.aggregate === "uninspectable") findings.push("Installed OpenCode plugin SDK hook declarations could not be inspected.");
+  if (hostSdk.experimental_hooks.aggregate === "degraded") findings.push("Installed OpenCode plugin SDK is missing one or more required experimental hook declarations.");
+  if (hostSdk.host_sdk_version.status === "divergent") {
+    findings.push(`OpenCode host ${hostSdk.host_sdk_version.host_version} and plugin SDK ${hostSdk.host_sdk_version.sdk_version} diverge; policy is warning-only.`);
   }
   if (!sessionSignals.active) findings.push("No active AGDF OpenCode session signal is visible in this process.");
   if (!repositoryActivation.active) {
@@ -460,6 +652,7 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
       ...(transition ? { transition } : {}),
       error: packageState.error,
     },
+    ...hostSdk,
     global_native_surface: globalNativeSurface,
     session: sessionSignals,
     repository_activation: repositoryActivation.state,
@@ -482,6 +675,12 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
       ? "Run npx --yes @agdf/cli@latest opencode to install or repair the OpenCode package version."
       : !globalNativeSurface.complete
       ? "Run npx --yes @agdf/cli@latest opencode to install or repair the global native OpenCode skill surface."
+      : hostSdk.experimental_hooks.aggregate === "uninspectable"
+      ? "Repair the installed OpenCode plugin SDK so its declarations can be inspected; do not assume dynamic hook support."
+      : hostSdk.experimental_hooks.aggregate === "degraded"
+      ? "Use static AGDF instructions and review OpenCode compatibility before relying on dynamic hook injection."
+      : hostSdk.host_sdk_version.status === "divergent"
+      ? "Review OpenCode host/plugin-SDK compatibility; AGDF reports this divergence but does not align versions automatically."
       : repositoryActivation.state === "invalid_control"
       ? "Repair .agdf/control/config.json so it contains valid artifact_language, chat_language and runtime_language values."
       : repositoryActivation.active
@@ -505,6 +704,11 @@ export function printOpenCodeStatus(report, json, io = console) {
   io.log(`Package version: ${report.package.installed_version || "unknown"}`);
   io.log(`Expected version: ${report.package.expected_version}`);
   io.log(`Version status: ${report.package.version_status}`);
+  io.log(`OpenCode host version: ${report.host.installed_version || "unknown"}`);
+  io.log(`Plugin SDK version: ${report.plugin_sdk.installed_version || "unknown"}`);
+  io.log(`Host/SDK version: ${report.host_sdk_version.status} (${report.host_sdk_version.policy})`);
+  io.log(`Experimental hook declarations: ${report.experimental_hooks.aggregate} (${report.experimental_hooks.evidence_level}; live invocation not observed)`);
+  for (const hook of report.experimental_hooks.hooks) io.log(`- ${hook.name}: ${hook.state}`);
   if (report.package.transition?.status === "updated") {
     io.log(`Version transition: ${report.package.transition.previous_version} -> ${report.package.transition.installed_version}`);
   } else if (report.package.transition?.status === "installed") {

@@ -103,7 +103,7 @@ selected run, current gate and durable artefact before persisting an approval. C
 permissions, Claude plan approval and OpenCode permission or auto-mode outcomes never count as AGDF
 gate approval.
 
-Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators. Other surfaces use the same canonical skill and adapter contract and must declare whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
+Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators; OpenCode joins them only when its current-invocation capability preflight passes. Every surface declares whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
 
 ## Delivery Path Search
 
@@ -152,9 +152,9 @@ Support boundary:
 | Codex | yes | tool-enforced | tool-enforced, opt-in |
 | Claude Code | yes | tool-enforced | tool-enforced, opt-in |
 | GitHub Copilot | yes | instruction-only | no native executable adapter |
-| OpenCode | yes | instruction-only | no native executable adapter |
+| OpenCode | yes | tool-enforced only after current-invocation preflight; otherwise instruction-only | no native executable adapter |
 
-`--fixture` is available for deterministic contract testing. It is not a production external-evaluator configuration. Additional agents must implement the published evaluator contract before executable support can be claimed.
+`--fixture` is available for deterministic contract testing. It is not a production external-evaluator configuration. OpenCode uses the owned `agdf-evaluator` agent with `opencode run --pure`; the current invocation must prove required command flags and effective deny permissions before reporting `tool_enforced`. Failed preflight, authentication or output validation returns `evaluator_unavailable` and points to the instruction-only workflow. Additional agents must implement the published evaluator contract before executable support can be claimed.
 
 After every result:
 
@@ -458,7 +458,7 @@ Verify the global installation, then restart OpenCode so an already-running app 
 npx --yes @agdf/cli@latest opencode-status --json
 ```
 
-Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
+Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. The report also separates the installed OpenCode host version from the installed `@opencode-ai/plugin` SDK version, warns without auto-aligning when they diverge, and reports each required experimental hook as `declared_supported`, `declared_missing` or `uninspectable`. This is SDK declaration evidence, not proof of live hook invocation. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
 
 ![OpenCode showing the active create-agdf plugin in its Plugins panel alongside an AGDF plugin suitability assessment.](pages/public/assets/opencode-agdf-plugin-proof.png)
 
@@ -483,10 +483,10 @@ This writes:
 
 AGDF for OpenCode has a single global runtime surface and a repository activation marker:
 
-- global npm plugin and native skills through `~/.config/opencode/opencode.json` and `~/.config/opencode/skills/agdf-global-*/`
+- global npm plugin, native skills and the deny-permission evaluator agent through `~/.config/opencode/opencode.json`, `~/.config/opencode/skills/agdf-global-*/` and `~/.config/opencode/agents/agdf-evaluator.md`
 - repository activation through the target repository's valid `.agdf/control/config.json`
 
-The global install updates `~/.config/opencode/opencode.json` and generates the nine native skill adapters under `~/.config/opencode/skills/`:
+The global install updates `~/.config/opencode/opencode.json`, generates the native skill adapters under `~/.config/opencode/skills/` and installs the owned `agdf-evaluator` agent under `~/.config/opencode/agents/`:
 
 ```json
 {
@@ -506,6 +506,8 @@ The global plugin and native skills do not replace durable control files. Global
 Existing `opencode.json` and `.opencode/` assets remain untouched as a supported legacy compatibility path. Global adapters use `agdf-global-` because OpenCode does not provide a verified preference rule for same-named legacy project skills. Explicit `permission.question: deny` remains unchanged; it selects AGDF's exact-text fallback.
 
 At runtime, global `AGDF.md` and `skills/agdf-global-*/` provide discovery and shared guidance; `.agdf/control/` supplies the repository-owned activation and delivery state. OpenCode permission results and auto mode remain technical controls, not AGDF gate authority.
+
+The static `AGDF.md` boundary is authoritative even if an experimental plugin hook disappears: exact approvals, version-matched validation and fail-closed activation/evidence checks do not depend on dynamic injection. Plugin hooks add context when available and log malformed hook output as degradation instead of throwing.
 
 Load `agdf-global-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
 

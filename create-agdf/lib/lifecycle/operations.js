@@ -131,6 +131,10 @@ function openCodeOwnedGlobalFiles(configDir) {
   const files = [
     { path: join(configDir, pluginDefinition.opencode.instructionsFileName), owned: firstLine("<!-- AGDF-GLOBAL-INSTRUCTIONS -->") },
     { path: join(configDir, pluginDefinition.opencode.runtimeContractFileName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") },
+    {
+      path: join(configDir, "agents", `${pluginDefinition.opencode.evaluatorAgentName}.md`),
+      owned: afterFrontmatter(`<!-- AGDF-GLOBAL-AGENT: ${pluginDefinition.opencode.evaluatorAgentName} -->`),
+    },
   ];
   for (const moduleName of ["gate-transition.md", "interaction.md", "modes.md", "quality.md", "context-graph.md", "control-scaffold.md", "closeout.md"]) {
     files.push({ path: join(configDir, "contracts", moduleName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") });

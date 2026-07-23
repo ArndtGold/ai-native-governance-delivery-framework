@@ -109,6 +109,14 @@ fs.writeFileSync(path.join(packageDir, "package.json"), JSON.stringify({
   main: "opencode-plugin.js"
 }, null, 2) + "\\n");
 fs.writeFileSync(path.join(packageDir, "opencode-plugin.js"), "export default async function () { return {}; }\\n");
+const sdkDir = path.join(prefix, "node_modules", "@opencode-ai", "plugin");
+fs.mkdirSync(path.join(sdkDir, "dist"), { recursive: true });
+fs.writeFileSync(path.join(sdkDir, "package.json"), JSON.stringify({
+  name: "@opencode-ai/plugin",
+  version: "1.17.11",
+  types: "dist/index.d.ts"
+}, null, 2) + "\\n");
+fs.writeFileSync(path.join(sdkDir, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\\n');
 `);
 
 function runOpenCodeCli(args, options = {}) {
@@ -374,6 +382,14 @@ if (generatedDeliveryPathSearchOutput.generation?.status !== "success"
 
 const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
 try {
+  const openCodeSdkFixture = join(openCodeConfigTempDir, "node_modules", "@opencode-ai", "plugin");
+  mkdirSync(join(openCodeSdkFixture, "dist"), { recursive: true });
+  writeFileSync(join(openCodeSdkFixture, "package.json"), JSON.stringify({
+    name: "@opencode-ai/plugin",
+    version: "1.17.11",
+    types: "dist/index.d.ts",
+  }), "utf8");
+  writeFileSync(join(openCodeSdkFixture, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\n', "utf8");
   const installOutput = runOpenCodeCli(["opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
   const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
   if (!openCodeGlobalConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
@@ -397,6 +413,8 @@ try {
   }
   if (!installOutput.includes(`Version: ${pluginDefinition.version} (verified; transition installed)`)
     || !installOutput.includes("Verification: healthy")
+    || !installOutput.includes("OpenCode host / plugin SDK:")
+    || !installOutput.includes("Experimental hook declarations: declared_supported")
     || !installOutput.includes("Installation scope: global")
     || !installOutput.includes("Restart required: yes")) {
     throw new Error("opencode install must report the shared verified global lifecycle Success Card.");
@@ -424,7 +442,9 @@ try {
     || status.global_native_surface.skill_count !== openCodeSkillNames.length
     || status.global_native_surface.expected_skill_count !== openCodeSkillNames.length
     || status.global_native_surface.contract_count !== contractModules.length
-    || status.global_native_surface.expected_contract_count !== contractModules.length) {
+    || status.global_native_surface.expected_contract_count !== contractModules.length
+    || status.global_native_surface.evaluator_agent?.name !== pluginDefinition.opencode.evaluatorAgentName
+    || !status.global_native_surface.evaluator_agent?.present) {
     throw new Error("opencode-status must prove the complete global native OpenCode skill and contract surface.");
   }
   if (!openCodeGlobalConfig.instructions?.includes("AGDF.md")
@@ -442,8 +462,9 @@ try {
     throw new Error(`opencode local validator must resolve without stderr warnings: ${validatorProbe.stderr}`);
   }
   if (!existsSync(join(openCodeConfigTempDir, "AGDF.md"))
-    || !existsSync(join(openCodeConfigTempDir, "agdf-runtime-contract.md"))) {
-    throw new Error("opencode must generate the owned global AGDF instruction and Runtime Contract adapters.");
+    || !existsSync(join(openCodeConfigTempDir, "agdf-runtime-contract.md"))
+    || !existsSync(join(openCodeConfigTempDir, "agents", `${pluginDefinition.opencode.evaluatorAgentName}.md`))) {
+    throw new Error("opencode must generate the owned global instructions, Runtime Contract and evaluator agent.");
   }
   const globalInstructions = readFileSync(join(openCodeConfigTempDir, "AGDF.md"), "utf8");
   if (!globalInstructions.includes("global adapters use the `agdf-global-*` namespace")

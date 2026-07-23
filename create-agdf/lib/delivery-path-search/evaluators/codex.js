@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { evaluatorOutputSchema, validateEvaluation } from "../contracts.js";
 import { guardedExecFileSync } from "../transports/read-only-guard.js";
+import { buildEvaluatorPrompt } from "./prompt.js";
 
 export function codexEvaluator(options = {}) {
   const codexBin = options.codexBin ?? "codex";
@@ -21,17 +22,7 @@ export function codexEvaluator(options = {}) {
       const outputPath = join(temp, "output.json");
       try {
         writeFileSync(schemaPath, `${JSON.stringify(evaluatorOutputSchema(), null, 2)}\n`, "utf8");
-        const prompt = [
-          "You are an evaluation-only component. Do not use tools, execute commands, or modify files.",
-          `Return JSON matching contract version ${input.contract_version}.`,
-          `Objective: ${input.objective}`,
-          `Current gate: ${input.current_gate}`,
-          `Candidate id: ${candidate.id}`,
-          `Candidate action: ${candidate.action}`,
-          "Score scope_fit, gate_readiness, risk_reduction, evidence_gain, testability, reversibility and cost from 0 to 5.",
-          "Cost 0 is low and 5 is high. uncertainty is 0 low to 5 high.",
-          "Keep rationale concise. child_actions must only contain actions permitted by the current gate.",
-        ].join("\n");
+        const prompt = buildEvaluatorPrompt(input, candidate);
         const args = [
           "exec", "--sandbox", "read-only", "--ephemeral", "--ignore-user-config",
           "--output-schema", schemaPath, "--output-last-message", outputPath, "--color", "never",

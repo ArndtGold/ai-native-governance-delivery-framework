@@ -27,8 +27,8 @@ export const commandRegistry = Object.freeze([
   command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
   command("delivery-path-search", {
-    local: [" --surface codex --json", " --surface claude --json"],
-    scaffold: [" --surface codex", " --surface claude"],
+    local: [" --surface codex --json", " --surface claude --json", " --surface opencode --json"],
+    scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
   }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),

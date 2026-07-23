@@ -114,6 +114,7 @@ export async function runDeliveryPathSearch(inputValue, evaluator, options = {})
         }
       }
     } catch (error) {
+      if (error?.fatalEvaluator === true) throw error;
       rejected.push({ candidate_id: candidate.id, action: candidate.action, reason: `invalid_evaluation: ${error.message}` });
     }
   }

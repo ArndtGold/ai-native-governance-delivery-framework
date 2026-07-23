@@ -115,7 +115,7 @@ it does not localize the CLI lifecycle card.
 - `claude` installs the AGDF plugin globally for Claude Code
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
 - `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
-- `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, durable repository activation, legacy compatibility and observable session signals
+- `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
 - `disable` writes a supported repository-local opt-out while retaining global capability and durable control state
 - `uninstall` previews and, only with `--confirm`, applies a selected global removal through supported native/owned operations
@@ -149,7 +149,7 @@ Then verify the visible installation state:
 npx --yes @agdf/cli@latest opencode-status --json
 ```
 
-The status command reports global configuration, package loadability, global native-skill completeness, durable repository activation, legacy local-surface compatibility and session signals. It does not infer an active OpenCode session from config alone.
+The status command reports global configuration, package loadability, global native-skill completeness, installed host/plugin-SDK version divergence, declaration-level support for both experimental hooks, durable repository activation, legacy local-surface compatibility and session signals. SDK declarations are not proof that a live host invoked a hook, and host/SDK divergence is warning-only rather than auto-aligned. The command does not infer an active OpenCode session from config alone.
 In JSON schema version 1, `repository_surface.gate_check_agent` remains a deprecated compatibility alias for the native `gate_check_skill` path so existing status consumers keep working during the agent-to-skill migration.
 
 Use the `opencode-repo` target when a repository should opt into the globally installed AGDF OpenCode runtime:
@@ -235,7 +235,7 @@ Use `delivery-path-search` only for high-impact planning decisions with several 
 agdf delivery-path-search --surface codex --json
 ```
 
-The runtime uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex and Claude Code are executable, tool-enforced evaluator adapters and support opt-in `--generate-candidates`; generated proposals supplement the deterministic baseline and are deterministically validated before evaluation. Copilot and OpenCode reuse the same skill and contracts as instruction-only surfaces until conforming executable adapters are available.
+The runtime uses bounded best-first Delivery Path Search, not MCTS. It is read-only and advisory: the result must be checked by canonical `gate-check`. Codex and Claude Code are executable, tool-enforced evaluator adapters and support opt-in `--generate-candidates`; generated proposals supplement the deterministic baseline and are deterministically validated before evaluation. OpenCode has an executable evaluator through `opencode run --pure --agent agdf-evaluator` only after the current invocation's capability preflight proves the command flags, owned agent and effective deny permissions. A failed preflight or evaluator transport returns `evaluator_unavailable`, reports `instruction_only` and directs the user to the existing instruction-only workflow. Copilot remains instruction-only.
 
 Requirements and boundaries:
 
@@ -243,10 +243,11 @@ Requirements and boundaries:
 - the current control state must expose legal next actions
 - Codex CLI must be installed and authenticated for `--surface codex`
 - Claude Code CLI must be installed and authenticated for `--surface claude`
+- OpenCode must pass the per-invocation command, agent and effective-permission preflight for `--surface opencode`
 - `--model <id>` optionally selects the Codex or Claude evaluator model
 - `--persist` writes redacted `DELIVERY_PATH_SEARCH.json` and `.md` evidence under the current scope
 - `--fixture <path>` is for deterministic contract tests, not a production evaluator
-- Copilot and OpenCode have shared workflow mappings but no executable native evaluator in this release
+- OpenCode candidate generation is intentionally unavailable; Copilot has no executable native evaluator
 - cost units are rubric values used for bounded comparison, not measured provider currency
 
 The result is either one recommendation or `no_safe_recommendation`. In both cases run canonical `gate-check` afterwards.

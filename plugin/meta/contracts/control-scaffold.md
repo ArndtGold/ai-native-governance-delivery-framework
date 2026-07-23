@@ -17,6 +17,8 @@ Delivery Path Search is an optional read-only planning step for high-impact deci
 - External generation receives only bounded normalized control summaries and references, never secrets, full artefacts, raw prompts, hidden reasoning or source snapshots.
 - Generator status, provenance, accepted/rejected counts, separate budget use and typed failure must remain visible. Failure retains the deterministic baseline; automatic provider fallback is forbidden.
 - Codex and Claude Code may provide tool-enforced generator transports. Copilot, OpenCode and generic surfaces remain instruction-only without conforming evidence.
+- OpenCode may provide a tool-enforced evaluator only for an invocation whose capability preflight proves `opencode run --pure --agent`, the owned evaluator agent and effective executable-tool denies. Preflight or transport failure must return `evaluator_unavailable` with `instruction_only` enforcement and point to the existing instruction-only workflow; it must not continue through a weaker subprocess.
+- OpenCode candidate generation remains unavailable.
 
 The field names above are the stable machine-readable contract used by JSON
 reports and automation. Human-facing Markdown must present the same projection

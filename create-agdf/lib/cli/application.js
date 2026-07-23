@@ -117,7 +117,8 @@ function createHandlers({ io, env, exec, prepare }) {
         const report = runLifecyclePhase("verification", () => evaluateOpenCodeStatus(options.dir, configDir, result.transition));
         const verificationHealthy = report.status === "configured"
           && report.package.version_status === "current"
-          && report.global_native_surface.complete;
+          && report.global_native_surface.complete
+          && report.experimental_hooks.aggregate === "declared_supported";
         printLifecycleResult(createLifecycleResult({
           operation: result.transition.status === "updated" ? "update" : "install",
           result: verificationHealthy ? "success" : "partial",
@@ -130,10 +131,24 @@ function createHandlers({ io, env, exec, prepare }) {
             status: report.package.version_status === "current" ? "verified" : "unknown",
             transition: result.transition.status,
           },
-          verification: { status: verificationHealthy ? "healthy" : "degraded", evidence: [report.global_config.path, report.global_native_surface.path] },
+          verification: {
+            status: verificationHealthy ? "healthy" : "degraded",
+            evidence: [
+              report.global_config.path,
+              report.global_native_surface.path,
+              `opencode_host=${report.host.installed_version || "unknown"}`,
+              `plugin_sdk=${report.plugin_sdk.installed_version || "unknown"}`,
+              `experimental_hooks=${report.experimental_hooks.aggregate}`,
+              `host_sdk_version=${report.host_sdk_version.status};policy=${report.host_sdk_version.policy}`,
+            ],
+          },
           restart: { required: true, reason: "host_reload" },
           next_action: globalInstallRestartAction(options.target),
         }), { json: options.json, io });
+        if (!options.json) {
+          io.log(`OpenCode host / plugin SDK: ${report.host.installed_version || "unknown"} / ${report.plugin_sdk.installed_version || "unknown"} (${report.host_sdk_version.status}; ${report.host_sdk_version.policy})`);
+          io.log(`Experimental hook declarations: ${report.experimental_hooks.aggregate} (SDK declaration evidence; live invocation not observed)`);
+        }
         return verificationHealthy ? 0 : 1;
       } catch (error) {
         printInstallFailure(options.target, error, options, io);

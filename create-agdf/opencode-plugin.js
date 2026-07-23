@@ -30,6 +30,23 @@ export const AGDFPlugin = async ({ directory, client }) => {
     "Do not apply AGDF gates from the global plugin alone. Create or repair durable AGDF control state with `npx --yes @agdf/cli@latest opencode-repo` when governance should be active here.",
   ].join("\n");
 
+  const appendGuidance = async (output, key) => {
+    if (!output || !Array.isArray(output[key])) {
+      try {
+        await client.app.log({
+          body: {
+            service: "agdf",
+            level: "warn",
+            message: `AGDF OpenCode guidance degraded: ${key} output is unavailable`,
+            extra: { key, repositoryActivation: activation().state },
+          },
+        });
+      } catch {}
+      return;
+    }
+    output[key].push(activation().active ? activeGuidance : inactiveGuidance);
+  };
+
   return {
     event: async ({ event }) => {
       if (event?.type === "session.created") {
@@ -55,11 +72,11 @@ export const AGDFPlugin = async ({ directory, client }) => {
     },
 
     "experimental.chat.system.transform": async (_input, output) => {
-      output.system.push(activation().active ? activeGuidance : inactiveGuidance);
+      await appendGuidance(output, "system");
     },
 
     "experimental.session.compacting": async (_input, output) => {
-      output.context.push(activation().active ? activeGuidance : inactiveGuidance);
+      await appendGuidance(output, "context");
     },
   };
 };

@@ -1,7 +1,19 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { evaluateOpenCodeRepositoryActivation } from "./lib/installers/opencode-activation.js";
 
 const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+
+const readValidatorExpectedVersion = () => {
+  try {
+    const validatorPath = new URL("../../agdf/bin/agdf-local.js", import.meta.url);
+    if (!existsSync(validatorPath)) return null;
+    const content = readFileSync(validatorPath, "utf8");
+    const match = content.match(/expectedVersion["']?\s*[:=]\s*["']([^"']+)["']/);
+    return match?.[1] ?? null;
+  } catch {
+    return null;
+  }
+};
 
 export const AGDFPlugin = async ({ directory, client }) => {
   const controlDir = `${directory}/.agdf/control`;
@@ -47,6 +59,12 @@ export const AGDFPlugin = async ({ directory, client }) => {
     output[key].push(activation().active ? activeGuidance : inactiveGuidance);
   };
 
+  const safeToast = async (message, variant) => {
+    try {
+      if (client?.tui?.showToast) await client.tui.showToast({ body: { message, variant } });
+    } catch {}
+  };
+
   return {
     event: async ({ event }) => {
       if (event?.type === "session.created") {
@@ -59,6 +77,27 @@ export const AGDFPlugin = async ({ directory, client }) => {
             extra: currentStatus,
           },
         });
+        if (!currentStatus.active) {
+          await safeToast(
+            "AGDF: No valid .agdf/control/config.json. Run npx --yes @agdf/cli@latest opencode-repo to activate governance.",
+            "warning",
+          );
+        }
+        const validatorVersion = readValidatorExpectedVersion();
+        if (validatorVersion && validatorVersion !== packageJson.version) {
+          await client.app.log({
+            body: {
+              service: "agdf",
+              level: "warn",
+              message: `AGDF version drift: plugin ${packageJson.version} vs validator ${validatorVersion}`,
+              extra: { plugin_version: packageJson.version, validator_version: validatorVersion },
+            },
+          });
+          await safeToast(
+            `AGDF version drift: plugin ${packageJson.version} vs validator ${validatorVersion}. Run npx --yes @agdf/cli@latest opencode-repo to repair.`,
+            "warning",
+          );
+        }
       }
     },
 

@@ -75,6 +75,12 @@ The CLI reports are validators and JSON evidence, not the primary user experienc
 
 Plugin `AGDF_*` environment variables set by the OpenCode `shell.env` hook are convenience only and must not be used as the only proof of activation; host shell-env propagation to spawned tool shells is not guaranteed and is OpenCode-owned, not AGDF-owned. A relative glob or `grep` for `.agdf/control/config.json` must not be used as proof of presence or absence of `.agdf/control/config.json`; an absolute `read` or the canonical CLI probe is required.
 
+## OpenCode Subagent Enforcement Boundary
+
+OpenCode plugin hooks (`tool.execute.before`) do not intercept tool calls from subagents spawned via the `task` tool (anomalyco/opencode issue #5894, PR #36238 open). AGDF enforcement through plugin hooks applies to primary-agent tool calls only; in the subagent path, AGDF governance is auditing-only, not enforcement.
+
+This is a host limitation, not an AGDF-owned defect. Do not claim that AGDF gates are technically enforced in the OpenCode subagent path. Do not route work to a subagent to bypass a primary-agent gate. When subagent work touches gate-relevant files, verify the result through the canonical validator (`doctor --json`, `gate-check --json`) after the subagent returns, not during.
+
 ## Native Interaction Path
 
 `../../meta/contracts/interaction.md` is the complete normative owner for interaction kinds, locale,

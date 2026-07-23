@@ -269,6 +269,7 @@ function writeOpenCodeInstructions() {
     "- An explicit user `permission.question: deny` remains authoritative and selects the exact-text AGDF fallback; never convert an OpenCode permission outcome or auto mode into gate approval.",
     "- Shared output and gate rules live in `.opencode/agdf-runtime-contract.md`.",
     "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
+    "- OpenCode plugin hooks (`tool.execute.before`) do not intercept tool calls from subagents spawned via the `task` tool (issue #5894, PR #36238 open). AGDF enforcement through plugin hooks applies to primary-agent tool calls only; in the subagent path, AGDF governance is auditing-only. Do not route work to a subagent to bypass a primary-agent gate; verify subagent results through the canonical validator after the subagent returns.",
     "",
   ];
 

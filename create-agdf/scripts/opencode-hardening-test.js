@@ -3,6 +3,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
+import { AGDFPlugin } from "../opencode-plugin.js";
 import { alignOpenCodePluginSdk, evaluateOpenCodeHostSdk, printOpenCodeStatus } from "../lib/installers/opencode.js";
 import {
   OPENCODE_DENY_PERMISSIONS,
@@ -400,6 +401,59 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
   assert.equal(mutationFailure.status, "evaluator_error");
   assert.equal(mutationFailure.stopping_reason, "opencode_mutation_detected");
   assert.doesNotMatch(mutationFailure.next_action, /instruction-only/);
+
+  const pluginTemp = mkdtempSync(join(tmpdir(), "agdf-plugin-honesty-"));
+  try {
+    const logs = [];
+    const toasts = [];
+    const makeClient = (withToast = true) => ({
+      app: { async log({ body }) { logs.push(body); } },
+      tui: withToast ? { async showToast({ body }) { toasts.push(body); } } : undefined,
+    });
+
+    const inactiveDir = join(pluginTemp, "inactive");
+    mkdirSync(inactiveDir, { recursive: true });
+    const inactivePlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() });
+    logs.length = 0;
+    toasts.length = 0;
+    await inactivePlugin.event({ event: { type: "session.created" } });
+    assert.ok(logs.some((l) => l.level === "info" && l.message.includes("without durable control")), "inactive session must log");
+    assert.ok(toasts.some((t) => t.message.includes("No valid") && t.variant === "warning"), "inactive session must toast");
+
+    const activeDir = join(pluginTemp, "active");
+    mkdirSync(join(activeDir, ".agdf", "control"), { recursive: true });
+    writeFileSync(join(activeDir, ".agdf", "control", "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "en", runtime_language: "en" }));
+    const activePlugin = await AGDFPlugin({ directory: activeDir, client: makeClient() });
+    logs.length = 0;
+    toasts.length = 0;
+    await activePlugin.event({ event: { type: "session.created" } });
+    assert.ok(logs.some((l) => l.level === "info" && l.message.includes("active through durable control")), "active session must log");
+    assert.equal(toasts.length, 0, "active session must not toast");
+
+    const noToastClient = makeClient(false);
+    const noToastPlugin = await AGDFPlugin({ directory: inactiveDir, client: noToastClient });
+    logs.length = 0;
+    await noToastPlugin.event({ event: { type: "session.created" } });
+    assert.ok(logs.some((l) => l.level === "info"), "inactive session must still log when TUI is unavailable");
+
+    const throwingClient = {
+      app: { async log({ body }) { logs.push(body); } },
+      tui: { async showToast() { throw new Error("TUI unavailable"); } },
+    };
+    const throwingPlugin = await AGDFPlugin({ directory: inactiveDir, client: throwingClient });
+    logs.length = 0;
+    await assert.doesNotReject(async () => { await throwingPlugin.event({ event: { type: "session.created" } }); }, "session.created must not reject when showToast throws");
+    assert.ok(logs.some((l) => l.level === "info"), "session.created must still log when showToast throws");
+
+    const nonSessionPlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() });
+    logs.length = 0;
+    toasts.length = 0;
+    await nonSessionPlugin.event({ event: { type: "session.idle" } });
+    assert.equal(logs.length, 0, "non-session.created events must not log");
+    assert.equal(toasts.length, 0, "non-session.created events must not toast");
+  } finally {
+    rmSync(pluginTemp, { recursive: true, force: true });
+  }
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

@@ -204,6 +204,18 @@ Besonders interessant sind Fragen wie:
 Beiträge sind willkommen:
 Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Requests.
 
+## Community und Beiträge
+
+- [Verhaltenskodex](CODE_OF_CONDUCT.md)
+- [Beitragsrichtlinien](CONTRIBUTING.md)
+- [Sicherheitsrichtlinie](SECURITY.md)
+- [Support und richtige Anlaufstelle](SUPPORT.md)
+- [Projekt-Governance](GOVERNANCE.md)
+- [Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose) für reproduzierbare Fehler, Runtime-Kompatibilität, Dokumentationslücken und umsetzungsreife Vorschläge
+- [Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions) für Fragen, frühe Ideen, Gegenargumente und best-effort Community-Support
+
+Deutsch ist die primäre Projektsprache; Meldungen und Beiträge auf Englisch sind ebenfalls willkommen. Vermutete Sicherheitslücken dürfen nicht öffentlich eingereicht werden und gehören ausschließlich auf die privaten Wege in [SECURITY.md](SECURITY.md).
+
 ## Language note
 
 AGDF is German-first by design.

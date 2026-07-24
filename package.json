@@ -3,6 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check:community-health": "node scripts/check-community-health.mjs",
+    "test:community-health": "node scripts/community-health-test.mjs",
     "set-version": "node scripts/set-version.mjs"
+  },
+  "devDependencies": {
+    "yaml": "2.9.0"
   }
 }

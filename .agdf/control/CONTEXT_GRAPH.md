@@ -2,6 +2,16 @@
 
 ## Active Context Nodes
 
+### CG-PUBLIC-COMMUNITY-GOVERNANCE
+
+- situation: AGDF previously exposed README and License but lacked a recognized conduct, contribution, security, support, issue/PR routing and maintainer-governance surface. GitHub-hosted metadata and security capabilities also have a different mutation and evidence path from committed files.
+- refs: CODE_OF_CONDUCT.md; CONTRIBUTING.md; SECURITY.md; SUPPORT.md; GOVERNANCE.md; .github/ISSUE_TEMPLATE/; .github/pull_request_template.md; .github/CODEOWNERS; .github/repository-metadata.json; .agdf/control/artefacts/github-community-health-governance/SD.md
+- evidence: Approved UR, PRD, SD and TP plus pre-implementation Brownfield Analysis identify five canonical root policies, thin GitHub adapters, one desired-state metadata manifest and separate live-host recognition evidence.
+- decision: Root policy files are the durable public contract. GitHub templates and CODEOWNERS project that contract into host interactions. `.github/repository-metadata.json` owns desired settings while GitHub remains the effective host state. Repository checks and authenticated/default-branch observations are reported separately.
+- invariants: confidential security reporting always has `agdf@iself.eu` as a complete fallback; sensitive details are never requested publicly; security support is current-release-line and best-effort without numeric SLA; German is primary and English submissions are accepted; Arndt Gold is the sole current maintainer until a reviewed governance and CODEOWNERS change says otherwise; CODEOWNERS routes review but does not prove branch protection; adapters link to canonical policies instead of duplicating them; local files never prove applied GitHub settings or Community Profile recognition.
+- risks: GitHub Issue Forms and settings behavior can drift; a sole-maintainer model concentrates availability; desired and effective metadata can diverge; default-branch recognition is unavailable before delivery. These are controlled by dependency-pinned validation, fail-safe security routing, explicit succession, before/after host read-back and post-delivery verification.
+- exit_criteria: deterministic community-health checks, repository regression tests and mandatory reviews pass; host-applied metadata and security state are observed separately; after authorized default-branch delivery, Community Profile, Issue Forms, PR template, CODEOWNERS, links and social preview are visibly recognized.
+
 ### CG-RUN-SCOPED-CONTROL-STATE
 
 - situation: A global mutable `AGDF_RUN.md` creates cross-run conflicts for concurrent users, machines and agent sessions.
@@ -57,6 +67,7 @@
 - installer_integration_2026_07_16: `installer-output-parity` consumes this node and does not own approval transport metadata or fallback policy. The observed Codex recommended-label constraint remains linked to `agdf-human-decision-surface` live UAT; installer docs state capability dependence and exact-text authority without claiming host-visible button proof.
 - ownership_consolidation_2026_07_18: `interaction.md` is the sole normative owner for interaction kinds, locale, adapter capability, deliberate waiting, native fallback, outcomes and validation semantics. Gate-check retains only run/gate selection, durable artefact readiness, verbatim projection consumption, contract-selected deliberate input, same-revision revalidation and exact approval persistence. Positive and independent negative integrity checks enforce those seams without requiring duplicated policy prose.
 - operational_status_projection_2026_07_19: `status_card` remains the complete machine/audit data owner and `interaction-presentation.js` now emits additive immutable `status_presentation` Markdown for operational chat. Gate-check CLI, skills and generated surfaces consume it verbatim; no skill-local table or private CLI field selection remains. The primary card stays compact while raw evidence remains in JSON, and missing projection fails closed without affecting approval authority.
+- opencode_honesty_extension_2026_07_23: OpenCode `tool.execute.before` does not cover subagent tool calls. AGDF therefore treats the subagent path as audit-only unless the host later provides conforming interception evidence; agents must not route work to a subagent to bypass primary-agent gates, and public capability copy must disclose the limitation. Inactive-repository and plugin/validator-version drift remain observable through failure-tolerant TUI/log warnings, not silent confidence claims.
 
 ### CG-CREATE-AGDF-CLI-COMPOSITION
 

@@ -1,0 +1,70 @@
+name: Fehler melden
+description: Einen reproduzierbaren, nicht sicherheitskritischen AGDF-Fehler melden.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für die Meldung. Deutsch und Englisch sind willkommen.
+        Veröffentliche keine Secrets, Tokens, personenbezogenen Daten oder vermuteten Sicherheitslücken. Nutze dafür SECURITY.md.
+  - type: input
+    id: agdf_version
+    attributes:
+      label: AGDF-Version
+      description: Welche veröffentlichte oder lokale AGDF-Version ist betroffen?
+      placeholder: "0.11.4"
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Betroffene Oberfläche
+      options:
+        - Codex
+        - Claude Code
+        - OpenCode
+        - GitHub Copilot
+        - CLI oder Repository
+        - Dokumentation oder Website
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Umgebung
+      description: Betriebssystem, Host-Version, Installation und weitere relevante Versionen.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduktion
+      description: Minimale, nummerierte Schritte zur Reproduktion.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Beobachtetes Verhalten
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Bereinigte Nachweise
+      description: Relevante Logs oder Screenshots ohne Geheimnisse und private Daten.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Sicherheitsprüfung
+      options:
+        - label: Die Meldung enthält keine Zugangsdaten, Geheimnisse oder personenbezogenen Daten.
+          required: true
+        - label: Es handelt sich nicht um eine vertraulich zu meldende Sicherheitslücke.
+          required: true

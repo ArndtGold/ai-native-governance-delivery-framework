@@ -10,6 +10,9 @@
 | Release-built plugin composition and durable marketplace staging | create-agdf/scripts/sync-package-assets.js; create-agdf/lib/installers/local-marketplace.js; create-agdf/lib/installers/plugin-installers.js | active | AGDF | 2026-07-18 |
 | Control templates | plugin/control/templates/ | active | AGDF | 2026-07-08 |
 | Skill routing | plugin/meta/agdf-plugin.definition.json | active | AGDF | 2026-07-18 |
+| Public conduct, contribution, security, support and maintainer governance | CODE_OF_CONDUCT.md; CONTRIBUTING.md; SECURITY.md; SUPPORT.md; GOVERNANCE.md | active | Arndt Gold | 2026-07-23 |
+| GitHub community interaction adapters | .github/ISSUE_TEMPLATE/; .github/pull_request_template.md; .github/CODEOWNERS | active | Arndt Gold | 2026-07-23 |
+| GitHub repository metadata desired state | .github/repository-metadata.json; assets/github-social-preview.png | active | Arndt Gold | 2026-07-23 |
 
 ## Secondary References
 
@@ -19,6 +22,7 @@
 | plugin/meta/agdf-runtime-contract.md | Compatibility manifest for runtime-contract modules | Must not duplicate module content |
 | create-agdf/generated/plugins/agdf/runtime/ | Package-built exact-version validator payload for full plugin surfaces | Derived at sync/prepack/publish; never edited or committed as source runtime |
 | AGDF-owned user-data `marketplaces/agdf/` | Durable installed Codex/Claude marketplace | Derived from the released package; exact ownership marker and rollback rules are mandatory |
+| GitHub repository settings and Community Profile | Effective public host state | Must be checked against `.github/repository-metadata.json` and delivered default-branch files; local repository state is not host proof |
 
 ## Conflict Rule
 

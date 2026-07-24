@@ -1,0 +1,65 @@
+name: Umsetzungsreifen Vorschlag einreichen
+description: Einen abgegrenzten, belegten und kompatibilitätsbewussten Vorschlag einreichen.
+title: "[Proposal]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Frühe Ideen, Fragen und offene Designoptionen gehören in Discussions.
+        Dieses Formular ist für ausreichend konkretisierte Vorschläge. Eine Einreichung ist keine Annahme oder Roadmap-Zusage.
+        Deutsch und Englisch sind willkommen.
+        Veröffentliche keine Secrets oder vertraulichen Sicherheitsdetails; nutze dafür SECURITY.md.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Welches belegbare Problem soll gelöst werden?
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Betroffene Nutzer und Situation
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Nachweise
+      description: Beispiele, Reproduktion, vorhandene Discussion oder andere überprüfbare Evidenz.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_outcome
+    attributes:
+      label: Gewünschtes Ergebnis
+      description: Beschreibe die Wirkung, nicht nur eine bevorzugte Implementierung.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope und Non-Goals
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Kompatibilitäts- und Governance-Auswirkung
+      description: Betroffene Hosts, Runtime-Verträge, Installationspfade, Gates, Dokumentation oder Migration.
+    validations:
+      required: true
+  - type: input
+    id: discussion
+    attributes:
+      label: Vorherige Discussion oder Issue
+      description: Verlinke vorhandenen Kontext, falls vorhanden.
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Bereitschaft
+      options:
+        - label: Der Vorschlag ist ausreichend abgegrenzt; andernfalls starte ich eine Discussion.
+          required: true
+        - label: Die Einreichung enthält keine Geheimnisse oder vertraulichen Sicherheitsinformationen.
+          required: true

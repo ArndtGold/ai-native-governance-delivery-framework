@@ -47,6 +47,10 @@ Not applicable — Verified Change compact path skips PRD/SD/TP. The VERIFIED_CH
 
 ## Next Step
 
-Delivery closeout is ready. VCS actions (commit, push, PR, release) and install-cache mutation require separate explicit user instruction.
+The Verified Change is complete. Commit `ae5f57c` is present on `main` and `origin/main`.
+Closeout recovery on 2026-07-23 refreshed only the deterministic gate-check source fingerprint
+after the approved skill disclosure changed its behavior-owner hash, recorded the reusable
+OpenCode subagent boundary in `CG-NATIVE-INTERACTION-AUTHORITY`, and reconciled the run lifecycle
+from active to completed. The historical baseline was not recaptured or fabricated.
 
-- next_allowed_action: Offer delivery closeout; commit/push/PR/release only on separate explicit user instruction.
+- next_allowed_action: none; release, publish and install-cache mutation remain separate explicit actions.

@@ -1,0 +1,43 @@
+name: Dokumentation verbessern
+description: Falsche, fehlende oder unklare Dokumentation melden.
+title: "[Docs]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        AGDF ist German-first; Meldungen auf Deutsch oder Englisch sind willkommen.
+        Produkt- oder Designideen gehören zunächst in Discussions.
+        Veröffentliche keine Secrets oder vertraulichen Sicherheitsdetails; nutze dafür SECURITY.md.
+  - type: input
+    id: location
+    attributes:
+      label: Dokument oder Seite
+      description: Pfad, URL oder Abschnitt.
+    validations:
+      required: true
+  - type: textarea
+    id: current_statement
+    attributes:
+      label: Aktuelle Aussage oder Lücke
+    validations:
+      required: true
+  - type: textarea
+    id: expected_correction
+    attributes:
+      label: Erwartete Korrektur
+    validations:
+      required: true
+  - type: textarea
+    id: user_impact
+    attributes:
+      label: Auswirkung
+      description: Was kann dadurch missverstanden oder falsch ausgeführt werden?
+    validations:
+      required: true
+  - type: checkboxes
+    id: classification
+    attributes:
+      label: Einordnung
+      options:
+        - label: Die Meldung beschreibt eine Dokumentationslücke und keine neue Produktanforderung.
+          required: true

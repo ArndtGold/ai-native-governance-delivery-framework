@@ -1,0 +1,82 @@
+name: Runtime-Kompatibilität melden
+description: Host-, Versions-, Aktivierungs- oder Degradationsprobleme strukturiert melden.
+title: "[Compatibility]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dieses Formular trennt Host-Beobachtung von AGDF-Fähigkeitsaussagen. Deutsch und Englisch sind willkommen.
+        Entferne Secrets und nutze SECURITY.md für vertrauliche Sicherheitsinhalte.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Coding-Agent-Oberfläche
+      options:
+        - Codex
+        - Claude Code
+        - OpenCode
+        - GitHub Copilot
+    validations:
+      required: true
+  - type: input
+    id: agdf_version
+    attributes:
+      label: AGDF-Version
+      placeholder: "0.11.4"
+    validations:
+      required: true
+  - type: input
+    id: host_version
+    attributes:
+      label: Host-Version
+    validations:
+      required: true
+  - type: dropdown
+    id: install_scope
+    attributes:
+      label: Installationsbereich
+      options:
+        - Global
+        - Repository-lokal
+        - Beides
+        - Unbekannt
+    validations:
+      required: true
+  - type: textarea
+    id: activation
+    attributes:
+      label: Aktivierungszustand
+      description: Wie wurde AGDF aktiviert und was meldet der deterministische Status- oder Doctor-Befehl?
+    validations:
+      required: true
+  - type: textarea
+    id: expected_capability
+    attributes:
+      label: Erwartete Fähigkeit
+      description: Welche dokumentierte Fähigkeit und welcher Nachweis werden erwartet?
+    validations:
+      required: true
+  - type: textarea
+    id: observed_degradation
+    attributes:
+      label: Beobachtete Abweichung oder Degradation
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduktion
+    validations:
+      required: true
+  - type: textarea
+    id: status_evidence
+    attributes:
+      label: Bereinigte Statusausgabe
+      description: Nur relevante Ausgabe ohne Tokens, Pfade mit privaten Daten oder andere Geheimnisse.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Sicherheitsprüfung
+      options:
+        - label: Die Meldung enthält keine Geheimnisse oder vertraulich zu meldende Schwachstelle.
+          required: true

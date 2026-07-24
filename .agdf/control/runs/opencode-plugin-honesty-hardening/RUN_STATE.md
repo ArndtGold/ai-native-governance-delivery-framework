@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: opencode-plugin-honesty-hardening
-- lifecycle: active
+- lifecycle: completed
 - revision: 1
 - revision_id: 4b1c9a20-7d3e-4f2a-9e1b-2a8f7c6d5e3a
 - mode: verified_change
 - current_gate: OR
-- decision: ready_for_closeout
+- decision: completed
 - owner: agent
 
 ## Objective
@@ -20,11 +20,11 @@ Remove three false-confidence sources in the OpenCode plugin surface without add
 
 | Question | Answer |
 |---|---|
-| What is known? | `Approval: UR` accepted on 2026-07-23; UR artefact persisted. Brownfield Review done 2026-07-23: Mode/Slice Decision `verified_change` (pass). Three scoped changes: subagent-bypass disclosure, inactive-repo TUI toast, version-drift check. All candidate paths clean at baseline; single canonical owner; deterministic validation via opencode-hardening-test.js. |
-| What is approved? | `Approval: UR` provided on 2026-07-23 after same-scope exact-formula revalidation. |
-| What is missing? | VERIFIED_CHANGE.md record with baseline snapshot, execution, and mini-closeout evidence. |
-| What is the next allowed action? | Create VERIFIED_CHANGE.md record with baseline snapshot, then implement the three scoped changes, then run deterministic validation, then mini-closeout. |
-| What is explicitly forbidden right now? | PRD/SD/TP ritual, scope expansion beyond the three scoped changes, cross-surface adapter work, VCS actions, and any mutation of existing `.agdf/control/` content beyond this run's own scaffold. |
+| What is known? | The executed Verified Change was committed as `ae5f57c` on `main` and is present on `origin/main`. Its source changes and focused OpenCode tests pass. Closeout recovery refreshed the deterministically stale gate-check eval fingerprint without changing behavior. |
+| What is approved? | `Approval: UR` and the evidenced `verified_change` path; the mini-closeout is pass. |
+| What is missing? | Nothing required for this completed run. Release or publish work remains a separate action, not missing run evidence. |
+| What is the next allowed action? | None for this run. |
+| What is explicitly forbidden right now? | Reusing or recapturing the historical baseline, expanding the completed Verified Change, and automatic release or publish actions. |
 
 ## Approvals
 
@@ -41,7 +41,7 @@ Remove three false-confidence sources in the OpenCode plugin surface without add
 | UR | `.agdf/control/artefacts/opencode-plugin-honesty-hardening/UR.md` | approved | Revision 1; three scoped honesty-hardening changes; non-goals exclude enforcement and adapter skins. |
 | Brownfield Review | `.agdf/control/artefacts/opencode-plugin-honesty-hardening/BROWNFIELD_REVIEW.md` | done | 2026-07-23; Mode/Slice Decision `verified_change`; all eligibility criteria met; UI/UX impact low, ux_intent_definition not_applicable. |
 | Verified Change | `.agdf/control/artefacts/opencode-plugin-honesty-hardening/VERIFIED_CHANGE.md` | executed | Baseline captured 2026-07-23; 4 source + 5 derived paths; prohibited_impacts none; deterministic validation passed; propagation passed; 0 VC findings. |
-| OR | `.agdf/control/artefacts/opencode-plugin-honesty-hardening/OR.md` | pass | Mini-closeout recorded; delivery closeout offered. |
+| OR | `.agdf/control/artefacts/opencode-plugin-honesty-hardening/OR.md` | pass | Mini-closeout recorded; commit `ae5f57c` is present on `main` and `origin/main`; lifecycle reconciled to completed. |
 
 ## Evidence
 
@@ -59,14 +59,14 @@ Remove three false-confidence sources in the OpenCode plugin surface without add
 |---|---|---|---|
 | UR | approved_by | `Approval: UR` | Exact approval provided on 2026-07-23 after same-scope revalidation. |
 | UR | scoped_by | Non-Goals section of UR | Excludes enforcement guard, core engine, adapter skins, schema changes, VCS. |
+| Verified Change | executes | UR | Declared source/derived paths, propagation and focused validation recorded in `VERIFIED_CHANGE.md`. |
+| OR | closes | Verified Change | Pass mini-closeout, commit `ae5f57c`, refreshed deterministic gate-check fingerprint and completed lifecycle. |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| `client.tui.toast.show` API stability and availability | medium; determines fallback design | Brownfield Review |
-| Inventory of skills beyond gate-check needing subagent-bypass disclosure | medium; determines disclosure scope | Brownfield Review |
-| Generated-surface propagation path for plugin code changes | low; canonical sync owner exists | Brownfield Review |
+| none | none | none |
 
 ## Risks
 
@@ -86,22 +86,21 @@ Remove three false-confidence sources in the OpenCode plugin surface without add
 
 ## Context Graph Impact
 
-- context_graph_impact: link_only
-- context_graph_refs: to be confirmed in Brownfield Review (candidate: existing opencode-surface-hardening-parity, opencode-single-install-activation nodes)
-- context_graph_reconciliation: not_applicable_yet
-- context_graph_required_action: none yet
+- context_graph_impact: update_existing_node
+- context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`
+- context_graph_reconciliation: resolved
+- context_graph_required_action: update
 - context_graph_gate_effect: none
+- context_graph_evidence: The existing node now records the OpenCode subagent hook-bypass disclosure invariant and forbids treating audit-only coverage as enforcement.
 
 ## Knowledge Persistence Decision
 
 - memory_target: context_graph
 - memory_reason: The "OpenCode subagent bypass is a host limitation, not AGDF-owned; disclose, do not pretend to enforce" invariant is reusable across future enforcement and adapter work; if unstated, false confidence recurs.
-- memory_refs: to be created or extended in Brownfield Review.
+- memory_refs: `.agdf/control/CONTEXT_GRAPH.md#cg-native-interaction-authority`
 
 ## Next Step
 
-Verified Change execution is the next allowed action. Create VERIFIED_CHANGE.md record with baseline
-snapshot, implement the three scoped changes, run deterministic validation, then mini-closeout. PRD/SD/TP
-ritual is skipped while eligibility holds; escalate to structured_slice only if a record condition fails.
+The run is complete. Do not recapture or reuse its historical Verified Change baseline.
 
-- next_allowed_action: Offer delivery closeout; commit/push/PR/release only on separate explicit user instruction.
+- next_allowed_action: none

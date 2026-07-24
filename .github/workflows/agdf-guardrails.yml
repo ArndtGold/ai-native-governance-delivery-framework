@@ -18,7 +18,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: pages/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            pages/package-lock.json
+
+      - name: Install repository dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify community health contracts
+        run: npm run test:community-health && npm run check:community-health
 
       - name: Verify runtime integrity
         run: node plugin/scripts/check-runtime-integrity.mjs

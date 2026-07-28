@@ -349,6 +349,91 @@ export function renderOperationalStatusCard(statusCard, {
   });
 }
 
+export function renderTaskTargetOrientation(resolution, {
+  registry,
+  requestedLocale,
+} = {}) {
+  if (!plainObject(resolution)) return null;
+
+  const resolutionState = String(resolution.resolution_state ?? "").trim();
+  const reasonCode = String(resolution.reason_code ?? "").trim();
+  const primaryTarget = String(resolution.primary_target ?? "").trim();
+  const governanceTarget = String(resolution.governance_target ?? "").trim();
+  const workingDirectory = String(resolution.working_directory ?? "").trim();
+  const nextAction = String(resolution.next_action ?? "").trim();
+  if (typeof resolution.target_changed !== "boolean") return null;
+  const targetChanged = resolution.target_changed === true;
+  const evidenceSources = Array.isArray(resolution.evidence_sources)
+    ? resolution.evidence_sources.map((item) => String(item ?? "").trim()).filter(Boolean)
+    : null;
+
+  const resolvedReasons = new Set(["explicit_target", "continued_target"]);
+  const unresolvedReasons = new Set([
+    "multiple_plausible_targets",
+    "target_content_mismatch",
+    "target_unavailable",
+    "no_reliable_target",
+  ]);
+
+  if (!["resolved", "unresolved"].includes(resolutionState)) return null;
+  if (!workingDirectory || evidenceSources === null) return null;
+  if (resolutionState === "resolved") {
+    if (!resolvedReasons.has(reasonCode) || !primaryTarget || nextAction) return null;
+  } else if (!unresolvedReasons.has(reasonCode) || primaryTarget || governanceTarget || !nextAction || targetChanged) {
+    return null;
+  }
+
+  let locale;
+  try {
+    locale = resolvePresentationLocale(registry, requestedLocale);
+  } catch {
+    return null;
+  }
+  if (!locale) return null;
+
+  const pack = localePack(registry, locale);
+  const labels = pack?.taskTargetResolution;
+  if (!plainObject(labels) || !plainObject(labels.reasonCodes)) return null;
+  const reason = labels.reasonCodes[reasonCode];
+  if (!reason) return null;
+
+  const rows = resolutionState === "resolved"
+    ? [
+        [labels.state, labels.resolved],
+        [labels.primaryTarget, primaryTarget],
+        [labels.governanceTarget, governanceTarget || labels.none],
+        [labels.evidenceSources, evidenceSources.join("; ") || labels.none],
+        [labels.workingDirectory, workingDirectory],
+        [labels.reason, reason],
+        ...(targetChanged ? [[labels.targetChanged, labels.yes]] : []),
+      ]
+    : [
+        [labels.state, labels.unresolved],
+        [labels.reason, reason],
+        [labels.evidenceSources, evidenceSources.join("; ") || labels.none],
+        [labels.workingDirectory, workingDirectory],
+        [labels.nextAction, nextAction],
+      ];
+
+  const markdown = [
+    `## ${labels.title}`,
+    "",
+    `| ${labels.field} | ${labels.value} |`,
+    "|---|---|",
+    ...rows.map(([label, value]) => `| ${markdownCell(label)} | ${markdownCell(value)} |`),
+  ].join("\n");
+
+  return Object.freeze({
+    schema_version: "1",
+    semantic_block: "task_target_orientation",
+    presentation_language: locale,
+    resolution_state: resolutionState,
+    reason_code: reasonCode,
+    markdown,
+    authorizes: false,
+  });
+}
+
 export function renderScopeClassificationCard(classification, {
   registry,
   requestedLocale,

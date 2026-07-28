@@ -20,6 +20,7 @@ This skill must not create later artefacts such as PRD, SD, TP, CD, CR, QA, or U
 ## Runtime Contract
 Use these focused runtime-contract modules:
 
+- `../../meta/contracts/task-target-resolution.md`
 - `../../meta/contracts/gate-transition.md`
 - `../../meta/contracts/interaction.md`
 - `../../meta/contracts/control-scaffold.md`
@@ -90,12 +91,15 @@ do not restate or infer a surface matrix in this skill.
 
 This skill owns only these operational responsibilities:
 
-1. Select exactly one run and evaluate its current gate.
-2. Confirm that the required durable artefact is present and ready.
-3. Consume the canonical `approval_presentation` verbatim for the selected run, gate and revision.
-4. Present that projection and obtain deliberate input through the contract-selected native or exact-text path.
-5. Revalidate the same run, gate and revision immediately after the response and before persistence.
-6. Persist only a currently valid exact approval through the existing control-state workflow.
+1. Resolve or revalidate the primary task target before selecting repository control state.
+2. Derive repository activation only from the resolved governance target; an evidence source or
+   working directory is not sufficient.
+3. Select exactly one run and evaluate its current gate.
+4. Confirm that the required durable artefact is present and ready.
+5. Consume the canonical `approval_presentation` verbatim for the selected run, gate and revision.
+6. Present that projection and obtain deliberate input through the contract-selected native or exact-text path.
+7. Revalidate the same target, run, gate and revision immediately after the response and before persistence.
+8. Persist only a currently valid exact approval through the existing control-state workflow.
 
 For status, blocked, read-only or rationale interactions, consume the canonical
 `status_presentation.markdown` verbatim and apply the locale contract without asking for approval.
@@ -162,18 +166,30 @@ Use what is available:
 If a status is not explicit, do not assume it is satisfied.
 
 ## Workflow
-1. Check exact approvals.
-2. Check artefact status.
-3. Determine the earliest blocking user gate or internal mandatory step.
-4. Derive allowed and forbidden outputs.
-5. Name the exact missing approval, if any.
-6. If consent was only implicit, say it is not yet approval and provide the exact formula.
-7. Ensure the next step follows the gate transition table. In particular, never jump from `Approval: UR` to implementation.
-8. Treat a generic "start", "continue" or "leg los" request as a request to perform only the current next allowed action.
-9. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
-10. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
-11. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means draft the minimal UR in the response, then request `Approval: UR`. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
-12. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
+1. Resolve or revalidate the primary target through `task-target-resolution.md`.
+2. If resolution is unresolved, consume the canonical target orientation, request only its
+   clarification/recovery action and stop before repository activation, gate evaluation or mutation.
+3. Derive the governance target from the primary target; never from `cwd` or an evidence source alone.
+4. Check exact approvals.
+5. Check artefact status.
+6. Determine the earliest blocking user gate or internal mandatory step.
+7. Derive allowed and forbidden outputs.
+8. Name the exact missing approval, if any.
+9. If consent was only implicit, say it is not yet approval and provide the exact formula.
+10. Ensure the next step follows the gate transition table. In particular, never jump from `Approval: UR` to implementation.
+11. Treat a generic "start", "continue" or "leg los" request as a request to perform only the current next allowed action.
+12. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
+13. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
+14. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means draft the minimal UR in the response, then request `Approval: UR`. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
+15. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
+
+### Task Target Orientation
+
+When target/context separation is material, the target changed, or resolution is unresolved, consume
+`task_target_orientation.markdown` verbatim from `renderTaskTargetOrientation` in
+`../../meta/contracts/interaction.md`. Do not reconstruct its fields or maintain a skill-local target
+template. If the renderer returns `null`, fail closed to target clarification and do not proceed to
+repository activation, Scope Classification or gate evaluation.
 
 ### Scope Classification Output
 When this skill classifies a fresh scope as ungated (Quick Task or Trivial Change Boundary), consume

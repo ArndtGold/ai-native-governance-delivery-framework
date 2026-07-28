@@ -92,6 +92,7 @@ const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
 const contractsDir = join(pluginRoot, "meta", "contracts");
 const contractModules = [
+  "task-target-resolution.md",
   "gate-transition.md",
   "interaction.md",
   "modes.md",
@@ -331,6 +332,7 @@ if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
   }
 }
 const runtimeContract = readAllContracts();
+const agentRouterContent = isFile(agentRouterPath) ? read(agentRouterPath) : "";
 const interactionLocales = isFile(interactionLocalesPath) ? readJson(interactionLocalesPath, "interaction locale registry") : null;
 const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
 const brownfieldSkill = isFile(brownfieldSkillPath) ? read(brownfieldSkillPath) : "";
@@ -354,13 +356,18 @@ if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeCont
 }
 
 const gateCheckOperationalBoundaries = [
+  "Resolve or revalidate the primary task target before selecting repository control state.",
+  "Derive repository activation only from the resolved governance target",
   "Select exactly one run and evaluate its current gate.",
   "Confirm that the required durable artefact is present and ready.",
   "Consume the canonical `approval_presentation` verbatim",
   "obtain deliberate input through the contract-selected native or exact-text path",
-  "Revalidate the same run, gate and revision immediately after the response and before persistence.",
+  "Revalidate the same target, run, gate and revision immediately after the response and before persistence.",
   "Persist only a currently valid exact approval through the existing control-state workflow.",
 ];
+if (!gateCheckSkill.includes("../../meta/contracts/task-target-resolution.md")) {
+  failures.push("gate-check must load the focused task-target-resolution contract");
+}
 if (!gateCheckSkill.includes("../../meta/contracts/interaction.md")) {
   failures.push("gate-check must load the focused interaction contract");
 }
@@ -403,6 +410,26 @@ if (!runtimeContract.includes("### Repository Activation Diagnosis Boundary")) {
 if (!runtimeContract.includes("### Scope Classification Card")) {
   failures.push("interaction contract must own the scope classification card section");
 }
+if (!runtimeContract.includes("## Purpose And Ordering")
+  || !runtimeContract.includes("## Target Authority Precedence")
+  || !runtimeContract.includes("## Evidence And Mutation Boundary")
+  || !runtimeContract.includes("## Fail-Closed States")) {
+  failures.push("task-target-resolution contract must own target precedence, evidence boundaries and fail-closed states");
+}
+if (!runtimeContract.includes("### Task Target Orientation")) {
+  failures.push("interaction contract must own the task target orientation section");
+}
+if (!agentRouterContent.includes("## Task Target Resolution")
+  || agentRouterContent.indexOf("## Task Target Resolution") > agentRouterContent.indexOf("## Mode Selection")) {
+  failures.push("agent router must resolve the task target before Mode Selection");
+}
+if (!gateCheckSkill.includes("task_target_orientation.markdown` verbatim")) {
+  failures.push("gate-check must consume the canonical task target orientation verbatim");
+}
+if (gateCheckSkill.includes("## Task Target Orientation Template")
+  || gateCheckSkill.includes("| Primary target | Governance target | Evidence sources |")) {
+  failures.push("gate-check must not maintain a skill-local task target orientation template");
+}
 if (!gateCheckSkill.includes("scope_classification.markdown` verbatim")) {
   failures.push("gate-check must consume the canonical scope classification projection verbatim");
 }
@@ -415,11 +442,20 @@ if (sourceMode && isFile(interactionPresentationPath)) {
   if (!interactionPresentation.includes("export function renderScopeClassificationCard")) {
     failures.push("interaction-presentation.js must export renderScopeClassificationCard");
   }
+  if (!interactionPresentation.includes("export function renderTaskTargetOrientation")) {
+    failures.push("interaction-presentation.js must export renderTaskTargetOrientation");
+  }
 }
 for (const locale of ["en", "de"]) {
   const pack = interactionLocales?.locales?.[locale];
   if (!pack?.scopeClassification?.title || !pack?.scopeClassification?.mode?.quick_task || !pack?.scopeClassification?.challenge) {
     failures.push(`Interaction locale ${locale} missing scopeClassification section keys`);
+  }
+  if (!pack?.taskTargetResolution?.title
+    || !pack?.taskTargetResolution?.primaryTarget
+    || !pack?.taskTargetResolution?.reasonCodes?.target_content_mismatch
+    || !pack?.taskTargetResolution?.nextAction) {
+    failures.push(`Interaction locale ${locale} missing taskTargetResolution section keys`);
   }
 }
 if (!runtimeContract.includes("not an agent-facing diagnosis proof")) {
@@ -902,9 +938,10 @@ for (const skill of expectedSkills) {
     for (const required of [
       "## Native Interaction Path",
       "complete normative owner for interaction kinds, locale",
+      "Resolve or revalidate the primary task target before selecting repository control state",
       "Select exactly one run and evaluate its current gate",
       "Confirm that the required durable artefact is present and ready",
-      "Revalidate the same run, gate and revision immediately after the response and before persistence",
+      "Revalidate the same target, run, gate and revision immediately after the response and before persistence",
       "Persist only a currently valid exact approval",
     ]) {
       if (!skillMd.includes(required)) failures.push(`gate-check native interaction guidance missing: ${required}`);

@@ -1441,9 +1441,10 @@ run("config", [
     if (!content.includes("Consume the canonical `approval_presentation` verbatim")
       || !content.includes("`status_presentation.markdown` verbatim")
       || content.includes("| Run status | Value |")
+      || !content.includes("Resolve or revalidate the primary task target before selecting repository control state")
       || !content.includes("Select exactly one run and evaluate its current gate")
       || !content.includes("Confirm that the required durable artefact is present and ready")
-      || !content.includes("Revalidate the same run, gate and revision")
+      || !content.includes("Revalidate the same target, run, gate and revision")
       || !content.includes("Persist only a currently valid exact approval")
       || content.includes("Surface behavior:")) {
       throw new Error(`Generated gate-check surface must preserve compact orchestration and single contract ownership: ${path}`);

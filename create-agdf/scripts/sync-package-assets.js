@@ -13,6 +13,7 @@ const sourcePluginRoot = join(repoRoot, "plugin");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
 const sourceContractsRoot = join(repoRoot, "plugin", "meta", "contracts");
 const contractModules = [
+  "task-target-resolution.md",
   "gate-transition.md",
   "interaction.md",
   "modes.md",

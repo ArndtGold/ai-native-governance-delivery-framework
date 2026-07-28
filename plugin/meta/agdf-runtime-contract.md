@@ -4,6 +4,7 @@ This manifest indexes the thematic runtime-contract modules used by AGDF skills 
 
 | Module | Path | Coverage |
 |---|---|---|
+| Task target resolution | `contracts/task-target-resolution.md` | Primary target authority, evidence/mutation separation, governance derivation, continuation and fail-closed target states |
 | Gate transitions | `contracts/gate-transition.md` | Source precedence, scope ambiguity, gate rules, Brownfield routing and transition model |
 | Interaction | `contracts/interaction.md` | Run Status Card, approval orientation, native interaction and locale contracts |
 | Modes | `contracts/modes.md` | Mode selection, Quick Task, Verified Change, trivial and bug boundaries |

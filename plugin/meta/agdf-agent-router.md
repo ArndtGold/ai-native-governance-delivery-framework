@@ -25,6 +25,21 @@ Therefore plugin skill names are intentionally unprefixed:
 Do not duplicate the plugin namespace in Codex or Claude Code plugin skill names.
 That `agdf-` prefix is reserved for GitHub Copilot repository skills, where no plugin namespace exists.
 
+## Task Target Resolution
+
+Before repository activation, Mode Selection or `gate-check`, resolve or revalidate the primary work
+target through `contracts/task-target-resolution.md`.
+
+An explicit file, artefact or repository named as the work target outranks the current working
+directory. A repository mentioned or inspected as evidence does not gain mutation or governance
+authority. Derive repository-local AGDF activation only from the resolved primary target or an
+explicit user governance assignment.
+
+If the target is unavailable, conflicts with the requested content, remains ambiguous or cannot be
+reliably resolved, fail closed to visible clarification. Do not borrow scope from `cwd`, a neighboring
+file or an evidence source. A confirmed target may continue across related turns only after
+unambiguous revalidation; a new explicit target wins and ends the old binding.
+
 ## Mode Selection
 Default entry rule: a new user intent to build, add, change, extend, refactor or otherwise deliver something starts with `gate-check` unless it is clearly only a question, explanation, local inspection, or explicitly scoped review.
 
@@ -74,6 +89,7 @@ Never jump directly from `Approval: UR`, implicit consent, or a generic "start" 
 ## Runtime Contract
 For repeated output, gate, Quality Contract and Context Graph rules, use:
 
+- `contracts/task-target-resolution.md` for primary target authority before repository activation
 - `contracts/gate-transition.md` for gate terms, Brownfield routing and transition rules
 - `contracts/interaction.md` for status cards, approval orientation and native interaction
 - `contracts/modes.md` for delivery-mode boundaries

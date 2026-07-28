@@ -338,6 +338,28 @@ repeat the sentence later in the same request. Existing-run status inspection re
 uses the existing status projection; this branch must not create a second status-card or narration
 owner.
 
+### Task Target Orientation
+
+Task-target semantics and ordering live in `task-target-resolution.md`. When target/context
+separation is material, a confirmed target changes, or resolution is unresolved, the agent consumes
+the canonical `task_target_orientation.markdown` verbatim from `renderTaskTargetOrientation` in
+`create-agdf/lib/interaction-presentation.js`.
+
+The projection may show the primary target, governance target, evidence sources and working
+directory for a resolved result. For an unresolved result it shows the localized reason and required
+next action. It carries `authorizes: false`, never renders approval controls and never selects or
+derives a target.
+
+For a fresh request, render the target orientation before read-only orientation, Scope
+Classification or any gate presentation when it is required. An unresolved result suppresses every
+downstream orientation and gate surface. A resolved result with material target separation may be
+followed by the one applicable downstream surface. Avoid a redundant target block for an obvious
+unchanged target.
+
+If the input is incomplete or contradictory, the renderer returns `null`. The agent then fails closed
+to target clarification and must not model-reconstruct Markdown. `gate-check` must not maintain a
+skill-local target-orientation template.
+
 ### Scope Classification Card
 
 When `gate-check` classifies a fresh scope as ungated (Quick Task or Trivial Change Boundary),

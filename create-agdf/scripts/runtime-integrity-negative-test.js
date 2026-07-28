@@ -84,11 +84,13 @@ try {
   expectIntegrityFailure(/runtime contract Native Interaction Contract missing: ## Native Interaction Contract/);
 
   for (const boundary of [
+    "Resolve or revalidate the primary task target before selecting repository control state.",
+    "Derive repository activation only from the resolved governance target",
     "Select exactly one run and evaluate its current gate.",
     "Confirm that the required durable artefact is present and ready.",
     "Consume the canonical `approval_presentation` verbatim",
     "obtain deliberate input through the contract-selected native or exact-text path",
-    "Revalidate the same run, gate and revision immediately after the response and before persistence.",
+    "Revalidate the same target, run, gate and revision immediately after the response and before persistence.",
     "Persist only a currently valid exact approval through the existing control-state workflow.",
   ]) {
     resetPluginFixture();

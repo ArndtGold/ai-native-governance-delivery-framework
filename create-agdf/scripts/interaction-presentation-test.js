@@ -23,6 +23,7 @@ import {
   renderApprovalOrientationSnapshot,
   renderOperationalStatusCard,
   renderScopeClassificationCard,
+  renderTaskTargetOrientation,
   normalizeReconciliationText,
   validateLocaleRegistry,
   validateApprovalOrientationSnapshot,
@@ -496,3 +497,75 @@ assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_
 assert.equal(renderScopeClassificationCard({ ...validClassification, challenge_path: "" }, { registry, requestedLocale: "en" }), null, "missing challenge path returns null");
 
 console.log("scope classification card tests passed");
+
+const explicitTarget = {
+  resolution_state: "resolved",
+  reason_code: "explicit_target",
+  primary_target: "/tmp/analysis.md",
+  governance_target: "",
+  evidence_sources: ["/repo/AGDF"],
+  working_directory: "/repo/AGDF",
+  target_changed: false,
+  next_action: "",
+};
+
+const targetCardEn = renderTaskTargetOrientation(explicitTarget, { registry, requestedLocale: "en" });
+assert.ok(targetCardEn, "valid explicit target returns an orientation");
+assert.equal(targetCardEn.semantic_block, "task_target_orientation");
+assert.equal(targetCardEn.authorizes, false);
+assert.equal(targetCardEn.resolution_state, "resolved");
+assert.ok(targetCardEn.markdown.includes("/tmp/analysis.md"), "resolved orientation shows primary target");
+assert.ok(targetCardEn.markdown.includes("/repo/AGDF"), "resolved orientation shows evidence and working directory");
+assert.ok(!targetCardEn.markdown.includes("Approval:"), "target orientation never contains approval controls");
+
+const continuedTarget = renderTaskTargetOrientation({
+  ...explicitTarget,
+  reason_code: "continued_target",
+  target_changed: true,
+}, { registry, requestedLocale: "de" });
+assert.ok(continuedTarget.markdown.includes("Ziel gewechselt"), "changed target is visible");
+assert.equal(continuedTarget.presentation_language, "de");
+
+for (const reasonCode of [
+  "multiple_plausible_targets",
+  "target_content_mismatch",
+  "target_unavailable",
+  "no_reliable_target",
+]) {
+  const unresolved = renderTaskTargetOrientation({
+    resolution_state: "unresolved",
+    reason_code: reasonCode,
+    primary_target: "",
+    governance_target: "",
+    evidence_sources: ["/repo/evidence"],
+    working_directory: "/repo/current",
+    target_changed: false,
+    next_action: "Clarify or supply the requested target, then retry.",
+  }, { registry, requestedLocale: "en" });
+  assert.ok(unresolved, `${reasonCode} renders a fail-closed orientation`);
+  assert.equal(unresolved.resolution_state, "unresolved");
+  assert.ok(unresolved.markdown.includes("Next action"), `${reasonCode} shows recovery`);
+}
+
+const incompleteTargetRegistry = JSON.parse(JSON.stringify(registry));
+delete incompleteTargetRegistry.locales.de.taskTargetResolution;
+assert.equal(
+  renderTaskTargetOrientation(explicitTarget, { registry: incompleteTargetRegistry, requestedLocale: "de" }),
+  null,
+  "incomplete target locale pack fails closed",
+);
+assert.equal(renderTaskTargetOrientation(null, { registry, requestedLocale: "en" }), null);
+assert.equal(renderTaskTargetOrientation({ ...explicitTarget, target_changed: "false" }, { registry, requestedLocale: "en" }), null);
+assert.equal(renderTaskTargetOrientation({ ...explicitTarget, resolution_state: "unknown" }, { registry, requestedLocale: "en" }), null);
+assert.equal(renderTaskTargetOrientation({ ...explicitTarget, reason_code: "target_unavailable" }, { registry, requestedLocale: "en" }), null);
+assert.equal(renderTaskTargetOrientation({ ...explicitTarget, next_action: "Unexpected" }, { registry, requestedLocale: "en" }), null);
+assert.equal(renderTaskTargetOrientation({
+  ...explicitTarget,
+  resolution_state: "unresolved",
+  reason_code: "target_unavailable",
+  primary_target: "",
+  governance_target: "/repo/AGDF",
+  next_action: "Retry",
+}, { registry, requestedLocale: "en" }), null);
+
+console.log("task target orientation tests passed");

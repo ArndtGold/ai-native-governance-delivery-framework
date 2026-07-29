@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-010:1",
+  "case_id": "PB-010",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "8e8ce59a0472458d9559b8fe32d961e2e230dcac2a22a93a7c74ba258b294971",
+  "recorded_at": "2026-07-28T18:09:02.358Z",
+  "observed_delivery_path": "compact_delivery",
+  "ambiguous": false,
+  "rationale": "The durable UR is approved, Brownfield analysis is complete, and the stored Mode/Slice Decision is quick_task; canonical mode rules therefore expose this governed narrow change under the human-facing Compact Delivery label.",
+  "decision_grounds": [
+    "Approved UR: the control-state context explicitly states that a durable UR is approved.",
+    "Completed Brownfield analysis: the control-state context explicitly states that Brownfield analysis is complete.",
+    "Stored quick_task context: the persisted mode/slice decision is explicitly quick_task.",
+    "The task is a narrow clarification to an existing installation instruction, consistent with the recorded quick_task path",
+    "The canonical modes contract maps approved UR + completed Brownfield review selecting persisted quick_task to compact_d​"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

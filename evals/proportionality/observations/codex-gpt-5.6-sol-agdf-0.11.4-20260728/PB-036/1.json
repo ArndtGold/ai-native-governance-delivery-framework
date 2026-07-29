@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-036:1",
+  "case_id": "PB-036",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "24964928c73422ab742390be252af038cb5937dcae9a00f2eaa1ceb424842ce9",
+  "recorded_at": "2026-07-28T17:54:35.416Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is release-critical and affects plugin runtime generation plus installation-safe asset distribution, which suggests a structured path. However, no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. Canonical routing requires missing evidence to fail closed, so a delivery path cannot be selected from task wording alone.",
+  "decision_grounds": [
+    "No delivery path was preselected in the supplied control state.",
+    "No exact `Approval: UR` and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision with scope reason and evidence is supplied.",
+    "The requested release-build and asset-distribution changes indicate release/runtime impact, but impact alone cannot law”"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

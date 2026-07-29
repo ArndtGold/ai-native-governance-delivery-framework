@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-012:3",
+  "case_id": "PB-012",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "76fc45155ab4e7ee0a9ea065a08fae94dfebbc1c9447d3d4b4b2acee106ea024",
+  "recorded_at": "2026-07-28T17:38:37.584Z",
+  "observed_delivery_path": "compact_delivery",
+  "ambiguous": false,
+  "rationale": "The approved durable UR and completed Brownfield Review explicitly establish the persisted quick_task decision, whose human-facing delivery label is compact_delivery.",
+  "decision_grounds": [
+    "A durable UR is approved.",
+    "Brownfield analysis is completed.",
+    "Stored quick_task context is explicitly present as the Mode/Slice decision.",
+    "The canonical modes contract maps an approved UR followed by Brownfield Review selecting persisted quick_task to Compact",
+    "The requested proof is focused and scoped to an existing Pages surface, with no contrary evidence requiring escalation."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

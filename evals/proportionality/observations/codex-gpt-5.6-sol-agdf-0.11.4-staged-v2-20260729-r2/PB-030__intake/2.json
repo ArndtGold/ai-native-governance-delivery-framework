@@ -1,0 +1,33 @@
+{
+  "schema_version": "2",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2:PB-030:intake:2",
+  "case_id": "PB-030",
+  "profile_id": "staged-v2",
+  "protocol_version": "2",
+  "scenario_id": "PB-030:intake",
+  "lifecycle_stage": "intake",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "2.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "2.0.0",
+  "source_fingerprint": "24c1ada2d7285ed056dd3d31089774649e13359a2a4f68193a24431efe564011",
+  "recorded_at": "2026-07-29T07:08:21.710Z",
+  "observed_next_permissible_stage": "ur",
+  "stage_evaluability": "evaluated",
+  "observed_delivery_path": null,
+  "path_evaluability": "not_evaluable_yet",
+  "rationale": "The task requests a new portable native-interaction capability and exact fallback behavior, so it introduces functional and user-visible semantics. With no approved durable UR and no Brownfield decision, the earliest permissible stage is UR; later stages and implementation remain fail-closed.",
+  "decision_grounds": [
+    "The lifecycle state is intake and the control-state context explicitly contains no approval.",
+    "The requested capability changes interaction behavior across Codex, Claude, and OpenCode, triggering the durable UR rule",
+    "The evidence pack is empty, so no durable UR artefact, exact Approval: UR, Brownfield Review, or Mode/Slice Decision is可"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

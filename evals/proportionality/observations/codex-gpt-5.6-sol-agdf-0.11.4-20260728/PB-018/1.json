@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-018:1",
+  "case_id": "PB-018",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "833a2dbf56ed223521920b9be1ab723945fac18fdc9bedce2b5634a04d872751",
+  "recorded_at": "2026-07-28T17:41:35.172Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task implies user-visible disclosure and TUI warning changes plus version-drift handling in an existing repository, but the supplied evidence contains no approved durable UR and no completed Brownfield Review with an evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path.",
+  "decision_grounds": [
+    "User-visible behavior and possible runtime/release-version semantics require a durable approved UR before routing beyond",
+    "No exact `Approval: UR` or durable UR artefact is evidenced",
+    "No completed Brownfield Review or recorded Mode/Slice Decision is evidenced",
+    "The phrase `innerhalb bestehender Owner` does not prove bounded ownership, impact absence, baseline cleanliness, or the（"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

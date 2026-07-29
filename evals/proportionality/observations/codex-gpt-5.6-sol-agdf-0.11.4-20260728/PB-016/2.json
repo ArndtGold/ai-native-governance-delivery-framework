@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-016:2",
+  "case_id": "PB-016",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "bd3a5e34c94a233419a656f3bb7fb68a7e147852e52e16b21f27c960d01c2cff",
+  "recorded_at": "2026-07-28T17:40:38.033Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The footer email is a user-visible functional change in an existing repository, so it requires a durable approved UR followed by Brownfield Review and an evidenced Mode/Slice Decision. None of that control-state evidence is supplied, and the instructions require missing evidence to fail closed.",
+  "decision_grounds": [
+    "No delivery path was preselected.",
+    "No durable UR artefact or exact `Approval: UR` is evidenced.",
+    "No completed Brownfield Review or evidenced Mode/Slice Decision is provided.",
+    "The task alone cannot establish eligibility for quick_task, verified_change, structured_slice, or structured_delivery.",
+    "compact_delivery cannot be selected because approved UR, completed Brownfield analysis, and stored quick_task context—ov"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

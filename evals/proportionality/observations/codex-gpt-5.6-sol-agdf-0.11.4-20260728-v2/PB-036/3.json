@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-036:3",
+  "case_id": "PB-036",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "433839c884d21b8438e39f7dd53d08eef0d8d4d3fddf10afb72e89276d2937f3",
+  "recorded_at": "2026-07-28T18:23:55.252Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is release-critical and affects plugin runtime generation and installation-safe asset distribution, but no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied. AGDF therefore requires fail-closed routing rather than inferring a delivery path.",
+  "decision_grounds": [
+    "The canonical routing rules classify release-critical and runtime-impacting work as gated and potentially structured.",
+    "No exact `Approval: UR` plus durable UR artefact is evidenced in the supplied context.",
+    "No completed Brownfield Review with scope reason, evidence, and a recorded Mode/Slice Decision is evidenced.",
+    "`compact_delivery` cannot be selected because approved UR, completed Brownfield analysis/review, and stored `quick_task`",
+    " context are not all evidenced.",
+    "The evidence also does not establish the bounded clean-baseline record required for `verified_change` or an explicit `",
+    "structured_slice`/`structured_delivery` decision."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

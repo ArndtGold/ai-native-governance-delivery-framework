@@ -93,9 +93,13 @@ Mode/Slice Decision rules:
 
 - `quick_task`: use only when Brownfield Review shows a narrow local change, no new product semantics beyond the approved UR, no architecture/policy/persistence/contract expansion, and evidence is sufficient to proceed with a small implementation plus relevant checks.
 - `verified_change`: use only when the compact record can prove one canonical owner, bounded clean-at-baseline paths, no prohibited impact, deterministic propagation/validation and a structured escalation target. It skips later approvals only after every condition is evidenced and machine-validated.
-- `structured_slice`: use when some formal artefacts are needed, but they can stay intentionally small and scoped to the approved slice.
-- `structured_delivery`: use when the change has broad product, architecture, runtime, policy, persistence, release or cross-owner impact.
-- `block`: use when ownership, SoT, impact, evidence or product direction is not clear enough to choose a safe path.
+- `structured_slice` and `structured_delivery`: apply the sole normative `Structured Depth Decision`
+  in `modes.md`; this contract owns only the operational transition and does not duplicate its
+  trigger or bounded-slice matrix.
+- `block`: use when ownership, SoT, impact, evidence or product direction is not clear enough to
+  choose a safe path. A `depth_unresolved` product result is persisted through this existing value
+  with `depth_facts_missing | depth_facts_conflicting`, a Brownfield Review evidence link and a
+  precise evidence-owner/re-evaluation next action; it never creates a new mode or advances a gate.
 
 A Mode/Slice Decision without scope reason and evidence is not recorded. Treat it as missing and keep the next step at `Mode/Slice Decision`.
 

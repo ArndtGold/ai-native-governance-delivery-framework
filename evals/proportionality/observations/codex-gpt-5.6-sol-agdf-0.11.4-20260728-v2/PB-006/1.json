@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-006:1",
+  "case_id": "PB-006",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "cfec3ff4bcea858d9acd3b72bc01a2f5c4f11806b1d213d6343fff95c34e17d0",
+  "recorded_at": "2026-07-28T18:06:41.769Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "Die Aufgabe ist ausdrücklich auf eine Diagnose bis zur belastbaren Ursache begrenzt, ohne Reparatur im fremden Scope. Das ist lokales Debugging beziehungsweise eine Frage ohne Implementierung, neue Produktsemantik oder formale Artefakte und fällt daher direkt in den Quick-Task-Pfad.",
+  "decision_grounds": [
+    "Die kanonischen Mode-Regeln ordnen Fragen, lokales Debugging und kleine Reviews ohne neue Produktsemantik dem quick_task",
+    "Die Formulierung „diagnostizieren“ und „nicht im fremden Scope reparieren“ begrenzt die Arbeit auf read-only Ursachenauf"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

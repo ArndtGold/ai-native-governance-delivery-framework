@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-006:2",
+  "case_id": "PB-006",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "cfec3ff4bcea858d9acd3b72bc01a2f5c4f11806b1d213d6343fff95c34e17d0",
+  "recorded_at": "2026-07-28T18:06:54.509Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "Die Aufgabe verlangt ausschließlich eine eng begrenzte Diagnose einer Kompatibilitätsfrage bis zur belastbaren Ursache und untersagt ausdrücklich eine Reparatur außerhalb des fremden Scopes. Das entspricht lokalem Debugging ohne neue Produktsemantik, formale Artefakte oder Implementierungsänderung.",
+  "decision_grounds": [
+    "Der Router weist Fragen und lokales Debugging dem Quick Task Mode zu.",
+    "Die Aufgabe ist diagnose-only; eine Änderung oder Reparatur ist ausdrücklich nicht autorisiert.",
+    "Es gibt keinen Hinweis auf neue Produktsemantik, Architektur-, Policy-, Persistenz- oder Release-Auswirkungen.",
+    "Compact Delivery ist nicht belegt: Es fehlen eine genehmigte und dauerhaft gespeicherte UR, eine abgeschlossene Brownﬁ ﬁ"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

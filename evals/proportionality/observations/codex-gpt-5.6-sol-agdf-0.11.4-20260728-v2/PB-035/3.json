@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-035:3",
+  "case_id": "PB-035",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "264c57a02d70001f19810089094df1d6fad9499bb13031653f6801f6dc9dd08d",
+  "recorded_at": "2026-07-28T18:23:26.707Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes multiple user-visible AGDF UX changes in an existing repository, but provides no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision. Canonical routing therefore fails closed before selecting a delivery path.",
+  "decision_grounds": [
+    "The requested improvements span multiple UX lines—run selection, first contact, skill grouping, and evidence visibility—",
+    "User-visible behavior changes require a durable approved UR before Brownfield Review or implementation.",
+    "No exact `Approval: UR` and no persisted or linked UR artefact are evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and a recorded Mode/Slice Decision is evidenced.",
+    "`compact_delivery` cannot be selected because approved UR, completed Brownfield analysis, and stored `quick_task` mode; ",
+    "`verified_change`, `structured_slice`, and `structured_delivery` depend on a Brownfield Mode/Slice Decision that is not ",
+    "Missing evidence must be treated fail-closed; broad task wording alone does not authorize inventing a path."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

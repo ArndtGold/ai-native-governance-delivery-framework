@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-004:1",
+  "case_id": "PB-004",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "ee3f5050a76fd33e70dabb1791182d465977937d72dd5d7155abae78fb44e913",
+  "recorded_at": "2026-07-28T18:05:41.125Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is an explicitly read-only readiness pre-check in an existing repository. It requests inspection rather than a change, formal artefact, approval, or implementation, so AGDF routes it as a Quick Task.",
+  "decision_grounds": [
+    "The router assigns questions, small reviews, local inspection, and other read-only work without new product semantics to",
+    "The task is explicitly scoped as read-only and asks only to pre-check OpenCode provider and agent readiness.",
+    "No durable approval or Brownfield decision is required for this ungated inspection.",
+    "No file mutation, product semantics, architecture, policy, persistence, or release-critical work is requested."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-026:1",
+  "case_id": "PB-026",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "fd4a5dc20146089c6767aa12ffcef951616896901867f23dde6d2f390f1de049",
+  "recorded_at": "2026-07-28T18:18:10.706Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a user-visible change to an existing AGDF repository, but the supplied evidence contains no approved durable UR and no completed Brownfield Review with a recorded Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The compact status card change affects visible UI/UX behavior and therefore requires a durable UR before routing or work",
+    "No exact `Approval: UR` and corresponding persisted or linked UR artefact are evidenced",
+    "No completed Brownfield Review or evidenced Mode/Slice Decision is provided",
+    "Compact Delivery cannot be selected because approved UR, completed Brownfield analysis, and stored `quick_task` context—",
+    "the required evidence—are absent",
+    "The earliest permissible action is UR formulation/approval, not delivery-path selection"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

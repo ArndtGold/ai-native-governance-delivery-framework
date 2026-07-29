@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-007:2",
+  "case_id": "PB-007",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "be52469a05d90a09fc6960cb1e0d99f457b62d1e272b1c71922ddf60acf57b00",
+  "recorded_at": "2026-07-28T18:07:25.274Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is a narrow, read-only diagnostic operation: run Doctor after control-artefact maintenance and explain its findings. It introduces no product semantics, implementation change, formal gate artefact, or approval-dependent delivery work.",
+  "decision_grounds": [
+    "The router assigns questions, explanations, local inspection, and small reviews to Quick Task Mode.",
+    "Running `doctor` as a deterministic validator and explaining findings is diagnostic/read-only work, not a build or gated"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

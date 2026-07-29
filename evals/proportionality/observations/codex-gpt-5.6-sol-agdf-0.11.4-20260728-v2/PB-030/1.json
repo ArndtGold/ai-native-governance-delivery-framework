@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-030:1",
+  "case_id": "PB-030",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "cd8ec94feba8a53e9b86550735c263719824c3991318eec9930bdf9c927473a5",
+  "recorded_at": "2026-07-28T18:20:22.235Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces portable native interaction behavior and an exact fallback across multiple host surfaces, implying functional, runtime, and cross-surface contract changes. However, no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied. AGDF therefore fails closed and cannot select a delivery path from task wording alone.",
+  "decision_grounds": [
+    "New product semantics and user-visible interaction behavior require a durable UR before routing beyond the initial gate.",
+    "Cross-surface changes spanning Codex, Claude, and OpenCode may affect runtime contracts and multiple owners, but their具体",
+    "scope cannot be safely sized without Brownfield Review evidence.",
+    "No exact `Approval: UR`, durable UR artefact, completed Brownfield Review, or recorded Mode/Slice Decision is evidenced.",
+    "`compact_delivery` is unavailable because approved UR, completed Brownfield analysis, and stored `quick_task` context—a必",
+    "all required grounds—are not evidenced.",
+    "Verified or structured paths cannot be inferred from task wording; missing routing evidence must fail closed."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

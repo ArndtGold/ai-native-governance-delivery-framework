@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-025:1",
+  "case_id": "PB-025",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "36b8308639703550ef55d846fc9405f5ad5c5536785ccac18c6042721d20ccd6",
+  "recorded_at": "2026-07-28T18:17:34.114Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a framework-maintenance change in an existing AGDF repository, but provides no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision. Canonical routing requires these before selecting a gated delivery path, and missing evidence must fail closed.",
+  "decision_grounds": [
+    "The request is a change to AGDF framework-maintenance behavior and canonical scope/routing criteria, so it is not proven",
+    "The Narrow Code-Fix Criterion cannot be established from task wording alone because no concrete file, function boundary,",
+    "compact_delivery is unavailable because there is no evidenced approved UR, completed Brownfield analysis/review select",
+    "verified_change is unavailable because no durable eligibility record proves canonical ownership, clean-at-baseline bound",
+    "structured_slice versus structured_delivery cannot be chosen safely until an approved durable UR and Brownfield Review"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

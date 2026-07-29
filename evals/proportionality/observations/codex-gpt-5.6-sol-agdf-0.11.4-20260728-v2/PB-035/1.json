@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-035:1",
+  "case_id": "PB-035",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "264c57a02d70001f19810089094df1d6fad9499bb13031653f6801f6dc9dd08d",
+  "recorded_at": "2026-07-28T18:23:04.377Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes multiple user-visible AGDF UX changes in an existing repository, but provides no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision. Canonical routing requires those controls before selecting a delivery path, so the classification must fail closed.",
+  "decision_grounds": [
+    "The requested improvements span several UX lines—run selection, first contact, skill grouping, and evidence visibility—而",
+    "User-visible behavior changes require a durable UR and exact Approval: UR before post-UR routing.",
+    "No approved durable UR is evidenced in the task context.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision with scope reason and evidence is provided.",
+    "compact_delivery cannot be selected because there is no evidenced approved UR, completed Brownfield analysis, or stored/"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

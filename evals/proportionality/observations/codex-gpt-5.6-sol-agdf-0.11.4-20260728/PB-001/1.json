@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-001:1",
+  "case_id": "PB-001",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "ae84bbb88df9409fb424afe17f72818dd48b0ed1c6107126acdede3384353a49",
+  "recorded_at": "2026-07-28T17:31:57.048Z",
+  "observed_delivery_path": "trivial_change",
+  "ambiguous": false,
+  "rationale": "The task is a narrowly bounded documentation-only correction: adding the missing agdf/ directory entry to the README project tree. It introduces no product semantics and is clearly outside executable code and the specifically protected AGDF paths, so it fits the non-normative Trivial Change Boundary.",
+  "decision_grounds": [
+    "The requested diff is confined to README documentation.",
+    "The change only restores a missing project-tree entry and does not alter user-visible behavior, product semantics, gates",
+    "policy, persistence, architecture, runtime, or release behavior.",
+    "The canonical modes contract permits a quick_task fully outside plugin/skills/**, plugin/control/templates/**, plugin",
+    "/meta/**, create-agdf/lib/**, create-agdf/bin/**, and executable code to close under the Trivial Change Boundary.",
+    "No approved UR or Brownfield decision is required to classify this fresh ungated trivial documentation change; compact",
+    "_delivery is therefore not selected."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

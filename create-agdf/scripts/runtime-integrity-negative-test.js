@@ -9,10 +9,13 @@ const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-integrity-"));
 const integrityScript = join(fixtureRoot, "plugin", "scripts", "check-runtime-integrity.mjs");
 const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "VERIFIED_CHANGE.md");
+const brownfieldTemplatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md");
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
+const modesContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "modes.md");
 const qualityContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "quality.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
+const brownfieldSkillPath = join(fixtureRoot, "plugin", "skills", "brownfield-analysis", "SKILL.md");
 const cleanReviewPath = join(fixtureRoot, "plugin", "skills", "clean-implementation-review", "SKILL.md");
 const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
@@ -62,6 +65,30 @@ try {
   const template = readFileSync(templatePath, "utf8").replace("canonical_owner", "canonical_owner_removed");
   writeFileSync(templatePath, template, "utf8");
   expectIntegrityFailure(/VERIFIED_CHANGE\.md missing control field: canonical_owner/);
+
+  resetPluginFixture();
+  writeFileSync(
+    modesContractPath,
+    readFileSync(modesContractPath, "utf8").replace("### Structured Depth Decision", "### Removed Structured Depth Decision"),
+    "utf8",
+  );
+  expectIntegrityFailure(/modes contract Structured Depth Decision missing: ### Structured Depth Decision/);
+
+  resetPluginFixture();
+  writeFileSync(
+    brownfieldTemplatePath,
+    readFileSync(brownfieldTemplatePath, "utf8").replace("depth_policy_version", "depth_policy_removed"),
+    "utf8",
+  );
+  expectIntegrityFailure(/BROWNFIELD_REVIEW\.md missing control field: depth_policy_version/);
+
+  resetPluginFixture();
+  writeFileSync(
+    brownfieldSkillPath,
+    readFileSync(brownfieldSkillPath, "utf8").replace("Brownfield\/Mode-Slice re-evaluation", "structured-depth recovery removed"),
+    "utf8",
+  );
+  expectIntegrityFailure(/brownfield-analysis structured-depth guidance missing: Brownfield\/Mode-Slice re-evaluation/);
 
   resetPluginFixture();
   writeFileSync(

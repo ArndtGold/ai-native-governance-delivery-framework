@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-029:2",
+  "case_id": "PB-029",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "bb6cfe3d8b8ee5ad5de6cafc009e228f13edd3f47c50e5cfb0e9424e700bc680",
+  "recorded_at": "2026-07-28T18:19:59.301Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The requested refactor affects runtime-contract architecture and all consumers, which rules out the lightweight paths, but the evidence needed to distinguish structured_slice from structured_delivery is absent. Missing approvals and Brownfield routing must be treated fail-closed.",
+  "decision_grounds": [
+    "No approved and durable UR is evidenced.",
+    "No completed Brownfield Review or evidenced Mode/Slice Decision is provided.",
+    "The monolithic runtime contract is an architectural owner, and migrating all consumers implies cross-owner or broad-path",
+    "quick_task and trivial_change are ineligible because plugin/meta/** and likely executable consumers are in scope.",
+    "compact_delivery is unsupported because there is no approved UR, completed Brownfield analysis, or stored quick_task con",
+    "verified_change is unsupported because one canonical owner, bounded clean-at-baseline paths, prohibited-impact absence,",
+    "The available evidence does not safely choose between structured_slice and structured_delivery."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

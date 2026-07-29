@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-037:3",
+  "case_id": "PB-037",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "166ce74e410ee2889c41f55aa4d2974006f6487b51e95dd4732a97a04928c019",
+  "recorded_at": "2026-07-28T18:24:33.825Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "No delivery path can be selected fail-closed because the architectural CLI refactor requires an approved durable UR and a completed Brownfield Review with an evidenced Mode/Slice Decision, neither of which is provided.",
+  "decision_grounds": [
+    "The task is a non-trivial refactor of create-agdf CLI ownership while preserving public contracts, so it is not self-e/p",
+    "No exact Approval: UR or durable approved UR artefact is evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision with scope reason and evidence is supplied.",
+    "Canonical routing requires gate-check first and forbids inferring a delivery path from task wording alone."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

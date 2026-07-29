@@ -233,6 +233,43 @@ try {
   assert.equal(qaReviseReport.status_card.user_action_required, "no");
   assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
   assert.equal(Object.hasOwn(qaReviseReport.status_card, "approvalOrientation"), false, "approval orientation must not change public JSON keys");
+
+  const qaBlockRunPath = join(qaReviseRoot, ".agdf", "control", "runs", "qa-revise", "RUN_STATE.md");
+  writeFileSync(
+    qaBlockRunPath,
+    readFileSync(qaBlockRunPath, "utf8")
+      .replace("| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | revise | QA revision required |", "| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | block | QA blocked |")
+      .replace("- next_allowed_action: Resolve QA findings.", "- next_allowed_action: Route blocking QA findings."),
+  );
+  const qaBlockGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
+  assert.equal(qaBlockGateCheck.status, 2, qaBlockGateCheck.stderr);
+  const qaBlockReport = JSON.parse(qaBlockGateCheck.stdout);
+  assert.equal(qaBlockReport.status, "blocked");
+  assert.equal(qaBlockReport.current_gate, "QA");
+  assert.equal(qaBlockReport.blocking_reason, "qa_blocked");
+  assert.equal(qaBlockReport.missing_approval, "none");
+  assert.ok(qaBlockReport.allowed.every((action) => !action.includes("approval")));
+  assert.ok(qaBlockReport.allowed.includes("route the blocking QA findings to their authoritative owner"));
+  assert.ok(qaBlockReport.forbidden.includes("request QA approval"));
+  assert.ok(qaBlockReport.forbidden.includes("request UAT approval"));
+  assert.equal(qaBlockReport.interaction_kind, "blocked");
+  assert.equal(qaBlockReport.approval_presentation, null);
+  assert.equal(qaBlockReport.status_card.user_action_required, "no");
+  assert.equal(qaBlockReport.status_card.next_gate_after_approval, "none");
+
+  writeFileSync(
+    qaBlockRunPath,
+    readFileSync(qaBlockRunPath, "utf8").replace("| QA | missing |  |", "| QA | approved | Approval: QA |"),
+  );
+  const approvedQaBlockGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
+  assert.equal(approvedQaBlockGateCheck.status, 2, approvedQaBlockGateCheck.stderr);
+  const approvedQaBlockReport = JSON.parse(approvedQaBlockGateCheck.stdout);
+  assert.equal(approvedQaBlockReport.status, "blocked");
+  assert.equal(approvedQaBlockReport.current_gate, "QA");
+  assert.equal(approvedQaBlockReport.blocking_reason, "AGDF_GATE_ARTEFACT_STATUS_INCONSISTENT");
+  assert.equal(approvedQaBlockReport.missing_approval, "none");
+  assert.ok(approvedQaBlockReport.allowed.every((action) => !action.includes("UAT")));
+  assert.ok(approvedQaBlockReport.forbidden.includes("create later-gate artefacts beyond the current allowed gate"));
   rmSync(qaReviseRoot, { recursive: true, force: true });
 
   for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {

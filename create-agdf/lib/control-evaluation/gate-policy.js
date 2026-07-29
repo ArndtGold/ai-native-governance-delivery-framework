@@ -29,8 +29,9 @@ export function isGateSatisfied(runState, gate) {
   return isDurableGateArtefactSatisfied(runState, gate);
 }
 
-function qaRevisionRequired(runState) {
-  return gateArtefactStatus(runState, "QA").status === "revise";
+function qaNonPassDecision(runState) {
+  const status = gateArtefactStatus(runState, "QA").status;
+  return status === "revise" || status === "block" ? status : null;
 }
 
 export function transitionDecisionForRunState(runState, verifiedChange = null) {
@@ -233,15 +234,21 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
     };
   }
 
-  if (qaRevisionRequired(runState)) {
+  const qaNonPass = qaNonPassDecision(runState);
+  if (qaNonPass) {
+    const blocked = qaNonPass === "block";
     return {
-      status: "open",
+      status: blocked ? "blocked" : "open",
       current_gate: "QA",
-      blocking_reason: "qa_revise_required",
+      blocking_reason: blocked ? "qa_blocked" : "qa_revise_required",
       missing_approval: "none",
-      allowed: ["revise the implementation against the QA findings", "refresh CD+Tests and mandatory reviews", "rerun QA with refreshed evidence"],
+      allowed: blocked
+        ? ["route the blocking QA findings to their authoritative owner", "record the next permitted remediation or upstream decision", "rerun QA only after the blocker is resolved"]
+        : ["revise the implementation against the QA findings", "refresh CD+Tests and mandatory reviews", "rerun QA with refreshed evidence"],
       forbidden: ["request QA approval", "request UAT approval", "release", "claim delivery readiness"],
-      next_allowed_action: "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
+      next_allowed_action: blocked
+        ? "Resolve or route the blocking QA findings through their authoritative owner, then rerun the required delivery steps. Do not request Approval: QA from a block report."
+        : "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
     };
   }
 

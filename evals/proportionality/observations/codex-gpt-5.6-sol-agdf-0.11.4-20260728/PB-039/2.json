@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-039:2",
+  "case_id": "PB-039",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "77394a9db44892573653a50cd455b9e3131858c2e055b6ddcbe2fae457e6a861",
+  "recorded_at": "2026-07-28T17:56:35.216Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces a new governed delivery lifecycle and policy semantics, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path from task wording alone.",
+  "decision_grounds": [
+    "No delivery path was preselected in control state.",
+    "No approved durable UR is evidenced.",
+    "No completed Brownfield Review or Mode/Slice Decision is evidenced.",
+    "The requested lifecycle and policy change is gate-relevant, so it cannot be classified as an ungated trivial or quick-l修"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

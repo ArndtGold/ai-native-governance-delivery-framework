@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-002:1",
+  "case_id": "PB-002",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "2ae0a9a52d96e453b79268bc15626c292a85a83f8f913320666fb6eccc0bf0aa",
+  "recorded_at": "2026-07-28T18:04:29.687Z",
+  "observed_delivery_path": "trivial_change",
+  "ambiguous": false,
+  "rationale": "The task is a narrowly bounded correction to an existing Markdown link in MASTER_BACKLOG.md, with no indicated product semantics, executable-code, policy, architecture, persistence, or release impact.",
+  "decision_grounds": [
+    "The requested diff is confined to documentation in MASTER_BACKLOG.md.",
+    "Correcting a malformed link is a local content repair and does not introduce functional or user-visible product behavior",
+    "MASTER_BACKLOG.md is outside the paths excluded by the Non-Normative Trivial Change Boundary.",
+    "No approved UR, completed Brownfield Review, or stored quick_task decision is required to classify this ungated trivial"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

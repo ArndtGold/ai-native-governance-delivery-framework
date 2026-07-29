@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-008:1",
+  "case_id": "PB-008",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "c5eabb7f5f60e4390a3d978534f65d5a471b2157b8abb96962ede82216b5cfc4",
+  "recorded_at": "2026-07-28T17:36:11.586Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces functional activation semantics and therefore requires a durable approved UR followed by Brownfield Review and an evidenced Mode/Slice Decision. No approval, completed Brownfield decision, or other path-specific eligibility evidence is provided, so routing must fail closed.",
+  "decision_grounds": [
+    "The requested explicit target selection before activation is new functional behavior, excluding an ungated quick_task or",
+    "No exact Approval: UR and durable UR artefact are evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and Mode/Slice Decision is evidenced.",
+    "compact_delivery cannot be selected because approved UR, completed Brownfield analysis, and stored quick_task context",
+    "verified_change cannot be selected because its bounded-owner, clean-baseline, prohibited-impact, deterministic-pro and",
+    "The available evidence does not distinguish structured_slice from structured_delivery; that choice belongs to post-UR"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

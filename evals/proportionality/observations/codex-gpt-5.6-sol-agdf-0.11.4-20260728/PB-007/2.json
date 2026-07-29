@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-007:2",
+  "case_id": "PB-007",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "f708c19f2c993f7901d7b26ffff39378c4cc6597afdb294ba3fef52663f9515c",
+  "recorded_at": "2026-07-28T17:35:45.165Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is a narrow diagnostic execution and explanation request against an existing repository. It introduces no product semantics, implementation change, formal artefact, approval transition, or release action, so AGDF routes it through Quick Task Mode.",
+  "decision_grounds": [
+    "The router assigns questions, local inspection, debugging, and small reviews to Quick Task Mode.",
+    "Running doctor after control-artefact maintenance is deterministic validation and findings explanation, not a request to"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

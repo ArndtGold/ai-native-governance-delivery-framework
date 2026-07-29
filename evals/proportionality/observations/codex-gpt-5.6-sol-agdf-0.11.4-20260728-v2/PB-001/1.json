@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-001:1",
+  "case_id": "PB-001",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "09292eaf86c97d470bf5e468af6e800a1de27f0c80569101c6e2c2a9bfdc7252",
+  "recorded_at": "2026-07-28T18:03:51.605Z",
+  "observed_delivery_path": "trivial_change",
+  "ambiguous": false,
+  "rationale": "The requested change is a narrowly bounded documentation-only correction in the README project tree, with no indicated product semantics, executable-code, policy, architecture, persistence, approval, or formal-artefact impact.",
+  "decision_grounds": [
+    "The target is explicit: add the missing agdf/ directory entry to the README project tree.",
+    "The described diff is confined to README documentation and is clearly outside the protected paths and executable-code范围列",
+    "No evidence indicates new product semantics, user-visible runtime behavior, gate-relevant artefacts, or release-critical",
+    "Compact Delivery is inapplicable because no approved UR, completed Brownfield Review selecting quick_task, or stored_quc"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

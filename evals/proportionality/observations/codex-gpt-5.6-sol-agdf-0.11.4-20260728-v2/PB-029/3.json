@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-029:3",
+  "case_id": "PB-029",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "bb6cfe3d8b8ee5ad5de6cafc009e228f13edd3f47c50e5cfb0e9424e700bc680",
+  "recorded_at": "2026-07-28T18:20:10.964Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is a broad runtime-contract refactor across thematic modules and all consumers, indicating architecture, contract, and cross-owner impact. However, no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied. AGDF therefore requires fail-closed routing and cannot select a delivery path from task wording alone.",
+  "decision_grounds": [
+    "The requested decomposition of a monolithic Runtime Contract and migration of all consumers is not clearly eligible for ",
+    "No delivery path was preselected in the control-state context.",
+    "No exact Approval: UR or durable approved UR artefact is evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and Mode/Slice Decision is evidenced.",
+    "compact_delivery cannot be selected because approved UR, completed Brownfield analysis, and stored quick_task context—"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

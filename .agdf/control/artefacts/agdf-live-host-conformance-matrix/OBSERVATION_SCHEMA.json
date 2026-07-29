@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agdf:run:agdf-live-host-conformance-matrix:observation-schema",
+  "title": "AGDF Live Host Conformance Matrix",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "generated_at", "preflights", "observations"],
+  "properties": {
+    "schema_version": { "const": "1" },
+    "run_id": { "const": "agdf-live-host-conformance-matrix" },
+    "status": { "enum": ["in_progress", "complete"] },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "preflights": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "host", "host_version", "agdf_version", "installation_state", "activation_state",
+          "authentication_state", "headless_state", "interactive_state", "evidence_refs"
+        ],
+        "properties": {
+          "host": { "enum": ["codex", "claude_code", "opencode"] },
+          "host_version": { "type": "string", "minLength": 1 },
+          "agdf_version": { "type": "string", "minLength": 1 },
+          "installation_state": { "enum": ["installed", "not_installed", "unverified"] },
+          "activation_state": { "enum": ["active", "inactive", "unverified"] },
+          "authentication_state": { "enum": ["authenticated", "unauthenticated", "unverified"] },
+          "headless_state": { "enum": ["available", "unavailable", "unverified"] },
+          "interactive_state": { "enum": ["available", "unavailable", "unverified"] },
+          "evidence_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 36,
+      "maxItems": 36,
+      "items": {
+        "type": "object",
+        "required": [
+          "observation_id", "case_id", "host", "host_version", "agdf_version", "observed_at",
+          "installation_state", "activation_state", "authentication_state", "observation_mode",
+          "expected_behavior", "actual_behavior", "evidence_class", "enforcement_class", "result",
+          "limitation", "recovery_or_gap_route", "evidence_refs", "mutation_guard"
+        ],
+        "properties": {
+          "observation_id": { "type": "string", "pattern": "^OBS-(CODEX|CLAUDE|OPENCODE)-HC-(0[1-9]|1[0-2])$" },
+          "case_id": { "type": "string", "pattern": "^HC-(0[1-9]|1[0-2])$" },
+          "host": { "enum": ["codex", "claude_code", "opencode"] },
+          "host_version": { "type": "string", "minLength": 1 },
+          "agdf_version": { "type": "string", "minLength": 1 },
+          "observed_at": { "type": ["string", "null"], "format": "date-time" },
+          "installation_state": { "enum": ["installed", "not_installed", "unverified"] },
+          "activation_state": { "enum": ["active", "inactive", "unverified"] },
+          "authentication_state": { "enum": ["authenticated", "unauthenticated", "unverified"] },
+          "observation_mode": { "enum": ["headless_read_only", "interactive_observation", "host_unavailable", "not_observed"] },
+          "expected_behavior": { "type": "string", "minLength": 1 },
+          "actual_behavior": { "type": ["string", "null"] },
+          "evidence_class": { "enum": ["authenticated_host_observed", "host_preflight_observed", "repository_observed", "not_observed"] },
+          "enforcement_class": { "enum": ["tool_enforced", "host_enforced", "instruction_only", "not_observed"] },
+          "result": {
+            "type": ["string", "null"],
+            "enum": ["pass", "limitation", "product_gap", "host_unavailable", "invalid_evidence", null]
+          },
+          "limitation": { "type": ["string", "null"] },
+          "recovery_or_gap_route": { "type": ["string", "null"] },
+          "evidence_refs": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "mutation_guard": {
+            "type": "object",
+            "required": ["before", "after", "unchanged"],
+            "properties": {
+              "before": { "type": ["string", "null"] },
+              "after": { "type": ["string", "null"] },
+              "unchanged": { "type": ["boolean", "null"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

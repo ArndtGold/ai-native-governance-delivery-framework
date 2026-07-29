@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-001:2",
+  "case_id": "PB-001",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "09292eaf86c97d470bf5e468af6e800a1de27f0c80569101c6e2c2a9bfdc7252",
+  "recorded_at": "2026-07-28T18:04:03.405Z",
+  "observed_delivery_path": "trivial_change",
+  "ambiguous": false,
+  "rationale": "The requested change is a narrowly scoped README project-tree correction with no indicated product semantics, executable-code impact, formal artefact requirement, or approval dependency.",
+  "decision_grounds": [
+    "The target is a single missing `agdf/` directory entry in README documentation.",
+    "The stated scope is outside the protected executable and AGDF control paths listed by the Trivial Change Boundary.",
+    "No evidence suggests functional, architectural, policy, persistence, contract, security, or release impact."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

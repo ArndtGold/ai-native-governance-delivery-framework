@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-030:2",
+  "case_id": "PB-030",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "710a4d074b5aa7d1659f3637a1906ee40e806f10c25610a18a14b19c098640c8",
+  "recorded_at": "2026-07-28T17:50:51.606Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces portable native interaction behavior and an exact fallback across three host surfaces, which is a user-visible functional and cross-runtime change. The supplied evidence contains no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "New product semantics and user-visible behavior require a durable UR and exact Approval: UR before routing can proceed.",
+    "Cross-surface runtime and interaction-contract impact requires post-UR Brownfield Review to identify owners, impact, and",
+    "No completed Brownfield Review or evidenced Mode/Slice Decision is supplied.",
+    "compact_delivery is unavailable because the evidence does not show an approved UR, completed Brownfield analysis, and -"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

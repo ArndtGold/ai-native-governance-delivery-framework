@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-030:2",
+  "case_id": "PB-030",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "cd8ec94feba8a53e9b86550735c263719824c3991318eec9930bdf9c927473a5",
+  "recorded_at": "2026-07-28T18:20:31.674Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces portable native interaction behavior and an exact fallback across multiple host surfaces, so it is not clearly an ungated narrow fix. No approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied. Canonical routing therefore requires fail-closed ambiguity rather than selecting a delivery path.",
+  "decision_grounds": [
+    "The requested change affects user-visible interaction behavior across Codex, Claude, and OpenCode.",
+    "No exact `Approval: UR` and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and a recorded Mode/Slice Decision is evidenced.",
+    "`compact_delivery` cannot be selected because approved UR, completed Brownfield analysis/review, and stored `quick_task`"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

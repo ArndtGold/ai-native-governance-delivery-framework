@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-020:1",
+  "case_id": "PB-020",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "7a02aff2bc1081c3d4d55d1f6a1c56cc696269104ba5aa8a9dcfb6e1ec626c53",
+  "recorded_at": "2026-07-28T18:14:24.571Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The requested metadata alignment modifies governed plugin/meta content, so it is not eligible for the trivial-change boundary. The supplied evidence contains no approved durable UR, completed Brownfield Review, or recorded Mode/Slice Decision; AGDF therefore fails closed instead of selecting a delivery path.",
+  "decision_grounds": [
+    "The target is an existing AGDF repository and the task requests a change under plugin/meta/**.",
+    "plugin/meta/** is expressly excluded from the non-normative trivial-change boundary.",
+    "No exact Approval: UR or corresponding durable UR artefact is evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and Mode/Slice Decision is evidenced.",
+    "The canonical routing rules assign delivery-path selection to Brownfield Review, so quick_task, verified_change, compact",
+    "structured_slice, and structured_delivery cannot be inferred from the task wording alone."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

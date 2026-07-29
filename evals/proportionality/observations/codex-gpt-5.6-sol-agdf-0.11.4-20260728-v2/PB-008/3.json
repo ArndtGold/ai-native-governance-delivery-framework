@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-008:3",
+  "case_id": "PB-008",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "6e855fd5d0ccbcc96d0ea6c74fe7d8a03dae98d6054efb348fa8caa6bd783524",
+  "recorded_at": "2026-07-28T18:08:20.749Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces new activation and target-selection semantics in an existing AGDF repository, so it is not eligible for an ungated trivial or quick path. No approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided, so choosing between structured_slice and structured_delivery would invent missing control state.",
+  "decision_grounds": [
+    "The requested explicit target choice changes functional and user-visible activation behavior.",
+    "Canonical routing requires an approved durable UR before Brownfield Review for new product semantics.",
+    "Brownfield Review owns the evidenced Mode/Slice Decision between quick_task, verified_change, structured_slice, and مةدا",
+    "No approved UR, completed Brownfield Review, or recorded Mode/Slice Decision is evidenced.",
+    "compact_delivery is unsupported because there is no approved UR, completed Brownfield analysis, or stored quick_task[]",
+    "Missing routing evidence must fail closed rather than inferring structured_slice or structured_delivery from the task."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

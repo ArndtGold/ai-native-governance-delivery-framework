@@ -1,0 +1,952 @@
+{
+  "schema_version": "2",
+  "profile_id": "staged-v2",
+  "scenario_ids": [
+    "PB-001:intake",
+    "PB-002:intake",
+    "PB-003:intake",
+    "PB-004:intake",
+    "PB-005:intake",
+    "PB-006:intake",
+    "PB-007:intake",
+    "PB-008:intake",
+    "PB-009:intake",
+    "PB-009:post_brownfield_decision",
+    "PB-010:intake",
+    "PB-010:post_brownfield_decision",
+    "PB-011:intake",
+    "PB-011:post_brownfield_decision",
+    "PB-012:intake",
+    "PB-012:post_brownfield_decision",
+    "PB-013:intake",
+    "PB-013:post_brownfield_decision",
+    "PB-014:intake",
+    "PB-014:post_brownfield_decision",
+    "PB-015:intake",
+    "PB-015:brownfield_candidate",
+    "PB-016:intake",
+    "PB-016:brownfield_candidate",
+    "PB-017:intake",
+    "PB-017:brownfield_candidate",
+    "PB-018:intake",
+    "PB-018:brownfield_candidate",
+    "PB-019:intake",
+    "PB-019:brownfield_candidate",
+    "PB-020:intake",
+    "PB-020:brownfield_candidate",
+    "PB-021:intake",
+    "PB-021:brownfield_candidate",
+    "PB-022:intake",
+    "PB-022:brownfield_candidate",
+    "PB-023:intake",
+    "PB-023:brownfield_candidate",
+    "PB-024:intake",
+    "PB-024:brownfield_candidate",
+    "PB-025:intake",
+    "PB-025:brownfield_candidate",
+    "PB-026:intake",
+    "PB-026:brownfield_candidate",
+    "PB-027:intake",
+    "PB-027:brownfield_candidate",
+    "PB-028:intake",
+    "PB-028:brownfield_candidate",
+    "PB-029:intake",
+    "PB-029:brownfield_candidate",
+    "PB-030:intake",
+    "PB-030:brownfield_candidate",
+    "PB-031:intake",
+    "PB-031:brownfield_candidate",
+    "PB-032:intake",
+    "PB-032:brownfield_candidate",
+    "PB-033:intake",
+    "PB-033:brownfield_candidate",
+    "PB-034:intake",
+    "PB-034:brownfield_candidate",
+    "PB-035:intake",
+    "PB-035:brownfield_candidate",
+    "PB-036:intake",
+    "PB-036:brownfield_candidate",
+    "PB-037:intake",
+    "PB-037:brownfield_candidate",
+    "PB-038:intake",
+    "PB-038:brownfield_candidate",
+    "PB-039:intake",
+    "PB-039:brownfield_candidate",
+    "PB-040:intake",
+    "PB-040:brownfield_candidate"
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "PB-001:intake",
+      "case_id": "PB-001",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Fehlenden Verzeichniseintrag agdf/ im README-Projektbaum ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-002:intake",
+      "case_id": "PB-002",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Einen fehlerhaften Markdown-Link im Master Backlog korrigieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-003:intake",
+      "case_id": "PB-003",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Claude-Code-Authentifizierungszustand read-only prüfen und ohne Loginversuch klassifizieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-004:intake",
+      "case_id": "PB-004",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "OpenCode-Provider- und Agent-Bereitschaft read-only vorprüfen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-005:intake",
+      "case_id": "PB-005",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Prüfen, ob Manifest-Drift und Generated-Surface-Synchronisierung bereits kanonische Owner besitzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-006:intake",
+      "case_id": "PB-006",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Eine Windows-execFileSync-Kompatibilitätsfrage bis zur belastbaren Ursache diagnostizieren, aber nicht im fremden Scope reparieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-007:intake",
+      "case_id": "PB-007",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Doctor nach Control-Artefaktpflege ausführen und Findings erklären.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-008:intake",
+      "case_id": "PB-008",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage",
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Bei zwei plausiblen Mutation Targets ausschließlich die Zielklärung durchführen, keine Repositoryaktivierung vornehmen und die explizite Auswahl des Nutzers abwarten.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Apply a canonical ungated diagnostic or non-normative exception when its own criteria are satisfied; otherwise missing state remains fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-009:intake",
+      "case_id": "PB-009",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "README-Erstkontakt für create-agdf fokussieren, ohne CLI- oder Installationssemantik zu ändern.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-009:post_brownfield_decision",
+      "case_id": "PB-009",
+      "lifecycle_stage": "post_brownfield_decision",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "README-Erstkontakt für create-agdf fokussieren, ohne CLI- oder Installationssemantik zu ändern.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A durable UR is approved. Brownfield analysis is complete and the stored mode/slice decision is quick_task.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-010:intake",
+      "case_id": "PB-010",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Den ersten Installationspfad in bestehender Anleitung klarstellen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-010:post_brownfield_decision",
+      "case_id": "PB-010",
+      "lifecycle_stage": "post_brownfield_decision",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Den ersten Installationspfad in bestehender Anleitung klarstellen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A durable UR is approved. Brownfield analysis is complete and the stored mode/slice decision is quick_task.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-011:intake",
+      "case_id": "PB-011",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Vorhandene Installationsoberfläche visuell verifizieren und eng begrenzt erläutern.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-011:post_brownfield_decision",
+      "case_id": "PB-011",
+      "lifecycle_stage": "post_brownfield_decision",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Vorhandene Installationsoberfläche visuell verifizieren und eng begrenzt erläutern.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A durable UR is approved. Brownfield analysis is complete and the stored mode/slice decision is quick_task.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-012:intake",
+      "case_id": "PB-012",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Einen fokussierten OpenCode-Plugin-Proof auf der bestehenden Pages-Oberfläche ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-012:post_brownfield_decision",
+      "case_id": "PB-012",
+      "lifecycle_stage": "post_brownfield_decision",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Einen fokussierten OpenCode-Plugin-Proof auf der bestehenden Pages-Oberfläche ergänzen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A durable UR is approved. Brownfield analysis is complete and the stored mode/slice decision is quick_task.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-013:intake",
+      "case_id": "PB-013",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Doctor um eine klar testbare semantische Konsistenzdiagnose ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-013:post_brownfield_decision",
+      "case_id": "PB-013",
+      "lifecycle_stage": "post_brownfield_decision",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Doctor um eine klar testbare semantische Konsistenzdiagnose ergänzen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A durable UR is approved. Brownfield analysis is complete and the stored mode/slice decision is quick_task.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-014:intake",
+      "case_id": "PB-014",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Claude Run Status Card durch vorhandene Hook- und Contract-Owner zuverlässig exponieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-014:post_brownfield_decision",
+      "case_id": "PB-014",
+      "lifecycle_stage": "post_brownfield_decision",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Claude Run Status Card durch vorhandene Hook- und Contract-Owner zuverlässig exponieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A durable UR is approved. Brownfield analysis is complete and the stored mode/slice decision is quick_task.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-015:intake",
+      "case_id": "PB-015",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Eine kanonische awaiting_or-Backlogbezeichnung ergänzen und deterministisch propagieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-015:brownfield_candidate",
+      "case_id": "PB-015",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Eine kanonische awaiting_or-Backlogbezeichnung ergänzen und deterministisch propagieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-015"
+    },
+    {
+      "scenario_id": "PB-016:intake",
+      "case_id": "PB-016",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Öffentliche Kontakt-E-Mail im bestehenden Pages-Footer ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-016:brownfield_candidate",
+      "case_id": "PB-016",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Öffentliche Kontakt-E-Mail im bestehenden Pages-Footer ergänzen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-016"
+    },
+    {
+      "scenario_id": "PB-017:intake",
+      "case_id": "PB-017",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Einen fokussierten Pages-Beleg für das bestehende Skill-Evaluation-Framework ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-017:brownfield_candidate",
+      "case_id": "PB-017",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Einen fokussierten Pages-Beleg für das bestehende Skill-Evaluation-Framework ergänzen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-017"
+    },
+    {
+      "scenario_id": "PB-018:intake",
+      "case_id": "PB-018",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "OpenCode-Honesty-Lücken in Disclosure, TUI-Warnung und Versionsdrift innerhalb bestehender Owner schließen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-018:brownfield_candidate",
+      "case_id": "PB-018",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "OpenCode-Honesty-Lücken in Disclosure, TUI-Warnung und Versionsdrift innerhalb bestehender Owner schließen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-018"
+    },
+    {
+      "scenario_id": "PB-019:intake",
+      "case_id": "PB-019",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Repository-Aktivierungsdiagnose auf einen kanonischen absoluten Doctor-Probe-Pfad festlegen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-019:brownfield_candidate",
+      "case_id": "PB-019",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Repository-Aktivierungsdiagnose auf einen kanonischen absoluten Doctor-Probe-Pfad festlegen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-019"
+    },
+    {
+      "scenario_id": "PB-020:intake",
+      "case_id": "PB-020",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Plugin-Autor-Metadaten zwischen kanonischer Definition und generierten Manifesten angleichen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-020:brownfield_candidate",
+      "case_id": "PB-020",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Plugin-Autor-Metadaten zwischen kanonischer Definition und generierten Manifesten angleichen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-020"
+    },
+    {
+      "scenario_id": "PB-021:intake",
+      "case_id": "PB-021",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Gate-Rationale-Registry und lokalisierte Why-Projektion ohne Autoritätsänderung ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-021:brownfield_candidate",
+      "case_id": "PB-021",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Gate-Rationale-Registry und lokalisierte Why-Projektion ohne Autoritätsänderung ergänzen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-021"
+    },
+    {
+      "scenario_id": "PB-022:intake",
+      "case_id": "PB-022",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Kanonische menschliche Entscheidungsoberfläche über mehrere Hostadapter einführen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-022:brownfield_candidate",
+      "case_id": "PB-022",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Kanonische menschliche Entscheidungsoberfläche über mehrere Hostadapter einführen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-022"
+    },
+    {
+      "scenario_id": "PB-023:intake",
+      "case_id": "PB-023",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "AGDF-Limits, Abhängigkeiten und Prozessaufwand auf der Pages-Site sichtbar machen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-023:brownfield_candidate",
+      "case_id": "PB-023",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "AGDF-Limits, Abhängigkeiten und Prozessaufwand auf der Pages-Site sichtbar machen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-023"
+    },
+    {
+      "scenario_id": "PB-024:intake",
+      "case_id": "PB-024",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Runtime-Integrity aus Source- und installiertem Pluginlayout zuverlässig machen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-024:brownfield_candidate",
+      "case_id": "PB-024",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Runtime-Integrity aus Source- und installiertem Pluginlayout zuverlässig machen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-024"
+    },
+    {
+      "scenario_id": "PB-025:intake",
+      "case_id": "PB-025",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Framework-Maintenance-Overhead durch Scope-Sichtbarkeit und Narrow-Code-Fix-Kriterium reduzieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-025:brownfield_candidate",
+      "case_id": "PB-025",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Framework-Maintenance-Overhead durch Scope-Sichtbarkeit und Narrow-Code-Fix-Kriterium reduzieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-025"
+    },
+    {
+      "scenario_id": "PB-026:intake",
+      "case_id": "PB-026",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "AGDF-Zustandsmodell in der kompakten Statuskarte sichtbar machen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-026:brownfield_candidate",
+      "case_id": "PB-026",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "AGDF-Zustandsmodell in der kompakten Statuskarte sichtbar machen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-026"
+    },
+    {
+      "scenario_id": "PB-027:intake",
+      "case_id": "PB-027",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Oberflächenparitätsdefekte bei Approval-Transport, Default Prompt und Beschreibungen korrigieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-027:brownfield_candidate",
+      "case_id": "PB-027",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Oberflächenparitätsdefekte bei Approval-Transport, Default Prompt und Beschreibungen korrigieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-027"
+    },
+    {
+      "scenario_id": "PB-028:intake",
+      "case_id": "PB-028",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Installation, Aktivierung, Verifikation, Ersteinsatz und Opt-out als konsistente Journey ausrichten.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-028:brownfield_candidate",
+      "case_id": "PB-028",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Installation, Aktivierung, Verifikation, Ersteinsatz und Opt-out als konsistente Journey ausrichten.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-028"
+    },
+    {
+      "scenario_id": "PB-029:intake",
+      "case_id": "PB-029",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Monolithischen Runtime Contract in thematische Module zerlegen und alle Konsumenten migrieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-029:brownfield_candidate",
+      "case_id": "PB-029",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Monolithischen Runtime Contract in thematische Module zerlegen und alle Konsumenten migrieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-029"
+    },
+    {
+      "scenario_id": "PB-030:intake",
+      "case_id": "PB-030",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Portable native Interaktionen über Codex, Claude und OpenCode mit exaktem Fallback ergänzen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-030:brownfield_candidate",
+      "case_id": "PB-030",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Portable native Interaktionen über Codex, Claude und OpenCode mit exaktem Fallback ergänzen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-030"
+    },
+    {
+      "scenario_id": "PB-031:intake",
+      "case_id": "PB-031",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Zwölf kritische Governance-Szenarien auf drei Hosts versionsgebunden beobachten und abnehmen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-031:brownfield_candidate",
+      "case_id": "PB-031",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Zwölf kritische Governance-Szenarien auf drei Hosts versionsgebunden beobachten und abnehmen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-031"
+    },
+    {
+      "scenario_id": "PB-032:intake",
+      "case_id": "PB-032",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "AGDF-Eignungsbewertung als ersten Codex-Default-Prompt einführen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-032:brownfield_candidate",
+      "case_id": "PB-032",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "AGDF-Eignungsbewertung als ersten Codex-Default-Prompt einführen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-032"
+    },
+    {
+      "scenario_id": "PB-033:intake",
+      "case_id": "PB-033",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Mutablen AGDF-Control-State auf run-spezifische kanonische Zustände migrieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-033:brownfield_candidate",
+      "case_id": "PB-033",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Mutablen AGDF-Control-State auf run-spezifische kanonische Zustände migrieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-033"
+    },
+    {
+      "scenario_id": "PB-034:intake",
+      "case_id": "PB-034",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Versioniertes Skill-Evaluation-Framework mit Korpus, Replay, Grading und CI-Schwellen liefern.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-034:brownfield_candidate",
+      "case_id": "PB-034",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Versioniertes Skill-Evaluation-Framework mit Korpus, Replay, Grading und CI-Schwellen liefern.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-034"
+    },
+    {
+      "scenario_id": "PB-035:intake",
+      "case_id": "PB-035",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Mehrere AGDF-UX-Linien für Run-Auswahl, Erstkontakt, Skill-Gruppierung und Evidenzsichtbarkeit verbessern.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-035:brownfield_candidate",
+      "case_id": "PB-035",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Mehrere AGDF-UX-Linien für Run-Auswahl, Erstkontakt, Skill-Gruppierung und Evidenzsichtbarkeit verbessern.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-035"
+    },
+    {
+      "scenario_id": "PB-036:intake",
+      "case_id": "PB-036",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Plugin-Runtime erst im Release-Build erzeugen und vollständige Assets installationssicher verteilen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-036:brownfield_candidate",
+      "case_id": "PB-036",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Plugin-Runtime erst im Release-Build erzeugen und vollständige Assets installationssicher verteilen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-036"
+    },
+    {
+      "scenario_id": "PB-037:intake",
+      "case_id": "PB-037",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "create-agdf CLI in fokussierte Owner modularisieren und sämtliche öffentlichen Verträge erhalten.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-037:brownfield_candidate",
+      "case_id": "PB-037",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "create-agdf CLI in fokussierte Owner modularisieren und sämtliche öffentlichen Verträge erhalten.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-037"
+    },
+    {
+      "scenario_id": "PB-038:intake",
+      "case_id": "PB-038",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "OpenCode-Registry-Installation stabilisieren und Parser-/Transition-Integrität reparieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-038:brownfield_candidate",
+      "case_id": "PB-038",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "OpenCode-Registry-Installation stabilisieren und Parser-/Transition-Integrität reparieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-038"
+    },
+    {
+      "scenario_id": "PB-039:intake",
+      "case_id": "PB-039",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Fail-closed Verified-Change-Lifecycle zwischen Trivial Change und Structured Slice einführen.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-039:brownfield_candidate",
+      "case_id": "PB-039",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Fail-closed Verified-Change-Lifecycle zwischen Trivial Change und Structured Slice einführen.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-039"
+    },
+    {
+      "scenario_id": "PB-040:intake",
+      "case_id": "PB-040",
+      "lifecycle_stage": "intake",
+      "requested_axes": [
+        "next_permissible_stage"
+      ],
+      "task_summary": "Deterministische agent-native Approval-Präsentation über vier Coding-Agent-Oberflächen etablieren.",
+      "repository_context": "Existing AGDF repository. Classify only from the task, synthetic state, evidence pack, and current canonical instructions.",
+      "control_state_context": "No approval or Brownfield decision is present. Missing state must remain fail-closed.",
+      "evidence_pack_id": null
+    },
+    {
+      "scenario_id": "PB-040:brownfield_candidate",
+      "case_id": "PB-040",
+      "lifecycle_stage": "brownfield_candidate",
+      "requested_axes": [
+        "eventual_delivery_path"
+      ],
+      "task_summary": "Deterministische agent-native Approval-Präsentation über vier Coding-Agent-Oberflächen etablieren.",
+      "repository_context": "Synthetic read-only benchmark state. It does not authorize repository work.",
+      "control_state_context": "A synthetic durable UR is approved for measurement. Use the supplied neutral evidence facts to classify a non-authorizing path candidate; no Mode/Slice Decision is preselected.",
+      "evidence_pack_id": "EP-PB-040"
+    }
+  ]
+}

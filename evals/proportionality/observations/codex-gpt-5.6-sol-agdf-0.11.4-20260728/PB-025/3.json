@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-025:3",
+  "case_id": "PB-025",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "5b6466e10790c438a09ef2a1dbb7e8c9f4ee93e9ca37f9515f0c31fd71e3d22d",
+  "recorded_at": "2026-07-28T17:48:08.654Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a framework-maintenance change in canonical AGDF scope, but no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided. Because scope wording alone cannot establish whether the eventual diff satisfies the trivial-change or Narrow Code-Fix criteria, AGDF must fail closed rather than select a delivery path.",
+  "decision_grounds": [
+    "The request is a change to an existing AGDF repository, so gate-check is the default entry unless durable control state—",
+    "No exact `Approval: UR` and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review with a recorded, evidenced Mode/Slice Decision is supplied.",
+    "The task does not identify an exact diff, file, function, regression test, or validation results, so eligibility for `tr",
+    "`compact_delivery` cannot be selected because there is no approved UR, completed Brownfield analysis/review selecting `"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-024:2",
+  "case_id": "PB-024",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "db46d27e6465e81999c24a1dc03e2fef3e657ad57050ab6a5a68c278a9f1528a",
+  "recorded_at": "2026-07-28T18:17:14.349Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a runtime-integrity change in an existing AGDF repository, but no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied. Canonical routing therefore fails closed and does not support selecting a delivery path yet.",
+  "decision_grounds": [
+    "The request is a change to runtime behavior and may affect executable/plugin layout paths, so it is not proven eligible为",
+    "No exact `Approval: UR` and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review with scope reason and evidence is provided.",
+    "No persisted Mode/Slice Decision selects quick_task, verified_change, structured_slice, or structured_delivery.",
+    "Compact Delivery cannot be selected because approved UR, completed Brownfield analysis/review, and stored quick_task/r1"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

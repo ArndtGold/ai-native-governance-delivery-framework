@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-019:3",
+  "case_id": "PB-019",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "2f15aee4496b3486afca54331ec29970520259dab1972057d461eceead8ead2d",
+  "recorded_at": "2026-07-28T17:44:32.847Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is a repository change affecting canonical activation-diagnosis instructions or behavior, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path.",
+  "decision_grounds": [
+    "No delivery path is preselected in the control-state context.",
+    "The requested canonical Doctor-probe-path change may affect runtime, CLI, or policy surfaces, so its scope cannot be dem",
+    "compact_delivery cannot be selected because there is no evidence of an approved UR, completed Brownfield analysis, and a",
+    "No Verified Change eligibility record or structured Mode/Slice Decision is evidenced."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

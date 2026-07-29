@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-016:3",
+  "case_id": "PB-016",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "bd3a5e34c94a233419a656f3bb7fb68a7e147852e52e16b21f27c960d01c2cff",
+  "recorded_at": "2026-07-28T17:40:50.541Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "Die Ergänzung einer öffentlichen Kontakt-E-Mail ist eine neue sichtbare Produktsemantik. Dafür fehlen sowohl eine genehmigte und dauerhaft gespeicherte UR als auch die anschließende Brownfield Review mit belegter Mode/Slice Decision. Ohne diese Nachweise darf kein Delivery Path erfunden werden.",
+  "decision_grounds": [
+    "Bestehendes Repository und begrenzter Footer-Umfang sind angegeben, reichen allein aber nicht zur Pfadauswahl.",
+    "Die öffentlich sichtbare Kontaktinformation löst gemäß den kanonischen Routing-Regeln zunächst die UR-Pflicht aus.",
+    "Es gibt keinen Nachweis für `Approval: UR` und ein dauerhaftes UR-Artefakt.",
+    "Es gibt keinen Nachweis einer abgeschlossenen Brownfield Review oder einer gespeicherten Mode/Slice Decision.",
+    "Fail-closed ist daher der Delivery Path nicht bestimmbar."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

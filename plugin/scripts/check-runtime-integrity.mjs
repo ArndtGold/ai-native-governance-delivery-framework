@@ -332,12 +332,65 @@ if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
   }
 }
 const runtimeContract = readAllContracts();
+const modesContract = isFile(join(contractsDir, "modes.md")) ? read(join(contractsDir, "modes.md")) : "";
+const gateTransitionContract = isFile(join(contractsDir, "gate-transition.md")) ? read(join(contractsDir, "gate-transition.md")) : "";
 const agentRouterContent = isFile(agentRouterPath) ? read(agentRouterPath) : "";
 const interactionLocales = isFile(interactionLocalesPath) ? readJson(interactionLocalesPath, "interaction locale registry") : null;
 const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
 const brownfieldSkill = isFile(brownfieldSkillPath) ? read(brownfieldSkillPath) : "";
 if (!brownfieldSkill.includes("Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation")) {
   failures.push("brownfield-analysis must own atomic post-UR review and routing persistence");
+}
+for (const required of [
+  "### Structured Depth Decision",
+  "depth_unresolved",
+  "depth_facts_status",
+  "bounded_structured_slice",
+  "authority_policy_security_depth",
+  "architecture_runtime_depth",
+  "persistence_migration_depth",
+  "external_contract_depth",
+  "release_cross_host_depth",
+  "unbounded_consumer_coordination",
+  "depth_facts_missing",
+  "depth_facts_conflicting",
+  "coherent_outcome",
+  "authority_boundary",
+  "owner_consumer_coordination",
+  "full_depth_impacts_absent",
+  "migration_propagation_bounded",
+  "failure_recovery_local",
+  "independently_acceptable",
+]) {
+  if (!modesContract.includes(required)) failures.push(`modes contract Structured Depth Decision missing: ${required}`);
+}
+if (!modesContract.includes("counts are not a decision proxy")
+    || !modesContract.includes("threshold for either structured mode")) {
+  failures.push("modes contract must reject numeric structured-depth proxies");
+}
+if (!modesContract.includes("Structured Slice and Structured Delivery use the same existing gate and approval sequence")) {
+  failures.push("modes contract must preserve structured-depth gate parity");
+}
+if (!gateTransitionContract.includes("sole normative `Structured Depth Decision`")
+    || !gateTransitionContract.includes("does not duplicate its")
+    || !gateTransitionContract.includes("trigger or bounded-slice matrix")) {
+  failures.push("gate-transition contract must reference the Modes-owned Structured Depth Decision without duplicating it");
+}
+if (!gateTransitionContract.includes("`depth_unresolved` product result is persisted through this existing value")
+    || !gateTransitionContract.includes("`depth_facts_missing | depth_facts_conflicting`")) {
+  failures.push("gate-transition contract must route unresolved structured depth through the existing block value");
+}
+for (const required of [
+  "../../meta/contracts/modes.md",
+  "depth_policy_version: 1",
+  "depth_facts_status: complete",
+  "rejected_alternative",
+  "missing_or_conflicting_facts",
+  "all seven bounded-slice",
+  "the existing `block` decision",
+  "Brownfield/Mode-Slice re-evaluation",
+]) {
+  if (!brownfieldSkill.includes(required)) failures.push(`brownfield-analysis structured-depth guidance missing: ${required}`);
 }
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
@@ -1103,7 +1156,33 @@ if (isFile(sotRegistryTemplatePath)) {
 
 if (isFile(brownfieldReviewTemplatePath)) {
   const brownfieldReviewTemplate = read(brownfieldReviewTemplatePath);
-  for (const required of ["Existing-System View", "Reuse And Parallel-Structure Risk", "Mode / Slice Decision", "transparency_note", "Next Permissible Step", "delivery_context", "ui_ux_impact", "ui_ux_impact_reason", "ux_intent_definition_required", "ux_intent_definition_result"]) {
+  for (const required of [
+    "Existing-System View",
+    "Reuse And Parallel-Structure Risk",
+    "Mode / Slice Decision",
+    "transparency_note",
+    "Next Permissible Step",
+    "delivery_context",
+    "ui_ux_impact",
+    "ui_ux_impact_reason",
+    "ux_intent_definition_required",
+    "ux_intent_definition_result",
+    "Structured Depth Evidence",
+    "depth_policy_version",
+    "depth_facts_status",
+    "primary_reason_code",
+    "decisive_full_depth_triggers",
+    "rejected_alternative",
+    "missing_or_conflicting_facts",
+    "depth_evidence_refs",
+    "coherent_outcome",
+    "authority_boundary",
+    "owner_consumer_coordination",
+    "full_depth_impacts_absent",
+    "migration_propagation_bounded",
+    "failure_recovery_local",
+    "independently_acceptable",
+  ]) {
     if (!brownfieldReviewTemplate.includes(required)) failures.push(`BROWNFIELD_REVIEW.md missing control field: ${required}`);
   }
 }

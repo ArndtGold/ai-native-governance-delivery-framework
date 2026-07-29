@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-017:2",
+  "case_id": "PB-017",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "83e4e523a8835c8c238935c449ad8e4b240f7a58ec7f82895ee47b907c898249",
+  "recorded_at": "2026-07-28T18:12:35.371Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a repository change, but the supplied evidence contains neither an approved durable UR nor a completed Brownfield Review with an evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path from scope wording alone.",
+  "decision_grounds": [
+    "No delivery path was preselected.",
+    "No exact Approval: UR and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision with scope reason and evidence is provided.",
+    "The phrase “fokussierten Pages-Beleg” suggests bounded scope but does not establish whether the change affects canonical",
+    "framework instructions, formal artefacts, executable paths, or product semantics.",
+    "Compact Delivery cannot be selected because approved UR, completed Brownfield analysis, and stored quick_task context",
+    "are not evidenced."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

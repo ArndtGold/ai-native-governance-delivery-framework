@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-020:3",
+  "case_id": "PB-020",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "7a02aff2bc1081c3d4d55d1f6a1c56cc696269104ba5aa8a9dcfb6e1ec626c53",
+  "recorded_at": "2026-07-28T18:14:54.262Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a repository change in plugin metadata and generated manifests, but provides no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision. Because the affected canonical source, generated paths, semantic impact, and validation boundary are not established, AGDF must fail closed rather than infer a delivery path.",
+  "decision_grounds": [
+    "The task is a change request in an existing AGDF repository, so gate-check is the default entry point unless ungated-sco",
+    "plugin/meta/** is explicitly outside the non-normative Trivial Change Boundary, so trivial_change is not evidenced.",
+    "quick_task cannot be selected safely because the task does not establish a narrow local boundary, absence of product or",
+    "compact_delivery is unavailable because there is no evidenced approved UR, completed Brownfield Review selecting quick_",
+    "verified_change requires an approved UR and a durable compact Brownfield record proving canonical ownership, clean-at",
+    "structured_slice and structured_delivery are Brownfield-owned Mode/Slice decisions; the supplied evidence does not esta"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

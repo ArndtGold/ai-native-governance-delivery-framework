@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-039:2",
+  "case_id": "PB-039",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "80d4c84682798bc096479597525507f586dfc185e5a2bf3e630b44742630916b",
+  "recorded_at": "2026-07-28T18:25:37.242Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces lifecycle and governance policy in canonical AGDF routing, so it is not eligible for trivial_change or quick_task. No approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied; fail-closed routing therefore cannot select verified_change, structured_slice, or structured_delivery.",
+  "decision_grounds": [
+    "The requested change adds a fail-closed Verified-Change lifecycle and affects policy/canonical routing semantics.",
+    "Verified Change can be selected only after Approval: UR and Brownfield Review proves every compact-record eligibility/⁣Ã"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

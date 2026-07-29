@@ -36,6 +36,87 @@ reason, evidence and required next depth in the same internal operation. `Mode/S
 only a fail-closed recovery step for incomplete or legacy records and is not a normal second user
 decision.
 
+### Structured Depth Decision
+
+This section is the sole normative owner for choosing between `structured_slice` and
+`structured_delivery`. Apply it only after an approved durable UR, a Brownfield Review of the
+existing-system context, and unchanged evaluation of Quick Task/Compact Delivery and Verified
+Change. A compact path must be ineligible or explicitly escalated, and the decisive depth facts must
+be durably evidenced before a positive structured decision is recorded.
+
+Choose `structured_delivery` when any one evidenced full-depth trigger applies:
+
+1. **Authority, policy or security** — a trust or authority boundary, permission, security,
+   compliance or normative policy changes, or independent decision owners require coordinated
+   approval.
+2. **Architecture or runtime** — execution, orchestration, durable execution, concurrency, failure
+   or recovery boundaries change beyond a local slice.
+3. **Persistence, data or migration** — persistent schema or meaning changes, data migration,
+   irreversible state transition, coordinated cutover, an extended compatibility window or
+   non-local rollback is required.
+4. **External or public contract** — an external API, public CLI behavior, protocol, file format or
+   compatibility-sensitive integration contract changes, including independent consumer
+   coordination or versioning.
+5. **Release, deployment or cross-host** — the work needs its own rollout, deployment, rollback,
+   feature-flag or release plan, or coordinated activation across hosts, products or operational
+   boundaries.
+6. **Unbounded consumer or owner coordination** — the outcome cannot be delivered as an
+   independently acceptable and reversible slice, or consumers or owners require a shared cutover
+   or compatibility window.
+
+A single trigger is decisive because of its effect, never because of a numeric count.
+
+Choose `structured_slice` only when `depth_facts_status` is `complete`, no full-depth trigger is
+evidenced, and all seven bounded-slice checks are positively evidenced as `pass`:
+
+| Check ID | Required evidence |
+|---|---|
+| `coherent_outcome` | One coherent user or product outcome has a clear acceptance boundary. |
+| `authority_boundary` | Authority and source of truth are known and no new trust, policy, permission or security boundary is introduced. |
+| `owner_consumer_coordination` | Owners and consumers are identified and coordination stays inside the slice without a shared external cutover. |
+| `full_depth_impacts_absent` | Architecture, runtime, persistence, data, external API, public CLI, release and cross-host effects are evidenced as not full-depth relevant. |
+| `migration_propagation_bounded` | Migration and propagation are bounded, compatible, testable and locally reversible. |
+| `failure_recovery_local` | Failure, recovery and rollback remain controllable inside the slice. |
+| `independently_acceptable` | The slice has independent acceptance signals and hides no unknown later work as a prerequisite. |
+
+Multiple files, owners, consumers or derived paths do not fail these checks by themselves. File,
+owner, consumer, task or derived-path counts are not a decision proxy and must never be used as a
+threshold for either structured mode.
+
+If a decisive fact is missing or conflicting and no evidenced full-depth trigger already supports
+`structured_delivery`, the product-language result is `depth_unresolved`. This is not a persisted
+mode. Persist the existing Mode/Slice value `block`, use `depth_facts_missing` or
+`depth_facts_conflicting`, name the affected facts and evidence owner where known, link the
+Brownfield Review, forbid later artefacts and implementation, and provide a precise next action for
+evidence completion and Brownfield/Mode-Slice re-evaluation. Unknown facts must not default to
+`structured_delivery`.
+
+Positive decisions persist the existing `structured_slice | structured_delivery` value, required
+next gate, a `scope_reason` containing the primary reason code and decisive rationale plus the
+rejected alternative, and evidence linking the complete Structured Depth Evidence. Re-evaluate
+before continuing whenever scope growth reveals a new full-depth trigger.
+
+Normalized reason codes are audit and rationale categories, not new modes or gates:
+
+- `bounded_structured_slice`
+- `authority_policy_security_depth`
+- `architecture_runtime_depth`
+- `persistence_migration_depth`
+- `external_contract_depth`
+- `release_cross_host_depth`
+- `unbounded_consumer_coordination`
+- `depth_facts_missing`
+- `depth_facts_conflicting`
+
+Structured Slice and Structured Delivery use the same existing gate and approval sequence. Their
+difference is artefact depth: Slice artefacts cover only the coherent bounded outcome and its owners,
+contracts, propagation, recovery, tasks and tests; Full Delivery covers every affected authority,
+architecture, runtime, consumer, migration, operational and release boundary.
+
+Historical or deterministic benchmark observations are non-authorizing evidence. They do not define
+this policy, retroactively regrade historical runs or prove live-host behavior. A future benchmark
+may apply this policy only with complete, versioned neutral depth facts.
+
 ### Verified Change
 
 `verified_change` is a compact, fail-closed path for a bounded user-visible change with one canonical owner and deterministic proof. It is neither a prose exception nor a new user approval gate.

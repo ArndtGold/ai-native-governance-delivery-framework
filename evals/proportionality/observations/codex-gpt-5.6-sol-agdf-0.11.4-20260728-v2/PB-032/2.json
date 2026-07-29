@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-032:2",
+  "case_id": "PB-032",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "ab84d0c658785d42616ef6812a730416495b93d2eabde27556bdd477f32fb177",
+  "recorded_at": "2026-07-28T18:21:35.352Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces a new Codex default prompt, which may change user-visible behavior or policy, but the supplied evidence contains no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The task is a new change intent in an existing AGDF repository, so gate-check is the required first routing step.",
+    "No exact `Approval: UR` and no durable approved UR artefact or linked authoritative source of truth are evidenced.",
+    "No completed post-UR Brownfield Review with scope reason and evidence is provided.",
+    "No visible Mode/Slice Decision selects quick_task, verified_change, structured_slice, or structured_delivery.",
+    "compact_delivery is unavailable because the evidence does not show an approved UR, completed Brownfield analysis/review,",
+    "or stored quick_task context.",
+    "Missing approval or Brownfield-dependent state must be treated as ambiguous rather than inferred from the task wording."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

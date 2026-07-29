@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-001:3",
+  "case_id": "PB-001",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "09292eaf86c97d470bf5e468af6e800a1de27f0c80569101c6e2c2a9bfdc7252",
+  "recorded_at": "2026-07-28T18:04:16.220Z",
+  "observed_delivery_path": "trivial_change",
+  "ambiguous": false,
+  "rationale": "The requested change is a narrowly bounded README-only documentation correction with no indicated product semantics, executable-code, policy, persistence, architecture, or release impact.",
+  "decision_grounds": [
+    "The task explicitly limits the change to adding the missing agdf/ entry in the README project tree.",
+    "README documentation is outside the paths excluded by the Trivial Change Boundary.",
+    "No evidence indicates changes to executable code, plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create‑"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

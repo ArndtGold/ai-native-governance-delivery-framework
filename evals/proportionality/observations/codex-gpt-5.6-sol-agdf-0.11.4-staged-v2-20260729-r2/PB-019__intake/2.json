@@ -1,0 +1,32 @@
+{
+  "schema_version": "2",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2:PB-019:intake:2",
+  "case_id": "PB-019",
+  "profile_id": "staged-v2",
+  "protocol_version": "2",
+  "scenario_id": "PB-019:intake",
+  "lifecycle_stage": "intake",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "2.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "2.0.0",
+  "source_fingerprint": "b10dfa44d868e0f82b54609a034cf0060b9167aa06938476ffd349438f6387c7",
+  "recorded_at": "2026-07-29T06:52:25.237Z",
+  "observed_next_permissible_stage": "ur",
+  "stage_evaluability": "evaluated",
+  "observed_delivery_path": null,
+  "path_evaluability": "not_evaluable_yet",
+  "rationale": "The task is a repository change intent in an existing AGDF repository, while the synthetic control state contains neither an approved durable UR nor a Brownfield decision. Under the earliest-blocking-gate and fail-closed rules, the next permissible stage is UR; later internal steps, delivery-path selection, and implementation remain unavailable.",
+  "decision_grounds": [
+    "Lifecycle stage is intake.",
+    "The task proposes fixing repository activation diagnosis to a canonical absolute Doctor probe path, which is change/del即"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

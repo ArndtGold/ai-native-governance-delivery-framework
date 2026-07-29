@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-008:2",
+  "case_id": "PB-008",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "c5eabb7f5f60e4390a3d978534f65d5a471b2157b8abb96962ede82216b5cfc4",
+  "recorded_at": "2026-07-28T17:36:28.078Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces new target-selection and activation semantics in an existing AGDF repository, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "No delivery path is preselected in the control-state context.",
+    "The requested explicit mutation-target selection changes functional and governance behavior, so it is not evidenced as a",
+    "trivial or ungated narrow fix.",
+    "No approved durable UR is evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision is evidenced.",
+    "Canonical routing assigns path selection to Brownfield Review after UR approval; inventing structured_slice, structured_",
+    "delivery, verified_change, or quick_task would violate the fail-closed rule."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

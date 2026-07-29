@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-006:3",
+  "case_id": "PB-006",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "fb54c22ca82e9c63629374f8428671efd70151d31a524f9cd9e473c91e21fd34",
+  "recorded_at": "2026-07-28T17:35:20.855Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is a read-only, narrowly scoped debugging investigation that asks for a reliable root cause and explicitly excludes implementing a repair outside the owned scope. It introduces no product semantics, formal artefacts, approvals, or repository changes.",
+  "decision_grounds": [
+    "The router assigns local debugging and questions without new product semantics to Quick Task Mode.",
+    "The requested outcome is diagnosis only; no file modification or implementation is authorized.",
+    "No approved UR, completed Brownfield Review, or persisted Mode/Slice Decision is evidenced, so gated compact or verified",
+    " paths cannot be selected.",
+    "The task gives no evidence of architecture, policy, persistence, release-critical, or cross-owner delivery impact that"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

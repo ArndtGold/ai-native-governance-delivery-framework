@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-033:1",
+  "case_id": "PB-033",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "5b43e822d48a7c3cae2b29ab37609925b43885670c9447e98b14f7392e7a698b",
+  "recorded_at": "2026-07-28T17:52:28.231Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is a change to mutable AGDF control-state semantics in an existing repository and may affect persistence, runtime behavior, or architecture. No approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided, so AGDF must fail closed rather than select a delivery path.",
+  "decision_grounds": [
+    "No delivery path was preselected in the control-state context.",
+    "The requested migration concerns canonical run-specific control states, indicating possible persistence, runtime, policy",
+    "Current routing rules require an approved durable UR before Brownfield Review for changes with possible persistence, or",
+    "No exact `Approval: UR` or durable UR artefact is evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and a recorded Mode/Slice Decision is evidenced.",
+    "Compact Delivery cannot be selected because approved UR, completed Brownfield analysis, and stored `quick_task` context",
+    "Verified Change cannot be selected because its bounded ownership, clean baseline, prohibited-impact absence, validation,",
+    "The available evidence therefore supports only fail-closed ambiguity, not a specific allowed delivery path."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

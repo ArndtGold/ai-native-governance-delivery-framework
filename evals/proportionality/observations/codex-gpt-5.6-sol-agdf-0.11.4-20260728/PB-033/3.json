@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-033:3",
+  "case_id": "PB-033",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "5b43e822d48a7c3cae2b29ab37609925b43885670c9447e98b14f7392e7a698b",
+  "recorded_at": "2026-07-28T17:52:53.918Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task implies migration of mutable AGDF control state to run-specific canonical states in an existing repository, with likely persistence, runtime, and architecture impact. No approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided, so the delivery path must fail closed rather than be inferred.",
+  "decision_grounds": [
+    "No delivery path was preselected.",
+    "The requested migration likely affects persistence, runtime behavior, architecture, or canonical control-state ownership",
+    "No durable approved UR is evidenced.",
+    "No completed Brownfield Review with scope reason and evidence is supplied.",
+    "No recorded Mode/Slice Decision selects quick_task, verified_change, structured_slice, or structured_delivery.",
+    "Compact Delivery cannot be selected because approved UR, completed Brownfield analysis, and stored quick_task context—un"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

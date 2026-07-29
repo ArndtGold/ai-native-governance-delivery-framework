@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-008:2",
+  "case_id": "PB-008",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "6e855fd5d0ccbcc96d0ea6c74fe7d8a03dae98d6054efb348fa8caa6bd783524",
+  "recorded_at": "2026-07-28T18:08:04.730Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces user-visible activation semantics and therefore requires a durable approved UR followed by Brownfield Review and an evidenced Mode/Slice Decision. No approval, completed Brownfield Review, or preselected path is evidenced, so routing must fail closed.",
+  "decision_grounds": [
+    "The requested explicit target selection before activation is a functional, user-visible behavior change.",
+    "No exact `Approval: UR` and durable UR artefact are evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and Mode/Slice Decision is evidenced.",
+    "Compact Delivery cannot be selected because approved UR, completed Brownfield analysis/review, and stored `quick_task`—i",
+    "quick_task` context are not evidenced.",
+    "The available task wording alone cannot distinguish safely between `structured_slice` and `structured_delivery`."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

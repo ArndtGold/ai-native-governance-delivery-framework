@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-023:1",
+  "case_id": "PB-023",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "61855245226feedadd9e46302dcb80f07c74a4f71b6389da6fae0d0a14c25d46",
+  "recorded_at": "2026-07-28T18:16:23.384Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a user-visible change in an existing repository, but the supplied evidence does not include an approved and durable UR or a completed Brownfield Review with a recorded Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The task changes what is visibly presented on the Pages site, so it introduces or changes user-visible behavior and is G",
+    "No exact `Approval: UR` and no durable UR artefact or authoritative SoT link are evidenced.",
+    "No completed Brownfield Review is evidenced, so there is no supported `quick_task`, `verified_change`, `structured_slice",
+    "A Compact Delivery classification is unavailable because approved UR, completed Brownfield analysis/review, and stored `"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

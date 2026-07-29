@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-006:2",
+  "case_id": "PB-006",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "fb54c22ca82e9c63629374f8428671efd70151d31a524f9cd9e473c91e21fd34",
+  "recorded_at": "2026-07-28T17:35:06.959Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "Die Aufgabe ist ausdrücklich auf eine belastbare, read-only Diagnose begrenzt und schließt eine Reparatur im fremden Scope aus. Das entspricht lokaler Fehlersuche ohne neue Produktsemantik, Artefakt-Gates oder Implementierungsauftrag.",
+  "decision_grounds": [
+    "Der Router ordnet Fragen und lokale Debugging-Aufgaben ohne neue Produktsemantik dem Quick Task Mode zu.",
+    "Der Auftrag verlangt Ursachenanalyse, aber ausdrücklich keine Änderung oder Reparatur; daher liegt kein Diff für trivial",
+    "verified_change oder einen strukturierten Lieferpfad vor.",
+    "Compact Delivery ist nicht belegt: Es fehlen eine genehmigte UR, eine abgeschlossene Brownfield Review mit Entscheidung",
+    "quick_task und gespeicherter Quick-Task-Kontext.",
+    "Es gibt keine Hinweise auf Architektur-, Policy-, Persistenz-, Release- oder formale Artefaktanforderungen, die eine Esk",
+    "alation rechtfertigen."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

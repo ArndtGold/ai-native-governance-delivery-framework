@@ -1,0 +1,31 @@
+{
+  "schema_version": "2",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2:PB-034:intake:1",
+  "case_id": "PB-034",
+  "profile_id": "staged-v2",
+  "protocol_version": "2",
+  "scenario_id": "PB-034:intake",
+  "lifecycle_stage": "intake",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "2.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "2.0.0",
+  "source_fingerprint": "b61e4d7c35425b5a1b66946ebff9162c058d872dcfa57083a6ddce145ac90582",
+  "recorded_at": "2026-07-29T07:16:02.045Z",
+  "observed_next_permissible_stage": "ur",
+  "stage_evaluability": "evaluated",
+  "observed_delivery_path": null,
+  "path_evaluability": "not_evaluable_yet",
+  "rationale": "The task requests a substantial new delivery capability in an existing AGDF repository. No approved durable UR or Brownfield decision is present, so the earliest permissible stage is UR; later stages and execution remain fail-closed.",
+  "decision_grounds": [
+    "Task introduces a versioned evaluation framework with corpus, replay, grading, and CI thresholds, constituting new nontr"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

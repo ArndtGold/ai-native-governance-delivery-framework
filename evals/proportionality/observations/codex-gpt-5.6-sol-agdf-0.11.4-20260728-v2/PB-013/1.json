@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-013:1",
+  "case_id": "PB-013",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "7ec1d47a491f2c27d4309fb6785b6b9e52341c2ef4ad729a62e157947fb29e74",
+  "recorded_at": "2026-07-28T18:10:25.366Z",
+  "observed_delivery_path": "compact_delivery",
+  "ambiguous": false,
+  "rationale": "The durable UR is approved, Brownfield analysis is complete, and the stored Mode/Slice Decision is quick_task; canonical modes therefore expose this governed quick_task route under the human-facing Compact Delivery label.",
+  "decision_grounds": [
+    "Approved UR: the control-state context explicitly confirms a durable UR is approved.",
+    "Completed Brownfield analysis: the control-state context explicitly confirms Brownfield analysis is complete.",
+    "Stored quick_task context: the persisted mode/slice decision is explicitly quick_task, which canonical routing labels as",
+    "compact_delivery."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

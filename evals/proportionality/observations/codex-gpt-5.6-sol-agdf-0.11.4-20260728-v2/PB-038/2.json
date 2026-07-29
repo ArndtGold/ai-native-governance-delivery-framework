@@ -1,0 +1,33 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-038:2",
+  "case_id": "PB-038",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "f5626b417e1215e42d499f1eb5a061df12a2c082e9753a1600eb03720a5bf4b4",
+  "recorded_at": "2026-07-28T18:24:58.855Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes non-trivial repair work in an existing AGDF repository, but provides no approved durable UR, completed Brownfield Review/Analysis with an evidenced Mode/Slice Decision, stored quick_task context, or Verified Change eligibility record. Canonical routing therefore requires fail-closed ambiguity rather than selecting a path.",
+  "decision_grounds": [
+    "The task may affect executable installation, parser, and transition logic, so the trivial_change boundary is not proven.",
+    "quick_task eligibility is not established because the narrow-fix criteria, durable bug scope, exact affected ownership,/",
+    "approved behavior boundary, and validation evidence are missing.",
+    "compact_delivery cannot be selected: there is no evidenced approved UR, completed Brownfield analysis/review selecting `",
+    "quick_task`, or stored quick_task context.",
+    "verified_change cannot be selected because no compact record proves one canonical owner, clean-at-baseline bounded paths",
+    "prohibited-impact absence, deterministic validation/propagation, and a structured escalation target.",
+    "structured_slice and structured_delivery are plausible, but Brownfield Review owns that decision and no completed review",
+    "or durable Mode/Slice Decision is supplied."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

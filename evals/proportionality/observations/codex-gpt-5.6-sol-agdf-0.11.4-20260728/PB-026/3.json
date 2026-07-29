@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-026:3",
+  "case_id": "PB-026",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "b54efea3269dada29abe8c84b3856b5dce44f5fe39fdd0b8aa8c5960abc4ca18",
+  "recorded_at": "2026-07-28T17:48:41.408Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a user-visible functional change in an existing repository, but provides no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path from the supplied evidence.",
+  "decision_grounds": [
+    "Making the AGDF state model visible in the compact status card changes user-visible behavior and requires a durable UR.",
+    "No exact `Approval: UR` or approved durable UR artefact is evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision with scope reason and evidence is provided.",
+    "The repository context alone cannot establish quick_task, verified_change, structured_slice, or structured_delivery; the",
+    "compact_delivery prerequisites are not evidenced: approved UR, completed Brownfield analysis, and stored quick_task gaga"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

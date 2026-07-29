@@ -1,0 +1,32 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-028:1",
+  "case_id": "PB-028",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "49c1f1b9e781c526b0fc632464a380a0e699cd780048172cb932e22d00f209a4",
+  "recorded_at": "2026-07-28T17:49:32.153Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a broad, user-visible lifecycle journey in an existing repository, but the required durable UR approval and completed Brownfield Review with an evidenced Mode/Slice Decision are not provided. AGDF therefore fails closed and cannot select a delivery path from the available evidence.",
+  "decision_grounds": [
+    "The task changes user-visible behavior across installation, activation, verification, first use, and opt-out, so it is a",
+    " new product/UX scope requiring a durable UR before routing.",
+    "No exact `Approval: UR` or durable approved UR artefact is evidenced.",
+    "No completed post-UR Brownfield Review, affected-owner analysis, UI/UX impact classification, scope reason, or Mode/S",
+    "lice Decision is evidenced.",
+    "`compact_delivery` cannot be selected because there is no approved UR, completed Brownfield analysis, or stored `quick",
+    "_task` context.",
+    "Although the breadth may ultimately support `structured_delivery`, canonical rules assign that choice to the evidenced",
+    " Brownfield Review; inventing it from task wording is forbidden."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

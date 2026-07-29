@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-028:2",
+  "case_id": "PB-028",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "c88813835161126923139796d9caf991918564d1dcd6c45eb00d026b21669979",
+  "recorded_at": "2026-07-28T18:19:24.635Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a broad, user-visible lifecycle journey spanning installation, activation, verification, first use, and opt-out. This requires a durable approved UR followed by Brownfield Review and an evidenced Mode/Slice Decision. None of that control-state evidence is supplied, so AGDF must fail closed rather than preselect a structured or compact path.",
+  "decision_grounds": [
+    "The task changes user-visible behavior and cross-surface activation/recovery semantics, so it cannot enter an ungated Tr"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

@@ -22,6 +22,7 @@ The skill answers:
 Use these focused runtime-contract modules:
 
 - `../../meta/contracts/gate-transition.md`
+- `../../meta/contracts/modes.md`
 - `../../meta/contracts/context-graph.md`
 - `../../meta/contracts/quality.md`
 
@@ -54,6 +55,19 @@ not applicable; Brownfield records cite repository evidence. Do not create a sec
 11. Large UI surfaces and state hooks must be checked for mixed render, view-model, derived state, orchestration, persistence, and recovery ownership.
 12. Context Graph impact must be curated; it is not a review log or version index.
 13. Specification archive migrations must follow the archive index if present.
+14. In `post_ur_review`, evaluate unchanged compact paths first. For a structured candidate, apply
+    only the `Structured Depth Decision` in `modes.md`; do not recreate its trigger/check matrix in
+    this skill.
+15. A positive structured decision requires `depth_policy_version: 1`,
+    `depth_facts_status: complete`, complete evidence for all seven bounded-slice checks, a primary
+    reason code, rejected alternative and evidence references. A decisive full-depth trigger may
+    support `structured_delivery`; `structured_slice` requires every bounded-slice check to pass.
+16. Missing or conflicting decisive facts without an already-evidenced full-depth trigger persist
+    the existing `block` decision with `depth_facts_missing | depth_facts_conflicting`, named facts,
+    their evidence owner where known, a Brownfield Review link and a precise next action for evidence
+    completion and Brownfield/Mode-Slice re-evaluation.
+17. Owner, file, consumer, task or derived-path counts must never select a structured depth by
+    themselves.
 
 ## When To Use
 - after `gate-check` permits `Brownfield Review` or the selected canonical run record names Brownfield Review as the next allowed action
@@ -107,6 +121,11 @@ When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, T
 9. Check UI monolith risk for large surfaces or central hooks.
 10. Check Context Graph impact according to `../../meta/contracts/context-graph.md`.
 11. Recommend the minimal clean implementation path.
+12. In `post_ur_review`, record `depth_policy_version`, `depth_facts_status`,
+    `primary_reason_code`, `decisive_full_depth_triggers`, `rejected_alternative`,
+    `missing_or_conflicting_facts`, `depth_evidence_refs` and evidence for all seven bounded-slice
+    check IDs in the Brownfield Review. Then persist the completed review and the existing
+    Mode/Slice Decision atomically.
 
 ## Output
 Use a concise structure:
@@ -132,6 +151,13 @@ Use a concise structure:
 For `post_ur_review`, include the four UI/UX routing fields immediately after `scope`. If UX intent
 definition is required, its `ready | blocked | not_applicable` result must be visible before PRD
 readiness. A required `blocked` result is at least `revise` for this routing step.
+
+For a structured `post_ur_review` candidate, also include the complete `Structured Depth Evidence`
+section from `BROWNFIELD_REVIEW.md`. The decision projection must show the primary reason, decisive
+dimensions, bounded-slice result, rejected alternative, evidence and required next gate. For
+missing/conflicting facts, show product-language `depth_unresolved` while persisting `block`; name
+the gap and exact recovery action. Structural instruction checks can detect missing contract
+elements but do not prove semantic model compliance or live-host behavior.
 
 ## Pass / Revise / Block Guidance
 - `pass`: existing owners are understood, reuse path is clear, and no blocking drift or parallel structure risk remains.

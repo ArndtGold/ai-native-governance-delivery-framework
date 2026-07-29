@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-008:1",
+  "case_id": "PB-008",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "6e855fd5d0ccbcc96d0ea6c74fe7d8a03dae98d6054efb348fa8caa6bd783524",
+  "recorded_at": "2026-07-28T18:07:53.503Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces governance and activation behavior, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed instead of selecting a delivery path.",
+  "decision_grounds": [
+    "New functional and policy semantics require a durable approved UR before routing beyond the UR gate.",
+    "The task may affect target resolution, repository activation, and governance behavior, so Brownfield Review is required.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision evidences quick_task, verified_change, structured_slice,或",
+    "Compact Delivery cannot be selected because there is no evidenced approved UR, completed Brownfield analysis, or stored "
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

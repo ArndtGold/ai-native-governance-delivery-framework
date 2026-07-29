@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-032:2",
+  "case_id": "PB-032",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "0cc6a1f14c7cd40cc0dea35f887422472a5a4f6125809e6998fb9b2ad9479c7f",
+  "recorded_at": "2026-07-28T17:52:04.250Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces a new default prompt and therefore changes product or user-visible behavior, but the supplied evidence contains no approved durable UR and no completed Brownfield Review with an evidenced Mode/Slice Decision. AGDF fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The task is a fresh change request in an existing AGDF repository and no delivery path was preselected.",
+    "Changing the first Codex default prompt is new product semantics or user-visible behavior, so it requires a durable UR.",
+    "No exact `Approval: UR` plus durable UR artefact is evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision with scope reason and evidence is provided.",
+    "The current permissible routing action is gate-check at the UR gate, not selection of quick_task, verified_change, a cap"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

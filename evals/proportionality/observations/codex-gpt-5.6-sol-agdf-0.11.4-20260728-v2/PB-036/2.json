@@ -1,0 +1,29 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-036:2",
+  "case_id": "PB-036",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "433839c884d21b8438e39f7dd53d08eef0d8d4d3fddf10afb72e89276d2937f3",
+  "recorded_at": "2026-07-28T18:23:45.356Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is release-critical and affects plugin runtime generation and installation-safe asset distribution, but no approved durable UR or completed Brownfield Review with a recorded Mode/Slice Decision is evidenced. AGDF therefore fails closed rather than selecting a delivery path.",
+  "decision_grounds": [
+    "The task concerns release-build behavior and complete asset distribution, which indicates release/runtime impact and is",
+    "No exact `Approval: UR` or durable approved UR artefact is evidenced.",
+    "No completed Brownfield Review or evidenced Mode/Slice Decision is provided.",
+    "No stored `quick_task` context is provided, so `compact_delivery` is not eligible.",
+    "The canonical routing rules require ambiguity when approval-dependent or Brownfield-dependent path evidence is missing."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

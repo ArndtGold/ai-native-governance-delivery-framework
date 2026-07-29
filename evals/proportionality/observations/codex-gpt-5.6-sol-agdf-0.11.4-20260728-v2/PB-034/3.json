@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-034:3",
+  "case_id": "PB-034",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "e10729655860b0efd93a7c74fd08c3629d46549cf8dd5f3c288f845928fa58ba",
+  "recorded_at": "2026-07-28T18:22:53.171Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a broad, formal capability spanning a versioned corpus, replay, grading, and CI thresholds, which suggests structured delivery. However, AGDF requires a completed Brownfield Review with an evidenced Mode/Slice Decision, and no approved durable UR or Brownfield decision is provided. Missing evidence must fail closed, so no delivery path can be selected.",
+  "decision_grounds": [
+    "The task introduces a formal evaluation framework and likely affects architecture, policy, runtime behavior, and CI.",
+    "No exact `Approval: UR` or durable approved UR artefact is evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision is evidenced.",
+    "Canonical routing assigns delivery-path selection to Brownfield Review and requires ambiguity when prerequisite evidence"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

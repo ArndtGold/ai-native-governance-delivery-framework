@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-004:3",
+  "case_id": "PB-004",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "82784c0c843ed810b1db217556d59ee6e3df985c958bf7947785d8629ebb793b",
+  "recorded_at": "2026-07-28T17:33:58.749Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is an explicitly read-only, narrow readiness inspection with no requested implementation, product semantics, formal artefact, approval, or durable-state change.",
+  "decision_grounds": [
+    "Canonical routing assigns questions, local inspections, and small reviews without new product semantics to Quick Task.",
+    "The task explicitly limits work to a read-only precheck of OpenCode provider and agent readiness.",
+    "No evidence of an approved UR or completed Brownfield Review is required for this ungated read-only inspection.",
+    "No repository mutation, architecture, policy, persistence, release-critical work, or formal delivery artefact is in the ",
+    "scope."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

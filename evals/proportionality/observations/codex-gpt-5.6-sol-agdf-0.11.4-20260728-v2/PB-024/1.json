@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-024:1",
+  "case_id": "PB-024",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "db46d27e6465e81999c24a1dc03e2fef3e657ad57050ab6a5a68c278a9f1528a",
+  "recorded_at": "2026-07-28T18:17:05.871Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The requested runtime-integrity change affects executable/plugin runtime behavior, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore cannot select a delivery path from the task wording alone.",
+  "decision_grounds": [
+    "Existing-repository change intent routes first through gate-check.",
+    "Runtime and installed-layout impact requires an approved durable UR followed by Brownfield Review.",
+    "No exact Approval: UR, durable UR artefact, completed Brownfield Review, or recorded Mode/Slice Decision is evidenced.",
+    "The scope may warrant structured_slice or structured_delivery, but choosing either without Brownfield evidence would be6",
+    "Compact Delivery is unavailable because there is no approved UR, completed Brownfield analysis, or stored quick_task",
+    "Verified Change eligibility is not evidenced, including bounded canonical ownership, clean baseline paths, prohibited5",
+    "Fail-closed routing requires null until the missing control-state evidence establishes a path."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

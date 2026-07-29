@@ -1,0 +1,32 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-039:1",
+  "case_id": "PB-039",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "80d4c84682798bc096479597525507f586dfc185e5a2bf3e630b44742630916b",
+  "recorded_at": "2026-07-28T18:25:28.511Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces a new fail-closed lifecycle and changes AGDF policy/process semantics, so it is not eligible for Trivial Change or an ungated Quick Task. However, no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided. Canonical routing assigns the choice among verified_change, structured_slice, and structured_delivery to that review, so selecting one now would invent control state.",
+  "decision_grounds": [
+    "New lifecycle and policy semantics require a durable approved UR before post-UR routing.",
+    "Verified Change eligibility requires a completed Brownfield Review and a durable compact record proving bounded owner, a",
+    "clean baseline, prohibited-impact absence, deterministic validation, and a structured escalation target; none is evident",
+    "Compact Delivery is unsupported because there is no approved UR, completed Brownfield analysis/review selecting quick_",
+    "task, or stored quick_task context.",
+    "Structured Slice versus Structured Delivery requires an evidenced Mode/Slice Decision with scope reason and Brownfield ",
+    "evidence; none is supplied.",
+    "Fail-closed routing therefore requires null rather than inferring a delivery path from the task wording."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

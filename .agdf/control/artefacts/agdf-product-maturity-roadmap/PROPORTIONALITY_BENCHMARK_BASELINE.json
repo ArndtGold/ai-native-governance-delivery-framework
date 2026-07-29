@@ -1,0 +1,384 @@
+{
+  "schema_version": "1",
+  "baseline_version": "1.0.0",
+  "run_id": "agdf-product-maturity-roadmap",
+  "generated_at": "2026-07-28T16:20:00.000Z",
+  "status": "baseline_ready",
+  "purpose": "Redigierte Real-Task-Baseline für RMP-07; noch keine tatsächliche Routing-Auswertung oder Produktänderung.",
+  "constraints": {
+    "case_count": 40,
+    "required_delivery_paths": [
+      "trivial_change",
+      "quick_task",
+      "compact_delivery",
+      "verified_change",
+      "structured_slice",
+      "structured_delivery"
+    ],
+    "minimum_adversarial_cases": 10,
+    "under_governance_threshold": 0,
+    "over_governance_threshold_percent": 10
+  },
+  "cases": [
+    {
+      "case_id": "PB-001",
+      "task_summary": "Fehlenden Verzeichniseintrag agdf/ im README-Projektbaum ergänzen.",
+      "expected_delivery_path": "trivial_change",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Ein einzelner nicht-normativer Dokumentationseintrag außerhalb ausführbarer und kanonischer Policy-Owner.",
+      "evidence_ref": "../agdf-micro-tier-below-quick-task/OR.md"
+    },
+    {
+      "case_id": "PB-002",
+      "task_summary": "Einen fehlerhaften Markdown-Link im Master Backlog korrigieren.",
+      "expected_delivery_path": "trivial_change",
+      "adversarial": true,
+      "boundary": "trivial_change_vs_quick_task",
+      "rationale": "Reine nicht-normative Linkkorrektur ohne Änderung der Backlog-Semantik; bei zusätzlicher Statusänderung wäre Quick Task erforderlich.",
+      "evidence_ref": "../agdf-micro-tier-below-quick-task/OR.md"
+    },
+    {
+      "case_id": "PB-003",
+      "task_summary": "Claude-Code-Authentifizierungszustand read-only prüfen und ohne Loginversuch klassifizieren.",
+      "expected_delivery_path": "quick_task",
+      "adversarial": true,
+      "boundary": "quick_task_vs_structured_evidence",
+      "rationale": "Begrenzte Diagnose ohne Mutation oder neue Produktsemantik; Host-Ausführung allein macht daraus keinen Delivery-Run.",
+      "evidence_ref": "../agdf-live-host-conformance-matrix/evidence/CLAUDE_PREFLIGHT.md"
+    },
+    {
+      "case_id": "PB-004",
+      "task_summary": "OpenCode-Provider- und Agent-Bereitschaft read-only vorprüfen.",
+      "expected_delivery_path": "quick_task",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Lokale Diagnose mit klarer Stop-Bedingung und ohne Konfigurationsänderung.",
+      "evidence_ref": "../agdf-live-host-conformance-matrix/evidence/OPENCODE_HEADLESS_BUNDLE.md"
+    },
+    {
+      "case_id": "PB-005",
+      "task_summary": "Prüfen, ob Manifest-Drift und Generated-Surface-Synchronisierung bereits kanonische Owner besitzen.",
+      "expected_delivery_path": "quick_task",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Read-only Brownfield-Inventur, die redundante Implementierung vermeiden soll.",
+      "evidence_ref": "../agdf-self-maintenance-overhead-reduction/OR.md"
+    },
+    {
+      "case_id": "PB-006",
+      "task_summary": "Eine Windows-execFileSync-Kompatibilitätsfrage bis zur belastbaren Ursache diagnostizieren, aber nicht im fremden Scope reparieren.",
+      "expected_delivery_path": "quick_task",
+      "adversarial": true,
+      "boundary": "diagnosis_vs_bug_fix",
+      "rationale": "Diagnose ist ungated; eine bestätigte Produktreparatur benötigt einen separaten Bug- oder Delivery-Scope.",
+      "evidence_ref": "../agdf-self-maintenance-overhead-reduction/OR.md"
+    },
+    {
+      "case_id": "PB-007",
+      "task_summary": "Doctor nach Control-Artefaktpflege ausführen und Findings erklären.",
+      "expected_delivery_path": "quick_task",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Deterministische lokale Validierung ohne neue Semantik oder Codeänderung.",
+      "evidence_ref": "../agdf-micro-tier-below-quick-task/OR.md"
+    },
+    {
+      "case_id": "PB-008",
+      "task_summary": "Zwei plausible Mutation Targets erkennen und vor jeder Aktivierung eine explizite Zielauswahl verlangen.",
+      "expected_delivery_path": "quick_task",
+      "adversarial": true,
+      "boundary": "read_only_orientation_vs_delivery",
+      "rationale": "Die reine Zielklärung ist eine fail-closed Orientierung; erst eine spätere Änderung eröffnet Delivery-Scope.",
+      "evidence_ref": "../agdf-live-host-conformance-matrix/HOST_CONFORMANCE_REPORT.md"
+    },
+    {
+      "case_id": "PB-009",
+      "task_summary": "README-Erstkontakt für create-agdf fokussieren, ohne CLI- oder Installationssemantik zu ändern.",
+      "expected_delivery_path": "compact_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Nach UR genehmigte, kleine Dokumentationsänderung mit bestehendem Owner und kompakter Brownfield-Entscheidung.",
+      "evidence_ref": "../create-agdf-readme-first-contact/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-010",
+      "task_summary": "Den ersten Installationspfad in bestehender Anleitung klarstellen.",
+      "expected_delivery_path": "compact_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Begrenzte user-visible Dokumentationskorrektur nach UR, ohne neue Runtime- oder CLI-Semantik.",
+      "evidence_ref": "../install-first-path-clarity/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-011",
+      "task_summary": "Vorhandene Installationsoberfläche visuell verifizieren und eng begrenzt erläutern.",
+      "expected_delivery_path": "compact_delivery",
+      "adversarial": true,
+      "boundary": "compact_delivery_vs_structured_slice",
+      "rationale": "User-visible Evidenz bleibt kompakt, solange keine neue Installationssemantik oder Hostmutation entsteht.",
+      "evidence_ref": "../install-surface-visual-verification/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-012",
+      "task_summary": "Einen fokussierten OpenCode-Plugin-Proof auf der bestehenden Pages-Oberfläche ergänzen.",
+      "expected_delivery_path": "compact_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Ein begrenzter Beleg in bestehenden Pages-Ownern nach UR; keine neue Plugin-Funktion.",
+      "evidence_ref": "../pages-opencode-plugin-proof/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-013",
+      "task_summary": "Doctor um eine klar testbare semantische Konsistenzdiagnose ergänzen.",
+      "expected_delivery_path": "compact_delivery",
+      "adversarial": true,
+      "boundary": "compact_delivery_vs_verified_change",
+      "rationale": "Kleine bestehende Diagnosefunktion mit eindeutigem Verhalten; Verified Change wäre nur bei vollständig erfülltem Ein-Owner-Snapshot vorzuziehen.",
+      "evidence_ref": "../doctor-semantic-consistency/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-014",
+      "task_summary": "Claude Run Status Card durch vorhandene Hook- und Contract-Owner zuverlässig exponieren.",
+      "expected_delivery_path": "compact_delivery",
+      "adversarial": true,
+      "boundary": "compact_delivery_vs_structured_slice",
+      "rationale": "Begrenzte Korrektur bestehender Oberflächen ohne neue Gate-Autorität; Hostnähe erfordert dennoch explizite UR.",
+      "evidence_ref": "../claude-run-status-card-enforcement/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-015",
+      "task_summary": "Eine kanonische awaiting_or-Backlogbezeichnung ergänzen und deterministisch propagieren.",
+      "expected_delivery_path": "verified_change",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Ein kanonischer Owner, begrenzte abgeleitete Pfade und deterministische Validator-/Propagation-Evidenz.",
+      "evidence_ref": "../agdf-backlog-or-status/VERIFIED_CHANGE.md"
+    },
+    {
+      "case_id": "PB-016",
+      "task_summary": "Öffentliche Kontakt-E-Mail im bestehenden Pages-Footer ergänzen.",
+      "expected_delivery_path": "verified_change",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Ein user-visible, eng begrenzter Owner ohne Formular, Route, externen Dienst oder Architekturwirkung.",
+      "evidence_ref": "../pages-contact-email/VERIFIED_CHANGE.md"
+    },
+    {
+      "case_id": "PB-017",
+      "task_summary": "Einen fokussierten Pages-Beleg für das bestehende Skill-Evaluation-Framework ergänzen.",
+      "expected_delivery_path": "verified_change",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Ein bestehender Pages-Owner, deterministische Inhaltsprüfung und keine neue Evaluationssemantik.",
+      "evidence_ref": "../pages-skill-evaluation-evidence/VERIFIED_CHANGE.md"
+    },
+    {
+      "case_id": "PB-018",
+      "task_summary": "OpenCode-Honesty-Lücken in Disclosure, TUI-Warnung und Versionsdrift innerhalb bestehender Owner schließen.",
+      "expected_delivery_path": "verified_change",
+      "adversarial": true,
+      "boundary": "verified_change_vs_structured_slice",
+      "rationale": "Mehrere abgeleitete Oberflächen bleiben deterministisch an einen genehmigten Owner gebunden; neue Enforcement-Semantik wäre Eskalationsgrund.",
+      "evidence_ref": "../opencode-plugin-honesty-hardening/VERIFIED_CHANGE.md"
+    },
+    {
+      "case_id": "PB-019",
+      "task_summary": "Repository-Aktivierungsdiagnose auf einen kanonischen absoluten Doctor-Probe-Pfad festlegen.",
+      "expected_delivery_path": "verified_change",
+      "adversarial": true,
+      "boundary": "verified_change_vs_structured_slice",
+      "rationale": "Kleine fail-closed Korrektur mit einem normativen Owner und deterministischen Tests; jede neue Aktivierungssemantik müsste eskalieren.",
+      "evidence_ref": "../activation-diagnosis-determinism/VERIFIED_CHANGE.md"
+    },
+    {
+      "case_id": "PB-020",
+      "task_summary": "Plugin-Autor-Metadaten zwischen kanonischer Definition und generierten Manifesten angleichen.",
+      "expected_delivery_path": "verified_change",
+      "adversarial": true,
+      "boundary": "verified_change_vs_structured_slice",
+      "rationale": "Mechanische Ein-Owner-Driftkorrektur mit deterministischer Propagation; keine Produkt- oder Berechtigungssemantik.",
+      "evidence_ref": "../plugin-author-consistency-fix/BROWNFIELD_REVIEW.md"
+    },
+    {
+      "case_id": "PB-021",
+      "task_summary": "Gate-Rationale-Registry und lokalisierte Why-Projektion ohne Autoritätsänderung ergänzen.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Neue user-visible Präsentationssemantik über Contract, Locale, Renderer und Tests, aber mit klar begrenzten Ownern.",
+      "evidence_ref": "../agdf-gate-rationale-why/OR.md"
+    },
+    {
+      "case_id": "PB-022",
+      "task_summary": "Kanonische menschliche Entscheidungsoberfläche über mehrere Hostadapter einführen.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Mehrere Oberflächen und Interaction-Contract betroffen, jedoch ohne neue Gate-Autorität oder Persistenz.",
+      "evidence_ref": "../agdf-human-decision-surface/OR.md"
+    },
+    {
+      "case_id": "PB-023",
+      "task_summary": "AGDF-Limits, Abhängigkeiten und Prozessaufwand auf der Pages-Site sichtbar machen.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Neue öffentliche Produktpositionierung mit UX-, Content- und Verifikationsanforderungen in begrenztem Pages-Scope.",
+      "evidence_ref": "../agdf-pages-limits-and-risks/OR.md"
+    },
+    {
+      "case_id": "PB-024",
+      "task_summary": "Runtime-Integrity aus Source- und installiertem Pluginlayout zuverlässig machen.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": true,
+      "boundary": "structured_slice_vs_structured_delivery",
+      "rationale": "Installations- und Testlayout wirken über mehrere Pfade, bleiben aber eine fokussierte Reliability-Korrektur ohne neue Nutzerfähigkeit.",
+      "evidence_ref": "../agdf-plugin-reliability-hardening/OR.md"
+    },
+    {
+      "case_id": "PB-025",
+      "task_summary": "Framework-Maintenance-Overhead durch Scope-Sichtbarkeit und Narrow-Code-Fix-Kriterium reduzieren.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": true,
+      "boundary": "ceremony_reduction_vs_under_governance",
+      "rationale": "Normative Grenzänderung verlangt formale Kriterien, Brownfield-Fit und Tests, bleibt aber auf zwei bestehende Owner begrenzt.",
+      "evidence_ref": "../agdf-self-maintenance-overhead-reduction/OR.md"
+    },
+    {
+      "case_id": "PB-026",
+      "task_summary": "AGDF-Zustandsmodell in der kompakten Statuskarte sichtbar machen.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Neue Präsentationssemantik mit Locale-, Renderer-, Contract- und Eval-Wirkung ohne Gate-Logikänderung.",
+      "evidence_ref": "../agdf-state-orientation/OR.md"
+    },
+    {
+      "case_id": "PB-027",
+      "task_summary": "Oberflächenparitätsdefekte bei Approval-Transport, Default Prompt und Beschreibungen korrigieren.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": true,
+      "boundary": "bug_fix_vs_structured_slice",
+      "rationale": "Mehrere kanonische und generierte Oberflächen sind gekoppelt; ein schmaler Bugpfad würde die Cross-Surface-Wirkung unterschätzen.",
+      "evidence_ref": "../agdf-surface-parity-fix/OR.md"
+    },
+    {
+      "case_id": "PB-028",
+      "task_summary": "Installation, Aktivierung, Verifikation, Ersteinsatz und Opt-out als konsistente Journey ausrichten.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Mehrere vorhandene Installations- und Präsentationsowner, aber begrenzte Journey ohne neue Architektur.",
+      "evidence_ref": "../installer-output-parity/OR.md"
+    },
+    {
+      "case_id": "PB-029",
+      "task_summary": "Monolithischen Runtime Contract in thematische Module zerlegen und alle Konsumenten migrieren.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": true,
+      "boundary": "refactor_vs_architecture_change",
+      "rationale": "Breiter interner Refactor mit Contract- und Consumer-Wirkung, aber explizit ohne Verhaltens- oder Autoritätsänderung.",
+      "evidence_ref": "../runtime-contract-modularization/OR.md"
+    },
+    {
+      "case_id": "PB-030",
+      "task_summary": "Portable native Interaktionen über Codex, Claude und OpenCode mit exaktem Fallback ergänzen.",
+      "expected_delivery_path": "structured_slice",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Cross-Host Interaction-Slice mit einem kanonischen Contract, ohne neue Gatewerte oder Persistenz.",
+      "evidence_ref": "../surface-native-interactions/OR.md"
+    },
+    {
+      "case_id": "PB-031",
+      "task_summary": "Zwölf kritische Governance-Szenarien auf drei Hosts versionsgebunden beobachten und abnehmen.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": true,
+      "boundary": "evidence_only_vs_structured_delivery",
+      "rationale": "Kein Produktcode, aber formale 36-Zeilen-Evidenz, Authentifizierung, Redaction, QA und UAT über mehrere Hosts.",
+      "evidence_ref": "../agdf-live-host-conformance-matrix/OR.md"
+    },
+    {
+      "case_id": "PB-032",
+      "task_summary": "AGDF-Eignungsbewertung als ersten Codex-Default-Prompt einführen.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Neue Default-Interaktionssemantik mit Produkt-, Prompt-, Propagation- und Hostwirkung.",
+      "evidence_ref": "../agdf-onboarding-fit-default-prompt/OR.md"
+    },
+    {
+      "case_id": "PB-033",
+      "task_summary": "Mutablen AGDF-Control-State auf run-spezifische kanonische Zustände migrieren.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Persistenz-, Parallelitäts-, Migrations- und CLI-Auswirkung auf zentrale Governance-Autorität.",
+      "evidence_ref": "../agdf-run-scoped-control-state/OR.md"
+    },
+    {
+      "case_id": "PB-034",
+      "task_summary": "Versioniertes Skill-Evaluation-Framework mit Korpus, Replay, Grading und CI-Schwellen liefern.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Neue repositoryweite Evaluationsfähigkeit mit Schema, Runnern, Fixtures, CI und Qualitätsvertrag.",
+      "evidence_ref": "../agdf-skill-evaluation-framework/OR.md"
+    },
+    {
+      "case_id": "PB-035",
+      "task_summary": "Mehrere AGDF-UX-Linien für Run-Auswahl, Erstkontakt, Skill-Gruppierung und Evidenzsichtbarkeit verbessern.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Mehrere user-visible Fähigkeiten, Owner und Oberflächen mit gemeinsamer UX-Abnahme.",
+      "evidence_ref": "../agdf-ux-next-round/OR.md"
+    },
+    {
+      "case_id": "PB-036",
+      "task_summary": "Plugin-Runtime erst im Release-Build erzeugen und vollständige Assets installationssicher verteilen.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": true,
+      "boundary": "build_refactor_vs_release_semantics",
+      "rationale": "Build-, Paket-, Installations-, Migrations- und Releasegrenzen machen einen kompakten Refactorpfad unzureichend.",
+      "evidence_ref": "../automatic-version-asset-sync/OR.md"
+    },
+    {
+      "case_id": "PB-037",
+      "task_summary": "create-agdf CLI in fokussierte Owner modularisieren und sämtliche öffentlichen Verträge erhalten.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": true,
+      "boundary": "behavior_preserving_refactor_vs_delivery",
+      "rationale": "Großer CLI-Refactor mit Exitcodes, Commands, Paket- und Plattformverhalten trotz beabsichtigter Verhaltensgleichheit.",
+      "evidence_ref": "../create-agdf-cli-modularization/OR.md"
+    },
+    {
+      "case_id": "PB-038",
+      "task_summary": "OpenCode-Registry-Installation stabilisieren und Parser-/Transition-Integrität reparieren.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": false,
+      "boundary": "none",
+      "rationale": "Installations-, Registry-, Runtime- und Gate-Transition-Wirkung mit realer Migrations- und Hostevidenz.",
+      "evidence_ref": "../opencode-registry-install/OR.md"
+    },
+    {
+      "case_id": "PB-039",
+      "task_summary": "Fail-closed Verified-Change-Lifecycle zwischen Trivial Change und Structured Slice einführen.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": true,
+      "boundary": "new_delivery_path_semantics",
+      "rationale": "Neue normative Lifecycle-Semantik, Validatoren, Templates, Transitionen und Regressionstests.",
+      "evidence_ref": "../verified-change-path/OR.md"
+    },
+    {
+      "case_id": "PB-040",
+      "task_summary": "Deterministische agent-native Approval-Präsentation über vier Coding-Agent-Oberflächen etablieren.",
+      "expected_delivery_path": "structured_delivery",
+      "adversarial": true,
+      "boundary": "presentation_vs_authority",
+      "rationale": "Cross-Host Produktsemantik mit exaktem Approval-Transport, Contract, Renderer, Adaptern und UAT.",
+      "evidence_ref": "../deterministic-agent-ux/OR.md"
+    }
+  ]
+}

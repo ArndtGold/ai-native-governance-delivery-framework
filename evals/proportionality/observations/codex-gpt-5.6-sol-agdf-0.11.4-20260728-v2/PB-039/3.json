@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-039:3",
+  "case_id": "PB-039",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "80d4c84682798bc096479597525507f586dfc185e5a2bf3e630b44742630916b",
+  "recorded_at": "2026-07-28T18:25:48.192Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces lifecycle and policy semantics in canonical AGDF routing, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. Fail-closed routing therefore cannot select a delivery path.",
+  "decision_grounds": [
+    "The task changes canonical lifecycle/policy behavior between existing delivery paths, so it is not evidenced as a Trival",
+    "Verified Change requires Approval: UR followed by Brownfield Review proving all compact-record eligibility conditions;",
+    "Structured Slice or Structured Delivery must be selected by an evidenced Brownfield Review Mode/Slice Decision; the task",
+    "Compact Delivery is ineligible because there is no evidenced approved UR, completed Brownfield analysis, or stored quick"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

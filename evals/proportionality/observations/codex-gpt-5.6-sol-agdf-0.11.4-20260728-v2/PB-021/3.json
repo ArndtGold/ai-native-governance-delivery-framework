@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-021:3",
+  "case_id": "PB-021",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "677a62f37f0ac6abbce6f995d3b48829cc1283252ba4644b3066b2769e71e24f",
+  "recorded_at": "2026-07-28T18:15:33.845Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task adds localized interaction behavior and registry-backed rationale semantics in an existing governed repository, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path from the available evidence.",
+  "decision_grounds": [
+    "The requested Gate-Rationale Registry and localized Why projection constitute new user-facing interaction semantics, so ",
+    "Canonical routing requires an approved durable UR before Brownfield Review for such a functional or user-visible change.",
+    "Brownfield Review owns the proportional Mode/Slice Decision among quick_task, verified_change, structured_slice, and ",
+    "No approved UR, completed Brownfield Review, recorded scope reason, or Mode/Slice Decision is evidenced.",
+    "compact_delivery cannot be selected because approved UR, completed Brownfield analysis, and stored quick_task context ",
+    "verified_change cannot be inferred because its bounded ownership, clean-baseline paths, prohibited-impact absence, and "
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

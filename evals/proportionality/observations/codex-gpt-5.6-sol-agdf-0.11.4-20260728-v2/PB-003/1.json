@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-003:1",
+  "case_id": "PB-003",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "f42dce7804b218e082d4d348376216139d6aac959b36356807077fe1f334cdf2",
+  "recorded_at": "2026-07-28T18:05:08.482Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is a narrow, read-only local inspection and classification with no login attempt, repository modification, new product semantics, formal artefact, or approval dependency.",
+  "decision_grounds": [
+    "Canonical routing assigns local inspection and small diagnostic questions to Quick Task Mode.",
+    "The task explicitly prohibits authentication side effects and requests only observation and classification.",
+    "The Trivial Change boundary concerns qualifying diffs; this task makes no change.",
+    "Compact Delivery is unsupported because there is no evidenced approved UR, completed Brownfield Review, or stored quick-"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

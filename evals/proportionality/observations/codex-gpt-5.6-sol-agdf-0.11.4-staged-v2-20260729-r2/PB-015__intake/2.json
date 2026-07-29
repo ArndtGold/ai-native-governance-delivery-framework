@@ -1,0 +1,33 @@
+{
+  "schema_version": "2",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2:PB-015:intake:2",
+  "case_id": "PB-015",
+  "profile_id": "staged-v2",
+  "protocol_version": "2",
+  "scenario_id": "PB-015:intake",
+  "lifecycle_stage": "intake",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "2.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "2.0.0",
+  "source_fingerprint": "6286978c190cdd33794a592b1378c11f46fa2663ce56d47f8e9279d2d5f4eafe",
+  "recorded_at": "2026-07-29T06:46:05.170Z",
+  "observed_next_permissible_stage": "ur",
+  "stage_evaluability": "evaluated",
+  "observed_delivery_path": null,
+  "path_evaluability": "not_evaluable_yet",
+  "rationale": "The task requests a repository change that introduces or standardizes canonical backlog semantics and deterministic propagation. With no approved durable UR, no Brownfield decision, and an empty evidence pack, the earliest permissible stage is UR; fail-closed routing forbids later analysis or implementation.",
+  "decision_grounds": [
+    "No approval or Brownfield decision is present.",
+    "Missing control state must remain fail-closed.",
+    "The requested canonical awaiting_or backlog designation and deterministic propagation constitute change intent requiring"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

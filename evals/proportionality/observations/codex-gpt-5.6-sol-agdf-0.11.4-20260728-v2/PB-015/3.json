@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-015:3",
+  "case_id": "PB-015",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "622271724b1caa9180ef6449db690887d4d314515f87258a092d1b2cc6581251",
+  "recorded_at": "2026-07-28T18:11:34.360Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task appears to change canonical backlog semantics and require deterministic propagation, but no durable approved UR, completed Brownfield Review with an evidenced Mode/Slice Decision, or other control-state evidence is supplied. AGDF therefore fails closed and cannot select a delivery path.",
+  "decision_grounds": [
+    "No delivery path was preselected.",
+    "The requested canonical awaiting_or backlog designation may introduce or alter product/runtime semantics in governed AGD"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

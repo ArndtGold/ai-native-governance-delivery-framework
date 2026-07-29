@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-019:2",
+  "case_id": "PB-019",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "2f15aee4496b3486afca54331ec29970520259dab1972057d461eceead8ead2d",
+  "recorded_at": "2026-07-28T17:44:20.231Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a repository change in an existing AGDF repository, but no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided. Under fail-closed routing, a delivery path cannot be selected from task wording alone.",
+  "decision_grounds": [
+    "No delivery path was preselected in the supplied control-state context.",
+    "The requested canonical Doctor-probe-path change may affect runtime or documented CLI behavior, so its proportional path"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

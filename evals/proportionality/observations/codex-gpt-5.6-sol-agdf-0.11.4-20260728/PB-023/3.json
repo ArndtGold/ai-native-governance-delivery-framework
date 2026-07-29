@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-023:3",
+  "case_id": "PB-023",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "d96d3d43f7dff74985d5f31e68eaac94885b189a7bedeff9941177442089e6f8",
+  "recorded_at": "2026-07-28T17:46:52.205Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a user-visible change in an existing AGDF repository, but the supplied evidence contains no approved durable UR and no completed Brownfield Review with an evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The task changes visible Pages-site behavior/content, so it is not safely classifiable as an ungated Quick Task from the",
+    " canonical rules alone.",
+    "No exact `Approval: UR` and corresponding durable UR artefact or authoritative SoT link are evidenced.",
+    "No completed post-UR Brownfield Review records scope reason, affected owners, impact evidence, or a Mode/Slice Decision.",
+    "`compact_delivery` is unavailable because there is no evidenced approved UR, completed Brownfield analysis/review, or",
+    " stored `quick_task` context.",
+    "Verified Change and either structured path require an evidenced Brownfield selection; inventing one is forbidden."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

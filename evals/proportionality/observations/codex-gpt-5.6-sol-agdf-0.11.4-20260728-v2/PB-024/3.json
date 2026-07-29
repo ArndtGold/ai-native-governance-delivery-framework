@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-024:3",
+  "case_id": "PB-024",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "db46d27e6465e81999c24a1dc03e2fef3e657ad57050ab6a5a68c278a9f1528a",
+  "recorded_at": "2026-07-28T18:17:24.271Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task is a change to runtime integrity across source and installed plugin layouts in an existing AGDF repository, but no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is supplied. Canonical routing requires these before selecting an implementation delivery path, and missing evidence must fail closed.",
+  "decision_grounds": [
+    "The request describes a runtime-related functional change in an existing repository, so a fresh classification cannot be",
+    "No exact `Approval: UR` and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review with scope reason and evidence is provided.",
+    "No recorded Mode/Slice Decision selects `quick_task`, `verified_change`, `structured_slice`, or `structured_delivery`.",
+    "`compact_delivery` cannot be selected because the required approved UR, completed Brownfield analysis, and stored `quick",
+    "`verified_change` cannot be selected because its bounded ownership, clean baseline, prohibited-impact absence, determini",
+    "The evidence does not establish whether the change is narrow and local or broad/runtime-architectural, so choosing a str"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

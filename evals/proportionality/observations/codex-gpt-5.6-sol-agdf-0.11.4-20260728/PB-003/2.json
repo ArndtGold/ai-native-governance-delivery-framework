@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-003:2",
+  "case_id": "PB-003",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "7003b8a22cfd98e22b521d6324dc55e44898f21ba2849bdcc2b52ff1bc7c6b16",
+  "recorded_at": "2026-07-28T17:33:18.859Z",
+  "observed_delivery_path": "quick_task",
+  "ambiguous": false,
+  "rationale": "The task is a narrow, read-only local inspection that explicitly forbids login attempts and introduces no product semantics, repository change, formal artefact, or approval-dependent delivery work.",
+  "decision_grounds": [
+    "Canonical routing assigns local inspections and small diagnostic checks without new product semantics to Quick Task Mode",
+    "The requested authentication-state classification is read-only and has a tightly bounded scope",
+    "No file modification, login attempt, architecture, policy, persistence, release, or user-visible behavior change is in-s",
+    "No approved UR or completed Brownfield Review is evidenced, so approval-dependent compact_delivery, verified_change, and"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

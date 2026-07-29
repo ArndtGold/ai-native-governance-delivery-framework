@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-011:2",
+  "case_id": "PB-011",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "11ec4b00efbe2d9e7a1a15b6207e8b0649dbc909212839843486993d2b64b8bb",
+  "recorded_at": "2026-07-28T18:09:37.886Z",
+  "observed_delivery_path": "compact_delivery",
+  "ambiguous": false,
+  "rationale": "The task is a narrowly scoped visual verification and explanation in an existing repository. The supplied durable control state explicitly satisfies the routing conditions for the human-facing Compact Delivery label.",
+  "decision_grounds": [
+    "A durable UR is explicitly approved.",
+    "Brownfield analysis is explicitly completed.",
+    "The stored quick_task context is explicitly recorded as the mode/slice decision.",
+    "Canonical modes define Compact Delivery as the human-facing label when an approved UR is followed by completed Brownﬁeld"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

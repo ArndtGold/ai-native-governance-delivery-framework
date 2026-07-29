@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-016:1",
+  "case_id": "PB-016",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 1,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "6be70faaac0b910f98928bde46cb5cd6840e13fe02f11461728c71b428c8f0b4",
+  "recorded_at": "2026-07-28T18:11:46.182Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The footer email is a user-visible functional change, so it requires a durable approved UR followed by Brownfield Review and an evidenced Mode/Slice Decision. No approval, artefact, Brownfield decision, or verified-change eligibility record is evidenced; fail-closed routing cannot select a delivery path.",
+  "decision_grounds": [
+    "The task adds public contact information to an existing Pages footer, creating user-visible behavior/content semantics.",
+    "No exact `Approval: UR` or durable UR artefact is evidenced.",
+    "No completed Brownfield Review with scope reason, evidence, and Mode/Slice Decision is evidenced.",
+    "`compact_delivery` cannot be selected because approved UR, completed Brownfield analysis, and stored `quick_task`/quick‑",
+    "`verified_change`, `structured_slice`, and `structured_delivery` require a Brownfield selection that is absent.",
+    "Missing required state must be treated as ambiguous rather than inferred from the apparent small size of the change."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

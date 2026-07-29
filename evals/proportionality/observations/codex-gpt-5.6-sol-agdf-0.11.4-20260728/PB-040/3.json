@@ -1,0 +1,26 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-040:3",
+  "case_id": "PB-040",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "8185e0470c7891c9456f9cb5122b5089ded078fe17555b7d826c1365bccc06c6",
+  "recorded_at": "2026-07-28T17:58:39.971Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task describes a broad, cross-surface capability with likely runtime, interaction-policy, and release implications, but AGDF requires an approved durable UR and a completed Brownfield Review with an evidenced Mode/Slice Decision before selecting the delivery path. That control-state evidence is absent, so selection must fail closed.",
+  "decision_grounds": [
+    "No exact `Approval: UR` or approved durable UR artefact is evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision is evidenced.",
+    "The requested deterministic approval presentation spans four coding-agent surfaces and may affect runtime contracts, UI/"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-023:2",
+  "case_id": "PB-023",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "d96d3d43f7dff74985d5f31e68eaac94885b189a7bedeff9941177442089e6f8",
+  "recorded_at": "2026-07-28T17:46:43.275Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a user-visible change in an existing AGDF repository, but the supplied evidence does not include an approved durable UR or a completed Brownfield Review with an evidenced Mode/Slice Decision. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The task changes what is visibly presented on the Pages site, so it introduces or changes user-visible behavior and is G"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2:PB-026:2",
+  "case_id": "PB-026",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728-v2",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "baseline_version": "1.0.0",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.1.0",
+  "source_fingerprint": "fd4a5dc20146089c6767aa12ffcef951616896901867f23dde6d2f390f1de049",
+  "recorded_at": "2026-07-28T18:18:21.728Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task requests a user-visible change in an existing AGDF repository, but no approved durable UR, completed Brownfield Review, or evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path from the available evidence.",
+  "decision_grounds": [
+    "The task changes visible status-card behavior, which is user-visible product semantics and requires a durable approved `",
+    "`Approval: UR` is not evidenced, and durable UR artefact presence is not evidenced.",
+    "A completed Brownfield Review with scope reason and evidence is not provided, so no `quick_task`, `verified_change`, `“`",
+    "`structured_slice`, or `structured_delivery` decision can be inferred.",
+    "`compact_delivery` cannot be selected because the required approved UR, completed Brownfield analysis/review selecting `",
+    "`, and stored `quick_task` context are not evidenced.",
+    "The Trivial Change Boundary cannot be established because the requested change concerns canonical status-card behavior,`",
+    " likely under governed executable or `plugin/meta/**` paths, and missing evidence must fail closed."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

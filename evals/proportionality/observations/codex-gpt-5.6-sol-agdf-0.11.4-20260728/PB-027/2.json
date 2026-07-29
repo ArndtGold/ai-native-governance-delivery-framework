@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-027:2",
+  "case_id": "PB-027",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "38f9fd4cfae1b7ae989c95c9c64d0d780b93d4a1e481ce06d90df687fde534b4",
+  "recorded_at": "2026-07-28T17:49:06.933Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task concerns user-visible approval transport and prompt/description parity in an existing AGDF repository, but no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "The requested corrections affect approval interaction surfaces and potentially exact authorization-value transport.",
+    "No exact `Approval: UR` and durable UR artefact are evidenced.",
+    "No completed Brownfield Review, ownership analysis, scope evidence, or Mode/Slice Decision is evidenced.",
+    "Compact Delivery is unavailable because there is no approved UR, completed Brownfield analysis, or stored `quick_task`/`"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

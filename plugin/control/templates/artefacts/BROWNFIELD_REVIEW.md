@@ -55,6 +55,31 @@ Brownfield cites repository evidence.
 - evidence:
 - transparency_note:
 
+## Structured Depth Evidence
+
+- depth_policy_version: `1`
+- depth_facts_status: `complete | missing | conflicting | not_applicable`
+- primary_reason_code:
+- decisive_full_depth_triggers:
+- rejected_alternative:
+- missing_or_conflicting_facts:
+- depth_evidence_refs:
+
+Use `not_applicable` only when an unchanged Quick/Compact or Verified Change path is selected before
+Structured Depth. A positive structured decision requires complete facts. Missing or conflicting
+decisive facts without an already-evidenced full-depth trigger persist `decision: block` and name
+the evidence owner and precise Brownfield/Mode-Slice re-evaluation action.
+
+| check_id | result | evidence |
+|---|---|---|
+| coherent_outcome | `pass | fail | unknown | not_applicable` |  |
+| authority_boundary | `pass | fail | unknown | not_applicable` |  |
+| owner_consumer_coordination | `pass | fail | unknown | not_applicable` |  |
+| full_depth_impacts_absent | `pass | fail | unknown | not_applicable` |  |
+| migration_propagation_bounded | `pass | fail | unknown | not_applicable` |  |
+| failure_recovery_local | `pass | fail | unknown | not_applicable` |  |
+| independently_acceptable | `pass | fail | unknown | not_applicable` |  |
+
 ## PRD / SD Open Questions
 
 | Question | Required gate | Impact |

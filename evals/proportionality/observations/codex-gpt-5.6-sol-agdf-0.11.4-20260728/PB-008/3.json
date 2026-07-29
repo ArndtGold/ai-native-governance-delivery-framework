@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-008:3",
+  "case_id": "PB-008",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 3,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "c5eabb7f5f60e4390a3d978534f65d5a471b2157b8abb96962ede82216b5cfc4",
+  "recorded_at": "2026-07-28T17:36:42.966Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces new target-resolution and activation behavior, so it requires a durable approved UR and a completed Brownfield Review before AGDF can select a delivery path. Neither is evidenced, and no path was preselected; fail-closed routing therefore leaves the path unresolved.",
+  "decision_grounds": [
+    "New functional behavior is requested: detect two plausible mutation targets and require explicit target selection before",
+    "No durable UR or exact Approval: UR is evidenced",
+    "No completed Brownfield Review or evidenced Mode/Slice Decision is provided",
+    "The available evidence cannot safely distinguish structured_slice from structured_delivery",
+    "compact_delivery is unsupported because approved UR, completed Brownfield analysis, and stored quick_task context are 모두"
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

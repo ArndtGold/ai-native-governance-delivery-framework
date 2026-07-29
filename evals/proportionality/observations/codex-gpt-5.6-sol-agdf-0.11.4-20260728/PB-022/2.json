@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "observation_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728:PB-022:2",
+  "case_id": "PB-022",
+  "series_id": "codex-gpt-5.6-sol-agdf-0.11.4-20260728",
+  "repeat": 2,
+  "evidence_kind": "live_agent_observation",
+  "surface": "codex",
+  "runtime_version": "codex-cli 0.145.0",
+  "agdf_version": "0.11.4",
+  "model": "gpt-5.6-sol",
+  "adapter_version": "1.0.0",
+  "source_fingerprint": "f080d6ec2ea8f2c878432fcd7996105c148632d9e8ba9c2636d4144beb6ab685",
+  "recorded_at": "2026-07-28T17:46:08.057Z",
+  "observed_delivery_path": null,
+  "ambiguous": true,
+  "rationale": "The task introduces canonical user-facing decision behavior across multiple host adapters, indicating broad cross-surface product and runtime impact. However, no approved durable UR or completed Brownfield Review with an evidenced Mode/Slice Decision is provided. AGDF therefore fails closed and cannot select a delivery path yet.",
+  "decision_grounds": [
+    "New user-visible behavior and cross-host adapter scope require a durable UR.",
+    "No exact `Approval: UR` and corresponding durable UR artefact are evidenced.",
+    "No completed Brownfield Review or recorded Mode/Slice Decision is evidenced.",
+    "The task wording alone cannot establish `structured_delivery` or another path; Brownfield Review owns that selection."
+  ],
+  "execution_status": "completed",
+  "redaction_status": "pass",
+  "mutation_status": "pass"
+}

@@ -71,7 +71,7 @@ export const workflowSteps = [
         step: "03",
         title: "Right-Sized Path",
         command: "control state",
-        desc: "Decide whether the work is quick, bug-lightweight, bounded, structured or blocked."
+        desc: "Decide whether the work is quick, bug-lightweight, verified_change, structured_slice, structured_delivery or depth_unresolved."
     },
     {
         step: "04",
@@ -119,10 +119,10 @@ export const workflowSteps = [
 
 export const requirementPaths = [
     {
-        label: "Quick Task",
+        label: "Quick Task / Compact Delivery",
         trigger: "Small local fix, review, debugging step or refactor without new product semantics.",
         path: "Understand context -> change narrowly -> run relevant checks -> close with evidence",
-        outcome: "Fast, narrow, evidenced."
+        outcome: "Fast, narrow, evidenced. Brownfield Review may select quick_task; Compact Delivery is the human-facing label."
     },
     {
         label: "Narrow Bug Track",
@@ -131,10 +131,22 @@ export const requirementPaths = [
         outcome: "Not a gate bypass: required QA, OR and repository approvals remain. For a machine-validated compact change, use Verified Change."
     },
     {
-        label: "Controlled Delivery",
-        trigger: "New capability, architecture impact, policy or persistence change, visible UX decision or release-critical work.",
-        path: "Clarify need -> check impact -> plan only what risk justifies -> implement -> verify -> close with evidence",
-        outcome: "More control when the work can affect real systems."
+        label: "Verified Change",
+        trigger: "Bounded user-visible change with one canonical owner, deterministic propagation and validation, and a structured escalation target.",
+        path: "Capture clean baseline -> prove eligibility -> implement declared paths -> run validation -> record mini-closeout",
+        outcome: "Compact, machine-validated. Escalates to structured_slice or structured_delivery on any failed condition."
+    },
+    {
+        label: "Structured Slice",
+        trigger: "A coherent bounded outcome needs explicit contracts, but all seven bounded-slice checks pass and no full-depth trigger applies.",
+        path: "Clarify need -> check impact -> plan slice-depth contracts -> implement -> verify -> close with evidence",
+        outcome: "Same gate sequence as Structured Delivery; artefact depth covers only the bounded slice."
+    },
+    {
+        label: "Structured Delivery",
+        trigger: "Any one evidenced full-depth trigger applies: authority/policy/security, architecture/runtime, persistence/migration, external contract, release/cross-host, or unbounded coordination.",
+        path: "Clarify need -> check impact -> plan full-depth contracts -> implement -> verify -> close with evidence",
+        outcome: "Full artefact depth for every affected authority, architecture, runtime, consumer, migration, operational and release boundary."
     },
 ]
 
@@ -366,7 +378,7 @@ export const operatingGuards = [
 export const gateFlow = [
     { gate: "UR", name: "User Requirement", desc: "Problem, goal, affected users, constraints" },
     { gate: "BR", name: "Brownfield Review", desc: "Existing logic, ownership, system boundaries" },
-    { gate: "PATH", name: "Right-Sized Path", desc: "small / bounded / structured / blocked" },
+    { gate: "PATH", name: "Right-Sized Path", desc: "quick / bug-lightweight / verified_change / structured_slice / structured_delivery / depth_unresolved" },
     { gate: "PRD", name: "Product Requirements", desc: "Scope, acceptance criteria, non-goals" },
     { gate: "SD", name: "Solution Design", desc: "Architecture, components, interfaces" },
     { gate: "TP", name: "Task & Test Plan", desc: "Work packages, test matrix, dependencies" },
@@ -393,7 +405,8 @@ export const gateMapPaths = {
     },
     structured: {
         label: "Structured path",
-        note: "Used when the change needs explicit product, solution or task contracts.",
+        note: "Structured Slice and Structured Delivery use the same gate sequence. Their difference is artefact depth, not gates.",
+        depthHint: "Slice: bounded artefact depth for one coherent outcome. Delivery: full depth for every affected boundary.",
         steps: [
             { gate: "PRD", name: "Product Requirements" },
             { gate: "SD", name: "Solution Design" },
@@ -409,36 +422,95 @@ export const gateMapPaths = {
 
 export const gateModeMatrix = [
     {
-        mode: "Quick task",
+        mode: "Quick Task / Compact Delivery",
         use: "User need, impact check, right-sized path, small change, relevant checks, evidence closeout",
         skip: "Product, solution, task and QA gates unless risk or evidence gaps require escalation",
-        decision: "Use only for narrow approved scope without new product semantics.",
+        decision: "Use only for narrow approved scope without new product semantics. Brownfield Review may select quick_task; Compact Delivery is the human-facing label, not a new mode.",
     },
     {
-        mode: "Bug lightweight",
+        mode: "Narrow Bug Track",
         use: "Bug facts, reproduction, actual and expected behavior, fix boundary, targeted checks, evidence closeout",
         skip: "Full PRD/SD/TP chain when the defect does not introduce new product semantics",
-        decision: "Use only while the bug stays inside the recorded boundary; escalate if scope grows.",
+        decision: "Use only while the bug stays inside the recorded boundary; escalate if scope grows. Required QA, OR and repository approvals remain.",
     },
     {
-        mode: "Bounded slice",
+        mode: "Verified Change",
+        use: "Bounded user-visible change, one canonical owner, deterministic propagation and validation, clean baseline, structured escalation target",
+        skip: "Full PRD/SD/TP/QA/UAT chain when every eligibility condition is machine-validated",
+        decision: "Use only when the compact record proves all five conditions; escalates on any failure.",
+    },
+    {
+        mode: "Structured Slice",
         use: "User need, impact check, right-sized path, minimal product/solution/task plan, implementation, reviews, QA, closeout",
-        skip: "Full-depth artifacts when a small slice contract is enough",
-        decision: "Use when the change needs explicit contracts, but only for a bounded slice.",
+        skip: "Full-depth artefacts when a small slice contract is enough",
+        decision: "Use when all seven bounded-slice checks pass and no full-depth trigger applies. Same gate sequence as Structured Delivery; difference is artefact depth.",
     },
     {
-        mode: "Structured delivery",
+        mode: "Structured Delivery",
         use: "User need, impact check, right-sized path, product/solution/task plan, implementation, reviews, QA, closeout",
-        skip: "Nothing material; depth is justified by impact, risk or release relevance",
-        decision: "Use for new capability, architecture, persistence, policy, UX or release-critical work.",
+        skip: "Nothing material; depth is justified by evidenced effect, not numeric count",
+        decision: "Use when any one evidenced full-depth trigger applies because of its effect, never because of a numeric count.",
     },
     {
-        mode: "Blocked",
-        use: "Current gate, missing evidence, next allowed action",
+        mode: "Blocked / Depth Unresolved",
+        use: "Current gate, missing evidence, known owner where known, next allowed action",
         skip: "All later gates and implementation",
-        decision: "Use when approval, artefact, evidence, ownership or source of truth is missing.",
+        decision: "Use when approval, artefact, evidence, ownership or source of truth is missing. depth_unresolved persists block; unknown facts never default to structured_delivery.",
     },
 ]
+
+export const depthChoice = {
+    modesContractOwner: "plugin/meta/contracts/modes.md",
+    projection: "Pages explains, does not re-author.",
+    compactPaths: [
+        {
+            mode: "Quick Task / Compact Delivery",
+            trigger: "Narrow local change without new product semantics.",
+            evidence: "Brownfield Review selects quick_task after impact check.",
+        },
+        {
+            mode: "Verified Change",
+            trigger: "Bounded user-visible change with one canonical owner and deterministic proof.",
+            evidence: "Compact record proves all five eligibility conditions.",
+        },
+    ],
+    structuredPaths: {
+        sharedGateChain: "UR -> Brownfield Review -> Mode/Slice Decision -> PRD -> SD -> TP -> Brownfield Analysis -> CD+Tests -> CR -> QA -> UAT -> OR",
+        sliceVsDelivery: "Same gate sequence; difference is artefact depth, not gates.",
+        structuredSlice: {
+            mode: "Structured Slice",
+            whenChosen: "All seven bounded-slice checks pass and no full-depth trigger applies.",
+            boundedChecks: [
+                "One coherent outcome with clear acceptance boundary.",
+                "Known authority, no new trust/policy/security boundary.",
+                "Owners and consumers identified, coordination inside the slice.",
+                "No architecture, runtime, persistence, data, external API, public CLI, release or cross-host full-depth impact.",
+                "Migration and propagation bounded, compatible, testable, locally reversible.",
+                "Failure, recovery and rollback controllable inside the slice.",
+                "Independent acceptance signals; no hidden later work as prerequisite.",
+            ],
+        },
+        structuredDelivery: {
+            mode: "Structured Delivery",
+            whenChosen: "Any one evidenced full-depth trigger applies because of its effect, not a numeric count.",
+            fullDepthFamilies: [
+                "Authority, policy or security boundary change.",
+                "Architecture or runtime change beyond a local slice.",
+                "Persistence, data or migration with irreversible or coordinated state transition.",
+                "External or public contract: API, CLI, protocol, file format or compatibility-sensitive integration.",
+                "Release, deployment or cross-host rollout, rollback or feature-flag plan.",
+                "Unbounded consumer or owner coordination; cannot be delivered as one reversible slice.",
+            ],
+        },
+    },
+    depthUnresolved: {
+        mode: "Blocked / Depth Unresolved",
+        meaning: "A decisive fact is missing or conflicting and no evidenced full-depth trigger already supports structured_delivery.",
+        action: "Persist block, name missing facts and evidence owner, link Brownfield Review, re-evaluate after evidence completion.",
+        noDefault: "Unknown facts never default to structured_delivery.",
+    },
+    proxyProhibition: "File, owner, consumer, task or derived-path counts are not a decision proxy and never a threshold for either structured mode.",
+}
 
 export const compatibility = [
     { tool: "OpenCode", integration: "global npm/native skills + repository activation from .agdf/control/config.json", support: "Control-stack reference", goal: "runtime", setupAnchor: "#setup-opencode" },

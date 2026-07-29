@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, versionEvidence, aiActFit, operatingGuards } from '../data/site'
+import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, versionEvidence, aiActFit, operatingGuards, depthChoice } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
 import { getProjectStats } from '../data/projectStats'
 import { evaluationEvidence } from '../data/evaluationEvidence'
@@ -565,6 +565,103 @@ const discoveryGroups = [
   </div>
 </section>
 
+<!-- ==================== HOW AGDF CHOOSES DEPTH ==================== -->
+<section id="depth-choice" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
+  <div data-reveal class="mb-12 text-center">
+    <div class="mb-4 flex justify-center">
+      <div class="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.14),rgba(20,184,166,0.10))] text-cyan-100 shadow-[0_22px_64px_-38px_rgba(34,211,238,0.7),0_1px_0_rgba(255,255,255,0.14)_inset]">
+        <div class="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/65 to-transparent"></div>
+        <Icon name="control-flow" class="h-8 w-8" />
+      </div>
+    </div>
+    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Mode selection</div>
+    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">How AGDF Chooses Depth</h2>
+    <p class="mx-auto max-w-3xl text-dark-200">
+      AGDF selects the smallest safe governance path based on evidenced effect, not on file counts or gut feeling. Compact paths stay separate from structured paths; structured modes share one gate sequence and differ only in artefact depth.
+    </p>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Compact paths -->
+    <div data-reveal data-reveal-delay="1" class="surface p-6">
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <h3 class="text-xl font-bold text-agdf-200">Compact paths</h3>
+        <span class="rounded-full border border-agdf-500/30 bg-agdf-950 px-3 py-1 font-mono text-xs text-agdf-300">lightweight</span>
+      </div>
+      <div class="space-y-4">
+        {depthChoice.compactPaths.map((p) => (
+          <div class="rounded-lg border border-dark-700/80 bg-dark-900/60 p-4">
+            <div class="font-semibold text-dark-100">{p.mode}</div>
+            <p class="mt-2 text-sm text-dark-200">{p.trigger}</p>
+            <p class="mt-2 text-xs font-medium text-agdf-300">{p.evidence}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Structured paths -->
+    <div data-reveal data-reveal-delay="2" class="surface p-6">
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <h3 class="text-xl font-bold text-agdf-200">Structured paths</h3>
+        <span class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 font-mono text-xs text-cyan-100">full gates</span>
+      </div>
+      <div class="mb-4 rounded-lg border border-cyan-100/20 bg-cyan-300/[0.06] p-4">
+        <div class="font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">Shared gate chain</div>
+        <p class="mt-2 text-xs leading-relaxed text-dark-100">{depthChoice.structuredPaths.sharedGateChain}</p>
+        <p class="mt-2 text-sm font-medium text-agdf-300">{depthChoice.structuredPaths.sliceVsDelivery}</p>
+      </div>
+      <div class="space-y-4">
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900/60 p-4">
+          <div class="font-semibold text-dark-100">{depthChoice.structuredPaths.structuredSlice.mode}</div>
+          <p class="mt-2 text-sm text-dark-200">{depthChoice.structuredPaths.structuredSlice.whenChosen}</p>
+          <p class="mt-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Seven bounded-slice checks</p>
+          <p class="mt-1 text-xs text-dark-300">All seven must pass as evidenced and no full-depth trigger may apply.</p>
+          <ol class="mt-3 space-y-2 text-xs text-dark-200">
+            {depthChoice.structuredPaths.structuredSlice.boundedChecks.map((check, i) => (
+              <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-950 p-3">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-agdf-500/30 bg-agdf-950 font-mono text-[10px] font-bold text-agdf-300">{i + 1}</span>
+                <span>{check}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div class="rounded-lg border border-dark-700/80 bg-dark-900/60 p-4">
+          <div class="font-semibold text-dark-100">{depthChoice.structuredPaths.structuredDelivery.mode}</div>
+          <p class="mt-2 text-sm text-dark-200">{depthChoice.structuredPaths.structuredDelivery.whenChosen}</p>
+          <p class="mt-3 font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">Six full-depth families</p>
+          <p class="mt-1 text-xs text-dark-300">A single trigger is decisive because of its effect, never because of a numeric count.</p>
+          <ul class="mt-3 flex flex-wrap gap-2 text-xs">
+            {depthChoice.structuredPaths.structuredDelivery.fullDepthFamilies.map((family) => (
+              <li class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 text-cyan-100">{family}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Depth unresolved -->
+  <div data-reveal data-reveal-delay="3" class="mt-6 rounded-lg border border-red-500/30 bg-red-950/20 p-5 shadow-[0_0_32px_-22px_rgba(239,68,68,0.6)]">
+    <div class="flex items-center gap-3">
+      <span class="rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 font-mono text-xs font-bold text-red-200">{depthChoice.depthUnresolved.mode}</span>
+    </div>
+    <p class="mt-3 text-sm leading-relaxed text-dark-100">{depthChoice.depthUnresolved.meaning}</p>
+    <p class="mt-2 text-sm leading-relaxed text-dark-200">{depthChoice.depthUnresolved.action}</p>
+    <p class="mt-2 text-sm font-semibold text-red-200">{depthChoice.depthUnresolved.noDefault}</p>
+  </div>
+
+  <!-- Proxy prohibition -->
+  <div data-reveal data-reveal-delay="4" class="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-5 shadow-[0_0_32px_-22px_rgba(234,179,8,0.6)]">
+    <div class="font-mono text-xs font-bold uppercase tracking-wide text-yellow-300">Proxy prohibition</div>
+    <p class="mt-2 text-sm leading-relaxed text-dark-100">{depthChoice.proxyProhibition}</p>
+  </div>
+
+  <!-- Modes Contract boundary -->
+  <div data-reveal data-reveal-delay="5" class="mt-4 rounded-lg border border-agdf-500/20 bg-agdf-950/30 p-4 text-center text-xs text-dark-200">
+    <span class="font-mono font-bold text-agdf-300">Canonical owner:</span> <code class="text-dark-100">{depthChoice.modesContractOwner}</code>. {depthChoice.projection}
+  </div>
+</section>
+
 <!-- ==================== WORKFLOW ==================== -->
 <section id="workflow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
@@ -693,6 +790,9 @@ const discoveryGroups = [
                 {i < gateMapPaths.structured.steps.length - 1 && <span class="text-agdf-600">→</span>}
               </>
             ))}
+          </div>
+          <div class="mt-4 rounded-lg border border-cyan-100/20 bg-cyan-300/[0.06] p-3 text-xs leading-relaxed text-dark-100">
+            <span class="font-mono font-bold text-cyan-200">Depth:</span> {gateMapPaths.structured.depthHint}
           </div>
         </div>
       </div>

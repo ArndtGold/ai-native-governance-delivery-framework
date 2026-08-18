@@ -4,7 +4,7 @@ Status: pass
 Run: `agdf-pages-landing-simplification`
 Date: 2026-08-18
 Reference: approved TP Revision 2
-Review revision: 2
+Review revision: 3
 
 ## TP Coverage
 
@@ -33,7 +33,7 @@ Review revision: 2
 | LPS-AC-04 | Evaluation | T06 | Proof labels repository/host/publication boundaries. | fulfilled | none |
 | LPS-AC-05 | Deep reference | T02, T07 | Handbook, contract, installation, release and policy owners linked. | fulfilled | none |
 | LPS-AC-06 | Evaluation | T06–T07 | Human responsibility, advisory/no-service and independent status visible. | fulfilled | none |
-| LPS-AC-07 | Orientation | T09–T11 | Seven sections; 1,520 words after first-reader editorial revision. | fulfilled | none |
+| LPS-AC-07 | Orientation | T09–T11 | Seven sections; 1,536 words after final first-reader thesis refinement. | fulfilled | none |
 | LPS-AC-08 | All modes | T04–T07, T11 | 1440/390 rendered inspections; no overlap or overflow. | fulfilled | none |
 | LPS-AC-09 | All modes | T04, T11 | Native summary, logical link order and visible focus treatment. | fulfilled | none |
 | LPS-AC-10 | All modes | T03–T04, T08, T11 | Zero scripts; static content and navigation. | fulfilled | none |
@@ -53,5 +53,7 @@ Review revision: 2
 - risks: deployed and installed-host behavior remain intentionally unverified and are not TP completion evidence
 - revision_evidence: The first-reader editorial revision changes only the existing static copy projection
   and its regression guard. Exact Hero, protected public-plugin wording, canonical links, seven-section
-  structure, zero-script behavior and desktop/mobile visible evidence remain fulfilled.
+  structure, zero-script behavior and desktop/mobile visible evidence remain fulfilled. Revision 3 makes
+  the activity-to-delivery distinction explicit in the approved Problem section and remains within
+  LPS-T05 plus LPS-AC-01, LPS-AC-07, LPS-AC-15 and LPS-AC-16.
 - required_next_step: Route this passing TP coverage with Clean Implementation Review and Code Review to QA Gate.

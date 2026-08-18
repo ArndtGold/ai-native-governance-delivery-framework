@@ -3,7 +3,7 @@
 Status: pass
 Run: `agdf-pages-landing-simplification`
 Date: 2026-08-18
-Review revision: 2
+Review revision: 3
 
 ## Clean Implementation Review
 
@@ -24,7 +24,8 @@ Review revision: 2
   projection are reused; shared evidence assets remain untouched.
 - editorial_revision: pass. The revised wording stays in the existing `landingPage` owner and adds only
   a focused regression guard for five unclear phrases. It introduces no copy fork, fallback, hidden
-  compatibility layer or second source of product semantics.
+  compatibility layer or second source of product semantics. Revision 3 changes the Problem thesis and
+  adds its exact assertions in the same owners; no new structure or workaround is introduced.
 - missing_evidence: none for solution integrity. Deployment and host observation are excluded external state.
 - required_next_step: Perform mandatory Code Review, then submit the combined evidence to QA Gate.
 

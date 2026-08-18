@@ -37,8 +37,8 @@ was performed.
 
 Measured candidate:
 
-- visible section words: 1,520, inside the 1,500–1,800 editorial target;
-- built homepage HTML: 26,036 bytes, down from 163,779 bytes;
+- visible section words: 1,536, inside the 1,500–1,800 editorial target;
+- built homepage HTML: 26,165 bytes, down from 163,779 bytes;
 - built client scripts: zero, down from 5,621 inline-script bytes;
 - unique referenced local images: two (`logo.png`, `codex-agdf-plugin-ui.png`);
 - referenced local image bytes: 1,210,792, down from 8,570,997;
@@ -52,7 +52,7 @@ Measured candidate:
 | LPS-L02 | pass | 390x844: responsive Hero/cards/code/image, native mobile menu and no horizontal overflow. |
 | LPS-L03 | pass | Native summary is keyboard-operable and focused state is visibly outlined; link order follows DOM reading order. |
 | LPS-L04 | pass | Built homepage contains no script element; all content and native navigation are present in static HTML. |
-| LPS-L05 | pass | Audience/problem are explicit before taxonomy; decision, operator and review ownership remains distinguishable; 1,520 words. |
+| LPS-L05 | pass | Audience/problem are explicit before taxonomy; decision, operator and review ownership remains distinguishable; 1,536 words. |
 | LPS-L06 | pass | One proof screenshot loads at natural width 3,284 with bounded alt/caption; metadata uses existing `logo.png`. |
 
 ## Editorial QA Revision 2
@@ -68,6 +68,21 @@ Measured candidate:
   navigation is correct, images load and no horizontal overflow occurs.
 - Astro check/build, focused landing-page tests, public-document tests, Runtime Integrity and
   `git diff --check` pass after the revision.
+
+## Editorial QA Revision 3
+
+- Replaced the Problem heading with the explicit economic thesis `Agent activity is not delivery
+  progress.` without changing the Hero, Formula 1 framing, section structure or CTA hierarchy.
+- Added one direct bridge: useful agent activity becomes governed delivery progress only when scope
+  is approved, evidence is visible and transitions are deliberate.
+- Added exact positive assertions for both statements and a negative assertion rejecting the
+  superseded Problem heading.
+- Rebuilt and rechecked the candidate at 1,536 visible words. The Problem section remains readable:
+  267 words, with a longest sentence of 24 words.
+- Repeated local 1440x900 and 390x844 inspection. The heading and bridge render visibly, no horizontal
+  overflow occurs, the layout remains static and the lazy proof image remains correctly deferred.
+- Astro check/build, focused landing-page tests, public-document tests, Runtime Integrity and
+  `git diff --check` pass after this refinement.
 
 Visible evidence proves only the local built candidate. It does not prove deployed `agdf.iself.eu`, an
 installed host, publisher verification, portal review, directory availability or publication.

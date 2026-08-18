@@ -4,7 +4,7 @@ Status: pass
 Gate: QA
 Run: `agdf-pages-landing-simplification`
 Date: 2026-08-18
-Revision: 2
+Revision: 3
 
 ## Quality Readiness
 
@@ -29,13 +29,15 @@ Permissible next action: Request exact `Approval: QA` for this report.
   - `TASK_PLAN_REVIEW.md`: 12/12 `fully_done`; LPS-AC-01–LPS-AC-16 `fulfilled`;
   - `CLEAN_IMPLEMENTATION_REVIEW.md`: pass, no fallback/shim/parallel-structure risk;
   - `CODE_REVIEW.md`: pass, no open finding;
-  - `CD_TESTS.md`: 1,520 visible words, exactly seven sections, 26,036-byte built homepage,
+  - `CD_TESTS.md`: 1,536 visible words, exactly seven sections, 26,165-byte built homepage,
     zero client scripts, 1,210,792 referenced image bytes and four static routes;
   - first-reader editorial review: direct navigation labels, shorter Problem/control/evidence copy,
     removal of specifically guarded unclear phrases and section-average sentences of 11.5–16.6 words;
+  - final thesis refinement: exact visible `Agent activity is not delivery progress.` heading plus
+    the approved-scope/evidence/deliberate-transition bridge, protected by positive and negative tests;
   - Astro check/build, focused positive/mutation tests, public-document tests, Runtime Integrity,
     selected-run Doctor/gate-check and `git diff --check` pass;
-  - repeated local 1440x900 and 390x844 observations show readable flow, native navigation, visible focus,
+  - repeated local 1440x900 and 390x844 observations show the new Problem thesis visibly, readable flow, native navigation, visible focus,
     loaded proof image and no horizontal overflow;
   - `CG-PUBLIC-PLUGIN-DISTRIBUTION` reconciles the concise-projection and detail-owner invariant.
 - missing_evidence: none for the approved repository/local-render scope. Deployment, installed-host,

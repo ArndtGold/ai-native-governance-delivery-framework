@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-pages-landing-simplification
 - lifecycle: active
-- revision: 12
-- revision_id: cfbac4cd-64a6-4cb0-a63d-c75584e51569
+- revision: 13
+- revision_id: f75ba758-9464-4aaf-9c7d-b7ed6eecf710
 - mode: structured_slice
 - current_gate: QA
 - decision: ready_for_approval
@@ -21,7 +21,7 @@ truthful product boundaries, the existing visual identity and canonical access t
 
 | Question | Answer |
 |---|---|
-| What is known? | The first-reader editorial Revision 2 of the approved static seven-section candidate, automated/visible evidence, mandatory reviews and QA report all pass. Context Graph reconciliation is resolved. |
+| What is known? | Editorial Revision 3 makes the activity-to-delivery economic thesis explicit in the approved static seven-section candidate. Automated/visible evidence, mandatory reviews and QA report all pass. Context Graph reconciliation is resolved. |
 | What is approved? | UR Revision 1, PRD Revision 3, SD Revision 3 and TP Revision 2 are current approvals. Earlier PRD/SD/TP revisions remain historical evidence only. |
 | What is missing? | Exact `Approval: QA`; subsequent UAT remains separate. No deployed/live-host/publisher/portal evidence exists. |
 | What is the next allowed action? | Present the passing QA report and request exact `Approval: QA`. |
@@ -70,9 +70,9 @@ truthful product boundaries, the existing visual identity and canonical access t
 | SD | `.agdf/control/artefacts/agdf-pages-landing-simplification/SD.md` | approved | Revision 3 approved on 2026-08-18; exact Hero copy/CTA hierarchy and visual boundary preserve the static seven-section and no-script architecture. |
 | TP | `.agdf/control/artefacts/agdf-pages-landing-simplification/TP.md` | approved | Revision 2 approved on 2026-08-18; twelve implementation tasks, twenty automated checks, six visible inspections and full LPS-01–LPS-24/LPS-AC-01–LPS-AC-16 mapping. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-pages-landing-simplification/BROWNFIELD_ANALYSIS.md` | done | Baseline, reuse/deletion paths, fragments, regressions, tests and worktree isolation pass. |
-| CD+Tests | `.agdf/control/artefacts/agdf-pages-landing-simplification/CD_TESTS.md` | done | Editorial Revision 2: 1,520-word seven-section static candidate and automated/visible evidence complete. |
-| CR | `.agdf/control/artefacts/agdf-pages-landing-simplification/CODE_REVIEW.md` | done | Code Review Revision 2 pass; no open finding. |
-| QA | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass | QA Report Revision 2 passes; exact QA approval remains missing. |
+| CD+Tests | `.agdf/control/artefacts/agdf-pages-landing-simplification/CD_TESTS.md` | done | Editorial Revision 3: 1,536-word seven-section static candidate and automated/visible evidence complete. |
+| CR | `.agdf/control/artefacts/agdf-pages-landing-simplification/CODE_REVIEW.md` | done | Code Review Revision 3 pass; no open finding. |
+| QA | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass | QA Report Revision 3 passes; exact QA approval remains missing. |
 
 ## Mode/Slice Decision
 
@@ -125,7 +125,7 @@ truthful product boundaries, the existing visual identity and canonical access t
 | Landing-page data | `pages/src/data/site.ts` | workflow, path, guard, gate, depth, proof and compatibility copy | direct repository evidence |
 | Public product positioning | `plugin/meta/agdf-plugin.definition.json` | approved control-layer wording and public URLs | canonical source |
 | Detailed guidance | `docs/handbook/de/`, `docs/handbook/en/`, `INSTALL.md` | destinations for removed homepage detail | canonical or controlled projection |
-| Candidate measurements | `.agdf/control/artefacts/agdf-pages-landing-simplification/CD_TESTS.md` | 1,520 words; seven sections; zero scripts; 1,210,792 image bytes | direct local repository/render evidence |
+| Candidate measurements | `.agdf/control/artefacts/agdf-pages-landing-simplification/CD_TESTS.md` | 1,536 words; seven sections; zero scripts; 1,210,792 image bytes | direct local repository/render evidence |
 | Mandatory reviews | Task Plan, Clean Implementation and Code Review reports | plan, integrity and code quality | strong review evidence |
 | QA decision | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass; approval still missing | sole QA decision owner |
 
@@ -162,8 +162,8 @@ truthful product boundaries, the existing visual identity and canonical access t
 ## Closeout
 
 - delivered: Approved chain through TP, passed Brownfield Analysis, completed first-reader editorial
-  Revision 2 of the static seven-section candidate, automated/visible evidence, mandatory reviews,
-  resolved Context Graph and passing QA Report Revision 2.
+  Revision 3 of the static seven-section candidate with the explicit activity-to-delivery thesis,
+  automated/visible evidence, mandatory reviews, resolved Context Graph and passing QA Report Revision 3.
 - intentionally_not_delivered: QA approval, UAT, deployment, live-host/publication evidence, release and VCS delivery.
 - next_allowed_action: Request exact `Approval: QA` for the passing QA report.
 - quality_outlook: QA evidence is complete and passing; human QA approval is the next controlled transition.

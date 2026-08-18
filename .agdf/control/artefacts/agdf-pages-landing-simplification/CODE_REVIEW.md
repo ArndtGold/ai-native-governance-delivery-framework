@@ -3,7 +3,7 @@
 Status: pass
 Run: `agdf-pages-landing-simplification`
 Date: 2026-08-18
-Review revision: 2
+Review revision: 3
 
 ## Code Review
 
@@ -15,6 +15,8 @@ Review revision: 2
   - the editorial diff replaces unclear first-reader phrases with direct language without changing
     the approved Hero, evidence authority, public-plugin boundary or responsibility ownership;
   - the focused copy guard rejects recurrence of five reviewed unclear phrases;
+  - Revision 3 adds exact built-output checks for the activity-to-delivery thesis and rejects the
+    superseded heading while leaving composition and runtime behavior unchanged;
   - exact seven-section and Hero contracts are asserted against built HTML;
   - all TP-listed critical guards fail closed under in-memory mutations;
   - metadata uses an existing shipped social image (a missing draft asset reference found during review

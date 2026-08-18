@@ -131,6 +131,9 @@ const wordCount = validateWordLimit(homepageText);
 console.log(`Landing-page visible word count: ${wordCount} (editorial target 1500–1800; hard maximum 2200)`);
 assert.equal(visibleText(byId.problem.body).includes(problemComparisonTitle("without")), true);
 assert.equal(heroText.includes(problemComparisonTitle("without")), false, "before/after comparison must live outside Hero");
+assert.equal(visibleText(byId.problem.body).includes("Agent activity is not delivery progress."), true, "Problem must state the activity-to-delivery distinction");
+assert.equal(visibleText(byId.problem.body).includes("Useful agent activity becomes governed delivery progress only when scope is approved, evidence is visible and transitions are deliberate."), true, "Problem must connect activity to governed progress");
+assert.equal(homepageText.includes("Fast output is not the same as governed delivery."), false, "superseded Problem thesis must not remain");
 
 validateControlLoop(byId["how-it-works"]);
 for (const outcome of ["Controlled scope", "Evidence-backed decisions", "Auditable closeout"]) {

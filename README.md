@@ -30,7 +30,9 @@ npx --yes @agdf/cli@latest opencode
 ```
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
-Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md) und nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine strukturierte Auslieferung.
+Beginne mit dem [Coding Agent Handbuch](docs/handbook/README.md), wähle dort Deutsch oder Englisch
+und nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine
+strukturierte Auslieferung.
 
 AGDF ist ein unabhängiges Projekt und kein verbindlicher Standard. Die installierbare Runtime ersetzt weder Produktverantwortung noch Engineering, Security, Test oder Abnahmeentscheidungen.
 
@@ -200,9 +202,11 @@ Empfohlene Reihenfolge:
 │  ├─ 05-vom-mythos-zur-pruefung.md
 │  ├─ 06-vom-notizzettel-zum-delivery-lagebild.md
 │  ├─ 07-domain-driven-delivery.md
-│  ├─ agenten-handbuch/
+│  ├─ handbook/
 │  │  ├─ README.md
-│  │  └─ 01-schnellstart.md … 06-fehlerbehebung.md
+│  │  ├─ de/  (kanonische deutsche Fassung)
+│  │  └─ en/  (abgeleitete englische Übersetzung)
+│  ├─ agenten-handbuch/  (Kompatibilitätsverweise)
 │  └─ glossar.md
 ├─ ...
 ```

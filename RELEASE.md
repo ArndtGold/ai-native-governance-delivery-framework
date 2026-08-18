@@ -3,7 +3,7 @@
 AGDF releases are coupled across the repository packages and public surfaces.
 Use one version and one release tag for the whole release.
 
-## Release Scope
+## Release scope
 
 A release includes:
 
@@ -16,7 +16,7 @@ A release includes:
 The `@agdf/cli` package depends on the matching `create-agdf` version and
 delegates command execution through the shared `create-agdf/cli` export.
 
-## Prepare A Version
+## Prepare a version
 
 From the repository root, run:
 
@@ -24,8 +24,8 @@ From the repository root, run:
 npm run set-version -- <version>
 ```
 
-The script updates the coupled package, plugin and site versions. It also checks
-that `create-agdf@<version>` and `@agdf/cli@<version>` are not already published.
+The script updates the coupled package, plugin, site and OpenAI submission-source versions. It also
+checks that `create-agdf@<version>` and `@agdf/cli@<version>` are not already published.
 
 Run the validation printed by the script before tagging:
 
@@ -61,7 +61,7 @@ It then runs a disposable clean-client bootstrap smoke test using the documented
 command shape. These checks are maintainer/CI evidence; they do not add flags or
 parameters to the public bootstrap commands.
 
-## Do Not Use Legacy Split Tags
+## Do not use legacy split tags
 
 Do not use separate package release tags such as:
 

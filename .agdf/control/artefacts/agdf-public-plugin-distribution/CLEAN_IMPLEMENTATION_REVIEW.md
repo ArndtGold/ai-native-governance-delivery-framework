@@ -1,46 +1,38 @@
 # Clean Implementation Review: Public AGDF Plugin Distribution
 
 Status: pass  
-Revision: 7
+Revision: 14
 Date: 2026-08-18
 Run: `agdf-public-plugin-distribution`
 
 ## Clean Implementation Review
 
 - decision: `pass`
-- primary_solution: One bounded `publicDistribution` object extends the canonical plugin definition;
-  one focused manifest projector selects the established local interface for normal Codex packaging
-  and the constrained public interface only for the deterministic Skills-only candidate. The
-  distinction is explicit through `publicDisplayName`, not inferred from a directory or duplicated
-  manifest source. Local/package copy uses canonical `description`; the constrained public short
-  copy uses only `publicDistribution.shortDescription`; one `longDescription` is the only detailed
-  product-copy owner for Codex, Claude and public submission. Root legal documents and one Pages
-  route adapter remain the public-policy owners.
-- evidence: approved SD/TP Revision 3; exact local/public fixtures and 29-code-point public assertion;
-  `create-agdf/lib/public-plugin/`; generated source-manifest equality; two-build equivalence;
-  42-file inventory digest; complete smoke suite; desktop/mobile Pages
-  inspection; runtime, package and route negative tests.
-- fallbacks_retained: none. Unverified host, publisher, availability, portal and publication states
-  are explicit evidence states, not behavior fallbacks.
-- workaround_or_shim_risk: low. No compatibility alias or fallback was retained for the deleted
-  fields; every consumer moved directly to a surviving canonical owner. The static public-document
-  adapter remains the approved single projection to canonical GitHub documents.
-- parallel_structure_risk: none evident. The public contract owns only genuinely constrained public
-  variants and references the shared long copy; the generated candidate is disposable output, not a
-  second metadata or policy owner.
-- policy_translation_integrity: pass. `SECURITY.md` and `SUPPORT.md` were translated in place; no
-  German policy fork, redirect shim or duplicated policy owner was introduced. The validator accepts
-  equivalent explicit bilingual meaning rather than one language's literal tokens.
-- community_contract_translation_integrity: pass. `CONTRIBUTING.md`, `GOVERNANCE.md` and
-  `CODE_OF_CONDUCT.md` were also translated in place. Cross-links still resolve to the same owners;
-  no second governance, contribution or enforcement policy was created.
-- brownfield_fit: pass. Existing manifest, package synchronization, runtime generation, Pages,
-  public-policy, CI and local-marketplace owners are extended without replacing current npm, Codex,
-  Claude, OpenCode or Copilot paths.
-- missing_evidence: exact-host, deployed-site, publisher, portal and post-publication observations are
-  deliberately external and do not weaken the repository implementation-integrity decision.
-- required_next_step: Complete Code Review and final Task Plan coverage, then route to QA.
+- primary_solution: The sole existing version writer now updates the complete coupled release
+  surface, including all four OpenAI submission sources; current `0.13.0` declarations are aligned
+  without adding a synchronizer, fallback or derived version owner. The German-canonical and
+  English-reviewed handbook structure remains unchanged.
+- evidence: approved PRD/SD/TP Revision 4; Brownfield Analysis Revision 6; actual version-writer and
+  submission diff; exact availability assertion; public-plugin digest
+  `e09bc6abf23fa5ee6abee513ab77bf605e57b1a381a09139e32227101326f425`; both full
+  smoke suites, Community Health, 29 negatives, Runtime Integrity and `git diff --check` pass.
+- fallbacks_retained: none. Legacy files are bounded compatibility projections for known URLs, not
+  semantic fallbacks, and are rejected if they accumulate handbook meaning.
+- workaround_or_shim_risk: none evident. Exact regular-expression replacements fail closed if the
+  two Markdown version fields lose their declared shape; JSON sources use the existing JSON writer.
+- parallel_structure_risk: none evident. `scripts/set-version.mjs` remains the sole release-version
+  mutation path and the public-plugin contract remains the validation owner.
+- brownfield_fit: pass. The root cause in the existing writer is repaired; no manual-only version
+  procedure, second script or runtime fallback was introduced.
+- editorial_fit: pass. English explanations are ordinary derived prose outside protected German
+  fences; they improve standalone readability without adding another example, command or workflow
+  authority.
+- beginner_fit: pass. The overview is added to the existing index role rather than a new chapter or
+  parallel onboarding owner; German remains canonical and the English digest tracks it exactly.
+- run_selection_fit: pass. The clarification extends the existing multiple-runs chapter and uses one
+  example across both editions; it creates no CLI, run-selection or Git-behavior owner.
+- missing_evidence: none for implementation integrity. External lifecycle evidence remains an
+  intentional later-authority boundary, not a fallback or cleanliness gap.
+- required_next_step: run mandatory Code Review, then QA.
 
-## Findings
-
-No open normalized finding remains.
+No open normalized implementation-integrity finding remains.

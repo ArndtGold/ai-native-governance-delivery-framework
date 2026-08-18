@@ -52,6 +52,12 @@ const jsonUpdates = [
       json.packages[""].version = nextVersion;
     }
   }],
+  ["plugin/submission/openai/capability-matrix.json", (json) => {
+    json.releaseVersion = nextVersion;
+  }],
+  ["plugin/submission/openai/reviewer-cases.json", (json) => {
+    json.releaseVersion = nextVersion;
+  }],
 ];
 
 for (const [relativePath, update] of jsonUpdates) {
@@ -62,6 +68,18 @@ replaceInFile(
   "pages/src/data/site.ts",
   /version:\s*"[^"]+"/,
   `version: "${nextVersion}"`,
+);
+
+replaceInFile(
+  "plugin/submission/openai/release-notes.md",
+  /^# AGDF \S+ —/m,
+  `# AGDF ${nextVersion} —`,
+);
+
+replaceInFile(
+  "plugin/submission/openai/availability.md",
+  /^- release: `[^`]+`$/m,
+  `- release: \`${nextVersion}\``,
 );
 
 console.log(`Updated AGDF version to ${nextVersion}.`);

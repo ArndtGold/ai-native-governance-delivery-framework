@@ -2,9 +2,9 @@
 
 Last updated: 2026-08-17
 
-These terms describe use of the independent AI Governance & Delivery Framework (AGDF) project and
-its public plugin distribution. By using AGDF, you remain responsible for deciding whether it is
-appropriate for your work and for reviewing all actions and outputs produced with it.
+These terms apply to the independent AI Governance & Delivery Framework (AGDF) project and its
+public plugin distribution. You are responsible for deciding whether AGDF is appropriate for your
+work and for reviewing all actions and outputs produced with it.
 
 ## Open-source license
 
@@ -39,10 +39,10 @@ You are responsible for:
 
 ## Availability and support
 
-AGDF is provided on an open-source, best-effort basis. There is no service-level agreement,
-guaranteed availability, guaranteed response time, hosted AGDF account or paid support commitment.
-Support routes and limitations are described in [SUPPORT.md](SUPPORT.md), and security reporting is
-described in [SECURITY.md](SECURITY.md).
+AGDF is provided on an open-source, best-effort basis. It has no service-level agreement, guaranteed
+availability or response time, hosted AGDF account or paid support commitment. Support routes and
+limitations are described in [SUPPORT.md](SUPPORT.md). Security reporting is described in
+[SECURITY.md](SECURITY.md).
 
 ## Warranty and liability
 

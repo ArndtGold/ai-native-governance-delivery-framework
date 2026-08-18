@@ -18,8 +18,31 @@ const fixturePaths = [
   "GOVERNANCE.md",
   ".github",
   "assets/github-social-preview.png",
+  "assets/intro.png",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
+  "docs/agenten-handbuch",
+  "docs/handbook",
+  "docs/00-manifest.md",
+  "docs/01-framework-ueberblick.md",
+  "docs/02-gates.md",
+  "docs/03-artefakte.md",
+  "docs/04-wissen-nutzbar-halten.md",
+  "docs/05-vom-mythos-zur-pruefung.md",
+  "docs/06-vom-notizzettel-zum-delivery-lagebild.md",
+  "docs/07-domain-driven-delivery.md",
+  "docs/glossar.md",
+  "examples/sample-banking-flow.md",
+  "examples/sample-delivery-flow.md",
+  "INSTALL.md",
+  "PRIVACY.md",
+  "TERMS.md",
+  "TRADEMARKS.md",
+  "LICENSE",
+  "NOTICE",
+  "plugin/meta/agdf-runtime-contract.md",
+  "plugin/control/README.md",
+  "agdf/README.md",
 ];
 
 async function makeFixture() {
@@ -29,6 +52,13 @@ async function makeFixture() {
     const target = path.join(root, relativePath);
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.cp(source, target, { recursive: true });
+  }
+  const englishHandbookRoot = path.join(root, "docs/handbook/en");
+  for (const fileName of await fs.readdir(englishHandbookRoot)) {
+    if (!fileName.endsWith(".md")) continue;
+    const target = path.join(englishHandbookRoot, fileName);
+    const content = await fs.readFile(target, "utf8");
+    await fs.writeFile(target, content.replace("translation_status: candidate", "translation_status: reviewed"));
   }
   return root;
 }
@@ -54,8 +84,13 @@ async function replace(root, relativePath, from, to) {
   await fs.writeFile(target, content.replace(from, to));
 }
 
-const baseline = await validateCommunityHealth(repositoryRoot);
-assert.deepEqual(baseline, [], `Repository baseline must pass: ${JSON.stringify(baseline)}`);
+const baselineRoot = await makeFixture();
+try {
+  const baseline = await validateCommunityHealth(baselineRoot);
+  assert.deepEqual(baseline, [], `Reviewed fixture baseline must pass: ${JSON.stringify(baseline)}`);
+} finally {
+  await fs.rm(baselineRoot, { recursive: true, force: true });
+}
 
 const yamlFiles = [
   "bug_report.yml",
@@ -141,8 +176,73 @@ await withFixture(
 );
 
 await withFixture(
-  (root) => replace(root, "CODE_OF_CONDUCT.md", "factual reconsideration", "no further review"),
+  (root) => replace(root, "CODE_OF_CONDUCT.md", "request a review", "accept no further review"),
   "CONDUCT_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(
+    root,
+    "docs/handbook/de/04-mehrere-runs.md",
+    "Ein Run ersetzt keine Git- oder Worktree-Strategie",
+    "Ein Run isoliert automatisch jede Datei",
+  ),
+  "HANDBOOK_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/de/README.md", "AGDF in fünf Minuten", "AGDF für Fachleute"),
+  "HANDBOOK_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/de/04-mehrere-runs.md", "Die Run-Auswahl bestimmt nur, welchen AGDF-Kontrollzustand", "Die Run-Auswahl wechselt automatisch den Git-Branch"),
+  "HANDBOOK_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/de/06-fehlerbehebung.md", "agdf doctor --all-active", "doctor --all-active"),
+  "HANDBOOK_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/de/04-mehrere-runs.md", "Das Plugin und die CLI sind getrennte Installationen", "Das Plugin installiert die CLI automatisch"),
+  "HANDBOOK_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => fs.appendFile(path.join(root, "docs/handbook/de/01-schnellstart.md"), "\nSource changed.\n"),
+  "AGDF_HANDBOOK_TRANSLATION_STALE",
+);
+
+await withFixture(
+  (root) => fs.writeFile(path.join(root, "docs/handbook/de/unowned.md"), "# Unowned chapter\n"),
+  "AGDF_HANDBOOK_INVENTORY_INVALID",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/en/README.md", "chapter_role: index", "chapter_role: quickstart"),
+  "AGDF_HANDBOOK_TRANSLATION_METADATA_INVALID",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/en/01-quickstart.md", "Approval: <GateName>", "Approval: ANY"),
+  "AGDF_HANDBOOK_PARITY_INVALID",
+);
+
+await withFixture(
+  (root) => fs.appendFile(path.join(root, "docs/handbook/en/04-multiple-runs.md"), "\nChanges in one run do not affect other runs.\n"),
+  "HANDBOOK_TRANSLATION_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => fs.appendFile(path.join(root, "docs/agenten-handbuch/README.md"), "\nApproval: <GateName>\n"),
+  "AGDF_HANDBOOK_COMPATIBILITY_INVALID",
+);
+
+await withFixture(
+  (root) => replace(root, "docs/handbook/en/README.md", "translation_status: reviewed", "translation_status: candidate"),
+  "AGDF_HANDBOOK_TRANSLATION_UNREVIEWED",
 );
 
 await withFixture(
@@ -155,4 +255,4 @@ await withFixture(
   "FORM_LANGUAGE_MISSING",
 );
 
-console.log("community-health-test: pass (baseline + 17 negative contracts)");
+console.log("community-health-test: pass (reviewed baseline + 29 negative contracts)");

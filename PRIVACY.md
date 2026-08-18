@@ -4,7 +4,7 @@ Last updated: 2026-08-17
 
 AI Governance & Delivery Framework (AGDF) is an independent open-source project. The initial public
 AGDF plugin is a Skills-only distribution. It does not include an AGDF-operated MCP server, hosted
-backend, user account, telemetry service or analytics service, and the project does not receive your
+backend, user account, telemetry service or analytics service. The project does not receive your
 prompts, conversations, repository contents or plugin usage through an AGDF service.
 
 ## Processing by OpenAI and other platforms
@@ -17,9 +17,9 @@ of the host you choose before providing personal, confidential or regulated info
 ## Local and repository access
 
 AGDF skills may guide an authorized coding agent to read or change files, run commands and create
-delivery artefacts in the repository or workspace you make available to that agent. The effective
-access is determined by the host, its tools and permissions, and your explicit approvals. AGDF does
-not independently transmit that material to an AGDF-operated service.
+delivery artefacts in the repository or workspace you make available. The host, its tools and
+permissions, and your explicit approvals determine what the agent can access. AGDF does not
+independently transmit that material to an AGDF-operated service.
 
 Repository artefacts can contain requirements, decisions and evidence. Do not place secrets,
 credentials, identity documents, sensitive personal data or Persona verification material in those

@@ -6,8 +6,8 @@ identifiers, commands and exact AGDF approval values remain unchanged.
 
 ## Choose the right channel
 
-- Questions, early ideas and open design proposals: [Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions)
-- Reproducible defects or implementation-ready proposals: [Issue forms](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose)
+- Questions, early ideas and open design proposals: [GitHub Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions)
+- Reproducible defects or implementation-ready proposals: [GitHub issue forms](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose)
 - Suspected vulnerabilities: exclusively through [SECURITY.md](SECURITY.md)
 - Code or documentation changes: a pull request following this document
 
@@ -72,9 +72,10 @@ No Contributor License Agreement (CLA) or Developer Certificate of Origin (DCO) 
 
 ## AI assistance
 
-If AI assistance materially influenced content, code, design, analysis or tests, briefly describe:
+If AI assistance had a significant effect on content, code, design, analysis or tests, briefly
+describe:
 
-- which parts received material assistance;
+- which parts used AI assistance;
 - what a human reviewed or adjusted;
 - which tests or other evidence support the result.
 
@@ -84,6 +85,6 @@ material.
 
 ## Review and decisions
 
-`@ArndtGold` is currently the sole maintainer. Review comments, requested changes or closure should
-make the technical or governance reason understandable. A pull request does not create acceptance,
-merge or release commitment. See [GOVERNANCE.md](GOVERNANCE.md).
+`@ArndtGold` is currently the sole maintainer. Review comments, requested changes and closure notes
+should explain the technical or governance reason. A pull request does not imply acceptance or a
+commitment to merge or release it. See [GOVERNANCE.md](GOVERNANCE.md).

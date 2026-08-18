@@ -16,6 +16,7 @@
 | Local plugin identity plus public listing and submission projections | plugin/meta/agdf-plugin.definition.json; plugin/submission/openai/ | active | Arndt Gold | 2026-08-18 |
 | Public privacy, terms and support contract | PRIVACY.md; TERMS.md; SUPPORT.md; SECURITY.md; LICENSE; NOTICE; TRADEMARKS.md | active | Arndt Gold | 2026-08-17 |
 | OpenAI candidate build, local/public manifest projection and exact-bundle validation | create-agdf/lib/public-plugin/; create-agdf/scripts/build-public-plugin.js; create-agdf/scripts/public-plugin-test.js | active | AGDF | 2026-08-18 |
+| User handbook semantics and translations | docs/handbook/de/ (canonical German); docs/handbook/en/ (derived English); scripts/check-community-health.mjs (parity validation) | active | Arndt Gold | 2026-08-18 |
 
 ## Secondary References
 
@@ -27,6 +28,7 @@
 | AGDF-owned user-data `marketplaces/agdf/` | Durable installed Codex/Claude marketplace | Derived from the released package; exact ownership marker and rollback rules are mandatory |
 | GitHub repository settings and Community Profile | Effective public host state | Must be checked against `.github/repository-metadata.json` and delivered default-branch files; local repository state is not host proof |
 | create-agdf/generated/submissions/openai/agdf/ | Deterministic public plugin candidate, inventory and readiness projection | Derived from canonical owners; repository/bundle evidence only, never portal or publication proof |
+| docs/handbook/README.md; docs/agenten-handbuch/ | Language selection and legacy compatibility navigation | Navigation only; must not own or duplicate handbook semantics |
 
 ## Conflict Rule
 

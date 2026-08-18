@@ -1,10 +1,13 @@
 # Installation and Setup
 
-Install AGDF for the coding-agent surface where you work. The installation provides the appropriate plugin, native skills or repository files; it does not automatically approve work or replace product ownership, engineering judgement, security review, tests or human acceptance.
+Install AGDF for the coding agent you use. AGDF provides the appropriate plugin, native skills or
+repository files. It does not approve work automatically or replace product ownership, engineering
+judgement, security review, tests or human acceptance.
 
 ## Choose your installation path
 
-Before running a command, install Node.js 18 or later with npm and the selected agent runtime. Run repository-local commands inside the target Git repository, not inside this AGDF repository.
+Before running a command, install Node.js 18 or later with npm and the selected agent runtime. Run
+repository-local commands inside the target Git repository, not inside this AGDF repository.
 
 | Need | Command | Scope and verification | First safe action |
 |---|---|---|---|
@@ -18,6 +21,10 @@ Before running a command, install Node.js 18 or later with npm and the selected 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
 For the exact current command and option reference, including canonical run lifecycle commands, run `npx --yes @agdf/cli@latest --help`.
+
+Most users only need this table and the relevant platform section under
+[Detailed surface setup](#detailed-surface-setup). The sections in between explain optional runtime
+and planning behavior.
 
 ## Normal operating model
 
@@ -76,7 +83,10 @@ The same shape applies to `claude` and `opencode`. AGDF invokes supported native
 only exact known entries or marker-proven generated state. Repository files, `.agdf/control`,
 user-authored files and ambiguous configuration are retained. Review the preview before confirmation.
 
-## Advanced planning and runtime reference
+## Optional advanced planning and runtime reference
+
+This section explains how AGDF behaves across platforms. You can skip it when you only need to
+install or update AGDF.
 
 AGDF supports four usage surfaces:
 
@@ -103,11 +113,17 @@ selected run, current gate and durable artefact before persisting an approval. C
 permissions, Claude plan approval and OpenCode permission or auto-mode outcomes never count as AGDF
 gate approval.
 
-Delivery Path Search follows the same model: one portable CLI/runtime contract is mapped into each surface. Codex and Claude Code are executable reference evaluators; OpenCode joins them only when its current-invocation capability preflight passes. Every surface declares whether read-only behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace AGDF gate-check.
+Delivery Path Search follows the same model. One portable CLI/runtime contract is mapped into each
+surface. Codex and Claude Code are executable reference evaluators. OpenCode joins them only when
+its current-invocation capability preflight passes. Every surface declares whether read-only
+behavior is `full`, `tool_enforced` or `instruction_only`. Search recommendations never replace an
+AGDF gate check.
 
 ## Delivery Path Search
 
-Use Delivery Path Search only for high-impact planning decisions with several materially different legal next steps. It is not part of routine implementation and it is not a model-level MCTS switch.
+Use Delivery Path Search only for high-impact planning decisions with several materially different
+permitted next steps. It is not part of routine implementation and is not a model-level MCTS
+switch.
 
 Prerequisites:
 
@@ -134,7 +150,10 @@ npx --yes @agdf/cli@latest delivery-path-search \
   --json
 ```
 
-`--generate-candidates` is opt-in. It adds at most one call and five proposals under separate time/cost limits, then deterministically rejects malformed, illegal, duplicate or non-diverse proposals before evaluation. Generator failure remains visible and keeps the deterministic baseline; no automatic provider fallback occurs.
+`--generate-candidates` is opt-in. It adds at most one call and five proposals under separate time
+and cost limits. Before evaluation, it rejects malformed, prohibited, duplicate or insufficiently
+diverse proposals deterministically. A generator failure remains visible and preserves the
+deterministic baseline. AGDF does not fall back to another provider automatically.
 
 `--persist` writes a redacted decision summary to:
 
@@ -154,7 +173,14 @@ Support boundary:
 | GitHub Copilot | yes | instruction-only | no native executable adapter |
 | OpenCode | yes | tool-enforced only after current-invocation preflight; otherwise instruction-only | no native executable adapter |
 
-`--fixture` is available for deterministic contract testing. It is not a production external-evaluator configuration. OpenCode uses the owned `agdf-evaluator` agent with `opencode run --pure`; the current invocation must prove required command flags and effective deny permissions before reporting `tool_enforced`. Failed preflight, authentication or output validation returns `evaluator_unavailable` and points to the instruction-only workflow. Additional agents must implement the published evaluator contract before executable support can be claimed.
+`--fixture` is available for deterministic contract testing. It is not a production external
+evaluator configuration.
+
+OpenCode uses the owned `agdf-evaluator` agent with `opencode run --pure`. The current invocation
+must prove the required command flags and effective deny permissions before reporting
+`tool_enforced`. Failed preflight, authentication or output validation returns
+`evaluator_unavailable` and points to the instruction-only workflow. Other agents must implement the
+published evaluator contract before AGDF can claim executable support for them.
 
 After every result:
 
@@ -168,7 +194,8 @@ AGDF is an independent project and is not affiliated with, endorsed by, or spons
 
 AGDF is a control-first plugin.
 The skills steer agent behavior during a run.
-The `plugin/control/` scaffold provides durable repository artefacts for run state, backlog pointers, source-of-truth ownership, Context Graph knowledge and quality contracts.
+The `plugin/control/` scaffold provides durable repository artefacts for run state, backlog
+pointers, source-of-truth ownership, Context Graph knowledge and quality contracts.
 
 ## Skill identity model
 
@@ -228,7 +255,12 @@ This avoids drift between:
 
 ## Detailed surface setup
 
-Prerequisites: Node.js 18 or later and npm (`node -v`, `npm -v`), plus the selected runtime: Codex CLI or Codex app with plugin support, Claude Code CLI, OpenCode, or GitHub Copilot CLI/Coding Agent. If Node.js is missing, install it with `winget install OpenJS.NodeJS.LTS` (Windows), `brew install node` (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS installer from https://nodejs.org.
+You need Node.js 18 or later, npm (`node -v`, `npm -v`) and the selected runtime: Codex CLI or the
+Codex app with plugin support, Claude Code CLI, OpenCode, or GitHub Copilot CLI/Coding Agent.
+
+If Node.js is missing, install it with `winget install OpenJS.NodeJS.LTS` (Windows), `brew install
+node` (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS installer from
+[nodejs.org](https://nodejs.org).
 
 ## Codex
 
@@ -258,8 +290,9 @@ The AGDF `SessionStart` hook activates a compact runtime reminder and references
 plugin/meta/agdf-agent-router.md
 ```
 
-plus the compact AGDF constitution so the skills do not have to carry the whole control model alone.
-It does not print the full router into the chat; the first visible workflow step should still be the appropriate AGDF skill, usually `gate-check` for new build intent.
+plus the compact AGDF constitution, so individual skills do not have to carry the whole control
+model. The hook does not print the full router in the chat. The first visible workflow step should
+still be the appropriate AGDF skill, usually `gate-check` for a new build request.
 
 ### How Codex chooses AGDF skills
 
@@ -320,9 +353,13 @@ Run an AGDF gate check for this request.
 
 *UI example: Codex shows the installed AGDF plugin, its skills, hooks and metadata. It illustrates the plugin surface; use the install command and plugin metadata as the release-version authority.*
 
-For a normal fresh request, AGDF does not require `init` as a ritual first step. The agent can draft the minimal UR in the response and request the exact approval text `Approval: UR`.
+For a new request, AGDF does not require `init` before the agent can begin. The agent can draft the
+minimal UR in the response and request the exact approval text `Approval: UR`.
 
-For Brownfield Review, later gated delivery work or implementation, the Runtime Contract still requires the relevant durable or linked artefacts before the process can move on. Create `.agdf/control` files only when the repository should own durable AGDF control state, when that state is already live, or when deterministic setup for scripts, CI or repeatable onboarding is needed.
+For Brownfield Review, later gated delivery work or implementation, the Runtime Contract still
+requires the relevant durable or linked artefacts before the process can move on. Create
+`.agdf/control` files only when the repository should own durable AGDF control state, when that state
+is already live, or when scripts, CI or repeatable onboarding need deterministic setup.
 
 When durable AGDF control state is explicitly needed, keep the agent-native path primary. Ask Codex to inspect the repository and create the minimal control scaffold:
 
@@ -336,7 +373,7 @@ Or initialize live control files directly when you want deterministic scaffoldin
 npm create agdf@latest -- init
 ```
 
-The primary CLI package is `agdf`. Use it when command semantics matter:
+The primary CLI package is `@agdf/cli`. Use it when command semantics matter:
 
 ```bash
 npx --yes @agdf/cli@latest init
@@ -364,8 +401,12 @@ The selected language is written to:
 .agdf/control/config.json
 ```
 
-AGDF uses `artifact_language` for durable control artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules and internal control contracts remain English so Codex, Claude Code and Copilot share one stable rule surface.
-Generated or updated control artefacts stay in files by default; user-facing chat should summarize paths, decisions, blockers and next steps instead of pasting full file bodies.
+AGDF uses `artifact_language` for durable control artefacts and `chat_language` for user-facing
+responses unless the user explicitly asks otherwise. Runtime rules and internal control contracts
+remain English, giving Codex, Claude Code and Copilot one stable rule surface.
+
+Generated or updated control artefacts stay in files by default. User-facing chat should summarize
+paths, decisions, blockers and next steps instead of pasting complete files.
 
 Use `config` for an existing repository where the plugin is already installed and only the project language preference should be created or changed. Unlike `init`, it writes only `.agdf/control/config.json`.
 
@@ -399,7 +440,13 @@ open | blocked
 
 including current gate, missing approval, allowed outputs, forbidden outputs and next allowed action.
 
-For interactive handoff, `gate-check --status-card` prints only the compact gate projection. For machine-readable handoff, `gate-check --json` and `delivery-map --json` include a `status_card` projection with the current gate, allowed and forbidden actions, blocking condition, next skill, next permissible step and `quality_outlook`. The quality outlook is advisory: it names the next useful quality improvement, but it does not unlock gates or replace evidence.
+For interactive handoff, `gate-check --status-card` prints only the compact gate projection. For
+machine-readable handoff, `gate-check --json` and `delivery-map --json` include a `status_card` with
+the current gate, allowed and forbidden actions, blocking condition, next skill, next permitted step
+and `quality_outlook`.
+
+The quality outlook is advisory. It names the next useful quality improvement but does not unlock
+gates or replace evidence.
 
 These commands are not a required ritual for normal agent work when the agent can inspect the live control files directly.
 That is the control boundary: AGDF is agent-native first and CLI-verifiable by design.
@@ -442,7 +489,9 @@ npm create agdf@latest -- doctor
 npm create agdf@latest -- gate-check
 ```
 
-Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `opencode`, `both`, `init` or `config` when the repository should persist an explicit AGDF language preference in `.agdf/control/config.json`. Without the flag, AGDF derives the preference from the local system locale.
+Use `--language de|en` or `--lang de|en` on `codex`, `copilot`, `opencode`, `both`, `init` or
+`config` to save an explicit AGDF language preference in `.agdf/control/config.json`. Without the
+flag, AGDF derives the preference from the local system locale.
 
 ## OpenCode
 
@@ -458,11 +507,26 @@ Verify the global installation, then restart OpenCode so an already-running app 
 npx --yes @agdf/cli@latest opencode-status --json
 ```
 
-Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native-skill surface. The report also separates the installed OpenCode host version from the installed `@opencode-ai/plugin` SDK version, warns when they diverge, and reports each required experimental hook as `declared_supported`, `declared_missing` or `uninspectable`. The status command is read-only; the explicit `opencode` install command attempts to align a divergent SDK only to the exact detected host version and reports a partial result when exact alignment is unavailable or cannot be verified. Hook status is SDK declaration evidence, not proof of live hook invocation. `session.active: false` only means this status process cannot see an active AGDF session; it is not a failed installation.
+Expect `status: "configured"`, a loadable current `create-agdf` package and a complete global native
+skill surface. The report also:
+
+- separates the installed OpenCode host version from the installed `@opencode-ai/plugin` SDK
+  version and warns when they differ;
+- reports each required experimental hook as `declared_supported`, `declared_missing` or
+  `uninspectable`;
+- remains read-only and does not change the installation.
+
+The explicit `opencode` installation command attempts to align a different SDK only to the exact
+detected host version. It reports a partial result when exact alignment is unavailable or cannot be
+verified. Hook status proves only what the SDK declares, not that a hook ran in a live session.
+`session.active: false` means only that the status process cannot see an active AGDF session; it does
+not mean that installation failed.
 
 ![OpenCode showing the active create-agdf plugin in its Plugins panel alongside an AGDF plugin suitability assessment.](pages/public/assets/opencode-agdf-plugin-proof.png)
 
-*UI example: OpenCode shows the loaded `create-agdf` npm plugin and AGDF interaction. It does not prove repository governance activation, an active session, tool enforcement or the current release version; use `opencode-status --json` for those facts.*
+*UI example: OpenCode shows the loaded `create-agdf` npm plugin and AGDF interaction. It does not
+prove repository governance activation, an active session, tool enforcement or the current release
+version. Use `opencode-status --json` for those facts.*
 
 Then run this inside each target Git repository you want to activate for the already-installed AGDF OpenCode runtime:
 
@@ -470,7 +534,9 @@ Then run this inside each target Git repository you want to activate for the alr
 npx --yes @agdf/cli@latest opencode-repo
 ```
 
-Run the same status command from that repository. `repository_activation` should be `active` and the visible entrypoint should name `agdf-global-gate-check (native skill)`; then load that skill for new build or change intent.
+Run the same status command from that repository. `repository_activation` should be `active`, and
+the visible entrypoint should name `agdf-global-gate-check (native skill)`. Then load that skill for
+a new build or change request.
 
 This writes:
 
@@ -479,7 +545,10 @@ This writes:
 .agdf/control/templates/**
 ```
 
-`opencode-repo` neither writes nor modifies `opencode.json`, `.opencode/AGDF.md`, copied contracts or copied skills. OpenCode installs npm plugins automatically at startup and caches them in its OpenCode cache. The `create-agdf` package is therefore the one npm-loadable AGDF OpenCode plugin, while valid `.agdf/control/config.json` is the repository-specific activation marker.
+`opencode-repo` does not write or modify `opencode.json`, `.opencode/AGDF.md`, copied contracts or
+copied skills. OpenCode installs npm plugins automatically at startup and stores them in its cache.
+The `create-agdf` package is therefore the single npm-loadable AGDF OpenCode plugin. A valid
+`.agdf/control/config.json` is the repository-specific activation marker.
 
 AGDF for OpenCode has a single global runtime surface and a repository activation marker:
 
@@ -501,13 +570,22 @@ The global install updates `~/.config/opencode/opencode.json`, generates the nat
 }
 ```
 
-The global plugin and native skills do not replace durable control files. Global skills fail closed when the current repository has no valid `.agdf/control/config.json`. Run `npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active and reviewable.
+The global plugin and native skills do not replace durable control files. Global skills fail closed
+when the current repository has no valid `.agdf/control/config.json`. Run
+`npx --yes @agdf/cli@latest opencode-repo` in each repository where AGDF governance should be active
+and reviewable.
 
-Existing `opencode.json` and `.opencode/` assets remain untouched as a supported legacy compatibility path. Global adapters use `agdf-global-` because OpenCode does not provide a verified preference rule for same-named legacy project skills. Explicit `permission.question: deny` remains unchanged; it selects AGDF's exact-text fallback.
+Existing `opencode.json` and `.opencode/` assets remain untouched as a supported legacy compatibility
+path. Global adapters use `agdf-global-` because OpenCode does not provide a verified preference rule
+for legacy project skills with the same name. An explicit `permission.question: deny` remains
+unchanged and selects AGDF's exact-text fallback.
 
 At runtime, global `AGDF.md` and `skills/agdf-global-*/` provide discovery and shared guidance; `.agdf/control/` supplies the repository-owned activation and delivery state. OpenCode permission results and auto mode remain technical controls, not AGDF gate authority.
 
-The static `AGDF.md` boundary is authoritative even if an experimental plugin hook disappears: exact approvals, version-matched validation and fail-closed activation/evidence checks do not depend on dynamic injection. Plugin hooks add context when available and log malformed hook output as degradation instead of throwing.
+The static `AGDF.md` boundary remains authoritative if an experimental plugin hook disappears.
+Exact approvals, version-matched validation and fail-closed activation and evidence checks do not
+depend on dynamic injection. Plugin hooks add context when available. They log malformed output as
+degradation instead of throwing an error.
 
 Load `agdf-global-gate-check` for new build/change intent or unclear approval before later artefacts or implementation. Use the deterministic validators only when machine-readable proof is useful:
 
@@ -566,7 +644,8 @@ After installing the plugin, run this inside each repository that should keep go
 npm create agdf@latest -- init --language de
 ```
 
-Use `--language en` or `--lang en` for English artefacts and chat. If no language flag is provided, `create-agdf` derives the preference from the local system locale and writes it to:
+Use `--language en` or `--lang en` for English artefacts and chat. Without a language flag,
+`create-agdf` derives the preference from the local system locale and writes it to:
 
 ```text
 .agdf/control/config.json
@@ -626,7 +705,8 @@ surface.skillPrefix + skillSet.slug
 
 ## Why AGENTS.md is not the Codex or Claude Code router
 
-AGDF does not generate a separate `AGENTS.md` or `CLAUDE.md` routing file for Codex or Claude Code because both surfaces consume AGDF through the installable plugin package.
+AGDF does not generate a separate `AGENTS.md` or `CLAUDE.md` routing file for Codex or Claude Code.
+Both surfaces consume AGDF through the installable plugin package.
 
 For Codex, the plugin manifest is:
 
@@ -661,10 +741,15 @@ This creates a clear ownership boundary:
 
 AGDF must not treat `AGENTS.md` as part of the Codex or Claude Code plugin package.
 It is a generated or manually merged Copilot-facing repository file.
-When `npm create agdf@latest -- both` writes `AGENTS.md`, that file is still for Copilot-style repository instruction loading; the Codex plugin continues to use `plugin/.codex-plugin/plugin.json`, `plugin/skills/**`, hooks and `plugin/meta/agdf-agent-router.md`.
+When `npm create agdf@latest -- both` writes `AGENTS.md`, the file is still for Copilot-style
+repository instruction loading. The Codex plugin continues to use
+`plugin/.codex-plugin/plugin.json`, `plugin/skills/**`, hooks and
+`plugin/meta/agdf-agent-router.md`.
 
 If the target repository already has an `AGENTS.md`, the Copilot bootstrap writes `AGENTS.agdf.md` instead.
-The repository owner must then merge the AGDF section intentionally, because the existing file may already contain project-specific rules for build commands, tests, architecture, security constraints or team workflow.
+The repository owner must then merge the AGDF section intentionally. The existing file may already
+contain project-specific rules for build commands, tests, architecture, security constraints or
+team workflow.
 
 ## GitHub Copilot
 
@@ -674,7 +759,9 @@ Run this inside the target Git repository you want to equip with AGDF:
 npm create agdf@latest -- copilot
 ```
 
-Add `--language de|en` or `--lang de|en` if AGDF artefacts and chat responses should follow an explicit project language. Without the flag, `create-agdf` derives the preference from the local system locale and writes it to `.agdf/control/config.json`.
+Add `--language de|en` or `--lang de|en` if AGDF artefacts and chat responses should follow an
+explicit project language. Without the flag, `create-agdf` derives the preference from the local
+system locale and writes it to `.agdf/control/config.json`.
 
 If the repository does not yet contain `AGENTS.md`, this writes:
 
@@ -701,7 +788,8 @@ AGENTS.agdf.md
 Then merge the AGDF instructions from `AGENTS.agdf.md` into your existing `AGENTS.md`.
 Use `--force` only if you intentionally want to replace existing generated files.
 
-When the repository is ready to own AGDF state as source-of-truth artefacts, let the agent initialize the scaffold as the next allowed action or run the deterministic setup path directly:
+When the repository is ready to own AGDF state as source-of-truth artefacts, let the agent initialize
+the scaffold as the next allowed action or run the deterministic setup path directly:
 
 ```bash
 npm create agdf@latest -- init
@@ -741,13 +829,15 @@ For code-changing runs, the repository skills also include:
 
 ## Combined surfaces
 
-If one target repository should support Copilot-oriented repo files plus plugin usage in Claude Code or Codex, run:
+If one target repository should support Copilot-oriented repository files and plugin use in Claude
+Code or Codex, run:
 
 ```bash
 npm create agdf@latest -- both
 ```
 
-This writes the Codex repository-local marketplace plus the same Copilot-facing files as the `copilot` target:
+This writes the repository-local Codex marketplace and the same Copilot-facing files as the
+`copilot` target:
 
 ```text
 .agents/plugins/marketplace.json
@@ -759,7 +849,8 @@ AGENTS.md or AGENTS.agdf.md if an AGENTS.md already exists
 .github/skills/**
 ```
 
-For Claude Code you still install the plugin separately if you want Claude Code plugin support outside the checked-in Copilot files:
+Install the Claude Code plugin separately if you want Claude Code plugin support outside the
+checked-in Copilot files:
 
 ```bash
 npx --yes @agdf/cli@latest claude
@@ -774,9 +865,26 @@ node plugin/scripts/check-runtime-integrity.mjs
 npm --prefix create-agdf run eval:skills
 ```
 
-The versioned corpus under `evals/` uses schema version `1` and an independently versioned `corpus_version`. It covers every canonical skill with normal, boundary and adversarial cases. The offline command materializes disposable repository fixtures, grades routing, gate and approval boundaries, required and forbidden actions, measured mutation limits, and artefact content against deterministic Quality Contract assertions. CI and publish validation require 100% for every deterministic threshold; missing, stale, malformed or unknown required evidence blocks fail-closed.
+The versioned corpus under `evals/` uses schema version `1` and an independently versioned
+`corpus_version`. It covers every canonical skill with normal, boundary and adversarial cases.
 
-Checked-in `deterministic_replay` observations are fingerprint-bound regression evidence, not proof that a live Codex, Claude Code or another host executed the cases during the current CI job. Refresh a replay only after reviewing the changed skill, routing, contract, case and fixture owners, then recompute and deliberately update the matching fingerprint in `evals/manifest.json`. The runner never rewrites observations or goldens.
+The offline command creates disposable repository fixtures and grades:
+
+- routing, gate and approval boundaries;
+- required and forbidden actions;
+- measured mutation limits;
+- artefact content against deterministic Quality Contract assertions.
+
+CI and publish validation require 100% for every deterministic threshold. Missing, stale, malformed
+or unknown required evidence fails closed.
+
+Checked-in `deterministic_replay` observations are fingerprint-bound regression evidence. They do
+not prove that a live Codex, Claude Code or another host executed the cases during the current CI
+job.
+
+Refresh a replay only after reviewing the changed skill, routing, contract, case and fixture owners.
+Then recompute and deliberately update the matching fingerprint in `evals/manifest.json`. The runner
+never rewrites observations or goldens.
 
 Live-host evidence is a separate, opt-in recording lane:
 
@@ -785,7 +893,12 @@ npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-c
 npm --prefix create-agdf run eval:skills:record -- --surface claude --case gate-check-normal --persist
 ```
 
-The recorder executes the selected skill in a disposable fixture workspace with bounded, read-only host settings, captures before/after mutations even on adapter failure or timeout, and labels provenance as `live_codex` or `live_claude`. `--persist` writes only a deterministically passing observation under `evals/observations/live/`; live evidence cannot override a stale fingerprint or any safety/quality failure.
+The recorder executes the selected skill in a disposable fixture workspace with bounded, read-only
+host settings. It captures before-and-after mutations even when the adapter fails or times out and
+labels provenance as `live_codex` or `live_claude`.
+
+`--persist` writes only a deterministically passing observation under `evals/observations/live/`.
+Live evidence cannot override a stale fingerprint or any safety or quality failure.
 
 Maintainers may set `AGDF_RUNTIME_INTEGRITY_ROOT` to either the AGDF source-repository root or a
 staged/installed AGDF plugin root. The checker classifies that exact path as `source` or `installed`

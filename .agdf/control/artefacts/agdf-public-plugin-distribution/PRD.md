@@ -1,16 +1,19 @@
 # Product Requirements Document: Public AGDF Plugin Distribution
 
 Status: approved
-Revision: 3
+Revision: 4
 Date: 2026-08-18
 Run: `agdf-public-plugin-distribution`
 
-Revision 3 sharpens the approved identity projection without changing capability or distribution
-scope. It removes the technically misleading “operating system” wording from plugin metadata,
-defines the canonical local/package description as **Control layer for governed AI-assisted
-delivery.**, and changes the constrained public-directory short description to **Governed AI
-delivery controls** (29 Unicode code points). The strategic long description, public label **AGDF**,
-starter prompts and all other Revision 2 requirements remain unchanged.
+Revision 4 was approved with exact `Approval: PRD` on 2026-08-18 after revalidation of the selected
+run, current gate, revision and durable artefact.
+
+Revision 4 retains every approved Revision 3 identity, capability and distribution requirement and
+adds one bounded bilingual-handbook decision. The German Coding Agent Handbook remains the canonical
+user explanation. A complete English edition becomes a controlled derived translation under a
+neutral language selector. Runtime Contract and live run state remain higher authority than either
+handbook language. Translation parity, stable legacy routing and source-revision validation prevent
+the English edition from becoming an independent process owner.
 
 ## 1. Product Decision
 
@@ -60,6 +63,8 @@ materials describe the same product.
    source tests.
 5. Submission, review, approval, publication and post-publication verification remain distinct,
    deliberate states.
+6. German- and English-speaking adopters can follow the same complete handbook journey without
+   creating competing AGDF semantics.
 
 ## 4. Working Modes And User-Visible State
 
@@ -154,7 +159,9 @@ installation, directory, portal and publication state must not be rendered as AG
   contradicting `LICENSE`, `NOTICE`, `TRADEMARKS.md`, `SUPPORT.md` or `SECURITY.md`.
 - **PPD-21 — Localization:** Public listing and critical support/recovery meaning are available in
   clear English for review and broad distribution. Existing German-first repository support remains
-  visible; exact approval values and runtime identifiers are never translated.
+  visible; exact approval values and runtime identifiers are never translated. The complete Coding
+  Agent Handbook is available in German and English under the authority and parity requirements
+  PPD-41 through PPD-44.
 
 ### Submission material and review evidence
 
@@ -216,6 +223,28 @@ installation, directory, portal and publication state must not be rendered as AG
 - **PPD-40 — No release implication:** PRD, SD, TP, QA or UAT approval does not itself authorize Git
   delivery, OpenAI submission, publication, npm release, deployment or mutation of installed caches.
 
+### Bilingual handbook authority and parity
+
+- **PPD-41 — Canonical German handbook:** The German handbook is the canonical user-facing handbook
+  source. Runtime Contract, selected live run state and approved gate artefacts remain higher
+  authority. The English handbook is labeled as a derived translation and may not become an
+  independent owner of AGDF workflow, gate, mode, recovery or evidence semantics.
+- **PPD-42 — Neutral language structure:** A neutral `docs/handbook/README.md` provides language
+  selection. Canonical German chapters live under `docs/handbook/de/`; derived English chapters live
+  under `docs/handbook/en/`. Both editions contain the same seven chapter roles. The existing
+  `docs/agenten-handbuch/README.md` remains a stable compatibility pointer and contains no duplicate
+  handbook prose.
+- **PPD-43 — Translation parity contract:** Every English chapter identifies its German canonical
+  source and matching source revision. Approval values, CLI commands, Mode/Slice values, file paths,
+  code blocks and normative identifiers remain exact. German semantic changes and their English
+  translation are delivered in the same change; validation fails closed on missing chapters, stale
+  source revisions, missing protected meanings or prohibited legacy wording.
+- **PPD-44 — Natural reviewed English:** The English edition uses clear, natural English rather than
+  literal word-for-word translation. Automated or AI-assisted translation may prepare a candidate,
+  but publication requires human semantic review. Translation must preserve scope, authority,
+  safety, recovery and evidence boundaries and must not claim stronger host, submission or release
+  behavior than the German source.
+
 ## 6. Starter Workflow Requirements
 
 The final public directory listing uses exactly these three adaptable starter prompts:
@@ -248,7 +277,8 @@ external publication. Detailed fixtures and expected results belong to TP and su
 - **Accessibility:** Listing assets, descriptions, starter prompts and recovery actions remain
   understandable without relying on color, decorative screenshots or hidden host chrome.
 - **Maintainability:** Canonical metadata and skill owners generate projections; duplication checks
-  fail the build where practical.
+  fail the build where practical. German handbook source revision and English translation revision
+  remain machine-checkable without maintaining a second workflow model.
 - **Security:** Skills request the least authority needed, never expose secrets in fixtures and
   retain exact AGDF approval boundaries.
 - **Privacy:** The first release adds no AGDF-operated data service. Any later MCP or telemetry is a
@@ -265,6 +295,9 @@ external publication. Detailed fixtures and expected results belong to TP and su
 - changing normative AGDF gate order or approval semantics for directory acceptance;
 - bundling broad AGDF product-maturity work unrelated to public distribution;
 - changing Claude Code, OpenCode or Copilot semantics merely to simplify the public listing;
+- translating the Runtime Contract, exact approval values, CLI identifiers or machine-readable
+  state values;
+- allowing German and English handbook editions to evolve independently;
 - submitting, publishing, releasing, committing, pushing or deploying as an implicit consequence of
   this PRD.
 
@@ -278,6 +311,9 @@ The following are constrained but intentionally finalized only with later eviden
   Section 6; full-name and long-copy owners remain canonical and must not be replaced by these short
   projections outside constrained listing surfaces.
 - TP defines exact reviewer fixtures, final-bundle assertions and live-host/portal evidence steps.
+- SD defines the bilingual handbook source/translation metadata, stable link and compatibility
+  projection, and the smallest clean parity-validation owner. TP defines file, link, protected-token,
+  source-revision, semantic-boundary and stale-translation negative tests.
 - Before submission, the publisher deliberately records countries/regions, selected verified
   identity, support capacity and public URL readiness.
 - Portal review may require PRD revision if it changes the public promise; purely technical packaging
@@ -285,7 +321,7 @@ The following are constrained but intentionally finalized only with later eviden
 
 ## 11. Acceptance Boundary
 
-The product scope may reach repository readiness when PPD-01 through PPD-40 are either fulfilled by
+The product scope may reach repository readiness when PPD-01 through PPD-44 are either fulfilled by
 versioned evidence or explicitly assigned to a later separately authorized external action whose
 absence remains visible. Public delivery is complete only after applicable QA/UAT, explicit
 submission and publication authority, effective portal read-back and post-publication verification.

@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-public-plugin-distribution
 - lifecycle: active
-- revision: 27
-- revision_id: 4bcf137c-d36e-4f45-9608-c32385167b87
+- revision: 34
+- revision_id: 1602e629-7b94-4c23-b683-7f110e90041c
 - mode: structured_delivery
-- current_gate: QA
-- decision: pass
+- current_gate: CD+Tests
+- decision: revise
 - owner: agent
 
 ## Objective
@@ -22,10 +22,10 @@ separate authority for submission, publication and release.
 
 | Question | Answer |
 |---|---|
-| What is known? | Description and public-policy corrections remain implemented and tested. `CONTRIBUTING.md`, `GOVERNANCE.md` and `CODE_OF_CONDUCT.md` are now canonical English documents preserving contribution, authority, succession and enforcement semantics. English/German participation and German-primary governance remain explicit. Community baseline plus 17 negative contracts, Runtime Integrity and full create-agdf smoke pass. Revision 7 reviews and QA Revision 10 pass; PPD-QA-03 is resolved. |
-| What is approved? | Exact approvals are recorded for UR, PRD Revisions 1–3, SD Revisions 1–3 and TP Revisions 2–3. TP Revision 3 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| What is missing? | Exact `Approval: QA` for QA Report Revision 10. Live host, deployment, publisher, portal and publication evidence remains separate. |
-| What is the next allowed action? | Review QA Report Revision 10 and provide exact `Approval: QA`, request revision or decline. |
+| What is known? | Approved PRD/SD/TP Revision 4 define four bounded bilingual-handbook tasks, seven automated parity checks and one human semantic review. Brownfield Analysis Revision 5 passes: existing German prose, validator, fixtures, links and durable owners provide a clean reuse path without a second handbook authority. The independent `0.13.0`/`0.12.0` version-evidence gap remains open. |
+| What is approved? | Exact approvals are recorded for UR, PRD Revisions 1–4, SD Revisions 1–4 and TP Revisions 2–4. TP Revision 4 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| What is missing? | CD+Tests evidence for T21–T24/V19–V25/L09, renewed reviews and QA. The independent version contract and full-smoke evidence remain open. |
+| What is the next allowed action? | Implement T21–T24 through the passed Brownfield reuse path and run the approved evidence plan. |
 | What is explicitly forbidden right now? | Portal mutation, identity action, deployment, submission, publication, release, VCS action, installed-cache edit and any inference of external success from repository evidence. |
 
 ## Source And Scope State
@@ -42,14 +42,14 @@ separate authority for submission, publication and release.
 | Run status | Value |
 |---|---|
 | Status | in progress |
-| Current gate | QA |
-| Allowed now | Review QA Report Revision 10 and decide it |
-| Blocked by | Missing exact QA approval |
-| Missing approval | `Approval: QA` |
-| Next gate after approval | UAT |
-| Allowed after approval | Prepare bounded UAT evidence; release and external actions remain gated |
-| Next step | Review QA Report Revision 10 and provide exact `Approval: QA`, request revision or decline |
-| Quality outlook | Align local/package and constrained public descriptions without implying a runtime, execution environment or agent platform |
+| Current gate | CD+Tests |
+| Allowed now | Implement only T21–T24 and run V19–V25/L09 through the passed Brownfield path |
+| Blocked by | none for approved repository implementation; later QA/UAT and external actions remain gated |
+| Missing approval | none |
+| Next gate after approval | none |
+| Allowed after approval | none |
+| Next step | Implement the bilingual handbook delta and record deterministic plus human-review evidence |
+| Quality outlook | Make stale translation, protected-value drift and unreviewed English mechanically impossible to present as current |
 
 ## Approvals
 
@@ -60,13 +60,17 @@ separate authority for submission, publication and release.
 | UX Intent Definition | ready | `.agdf/control/artefacts/agdf-public-plugin-distribution/UX_INTENT_DEFINITION.md`; non-authorizing PRD input. |
 | PRD Revision 1 | approved | Exact `Approval: PRD` provided on 2026-08-17 after revalidation of run, gate, revision and durable PRD. |
 | PRD Revision 2 | approved | Revision 2 received exact `Approval: PRD` on 2026-08-17 after revalidation of run, gate, revision and durable PRD. |
-| PRD | approved | Revision 3 received exact `Approval: PRD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| PRD Revision 3 | approved | Revision 3 received exact `Approval: PRD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| PRD | approved | Revision 4 received exact `Approval: PRD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
 | SD Revision 1 | approved | Exact `Approval: SD` provided on 2026-08-17 after revalidation of run, gate, revision and durable SD. |
 | SD Revision 2 | approved | Revision 2 received exact `Approval: SD` on 2026-08-17 after revalidation of run, gate, revision and durable SD. |
-| SD | approved | Revision 3 received exact `Approval: SD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| SD Revision 3 | approved | Revision 3 received exact `Approval: SD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| SD | approved | Revision 4 received exact `Approval: SD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
 | TP Revision 2 | approved | Revision 2 received exact `Approval: TP` on 2026-08-17 after revalidation of run, gate, revision and durable TP. |
-| TP | approved | Revision 3 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| QA | missing | QA Report Revision 10 decision is `pass` and requires exact `Approval: QA`. |
+| TP Revision 3 | approved | Revision 3 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| TP | approved | Revision 4 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| Brownfield Analysis Revision 5 | done | Existing handbook owners, links, validator, fixtures, SoT/Context Graph targets and worktree isolation support T21–T24 without a parallel authority. |
+| QA | revise | QA Report Revision 14 resolves PPD-QA-04 and PPD-QA-06, keeps PPD-QA-05 open and routes PPD-QA-07 to PRD Revision 4. |
 | UAT | blocked | Exact QA approval and live-host evidence are incomplete. |
 
 ## Artefacts
@@ -76,16 +80,16 @@ separate authority for submission, publication and release.
 | UR | `.agdf/control/artefacts/agdf-public-plugin-distribution/UR.md` | approved | Revision 1 approved on 2026-08-17. |
 | Brownfield Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_REVIEW.md` | done | Existing owners inventoried; high UX impact and `structured_delivery` recorded. |
 | UX Intent Definition | `.agdf/control/artefacts/agdf-public-plugin-distribution/UX_INTENT_DEFINITION.md` | ready | Working modes, effective-state authority, visible ownership, blockers, recovery, transitions and proposed PRD criteria are defined. |
-| PRD | `.agdf/control/artefacts/agdf-public-plugin-distribution/PRD.md` | approved | Revision 3 approved on 2026-08-18. |
-| SD | `.agdf/control/artefacts/agdf-public-plugin-distribution/SD.md` | approved | Revision 3 approved on 2026-08-18. |
-| TP | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP.md` | approved | Revision 3 approved on 2026-08-18. |
-| Brownfield Analysis | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_ANALYSIS.md` | done | Revision 4 passes in-place English translation through existing community-policy and test owners. |
-| CD+Tests | `.agdf/control/artefacts/agdf-public-plugin-distribution/CD_TESTS.md` | done | Revision 8 resolves PPD-QA-03; community baseline plus 17 negatives, Runtime Integrity and full smoke pass. |
+| PRD | `.agdf/control/artefacts/agdf-public-plugin-distribution/PRD.md` | approved | Revision 4 approved on 2026-08-18 after exact approval and revalidation. |
+| SD | `.agdf/control/artefacts/agdf-public-plugin-distribution/SD.md` | approved | Revision 4 approved on 2026-08-18 after exact approval and revalidation. |
+| TP | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP.md` | approved | Revision 4 approved on 2026-08-18 after exact approval and revalidation. |
+| Brownfield Analysis | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_ANALYSIS.md` | done | Revision 5 passes the bilingual handbook reuse path and leaves Context Graph reconciliation open until implementation. |
+| CD+Tests | `.agdf/control/artefacts/agdf-public-plugin-distribution/CD_TESTS.md` | done with evidence blocker | Revision 10 implements PPD-QA-04 and PPD-QA-06; focused root and handbook checks pass, while full smoke is blocked by untouched version-owner drift. |
 | Candidate Inspection | `.agdf/control/artefacts/agdf-public-plugin-distribution/PUBLIC_CANDIDATE_INSPECTION.md` | pass | Refreshed PPD-L01 confirms public short copy, 29-code-point length, tree, exclusions, digest and honest blockers. |
-| TP Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP_REVIEW.md` | pass | Revision 7: 19/20 fully done; full English community-policy routing is verified and PPD-T20 is current QA. |
-| Clean Implementation Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 7: five in-place policy translations and existing metadata owners without fallback or parallel structure. |
-| CR | `.agdf/control/artefacts/agdf-public-plugin-distribution/CODE_REVIEW.md` | done | Revision 7 decision `pass`; PPD-CR-08 is resolved and no open finding remains. |
-| QA | `.agdf/control/artefacts/agdf-public-plugin-distribution/QA_REPORT.md` | pass | Revision 10 resolves PPD-QA-01–03 and passes repository/exact-bundle readiness; PPD-L02–L08 remain pending. |
+| TP Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP_REVIEW.md` | revise | Revision 9: PPD-T17 is fully done; PPD-T18 remains partial because current full-smoke evidence is blocked. |
+| Clean Implementation Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 9: canonical in-place root and handbook documents plus semantic guards add no fallback or parallel policy owner. |
+| CR | `.agdf/control/artefacts/agdf-public-plugin-distribution/CODE_REVIEW.md` | done | Revision 9 decision `pass`; no open defect exists in the plain-English, handbook or validator diff. |
+| QA | `.agdf/control/artefacts/agdf-public-plugin-distribution/QA_REPORT.md` | revise | Revision 14 resolves PPD-QA-04 and PPD-QA-06, keeps PPD-QA-05 open and routes PPD-QA-07 to PRD Revision 4. |
 
 ## Mode/Slice Decision
 
@@ -109,18 +113,24 @@ separate authority for submission, publication and release.
 | PRD Revision 2 | approved_by | `Approval: PRD` | Revision 2 exact approval provided on 2026-08-17 after same-run, same-gate and revision revalidation. |
 | PRD Revision 3 | revises | PRD Revision 2 | User-requested copy sharpening removes “operating system” from plugin metadata and defines exact local/package and constrained public descriptions. |
 | PRD Revision 3 | approved_by | `Approval: PRD` | Exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| PRD Revision 4 | revises | PRD Revision 3 | Adds only the approved bilingual handbook authority, language structure, parity, compatibility and review contract selected by the user. |
+| PRD Revision 4 | approved_by | `Approval: PRD` | Exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
 | SD Revision 1 | derived_from | PRD Revision 1 | Maps all forty requirements to canonical owners, deterministic build/package validation, public-policy projections, evidence classes and explicit external transitions. |
 | SD Revision 1 | approved_by | `Approval: SD` | Exact approval provided on 2026-08-17 after same-run, same-gate and revision revalidation. |
 | SD Revision 2 | derived_from | PRD Revision 2 | Adds only canonical constrained/full identity projections and fail-closed 30/30/3/128 validation to the approved architecture. |
 | SD Revision 2 | approved_by | `Approval: SD` | Exact approval provided on 2026-08-17 after same-run, same-gate and revision revalidation. |
 | SD Revision 3 | derived_from | PRD Revision 3 | Preserves the Revision 2 architecture and limits the delta to two short-copy projections, exact length/equality tests and exclusion of the marketing metaphor from plugin metadata. |
 | SD Revision 3 | approved_by | `Approval: SD` | Exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| SD | derived_from | PRD | Current Revision 3 preserves the approved architecture and implements only the approved description-projection design delta. |
-| SD | approved_by | `Approval: SD` | Revision 3 exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| SD Revision 4 | derived_from | PRD Revision 4 | Preserves the approved architecture and adds bounded bilingual handbook owners, migration, source-digest parity, review evidence and link-only compatibility. |
+| SD Revision 4 | approved_by | `Approval: SD` | Exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| SD | derived_from | PRD | Current Revision 4 is approved and covers PPD-41 through PPD-44 without changing plugin capability or external-action boundaries. |
 | TP Revision 2 | derived_from | SD Revision 2 | Maps all forty requirements to implementation/review tasks, automated tests, live evidence, sequencing and QA blockers. |
 | TP Revision 2 | approved_by | `Approval: TP` | Exact approval provided on 2026-08-17 after same-run, same-gate, revision and durable-artefact revalidation. |
-| TP | derived_from | SD | Current Revision 3 limits the delta to two canonical values, deterministic generation, exact projection/length assertions and renewed reviews/QA. |
-| TP | approved_by | `Approval: TP` | Revision 3 exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| TP Revision 3 | derived_from | SD Revision 3 | Limits the prior delta to two canonical values, deterministic generation, exact projection/length assertions and renewed reviews/QA. |
+| TP Revision 3 | approved_by | `Approval: TP` | Revision 3 exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| TP | derived_from | SD | Current Revision 4 is draft and maps the bilingual handbook delta to T21–T24, V19–V25 and L09. |
+| TP Revision 4 | approved_by | `Approval: TP` | Exact approval provided on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| Brownfield Analysis Revision 5 | verifies | TP Revision 4 | Existing German source, validator, fixtures, inbound links and durable owners provide a clean bounded implementation path. |
 | Brownfield Analysis | verifies | TP | Revision 2 pass; existing canonical definition, projector, generator and tests support the narrow change without a schema or parallel owner. |
 | CD+Tests | implements | TP | Revision 6 implements the two approved descriptions through existing canonical owners and preserves strategic long copy, prompts, capabilities and external boundaries. |
 | Candidate Inspection | verifies | CD+Tests | Refreshed PPD-L01 passes as bundle-only evidence; external state remains unverified. |
@@ -134,6 +144,11 @@ separate authority for submission, publication and release.
 | QA Report Revision 9 | routes_to | CD+Tests | PPD-QA-03 requires English canonical contribution/governance/conduct owners and semantic negative fixtures. |
 | CD+Tests Revision 8 | resolves | PPD-QA-03 | In-place English community policies, semantic guards, authority/conduct negative fixtures and complete regressions pass. |
 | QA_REPORT | tests | TP | QA Revision 10 decision `pass` is supported by Brownfield Analysis Revision 4, CD+Tests Revision 8, Revision 7 reviews and complete repository/bundle regressions. |
+| QA Report Revision 11 | routes_to | CD+Tests | PPD-QA-04 requires a bounded plain-English and reading-flow correction in canonical root documents without semantic expansion. |
+| CD+Tests Revision 9 | resolves | PPD-QA-04 | Ten canonical root documents are simplified in place; focused semantic, link, Runtime Integrity and Pages checks pass. |
+| QA Report Revision 12 | routes_to | evidence_obligation | PPD-QA-05 requires current full-smoke evidence after the existing version contract is made coherent by its owning change. |
+| CD+Tests Revision 10 | resolves | PPD-QA-06 | Seven canonical handbook files and one semantic community-health guard align current user guidance without a second handbook owner. |
+| QA Report Revision 14 | routes_to | PRD Revision 4 | PPD-QA-07 defines German canonical handbook authority, English derived translation, neutral language selection, parity validation and stable legacy routing. |
 
 ## Evidence
 
@@ -172,9 +187,9 @@ separate authority for submission, publication and release.
 - context_graph_impact: update_existing_node
 - context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`; existing `CG-CREATE-AGDF-CLI-COMPOSITION`, `CG-NATIVE-INTERACTION-AUTHORITY`, `CG-PUBLIC-COMMUNITY-GOVERNANCE`
 - context_graph_required_action: reconcile
-- context_graph_reconciliation: resolved
+- context_graph_reconciliation: open_gap
 - context_graph_gate_effect: none
-- context_graph_evidence: `CG-PUBLIC-PLUGIN-DISTRIBUTION` records the approved Revision 3 local/public description projections, one strategic long-copy owner, deterministic validation and unchanged authority boundaries.
+- context_graph_evidence: Brownfield Analysis Revision 5 identifies the existing public-distribution and community-governance nodes; implementation must record the German-canonical/English-derived authority before closeout.
 
 ## Knowledge Persistence Decision
 
@@ -184,5 +199,5 @@ separate authority for submission, publication and release.
 
 ## Closeout
 
-- next_allowed_action: Review QA Report Revision 10 and provide exact `Approval: QA`, request revision or decline.
-- quality_outlook: Align local/package and constrained public descriptions without implying a runtime, execution environment or agent platform.
+- next_allowed_action: Implement T21–T24 through the passed Brownfield reuse path and run V19–V25/L09.
+- quality_outlook: Make stale translation, protected-value drift and unreviewed English mechanically impossible to present as current.

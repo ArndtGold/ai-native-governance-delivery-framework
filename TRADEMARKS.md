@@ -14,7 +14,7 @@ The project marks include:
 - AI-native Governance & Delivery Framework
 - AGDF logos, wordmarks and distinctive project branding
 
-## Allowed Use
+## Allowed use
 
 You may use the AGDF marks to:
 
@@ -29,7 +29,7 @@ Use clear attribution where practical:
 AGDF is a mark of Arndt Gold.
 ```
 
-## Not Allowed Without Permission
+## Not allowed without permission
 
 Do not use the AGDF marks in a way that could confuse people about origin,
 ownership, endorsement or official project status.
@@ -43,7 +43,7 @@ In particular, do not:
 - use AGDF logos or branding for unrelated products or services
 - remove or obscure trademark notices from redistributed project material
 
-## Forks And Modified Versions
+## Forks and modified versions
 
 Modified versions should use a clearly distinct name.
 
@@ -66,7 +66,7 @@ AGDF Certified
 
 unless written permission has been granted.
 
-## License Separation
+## License separation
 
 The Apache License, Version 2.0 applies to the software and documentation unless
 otherwise stated. It does not grant a trademark license for AGDF names, marks or

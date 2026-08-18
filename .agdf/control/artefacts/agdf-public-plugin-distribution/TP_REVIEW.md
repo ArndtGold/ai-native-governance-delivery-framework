@@ -1,10 +1,10 @@
 # Task Plan Review: Public AGDF Plugin Distribution
 
-Status: pass  
-Revision: 7
+Status: revise
+Revision: 15
 Date: 2026-08-18
 Run: `agdf-public-plugin-distribution`  
-Approved plan: `TP.md` Revision 3
+Approved plan: `TP.md` Revision 4
 
 ## TP Coverage
 
@@ -26,15 +26,21 @@ Approved plan: `TP.md` Revision 3
 | PPD-T14 | fully_done | Active candidate declarations, skill resources, exact case, containment, symlink, runtime and packed bin/export proof | no live-host load claim | none |
 | PPD-T15 | fully_done | Machine/readable readiness reports preserve five evidence classes and unverified external states | external evidence intentionally absent | QA must not upgrade it |
 | PPD-T16 | fully_done | Host, external-state and post-publication templates reject sensitive fields | observations not yet executed | templates only, honestly labeled |
-| PPD-T17 | fully_done | SoT remains canonical; README exposes English titles for five public community policies; semantic contribution/governance/conduct assertions plus language, maintainer-authority and reconsideration negative fixtures pass | effective GitHub/default-branch state not claimed | none |
-| PPD-T18 | fully_done | Package and CI run public candidate and Pages tests without portal credentials/actions | authenticated GitHub Actions run not observed | local workflow contract and complete suite pass |
-| PPD-T19 | fully_done | Brownfield Analysis, CD+Tests, Clean Review, Code Review and this Task Plan Review are complete; all findings resolved | none | ready for QA |
+| PPD-T17 | fully_done | All ten English root documents are revised in place, and the bilingual Coding Agent Handbook now matches current gate authority, Mode/Slice routing, Brownfield, review, run-isolation, CLI-installation, recovery and evidence boundaries. Existing policy and technical owners remain canonical. Production community health, the reviewed baseline plus 29 negative contracts, Runtime Integrity and link checks pass. | effective GitHub/default-branch state not claimed | none |
+| PPD-T18 | fully_done | The sole version writer now updates package, plugin, site and all four OpenAI submission sources. Every declaration is `0.13.0`; focused public-plugin validation and both complete smoke suites pass. | none | none |
+| PPD-T19 | fully_done | Brownfield Analysis Revision 6, CD+Tests Revision 18, Clean Review Revision 14, Code Review Revision 14 and this Task Plan Review cover the final diff; PPD-L09 is complete. | renewed QA only, owned by PPD-T20 | none for implementation/review coverage |
 | PPD-T20 | not_done | QA has not yet been rerun for Revision 3; this is the next internal step | refreshed QA report and decision | expected next step, not an implementation defect |
+| PPD-T21 | fully_done | Neutral selector, seven canonical German roles and seven navigation-only legacy paths exist; exact inventory, no-prose and links pass in production validation. | none | none |
+| PPD-T22 | fully_done | Seven reviewed English chapters map one-to-one to exact German SHA-256 revisions, preserve protected values and fenced blocks, and retain scope, authority, safety, recovery and evidence meaning. Arndt Gold explicitly confirmed PPD-L09 on 2026-08-18. | none | none |
+| PPD-T23 | fully_done | Existing validator and fixture harness cover inventory, metadata, stale digest, review state, parity, complete CLI/install boundaries, semantic strengthening, legacy prose and links; production baseline and 29 negative contracts pass. | none | none |
+| PPD-T24 | fully_done | Root links, SoT Registry and Context Graph record the intended language routing and authority relationship. | none | none |
 
 ## Requirement Coverage
 
-All PPD-01 through PPD-40 requirements map to completed implementation or to an explicitly pending,
-separately authorized external evidence/action. PPD-L01 bundle inspection is complete. PPD-L02
+All PPD-01 through PPD-44 requirements retain their mapping and repository implementation evidence.
+PPD-L09 is complete from Arndt Gold's explicit 2026-08-18 review statement and all seven English
+metadata values are `reviewed`. External requirements remain explicitly pending, separately
+authorized external evidence/action. PPD-L01 bundle inspection is complete. PPD-L02
 through PPD-L08 remain pending exactly where the approved TP requires live host, deployment,
 publisher, portal, submission or publication authority.
 
@@ -50,11 +56,17 @@ publisher, portal, submission or publication authority.
 
 ## Summary
 
-- fully_done: 19/20 tasks
-- partially_done: 0
-- not_done: PPD-T20, intentionally the next QA step
+- fully_done: 23/24 tasks
+- partially_done: none
+- not_done: PPD-T20, intentionally deferred until current reviews and regression evidence are reconciled
 - out_of_scope_changes: staged `docs/presentation/agdf_cto_praesentation.key` is unrelated user work and was not touched
 - risks: official OpenAI constraints and effective host/portal state can change; revalidate before any external action
-- required_next_step: Run QA for Revision 3 using repository and exact-bundle evidence only; preserve PPD-L02–L08 as pending.
+- required_next_step: Run QA against CD+Tests Revision 18 and the refreshed reviews. Preserve all
+  external host, publisher, portal, submission and publication evidence boundaries.
 
-No open normalized finding remains.
+## Normalized Findings
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| PPD-TP-01 | evidence_gap | evidence_obligation | resolved | All canonical and OpenAI submission sources are `0.13.0`; the version writer owns the complete coupled surface; both full smoke suites pass. | none |
+| PPD-TP-02 | evidence_gap | evidence_obligation | resolved | Arndt Gold explicitly confirmed PPD-L09 on 2026-08-18; all seven English chapters declare `reviewed`, production community health passes and the 29 negative contracts remain green. | none |

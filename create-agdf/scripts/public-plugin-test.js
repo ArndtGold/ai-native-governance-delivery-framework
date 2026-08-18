@@ -16,9 +16,11 @@ const definition = loadJson(join(pluginRoot, "meta", "agdf-plugin.definition.jso
 const capabilityMatrix = loadJson(join(pluginRoot, "submission", "openai", "capability-matrix.json"));
 const reviewerCases = loadJson(join(pluginRoot, "submission", "openai", "reviewer-cases.json"));
 const releaseNotes = readFileSync(join(pluginRoot, "submission", "openai", "release-notes.md"), "utf8");
+const availabilityRecord = readFileSync(join(pluginRoot, "submission", "openai", "availability.md"), "utf8");
 const expectedLongDescription = "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.";
 
 assert.deepEqual(validatePublicPluginContract({ definition, capabilityMatrix, reviewerCases, releaseNotes }), []);
+assert.equal(availabilityRecord.includes(`- release: \`${definition.version}\``), true, "availability release must match definition");
 assert.equal(unicodeLength(definition.publicDistribution.publicDisplayName), 4);
 assert.equal(unicodeLength(definition.publicDistribution.shortDescription), 29);
 assert.equal(definition.displayName, "AI Governance & Delivery Framework");

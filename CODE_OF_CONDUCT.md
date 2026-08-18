@@ -1,8 +1,8 @@
 # Code of Conduct
 
-AGDF aims to support objective, safe and learning-oriented collaboration. This code applies to
-Issues, Discussions, pull requests, reviews, other project channels and public situations where
-someone is visibly representing the project.
+AGDF supports respectful, safe and constructive collaboration. This code applies to issues,
+Discussions, pull requests, reviews, other project channels and public situations where someone is
+clearly representing the project.
 
 ## Expected behavior
 
@@ -10,7 +10,7 @@ We expect participants to demonstrate:
 
 - respectful, inclusive and precise communication;
 - criticism of ideas and outcomes rather than people;
-- traceable technical or domain-specific rationale;
+- technical or domain-specific reasoning that others can follow;
 - consideration for differences in experience, language and perspective;
 - responsible handling of confidential information;
 - willingness to correct mistakes and learn from reasoned feedback.
@@ -34,23 +34,22 @@ Unacceptable behavior includes:
 Report conduct incidents confidentially to [agdf@iself.eu](mailto:agdf@iself.eu). Do not publish
 personal, security-relevant or other sensitive details in Issues or Discussions.
 
-Where safe, a report should describe the incident, time, affected project channel and available
-evidence. Raw prompts, secret keys and unnecessary private data are not requested.
+When it is safe to do so, include the incident, time, affected project channel and available
+evidence. Do not include raw prompts, secret keys or unnecessary private data.
 
 ## Enforcement
 
 Arndt Gold is the current sole maintainer and is responsible for reviewing and enforcing this code.
-Possible actions range from private clarification through moderation and temporary restrictions to
+Possible actions range from private clarification and moderation to temporary restrictions or
 permanent exclusion from project channels. The response depends on severity, repetition, context
-and protection needs.
+and the need to protect participants.
 
-Reports are handled as confidentially as practical. Conflicts of interest are disclosed. Affected
-people may request a factual reconsideration through the same confidential contact address and may
-identify new or overlooked facts.
+Reports are handled as confidentially as practical. Conflicts of interest are disclosed. Anyone
+affected may request a review through the same confidential contact address and provide new or
+overlooked facts.
 
 ## Basis
 
 This project-specific code follows the principles of the
 [Contributor Covenant, Version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
-AGDF responsibility and enforcement follow this document and
-[Project Governance](GOVERNANCE.md).
+Enforcement in AGDF is governed by this document and [Project Governance](GOVERNANCE.md).

@@ -1,15 +1,18 @@
 # Solution Design: Public AGDF Plugin Distribution
 
 Status: approved
-Revision: 3
+Revision: 4
 Date: 2026-08-18
 Run: `agdf-public-plugin-distribution`
 
-Revision 3 reconciles approved PRD Revision 3. It preserves the complete Revision 2 architecture
-and changes only the description projections: canonical local/package copy becomes **Control layer
-for governed AI-assisted delivery.**, constrained public copy becomes **Governed AI delivery
-controls**, and “operating system” is excluded from plugin manifests and directory metadata. No
-capability, package, portal, prompt, long-description or implementation boundary changes.
+Revision 4 was approved with exact `Approval: SD` on 2026-08-18 after revalidation of the selected
+run, current gate, revision and durable artefact.
+
+Revision 4 reconciles approved PRD Revision 4. It preserves the complete Revision 3 architecture
+and adds only the bilingual handbook design: German remains canonical, English is a reviewed derived
+translation, a neutral selector owns language discovery, legacy paths remain link-only compatibility
+projections and the existing community-health validator fails closed on semantic or translation
+drift. No capability, package, portal, prompt, listing-copy or external-action boundary changes.
 
 ## 1. Design Decision
 
@@ -34,6 +37,11 @@ Repository readiness, publisher verification, portal draft, review, approval, pu
 post-publication behavior are separate states with separate evidence. The current publisher identity
 state is `unverified`. No Persona inquiry URL, identity document, identity image, raw session value or
 equivalent sensitive verification material may be persisted in repository evidence.
+
+The handbook has one semantic authority: the German chapters under `docs/handbook/de/`. English
+chapters under `docs/handbook/en/` are natural-language translations with machine-checkable source
+revision metadata and an explicit reviewed state. The Runtime Contract, selected live run and
+approved gate artefacts remain higher authority than either handbook edition.
 
 ## 2. Architectural Boundaries
 
@@ -75,6 +83,10 @@ approve AGDF gates or prove publisher identity, portal state, publication or liv
 | Runtime payload builder | existing `create-agdf/scripts/sync-plugin-runtime.js` | Build exact-version local validator payload and runtime metadata | Runtime metadata may declare only files actually shipped in that payload |
 | Candidate validator | focused public-plugin validation module and test wrapper | Validate schema, paths, inventory, digests, version, cases, URLs and surface evidence declarations | Repository/bundle proof only; never reports live-host or portal success |
 | Public Pages projection | existing Pages content/build owners | Serve stable website, support, privacy and terms routes from canonical content | Pages deployment and live URL evidence remain separate external state |
+| Canonical handbook | `docs/handbook/de/` | Own the seven German user-guidance chapter roles | User-facing authority below Runtime Contract, live run state and approved artefacts |
+| English handbook projection | `docs/handbook/en/` | Provide a natural, reviewed translation of each German chapter | Derived content only; each chapter declares its German source revision |
+| Handbook discovery and compatibility | `docs/handbook/README.md` and link-only files under `docs/agenten-handbuch/` | Select a language and preserve existing repository URLs during migration | Contains navigation only, never independent workflow prose |
+| Handbook parity validator | existing `scripts/check-community-health.mjs` | Validate edition inventory, source revisions, protected tokens, semantic boundaries and links | Deterministic drift evidence, not a translation or semantic authority |
 | Evidence records | run-scoped artefacts under `.agdf/control/artefacts/agdf-public-plugin-distribution/` | Readiness, host UAT, portal and post-publication observations | Evidence classes remain separate and record unverified states explicitly |
 
 The Source of Truth Registry is updated during implementation only after the approved paths exist.
@@ -258,6 +270,8 @@ public URL reachability; those are captured separately before submission.
 | `AGDF_PUBLIC_PLUGIN_PUBLISHER_UNVERIFIED` | Verified identity or Apps Management authority has not been positively observed | Complete/observe verification outside the repository; do not persist sensitive material |
 | `AGDF_PUBLIC_PLUGIN_SUBMISSION_INCOMPLETE` | Required listing, legal, availability or review material is absent | Complete canonical submission inputs |
 | `AGDF_PUBLIC_PLUGIN_EXTERNAL_STATE_STALE` | Portal/effective listing read-back does not match the intended state | Stop the transition, read back again and reconcile with the canonical owner |
+| `AGDF_HANDBOOK_TRANSLATION_STALE` | An English chapter does not reference the current German source revision | Update and review the translation; never relabel stale content as current |
+| `AGDF_HANDBOOK_PARITY_INVALID` | Chapter inventory, protected tokens, semantic boundaries or language-local links diverge | Correct the canonical source or derived translation and rerun validation |
 
 These are diagnostics, not new AGDF gates. Deterministic candidate validation fails closed for
 contract, path, version, case and submission completeness errors. Host, publisher and portal gaps
@@ -290,6 +304,24 @@ skills bundle, the builder omits hooks from that accepted submission projection 
 unavailable there; it does not create a second skill-policy fork. Any material change to the public
 promise routes back to PRD.
 
+Handbook migration creates `docs/handbook/`, moves the seven current German chapters to
+`docs/handbook/de/`, adds the seven reviewed English translations under `docs/handbook/en/` and adds
+the neutral selector. Existing repository links are rewritten to the intended language. The former
+`docs/agenten-handbuch/` README and chapter paths become bounded link-only compatibility projections;
+they contain no handbook semantics and may be removed only through a separately reviewed deprecation
+decision. This preserves known deep links without keeping a second German handbook.
+
+Each English chapter starts with a small machine-readable metadata block containing `language: en`,
+its stable chapter role, repository-relative `translation_of`, `source_revision` and
+`translation_status: reviewed`. `source_revision` is the lowercase SHA-256 digest of the exact
+canonical German chapter bytes, expressed as `sha256:<hex>`. The validator recomputes the digest;
+there is no manually incremented second version owner. Human semantic review is recorded in the
+run's review evidence before `translation_status: reviewed` may be committed.
+
+German edits and their English translation are one atomic documentation change. A German source
+change immediately makes the English metadata stale until the translation is updated and reviewed.
+No automatic translation fallback, runtime language negotiation or generated prose is added.
+
 ## 15. Verification Strategy
 
 ### Deterministic repository and bundle tests
@@ -304,6 +336,16 @@ promise routes back to PRD.
 - reviewer-case schema, at least five positive/three negative counts and required safety themes;
 - capability matrix vocabulary, evidence reference and no-MCP boundary checks;
 - public URL, policy-owner and Pages projection/link consistency;
+- exactly seven German and seven English chapter roles, one-to-one source mapping and no unowned
+  semantic chapter under either language root;
+- recomputed German SHA-256 source revisions and rejection of missing, malformed, stale or
+  non-reviewed English translation metadata;
+- exact preservation in English of approval values, CLI commands, Mode/Slice values, paths,
+  normative identifiers and complete fenced code blocks;
+- language-specific semantic assertions for scope, authority, gates, recovery and evidence, plus
+  negative fixtures for prohibited legacy wording and strengthened capability claims;
+- neutral-selector, language-local, root-document and legacy compatibility links with no duplicated
+  semantic prose in compatibility files;
 - candidate exclusion tests for secrets, control state, local paths and sensitive identity material;
 - two-build reproducibility comparison;
 - existing Runtime Integrity, package-content, package-build, smoke and supported-surface regressions.
@@ -332,6 +374,7 @@ that distinction and must not collapse an unperformed UAT into success.
 | PPD-27–PPD-31 | Exact staged inventory, runtime metadata repair, version coherence, compatibility and reproducible build |
 | PPD-32–PPD-34 | Five evidence classes, exact-release host UAT and observed publisher authority |
 | PPD-35–PPD-40 | External state model, explicit portal actions, remediation, publication verification, withdrawal and no release implication |
+| PPD-41–PPD-44 | German canonical handbook, English derived edition, neutral discovery, source-digest parity, protected semantics, review evidence and link-only compatibility |
 
 ## 17. Rollback And Withdrawal
 
@@ -358,7 +401,11 @@ The Task Plan must decompose this design into reviewable tasks with acceptance e
 7. run-scoped readiness, UAT, portal and post-publication evidence templates;
 8. Source of Truth Registry and documentation synchronization;
 9. explicit pre-implementation Brownfield revalidation;
-10. later external-action checkpoints that remain blocked until separately authorized.
+10. bilingual handbook migration, one-to-one chapter mapping, natural English translation and
+    link-only compatibility projections;
+11. source-digest, protected-token, fenced-code, semantic-boundary, review-state and link regression
+    tests, including stale-translation and strengthened-claim negative fixtures;
+12. later external-action checkpoints that remain blocked until separately authorized.
 
 TP must identify the exact accepted OpenAI submission package shape from current official
 documentation before implementation. If that shape materially contradicts this design or changes
@@ -372,6 +419,9 @@ shim or independently maintained fork.
 - changing AGDF gate order, approval values or human authority;
 - proving ChatGPT/Codex parity from repository tests;
 - modifying installed plugin caches;
+- translating Runtime Contract text or allowing the English handbook to become a policy owner;
+- maintaining duplicate German handbook prose beneath the legacy path;
+- publishing machine-generated English without recorded human semantic review;
 - combining npm publication with OpenAI directory publication;
 - guaranteeing review acceptance, global availability or review timing.
 

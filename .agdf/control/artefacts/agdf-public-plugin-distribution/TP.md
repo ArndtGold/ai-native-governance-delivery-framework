@@ -1,13 +1,23 @@
 # Task And Test Plan: Public AGDF Plugin Distribution
 
 Status: approved
-Revision: 3
+Revision: 4
 Date: 2026-08-18
 Run: `agdf-public-plugin-distribution`
 
+Revision 4 was approved with exact `Approval: TP` on 2026-08-18 after revalidation of the selected
+run, current gate, revision and durable artefact.
+
 ## 1. Planning Decision And Resolved Constraint
 
-Solution Design Revision 3 is approved. Initial planning against current official OpenAI plugin
+Solution Design Revision 4 is approved. It preserves the completed Revision 3 plan and adds a
+bounded bilingual-handbook delta: migrate the current German handbook to its canonical language
+root, create a natural reviewed English edition, preserve known legacy links as navigation-only
+projections and extend the existing community-health validator with deterministic parity checks.
+Tasks PPD-T01 through PPD-T20 remain the historical approved baseline; PPD-T21 through PPD-T24 are
+the only new implementation tasks in this revision.
+
+Initial planning against current official OpenAI plugin
 documentation identified these final-directory constraints:
 
 - final directory `interface.displayName` is limited to 30 characters; the approved customer-facing
@@ -22,7 +32,7 @@ narrow copy correction. The canonical local/package description becomes **Contro
 governed AI-assisted delivery.** The public short description becomes **Governed AI delivery
 controls** (29 Unicode code points). The strategic `longDescription`, public prompts, capability
 contract and every external-action boundary remain unchanged. Implementation remains forbidden
-until exact `Approval: TP` and passing pre-implementation Brownfield Analysis.
+until exact `Approval: TP` for Revision 4 and passing pre-implementation Brownfield Analysis.
 
 The verified submission form for the first release is **Skills only**. The submitted installable
 tree is rooted at the plugin directory, requires `.codex-plugin/plugin.json`, contains the final
@@ -49,6 +59,11 @@ owners, active package/release work, Pages structure, generated-file boundaries 
 worktree changes. Any changed official OpenAI limit or accepted package shape stops implementation
 and routes to the owning PRD, SD or TP revision.
 
+For the Revision 4 delta, that analysis must also inspect current handbook files, inbound links,
+the existing community-health validator and test fixtures, the Source of Truth Registry and any
+unrelated documentation changes. The implementation may move and translate handbook content only;
+it may not translate Runtime Contract files or create another workflow authority.
+
 ## 3. Planned Implementation Tasks
 
 | Task ID | Task | Planned owner area | Acceptance mapping | Required evidence | Stop condition |
@@ -71,8 +86,12 @@ and routes to the owning PRD, SD or TP revision.
 | PPD-T16 | Add run-scoped templates/checklists for exact-version Codex and applicable ChatGPT UAT, publisher/Apps Management read-back, portal draft reconciliation and post-publication checks without sensitive fields. | `.agdf/control/artefacts/agdf-public-plugin-distribution/` | PPD-32–PPD-39 | template field validation and sensitive-key negative tests | Persona inquiry URL, document, image, token or session value can be recorded |
 | PPD-T17 | Update Source of Truth Registry, README/install/package documentation and support routing after owners exist, preserving one policy source and distinguishing local marketplace, npm, workspace and universal public directory. | `.agdf/control/SOT_REGISTRY.md`, public docs | PPD-07, PPD-16–PPD-21, PPD-29–PPD-30, PPD-35–PPD-40 | link/terminology/owner consistency checks | Documentation claims effective submission/publication or overwrites current distribution paths |
 | PPD-T18 | Integrate focused public-candidate validation into package preparation and the appropriate CI/readiness workflow without adding portal mutation or coupling npm publication to OpenAI publication. | `create-agdf/package.json`, CI/package workflow | PPD-25, PPD-27–PPD-31, PPD-35–PPD-40 | CI command contract tests and workflow inspection | CI receives portal credentials or changes external directory state |
-| PPD-T19 | Execute pre-implementation Brownfield Analysis, CD+Tests, Task Plan Review, Clean Implementation Review and Code Review with all findings resolved or routed before QA. | AGDF run artefacts | PPD-01–PPD-40 | mandatory review artefacts and full task/evidence mapping | Any task is partial, unverified, scope-expanded or supported only by source assertions |
+| PPD-T19 | Execute pre-implementation Brownfield Analysis, CD+Tests, Task Plan Review, Clean Implementation Review and Code Review with all findings resolved or routed before QA. | AGDF run artefacts | PPD-01–PPD-44 | mandatory review artefacts and full task/evidence mapping | Any task is partial, unverified, scope-expanded or supported only by source assertions |
 | PPD-T20 | Run QA using repository and exact-bundle evidence only; keep live-host, publisher, portal, deployment and post-publication items visibly pending until separately executed and authorized. | QA and later UAT/OR artefacts | PPD-32–PPD-40 | QA decision with explicit evidence boundary | QA pass implies submission, publication, deployment, VCS delivery or external authority |
+| PPD-T21 | Create the neutral `docs/handbook/` selector, move the seven current German chapter roles to `docs/handbook/de/` and replace every former `docs/agenten-handbuch/` content path with a bounded link-only compatibility projection. | `docs/handbook/`, `docs/agenten-handbuch/` | PPD-41–PPD-42 | exact inventory, repository link scan, compatibility-file no-prose check and readable selector inspection | German handbook prose exists in both canonical and legacy locations, a known inbound link breaks or a chapter role is lost |
+| PPD-T22 | Translate all seven canonical German chapters into clear natural English under `docs/handbook/en/`, preserving exact protected values and adding per-chapter `translation_of`, SHA-256 `source_revision` and reviewed-state metadata. | `docs/handbook/de/`, `docs/handbook/en/` | PPD-41, PPD-43–PPD-44 | one-to-one mapping, digest proof, protected-content comparison and recorded human semantic review | English becomes an independent owner, literal wording obscures meaning, a stronger capability claim appears or review is unrecorded |
+| PPD-T23 | Extend the existing community-health validator and negative-test harness to fail closed on chapter-count, mapping, source-digest, review-state, protected-token, fenced-code, semantic-boundary, prohibited-legacy-wording and link drift. | `scripts/check-community-health.mjs`, `scripts/community-health-test.mjs` | PPD-41–PPD-44 | passing baseline plus isolated negative fixtures for every new failure class | Validation creates a second semantic model, silently normalizes values or accepts stale/unreviewed translation |
+| PPD-T24 | Update root documentation, support routing, Source of Truth Registry and Context Graph references to the intended language/selector while preserving the German-canonical and English-derived relationship. | root docs, `.agdf/control/SOT_REGISTRY.md`, `.agdf/control/CONTEXT_GRAPH.md` | PPD-21, PPD-41–PPD-44 | repository-wide link/owner scan, SoT review and Context Graph reconciliation | A consumer points to deleted content, English is described as canonical or external publication/deployment is implied |
 
 ## 4. Automated Test Plan
 
@@ -95,7 +114,14 @@ and routes to the owning PRD, SD or TP revision.
 | PPD-V15 | Sensitive-key tests reject Persona inquiry/session URL, identity-document/image, token, cookie and raw credential fields in evidence artefacts and logs. | T11–T12, T15–T16 |
 | PPD-V16 | Existing Runtime Integrity, local validator, local marketplace, package-build, package-contents, lifecycle, routing, skill-eval and full smoke suites remain green. | T03, T11–T14, T17–T18 |
 | PPD-V17 | CI/workflow inspection proves no OpenAI/Persona credential, portal request or coupled npm/directory publish step exists. | T11, T18 |
-| PPD-V18 | Task Plan Review maps every PPD-01–PPD-40 criterion to completed implementation and visible evidence or to a clearly pending separately authorized external action. | T19–T20 |
+| PPD-V18 | Task Plan Review maps every PPD-01–PPD-44 criterion to completed implementation and visible evidence or to a clearly pending separately authorized external action. | T19–T24 |
+| PPD-V19 | Handbook inventory contains one neutral selector, exactly seven canonical German roles, exactly seven derived English roles and link-only compatibility projections for every former handbook path. | T21, T24 |
+| PPD-V20 | Each English chapter maps to one existing German file and its declared lowercase `sha256:<hex>` source revision equals the digest recomputed from the exact German bytes. | T22–T23 |
+| PPD-V21 | Missing, malformed, duplicate, stale or non-reviewed translation metadata fails independently with the handbook translation diagnostic. | T22–T23 |
+| PPD-V22 | Exact approval values, CLI commands, Mode/Slice values, paths, normative identifiers and complete fenced code blocks remain unchanged between mapped chapters. | T22–T23 |
+| PPD-V23 | German and English semantic assertions preserve scope, authority, gate, recovery and evidence boundaries; negative fixtures reject prohibited legacy wording and any strengthened host, submission, enforcement or release claim. | T22–T23 |
+| PPD-V24 | All language-local, selector, root-document and compatibility links resolve; compatibility files contain navigation only and no duplicated handbook semantics. | T21, T23–T24 |
+| PPD-V25 | Existing community-health baseline and negative suite, Runtime Integrity and applicable documentation/package smoke tests remain green after migration. | T21–T24 |
 
 ## 5. Manual And Live Evidence Plan
 
@@ -112,16 +138,16 @@ unless directly performed in the named environment:
 | PPD-L06 | With explicit user authorization, create/update portal draft and compare every saved field to canonical material. | Repository/bundle readiness plus L04/L05 | Portal draft only; no submission implied |
 | PPD-L07 | With separate explicit authorization, submit and record receipt/review outcome. | Complete reconciled draft | Submitted/review state only |
 | PPD-L08 | After approval and separate explicit authorization, publish, read back discoverability and run bounded positive/negative checks. | Observed OpenAI approval | Post-publication exact context only |
+| PPD-L09 | A human reviewer compares every English chapter with its mapped German source for natural reading flow and preserved scope, authority, safety, recovery and evidence meaning. | Passing V19–V25 and complete English candidate | Repository review evidence only; does not prove host, portal or publication state |
 
 ## 6. Implementation Order
 
-1. Approve TP Revision 3 and revalidate the narrow owner/test path through pre-implementation Brownfield Analysis.
-2. Deliver canonical privacy/terms documents and stable Pages routes first, including public plugin
-   copy and metadata parity.
-3. Deliver canonical submission metadata, capability matrix, reviewer cases, availability and
-   release notes.
-4. Deliver deterministic candidate builder, minimal runtime metadata and all-declaration validation.
-5. Add evidence/report contracts, documentation/SoT updates and CI integration.
+1. Approve TP Revision 4 and revalidate handbook owners, inbound links, validators, control-state
+   references and worktree isolation through pre-implementation Brownfield Analysis.
+2. Move the German source, create the neutral selector and install link-only compatibility projections.
+3. Produce the seven English translations with exact source-digest metadata and protected values.
+4. Extend semantic, parity, metadata and link validation with isolated negative fixtures.
+5. Complete human semantic review, update documentation/SoT/Context Graph references and record evidence.
 6. Run complete regressions, Task Plan Review, Clean Review, Code Review and QA.
 7. Perform live host, deployment, identity, portal, submission and publication steps only at their
    separately authorized checkpoints.
@@ -138,6 +164,7 @@ unless directly performed in the named environment:
 | PPD-27–PPD-31 | T03, T11–T14, T18 | V03–V04, V11–V13, V16–V17 |
 | PPD-32–PPD-34 | T08, T15–T16, T20 | V10, V14–V15, L02–L05 |
 | PPD-35–PPD-40 | T10–T12, T15–T20 | V14–V18, L05–L08 |
+| PPD-41–PPD-44 | T19, T21–T24 | V18–V25, L09 |
 
 ## 8. QA Blocking Conditions
 
@@ -154,6 +181,10 @@ QA cannot pass while any of the following applies:
 - candidate reproducibility or existing-distribution regression fails;
 - sensitive identity or credential material appears in source, bundle, logs or evidence;
 - repository/bundle evidence is presented as publisher, portal, publication or live-host proof;
+- either handbook edition lacks a chapter role, an English source digest is stale, protected values
+  or fenced code diverge, human semantic review is absent, or translation strengthens an authority,
+  enforcement, submission, host or release claim;
+- compatibility paths retain duplicate handbook prose or any known repository handbook link breaks;
 - any portal, deployment, submission, publication, release or VCS action occurred without explicit
   authority.
 
@@ -164,12 +195,13 @@ QA cannot pass while any of the following applies:
 - automatic Pages deployment, portal draft, submission, publication or withdrawal;
 - automatic npm release, commit, push or pull request;
 - installed-cache edits;
+- Runtime Contract translation, automatic translation publication or independent English workflow policy;
 - ChatGPT/Codex parity claims without direct evidence;
 - broad redesign of the existing AGDF website or unrelated distribution surfaces.
 
 ## 10. Required Next Step
 
-TP Revision 3 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and
-durable-artefact revalidation. Perform pre-implementation Brownfield Analysis for the narrow copy
-correction. Implementation starts only if that internal step passes. Portal, deployment, submission,
-publication, release and VCS actions remain separately unauthorized.
+Review TP Revision 4 and provide exact `Approval: TP`, request revision or decline. Approval permits
+only pre-implementation Brownfield Analysis for the bilingual handbook delta. Implementation starts
+only if that internal step passes. Portal, deployment, submission, publication, release and VCS
+actions remain separately unauthorized.

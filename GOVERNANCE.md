@@ -1,36 +1,48 @@
-# Projekt-Governance
+# Project Governance
 
-## Aktuelles Maintainer-Modell
+## Current maintainer model
 
-AGDF hat derzeit einen alleinigen Maintainer: **Arndt Gold** (`@ArndtGold`).
+AGDF currently has a sole maintainer: **Arndt Gold** (`@ArndtGold`).
 
-Der Maintainer verantwortet:
+The maintainer is responsible for:
 
-- Triage und Routing von Issues und Discussions;
-- Review und Merge-Entscheidungen für Pull Requests;
-- Release- und Publish-Entscheidungen;
-- Pflege der öffentlichen Projekt- und Runtime-Aussagen;
-- Durchsetzung des [Verhaltenskodex](CODE_OF_CONDUCT.md);
-- Koordination vertraulicher Sicherheitsmeldungen nach [SECURITY.md](SECURITY.md).
+- triage and routing of Issues and Discussions;
+- review and merge decisions for pull requests;
+- release and publication decisions;
+- maintenance of public project and runtime statements;
+- enforcement of the [Code of Conduct](CODE_OF_CONDUCT.md);
+- coordination of confidential security reports under [SECURITY.md](SECURITY.md).
 
-Repository-Berechtigungen allein übertragen keine dieser dokumentierten Rollen. `.github/CODEOWNERS` unterstützt die Review-Zuordnung, ist aber keine Aussage über aktivierte Branch Protection oder automatische Merge-Freigabe.
+Repository permissions alone do not transfer any of these documented roles. `.github/CODEOWNERS`
+supports review routing, but does not indicate enabled branch protection or automatic merge
+approval.
 
-## Entscheidungen
+## Decisions
 
-Entscheidungen orientieren sich an Projektnutzen, Risiken, bestehender Architektur, Kompatibilität, Nachweisen und verfügbarer Maintainer-Kapazität. Eine Diskussion, ein Issue oder ein Pull Request bedeutet weder Annahme noch Aufnahme in eine Roadmap.
+Decisions consider project value, risk, existing architecture, compatibility, evidence and available
+maintainer capacity. A Discussion, Issue or pull request does not imply acceptance or placement on a
+roadmap.
 
-Soweit Sicherheit, Datenschutz oder vertrauliche Informationen nicht entgegenstehen, sollen wesentliche Gründe im zugehörigen Issue, in der Discussion oder im Pull Request nachvollziehbar bleiben.
+Unless security, privacy or confidential information prevents it, material reasons should remain
+traceable in the related Issue, Discussion or pull request.
 
-## Interessenkonflikte
+## Conflicts of interest
 
-Der Maintainer legt erkennbare persönliche oder wirtschaftliche Interessenkonflikte offen, soweit dies ohne Verletzung anderer Pflichten möglich ist. Bei einem Konflikt kann eine unabhängige fachliche Einschätzung eingeholt werden. Dadurch entsteht keine dauerhafte zusätzliche Maintainer-Rolle.
+The maintainer discloses recognizable personal or financial conflicts of interest where doing so
+does not violate other obligations. An independent subject-matter opinion may be requested for a
+conflict. This does not create a permanent additional maintainer role.
 
-## Änderung von Autorität und Nachfolge
+## Authority changes and succession
 
-Eine Maintainer- oder Verantwortungsänderung erfordert eine nachvollziehbare, reviewte Änderung dieses Dokuments. Betroffene Regeln in `.github/CODEOWNERS`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, Release-Dokumentation und Source-of-Truth-Registry müssen in derselben Änderung abgestimmt werden.
+A change of maintainer or responsibility requires a traceable, reviewed change to this document.
+Affected rules in `.github/CODEOWNERS`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, release documentation
+and the Source of Truth Registry must be aligned in the same change.
 
-Bei längerer Nichtverfügbarkeit bleibt der zuletzt dokumentierte Zustand maßgeblich. Es entsteht nicht automatisch eine neue Autorität. Eine Nachfolge muss öffentlich und eindeutig dokumentiert werden, bevor sie als wirksam gilt.
+During extended unavailability, the last documented state remains authoritative. No new authority
+arises automatically. Succession must be documented publicly and unambiguously before it becomes
+effective.
 
-## Sprache
+## Language
 
-Die Governance ist deutschsprachig geführt. Beiträge und begründete Anfragen auf Englisch werden akzeptiert. Exakte technische Kennungen, Befehle und AGDF-Freigabewerte werden nicht übersetzt.
+Governance is primarily conducted in German. Contributions and reasoned requests in English are
+accepted. Exact technical identifiers, commands and AGDF approval values are not translated.

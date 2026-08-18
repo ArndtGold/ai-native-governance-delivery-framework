@@ -3,11 +3,11 @@ export const site = {
     fullName: "AI Governance & Delivery Framework",
     tagline: "Stop agents before they code past the evidence.",
     description: "A focused governance plugin for teams that let AI agents touch real code: AGDF turns delivery into approved steps, visible evidence, QA decisions and auditable closeout, with machine-readable validators when proof is needed.",
-    domain: "agdf.tools",
+    domain: "agdf.iself.eu",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     contactEmail: "agdf@iself.eu",
     license: "Apache-2.0",
-    version: "0.12.0",
+    version: "0.13.0",
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 20+ years enterprise experience",
@@ -518,3 +518,27 @@ export const compatibility = [
     { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "Executable DPS reference", goal: "plugin", setupAnchor: "#setup-claude" },
     { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills + .agdf/control", support: "First-class", goal: "repo files", setupAnchor: "#setup-copilot" },
 ]
+
+export const publicPlugin = {
+    title: "AGDF for ChatGPT and Codex",
+    summary: "The first public-directory candidate shares AGDF's portable workflow skills without adding an AGDF-operated MCP server, account, telemetry or hosted service.",
+    surfaces: [
+        {
+            name: "Portable skills core",
+            state: "Shared",
+            description: "Fit assessment, governed planning, Brownfield review and evidence-aware closeout use the same canonical skill and contract owners.",
+        },
+        {
+            name: "Codex repository delivery",
+            state: "Surface-specific",
+            description: "Repository files, local validation and Codex hooks depend on explicit host permissions and trust. Installation alone does not prove enforcement.",
+        },
+        {
+            name: "ChatGPT workflows",
+            state: "Advisory until verified",
+            description: "Portable guidance can help with assessment, explanation, planning and review. Durable repository-control claims require direct exact-release host evidence.",
+        },
+    ],
+    authority: "The repository owns desired metadata and package evidence. OpenAI owns verified publisher identity, review, effective availability and listing state. A human publisher deliberately authorizes every portal transition.",
+    recovery: "Unavailable files, hooks, trust, matching runtime or host capability remain unavailable or unverified and route to one visible recovery step; they are never silently reported as active.",
+}

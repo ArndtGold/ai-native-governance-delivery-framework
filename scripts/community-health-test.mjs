@@ -101,13 +101,18 @@ await withFixture(
 );
 
 await withFixture(
-  (root) => replace(root, "SECURITY.md", "[agdf@iself.eu](mailto:agdf@iself.eu)", "kein privater Kontakt"),
+  (root) => replace(root, "SECURITY.md", "[agdf@iself.eu](mailto:agdf@iself.eu)", "no private contact"),
   "SECURITY_CONTRACT_INCOMPLETE",
 );
 
 await withFixture(
-  (root) => fs.appendFile(path.join(root, "SECURITY.md"), "\nAntwort innerhalb von 24 Stunden.\n"),
+  (root) => fs.appendFile(path.join(root, "SECURITY.md"), "\nResponse within 24 hours.\n"),
   "NUMERIC_SLA_FORBIDDEN",
+);
+
+await withFixture(
+  (root) => replace(root, "SUPPORT.md", "English or German", "English only"),
+  "LANGUAGE_POLICY_DRIFT",
 );
 
 await withFixture(
@@ -126,8 +131,18 @@ await withFixture(
 );
 
 await withFixture(
-  (root) => replace(root, "CONTRIBUTING.md", "keine Rohprompts", "vollständige Rohprompts"),
+  (root) => replace(root, "CONTRIBUTING.md", "Do not submit raw prompts", "Submit complete prompts"),
   "CONTRIBUTION_CONTRACT_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(root, "GOVERNANCE.md", "sole maintainer", "shared maintainers"),
+  "GOVERNANCE_AUTHORITY_INCOMPLETE",
+);
+
+await withFixture(
+  (root) => replace(root, "CODE_OF_CONDUCT.md", "factual reconsideration", "no further review"),
+  "CONDUCT_CONTRACT_INCOMPLETE",
 );
 
 await withFixture(
@@ -140,4 +155,4 @@ await withFixture(
   "FORM_LANGUAGE_MISSING",
 );
 
-console.log("community-health-test: pass (baseline + 14 negative contracts)");
+console.log("community-health-test: pass (baseline + 17 negative contracts)");

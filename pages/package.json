@@ -1,13 +1,14 @@
 {
   "name": "agdf-web",
   "type": "module",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test:public-documents": "npm run build && node ./scripts/public-documents-test.mjs"
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.0",

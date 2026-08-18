@@ -34,6 +34,23 @@ Beginne mit dem [Coding Agent Handbuch](docs/agenten-handbuch/README.md) und nut
 
 AGDF ist ein unabhängiges Projekt und kein verbindlicher Standard. Die installierbare Runtime ersetzt weder Produktverantwortung noch Engineering, Security, Test oder Abnahmeentscheidungen.
 
+### Öffentliche ChatGPT-/Codex-Distribution
+
+Das Repository erzeugt einen deterministischen **Skills-only**-Kandidaten für das gemeinsame
+OpenAI-Plugin-Verzeichnis. Der Verzeichnisname ist **AGDF**; die vollständige Produktidentität bleibt
+**AI Governance & Delivery Framework (AGDF)**. Die erste Fassung betreibt keinen AGDF-MCP-Server,
+kein AGDF-Konto, keine Telemetrie und keinen gehosteten AGDF-Dienst.
+
+Der erzeugte Kandidat, seine Prüfsumme und sein Readiness-Bericht belegen ausschließlich Repository-
+und Bundle-Zustand. Sie belegen weder ChatGPT-/Codex-Verhalten noch verifizierte Entwickleridentität,
+Portalstatus, Einreichung oder Veröffentlichung. Der aktuelle Publisher- und Verfügbarkeitsstatus
+bleibt bis zu einem beobachteten, ausdrücklich autorisierten Portal-Schritt `unverified` bzw.
+`pending`.
+
+- [Privacy](PRIVACY.md)
+- [Terms](TERMS.md)
+- [Support](SUPPORT.md)
+
 #### Passt AGDF überhaupt zu meinem Vorhaben?
 
 AGDF hilft, wenn KI gestützte Änderungen an bestehenden Systemen nachvollziehbare Entscheidungen zu Scope, Freigaben, Nachweisen und Verantwortung erfordern oder wenn sichtbar werden soll, welchen überprüfbaren Beitrag die KI zum Projektergebnis geleistet hat. Technische Nutzungswerte zeigen Aktivität, aber noch keinen nachgewiesenen Beitrag zum Projektergebnis.
@@ -206,11 +223,11 @@ Diskussionen, Issues, Gegenargumente, Beispiele aus realen Projekten und Pull Re
 
 ## Community und Beiträge
 
-- [Verhaltenskodex](CODE_OF_CONDUCT.md)
-- [Beitragsrichtlinien](CONTRIBUTING.md)
-- [Sicherheitsrichtlinie](SECURITY.md)
-- [Support und richtige Anlaufstelle](SUPPORT.md)
-- [Projekt-Governance](GOVERNANCE.md)
+- [Code of Conduct (English)](CODE_OF_CONDUCT.md)
+- [Contributing Guide (English)](CONTRIBUTING.md)
+- [Security Policy (English)](SECURITY.md)
+- [Support and issue routing (English)](SUPPORT.md)
+- [Project Governance (English)](GOVERNANCE.md)
 - [Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose) für reproduzierbare Fehler, Runtime-Kompatibilität, Dokumentationslücken und umsetzungsreife Vorschläge
 - [Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions) für Fragen, frühe Ideen, Gegenargumente und best-effort Community-Support
 

@@ -2,6 +2,8 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync }
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
+import { renderClaudePluginManifest, renderCodexPluginManifest } from "../lib/public-plugin/manifest.js";
+import { buildPublicPluginCandidate } from "../lib/public-plugin/builder.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
@@ -393,6 +395,11 @@ function main() {
     return prefix && skillName.startsWith(prefix) ? skillName.slice(prefix.length) : skillName;
   });
 
+  // Project the source Codex manifest from the canonical definition before staging the complete
+  // plugin. Host manifests are generated projections, never independent metadata owners.
+  write(join(sourcePluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition));
+  write(join(sourcePluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition));
+
   // Synchronize source-owned assets in place. Removing the complete generated tree first creates a
   // real missing-assets window when pack, smoke and another agent/session run concurrently.
   mkdirSync(generatedSkillsRoot, { recursive: true });
@@ -414,6 +421,10 @@ function main() {
   writeSkillsReadme(skillSlugs);
   writeOpenCodeReadme(skillSlugs);
   syncPluginRuntime({ outputRoot: join(generatedCodexPluginRoot, "runtime") });
+  buildPublicPluginCandidate({
+    repoRoot,
+    outputRoot: join(packageRoot, "generated", "submissions", "openai", "agdf"),
+  });
 }
 
 main();

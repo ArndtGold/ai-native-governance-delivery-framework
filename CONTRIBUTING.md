@@ -1,36 +1,43 @@
-# Zu AGDF beitragen
+# Contributing to AGDF
 
-Danke für dein Interesse an AGDF. Beiträge auf Deutsch oder Englisch sind willkommen. Deutsch bleibt die primäre Sprache für Governance und fachliche Begründungen; technische Kennungen, Befehle und exakte AGDF-Freigabewerte bleiben unverändert.
+Thank you for your interest in AGDF. Contributions in English or German are welcome. German remains
+the primary language for governance discussions and domain-specific rationale; technical
+identifiers, commands and exact AGDF approval values remain unchanged.
 
-## Den richtigen Weg wählen
+## Choose the right channel
 
-- Fragen, frühe Ideen und offene Designvorschläge: [Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions)
-- reproduzierbare Fehler oder umsetzungsreife Vorschläge: [Issue-Formulare](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose)
-- vermutete Sicherheitslücken: ausschließlich [SECURITY.md](SECURITY.md)
-- Code- oder Dokumentationsänderungen: Pull Request nach den Regeln dieses Dokuments
+- Questions, early ideas and open design proposals: [Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions)
+- Reproducible defects or implementation-ready proposals: [Issue forms](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose)
+- Suspected vulnerabilities: exclusively through [SECURITY.md](SECURITY.md)
+- Code or documentation changes: a pull request following this document
 
-## Vor einer Änderung
+## Before making a change
 
-1. Prüfe, ob bereits ein Issue oder eine Discussion existiert.
-2. Wähle einen proportionalen Arbeitsweg. Kleine Änderungen sollen klein bleiben; Änderungen an Produktsemantik, Governance, Architektur, Persistenz oder Release-Verhalten benötigen die passende AGDF-Steuerung.
-3. Identifiziere die kanonische Quelle und davon abgeleitete Dateien.
-4. Lege fest, welche Tests und sichtbaren Nachweise die Änderung belegen.
+1. Check whether a related Issue or Discussion already exists.
+2. Choose a proportional delivery path. Small changes should stay small; changes to product
+   semantics, governance, architecture, persistence or release behavior require the appropriate AGDF
+   controls.
+3. Identify the canonical source and any derived files.
+4. Define which tests and visible evidence will demonstrate the change.
 
-## Kanonische und abgeleitete Pfade
+## Canonical and derived paths
 
-- `plugin/` und die dort dokumentierten Runtime-Verträge sind kanonisch für Plugin-Semantik.
-- `create-agdf/` besitzt CLI, Installer, Packaging und die Synchronisierung abgeleiteter Plugin-Assets.
-- `create-agdf/generated/` wird durch die vorhandenen Synchronisierungs- und Paketprozesse erzeugt und nicht als primäre Quelle editiert.
-- installierte Codex-, Claude-Code- oder OpenCode-Caches sind keine Repository-Quelle und dürfen nicht als Implementierungspfad verwendet werden.
-- `INSTALL.md` besitzt Installations- und Runtime-Unterstützungsaussagen.
-- `RELEASE.md` und `.github/workflows/publish-agdf.yml` besitzen den Release-Ablauf.
-- `LICENSE`, `NOTICE` und `TRADEMARKS.md` besitzen rechtliche und markenbezogene Grenzen.
+- `plugin/` and its documented Runtime Contracts are canonical for plugin semantics.
+- `create-agdf/` owns the CLI, installers, packaging and synchronization of derived plugin assets.
+- `create-agdf/generated/` is produced by the existing synchronization and packaging processes and
+  must not be edited as a primary source.
+- Installed Codex, Claude Code or OpenCode caches are not a repository source and must not be used as
+  an implementation path.
+- `INSTALL.md` owns installation and runtime-support statements.
+- `RELEASE.md` and `.github/workflows/publish-agdf.yml` own the release process.
+- `LICENSE`, `NOTICE` and `TRADEMARKS.md` own legal and trademark boundaries.
 
-Wenn eine Änderung kanonische und abgeleitete Dateien betrifft, verwende die vorhandene Synchronisierung und prüfe danach den exakten Diff.
+When a change affects canonical and derived files, use the existing synchronization process and
+inspect the exact diff afterward.
 
-## Lokale Prüfung
+## Local validation
 
-Wähle die für deinen Scope relevanten Befehle. Für größere Repository-Änderungen gehören typischerweise dazu:
+Choose the commands relevant to your scope. Larger repository changes typically include:
 
 ```bash
 node plugin/scripts/check-runtime-integrity.mjs
@@ -40,38 +47,43 @@ npm --prefix pages run check
 git diff --check
 ```
 
-Community-Health-Dateien werden zusätzlich geprüft mit:
+Community-health files are additionally checked with:
 
 ```bash
 npm run test:community-health
 npm run check:community-health
 ```
 
-Dokumentiere ausgeführte Tests, sichtbare Nachweise und bewusst nicht ausgeführte Prüfungen. Ein grüner Test ersetzt keine erforderliche Host- oder UI-Beobachtung.
+Document the tests performed, visible evidence and deliberately omitted checks. A green test does
+not replace required host or UI observation.
 
-## Pull Requests
+## Pull requests
 
-Ein Pull Request sollte:
+A pull request should:
 
-- Problem und beabsichtigte Wirkung erklären;
-- zugehöriges Issue oder Discussion verlinken;
-- betroffene Oberflächen und kanonische/abgeleitete Pfade nennen;
-- Tests und sichtbare Nachweise aufführen;
-- Sicherheits-, Kompatibilitäts-, Dokumentations- und Release-Auswirkungen bewerten;
-- den verwendeten AGDF-Run oder die begründete proportionale Ausnahme nennen.
+- explain the problem and intended effect;
+- link the related Issue or Discussion;
+- identify affected surfaces and canonical or derived paths;
+- list tests and visible evidence;
+- assess security, compatibility, documentation and release impact;
+- name the AGDF run used or justify a proportional exception.
 
-Kein Contributor License Agreement (CLA) und kein Developer Certificate of Origin (DCO) sind erforderlich.
+No Contributor License Agreement (CLA) or Developer Certificate of Origin (DCO) is required.
 
-## KI-Unterstützung
+## AI assistance
 
-Wenn KI-Unterstützung den Inhalt, Code, das Design, die Analyse oder die Tests wesentlich beeinflusst hat, beschreibe kurz:
+If AI assistance materially influenced content, code, design, analysis or tests, briefly describe:
 
-- welche Teile wesentlich unterstützt wurden;
-- was ein Mensch geprüft oder angepasst hat;
-- welche Tests oder anderen Nachweise das Ergebnis stützen.
+- which parts received material assistance;
+- what a human reviewed or adjusted;
+- which tests or other evidence support the result.
 
-Sende keine Rohprompts, verborgenen Gedankengänge, Tokens, Zugangsdaten, Geheimnisse oder nicht erforderlichen privaten Daten. Die Offenlegung soll Review und Verantwortungsübernahme unterstützen, nicht vertrauliche Arbeitsinhalte sammeln.
+Do not submit raw prompts, hidden reasoning, tokens, credentials, secrets or unnecessary private
+data. Disclosure should support review and human accountability, not collect confidential working
+material.
 
-## Review und Entscheidung
+## Review and decisions
 
-`@ArndtGold` ist derzeit der alleinige Maintainer. Review-Kommentare, angeforderte Änderungen oder eine Schließung sollen den technischen oder Governance-Grund nachvollziehbar machen. Ein Pull Request begründet keine Annahme, Merge- oder Release-Zusage. Siehe [GOVERNANCE.md](GOVERNANCE.md).
+`@ArndtGold` is currently the sole maintainer. Review comments, requested changes or closure should
+make the technical or governance reason understandable. A pull request does not create acceptance,
+merge or release commitment. See [GOVERNANCE.md](GOVERNANCE.md).

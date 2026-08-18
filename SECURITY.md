@@ -1,41 +1,52 @@
-# Sicherheitsrichtlinie
+# Security Policy
 
-Deutsch ist die primäre Projektsprache. Sicherheitsmeldungen auf Englisch sind ebenfalls willkommen.
+Security reports in English or German are welcome.
 
-## Unterstützte Versionen
+## Supported versions
 
-Sicherheitskorrekturen werden nach bestem Bemühen nur für die aktuell veröffentlichte AGDF-Release-Linie bereitgestellt. Die aktuelle Version ergibt sich aus den veröffentlichten Paketen und den gekoppelten Versionsangaben im Repository.
+Security fixes are provided on a best-effort basis only for the currently published AGDF release
+line. The current version is determined by the published packages and the aligned version metadata
+in this repository.
 
-Ältere Versionen sind nicht aktiv sicherheitsunterstützt. Wenn möglich, aktualisiere zunächst auf die aktuelle Release-Linie und prüfe, ob das Problem dort weiterhin besteht.
+Older versions are not actively supported for security fixes. Where practical, update to the
+current release line first and verify whether the issue still exists there.
 
-## Sicherheitslücke vertraulich melden
+## Report a vulnerability privately
 
-Veröffentliche vermutete Sicherheitslücken, Exploits, Zugangsdaten oder andere sensible Details nicht in Issues, Discussions oder Pull Requests.
+Do not publish suspected vulnerabilities, exploits, credentials or other sensitive details in
+Issues, Discussions or pull requests.
 
-Verwende einen dieser privaten Wege:
+Use one of these private channels:
 
-1. Wenn GitHub im Security-Bereich dieses Repositorys die Aktion **Report a vulnerability** anbietet, nutze diese private Meldung.
-2. Der vollständige, hostunabhängige Fallback ist eine E-Mail an [agdf@iself.eu](mailto:agdf@iself.eu).
+1. If GitHub shows **Report a vulnerability** in this repository's Security area, use that private
+   reporting path.
+2. The complete host-independent fallback is email to [agdf@iself.eu](mailto:agdf@iself.eu).
 
-Wenn die GitHub-Aktion nicht sichtbar oder nicht nutzbar ist, verwende direkt die E-Mail-Adresse. Ein nicht verifizierter GitHub-Pfad wird nicht als verfügbar vorausgesetzt.
+If the GitHub action is unavailable or cannot be used, contact the email address directly. An
+unverified GitHub reporting path is not assumed to be available.
 
-## Inhalt einer Meldung
+## What to include
 
-Hilfreich sind:
+Helpful information includes:
 
-- betroffene AGDF- und Host-Version;
-- betroffene Oberfläche oder Komponente;
-- Auswirkung und realistische Angriffsbedingungen;
-- reproduzierbare Schritte oder ein minimaler Nachweis;
-- bekannte Abhilfen;
-- eine sichere Kontaktmöglichkeit.
+- the affected AGDF and host versions;
+- the affected surface or component;
+- the impact and realistic attack conditions;
+- reproducible steps or a minimal proof;
+- known mitigations;
+- a safe way to contact you.
 
-Entferne Zugangsdaten, Tokens, personenbezogene Daten und nicht erforderliche vertrauliche Inhalte. Sende keine produktiven Geheimnisse.
+Remove credentials, tokens, personal data and unnecessary confidential information. Do not send
+production secrets.
 
-## Bearbeitung
+## Handling
 
-Arndt Gold koordiniert die Sicherheitsbearbeitung als derzeitiger alleiniger Maintainer. Eingang, Bewertung, Korrektur, Veröffentlichung und zeitliche Planung erfolgen nach bestem Bemühen. Es gibt keine garantierte Reaktions- oder Lösungszeit und keinen Service-Level.
+Arndt Gold coordinates security handling as the current sole maintainer. Receipt, assessment,
+remediation, disclosure and scheduling are handled on a best-effort basis. There is no guaranteed
+response or resolution time and no service-level agreement.
 
-Eine Veröffentlichung wird nach Möglichkeit mit der meldenden Person abgestimmt, darf aber zum Schutz Betroffener oder zur Korrektur fehlerhafter öffentlicher Informationen angepasst werden.
+Where practical, disclosure will be coordinated with the reporter. It may be adjusted to protect
+affected users or correct inaccurate public information.
 
-Für allgemeine Nutzungshilfe gilt [SUPPORT.md](SUPPORT.md); reproduzierbare, nicht sicherheitskritische Fehler gehören in die [Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues).
+For general usage help, follow [SUPPORT.md](SUPPORT.md). Reproducible non-security defects belong in
+the [issue tracker](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues).

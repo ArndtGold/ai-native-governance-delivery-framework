@@ -111,7 +111,7 @@ function claudeMarketplace() {
     plugins: [{
       name: pluginDefinition.id,
       source: "./plugins/agdf",
-      description: pluginDefinition.claudeDescription,
+      description: pluginDefinition.longDescription,
       category: pluginDefinition.category,
     }],
   };

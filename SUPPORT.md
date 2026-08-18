@@ -1,30 +1,34 @@
-# Support und richtige Anlaufstelle
+# Support and issue routing
 
-AGDF ist ein unabhängiges Open-Source-Projekt. Unterstützung erfolgt nach bestem Bemühen; es gibt keinen bezahlten oder garantierten Support und keine zugesagte Reaktionszeit.
+AGDF is an independent open-source project. Support is provided on a best-effort basis.
+There is no paid or guaranteed support and no promised response time.
 
-Deutsch ist die primäre Projektsprache. Fragen und Meldungen auf Englisch sind willkommen.
+Questions and reports in English or German are welcome.
 
-## Wohin gehört mein Anliegen?
+## Where should I raise my request?
 
-| Anliegen | Primärer Weg |
+| Request | Primary channel |
 |---|---|
-| Frage zu Installation, Nutzung oder Verständnis | [GitHub Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions) |
-| Frühe Idee, offener Designvorschlag oder Gegenargument | [GitHub Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions) |
-| Reproduzierbarer, nicht sicherheitskritischer Fehler | passendes [Issue-Formular](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose) |
-| Problem mit Codex, Claude Code, OpenCode oder GitHub Copilot | Formular für Runtime-Kompatibilität |
-| Falsche, fehlende oder unklare Dokumentation | Dokumentationsformular |
-| Abgegrenzter, belegter und umsetzungsreifer Vorschlag | Feature-Proposal-Formular |
-| Vermutete Sicherheitslücke oder vertraulicher Sicherheitsinhalt | ausschließlich [SECURITY.md](SECURITY.md) |
-| Beitrag als Code oder Dokumentation | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Marken- oder vertrauliche Governance-Anfrage | [agdf@iself.eu](mailto:agdf@iself.eu) |
+| Installation, usage or understanding question | [GitHub Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions) |
+| Early idea, open design proposal or counterargument | [GitHub Discussions](https://github.com/ArndtGold/ai-native-governance-delivery-framework/discussions) |
+| Reproducible non-security defect | Appropriate GitHub [Issues form](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues/new/choose) |
+| Codex, Claude Code, OpenCode or GitHub Copilot problem | Runtime compatibility form |
+| Incorrect, missing or unclear documentation | Documentation form |
+| Bounded, evidenced and implementation-ready proposal | Feature proposal form |
+| Suspected vulnerability or confidential security content | Exclusively through [SECURITY.md](SECURITY.md) |
+| Code or documentation contribution | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Trademark or confidential governance request | [agdf@iself.eu](mailto:agdf@iself.eu) |
 
-Die E-Mail-Adresse ist kein allgemeiner privater Supportkanal. Öffentliche, nicht vertrauliche Fragen gehören in Discussions, damit Antworten auffindbar bleiben.
+The email address is not a general private support channel. Public, non-confidential questions
+belong in Discussions so that answers remain discoverable.
 
-## Vor einer Anfrage
+## Before opening a request
 
-- Prüfe [README.md](README.md), [INSTALL.md](INSTALL.md) und das [Coding Agent Handbuch](docs/agenten-handbuch/README.md).
-- Verwende bei einem Fehler die aktuelle veröffentlichte AGDF-Version, soweit praktikabel.
-- Entferne Tokens, Zugangsdaten, personenbezogene Daten und andere Geheimnisse aus Ausgaben.
-- Melde Sicherheitsinhalte niemals öffentlich.
+- Check [README.md](README.md), [INSTALL.md](INSTALL.md) and the
+  [Coding Agent Handbook](docs/agenten-handbuch/README.md).
+- For defects, use the currently published AGDF version where practical.
+- Remove tokens, credentials, personal data and other secrets from all output.
+- Never report security-sensitive information publicly.
 
-Ein Issue oder eine Discussion begründet keine Annahme, Freigabe, Release-Zusage oder Verpflichtung zur Umsetzung. Entscheidungen richten sich nach [GOVERNANCE.md](GOVERNANCE.md).
+An Issue or Discussion does not create acceptance, approval, a release commitment or an obligation
+to implement a request. Decisions follow [GOVERNANCE.md](GOVERNANCE.md).

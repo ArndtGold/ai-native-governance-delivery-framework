@@ -34,6 +34,9 @@ jobs:
       - name: Sync generated package assets
         run: npm --prefix create-agdf run sync-package-assets
 
+      - name: Verify public OpenAI plugin candidate
+        run: npm --prefix create-agdf run test:public-plugin
+
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
 
@@ -56,4 +59,4 @@ jobs:
         run: npm --prefix pages ci
 
       - name: Verify Pages
-        run: npm --prefix pages run check
+        run: npm --prefix pages run check && npm --prefix pages run test:public-documents

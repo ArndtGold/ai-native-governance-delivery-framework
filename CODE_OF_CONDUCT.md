@@ -1,43 +1,56 @@
-# Verhaltenskodex
+# Code of Conduct
 
-AGDF soll eine sachliche, sichere und lernorientierte Zusammenarbeit ermöglichen. Dieser Kodex gilt für Issues, Discussions, Pull Requests, Reviews, weitere Projektkanäle und öffentliche Situationen, in denen jemand erkennbar für das Projekt spricht.
+AGDF aims to support objective, safe and learning-oriented collaboration. This code applies to
+Issues, Discussions, pull requests, reviews, other project channels and public situations where
+someone is visibly representing the project.
 
-## Erwartetes Verhalten
+## Expected behavior
 
-Wir erwarten von allen Beteiligten:
+We expect participants to demonstrate:
 
-- respektvolle, inklusive und präzise Kommunikation;
-- Kritik an Ideen und Ergebnissen statt an Personen;
-- nachvollziehbare technische oder fachliche Begründungen;
-- Rücksicht auf unterschiedliche Erfahrung, Sprache und Perspektive;
-- verantwortlichen Umgang mit vertraulichen Informationen;
-- Bereitschaft, Fehler zu korrigieren und aus begründetem Feedback zu lernen.
+- respectful, inclusive and precise communication;
+- criticism of ideas and outcomes rather than people;
+- traceable technical or domain-specific rationale;
+- consideration for differences in experience, language and perspective;
+- responsible handling of confidential information;
+- willingness to correct mistakes and learn from reasoned feedback.
 
-Deutsch ist die primäre Projektsprache. Beiträge und Meldungen auf Englisch sind ebenfalls willkommen.
+Contributions and reports in English or German are welcome. German remains the primary project
+language.
 
-## Nicht akzeptiertes Verhalten
+## Unacceptable behavior
 
-Nicht akzeptiert werden insbesondere:
+Unacceptable behavior includes:
 
-- Belästigung, Einschüchterung, Diskriminierung oder persönliche Angriffe;
-- sexualisierte Sprache oder unerwünschte sexualisierte Aufmerksamkeit;
-- Doxxing oder Veröffentlichung privater Informationen;
-- Drohungen, gezielte Störung oder wiederholtes destruktives Verhalten;
-- öffentliche Offenlegung mutmaßlicher Sicherheitslücken oder vertraulicher Meldedaten;
-- bewusst irreführende Aussagen über Projektstatus, Freigaben, Zugehörigkeit oder Unterstützung.
+- harassment, intimidation, discrimination or personal attacks;
+- sexualized language or unwelcome sexual attention;
+- doxxing or publication of private information;
+- threats, deliberate disruption or repeated destructive behavior;
+- public disclosure of suspected vulnerabilities or confidential report data;
+- knowingly misleading statements about project status, approvals, affiliation or support.
 
-## Meldung
+## Reporting
 
-Verhaltensvorfälle sollen vertraulich an [agdf@iself.eu](mailto:agdf@iself.eu) gemeldet werden. Bitte veröffentliche personenbezogene, sicherheitsrelevante oder andere sensible Details nicht in Issues oder Discussions.
+Report conduct incidents confidentially to [agdf@iself.eu](mailto:agdf@iself.eu). Do not publish
+personal, security-relevant or other sensitive details in Issues or Discussions.
 
-Eine Meldung sollte, soweit sicher möglich, den Vorfall, Zeitpunkt, betroffenen Projektkanal und vorhandene Belege beschreiben. Es werden keine Rohprompts, geheimen Schlüssel oder nicht erforderlichen privaten Daten verlangt.
+Where safe, a report should describe the incident, time, affected project channel and available
+evidence. Raw prompts, secret keys and unnecessary private data are not requested.
 
-## Durchsetzung
+## Enforcement
 
-Arndt Gold ist der derzeitige alleinige Maintainer und für Prüfung und Durchsetzung dieses Kodex verantwortlich. Mögliche Maßnahmen reichen von einer privaten Klarstellung über Moderation und zeitweilige Einschränkungen bis zum dauerhaften Ausschluss aus Projektkanälen. Die Maßnahme richtet sich nach Schwere, Wiederholung, Kontext und Schutzbedarf.
+Arndt Gold is the current sole maintainer and is responsible for reviewing and enforcing this code.
+Possible actions range from private clarification through moderation and temporary restrictions to
+permanent exclusion from project channels. The response depends on severity, repetition, context
+and protection needs.
 
-Meldungen werden so vertraulich wie praktisch möglich behandelt. Interessenkonflikte werden offengelegt. Betroffene können eine sachliche erneute Prüfung unter derselben vertraulichen Kontaktadresse anfordern und dabei neue oder übersehene Tatsachen benennen.
+Reports are handled as confidentially as practical. Conflicts of interest are disclosed. Affected
+people may request a factual reconsideration through the same confidential contact address and may
+identify new or overlooked facts.
 
-## Grundlage
+## Basis
 
-Dieser projektspezifische Kodex orientiert sich an den Prinzipien des [Contributor Covenant, Version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Die Verantwortung und Durchsetzung für AGDF richten sich nach diesem Dokument und der [Projekt-Governance](GOVERNANCE.md).
+This project-specific code follows the principles of the
+[Contributor Covenant, Version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+AGDF responsibility and enforcement follow this document and
+[Project Governance](GOVERNANCE.md).

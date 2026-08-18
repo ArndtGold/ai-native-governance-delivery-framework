@@ -570,7 +570,9 @@ for (const pattern of [
 
 if (pluginDefinition) {
   if (pluginDefinition.id !== "agdf") failures.push("canonical AGDF plugin definition id must be agdf");
-  if (pluginDefinition.displayName !== "AI Governance & Delivery Framework") failures.push("canonical AGDF plugin definition must use the speaking display name");
+  if (pluginDefinition.displayName !== "AI Governance & Delivery Framework") failures.push("canonical AGDF plugin definition must preserve the local product display name");
+  if (pluginDefinition.publicDistribution?.publicDisplayName !== "AGDF") failures.push("canonical public distribution must use the approved constrained public display name");
+  if (pluginDefinition.publicDistribution?.fullDisplayName !== "AI Governance & Delivery Framework (AGDF)") failures.push("canonical public distribution must preserve the full AGDF product identity");
   if (pluginDefinition.codex?.skillPrefix !== "") failures.push("canonical AGDF plugin definition Codex skill prefix must be empty to avoid agdf:agdf-* plugin labels");
   if (pluginDefinition.claude?.skillPrefix !== "") failures.push("canonical AGDF plugin definition Claude Code skill prefix must be empty to avoid agdf:agdf-* plugin labels");
   if (pluginDefinition.codex?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Codex agent router must point to meta/agdf-agent-router.md");
@@ -701,11 +703,14 @@ if (codexPlugin && pluginDefinition) {
   if (codexPlugin.author?.name !== pluginDefinition.author?.name || codexPlugin.author?.url !== pluginDefinition.author?.url) failures.push("Codex plugin manifest author must match canonical AGDF plugin definition");
   if (codexPlugin.skills !== pluginDefinition.codex?.skills) failures.push("Codex plugin manifest must point skills to canonical AGDF skills path");
   if (codexPlugin.interface?.displayName !== pluginDefinition.displayName) failures.push("Codex plugin display name must match canonical AGDF plugin definition");
-  if (codexPlugin.interface?.shortDescription !== pluginDefinition.shortDescription) failures.push("Codex plugin short description must match canonical AGDF plugin definition");
+  if (codexPlugin.interface?.shortDescription !== pluginDefinition.description) failures.push("Codex plugin short description must match canonical AGDF plugin description");
   if (codexPlugin.interface?.longDescription !== pluginDefinition.longDescription) failures.push("Codex plugin long description must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.developerName !== pluginDefinition.developerName) failures.push("Codex plugin developer name must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.category !== pluginDefinition.category) failures.push("Codex plugin category must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.websiteURL !== pluginDefinition.homepage) failures.push("Codex plugin website URL must match canonical AGDF plugin definition");
+  if (codexPlugin.interface?.privacyPolicyURL !== pluginDefinition.publicDistribution?.urls?.privacy) failures.push("Codex plugin privacy URL must match canonical public distribution definition");
+  if (codexPlugin.interface?.termsOfServiceURL !== pluginDefinition.publicDistribution?.urls?.terms) failures.push("Codex plugin terms URL must match canonical public distribution definition");
+  if (codexPlugin.interface?.supportURL !== pluginDefinition.publicDistribution?.urls?.support) failures.push("Codex plugin support URL must match canonical public distribution definition");
   if (codexPlugin.interface?.composerIcon !== pluginDefinition.codex?.composerIcon) failures.push("Codex plugin composer icon must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.logo !== pluginDefinition.codex?.logo) failures.push("Codex plugin logo must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.brandColor !== pluginDefinition.brandColor) failures.push("Codex plugin brand color must match canonical AGDF plugin definition");
@@ -717,7 +722,7 @@ if (codexPlugin && pluginDefinition) {
 if (claudePlugin && pluginDefinition) {
   if (claudePlugin.name !== pluginDefinition.id) failures.push("Claude plugin manifest name must match canonical AGDF plugin definition");
   if (claudePlugin.version !== pluginDefinition.version) failures.push("Claude plugin manifest version must match canonical AGDF plugin definition");
-  if (claudePlugin.description !== pluginDefinition.claudeDescription) failures.push("Claude plugin manifest description must match canonical AGDF plugin definition");
+  if (claudePlugin.description !== pluginDefinition.longDescription) failures.push("Claude plugin manifest description must match canonical AGDF long description");
   if (claudePlugin.homepage !== pluginDefinition.homepage) failures.push("Claude plugin manifest homepage must match canonical AGDF plugin definition");
   if (claudePlugin.repository !== pluginDefinition.repository) failures.push("Claude plugin manifest repository must match canonical AGDF plugin definition");
   if (claudePlugin.license !== pluginDefinition.license) failures.push("Claude plugin manifest license must match canonical AGDF plugin definition");

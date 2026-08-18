@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateMapPaths, compatibility, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, versionEvidence, aiActFit, operatingGuards, depthChoice } from '../data/site'
+import { site, principles, buildingBlocks, gateMapPaths, compatibility, publicPlugin, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, versionEvidence, aiActFit, operatingGuards, depthChoice } from '../data/site'
 import { skills, skillFamilies } from '../data/skills'
 import { getProjectStats } from '../data/projectStats'
 import { evaluationEvidence } from '../data/evaluationEvidence'
@@ -1119,6 +1119,33 @@ const discoveryGroups = [
   </p>
 </section>
 
+<!-- ==================== PUBLIC OPENAI PLUGIN ==================== -->
+<section id="public-plugin" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
+  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
+    <div data-reveal class="mx-auto mb-12 max-w-4xl text-center">
+      <div class="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-agdf-400">Skills-only public candidate</div>
+      <h2 class="mb-4 text-3xl font-bold sm:text-4xl">{publicPlugin.title}</h2>
+      <p class="text-dark-200">{publicPlugin.summary}</p>
+    </div>
+    <div class="grid gap-5 lg:grid-cols-3">
+      {publicPlugin.surfaces.map(surface => (
+        <article data-reveal class="surface p-6">
+          <div class="mb-3 inline-flex rounded-full border border-agdf-500/30 bg-agdf-950/60 px-3 py-1 font-mono text-xs text-agdf-300">{surface.state}</div>
+          <h3 class="mb-3 text-lg font-semibold">{surface.name}</h3>
+          <p class="text-sm leading-relaxed text-dark-200">{surface.description}</p>
+        </article>
+      ))}
+    </div>
+    <div data-reveal class="mx-auto mt-8 grid max-w-5xl gap-4 text-sm text-dark-200 md:grid-cols-2">
+      <div class="surface p-5"><strong class="text-dark-100">Authority boundary.</strong> {publicPlugin.authority}</div>
+      <div class="surface p-5"><strong class="text-dark-100">Failure and recovery.</strong> {publicPlugin.recovery}</div>
+    </div>
+    <p data-reveal class="mx-auto mt-6 max-w-4xl text-center text-xs text-dark-400">
+      AGDF is an independent open-source project. It is not an OpenAI product, security sandbox, legal assessment, compliance certification or autonomous shipping system.
+    </p>
+  </div>
+</section>
+
 <!-- ==================== SETUP ==================== -->
 <section id="setup" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
   <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
@@ -1351,6 +1378,9 @@ const discoveryGroups = [
       <a href="#highlights" class="transition-colors hover:text-agdf-300">Highlights</a>
       <a href="#skills" class="transition-colors hover:text-agdf-300">Skills</a>
       <a href="#setup" class="transition-colors hover:text-agdf-300">Setup</a>
+      <a href="/privacy" class="transition-colors hover:text-agdf-300">Privacy</a>
+      <a href="/terms" class="transition-colors hover:text-agdf-300">Terms</a>
+      <a href="/support" class="transition-colors hover:text-agdf-300">Support</a>
       <a href={`mailto:${site.contactEmail}`} class="transition-colors hover:text-agdf-300">Contact: {site.contactEmail}</a>
     </div>
   </div>

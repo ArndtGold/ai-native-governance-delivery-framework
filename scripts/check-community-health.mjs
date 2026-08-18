@@ -273,22 +273,22 @@ async function validatePolicyInvariants(root, findings) {
     readText(root, ".agdf/control/CONTEXT_GRAPH.md"),
   ]);
 
-  if (!includesAll(conduct, ["Contributor Covenant", "agdf@iself.eu", "Arndt Gold", "vertraulich", "erneute Prüfung"])) {
+  if (!includesAll(conduct, ["Contributor Covenant", "agdf@iself.eu", "Arndt Gold", "confidential", "reconsideration"])) {
     findings.push(finding("CONDUCT_CONTRACT_INCOMPLETE", "CODE_OF_CONDUCT.md", "Conduct baseline, private reporting, authority or reconsideration is missing."));
   }
-  if (!includesAll(security, ["agdf@iself.eu", "nicht in Issues", "aktuell veröffentlichte", "bestem Bemühen", "keine garantierte"])) {
+  if (!includesAll(security, ["agdf@iself.eu", "Do not publish", "currently published", "best-effort", "no guaranteed"])) {
     findings.push(finding("SECURITY_CONTRACT_INCOMPLETE", "SECURITY.md", "Security policy lacks fail-safe reporting or bounded support language."));
   }
   if (NUMERIC_SLA_PATTERN.test(security)) {
     findings.push(finding("NUMERIC_SLA_FORBIDDEN", "SECURITY.md", "Security policy must not promise a numeric response or resolution SLA."));
   }
-  if (!includesAll(support, ["Discussions", "Issues", "SECURITY.md", "kein", "garantierten Support", "E-Mail-Adresse ist kein allgemeiner"])) {
+  if (!includesAll(support, ["Discussions", "Issues", "SECURITY.md", "no paid or guaranteed support", "email address is not a general private support channel"])) {
     findings.push(finding("SUPPORT_ROUTING_INCOMPLETE", "SUPPORT.md", "Support policy lacks deterministic routing or truthful support boundaries."));
   }
-  if (!includesAll(governance, ["alleinigen Maintainer", "Arndt Gold", "@ArndtGold", "CODEOWNERS", "keine Aussage", "Nachfolge"])) {
+  if (!includesAll(governance, ["sole maintainer", "Arndt Gold", "@ArndtGold", "CODEOWNERS", "does not indicate", "Succession"])) {
     findings.push(finding("GOVERNANCE_AUTHORITY_INCOMPLETE", "GOVERNANCE.md", "Governance authority, non-enforcement boundary or succession is missing."));
   }
-  if (!includesAll(contributing, ["kein Contributor License Agreement", "DCO", "wesentlich", "KI-Unterstützung", "keine Rohprompts", "create-agdf/generated", "installierte", "keine Repository-Quelle"])) {
+  if (!includesAll(contributing, ["No Contributor License Agreement", "DCO", "materially", "AI assistance", "Do not submit raw prompts", "create-agdf/generated", "Installed", "not a repository source"])) {
     findings.push(finding("CONTRIBUTION_CONTRACT_INCOMPLETE", "CONTRIBUTING.md", "Contribution ownership, sign-off or AI disclosure contract is incomplete."));
   }
   if (!includesAll(pullRequest, ["keine AGDF-Freigabe", "KI-Unterstützung", "Keine Rohprompts", "kein CLA", "DCO", "kanonisch", "sichtbare"])) {
@@ -310,8 +310,9 @@ async function validatePolicyInvariants(root, findings) {
     ["README.md", readme],
   ];
   for (const [relativePath, text] of languageFiles) {
-    if (!includesAll(text, ["Deutsch", "Englisch"])) {
-      findings.push(finding("LANGUAGE_POLICY_DRIFT", relativePath, "German-primary/English-accepted behavior is not explicit."));
+    const bilingualMeaning = includesAll(text, ["Deutsch", "Englisch"]) || includesAll(text, ["English", "German"]);
+    if (!bilingualMeaning) {
+      findings.push(finding("LANGUAGE_POLICY_DRIFT", relativePath, "English/German participation is not explicit."));
     }
   }
 

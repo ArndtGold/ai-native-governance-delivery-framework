@@ -1,0 +1,28 @@
+---
+import { publicDocumentRoutes } from '../data/publicDocuments'
+
+export function getStaticPaths() {
+    return Object.entries(publicDocumentRoutes).map(([document, target]) => ({
+        params: { document },
+        props: { target },
+    }))
+}
+
+const { target } = Astro.props
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={target} />
+    <title>AGDF public document</title>
+</head>
+<body>
+    <p>This AGDF public document is maintained in the canonical project repository.</p>
+    <p><a href={target}>Open the canonical document</a>.</p>
+</body>
+</html>

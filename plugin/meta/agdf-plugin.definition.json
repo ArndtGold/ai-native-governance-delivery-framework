@@ -1,13 +1,11 @@
 {
   "schemaVersion": 1,
   "id": "agdf",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "displayName": "AI Governance & Delivery Framework",
   "developerName": "Arndt Gold",
-  "description": "Operating system for governed AI-assisted delivery.",
-  "claudeDescription": "AI Governance & Delivery Framework (AGDF) brings an operating system for governed AI-assisted delivery to Claude Code, combining workflow skills, control templates and machine-readable repository checks for gate decisions, Brownfield analysis, task-plan review, QA decisions, durable run state and auditable closeout.",
-  "shortDescription": "Operating system for governed AI-assisted delivery.",
-  "longDescription": "AI Governance & Delivery Framework (AGDF) brings an operating system for governed AI-assisted delivery, combining workflow skills, control templates and machine-readable repository checks for gate decisions, Brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout.",
+  "description": "Control layer for governed AI-assisted delivery.",
+  "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
   "homepage": "https://agdf.iself.eu",
   "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
   "license": "Apache-2.0",
@@ -154,6 +152,44 @@
         "authorizationPath": "exact_text",
         "technicalPermissionOwner": "host_specific"
       }
+    }
+  },
+  "publicDistribution": {
+    "schemaVersion": 1,
+    "submissionType": "skills",
+    "technicalId": "agdf",
+    "publicDisplayName": "AGDF",
+    "fullDisplayName": "AI Governance & Delivery Framework (AGDF)",
+    "shortDescription": "Governed AI delivery controls",
+    "developerName": "Arndt Gold",
+    "publisher": {
+      "target": "Arndt Gold",
+      "verificationState": "unverified"
+    },
+    "category": "Productivity",
+    "urls": {
+      "website": "https://agdf.iself.eu",
+      "privacy": "https://agdf.iself.eu/privacy",
+      "terms": "https://agdf.iself.eu/terms",
+      "support": "https://agdf.iself.eu/support"
+    },
+    "defaultPrompt": [
+      "Assess whether AGDF fits this work and recommend the lightest safe delivery path.",
+      "Start this request under AGDF governance.",
+      "Review the active AGDF run and explain the next allowed step."
+    ],
+    "availability": {
+      "decisionState": "pending",
+      "countries": [],
+      "regions": [],
+      "workspaceContexts": [],
+      "decisionOwner": "verified publisher"
+    },
+    "submissionSources": {
+      "capabilityMatrix": "submission/openai/capability-matrix.json",
+      "reviewerCases": "submission/openai/reviewer-cases.json",
+      "releaseNotes": "submission/openai/release-notes.md",
+      "availabilityDecision": "submission/openai/availability.md"
     }
   },
   "skillSet": [

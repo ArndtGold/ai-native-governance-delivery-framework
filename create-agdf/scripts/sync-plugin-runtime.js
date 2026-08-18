@@ -76,7 +76,6 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "lib/interaction-presentation.js",
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",
     "generated/plugins/agdf/meta/agdf-interaction-locales.json",
-    "package.json",
     "NOTICE",
   ];
   for (const entry of runtimeEntries) {
@@ -85,6 +84,13 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     mkdirSync(dirname(destination), { recursive: true });
     cpSync(source, destination, { recursive: true });
   }
+  const runtimePackageManifest = {
+    name: "@agdf/local-validator-runtime",
+    version: packageManifest.version,
+    private: true,
+    type: "module",
+  };
+  writeFileSync(join(bundledPackageRoot, "package.json"), `${JSON.stringify(runtimePackageManifest, null, 2)}\n`, "utf8");
   const manifest = {
     schema_version: "1",
     generated: true,

@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "test:landing": "npm run build && node ./scripts/landing-page-test.mjs",
     "test:public-documents": "npm run build && node ./scripts/public-documents-test.mjs"
   },
   "dependencies": {

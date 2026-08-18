@@ -2,7 +2,7 @@
 language: en
 chapter_role: closeout_and_delivery
 translation_of: ../de/05-abschluss-und-auslieferung.md
-source_revision: sha256:0d356faa81272adb8368c3b52eaad6effbd839c6c21bf07db5e862cbe9352004
+source_revision: sha256:8045edf05c3caca1824bed78ad2d00bf61e2956aa7724c2857b0517f56db4cc6
 translation_status: reviewed
 ---
 
@@ -66,6 +66,22 @@ Approval: UAT
 
 If it does not, record what you observed. The agent routes the finding to the earliest relevant
 artefact, implementation step or evidence owner. It does not declare UAT passed itself.
+
+## What each kind of evidence proves
+
+Evidence is only as strong as the level that was actually checked. It must not be used to support a
+broader claim.
+
+| Evidence | What it proves | What it does not prove |
+|---|---|---|
+| Repository and build evidence | What the checked source contains and which documented tests, reviews or builds passed. | That the same version is installed, deployed, available to users or accepted for its intended purpose. |
+| Observation in an installed host | What happened with the observed version, account, permissions and specific situation. | That all accounts, versions, hosts or users have the same behavior. |
+| Human UAT | That the observed behavior was accepted for the agreed purpose and tested acceptance cases. | That other environments work or that deployment, release or public listing has occurred. |
+| Deployment or publication evidence | That the responsible external platform reports the specific deployment, review or publication state that was read back. | That a local bundle, prepared submission or expected platform action is already effective externally. |
+
+For important claims, name the evidence source, version or scope and the boundary of the check. A
+host observation that was not performed remains visibly `unverified`; it is not inferred from
+repository tests.
 
 ## Orchestration Report and Delivery Closeout
 

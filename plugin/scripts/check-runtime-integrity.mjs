@@ -297,7 +297,6 @@ if (sourceMode) {
   assertFile(createAgdfPackagePath, "create-agdf package manifest");
   assertFile(pagesPackagePath, "Pages package manifest");
   assertFile(pagesSiteDataPath, "Pages site data");
-  assertFile(pagesSkillsPath, "Pages skill data");
   assertFile(pagesIndexPath, "Pages index");
   assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
   assertFile(rootLicensePath, "root LICENSE");
@@ -647,47 +646,33 @@ if (interactionLocales) {
   }
 }
 
-if (pluginDefinition && isFile(pagesSkillsPath)) {
-  const pageSkillNames = [...read(pagesSkillsPath).matchAll(/\bname:\s*"([^"]+)"/g)]
-    .map((match) => match[1])
-    .sort();
-  const canonicalSkillNames = (pluginDefinition.skillSet ?? []).map((skill) => skill.slug).sort();
-  if (JSON.stringify(pageSkillNames) !== JSON.stringify(canonicalSkillNames)) {
-    failures.push(`Pages skill data must match canonical skillSet exactly: expected ${canonicalSkillNames.join(", ")}, got ${pageSkillNames.join(", ")}`);
-  }
-}
-
-if (isFile(pagesIndexPath) && !read(pagesIndexPath).includes("{skills.length} Core Workflow Skills")) {
-  failures.push("Pages skill heading must derive its count from skills.length");
-}
-
-if (isFile(pagesSiteDataPath)) {
-  const pagesSiteData = read(pagesSiteDataPath);
-  for (const requiredWorkflowPhrase of [
-    "Conditional: UX Intent Definition",
-    "Post-UR routing records Greenfield or Brownfield and UI/UX impact",
-    "This fail-closed analysis is not a gate",
-    "The approved PRD is the sole product authority",
-    "Task Plan Review then verifies UX Intent Fidelity",
-    "QA cannot pass partial, missing or not-verifiable criteria",
-  ]) {
-    if (!pagesSiteData.includes(requiredWorkflowPhrase)) {
-      failures.push(`Pages workflow must preserve UX-intent lifecycle phrase: ${requiredWorkflowPhrase}`);
-    }
-  }
+if (isFile(pagesSkillsPath)) {
+  failures.push("Pages must not maintain a duplicate skill catalogue; use the canonical plugin definition and handbook");
 }
 
 if (isFile(pagesIndexPath)) {
   const pagesIndex = read(pagesIndexPath);
-  for (const requiredFidelityPhrase of [
-    "Approved PRD contract",
-    "requirements_gap",
-    "not_verifiable",
-    "Incomplete UX Intent Fidelity prevents a QA pass",
-    "{skills.map(skill => (",
+  for (const requiredProjection of [
+    "evaluationEvidence.canonicalSkills",
+    "evaluationEvidence.behavioralCases",
+    "data-homepage",
+    "data-home-section",
   ]) {
-    if (!pagesIndex.includes(requiredFidelityPhrase)) {
-      failures.push(`Pages fidelity evidence must preserve phrase: ${requiredFidelityPhrase}`);
+    if (!pagesIndex.includes(requiredProjection)) {
+      failures.push(`Pages concise projection must preserve canonical evidence owner: ${requiredProjection}`);
+    }
+  }
+}
+
+if (isFile(pagesSiteDataPath)) {
+  const pagesSiteData = read(pagesSiteDataPath);
+  for (const canonicalDestination of [
+    "docs/handbook",
+    "plugin/meta/contracts",
+    "INSTALL.md",
+  ]) {
+    if (!pagesSiteData.includes(canonicalDestination)) {
+      failures.push(`Pages concise projection must link canonical detail owner: ${canonicalDestination}`);
     }
   }
 }

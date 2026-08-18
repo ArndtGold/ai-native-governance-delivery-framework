@@ -5,9 +5,18 @@ import { site } from '../data/site'
 interface Props {
     title?: string
     description?: string
+    canonicalUrl?: string
+    socialImage?: string
+    socialImageAlt?: string
 }
 
-const { title = site.fullName, description = site.description } = Astro.props
+const {
+    title = `${site.name} — ${site.tagline}`,
+    description = site.description,
+    canonicalUrl = site.url,
+    socialImage = `${site.url}assets/logo.png`,
+    socialImageAlt = `${site.fullName}: ${site.tagline}`,
+} = Astro.props
 ---
 
 <!DOCTYPE html>
@@ -17,134 +26,28 @@ const { title = site.fullName, description = site.description } = Astro.props
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content={socialImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={socialImageAlt} />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
-<body class="min-h-screen bg-dark-950 text-dark-100">
+<body>
     <slot />
-
-    <script is:inline>
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(a => {
-            a.addEventListener('click', e => {
-                const target = document.querySelector(a.getAttribute('href'))
-                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }) }
-            })
-        })
-        // Mobile menu toggle
-        const btn = document.getElementById('nav-toggle')
-        const menu = document.getElementById('nav-menu')
-        if (btn && menu) {
-            const setOpen = function (open) {
-                if (open) menu.setAttribute('data-open', '')
-                else menu.removeAttribute('data-open')
-                btn.setAttribute('aria-expanded', open ? 'true' : 'false')
-                btn.querySelector('.nav-toggle-open').classList.toggle('hidden', open)
-                btn.querySelector('.nav-toggle-close').classList.toggle('hidden', !open)
-            }
-            btn.addEventListener('click', function () {
-                setOpen(!menu.hasAttribute('data-open'))
-            })
-            menu.querySelectorAll('a').forEach(function (link) {
-                link.addEventListener('click', function () { setOpen(false) })
-            })
-            document.addEventListener('click', function (ev) {
-                if (!menu.hasAttribute('data-open')) return
-                if (menu.contains(ev.target) || btn.contains(ev.target)) return
-                setOpen(false)
-            })
-        }
-
-        // Scroll progress
-        const scrollProgress = document.getElementById('scroll-progress')
-        if (scrollProgress) {
-            window.addEventListener('scroll', () => {
-                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
-                const progress = scrollHeight > 0 ? scrollTop / scrollHeight : 0
-                scrollProgress.style.transform = `scaleX(${progress})`
-            }, { passive: true })
-        }
-        // Reveal on scroll (respects prefers-reduced-motion via CSS)
-        const revealEls = document.querySelectorAll('[data-reveal]')
-        if (revealEls.length && 'IntersectionObserver' in window) {
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible')
-                        io.unobserve(entry.target)
-                    }
-                })
-            }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 })
-            revealEls.forEach((el) => io.observe(el))
-        } else {
-            revealEls.forEach((el) => el.classList.add('is-visible'))
-        }
-
-        // Skill modal
-        document.querySelectorAll('[data-skill]').forEach(el => {
-            el.addEventListener('click', () => {
-                const modal = document.getElementById('skill-modal')
-                const title = document.getElementById('skill-modal-title')
-                const body = document.getElementById('skill-modal-body')
-                if (modal && title && body) {
-                    title.textContent = el.getAttribute('data-skill-name') || ''
-                    body.innerHTML = el.getAttribute('data-skill-desc') || ''
-                    modal.classList.remove('hidden')
-                    modal.classList.add('flex')
-                }
-            })
-        })
-        const closeModal = document.getElementById('skill-modal-close')
-        const modal = document.getElementById('skill-modal')
-        if (closeModal && modal) {
-            closeModal.addEventListener('click', () => {
-                modal.classList.add('hidden')
-                modal.classList.remove('flex')
-            })
-            modal.addEventListener('click', e => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden')
-                    modal.classList.remove('flex')
-                }
-            })
-        }
-
-        // Image lightbox
-        const lightbox = document.getElementById('image-lightbox')
-        const lightboxImg = document.getElementById('image-lightbox-img')
-        const lightboxClose = document.getElementById('image-lightbox-close')
-        const openLightbox = (src, alt) => {
-            if (!lightbox || !lightboxImg) return
-            lightboxImg.src = src
-            lightboxImg.alt = alt
-            lightbox.classList.remove('hidden')
-            lightbox.classList.add('flex')
-            document.body.style.overflow = 'hidden'
-        }
-        const closeLightbox = () => {
-            if (!lightbox) return
-            lightbox.classList.add('hidden')
-            lightbox.classList.remove('flex')
-            document.body.style.overflow = ''
-        }
-        document.querySelectorAll('[data-lightbox-open]').forEach((trigger) => {
-            const figure = trigger.closest('[data-lightbox-trigger]')
-            const img = figure ? figure.querySelector('img') : null
-            if (img) {
-                trigger.addEventListener('click', () => openLightbox(img.currentSrc || img.src, img.alt))
-            }
-        })
-        lightboxClose?.addEventListener('click', closeLightbox)
-        lightbox?.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox()
-        })
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && lightbox && !lightbox.classList.contains('hidden')) closeLightbox()
-        })
-    </script>
 </body>
 </html>

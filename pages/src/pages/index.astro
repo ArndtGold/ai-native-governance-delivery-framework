@@ -1,1408 +1,262 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Icon from '../components/Icon.astro'
-import { site, principles, buildingBlocks, gateMapPaths, compatibility, publicPlugin, workflowSteps, prevention, notFor, agdfLimits, requirementPaths, approvalGates, visualProofs, versionEvidence, aiActFit, operatingGuards, depthChoice } from '../data/site'
-import { skills, skillFamilies } from '../data/skills'
-import { getProjectStats } from '../data/projectStats'
+import { site, landingPage } from '../data/site'
 import { evaluationEvidence } from '../data/evaluationEvidence'
 
-const projectStats = await getProjectStats()
-const discoveryGroups = [
-  { key: 'start_here', title: 'Start here', description: 'Begin a governed change or clarify the next allowed step.' },
-  { key: 'automatic', title: 'Used automatically', description: 'AGDF routes these workflow controls when their delivery state requires them.' },
-  { key: 'optional', title: 'Optional', description: 'Use only when the stated situation applies.' },
-] as const
+const { hero, problem, controlLoop, outcomes, proof, installation, responsibility } = landingPage
+const pageTitle = `${site.name} — ${site.tagline}`
 ---
 
-<BaseLayout>
-<!-- ==================== NAV ==================== -->
-<header class="fixed inset-x-0 top-0 z-50 border-b border-dark-800/60">
-  <div class="nav-bar-bg pointer-events-none absolute inset-0 -z-10" aria-hidden="true"></div>
-  <div class="mx-auto flex max-w-[90rem] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
-    <a href="#" class="flex items-center gap-2">
-      <img src="/assets/logo.png" alt="AGDF" class="h-8 w-auto" />
-    </a>
-    <button id="nav-toggle" type="button" aria-label="Toggle navigation menu" aria-controls="nav-menu" aria-expanded="false" class="flex cursor-grab items-center rounded-md border border-dark-700 px-2 py-1 text-dark-200 transition-colors hover:border-agdf-500/60 hover:text-agdf-200 md:hidden">
-      <span class="nav-toggle-open inline-flex w-5 justify-center text-xl leading-none text-agdf-400">☰</span>
-      <span class="nav-toggle-close hidden w-5 justify-center text-xl leading-none text-agdf-400">✕</span>
-    </button>
-    <div id="nav-menu" class="nav-menu-panel absolute right-4 top-full hidden w-auto flex-col items-end gap-y-1.5 rounded-md rounded-t-none border border-dark-700/80 bg-dark-950/95 p-4 shadow-lg data-[open]:flex md:static md:top-auto md:flex md:w-auto md:flex-1 md:flex-row md:items-center md:justify-between md:gap-x-5 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-      <nav class="flex min-w-0 flex-col flex-wrap items-end gap-x-5 gap-y-1 text-sm text-dark-200 md:ml-4 md:flex-row md:items-center">
-        <a href="#why" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Why</a>
-        <a href="#operating-guards" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Guards</a>
-        <a href="#workflow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Flow</a>
-        <a href="#gate-flow" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Gate Map</a>
-        <a href="#control-system" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Control System</a>
-        <a href="#skills" data-navlink class="nav-spy transition-colors hover:text-agdf-300">Runtime</a>
-      </nav>
-      <nav class="flex flex-col flex-wrap items-end gap-x-3 gap-y-1 text-sm text-dark-200 md:flex-row md:items-center">
-        <a href="#setup" data-navlink class="nav-spy inline-flex items-center rounded-full border border-agdf-500/30 bg-agdf-950/60 px-3 py-1.5 font-semibold text-agdf-200 shadow-[0_0_24px_-16px_var(--agdf-glow)] transition-colors hover:border-agdf-400/60 hover:text-agdf-100">
-          Get Started
-        </a>
-        <a href="#author" data-navlink class="nav-spy inline-flex items-center gap-1.5 transition-colors hover:text-agdf-300">
-          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-          Author
-        </a>
-        <a href={site.repo} class="inline-flex items-center gap-1.5 transition-colors hover:text-agdf-300">
-          <svg class="h-4 w-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
-          GitHub
-        </a>
-      </nav>
-    </div>
-  </div>
-  <div id="scroll-progress" class="h-0.5 origin-left bg-agdf-500" style="transform: scaleX(0)"></div>
-</header>
-
-<!-- ==================== HERO ==================== -->
-<section class="relative flex items-center justify-center overflow-hidden px-0 pb-8 pt-24 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-36">
-  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.16),transparent_55%)]"></div>
-  <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.035)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"></div>
-  <div class="relative mx-auto max-w-[90rem] px-4 text-center sm:px-6">
-    <div data-reveal data-reveal-delay="1" class="mb-5 flex justify-center sm:mb-6">
-      <div class="flex flex-col items-center gap-2">
-        <img
-          src="/assets/logo.png"
-          alt={site.fullName}
-          width="240"
-          height="101"
-          class="h-auto w-48 sm:w-64 lg:w-72"
-          loading="eager"
-          decoding="async"
-        />
-        <div class="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-dark-200 sm:text-sm">
-          {site.fullName}
-        </div>
-      </div>
-    </div>
-
-    <h1
-      data-reveal
-      data-reveal-delay="2"
-      class="mb-5 text-4xl font-extrabold leading-tight sm:mb-6 sm:text-6xl"
-    >
-      Govern AI Delivery<br />
-      <span class="gradient-text">Before the Next Move</span>
-    </h1>
-
-    <p
-      data-reveal
-      data-reveal-delay="3"
-      class="mx-auto mb-4 max-w-3xl text-lg text-dark-100 sm:mb-5 sm:text-xl"
-    >
-     For teams using artificial intelligence agents on real repositories and business-relevant changes.
-    </p>
-
-    <p
-      data-reveal
-      data-reveal-delay="4"
-      class="mx-auto mb-7 max-w-2xl text-sm text-dark-200/80 sm:mb-10 sm:text-base"
-    >
-      AGDF keeps humans and agents aligned on scope, impact, approval, evidence and next steps before code moves.
-    </p>
-    <!-- Agent behavior demo -->
-    <div data-reveal data-reveal-delay="5" class="mx-auto mt-10 grid max-w-6xl gap-4 text-left lg:grid-cols-[0.86fr_1.14fr]">
-      <div class="rounded-[22px] border border-white/10 bg-white/[0.035] p-5 shadow-[0_24px_70px_-46px_rgba(15,23,42,0.95),0_1px_0_rgba(255,255,255,0.08)_inset] backdrop-blur-xl">
-        <div class="mb-5 flex items-center justify-between gap-3">
-          <div class="text-lg font-semibold text-dark-100 sm:text-xl">Coding Agent without AGDF</div>
-          <span class="shrink-0 rounded-full border border-red-500/20 bg-red-500/12 px-3 py-1 text-xs font-semibold text-red-200 sm:text-sm">state unclear</span>
-        </div>
-        <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
-          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot / OpenCode</div>
-          <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
-          <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
-          <div class="mt-5 h-px bg-white/10"></div>
-          <div class="mt-5 text-sm font-semibold text-red-200">The agent may ask, plan and expose diffs. But agent side approval is not delivery control.</div>
-          <div class="mt-2 text-sm leading-relaxed text-dark-300">No durable scope captured in the repository.</div>
-          <div class="mt-2 text-sm leading-relaxed text-dark-300">No approved checkpoint before implementation.</div>
-          <div class="mt-2 text-sm leading-relaxed text-dark-300">No shared delivery state.</div>
-          <div class="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm leading-relaxed text-red-100">
-            The diff is visible, but delivery state drifts.
-            After many iterations, scope, approval, evidence, gaps and next steps become scattered or implicit.
-          </div>
-        </div>
-      </div>
-      <div class="relative overflow-hidden rounded-[22px] border border-cyan-100/45 bg-[linear-gradient(145deg,rgba(34,211,238,0.28),rgba(20,184,166,0.16)_42%,rgba(15,23,42,0.34))] p-5 shadow-[0_38px_110px_-34px_rgba(34,211,238,0.78),0_0_56px_-24px_rgba(125,211,252,0.95),0_1px_0_rgba(255,255,255,0.24)_inset] backdrop-blur-xl">
-        <div class="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/80 to-transparent"></div>
-        <div class="pointer-events-none absolute -right-16 -top-20 h-44 w-44 rounded-full bg-cyan-200/18 blur-3xl"></div>
-        <div class="mb-5 flex items-center justify-between gap-3">
-          <div class="text-lg font-semibold text-white sm:text-xl">Coding Agent governed by AGDF</div>
-          <span class="shrink-0 rounded-full border border-agdf-300/25 bg-agdf-400/12 px-3 py-1 text-xs font-semibold text-agdf-100 shadow-[0_0_24px_-12px_var(--agdf-glow)] sm:text-sm">safely blocked</span>
-        </div>
-        <div class="relative rounded-2xl border border-cyan-100/25 bg-black/32 p-4 shadow-[0_1px_0_rgba(255,255,255,0.12)_inset]">
-          <div class="mb-4 text-xs font-medium text-dark-300">OpenAI Codex / Claude Code / GitHub Copilot / OpenCode</div>
-          <div class="text-xs font-medium uppercase tracking-wide text-dark-300">User request</div>
-          <div class="mt-2 text-base font-semibold leading-snug text-white"> > Add team-based approval workflows to the existing admin console.</div>
-          <div class="mt-5 grid gap-2.5 text-sm">
-            <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-2">
-              <span class="flex min-w-0 items-center gap-2 text-dark-300">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-                First checkpoint
-              </span>
-              <code class="shrink-0 text-cyan-100">User need captured</code>
-            </div>
-            <div class="flex items-center justify-between gap-3 rounded-xl bg-white/[0.06] px-3 py-2">
-              <span class="flex min-w-0 items-center gap-2 text-dark-300">
-                <Icon name="shield-check" class="h-4 w-4 shrink-0 text-agdf-200" />
-                Allowed
-              </span>
-              <span class="text-right text-dark-100">Clarify what should change and why it matters.</span>
-            </div>
-            <div class="flex items-center justify-between gap-3 rounded-xl bg-red-500/[0.075] px-3 py-2">
-              <span class="flex min-w-0 items-center gap-2 text-red-100/80">
-                <Icon name="boundary" class="h-4 w-4 shrink-0 text-red-200" />
-                Blocked
-              </span>
-              <span class="text-right text-red-50">Do not change approval logic before scope and impact are clear.</span>
-            </div>
-            <div class="flex items-center justify-between gap-3 rounded-xl border border-cyan-100/15 bg-cyan-300/13 px-3 py-2 shadow-[0_0_24px_-18px_rgba(103,232,249,0.9)]">
-              <span class="flex min-w-0 items-center gap-2 text-dark-300">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-                Your control
-              </span>
-              <code class="shrink-0 text-cyan-100">Approval required</code>
-            </div>
-          </div>
-          <div class="mt-4 rounded-xl border border-cyan-100/15 bg-cyan-300/[0.07] px-3 py-2 text-sm leading-relaxed text-dark-200">
-            From code diff to shared delivery state.
-            Humans and agents stay aligned across long-running delivery work.
-          </div>
-        </div>
-      </div>
-    </div>
-    <div data-reveal data-reveal-delay="5" class="mx-auto mt-5 grid max-w-5xl gap-3 text-left sm:grid-cols-2 lg:grid-cols-4">
-      {[
-        ["Durable gates", "The current checkpoint, missing approval and next allowed action survive the chat.", "#durable-control-state"],
-        ["Existing impact first", "See what could be affected before the work starts moving.", "#gate-flow"],
-        ["Evidence before QA", "Quality decisions come from coverage, fit and proof, not confidence.", "#workflow"],
-        ["Auditable closeout", "Every run ends with what changed, what stayed open and what can happen next.", "#durable-control-state"],
-      ].map(([title, desc, href]) => (
-        <a href={href} class="group relative block overflow-hidden rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.16),rgba(15,23,42,0.23))] p-4 shadow-[0_20px_62px_-34px_rgba(34,211,238,0.62),0_1px_0_rgba(255,255,255,0.14)_inset] transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-100/45 hover:shadow-[0_26px_72px_-32px_rgba(34,211,238,0.78),0_1px_0_rgba(255,255,255,0.18)_inset]">
-          <div class="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/55 to-transparent"></div>
-          <div class="text-sm font-semibold text-cyan-100">{title}</div>
-          <p class="mt-2 text-xs leading-relaxed text-dark-300">{desc}</p>
-          <div class="mt-3 text-xs font-medium text-cyan-100/80 transition-colors group-hover:text-cyan-50">Learn more -></div>
-        </a>
-      ))}
-    </div>
-    <div data-reveal data-reveal-delay="5" class="mx-auto mt-4 flex max-w-5xl flex-wrap justify-center gap-3 text-left">
-      {[
-        ["archive-box", "Apache-2.0"],
-        ["plugin", "Plugin-based"],
-        ["file-evidence", "Evidence-driven"],
-        ["code", "Built for real repositories"],
-      ].map(([icon, label]) => (
-        <div class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-cyan-100/15 bg-blue-950/40 px-4 py-2 text-sm font-semibold text-dark-100 shadow-[0_16px_48px_-32px_rgba(56,189,248,0.72),0_1px_0_rgba(255,255,255,0.10)_inset]">
-          <Icon name={icon} class="h-5 w-5 shrink-0 text-cyan-200" />
-          <span>{label}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-<!-- ==================== SELF-HOSTING PROOF ==================== -->
-<section id="self-hosting-proof" class="border-y border-dark-800/80 bg-dark-900/30 py-16">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-      <div data-reveal>
-        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-cyan-300">Proven in its own development</div>
-        <h2 class="text-3xl font-bold sm:text-4xl">AGDF is developed using AGDF.</h2>
-        <p class="mt-5 max-w-3xl text-dark-200">
-          AGDF's website, plugins, CLI and documentation evolve through AI coding agents using the same durable artifacts, gates, evidence and human approvals that the framework defines.
-        </p>
-        <p class="mt-3 max-w-3xl text-dark-200">
-          This repository is both the framework and a working example of governed agent delivery.
-        </p>
-        <div class="mt-6 rounded-2xl border border-cyan-100/20 bg-cyan-300/[0.06] p-5 shadow-[0_20px_62px_-42px_rgba(34,211,238,0.65),0_1px_0_rgba(255,255,255,0.10)_inset]">
-          <div class="font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">Repository-derived evaluation evidence</div>
-          <p class="mt-3 text-sm leading-relaxed text-dark-100">
-            Every canonical AGDF skill is covered by versioned normal, boundary and adversarial evaluations. Deterministic safety invariants run fail-closed in CI; optional live-host recordings provide additional evidence without overriding those checks.
-          </p>
-          <div class="mt-4 flex flex-wrap gap-2 text-xs">
-            <span class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 text-cyan-100">{evaluationEvidence.canonicalSkills} canonical skills</span>
-            <span class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 text-cyan-100">{evaluationEvidence.behavioralCases} behavioral cases</span>
-            <span class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 text-cyan-100">{evaluationEvidence.caseClasses.join(' · ')}</span>
-          </div>
-        </div>
-      </div>
-
-      <div data-reveal data-reveal-delay="1" class="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-        <div class="rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.13),rgba(15,23,42,0.42))] p-4 shadow-[0_20px_62px_-38px_rgba(34,211,238,0.72),0_1px_0_rgba(255,255,255,0.12)_inset]">
-          <div class="text-2xl font-bold text-cyan-100">25+</div>
-          <div class="mt-1 text-sm text-dark-200">governed delivery runs</div>
-        </div>
-        <div class="rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.13),rgba(15,23,42,0.42))] p-4 shadow-[0_20px_62px_-38px_rgba(34,211,238,0.72),0_1px_0_rgba(255,255,255,0.12)_inset]">
-          <div class="text-base font-bold text-cyan-100 sm:text-lg">Codex · Claude Code · OpenCode</div>
-          <div class="mt-1 text-sm text-dark-200">plugin surfaces</div>
-        </div>
-        <div class="rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.13),rgba(15,23,42,0.42))] p-4 shadow-[0_20px_62px_-38px_rgba(34,211,238,0.72),0_1px_0_rgba(255,255,255,0.12)_inset]">
-          <div class="text-lg font-bold text-cyan-100">This repository</div>
-          <div class="mt-1 text-sm text-dark-200">is the reference implementation</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== WHY IT WORKS ==================== -->
-<section id="why" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Why It Works</h2>
-    <p class="mx-auto max-w-3xl text-dark-200">
-      AI coding agents can create output fast. But token consumption, runtime and compute usage show activity, not delivery value.
-
-      AGDF connects agent work to approved scope, justified tasks, required evidence and delivery decisions. This allows teams to see whether AI activity created verified project progress, merely caused additional review effort or can be attributed to an approved delivery result.
-
-      Where AI usage is charged to a project or customer, AGDF provides the delivery context needed to explain what that usage contributed to.
-    </p>
-  </div>
-  <!-- Building blocks -->
-  <div class="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-    {buildingBlocks.map((b, i) => (
-      <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="card-glow p-6 text-center">
-        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-agdf-500/30 bg-agdf-950 text-agdf-300 shadow-[0_0_28px_-12px_var(--agdf-glow)]">
-          <Icon name={b.icon} class="h-8 w-8" />
-        </div>
-        <h3 class="mb-2 text-lg font-semibold">{b.name}</h3>
-        <p class="text-sm text-dark-200">{b.desc}</p>
-      </div>
-    ))}
-  </div>
-  <!-- Principles -->
-  <div class="grid gap-4 sm:grid-cols-2">
-    {principles.map((p, i) => (
-      <div data-reveal data-reveal-delay={String((i % 2) + 1)} class="inset-highlight flex gap-4 rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
-        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-agdf-500/30 bg-agdf-950 font-mono text-sm font-bold text-agdf-400">{i + 1}</span>
-        <div>
-          <h4 class="font-semibold text-agdf-200">{p.title}</h4>
-          <p class="mt-1 text-sm text-dark-200">{p.desc}</p>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
-
-<!-- ==================== RACE CONTROL ANALOGY ==================== -->
-<section id="race-control" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Delivery analogy</div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Not the stronger engine. The control system around it.</h2>
-      <p class="mx-auto max-w-3xl text-dark-200">
-        Faster agents help. Reliable delivery comes from direction, checkpoints, context, quality rules and the authority to stop before the next move becomes unsafe.
-      </p>
-    </div>
-
-    <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-      <div data-reveal data-reveal-delay="1" class="relative overflow-hidden rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.12),rgba(15,23,42,0.52))] p-6 shadow-[0_30px_90px_-54px_rgba(34,211,238,0.72),0_1px_0_rgba(255,255,255,0.12)_inset]">
-        <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/70 to-transparent"></div>
-        <div class="mb-8 flex items-center justify-between gap-4">
-          <div>
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">AI coding agent</div>
-            <div class="mt-2 text-2xl font-bold text-white">The engine creates change.</div>
-          </div>
-          <span class="rounded-full border border-cyan-100/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100">fast output</span>
-        </div>
-        <div class="relative rounded-2xl border border-white/10 bg-black/25 p-5">
-          <div class="absolute left-6 right-6 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-cyan-300/10 via-cyan-200/50 to-cyan-300/10"></div>
-          <div class="relative grid gap-4 sm:grid-cols-3">
-            {["Prompt", "Code", "Diff"].map((label, i) => (
-              <div class="rounded-xl border border-white/10 bg-dark-950/70 p-4 text-center shadow-[0_16px_48px_-36px_rgba(34,211,238,0.7)]">
-                <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-cyan-100/30 bg-cyan-300/10 font-mono text-sm font-bold text-cyan-100">{i + 1}</div>
-                <div class="text-sm font-semibold text-dark-100">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <p class="mt-6 text-sm leading-relaxed text-dark-200">
-          Coding agents create technical change: they plan, call tools and produce diffs. AGDF supplies delivery authority: whether the next change is approved, evidenced and safe to execute.
-        </p>
-        <p class="mt-3 text-sm leading-relaxed text-dark-300">
-          Codex is one example of this engine: its skills, plugins and automations can make technical work repeatable. AGDF remains the control layer around it.
-        </p>
-      </div>
-
-      <div data-reveal data-reveal-delay="2" class="relative rounded-2xl border border-agdf-500/25 bg-[linear-gradient(145deg,rgba(20,184,166,0.08),rgba(15,23,42,0.42))] p-5 shadow-[0_24px_72px_-48px_rgba(20,184,166,0.7),0_1px_0_rgba(255,255,255,0.08)_inset]">
-        <div class="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-agdf-300/60 to-transparent"></div>
-        <div class="mb-5 flex items-center justify-between gap-4">
-          <div>
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">AGDF control system</div>
-            <div class="mt-2 text-xl font-bold text-white">Delivery authority around the engine.</div>
-          </div>
-          <span class="rounded-full border border-agdf-500/25 bg-agdf-500/10 px-3 py-1 text-xs font-semibold text-agdf-200">control layer</span>
-        </div>
-        <div class="grid gap-3 sm:grid-cols-2">
-          {[
-            ["map", "Track", "Artifacts", "goal, direction and a clear path"],
-            ["workflow", "Pit stops", "Gates", "check, adjust and approve before moving on"],
-            ["control-network", "Radio", "Context Graph", "shared context, feedback and priorities"],
-            ["clipboard-document-check", "Rules", "Quality Contracts", "standards, boundaries and evidence"],
-            ["shield-check", "Race control", "Control State", "monitor, decide and stop when necessary"],
-          ].map(([icon, metaphor, agdfPart, desc], i) => (
-            <div class={`inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/60 p-5 transition-colors hover:border-agdf-500/40 ${i === 4 ? 'sm:col-span-2' : ''}`}>
-              <div class="mb-4 flex items-center justify-between gap-4">
-                <span class="flex h-11 w-11 items-center justify-center rounded-xl border border-agdf-500/30 bg-agdf-950/70 text-agdf-300 shadow-[0_0_28px_-16px_var(--agdf-glow)]">
-                  <Icon name={icon} class="h-6 w-6" />
-                </span>
-                <span class="rounded-full border border-dark-700/80 bg-dark-950/70 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-dark-300">AGDF</span>
-              </div>
-              <div class="text-lg font-semibold text-dark-100">{metaphor}</div>
-              <div class="mt-1 text-sm font-medium text-agdf-300">{agdfPart}</div>
-              <p class="mt-3 text-sm leading-relaxed text-dark-200">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    <figure data-reveal data-reveal-delay="3" class="mt-8 overflow-hidden rounded-2xl border border-cyan-100/20 bg-dark-950 shadow-[0_28px_90px_-52px_rgba(34,211,238,0.75)]">
-      <img
-        src="/assets/race-control-track-visual.jpg"
-        alt="Race car on track beside a pit stop and race control tower, used as an analogy for governed AI delivery."
-        width="1448"
-        height="300"
-        class="block h-auto w-full"
-        loading="lazy"
-        decoding="async"
-      />
-    </figure>
-
-    <div data-reveal data-reveal-delay="3" class="mt-8 rounded-2xl border border-cyan-100/20 bg-cyan-300/[0.06] p-5 text-center shadow-[0_22px_70px_-46px_rgba(34,211,238,0.7)]">
-      <p class="mx-auto max-w-4xl text-lg font-semibold leading-relaxed text-dark-100">
-        AGDF does not try to make the engine stronger. It makes the delivery run controlled enough to reach the finish line.
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== INDUSTRY SIGNAL ==================== -->
-<aside aria-labelledby="industry-signal-title" class="mx-auto max-w-[90rem] px-4 py-10 sm:px-6">
-  <div data-reveal class="mx-auto max-w-4xl rounded-2xl border border-violet-300/20 bg-[linear-gradient(145deg,rgba(139,92,246,0.10),rgba(15,23,42,0.52))] p-6 shadow-[0_24px_72px_-52px_rgba(139,92,246,0.75),0_1px_0_rgba(255,255,255,0.08)_inset] sm:p-8">
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-violet-200">Industry signal · Mozilla 2026</div>
-    <h2 id="industry-signal-title" class="text-2xl font-bold text-white sm:text-3xl">Beyond the model</h2>
-    <p class="mt-4 text-sm leading-relaxed text-dark-200 sm:text-base">
-      Mozilla’s 2026 State of Open Source AI report argues that the agentic harness is becoming the critical control layer around AI models.
-    </p>
-    <p class="mt-3 text-sm leading-relaxed text-dark-200 sm:text-base">
-      A harness controls what an agent can see, remember and do. AGDF extends this control into software delivery by governing approved scope, required evidence, human decisions and the next permitted step.
-    </p>
-    <p class="mt-3 text-sm leading-relaxed text-dark-200 sm:text-base">
-      OpenAI CFO Sarah Friar points in the same direction. She argues that companies should measure whether AI completes useful work rather than focusing on token costs alone. AGDF extends this perspective from completed AI tasks to governed software delivery: work that is approved, evidenced and ready for the next delivery decision.
-    </p>
-    <a href="https://stateofopensource.ai/" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-violet-200 transition-colors hover:text-white">
-      Read Mozilla’s State of Open Source AI report <span aria-hidden="true">→</span>
-    </a>
-  </div>
-</aside>
-
-<!-- ==================== PRODUCT PROOF ==================== -->
-<section id="proof" class="mx-auto max-w-[90rem] px-4 pb-24 pt-10 sm:px-6">
-  <div data-reveal class="grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-    <div>
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.product.eyebrow}</div>
-      <h2 class="mb-4 text-3xl font-bold sm:text-4xl">{visualProofs.product.title}</h2>
-      <p class="max-w-xl text-dark-200">{visualProofs.product.desc}</p>
-      <p class="mt-3 max-w-xl text-sm font-medium text-agdf-300/90">{visualProofs.product.built}</p>
-    </div>
-    <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
-      <img src={visualProofs.product.src} alt={visualProofs.product.alt} width={visualProofs.product.width} height={visualProofs.product.height} class="block h-auto w-full cursor-zoom-in rounded-lg" loading="eager" decoding="async" />
-      <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
-        <span class="flex h-14 w-14 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        </span>
-      </button>
-    </figure>
-  </div>
-</section>
-
-<!-- ==================== HIGHLIGHTS ==================== -->
-<section id="highlights" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mb-4 flex justify-center">
-      <div class="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.14),rgba(15,23,42,0.18))] text-cyan-100 shadow-[0_22px_64px_-38px_rgba(34,211,238,0.7),0_1px_0_rgba(255,255,255,0.14)_inset]">
-        <div class="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/65 to-transparent"></div>
-        <Icon name="radar" class="h-8 w-8" />
-      </div>
-    </div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Catches Early</h2>
-    <p class="text-dark-200">Confidence is not control. AGDF catches missing approvals, weak evidence and unsafe shortcuts early.</p>
-  </div>
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    {prevention.map((item, index) => (
-      <div data-reveal data-reveal-delay={String((index % 3) + 1)} class="card-glow p-6">
-        <div class="mb-3 flex items-center gap-3">
-          <span class="flex h-10 w-10 items-center justify-center rounded-lg border border-agdf-500/30 bg-agdf-950 font-mono text-lg font-bold text-agdf-300">{index + 1}</span>
-          <h3 class="text-lg font-semibold">{item.title}</h3>
-        </div>
-        <p class="text-sm text-dark-200">{item.desc}</p>
-      </div>
-    ))}
-  </div>
-</section>
-
-<!-- ==================== OPERATING GUARDS ==================== -->
-<section id="operating-guards" class="mx-auto max-w-[90rem] px-4 py-20 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mb-4 flex justify-center">
-      <div class="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.16),rgba(20,184,166,0.10))] text-cyan-100 shadow-[0_24px_70px_-38px_rgba(34,211,238,0.75),0_1px_0_rgba(255,255,255,0.16)_inset]">
-        <div class="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/70 to-transparent"></div>
-        <Icon name="operating-model" class="h-9 w-9" />
-      </div>
-    </div>
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Operating model</div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">The small rules that stop agent delivery drift</h2>
-    <p class="mx-auto max-w-3xl text-dark-200">
-      AI coding agents do not drift because they are slow. They drift because scope, source authority, evidence and memory become implicit. AGDF makes those control points explicit before the next move.
-    </p>
-  </div>
-  <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-    {operatingGuards.map((guard, index) => (
-      <div data-reveal data-reveal-delay={String((index % 3) + 1)} class="surface p-6 transition-all hover:-translate-y-0.5 hover:border-agdf-500/40">
-        <div class="mb-4 flex items-center justify-between gap-3">
-          <span class="flex h-10 w-10 items-center justify-center rounded-lg border border-agdf-500/30 bg-agdf-950 font-mono text-sm font-bold text-agdf-300">{index + 1}</span>
-          <span class="rounded-full border border-dark-700/80 bg-dark-950/70 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-dark-300">guard</span>
-        </div>
-        <h3 class="text-lg font-semibold text-agdf-200">{guard.title}</h3>
-        <p class="mt-3 text-sm leading-relaxed text-dark-200">{guard.desc}</p>
-      </div>
-    ))}
-  </div>
-</section>
-
-<!-- ==================== REQUIREMENT INTAKE ==================== -->
-<section id="intake" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Choose the Lightest Safe Delivery Path</h2>
-      <p class="mx-auto max-w-2xl text-dark-200">
-        This section answers one question only: can the work stay small, or does its impact justify stronger control?
-      </p>
-    </div>
-
-    <div class="grid gap-6 lg:grid-cols-2">
-      {requirementPaths.map((path, i) => (
-        <div data-reveal data-reveal-delay={String(i + 1)} class="surface p-6">
-          <div class="mb-4 flex items-center justify-between gap-4">
-            <h3 class="text-xl font-bold text-agdf-200">{path.label}</h3>
-            <span class="rounded-full border border-agdf-500/30 bg-agdf-950 px-3 py-1 font-mono text-xs text-agdf-300">path</span>
-          </div>
-          <p class="mb-4 text-sm leading-relaxed text-dark-200">{path.trigger}</p>
-          <div class="terminal-body !p-3 text-xs">
-            <span class="text-agdf-400">flow:</span> <span class="text-dark-100">{path.path}</span>
-          </div>
-          <p class="mt-4 text-sm font-medium text-dark-100">{path.outcome}</p>
-        </div>
-      ))}
-    </div>
-
-    <div data-reveal class="surface mt-10 p-6">
-      <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h3 class="text-xl font-bold">Exact approvals unlock the next step</h3>
-          <p class="mt-1 text-sm text-dark-200">No exact approval, no next gate. Responsibility stays visible.</p>
-        </div>
-        <code class="rounded-lg border border-agdf-500/30 bg-agdf-950/50 px-3 py-2 text-sm text-agdf-300 shadow-[0_0_24px_-12px_var(--agdf-glow)]">Approval: &lt;GateName&gt;</code>
-      </div>
-      <div class="grid gap-3 md:grid-cols-4">
-        {approvalGates.map((gate, i) => (
-          <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/70 p-4 transition-colors hover:border-agdf-500/40">
-            <div class="mb-2 font-mono text-xs font-bold text-agdf-400">{gate.gate}</div>
-            <code class="block text-sm text-dark-100">{gate.approval}</code>
-            <p class="mt-3 text-xs leading-relaxed text-dark-200">{gate.meaning}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-    <div data-reveal class="mt-10 grid items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-      <div>
-        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.intake.eyebrow}</div>
-        <h3 class="mb-3 text-2xl font-bold sm:text-3xl">{visualProofs.intake.title}</h3>
-        <p class="text-dark-200">{visualProofs.intake.desc}</p>
-      </div>
-      <div class="surface p-4 sm:p-5">
-        <div class="mb-4 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4">
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Board</div>
-            <div class="mt-3 grid grid-cols-4 gap-2 text-center text-[10px] text-dark-200">
-              {["Backlog", "Doing", "Review", "Done"].map((column) => (
-                <div class="rounded border border-dark-700 bg-dark-950 p-2">{column}</div>
-              ))}
-            </div>
-            <p class="mt-3 text-xs text-dark-200">Shows what people work on.</p>
-          </div>
-          <div class="rounded-lg border border-agdf-500/30 bg-agdf-950/40 p-4 shadow-[0_0_32px_-16px_var(--agdf-glow)]">
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">AGDF</div>
-            <p class="mt-3 text-sm font-semibold text-dark-100">Decides whether the next step is allowed.</p>
-            <div class="mt-3 flex flex-wrap gap-2 text-xs">
-              {["Product contract", "Approval", "Traceability", "Evidence"].map((item) => (
-                <span class="rounded-full border border-agdf-500/30 px-2 py-1 text-agdf-200">{item}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
-          {[
-            ["PRD", "Product contract"],
-            ["SD", "Solution design"],
-            ["TP", "Task and test plan"],
-            ["CD", "Implementation"],
-            ["QA", "Decision evidence"],
-          ].map(([gate, label]) => (
-            <div class="min-w-0 rounded-lg border border-dark-700/80 bg-dark-900 p-3 text-center transition-all hover:border-agdf-500/40 hover:-translate-y-0.5">
-              <div class="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-lg border border-agdf-500/40 bg-agdf-950 font-mono text-sm font-bold text-agdf-300">{gate}</div>
-              <div class="break-words text-sm font-semibold text-dark-100">{label}</div>
-              <div class="mt-2 text-xs text-dark-200">What is valid?</div>
-            </div>
-          ))}
-        </div>
-        <div class="mt-4 flex flex-wrap justify-center gap-2">
-          {["pass", "revise", "block"].map((state) => (
-            <span class="rounded-lg border border-dark-700/80 bg-dark-900 px-3 py-2 font-mono text-xs text-dark-100">{state}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== HOW AGDF CHOOSES DEPTH ==================== -->
-<section id="depth-choice" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mb-4 flex justify-center">
-      <div class="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.14),rgba(20,184,166,0.10))] text-cyan-100 shadow-[0_22px_64px_-38px_rgba(34,211,238,0.7),0_1px_0_rgba(255,255,255,0.14)_inset]">
-        <div class="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/65 to-transparent"></div>
-        <Icon name="control-flow" class="h-8 w-8" />
-      </div>
-    </div>
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Mode selection</div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">How AGDF Chooses Depth</h2>
-    <p class="mx-auto max-w-3xl text-dark-200">
-      AGDF selects the smallest safe governance path based on evidenced effect, not on file counts or gut feeling. Compact paths stay separate from structured paths; structured modes share one gate sequence and differ only in artefact depth.
-    </p>
-  </div>
-
-  <div class="grid gap-6 lg:grid-cols-2">
-    <!-- Compact paths -->
-    <div data-reveal data-reveal-delay="1" class="surface p-6">
-      <div class="mb-4 flex items-center justify-between gap-4">
-        <h3 class="text-xl font-bold text-agdf-200">Compact paths</h3>
-        <span class="rounded-full border border-agdf-500/30 bg-agdf-950 px-3 py-1 font-mono text-xs text-agdf-300">lightweight</span>
-      </div>
-      <div class="space-y-4">
-        {depthChoice.compactPaths.map((p) => (
-          <div class="rounded-lg border border-dark-700/80 bg-dark-900/60 p-4">
-            <div class="font-semibold text-dark-100">{p.mode}</div>
-            <p class="mt-2 text-sm text-dark-200">{p.trigger}</p>
-            <p class="mt-2 text-xs font-medium text-agdf-300">{p.evidence}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    <!-- Structured paths -->
-    <div data-reveal data-reveal-delay="2" class="surface p-6">
-      <div class="mb-4 flex items-center justify-between gap-4">
-        <h3 class="text-xl font-bold text-agdf-200">Structured paths</h3>
-        <span class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 font-mono text-xs text-cyan-100">full gates</span>
-      </div>
-      <div class="mb-4 rounded-lg border border-cyan-100/20 bg-cyan-300/[0.06] p-4">
-        <div class="font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">Shared gate chain</div>
-        <p class="mt-2 text-xs leading-relaxed text-dark-100">{depthChoice.structuredPaths.sharedGateChain}</p>
-        <p class="mt-2 text-sm font-medium text-agdf-300">{depthChoice.structuredPaths.sliceVsDelivery}</p>
-      </div>
-      <div class="space-y-4">
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900/60 p-4">
-          <div class="font-semibold text-dark-100">{depthChoice.structuredPaths.structuredSlice.mode}</div>
-          <p class="mt-2 text-sm text-dark-200">{depthChoice.structuredPaths.structuredSlice.whenChosen}</p>
-          <p class="mt-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Seven bounded-slice checks</p>
-          <p class="mt-1 text-xs text-dark-300">All seven must pass as evidenced and no full-depth trigger may apply.</p>
-          <ol class="mt-3 space-y-2 text-xs text-dark-200">
-            {depthChoice.structuredPaths.structuredSlice.boundedChecks.map((check, i) => (
-              <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-950 p-3">
-                <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-agdf-500/30 bg-agdf-950 font-mono text-[10px] font-bold text-agdf-300">{i + 1}</span>
-                <span>{check}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900/60 p-4">
-          <div class="font-semibold text-dark-100">{depthChoice.structuredPaths.structuredDelivery.mode}</div>
-          <p class="mt-2 text-sm text-dark-200">{depthChoice.structuredPaths.structuredDelivery.whenChosen}</p>
-          <p class="mt-3 font-mono text-xs font-bold uppercase tracking-wide text-cyan-200">Six full-depth families</p>
-          <p class="mt-1 text-xs text-dark-300">A single trigger is decisive because of its effect, never because of a numeric count.</p>
-          <ul class="mt-3 flex flex-wrap gap-2 text-xs">
-            {depthChoice.structuredPaths.structuredDelivery.fullDepthFamilies.map((family) => (
-              <li class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 text-cyan-100">{family}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Depth unresolved -->
-  <div data-reveal data-reveal-delay="3" class="mt-6 rounded-lg border border-red-500/30 bg-red-950/20 p-5 shadow-[0_0_32px_-22px_rgba(239,68,68,0.6)]">
-    <div class="flex items-center gap-3">
-      <span class="rounded-full border border-red-500/30 bg-red-950/40 px-3 py-1 font-mono text-xs font-bold text-red-200">{depthChoice.depthUnresolved.mode}</span>
-    </div>
-    <p class="mt-3 text-sm leading-relaxed text-dark-100">{depthChoice.depthUnresolved.meaning}</p>
-    <p class="mt-2 text-sm leading-relaxed text-dark-200">{depthChoice.depthUnresolved.action}</p>
-    <p class="mt-2 text-sm font-semibold text-red-200">{depthChoice.depthUnresolved.noDefault}</p>
-  </div>
-
-  <!-- Proxy prohibition -->
-  <div data-reveal data-reveal-delay="4" class="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-5 shadow-[0_0_32px_-22px_rgba(234,179,8,0.6)]">
-    <div class="font-mono text-xs font-bold uppercase tracking-wide text-yellow-300">Proxy prohibition</div>
-    <p class="mt-2 text-sm leading-relaxed text-dark-100">{depthChoice.proxyProhibition}</p>
-  </div>
-
-  <!-- Modes Contract boundary -->
-  <div data-reveal data-reveal-delay="5" class="mt-4 rounded-lg border border-agdf-500/20 bg-agdf-950/30 p-4 text-center text-xs text-dark-200">
-    <span class="font-mono font-bold text-agdf-300">Canonical owner:</span> <code class="text-dark-100">{depthChoice.modesContractOwner}</code>. {depthChoice.projection}
-  </div>
-</section>
-
-<!-- ==================== WORKFLOW ==================== -->
-<section id="workflow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <div class="mb-4 flex justify-center">
-        <div class="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-100/25 bg-[linear-gradient(145deg,rgba(34,211,238,0.14),rgba(20,184,166,0.10))] text-cyan-100 shadow-[0_22px_64px_-38px_rgba(34,211,238,0.7),0_1px_0_rgba(255,255,255,0.14)_inset]">
-          <div class="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-cyan-100/65 to-transparent"></div>
-          <Icon name="control-flow" class="h-8 w-8" />
-        </div>
-      </div>
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">After the path is chosen</div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Move Through Only the Controls the Work Needs</h2>
-      <p class="mx-auto max-w-3xl text-dark-200">Intake selected the control depth. This section shows execution: establish scope, prepare the change, implement, review and close with evidence.</p>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {workflowSteps.map((step, i) => (
-        <div data-reveal data-reveal-delay={String((i % 8) + 1)} class="surface p-4 transition-all hover:border-agdf-500/40 hover:-translate-y-0.5">
-          <div class="mb-3 flex items-center justify-between gap-2">
-            <span class="font-mono text-xs font-bold text-agdf-400">Control {step.step}</span>
-            <span class="rounded-full border border-dark-700/80 px-2 py-0.5 font-mono text-[10px] text-dark-200">{step.command}</span>
-          </div>
-          <h3 class="mb-2 text-sm font-semibold text-agdf-200">{step.title}</h3>
-          <p class="text-xs leading-relaxed text-dark-200">{step.desc}</p>
-        </div>
-      ))}
-    </div>
-    <div data-reveal class="mt-10 grid items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-      <div>
-        <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{visualProofs.qa.eyebrow}</div>
-        <h3 class="mb-3 text-2xl font-bold sm:text-3xl">{visualProofs.qa.title}</h3>
-        <p class="text-dark-200">{visualProofs.qa.desc}</p>
-      </div>
-      <div class="surface p-4 sm:p-5">
-        <div class="grid gap-4 lg:grid-cols-3">
-          <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4">
-            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Approved PRD contract</div>
-            {["UX acceptance criterion", "Working mode + effective state", "Activation + recovery path"].map((item) => (
-              <div class="mb-3 flex items-center gap-3 rounded-lg border border-dark-700/80 bg-dark-950 p-3 text-sm text-dark-100">
-                <span class="h-2 w-2 rounded-full bg-agdf-400 shadow-[0_0_8px_var(--agdf-glow)]"></span>
-                {item}
-              </div>
-            ))}
-          </div>
-          <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4">
-            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Implementation</div>
-            <div class="rounded-lg border border-dark-700/80 bg-dark-950 p-4 font-mono text-xs text-dark-200">
-              <div class="text-agdf-300">code changed</div>
-              <div class="mt-2 h-2 rounded-full bg-dark-700"></div>
-              <div class="mt-2 h-2 w-4/5 rounded-full bg-dark-800"></div>
-              <div class="mt-2 h-2 w-2/3 rounded-full bg-dark-800"></div>
-            </div>
-            <div class="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-3 text-sm text-yellow-200">Looks done</div>
-          </div>
-          <div class="rounded-lg border border-dark-700/80 bg-dark-900 p-4">
-            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Review result</div>
-            {[
-              ["fulfilled", "PRD -> mode/state -> task -> visible evidence", "text-agdf-300"],
-              ["requirements_gap", "Missing UX criterion -> PRD revision", "text-red-300"],
-              ["not_verifiable", "Visible behavior has code-only evidence", "text-red-300"],
-              ["partial", "Recovery evidence incomplete", "text-yellow-300"],
-            ].map(([state, item, color]) => (
-              <div class="mb-2 flex items-center justify-between gap-3 rounded-lg border border-dark-700/80 bg-dark-950 p-3 text-sm">
-                <span class="text-dark-100">{item}</span>
-                <span class={`font-mono text-xs ${color}`}>{state}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-950/20 p-4 text-center font-semibold text-red-200 shadow-[0_0_32px_-20px_rgba(239,68,68,0.6)]">Incomplete UX Intent Fidelity prevents a QA pass.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== GATE FLOW ==================== -->
-<section id="gate-flow" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Gate Map</h2>
-      <p class="text-dark-200">The workflow explains what people do. The Gate Map preserves what has been approved, what evidence exists and which checkpoint may open next.</p>
-      <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">It is durable project memory, not another task board and not a second copy of the workflow.</p>
-    </div>
-    <div data-reveal data-reveal-delay="1" class="surface p-4 sm:p-5">
-      <div class="flex flex-wrap items-center justify-center gap-2">
-        {gateMapPaths.sharedStart.map((g, i) => (
-          <>
-            <div class="gate-node gate-node-default min-w-[118px]">
-              <div class="text-agdf-400">{g.gate}</div>
-              <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
-            </div>
-            {i < gateMapPaths.sharedStart.length - 1 && <span class="text-agdf-600">→</span>}
-          </>
-        ))}
-      </div>
-      <div class="mt-5 flex justify-center">
-        <div class="rounded-full border border-agdf-500/30 bg-agdf-950/40 px-4 py-2 text-center font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">
-          choose path
-        </div>
-      </div>
-      <div class="mt-5 grid gap-4 lg:grid-cols-2">
-        <div class="rounded-lg border border-agdf-500/25 bg-agdf-950/20 p-4">
-          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">{gateMapPaths.quick.label}</div>
-          <p class="mb-4 text-sm leading-relaxed text-dark-200">{gateMapPaths.quick.note}</p>
-          <div class="flex flex-wrap items-center gap-2">
-            {gateMapPaths.quick.steps.map((g, i) => (
-              <>
-                <div class="gate-node gate-node-default min-w-[132px]">
-                  <div class="text-agdf-400">{g.gate}</div>
-                  <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
-                </div>
-                {i < gateMapPaths.quick.steps.length - 1 && <span class="text-agdf-600">→</span>}
-              </>
-            ))}
-          </div>
-        </div>
-        <div class="rounded-lg border border-dark-700/80 bg-dark-900/70 p-4">
-          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-dark-200">{gateMapPaths.structured.label}</div>
-          <p class="mb-4 text-sm leading-relaxed text-dark-200">{gateMapPaths.structured.note}</p>
-          <div class="flex flex-wrap items-center gap-2">
-            {gateMapPaths.structured.steps.map((g, i) => (
-              <>
-                <div class="gate-node gate-node-default min-w-[108px]">
-                  <div class="text-agdf-400">{g.gate}</div>
-                  <div class="mt-1 text-[10px] font-normal text-dark-200">{g.name}</div>
-                </div>
-                {i < gateMapPaths.structured.steps.length - 1 && <span class="text-agdf-600">→</span>}
-              </>
-            ))}
-          </div>
-          <div class="mt-4 rounded-lg border border-cyan-100/20 bg-cyan-300/[0.06] p-3 text-xs leading-relaxed text-dark-100">
-            <span class="font-mono font-bold text-cyan-200">Depth:</span> {gateMapPaths.structured.depthHint}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-
-<!-- ==================== LIMITS AND OPERATING CONDITIONS ==================== -->
-<section id="limits" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-      <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-    </div>
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Limits and operating conditions</div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Governance Helps. Responsibility Stays Human.</h2>
-    <p class="mx-auto max-w-3xl text-dark-200">{agdfLimits.framing}</p>
-  </div>
-  <div class="grid gap-6 lg:grid-cols-2">
-    <div data-reveal class="surface p-6">
-      <div class="mb-4 font-mono text-sm font-bold uppercase tracking-wide text-agdf-400">What AGDF does not replace</div>
-      <ul class="grid gap-3 text-sm text-dark-200 sm:grid-cols-2">
-        {agdfLimits.notReplace.map((item) => (
-          <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
-            <span class="mt-0.5 text-agdf-400">•</span>
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-    <div data-reveal class="surface p-6">
-      <div class="mb-4 font-mono text-sm font-bold uppercase tracking-wide text-agdf-400">What AGDF depends on</div>
-      <ul class="grid gap-3 text-sm text-dark-200">
-        {agdfLimits.dependsOn.map((item) => (
-          <li class="flex gap-3 rounded-lg border border-dark-700/80 bg-dark-900/50 p-3">
-            <span class="mt-0.5 text-agdf-400">•</span>
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-  <div data-reveal class="mt-6 rounded-lg border border-agdf-500/20 bg-agdf-950/30 p-5 text-sm leading-relaxed text-dark-200">
-    {agdfLimits.overhead}
-  </div>
-</section>
-
-<!-- ==================== EU AI ACT FIT ==================== -->
-<section id="ai-act" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 text-center">
-    <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-      <Icon name="file-evidence" class="h-8 w-8" />
-    </div>
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Governance evidence</div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">AI Governance Needs Evidence. AGDF Keeps It Visible.</h2>
-    <p class="mx-auto max-w-3xl text-dark-200">
-      When AI agents touch real code, teams need to know what was approved, what changed, what was checked and what still blocks release.
-    </p>
-  </div>
-  <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-    <div data-reveal class="surface p-6">
-      <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">What good AI delivery needs</div>
-      <p class="text-sm leading-relaxed text-dark-200">
-        Regulations such as the EU AI Act push teams toward risk awareness, documentation, traceability and human oversight. Those ideas only become useful when the delivery trail is visible.
-      </p>
-      <p class="mt-4 text-sm leading-relaxed text-dark-200">
-        AGDF gives AI-assisted coding work that trail: approved scope, affected context, evidence, open gaps and the reason the next step is allowed or blocked.
-      </p>
-      <div class="mt-5 flex flex-wrap gap-2 text-xs">
-        {["approved scope", "human decision", "visible evidence", "traceable gaps", "blocked next step"].map((item) => (
-          <span class="rounded-full border border-agdf-500/30 bg-agdf-950/40 px-3 py-1 text-agdf-200">{item}</span>
-        ))}
-      </div>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-2">
-      {aiActFit.map((item, i) => (
-        <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/60 p-5 transition-colors hover:border-agdf-500/40">
-          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">{item.mapsTo}</div>
-          <h3 class="mb-2 text-lg font-semibold text-agdf-200">{item.title}</h3>
-          <p class="text-sm leading-relaxed text-dark-200">{item.desc}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-  <div data-reveal class="mt-8 rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-5 text-sm text-yellow-100 shadow-[0_0_32px_-22px_rgba(234,179,8,0.8)]">
-    <strong class="font-semibold text-yellow-200">Boundary:</strong>
-    AGDF helps preserve delivery evidence for AI-assisted software work. It does not classify AI systems, certify compliance or replace legal review.
-  </div>
-  <div data-reveal class="mt-5 flex flex-wrap gap-3 text-sm text-dark-200">
-    <a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai" class="transition-colors hover:text-agdf-300">EU AI Act overview</a>
-    <a href="https://digital-strategy.ec.europa.eu/en/policies/guidelines-gpai-providers" class="transition-colors hover:text-agdf-300">GPAI provider guidance</a>
-    <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng" class="transition-colors hover:text-agdf-300">Regulation (EU) 2024/1689</a>
-  </div>
-</section>
-
-  <!-- ==================== CONTROL SYSTEM ==================== -->
-<section id="control-system" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-        <Icon name="control-network" class="h-8 w-8" />
-      </div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Control System</h2>
-      <p class="text-dark-200">The control state lives in the repository, not only in chat.</p>
-      <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300">AGDF keeps the current gate, backlog pointer, source-of-truth registry, Context Graph, QA evidence and OR closeout as durable project artefacts.</p>
-    </div>
-    <div id="durable-control-state" data-reveal data-reveal-delay="1" class="mb-8">
-      <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div class="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Durable control state</div>
-          <h3 class="text-2xl font-bold sm:text-3xl">What survives the chat</h3>
-        </div>
-        <span class="rounded-full border border-cyan-100/25 bg-cyan-300/10 px-3 py-1 text-xs font-medium text-cyan-100">repository-owned</span>
-      </div>
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { name: "RUN_STATE", desc: "selected run, current gate, missing approval, allowed and forbidden actions" },
-          {
-            name: "MASTER_BACKLOG",
-            desc: "living pointer to active UR, PRD, SD, TP, QA and OR artefacts",
-            href: "https://github.com/ArndtGold/ai-native-governance-delivery-framework/blob/main/plugin/control/templates/MASTER_BACKLOG.md",
-          },
-          { name: "CONTEXT_GRAPH", desc: "durable Brownfield findings, risks, decisions and evidence" },
-          { name: "OR", desc: "audit closeout: changed, not changed, open gaps and next allowed step" },
-        ].map(({ name, desc, href }) => (
-          href ? (
-            <a href={href} target="_blank" rel="noreferrer" aria-label="View the canonical Master Backlog template on GitHub" class="group rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.10),rgba(15,23,42,0.22))] p-4 shadow-[0_18px_58px_-38px_rgba(34,211,238,0.55),0_1px_0_rgba(255,255,255,0.12)_inset] transition-colors hover:border-cyan-200/50">
-              <div class="flex items-center justify-between gap-3 font-mono text-xs font-bold text-cyan-100">
-                <span>{name}</span>
-                <span aria-hidden="true" class="text-cyan-200/60 transition-transform group-hover:translate-x-0.5">↗</span>
-              </div>
-              <p class="mt-2 text-xs leading-relaxed text-dark-300">{desc}</p>
-              <span class="mt-3 inline-block text-xs font-medium text-cyan-100/80">View template</span>
-            </a>
-          ) : (
-            <div class="rounded-2xl border border-cyan-100/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.10),rgba(15,23,42,0.22))] p-4 shadow-[0_18px_58px_-38px_rgba(34,211,238,0.55),0_1px_0_rgba(255,255,255,0.12)_inset]">
-              <div class="font-mono text-xs font-bold text-cyan-100">{name}</div>
-              <p class="mt-2 text-xs leading-relaxed text-dark-300">{desc}</p>
-            </div>
-          )
-        ))}
-      </div>
-    </div>
-    <div class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <div data-reveal data-reveal-delay="2" class="surface p-4 sm:p-5">
-        <div class="mb-4 flex items-center justify-between gap-4">
-          <div>
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-dark-200">Context Graph</div>
-            <div class="mt-1 text-sm font-semibold text-dark-100">Decision-oriented delivery map</div>
-          </div>
-          <span class="rounded-full border border-red-500/30 bg-red-950/30 px-3 py-1 font-mono text-xs text-red-200 shadow-[0_0_24px_-16px_rgba(239,68,68,0.7)]">blocked</span>
-        </div>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            ["UR-045", "User requirement", "defines"],
-            ["PRD v1.2", "Product contract", "constrains"],
-            ["SD v0.4", "Solution design", "refines"],
-            ["TP v0.3", "Task plan", "tests"],
-            ["TR-2026", "Test evidence", "proves"],
-            ["QA v0.2", "QA report", "decides"],
-          ].map(([id, label, relation]) => (
-            <div class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900 p-3 transition-all hover:border-agdf-500/40 hover:-translate-y-0.5">
-              <div class="font-mono text-xs font-bold text-agdf-300">{id}</div>
-              <div class="mt-1 text-sm font-semibold text-dark-100">{label}</div>
-              <div class="mt-2 rounded-full border border-dark-700/80 px-2 py-1 text-xs text-dark-200">{relation}</div>
-            </div>
-          ))}
-        </div>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-4 shadow-[0_0_28px_-20px_rgba(234,179,8,0.6)]">
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-yellow-300">Risk</div>
-            <p class="mt-2 text-sm text-yellow-100">Limit rejection path not tested.</p>
-          </div>
-          <div class="rounded-lg border border-red-500/30 bg-red-950/20 p-4 shadow-[0_0_28px_-20px_rgba(239,68,68,0.6)]">
-            <div class="font-mono text-xs font-bold uppercase tracking-wide text-red-300">Blocker</div>
-            <p class="mt-2 text-sm text-red-100">QA cannot pass without missing evidence.</p>
-          </div>
-        </div>
-      </div>
-      <div data-reveal data-reveal-delay="3">
-        <div class="terminal">
-          <div class="terminal-body text-xs">
-            <div class="text-dark-200/50">plugin/</div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.claude-plugin/</span> <span class="text-dark-200/50">plugin.json</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.codex-plugin/</span> <span class="text-dark-200/50">plugin.json</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">hooks/</span> <span class="text-dark-200/50">SessionStart lifecycle config</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">meta/</span> <span class="text-dark-200/50">agdf-agent-router.md, agdf-constitution.md, agdf-runtime-contract.md</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">skills/</span></div>
-            <div class="ml-8 text-dark-200/50">Codex and Claude Code use the plugin namespace, so skill folders stay unprefixed.</div>
-            {skills.map(skill => (
-              <div class="ml-8 text-dark-200"><span class="text-agdf-300">{skill.name}/</span> <span class="text-dark-200/50">SKILL.md, help.md</span></div>
-            ))}
-            <div class="mt-2 text-dark-200/50">.claude-plugin/</div>
-            <div class="ml-4 text-dark-200/50">marketplace.json</div>
-            <div class="mt-2 text-dark-200/50">target repository after <span class="text-dark-200">npm create agdf -- opencode</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">opencode.json</span> <span class="text-dark-200/50">loads create-agdf, AGDF.md, native questions and ask permissions</span></div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">.opencode/</span> <span class="text-dark-200/50">AGDF.md, skills/agdf-*/SKILL.md, agdf-runtime-contract.md</span></div>
-            <div class="mt-2 text-dark-200/50">global OpenCode plugin + native skills</div>
-            <div class="ml-4 text-dark-200"><span class="text-agdf-400">~/.config/opencode/opencode.json</span> <span class="text-dark-200/50">plugin: ["create-agdf"]</span></div>
-            <div class="mt-2 text-dark-200/50">docs/ <span class="text-dark-200/30">— German-first framework documentation</span></div>
-            <div class="text-dark-200/50">pages/ <span class="text-dark-200/30">— Astro website</span></div>
-          </div>
-        </div>
-        <div class="mt-6">
-          <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Reference runtime</div>
-          <h3 class="mb-3 text-2xl font-bold sm:text-3xl">One runtime, multiple surfaces.</h3>
-          <p class="text-dark-200">Codex and Claude Code consume AGDF through plugins and skills. Copilot consumes AGDF through an AGENTS.md bootstrap. OpenCode uses one global npm/native-skill surface; a repository becomes active through valid durable AGDF control in .agdf/control/config.json. The global runtime does not replace that repository-owned control state. Existing repository-local OpenCode skills and instructions remain supported as legacy compatibility, but are no longer required for new setups.</p>
-        </div>
-      </div>
-    </div>
-    <!-- Layer description -->
-    <div class="mt-8 grid gap-4 sm:grid-cols-3">
-      <div data-reveal class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
-        <h4 class="mb-1 font-semibold text-agdf-300">Constitution</h4>
-        <p class="text-xs text-dark-200">Operating Model, Gate Discipline, Brownfield Discipline, Quality Contract Discipline</p>
-      </div>
-      <div data-reveal data-reveal-delay="1" class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
-        <h4 class="mb-1 font-semibold text-agdf-300">Hooks</h4>
-        <p class="text-xs text-dark-200">SessionStart shows a compact AGDF reminder and points to the router and constitution without flooding the chat.</p>
-      </div>
-      <div data-reveal data-reveal-delay="2" class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-4 transition-colors hover:border-agdf-500/40">
-        <h4 class="mb-1 font-semibold text-agdf-300">Skills</h4>
-        <p class="text-xs text-dark-200">Core skills: Planning, Governance, Analysis, Review, Delivery</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ==================== SKILLS ==================== -->
-<section id="skills" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-12 flex flex-col items-center text-center">
-    <div class="mb-5 inline-flex max-w-full items-center gap-3 rounded-full border border-agdf-500/30 bg-agdf-950/60 px-4 py-2 text-left shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-      <img src="/assets/agdf-logo.svg" alt="" class="h-10 w-10 shrink-0" loading="lazy" decoding="async" />
-      <div class="min-w-0">
-        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-agdf-300">AGDF Skill System</p>
-        <p class="text-sm text-dark-200">Workflow controls for governed agent delivery.</p>
-      </div>
-    </div>
-    <h2 class="mb-3 text-3xl font-bold sm:text-4xl">{skills.length} Core Workflow Skills</h2>
-    <p class="max-w-3xl text-dark-200">Each skill is an auditable workflow, not a loose suggestion. Delivery Path Search helps teams avoid implementing the wrong plausible idea first—before it becomes expensive rework.</p>
-  </div>
-  <p class="mx-auto mb-6 max-w-3xl text-center text-sm text-dark-300">Host-owned plugin catalogues may still show a flat list. This grouped view is the AGDF-owned discovery surface.</p>
-  <div data-reveal data-reveal-delay="1" class="space-y-6">
-    {discoveryGroups.map(group => (
-      <div class="surface overflow-x-auto">
-        <div class="border-b border-dark-700/80 bg-dark-900/80 px-4 py-3"><h3 class="font-semibold text-agdf-200">{group.title}</h3><p class="mt-1 text-xs text-dark-300">{group.description}</p></div>
-    <table class="w-full text-left text-sm">
-      <thead class="border-b border-dark-700/80 bg-dark-900/80 text-xs uppercase text-dark-200">
-        <tr>
-          <th class="px-4 py-3">Skill</th>
-          <th class="px-4 py-3">Family</th>
-          <th class="px-4 py-3">What it does</th>
-          <th class="px-4 py-3 hidden lg:table-cell">When to run it</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-dark-800">
-        {skills.filter(s => s.discovery === group.key).map(s => (
-          <tr class="transition-colors hover:bg-agdf-950/30">
-            <td class="px-4 py-3">
-              <code class="text-agdf-300">{s.name.startsWith('/') ? s.name : '/' + s.name}</code>
-            </td>
-            <td class="px-4 py-3">
-              <span class="rounded-full border border-dark-700/80 px-2 py-0.5 text-xs text-dark-200">{s.family}</span>
-            </td>
-            <td class="px-4 py-3 text-dark-200">{s.short}</td>
-            <td class="px-4 py-3 text-xs text-dark-200/70 hidden lg:table-cell">{s.when}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-      </div>
-    ))}
-  </div>
-  <!-- Skill families -->
-  <div data-reveal data-reveal-delay="2" class="mt-8 flex flex-wrap justify-center gap-3">
-    {skillFamilies.map(f => (
-      <span class="rounded-full border border-agdf-500/30 bg-agdf-950/50 px-4 py-1.5 text-sm text-agdf-300 shadow-[0_0_24px_-16px_var(--agdf-glow)]">{f}</span>
-    ))}
-  </div>
-</section>
-
-<!-- ==================== COMPATIBILITY ==================== -->
-<section id="compat" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Compatibility</h2>
-        <p class="text-dark-200">AGDF is Codex-first, but not Codex-only. Each surface receives the same control model through its native packaging.</p>
-        <p class="mx-auto mt-3 max-w-3xl text-sm text-dark-300"><strong class="text-dark-100">OpenCode is the control-stack reference</strong> because it exposes instructions, agents, permissions and hooks together. <strong class="text-dark-100">Codex and Claude Code are the executable Delivery Path Search references</strong> because they provide native, tool-enforced evaluator adapters.</p>
-  </div>
-  <div data-reveal data-reveal-delay="1" class="surface overflow-x-auto">
-    <table class="w-full text-left text-sm">
-      <thead class="border-b border-dark-700/80 bg-dark-900/80 text-xs uppercase text-dark-200">
-        <tr>
-          <th class="px-4 py-3">Agent Tool</th>
-            <th class="px-4 py-3">Integration</th>
-            <th class="px-4 py-3">Support</th>
-            <th class="px-4 py-3">Position</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-dark-800">
-        {compatibility.map(c => (
-          <tr class="transition-colors hover:bg-agdf-950/30">
-            <td class="px-4 py-3 font-medium">
-              {c.setupAnchor ? (
-                <a href={c.setupAnchor} class="transition-colors hover:text-agdf-300">{c.tool}</a>
-              ) : (
-                c.tool
-              )}
-            </td>
-              <td class="px-4 py-3 font-mono text-dark-200">{c.integration}</td>
-            <td class="px-4 py-3">
-                <span class={`font-mono font-semibold ${c.support === 'Leading' || c.support === 'First-class' || c.support.includes('reference') ? 'text-agdf-400' : 'text-yellow-400'}`}>{c.support}</span>
-            </td>
-            <td class="px-4 py-3">
-              <span class={`rounded-full px-2 py-0.5 text-xs ${c.goal === 'primary' || c.goal === 'plugin' || c.goal === 'runtime' ? 'border border-agdf-500/30 bg-agdf-950 text-agdf-300' : 'bg-dark-800 text-dark-200'}`}>{c.goal}</span>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-  <p data-reveal data-reveal-delay="2" class="mx-auto mt-4 max-w-4xl text-center text-xs text-dark-400">
-    AGDF is an independent project and is not affiliated with, endorsed by, or sponsored by OpenAI, Anthropic, GitHub or OpenCode.
-  </p>
-</section>
-
-<!-- ==================== PUBLIC OPENAI PLUGIN ==================== -->
-<section id="public-plugin" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mx-auto mb-12 max-w-4xl text-center">
-      <div class="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-agdf-400">Skills-only public candidate</div>
-      <h2 class="mb-4 text-3xl font-bold sm:text-4xl">{publicPlugin.title}</h2>
-      <p class="text-dark-200">{publicPlugin.summary}</p>
-    </div>
-    <div class="grid gap-5 lg:grid-cols-3">
-      {publicPlugin.surfaces.map(surface => (
-        <article data-reveal class="surface p-6">
-          <div class="mb-3 inline-flex rounded-full border border-agdf-500/30 bg-agdf-950/60 px-3 py-1 font-mono text-xs text-agdf-300">{surface.state}</div>
-          <h3 class="mb-3 text-lg font-semibold">{surface.name}</h3>
-          <p class="text-sm leading-relaxed text-dark-200">{surface.description}</p>
-        </article>
-      ))}
-    </div>
-    <div data-reveal class="mx-auto mt-8 grid max-w-5xl gap-4 text-sm text-dark-200 md:grid-cols-2">
-      <div class="surface p-5"><strong class="text-dark-100">Authority boundary.</strong> {publicPlugin.authority}</div>
-      <div class="surface p-5"><strong class="text-dark-100">Failure and recovery.</strong> {publicPlugin.recovery}</div>
-    </div>
-    <p data-reveal class="mx-auto mt-6 max-w-4xl text-center text-xs text-dark-400">
-      AGDF is an independent open-source project. It is not an OpenAI product, security sandbox, legal assessment, compliance certification or autonomous shipping system.
-    </p>
-  </div>
-</section>
-
-<!-- ==================== SETUP ==================== -->
-<section id="setup" class="border-y border-dark-800/80 bg-dark-900/30 py-24">
-  <div class="mx-auto max-w-[90rem] px-4 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">Easy Setup</h2>
-      <p class="text-dark-200">Choose your agent surface. The npm package holds the complete CLI reference.</p>
-    </div>
-    <div data-reveal data-reveal-delay="1" class="surface mb-8 flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
-      <div>
-        <div class="font-semibold text-dark-100">Need every command and option?</div>
-        <p class="mt-1 text-sm text-dark-200">Setup targets, control-state commands, validators and global installation live with the package.</p>
-      </div>
-      <a href="https://www.npmjs.com/package/@agdf/cli" target="_blank" rel="noreferrer" class="inline-flex shrink-0 items-center rounded-full border border-agdf-500/40 bg-agdf-950 px-4 py-2 text-sm font-semibold text-agdf-200 transition-colors hover:border-agdf-400 hover:text-agdf-100">
-        @agdf/cli on npm →
+<BaseLayout title={pageTitle}>
+  <header class="fixed inset-x-0 top-0 z-50 border-b border-dark-800/70">
+    <div class="nav-bar-bg absolute inset-0 -z-10" aria-hidden="true"></div>
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+      <a href="#home" class="inline-flex items-center gap-3 rounded-md" aria-label="AGDF home">
+        <img src="/assets/logo.png" alt="" width="84" height="36" class="h-8 w-auto" />
+        <span class="hidden text-sm font-semibold text-dark-100 sm:inline">{site.name}</span>
       </a>
+
+      <nav class="hidden items-center gap-6 text-sm text-dark-200 md:flex" aria-label="Primary navigation">
+        {landingPage.navigation.map((item) => (
+          <a href={item.href} class="transition-colors hover:text-agdf-200">{item.label}</a>
+        ))}
+        <a href={site.repo} class="btn-nav">GitHub</a>
+      </nav>
+
+      <details class="mobile-nav relative md:hidden">
+        <summary class="rounded-md border border-dark-700 px-3 py-2 text-sm font-semibold text-dark-100">Menu</summary>
+        <nav class="absolute right-0 top-[calc(100%+0.75rem)] flex min-w-52 flex-col rounded-xl border border-dark-700 bg-dark-950 p-2 shadow-2xl" aria-label="Mobile navigation">
+          {landingPage.navigation.map((item) => (
+            <a href={item.href} class="rounded-lg px-3 py-2 text-sm text-dark-200 hover:bg-dark-900 hover:text-agdf-200">{item.label}</a>
+          ))}
+          <a href={site.repo} class="rounded-lg px-3 py-2 text-sm font-semibold text-agdf-200 hover:bg-dark-900">GitHub</a>
+        </nav>
+      </details>
     </div>
-    <div class="mt-10">
-       <div class="grid gap-4 lg:grid-cols-3">
-          <div>
-            <div class="mb-2 text-xm font-medium text-dark-200/50">ChatGPT Codex App (MacOS)</div>
-            <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
-              <div class="max-h-[46rem] overflow-hidden rounded-lg bg-white">
-                <img
-                  src="/assets/codex-agdf-plugin-ui.png"
-                  alt="Codex plugin detail page showing AI Governance and Delivery Framework installed with AGDF skills, hooks and plugin metadata."
-                  width="3284"
-                  height="2354"
-                  class="block h-auto w-full cursor-zoom-in"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </span>
-              </button>
-            </figure>
+  </header>
+
+  <main data-homepage>
+    <section id="home" data-home-section class="hero-grid relative overflow-hidden px-4 pb-20 pt-32 sm:px-6 sm:pb-24 sm:pt-40 lg:px-8 lg:pb-28">
+      <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div>
+          <p class="eyebrow">{hero.audience}</p>
+          <h1 class="mt-5 max-w-4xl text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">{hero.title}</h1>
+          <p class="mt-7 max-w-3xl text-xl font-semibold leading-relaxed text-agdf-100 sm:text-2xl">{hero.lead}</p>
+          <p class="mt-5 max-w-3xl text-base leading-8 text-dark-200 sm:text-lg">{hero.formulaOne}</p>
+
+          <div class="mt-8 flex flex-wrap gap-3" aria-label="Responsibility model">
+            {hero.roles.map((role) => (
+              <div class="role-chip"><strong>{role.label}:</strong>&nbsp;{role.value}</div>
+            ))}
           </div>
-          <div>
-            <div class="mb-2 text-xm font-medium text-dark-200/50">Claude Code App (Windows)</div>
-            <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
-              <div class="max-h-[46rem] overflow-hidden rounded-lg bg-white">
-                <img
-                  src="/assets/claude-agdf-plugin-ui.png"
-                  alt="Claude Code plugin detail page showing AI Governance and Delivery Framework installed with AGDF skills, hooks and plugin metadata."
-                  width="1930"
-                  height="1386"
-                  class="block h-auto w-full cursor-zoom-in"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </span>
-              </button>
-            </figure>
-          </div>
-          <div>
-            <div class="mb-2 text-xm font-medium text-dark-200/50">OpenCode App (macOS)</div>
-            <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
-              <div class="max-h-[46rem] overflow-hidden rounded-lg bg-white">
-                <img
-                  src="/assets/opencode-agdf-plugin-proof.png"
-                  alt="OpenCode showing the active create-agdf plugin in its Plugins panel alongside an AGDF plugin suitability assessment."
-                  width="1618"
-                  height="972"
-                  class="block h-auto w-full cursor-zoom-in"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </span>
-              </button>
-            </figure>
+
+          <div class="mt-9 flex flex-wrap gap-4">
+            <a href={hero.primaryAction.href} class="btn-primary">{hero.primaryAction.label}</a>
+            <a href={hero.secondaryAction.href} class="btn-ghost">{hero.secondaryAction.label}</a>
           </div>
         </div>
-        <p class="mt-3 text-sm leading-6 text-dark-200">
-          Screenshots show UI examples and observed integration states, not the release version source of truth. Use the install command and package metadata for the current release.
-        </p>
-        <div class="mt-4 grid gap-3 text-sm sm:grid-cols-3" aria-label="Version and screenshot evidence">
-          <div class="rounded-lg border border-agdf-500/30 bg-agdf-950/30 p-3"><span class="block text-xs uppercase text-dark-300">Expected release</span><strong class="text-agdf-200">{versionEvidence.expectedRelease}</strong><span class="mt-1 block text-xs text-dark-300">Package metadata</span></div>
-          <div class="rounded-lg border border-yellow-500/30 bg-yellow-950/20 p-3"><span class="block text-xs uppercase text-dark-300">Observed install</span><strong class="text-yellow-300">{versionEvidence.observedInstall}</strong><span class="mt-1 block text-xs text-dark-300">Check the active host session or status command.</span></div>
-          <div class="rounded-lg border border-dark-700 p-3"><span class="block text-xs uppercase text-dark-300">Screenshot evidence</span><strong class="text-dark-100">{versionEvidence.screenshotState}</strong><span class="mt-1 block text-xs text-dark-300">{versionEvidence.source}</span></div>
-        </div>
-      </div>
-      <div data-reveal data-reveal-delay="7">
-        <div class="mb-2 flex items-center gap-2 text-xm text-dark-200">
-          <span class="text-dark-200/50">Self-hosting proof:</span>
-          <span class="font-semibold">AGDF governs its own evolution</span>
-        </div>
-        <div class="terminal mb-4">
-          <div class="terminal-body space-y-2">
-            <div><span class="text-agdf-400">❯</span> <span class="text-dark-100">Govern AGDF's own Gate Rationale Registry.</span></div>
-            <div class="text-dark-200">  Requirement: canonical, localized and deterministic why content</div>
-            <div class="text-dark-200">  <code>SD</code> — solution direction made explicit</div>
-            <div class="text-dark-200">  <code>QA</code> — implementation evidence passed</div>
-            <div class="text-dark-200">  <code>UAT</code> — ready for deliberate user acceptance</div>
-            <div class="text-dark-200">  Result: AGDF uses its own gates to evolve AGDF</div>
-          </div>
-        </div>
-        <div class="grid gap-4 lg:grid-cols-2 lg:items-start">
-          <div class="min-w-0">
-            <div class="mb-2 text-xm font-semibold uppercase tracking-wide text-agdf-300">1 · SOLUTION DESIGN APPROVAL</div>
-            <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
-              <img
-                src="/assets/codex-gate-check-proof.png"
-                alt="Codex showing the German SD approval for AGDF's Gate Rationale Registry beside the corresponding English solution design artefact."
-                width="3348"
-                height="2692"
-                class="block h-auto w-full cursor-zoom-in rounded-lg"
-                loading="lazy"
-                decoding="async"
-              />
-              <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </span>
-              </button>
-            </figure>
-            <p class="mt-3 text-sm leading-6 text-dark-200">
-              After the Product Requirements Document (PRD) is approved, the Solution Design (SD) approval establishes the implementation direction before task and test planning begin. The approval is presented in German, as configured, while the repository artifact follows the repository's English language conventions.
-            </p>
-          </div>
-          <div class="min-w-0">
-            <div class="mb-2 text-xm font-semibold uppercase tracking-wide text-agdf-300">2 · User acceptance decision</div>
-            <figure class="surface group relative overflow-hidden p-2" data-lightbox-trigger>
-              <img
-                src="/assets/codex-uat-ready-proof.png"
-                alt="Codex showing UAT ready for decision for AGDF's Gate Rationale Registry beside the passed English QA report."
-                width="3356"
-                height="2712"
-                class="block h-auto w-full cursor-zoom-in rounded-lg"
-                loading="lazy"
-                decoding="async"
-              />
-              <button type="button" data-lightbox-open aria-label="Bild vergrößern" class="absolute inset-0 flex items-center justify-center bg-dark-950/0 opacity-0 transition-all duration-300 focus-visible:opacity-100 focus-visible:bg-dark-950/40 group-hover:bg-dark-950/40 group-hover:opacity-100">
-                <span class="flex h-12 w-12 items-center justify-center rounded-full border border-agdf-500/50 bg-dark-950/70 text-agdf-200 backdrop-blur-sm shadow-[0_0_30px_-8px_var(--agdf-glow)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                </span>
-              </button>
-            </figure>
-            <p class="mt-3 text-sm leading-6 text-dark-200">
-              Quality Assurance has passed. AGDF is now awaiting deliberate user acceptance (UAT). The visible selection has not yet been submitted.
-            </p>
+
+        <div class="relative mx-auto w-full max-w-md lg:max-w-none" aria-label={site.fullName}>
+          <div class="logo-orbit" aria-hidden="true"></div>
+          <div class="surface relative p-8 text-center sm:p-10">
+            <img src="/assets/logo.png" alt={site.fullName} width="720" height="304" class="mx-auto h-auto w-full max-w-sm" loading="eager" decoding="async" />
+            <p class="mt-6 font-mono text-xs font-semibold uppercase tracking-[0.22em] text-dark-200">{site.fullName}</p>
+            <div class="mt-8 grid grid-cols-3 gap-2 text-left text-xs text-slate-400">
+              <span class="signal">Scope</span><span class="signal">Evidence</span><span class="signal">Gate</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-</section>
+    </section>
 
-  <!-- ==================== What AGDF Is Not ==================== -->
-  <section id="design" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-    <div data-reveal class="mb-12 text-center">
-      <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-agdf-500/30 bg-agdf-950/60 text-agdf-300 shadow-[0_0_30px_-14px_var(--agdf-glow)]">
-        <Icon name="boundary" class="h-8 w-8" />
+    <section id="problem" data-home-section class="section-shell border-y border-dark-800/70 bg-dark-900/30">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <p class="eyebrow">{problem.eyebrow}</p>
+          <h2 class="section-title">{problem.title}</h2>
+          <p class="section-lead">{problem.description}</p>
+          {problem.context.map((paragraph) => <p class="mt-4 leading-7 text-dark-200">{paragraph}</p>)}
+        </div>
+
+        <div class="mt-10 grid gap-5 lg:grid-cols-2">
+          {[problem.without, problem.with].map((comparison, index) => (
+            <article class:list={["surface p-6 sm:p-8", index === 1 && "controlled-card"]}>
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <h3 class="text-xl font-bold text-white">{comparison.title}</h3>
+                <span class:list={["state-pill", index === 0 ? "state-risk" : "state-control"]}>{comparison.state}</span>
+              </div>
+              <ul class="mt-6 space-y-4 text-dark-200">
+                {comparison.points.map((point) => <li class="check-row"><span aria-hidden="true">{index === 0 ? "×" : "✓"}</span>{point}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
       </div>
-      <h2 class="mb-3 text-3xl font-bold sm:text-4xl">What AGDF Is Not</h2>
-      <p class="text-dark-200">Clear boundaries keep the framework useful. Ownership stays with people.</p>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {notFor.map((item, i) => (
-          <div data-reveal data-reveal-delay={String((i % 4) + 1)} class="inset-highlight rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 transition-colors hover:border-agdf-500/40">
-            <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Not this</div>
-            <p class="text-sm leading-relaxed text-dark-200">{item}</p>
+    </section>
+
+    <section id="how-it-works" data-home-section class="section-shell">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <p class="eyebrow">{controlLoop.eyebrow}</p>
+          <h2 class="section-title">{controlLoop.title}</h2>
+          <p class="section-lead">{controlLoop.description}</p>
+        </div>
+
+        <ol class="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {controlLoop.steps.map((item) => (
+            <li class="surface control-step p-6">
+              <span class="font-mono text-xs font-bold text-agdf-300">{item.step}</span>
+              <h3 class="mt-4 text-xl font-bold text-white">{item.title}</h3>
+              <p class="mt-3 leading-7 text-dark-200">{item.description}</p>
+            </li>
+          ))}
+        </ol>
+        <div class="mt-8 grid gap-5 md:grid-cols-3">
+          {controlLoop.practice.map((item) => (
+            <article class="border-l-2 border-agdf-700 pl-5">
+              <h3 class="font-bold text-white">{item.title}</h3>
+              <p class="mt-2 leading-7 text-dark-200">{item.description}</p>
+            </article>
+          ))}
+        </div>
+        <a href={controlLoop.detailLink.href} class="text-link mt-8 inline-flex">{controlLoop.detailLink.label} <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <section id="outcomes" data-home-section class="section-shell border-y border-dark-800/70 bg-dark-900/30">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <p class="eyebrow">{outcomes.eyebrow}</p>
+          <h2 class="section-title">{outcomes.title}</h2>
+        </div>
+        <div class="mt-10 grid gap-5 md:grid-cols-3">
+          {outcomes.items.map((item, index) => (
+            <article class="surface p-7">
+              <span class="outcome-number">0{index + 1}</span>
+              <h3 class="mt-5 text-xl font-bold text-white">{item.title}</h3>
+              <p class="mt-3 leading-7 text-dark-200">{item.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="proof" data-home-section class="section-shell">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
+          <div>
+            <p class="eyebrow">{proof.eyebrow}</p>
+            <h2 class="section-title">{proof.title}</h2>
+            <p class="section-lead">{proof.description}</p>
+            <p class="mt-5 leading-7 text-dark-200">{proof.selfHosting}</p>
+
+            <div class="mt-8 space-y-5">
+              {proof.evidenceMeaning.map((item) => (
+                <article>
+                  <h3 class="font-bold text-white">{item.title}</h3>
+                  <p class="mt-2 leading-7 text-dark-200">{item.description}</p>
+                </article>
+              ))}
+            </div>
+
+            <dl class="mt-8 grid grid-cols-3 gap-3">
+              <div class="metric"><dt>Version</dt><dd>{site.version}</dd></div>
+              <div class="metric"><dt>Skills</dt><dd>{evaluationEvidence.canonicalSkills}</dd></div>
+              <div class="metric"><dt>Eval cases</dt><dd>{evaluationEvidence.behavioralCases}</dd></div>
+            </dl>
+
+            <div class="mt-8 space-y-4">
+              {proof.surfaces.map((surface) => (
+                <article class="border-l-2 border-dark-700 pl-4">
+                  <h3 class="font-semibold text-white">{surface.name} <span class="font-normal text-agdf-200">— {surface.state}</span></h3>
+                  <p class="mt-1 text-sm leading-6 text-slate-400">{surface.detail}</p>
+                </article>
+              ))}
+            </div>
           </div>
-      ))}
+
+          <div class="space-y-6">
+            <article class="surface border-agdf-700/70 p-6 sm:p-8">
+              <h3 class="text-xl font-bold text-white">{proof.publicPlugin.title}</h3>
+              <p class="mt-4 leading-7 text-dark-200">{proof.publicPlugin.summary}</p>
+              <p class="mt-3 leading-7 text-dark-200">{proof.publicPlugin.advisory}</p>
+              <p class="mt-3 leading-7 text-dark-200">{proof.publicPlugin.enforcement}</p>
+              <p class="mt-3 leading-7 text-dark-200">{proof.publicPlugin.authority}</p>
+            </article>
+
+            <figure class="surface overflow-hidden">
+              <img src={proof.screenshot.src} alt={proof.screenshot.alt} width={proof.screenshot.width} height={proof.screenshot.height} class="aspect-[1.55] w-full object-cover object-top" loading="lazy" decoding="async" />
+              <figcaption class="border-t border-dark-800 px-5 py-4 text-sm leading-6 text-slate-400">{proof.screenshot.caption}</figcaption>
+            </figure>
+
+            <div class="flex flex-wrap gap-x-6 gap-y-3">
+              {proof.links.map((link) => <a href={link.href} class="text-link">{link.label} <span aria-hidden="true">→</span></a>)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="setup" data-home-section class="section-shell border-y border-dark-800/70 bg-dark-900/30">
+      <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+        <div>
+          <p class="eyebrow">{installation.eyebrow}</p>
+          <h2 class="section-title">{installation.title}</h2>
+          <p class="section-lead">{installation.description}</p>
+        </div>
+        <div class="surface p-6 sm:p-8">
+          <p class="font-mono text-xs font-bold uppercase tracking-wide text-agdf-300">Terminal</p>
+          <pre class="mt-4 overflow-x-auto rounded-xl border border-dark-800 bg-dark-950 p-5 text-sm text-agdf-100"><code>{installation.command}</code></pre>
+          <ol class="mt-6 space-y-4 text-dark-200">
+            {installation.beforeYouStart.map((item, index) => <li class="check-row"><span aria-hidden="true">0{index + 1}</span>{item}</li>)}
+          </ol>
+          <p class="mt-5 leading-7 text-dark-200">{installation.nextStep}</p>
+          <a href={installation.alternatives.href} class="text-link mt-5 inline-flex">{installation.alternatives.label} <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="responsibility" data-home-section class="section-shell">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <p class="eyebrow">{responsibility.eyebrow}</p>
+            <h2 class="section-title">{responsibility.title}</h2>
+            <p class="section-lead">{responsibility.description}</p>
+            <p class="mt-6 leading-7 text-dark-200">{responsibility.project}</p>
+            <div class="mt-8 space-y-5">
+              {responsibility.decisionOwners.map((item) => (
+                <article>
+                  <h3 class="font-bold text-white">{item.title}</h3>
+                  <p class="mt-2 leading-7 text-dark-200">{item.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+          <div class="surface p-6 sm:p-8">
+            <h3 class="text-lg font-bold text-white">What AGDF does not claim</h3>
+            <ul class="mt-5 space-y-3 text-dark-200">
+              {responsibility.limits.map((limit) => <li class="check-row"><span aria-hidden="true">—</span>{limit}</li>)}
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-10 flex flex-wrap gap-x-6 gap-y-3">
+          {responsibility.links.map((link) => <a href={link.href} class="text-link">{link.label}</a>)}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-dark-800 bg-dark-950">
+    <div class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 text-sm text-slate-400 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+      <p>© {new Date().getFullYear()} {site.author.name}. {site.license}. AGDF is an independent project and not an OpenAI product.</p>
+      <nav class="flex flex-wrap gap-5" aria-label="Legal and support">
+        <a href="/privacy" class="hover:text-agdf-200">Privacy</a>
+        <a href="/terms" class="hover:text-agdf-200">Terms</a>
+        <a href="/support" class="hover:text-agdf-200">Support</a>
+        <a href={`mailto:${site.contactEmail}`} class="hover:text-agdf-200">Contact</a>
+      </nav>
     </div>
-  </section>
-
-  <!-- ==================== AUTHOR ==================== -->
-<section id="author" class="mx-auto max-w-[90rem] px-4 py-24 sm:px-6">
-  <div data-reveal class="mb-10 text-center">
-    <div class="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-agdf-400">Author</div>
-    <img src={site.author.image} alt={site.author.name} class="mx-auto mb-4 h-38 w-32 rounded-2xl border border-agdf-500/30 bg-agdf-950 object-cover shadow-[0_0_30px_-10px_var(--agdf-glow)]" loading="lazy" decoding="async" />
-    <h2 class="text-2xl font-bold sm:text-3xl">{site.author.name}</h2>
-    <p class="mt-2 text-sm text-dark-200">{site.author.role}</p>
-  </div>
-  <div data-reveal data-reveal-delay="1" class="space-y-4 text-center">
-    <p class="text-dark-200">AGDF was created by <strong class="font-semibold text-dark-100">{site.author.name}</strong>, a software engineer with more than 20 years of enterprise software experience and a background in mechanical engineering and computer science.</p>
-    <p class="text-dark-200">The framework reflects observations from Java, Spring, Brownfield systems and AI-assisted development: fast AI output can be useful, but software delivery still needs artifacts, gates, evidence and human responsibility.</p>
-  </div>
-  <div data-reveal data-reveal-delay="2" class="inset-highlight mt-8 rounded-lg border border-dark-700/80 bg-dark-900/50 p-5 text-center">
-    <p class="text-sm text-dark-200">AGDF is an independent, installable open framework. Teams can adopt only the control depth their work needs; it does not replace product responsibility, engineering judgment or experienced developers.</p>
-  </div>
-
-  <div data-reveal data-reveal-delay="5" class="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-      {projectStats.map((stat) => {
-        const isProjectStars = stat.label === 'Project stars'
-        return (
-        <a href={stat.href} class={`group inline-flex overflow-hidden rounded-lg border border-blue-400/20 bg-blue-950/60 text-xs font-bold uppercase tracking-[0.14em] text-blue-50 shadow-[0_0_24px_-16px_rgba(96,165,250,0.8)] transition-colors hover:border-blue-300/50 ${isProjectStars ? 'star-nudge' : ''}`} aria-label={isProjectStars ? `Star AGDF on GitHub. Current project stars: ${stat.value}` : `${stat.label}: ${stat.value}`}>
-          <span class="inline-flex items-center gap-1.5 bg-blue-800/70 px-2.5 py-1.5 transition-colors group-hover:bg-blue-700/80">
-            <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
-            {stat.label}
-          </span>
-          <span class="inline-flex items-center gap-1.5 bg-blue-900/80 px-3 py-1.5 font-mono tracking-wide transition-colors group-hover:bg-blue-800/80">
-            {isProjectStars && (
-              <svg class="star-spark h-3.5 w-3.5 text-yellow-200" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.1 9.8 5.4l4.7.4-3.6 3.1 1.1 4.6L8 11.1l-4 2.4 1.1-4.6-3.6-3.1 4.7-.4L8 1.1Z"/></svg>
-            )}
-            {stat.value}
-            {isProjectStars && <span class="hidden font-sans text-[10px] font-semibold normal-case tracking-normal text-blue-100/80 sm:inline">Star if useful</span>}
-          </span>
-        </a>
-        )
-      })}
-  </div>
-
-</section>
-
-<!-- ==================== FOOTER ==================== -->
-<footer class="border-t border-dark-800/80 py-12">
-  <div class="mx-auto max-w-[90rem] px-4 text-center sm:px-6">
-    <div class="mb-4 flex justify-center">
-      <img src="/assets/logo.png" alt={site.fullName} width="240" height="101" class="h-auto w-28" loading="lazy" decoding="async" />
-    </div>
-    <p class="mb-2 text-sm text-dark-200">{site.fullName}</p>
-    <p class="mb-4 text-xs text-dark-200/50">
-      Copyright © 2024-2026 {site.author.name} · Licensed under {site.license}
-    </p>
-    <p class="mx-auto mb-4 max-w-2xl text-xs text-dark-200/50">
-      AGDF™ and AI Governance & Delivery Framework™ are marks of {site.author.name}.
-    </p>
-    <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-dark-200">
-      <a href={site.repo} class="transition-colors hover:text-agdf-300">GitHub</a>
-      <a href="#highlights" class="transition-colors hover:text-agdf-300">Highlights</a>
-      <a href="#skills" class="transition-colors hover:text-agdf-300">Skills</a>
-      <a href="#setup" class="transition-colors hover:text-agdf-300">Setup</a>
-      <a href="/privacy" class="transition-colors hover:text-agdf-300">Privacy</a>
-      <a href="/terms" class="transition-colors hover:text-agdf-300">Terms</a>
-      <a href="/support" class="transition-colors hover:text-agdf-300">Support</a>
-      <a href={`mailto:${site.contactEmail}`} class="transition-colors hover:text-agdf-300">Contact: {site.contactEmail}</a>
-    </div>
-  </div>
-</footer>
-
-<!-- ==================== SKILL MODAL ==================== -->
-<div id="skill-modal" class="glass fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="skill-modal-title">
-  <div class="surface max-w-lg p-6">
-    <div class="mb-4 flex items-center justify-between">
-      <h3 id="skill-modal-title" class="font-mono text-lg font-bold text-agdf-300"></h3>
-      <button id="skill-modal-close" type="button" aria-label="Close skill details" class="text-dark-200 transition-colors hover:text-white">✕</button>
-    </div>
-    <p id="skill-modal-body" class="text-sm text-dark-200"></p>
-  </div>
-</div>
-
-<!-- ==================== IMAGE LIGHTBOX ==================== -->
-<div id="image-lightbox" class="glass fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 p-4 sm:p-8" role="dialog" aria-modal="true" aria-label="Bildansicht">
-  <button id="image-lightbox-close" type="button" class="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-dark-700/80 bg-dark-950/70 text-dark-200 transition-colors hover:text-white" aria-label="Schließen">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-  </button>
-  <img id="image-lightbox-img" src="" alt="" class="max-h-full max-w-full rounded-lg border border-dark-700/80 shadow-[0_0_80px_-20px_var(--agdf-glow)]" />
-</div>
-
+  </footer>
 </BaseLayout>

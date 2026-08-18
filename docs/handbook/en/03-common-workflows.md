@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:be71b989aee91905a0ba47f106097f3bc900a13bc3869011056e97c12e31f698
+source_revision: sha256:9144306b4670dbbd1403d314e3c615c9c49085865eb54b156bae60728debadba
 translation_status: reviewed
 ---
 
@@ -106,6 +106,40 @@ preparation, CD+Tests, reviews, QA, UAT and final closeout.
 
 Each arrow represents a permitted transition, not automatic continuation. Every user gate requires
 the exact approval line.
+
+## Visible changes: clarify UX intent before implementation
+
+When a change affects what people see, do or decide, or how they continue after an error, a general
+request is often not enough. Before PRD readiness, AGDF therefore clarifies UX intent when the
+impact is medium or high, or when a small change is still ambiguous.
+
+Only the questions needed for the change are answered:
+
+- What is the user's goal, and which working modes exist?
+- Which state is effective, and which state is shown to the user?
+- Which person or system owns that state?
+- What activates the capability, what blocks it and how can the user continue?
+- Which transitions are permitted, and what shows that a transition succeeded?
+
+This clarification is not another user gate. It provides testable criteria for the PRD and prevents
+the coding agent from making missing product decisions during implementation. A small, unambiguous
+change can explicitly record that this clarification is not required.
+
+## Five common delivery failures
+
+AGDF is not intended to produce as many documents as possible. It is intended to detect when fast
+agent output is being treated as a reliable delivery decision.
+
+| Failure | How to recognize it | Clean response |
+|---|---|---|
+| Silent scope drift | The request, approved requirement and implementation no longer describe the same outcome. | Return to the earliest affected artefact and decide the change explicitly. |
+| A new parallel path in an existing system | The agent creates a second rule, data source or integration even though a responsible owner already exists. | Check the existing owner and reuse path; a deviation needs a deliberate design decision. |
+| Green build, unfinished plan | Tests pass, but tasks, acceptance criteria or visible evidence from the approved plan are missing. | Check plan coverage and evidence before QA makes a decision. |
+| Permanent workaround | A guard, fallback or workaround remains without an owner, target state or removal criterion. | Establish the primary solution or explicitly document the transition, responsibility and exit criterion. |
+| Premature handoff | A commit, pull request or publication begins while gate state, risks or acceptance remain open. | Close the open decisions, then perform only the explicitly requested delivery step. |
+
+These patterns are indicators, not new gates or modes. The
+[Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md) determines which rule is authoritative.
 
 ## Good work requests
 

@@ -98,6 +98,42 @@ UR und Brownfield Review
 Jeder Pfeil steht für einen erlaubten Übergang, nicht für eine automatische Fortsetzung. Die
 Nutzer-Gates benötigen jeweils die exakte Approval-Zeile.
 
+## Sichtbare Änderungen: UX-Absicht vor der Umsetzung klären
+
+Wenn eine Änderung beeinflusst, was Menschen sehen, tun oder entscheiden und wie sie nach einem
+Fehler weiterarbeiten, reicht ein allgemeiner Wunsch oft nicht aus. AGDF klärt deshalb vor der
+PRD-Reife die UX-Absicht, wenn die Auswirkung mittel oder hoch ist oder eine kleine Änderung noch
+mehrdeutig bleibt.
+
+Dabei werden nur die für die Änderung notwendigen Fragen beantwortet:
+
+- Welches Ziel verfolgt der Nutzer, und welche Arbeitsmodi gibt es?
+- Welcher Zustand gilt tatsächlich, und welcher Zustand wird sichtbar dargestellt?
+- Wer oder welches System besitzt diesen Zustand?
+- Was aktiviert die Funktion, was blockiert sie und wie kann der Nutzer weiterarbeiten?
+- Welche Übergänge sind erlaubt, und woran ist ein erfolgreicher Übergang erkennbar?
+
+Diese Klärung ist kein zusätzliches Nutzer-Gate. Sie liefert überprüfbare Kriterien für das PRD und
+verhindert, dass der Coding-Agent fehlende Produktentscheidungen erst während der Implementierung
+trifft. Bei einer kleinen, eindeutig beschriebenen Änderung kann sie ausdrücklich nicht erforderlich
+sein.
+
+## Fünf typische Fehlentwicklungen
+
+AGDF soll nicht möglichst viele Dokumente erzeugen. Es soll früh erkennen, wenn schnelle
+Agentenausgabe wie eine belastbare Delivery-Entscheidung behandelt wird.
+
+| Fehlentwicklung | Woran du sie erkennst | Saubere Reaktion |
+|---|---|---|
+| Stiller Scope Drift | Auftrag, freigegebene Anforderung und Umsetzung beschreiben nicht mehr dasselbe Ergebnis. | Zum frühesten betroffenen Artefakt zurückkehren und die Änderung ausdrücklich entscheiden. |
+| Neuer Parallelweg im bestehenden System | Der Agent baut eine zweite Regel, Datenquelle oder Integration, obwohl bereits ein zuständiger Eigentümer existiert. | Bestehenden Eigentümer und Wiederverwendung prüfen; eine Abweichung benötigt eine bewusste Designentscheidung. |
+| Grüner Build, unfertiger Plan | Tests bestehen, aber Aufgaben, Akzeptanzkriterien oder sichtbare Nachweise des freigegebenen Plans fehlen. | Planabdeckung und Evidenz prüfen, bevor QA entscheiden darf. |
+| Dauerhafte Übergangslösung | Ein Guard, Fallback oder Workaround bleibt ohne Eigentümer, Zielzustand und Entfernungskriterium bestehen. | Primärlösung herstellen oder Übergang, Verantwortung und Exit-Kriterium ausdrücklich dokumentieren. |
+| Verfrühter Handoff | Commit, Pull Request oder Veröffentlichung beginnt, obwohl Gate-Status, Risiken oder Abnahme noch offen sind. | Offene Entscheidungen schließen und erst danach den ausdrücklich beauftragten Delivery-Schritt ausführen. |
+
+Diese Muster sind Hinweise, keine neuen Gates oder Modi. Welche Regel verbindlich gilt, bestimmt der
+[Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md).
+
 ## Gute Arbeitsaufträge
 
 Ein guter Arbeitsauftrag beschreibt zuerst Ziel und gewünschtes Ergebnis. Hilfreich sind außerdem:

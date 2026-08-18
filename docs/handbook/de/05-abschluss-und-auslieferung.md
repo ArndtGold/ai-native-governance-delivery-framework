@@ -59,6 +59,22 @@ Passt das Ergebnis nicht, dokumentierst du den beobachteten Befund. Der Agent or
 frühesten betroffenen Artefakt, der Umsetzung oder einer fehlenden Evidenz zu. Er behauptet nicht
 selbst, dass UAT bestanden wurde.
 
+## Welche Evidenz was beweist
+
+Evidenz ist nur so stark wie die tatsächlich geprüfte Ebene. Ein Nachweis darf deshalb nicht für
+eine weitergehende Aussage verwendet werden.
+
+| Evidenz | Was sie belegt | Was sie nicht belegt |
+|---|---|---|
+| Repository- und Build-Evidenz | Was der geprüfte Quellstand enthält und welche dokumentierten Tests, Reviews oder Builds erfolgreich waren. | Dass genau diese Version installiert, bereitgestellt, für Nutzer erreichbar oder fachlich akzeptiert ist. |
+| Beobachtung in einem installierten Host | Welches Verhalten bei der beobachteten Version, dem Konto, den Berechtigungen und der konkreten Situation auftrat. | Dass alle Konten, Versionen, Hosts oder Nutzer dasselbe Verhalten haben. |
+| Menschliches UAT | Dass das beobachtete Verhalten für den vereinbarten Zweck und die geprüften Akzeptanzfälle angenommen wurde. | Dass andere Umgebungen funktionieren oder ein Deployment, eine Freigabe oder öffentliche Listung erfolgt ist. |
+| Deployment- oder Veröffentlichungsevidenz | Dass die zuständige externe Plattform den konkret gelesenen Deployment-, Review- oder Veröffentlichungszustand meldet. | Dass ein lokales Bundle, eine vorbereitete Einreichung oder eine erwartete Plattformaktion bereits extern wirksam ist. |
+
+Nenne bei wichtigen Aussagen deshalb Quelle, Version oder Prüfumfang der Evidenz und die Grenze der
+Prüfung. Eine nicht ausgeführte Host-Beobachtung bleibt sichtbar `unverified`; sie wird nicht aus
+Repository-Tests abgeleitet.
+
 ## Orchestration Report und Delivery Closeout
 
 Nach dem erforderlichen QA-/UAT-Weg fasst der Orchestration Report den Lauf zusammen. Er nennt

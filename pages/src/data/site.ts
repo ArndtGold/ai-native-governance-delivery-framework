@@ -1,9 +1,10 @@
 export const site = {
     name: "AGDF",
     fullName: "AI Governance & Delivery Framework",
-    tagline: "Stop agents before they code past the evidence.",
-    description: "A focused governance plugin for teams that let AI agents touch real code: AGDF turns delivery into approved steps, visible evidence, QA decisions and auditable closeout, with machine-readable validators when proof is needed.",
+    tagline: "Agent speed needs a control system.",
+    description: "For engineering teams using coding agents on real repositories: AGDF keeps scope approved, evidence visible and delivery decisions under human control.",
     domain: "agdf.iself.eu",
+    url: "https://agdf.iself.eu/",
     repo: "https://github.com/arndtgold/ai-native-governance-delivery-framework",
     contactEmail: "agdf@iself.eu",
     license: "Apache-2.0",
@@ -11,534 +12,154 @@ export const site = {
     author: {
         name: "Arndt Gold",
         role: "Software engineer · 20+ years enterprise experience",
-        image: "/assets/author.png",
     },
-}
+} as const
 
-export const highlights = [
-    {
-        title: "Stop Before Scope Drifts",
-        icon: "gate",
-        description: "No approval, no next gate. AGDF stops assumption-driven continuation before it becomes delivery drift.",
-        command: "/gate-check",
-    },
-    {
-        title: "Protect Existing Systems",
-        icon: "brownfield",
-        description: "Brownfield is the default. AGDF forces owners, tests and existing behaviour into view before code changes.",
-        command: "/brownfield-analysis",
-    },
-    {
-        title: "Verify The Plan, Not The Vibe",
-        icon: "review",
-        description: "A green build is not completion. AGDF checks delivered work against the approved plan and evidence.",
-        command: "/task-plan-review",
-    },
-    {
-        title: "Make QA A Decision",
-        icon: "audit",
-        description: "QA is not a feeling. AGDF turns it into `pass | revise | block` from coverage, fit, integrity and evidence.",
-        command: "/qa-gate",
-    },
-    {
-        title: "Expose Workarounds",
-        icon: "integrity",
-        description: "Temporary fixes need owners and exits. AGDF stops fallback logic from becoming hidden architecture.",
-        command: "/clean-implementation-review",
-    },
-    {
-        title: "Close Runs With Evidence",
-        icon: "handoff",
-        description: "A run ends with delivered scope, open gaps, remaining risks and the next allowed move.",
-        command: "/release-or",
-    },
-]
+const repoDocument = (path: string) => `${site.repo}/blob/main/${path}`
 
-export const workflowSteps = [
-    {
-        step: "01",
-        title: "Gate Check + Scope",
-        command: "/gate-check",
-        desc: "Capture the need, identify the active scope and show the current checkpoint before product work starts."
-    },
-    {
-        step: "02",
-        title: "Source + Brownfield Review",
-        command: "/brownfield-analysis",
-        desc: "Check source authority, existing ownership, protected behavior, boundaries, tests and risk."
-    },
-    {
-        step: "03",
-        title: "Right-Sized Path",
-        command: "control state",
-        desc: "Decide whether the work is quick, bug-lightweight, verified_change, structured_slice, structured_delivery or depth_unresolved."
-    },
-    {
-        step: "04",
-        title: "Optional: Delivery Path Search",
-        command: "/delivery-path-search",
-        desc: "For high-impact choices, compare legal next steps before implementation. Codex and Claude can optionally add bounded, validated candidate generation; the result is advice and the gate still decides."
-    },
-    {
-        step: "05",
-        title: "Conditional: UX Intent Definition",
-        command: "/ux-intent-definition",
-        desc: "Post-UR routing records Greenfield or Brownfield and UI/UX impact. Before PRD approval, define testable UX intent for medium/high impact and ambiguous low-impact work. Record working modes, effective state, visible state types and ownership, activation, blockers, recovery and transitions. This fail-closed analysis is not a gate; none is explicitly not applicable."
-    },
-    {
-        step: "06",
-        title: "PRD / SD / TP",
-        command: "as needed",
-        desc: "Define UX acceptance criteria before PRD approval. The approved PRD is the sole product authority; SD owns technical design and TP maps every criterion to tasks, tests and visible evidence."
-    },
-    {
-        step: "07",
-        title: "Implementation Prep",
-        command: "/brownfield-analysis",
-        desc: "Before non-trivial code, map reuse strategy, contracts, regressions and test evidence per task."
-    },
-    {
-        step: "08",
-        title: "CD + Reviews",
-        command: "CD+Tests",
-        desc: "Implement narrowly and run checks. Task Plan Review then verifies UX Intent Fidelity from approved PRD criterion through working mode/state and task to visible evidence; review does not invent missing criteria."
-    },
-    {
-        step: "09",
-        title: "QA Decision",
-        command: "/qa-gate",
-        desc: "Consume UX Intent Fidelity with TP coverage, Brownfield fit and integrity. QA cannot pass partial, missing or not-verifiable criteria, or visible-behavior claims supported only by code evidence."
-    },
-    {
-        step: "10",
-        title: "OR + Closeout",
-        command: "/release-or",
-        desc: "Record audit status, open gaps, risks, persistence target and the next allowed delivery action."
-    },
-]
-
-export const requirementPaths = [
-    {
-        label: "Quick Task / Compact Delivery",
-        trigger: "Small local fix, review, debugging step or refactor without new product semantics.",
-        path: "Understand context -> change narrowly -> run relevant checks -> close with evidence",
-        outcome: "Fast, narrow, evidenced. Brownfield Review may select quick_task; Compact Delivery is the human-facing label."
-    },
-    {
-        label: "Narrow Bug Track",
-        trigger: "Reproducible, bounded defect with explicit reproduction, expected behavior and fix boundary.",
-        path: "Record defect facts -> verify boundary -> fix narrowly -> test the symptom -> close with evidence",
-        outcome: "Not a gate bypass: required QA, OR and repository approvals remain. For a machine-validated compact change, use Verified Change."
-    },
-    {
-        label: "Verified Change",
-        trigger: "Bounded user-visible change with one canonical owner, deterministic propagation and validation, and a structured escalation target.",
-        path: "Capture clean baseline -> prove eligibility -> implement declared paths -> run validation -> record mini-closeout",
-        outcome: "Compact, machine-validated. Escalates to structured_slice or structured_delivery on any failed condition."
-    },
-    {
-        label: "Structured Slice",
-        trigger: "A coherent bounded outcome needs explicit contracts, but all seven bounded-slice checks pass and no full-depth trigger applies.",
-        path: "Clarify need -> check impact -> plan slice-depth contracts -> implement -> verify -> close with evidence",
-        outcome: "Same gate sequence as Structured Delivery; artefact depth covers only the bounded slice."
-    },
-    {
-        label: "Structured Delivery",
-        trigger: "Any one evidenced full-depth trigger applies: authority/policy/security, architecture/runtime, persistence/migration, external contract, release/cross-host, or unbounded coordination.",
-        path: "Clarify need -> check impact -> plan full-depth contracts -> implement -> verify -> close with evidence",
-        outcome: "Full artefact depth for every affected authority, architecture, runtime, consumer, migration, operational and release boundary."
-    },
-]
-
-export const approvalGates = [
-    { gate: "UR", approval: "Approval: UR", meaning: "The need is clear enough to become product work." },
-    { gate: "PRD", approval: "Approval: PRD", meaning: "Scope, acceptance criteria and non-goals are contractual." },
-    { gate: "SD", approval: "Approval: SD", meaning: "The solution direction and ownership model are accepted." },
-    { gate: "TP", approval: "Approval: TP", meaning: "Tasks, tests and review evidence are planned before implementation." },
-]
-
-export const visualProofs = {
-    product: {
-        eyebrow: "Product proof",
-        title: "From unchecked agent output to governed delivery state.",
-        desc: "The Agent Builder workflow was created with ChatGPT Plus and Codex. AGDF kept requirements, design, approvals, evidence and QA connected, so humans and agents could work from the same delivery state.",
-        built: "AGDF did not replace tools, judgment or delivery responsibility. It made AI output governable, turning agent speed into a delivery advantage.",
-        src: "/assets/example-greenfield-to-brownfield-gates.png",
-        alt: "Agent Builder workflow canvas with Start, Agent and End nodes plus configuration panels.",
-        width: 4662,
-        height: 2794,
-    },
-    intake: {
-        eyebrow: "Requirement intake",
-        title: "A board shows progress. AGDF shows whether the next step is allowed.",
-        desc: "Before work moves forward, AGDF shows what is ready, what is missing and what must stop.",
-    },
-    qa: {
-        eyebrow: "Task-plan evidence",
-        title: "Looks done is not the same as done.",
-        desc: "AGDF checks the approved plan against code, tests and missing evidence before QA decides: pass, revise or block.",
-    },
-    architecture: {
-        eyebrow: "Delivery map",
-        title: "From scattered artifacts to delivery decisions.",
-        desc: "The Context Graph shows what proves readiness, what blocks, what changed and what can safely happen next.",
-    },
-}
-
-export const versionEvidence = {
-    expectedRelease: site.version,
-    observedInstall: "session-unverified",
-    screenshotState: "observed UI context; release version session-unverified",
-    source: "Package metadata is the expected-release source. Host status output is required before calling an installed version observed.",
-}
-
-export const prevention = [
-    {
-        title: "UX Requirements After The Code",
-        desc: "Working modes, effective state, blockers or recovery are discovered only during review, turning missing product requirements into avoidable rework."
-    },
-    {
-        title: "Silent Scope Drift",
-        desc: "Prompt, design and code describe different products, so teams review output that no longer matches the approved intent."
-    },
-    {
-        title: "Greenfield In Brownfield",
-        desc: "When ownership, rules and integration points are unclear, the coding agent creates a second path instead of extending the owner."
-    },
-    {
-        title: "Green Build, Unfinished Task",
-        desc: "Tests pass while the approved Task Plan remains open, so a green build is mistaken for completed delivery."
-    },
-    {
-        title: "QA Without Evidence",
-        desc: "Done is claimed before evidence supports it, leaving reviewers with confidence instead of proof."
-    },
-    {
-        title: "Permanent Fallbacks",
-        desc: "Temporary guards become architecture because no gate forces cleanup, removal or an explicit design decision."
-    },
-    {
-        title: "Premature Handoff",
-        desc: "Commit or PR work starts before gate status and risks are clear, shifting unresolved decisions into review."
-    },
-    {
-        title: "Branch-As-Scope Assumption",
-        desc: "A branch name or workspace diff is treated as proof of scope even when durable artefacts or approvals say something else."
-    },
-    {
-        title: "Hidden Active Workline",
-        desc: "Multiple plausible scopes exist, but the agent silently picks one and produces artefacts for the wrong delivery line."
-    },
-]
-
-export const notFor = [
-    "It is not a ticket system or project-management board.",
-    "It is not autonomous shipping without human approval.",
-    "It is not a replacement for product responsibility.",
-    "It is not an EU AI Act compliance certification or legal assessment.",
-    "It is not a large skill catalogue; the plugin is intentionally core-workflow only.",
-]
-
-export const agdfLimits = {
-    notReplace: [
-        "Architecture expertise",
-        "Security and privacy review",
-        "Domain acceptance",
-        "Regulatory certification",
-        "Test design and test quality",
-        "Commercial approval and invoice validation",
-        "Human judgment",
+export const landingPage = {
+    navigation: [
+        { label: "How it works", href: "#how-it-works" },
+        { label: "Evidence", href: "#proof" },
+        { label: "Install", href: "#setup" },
+        { label: "Handbook", href: `${site.repo}/tree/main/docs/handbook` },
     ],
-    dependsOn: [
-        "A correct and current repository state",
-        "Complete and traceable evidence",
-        "Tests that were actually executed",
-        "Honest human UAT",
-        "Reliable external usage and cost data",
-        "Disciplined use by agents and teams",
-    ],
-    framing:
-        "AGDF makes delivery more governable. It does not make engineering judgment, verification or human responsibility optional.",
-    overhead:
-        "AGDF reduces the risk of uncontrolled delivery, but it also adds process overhead. Its value depends on selecting the smallest governance path appropriate to the specific change.\n" +
-        "AGDF neither measures compute usage nor validates invoices. It provides the delivery context needed to connect externally measured AI usage with approved work, verified results and demonstrated project contribution.",
-};
-export const aiActFit = [
-    {
-        title: "Risk stays visible",
-        desc: "No approval, no evidence, no next step.",
-        mapsTo: "Before work moves",
-    },
-    {
-        title: "The run leaves a trail",
-        desc: "Gate state leaves chat history and becomes repository state.",
-        mapsTo: "During delivery",
-    },
-    {
-        title: "People keep the decision",
-        desc: "The agent prepares evidence. People approve, decide QA and own the release.",
-        mapsTo: "At decision points",
-    },
-    {
-        title: "Compliance is not automated",
-        desc: "AGDF supports the delivery trail. It does not certify compliance.",
-        mapsTo: "Clear boundary",
-    },
-]
-
-export const principles = [
-    {
-        title: "No Implementation Without an Approved Product Contract",
-        desc: "Agents can turn vague intent into plausible code. Approved scope, acceptance criteria and non-goals define what may be built.",
-    },
-    {
-        title: "One Source of Product Intent",
-        desc: "Prompt, design, tasks, code and tests can silently drift apart. The product contract keeps the intended product stable.",
-    },
-    {
-        title: "Fail Closed",
-        desc: "Missing approval, input or evidence must stop the run. Otherwise best effort hides risk behind apparent progress.",
-    },
-    {
-        title: "Design Is Not Code",
-        desc: "Agents can make architecture while coding. Design stays separate until the right gate allows implementation.",
-    },
-    {
-        title: "Tasks Need Business Justification",
-        desc: "Activity alone is not value. Each task must show which requirement, risk or delivery decision it supports.",
-    },
-    {
-        title: "Quality Needs Evidence",
-        desc: "Confident summaries can look like proof. What was not checked must not be presented as checked.",
-    },
-    {
-        title: "Changes Must Be Visible",
-        desc: "AI conversations can hide product changes inside implementation work. Scope changes must be documented and reviewed.",
-    },
-    {
-        title: "Traceability Is Not Bureaucracy",
-        desc: "Teams must explain why work was allowed, what it proves and what still blocks delivery. That is traceability.",
-    },
-    {
-        title: "Branch Names Are Not Authority",
-        desc: "Workspace clues can support a decision, but durable artefacts, approvals and source-of-truth ownership decide the active scope.",
-    },
-];
-
-export const buildingBlocks = [
-    {
-        name: "Artifacts",
-        desc: "Persist the work state so output can be checked against need, product contract, design, plan, tests and evidence.",
-        icon: "archive-box",
-    },
-    {
-        name: "Gates",
-        desc: "Decide whether work may start, must revise or must stop before missing input becomes hidden risk.",
-        icon: "shield-check",
-    },
-    {
-        name: "Delivery Map",
-        desc: "Connect status, artifacts, decisions, risks, tests, evidence, ambiguity and gates so progress and blockers stay visible.",
-        icon: "map",
-    },
-    {
-        name: "Quality Contracts",
-        desc: "Turn repeated review questions into reusable block, revise and warn signals instead of relying on confident summaries.",
-        icon: "clipboard-document-check",
-    },
-];
-
-export const operatingGuards = [
-    {
-        title: "Know which source wins",
-        desc: "Avoid decisions based on stale chat or generated copies. The repository declares the authoritative instructions and control files.",
-    },
-    {
-        title: "Do not build against the wrong scope",
-        desc: "When several work lines are plausible, AGDF shows them and stops later work until the active scope is clear.",
-    },
-    {
-        title: "A branch name is not approval",
-        desc: "Branches and diffs can support a decision, but durable scope and approvals determine what the agent may change.",
-    },
-    {
-        title: "Keep valuable findings after the chat",
-        desc: "Each run routes reusable knowledge to project memory, source ownership, scope evidence or explicit open questions.",
-    },
-    {
-        title: "Keep narrow bugs lightweight",
-        desc: "Narrow defects can stay lightweight when reproduction, expected behavior, fix boundary and evidence plan are explicit.",
-    },
-    {
-        title: "Reuse controls for risky domains",
-        desc: "Projects can add reusable checks for risky domains without replacing AGDF gates or approvals.",
-    },
-]
-
-export const gateFlow = [
-    { gate: "UR", name: "User Requirement", desc: "Problem, goal, affected users, constraints" },
-    { gate: "BR", name: "Brownfield Review", desc: "Existing logic, ownership, system boundaries" },
-    { gate: "PATH", name: "Right-Sized Path", desc: "quick / bug-lightweight / verified_change / structured_slice / structured_delivery / depth_unresolved" },
-    { gate: "PRD", name: "Product Requirements", desc: "Scope, acceptance criteria, non-goals" },
-    { gate: "SD", name: "Solution Design", desc: "Architecture, components, interfaces" },
-    { gate: "TP", name: "Task & Test Plan", desc: "Work packages, test matrix, dependencies" },
-    { gate: "BA", name: "Brownfield Analysis", desc: "Reuse strategy per task, regressions" },
-    { gate: "CD", name: "Code / Implementation", desc: "Code, tests, quality evidence" },
-    { gate: "REV", name: "Reviews", desc: "Task-plan coverage, code quality, clean implementation" },
-    { gate: "QA", name: "QA Gate", desc: "pass / revise / block" },
-    { gate: "OR", name: "Orchestration Report", desc: "Auditable closeout" },
-]
-
-export const gateMapPaths = {
-    sharedStart: [
-        { gate: "UR", name: "User Requirement" },
-        { gate: "BR", name: "Brownfield Review" },
-        { gate: "PATH", name: "Right-Sized Path" },
-    ],
-    quick: {
-        label: "Quick path",
-        note: "Only when the impact check shows narrow scope, clear ownership and enough evidence.",
-        steps: [
-            { gate: "CD", name: "Small change + checks" },
-            { gate: "OR-lite", name: "Evidence closeout" },
+    hero: {
+        audience: "For engineering teams using coding agents on real repositories",
+        title: "Agent speed needs a control system.",
+        lead: "AGDF is the control layer for governed AI-assisted delivery.",
+        formulaOne: "In Formula 1, the engine creates speed. Rules, evidence, strategy and human decisions determine what happens next. AI-assisted delivery has the same challenge: agent output is fast, but teams still need approved scope, visible evidence and controlled transitions.",
+        roles: [
+            { label: "Agent", value: "speed" },
+            { label: "AGDF", value: "delivery control" },
+            { label: "People", value: "decisions" },
         ],
+        primaryAction: { label: "Install AGDF", href: "#setup" },
+        secondaryAction: { label: "View on GitHub", href: site.repo },
     },
-    structured: {
-        label: "Structured path",
-        note: "Structured Slice and Structured Delivery use the same gate sequence. Their difference is artefact depth, not gates.",
-        depthHint: "Slice: bounded artefact depth for one coherent outcome. Delivery: full depth for every affected boundary.",
-        steps: [
-            { gate: "PRD", name: "Product Requirements" },
-            { gate: "SD", name: "Solution Design" },
-            { gate: "TP", name: "Task & Test Plan" },
-            { gate: "BA", name: "Brownfield Analysis" },
-            { gate: "CD", name: "CD + Tests" },
-            { gate: "REV", name: "Reviews" },
-            { gate: "QA", name: "QA Gate" },
-            { gate: "OR", name: "OR + Closeout" },
+    problem: {
+        eyebrow: "Speed needs control",
+        title: "Fast output is not the same as governed delivery.",
+        description: "Coding agents can produce convincing changes before the team has agreed the scope, checked the evidence or decided who can approve the next step. AGDF makes that next step explicit.",
+        context: [
+            "Risk appears when useful agent output starts to look like a finished decision. A patch can look complete even when the request is unclear. The team may not have checked the existing owner, and a test may prove less than the summary suggests. These gaps are easy to miss in a short chat. In a real delivery, they lead to scope drift, rework and unclear responsibility.",
+            "AGDF records the delivery state in the repository. It shows the intended result, the available evidence, the approved decision and the next action allowed for the agent. If a fact or approval is missing, AGDF stops visibly and explains what is needed next.",
         ],
-    },
-}
-
-export const gateModeMatrix = [
-    {
-        mode: "Quick Task / Compact Delivery",
-        use: "User need, impact check, right-sized path, small change, relevant checks, evidence closeout",
-        skip: "Product, solution, task and QA gates unless risk or evidence gaps require escalation",
-        decision: "Use only for narrow approved scope without new product semantics. Brownfield Review may select quick_task; Compact Delivery is the human-facing label, not a new mode.",
-    },
-    {
-        mode: "Narrow Bug Track",
-        use: "Bug facts, reproduction, actual and expected behavior, fix boundary, targeted checks, evidence closeout",
-        skip: "Full PRD/SD/TP chain when the defect does not introduce new product semantics",
-        decision: "Use only while the bug stays inside the recorded boundary; escalate if scope grows. Required QA, OR and repository approvals remain.",
-    },
-    {
-        mode: "Verified Change",
-        use: "Bounded user-visible change, one canonical owner, deterministic propagation and validation, clean baseline, structured escalation target",
-        skip: "Full PRD/SD/TP/QA/UAT chain when every eligibility condition is machine-validated",
-        decision: "Use only when the compact record proves all five conditions; escalates on any failure.",
-    },
-    {
-        mode: "Structured Slice",
-        use: "User need, impact check, right-sized path, minimal product/solution/task plan, implementation, reviews, QA, closeout",
-        skip: "Full-depth artefacts when a small slice contract is enough",
-        decision: "Use when all seven bounded-slice checks pass and no full-depth trigger applies. Same gate sequence as Structured Delivery; difference is artefact depth.",
-    },
-    {
-        mode: "Structured Delivery",
-        use: "User need, impact check, right-sized path, product/solution/task plan, implementation, reviews, QA, closeout",
-        skip: "Nothing material; depth is justified by evidenced effect, not numeric count",
-        decision: "Use when any one evidenced full-depth trigger applies because of its effect, never because of a numeric count.",
-    },
-    {
-        mode: "Blocked / Depth Unresolved",
-        use: "Current gate, missing evidence, known owner where known, next allowed action",
-        skip: "All later gates and implementation",
-        decision: "Use when approval, artefact, evidence, ownership or source of truth is missing. depth_unresolved persists block; unknown facts never default to structured_delivery.",
-    },
-]
-
-export const depthChoice = {
-    modesContractOwner: "plugin/meta/contracts/modes.md",
-    projection: "Pages explains, does not re-author.",
-    compactPaths: [
-        {
-            mode: "Quick Task / Compact Delivery",
-            trigger: "Narrow local change without new product semantics.",
-            evidence: "Brownfield Review selects quick_task after impact check.",
-        },
-        {
-            mode: "Verified Change",
-            trigger: "Bounded user-visible change with one canonical owner and deterministic proof.",
-            evidence: "Compact record proves all five eligibility conditions.",
-        },
-    ],
-    structuredPaths: {
-        sharedGateChain: "UR -> Brownfield Review -> Mode/Slice Decision -> PRD -> SD -> TP -> Brownfield Analysis -> CD+Tests -> CR -> QA -> UAT -> OR",
-        sliceVsDelivery: "Same gate sequence; difference is artefact depth, not gates.",
-        structuredSlice: {
-            mode: "Structured Slice",
-            whenChosen: "All seven bounded-slice checks pass and no full-depth trigger applies.",
-            boundedChecks: [
-                "One coherent outcome with clear acceptance boundary.",
-                "Known authority, no new trust/policy/security boundary.",
-                "Owners and consumers identified, coordination inside the slice.",
-                "No architecture, runtime, persistence, data, external API, public CLI, release or cross-host full-depth impact.",
-                "Migration and propagation bounded, compatible, testable, locally reversible.",
-                "Failure, recovery and rollback controllable inside the slice.",
-                "Independent acceptance signals; no hidden later work as prerequisite.",
+        without: {
+            title: "Coding agent without AGDF",
+            state: "state unclear",
+            points: [
+                "The prompt is treated as approved scope, even when users and maintainers expect different outcomes.",
+                "A green build is treated as completion without checking coverage, fit with the repository or visible behavior.",
+                "Confident output hides missing evidence, so the next person cannot see what remains uncertain.",
             ],
         },
-        structuredDelivery: {
-            mode: "Structured Delivery",
-            whenChosen: "Any one evidenced full-depth trigger applies because of its effect, not a numeric count.",
-            fullDepthFamilies: [
-                "Authority, policy or security boundary change.",
-                "Architecture or runtime change beyond a local slice.",
-                "Persistence, data or migration with irreversible or coordinated state transition.",
-                "External or public contract: API, CLI, protocol, file format or compatibility-sensitive integration.",
-                "Release, deployment or cross-host rollout, rollback or feature-flag plan.",
-                "Unbounded consumer or owner coordination; cannot be delivered as one reversible slice.",
+        with: {
+            title: "Coding agent governed by AGDF",
+            state: "safely blocked",
+            points: [
+                "Approved scope defines the intended outcome and keeps later decisions tied to it.",
+                "Evidence supports each important decision and stays separate from assumptions or expectations.",
+                "Missing approval stops the work visibly and records both the blocker and the next allowed action.",
             ],
         },
     },
-    depthUnresolved: {
-        mode: "Blocked / Depth Unresolved",
-        meaning: "A decisive fact is missing or conflicting and no evidenced full-depth trigger already supports structured_delivery.",
-        action: "Persist block, name missing facts and evidence owner, link Brownfield Review, re-evaluate after evidence completion.",
-        noDefault: "Unknown facts never default to structured_delivery.",
+    controlLoop: {
+        eyebrow: "One control loop",
+        title: "Approved scope → evidence → gate → transition",
+        description: "AGDF uses one clear sequence. The amount of process changes with the risk, but the sequence stays the same.",
+        steps: [
+            { step: "01", title: "Approved scope", description: "Define the intended outcome, boundaries, affected users and responsible people before important work begins. Approval covers that specific result, not every implementation the agent could produce." },
+            { step: "02", title: "Evidence", description: "Inspect existing owners, tests, risks and results instead of trusting a confident summary. Record repository facts, test output and visible checks without overstating what they prove." },
+            { step: "03", title: "Gate", description: "A person deliberately accepts, revises or stops the next step. The gate makes decision authority clear and prevents work from continuing on implied consent." },
+            { step: "04", title: "Transition", description: "Move only to the next allowed state and keep unproven claims visible. The recorded run state tells the next agent or reviewer where the work stands and why." },
+        ],
+        practice: [
+            { title: "Process follows risk", description: "A small documentation change should not require the same process as a security-sensitive product change. AGDF chooses a proportionate path while keeping the same control sequence." },
+            { title: "Use the original source", description: "A generated summary does not replace the repository, an approved product decision or observed user behavior. AGDF keeps facts, decisions, evidence and assumptions separate." },
+            { title: "Stops explain what comes next", description: "A safe stop should not end with a vague refusal. The run records the missing evidence or approval and names the next action that is allowed." },
+        ],
+        detailLink: { label: "Read the workflow handbook", href: `${site.repo}/tree/main/docs/handbook` },
     },
-    proxyProhibition: "File, owner, consumer, task or derived-path counts are not a decision proxy and never a threshold for either structured mode.",
-}
-
-export const compatibility = [
-    { tool: "OpenCode", integration: "global npm/native skills + repository activation from .agdf/control/config.json", support: "Control-stack reference", goal: "runtime", setupAnchor: "#setup-opencode" },
-    { tool: "OpenAI Codex CLI / app", integration: "Plugin + control scaffold", support: "Executable DPS reference", goal: "primary", setupAnchor: "#setup-codex-project" },
-    { tool: "Anthropic Claude Code CLI", integration: "Plugin + control scaffold", support: "Executable DPS reference", goal: "plugin", setupAnchor: "#setup-claude" },
-    { tool: "GitHub Copilot CLI / Coding Agent", integration: "AGENTS.md + .github/skills + .agdf/control", support: "First-class", goal: "repo files", setupAnchor: "#setup-copilot" },
-]
-
-export const publicPlugin = {
-    title: "AGDF for ChatGPT and Codex",
-    summary: "The first public-directory candidate shares AGDF's portable workflow skills without adding an AGDF-operated MCP server, account, telemetry or hosted service.",
-    surfaces: [
-        {
-            name: "Portable skills core",
-            state: "Shared",
-            description: "Fit assessment, governed planning, Brownfield review and evidence-aware closeout use the same canonical skill and contract owners.",
+    outcomes: {
+        eyebrow: "Practical outcomes",
+        title: "Keep agent work fast without losing delivery control.",
+        items: [
+            { title: "Controlled scope", description: "Teams can see which outcome is approved, which source is authoritative and when the agent must stop. Requirements and boundaries stay connected to design, implementation and acceptance. This reduces the risk that a plausible local improvement becomes an unauthorized product change." },
+            { title: "Evidence-backed decisions", description: "Tests, fit with the existing system, completion of the approved plan and visible proof replace assumption-driven confidence. AGDF shows what each result proves and what it does not. A passing repository test is useful, but it is not automatically proof of host behavior or user acceptance." },
+            { title: "Auditable closeout", description: "Delivered work, remaining gaps, risks and the next allowed action stay recorded after the chat ends. A reviewer can understand how the work progressed without relying on chat history. A later agent can continue from explicit state instead of inventing a new interpretation." },
+        ],
+    },
+    proof: {
+        eyebrow: "Evidence and compatibility",
+        title: "Repository evidence is not proof of a live host or public listing.",
+        description: "AGDF publishes evidence from versioned files in its repository. A screenshot or local build can show what a candidate contains. It cannot prove which version a visitor has installed, whether OpenAI has approved the publisher or whether the plugin is publicly available. Each claim therefore names its source, checked version and limit.",
+        selfHosting: "AGDF is developed with its own workflow. Its changes move through approved scope, design, plans, evidence, QA decisions and deliberate closeout. This makes the repository a working example, but each claim still needs independent review.",
+        evidenceMeaning: [
+            { title: "Repository evidence", description: "Versioned definitions, evaluation cases, validation tools and build results show what the checked source contains and which automated rules pass." },
+            { title: "Host evidence", description: "An observed installation or recorded interaction proves behavior only for that version, account, permission set and situation. It does not prove the same behavior for every user." },
+            { title: "Publication evidence", description: "Only the platform owner can confirm a public listing, verified publisher identity and actual availability. A ready repository cannot replace that external decision." },
+        ],
+        surfaces: [
+            { name: "OpenAI Codex", state: "Plugin and repository controls", detail: "A reference surface that can run AGDF workflows. Behavior still depends on the installed version, enabled features, permissions and repository state. This website cannot prove those conditions for a visitor." },
+            { name: "Anthropic Claude Code", state: "Plugin and repository controls", detail: "A reference surface with its own discovery, features and permission limits. Similar workflow goals do not mean that every host enforces them in the same way." },
+            { name: "OpenCode", state: "Available globally, activated per repository", detail: "A global installation makes AGDF available. Governed work still requires valid AGDF control files in the repository being changed." },
+            { name: "GitHub Copilot", state: "Guidance from repository files", detail: "Repository files can provide AGDF instructions and records. AGDF does not claim a dedicated Copilot plugin or the same executable controls as its reference surfaces." },
+        ],
+        publicPlugin: {
+            title: "AGDF for ChatGPT and Codex",
+            summary: "The Skills-only public candidate shares AGDF's portable workflow skills without adding an AGDF-operated MCP server, account, telemetry or hosted service.",
+            advisory: "Status: Advisory until verified. ChatGPT behavior must be checked for the exact release and host setup.",
+            enforcement: "Installation alone does not prove enforcement. Repository files, local checks and hooks still depend on host features, permissions, trust and active AGDF control files.",
+            authority: "OpenAI owns verified publisher identity, review, effective availability and listing state. Only OpenAI can confirm those platform states. AGDF is an independent project and not an OpenAI product.",
         },
-        {
-            name: "Codex repository delivery",
-            state: "Surface-specific",
-            description: "Repository files, local validation and Codex hooks depend on explicit host permissions and trust. Installation alone does not prove enforcement.",
+        screenshot: {
+            src: "/assets/codex-agdf-plugin-ui.png",
+            alt: "Codex plugin detail page showing the AGDF plugin, its skills, hooks and metadata as an interface example.",
+            caption: "Interface example only. Package metadata describes the intended release. Check the installed version and host before treating this as observed behavior.",
+            width: 3284,
+            height: 2354,
         },
-        {
-            name: "ChatGPT workflows",
-            state: "Advisory until verified",
-            description: "Portable guidance can help with assessment, explanation, planning and review. Durable repository-control claims require direct exact-release host evidence.",
-        },
-    ],
-    authority: "The repository owns desired metadata and package evidence. OpenAI owns verified publisher identity, review, effective availability and listing state. A human publisher deliberately authorizes every portal transition.",
-    recovery: "Unavailable files, hooks, trust, matching runtime or host capability remain unavailable or unverified and route to one visible recovery step; they are never silently reported as active.",
-}
+        links: [
+            { label: "Inspect the source", href: site.repo },
+            { label: "Read the technical contracts", href: `${site.repo}/tree/main/plugin/meta/contracts` },
+            { label: "See current releases", href: `${site.repo}/releases` },
+        ],
+    },
+    installation: {
+        eyebrow: "Recommended for Codex",
+        title: "Install AGDF, then check that Codex can see it.",
+        description: "The Codex installer is the shortest supported route. Installing the package, activating it for a repository and receiving permission to continue delivery are separate steps.",
+        beforeYouStart: [
+            "Run the command in a terminal with Node.js and npm available. It installs the current published AGDF package for Codex. Installing the package does not change a repository.",
+            "Restart Codex so it can find the plugin. Then check the visible plugin and version instead of assuming that a completed command proves activation.",
+            "When you start work in a repository, ask AGDF to inspect existing control files or create the required setup. AGDF will show the current approval point and what may happen next.",
+        ],
+        command: "npx --yes @agdf/cli@latest codex",
+        nextStep: "Then ask AGDF to check the current gate for a real repository request.",
+        alternatives: { label: "See every installation path", href: repoDocument("INSTALL.md") },
+    },
+    responsibility: {
+        eyebrow: "Responsibility stays human",
+        title: "Governance helps. It does not replace engineering judgment.",
+        description: "AGDF structures delivery decisions and evidence. People still decide product intent, architecture, security, privacy, regulatory needs, test quality, acceptance and release.",
+        limits: [
+            "Not autonomous shipping without human approval. AGDF structures each step but does not give release authority to an agent.",
+            "Not a compliance certificate or legal assessment. Teams must identify their own obligations and seek qualified advice when needed.",
+            "Not an AGDF-operated service, account or telemetry platform. The public candidate is distributed as portable skills and repository controls.",
+            "Not a substitute for experienced developers and reviewers. Clear documentation cannot repair weak requirements, tests or decisions.",
+        ],
+        decisionOwners: [
+            { title: "Product and scope", description: "People decide which problem matters, which users and systems are included, which trade-offs are acceptable and whether a requirement is ready for approval." },
+            { title: "Engineering and assurance", description: "Experienced owners decide whether the design fits the system, whether security and privacy concerns are addressed and whether the evidence supports the quality claim." },
+            { title: "Acceptance and release", description: "Authorized reviewers decide whether visible behavior is accepted and whether a candidate may be released. AGDF records the decision but cannot make it for them." },
+        ],
+        project: `AGDF was created by ${site.author.name}, ${site.author.role.toLowerCase()}. It is an independent Apache-2.0 open-source project.`,
+        links: [
+            { label: "GitHub", href: site.repo },
+            { label: "Handbook", href: `${site.repo}/tree/main/docs/handbook` },
+            { label: "Support", href: "/support" },
+            { label: "Contact", href: `mailto:${site.contactEmail}` },
+        ],
+    },
+} as const

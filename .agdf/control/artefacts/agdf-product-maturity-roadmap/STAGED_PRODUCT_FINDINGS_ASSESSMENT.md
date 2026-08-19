@@ -118,3 +118,20 @@ Continue `agdf-staged-proportionality-baseline-v3` through its separately gated 
 PRD and SD are approved, Brownfield/UX routing is complete and TP Revision 1 is ready for its own
 exact approval. Keep RMP-09 at `no_safe_child_scope_yet` until its named dependencies settle and a
 concrete residual Journey gap is evidenced.
+
+## Benchmark v3 Closeout Reconciliation — 2026-08-19
+
+- `agdf-staged-proportionality-baseline-v3` is completed with exact QA/UAT approvals and OR `pass`.
+- SPF-01 through SPF-04 are resolved in the separately versioned v3 benchmark, protocol and fixture
+  scope; historical staged-v2/r3 evidence remains unchanged and protected by a 225-file inventory.
+- Six Full-Depth trigger families have independent semantic evaluation cases and the v3 deterministic
+  replay covers 216 observations. Authenticated v3 live-agent behavior remains explicitly unclaimed.
+- This closes the bounded proportionality remediation and makes RMP-10 startable. It does not make
+  the Parent ready for final acceptance: PMR-5 canonical owner decisions and PMR-6 direct
+  understandability UAT remain open.
+- RMP-09 remains `no_safe_child_scope_yet`; no new Unified Journey owner is justified.
+
+## Current Next Action
+
+Maintain `AGGREGATE_ACCEPTANCE.md` from canonical evidence and settle the named PMR-5/PMR-6 owner and
+UAT gaps before Parent reviews or QA.

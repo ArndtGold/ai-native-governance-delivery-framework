@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-product-maturity-roadmap
 - lifecycle: active
-- revision: 44
-- revision_id: 69ac043e-5f13-411e-8448-0300bc4ea210
+- revision: 45
+- revision_id: 0521911b-f0b1-462b-a742-74cc3dd64293
 - mode: structured_delivery
 - current_gate: CD+Tests
 - decision: in_progress
@@ -22,11 +22,11 @@ einfachere Nutzerinteraktion.
 
 | Question | Answer |
 |---|---|
-| What is known? | The QA Transition and Structured Depth children are completed with OR `pass`; Benchmark v3 Child UR/PRD/SD are approved and TP Revision 1 is ready. No safe residual Unified Journey child scope is yet evidenced. |
+| What is known? | QA Transition, Structured Depth and Benchmark v3 are completed with OR `pass`; Benchmark v3 QA/UAT, 24/24 tasks, deterministic replay and protected v2/r3 history are reconciled as BL-14. RMP-10 has started, while no safe residual Unified Journey child scope is yet evidenced. |
 | What is approved? | Roadmap-UR, PRD, SD und TP sind durch exakte Freigaben vom 2026-07-28 genehmigt; Pre-Implementation Brownfield Analysis entscheidet `pass`. |
-| What is missing? | Benchmark v3 `Approval: TP`, implementation/review/QA evidence and later gate chain; RMP-10 through RMP-12; settled canonical owner evidence before any future RMP-09 scope. |
-| What is the next allowed action? | Review Benchmark v3 Child TP Revision 1 for its separate exact approval; do not inherit Parent approvals or start Unified Journey. |
-| What is explicitly forbidden right now? | Benchmark v3 implementation before its own gate chain, a speculative Unified Journey child, Parent runtime/plugin code, approval inheritance and automatic VCS actions. |
+| What is missing? | Final PMR-5 owner outcomes, eight direct blinded understandability-UAT scenarios for PMR-6, completion of RMP-10 and later RMP-12 reviews/QA/UAT. |
+| What is the next allowed action? | Settle the named canonical owner decisions beginning with `task-target-resolution-boundary` at QA, then re-evaluate PMR-5/PMR-6; keep RMP-12 closed. |
+| What is explicitly forbidden right now? | A speculative Unified Journey child, final RMP-10/Parent QA claims, Parent runtime/plugin code, approval inheritance and automatic VCS actions. |
 
 ## Source And Scope State
 
@@ -60,7 +60,8 @@ einfachere Nutzerinteraktion.
 | SD | `.agdf/control/artefacts/agdf-product-maturity-roadmap/SD.md` | approved | AD-1 bis AD-10; freigegeben 2026-07-28. |
 | TP | `.agdf/control/artefacts/agdf-product-maturity-roadmap/TP.md` | approved | RMP-01 bis RMP-12; freigegeben 2026-07-28. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_ANALYSIS.md` | done | Pass; Phase A bleibt auf run-eigene Control-Artefakte begrenzt. |
-| CD+Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md` | in_progress | RMP-01 through RMP-08 done; RMP-11 checkpoint completed; RMP-09 has no safe child scope yet; RMP-10 and RMP-12 remain open. |
+| CD+Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md` | in_progress | RMP-01 through RMP-08 done; RMP-11 includes Benchmark v3 closeout; RMP-10 is in progress; RMP-09 has no safe child scope and RMP-12 remains closed. |
+| Aggregate Acceptance | `.agdf/control/artefacts/agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | in_progress | PMR-1 through PMR-7 matrix created; PMR-5 and critical PMR-6 evidence gaps prevent final aggregation. |
 | RMP-07 Assessment | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_SCOPE_ASSESSMENT.md` | completed | Baseline-Eingangsevidenz erfüllt; Child-Scope gerechtfertigt. |
 | Proportionality Baseline | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_BASELINE.json` | ready | 40 reale Fälle, sechs Pfade, 19 adversariale Fälle, 40/40 Quellen. |
 | Proportionality Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_SCOPE.md` | ready_for_child_ur | Benchmark erweitert bestehende Eval-Owner und bewahrt alle PMR-4-Schwellen. |
@@ -83,7 +84,7 @@ einfachere Nutzerinteraktion.
 | Protokoll-Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md` | approved | Revision 1; exakt freigegeben 2026-07-29. |
 | Protokoll-Child QA | `.agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md` | block | Fresh r3 216/216; TP 24/24, Clean/Code pass; Block ausschließlich durch gültige Produktabweichungen. |
 | Protokoll-Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md` | block | OR-full; Produktbefund upstream bewerten, kein Delivery-Handoff. |
-| Staged Product Findings | `.agdf/control/artefacts/agdf-product-maturity-roadmap/STAGED_PRODUCT_FINDINGS_ASSESSMENT.md` | reconciled | QA Transition and Depth paths completed; bounded Benchmark v3 remains separately gated; Unified Journey has no safe child scope yet. |
+| Staged Product Findings | `.agdf/control/artefacts/agdf-product-maturity-roadmap/STAGED_PRODUCT_FINDINGS_ASSESSMENT.md` | reconciled | QA Transition, Depth and bounded Benchmark v3 paths completed; Unified Journey still has no safe child scope. |
 | Enforcement Closure Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/ENFORCEMENT_CLOSURE_SCOPE.md` | ready_for_child_ur | QA-Block-Approval-Projektion, bestehender Owner und negativer Test. |
 | QA Transition Child OR | `.agdf/control/artefacts/agdf-qa-block-transition-integrity/OR.md` | complete | OR `pass`; QA-`block` no longer requests approval and contradictory stored approval remains fail-closed. |
 | Structured Depth Child OR | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/OR.md` | complete | QA-approved and UAT-accepted Modes-owned boundary; 14/14 tasks and 58/58 evals; no Benchmark mutation. |
@@ -91,7 +92,9 @@ einfachere Nutzerinteraktion.
 | Benchmark v3 Child Brownfield Review | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/BROWNFIELD_REVIEW.md` | done | Structured Delivery selected through complete Depth facts; public CLI/profile compatibility is decisive. |
 | Benchmark v3 Child PRD | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/PRD.md` | approved | Revision 1 approved exactly on 2026-08-19. |
 | Benchmark v3 Child SD | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/SD.md` | approved | Revision 1 approved exactly on 2026-08-19. |
-| Benchmark v3 Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/TP.md` | ready_for_approval | Revision 1 defines 24 tasks, 22 tests, mandatory Brownfield preflight and no live execution authority. |
+| Benchmark v3 Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/TP.md` | approved | Revision 1 approved exactly on 2026-08-19; 24/24 tasks subsequently completed. |
+| Benchmark v3 Child QA | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/QA_REPORT.md` | pass | QA passed and was exactly approved on 2026-08-19. |
+| Benchmark v3 Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/OR.md` | complete | UAT accepted and OR `pass`; repository scope closed with authenticated live behavior explicitly unclaimed. |
 | QA |  | missing | Nicht zulässig. |
 
 ## Mode/Slice Decision
@@ -155,7 +158,11 @@ einfachere Nutzerinteraktion.
 | Benchmark v3 Child Brownfield Review | routes | Benchmark v3 PRD | Full depth follows from the compatibility-sensitive public CLI/profile contract. |
 | Benchmark v3 Child PRD | approved_by | `Approval: PRD` | Revision 1 approved exactly on 2026-08-19 without authority inheritance. |
 | Benchmark v3 Child SD | approved_by | `Approval: SD` | Revision 1 approved exactly on 2026-08-19 without authority inheritance. |
-| Benchmark v3 Child TP | derived_from | Benchmark v3 Child SD | Revision 1 is ready; implementation remains locked until TP approval and Brownfield pass. |
+| Benchmark v3 Child TP | approved_by | `Approval: TP` | Revision 1 approved exactly on 2026-08-19 without Parent authority inheritance. |
+| Benchmark v3 Child QA | approved_by | `Approval: QA` | Passing QA report approved exactly on 2026-08-19. |
+| Benchmark v3 Child OR | fulfills | SPF-01 through SPF-04 / WS-02 | UAT accepted; 24/24 tasks, v3 corpus/replay and historical-integrity evidence close the bounded remediation. |
+| RMP-11 Benchmark v3 Revalidation | reconciles | Child OR and Parent registers | BL-14, WS-02, Brownfield fit and Context Graph link-only boundary match the completed Child without scope transfer. |
+| RMP-10 Aggregate Acceptance | evaluates | PMR-1 through PMR-7 | Matrix started; PMR-5 remains open and PMR-6 has a critical direct-UAT evidence gap, so RMP-12 stays closed. |
 
 ## Evidence
 
@@ -168,13 +175,13 @@ einfachere Nutzerinteraktion.
 | Akzeptierte Live Host Conformance | `agdf-live-host-conformance-matrix/OR.md`; BL-11 | R2, R3, R6 und Grenzen für RMP-07 bis RMP-10 | user_accepted |
 | QA Transition Closure | `agdf-qa-block-transition-integrity/OR.md`; BL-12 | R2, R7 and WS-03 exit evidence | repository_tested |
 | Structured Depth Boundary | `agdf-structured-delivery-depth-boundary/OR.md`; BL-13 | R1, R4, R7 and Benchmark v3 prerequisite | user_accepted |
-| Benchmark v3 Child routing | `agdf-staged-proportionality-baseline-v3/UR.md`; `BROWNFIELD_REVIEW.md`; `PRD.md`; `SD.md`; `TP.md` | SPF-01 through SPF-04 scope, approved design and current task/test plan | user_accepted_and_direct |
+| Benchmark v3 Child closeout | `agdf-staged-proportionality-baseline-v3/OR.md`; BL-14 | SPF-01 through SPF-04 resolved in v3 with protected history and explicit live-host non-claim | user_accepted |
+| Aggregate Acceptance | `agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | current PMR-1 through PMR-7 coverage, limitations and RMP-10 readiness | direct |
 
 ## Missing Evidence
 
-- approved Benchmark v3 Child TP and later implementation/review/QA evidence;
-- completed Benchmark v3 evidence for SPF-01 through SPF-04;
 - settled QA/UAT/host evidence for the canonical owners that bound any future Unified Journey child;
+- eight direct blinded understandability-UAT scenarios required by PMR-6;
 - authenticated native-UI, multi-turn and restart conformance remains an accepted BL-11 boundary.
 
 ## Risks
@@ -195,7 +202,7 @@ einfachere Nutzerinteraktion.
 
 ## Closeout
 
-- delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; staged protocol child through QA/OR; completed QA Transition and Structured Depth children; RMP-11 reconciliation checkpoint; explicit Benchmark v3 versus Unified Journey decision; approved Benchmark v3 Child UR/PRD/SD and ready TP Revision 1.
-- intentionally_not_delivered: Benchmark v3 TP approval, implementation, reviews or QA, speculative Unified Journey scope, RMP-10/RMP-12, Roadmap QA/UAT, VCS and release.
-- next_allowed_action: Review Benchmark v3 Child TP Revision 1 for exact `Approval: TP`; keep Unified Journey deferred.
-- quality_outlook: Preserve the accepted Depth boundary and historical evidence while measuring the corrected Benchmark protocol; defer Unified Journey until canonical owner evidence exposes a residual gap.
+- delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; completed QA Transition, Structured Depth and Benchmark v3 children; RMP-11 reconciliation through BL-14; RMP-10 aggregate matrix started with explicit PMR-5/PMR-6 gaps.
+- intentionally_not_delivered: speculative Unified Journey scope, final RMP-10 acceptance, RMP-12 reviews/QA/UAT, VCS and release.
+- next_allowed_action: Settle the named canonical owner decisions beginning with `task-target-resolution-boundary` at QA, then re-evaluate PMR-5/PMR-6; keep RMP-12 closed.
+- quality_outlook: Preserve canonical owner boundaries and add direct understandability UAT before claiming the simpler Journey is mature.

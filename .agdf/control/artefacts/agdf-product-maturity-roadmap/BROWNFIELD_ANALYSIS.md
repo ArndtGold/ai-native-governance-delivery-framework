@@ -68,3 +68,24 @@
   that bound any future Unified Journey scope.
 - required_next_step: prepare the separately gated Benchmark v3 UR; do not create a Unified Journey
   child until a concrete residual gap is evidenced.
+
+## RMP-11 Benchmark v3 Closeout Revalidation — 2026-08-19
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- scope: reconcile the completed Benchmark v3 OR into the Parent registers and assess whether RMP-10
+  can start without pre-empting the canonical Journey owners.
+- evidence: Benchmark v3 lifecycle is `completed`; QA and UAT are exactly approved; its OR is `pass`;
+  24/24 tasks, six semantic Full-Depth cases, deterministic replay and the 225-file history boundary
+  are recorded with authenticated live behavior explicitly unclaimed.
+- current_coverage: WS-02 is complete within its accepted repository scope; WS-05 may start the PMR
+  matrix; WS-04 remains without a safe Child scope while Task Target is at QA, Interaction Ownership
+  and Single Install are at UAT, and OpenCode parity remains evidence-limited.
+- reuse_strategy: link BL-14 and the Child OR; extend only Parent registers, CD evidence, aggregate
+  acceptance, backlog and run state; create no policy, runtime, presentation or Journey owner.
+- parallel_structure_risk: `pass`; RMP-10 is an evidence matrix, not a second decision authority.
+- context_graph_impact: `link_only`; existing Context Graph refs remain sufficient and resolved.
+- missing_evidence: accepted canonical owner outcomes for PMR-5 and eight direct blinded
+  understandability-UAT scenarios for PMR-6.
+- required_next_step: settle the named canonical owner decisions beginning with
+  `task-target-resolution-boundary` at QA, then re-evaluate PMR-5/PMR-6; do not start RMP-12.

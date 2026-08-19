@@ -27,6 +27,7 @@ Zulässige States: `accepted | ready_for_user_decision | evidence_limited | supe
 | BL-11 | [`agdf-live-host-conformance-matrix`](../agdf-live-host-conformance-matrix/OR.md) | PMR-2, PMR-3, PMR-6, PMR-7 | `accepted` | `user_accepted` | 8 Modus-Limitierungen und 12 Claude-`host_unavailable`; keine native UI-, Mehrturn-, Restart- oder Subagent-Garantie | als versionsgebundene Conformance-Baseline für RMP-07 bis RMP-10 verwenden |
 | BL-12 | [`agdf-qa-block-transition-integrity`](../agdf-qa-block-transition-integrity/OR.md) | PMR-2, PMR-7 | `accepted` | `repository_tested` | no direct installed-host execution; repository evidence proves the QA-`block` projection and fail-closed guard | reuse the completed child OR as the WS-03 enforcement result |
 | BL-13 | [`agdf-structured-delivery-depth-boundary`](../agdf-structured-delivery-depth-boundary/OR.md) | PMR-1, PMR-4, PMR-7 | `accepted` | `user_accepted` | deterministic replay is not direct live-host semantic-following proof | use the accepted Modes-owned boundary as the prerequisite for a separately gated Benchmark v3 |
+| BL-14 | [`agdf-staged-proportionality-baseline-v3`](../agdf-staged-proportionality-baseline-v3/OR.md) | PMR-1, PMR-4, PMR-7 | `accepted` | `user_accepted` | 40-case/72-scenario corpus and 216-observation deterministic replay do not prove authenticated live-agent behavior | reuse the accepted v3 protocol and protected 225-file history boundary in RMP-10 without regrading v2/r3 |
 
 ## Autoritätsregel
 

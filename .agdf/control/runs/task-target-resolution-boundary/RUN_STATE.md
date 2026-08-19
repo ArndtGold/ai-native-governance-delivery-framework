@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: task-target-resolution-boundary
-- lifecycle: active
-- revision: 1
-- revision_id: 5ef8d4ab-234c-4b35-b9ce-7906c1e5838f
+- lifecycle: completed
+- revision: 3
+- revision_id: a6c59e1a-1e60-4172-a127-b0f4b2d5c59e
 - mode: structured_delivery
-- current_gate: QA
-- decision: ready_for_approval
+- current_gate: OR
+- decision: pass
 - owner: user / agent
 
 ## Objective
@@ -22,11 +22,11 @@ Arbeitsordner trennen.
 
 | Question | Answer |
 |---|---|
-| What is known? | Die vorgelagerte Task Target Resolution Boundary ist implementiert; T1–T13, UX Intent Fidelity TTR-1 bis TTR-10, Clean Review, Code Review und QA bestehen. |
-| What is approved? | UR, PRD, SD und TP sind durch exakte Freigaben vom 2026-07-28 genehmigt. Brownfield Review wählt `structured_slice`; UX Intent ist `ready`; Pre-Implementation Brownfield Analysis entscheidet `pass`. |
-| What is missing? | Exaktes `Approval: QA`; Live-Host-Attachment-Verhalten bleibt unverified. |
-| What is the next allowed action? | QA-Report prüfen und exaktes `Approval: QA` erteilen, Überarbeitung anfordern oder ablehnen. |
-| What is explicitly forbidden right now? | UAT vor QA-Freigabe, Release und automatische VCS-Aktionen. |
+| What is known? | Die vorgelagerte Task Target Resolution Boundary ist implementiert, QA-geprüft und UAT-akzeptiert; T1–T13, UX Intent Fidelity TTR-1 bis TTR-10, Reviews und vollständige Validierung bestehen. |
+| What is approved? | Exakte Freigaben für UR, PRD, SD, TP, QA und UAT sind dokumentiert; OR-full schließt den Governance-Lebenszyklus. |
+| What is missing? | Kein Governance-Artefakt und keine Freigabe. Live-Host-, Attachment- und Host-Pfad-Beobachtung bleibt unperformed post-release evidence. |
+| What is the next allowed action? | Product Maturity Roadmap PMR-5/PMR-6 anhand des akzeptierten Ergebnisses neu bewerten. |
+| What is explicitly forbidden right now? | Live-Host-Evidenz inferieren sowie automatische Commit-, Push-, PR-, Release-, Deployment- oder Reinstall-Aktionen. |
 
 ## Source And Scope State
 
@@ -40,13 +40,13 @@ Arbeitsordner trennen.
 ## Run Status Card
 
 - run: `task-target-resolution-boundary`
-- lifecycle: `active`
-- current_gate: `QA`
-- current_internal_step: `QA approval`
-- decision: `ready_for_approval`
-- next_allowed_action: QA-Report prüfen und exaktes `Approval: QA` erteilen, Überarbeitung anfordern oder ablehnen.
+- lifecycle: `completed`
+- current_gate: `OR`
+- current_internal_step: `closeout complete`
+- decision: `pass`
+- next_allowed_action: Product Maturity Roadmap PMR-5/PMR-6 anhand des akzeptierten Ergebnisses neu bewerten.
 - blocked_by: none
-- missing_approval: `Approval: QA`
+- missing_approval: none
 
 ## Approvals
 
@@ -58,8 +58,9 @@ Arbeitsordner trennen.
 | PRD | approved | Exaktes `Approval: PRD` am 2026-07-28 nach same-run, same-gate, revision und durable-artefact revalidation akzeptiert. |
 | SD | approved | Exaktes `Approval: SD` am 2026-07-28 nach same-run, same-gate, revision und durable-artefact revalidation akzeptiert. |
 | TP | approved | Exaktes `Approval: TP` am 2026-07-28 nach same-run, same-gate, revision und durable-artefact revalidation akzeptiert. |
-| QA | open | QA-Report entscheidet `pass`; exaktes `Approval: QA` fehlt. |
-| UAT | missing | Nicht zulässig. |
+| QA | approved | Exaktes `Approval: QA` am 2026-08-19 nach same-run, same-gate, Revision 1 und durable pass-report revalidation akzeptiert. |
+| UAT | approved | Exaktes `Approval: UAT` am 2026-08-19 nach same-run, same-gate und Revision 2 revalidation mit beibehaltenen Evidenzgrenzen akzeptiert. |
+| OR | done | OR-full `pass`; Governance-Lebenszyklus ohne VCS-, Release-, Deployment- oder Reinstall-Aktion abgeschlossen. |
 
 ## Artefacts
 
@@ -76,8 +77,9 @@ Arbeitsordner trennen.
 | TP Review | `.agdf/control/artefacts/task-target-resolution-boundary/TASK_PLAN_REVIEW.md` | done | Entscheidung `pass`; 13/13 fully_done; TTR-1 bis TTR-10 fulfilled. |
 | Clean Implementation Review | `.agdf/control/artefacts/task-target-resolution-boundary/CLEAN_IMPLEMENTATION_REVIEW.md` | done | Entscheidung `pass`; ein fokussierter Contract, bestehende Owner, keine parallele Struktur. |
 | CR | `.agdf/control/artefacts/task-target-resolution-boundary/CODE_REVIEW.md` | done | Entscheidung `pass`; keine offenen Findings. |
-| QA | `.agdf/control/artefacts/task-target-resolution-boundary/QA_REPORT.md` | pass | Quality Readiness pass; keine blockierenden Findings; Live Hosts bleiben unverified. |
-| OR |  | missing |  |
+| QA | `.agdf/control/artefacts/task-target-resolution-boundary/QA_REPORT.md` | pass | Quality Readiness pass; exakte QA-Freigabe am 2026-08-19 akzeptiert; Live Hosts bleiben unverified. |
+| UAT | `.agdf/control/artefacts/task-target-resolution-boundary/UAT_EVIDENCE.md` | approved | Repository outcome accepted with explicit live-host, attachment and host-path evidence limits retained. |
+| OR | `.agdf/control/artefacts/task-target-resolution-boundary/OR.md` | pass | OR-full records accepted delivery, evidence limits and resolved Context Graph impact. |
 
 ## Mode/Slice Decision
 
@@ -109,6 +111,10 @@ Arbeitsordner trennen.
 | Clean Implementation Review | verifies | CD+Tests | Pass; keine Fallback-/Shim-/Parallelstruktur. |
 | CR | reviews | CD+Tests | Pass; keine offenen Code-Review-Findings. |
 | QA_REPORT | tests | TP | Pass; 13/13 Aufgaben, TTR-1 bis TTR-10, Reviews, vollständige Smoke-Kette und Context Graph bestehen. |
+| QA | approved_by | `Approval: QA` | Exakte Freigabe am 2026-08-19 nach same-run, same-gate, Revision 1 und durable pass-report revalidation. |
+| UAT Evidence | evaluates | approved QA scope | Revision 1 presents the repository-proven outcome and preserves authenticated-host, attachment and path-transport non-claims. |
+| UAT | approved_by | `Approval: UAT` | Exakte Freigabe am 2026-08-19 nach same-run, same-gate und Revision 2 revalidation. |
+| OR | verifies | full run | OR-full dokumentiert akzeptierte Lieferung, Evidenzgrenzen und resolved Context Graph impact. |
 
 ## Evidence
 
@@ -121,8 +127,7 @@ Arbeitsordner trennen.
 
 ## Missing Evidence
 
-- QA-Freigabe.
-- direkte Live-Host-/Attachment-Evidenz bleibt für UAT optional und unverified.
+- Direkte Live-Host-/Attachment-/Host-Pfad-Evidenz bleibt unperformed post-release evidence.
 
 ## Risks
 
@@ -149,6 +154,6 @@ Arbeitsordner trennen.
 
 ## Closeout
 
-- delivered: Freigegebene UR, PRD, SD und TP; Brownfield Review/Analysis; T1–T13; vollständige Tests; TP Review 13/13; Clean Review, Code Review und QA pass; Context Graph reconciliiert.
-- intentionally_not_delivered: QA-Freigabe, UAT, OR und VCS-Aktionen.
-- next_allowed_action: QA-Report prüfen und exaktes `Approval: QA` erteilen, Überarbeitung anfordern oder ablehnen.
+- delivered: Freigegebene UR, PRD, SD, TP, QA und UAT; Brownfield Review/Analysis; T1–T13; vollständige Tests; TP Review 13/13; Clean Review, Code Review und QA pass; Context Graph reconciliiert; UAT Evidence Revision 1; OR-full.
+- intentionally_not_delivered: Live-Host-/Attachment-/Host-Pfad-Beobachtung, VCS, Release, Deployment und Reinstall.
+- next_allowed_action: Product Maturity Roadmap PMR-5/PMR-6 anhand des akzeptierten Ergebnisses neu bewerten.

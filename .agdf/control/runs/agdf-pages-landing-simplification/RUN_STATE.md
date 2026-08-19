@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-pages-landing-simplification
-- lifecycle: active
-- revision: 13
-- revision_id: f75ba758-9464-4aaf-9c7d-b7ed6eecf710
+- lifecycle: completed
+- revision: 15
+- revision_id: 4A7CEB9D-7F5A-4A63-B286-312C518EBEB4
 - mode: structured_slice
-- current_gate: QA
-- decision: ready_for_approval
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -21,11 +21,11 @@ truthful product boundaries, the existing visual identity and canonical access t
 
 | Question | Answer |
 |---|---|
-| What is known? | Editorial Revision 3 makes the activity-to-delivery economic thesis explicit in the approved static seven-section candidate. Automated/visible evidence, mandatory reviews and QA report all pass. Context Graph reconciliation is resolved. |
-| What is approved? | UR Revision 1, PRD Revision 3, SD Revision 3 and TP Revision 2 are current approvals. Earlier PRD/SD/TP revisions remain historical evidence only. |
-| What is missing? | Exact `Approval: QA`; subsequent UAT remains separate. No deployed/live-host/publisher/portal evidence exists. |
-| What is the next allowed action? | Present the passing QA report and request exact `Approval: QA`. |
-| What is explicitly forbidden right now? | UAT approval request before QA approval, deployment, publication, release and automatic VCS delivery. |
+| What is known? | Editorial Revision 3 is implemented, reviewed, QA-approved and UAT-accepted for the bounded repository/local-render outcome. OR-full records pass and Context Graph reconciliation is resolved. |
+| What is approved? | Exact approvals are recorded for current UR, PRD, SD, TP, QA and UAT. `Approval: UAT` was accepted on 2026-08-19 after same-run, same-gate, revision-14 and durable UAT-evidence revalidation. |
+| What is missing? | Nothing within the accepted run scope. Deployed/live-domain/publisher/portal/publication evidence remains an explicit non-claim. |
+| What is the next allowed action? | No run work remains; any deployment, publication, release or further VCS action requires a separate explicit user instruction. |
+| What is explicitly forbidden right now? | Automatic deployment, publication, release, commit, push or PR action. |
 
 ## Source And Scope State
 
@@ -55,8 +55,9 @@ truthful product boundaries, the existing visual identity and canonical access t
 | SD | approved | Exact `Approval: SD` for Revision 3 accepted on 2026-08-18 after same-run, same-gate and revision revalidation. |
 | TP | approved | Exact `Approval: TP` for Revision 2 accepted on 2026-08-18 after same-run, same-gate and revision revalidation. |
 | Brownfield Analysis | done | `.agdf/control/artefacts/agdf-pages-landing-simplification/BROWNFIELD_ANALYSIS.md`; pre-implementation decision `pass`. |
-| QA | missing | Passing `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` awaits exact `Approval: QA`. |
-| UAT | missing | Forbidden. |
+| QA | approved | Exact `Approval: QA` accepted on 2026-08-19 after revalidation of run `agdf-pages-landing-simplification`, gate `QA`, revision 13 and QA Report Revision 3. |
+| UAT | approved | Exact `Approval: UAT` accepted on 2026-08-19 after revalidation of run, gate `UAT`, revision 14 and durable UAT evidence. |
+| OR | done | OR-full `pass`; lifecycle completed with no deployment, publication, release or new VCS action. |
 
 ## Artefacts
 
@@ -72,7 +73,9 @@ truthful product boundaries, the existing visual identity and canonical access t
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-pages-landing-simplification/BROWNFIELD_ANALYSIS.md` | done | Baseline, reuse/deletion paths, fragments, regressions, tests and worktree isolation pass. |
 | CD+Tests | `.agdf/control/artefacts/agdf-pages-landing-simplification/CD_TESTS.md` | done | Editorial Revision 3: 1,536-word seven-section static candidate and automated/visible evidence complete. |
 | CR | `.agdf/control/artefacts/agdf-pages-landing-simplification/CODE_REVIEW.md` | done | Code Review Revision 3 pass; no open finding. |
-| QA | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass | QA Report Revision 3 passes; exact QA approval remains missing. |
+| QA | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass | QA Report Revision 3 pass received exact `Approval: QA` on 2026-08-19. |
+| UAT Evidence | `.agdf/control/artefacts/agdf-pages-landing-simplification/UAT_EVIDENCE.md` | accepted | Repository/local-render candidate accepted with external-state limitations disclosed. |
+| OR | `.agdf/control/artefacts/agdf-pages-landing-simplification/OR.md` | pass | OR-full closes the run with complete gates, evidence, limitations and resolved Context Graph impact. |
 
 ## Mode/Slice Decision
 
@@ -111,7 +114,11 @@ truthful product boundaries, the existing visual identity and canonical access t
 | Task Plan Review | verifies | CD+Tests | 12/12 tasks fully done and all UX Intent Fidelity rows fulfilled. |
 | Clean Implementation Review | verifies | CD+Tests | One clean static primary solution; no fallback or parallel owner. |
 | Code Review | verifies | CD+Tests | Mandatory CR pass; no open finding. |
-| QA Report | decides | Quality Readiness | `qa-gate` pass; exact QA approval remains required. |
+| QA_REPORT | tests | TP | QA Report Revision 3 verifies 12/12 tasks and all sixteen UX-fidelity criteria. |
+| QA | approved_by | `Approval: QA` | Exact approval accepted on 2026-08-19 after same-run, same-gate, revision-13 and durable-report revalidation. |
+| UAT Evidence | derives_from | QA_REPORT | Ready acceptance candidate preserves repository/local-render and external-state boundaries. |
+| UAT | approved_by | `Approval: UAT` | Exact approval accepted on 2026-08-19 after same-run, same-gate, revision-14 and durable-evidence revalidation. |
+| OR | verifies | full run | OR-full records delivered and intentionally not delivered scope, 12/12 TP coverage, 16/16 UX fidelity, QA/UAT acceptance and resolved Context Graph impact. |
 | PRD Revision 3 | invalidates_current_derivation | SD Revision 1 and TP Revision 1 | Later artefacts remain historical until re-derived through the current approved chain. |
 | UR | bounded_by | Existing Sources Of Truth and Non-Goals | Runtime semantics, policy owners, visual identity, deployment and release remain unchanged. |
 | Prior Pages runs | inform | UR Revision 1 | Existing correctness and proof outcomes are reusable evidence without approval inheritance. |
@@ -127,12 +134,11 @@ truthful product boundaries, the existing visual identity and canonical access t
 | Detailed guidance | `docs/handbook/de/`, `docs/handbook/en/`, `INSTALL.md` | destinations for removed homepage detail | canonical or controlled projection |
 | Candidate measurements | `.agdf/control/artefacts/agdf-pages-landing-simplification/CD_TESTS.md` | 1,536 words; seven sections; zero scripts; 1,210,792 image bytes | direct local repository/render evidence |
 | Mandatory reviews | Task Plan, Clean Implementation and Code Review reports | plan, integrity and code quality | strong review evidence |
-| QA decision | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass; approval still missing | sole QA decision owner |
+| QA decision | `.agdf/control/artefacts/agdf-pages-landing-simplification/QA_REPORT.md` | pass and exact approval accepted | sole QA decision owner |
+| UAT acceptance | `.agdf/control/artefacts/agdf-pages-landing-simplification/UAT_EVIDENCE.md`; exact `Approval: UAT` | accepted local user-visible outcome and disclosed external-state limits | authoritative acceptance evidence |
 
 ## Missing Evidence
 
-- exact `Approval: QA`;
-- UAT approval/evidence after QA approval;
 - deployed/live-host/publisher/portal/publication evidence, intentionally outside this slice.
 
 ## Risks
@@ -161,9 +167,9 @@ truthful product boundaries, the existing visual identity and canonical access t
 
 ## Closeout
 
-- delivered: Approved chain through TP, passed Brownfield Analysis, completed first-reader editorial
-  Revision 3 of the static seven-section candidate with the explicit activity-to-delivery thesis,
-  automated/visible evidence, mandatory reviews, resolved Context Graph and passing QA Report Revision 3.
-- intentionally_not_delivered: QA approval, UAT, deployment, live-host/publication evidence, release and VCS delivery.
-- next_allowed_action: Request exact `Approval: QA` for the passing QA report.
-- quality_outlook: QA evidence is complete and passing; human QA approval is the next controlled transition.
+- delivered: Complete approved chain through UAT, accepted first-reader Editorial Revision 3 of the
+  static seven-section candidate, automated and visible local evidence, mandatory reviews, resolved
+  Context Graph and OR-full pass.
+- intentionally_not_delivered: deployment, live-host/publication evidence, release and new VCS delivery during closeout.
+- next_allowed_action: No run work remains; any deployment, publication, release or further VCS action requires a separate explicit user instruction.
+- quality_outlook: The accepted repository/local-render outcome is complete; future evidence work is external and separately authorized.

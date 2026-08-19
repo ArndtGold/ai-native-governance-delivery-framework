@@ -1,11 +1,20 @@
+import { getProfileDefinition, isStagedProfile } from "./profiles.js";
+
 export function renderMarkdown(report) {
-  if (report.profile_id === "staged-v2") {
+  if (report.profile_id && isStagedProfile(getProfileDefinition(report.profile_id))) {
     const lines = [
       "# AGDF Staged Proportionality Observation",
       "",
       `- Status: \`${report.status}\``,
       `- Evidenzgrenze: ${report.evidence_boundary}`,
       `- Profil/Protokoll: \`${report.profile_id}\` / \`${report.protocol_version}\``,
+      ...(report.evidence_class ? [
+        `- Corpus/Baseline: \`${report.corpus_version}\` / \`${report.baseline_version}\``,
+        `- Report-Version: \`${report.report_version}\``,
+        `- Evidenzklasse: \`${report.evidence_class}\``,
+        `- Authentifizierte Live-Host-Evidenz: \`${report.authenticated_live_host_evidence}\``,
+        `- Live-Host-Nichtbehauptung: ${report.live_host_non_claim}`,
+      ] : []),
       `- Serie: \`${report.series_id ?? "none"}\``,
       `- Surface/Modell: \`${report.surface ?? "none"}\` / \`${report.model ?? "none"}\``,
       `- Runtime/AGDF/Adapter/Runner: \`${report.runtime_version ?? "none"}\` / \`${report.agdf_version ?? "none"}\` / \`${report.adapter_version ?? "none"}\` / \`${report.runner_version}\``,

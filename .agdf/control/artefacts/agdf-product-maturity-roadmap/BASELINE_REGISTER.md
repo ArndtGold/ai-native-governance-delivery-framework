@@ -1,7 +1,7 @@
 # Baseline Register: AGDF Product Maturity Roadmap
 
 Status: active
-Date: 2026-07-28
+Date: 2026-08-19
 Owner: Roadmap-Run; kanonische Zustände verbleiben bei den referenzierten Runs.
 
 ## Schema
@@ -25,6 +25,8 @@ Zulässige States: `accepted | ready_for_user_decision | evidence_limited | supe
 | BL-09 | [`agdf-delivery-path-search`](../agdf-delivery-path-search/OR.md) | PMR-2, PMR-4, PMR-7 | `accepted` | `user_accepted` | instruction-only Surfaces beweisen keinen Schreibschutz | Capability-/Enforcement-Grenze übernehmen |
 | BL-10 | [`agdf-micro-tier-below-quick-task`](../agdf-micro-tier-below-quick-task/OR.md) | PMR-1, PMR-4, PMR-7 | `accepted` | `user_accepted` | pathbasierte Grenze allein misst noch keine reale Über-Governance | Ceremony-Benchmark darauf kalibrieren |
 | BL-11 | [`agdf-live-host-conformance-matrix`](../agdf-live-host-conformance-matrix/OR.md) | PMR-2, PMR-3, PMR-6, PMR-7 | `accepted` | `user_accepted` | 8 Modus-Limitierungen und 12 Claude-`host_unavailable`; keine native UI-, Mehrturn-, Restart- oder Subagent-Garantie | als versionsgebundene Conformance-Baseline für RMP-07 bis RMP-10 verwenden |
+| BL-12 | [`agdf-qa-block-transition-integrity`](../agdf-qa-block-transition-integrity/OR.md) | PMR-2, PMR-7 | `accepted` | `repository_tested` | no direct installed-host execution; repository evidence proves the QA-`block` projection and fail-closed guard | reuse the completed child OR as the WS-03 enforcement result |
+| BL-13 | [`agdf-structured-delivery-depth-boundary`](../agdf-structured-delivery-depth-boundary/OR.md) | PMR-1, PMR-4, PMR-7 | `accepted` | `user_accepted` | deterministic replay is not direct live-host semantic-following proof | use the accepted Modes-owned boundary as the prerequisite for a separately gated Benchmark v3 |
 
 ## Autoritätsregel
 

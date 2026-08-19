@@ -1,7 +1,7 @@
 # CD+Tests: AGDF Product Maturity Roadmap
 
 Status: in_progress
-Date: 2026-07-28
+Date: 2026-08-19
 Scope: Parent Phase A und Vorbereitung der separaten Child-UR
 
 ## Task Status
@@ -16,9 +16,9 @@ Scope: Parent Phase A und Vorbereitung der separaten Child-UR
 | RMP-06 | done | Child-OR unverändert als `BL-11` mit `user_accepted` verlinkt; WS-01 `completed`; acht Limitierungen und zwölf Claude-`host_unavailable` bleiben sichtbar |
 | RMP-07 | done | Assessment zunächst `no_child_scope_yet`; danach validierte Baseline Version `1.0.0` mit 40 realen Fällen, sechs Pfaden, 19 adversarialen Fällen und 40/40 Quellen; `PROPORTIONALITY_BENCHMARK_SCOPE.md` ist `ready_for_child_ur` |
 | RMP-08 | done | `STAGED_PRODUCT_FINDINGS_ASSESSMENT.md` und `ENFORCEMENT_CLOSURE_SCOPE.md`: QA-Block-Approval-Projektion mit Garantie, Surface, Ist-/Zielklasse, Owner und negativem Test; kein Autoritätsbypass behauptet |
-| RMP-09 | pending | abhängig von stabilen Target-/Routing-/Enforcement-Zuständen |
+| RMP-09 | no_safe_child_scope_yet | no residual Journey gap is evidenced while canonical Target, Interaction and OpenCode owners still have QA/UAT or host-evidence boundaries |
 | RMP-10 | pending | aggregierte PMR-Abnahme erst nach Child-Evidenz |
-| RMP-11 | pending | nach abgeschlossenem Workstream |
+| RMP-11 | checkpoint_done | completed QA Transition and Structured Depth child ORs reconciled; Parent Brownfield fit and Context Graph link-only boundary revalidated without scope transfer |
 | RMP-12 | pending | Roadmap-Reviews/QA/UAT erst nach vollständiger Aggregation |
 
 ## Phase-A-Prüfung
@@ -37,13 +37,14 @@ Scope: Parent Phase A und Vorbereitung der separaten Child-UR
   und bestehende Gate-/Mode-Owner; Details in `PROPORTIONALITY_BASELINE_TESTS.md`.
 - RMP-T09: pass für Scope-Ableitung; `SPF-06` besitzt konkreten gemeinsamen Host-Gap,
   bestehenden Owner `gate-policy.js` und einen negativen Umgehungs-/Approval-Test.
-- RMP-T10 bis RMP-T11: noch nicht ausführbar; Structured-Depth- und spätere Child-Evidenz fehlen
-  planmäßig.
+- RMP-T10: still pending until the separately gated Benchmark v3 evidence and remaining canonical
+  owner outcomes are available.
+- RMP-T11: pass for the 2026-08-19 checkpoint; BL-12/BL-13, WS-02/WS-03, Parent Brownfield fit and
+  Context Graph link-only reconciliation match the completed child ORs.
 - RMP-T12 Phase A: `doctor` pass mit 0 Findings; `delivery-map` pass; keine defekten Links;
   `git diff --check` pass.
-- RMP-T12 Child-UR-Vorbereitung: Parent und Child `doctor` jeweils pass mit 0 Findings;
-  Parent bleibt bei internem `CD+Tests`, Child ist eindeutig bei UR mit fehlendem
-  `Approval: UR`; `git diff --check` bleibt pass.
+- RMP-T12 child preparation boundary: Parent remains at internal `CD+Tests`; no Benchmark v3 or
+  Unified Journey child has been created or authorized by this checkpoint.
 
 ## Evidenzgrenze
 
@@ -58,6 +59,7 @@ Die r3-Evidenz wurde ohne Regrading oder Tuning in drei getrennte Pfade zerlegt:
 - eigener Product-Semantics-Child für `structured_slice` versus `structured_delivery`;
 - eigener enger Enforcement-Child für die unzulässige QA-Approval-Aufforderung bei `block`.
 
-Der QA-Transition-Befund ist technisch schließbar. Die bestehende dauerhafte QA-`pass`-Prüfung
-verhindert bereits den UAT-Fortschritt; der Scope korrigiert die widersprüchliche Status- und
-Approval-Projektion, ohne eine neue Gate-Semantik einzuführen.
+The QA Transition and Structured Depth paths are now completed and linked through BL-12 and BL-13.
+The remaining bounded action is Benchmark v3 for SPF-01 through SPF-04. RMP-09 stays at
+`no_safe_child_scope_yet` because no residual Journey gap is evidenced beyond unsettled canonical
+owners.

@@ -44,3 +44,27 @@
 | Interaction | Interaction Contract und Renderer | keine Änderung | pass |
 | Context Graph | bestehende sechs Knoten | `link_only` | pass |
 | Tests | Doctor, Gate Check, Delivery Map, Link- und Diff-Prüfung | bestehende Validatoren wiederverwenden | pass |
+
+## RMP-11 Brownfield Revalidation — 2026-08-19
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- scope: reconcile the completed QA Transition and Structured Depth child outcomes into the Parent
+  registers and decide the smallest safe next workstream action.
+- evidence: both child run states are `completed`; both ORs are `pass`; the Depth child records exact
+  QA and UAT approvals; the active Parent remains at `CD+Tests` with no missing approval or Doctor
+  finding.
+- current_coverage: WS-03 is completed; WS-02 has the accepted Depth prerequisite but retains the
+  bounded SPF-01 through SPF-04 Benchmark v3 gaps; WS-04 still depends on unsettled canonical Target,
+  Interaction and OpenCode owners.
+- reuse_strategy: extend `BASELINE_REGISTER.md`, `WORKSTREAM_REGISTER.md`,
+  `STAGED_PRODUCT_FINDINGS_ASSESSMENT.md`, `CD_TESTS.md` and Parent control state; reuse child ORs by
+  link; create no new Parent policy, runtime or interaction owner.
+- parallel_structure_risk: `pass`; Benchmark v3 remains in the existing proportionality pipeline,
+  while Unified Journey remains with the existing Interaction owners and is not started.
+- context_graph_impact: `link_only`; existing approved nodes remain the authority and no new node is
+  justified by this coordination checkpoint.
+- missing_evidence: a separate Benchmark v3 UR approval; settled QA/UAT/host evidence for the owners
+  that bound any future Unified Journey scope.
+- required_next_step: prepare the separately gated Benchmark v3 UR; do not create a Unified Journey
+  child until a concrete residual gap is evidenced.

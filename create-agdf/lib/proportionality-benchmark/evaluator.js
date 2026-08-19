@@ -1,6 +1,7 @@
 import { DELIVERY_PATHS, PATH_RANK, STAGES, fail, stable } from "./contracts.js";
 import { sourceFingerprint } from "./source-fingerprint.js";
-import { ADAPTER_VERSION, STAGED_ADAPTER_VERSION } from "./live-recorder.js";
+import { ADAPTER_VERSION } from "./live-recorder.js";
+import { getProfileDefinition, isStagedProfile } from "./profiles.js";
 
 export function classifyObservation(expected, observation) {
   if (observation.ambiguous || observation.observed_delivery_path === null) return "ambiguous";
@@ -50,22 +51,25 @@ function stagedCoverageResult(expected, rows, reason) {
   };
 }
 function evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats }) {
-  const provenanceKeys = ["series_id", "profile_id", "protocol_version", "corpus_version", "fixture_version", "surface", "runtime_version", "model", "agdf_version", "baseline_version", "adapter_version"];
+  const profile = getProfileDefinition(corpus.profile_id);
+  const provenanceKeys = ["series_id", "profile_id", "protocol_version", "corpus_version", "fixture_version", "surface", "runtime_version", "model", "agdf_version", "baseline_version", "adapter_version", ...(profile.evidence_kind_provenance ? ["evidence_kind"] : []), ...(profile.series_profile_metadata ? ["runner_version"] : [])];
   const first = observations[0] ?? {};
   const observationIds = new Set();
   const byScenario = new Map(corpus.cases.map((item) => [item.scenario_id, []]));
   for (const observation of observations) {
     if (!byScenario.has(observation.scenario_id) || observation.case_id !== observation.scenario_id.split(":")[0]) fail(`unknown staged observation ${observation.scenario_id ?? "unknown"}`);
-    if (observation.schema_version !== "2" || observation.evidence_kind !== "live_agent_observation" || !Number.isInteger(observation.repeat) || observation.repeat < 1) fail(`invalid observation ${observation.observation_id ?? "unknown"}`);
+    if (observation.schema_version !== profile.schema_version || !profile.evidence_kinds.includes(observation.evidence_kind) || !Number.isInteger(observation.repeat) || observation.repeat < 1) fail(`invalid observation ${observation.observation_id ?? "unknown"}`);
     if (!observation.observation_id || observationIds.has(observation.observation_id)) fail(`duplicate observation ${observation.observation_id ?? "unknown"}`);
     if (observation.execution_status !== "completed" || observation.redaction_status !== "pass" || observation.mutation_status !== "pass") fail(`unsafe observation status ${observation.observation_id}`);
     if (!Number.isFinite(Date.parse(observation.recorded_at))) fail(`invalid observation timestamp ${observation.observation_id}`);
-    if (
-      observation.baseline_version !== corpus.baseline.baseline_version
-      || observation.corpus_version !== corpus.manifest.corpus_version
-      || observation.fixture_version !== corpus.manifest.fixture_version
-    ) fail(`baseline provenance drift at ${observation.observation_id}`);
-    if (provenanceKeys.some((key) => observation[key] !== first[key])) fail(`series provenance drift at ${observation.observation_id}`);
+    const versionDrift = [
+      ["baseline_version", corpus.baseline.baseline_version],
+      ["corpus_version", corpus.manifest.corpus_version],
+      ["fixture_version", corpus.manifest.fixture_version],
+    ].find(([key, expected]) => observation[key] !== expected);
+    if (versionDrift) fail(`baseline provenance drift (${versionDrift[0]}) at ${observation.observation_id}`);
+    const provenanceDrift = provenanceKeys.find((key) => observation[key] !== first[key]);
+    if (provenanceDrift) fail(`series provenance drift (${provenanceDrift}) at ${observation.observation_id}`);
     observationIds.add(observation.observation_id);
     byScenario.get(observation.scenario_id).push(observation);
   }
@@ -74,7 +78,7 @@ function evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats }
     const rows = byScenario.get(expected.scenario_id).sort((a, b) => a.repeat - b.repeat);
     const repeats = new Set(rows.map((item) => item.repeat));
     if (rows.length < minimumRepeats || repeats.size !== rows.length) return stagedCoverageResult(expected, rows, "coverage");
-    const fingerprint = sourceFingerprint(repoRoot, blind, corpus.fixtures, STAGED_ADAPTER_VERSION);
+    const fingerprint = sourceFingerprint(repoRoot, blind, corpus.fixtures, profile.adapter_version);
     const stale = rows.some((item) => item.source_fingerprint !== fingerprint);
     const invalidAxes = rows.some((item) => (
       expected.stage_required !== (item.stage_evaluability === "evaluated")
@@ -130,9 +134,9 @@ function evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats }
     ...(ambiguous.length ? ["ambiguous_or_incomplete"] : []),
   ];
   return stable({
-    schema_version: "2",
-    profile_id: "staged-v2",
-    protocol_version: "2",
+    schema_version: profile.schema_version,
+    profile_id: profile.profile_id,
+    protocol_version: profile.protocol_version,
     evidence_boundary: corpus.manifest.evidence_boundary,
     baseline_version: corpus.baseline.baseline_version,
     corpus_version: corpus.manifest.corpus_version,
@@ -142,7 +146,13 @@ function evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats }
     agdf_version: first.agdf_version ?? null,
     adapter_version: first.adapter_version ?? null,
     runtime_version: first.runtime_version ?? null,
-    runner_version: "2.0.0",
+    runner_version: profile.runner_version,
+    ...(profile.repository_replay_non_claim ? {
+      evidence_class: first.evidence_kind ?? "none",
+      report_version: profile.report_version,
+      authenticated_live_host_evidence: false,
+      live_host_non_claim: "No authenticated staged-v3 live-host series was executed or accepted by this repository replay.",
+    } : {}),
     freshness_status: scenarios.some((item) => item.blocking_reasons.includes("stale")) ? "stale" : "fresh",
     minimum_repeats: minimumRepeats,
     valid_observations: observations.length,
@@ -164,7 +174,7 @@ function evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats }
 }
 export function evaluateSeries({ repoRoot, corpus, observations, minimumRepeats = 3 }) {
   if (!Number.isInteger(minimumRepeats) || minimumRepeats < 3) fail("minimum repeats must be at least 3");
-  if (corpus.profile_id === "staged-v2") return evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats });
+  if (isStagedProfile(getProfileDefinition(corpus.profile_id))) return evaluateStagedSeries({ repoRoot, corpus, observations, minimumRepeats });
   const provenanceKeys = ["series_id", "surface", "runtime_version", "model", "agdf_version", "baseline_version", "adapter_version"];
   const first = observations[0] ?? {};
   const observationIds = new Set();

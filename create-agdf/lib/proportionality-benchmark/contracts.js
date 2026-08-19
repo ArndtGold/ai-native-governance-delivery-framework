@@ -19,7 +19,8 @@ export const OBSERVATION_SCHEMA = Object.freeze({
     decision_grounds: { type: "array", maxItems: 12, items: { type: "string", maxLength: 120 } },
   },
 });
-export const STAGED_OBSERVATION_SCHEMA = Object.freeze({
+function stagedObservationSchema(schemaVersion) {
+  return Object.freeze({
   type: "object",
   additionalProperties: false,
   required: [
@@ -27,7 +28,7 @@ export const STAGED_OBSERVATION_SCHEMA = Object.freeze({
     "observed_delivery_path", "path_evaluability", "rationale", "decision_grounds",
   ],
   properties: {
-    schema_version: { type: "string", const: "2" },
+    schema_version: { type: "string", const: schemaVersion },
     observed_next_permissible_stage: { type: ["string", "null"], enum: [...STAGES, null] },
     stage_evaluability: { type: "string", enum: ["evaluated", "not_evaluable_yet"] },
     observed_delivery_path: { type: ["string", "null"], enum: [...DELIVERY_PATHS, null] },
@@ -35,7 +36,15 @@ export const STAGED_OBSERVATION_SCHEMA = Object.freeze({
     rationale: { type: "string", maxLength: 600 },
     decision_grounds: { type: "array", maxItems: 12, items: { type: "string", maxLength: 120 } },
   },
-});
+  });
+}
+export const STAGED_OBSERVATION_SCHEMA = stagedObservationSchema("2");
+export const STAGED_V3_OBSERVATION_SCHEMA = stagedObservationSchema("3");
+export function stagedSchemaForVersion(schemaVersion) {
+  if (schemaVersion === "2") return STAGED_OBSERVATION_SCHEMA;
+  if (schemaVersion === "3") return STAGED_V3_OBSERVATION_SCHEMA;
+  fail(`unsupported staged schema ${schemaVersion}`);
+}
 
 const forbiddenBaselineKeys = new Set(["observed_delivery_path", "classification", "status", "passed"]);
 const forbiddenText = /(api[_-]?key|access[_-]?token|cookie|authorization:\s*bearer|hidden reasoning|\/Users\/[^/\s]+|[A-Z]:\\Users\\[^\\\s]+)/i;
@@ -85,14 +94,14 @@ export function normalizeAgentOutput(raw) {
   if (ambiguous) path = null;
   return { schema_version: "1", observed_delivery_path: path, ambiguous, rationale: value.rationale, decision_grounds: [...value.decision_grounds] };
 }
-export function normalizeStagedAgentOutput(raw, requestedAxes) {
+export function normalizeStagedAgentOutput(raw, requestedAxes, schemaVersion = "2") {
   let value;
   try { value = typeof raw === "string" ? JSON.parse(raw) : raw; }
   catch { fail("agent output is not JSON", "PROPORTIONALITY_OUTPUT_INVALID"); }
   if (!value || typeof value !== "object" || Array.isArray(value)) fail("agent output is not an object", "PROPORTIONALITY_OUTPUT_INVALID");
-  const allowed = new Set(Object.keys(STAGED_OBSERVATION_SCHEMA.properties));
+  const allowed = new Set(Object.keys(stagedSchemaForVersion(schemaVersion).properties));
   if (Object.keys(value).some((key) => !allowed.has(key))) fail("agent output contains unknown fields", "PROPORTIONALITY_OUTPUT_INVALID");
-  if (value.schema_version !== "2" || (!STAGES.includes(value.observed_next_permissible_stage) && value.observed_next_permissible_stage !== null)) fail("invalid staged contract", "PROPORTIONALITY_OUTPUT_INVALID");
+  if (value.schema_version !== schemaVersion || (!STAGES.includes(value.observed_next_permissible_stage) && value.observed_next_permissible_stage !== null)) fail("invalid staged contract", "PROPORTIONALITY_OUTPUT_INVALID");
   if (!DELIVERY_PATHS.includes(value.observed_delivery_path) && value.observed_delivery_path !== null) fail("invalid staged path", "PROPORTIONALITY_OUTPUT_INVALID");
   if (!["evaluated", "not_evaluable_yet"].includes(value.stage_evaluability) || !["evaluated", "not_evaluable_yet"].includes(value.path_evaluability)) fail("invalid staged evaluability", "PROPORTIONALITY_OUTPUT_INVALID");
   for (const [axis, observed, evaluability] of [
@@ -109,7 +118,7 @@ export function normalizeStagedAgentOutput(raw, requestedAxes) {
     if (!grounds.includes("ur") || !grounds.includes("brownfield") || !grounds.includes("quick_task")) fail("compact delivery evidence missing", "PROPORTIONALITY_OUTPUT_INVALID");
   }
   return {
-    schema_version: "2",
+    schema_version: schemaVersion,
     observed_next_permissible_stage: value.observed_next_permissible_stage,
     stage_evaluability: value.stage_evaluability,
     observed_delivery_path: value.observed_delivery_path,

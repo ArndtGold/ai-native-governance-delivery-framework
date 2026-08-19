@@ -5,11 +5,31 @@ import { dirname, join } from "node:path";
 import { executeStructuredAgent } from "../live-agent/read-only-structured.js";
 import { changedPaths, snapshotWorkspace } from "../skill-evals/workspace.js";
 import { buildBlindPrompt } from "./blind-prompt.js";
-import { normalizeAgentOutput, normalizeStagedAgentOutput, OBSERVATION_SCHEMA, STAGED_OBSERVATION_SCHEMA, fail } from "./contracts.js";
+import { normalizeAgentOutput, normalizeStagedAgentOutput, OBSERVATION_SCHEMA, fail, stagedSchemaForVersion } from "./contracts.js";
+import { getProfileDefinition, isStagedProfile } from "./profiles.js";
 import { behaviorSourceText, sourceFingerprint } from "./source-fingerprint.js";
 
-export const ADAPTER_VERSION = "1.1.0";
-export const STAGED_ADAPTER_VERSION = "2.1.0";
+export const ADAPTER_VERSION = getProfileDefinition("legacy-v1").adapter_version;
+export const STAGED_ADAPTER_VERSION = getProfileDefinition("staged-v2").adapter_version;
+export const STAGED_V3_ADAPTER_VERSION = getProfileDefinition("staged-v3").adapter_version;
+export function isRetryableObservationError(error) {
+  return error?.code === "GENERATOR_TIMEOUT";
+}
+export function observationAttemptFailure(error, attemptCount, attemptLimit) {
+  const messages = {
+    GENERATOR_TIMEOUT: "read-only process timed out",
+    PROPORTIONALITY_OUTPUT_INVALID: "agent output failed the structured contract",
+    PROPORTIONALITY_REDACTION_FAILED: "agent output failed redaction",
+    PROPORTIONALITY_MUTATION: "agent mutated the disposable fixture",
+  };
+  return {
+    status: "invalid",
+    code: error?.code ?? "EXECUTION_ERROR",
+    message: messages[error?.code] ?? "agent execution failed",
+    retryable: isRetryableObservationError(error),
+    remaining_attempt_budget: Math.max(0, attemptLimit - attemptCount),
+  };
+}
 function runtimeVersion(surface) {
   try { return execFileSync(surface, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); }
   catch { return `${surface} version unavailable`; }
@@ -40,8 +60,9 @@ export async function recordObservation({
 }) {
   if (!/^[a-z0-9][a-z0-9._-]{2,79}$/i.test(seriesId) || !Number.isInteger(repeat) || repeat < 1) fail("invalid series or repeat");
   if (!surface || !model || !agdfVersion || !baselineVersion) fail("surface, model, AGDF version and baseline version are required");
-  const staged = testCase.profile_id === "staged-v2";
-  const adapterVersion = staged ? STAGED_ADAPTER_VERSION : ADAPTER_VERSION;
+  const profile = getProfileDefinition(testCase.profile_id ?? "legacy-v1");
+  const staged = isStagedProfile(profile);
+  const adapterVersion = profile.adapter_version;
   const fingerprint = sourceFingerprint(repoRoot, testCase, fixture, adapterVersion);
   const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-proportionality-"));
   let output;
@@ -55,7 +76,7 @@ export async function recordObservation({
     const before = snapshotWorkspace(fixtureRoot);
     try {
       output = await execute({
-        surface, cwd: fixtureRoot, model, timeoutMs, outputSchema: staged ? STAGED_OBSERVATION_SCHEMA : OBSERVATION_SCHEMA,
+        surface, cwd: fixtureRoot, model, timeoutMs, outputSchema: staged ? stagedSchemaForVersion(profile.schema_version) : OBSERVATION_SCHEMA,
         prompt: buildBlindPrompt(testCase, behaviorSourceText(repoRoot)),
       });
     } catch (error) { executionError = error; }
@@ -63,18 +84,19 @@ export async function recordObservation({
     const mutations = changedPaths(before, after);
     if (mutations.length) fail(`agent mutated fixture: ${mutations.join(", ")}`, "PROPORTIONALITY_MUTATION");
     if (executionError) throw executionError;
-    const normalized = staged ? normalizeStagedAgentOutput(output, testCase.requested_axes) : normalizeAgentOutput(output);
+    const normalized = staged ? normalizeStagedAgentOutput(output, testCase.requested_axes, profile.schema_version) : normalizeAgentOutput(output);
     const observation = {
-      schema_version: staged ? "2" : "1",
+      schema_version: profile.schema_version,
       observation_id: `${seriesId}:${staged ? testCase.scenario_id : testCase.case_id}:${repeat}`,
       case_id: testCase.case_id,
       ...(staged ? {
-        profile_id: "staged-v2",
-        protocol_version: "2",
+        profile_id: profile.profile_id,
+        protocol_version: profile.protocol_version,
         corpus_version: testCase.corpus_version,
         fixture_version: testCase.fixture_version,
         scenario_id: testCase.scenario_id,
         lifecycle_stage: testCase.lifecycle_stage,
+        ...(profile.series_profile_metadata ? { runner_version: profile.runner_version } : {}),
       } : {}),
       series_id: seriesId,
       repeat,

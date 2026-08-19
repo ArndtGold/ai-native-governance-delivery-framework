@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { stable } from "./contracts.js";
+import { getProfileDefinition } from "./profiles.js";
 
 export const BEHAVIOR_SOURCES = Object.freeze([
   "plugin/meta/agdf-agent-router.md",
@@ -24,7 +25,10 @@ export function behaviorSourceText(repoRoot) {
 }
 export function sourceFingerprint(repoRoot, testCase, fixture, adapterVersion) {
   const hash = createHash("sha256");
-  hash.update(JSON.stringify(stable({ testCase, fixture, adapterVersion })));
-  for (const path of [...BEHAVIOR_SOURCES, ...IMPLEMENTATION_SOURCES]) hash.update(path).update(readFileSync(join(repoRoot, path)));
+  const selectedProfile = testCase.profile_id ? getProfileDefinition(testCase.profile_id) : null;
+  const profile = selectedProfile?.fingerprint_profile_metadata ? selectedProfile : null;
+  hash.update(JSON.stringify(stable(profile ? { testCase, fixture, adapterVersion, profile } : { testCase, fixture, adapterVersion })));
+  const sources = profile ? [...BEHAVIOR_SOURCES, ...IMPLEMENTATION_SOURCES, "create-agdf/lib/proportionality-benchmark/profiles.js"] : [...BEHAVIOR_SOURCES, ...IMPLEMENTATION_SOURCES];
+  for (const path of sources) hash.update(path).update(readFileSync(join(repoRoot, path)));
   return hash.digest("hex");
 }

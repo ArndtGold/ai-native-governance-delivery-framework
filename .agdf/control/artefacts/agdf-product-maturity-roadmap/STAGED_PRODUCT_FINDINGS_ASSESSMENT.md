@@ -97,7 +97,24 @@ Er darf erst nach der kanonischen Structured-Depth-Entscheidung starten und soll
 - keine Behauptung eines Autoritätsbypass ohne nachgewiesenen UAT-Fortschritt;
 - keine Child-Implementierung ohne eigene dauerhafte UR und exaktes `Approval: UR`.
 
+## Reconciliation — 2026-08-19
+
+- `agdf-qa-block-transition-integrity` is completed with OR `pass`; the QA-`block` projection gap is
+  closed without a new gate or approval value.
+- `agdf-structured-delivery-depth-boundary` is completed, QA-approved and UAT-accepted; all six
+  Full-Depth trigger families have dedicated semantic coverage and Benchmark evidence was not
+  mutated.
+- The prerequisite for a separately gated `agdf-staged-proportionality-baseline-v3` is therefore
+  satisfied. Its already-defined scope remains necessary because SPF-01 through SPF-04 are
+  benchmark protocol, baseline and fixture gaps that neither completed child resolves.
+- RMP-09 does not yet justify a separate Unified Journey child. The canonical Task Target,
+  Interaction Ownership, Single Install and OpenCode parity runs still own unsettled QA/UAT or host
+  evidence. Creating a Journey child now would pre-empt those owners and risk a parallel
+  interaction pipeline.
+
 ## Next Action
 
-Den engsten unabhängigen Child `agdf-qa-block-transition-integrity` mit eigener UR vorbereiten.
-
+Continue `agdf-staged-proportionality-baseline-v3` through its separately gated full-depth path: UR,
+PRD and SD are approved, Brownfield/UX routing is complete and TP Revision 1 is ready for its own
+exact approval. Keep RMP-09 at `no_safe_child_scope_yet` until its named dependencies settle and a
+concrete residual Journey gap is evidenced.

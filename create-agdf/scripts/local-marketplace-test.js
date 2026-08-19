@@ -80,6 +80,33 @@ try {
   assert.equal(current.changed, false, "matching marketplace stage must be idempotent");
   current.commit();
 
+  const legacyDataRoot = join(fixtureRoot, "legacy-data");
+  const legacyPlugin = join(fixtureRoot, "legacy-plugin");
+  cpSync(builtPluginRoot, legacyPlugin, { recursive: true });
+  const legacyVersion = "0.12.0";
+  const legacyDefinitionPath = join(legacyPlugin, "meta", "agdf-plugin.definition.json");
+  const legacyDefinition = json(legacyDefinitionPath);
+  writeFileSync(legacyDefinitionPath, `${JSON.stringify({
+    ...legacyDefinition,
+    version: legacyVersion,
+    description: "Previous AGDF description.",
+    claudeDescription: "Previous Claude-specific AGDF description.",
+    longDescription: "Previous AGDF long description.",
+  }, null, 2)}\n`);
+  const legacyRuntimePath = join(legacyPlugin, "runtime", "runtime-manifest.json");
+  writeFileSync(legacyRuntimePath, `${JSON.stringify({ ...json(legacyRuntimePath), version: legacyVersion }, null, 2)}\n`);
+  const legacy = prepareLocalMarketplace({ dataRoot: legacyDataRoot, builtPluginRoot: legacyPlugin, expectedVersion: legacyVersion });
+  assert.equal(legacy.changed, true);
+  assert.equal(json(join(legacy.root, ".agdf-owned.json")).version, legacyVersion);
+  assert.equal(json(join(legacy.root, ".claude-plugin", "marketplace.json")).metadata.description, "Previous AGDF description.");
+  assert.equal(json(join(legacy.root, ".claude-plugin", "marketplace.json")).plugins[0].description, "Previous Claude-specific AGDF description.");
+  legacy.commit();
+  const upgraded = prepareLocalMarketplace({ dataRoot: legacyDataRoot, builtPluginRoot });
+  assert.equal(upgraded.changed, true, "an owned prior-version marketplace must upgrade when descriptive metadata changed");
+  assert.equal(json(join(upgraded.root, ".agdf-owned.json")).version, pluginDefinition.version);
+  assert.equal(json(join(upgraded.root, ".claude-plugin", "marketplace.json")).metadata.description, pluginDefinition.description);
+  upgraded.commit();
+
   const modifiedPlugin = join(fixtureRoot, "modified-plugin");
   cpSync(builtPluginRoot, modifiedPlugin, { recursive: true });
   writeFileSync(join(modifiedPlugin, "distribution-test.txt"), "new build\n");
@@ -97,6 +124,11 @@ try {
 
   const claudeManifestPath = join(update.root, ".claude-plugin", "marketplace.json");
   const claudeManifest = readFileSync(claudeManifestPath, "utf8");
+  const tamperedClaudeManifest = JSON.parse(claudeManifest);
+  tamperedClaudeManifest.metadata.description = "Foreign description.";
+  writeFileSync(claudeManifestPath, `${JSON.stringify(tamperedClaudeManifest, null, 2)}\n`);
+  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /Claude local marketplace manifest is not owned/);
+  writeFileSync(claudeManifestPath, claudeManifest);
   writeFileSync(claudeManifestPath, claudeManifest.replace("./plugins/agdf", "./plugins/foreign"));
   assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /Claude local marketplace manifest is not owned/);
   writeFileSync(claudeManifestPath, claudeManifest);

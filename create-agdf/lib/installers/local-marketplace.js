@@ -90,29 +90,29 @@ function writeJson(path, value) {
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
-function codexMarketplace() {
+function codexMarketplace(definition = pluginDefinition) {
   return {
     name: MARKETPLACE_ID,
-    interface: { displayName: pluginDefinition.displayName },
+    interface: { displayName: definition.displayName },
     plugins: [{
-      name: pluginDefinition.id,
+      name: definition.id,
       source: { source: "local", path: "./plugins/agdf" },
       policy: { installation: "AVAILABLE", authentication: "ON_INSTALL" },
-      category: pluginDefinition.category,
+      category: definition.category,
     }],
   };
 }
 
-function claudeMarketplace() {
+function claudeMarketplace(definition = pluginDefinition) {
   return {
     name: MARKETPLACE_ID,
-    owner: { name: pluginDefinition.displayName, email: "" },
-    metadata: { description: pluginDefinition.description },
+    owner: { name: definition.displayName, email: "" },
+    metadata: { description: definition.description },
     plugins: [{
-      name: pluginDefinition.id,
+      name: definition.id,
       source: "./plugins/agdf",
-      description: pluginDefinition.longDescription,
-      category: pluginDefinition.category,
+      description: definition.claudeDescription || definition.longDescription,
+      category: definition.category,
     }],
   };
 }
@@ -135,15 +135,16 @@ function validateBuiltPlugin(pluginRoot, expectedVersion) {
   if (digestDirectory(join(pluginRoot, "runtime", "create-agdf")) !== runtime.digest) {
     throw new Error("Built plugin runtime digest does not match its payload.");
   }
+  return definition;
 }
 
-function validateMarketplaceRoot(root) {
+function validateMarketplaceRoot(root, definition = pluginDefinition) {
   const codex = readJson(join(root, ".agents", "plugins", "marketplace.json"), "Codex local marketplace manifest");
   const claude = readJson(join(root, ".claude-plugin", "marketplace.json"), "Claude local marketplace manifest");
-  if (JSON.stringify(codex) !== JSON.stringify(codexMarketplace())) {
+  if (JSON.stringify(codex) !== JSON.stringify(codexMarketplace(definition))) {
     throw new Error(`Codex local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
   }
-  if (JSON.stringify(claude) !== JSON.stringify(claudeMarketplace())) {
+  if (JSON.stringify(claude) !== JSON.stringify(claudeMarketplace(definition))) {
     throw new Error(`Claude local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
   }
 }
@@ -177,15 +178,15 @@ export function prepareLocalMarketplace({
   const backupRoot = `${stableRoot}.backup`;
   const failedRoot = `${stableRoot}.failed`;
   if (!pathInside(dataRoot, stableRoot) || dirname(stableRoot) !== parent) throw new Error(`Unsafe AGDF marketplace root: ${stableRoot}`);
-  validateBuiltPlugin(builtPluginRoot, expectedVersion);
+  const targetDefinition = validateBuiltPlugin(builtPluginRoot, expectedVersion);
   mkdirSync(parent, { recursive: true });
   recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot);
 
   const existing = existsSync(stableRoot) ? ownership(stableRoot) : null;
   if (existing) {
     const existingPluginRoot = join(stableRoot, "plugins", MARKETPLACE_ID);
-    validateBuiltPlugin(existingPluginRoot, existing.version);
-    validateMarketplaceRoot(stableRoot);
+    const existingDefinition = validateBuiltPlugin(existingPluginRoot, existing.version);
+    validateMarketplaceRoot(stableRoot, existingDefinition);
     if (digestDirectory(existingPluginRoot) !== existing.plugin_digest) {
       throw new Error(`Refusing tampered AGDF marketplace root: ${stableRoot}`);
     }
@@ -204,9 +205,9 @@ export function prepareLocalMarketplace({
     const stagedPluginRoot = join(stageRoot, "plugins", MARKETPLACE_ID);
     cpSync(builtPluginRoot, stagedPluginRoot, { recursive: true });
     validateBuiltPlugin(stagedPluginRoot, expectedVersion);
-    writeJson(join(stageRoot, ".agents", "plugins", "marketplace.json"), codexMarketplace());
-    writeJson(join(stageRoot, ".claude-plugin", "marketplace.json"), claudeMarketplace());
-    validateMarketplaceRoot(stageRoot);
+    writeJson(join(stageRoot, ".agents", "plugins", "marketplace.json"), codexMarketplace(targetDefinition));
+    writeJson(join(stageRoot, ".claude-plugin", "marketplace.json"), claudeMarketplace(targetDefinition));
+    validateMarketplaceRoot(stageRoot, targetDefinition);
     const pluginDigest = digestDirectory(stagedPluginRoot);
     const marker = {
       schema_version: 1,

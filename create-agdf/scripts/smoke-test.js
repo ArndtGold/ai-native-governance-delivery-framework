@@ -206,11 +206,11 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
 {
   const guardrailsWorkflowPath = fileURLToPath(new URL("../.github/workflows/agdf-guardrails.yml", packageRoot));
   const guardrailsWorkflow = readFileSync(guardrailsWorkflowPath, "utf8");
-  const syncMarker = "run: npm --prefix create-agdf run sync-package-assets";
+  const syncMarker = "run: npm --prefix create-agdf run release:prepare";
   const deliveryMapMarker = "run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active";
   if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(deliveryMapMarker)
     || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(deliveryMapMarker)) {
-    throw new Error("AGDF guardrails must synchronize generated package assets before running delivery-map directly from source.");
+    throw new Error("AGDF guardrails must prepare and verify release assets before running delivery-map directly from source.");
   }
 }
 
@@ -246,17 +246,17 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const publishJobIndex = publishWorkflow.indexOf("\n  publish:");
   const validateJob = publishWorkflow.slice(0, publishJobIndex);
   const publishJob = publishWorkflow.slice(publishJobIndex);
-  if (!(validateJob.indexOf("Verify runtime-free source and plugin metadata") < validateJob.indexOf("Build release package assets")
-    && validateJob.indexOf("Build release package assets") < validateJob.indexOf("Verify built plugin integrity")
+  if (!(validateJob.indexOf("Verify runtime-free source and plugin metadata") < validateJob.indexOf("Prepare and verify release assets")
+    && validateJob.indexOf("Prepare and verify release assets") < validateJob.indexOf("Verify built plugin integrity")
     && validateJob.indexOf("Verify built plugin integrity") < validateJob.indexOf("Run create-agdf smoke test")
     && validateJob.indexOf("Run create-agdf smoke test") < validateJob.indexOf("Verify create-agdf package contents"))) {
-    throw new Error("Publish validation must verify runtime-free source, build the plugin and verify installed/package layouts before publication eligibility.");
+    throw new Error("Publish validation must verify runtime-free source, prepare release assets and verify installed/package layouts before publication eligibility.");
   }
-  if (!(publishJob.indexOf("Build release package assets") < publishJob.indexOf("Verify built plugin integrity")
+  if (!(publishJob.indexOf("Prepare and verify release assets") < publishJob.indexOf("Verify built plugin integrity")
     && publishJob.indexOf("Verify built plugin integrity") < publishJob.indexOf("Verify create-agdf package contents")
     && publishJob.indexOf("Verify create-agdf package contents") < publishJob.indexOf("Publish create-agdf to npm")
     && publishJob.includes("contents: read"))) {
-    throw new Error("Publish job must rebuild and verify the release-built plugin with read-only repository contents before npm publish.");
+    throw new Error("Publish job must prepare and verify the release-built plugin with read-only repository contents before npm publish.");
   }
 }
 

@@ -1,9 +1,23 @@
 # CD+Tests: Public AGDF Plugin Distribution
 
 Status: done
-Revision: 18
-Date: 2026-08-18
+Revision: 19
+Date: 2026-08-19
 Run: `agdf-public-plugin-distribution`
+
+## Release Preparation Delta
+
+Revision 19 makes release preparation one explicit owner: `release:prepare` synchronizes every
+derived package asset, rejects version skew across 29 source and generated surfaces, and then runs
+the hermetic public-candidate validation. `test:public-plugin` no longer reads the unrelated bundled
+local-validator runtime. Drift fails with `AGDF_GENERATED_VERSION_STALE` or
+`AGDF_RELEASE_VERSION_SKEW`; no fallback, coercion or portal action is performed.
+
+The pre-fix `0.13.1` tree reproduced five stale generated `0.13.0` values. Direct public-candidate
+validation passed independently, the new coherence check rejected those five values, and
+`release:prepare` regenerated them to `0.13.1`. Guardrail, tagged-publish, smoke and prepack paths
+now call the same owner. Full create-agdf and AGDF CLI smoke, source and installed Runtime Integrity,
+package build/contents, Pages build/routes and `git diff --check` pass.
 
 ## Bilingual Handbook Delta
 
@@ -101,7 +115,7 @@ installed-host UAT or VCS action has been performed.
 | PPD-T11–T12 | done | Added focused offline contract, manifest, builder, validator and report modules plus a thin build script. The builder atomically stages the Skills-only candidate as a sibling of existing generated plugin output. | Two builds are content-equivalent; 42 source candidate files are inventoried before readiness outputs; no MCP/app/control/cache/secret/local-path content. |
 | PPD-T13–T14 | done | Replaced copied runtime package metadata with a minimal generated ESM manifest. Candidate validation covers active manifest paths, exact case, containment, symlinks, version, skill resources and submission-source declarations. Packed `bin` and export targets are checked against the final npm inventory. | Missing, case, traversal and escaping-symlink fixtures fail; local validator, installed Runtime Integrity, package-build and package-contents tests pass. |
 | PPD-T15–T16 | done | Added machine/readable readiness reports and run-scoped host, portal and post-publication templates. Repository/bundle pass is separated from unverified host, publisher, portal and publication state. | Report snapshots and sensitive-key exclusions pass; `submissionReady` remains `false`. |
-| PPD-T17–T18 | done | Revised the English root documents and bilingual handbook in place, then completed version coherence across canonical `0.13.0` owners and all OpenAI submission sources. The sole version writer now owns the full declared release surface. | Community Health and 29 negatives, Runtime Integrity, public-plugin tests, exact availability assertion and both full smoke suites pass. |
+| PPD-T17–T18 | done | Revised the English root documents and bilingual handbook in place, then completed version coherence across canonical `0.13.1` source and generated owners. The sole mutation writer remains `scripts/set-version.mjs`; `release:prepare` is the sole generation-and-validation composition owner. | Community Health and 29 negatives, 29-surface coherence, Runtime Integrity, public-plugin tests, package proof and both full smoke suites pass. |
 | PPD-T17 handbook revision | done | Revised the seven-file Coding Agent Handbook as one semantic user journey. It now covers exact gate authority, all current Mode/Slice outcomes, post-TP Brownfield Analysis, mandatory Code Review, QA/UAT routing, honest Run-versus-worktree isolation, safe legacy migration and repository/bundle/host evidence boundaries. | All handbook links resolve; semantic handbook contract passes ten required and four forbidden meanings; community-health baseline plus 18 negatives, 24 required files, Runtime Integrity and `git diff --check` pass. |
 
 ## Implemented Files
@@ -156,12 +170,13 @@ Generated `pages/dist/` output was rebuilt only as local bundle evidence. It is 
 | Installed/generated Runtime Integrity | pass; 10 skills and 16 control files |
 | `npm --prefix create-agdf run test:public-plugin` | pass; exact local `Control layer for governed AI-assisted delivery.` and public `Governed AI delivery controls`, public length 29, one shared long description across Codex/Claude/public, removed-field rejection, contract limits, two-build reproducibility, 42-file candidate inventory, path/symlink negatives, evidence separation and CI safety; digest `a2aca3a964ecb7899ffa705879f9d6ac7cc484516455b98bcdd58823e3160a04` |
 | `npm --prefix create-agdf run test:package-build` | pass; byte-identical complete builds; source untouched |
-| `npm --prefix create-agdf run test:package-contents` | pass; 294 packed files plus declared bin/export targets |
-| `npm --prefix create-agdf run smoke-test` | pass at `0.13.0`; complete aggregate suite including public plugin, package, lifecycle, control-state, runtime, 53 skill evals, Delivery Path Search, OpenCode and routing |
+| `npm --prefix create-agdf run release:prepare` | pass; sync, 29-surface exact-version coherence and deterministic 42-file public candidate digest `c159dc46c8791df5832de97dbd73cf1edf617d91ff2c3311b9b40d5bb8165f40` |
+| `npm --prefix create-agdf run test:package-contents` | pass; 295 packed files plus declared bin/export targets; prepack output and machine JSON coexist safely |
+| `npm --prefix create-agdf run smoke-test` | pass at `0.13.1`; complete aggregate suite including public plugin, package, lifecycle, control-state, runtime, 53 skill evals, Delivery Path Search, OpenCode and routing |
 | `npm run test:community-health && npm run check:community-health` | pass; reviewed baseline plus 29 negative contracts, 39 required files and 4 issue forms |
 | Handbook semantic and local-link checks | pass; complete German/English meaning, protected-command, source-digest, compatibility and local-link contracts |
 | Ten-root-document local Markdown link scan | pass; all local targets resolve |
-| `npm --prefix agdf run smoke-test` | pass at `0.13.0` |
+| `npm --prefix agdf run smoke-test` | pass at `0.13.1` |
 | AGDF Doctor for selected run | pass; 0 findings |
 | `git diff --check` | pass |
 
@@ -176,5 +191,5 @@ Generated `pages/dist/` output was rebuilt only as local bundle evidence. It is 
 
 ## Next Step
 
-Refresh TP, Clean and Code Reviews against Revision 18, then run QA. External host, deployment,
+Refresh TP, Clean and Code Reviews against Revision 19, then run QA. External host, deployment,
 publisher, portal, submission and publication evidence remains separately pending and unauthorized.

@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-public-plugin-distribution
 - lifecycle: active
-- revision: 34
-- revision_id: 1602e629-7b94-4c23-b683-7f110e90041c
+- revision: 36
+- revision_id: c15ec237-7e2b-44d8-a37f-9be836765b3f
 - mode: structured_delivery
-- current_gate: CD+Tests
-- decision: revise
+- current_gate: UAT
+- decision: qa_approved
 - owner: agent
 
 ## Objective
@@ -22,10 +22,10 @@ separate authority for submission, publication and release.
 
 | Question | Answer |
 |---|---|
-| What is known? | Approved PRD/SD/TP Revision 4 define four bounded bilingual-handbook tasks, seven automated parity checks and one human semantic review. Brownfield Analysis Revision 5 passes: existing German prose, validator, fixtures, links and durable owners provide a clean reuse path without a second handbook authority. The independent `0.13.0`/`0.12.0` version-evidence gap remains open. |
-| What is approved? | Exact approvals are recorded for UR, PRD Revisions 1–4, SD Revisions 1–4 and TP Revisions 2–4. TP Revision 4 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| What is missing? | CD+Tests evidence for T21–T24/V19–V25/L09, renewed reviews and QA. The independent version contract and full-smoke evidence remain open. |
-| What is the next allowed action? | Implement T21–T24 through the passed Brownfield reuse path and run the approved evidence plan. |
+| What is known? | Approved PRD/SD/TP Revision 4 are implemented. Release preparation now synchronizes derived assets, proves 29 exact-version surfaces and validates the public candidate through one canonical composition owner. The reproduced five-surface `0.13.0` drift is resolved at `0.13.1`; complete repository and bundle regressions pass. |
+| What is approved? | Exact approvals are recorded for UR, PRD Revisions 1–4, SD Revisions 1–4, TP Revisions 2–4 and QA Revision 15. QA received exact `Approval: QA` on 2026-08-19 after same-run, same-gate, revision and durable-report revalidation. |
+| What is missing? | UAT evidence and exact `Approval: UAT`; separately authorized live-host, deployment, publisher, portal, submission and publication evidence remains pending. |
+| What is the next allowed action? | Prepare the bounded UAT evidence plan without performing portal, publication, release or VCS actions. |
 | What is explicitly forbidden right now? | Portal mutation, identity action, deployment, submission, publication, release, VCS action, installed-cache edit and any inference of external success from repository evidence. |
 
 ## Source And Scope State
@@ -41,15 +41,15 @@ separate authority for submission, publication and release.
 
 | Run status | Value |
 |---|---|
-| Status | in progress |
-| Current gate | CD+Tests |
-| Allowed now | Implement only T21–T24 and run V19–V25/L09 through the passed Brownfield path |
-| Blocked by | none for approved repository implementation; later QA/UAT and external actions remain gated |
-| Missing approval | none |
-| Next gate after approval | none |
-| Allowed after approval | none |
-| Next step | Implement the bilingual handbook delta and record deterministic plus human-review evidence |
-| Quality outlook | Make stale translation, protected-value drift and unreviewed English mechanically impossible to present as current |
+| Status | QA approved; UAT pending |
+| Current gate | UAT |
+| Allowed now | Prepare bounded UAT evidence and the non-operative acceptance summary |
+| Blocked by | Missing UAT evidence and exact UAT approval; external actions retain their separate authority boundaries |
+| Missing approval | `Approval: UAT` after applicable UAT evidence |
+| Next gate after approval | OR |
+| Allowed after approval | Produce the Orchestration Report; no automatic VCS, portal, release or publication action |
+| Next step | Prepare and execute only separately authorized UAT evidence, then request exact `Approval: UAT` |
+| Quality outlook | Preserve exact version coherence and the repository/bundle/host/portal evidence boundary |
 
 ## Approvals
 
@@ -70,8 +70,8 @@ separate authority for submission, publication and release.
 | TP Revision 3 | approved | Revision 3 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
 | TP | approved | Revision 4 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
 | Brownfield Analysis Revision 5 | done | Existing handbook owners, links, validator, fixtures, SoT/Context Graph targets and worktree isolation support T21–T24 without a parallel authority. |
-| QA | revise | QA Report Revision 14 resolves PPD-QA-04 and PPD-QA-06, keeps PPD-QA-05 open and routes PPD-QA-07 to PRD Revision 4. |
-| UAT | blocked | Exact QA approval and live-host evidence are incomplete. |
+| QA | approved | QA Report Revision 15 decision `pass`; exact `Approval: QA` provided on 2026-08-19 after revalidation of run, gate, revision and durable report. |
+| UAT | pending | Applicable UAT evidence and exact `Approval: UAT` remain incomplete. |
 
 ## Artefacts
 
@@ -84,12 +84,12 @@ separate authority for submission, publication and release.
 | SD | `.agdf/control/artefacts/agdf-public-plugin-distribution/SD.md` | approved | Revision 4 approved on 2026-08-18 after exact approval and revalidation. |
 | TP | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP.md` | approved | Revision 4 approved on 2026-08-18 after exact approval and revalidation. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_ANALYSIS.md` | done | Revision 5 passes the bilingual handbook reuse path and leaves Context Graph reconciliation open until implementation. |
-| CD+Tests | `.agdf/control/artefacts/agdf-public-plugin-distribution/CD_TESTS.md` | done with evidence blocker | Revision 10 implements PPD-QA-04 and PPD-QA-06; focused root and handbook checks pass, while full smoke is blocked by untouched version-owner drift. |
+| CD+Tests | `.agdf/control/artefacts/agdf-public-plugin-distribution/CD_TESTS.md` | done | Revision 19 adds canonical release preparation, typed 29-surface version coherence and complete regressions at `0.13.1`. |
 | Candidate Inspection | `.agdf/control/artefacts/agdf-public-plugin-distribution/PUBLIC_CANDIDATE_INSPECTION.md` | pass | Refreshed PPD-L01 confirms public short copy, 29-code-point length, tree, exclusions, digest and honest blockers. |
-| TP Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP_REVIEW.md` | revise | Revision 9: PPD-T17 is fully done; PPD-T18 remains partial because current full-smoke evidence is blocked. |
-| Clean Implementation Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 9: canonical in-place root and handbook documents plus semantic guards add no fallback or parallel policy owner. |
-| CR | `.agdf/control/artefacts/agdf-public-plugin-distribution/CODE_REVIEW.md` | done | Revision 9 decision `pass`; no open defect exists in the plain-English, handbook or validator diff. |
-| QA | `.agdf/control/artefacts/agdf-public-plugin-distribution/QA_REPORT.md` | revise | Revision 14 resolves PPD-QA-04 and PPD-QA-06, keeps PPD-QA-05 open and routes PPD-QA-07 to PRD Revision 4. |
+| TP Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/TP_REVIEW.md` | pass | Revision 16: 24/24 tasks fully done; QA approval remains a separate gate transition. |
+| Clean Implementation Review | `.agdf/control/artefacts/agdf-public-plugin-distribution/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 15: one mutation owner and one release-preparation composition owner; no fallback or parallel SoT. |
+| CR | `.agdf/control/artefacts/agdf-public-plugin-distribution/CODE_REVIEW.md` | done | Revision 15 decision `pass`: no open correctness, security, compatibility or maintainability finding. |
+| QA | `.agdf/control/artefacts/agdf-public-plugin-distribution/QA_REPORT.md` | pass | Revision 15 decision `pass`; exact `Approval: QA` recorded separately on 2026-08-19. External lifecycle evidence remains pending. |
 
 ## Mode/Slice Decision
 
@@ -149,6 +149,11 @@ separate authority for submission, publication and release.
 | QA Report Revision 12 | routes_to | evidence_obligation | PPD-QA-05 requires current full-smoke evidence after the existing version contract is made coherent by its owning change. |
 | CD+Tests Revision 10 | resolves | PPD-QA-06 | Seven canonical handbook files and one semantic community-health guard align current user guidance without a second handbook owner. |
 | QA Report Revision 14 | routes_to | PRD Revision 4 | PPD-QA-07 defines German canonical handbook authority, English derived translation, neutral language selection, parity validation and stable legacy routing. |
+| CD+Tests Revision 19 | resolves | PPD-QA-05 | Canonical release preparation rejects stale derived values, proves 29 exact-version surfaces at `0.13.1` and completes both full smoke suites. |
+| TP Review Revision 16 | verifies | TP Revision 4 | All 24 tasks are fully done; external lifecycle evidence remains explicitly outside repository completion. |
+| Clean and Code Reviews Revision 15 | review | CD+Tests Revision 19 | One clean release-preparation owner remains and no open code finding exists. |
+| QA Report Revision 15 | tests | TP Revision 4 | Decision `pass` covers repository and exact-bundle evidence only; external lifecycle evidence remains pending. |
+| QA Report Revision 15 | approved_by | `Approval: QA` | Exact approval provided on 2026-08-19 after same-run, QA gate, revision and durable-report revalidation. |
 
 ## Evidence
 
@@ -157,7 +162,7 @@ separate authority for submission, publication and release.
 | Public plugin directory and submission model | Current official OpenAI plugin documentation inspected 2026-08-17 | External distribution feasibility | direct documentation |
 | Existing installable AGDF plugin metadata | `plugin/.codex-plugin/plugin.json` | Current product/package baseline | direct |
 | Source runtime integrity pass | `node plugin/scripts/check-runtime-integrity.mjs` on 2026-08-17 | Source-tree consistency only | deterministic |
-| Version-matched local validator | installed AGDF `0.12.0` resolve-only probe | Machine-validation ownership | deterministic |
+| Local validator availability | Codex lists AGDF `0.13.1`, while the stable installed validator reports `0.12.0`; no matching `0.13.1` validator is present | Machine gate evidence unavailable; durable run and repository tests used without claiming machine validation | direct local observation |
 | Brownfield owner inventory | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_REVIEW.md` | Existing coverage, reuse and depth decision | direct repository evidence |
 | Solution owner mapping | `.agdf/control/artefacts/agdf-public-plugin-distribution/SD.md` | Canonical sources, generated candidate, package proof, policies, evidence and portal boundaries | approved-PRD-derived design |
 | Pre-implementation Brownfield Analysis | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_ANALYSIS.md` | Existing owners, reuse order, regressions, stop conditions and worktree isolation | direct repository evidence |
@@ -186,10 +191,10 @@ separate authority for submission, publication and release.
 
 - context_graph_impact: update_existing_node
 - context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`; existing `CG-CREATE-AGDF-CLI-COMPOSITION`, `CG-NATIVE-INTERACTION-AUTHORITY`, `CG-PUBLIC-COMMUNITY-GOVERNANCE`
-- context_graph_required_action: reconcile
-- context_graph_reconciliation: open_gap
+- context_graph_required_action: none
+- context_graph_reconciliation: resolved
 - context_graph_gate_effect: none
-- context_graph_evidence: Brownfield Analysis Revision 5 identifies the existing public-distribution and community-governance nodes; implementation must record the German-canonical/English-derived authority before closeout.
+- context_graph_evidence: T24 already records the German-canonical/English-derived authority in `CG-PUBLIC-PLUGIN-DISTRIBUTION` and the SoT Registry. The release-preparation correction adds no new durable product-authority node.
 
 ## Knowledge Persistence Decision
 
@@ -199,5 +204,5 @@ separate authority for submission, publication and release.
 
 ## Closeout
 
-- next_allowed_action: Implement T21–T24 through the passed Brownfield reuse path and run V19–V25/L09.
-- quality_outlook: Make stale translation, protected-value drift and unreviewed English mechanically impossible to present as current.
+- next_allowed_action: Prepare and execute only separately authorized UAT evidence, then request exact `Approval: UAT`.
+- quality_outlook: Preserve exact release-version coherence and do not infer host, portal or publication state from repository evidence.

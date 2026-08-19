@@ -92,11 +92,6 @@ assert.equal(readiness.evidence.portal.state, "unverified");
 assert.equal(readiness.evidence.post_publication.state, "unverified");
 assert.equal(readiness.externalState.availability, "pending");
 
-const runtimeManifest = loadJson(join(packageRoot, "generated", "plugins", "agdf", "runtime", "create-agdf", "package.json"));
-assert.deepEqual(Object.keys(runtimeManifest).sort(), ["name", "private", "type", "version"]);
-assert.equal(runtimeManifest.version, definition.version);
-assert.equal(runtimeManifest.type, "module");
-
 const evidenceTemplates = [
   join(repoRoot, ".agdf", "control", "artefacts", "agdf-public-plugin-distribution", "HOST_UAT_TEMPLATE.json"),
   join(repoRoot, ".agdf", "control", "artefacts", "agdf-public-plugin-distribution", "EXTERNAL_STATE_EVIDENCE_TEMPLATE.json"),
@@ -107,7 +102,7 @@ for (const forbiddenKey of ["inquiryUrl", "sessionUrl", "identityDocument", "ide
   assert.equal(new RegExp(`\\"${forbiddenKey}\\"\\s*:`, "i").test(evidenceText), false, `evidence templates must not define ${forbiddenKey}`);
 }
 const workflow = readFileSync(join(repoRoot, ".github", "workflows", "agdf-guardrails.yml"), "utf8");
-assert.equal(workflow.includes("npm --prefix create-agdf run test:public-plugin"), true, "CI must execute public candidate validation");
+assert.equal(workflow.includes("npm --prefix create-agdf run release:prepare"), true, "CI must execute canonical release preparation");
 assert.equal(workflow.includes("npm --prefix pages run test:public-documents"), true, "CI must execute public policy route validation");
 for (const forbidden of ["OPENAI_API_KEY", "PERSONA", "portal publish", "portal submit"]) {
   assert.equal(workflow.includes(forbidden), false, `CI must not receive or perform ${forbidden}`);

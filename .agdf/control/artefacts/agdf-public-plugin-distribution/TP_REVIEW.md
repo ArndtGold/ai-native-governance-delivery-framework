@@ -1,8 +1,8 @@
 # Task Plan Review: Public AGDF Plugin Distribution
 
-Status: revise
-Revision: 15
-Date: 2026-08-18
+Status: pass
+Revision: 16
+Date: 2026-08-19
 Run: `agdf-public-plugin-distribution`  
 Approved plan: `TP.md` Revision 4
 
@@ -27,9 +27,9 @@ Approved plan: `TP.md` Revision 4
 | PPD-T15 | fully_done | Machine/readable readiness reports preserve five evidence classes and unverified external states | external evidence intentionally absent | QA must not upgrade it |
 | PPD-T16 | fully_done | Host, external-state and post-publication templates reject sensitive fields | observations not yet executed | templates only, honestly labeled |
 | PPD-T17 | fully_done | All ten English root documents are revised in place, and the bilingual Coding Agent Handbook now matches current gate authority, Mode/Slice routing, Brownfield, review, run-isolation, CLI-installation, recovery and evidence boundaries. Existing policy and technical owners remain canonical. Production community health, the reviewed baseline plus 29 negative contracts, Runtime Integrity and link checks pass. | effective GitHub/default-branch state not claimed | none |
-| PPD-T18 | fully_done | The sole version writer now updates package, plugin, site and all four OpenAI submission sources. Every declaration is `0.13.0`; focused public-plugin validation and both complete smoke suites pass. | none | none |
-| PPD-T19 | fully_done | Brownfield Analysis Revision 6, CD+Tests Revision 18, Clean Review Revision 14, Code Review Revision 14 and this Task Plan Review cover the final diff; PPD-L09 is complete. | renewed QA only, owned by PPD-T20 | none for implementation/review coverage |
-| PPD-T20 | not_done | QA has not yet been rerun for Revision 3; this is the next internal step | refreshed QA report and decision | expected next step, not an implementation defect |
+| PPD-T18 | fully_done | `release:prepare` composes sync, exact 29-surface coherence and hermetic public-candidate validation for prepack, CI, publish validation and smoke. Five real stale generated `0.13.0` values were rejected and regenerated to `0.13.1`; full smoke passes. | none | none |
+| PPD-T19 | fully_done | Brownfield Analysis Revision 6, CD+Tests Revision 19, Clean Review Revision 15, Code Review Revision 15 and this review cover the final diff; no open normalized finding remains. | formal QA decision owned by PPD-T20 | none for implementation/review coverage |
+| PPD-T20 | fully_done | QA Revision 15 uses repository and exact-bundle evidence only and keeps host, publisher, portal, deployment and publication evidence explicitly pending. | `Approval: QA` is a gate transition, not task evidence | QA approval still required before UAT |
 | PPD-T21 | fully_done | Neutral selector, seven canonical German roles and seven navigation-only legacy paths exist; exact inventory, no-prose and links pass in production validation. | none | none |
 | PPD-T22 | fully_done | Seven reviewed English chapters map one-to-one to exact German SHA-256 revisions, preserve protected values and fenced blocks, and retain scope, authority, safety, recovery and evidence meaning. Arndt Gold explicitly confirmed PPD-L09 on 2026-08-18. | none | none |
 | PPD-T23 | fully_done | Existing validator and fixture harness cover inventory, metadata, stale digest, review state, parity, complete CLI/install boundaries, semantic strengthening, legacy prose and links; production baseline and 29 negative contracts pass. | none | none |
@@ -56,17 +56,17 @@ publisher, portal, submission or publication authority.
 
 ## Summary
 
-- fully_done: 23/24 tasks
+- fully_done: 24/24 tasks
 - partially_done: none
-- not_done: PPD-T20, intentionally deferred until current reviews and regression evidence are reconciled
-- out_of_scope_changes: staged `docs/presentation/agdf_cto_praesentation.key` is unrelated user work and was not touched
+- not_done: none
+- out_of_scope_changes: none
 - risks: official OpenAI constraints and effective host/portal state can change; revalidate before any external action
-- required_next_step: Run QA against CD+Tests Revision 18 and the refreshed reviews. Preserve all
-  external host, publisher, portal, submission and publication evidence boundaries.
+- required_next_step: Request exact `Approval: QA` for QA Report Revision 15. Preserve all external
+  host, publisher, portal, submission and publication evidence boundaries.
 
 ## Normalized Findings
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| PPD-TP-01 | evidence_gap | evidence_obligation | resolved | All canonical and OpenAI submission sources are `0.13.0`; the version writer owns the complete coupled surface; both full smoke suites pass. | none |
+| PPD-TP-01 | evidence_gap | evidence_obligation | resolved | All 29 source and generated release surfaces are `0.13.1`; the canonical release-preparation owner and both full smoke suites pass. | none |
 | PPD-TP-02 | evidence_gap | evidence_obligation | resolved | Arndt Gold explicitly confirmed PPD-L09 on 2026-08-18; all seven English chapters declare `reviewed`, production community health passes and the 29 negative contracts remain green. | none |

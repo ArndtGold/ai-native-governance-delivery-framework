@@ -45,8 +45,8 @@ jobs:
       - name: Verify runtime-free source and plugin metadata
         run: node plugin/scripts/check-runtime-integrity.mjs
 
-      - name: Build release package assets
-        run: npm --prefix create-agdf run sync-package-assets
+      - name: Prepare and verify release assets
+        run: npm --prefix create-agdf run release:prepare
 
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
@@ -85,8 +85,8 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Build release package assets
-        run: npm --prefix create-agdf run sync-package-assets
+      - name: Prepare and verify release assets
+        run: npm --prefix create-agdf run release:prepare
 
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs

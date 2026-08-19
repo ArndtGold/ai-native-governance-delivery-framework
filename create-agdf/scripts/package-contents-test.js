@@ -4,11 +4,14 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
-const report = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json"], {
+const packOutput = execFileSync("npm", ["pack", "--dry-run", "--json"], {
   cwd: packageRoot,
   encoding: "utf8",
   stdio: "pipe",
-}));
+});
+const reportStart = packOutput.search(/^\[/m);
+assert.notEqual(reportStart, -1, "npm pack must emit a JSON report after prepack output");
+const report = JSON.parse(packOutput.slice(reportStart));
 const files = report[0]?.files?.map((entry) => entry.path) ?? [];
 const packageManifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const required = [

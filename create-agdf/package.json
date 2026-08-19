@@ -1,6 +1,6 @@
 {
   "name": "create-agdf",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "Bootstrap AGDF repository-local plugin files, Copilot/OpenCode instructions, skills, control files and machine-readable checks.",
   "type": "module",
   "files": [
@@ -22,7 +22,9 @@
   "scripts": {
     "sync-package-assets": "node ./scripts/sync-package-assets.js",
     "build:public-plugin": "node ./scripts/build-public-plugin.js",
+    "test:release-version-coherence": "node ./scripts/release-version-coherence-test.js",
     "test:public-plugin": "node ./scripts/public-plugin-test.js",
+    "release:prepare": "npm run sync-package-assets && npm run test:release-version-coherence && npm run test:public-plugin",
     "test:delivery-path-search": "node ./scripts/delivery-path-search-test.js",
     "test:delivery-path-search-unit": "node ./scripts/delivery-path-search-unit-test.js",
     "test:delivery-path-search-generator": "node ./scripts/delivery-path-search-generator-test.js",
@@ -46,8 +48,8 @@
     "test:proportionality": "node ./scripts/proportionality-benchmark-test.js",
     "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
     "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
-    "smoke-test": "npm run sync-package-assets && npm run test:public-plugin && npm run test:cli-modularization && npm run test:local-validator && npm run test:local-marketplace && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:control-state && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
-    "prepack": "npm run sync-package-assets"
+    "smoke-test": "npm run release:prepare && npm run test:cli-modularization && npm run test:local-validator && npm run test:local-marketplace && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:control-state && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+    "prepack": "npm run release:prepare"
   },
   "keywords": [
     "agdf",

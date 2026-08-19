@@ -85,6 +85,7 @@ replaceInFile(
 console.log(`Updated AGDF version to ${nextVersion}.`);
 console.log("");
 console.log("Next validation:");
+console.log("  npm --prefix create-agdf run release:prepare");
 console.log("  npm --prefix create-agdf run smoke-test");
 console.log("  npm --prefix agdf run smoke-test");
 console.log("  node plugin/scripts/check-runtime-integrity.mjs");

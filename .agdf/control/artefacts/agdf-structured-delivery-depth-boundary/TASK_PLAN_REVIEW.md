@@ -3,6 +3,7 @@
 Status: `pass_for_qa`
 Decision: `pass`
 Date: 2026-07-29
+Evidence revision: 2026-08-19
 Run: `agdf-structured-delivery-depth-boundary`
 TP: Revision 1
 
@@ -17,8 +18,8 @@ TP: Revision 1
 | SDB-T05 | fully_done | Brownfield-Template; sieben Metadatenfelder und sieben Check-IDs | none | none |
 | SDB-T06 | fully_done | Source-/Installed-Integrity pass | none | none |
 | SDB-T07 | fully_done | Runtime-Integrity-Negativtest pass einschließlich drei neuer Mutationen | none | none |
-| SDB-T08 | fully_done | sechs neue Fälle in `brownfield-analysis.json` | none | none |
-| SDB-T09 | fully_done | 53/53 Replay pass; Provenienzabweichung in `CD_TESTS.md` erklärt | none | none |
+| SDB-T08 | fully_done | six required cases plus four QA evidence cases; all six Full-Depth trigger families now have a dedicated positive case | none | none |
+| SDB-T09 | fully_done | 58/58 replay pass; provenance deviation and QA evidence extension documented in `CD_TESTS.md` | none | none |
 | SDB-T10 | fully_done | drei bestehende Context-Graph-Knoten erweitert | none | none |
 | SDB-T11 | fully_done | zwei Sync-Läufe mit identischem 169-Dateien-Digest | none | none |
 | SDB-T12 | fully_done | alle fokussierten Befehle grün | none | none |
@@ -30,6 +31,7 @@ TP: Revision 1
 - SDB-V01 bis SDB-V09: `done`, Evidenzkonfidenz `high`;
 - SDB-D01 bis SDB-D06: durch sechs neue Fälle `done`;
 - SDB-D07 und SDB-D08: bestehende Control-State-/Verified-Change-Regressionen `done`;
+- all six normalized Full-Depth reason codes: one dedicated positive semantic case each;
 - SDB-P01 bis SDB-P12: über Tasks und Tests vollständig tracebar;
 - sichtbare UX-Intent-Kriterien: nicht als Anwendungssurface anwendbar; die Contractprojektion und
   Recovery-Semantik sind deterministisch strukturell geprüft. Direkter Live-Host-Beweis wird nicht
@@ -51,3 +53,9 @@ Datei bereits als relevante Quelle führen. Die Korrektur bleibt im genehmigten 
 - risks: direkte Live-Host-Modellbefolgung bleibt außerhalb der Repository-Evidenzgrenze und wird
   nicht als bestanden behauptet
 - required_next_step: QA Gate durchführen.
+
+## Normalized Findings
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| SDB-TPR-E01 | evidence_gap | evidence_obligation | resolved | Four dedicated cases added; exact six-family coverage check and 58/58 replay pass | Re-run QA against the revised evidence set |

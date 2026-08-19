@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-structured-delivery-depth-boundary
-- lifecycle: active
-- revision: 11
-- revision_id: 725db9a4-c764-4db9-97c8-509c3f9ea2fc
+- lifecycle: completed
+- revision: 15
+- revision_id: 3de2d15c-2a33-476b-a02b-ed48ab5264e4
 - mode: structured_delivery
-- current_gate: QA
-- decision: in_progress
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -22,11 +22,11 @@ vorzeitig zu verändern.
 
 | Question | Answer |
 |---|---|
-| What is known? | Die genehmigte Depth-Grenze ist implementiert; fokussierte Tests, 53/53 Evals, zweifache Sync-Idempotenz und vollständiger Smoke sind grün; run-spezifischer Doctor hat 0 Findings. |
-| What is approved? | Child-UR, PRD, SD und TP jeweils Revision 1 durch exakte Freigaben am 2026-07-29; Parent-Freigaben wurden nicht vererbt. |
-| What is missing? | Exaktes `Approval: QA` für den QA-Bericht mit Entscheidung `pass`; danach UAT. |
-| What is the next allowed action? | QA-Bericht prüfen und exakt `Approval: QA` erteilen, Überarbeitung anfordern oder ablehnen. |
-| What is explicitly forbidden right now? | UAT, VCS, Release, Reinstall und Benchmark-v3 vor exakter QA-Freigabe. |
+| What is known? | The approved Depth boundary is implemented; all six Full-Depth trigger families now have a dedicated positive semantic case, focused tests pass at 58/58 evals, prior sync idempotency and full smoke remain green, and the run-specific doctor has 0 findings. |
+| What is approved? | Child UR, PRD, SD and TP revision 1 were approved on 2026-07-29; the revised QA report and UAT were approved through exact values on 2026-08-19. Parent approvals were not inherited. |
+| What is missing? | Nothing blocks governed closeout; no VCS action has been requested. |
+| What is the next allowed action? | Offer one scoped commit for the completed run; execute it only after an explicit user instruction. |
+| What is explicitly forbidden right now? | Automatic commit, push, PR, release, deployment, reinstall and Benchmark v3 mutation. |
 
 ## Source And Scope State
 
@@ -50,8 +50,8 @@ vorzeitig zu verändern.
 | PRD | approved | Exaktes `Approval: PRD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und Artefakt. |
 | SD | approved | Exaktes `Approval: SD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und Artefakt. |
 | TP | approved | Exaktes `Approval: TP` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und Artefakt. |
-| QA | missing | Nicht erlaubt vor Implementierung und Reviews. |
-| UAT | missing | Nicht erlaubt vor QA-Pass und QA-Freigabe. |
+| QA | approved | Exact `Approval: QA` on 2026-08-19 after revalidation of run, QA gate, revision 12 and the revised passing QA report. |
+| UAT | approved | Exact `Approval: UAT` on 2026-08-19 after revalidation of run, UAT gate, revision 13 and QA approval. |
 
 ## Artefacts
 
@@ -65,11 +65,12 @@ vorzeitig zu verändern.
 | SD | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/SD.md` | approved | Revision 1; exakt freigegeben am 2026-07-29. |
 | TP | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/TP.md` | approved | Revision 1; exakt freigegeben am 2026-07-29. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/BROWNFIELD_ANALYSIS.md` | done | `pass`; Pre-Implementation, Extend-Strategie, saubere Kandidatenbaseline und Scope-Isolation bestätigt. |
-| CD+Tests | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/CD_TESTS.md` | done | `pass`; 53/53 Evals, vollständiger Smoke und Scope-Isolation dokumentiert. |
-| TP Review | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/TASK_PLAN_REVIEW.md` | pass_for_qa | 14/14 Tasks `fully_done`; eine transparente, gelöste Provenienzabweichung. |
-| Clean Review | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Ein Modes-Owner, keine Policy-Engine, kein Shim oder Parallelpfad. |
-| CR | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/CODE_REVIEW.md` | done | `pass`; keine offenen Korrektheits-, Security-, Kompatibilitäts- oder Wartbarkeitsbefunde. |
-| QA | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/QA_REPORT.md` | pass | `qa-gate` entscheidet `pass`; Approval offen. |
+| CD+Tests | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/CD_TESTS.md` | done | `pass`; 58/58 evals, dedicated coverage for every Full-Depth trigger family, prior full smoke and scope isolation documented. |
+| TP Review | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/TASK_PLAN_REVIEW.md` | pass_for_qa | 14/14 tasks `fully_done`; provenance deviation and QA evidence gap resolved. |
+| Clean Review | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | One Modes owner; the eval-only extension adds no policy engine, shim or parallel path. |
+| CR | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/CODE_REVIEW.md` | done | `pass`; the four-case evidence extension has no open correctness, security, compatibility or maintainability finding. |
+| QA | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/QA_REPORT.md` | pass | `qa-gate` pass on revised 58/58 evidence; exact QA approval persisted on 2026-08-19. |
+| OR | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/OR.md` | complete | OR-full reconciles delivery, approvals, evidence boundaries, Context Graph and non-operative handoff. |
 
 ## Mode/Slice Decision
 
@@ -102,6 +103,9 @@ vorzeitig zu verändern.
 | Clean Review | verifies | SD | Ein normativer Modes-Owner; keine Parallelstruktur oder Workaround-Architektur. |
 | CR | reviews | CD+Tests | Tatsächlicher Diff und direkt betroffene Owner geprüft; Entscheidung `pass`. |
 | QA_REPORT | tests | TP | `pass`; 14/14 Tasks, alle Reviews und vollständige Suite grün; Live-Host-Grenze offengelegt. |
+| QA_REPORT | approved_by | `Approval: QA` | Exact approval on 2026-08-19 after run, gate, revision 12 and report revalidation. |
+| UAT | accepts | QA_REPORT | Exact `Approval: UAT` on 2026-08-19 after run, gate and revision 13 revalidation. |
+| OR | closes | Run | Final accepted outcome, scope exclusions, evidence boundary and handoff recorded on 2026-08-19. |
 
 ## Evidence
 
@@ -114,10 +118,12 @@ vorzeitig zu verändern.
 | Staged r3 | `STAGED_PROPORTIONALITY_REPORT.json` | beobachtete Klassifikationsvarianz | direct |
 | Brownfield Review | `BROWNFIELD_REVIEW.md` | Owner, Pfadtiefe, Scope-Isolation und Risiken | direct |
 | UX Intent | `UX_INTENT_DEFINITION.md` | Nutzerintention, sichtbare Zustände, Blocker und Recovery | direct |
+| Full-Depth semantic coverage | `evals/cases/brownfield-analysis.json`; `CD_TESTS.md` | one dedicated positive case for each of the six normalized Full-Depth reason codes; 58/58 deterministic replay | direct |
 
 ## Missing Evidence
 
-- Exakte QA-Freigabe und UAT-Evidenz.
+- None blocking closeout. Direct live-host execution was intentionally not delivered and deterministic
+  replay is not represented as live-host proof.
 
 ## Risks
 
@@ -139,9 +145,10 @@ vorzeitig zu verändern.
 
 ## Closeout
 
-- delivered: Genehmigte Artefaktkette bis TP, bestandene Brownfield Analysis, implementierte
-  Structured-Depth-Grenze, vollständige Testevidenz, 14/14 TP Review, Clean/Code Review und
-  QA-Bericht mit Entscheidung `pass`.
-- intentionally_not_delivered: QA-Freigabe, Benchmark-v3, UAT, VCS, Release und Reinstall.
-- next_allowed_action: QA-Bericht prüfen und exakt `Approval: QA` erteilen, Überarbeitung anfordern oder ablehnen.
-- quality_outlook: Die Grenze wird als Product-Semantics-Entscheidung vor Benchmark v3 behandelt, nicht als gewünschte Score-Korrektur.
+- delivered: Approved artefact chain through TP, passed Brownfield Analysis, implemented
+  Structured-Depth boundary, dedicated semantic coverage for all six Full-Depth trigger families,
+  58/58 deterministic evals, 14/14 TP Review, Clean/Code Review, QA pass, exact QA/UAT approvals and
+  final OR-full reconciliation.
+- intentionally_not_delivered: Benchmark v3, VCS, release and reinstall.
+- next_allowed_action: Offer one scoped commit; execute no VCS action without explicit user instruction.
+- quality_outlook: Optional authenticated live-host monitoring would strengthen behavioral evidence but is not a blocker for the accepted repository scope.

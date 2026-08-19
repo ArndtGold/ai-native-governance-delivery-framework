@@ -3,6 +3,7 @@
 Status: `pass`
 Decision: `pass`
 Date: 2026-07-29
+Evidence revision: 2026-08-19
 Run: `agdf-structured-delivery-depth-boundary`
 
 ## Clean Implementation Review
@@ -13,7 +14,8 @@ Run: `agdf-structured-delivery-depth-boundary`
   erweitert oder referenzieren ihn.
 - evidence: Der tatsächliche Diff enthält keine neue Policy-Engine, keinen neuen Mode-/Gate-/
   Approval-/Schemawert, keine parallele Persistenz und keine Benchmarkkalibrierung. Source- und
-  Installed-Integrity, zwei idempotente Syncs, 53/53 Evals und Full Smoke sind grün.
+  Installed-Integrity, zwei idempotente Syncs, 58/58 Evals und Full Smoke sind grün. The QA evidence
+  extension changes only existing cases, replay and fingerprint owners; it adds no runtime path.
 - fallbacks_retained: keine. `block` ist der bereits vorhandene fail-closed Pfad und kein neuer
   Fallback; `depth_unresolved` bleibt reine Produktsprache.
 - workaround_or_shim_risk: `none`; die Fingerprintanpassung folgt der bestehenden

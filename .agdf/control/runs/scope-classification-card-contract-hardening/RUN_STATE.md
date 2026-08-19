@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: scope-classification-card-contract-hardening
-- lifecycle: active
-- revision: 10
-- revision_id: 7CD75A84-8D98-4AFF-8207-ADC444272DC0
+- lifecycle: completed
+- revision: 11
+- revision_id: ADFF34DA-D43B-44D7-B524-F8D7E692284A
 - mode: structured_delivery
-- current_gate: UAT
-- decision: ready_for_approval
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -21,11 +21,11 @@ plain-text, fail-closed contract without creating a second presentation owner.
 
 | Question | Answer |
 |---|---|
-| What is known? | QA pass is approved. UAT evidence demonstrates the corrected repository and release-built package behavior while explicitly excluding installed-cache freshness and unobserved live-host rendering. |
-| What is approved? | Exact `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA`, each accepted after same-run, same-gate, revision and durable-artefact revalidation. |
-| What is missing? | Exact `Approval: UAT` for the durable acceptance evidence. |
-| What is the next allowed action? | Review UAT Evidence Revision 1 and provide exact `Approval: UAT`, request revision or decline. |
-| What is explicitly forbidden right now? | OR/lifecycle closeout and all VCS/release/publication/install-cache actions before UAT approval. |
+| What is known? | The bounded contract correction is implemented, fully reviewed, QA-approved and UAT-accepted; OR-full records pass and the Context Graph reconciliation is resolved. |
+| What is approved? | Exact `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP`, `Approval: QA` and `Approval: UAT`, each accepted after same-run, same-gate, revision and durable-artefact revalidation. |
+| What is missing? | Nothing within the approved run scope. Installed-plugin freshness and live-host exactly-once behavior remain disclosed non-claims. |
+| What is the next allowed action? | No run work remains; any VCS, release, publication or plugin reinstall requires a separate explicit user instruction. |
+| What is explicitly forbidden right now? | Automatic commit, push, PR, release, publication, deployment or installed-plugin cache mutation. |
 
 ## Approvals
 
@@ -36,7 +36,8 @@ plain-text, fail-closed contract without creating a second presentation owner.
 | SD | approved | Exact `Approval: SD` accepted on 2026-08-19 after revalidation of run, gate, revision 5 and durable SD. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-08-19 after revalidation of run, gate, revision 6 and durable TP. |
 | QA | approved | Exact `Approval: QA` accepted on 2026-08-19 after revalidation of run, gate, revision 9 and durable passing QA report. |
-| UAT | missing | UAT Evidence Revision 1 is ready with explicit installed-plugin and live-host limitations. |
+| UAT | approved | Exact `Approval: UAT` accepted on 2026-08-19 after revalidation of run, gate, revision 10 and durable UAT evidence. |
+| OR | done | OR-full `pass`; run lifecycle completed with no VCS, release or install-cache action. |
 
 ## Artefacts
 
@@ -54,7 +55,8 @@ plain-text, fail-closed contract without creating a second presentation owner.
 | Clean Review | `.agdf/control/artefacts/scope-classification-card-contract-hardening/CLEAN_IMPLEMENTATION_REVIEW.md` | done | `pass`; one existing-owner primary solution with no workaround, shim or parallel structure. |
 | CR | `.agdf/control/artefacts/scope-classification-card-contract-hardening/CODE_REVIEW.md` | done | `pass`; no correctness, security, regression or maintainability finding remains. |
 | QA | `.agdf/control/artefacts/scope-classification-card-contract-hardening/QA_REPORT.md` | pass | `qa-gate` pass approved on 2026-08-19; repository evidence is not presented as live-host UAT. |
-| UAT Evidence | `.agdf/control/artefacts/scope-classification-card-contract-hardening/UAT_EVIDENCE.md` | ready_for_decision | Repository/release-built package behavior is evidenced; installed plugin freshness and live-host rendering remain explicitly unproven. |
+| UAT Evidence | `.agdf/control/artefacts/scope-classification-card-contract-hardening/UAT_EVIDENCE.md` | accepted | Repository/release-built package behavior accepted with installed-plugin freshness and live-host rendering explicitly unproven. |
+| OR | `.agdf/control/artefacts/scope-classification-card-contract-hardening/OR.md` | pass | OR-full closes the run with complete gates, evidence, limitations and Context Graph reconciliation. |
 
 ## Mode/Slice Decision
 
@@ -94,13 +96,15 @@ plain-text, fail-closed contract without creating a second presentation owner.
 | QA_REPORT | tests | TP | QA pass from 7/7 TP coverage, 10/10 UX fidelity, clean/code reviews, final full smoke and resolved Context Graph impact. |
 | QA | approved_by | `Approval: QA` | Exact approval accepted on 2026-08-19 after same-run, same-gate, revision 9 and durable passing QA-report revalidation. |
 | UAT Evidence | accepts | QA_REPORT | Acceptance candidate covers repository and release-built package behavior with installed-plugin and live-host limits disclosed. |
+| UAT | approved_by | `Approval: UAT` | Exact approval accepted on 2026-08-19 after same-run, same-gate, revision 10 and durable UAT-evidence revalidation. |
+| OR | verifies | full run | OR-full records delivered/not-delivered scope, complete gate chain, 7/7 TP coverage, passing reviews/tests and resolved Context Graph impact. |
 
 ## Context Graph Impact
 
 - context_graph_impact: update_existing_node
 - context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`
 - context_graph_reconciliation: resolved
-- context_graph_required_action: update
+- context_graph_required_action: none
 - context_graph_gate_effect: none
 - context_graph_evidence: `CG-NATIVE-INTERACTION-AUTHORITY` now records Quick Task-only activation and fail-closed invalid-input/registry recovery with passing renderer, eval, integrity, sync and smoke evidence.
 
@@ -112,5 +116,5 @@ plain-text, fail-closed contract without creating a second presentation owner.
 
 ## Closeout
 
-- next_allowed_action: Review UAT Evidence Revision 1 and provide exact `Approval: UAT`, request revision or decline.
+- next_allowed_action: No run work remains; any VCS, release, publication or plugin reinstall requires a separate explicit user instruction.
 - quality_outlook: Preserve the single-owner renderer and correct only the confirmed contract-fidelity gaps.

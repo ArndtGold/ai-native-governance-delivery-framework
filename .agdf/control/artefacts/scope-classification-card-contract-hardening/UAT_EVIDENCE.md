@@ -1,8 +1,8 @@
 # UAT Evidence: Scope Classification Card Contract Hardening
 
-Status: ready_for_decision
+Status: accepted
 Gate: UAT
-Gate approval: open
+Gate approval: approved on 2026-08-19 with exact `Approval: UAT`
 Based on: approved QA Report Revision 1
 Date: 2026-08-19
 Owner: agent
@@ -61,6 +61,5 @@ does not silently become a release or installed-host claim.
 
 ## Next Step
 
-Review this evidence and approve only with:
-
-`Approval: UAT`
+The repository and release-built package behavior is accepted with the disclosed installed-plugin
+and live-host limitations. Orchestration closeout is the next step.

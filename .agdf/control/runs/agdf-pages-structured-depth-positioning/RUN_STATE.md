@@ -4,131 +4,111 @@
 
 - control_state_version: 2
 - run_id: agdf-pages-structured-depth-positioning
-- lifecycle: active
-- revision: 1
-- revision_id: 0e4bddc2-0994-4586-bfd3-9f3af13eea97
+- lifecycle: completed
+- revision: 2
+- revision_id: 10A25281-29A0-4DA3-966E-3B804D6A8B41
 - mode: structured_delivery
 - current_gate: OR
-- decision: in_progress
+- decision: pass
 - owner: agent
 
 ## Objective
 
-Die neue Structured-Depth-Produktsemantik auf Pages korrekt, verständlich und ohne zweite
-normative Policy erklären.
+Explain the canonical Structured Depth product semantics on AGDF Pages accurately and accessibly without creating a second normative policy owner.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | Pages enthält bereits Right-Sized-Path-, Gate-Map- und Mode-Copy, bildet Structured Slice, Full Delivery und unresolved Facts aber noch nicht präzise ab. PRD/SD/TP in Slice-Tiefe definiert. CD+Tests implementiert und verifiziert. CR: pass. QA: pass. UAT: approved. |
-| What is approved? | `Approval: UR` erteilt am 2026-07-29; `Approval: PRD` erteilt am 2026-07-29; `Approval: SD` erteilt am 2026-07-29; `Approval: TP` erteilt am 2026-07-29; `Approval: QA` erteilt am 2026-07-29; `Approval: UAT` erteilt am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| What is missing? | OR (Orchestration Report); danach Delivery Closeout. |
-| What is the next allowed action? | OR produzieren; danach Delivery Closeout anbieten. VCS-Aktionen nur auf separate explizite Nutzeranweisung. |
-| What is explicitly forbidden right now? | Automatische VCS-Aktionen (commit, push, PR), Deploy, Release und Reinstall ohne separate explizite Nutzeranweisung. |
-
-## Source And Scope State
-
-- primary_target: AGDF Pages Structured Depth Positioning
-- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
-- evidence_sources: Modes Contract, Gate Transition, aktuelle Pages-Copy und QA-Evidenz des
-  separaten Structured-Depth-Childs
-- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
-- scope_stability: eigenständiger Public-Copy-/UX-Child; keine Approval-Vererbung
-- competing_scope_lines: QA-bereiter `agdf-structured-delivery-depth-boundary`; fremder
-  Benchmark-/Proportionalitätsscope
-- excluded_mutation_targets: Plugin-/Runtimecontracts, Skills, Benchmark v3, Proportionalität,
-  VCS, Deploy, Release und Reinstall
+| What is known? | The July 2026 detailed Structured Depth Pages projection was implemented, QA-approved and UAT-accepted, then deliberately removed by the later seven-section landing-page simplification. The historical implementation remains evidenced by commit `2f0afc1`; the current public projection is owned by `agdf-pages-landing-simplification`, and canonical depth semantics remain in the Modes Contract. |
+| What is approved? | Exact approvals are recorded for UR, PRD, SD, TP, QA and UAT. OR-full closes the accepted historical scope with its successor relationship explicit. |
+| What is missing? | Nothing required to close this run as superseded. The original absence of a separate durable SDP-13/14 manual-observation report remains disclosed rather than reconstructed. |
+| What is the next allowed action? | No work remains in this run; use the landing-page successor for current public copy and the Modes Contract or a separately approved successor for canonical depth changes. |
+| What is explicitly forbidden right now? | Treating the historical detailed section as current Pages behavior, treating its removal as removal of canonical depth semantics, or performing automatic VCS, deployment, release or reinstall actions. |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exaktes `Approval: UR` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision `0e4bddc2-0994-4586-bfd3-9f3af13eea97`. |
-| Brownfield Review | done | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/BROWNFIELD_REVIEW.md` 2026-07-29; Copy-Drift inventarisiert; Mode/Slice Decision `structured_slice`. |
-| PRD | approved | Exaktes `Approval: PRD` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| SD | approved | Exaktes `Approval: SD` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| TP | approved | Exaktes `Approval: TP` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| Brownfield Analysis | done | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/BROWNFIELD_ANALYSIS.md` 2026-07-29; Reuse-Pfad, Owners, Regressionsrisiko, Test-Impact verifiziert; `pass`. |
-| QA | approved | Exaktes `Approval: QA` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. QA-Bericht `pass`. |
-| UAT | approved | Exaktes `Approval: UAT` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
+| UR | approved | Exact `Approval: UR` accepted on 2026-07-29 after same-run, same-gate and durable-artefact revalidation. |
+| Brownfield Review | done | Existing Pages owners assessed; `structured_slice` selected with no full-depth trigger. |
+| PRD | approved | Exact `Approval: PRD` accepted on 2026-07-29 after revalidation. |
+| SD | approved | Exact `Approval: SD` accepted on 2026-07-29 after revalidation. |
+| TP | approved | Exact `Approval: TP` accepted on 2026-07-29 after revalidation. |
+| Brownfield Analysis | done | Reuse path, owners, regression risk and test impact passed. |
+| QA | approved | QA report `pass`; exact `Approval: QA` accepted on 2026-07-29. |
+| UAT | approved | Exact `Approval: UAT` accepted on 2026-07-29 after run, gate and revision revalidation. |
+| OR | done | OR-full `pass`; lifecycle completed and historical Pages projection marked superseded by `agdf-pages-landing-simplification`. |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/UR.md` | approved | Revision 1; `Approval: UR` am 2026-07-29; Public-Copy-, Gate-Map-, Vergleichs- und Recovery-Scope. |
-| Brownfield Review | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/BROWNFIELD_REVIEW.md` | done | 2026-07-29; `structured_slice` entschieden; alle 7 Bounded-Slice-Checks `pass`; kein Full-Depth-Trigger; `verified_change` ausgeschlossen. |
-| PRD | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/PRD.md` | approved | PRD in Slice-Tiefe; 12 Requirements, 12 Akzeptanzkriterien; `Approval: PRD` am 2026-07-29; Modes-Contract-Abgrenzung, kanonische Modewerte, Vergleichsfläche, Gate-Map-Präzisierung, Responsive-/Accessibility-Signale. |
-| SD | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/SD.md` | approved | SD in Slice-Tiefe; `Approval: SD` am 2026-07-29; Datenmodell, Render-Section, Copy-Contract, Responsive-/Accessibility-Umsetzung. |
-| TP | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/TP.md` | approved | TP in Slice-Tiefe; `Approval: TP` am 2026-07-29; 8 Implementation Tasks, 11 Verification Tasks, 10 Test-Asserts, Risk Coverage, Guardrails. |
-| Brownfield Analysis | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/BROWNFIELD_ANALYSIS.md` | done | 2026-07-29; `pre_implementation_analysis`; Reuse-Pfad, Owners, Regressionsrisiko, Test-Impact, minimal clean Implementierungspfad verifiziert; `pass`. |
-| CD+Tests | `pages/src/data/site.ts` | done | SDP-01 bis SDP-08 implementiert in `site.ts` und `index.astro`; SDP-09 bis SDP-12, SDP-15 bis SDP-19 verifiziert (astro check 0 errors, astro build erfolgreich, doctor pass, git diff clean, Render-Inspection bestätigt); SDP-13/SDP-14 manuelle Browserprüfung für QA offen. |
-| CR | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/CR.md` | done | 2026-07-29; `pass`; eine advisory (`#intake`-Überschrift); keine blockierenden oder revise findings. |
-| QA | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/QA_REPORT.md` | pass | QA-Bericht; `Approval: QA` am 2026-07-29; TP coverage complete, CR pass, Brownfield fit, solution integrity sufficient; SDP-13/14 manuelle Browserprüfung als UAT-Eingabe. |
-| UAT | `Approval: UAT` | approved | 2026-07-29; UAT-Freigabe nach Revalidierung. |
-| OR |  | pending | OR als nächster erlaubter Schritt. |
+| UR | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/UR.md` | approved | Defines the bounded public-copy and recovery scope. |
+| Brownfield Review | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/BROWNFIELD_REVIEW.md` | done | Existing owners inventoried; `structured_slice` selected. |
+| Verified Change |  | missing | Not selected; structured slice was the approved path. |
+| PRD | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/PRD.md` | approved | Twelve requirements and acceptance criteria. |
+| SD | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/SD.md` | approved | Data, rendering, copy and responsive design. |
+| TP | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/TP.md` | approved | Eight implementation and eleven verification tasks. |
+| Brownfield Analysis | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/BROWNFIELD_ANALYSIS.md` | done | Pre-implementation decision `pass`. |
+| CD+Tests | `pages/src/data/site.ts` | done | Historical implementation delivered in commit `2f0afc1`; later removed from current Pages by successor commit `c6d9313`. |
+| CR | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/CR.md` | done | Pass with one non-blocking content advisory. |
+| QA | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/QA_REPORT.md` | pass | Approved QA decision with original SDP-13/14 manual-observation limit disclosed. |
+| UAT | `Approval: UAT` | approved | Exact acceptance recorded on 2026-07-29. |
+| OR | `.agdf/control/artefacts/agdf-pages-structured-depth-positioning/OR.md` | pass | OR-full records historical delivery, evidence limits, successor and resolved Context Graph impact. |
 
 ## Mode/Slice Decision
 
 - decision: structured_slice
 - required_next_gate: PRD
-- scope_reason: Öffentliche Produktkommunikation und sichtbare UX sind betroffen; kein Full-Depth-Trigger belegt; alle sieben Bounded-Slice-Checks `pass`. `verified_change` ausgeschlossen (kein einzelner Owner, keine deterministische Validierung für Accessibility/Copy, Worktree nicht an Baseline). `primary_reason_code: bounded_structured_slice`.
-- evidence: BROWNFIELD_REVIEW.md Structured Depth Evidence; `plugin/meta/contracts/modes.md`; UR Revision 1; `pages/src/data/site.ts`; `pages/src/pages/index.astro`
-
-## Artefact Chain
-
-| From | Relationship | To | Evidence |
-|---|---|---|---|
-| UR | approved_by | `Approval: UR` | Exaktes `Approval: UR` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision `0e4bddc2-0994-4586-bfd3-9f3af13eea97`. |
-| Brownfield Review | selects_mode | structured_slice | Alle 7 Bounded-Slice-Checks `pass`; kein Full-Depth-Trigger; `verified_change` ausgeschlossen. |
-| Brownfield Review | sizes | UR | Copy-Drift inventarisiert; PRD in Slice-Tiefe erforderlich. |
-| PRD | derived_from | UR | PRD deckt UR-Akzeptanzsignale 1-8 und Brownfield-Review-Copy-Drift-Inventar ab. |
-| PRD | approved_by | `Approval: PRD` | Exaktes `Approval: PRD` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| SD | derived_from | PRD | SD deckt PRD-01 bis PRD-12 ab; Datenmodell, Render-Section, Copy-Contract, Responsive-/Accessibility-Umsetzung. |
-| SD | approved_by | `Approval: SD` | Exaktes `Approval: SD` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| TP | derived_from | SD | TP deckt SD-Datenmodell/Render/Copy ab; 19 Tasks mit Acceptance Mapping. |
-| TP | derived_from | PRD | TP deckt PRD-01 bis PRD-12 ab; Acceptance Mapping auf AC-01 bis AC-12. |
-| TP | approved_by | `Approval: TP` | Exaktes `Approval: TP` akzeptiert am 2026-07-29 nach Revalidierung von Run, Gate und Revision. |
-| Brownfield Analysis | verifies | TP | Reuse-Pfad, Owners, Regressionsrisiko und Test-Impact für SDP-01 bis SDP-19 verifiziert. |
-| QA_REPORT | tests | TP | SDP-01 bis SDP-19 verifiziert; 8 Implementation-Tasks done, 9 von 11 Verification-Tasks done, SDP-13/14 manuelle Browserprüfung als UAT-Eingabe. |
-| Structured Depth QA | informs | Child UR | Repositoryevidenz ohne Approval-Vererbung. |
-| UR | derived_from | Pages Gap Assessment | Aktuelle Copy, Gate Map und ungerenderte Mode Matrix. |
+- scope_reason: Public product communication and visible UX were affected, compact paths were insufficient, and no full-depth trigger applied.
+- evidence: Brownfield Review; Modes Contract; approved UR; historical Pages data and composition.
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Modes Contract | `plugin/meta/contracts/modes.md` | normative Depth-Semantik | direct |
-| Pages Data | `pages/src/data/site.ts` | aktuelle Pfad- und Mode-Copy | direct |
-| Landingpage | `pages/src/pages/index.astro` | sichtbare Workflow-/Gate-Map-Komposition | direct |
-| Eval Evidence | `pages/src/data/evaluationEvidence.ts` | repository-derived Zählung und Provenienz | direct |
+| Historical implementation | commit `2f0afc1` | accepted detailed Structured Depth Pages projection | direct repository history |
+| Historical QA and UAT | QA report; exact approvals | quality decision and acceptance | authoritative historical evidence |
+| Successor replacement | commit `c6d9313`; `agdf-pages-landing-simplification` OR | deliberate removal and current public projection | direct and authoritative |
+| Canonical semantics | `plugin/meta/contracts/modes.md` | current Structured Depth policy authority | canonical source |
 
-## Missing Evidence
+## Artefact Chain
 
-- UR-Freigabe, vollständiges Brownfield-Inventar, UI/UX-Impact, Mode/Slice Decision und alle
-  späteren Artefakte.
-
-## Risks
-
-- Pages könnte zur zweiten Policy-Authority werden.
-- Zu pauschale Copy könnte Produktsemantik erneut verfälschen.
-- Vergleichs- und Gate-Map-Darstellung könnte mobile oder barrierearme Nutzung verschlechtern.
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+| UR | approved_by | `Approval: UR` | Exact approval accepted on 2026-07-29. |
+| Brownfield Review | selects_mode | structured_slice | Seven bounded-slice checks passed; no full-depth trigger. |
+| PRD | derived_from | UR | Twelve approved requirements realize the bounded public-copy scope. |
+| PRD | approved_by | `Approval: PRD` | Exact approval accepted on 2026-07-29. |
+| SD | derived_from | PRD | Data, rendering and copy design derive from approved requirements. |
+| SD | approved_by | `Approval: SD` | Exact approval accepted on 2026-07-29. |
+| TP | derived_from | SD | Approved tasks map design and verification obligations. |
+| TP | approved_by | `Approval: TP` | Exact approval accepted on 2026-07-29. |
+| QA_REPORT | tests | TP | QA report verifies the approved implementation and automated evidence with SDP-13/14 limits disclosed. |
+| QA | approved_by | `Approval: QA` | Exact approval accepted on 2026-07-29. |
+| UAT | approved_by | `Approval: UAT` | Exact approval accepted on 2026-07-29. |
+| Historical implementation | superseded_by | `agdf-pages-landing-simplification` | Commit `c6d9313` replaced the detailed composition with the accepted seven-section public projection. |
+| OR | reconciles | historical run and successor | OR-full preserves delivery evidence without claiming current Pages behavior. |
 
 ## Context Graph Impact
 
-- context_graph_impact: `link_only`
-- context_graph_refs: `CG-DOCUMENTATION-CEREMONY-BOUNDARY`;
-  `CG-DELIVERY-PATH-SEARCH`; `CG-UX-INTENT-BEFORE-PRD`
-- context_graph_reconciliation: `no_action`
-- context_graph_required_action: `none_at_brownfield_review`
-- context_graph_gate_effect: `none`
-- context_graph_evidence: Der Child projiziert bestehende Depth- und UX-Invarianten öffentlich;
-  Brownfield Review muss entscheiden, ob vorhandene Knoten nur referenziert oder aktualisiert werden.
+- context_graph_impact: link_only
+- context_graph_refs: `CG-DOCUMENTATION-CEREMONY-BOUNDARY`; `CG-DELIVERY-PATH-SEARCH`; `CG-UX-INTENT-BEFORE-PRD`; `CG-PUBLIC-PLUGIN-DISTRIBUTION`
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+- context_graph_evidence: canonical depth invariants remain linked, while `CG-PUBLIC-PLUGIN-DISTRIBUTION` owns the successor seven-section public projection boundary.
+
+## Knowledge Persistence Decision
+
+- memory_target: context_graph
+- memory_reason: Historical public projection, current composition and canonical policy authority must remain distinct.
+- memory_refs: Modes Contract; historical and successor commits; both ORs.
 
 ## Closeout
 
-- delivered: Child-Run, UR Revision 1, Brownfield Review, PRD/SD/TP in Slice-Tiefe, pre-implementation Brownfield Analysis, CD+Tests, CR (`pass`), QA (`pass`), UAT (`approved`).
-- intentionally_not_delivered: OR, VCS, Deploy, Release und Reinstall.
-- next_allowed_action: OR produzieren; danach Delivery Closeout anbieten. VCS-Aktionen nur auf separate explizite Nutzeranweisung.
-- quality_outlook: Pages erklärt proportionalen Scope aus dem Modes-Owner, ohne selbst Policy-Owner zu werden.
+- delivered: UAT-accepted historical Structured Depth Pages projection and complete durable gate chain.
+- intentionally_not_delivered: current-page persistence after the later simplification, new VCS action, deployment, release or reinstall.
+- next_allowed_action: No work remains in this superseded run; route future work to the current owner or a separately approved successor.
+- quality_outlook: Preserve the historical/current/canonical authority distinction.

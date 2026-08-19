@@ -1,78 +1,74 @@
-# OR: Canonical Scope Classification Card
+# Orchestration Report: Canonical Scope Classification Card
 
+Status: pass
 Gate: OR
-Report mode: OR-lite
-Date: 2026-07-21
+Report mode: OR-full
+Date: 2026-08-19
 Owner: agent
 
-## Run Status Card
+## OR
 
-| Status | Current gate | Allowed now | Blocked by | Missing approval | Next step | Quality outlook |
-|---|---|---|---|---|---|---|
-| pass | OR | Produce OR; VCS handoff on separate instruction | none | none | Produce OR | Keep the presentation owner singular |
+- gate: `OR` after approved UAT.
+- report_mode: `OR-full`.
+- artefact: `.agdf/control/artefacts/agdf-scope-classification-card/OR.md`.
+- status: `pass`.
+- delivered:
+  - the original canonical compact Scope Classification Card through the existing interaction-presentation owner;
+  - complete original gate, Brownfield, implementation, review, QA and UAT evidence;
+  - the separately approved corrective child `scope-classification-card-contract-hardening`;
+  - Quick Task-only activation, bounded plain-text validation, deterministic locale recovery and complete fail-closed invalid-input behavior;
+  - aligned renderer, locale, Interaction Contract, skill, Runtime Integrity, eval and Context Graph owners;
+  - a reconciled parent/child closeout with the technical solution retained.
+- intentionally_not_delivered:
+  - no card redesign, second renderer, classifier, persistence, schema, gate or approval change;
+  - no exactly-once live-host guarantee or direct live-host visual verification;
+  - no claim that an installed plugin cache contains the repository correction;
+  - no commit, push, PR, release, publication, deployment or plugin reinstall.
+- evidence:
+  - exact parent approvals for UR, PRD, SD, TP, QA and UAT;
+  - original TP Review 9/9 and UX Intent Fidelity 8/8;
+  - corrective-child TP Review 7/7 and UX Intent Fidelity 10/10;
+  - Clean Implementation Review and Code Review pass with no open finding;
+  - final focused renderer suite and complete `create-agdf` smoke pass;
+  - deterministic skill evals 54/54 across 10 skills;
+  - source, negative and generated-layout Runtime Integrity pass;
+  - byte-identical package builds, 42-file public-plugin inventory and idempotent canonical sync;
+  - child OR-full pass, accepted UAT and resolved Context Graph reconciliation.
+- missing_evidence: direct live-host exactly-once rendering and installed-cache freshness remain intentionally unproven, disclosed and outside the approved acceptance claim.
+- risks: host adapters may display canonical output differently, and an installed environment remains on its previous version until separately authorized delivery and installation. No in-scope blocker or normalized finding remains.
+- retained_fallbacks: only the approved deterministic unsupported-locale fallback to the complete English pack. Invalid registry or input fails closed and never reconstructs Markdown.
+- required_next_step: no parent or child run work remains; any VCS, release, publication, deployment or plugin-reinstall action requires a separate explicit user instruction.
+- quality_outlook: the retained solution is internally consistent after the corrective child; no further in-scope remediation is required.
 
-## Delivered
+## Gate And Coverage Summary
 
-- `renderScopeClassificationCard` in `create-agdf/lib/interaction-presentation.js` — additive, validated input contract, `authorizes: false`, fail-closed `null`
-- `scopeClassification` locale section in `plugin/meta/agdf-interaction-locales.json` (en/de, parity via `validateLocaleRegistry`)
-- `### Scope Classification Card` section in `plugin/meta/contracts/interaction.md` — activation boundary, fail-closed, mutual exclusivity with read-only orientation and two-card envelope
-- `### Scope Classification Output` section in `plugin/skills/gate-check/SKILL.md` — consume-verbatim, no local template
-- 4 Runtime Integrity assertions in `plugin/scripts/check-runtime-integrity.mjs` (contract section, skill reference, no template, renderer export, registry keys)
-- 6 unit tests in `create-agdf/scripts/interaction-presentation-test.js` (SCC-1/2/5/6 + fail-closed)
-- 3 eval cases in `evals/cases/gate-check.json` + fixtures + observations + manifest (SCC-3/4/8); corpus 36→39; corpus_version 1.3.0
-- Generated surfaces synced via `sync-package-assets.js`; built-plugin integrity green
-
-## Intentionally Not Delivered
-
-- CLI-side run-less evaluation path (deferred per UR §7)
-- Machine-readable JSON twin for the classification card (UR non-goal)
-- Persistence or state store for classifications (UR non-goal)
-- Live host UI verification (within manifest's declared `evidence_boundary`)
-- VCS actions: commit, push, PR, release, reinstall — require separate explicit user instruction
-
-## Gate Status
-
-| Gate | Status | Evidence |
+| Dimension | Result | Evidence |
 |---|---|---|
-| UR | approved | `Approval: UR` 2026-07-21 |
-| Brownfield Review | done | `structured_slice`, `ui_ux_impact: medium` |
-| UX Intent | ready | 3 working modes, 8 proposed criteria, 3 routed questions |
-| PRD | approved | `Approval: PRD` 2026-07-21; SCC-1…SCC-8, 3 product decisions |
-| SD | approved | `Approval: SD` 2026-07-21; additive renderer, input contract, activation boundary |
-| TP | approved | `Approval: TP` 2026-07-21; T1–T9, UX Fidelity all `fulfilled` |
-| Brownfield Analysis | done | `pass`; reuse path clear, runtime-digest risk owned by T8 |
-| CD+Tests | done | T1–T9 implemented; all checks green |
-| TP Review | done | 9/9 fully_done, UX Fidelity 8/8 fulfilled |
-| CR | done | `pass`, 0 findings |
-| QA | approved | `Approval: QA` 2026-07-21; decision `pass` |
-| UAT | approved | `Approval: UAT` 2026-07-21 |
+| Parent UR / PRD / SD / TP | approved | exact approvals and durable parent artefacts |
+| Parent implementation | pass | original 9/9 tasks and 8/8 UX-fidelity criteria |
+| Corrective child | pass | OR-full; 7/7 tasks and 10/10 UX-fidelity criteria |
+| Brownfield fit | pass | existing owners retained; no parallel presentation structure |
+| Solution integrity | pass | one bounded primary solution with fail-closed validation |
+| Code quality | pass | no open correctness, security, regression or maintainability finding |
+| QA | pass and approved | parent QA plus corrective-child QA |
+| UAT | accepted | exact parent and corrective-child UAT approvals with evidence limits disclosed |
 
-## TP Coverage
+## Documentation And Context Graph
 
-9/9 tasks fully_done (T1–T9). UX Intent Fidelity SCC-1…SCC-8 all `fulfilled` with visible evidence.
+- documentation_impact: canonical Interaction Contract aligned; no parallel documentation owner.
+- context_graph_impact: `update_existing_node`
+- context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `none`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: the corrective child records Quick Task-only non-authorizing presentation and fail-closed invalid-input/registry recovery with final test, eval, integrity, sync and smoke proof.
 
-## Brownfield Fit
+## Knowledge Persistence
 
-`pass` — reuse path clear; `renderScopeClassificationCard` mirrors `renderOperationalStatusCard`; locale parity via derived baseline; no parallel structures.
+- memory_target: `context_graph`
+- memory_reason: activation and fail-closed recovery are reusable interaction-authority invariants.
+- memory_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; canonical Interaction Contract; parent and corrective-child ORs.
 
-## Solution Integrity
+## Closeout
 
-`pass` — purely additive; no existing export, test, assertion, locale key or contract section modified; `authorizes: false` frozen into return; fail-closed on invalid input, incomplete locale and stale renderer.
-
-## Context Graph Impact
-
-- context_graph_impact: link_only
-- context_graph_refs: none
-- context_graph_reconciliation: open_gap
-- context_graph_required_action: link after UAT
-- context_graph_gate_effect: none
-
-## Open Risks
-
-- SCC-3 "card appears exactly once" is deterministic replay evidence, not live host observation (within manifest's `evidence_boundary`)
-- Agent-side input construction could drift over time; mitigated by validated input contract and fail-closed `null`
-
-## Next Permissible Step
-
-- next_allowed_action: Delivery closeout is ready. VCS actions (commit, push, PR, release) require separate explicit user instruction.
-- OR does not approve later gates.
+The parent is complete and reconciled with its completed corrective child. Delivery-closeout is relevant only if the user separately authorizes a VCS, release or installation action; this OR grants no such authority.

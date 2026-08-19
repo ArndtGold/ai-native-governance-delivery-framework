@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-product-maturity-roadmap
 - lifecycle: active
-- revision: 46
-- revision_id: 70b53f4e-ad2e-4c2d-8263-a413033d72be
+- revision: 48
+- revision_id: 5af25162-0b2a-452e-89ed-d3b3b19ad762
 - mode: structured_delivery
 - current_gate: CD+Tests
 - decision: in_progress
@@ -22,11 +22,11 @@ einfachere Nutzerinteraktion.
 
 | Question | Answer |
 |---|---|
-| What is known? | QA Transition, Structured Depth, Benchmark v3, Task Target Resolution and Lean Interaction Ownership are completed with accepted ORs. RMP-10 Revision 2 raises PMR-1 to `satisfied_with_limits` and PMR-5 to `partial`; no safe residual Unified Journey child scope is evidenced. |
+| What is known? | QA Transition, Structured Depth, Benchmark v3, Task Target Resolution, Lean Interaction Ownership and Single Install Activation are completed with accepted ORs. RMP-10 Revision 4 records PMR-1 and PMR-5 as `satisfied_with_limits`; no residual Unified Journey product gap is evidenced, the Parent-owned PMR-6 direct-UAT protocol is ready, and the user confirmed that no independent participants are currently available. |
 | What is approved? | Roadmap-UR, PRD, SD und TP sind durch exakte Freigaben vom 2026-07-28 genehmigt; Pre-Implementation Brownfield Analysis entscheidet `pass`. |
-| What is missing? | `opencode-single-install-activation` UAT for the final PMR-5 owner outcome; eight direct blinded understandability-UAT scenarios for PMR-6; completion of RMP-10 and later RMP-12 reviews/QA/UAT. |
-| What is the next allowed action? | Review `opencode-single-install-activation` UAT and decide it independently; keep RMP-12 closed. |
-| What is explicitly forbidden right now? | A speculative Unified Journey child, final RMP-10/Parent QA claims, Parent runtime/plugin code, approval inheritance and automatic VCS actions. |
+| What is missing? | At least four independent participants and eight valid blinded understandability observations for PMR-6; authenticated OpenCode parity evidence; completion of RMP-10 and later RMP-12 reviews/QA/UAT. |
+| What is the next allowed action? | Wait until at least four independent participants are available, then execute the eight observations in `UNDERSTANDABILITY_UAT_PROTOCOL.md`; keep RMP-12 closed. |
+| What is explicitly forbidden right now? | Simulated or agent substitutes for participants, a speculative Unified Journey child, final RMP-10/Parent QA claims, Parent runtime/plugin code, approval inheritance and automatic VCS actions. |
 
 ## Source And Scope State
 
@@ -60,8 +60,9 @@ einfachere Nutzerinteraktion.
 | SD | `.agdf/control/artefacts/agdf-product-maturity-roadmap/SD.md` | approved | AD-1 bis AD-10; freigegeben 2026-07-28. |
 | TP | `.agdf/control/artefacts/agdf-product-maturity-roadmap/TP.md` | approved | RMP-01 bis RMP-12; freigegeben 2026-07-28. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_ANALYSIS.md` | done | Pass; Phase A bleibt auf run-eigene Control-Artefakte begrenzt. |
-| CD+Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md` | in_progress | RMP-01 through RMP-08 done; RMP-11 includes accepted Target/Interaction checkpoints; RMP-10 Revision 2 is in progress; RMP-09 has no safe child scope and RMP-12 remains closed. |
-| Aggregate Acceptance | `.agdf/control/artefacts/agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | in_progress | Revision 2: PMR-1 is satisfied with limits, PMR-5 is partial pending Single Install UAT and PMR-6 retains a critical direct-UAT evidence gap. |
+| CD+Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md` | in_progress | RMP-01 through RMP-08 done; RMP-09 has an evidence-only direct-UAT protocol; RMP-10 Revision 4 waits on external participants; RMP-12 remains closed. |
+| Aggregate Acceptance | `.agdf/control/artefacts/agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | in_progress | Revision 4: PMR-1 and PMR-5 are satisfied with limits; PMR-6 retains a critical direct-UAT evidence gap with 0/8 observations and 0/4 available participants. |
+| Understandability UAT Protocol | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md` | ready_for_execution | Protocol is complete, but execution is blocked by unavailable external participants; no substitute evidence is permitted. |
 | RMP-07 Assessment | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_SCOPE_ASSESSMENT.md` | completed | Baseline-Eingangsevidenz erfüllt; Child-Scope gerechtfertigt. |
 | Proportionality Baseline | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_BASELINE.json` | ready | 40 reale Fälle, sechs Pfade, 19 adversariale Fälle, 40/40 Quellen. |
 | Proportionality Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_SCOPE.md` | ready_for_child_ur | Benchmark erweitert bestehende Eval-Owner und bewahrt alle PMR-4-Schwellen. |
@@ -97,6 +98,7 @@ einfachere Nutzerinteraktion.
 | Benchmark v3 Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/OR.md` | complete | UAT accepted and OR `pass`; repository scope closed with authenticated live behavior explicitly unclaimed. |
 | Task Target Child OR | `.agdf/control/artefacts/task-target-resolution-boundary/OR.md` | complete | QA/UAT accepted; target authority and fail-closed ambiguity behavior pass with host limits retained. |
 | Interaction Ownership Child OR | `.agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/OR.md` | complete | QA/UAT accepted; Compact Delivery and one code-owned operational projection pass with release/install limits retained. |
+| Single Install Child OR | `.agdf/control/artefacts/opencode-single-install-activation/OR.md` | complete | QA/UAT accepted; durable activation and no local runtime duplication pass with live OpenCode observation retained as a non-claim. |
 | QA |  | missing | Nicht zulässig. |
 
 ## Mode/Slice Decision
@@ -168,6 +170,11 @@ einfachere Nutzerinteraktion.
 | Task Target OR | supports | PMR-2, PMR-5 and PMR-7 | QA/UAT accepted; 13/13 tasks and TTR-1 through TTR-10 pass with live-host limits retained. |
 | Interaction Ownership OR | supports | PMR-1, PMR-2, PMR-5 and PMR-7 | QA/UAT accepted; 12/12 tasks, Compact Delivery and code-owned status projection pass with release/install limits retained. |
 | RMP-10 Aggregate Acceptance Revision 2 | re_evaluates | PMR-1, PMR-5 and PMR-6 | PMR-1 is satisfied with limits, PMR-5 is partial pending Single Install UAT and PMR-6 remains a critical direct-UAT evidence gap. |
+| Single Install OR | supports | PMR-2, PMR-3 and PMR-5 | QA/UAT accepted; 6/6 tasks and one durable activation owner pass with authenticated live-host evidence retained as a non-claim. |
+| RMP-10 Aggregate Acceptance Revision 3 | re_evaluates | PMR-5 and PMR-6 | PMR-5 is satisfied with limits; PMR-6 remains open with a ready eight-scenario protocol and 0/8 direct observations. |
+| Understandability UAT Protocol | prepares | PMR-6 direct evidence | Parent-owned evidence obligation defines blinded participants, eight immutable scenarios, four-question scoring and fail-closed routing without authorizing a product Child. |
+| Participant availability | constrains | Understandability UAT Protocol execution | User confirmed 0/4 independent participants currently available; protocol remains ready, PMR-6 stays open and no substitute evidence is valid. |
+| RMP-10 Aggregate Acceptance Revision 4 | records | external PMR-6 evidence dependency | RMP-10 remains startable but not final, with 0/8 observations and RMP-12 closed until the resume condition is met. |
 
 ## Evidence
 
@@ -175,6 +182,8 @@ einfachere Nutzerinteraktion.
 |---|---|---|---|
 | Akzeptierte Compact-Interaction- und lokale Validator-Lösung | `agdf-interaction-ownership-quick-path-ux/OR.md` | R1, Teile von R2 und R5 | user_accepted |
 | Akzeptierte vorgelagerte Task-Target-Grenze | `task-target-resolution-boundary/OR.md` | Mehrturn-Zielbindung und UAT-Baseline | user_accepted |
+| Akzeptierte Single-Install-Aktivierung | `opencode-single-install-activation/OR.md` | PMR-5 canonical owner completion and OpenCode activation boundary | user_accepted |
+| Understandability UAT Protocol | `agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md` | PMR-6 direct-observation method, scenarios, scoring and stop conditions | direct |
 | Aktive OpenCode Enforcement-/Host-Lücken | `opencode-surface-hardening-parity`; `opencode-plugin-honesty-hardening` | R2 und R3 | direct |
 | Bestehende proportionale Pfade und Erklärbarkeit | Modes, Gate Transition, Scope Classification, Gate Rationale | R1 und R4 | direct |
 | Akzeptierte Live Host Conformance | `agdf-live-host-conformance-matrix/OR.md`; BL-11 | R2, R3, R6 und Grenzen für RMP-07 bis RMP-10 | user_accepted |
@@ -185,8 +194,8 @@ einfachere Nutzerinteraktion.
 
 ## Missing Evidence
 
-- UAT/closeout for `opencode-single-install-activation` and authenticated evaluator evidence for OpenCode parity;
-- eight direct blinded understandability-UAT scenarios required by PMR-6;
+- authenticated evaluator evidence for OpenCode parity;
+- at least four independent participants and eight valid direct blinded observations required by PMR-6;
 - authenticated native-UI, multi-turn and restart conformance remains an accepted BL-11 boundary.
 
 ## Risks
@@ -207,7 +216,7 @@ einfachere Nutzerinteraktion.
 
 ## Closeout
 
-- delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; completed QA Transition, Structured Depth, Benchmark v3, Task Target and Interaction Ownership outcomes; RMP-11 reconciliation through accepted owner evidence; RMP-10 Revision 2 with PMR-1 satisfied-with-limits, PMR-5 partial and PMR-6 critical gap explicit.
+- delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; completed QA Transition, Structured Depth, Benchmark v3, Task Target, Interaction Ownership and Single Install outcomes; RMP-10 Revision 3 with PMR-1/PMR-5 satisfied-with-limits; Parent-owned PMR-6 eight-scenario UAT protocol ready without a product Child.
 - intentionally_not_delivered: speculative Unified Journey scope, final RMP-10 acceptance, RMP-12 reviews/QA/UAT, VCS and release.
-- next_allowed_action: Review `opencode-single-install-activation` UAT and decide it independently; keep RMP-12 closed.
+- next_allowed_action: Wait until at least four independent participants are available, then execute the eight observations in `UNDERSTANDABILITY_UAT_PROTOCOL.md`; keep RMP-12 closed.
 - quality_outlook: Preserve canonical owner boundaries and add direct understandability UAT before claiming the simpler Journey is mature.

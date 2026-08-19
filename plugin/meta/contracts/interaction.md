@@ -7,7 +7,7 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 - `mode`: `quick_task | verified_change | structured_delivery | unknown`
 - `run_id`: the exactly selected canonical run
-- `presentation_language`: the resolved complete locale-pack tag; absent, unsupported or incomplete packs resolve to the registry's deterministic `en` fallback
+- `presentation_language`: the resolved complete locale-pack tag; absent or unsupported requested locale tags resolve to the registry's deterministic `en` fallback, while an incomplete or invalid registry fails closed
 - `status`: `open | blocked | pass | warn | revise | block | in_progress`
 - `current_gate`: current user gate or internal step
 - `mode_slice_decision`: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`
@@ -206,8 +206,8 @@ Use this compact composition:
 
 Resolve all AGDF-owned explanatory text through the canonical Interaction
 Locale Registry. `en` and `de` are initial reviewed packs, not a closed locale
-list. English is the deterministic fallback for absent, unsupported or
-incomplete packs. Gate identifiers, `run_id`, canonical paths and exact
+list. English is the deterministic fallback for absent or unsupported requested locale tags; an
+incomplete or invalid registry fails closed. Gate identifiers, `run_id`, canonical paths and exact
 approval values are never translated. The visible gate title is localized;
 for example, the German title may be `Lösungsdesign` while the authorization
 value remains `Approval: SD`. Meaning, ordering and authority boundaries are
@@ -362,20 +362,30 @@ skill-local target-orientation template.
 
 ### Scope Classification Card
 
-When `gate-check` classifies a fresh scope as ungated (Quick Task or Trivial Change Boundary),
+When `gate-check` classifies a fresh scope as an ungated `quick_task` with a resolved Trivial
+Change Boundary result,
 the agent consumes the canonical `scope_classification.markdown` verbatim from
 `renderScopeClassificationCard` in `create-agdf/lib/interaction-presentation.js`. The card is a
 compact, localized, non-authorizing projection of the classification: mode, boundary result,
 UR-trigger evaluation, one currently-allowed line, one remains-forbidden line, escalation triggers
 and the challenge path. It carries `authorizes: false` and never renders approval controls.
 
-The card renders exactly once per fresh-scope ungated classification, before work proceeds. It must
-not appear for gated scopes, internal steps of a selected run, or as a substitute for the two-card
-approval envelope. Read-only requests keep the single read-only orientation sentence above; the
-scope classification card and the read-only orientation are mutually exclusive for the same request.
+The card renders exactly once per valid fresh-scope Quick Task classification, before work proceeds.
+It must not appear for Verified Change, Structured Delivery, gated, ambiguous, unknown or selected-
+run states, internal steps of a selected run, or as a substitute for the two-card approval envelope.
+Read-only requests keep the single read-only orientation sentence above; the scope classification
+card and the read-only orientation are mutually exclusive for the same request.
 
-If the classification input is missing, unknown, contradictory or the locale section is incomplete,
-the renderer returns `null` and the agent fails closed to the existing ceremony — never
+Every dynamic scalar and escalation-trigger item is a non-empty, single-line plain-text string of at
+most 240 Unicode code points. Markdown control tokens and line-leading heading, blockquote, list or
+ordered-list syntax are invalid. The escalation list contains 1–3 valid, distinct normalized items.
+The renderer rejects the complete input on any violation; it never coerces, truncates, sanitizes or
+partially retains invalid values.
+
+An unsupported requested locale resolves through the complete deterministic English fallback pack.
+A present incomplete or otherwise invalid registry is an invalid presentation source, not an
+unsupported locale: the renderer returns `null`. Missing, unknown or contradictory classification
+input likewise returns `null`, and the agent fails closed to the existing ceremony — never
 model-reconstructed Markdown. The card introduces no gate, no approval value, no persistence and no
 second presentation owner. `gate-check` must not maintain a skill-local card template.
 
@@ -390,7 +400,8 @@ fallback and human CLI output use the configured project chat language from
 
 - resolve an exact complete pack, then its language subtag, then deterministic English fallback;
 - `en` and `de` are the initial complete packs; additional reviewed complete packs are supported without changing runtime logic;
-- an incomplete pack is unsupported and must fail to English as a unit;
+- an unsupported requested locale must fail to English as a complete unit; an incomplete or invalid
+  registry is not an unsupported locale and must fail closed without presentation;
 - one interaction must not mix presentation languages, including labels and descriptions;
 - durable artefacts, runtime rules, task identifiers and machine-facing approval values remain English;
 - the exact approval value remains `Approval: <GateName>` in every locale;

@@ -11,9 +11,26 @@ const QUALITY_DIMENSIONS = Object.freeze([
   Object.freeze({ id: "code_quality", owner: "code-review" }),
   Object.freeze({ id: "qa_decision", owner: "qa-gate" }),
 ]);
+const SCOPE_CLASSIFICATION_LIMITS = Object.freeze({
+  maxCodePointsPerField: 240,
+  minEscalationTriggers: 1,
+  maxEscalationTriggers: 3,
+});
+const SCOPE_CLASSIFICATION_MARKDOWN_CONTROL = /[\\`*_\[\]<>|]/;
+const SCOPE_CLASSIFICATION_LINE_STRUCTURE = /^(?:[#>+\-]\s|\d+\.\s)/;
 
 function plainObject(value) {
   return value && typeof value === "object" && !Array.isArray(value);
+}
+
+function scopeClassificationText(value) {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  if (!normalized || /[\r\n\u2028\u2029]/.test(value)) return null;
+  if (Array.from(normalized).length > SCOPE_CLASSIFICATION_LIMITS.maxCodePointsPerField) return null;
+  if (SCOPE_CLASSIFICATION_MARKDOWN_CONTROL.test(normalized)) return null;
+  if (SCOPE_CLASSIFICATION_LINE_STRUCTURE.test(normalized)) return null;
+  return normalized;
 }
 
 function flattenKeys(value, prefix = "") {
@@ -439,22 +456,22 @@ export function renderScopeClassificationCard(classification, {
   requestedLocale,
 } = {}) {
   if (!plainObject(classification)) return null;
-  const outcome = String(classification.outcome ?? "").trim();
-  const mode = String(classification.mode ?? "").trim();
-  const trivialBoundary = String(classification.trivial_boundary ?? "").trim();
-  const urTriggerEvaluation = String(classification.ur_trigger_evaluation ?? "").trim();
-  const allowedSummary = String(classification.allowed_summary ?? "").trim();
-  const forbiddenSummary = String(classification.forbidden_summary ?? "").trim();
-  const escalationTriggers = Array.isArray(classification.escalation_triggers)
-    ? classification.escalation_triggers.map((item) => String(item ?? "").trim()).filter(Boolean)
-    : [];
-  const challengePath = String(classification.challenge_path ?? "").trim();
-
-  if (outcome !== "ungated") return null;
-  if (!["quick_task", "verified_change"].includes(mode)) return null;
+  const { outcome, mode, trivial_boundary: trivialBoundary } = classification;
+  if (outcome !== "ungated" || mode !== "quick_task") return null;
   if (!["inside", "outside"].includes(trivialBoundary)) return null;
+
+  const urTriggerEvaluation = scopeClassificationText(classification.ur_trigger_evaluation);
+  const allowedSummary = scopeClassificationText(classification.allowed_summary);
+  const forbiddenSummary = scopeClassificationText(classification.forbidden_summary);
+  const challengePath = scopeClassificationText(classification.challenge_path);
   if (!urTriggerEvaluation || !allowedSummary || !forbiddenSummary || !challengePath) return null;
-  if (escalationTriggers.length === 0) return null;
+
+  if (!Array.isArray(classification.escalation_triggers)
+    || classification.escalation_triggers.length < SCOPE_CLASSIFICATION_LIMITS.minEscalationTriggers
+    || classification.escalation_triggers.length > SCOPE_CLASSIFICATION_LIMITS.maxEscalationTriggers) return null;
+  const escalationTriggers = classification.escalation_triggers.map(scopeClassificationText);
+  if (escalationTriggers.some((item) => !item)) return null;
+  if (new Set(escalationTriggers).size !== escalationTriggers.length) return null;
 
   let locale;
   try {

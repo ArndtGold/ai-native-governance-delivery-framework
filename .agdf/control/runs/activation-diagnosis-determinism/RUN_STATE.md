@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: activation-diagnosis-determinism
-- lifecycle: active
-- revision: 4
-- revision_id: 3dfc2775-e8ae-4f04-936e-957bc60660d6
+- lifecycle: completed
+- revision: 5
+- revision_id: 3DFDD78F-4143-4C4B-8311-54B63AED89A0
 - mode: verified_change
 - current_gate: OR
-- decision: ready_for_closeout
+- decision: completed
 - owner: agent
 
 ## Objective
@@ -23,11 +23,11 @@ shell-env propagation or relative-path resolution.
 
 | Question | Answer |
 |---|---|
-| What is known? | UR approved; the plugin activation logic is correct, but AGDF skill/contract guidance treats `AGDF_*` env vars and relative globs as diagnostic truth. On Windows OpenCode Desktop App the plugin's `shell.env` hook does not propagate to LLM tool shells, so an agent fell back to relative glob and produced a false negative for an existing `.agdf/control/config.json`, recommending an action that would have re-scaffolded over valid control state. |
-| What is approved? | `Approval: UR` provided on 2026-07-20 after same-run, same-gate, revision and durable-artefact revalidation. |
-| What is missing? | Brownfield Review and Mode/Slice Decision before any later artefact. |
-| What is the next allowed action? | Run Brownfield Review as one internal operation; then record a visible Mode/Slice Decision with scope reason and evidence before drafting PRD. |
-| What is explicitly forbidden right now? | PRD drafting, SD, TP, Brownfield Analysis, implementation, and any mutation of existing `.agdf/control/` content or generated surfaces until Brownfield Review and Mode/Slice Decision are recorded. |
+| What is known? | The Verified Change is executed, its deterministic activation-diagnosis checks pass, and the Mini-Closeout OR records the final result. |
+| What is approved? | `Approval: UR` was provided on 2026-07-20; Brownfield Review selected `verified_change`; the executed record and OR are complete. |
+| What is missing? | Nothing within the approved Verified Change scope. |
+| What is the next allowed action? | No run work remains; commit, push, PR, release or install-cache mutation requires separate explicit user instruction. |
+| What is explicitly forbidden right now? | Automatic commit, push, PR, release, publication or install-cache mutation. |
 
 ## Approvals
 
@@ -75,11 +75,8 @@ shell-env propagation or relative-path resolution.
 
 ## Missing Evidence
 
-| Missing evidence | Impact | Required next step |
-|---|---|---|
-| Inventory of all AGDF guidance referencing `AGDF_*` env or relative glob as proof | medium; determines final scope | Brownfield Review |
-| Whether other surfaces (Codex, Claude Code, Copilot) have equivalent tool-shell env propagation gaps | medium; disclosed-boundary scope | Brownfield Review |
-| Whether Pages currently surfaces env-based or glob-based diagnosis language | low; possible copy drift | Brownfield Review |
+None within the approved Verified Change scope. Updating installed plugin versions, host behaviour and
+release state remains intentionally outside this run.
 
 ## Risks
 
@@ -92,22 +89,22 @@ shell-env propagation or relative-path resolution.
 ## Context Graph Impact
 
 - context_graph_impact: link_only
-- context_graph_refs: to be confirmed in Brownfield Review (candidate: existing control-state / interaction nodes)
-- context_graph_reconciliation: not_applicable_yet
-- context_graph_required_action: none yet
+- context_graph_refs: none; the invariant is persisted in the canonical skill and runtime contract owners
+- context_graph_reconciliation: not_applicable
+- context_graph_required_action: none
 - context_graph_gate_effect: none
+- context_graph_evidence: `.agdf/control/artefacts/activation-diagnosis-determinism/OR.md`
 
 ## Knowledge Persistence Decision
 
-- memory_target: context_graph
-- memory_reason: The "shell-env propagation is not ground truth; canonical CLI probe is the only diagnosis" invariant is reusable across surfaces and future AGDF skills; if unstated, the same drift recurs.
-- memory_refs: to be created or extended in Brownfield Review.
+- memory_target: canonical_runtime_owners
+- memory_reason: The "shell-env propagation is not ground truth; canonical CLI probe is the only diagnosis" invariant is reusable across surfaces and future AGDF skills.
+- memory_refs: `plugin/skills/gate-check/SKILL.md`; `plugin/meta/contracts/control-scaffold.md`; Runtime Integrity assertions
 
 ## Next Step
 
-Delivery closeout is ready. VCS actions (commit, push, PR, release) and install-cache mutation
-require separate explicit user instruction. The installed plugin 0.11.0 at `~/.config/opencode/`
-remains unchanged until a separate release action.
+Lifecycle closeout completed on 2026-08-19. VCS actions (commit, push, PR, release) and install-cache
+mutation require separate explicit user instruction. The installed plugin referenced by the original
+run remains unchanged until a separate release action.
 
-- next_allowed_action: Offer delivery closeout; commit/push/PR/release only on separate explicit user instruction.
-
+- next_allowed_action: No run work remains; commit, push, PR, release or install-cache mutation requires separate explicit user instruction.

@@ -485,16 +485,85 @@ assert.ok(scopeCardDe, "valid classification returns a de card");
 assert.ok(scopeCardDe.markdown.includes("Widerspruchspfad"), "de card shows localized challenge path");
 assert.equal(scopeCardDe.presentation_language, "de");
 
+const scopeCardUnsupportedLocale = renderScopeClassificationCard(validClassification, { registry, requestedLocale: "fr-CA" });
+assert.ok(scopeCardUnsupportedLocale, "unsupported locale uses the complete fallback pack");
+assert.equal(scopeCardUnsupportedLocale.presentation_language, "en");
+assert.ok(scopeCardUnsupportedLocale.markdown.includes("Challenge path"), "unsupported locale renders complete English labels");
+
 const incompleteRegistry = JSON.parse(JSON.stringify(registry));
 delete incompleteRegistry.locales.de.scopeClassification;
 const scopeCardFallback = renderScopeClassificationCard(validClassification, { registry: incompleteRegistry, requestedLocale: "de" });
 assert.equal(scopeCardFallback, null, "incomplete de pack fails closed to null (SCC-6)");
 
+const malformedRegistry = JSON.parse(JSON.stringify(registry));
+malformedRegistry.schemaVersion = 2;
+assert.equal(renderScopeClassificationCard(validClassification, { registry: malformedRegistry, requestedLocale: "en" }), null, "invalid registry fails closed");
+
 assert.equal(renderScopeClassificationCard(null, { registry, requestedLocale: "en" }), null, "null input returns null");
 assert.equal(renderScopeClassificationCard({ outcome: "gated" }, { registry, requestedLocale: "en" }), null, "gated outcome returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, outcome: "gated" }, { registry, requestedLocale: "en" }), null, "complete gated input returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, mode: "verified_change" }, { registry, requestedLocale: "en" }), null, "Verified Change returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, mode: "structured_delivery" }, { registry, requestedLocale: "en" }), null, "Structured Delivery returns null");
 assert.equal(renderScopeClassificationCard({ ...validClassification, mode: "unknown" }, { registry, requestedLocale: "en" }), null, "unknown mode returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, trivial_boundary: "ambiguous" }, { registry, requestedLocale: "en" }), null, "ambiguous boundary returns null");
 assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: [] }, { registry, requestedLocale: "en" }), null, "empty escalation triggers returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["one", "two", "three", "four"] }, { registry, requestedLocale: "en" }), null, "four escalation triggers return null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: "one" }, { registry, requestedLocale: "en" }), null, "non-array escalation triggers return null");
+assert.ok(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["one"] }, { registry, requestedLocale: "en" }), "one escalation trigger is valid");
+assert.ok(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["one", "two", "three"] }, { registry, requestedLocale: "en" }), "three escalation triggers are valid");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["same", " same "] }, { registry, requestedLocale: "en" }), null, "duplicate normalized escalation triggers return null");
+assert.ok(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["a".repeat(240)] }, { registry, requestedLocale: "en" }), "escalation trigger accepts 240 code points");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["a".repeat(241)] }, { registry, requestedLocale: "en" }), null, "escalation trigger rejects 241 code points");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: ["   "] }, { registry, requestedLocale: "en" }), null, "whitespace-only escalation trigger returns null");
+assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: [42] }, { registry, requestedLocale: "en" }), null, "non-string escalation trigger returns null");
 assert.equal(renderScopeClassificationCard({ ...validClassification, challenge_path: "" }, { registry, requestedLocale: "en" }), null, "missing challenge path returns null");
+
+const scopeScalarFields = ["ur_trigger_evaluation", "allowed_summary", "forbidden_summary", "challenge_path"];
+for (const field of scopeScalarFields) {
+  assert.ok(renderScopeClassificationCard({ ...validClassification, [field]: "x" }, { registry, requestedLocale: "en" }), `${field} accepts one code point`);
+  assert.ok(renderScopeClassificationCard({ ...validClassification, [field]: "a".repeat(240) }, { registry, requestedLocale: "en" }), `${field} accepts 240 code points`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: "a".repeat(241) }, { registry, requestedLocale: "en" }), null, `${field} rejects 241 code points`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: 42 }, { registry, requestedLocale: "en" }), null, `${field} rejects implicit number coercion`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: ["text"] }, { registry, requestedLocale: "en" }), null, `${field} rejects implicit array coercion`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: "   " }, { registry, requestedLocale: "en" }), null, `${field} rejects whitespace-only input`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: "first\nsecond" }, { registry, requestedLocale: "en" }), null, `${field} rejects newline input`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: "first\rsecond" }, { registry, requestedLocale: "en" }), null, `${field} rejects carriage-return input`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: "first\u2028second" }, { registry, requestedLocale: "en" }), null, `${field} rejects Unicode line-separator input`);
+  assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: "first\u2029second" }, { registry, requestedLocale: "en" }), null, `${field} rejects Unicode paragraph-separator input`);
+}
+
+const astralBoundary = "😀".repeat(240);
+assert.ok(renderScopeClassificationCard({ ...validClassification, allowed_summary: astralBoundary }, { registry, requestedLocale: "en" }), "240 astral code points are valid");
+assert.equal(renderScopeClassificationCard({ ...validClassification, allowed_summary: `${astralBoundary}😀` }, { registry, requestedLocale: "en" }), null, "241 astral code points are rejected");
+
+const markdownBearingValues = [
+  "# heading",
+  "*emphasis*",
+  "_emphasis_",
+  "`code`",
+  "[link](https://example.com)",
+  "![image](asset.png)",
+  "> quote",
+  "- item",
+  "+ item",
+  "1. item",
+  "value | cell",
+  "escaped \\ token",
+  "<tag>",
+];
+for (const field of scopeScalarFields) {
+  for (const value of markdownBearingValues) {
+    assert.equal(renderScopeClassificationCard({ ...validClassification, [field]: value }, { registry, requestedLocale: "en" }), null, `${field} rejects Markdown-bearing value: ${value}`);
+  }
+}
+for (const value of markdownBearingValues) {
+  assert.equal(renderScopeClassificationCard({ ...validClassification, escalation_triggers: [value] }, { registry, requestedLocale: "en" }), null, `escalation trigger rejects Markdown-bearing value: ${value}`);
+}
+assert.ok(renderScopeClassificationCard({
+  ...validClassification,
+  allowed_summary: "Ordinary punctuation: commas, periods, colons; and https://example.com/path?q=1&b=2 are valid.",
+}, { registry, requestedLocale: "en" }), "ordinary punctuation and a plain URL remain valid");
+assert.ok(Object.isFrozen(scopeCardEn), "scope classification result remains frozen");
 
 console.log("scope classification card tests passed");
 

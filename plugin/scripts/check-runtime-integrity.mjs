@@ -403,7 +403,9 @@ if (!runtimeContract.includes("first eligible native-attempt") || !runtimeContra
 if (!runtimeContract.includes("`attempted_not_applied`") || !runtimeContract.includes("`unsafe_to_wait`")) {
   failures.push("Runtime Contract must define visible fallback attempt outcomes");
 }
-if (!runtimeContract.includes("### Interaction Locale Contract") || !runtimeContract.includes("an incomplete pack is unsupported and must fail to English as a unit")) {
+if (!runtimeContract.includes("### Interaction Locale Contract")
+  || !runtimeContract.includes("an unsupported requested locale must fail to English as a complete unit")
+  || !runtimeContract.includes("an incomplete or invalid registry fails closed")) {
   failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
 }
 
@@ -494,6 +496,11 @@ if (sourceMode && isFile(interactionPresentationPath)) {
   if (!interactionPresentation.includes("export function renderScopeClassificationCard")) {
     failures.push("interaction-presentation.js must export renderScopeClassificationCard");
   }
+  if (!interactionPresentation.includes("SCOPE_CLASSIFICATION_LIMITS")
+    || !interactionPresentation.includes("maxCodePointsPerField: 240")
+    || !interactionPresentation.includes('mode !== "quick_task"')) {
+    failures.push("interaction-presentation.js must enforce the bounded Quick Task-only scope classification contract");
+  }
   if (!interactionPresentation.includes("export function renderTaskTargetOrientation")) {
     failures.push("interaction-presentation.js must export renderTaskTargetOrientation");
   }
@@ -502,6 +509,9 @@ for (const locale of ["en", "de"]) {
   const pack = interactionLocales?.locales?.[locale];
   if (!pack?.scopeClassification?.title || !pack?.scopeClassification?.mode?.quick_task || !pack?.scopeClassification?.challenge) {
     failures.push(`Interaction locale ${locale} missing scopeClassification section keys`);
+  }
+  if (Object.hasOwn(pack?.scopeClassification?.mode ?? {}, "verified_change")) {
+    failures.push(`Interaction locale ${locale} must not expose Verified Change as a scope classification card mode`);
   }
   if (!pack?.taskTargetResolution?.title
     || !pack?.taskTargetResolution?.primaryTarget

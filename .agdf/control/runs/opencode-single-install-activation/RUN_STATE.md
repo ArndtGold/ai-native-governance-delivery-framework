@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: opencode-single-install-activation
-- lifecycle: active
-- revision: 11
-- revision_id: b6023bd6-fb58-4af0-900a-4baea82324f7
+- lifecycle: completed
+- revision: 12
+- revision_id: 8183dbf7-7063-4766-a982-e16f3a07b9e0
 - mode: structured_delivery
-- current_gate: UAT
-- decision: ready_for_approval
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -21,11 +21,11 @@ durable AGDF control state, without duplicating shared OpenCode runtime assets.
 
 | Question | Answer |
 |---|---|
-| What is known? | Global OpenCode installation and global native skills exist; the current repository-activation path additionally generates local `.opencode/` instructions, skills and configuration. |
-| What is approved? | UR revision 2, PRD revision 2, SD revision 2, TP revision 2 and QA are approved. |
-| What is missing? | UAT evidence and exact UAT approval. |
-| What is the next allowed action? | Prepare and evaluate UAT against the disclosed live OpenCode host-evidence boundary. |
-| What is explicitly forbidden right now? | Release claims, installation mutation and VCS/release actions. |
+| What is known? | One global OpenCode installation with durable repository activation, early routing, separated status and no generated local runtime duplication is implemented, reviewed, QA-approved and UAT-accepted. |
+| What is approved? | UR revision 2, PRD revision 2, SD revision 2, TP revision 2, QA and UAT are approved; OR-full closes the governance lifecycle. |
+| What is missing? | No governance artefact or approval. Authenticated interactive OpenCode restart, rendering and skill-selection observation remain unperformed post-release evidence. |
+| What is the next allowed action? | Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 using this accepted owner outcome. |
+| What is explicitly forbidden right now? | Inferring live-host proof or performing automatic installation mutation, VCS, release, deployment or reinstall actions. |
 
 ## Approvals
 
@@ -36,7 +36,8 @@ durable AGDF control state, without duplicating shared OpenCode runtime assets.
 | SD | approved | Exact `Approval: SD` accepted on 2026-07-17 after selected-run, same-gate, revision and durable-artefact revalidation. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-07-17 after selected-run, same-gate, revision and durable-artefact revalidation. |
 | QA | approved | Exact `Approval: QA` accepted on 2026-07-17 after selected-run, same-gate, QA-report and durable-state revalidation. |
-| UAT | pending | none |
+| UAT | approved | Exact `Approval: UAT` accepted on 2026-08-19 after selected-run, same-gate and Revision 11 revalidation with the live-host limit retained. |
+| OR | done | OR-full `pass`; governance lifecycle completed without live-host, VCS, release or installation action. |
 
 ## Artefacts
 
@@ -53,7 +54,8 @@ durable AGDF control state, without duplicating shared OpenCode runtime assets.
 | CD+Tests | `.agdf/control/artefacts/opencode-single-install-activation/CD_TESTS.md` | done | Approved TP tasks implemented with focused and aggregate repository evidence. |
 | CR | `.agdf/control/artefacts/opencode-single-install-activation/CODE_REVIEW.md` | done | Pass: no remaining finding in reviewed scope. |
 | QA | `.agdf/control/artefacts/opencode-single-install-activation/QA_REPORT.md` | pass | Pass decision accepted with exact QA approval. |
-| UAT | `.agdf/control/artefacts/opencode-single-install-activation/UAT_EVIDENCE.md` | ready | Repository conformance is ready for a conscious UAT decision; live OpenCode host observation is disclosed as not performed. |
+| UAT | `.agdf/control/artefacts/opencode-single-install-activation/UAT_EVIDENCE.md` | approved | Repository behavior accepted with authenticated live OpenCode observation retained as a non-claim. |
+| OR | `.agdf/control/artefacts/opencode-single-install-activation/OR.md` | pass | OR-full records accepted delivery, compatibility boundary and resolved Context Graph impact. |
 
 ## Evidence
 
@@ -80,7 +82,9 @@ durable AGDF control state, without duplicating shared OpenCode runtime assets.
 | QA_REPORT | tests | TP | Pass: 6/6 task coverage, mandatory reviews and repository verification are recorded in `QA_REPORT.md`. |
 | QA Report | derived_from | TP Review; Clean Review; Code Review | pass | `qa-gate` pass decision accepted at QA. |
 | QA | approved_by | `Approval: QA` | approved | Exact approval accepted on 2026-07-17 after selected-run, same-gate, QA-report and durable-state revalidation. |
-| UAT Evidence | validates | QA-passed repository behavior | ready | `UAT_EVIDENCE.md` states acceptance scope, deterministic evidence and the explicit live-host limitation. |
+| UAT Evidence | validates | QA-passed repository behavior | approved | `UAT_EVIDENCE.md` records accepted repository behavior and the retained explicit live-host limitation. |
+| UAT | approved_by | `Approval: UAT` | approved | Exact approval accepted on 2026-08-19 after selected-run, same-gate and Revision 11 revalidation. |
+| OR | verifies | full run | pass | OR-full records accepted delivery, evidence limits, retained legacy compatibility and resolved Context Graph impact. |
 
 ## Mode / Slice Decision
 
@@ -89,7 +93,18 @@ durable AGDF control state, without duplicating shared OpenCode runtime assets.
 - scope_reason: The change alters repository activation semantics, global-plugin hooks, status, generated assets, legacy-local migration and public guidance, but it reuses established owners and does not change gate authority or durable control state.
 - evidence: `.agdf/control/artefacts/opencode-single-install-activation/BROWNFIELD_REVIEW.md`; `create-agdf/opencode-plugin.js`; `create-agdf/lib/installers/opencode.js`; `create-agdf/lib/scaffold/plan.js`; `plugin/meta/agdf-plugin.definition.json`.
 
+## Context Graph Impact
+
+- context_graph_impact: `link_only`
+- context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-CREATE-AGDF-CLI-COMPOSITION`; `CG-RUN-STATUS-CARD`
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `none`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: existing nodes own native interaction, exact-version CLI composition and independent installation/activation status.
+
 ## Closeout
 
-- next_allowed_action: Prepare and evaluate UAT against the disclosed live OpenCode host-evidence boundary.
-- quality_outlook: QA is approved; UAT must distinguish repository conformance from unobserved live OpenCode behavior.
+- delivered: single-install activation behavior, 6/6 tasks, mandatory reviews, QA/UAT acceptance, OR-full and Context Graph reconciliation.
+- intentionally_not_delivered: authenticated live OpenCode observation, installation mutation, VCS, release, deployment and reinstall.
+- next_allowed_action: Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 using this accepted owner outcome.
+- quality_outlook: Preserve one durable activation owner and obtain authenticated OpenCode evidence without reintroducing repository-local runtime duplication.

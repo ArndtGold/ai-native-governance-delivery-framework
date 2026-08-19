@@ -1,7 +1,10 @@
 # UAT Evidence: Lean Interaction Ownership and Local Validation
 
-Status: ready_for_decision
+Status: approved
 Date: 2026-07-19
+
+Exact `Approval: UAT` accepted on `2026-08-19` after selected-run, same-gate and Revision 21
+revalidation, with the released-package, authenticated-host and Windows evidence limits retained.
 
 ## User-Visible Acceptance Scope
 

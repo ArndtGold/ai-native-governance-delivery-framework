@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: agdf-interaction-ownership-quick-path-ux
-- lifecycle: active
-- revision: 21
-- revision_id: 2DAFDD03-690B-4C26-AC5B-250089AFC71B
+- lifecycle: completed
+- revision: 22
+- revision_id: e6c01bee-50e5-46de-854e-6db75d7f2a66
 - mode: structured_delivery
-- current_gate: UAT
-- decision: ready_for_decision
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -21,11 +21,11 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 | Question | Answer |
 |---|---|
-| What is known? | Interaction ownership, Compact Delivery, local validation and OpenCode/release-or fixes remain reviewed; operational status Markdown is now a compact code-owned projection consumed by CLI and skills. |
-| What is approved? | Expanded UR, PRD, SD, TP and refreshed QA; exact `Approval: QA` was provided on 2026-07-19 after revision-20 revalidation. |
-| What is missing? | Exact `Approval: UAT`; released installed-host consumption and authenticated refreshed OpenCode behavior remain disclosed acceptance limitations. |
-| What is the next allowed action? | Review the refreshed UAT evidence and decide whether to accept the repository behavior with the disclosed release/install boundary. |
-| What is explicitly forbidden right now? | OR, release claims and automatic VCS actions before UAT approval. |
+| What is known? | Interaction ownership, Compact Delivery, local validation, OpenCode/release-or fixes and the code-owned operational status projection are implemented, reviewed, QA-approved and UAT-accepted. |
+| What is approved? | Expanded UR, PRD, SD, TP, refreshed QA and UAT are exactly approved; OR-full closes the governance lifecycle. |
+| What is missing? | No governance artefact or approval. Released installed-host consumption, authenticated refreshed OpenCode behavior and native Windows execution remain unperformed post-release evidence. |
+| What is the next allowed action? | Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 and the remaining `opencode-single-install-activation` owner decision. |
+| What is explicitly forbidden right now? | Inferring released-host evidence or performing automatic VCS, release, deployment or reinstall actions. |
 
 ## Source And Scope State
 
@@ -40,12 +40,12 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UAT |
-| Allowed now | Review refreshed UAT evidence; approve, request revision or decline |
-| Blocked by | Missing exact UAT approval |
-| Missing approval | `Approval: UAT` |
-| Next step | User reviews the refreshed acceptance scope and decides UAT |
+| Status | pass |
+| Current gate | OR |
+| Allowed now | Use the OR for audit; perform delivery-closeout only on explicit VCS request |
+| Blocked by | none |
+| Missing approval | none |
+| Next step | Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 and the remaining OpenCode owner |
 | Quality outlook | Preserve compact semantic parity and keep installed-host behavior as explicit UAT evidence |
 
 ## Approvals
@@ -57,7 +57,8 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | SD | approved | `Approval: SD` provided on 2026-07-18 after revision-11 revalidation |
 | TP | approved | `Approval: TP` provided on 2026-07-18 after revision-12 revalidation |
 | QA | approved | `Approval: QA` provided on 2026-07-19 after revision-20 revalidation |
-| UAT | missing | Refreshed UAT evidence is ready; exact approval not yet provided |
+| UAT | approved | Exact `Approval: UAT` accepted on 2026-08-19 after selected-run, same-gate and Revision 21 revalidation with evidence limits retained. |
+| OR | done | OR-full `pass`; governance lifecycle completed without VCS, release, deployment or reinstall action. |
 
 ## Artefacts
 
@@ -74,8 +75,8 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | Clean Implementation Review | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CLEAN_IMPLEMENTATION_REVIEW.md | done | Pass; one data owner, one Markdown owner and no fallback template |
 | CR | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/CODE_REVIEW.md | done | Pass after escaping, fail-closed output and compatibility findings were fixed |
 | QA | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/QA_REPORT.md | pass | Refreshed qa-gate pass accepted through exact `Approval: QA` on 2026-07-19 |
-| UAT | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/UAT_EVIDENCE.md | ready_for_decision | Revision request resolved; released installed-host consumption remains disclosed |
-| OR |  | missing | Not allowed |
+| UAT | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/UAT_EVIDENCE.md | approved | Revision request resolved and repository behavior accepted with release/install evidence limits retained. |
+| OR | .agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/OR.md | pass | OR-full records accepted delivery, warning-level evidence limits and resolved Context Graph impact. |
 
 ## Mode / Slice Decision
 
@@ -112,6 +113,8 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 | Refreshed QA_REPORT | tests | TP | Canonical status renderer, CLI parity, fail-closed output and no-template integrity pass |
 | Refreshed QA Report | approved_by | `Approval: QA` | Exact approval provided on 2026-07-19 after revision-20 revalidation |
 | Refreshed UAT Evidence | evaluates | refreshed QA scope | Deterministic status behavior and external evidence boundary are ready for acceptance |
+| UAT | approved_by | `Approval: UAT` | Exact approval accepted on 2026-08-19 after selected-run, same-gate and Revision 21 revalidation. |
+| OR | verifies | full run | OR-full records accepted delivery, external evidence limits, risks and resolved Context Graph impact. |
 
 ## Evidence
 
@@ -145,7 +148,7 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 - context_graph_impact: update_existing_node
 - context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-DOCUMENTATION-CEREMONY-BOUNDARY`; `CG-CREATE-AGDF-CLI-COMPOSITION`
-- context_graph_reconciliation: reconciled
+- context_graph_reconciliation: resolved
 - context_graph_required_action: none
 - context_graph_gate_effect: none
 - context_graph_evidence: existing nodes now record consolidated interaction ownership, Compact Delivery routing and exact-version local-validator composition.
@@ -158,9 +161,9 @@ safe AGDF delivery path clearer and less ceremonially visible without weakening 
 
 ## Closeout
 
-- delivered: LIR-01 through LIR-12, release-built runtime dependency, three reproduced-finding fixes, deterministic operational status presentation, focused/aggregate tests, refreshed 12/12 TP Review, Clean Review, Code Review, QA Gate pass and Context Graph reconciliation.
-- not_delivered: UAT acceptance, authenticated released-host observation, OR, release and VCS publication.
+- delivered: LIR-01 through LIR-12, release-built runtime dependency, three reproduced-finding fixes, deterministic operational status presentation, focused/aggregate tests, refreshed 12/12 TP Review, Clean Review, Code Review, QA Gate pass, exact UAT acceptance, OR-full and Context Graph reconciliation.
+- not_delivered: authenticated released-host observation, native Windows execution, release and VCS publication.
 - verification_performed: deterministic generation/digest checks, offline local command execution, OpenCode wrapper fixtures, Runtime Integrity positive/negative, 27/27 skill evals, aggregate smoke and diff check.
 - unverified: direct authenticated Codex/Claude/OpenCode host observation and Windows-native execution.
-- next_allowed_action: Request exact `Approval: UAT` for the refreshed acceptance evidence.
+- next_allowed_action: Re-evaluate Product Maturity Roadmap PMR-5/PMR-6 and the remaining `opencode-single-install-activation` owner decision.
 - quality_outlook: Preserve compact semantic parity and keep released-package installation as UAT evidence.

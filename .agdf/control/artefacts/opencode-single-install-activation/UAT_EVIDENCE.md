@@ -1,7 +1,10 @@
 # UAT Evidence: Single-Install OpenCode Activation
 
-Status: ready_for_decision
+Status: approved
 Date: 2026-07-17
+
+Exact `Approval: UAT` accepted on `2026-08-19` after selected-run, same-gate and Revision 11
+revalidation, with the authenticated live OpenCode limitation retained.
 
 ## User-Visible Acceptance Scope
 

@@ -16,8 +16,8 @@ Scope: Parent Phase A und Vorbereitung der separaten Child-UR
 | RMP-06 | done | Child-OR unverändert als `BL-11` mit `user_accepted` verlinkt; WS-01 `completed`; acht Limitierungen und zwölf Claude-`host_unavailable` bleiben sichtbar |
 | RMP-07 | done | Assessment zunächst `no_child_scope_yet`; danach validierte Baseline Version `1.0.0` mit 40 realen Fällen, sechs Pfaden, 19 adversarialen Fällen und 40/40 Quellen; `PROPORTIONALITY_BENCHMARK_SCOPE.md` ist `ready_for_child_ur` |
 | RMP-08 | done | `STAGED_PRODUCT_FINDINGS_ASSESSMENT.md` und `ENFORCEMENT_CLOSURE_SCOPE.md`: QA-Block-Approval-Projektion mit Garantie, Surface, Ist-/Zielklasse, Owner und negativem Test; kein Autoritätsbypass behauptet |
-| RMP-09 | no_safe_child_scope_yet | no residual Journey gap is evidenced while canonical Target, Interaction and OpenCode owners still have QA/UAT or host-evidence boundaries |
-| RMP-10 | in_progress | `AGGREGATE_ACCEPTANCE.md` started from canonical closeout evidence; final aggregation is blocked by PMR-5 owner decisions and the PMR-6 direct understandability-UAT gap |
+| RMP-09 | no_safe_child_scope_yet | accepted Target and Interaction owners expose no residual Journey gap; Single Install UAT and OpenCode host evidence remain unsettled |
+| RMP-10 | in_progress | Aggregate Revision 2 consumes accepted Target and Interaction ORs; PMR-1 is satisfied with limits, PMR-5 is partial pending Single Install UAT and PMR-6 retains a critical direct understandability-UAT gap |
 | RMP-11 | checkpoint_done | completed QA Transition, Structured Depth and Benchmark v3 child ORs reconciled; Parent Brownfield fit and Context Graph link-only boundary revalidated without scope transfer |
 | RMP-12 | pending | Roadmap-Reviews/QA/UAT erst nach vollständiger Aggregation |
 
@@ -37,10 +37,10 @@ Scope: Parent Phase A und Vorbereitung der separaten Child-UR
   und bestehende Gate-/Mode-Owner; Details in `PROPORTIONALITY_BASELINE_TESTS.md`.
 - RMP-T09: pass für Scope-Ableitung; `SPF-06` besitzt konkreten gemeinsamen Host-Gap,
   bestehenden Owner `gate-policy.js` und einen negativen Umgehungs-/Approval-Test.
-- RMP-T10: pass for non-duplication and recovery boundaries; no Journey child is created while the
-  canonical Target, Interaction and OpenCode owners remain unsettled. Final PMR-5/PMR-6 evidence is open.
-- RMP-T11: `in_progress`; the PMR-1-through-PMR-7 matrix exists and preserves evidence classes, but
-  PMR-6 is a critical evidence gap and PMR-5 remains open, so final acceptance cannot pass.
+- RMP-T10: pass for non-duplication and recovery boundaries; accepted Target and Interaction owners
+  expose no residual Journey gap, while Single Install and OpenCode host evidence remain unsettled.
+- RMP-T11: `in_progress`; PMR-1 is now `satisfied_with_limits` and PMR-5 is `partial`; PMR-6 remains
+  a critical evidence gap, so final acceptance cannot pass.
 - RMP-11: pass for the 2026-08-19 checkpoint; BL-12 through BL-14, WS-02/WS-03, Parent Brownfield fit
   and Context Graph link-only reconciliation match the completed child ORs.
 - RMP-T12 Phase A: `doctor` pass mit 0 Findings; `delivery-map` pass; keine defekten Links;
@@ -63,6 +63,7 @@ Die r3-Evidenz wurde ohne Regrading oder Tuning in drei getrennte Pfade zerlegt:
 
 The QA Transition, Structured Depth and Benchmark v3 paths are completed and linked through BL-12
 through BL-14. SPF-01 through SPF-04 are resolved in the separately accepted v3 scope without
-rewriting v2/r3 history. RMP-09 stays at `no_safe_child_scope_yet` because no residual Journey gap is
-evidenced beyond unsettled canonical owners. RMP-10 is now started but cannot complete until PMR-5
-owner outcomes and PMR-6 direct understandability UAT are available.
+rewriting v2/r3 history. RMP-09 stays at `no_safe_child_scope_yet` because the accepted Target and
+Interaction outcomes do not evidence a separate Journey product gap. RMP-10 remains startable but
+cannot complete until Single Install UAT settles the last PMR-5 owner and PMR-6 direct
+understandability UAT is available.

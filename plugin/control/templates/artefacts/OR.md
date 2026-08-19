@@ -77,6 +77,28 @@ This is a compact projection of the control state. It does not replace gate-chec
 |---|---|---|
 |  | `warn | revise | block` |  |
 
+## Parent Reconciliation Handoff
+
+Optional evaluated projection. Keep Child delivery status separate.
+
+- outcome: `resolved | not_applicable | open`
+- target_run_id:
+- disposition: `not_applicable | action_required | accepted_open`
+- evidence:
+- missing_evidence: `none` or concrete missing proof
+- next_action: `none` or exactly one action
+
+## Programme Aggregation Readiness
+
+Optional Parent/programme projection. It is evidence, not approval.
+
+- startable: `true | false`
+- final_ready: `true | false`
+- acceptance_ref:
+- evidence:
+- missing_evidence:
+- next_action:
+
 ## Context Graph Impact
 
 - context_graph_impact: `none | link_only | update_existing_node | new_node_required | sot_drift`

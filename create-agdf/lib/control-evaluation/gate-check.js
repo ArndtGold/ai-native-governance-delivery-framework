@@ -225,7 +225,10 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     ? evaluateVerifiedChange(targetDir, runState)
     : null;
   const transitionDecision = transitionDecisionForRunState(runState, verifiedChange);
-  const deliveryMap = analyzeDeliveryMap(runState);
+  const deliveryMap = analyzeDeliveryMap(runState, {
+    loadRun: (runId) => readRunState(targetDir, { runId }),
+    resolveFile: (path) => resolvedArtefactFile(targetDir, path),
+  });
   const doctorBlocker = doctorReport.findings.find((finding) => finding.severity === "block");
   const doctorRevise = doctorReport.findings.find((finding) => finding.severity === "revise");
   const routesInvalidVerifiedChange = modeSliceDecision(runState) === "verified_change"
@@ -344,6 +347,8 @@ export function evaluateGateCheck(targetDir, selection = {}) {
       context_graph: deliveryMap.context_graph,
       source_scope: deliveryMap.source_scope,
       memory: deliveryMap.memory,
+      parent_reconciliation: deliveryMap.parent_reconciliation,
+      programme_aggregation: deliveryMap.programme_aggregation,
       findings: deliveryMap.findings,
     },
     verified_change: verifiedChange,

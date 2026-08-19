@@ -20,6 +20,7 @@ It reports:
 - solution integrity
 - documentation impact
 - Context Graph impact
+- evaluated Parent reconciliation and programme aggregation from Delivery Map
 - open risks, blockers, retained fallbacks, and exit criteria
 - next permissible step
 - whether further quality follow-up or a separate delivery closeout is useful
@@ -53,6 +54,12 @@ Use the Runtime Contract definition of `Relevant Run` to decide whether OR is ma
 14. Reconcile Context Graph impact before clean closeout: report `context_graph_reconciliation: resolved | not_applicable | open_gap`.
 15. If Context Graph work remains unresolved, report it as an explicit open gap and do not describe the run as cleanly handoff-ready.
 16. After writing or updating `MASTER_BACKLOG.md`, run `doctor --json` (or the locally available equivalent) and resolve any `AGDF_BACKLOG_STATUS_UNKNOWN` or `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN` finding before closeout. See the AGDF control scaffold's `MASTER_BACKLOG.md` template Rules section for the canonical status/artefact label vocabulary.
+17. When Delivery Map exposes `parent_reconciliation`, report that evaluated object without
+    rediscovering or reclassifying the relationship. Keep Child completion and Parent coordination
+    visibly separate. An `open` result retains exactly one next action and does not invalidate Child
+    QA, UAT or OR completion.
+18. Report `programme_aggregation` only when applicable. Preserve `startable` and `final_ready` as
+    non-authorizing evidence values; never treat either as a gate or approval.
 
 ## When To Use
 - at the end of every relevant run
@@ -99,10 +106,12 @@ If information is missing, state the gap instead of guessing.
 7. Summarize tests and verification.
 8. Summarize documentation and Context Graph impact if relevant.
 9. Record Context Graph reconciliation as `resolved`, `not_applicable`, or `open_gap`.
-10. Name retained fallbacks and exit criteria.
-11. Set exactly one next permissible step.
-12. Set exactly one quality outlook.
-13. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
+10. Copy applicable evaluated Parent reconciliation and programme aggregation from Delivery Map into
+    the OR without mutating another run.
+11. Name retained fallbacks and exit criteria.
+12. Set exactly one next permissible step.
+13. Set exactly one quality outlook.
+14. State whether `delivery-closeout` is the next operational handoff step when code changes exist and the delivery state allows it.
 
 ## Output
 Use a compact structure:
@@ -135,3 +144,4 @@ This skill must not:
 - provide later-gate content while an earlier gate blocks
 - produce the operative commit/PR handoff owned by `delivery-closeout`
 - execute commit, push, or PR actions
+- infer Parentage, scan sibling runs independently or mutate a Parent

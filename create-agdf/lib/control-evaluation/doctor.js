@@ -4,7 +4,7 @@ import { aggregate, resolveRuns, verifyLegacyProjection } from '../control-state
 import { doctorRequiredFiles } from './required-files.js';
 import { analyzeDeliveryMap } from './delivery-map.js';
 import { evaluateVerifiedChange } from './verified-change.js';
-import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState } from './run-state.js';
+import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from './run-state.js';
 import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseBacklogSection, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from './shared.js';
 
 export function evaluateDoctor(targetDir, selection = {}) {
@@ -45,6 +45,7 @@ export function evaluateDoctor(targetDir, selection = {}) {
     };
   }
   const findings = [];
+  let reconciliation;
   const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
   if (hasCanonicalRuns) {
     const projection = verifyLegacyProjection(targetDir);
@@ -221,7 +222,11 @@ export function evaluateDoctor(targetDir, selection = {}) {
     for (const finding of analyzeArtefactRoleConsistency(targetDir, runState)) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
-    for (const finding of analyzeDeliveryMap(runState).findings) {
+    reconciliation = analyzeDeliveryMap(runState, {
+      loadRun: (runId) => readRunState(targetDir, { runId }),
+      resolveFile: (path) => resolvedArtefactFile(targetDir, path),
+    });
+    for (const finding of reconciliation.findings) {
       addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
     }
   }
@@ -241,6 +246,8 @@ export function evaluateDoctor(targetDir, selection = {}) {
       revise: findings.filter((finding) => finding.severity === "revise").length,
       warn: findings.filter((finding) => finding.severity === "warn").length,
     },
+    parent_reconciliation: reconciliation?.parent_reconciliation,
+    programme_aggregation: reconciliation?.programme_aggregation,
     findings,
   };
 }

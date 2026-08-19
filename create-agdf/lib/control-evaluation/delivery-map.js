@@ -3,8 +3,9 @@ import { join } from 'node:path';
 import { aggregate, resolveRuns } from '../control-state/index.js';
 import { resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js';
-import { gateApprovalStatus, readRunState } from './run-state.js';
+import { gateApprovalStatus, readRunState, resolvedArtefactFile } from './run-state.js';
 import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from './shared.js';
+import { evaluateReconciliationState } from './parent-reconciliation.js';
 
 const deliveryRelationships = [
   { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
@@ -38,8 +39,10 @@ function severityFromImpact(value) {
   return null;
 }
 
-export function analyzeDeliveryMap(runState) {
+export function analyzeDeliveryMap(runState, dependencies = {}) {
   const findings = [];
+  const reconciliation = evaluateReconciliationState(runState, dependencies);
+  findings.push(...reconciliation.findings);
   const relationships = deliveryRelationships.map((expected) => {
     const row = findRelationship(runState, expected);
     const required = relationshipRequired(runState, expected.requiredBy);
@@ -142,6 +145,8 @@ export function analyzeDeliveryMap(runState) {
     context_graph: runState.context_graph,
     source_scope: runState.source_scope,
     memory: runState.memory,
+    parent_reconciliation: reconciliation.parent_reconciliation,
+    programme_aggregation: reconciliation.programme_aggregation,
     findings,
   };
 }
@@ -215,7 +220,10 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
   }
   const doctorReport = evaluateDoctor(targetDir, selection);
   const runState = readRunState(targetDir, selection);
-  const map = analyzeDeliveryMap(runState);
+  const map = analyzeDeliveryMap(runState, {
+    loadRun: (runId) => readRunState(targetDir, { runId }),
+    resolveFile: (path) => resolvedArtefactFile(targetDir, path),
+  });
   const gateDecision = transitionDecisionForRunState(runState);
   const currentGate = gateDecision.current_gate;
 
@@ -262,6 +270,8 @@ export function evaluateDeliveryMap(targetDir, selection = {}, dependencies = {}
     context_graph: map.context_graph,
     source_scope: map.source_scope,
     memory: map.memory,
+    parent_reconciliation: map.parent_reconciliation,
+    programme_aggregation: map.programme_aggregation,
     findings: map.findings,
     doctor_status: doctorReport.status,
     doctor_summary: doctorReport.summary,

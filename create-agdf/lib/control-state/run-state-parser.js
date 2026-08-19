@@ -105,6 +105,15 @@ function field(c, k) {
 function sectionField(c, h, k) {
   return field(section(c, h), k);
 }
+function sectionScalar(c, h, k) {
+  const body = section(c, h);
+  const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const matches = [...body.matchAll(new RegExp(`^- ${escaped}:[^\\S\\r\\n]*(.*)$`, "gm"))];
+  return {
+    value: clean(matches[0]?.[1] ?? ""),
+    count: matches.length,
+  };
+}
 function dataRows(c, h, header) {
   return rows(section(c, h)).filter(
     (r) =>
@@ -116,6 +125,7 @@ export function parseControlState(
   content,
   { userGates = [], internalSteps = [], closeoutArtefacts = [] } = {},
 ) {
+  const metaValues = scalarFields(content).values;
   const approvals = new Map();
   for (const h of ["Approvals", "Gate Checklist"])
     for (const [g, s, e] of rows(section(content, h))) {
@@ -146,8 +156,16 @@ export function parseControlState(
       ? "Mode/Slice Decision"
       : "Mode / Slice Decision",
     source = "Source And Scope State",
-    memory = "Knowledge Persistence Decision";
+    memory = "Knowledge Persistence Decision",
+    handoff = "Parent Reconciliation Handoff",
+    aggregation = "Programme Aggregation Readiness";
+  const disposition = sectionScalar(content, handoff, "parent_reconciliation_disposition");
+  const reconciliationNextAction = sectionScalar(content, handoff, "parent_reconciliation_next_action");
+  const acceptanceRef = sectionScalar(content, aggregation, "programme_acceptance_ref");
+  const aggregationEvidence = sectionScalar(content, aggregation, "programme_aggregation_evidence");
+  const aggregationMissingEvidence = sectionScalar(content, aggregation, "programme_aggregation_missing_evidence");
   return {
+    run_id: clean(metaValues.get("run_id") ?? ""),
     current_gate: field(content, "current_gate"),
     next_allowed_action: field(content, "next_allowed_action"),
     approvals,
@@ -222,6 +240,26 @@ export function parseControlState(
       target: clean(sectionField(content, memory, "memory_target")),
       reason: sectionField(content, memory, "memory_reason"),
       refs: sectionField(content, memory, "memory_refs"),
+    },
+    parent_reconciliation: {
+      present: Boolean(section(content, handoff).trim()),
+      disposition: disposition.value,
+      next_action: reconciliationNextAction.value,
+      field_counts: {
+        disposition: disposition.count,
+        next_action: reconciliationNextAction.count,
+      },
+    },
+    programme_aggregation: {
+      present: Boolean(section(content, aggregation).trim()),
+      acceptance_ref: acceptanceRef.value,
+      evidence: aggregationEvidence.value,
+      missing_evidence: aggregationMissingEvidence.value,
+      field_counts: {
+        acceptance_ref: acceptanceRef.count,
+        evidence: aggregationEvidence.count,
+        missing_evidence: aggregationMissingEvidence.count,
+      },
     },
   };
 }

@@ -108,6 +108,8 @@ It must expose:
 - multi-scope ambiguity and branch/workspace evidence limits when present
 - memory persistence target, reason and references when present
 - Context Graph impact and gate effect
+- optional evaluated Parent reconciliation and programme aggregation readiness from the Closeout
+  Contract, without changing Child gate authority
 - the Run Status Card as a compact projection of current gate, next step and quality outlook
 - findings that explain why the delivery picture is `pass | warn | revise | block`
 

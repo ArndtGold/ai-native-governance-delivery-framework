@@ -59,6 +59,28 @@ Describe the trustworthy outcome.
 - scope_reason:
 - evidence:
 
+## Parent Reconciliation Handoff
+
+Optional. Omit this section when no explicit `OR | reconciles_with | parent_run:<run_id>` Artefact
+Chain row exists. The relationship row owns the Parent ID and evidence; do not copy them here.
+
+- parent_reconciliation_disposition: `action_required | accepted_open`
+- parent_reconciliation_next_action:
+
+## Programme Aggregation Readiness
+
+Optional. Use only on an explicit Parent/programme run with evidenced
+`Aggregate | includes | child_run:<run_id>` rows.
+
+- programme_acceptance_ref:
+- programme_aggregation_evidence:
+- programme_aggregation_missing_evidence: `none`
+
+## Artefact Chain
+
+| From | Relationship | To | Evidence |
+|---|---|---|---|
+
 ## Evidence
 
 | Evidence | Source | Covers | Strength |

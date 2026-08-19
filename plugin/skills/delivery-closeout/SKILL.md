@@ -57,6 +57,7 @@ Use what is available:
 - rollout or migration notes
 - open technical risks or documentation gaps
 - Context Graph impact from OR/QA/review
+- Parent reconciliation projection already reported by OR
 
 If code-change status is unclear, do not claim a commit handoff.
 
@@ -87,6 +88,11 @@ If code-change status is unclear, do not claim a commit handoff.
    - monitoring/runtime verification
    - Context Graph reconciliation
 7. If `Approval: UAT` exists, code changes were delivered, and no Context Graph gap remains, actively offer the commit but do not run it.
+8. If OR reports an `open` Parent reconciliation, retain its named Parent and one next action in the
+   handoff while preserving an otherwise valid commit offer. This coordination warning is not a
+   Child gate failure.
+9. Consume Parent reconciliation from the OR only. Do not inspect sibling runs, infer Parentage,
+   reevaluate evidence or mutate a Parent.
 
 ## Output
 For code-changing runs:
@@ -116,3 +122,4 @@ This skill must not:
 - execute commit, push, or PR
 - invent a commit handoff for non-code runs
 - imply new gate approvals
+- rediscover, reclassify or repair Parent reconciliation outside the OR

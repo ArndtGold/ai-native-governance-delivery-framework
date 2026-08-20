@@ -1,4 +1,4 @@
-import { verifiedChangeEscalationTargets } from './verified-change.js';
+import { extractField, verifiedChangeEscalationTargets } from './verified-change.js';
 import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from './run-state.js';
 
 function durableArtefactBlock(gate, nextGate) {
@@ -98,6 +98,21 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
     }
 
     if (modeDecision === "quick_task") {
+      if (
+        extractField(runState.content ?? "", "lifecycle") === "completed"
+        && runState.current_gate === "OR"
+        && runState.artefacts.get("OR")?.status === "done"
+      ) {
+        return {
+          status: "pass",
+          current_gate: "OR",
+          blocking_reason: "none",
+          missing_approval: "none",
+          allowed: ["use delivery closeout when explicitly requested"],
+          forbidden: ["repeat Quick Task execution", "commit, push, open PR or release automatically"],
+          next_allowed_action: "Use delivery closeout only when an operative VCS handoff is explicitly requested.",
+        };
+      }
       return {
         status: "open",
         current_gate: "Quick Task Execution",

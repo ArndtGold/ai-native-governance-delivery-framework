@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agent-skills-conformance-portability
 - lifecycle: completed
-- revision: 10
-- revision_id: agent-skills-conformance-portability-r10
+- revision: 11
+- revision_id: f9c73cbe-3a44-4ec1-aed5-0554580c3747
 - mode: structured_slice
 - current_gate: OR
 - decision: pass
@@ -53,7 +53,7 @@ boundary without duplicating AGDF Runtime Contract ownership or changing skill b
 | Task Plan Review | `.agdf/control/artefacts/agent-skills-conformance-portability/TASK_PLAN_REVIEW.md` | done | `pass`; 7/7 tasks fully_done. |
 | Clean Implementation Review | `.agdf/control/artefacts/agent-skills-conformance-portability/CLEAN_IMPLEMENTATION_REVIEW.md` | done | `pass`; no fallback, workaround or parallel owner. |
 | CR | `.agdf/control/artefacts/agent-skills-conformance-portability/CODE_REVIEW.md` | done | `pass`; no open actual-diff finding. |
-| QA | `.agdf/control/artefacts/agent-skills-conformance-portability/QA_REPORT.md` | approved | `qa-gate` pass decision approved by exact user approval on 2026-08-19. |
+| QA | `.agdf/control/artefacts/agent-skills-conformance-portability/QA_REPORT.md` | pass | `qa-gate` pass decision approved by exact user approval on 2026-08-19. |
 | OR | `.agdf/control/artefacts/agent-skills-conformance-portability/OR.md` | done | OR-full records UAT approval, bounded delivery, missing host evidence, risks and the delivery-closeout boundary. |
 
 ## Mode/Slice Decision
@@ -69,12 +69,16 @@ boundary without duplicating AGDF Runtime Contract ownership or changing skill b
 |---|---|---|---|
 | User request | captured_by | UR | `.agdf/control/artefacts/agent-skills-conformance-portability/UR.md` |
 | User approval | approves | UR | Exact `Approval: UR` received on 2026-08-19 |
+| UR | approved_by | Approval: UR | Exact `Approval: UR` received on 2026-08-19 |
 | Brownfield Review | sizes | Mode/Slice Decision | `.agdf/control/artefacts/agent-skills-conformance-portability/BROWNFIELD_REVIEW.md` |
 | UR | defines | PRD | `.agdf/control/artefacts/agent-skills-conformance-portability/PRD.md` |
+| PRD | derived_from | UR | Approved UR and PRD artefacts define the same bounded conformance outcome. |
 | User approval | approves | PRD | Exact `Approval: PRD` received on 2026-08-19 |
 | PRD | constrains | SD | `.agdf/control/artefacts/agent-skills-conformance-portability/SD.md` |
+| SD | derived_from | PRD | Approved SD implements the PRD ownership, classification and evidence boundaries. |
 | User approval | approves | SD | Exact `Approval: SD` received on 2026-08-19 |
 | SD | constrains | TP | `.agdf/control/artefacts/agent-skills-conformance-portability/TP.md` |
+| TP | derived_from | SD | Approved TP maps the SD design to ASP-01 through ASP-07 and deterministic evidence. |
 | User approval | approves | TP | Exact `Approval: TP` received on 2026-08-19 |
 | TP | scopes | Brownfield Analysis | `.agdf/control/artefacts/agent-skills-conformance-portability/BROWNFIELD_ANALYSIS.md` |
 | Brownfield Analysis | permits | CD+Tests | Decision `pass` on 2026-08-19 |
@@ -83,6 +87,7 @@ boundary without duplicating AGDF Runtime Contract ownership or changing skill b
 | Clean Implementation Review | verifies | SD | `.agdf/control/artefacts/agent-skills-conformance-portability/CLEAN_IMPLEMENTATION_REVIEW.md` |
 | Code Review | verifies | CD+Tests | `.agdf/control/artefacts/agent-skills-conformance-portability/CODE_REVIEW.md` |
 | Reviews | support | QA | `.agdf/control/artefacts/agent-skills-conformance-portability/QA_REPORT.md` |
+| QA_REPORT | tests | TP | QA pass covers ASP-01 through ASP-07 and ASC-1 through ASC-7 from the approved TP. |
 | User approval | approves | QA | Exact `Approval: QA` received on 2026-08-19 |
 | User approval | approves | UAT | Exact `Approval: UAT` received on 2026-08-19 |
 | OR | summarizes | Run | `.agdf/control/artefacts/agent-skills-conformance-portability/OR.md` |

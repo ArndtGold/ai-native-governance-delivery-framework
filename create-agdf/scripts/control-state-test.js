@@ -154,6 +154,36 @@ try {
     userGates: ["UR", "PRD"], internalSteps: ["Brownfield Review"],
   });
   assert.equal(transitionDecisionForRunState(invalidBrownfieldEvidence).current_gate, "Mode/Slice Decision", "unevidenced routing fails closed to recovery");
+  const activeQuickTask = {
+    ...atomicBrownfield,
+    content: "- lifecycle: active",
+    current_gate: "Quick Task Execution",
+    mode_slice_decision: { ...atomicBrownfield.mode_slice_decision, decision: "quick_task", required_next_gate: "none" },
+  };
+  assert.deepEqual(
+    { status: transitionDecisionForRunState(activeQuickTask).status, current_gate: transitionDecisionForRunState(activeQuickTask).current_gate },
+    { status: "open", current_gate: "Quick Task Execution" },
+    "active Quick Task remains open",
+  );
+  const completedQuickTask = {
+    ...activeQuickTask,
+    content: "- lifecycle: completed",
+    current_gate: "OR",
+    artefacts: new Map([...activeQuickTask.artefacts, ["OR", { path: "OR.md", status: "done" }]]),
+  };
+  assert.deepEqual(
+    { status: transitionDecisionForRunState(completedQuickTask).status, current_gate: transitionDecisionForRunState(completedQuickTask).current_gate },
+    { status: "pass", current_gate: "OR" },
+    "completed Quick Task with OR projects pass instead of reopening execution",
+  );
+  assert.deepEqual(
+    {
+      status: transitionDecisionForRunState({ ...completedQuickTask, content: "- lifecycle: active" }).status,
+      current_gate: transitionDecisionForRunState({ ...completedQuickTask, content: "- lifecycle: active" }).current_gate,
+    },
+    { status: "open", current_gate: "Quick Task Execution" },
+    "Quick Task with OR does not project pass while lifecycle remains active",
+  );
   const qaReviseRoot = mkdtempSync(join(tmpdir(), "agdf-qa-revise-"));
   execFileSync(process.execPath, [cli, "init", "--dir", qaReviseRoot]);
   rmSync(join(qaReviseRoot, ".agdf", "control", "AGDF_RUN.md"), { force: true });

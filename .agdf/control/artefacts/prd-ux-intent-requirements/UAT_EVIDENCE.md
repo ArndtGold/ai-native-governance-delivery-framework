@@ -1,6 +1,6 @@
 # UAT Evidence — Define UX Intent Before Implementation
 
-- status: ready
+- status: accepted
 - run_id: prd-ux-intent-requirements
 - based_on: approved QA Report revision 19
 - date: 2026-07-19
@@ -61,7 +61,6 @@ This run does not claim release, publication, installation or live-host UAT evid
 
 ## UAT Decision
 
-Approve only if the delivered lifecycle contract, proportional trigger, PRD authority boundary,
-fidelity ownership and disclosed evidence boundary match the intended outcome.
-
-Exact acceptance value: `Approval: UAT`
+Accepted through exact `Approval: UAT` on 2026-08-20 after selected-run, same-gate, revision-20 and
+durable-evidence revalidation. Acceptance retains the disclosed repository-versus-live-host evidence
+boundary and does not authorize commit, push, PR, release, publication or installation.

@@ -4,12 +4,12 @@
 
 - control_state_version: 2
 - run_id: prd-ux-intent-requirements
-- lifecycle: active
-- revision: 20
-- revision_id: EC4EDB95-007B-4C0E-92C9-C87B25F1A22E
+- lifecycle: completed
+- revision: 22
+- revision_id: FC79E4A9-BE83-4CB1-A296-7BAFA1E0F289
 - mode: structured_delivery
-- current_gate: UAT
-- decision: ready_for_approval
+- current_gate: OR
+- decision: pass
 - owner: agent
 
 ## Objective
@@ -22,24 +22,24 @@ authoritative owner instead of becoming retrospective review inventions.
 
 | Question | Answer |
 |---|---|
-| What is known? | The completed UX-intent slice exposed the same upstream-authority problem across Task Plan, Clean and Code Review; one shared Quality Contract can own the taxonomy. |
-| What is approved? | Revision-14 UR, revision-15 PRD, revision-16 SD, revision-17 TP and revision-19 QA are approved; all implementation and reviews pass. |
-| What is missing? | Exact `Approval: UAT`. |
-| What is the next allowed action? | Review the refreshed UAT evidence and accept or request revision. |
-| What is explicitly forbidden right now? | Release and automatic VCS work before UAT acceptance. |
+| What is known? | UX intent is defined proportionally before PRD readiness, one shared Quality Contract owns review-gap routing, and QA consumes fidelity/findings without becoming a requirements owner. |
+| What is approved? | UR, PRD, SD, TP, QA and UAT are approved; OR-full records `pass`. |
+| What is missing? | No governance artefact or approval; authenticated host behavior remains intentionally unclaimed. |
+| What is the next allowed action? | Use delivery closeout only when a VCS handoff is explicitly requested. |
+| What is explicitly forbidden right now? | Automatic commit, push, PR or release without separate explicit instruction. |
 
 ## Run Status Card
 
 | Run status | Value |
 |---|---|
-| Status | open |
-| Current gate | UAT |
-| Allowed now | Review the refreshed UAT evidence and decide acceptance |
-| Blocked by | exact UAT approval |
-| Missing approval | `Approval: UAT` |
-| Next gate after completion | OR + delivery closeout |
-| Allowed after completion | Produce final Orchestration Report and offer an explicit delivery action |
-| Next step | Approve with exact `Approval: UAT` or request revision |
+| Status | pass |
+| Current gate | OR |
+| Allowed now | Report completed delivery state; use delivery closeout only on explicit VCS instruction |
+| Blocked by | none |
+| Missing approval | none |
+| Next gate after completion | none |
+| Allowed after completion | Offer an explicit delivery action; VCS and release remain separately authorized |
+| Next step | No governance work remains; VCS and release actions require separate explicit instruction |
 | Quality outlook | A shared gap contract can prevent every review skill from inventing missing upstream obligations independently |
 
 ## Approvals
@@ -51,7 +51,7 @@ authoritative owner instead of becoming retrospective review inventions.
 | SD | approved | Exact `Approval: SD` accepted on 2026-07-19 after same-run, same-gate and revision-16 revalidation. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-07-19 after same-run, same-gate and revision-17 revalidation. |
 | QA | approved | Exact `Approval: QA` accepted on 2026-07-19 after canonical presentation and same-run/gate/revision-19 revalidation. |
-| UAT | missing |  |
+| UAT | approved | Exact `Approval: UAT` accepted on 2026-08-20 after selected-run, same-gate, revision-20 and durable-evidence revalidation. |
 
 ## Artefacts
 
@@ -68,7 +68,8 @@ authoritative owner instead of becoming retrospective review inventions.
 | Clean Review | .agdf/control/artefacts/prd-ux-intent-requirements/CLEAN_IMPLEMENTATION_REVIEW.md | done | Revision 18 passes with one taxonomy owner and no fallback/parallel structure. |
 | CR | .agdf/control/artefacts/prd-ux-intent-requirements/CODE_REVIEW.md | done | Revision 18 passes with no findings. |
 | QA | .agdf/control/artefacts/prd-ux-intent-requirements/QA_REPORT.md | pass | Revision 18 QA pass received exact revision-19 approval. |
-| UAT Evidence | .agdf/control/artefacts/prd-ux-intent-requirements/UAT_EVIDENCE.md | ready | Refreshed for UX intent, Pages and normalized review-gap acceptance. |
+| UAT Evidence | .agdf/control/artefacts/prd-ux-intent-requirements/UAT_EVIDENCE.md | approved | Exact UAT acceptance recorded with the repository-versus-live-host evidence boundary retained. |
+| OR | .agdf/control/artefacts/prd-ux-intent-requirements/OR.md | pass | OR-full closes the run with 19/19 tasks, passing reviews, approved QA/UAT and resolved Context Graph impact. |
 
 ## Mode / Slice Decision
 
@@ -98,6 +99,8 @@ authoritative owner instead of becoming retrospective review inventions.
 | QA_REPORT | tests | TP | Ready pass QA Report consumes 25/25 fulfilled UX Intent Fidelity rows and all mandatory reviews |
 | QA_REPORT | approved_by | `Approval: QA` | Renewed exact approval accepted on 2026-07-19 after same-run/gate/revision-12 revalidation |
 | UAT Evidence | evidenced_by | QA_REPORT | Ready acceptance summary preserves the repository-versus-live-host evidence boundary |
+| UAT | approved_by | `Approval: UAT` | Exact approval accepted on 2026-08-20 after selected-run, same-gate, revision-20 and durable-evidence revalidation |
+| OR | verifies | full run | OR-full records delivered and intentionally deferred scope, accepted evidence boundaries and `pass` closeout |
 
 ## Evidence
 
@@ -111,7 +114,7 @@ authoritative owner instead of becoming retrospective review inventions.
 
 ## Missing Evidence
 
-- Exact UAT approval.
+- No missing evidence within the accepted repository-contract scope; authenticated live-host execution remains explicitly unclaimed.
 
 ## Risks
 
@@ -137,5 +140,5 @@ authoritative owner instead of becoming retrospective review inventions.
 
 ## Closeout
 
-- next_allowed_action: Review the refreshed UAT evidence and provide exact `Approval: UAT` or request revision.
+- next_allowed_action: No further governance step; use delivery closeout only after explicit VCS instruction.
 - quality_outlook: Normalize review gaps once, keep upstream artefacts authoritative and preserve reviews as evidence rather than retrospective specification owners.

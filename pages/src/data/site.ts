@@ -108,7 +108,7 @@ export const landingPage = {
         ],
         publicPlugin: {
             title: "AGDF for ChatGPT and Codex",
-            summary: "The Skills-only public candidate shares AGDF's portable workflow skills without adding an AGDF-operated MCP server, account, telemetry or hosted service.",
+            summary: "The Skills-only public candidate shares AGDF workflow skills with repository-verified core-format and plugin-scoped resource checks, without adding an AGDF-operated MCP server, account, telemetry or hosted service. Individual standalone skills and identical cross-host behavior are not claimed.",
             advisory: "Status: Advisory until verified. ChatGPT behavior must be checked for the exact release and host setup.",
             enforcement: "Installation alone does not prove enforcement. Repository files, local checks and hooks still depend on host features, permissions, trust and active AGDF control files.",
             authority: "OpenAI owns verified publisher identity, review, effective availability and listing state. Only OpenAI can confirm those platform states. AGDF is an independent project and not an OpenAI product.",
@@ -146,7 +146,7 @@ export const landingPage = {
         limits: [
             "Not autonomous shipping without human approval. AGDF structures each step but does not give release authority to an agent.",
             "Not a compliance certificate or legal assessment. Teams must identify their own obligations and seek qualified advice when needed.",
-            "Not an AGDF-operated service, account or telemetry platform. The public candidate is distributed as portable skills and repository controls.",
+            "Not an AGDF-operated service, account or telemetry platform. The public candidate is distributed as a checked plugin-scoped skills bundle and repository controls; individual standalone skills and identical cross-host behavior are not claimed.",
             "Not a substitute for experienced developers and reviewers. Clear documentation cannot repair weak requirements, tests or decisions.",
         ],
         decisionOwners: [

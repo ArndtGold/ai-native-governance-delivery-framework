@@ -10,6 +10,7 @@
 | Release-built plugin composition and durable marketplace staging | create-agdf/scripts/sync-package-assets.js; create-agdf/lib/installers/local-marketplace.js; create-agdf/lib/installers/plugin-installers.js | active | AGDF | 2026-07-18 |
 | Control templates | plugin/control/templates/ | active | AGDF | 2026-07-08 |
 | Skill routing | plugin/meta/agdf-plugin.definition.json | active | AGDF | 2026-07-18 |
+| Agent Skills conformance baseline and plugin-scoped portability policy | plugin/meta/agent-skills-conformance.json | active | AGDF | 2026-08-19 |
 | Public conduct, contribution, security, support and maintainer governance | CODE_OF_CONDUCT.md; CONTRIBUTING.md; SECURITY.md; SUPPORT.md; GOVERNANCE.md | active | Arndt Gold | 2026-07-23 |
 | GitHub community interaction adapters | .github/ISSUE_TEMPLATE/; .github/pull_request_template.md; .github/CODEOWNERS | active | Arndt Gold | 2026-07-23 |
 | GitHub repository metadata desired state | .github/repository-metadata.json; assets/github-social-preview.png | active | Arndt Gold | 2026-07-23 |

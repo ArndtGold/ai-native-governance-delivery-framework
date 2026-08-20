@@ -84,6 +84,14 @@ function resolveLayout() {
 
 const { mode: validationMode, repoRoot, pluginRoot } = resolveLayout();
 const sourceMode = validationMode === "source";
+let validateAgentSkillsConformance;
+try {
+  ({ validateAgentSkillsConformance } = await import("./agent-skills-conformance.mjs"));
+} catch {
+  console.error("[agdf-runtime-integrity] FAIL");
+  console.error("- AGDF_AGENT_SKILLS_VALIDATOR_MISSING: scripts/agent-skills-conformance.mjs must be present and loadable");
+  process.exit(1);
+}
 const marketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
@@ -656,6 +664,18 @@ if (interactionLocales) {
   }
 }
 
+const agentSkillsConformance = validateAgentSkillsConformance({
+  pluginRoot,
+  surfaceRoot: pluginRoot,
+  surface: sourceMode ? "source" : "plugin",
+});
+for (const conformanceFinding of agentSkillsConformance.findings) {
+  const detail = [conformanceFinding.skillPath, conformanceFinding.resource].filter(Boolean).join(" -> ");
+  const rendered = `${conformanceFinding.code} [${conformanceFinding.classification}]${detail ? ` ${detail}` : ""}: ${conformanceFinding.message}`;
+  if (conformanceFinding.severity === "error") failures.push(rendered);
+  else console.warn(`[agdf-runtime-integrity] advisory: ${rendered}`);
+}
+
 if (isFile(pagesSkillsPath)) {
   failures.push("Pages must not maintain a duplicate skill catalogue; use the canonical plugin definition and handbook");
 }
@@ -971,22 +991,6 @@ for (const skill of expectedSkills) {
 
   const skillMd = read(skillPath);
   const helpMd = read(helpPath);
-  const frontmatter = skillMd.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!frontmatter) {
-    failures.push(`${skill}/SKILL.md missing YAML frontmatter`);
-  } else {
-    if (!frontmatter[1].includes(`name: ${skill}`)) failures.push(`${skill}/SKILL.md frontmatter name mismatch`);
-    const descriptionLine = frontmatter[1].split(/\r?\n/).find((line) => line.startsWith("description:"));
-    const descriptionValue = descriptionLine?.slice("description:".length).trim() ?? "";
-    const unquotedDescription = descriptionValue.replace(/^(["'])(.*)\1$/, "$2");
-    if (!/^Use this skill/i.test(unquotedDescription)) failures.push(`${skill}/SKILL.md description should be English and start with "Use this skill"`);
-    if (!/^["']/.test(descriptionValue) && descriptionValue.includes(": ")) {
-      failures.push(`${skill}/SKILL.md description contains an unquoted colon-space sequence that Claude Code rejects as YAML`);
-    }
-  }
-  if (!skillMd.includes("../../meta/contracts/")) {
-    failures.push(`${skill}/SKILL.md missing focused runtime contract module reference`);
-  }
   if (skill === "gate-check") {
     for (const required of [
       "## Native Interaction Path",

@@ -9,6 +9,7 @@ const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const sourcePluginRoot = join(repoRoot, "plugin");
 const generatedPluginRoot = join(repoRoot, "create-agdf", "generated", "plugins", "agdf");
 const sourceIntegrityScript = join(sourcePluginRoot, "scripts", "check-runtime-integrity.mjs");
+const sourceAgentSkillsScript = join(sourcePluginRoot, "scripts", "agent-skills-conformance.mjs");
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-integrity-layout-"));
 const installedPluginRoot = join(fixtureRoot, "installed-agdf");
 
@@ -54,6 +55,7 @@ try {
   mkdirSync(join(partialRoot, "scripts"), { recursive: true });
   const partialScript = join(partialRoot, "scripts", "check-runtime-integrity.mjs");
   copyFileSync(sourceIntegrityScript, partialScript);
+  copyFileSync(sourceAgentSkillsScript, join(partialRoot, "scripts", "agent-skills-conformance.mjs"));
   const partial = runIntegrity(partialScript);
   assert.notEqual(partial.status, 0, "partial installed layout must fail closed");
   assert.match(combinedOutput(partial), /AGDF_RUNTIME_INTEGRITY_LAYOUT_INVALID/);

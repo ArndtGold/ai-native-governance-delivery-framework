@@ -19,6 +19,8 @@ const brownfieldSkillPath = join(fixtureRoot, "plugin", "skills", "brownfield-an
 const cleanReviewPath = join(fixtureRoot, "plugin", "skills", "clean-implementation-review", "SKILL.md");
 const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
+const agentSkillsPolicyPath = join(fixtureRoot, "plugin", "meta", "agent-skills-conformance.json");
+const agentSkillsValidatorPath = join(fixtureRoot, "plugin", "scripts", "agent-skills-conformance.mjs");
 
 function copyPluginFixture() {
   const source = join(repoRoot, "plugin");
@@ -56,6 +58,22 @@ try {
   mkdirSync(join(fixtureRoot, "plugin", "runtime"));
   writeFileSync(join(fixtureRoot, "plugin", "runtime", "runtime-manifest.json"), "{}\n");
   expectIntegrityFailure(/source plugin must not contain generated runtime/);
+
+  resetPluginFixture();
+  unlinkSync(agentSkillsValidatorPath);
+  expectIntegrityFailure(/AGDF_AGENT_SKILLS_VALIDATOR_MISSING/);
+
+  resetPluginFixture();
+  unlinkSync(agentSkillsPolicyPath);
+  expectIntegrityFailure(/AGDF_SKILL_POLICY_UNREADABLE/);
+
+  resetPluginFixture();
+  writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replace("name: gate-check", "name: gate--check"),
+    "utf8",
+  );
+  expectIntegrityFailure(/AGENT_SKILLS_NAME_INVALID \[standard_strict\]/);
 
   resetPluginFixture();
   unlinkSync(templatePath);

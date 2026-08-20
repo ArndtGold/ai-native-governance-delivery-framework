@@ -91,6 +91,9 @@ const protectedPhrases = [
   "Installation alone does not prove enforcement",
   "OpenAI owns verified publisher identity",
   "not an OpenAI product",
+  "plugin-scoped resource checks",
+  "Individual standalone skills",
+  "identical cross-host behavior",
 ];
 
 function validateProtectedCopy(text) {

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "2026-08-19",
+  "baseline": {
+    "id": "agent-skills-core-format",
+    "specificationUrl": "https://agentskills.io/specification",
+    "reviewedAt": "2026-08-19"
+  },
+  "classifications": [
+    "standard_strict",
+    "upstream_advisory",
+    "agdf_policy"
+  ],
+  "frontmatterProfile": {
+    "requiredFields": [
+      "name",
+      "description"
+    ],
+    "allowedFields": [
+      "name",
+      "description"
+    ],
+    "scalarStyles": [
+      "plain",
+      "single_quoted",
+      "double_quoted"
+    ]
+  },
+  "strictRules": {
+    "nameMaxCodePoints": 64,
+    "descriptionMaxCodePoints": 1024,
+    "namePattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "nameMustMatchParent": true
+  },
+  "advisoryRules": {
+    "skillMdMaxLines": 500
+  },
+  "agdfRules": {
+    "descriptionStartsWith": "Use this skill",
+    "requiresRuntimeContractResource": true
+  },
+  "surfaces": {
+    "source": {
+      "skillsRoot": "skills",
+      "sharedResourceRoots": [
+        "meta/contracts"
+      ],
+      "skillPrefixOwner": "codex",
+      "ignoredSkillEntries": []
+    },
+    "plugin": {
+      "skillsRoot": "skills",
+      "sharedResourceRoots": [
+        "meta/contracts"
+      ],
+      "skillPrefixOwner": "codex",
+      "ignoredSkillEntries": []
+    },
+    "copilot": {
+      "skillsRoot": ".",
+      "sharedResourceRoots": [
+        "contracts"
+      ],
+      "skillPrefixOwner": "copilot",
+      "ignoredSkillEntries": [
+        "contracts"
+      ]
+    },
+    "opencode": {
+      "skillsRoot": "skills",
+      "sharedResourceRoots": [
+        "contracts"
+      ],
+      "skillPrefixOwner": "opencode",
+      "ignoredSkillEntries": []
+    },
+    "public_candidate": {
+      "skillsRoot": "skills",
+      "sharedResourceRoots": [
+        "meta/contracts"
+      ],
+      "skillPrefixOwner": "codex",
+      "ignoredSkillEntries": []
+    }
+  }
+}

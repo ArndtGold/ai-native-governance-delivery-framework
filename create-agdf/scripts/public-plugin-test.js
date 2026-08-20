@@ -20,6 +20,10 @@ const availabilityRecord = readFileSync(join(pluginRoot, "submission", "openai",
 const expectedLongDescription = "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.";
 
 assert.deepEqual(validatePublicPluginContract({ definition, capabilityMatrix, reviewerCases, releaseNotes }), []);
+const portableSkillsCapability = capabilityMatrix.capabilities.find(({ id }) => id === "chatgpt-portable-skills");
+for (const requiredBoundary of ["core-format profile", "within the plugin", "standalone installation", "host behavior remain unverified"]) {
+  assert.equal(portableSkillsCapability?.description.includes(requiredBoundary), true, `portable-skills capability must preserve ${requiredBoundary}`);
+}
 assert.equal(availabilityRecord.includes(`- release: \`${definition.version}\``), true, "availability release must match definition");
 assert.equal(unicodeLength(definition.publicDistribution.publicDisplayName), 4);
 assert.equal(unicodeLength(definition.publicDistribution.shortDescription), 29);

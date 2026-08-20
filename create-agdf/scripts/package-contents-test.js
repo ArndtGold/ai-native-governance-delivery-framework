@@ -22,6 +22,8 @@ const required = [
   "generated/plugins/agdf/runtime/create-agdf/bin/agdf-validator.js",
   "generated/plugins/agdf/runtime/create-agdf/lib/runtime/validator-application.js",
   "generated/plugins/agdf/scripts/check-runtime-integrity.mjs",
+  "generated/plugins/agdf/scripts/agent-skills-conformance.mjs",
+  "generated/plugins/agdf/meta/agent-skills-conformance.json",
   "generated/plugins/agdf/skills/ux-intent-definition/SKILL.md",
   "generated/plugins/agdf/skills/ux-intent-definition/help.md",
   "generated/plugins/agdf/control/templates/artefacts/UX_INTENT_DEFINITION.md",

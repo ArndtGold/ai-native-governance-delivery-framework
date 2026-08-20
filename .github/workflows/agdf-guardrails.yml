@@ -56,4 +56,4 @@ jobs:
         run: npm --prefix pages ci
 
       - name: Verify Pages
-        run: npm --prefix pages run check && npm --prefix pages run test:public-documents
+        run: npm --prefix pages run check && npm --prefix pages run test:landing && npm --prefix pages run test:public-documents

@@ -558,9 +558,15 @@ export function buildApprovalOrientationSnapshot({
   const primaryHeading = String(pack.gateActionTitles?.[gate] ?? "").trim();
   const artefactRefs = Object.freeze([...(humanPresentation.artefactRefs ?? [])].map((ref) => Object.freeze({ ...ref })));
   const nextGate = String(statusCard.next_gate_after_approval ?? "none");
+  const nextUserGate = String(statusCard.next_user_gate ?? "").trim();
+  const userActionRequired = String(statusCard.user_action_required ?? "").trim();
+  const userActionSemanticsValid = (userActionRequired === "no" && nextUserGate === "none")
+    || (userActionRequired === "yes" && REQUIRED_GATES.includes(nextUserGate) && nextGate === nextUserGate);
+  if (!userActionSemanticsValid) return null;
   const narration = pack.primary.narration.gates[gate] ?? {};
-  const nextDecision = narration.userAction
-    || (nextGate === "none" ? pack.primary.narration.noAction : `${pack.gateTitles[nextGate] ?? nextGate} ${pack.interaction.decisionFollows}`);
+  const nextDecision = userActionRequired === "no"
+    ? pack.primary.narration.noAction
+    : narration.userAction || `${pack.gateTitles[nextUserGate] ?? nextUserGate} ${pack.interaction.decisionFollows}`;
   const statusFields = Object.freeze([
     Object.freeze({ id: "selected_run", label: pack.statusCard.run, value: `${runTitle} · \`${runId}\`` }),
     Object.freeze({ id: "readiness_status", label: pack.statusCard.title, value: pack.interaction.ready }),
@@ -655,8 +661,9 @@ export function validateApprovalOrientationSnapshot(snapshot, { registry, expect
     const localizedGateTitle = gateTitle(registry, locale, gate);
     const nextGate = String(snapshot.gate_transition_card?.next_gate ?? "none");
     const narration = pack.primary.narration.gates[gate] ?? {};
-    const nextDecision = narration.userAction
-      || (nextGate === "none" ? pack.primary.narration.noAction : `${pack.gateTitles[nextGate] ?? nextGate} ${pack.interaction.decisionFollows}`);
+    const nextDecision = REQUIRED_GATES.includes(nextGate)
+      ? narration.userAction || `${pack.gateTitles[nextGate] ?? nextGate} ${pack.interaction.decisionFollows}`
+      : pack.primary.narration.noAction;
     const nextTransition = `${narration.agentNext ?? pack.primary.actions[gate] ?? ""}. ${nextDecision}.`;
     const localeConsistent = resolvePresentationLocale(registry, locale) === locale
       && heading === pack.gateActionTitles?.[gate]

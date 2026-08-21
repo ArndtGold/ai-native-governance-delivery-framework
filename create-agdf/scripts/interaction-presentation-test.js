@@ -28,7 +28,7 @@ import {
   validateLocaleRegistry,
   validateApprovalOrientationSnapshot,
 } from "../lib/interaction-presentation.js";
-import { printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
+import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 
@@ -138,11 +138,12 @@ assert.equal(reconciliation.matches[0].run_id, "beta-run");
 assert.equal(reconcileRunScope({ scopeKey: "Closed title", runs: [
   { run_id: "closed", valid: true, meta: { lifecycle: "completed", current_gate: "OR" }, ur_heading: "# Closed title" },
 ] }).outcome, "completed_match");
+const approvalTransitionForGate = (gate) => postApprovalTransition(`Approval: ${gate}`);
 let nativeCalls = 0;
 let fallbackCalls = 0;
 const preflightSnapshot = buildApprovalOrientationSnapshot({
   ready: true,
-  statusCard: { run_id: "alpha-run", status: "open", current_gate: "UR", missing_approval: "Approval: UR" },
+  statusCard: { run_id: "alpha-run", status: "open", current_gate: "UR", missing_approval: "Approval: UR", ...approvalTransitionForGate("UR") },
   humanPresentation: { runTitle: "Alpha run", gateTitle: gateTitle(registry, "de", "UR"), artefactRefs: refs },
   revisionId: "preflight-revision",
   registry,
@@ -199,7 +200,7 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     status: "open",
     current_gate: gate,
     missing_approval: `Approval: ${gate}`,
-    next_gate_after_approval: gate === "UAT" ? "OR" : "next",
+    ...approvalTransitionForGate(gate),
     next_step: "Continue with the current approved transition.",
   };
   const snapshot = buildApprovalOrientationSnapshot({
@@ -251,6 +252,62 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(rendered.authorizes, false);
 }
 
+for (const locale of ["en", "de"]) {
+  for (const gate of ["UR", "TP"]) {
+    const snapshot = buildApprovalOrientationSnapshot({
+      ready: true,
+      statusCard: {
+        run_id: `internal-${gate.toLowerCase()}`,
+        status: "open",
+        current_gate: gate,
+        missing_approval: `Approval: ${gate}`,
+        ...approvalTransitionForGate(gate),
+      },
+      humanPresentation: { runTitle: `Internal ${gate}`, gateTitle: gateTitle(registry, locale, gate), artefactRefs: refs },
+      revisionId: `internal-${locale}-${gate}`,
+      registry,
+      requestedLocale: locale,
+    });
+    const noAction = registry.locales[locale].primary.narration.noAction;
+    assert.equal(snapshot.gate_transition_card.next_gate, approvalTransitionForGate(gate).next_gate_after_approval);
+    assert.ok(snapshot.gate_transition_card.next_transition.includes(noAction), `${locale} ${gate} uses no-action narration`);
+    assert.equal(snapshot.gate_transition_card.next_transition.includes(registry.locales[locale].interaction.decisionFollows), false);
+    assert.deepEqual(validateApprovalOrientationSnapshot(snapshot, { registry }), { valid: true, errors: [] });
+  }
+
+  const userGateSnapshot = buildApprovalOrientationSnapshot({
+    ready: true,
+    statusCard: {
+      run_id: "user-gate-prd",
+      status: "open",
+      current_gate: "PRD",
+      missing_approval: "Approval: PRD",
+      ...approvalTransitionForGate("PRD"),
+    },
+    humanPresentation: { runTitle: "User gate PRD", gateTitle: gateTitle(registry, locale, "PRD"), artefactRefs: refs },
+    revisionId: `user-gate-${locale}`,
+    registry,
+    requestedLocale: locale,
+  });
+  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].interaction.decisionFollows));
+  assert.equal(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.noAction), false);
+  assert.deepEqual(validateApprovalOrientationSnapshot(userGateSnapshot, { registry }), { valid: true, errors: [] });
+}
+
+for (const statusCard of [
+  { run_id: "contradictory-no", status: "open", current_gate: "UR", missing_approval: "Approval: UR", next_gate_after_approval: "Brownfield Review", next_user_gate: "SD", user_action_required: "no" },
+  { run_id: "contradictory-yes", status: "open", current_gate: "UR", missing_approval: "Approval: UR", next_gate_after_approval: "Brownfield Review", next_user_gate: "SD", user_action_required: "yes" },
+]) {
+  assert.equal(buildApprovalOrientationSnapshot({
+    ready: true,
+    statusCard,
+    humanPresentation: { runTitle: "Contradictory", gateTitle: gateTitle(registry, "en", "UR"), artefactRefs: refs },
+    revisionId: "contradictory",
+    registry,
+    requestedLocale: "en",
+  }), null, "contradictory user-action semantics must fail closed");
+}
+
 for (const [mutation, expectedError] of [
   [(snapshot) => { snapshot.sequence = ["gate_transition_card", "run_status_card", "approval_interaction"]; }, "sequence"],
   [(snapshot) => { snapshot.compact_status_card.semantic_block = "combined_card"; }, "run_status_card"],
@@ -299,6 +356,7 @@ for (const [mutation, expectedError] of [
 }
 
 const readyStatus = { run_id: "r", status: "open", current_gate: "QA", missing_approval: "Approval: QA" };
+Object.assign(readyStatus, approvalTransitionForGate("QA"));
 const readyHuman = { runTitle: "Run", gateTitle: "QA", artefactRefs: [] };
 assert.equal(buildApprovalOrientationSnapshot({ ready: false, statusCard: readyStatus, humanPresentation: readyHuman, registry, requestedLocale: "en" }), null);
 assert.equal(buildApprovalOrientationSnapshot({ ready: true, statusCard: { ...readyStatus, status: "blocked" }, humanPresentation: readyHuman, registry, requestedLocale: "en" }), null);
@@ -450,7 +508,7 @@ delete missingWhy.locales.en.interaction.why;
 assert.equal(validateLocaleRegistry(missingWhy).valid, false, "missing interaction.why in en causes validation failure");
 
 for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
-  const statusCard = { run_id: "r", status: "open", current_gate: gate, missing_approval: `Approval: ${gate}`, next_gate_after_approval: "next", next_step: "Continue." };
+  const statusCard = { run_id: "r", status: "open", current_gate: gate, missing_approval: `Approval: ${gate}`, ...approvalTransitionForGate(gate), next_step: "Continue." };
   const snapshot = buildApprovalOrientationSnapshot({ ready: true, statusCard, humanPresentation: { runTitle: "Run", gateTitle: gate, artefactRefs: refs }, revisionId: "rev", registry, requestedLocale: "de" });
   assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] }, `snapshot valid for ${gate} with gateRationale present`);
 }

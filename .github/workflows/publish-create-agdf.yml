@@ -1,0 +1,63 @@
+name: Publish create-agdf
+
+on:
+  push:
+    tags:
+      - "create-agdf-v*"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Verify release tag matches package version
+        shell: bash
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          PACKAGE_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./create-agdf/package.json', 'utf8')).version")"
+          EXPECTED_TAG="create-agdf-v${PACKAGE_VERSION}"
+          if [ "${TAG_NAME}" != "${EXPECTED_TAG}" ]; then
+            echo "Tag ${TAG_NAME} does not match ${EXPECTED_TAG}" >&2
+            exit 1
+          fi
+
+      - name: Verify AGDF runtime and plugin metadata
+        run: node plugin/scripts/check-runtime-integrity.mjs
+
+      - name: Run create-agdf smoke test
+        working-directory: create-agdf
+        run: npm run smoke-test
+
+      - name: Verify npm package contents
+        working-directory: create-agdf
+        run: npm pack --dry-run
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish create-agdf to npm
+        working-directory: create-agdf
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance

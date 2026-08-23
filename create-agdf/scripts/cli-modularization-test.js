@@ -197,7 +197,7 @@ function prepareMarketplace() {
   assert.deepEqual(recording.calls.map(({ command, args }) => [command, args]), [
     ["codex", ["plugin", "marketplace", "list", "--json"]],
     ["codex", ["plugin", "marketplace", "add", fakeMarketplaceRoot, "--json"]],
-    ["codex", ["plugin", "add", "agdf", "--marketplace", "agdf"]],
+    ["codex", ["plugin", "add", "agdf@agdf", "--json"]],
     ["codex", ["plugin", "list"]],
   ]);
   assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["pipe", "pipe", "pipe", "pipe"]);

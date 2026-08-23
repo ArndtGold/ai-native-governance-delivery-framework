@@ -70,3 +70,31 @@ export function createClaudePluginManifest(definition) {
 export function renderClaudePluginManifest(definition) {
   return `${JSON.stringify(createClaudePluginManifest(definition), null, 2)}\n`;
 }
+
+export function createRepositoryCodexMarketplace(definition) {
+  const distribution = publicValues(definition);
+  return {
+    name: definition.id,
+    interface: {
+      displayName: distribution.publicDisplayName,
+    },
+    plugins: [
+      {
+        name: definition.id,
+        source: {
+          source: "local",
+          path: "./plugin",
+        },
+        policy: {
+          installation: "AVAILABLE",
+          authentication: "ON_INSTALL",
+        },
+        category: definition.category,
+      },
+    ],
+  };
+}
+
+export function renderRepositoryCodexMarketplace(definition) {
+  return `${JSON.stringify(createRepositoryCodexMarketplace(definition), null, 2)}\n`;
+}

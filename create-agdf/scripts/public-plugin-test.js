@@ -5,7 +5,11 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildPublicPluginCandidate } from "../lib/public-plugin/builder.js";
 import { LISTING_LIMITS, loadJson, unicodeLength, validatePublicPluginContract } from "../lib/public-plugin/contract.js";
-import { renderClaudePluginManifest, renderCodexPluginManifest } from "../lib/public-plugin/manifest.js";
+import {
+  renderClaudePluginManifest,
+  renderCodexPluginManifest,
+  renderRepositoryCodexMarketplace,
+} from "../lib/public-plugin/manifest.js";
 import { inventory, validateCandidate } from "../lib/public-plugin/validator.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -67,6 +71,10 @@ const claudeManifest = readFileSync(join(pluginRoot, ".claude-plugin", "plugin.j
 assert.equal(claudeManifest, renderClaudePluginManifest(definition), "source Claude manifest must be a canonical projection");
 const localManifest = JSON.parse(sourceManifest);
 const localClaudeManifest = JSON.parse(claudeManifest);
+const repositoryCodexMarketplace = readFileSync(join(repoRoot, ".agents", "plugins", "marketplace.json"), "utf8");
+const repositoryClaudeMarketplace = loadJson(join(repoRoot, ".claude-plugin", "marketplace.json"));
+assert.equal(repositoryCodexMarketplace, renderRepositoryCodexMarketplace(definition), "source-checkout Codex Marketplace must be a canonical projection");
+assert.equal(Object.hasOwn(repositoryClaudeMarketplace, "interface"), false, "Claude Marketplace must not receive Codex-only interface metadata");
 assert.equal(localManifest.interface.displayName, "AI Governance & Delivery Framework");
 assert.equal(localManifest.interface.shortDescription, "Control layer for governed AI-assisted delivery.");
 assert.equal(localManifest.interface.longDescription, expectedLongDescription);

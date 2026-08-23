@@ -19,6 +19,7 @@ const MARKETPLACE_ID = "agdf";
 const OWNERSHIP_FILE = ".agdf-owned.json";
 const LOCAL_INSTALL_FILE = ".agdf-local-install.json";
 const LEGACY_REPOSITORY = "arndtgold/ai-native-governance-delivery-framework";
+export const CODEX_REGISTRATION_REVISION = 1;
 
 function pathInside(root, candidate) {
   const rel = relative(root, candidate);
@@ -136,13 +137,20 @@ function writeJson(path, value) {
 function codexMarketplace(definition = pluginDefinition) {
   return {
     name: MARKETPLACE_ID,
-    interface: { displayName: definition.displayName },
+    interface: { displayName: definition.publicDistribution.publicDisplayName },
     plugins: [{
       name: definition.id,
       source: { source: "local", path: "./plugins/agdf" },
       policy: { installation: "AVAILABLE", authentication: "ON_INSTALL" },
       category: definition.category,
     }],
+  };
+}
+
+function legacyCodexMarketplace(definition = pluginDefinition) {
+  return {
+    ...codexMarketplace(definition),
+    interface: { displayName: definition.displayName },
   };
 }
 
@@ -207,12 +215,19 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
 function validateMarketplaceRoot(root, definition = pluginDefinition) {
   const codex = readJson(join(root, ".agents", "plugins", "marketplace.json"), "Codex local marketplace manifest");
   const claude = readJson(join(root, ".claude-plugin", "marketplace.json"), "Claude local marketplace manifest");
-  if (JSON.stringify(codex) !== JSON.stringify(codexMarketplace(definition))) {
+  const serializedCodex = JSON.stringify(codex);
+  const codexShape = serializedCodex === JSON.stringify(codexMarketplace(definition))
+    ? "current"
+    : serializedCodex === JSON.stringify(legacyCodexMarketplace(definition))
+      ? "legacy_full_product_label"
+      : "invalid";
+  if (codexShape === "invalid") {
     throw new Error(`Codex local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
   }
   if (JSON.stringify(claude) !== JSON.stringify(claudeMarketplace(definition))) {
     throw new Error(`Claude local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
   }
+  return Object.freeze({ codexShape });
 }
 
 function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot) {
@@ -236,6 +251,7 @@ export function prepareLocalMarketplace({
   builtPluginRoot = join(generatedRoot, "plugins", "agdf"),
   expectedVersion = pluginDefinition.version,
   codexInstallVersion = expectedVersion,
+  codexRegistrationRevision = null,
 } = {}) {
   dataRoot = resolve(dataRoot);
   builtPluginRoot = resolve(builtPluginRoot);
@@ -255,6 +271,10 @@ export function prepareLocalMarketplace({
   recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot);
 
   const existing = existsSync(stableRoot) ? ownership(stableRoot) : null;
+  const targetCodexRegistrationRevision = codexRegistrationRevision
+    ?? existing?.codex_registration_revision
+    ?? 0;
+  let existingMarketplace = null;
   if (existing) {
     const existingPluginRoot = join(stableRoot, "plugins", MARKETPLACE_ID);
     const existingCodexInstallVersion = existing.codex_install_version ?? existing.version;
@@ -264,7 +284,7 @@ export function prepareLocalMarketplace({
       existingCodexInstallVersion,
       existing.source_digest ?? "",
     );
-    validateMarketplaceRoot(stableRoot, existingDefinition);
+    existingMarketplace = validateMarketplaceRoot(stableRoot, existingDefinition);
     if (digestDirectory(existingPluginRoot) !== existing.plugin_digest) {
       throw new Error(`Refusing tampered AGDF marketplace root: ${stableRoot}`);
     }
@@ -275,6 +295,7 @@ export function prepareLocalMarketplace({
       schema_version: 1,
       owner: "create-agdf",
       marketplace_id: MARKETPLACE_ID,
+      codex_registration_revision: targetCodexRegistrationRevision,
       version: expectedVersion,
       codex_install_version: codexInstallVersion,
       source_digest: sourceDigest,
@@ -306,6 +327,7 @@ export function prepareLocalMarketplace({
       schema_version: 1,
       owner: "create-agdf",
       marketplace_id: MARKETPLACE_ID,
+      codex_registration_revision: targetCodexRegistrationRevision,
       version: expectedVersion,
       codex_install_version: codexInstallVersion,
       source_digest: sourceDigest,
@@ -315,7 +337,10 @@ export function prepareLocalMarketplace({
     };
     writeJson(join(stageRoot, OWNERSHIP_FILE), marker);
 
-    if (existing?.version === expectedVersion && existing?.plugin_digest === pluginDigest) {
+    if (existing?.version === expectedVersion
+        && existing?.plugin_digest === pluginDigest
+        && existing?.codex_registration_revision === targetCodexRegistrationRevision
+        && existingMarketplace?.codexShape === "current") {
       removeOwnedRoot(stageRoot, parent);
       return Object.freeze({
         root: stableRoot,

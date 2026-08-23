@@ -140,7 +140,7 @@ try {
   assert.equal(installed.expectedVersion, localVersion);
   assert.equal(installed.canonicalVersion, pluginDefinition.version);
   assert.equal(installed.installedVersion, localVersion);
-  assert.equal(codexCalls.includes("codex plugin add agdf --marketplace agdf"), true);
+  assert.equal(codexCalls.includes("codex plugin add agdf@agdf --json"), true);
   assert.equal(inspectPluginSurface("codex", () => `agdf@agdf ${localVersion}\n`, { dataRoot: marketplaceDataRoot }).status, "healthy");
   assert.equal(inspectPluginSurface("codex", () => `agdf@agdf ${localVersion}\n`, { dataRoot: join(fixtureRoot, "missing-marketplace") }).status, "degraded");
   assert.equal(inspectPluginSurface("codex", () => `agdf@agdf ${pluginDefinition.version}+codex.local-ffffffffffff\n`, { dataRoot: marketplaceDataRoot }).status, "degraded");

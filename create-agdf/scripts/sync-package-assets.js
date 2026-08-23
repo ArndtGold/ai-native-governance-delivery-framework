@@ -2,7 +2,11 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync }
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
-import { renderClaudePluginManifest, renderCodexPluginManifest } from "../lib/public-plugin/manifest.js";
+import {
+  renderClaudePluginManifest,
+  renderCodexPluginManifest,
+  renderRepositoryCodexMarketplace,
+} from "../lib/public-plugin/manifest.js";
 import { buildPublicPluginCandidate } from "../lib/public-plugin/builder.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -12,6 +16,7 @@ const sourceAgentsPath = join(repoRoot, "plugin", "meta", "agdf-agent-router.md"
 const sourceSkillsRoot = join(repoRoot, "plugin", "skills");
 const sourceControlRoot = join(repoRoot, "plugin", "control");
 const sourcePluginRoot = join(repoRoot, "plugin");
+const sourceRepositoryCodexMarketplacePath = join(repoRoot, ".agents", "plugins", "marketplace.json");
 const sourceRuntimeContractPath = join(repoRoot, "plugin", "meta", "agdf-runtime-contract.md");
 const sourceContractsRoot = join(repoRoot, "plugin", "meta", "contracts");
 const contractModules = [
@@ -399,6 +404,7 @@ function main() {
   // plugin. Host manifests are generated projections, never independent metadata owners.
   write(join(sourcePluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition));
   write(join(sourcePluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition));
+  write(sourceRepositoryCodexMarketplacePath, renderRepositoryCodexMarketplace(pluginDefinition));
 
   // Synchronize source-owned assets in place. Removing the complete generated tree first creates a
   // real missing-assets window when pack, smoke and another agent/session run concurrently.

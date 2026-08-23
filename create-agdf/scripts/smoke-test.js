@@ -280,7 +280,7 @@ if (args.join(" ") === "plugin list") {
     const expectedCalls = [
       "plugin marketplace list --json",
       `plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --json`,
-      "plugin add agdf --marketplace agdf",
+      "plugin add agdf@agdf --json",
       "plugin list",
     ];
     if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {

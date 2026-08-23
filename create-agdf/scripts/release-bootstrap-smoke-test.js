@@ -24,7 +24,7 @@ const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(process.env.AGDF_BOOTSTRAP_CODEX_LOG, JSON.stringify(args) + "\\n");
 if (args.join(" ") === "plugin marketplace list --json") console.log(JSON.stringify({ marketplaces: [] }));
-if (args.join(" ") === "plugin add agdf --marketplace agdf") fs.writeFileSync(process.env.AGDF_BOOTSTRAP_MARKER, "installed\\n");
+if (args.join(" ") === "plugin add agdf@agdf --json") fs.writeFileSync(process.env.AGDF_BOOTSTRAP_MARKER, "installed\\n");
 if (args.join(" ") === "plugin list") console.log("agdf@agdf " + process.env.AGDF_EXPECTED_VERSION);
 `, "utf8");
 chmodSync(fakeCodexPath, 0o755);
@@ -57,7 +57,7 @@ try {
   const expectedCalls = [
     "plugin marketplace list --json",
     `plugin marketplace add ${join(homeDir, "agdf-data", "marketplaces", "agdf")} --json`,
-    "plugin add agdf --marketplace agdf",
+    "plugin add agdf@agdf --json",
     "plugin list",
   ];
   if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {

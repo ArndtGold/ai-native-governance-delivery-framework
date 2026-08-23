@@ -1,7 +1,8 @@
+import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 
 const scriptPluginRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -95,6 +96,7 @@ try {
 const marketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
+const localInstallMarkerPath = join(pluginRoot, ".agdf-local-install.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
 const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
@@ -201,6 +203,32 @@ function readJson(path, label) {
     failures.push(`${label} must be readable JSON`);
     return null;
   }
+}
+
+function digestPluginSource(root, canonicalVersion) {
+  const files = [];
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) visit(path);
+      else if (stats.isFile()) files.push(path);
+    }
+  }
+  visit(root);
+  const hash = createHash("sha256");
+  for (const path of files) {
+    const normalizedPath = relative(root, path).replaceAll("\\", "/");
+    if (normalizedPath === ".agdf-local-install.json") continue;
+    const content = normalizedPath === ".codex-plugin/plugin.json"
+      ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
+      : readFileSync(path);
+    hash.update(normalizedPath);
+    hash.update("\0");
+    hash.update(content);
+    hash.update("\0");
+  }
+  return hash.digest("hex");
 }
 
 function stripAllowedGerman(content) {
@@ -401,6 +429,7 @@ for (const required of [
 }
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
+const localInstallMarker = isFile(localInstallMarkerPath) ? readJson(localInstallMarkerPath, "AGDF local install marker") : null;
 const agdfPackage = isFile(agdfPackagePath) ? readJson(agdfPackagePath, "agdf CLI package manifest") : null;
 const createAgdfPackage = isFile(createAgdfPackagePath) ? readJson(createAgdfPackagePath, "create-agdf package manifest") : null;
 const pagesPackage = isFile(pagesPackagePath) ? readJson(pagesPackagePath, "Pages package manifest") : null;
@@ -709,7 +738,19 @@ if (isFile(pagesSiteDataPath)) {
 
 if (codexPlugin && pluginDefinition) {
   if (codexPlugin.name !== pluginDefinition.id) failures.push("Codex plugin manifest name must match canonical AGDF plugin definition");
-  if (codexPlugin.version !== pluginDefinition.version) failures.push("Codex plugin manifest version must match canonical AGDF plugin definition");
+  const expectedLocalVersion = `${pluginDefinition.version.split("+")[0]}+codex.local-${localInstallMarker?.source_digest?.slice(0, 12) ?? ""}`;
+  const validLocalProjection = !sourceMode
+    && localInstallMarker?.schema_version === 1
+    && localInstallMarker?.owner === "create-agdf"
+    && localInstallMarker?.kind === "codex_local_development_projection"
+    && localInstallMarker?.canonical_version === pluginDefinition.version
+    && /^[a-f0-9]{64}$/.test(localInstallMarker?.source_digest ?? "")
+    && localInstallMarker?.source_digest === digestPluginSource(pluginRoot, pluginDefinition.version)
+    && localInstallMarker?.codex_install_version === expectedLocalVersion
+    && codexPlugin.version === expectedLocalVersion;
+  if (codexPlugin.version !== pluginDefinition.version && !validLocalProjection) failures.push("Codex plugin manifest version must match canonical AGDF plugin definition or one owned local development projection");
+  if (sourceMode && localInstallMarker) failures.push("source plugin must not contain an AGDF local install projection");
+  if (codexPlugin.version === pluginDefinition.version && localInstallMarker) failures.push("canonical Codex plugin must not contain an AGDF local install marker");
   if (codexPlugin.description !== pluginDefinition.description) failures.push("Codex plugin manifest description must match canonical AGDF plugin definition");
   if (codexPlugin.homepage !== pluginDefinition.homepage) failures.push("Codex plugin manifest homepage must match canonical AGDF plugin definition");
   if (codexPlugin.repository !== pluginDefinition.repository) failures.push("Codex plugin manifest repository must match canonical AGDF plugin definition");

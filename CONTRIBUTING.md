@@ -35,6 +35,32 @@ identifiers, commands and exact AGDF approval values remain unchanged.
 When a change affects canonical and derived files, use the existing synchronization process and
 inspect the exact diff afterward.
 
+## Install the current checkout for local testing
+
+From this repository root, install the current checkout into the agent you want to test:
+
+```bash
+npm run install:codex
+npm run install:claude
+npm run install:opencode
+```
+
+Node.js 18 or later, npm and the selected agent CLI are required. Run only the command for the
+selected agent. Each command validates and prepares the current
+checkout before changing that agent's global AGDF installation. Codex receives a content-derived
+local version so a changed checkout is not mistaken for the previous cache entry. Claude Code uses
+the same local marketplace with the canonical project version. OpenCode installs a marker-owned
+local package built from this checkout instead of resolving the public npm package.
+
+After a successful command, restart the selected host. For Codex, then start a fresh task so the
+host loads the new plugin content. The command proves checkout preparation and the existing
+installation verification only. It does not prove restarted-host loading, repository activation or
+UAT. A later public OpenCode installation replaces the development-local file dependency through
+the normal registry path.
+
+These contributor commands are for local development validation. Published installation remains
+the `npx --yes @agdf/cli@latest ...` path documented in [INSTALL.md](INSTALL.md).
+
 ## Local validation
 
 Choose the commands relevant to your scope. Larger repository changes typically include:

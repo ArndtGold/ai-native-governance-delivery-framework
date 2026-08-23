@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "check:community-health": "node scripts/check-community-health.mjs",
+    "install:claude": "npm --prefix create-agdf run install:claude",
+    "install:codex": "npm --prefix create-agdf run install:codex",
+    "install:opencode": "npm --prefix create-agdf run install:opencode",
     "test:community-health": "node scripts/community-health-test.mjs",
     "set-version": "node scripts/set-version.mjs"
   },

@@ -22,6 +22,9 @@
   "scripts": {
     "sync-package-assets": "node ./scripts/sync-package-assets.js",
     "build:public-plugin": "node ./scripts/build-public-plugin.js",
+    "install:claude": "node ./scripts/install-local-plugin.js claude",
+    "install:codex": "node ./scripts/install-local-plugin.js codex",
+    "install:opencode": "node ./scripts/install-local-plugin.js opencode",
     "test:release-version-coherence": "node ./scripts/release-version-coherence-test.js",
     "test:public-plugin": "node ./scripts/public-plugin-test.js",
     "release:prepare": "npm run sync-package-assets && npm run test:release-version-coherence && npm run test:public-plugin",
@@ -32,6 +35,7 @@
     "test:cli-modularization": "node ./scripts/cli-modularization-test.js",
     "test:local-validator": "node ./scripts/local-validator-test.js",
     "test:local-marketplace": "node ./scripts/local-marketplace-test.js",
+    "test:local-development-install": "npm run release:prepare && node ./scripts/local-development-install-test.js",
     "test:package-contents": "node ./scripts/package-contents-test.js",
     "test:package-build": "node ./scripts/package-build-test.js",
     "test:lifecycle": "node ./scripts/lifecycle-test.js",
@@ -50,7 +54,7 @@
     "test:proportionality": "node ./scripts/proportionality-benchmark-test.js",
     "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
     "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
-    "smoke-test": "npm run release:prepare && npm run test:cli-modularization && npm run test:local-validator && npm run test:local-marketplace && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:control-state && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+    "smoke-test": "npm run release:prepare && npm run test:cli-modularization && npm run test:local-validator && npm run test:local-marketplace && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:control-state && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
     "prepack": "npm run release:prepare"
   },
   "keywords": [

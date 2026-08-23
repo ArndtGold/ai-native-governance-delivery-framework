@@ -1,11 +1,12 @@
 import { execFileSync } from "node:child_process";
 import { pluginDefinition } from "../cli/runtime-context.js";
-import { classifyMarketplaceList, prepareLocalMarketplace } from "./local-marketplace.js";
+import { classifyMarketplaceList, inspectLocalMarketplaceProjection, isCodexLocalInstallVersion, prepareLocalMarketplace } from "./local-marketplace.js";
 
 export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
   const transaction = prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
+  const expectedInstallVersion = transaction.codexInstallVersion ?? expectedVersion;
   const migration = { state: "unknown", source: "", addedLocal: false, removedLegacy: false };
   try {
     const marketplaceOutput = runPluginPhase(exec, "codex", ["plugin", "marketplace", "list", "--json"], "marketplace", captureOptions());
@@ -13,13 +14,13 @@ export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepar
     nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "add", "agdf", "--marketplace", "agdf"], "plugin_operation", captureOptions()));
     const listOutput = runPluginPhase(exec, "codex", ["plugin", "list"], "verification", captureOptions());
     const installedVersion = pluginVersionFromList(listOutput, "agdf@agdf");
-    if (installedVersion !== expectedVersion) {
-      throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest codex"));
+    if (installedVersion !== expectedInstallVersion) {
+      throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedInstallVersion, installedVersion, "npx --yes @agdf/cli@latest codex"));
     }
     transaction.commit();
     return {
-      surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion, installedVersion, verificationStatus: "healthy",
-      evidence: ["durable_local_marketplace", `marketplace:${migration.state}`, "codex plugin list"],
+      surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion: expectedInstallVersion, canonicalVersion: expectedVersion, installedVersion, verificationStatus: "healthy",
+      evidence: ["durable_local_marketplace", `marketplace:${migration.state}`, "codex plugin list", ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`])],
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {
@@ -118,19 +119,27 @@ function captureOptions() {
   return { encoding: "utf8", stdio: "pipe" };
 }
 
-export function inspectPluginSurface(surface, exec = execFileSync) {
+export function inspectPluginSurface(surface, exec = execFileSync, options = {}) {
   const executable = surface === "claude" ? "claude" : "codex";
   const pluginId = "agdf@agdf";
   try {
     const output = exec(executable, ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
     const installed = pluginListHasPlugin(output, pluginId);
     const version = installed ? pluginVersionFromList(output, pluginId) : "";
+    let localDevelopmentVersion = false;
+    if (surface === "codex" && isCodexLocalInstallVersion(pluginDefinition.version, version)) {
+      try {
+        localDevelopmentVersion = inspectLocalMarketplaceProjection(options)?.codexInstallVersion === version;
+      } catch {
+        localDevelopmentVersion = false;
+      }
+    }
     return {
-      status: !installed ? "not_installed" : version === pluginDefinition.version ? "healthy" : "degraded",
+      status: !installed ? "not_installed" : version === pluginDefinition.version || localDevelopmentVersion ? "healthy" : "degraded",
       surface,
       version: version || null,
       expected_version: pluginDefinition.version,
-      evidence: [`${executable} plugin list`, ...(installed && !version ? ["host_did_not_expose_version"] : [])],
+      evidence: [`${executable} plugin list`, ...(localDevelopmentVersion ? [`canonical_version:${pluginDefinition.version}`, `local_install_version:${version}`] : []), ...(installed && !version ? ["host_did_not_expose_version"] : [])],
     };
   } catch (error) {
     return { status: "unknown", surface, version: null, expected_version: pluginDefinition.version, evidence: [commandErrorText(error)] };

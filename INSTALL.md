@@ -20,6 +20,9 @@ repository-local commands inside the target Git repository, not inside this AGDF
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
+Contributors testing an unpublished checkout should use the local `npm run install:<surface>`
+commands in [CONTRIBUTING.md](CONTRIBUTING.md), not the public registry commands above.
+
 For the exact current command and option reference, including canonical run lifecycle commands, run `npx --yes @agdf/cli@latest --help`.
 
 Most users only need this table and the relevant platform section under

@@ -35,7 +35,7 @@ import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
 
-function createHandlers({ io, env, exec, prepare }) {
+function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
   const installerAdapters = {
     ...(exec ? { exec } : {}),
     ...(prepare ? { prepare } : {}),
@@ -112,7 +112,7 @@ function createHandlers({ io, env, exec, prepare }) {
     ["opencode", (options) => {
       const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
       try {
-        const result = runLifecyclePhase("plugin_operation", () => installOpenCodeGlobalPlugin(configDir));
+        const result = runLifecyclePhase("plugin_operation", () => installOpenCodeGlobalPlugin(configDir, { packageSource: openCodePackageSource }));
         runLifecyclePhase("global_surface", () => installOpenCodeGlobalSurface(configDir));
         const report = runLifecyclePhase("verification", () => evaluateOpenCodeStatus(options.dir, configDir, result.transition));
         const alignmentHealthy = ["already_matching", "aligned"].includes(result.sdk_alignment.status);
@@ -150,6 +150,7 @@ function createHandlers({ io, env, exec, prepare }) {
               `experimental_hooks=${report.experimental_hooks.aggregate}`,
               `host_sdk_version=${report.host_sdk_version.status};policy=${report.host_sdk_version.policy}`,
               `sdk_alignment=${result.sdk_alignment.status};target=${result.sdk_alignment.target_version || "unknown"};installed=${result.sdk_alignment.installed_version || "unknown"}`,
+              `package_source=${result.package_source.kind}${result.package_source.digest ? `;digest=${result.package_source.digest}` : ""}`,
             ],
           },
           restart: { required: true, reason: "host_reload" },
@@ -341,7 +342,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
   }
   const command = resolveCommand(options.target);
   if (!command) throw new Error(`No handler is registered for ${options.target}.`);
-  const handler = createHandlers({ io, env, exec: adapters.exec, prepare: adapters.prepare }).get(command.handler);
+  const handler = createHandlers({ io, env, exec: adapters.exec, prepare: adapters.prepare, openCodePackageSource: adapters.openCodePackageSource }).get(command.handler);
   if (!handler) throw new Error(`No implementation is registered for ${command.name}.`);
   return await handler(options);
 }

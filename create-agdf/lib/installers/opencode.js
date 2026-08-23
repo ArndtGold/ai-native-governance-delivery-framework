@@ -6,6 +6,7 @@ import process from "node:process";
 import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
 import { resolveLocalValidator } from "../runtime/local-validator.js";
+import { validateLocalOpenCodePackageSource } from "./local-development.js";
 
 const contractModules = ["gate-transition.md", "interaction.md", "modes.md", "quality.md", "context-graph.md", "control-scaffold.md", "closeout.md"];
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => pluginDefinition.opencode.skillPrefix + skill.slug);
@@ -36,7 +37,15 @@ export function defaultOpenCodeConfigDir() {
   return process.env.OPENCODE_CONFIG_DIR || join(homedir(), ".config", "opencode");
 }
 
-export function installOpenCodeGlobalPlugin(configDir) {
+export function resolveOpenCodeInstallPackageSource(packageSource) {
+  const local = packageSource ? validateLocalOpenCodePackageSource(packageSource) : null;
+  return Object.freeze({
+    local,
+    specifier: local?.specifier ?? `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`,
+  });
+}
+
+export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
   try {
     assertGlobalOpenCodeSurfaceWritable(configDir);
   } catch (error) {
@@ -97,8 +106,11 @@ export function installOpenCodeGlobalPlugin(configDir) {
   }
 
   mkdirSync(configDir, { recursive: true });
+  let localPackageSource = null;
   try {
-    const packageSpecifier = `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`;
+    const packageSource = resolveOpenCodeInstallPackageSource(dependencies.packageSource);
+    localPackageSource = packageSource.local;
+    const packageSpecifier = packageSource.specifier;
     const invocation = openCodeNpmInvocation(["install", "--silent", "--save-prod", "--save-exact", packageSpecifier]);
     execFileSync(invocation.executable, invocation.args, {
       cwd: configDir,
@@ -123,6 +135,9 @@ export function installOpenCodeGlobalPlugin(configDir) {
     added: !alreadyInstalled,
     transition: openCodePackageTransition(previousPackage, installedPackage),
     sdk_alignment: sdkAlignment,
+    package_source: localPackageSource
+      ? { kind: "local_checkout", path: localPackageSource.tarball, digest: localPackageSource.digest, version: localPackageSource.version }
+      : { kind: "registry", path: "", digest: "", version: pluginDefinition.version },
   };
 }
 

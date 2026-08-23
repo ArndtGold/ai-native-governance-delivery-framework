@@ -95,6 +95,12 @@ try {
   }, null, 2)}\n`);
   const legacyRuntimePath = join(legacyPlugin, "runtime", "runtime-manifest.json");
   writeFileSync(legacyRuntimePath, `${JSON.stringify({ ...json(legacyRuntimePath), version: legacyVersion }, null, 2)}\n`);
+  for (const manifestPath of [
+    join(legacyPlugin, ".codex-plugin", "plugin.json"),
+    join(legacyPlugin, ".claude-plugin", "plugin.json"),
+  ]) {
+    writeFileSync(manifestPath, `${JSON.stringify({ ...json(manifestPath), version: legacyVersion }, null, 2)}\n`);
+  }
   const legacy = prepareLocalMarketplace({ dataRoot: legacyDataRoot, builtPluginRoot: legacyPlugin, expectedVersion: legacyVersion });
   assert.equal(legacy.changed, true);
   assert.equal(json(join(legacy.root, ".agdf-owned.json")).version, legacyVersion);

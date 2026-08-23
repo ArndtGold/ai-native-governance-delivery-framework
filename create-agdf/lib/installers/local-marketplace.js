@@ -17,6 +17,7 @@ import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-con
 
 const MARKETPLACE_ID = "agdf";
 const OWNERSHIP_FILE = ".agdf-owned.json";
+const LOCAL_INSTALL_FILE = ".agdf-local-install.json";
 const LEGACY_REPOSITORY = "arndtgold/ai-native-governance-delivery-framework";
 
 function pathInside(root, candidate) {
@@ -24,7 +25,7 @@ function pathInside(root, candidate) {
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
 }
 
-function digestDirectory(root) {
+export function digestDirectory(root) {
   const files = [];
   function visit(directory) {
     for (const name of readdirSync(directory).sort()) {
@@ -43,6 +44,48 @@ function digestDirectory(root) {
     hash.update("\0");
   }
   return hash.digest("hex");
+}
+
+export function digestPluginSource(root, canonicalVersion = pluginDefinition.version) {
+  const files = [];
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) visit(path);
+      else if (stats.isFile()) files.push(path);
+    }
+  }
+  visit(root);
+  const hash = createHash("sha256");
+  for (const path of files) {
+    const normalizedPath = relative(root, path).replaceAll("\\", "/");
+    if (normalizedPath === LOCAL_INSTALL_FILE) continue;
+    const content = normalizedPath === ".codex-plugin/plugin.json"
+      ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
+      : readFileSync(path);
+    hash.update(normalizedPath);
+    hash.update("\0");
+    hash.update(content);
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+function semverBase(version) {
+  return version.split("+")[0];
+}
+
+export function codexLocalInstallVersion(version, sourceDigest) {
+  if (!/^[a-f0-9]{64}$/.test(sourceDigest)) throw new Error("AGDF local source digest must be a deterministic SHA-256 value.");
+  return `${semverBase(version)}+codex.local-${sourceDigest.slice(0, 12)}`;
+}
+
+export function isCodexLocalInstallVersion(version, candidate, sourceDigest = "") {
+  if (typeof candidate !== "string") return false;
+  if (sourceDigest) return candidate === codexLocalInstallVersion(version, sourceDigest);
+  const escaped = semverBase(version).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escaped}\\+codex\\.local-[a-f0-9]{12}$`).test(candidate);
 }
 
 function readJson(path, label) {
@@ -117,9 +160,10 @@ function claudeMarketplace(definition = pluginDefinition) {
   };
 }
 
-function validateBuiltPlugin(pluginRoot, expectedVersion) {
+function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVersion = expectedVersion, sourceDigest = "") {
   const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "built plugin definition");
   const runtime = readJson(join(pluginRoot, "runtime", "runtime-manifest.json"), "built runtime manifest");
+  const codex = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "built Codex plugin manifest");
   for (const required of [
     join(pluginRoot, ".codex-plugin", "plugin.json"),
     join(pluginRoot, ".claude-plugin", "plugin.json"),
@@ -130,6 +174,28 @@ function validateBuiltPlugin(pluginRoot, expectedVersion) {
   }
   if (definition.version !== expectedVersion || runtime.version !== expectedVersion) {
     throw new Error(`Built plugin version mismatch: expected ${expectedVersion}, definition ${definition.version}, runtime ${runtime.version}`);
+  }
+  if (codex.version !== expectedCodexInstallVersion) {
+    throw new Error(`Built Codex plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${codex.version}`);
+  }
+  if (expectedCodexInstallVersion !== expectedVersion) {
+    if (!isCodexLocalInstallVersion(expectedVersion, expectedCodexInstallVersion, sourceDigest)) {
+      throw new Error(`Invalid AGDF Codex local install version: ${expectedCodexInstallVersion}`);
+    }
+    const marker = readJson(join(pluginRoot, LOCAL_INSTALL_FILE), "AGDF local install marker");
+    if (marker.schema_version !== 1
+        || marker.owner !== "create-agdf"
+        || marker.kind !== "codex_local_development_projection"
+        || marker.canonical_version !== expectedVersion
+        || marker.codex_install_version !== expectedCodexInstallVersion
+        || marker.source_digest !== sourceDigest) {
+      throw new Error(`Invalid AGDF local install marker: ${pluginRoot}`);
+    }
+    if (digestPluginSource(pluginRoot, expectedVersion) !== sourceDigest) {
+      throw new Error(`AGDF local install source digest does not match its projected plugin: ${pluginRoot}`);
+    }
+  } else if (existsSync(join(pluginRoot, LOCAL_INSTALL_FILE))) {
+    throw new Error(`Unexpected AGDF local install marker on canonical plugin: ${pluginRoot}`);
   }
   if (!/^[a-f0-9]{64}$/.test(runtime.digest ?? "")) throw new Error("Built plugin runtime digest is invalid.");
   if (digestDirectory(join(pluginRoot, "runtime", "create-agdf")) !== runtime.digest) {
@@ -169,6 +235,7 @@ export function prepareLocalMarketplace({
   dataRoot = defaultAgdfDataRoot(),
   builtPluginRoot = join(generatedRoot, "plugins", "agdf"),
   expectedVersion = pluginDefinition.version,
+  codexInstallVersion = expectedVersion,
 } = {}) {
   dataRoot = resolve(dataRoot);
   builtPluginRoot = resolve(builtPluginRoot);
@@ -178,6 +245,11 @@ export function prepareLocalMarketplace({
   const backupRoot = `${stableRoot}.backup`;
   const failedRoot = `${stableRoot}.failed`;
   if (!pathInside(dataRoot, stableRoot) || dirname(stableRoot) !== parent) throw new Error(`Unsafe AGDF marketplace root: ${stableRoot}`);
+  const sourceDigest = digestPluginSource(builtPluginRoot, expectedVersion);
+  if (codexInstallVersion !== expectedVersion
+      && !isCodexLocalInstallVersion(expectedVersion, codexInstallVersion, sourceDigest)) {
+    throw new Error(`Invalid AGDF Codex local install version: ${codexInstallVersion}`);
+  }
   const targetDefinition = validateBuiltPlugin(builtPluginRoot, expectedVersion);
   mkdirSync(parent, { recursive: true });
   recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot);
@@ -185,7 +257,13 @@ export function prepareLocalMarketplace({
   const existing = existsSync(stableRoot) ? ownership(stableRoot) : null;
   if (existing) {
     const existingPluginRoot = join(stableRoot, "plugins", MARKETPLACE_ID);
-    const existingDefinition = validateBuiltPlugin(existingPluginRoot, existing.version);
+    const existingCodexInstallVersion = existing.codex_install_version ?? existing.version;
+    const existingDefinition = validateBuiltPlugin(
+      existingPluginRoot,
+      existing.version,
+      existingCodexInstallVersion,
+      existing.source_digest ?? "",
+    );
     validateMarketplaceRoot(stableRoot, existingDefinition);
     if (digestDirectory(existingPluginRoot) !== existing.plugin_digest) {
       throw new Error(`Refusing tampered AGDF marketplace root: ${stableRoot}`);
@@ -198,6 +276,8 @@ export function prepareLocalMarketplace({
       owner: "create-agdf",
       marketplace_id: MARKETPLACE_ID,
       version: expectedVersion,
+      codex_install_version: codexInstallVersion,
+      source_digest: sourceDigest,
       plugin_digest: null,
       source_package_version: readJson(join(packageRoot, "package.json"), "create-agdf package manifest").version,
       staging_state: "building",
@@ -205,6 +285,19 @@ export function prepareLocalMarketplace({
     const stagedPluginRoot = join(stageRoot, "plugins", MARKETPLACE_ID);
     cpSync(builtPluginRoot, stagedPluginRoot, { recursive: true });
     validateBuiltPlugin(stagedPluginRoot, expectedVersion);
+    if (codexInstallVersion !== expectedVersion) {
+      const codexManifestPath = join(stagedPluginRoot, ".codex-plugin", "plugin.json");
+      writeJson(codexManifestPath, { ...readJson(codexManifestPath, "built Codex plugin manifest"), version: codexInstallVersion });
+      writeJson(join(stagedPluginRoot, LOCAL_INSTALL_FILE), {
+        schema_version: 1,
+        owner: "create-agdf",
+        kind: "codex_local_development_projection",
+        canonical_version: expectedVersion,
+        codex_install_version: codexInstallVersion,
+        source_digest: sourceDigest,
+      });
+      validateBuiltPlugin(stagedPluginRoot, expectedVersion, codexInstallVersion, sourceDigest);
+    }
     writeJson(join(stageRoot, ".agents", "plugins", "marketplace.json"), codexMarketplace(targetDefinition));
     writeJson(join(stageRoot, ".claude-plugin", "marketplace.json"), claudeMarketplace(targetDefinition));
     validateMarketplaceRoot(stageRoot, targetDefinition);
@@ -214,6 +307,8 @@ export function prepareLocalMarketplace({
       owner: "create-agdf",
       marketplace_id: MARKETPLACE_ID,
       version: expectedVersion,
+      codex_install_version: codexInstallVersion,
+      source_digest: sourceDigest,
       plugin_digest: pluginDigest,
       source_package_version: readJson(join(packageRoot, "package.json"), "create-agdf package manifest").version,
       staging_state: "ready",
@@ -226,6 +321,8 @@ export function prepareLocalMarketplace({
         root: stableRoot,
         pluginRoot: join(stableRoot, "plugins", MARKETPLACE_ID),
         version: expectedVersion,
+        codexInstallVersion,
+        sourceDigest,
         digest: pluginDigest,
         changed: false,
         commit() {},
@@ -245,6 +342,8 @@ export function prepareLocalMarketplace({
       root: stableRoot,
       pluginRoot: join(stableRoot, "plugins", MARKETPLACE_ID),
       version: expectedVersion,
+      codexInstallVersion,
+      sourceDigest,
       digest: pluginDigest,
       changed: true,
       commit() {
@@ -269,6 +368,35 @@ export function prepareLocalMarketplace({
     if (existsSync(stageRoot)) removeOwnedRoot(stageRoot, parent, { allowBuilding: true });
     throw error;
   }
+}
+
+export function inspectLocalMarketplaceProjection({
+  dataRoot = defaultAgdfDataRoot(),
+  expectedVersion = pluginDefinition.version,
+} = {}) {
+  const root = join(resolve(dataRoot), "marketplaces", MARKETPLACE_ID);
+  if (!existsSync(root)) return null;
+  const marker = ownership(root);
+  const codexInstallVersion = marker.codex_install_version ?? marker.version;
+  const pluginRoot = join(root, "plugins", MARKETPLACE_ID);
+  const definition = validateBuiltPlugin(
+    pluginRoot,
+    marker.version,
+    codexInstallVersion,
+    marker.source_digest ?? "",
+  );
+  validateMarketplaceRoot(root, definition);
+  if (marker.version !== expectedVersion || digestDirectory(pluginRoot) !== marker.plugin_digest) {
+    throw new Error(`Refusing stale or tampered AGDF marketplace projection: ${root}`);
+  }
+  return Object.freeze({
+    root,
+    pluginRoot,
+    version: marker.version,
+    codexInstallVersion,
+    sourceDigest: marker.source_digest ?? "",
+    digest: marker.plugin_digest,
+  });
 }
 
 function normalizedLegacySource(value) {
@@ -319,5 +447,6 @@ export function classifyMarketplaceList(surface, output, stableRoot) {
 export const localMarketplaceConstants = Object.freeze({
   id: MARKETPLACE_ID,
   ownershipFile: OWNERSHIP_FILE,
+  localInstallFile: LOCAL_INSTALL_FILE,
   legacyRepository: LEGACY_REPOSITORY,
 });

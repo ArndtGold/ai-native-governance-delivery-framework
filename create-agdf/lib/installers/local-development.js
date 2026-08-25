@@ -12,7 +12,6 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join, resolve, win32 as pathWin32 } from "node:path";
-import { pathToFileURL } from "node:url";
 import process from "node:process";
 
 const LOCAL_PACKAGE_OWNER = "create-agdf";
@@ -128,7 +127,7 @@ export function validateLocalOpenCodePackageSource(source) {
     version: source.version,
     digest: source.digest,
   });
-  const specifier = pathToFileURL(tarball).href;
+  const specifier = tarball;
   if (source.specifier && source.specifier !== specifier) throw new Error("AGDF OpenCode local package specifier does not match its owned tarball.");
   return Object.freeze({
     kind: "local_checkout",

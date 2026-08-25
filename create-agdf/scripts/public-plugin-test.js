@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,7 +8,6 @@ import { LISTING_LIMITS, loadJson, unicodeLength, validatePublicPluginContract }
 import {
   renderClaudePluginManifest,
   renderCodexPluginManifest,
-  renderRepositoryCodexMarketplace,
 } from "../lib/public-plugin/manifest.js";
 import { inventory, validateCandidate } from "../lib/public-plugin/validator.js";
 
@@ -71,15 +70,18 @@ const claudeManifest = readFileSync(join(pluginRoot, ".claude-plugin", "plugin.j
 assert.equal(claudeManifest, renderClaudePluginManifest(definition), "source Claude manifest must be a canonical projection");
 const localManifest = JSON.parse(sourceManifest);
 const localClaudeManifest = JSON.parse(claudeManifest);
-const repositoryCodexMarketplace = readFileSync(join(repoRoot, ".agents", "plugins", "marketplace.json"), "utf8");
-const repositoryClaudeMarketplace = loadJson(join(repoRoot, ".claude-plugin", "marketplace.json"));
-assert.equal(repositoryCodexMarketplace, renderRepositoryCodexMarketplace(definition), "source-checkout Codex Marketplace must be a canonical projection");
-assert.equal(Object.hasOwn(repositoryClaudeMarketplace, "interface"), false, "Claude Marketplace must not receive Codex-only interface metadata");
+assert.equal(existsSync(join(repoRoot, ".agents", "plugins", "marketplace.json")), false, "source checkout must not expose a runtime-free Codex marketplace");
+assert.equal(existsSync(join(repoRoot, ".claude-plugin", "marketplace.json")), false, "source checkout must not expose a runtime-free Claude marketplace");
+assert.equal(definition.distributionProfiles.profiles["source-development"].installable, false, "source profile must be explicitly non-installable");
+assert.ok(definition.codex.defaultPrompt.length <= 3, "Codex supports at most three default prompts");
+for (const prompt of definition.codex.defaultPrompt) {
+  assert.ok(prompt.length <= 128, `Codex default prompt exceeds the host limit: ${prompt.length}`);
+}
 assert.equal(localManifest.interface.displayName, "AI Governance & Delivery Framework");
 assert.equal(localManifest.interface.shortDescription, "Control layer for governed AI-assisted delivery.");
 assert.equal(localManifest.interface.longDescription, expectedLongDescription);
 assert.equal(localClaudeManifest.description, expectedLongDescription);
-assert.equal(localManifest.interface.defaultPrompt.length, 4);
+assert.equal(localManifest.interface.defaultPrompt.length, 3);
 
 const first = buildPublicPluginCandidate({ repoRoot, outputRoot });
 const firstInventory = inventory(outputRoot);

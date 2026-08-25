@@ -22,7 +22,8 @@ identifiers, commands and exact AGDF approval values remain unchanged.
 
 ## Canonical and derived paths
 
-- `plugin/` and its documented Runtime Contracts are canonical for plugin semantics.
+- `plugin/` and its documented Runtime Contracts are canonical editable sources for plugin
+  semantics. The source directory is deliberately runtime-free and is not an installable plugin.
 - `create-agdf/` owns the CLI, installers, packaging and synchronization of derived plugin assets.
 - `create-agdf/generated/` is produced by the existing synchronization and packaging processes and
   must not be edited as a primary source.
@@ -51,6 +52,10 @@ checkout before changing that agent's global AGDF installation. Codex receives a
 local version so a changed checkout is not mistaken for the previous cache entry. Claude Code uses
 the same local marketplace with the canonical project version. OpenCode installs a marker-owned
 local package built from this checkout instead of resolving the public npm package.
+
+Do not register the repository root or `plugin/` directly as a Codex or Claude marketplace. The
+commands above build one complete runtime-bearing plugin, stage it in the AGDF-owned durable
+marketplace and attach installation provenance before invoking the host CLI.
 
 After a successful command, restart the selected host. For Codex, then start a fresh task so the
 host loads the new plugin content. The command proves checkout preparation and the existing

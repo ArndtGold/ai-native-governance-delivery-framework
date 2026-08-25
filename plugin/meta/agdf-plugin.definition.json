@@ -33,9 +33,8 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Assess whether AGDF is proportionate for this repository and request before proposing any implementation. Explain AGDF's purpose and practical benefits, weigh governance overhead against the project's delivery risk, and recommend the lightest suitable path — or explicitly advise against AGDF where it would add more process than value.",
+      "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
       "Start this request under AGDF governance.",
-      "Create durable AGDF control state for this repository.",
       "Close this delivery run with an auditable AGDF report."
     ],
     "hooks": "hooks/hooks.json"
@@ -44,9 +43,8 @@
     "skillPrefix": "",
     "agentRouter": "meta/agdf-agent-router.md",
     "defaultPrompt": [
-      "Assess whether AGDF is proportionate for this repository and request before proposing any implementation. Explain AGDF's purpose and practical benefits, weigh governance overhead against the project's delivery risk, and recommend the lightest suitable path — or explicitly advise against AGDF where it would add more process than value.",
+      "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
       "Start this request under AGDF governance.",
-      "Create durable AGDF control state for this repository.",
       "Close this delivery run with an auditable AGDF report."
     ]
   },
@@ -254,10 +252,33 @@
       "boundary": "supports Quality Readiness; no final QA decision"
     }
   ],
-  "marketplaces": {
-    "repository": {
-      "name": "agdf-repo",
-      "displayName": "This repository"
+  "distributionProfiles": {
+    "schemaVersion": 1,
+    "marketplaceIdentities": {
+      "durable": "agdf",
+      "generatedRepository": "agdf-repo"
+    },
+    "profiles": {
+      "source-development": {
+        "runtime": "absent",
+        "installable": false,
+        "machineValidation": "unavailable"
+      },
+      "runtime-plugin": {
+        "runtime": "required",
+        "installable": true,
+        "machineValidation": "local_exact_version_digest"
+      },
+      "opencode-config-local": {
+        "runtime": "config_local_package",
+        "installable": true,
+        "machineValidation": "local_exact_version"
+      },
+      "portable-skills": {
+        "runtime": "absent",
+        "installable": true,
+        "machineValidation": "unavailable_or_external_required"
+      }
     }
   }
 }

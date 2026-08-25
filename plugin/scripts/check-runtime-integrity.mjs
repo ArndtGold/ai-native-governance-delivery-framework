@@ -47,7 +47,6 @@ function hasPluginLayout(root) {
 function hasSourceLayout(root) {
   return hasPluginLayout(join(root, "plugin"))
     && [
-      ".claude-plugin/marketplace.json",
       "agdf/package.json",
       "create-agdf/package.json",
       "pages/package.json",
@@ -93,10 +92,12 @@ try {
   console.error("- AGDF_AGENT_SKILLS_VALIDATOR_MISSING: scripts/agent-skills-conformance.mjs must be present and loadable");
   process.exit(1);
 }
-const marketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
+const codexSourceMarketplacePath = sourceMode ? join(repoRoot, ".agents", "plugins", "marketplace.json") : null;
+const claudeSourceMarketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
-const localInstallMarkerPath = join(pluginRoot, ".agdf-local-install.json");
+const installationProvenancePath = join(pluginRoot, ".agdf-installation.json");
+const legacyLocalInstallMarkerPath = join(pluginRoot, ".agdf-local-install.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
 const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
@@ -219,7 +220,7 @@ function digestPluginSource(root, canonicalVersion) {
   const hash = createHash("sha256");
   for (const path of files) {
     const normalizedPath = relative(root, path).replaceAll("\\", "/");
-    if (normalizedPath === ".agdf-local-install.json") continue;
+    if ([".agdf-installation.json", ".agdf-local-install.json"].includes(normalizedPath)) continue;
     const content = normalizedPath === ".codex-plugin/plugin.json"
       ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
       : readFileSync(path);
@@ -328,7 +329,8 @@ assertFile(join(controlRoot, "README.md"), "AGDF control scaffold README");
 assertFile(pluginLicensePath, "plugin LICENSE");
 
 if (sourceMode) {
-  assertFile(marketplacePath, "plugin marketplace");
+  if (isFile(codexSourceMarketplacePath)) failures.push("source checkout must not expose a runtime-free Codex marketplace");
+  if (isFile(claudeSourceMarketplacePath)) failures.push("source checkout must not expose a runtime-free Claude marketplace");
   assertFile(agdfPackagePath, "agdf CLI package manifest");
   assertFile(createAgdfPackagePath, "create-agdf package manifest");
   assertFile(pagesPackagePath, "Pages package manifest");
@@ -356,6 +358,7 @@ for (const forbiddenRuntimeDirectory of ["installers", "lifecycle", "scaffold"])
 }
 for (const requiredRuntimeFile of sourceMode ? [] : [
   "runtime/create-agdf/lib/runtime/validator-application.js",
+  "runtime/create-agdf/lib/runtime/plugin-provenance.js",
   "runtime/create-agdf/lib/cli/validation-handlers.js",
 ]) assertFile(join(pluginRoot, requiredRuntimeFile), `focused surface-local runtime module ${requiredRuntimeFile}`);
 if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
@@ -429,7 +432,8 @@ for (const required of [
 }
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
-const localInstallMarker = isFile(localInstallMarkerPath) ? readJson(localInstallMarkerPath, "AGDF local install marker") : null;
+const installationProvenance = isFile(installationProvenancePath) ? readJson(installationProvenancePath, "AGDF installation provenance") : null;
+const legacyLocalInstallMarker = isFile(legacyLocalInstallMarkerPath) ? readJson(legacyLocalInstallMarkerPath, "legacy AGDF local install marker") : null;
 const agdfPackage = isFile(agdfPackagePath) ? readJson(agdfPackagePath, "agdf CLI package manifest") : null;
 const createAgdfPackage = isFile(createAgdfPackagePath) ? readJson(createAgdfPackagePath, "create-agdf package manifest") : null;
 const pagesPackage = isFile(pagesPackagePath) ? readJson(pagesPackagePath, "Pages package manifest") : null;
@@ -666,8 +670,18 @@ if (pluginDefinition) {
       if (!skill?.boundary) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare boundary`);
     }
   }
-  if (pluginDefinition.marketplaces?.repository?.name !== "agdf-repo") failures.push("canonical AGDF plugin definition repository marketplace name must be agdf-repo");
-  if (pluginDefinition.marketplaces?.repository?.displayName !== "This repository") failures.push("canonical AGDF plugin definition repository marketplace display name must be This repository");
+  const expectedProfiles = {
+    "source-development": { runtime: "absent", installable: false, machineValidation: "unavailable" },
+    "runtime-plugin": { runtime: "required", installable: true, machineValidation: "local_exact_version_digest" },
+    "opencode-config-local": { runtime: "config_local_package", installable: true, machineValidation: "local_exact_version" },
+    "portable-skills": { runtime: "absent", installable: true, machineValidation: "unavailable_or_external_required" },
+  };
+  if (pluginDefinition.distributionProfiles?.schemaVersion !== 1
+      || pluginDefinition.distributionProfiles?.marketplaceIdentities?.durable !== "agdf"
+      || pluginDefinition.distributionProfiles?.marketplaceIdentities?.generatedRepository !== "agdf-repo"
+      || JSON.stringify(pluginDefinition.distributionProfiles?.profiles) !== JSON.stringify(expectedProfiles)) {
+    failures.push("canonical AGDF plugin definition distribution profiles must match the runtime integrity contract");
+  }
   expectedSkills = (pluginDefinition.skillSet ?? [])
     .map((skill) => `${pluginDefinition.codex?.skillPrefix ?? ""}${skill?.slug ?? ""}`)
     .sort();
@@ -738,19 +752,21 @@ if (isFile(pagesSiteDataPath)) {
 
 if (codexPlugin && pluginDefinition) {
   if (codexPlugin.name !== pluginDefinition.id) failures.push("Codex plugin manifest name must match canonical AGDF plugin definition");
-  const expectedLocalVersion = `${pluginDefinition.version.split("+")[0]}+codex.local-${localInstallMarker?.source_digest?.slice(0, 12) ?? ""}`;
-  const validLocalProjection = !sourceMode
-    && localInstallMarker?.schema_version === 1
-    && localInstallMarker?.owner === "create-agdf"
-    && localInstallMarker?.kind === "codex_local_development_projection"
-    && localInstallMarker?.canonical_version === pluginDefinition.version
-    && /^[a-f0-9]{64}$/.test(localInstallMarker?.source_digest ?? "")
-    && localInstallMarker?.source_digest === digestPluginSource(pluginRoot, pluginDefinition.version)
-    && localInstallMarker?.codex_install_version === expectedLocalVersion
-    && codexPlugin.version === expectedLocalVersion;
-  if (codexPlugin.version !== pluginDefinition.version && !validLocalProjection) failures.push("Codex plugin manifest version must match canonical AGDF plugin definition or one owned local development projection");
-  if (sourceMode && localInstallMarker) failures.push("source plugin must not contain an AGDF local install projection");
-  if (codexPlugin.version === pluginDefinition.version && localInstallMarker) failures.push("canonical Codex plugin must not contain an AGDF local install marker");
+  const expectedInstallVersion = installationProvenance?.codex_install_version ?? pluginDefinition.version;
+  const validInstalledProjection = !sourceMode
+    && installationProvenance?.schema_version === 1
+    && installationProvenance?.owner === "create-agdf"
+    && installationProvenance?.profile_id === "runtime-plugin"
+    && installationProvenance?.marketplace_id === "agdf"
+    && installationProvenance?.canonical_version === pluginDefinition.version
+    && /^[a-f0-9]{64}$/.test(installationProvenance?.source_digest ?? "")
+    && installationProvenance?.source_digest === digestPluginSource(pluginRoot, pluginDefinition.version)
+    && installationProvenance?.runtime_digest === localRuntimeManifest?.digest
+    && codexPlugin.version === expectedInstallVersion;
+  if (codexPlugin.version !== pluginDefinition.version && !validInstalledProjection) failures.push("Codex plugin manifest version must match canonical AGDF plugin definition or one owned installed projection");
+  if (installationProvenance && !validInstalledProjection) failures.push("AGDF installation provenance must match plugin, runtime and normalized source digests");
+  if (sourceMode && (installationProvenance || legacyLocalInstallMarker)) failures.push("source plugin must not contain AGDF installation provenance");
+  if (!sourceMode && legacyLocalInstallMarker) failures.push("installed plugin must not retain the legacy AGDF local install marker");
   if (codexPlugin.description !== pluginDefinition.description) failures.push("Codex plugin manifest description must match canonical AGDF plugin definition");
   if (codexPlugin.homepage !== pluginDefinition.homepage) failures.push("Codex plugin manifest homepage must match canonical AGDF plugin definition");
   if (codexPlugin.repository !== pluginDefinition.repository) failures.push("Codex plugin manifest repository must match canonical AGDF plugin definition");
@@ -1000,18 +1016,6 @@ if (isFile(runtimeContractPath)) {
   }
   if (!runtimeContract.includes("## Domain Guardrail Packs")) {
     failures.push("runtime contract must define domain guardrail packs");
-  }
-}
-
-if (sourceMode) {
-  const marketplace = isFile(marketplacePath) ? readJson(marketplacePath, "plugin marketplace") : null;
-  const agdfMarketplaceEntry = marketplace?.plugins?.find((plugin) => plugin?.name === "agdf");
-  if (!agdfMarketplaceEntry) {
-    failures.push("plugin marketplace must expose agdf");
-  } else {
-    if (agdfMarketplaceEntry.source !== "./plugin/") failures.push("plugin marketplace agdf source must point to ./plugin/");
-    if (Object.hasOwn(agdfMarketplaceEntry, "policy")) failures.push("Claude plugin marketplace agdf entry must not use unsupported policy field");
-    if (agdfMarketplaceEntry.category !== "Productivity") failures.push("plugin marketplace agdf category must be Productivity");
   }
 }
 

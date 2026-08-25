@@ -126,7 +126,9 @@ it does not localize the CLI lifecycle card.
 The `codex` and `claude` commands install from the complete plugin built into the released
 `create-agdf` package. They atomically stage it under an AGDF-owned user-data marketplace, register
 that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
-contains no generated runtime bytes, and routine installed validation does not depend on the GitHub
+contains no generated runtime bytes and the source checkout exposes no installable root marketplace.
+The staged plugin contains one installation-provenance marker and the shared exact-version runtime;
+routine installed validation does not depend on the GitHub
 checkout, npm cache, PATH or registry. Rerunning either command performs the explicit update and
 migrates only the exact known legacy AGDF GitHub marketplace; foreign same-name registrations fail
 closed and failed host operations restore the prior owned stage.
@@ -136,6 +138,10 @@ If the target repository already has an `AGENTS.md`, `create-agdf` preserves it 
 Use the `codex-repo` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
 
 After `npm create agdf@latest -- codex-repo`, restart Codex in that repository, open `/plugins`, select `This repository` and install `agdf`.
+
+`codex-repo` is a generated runtime-complete repository projection. It is distinct from this
+runtime-free source checkout and is validated before lifecycle status treats `agdf@agdf-repo` as
+active.
 
 Use the `opencode` target to install the AGDF npm plugin as a user-wide OpenCode hook:
 

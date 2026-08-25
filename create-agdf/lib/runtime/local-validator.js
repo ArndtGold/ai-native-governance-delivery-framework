@@ -1,8 +1,14 @@
-import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
+import {
+  INSTALLATION_PROVENANCE_FILE,
+  digestDirectory,
+  inspectGeneratedRepositoryMarketplace,
+  inspectInstallationProvenance,
+  validateDistributionProfiles,
+} from "./plugin-provenance.js";
 
 function readJson(path) {
   try {
@@ -12,26 +18,11 @@ function readJson(path) {
   }
 }
 
-export function digestDirectory(root) {
-  const files = [];
-  function visit(directory) {
-    for (const name of readdirSync(directory).sort()) {
-      const path = join(directory, name);
-      const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
-    }
-  }
-  visit(root);
-  const hash = createHash("sha256");
-  for (const path of files) {
-    hash.update(relative(root, path).replaceAll("\\", "/"));
-    hash.update("\0");
-    hash.update(readFileSync(path));
-    hash.update("\0");
-  }
-  return hash.digest("hex");
+function canonicalPath(path) {
+  try { return realpathSync(path); } catch { return resolve(path); }
 }
+
+export { digestDirectory };
 
 function envelope(machineValidation, options, evidence = {}) {
   return {
@@ -42,6 +33,14 @@ function envelope(machineValidation, options, evidence = {}) {
     observed_version: evidence.observedVersion ?? null,
     source: evidence.source ?? null,
     registry_access: false,
+    distribution_profile: evidence.distributionProfile ?? null,
+    evidence_plane: evidence.evidencePlane ?? null,
+    canonical_version: evidence.canonicalVersion ?? options.expectedVersion ?? null,
+    plugin_version: evidence.pluginVersion ?? null,
+    runtime_digest: evidence.runtimeDigest ?? null,
+    source_digest: evidence.sourceDigest ?? null,
+    plugin_root: evidence.pluginRoot ?? null,
+    provenance_status: evidence.provenanceStatus ?? null,
     ...(evidence.reason ? { reason: evidence.reason } : {}),
   };
 }
@@ -51,17 +50,17 @@ export function resolveLocalValidator(options) {
     const packageManifest = readJson(join(options.ownedPackageRoot, "package.json"));
     const observedVersion = packageManifest?.version ?? null;
     if (!packageManifest) {
-      return { envelope: envelope("unavailable", options, { source: "config_local_package", reason: "package_missing" }) };
+      return { envelope: envelope("unavailable", options, { source: "config_local_package", evidencePlane: "opencode_config_local", distributionProfile: "opencode-config-local", reason: "package_missing" }) };
     }
     if (observedVersion !== options.expectedVersion) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "config_local_package" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "config_local_package", evidencePlane: "opencode_config_local", distributionProfile: "opencode-config-local" }) };
     }
     const entrypoint = join(options.ownedPackageRoot, "bin", "create-agdf.js");
     if (!existsSync(entrypoint)) {
-      return { envelope: envelope("unavailable", options, { observedVersion, source: "config_local_package", reason: "entrypoint_missing" }) };
+      return { envelope: envelope("unavailable", options, { observedVersion, source: "config_local_package", evidencePlane: "opencode_config_local", distributionProfile: "opencode-config-local", reason: "entrypoint_missing" }) };
     }
     return {
-      envelope: envelope("owned_version_matched", options, { observedVersion, source: "config_local_package" }),
+      envelope: envelope("owned_version_matched", options, { observedVersion, source: "config_local_package", evidencePlane: "opencode_config_local", distributionProfile: "opencode-config-local", provenanceStatus: "matched" }),
       executable: process.execPath,
       prefixArgs: [entrypoint],
     };
@@ -73,30 +72,116 @@ export function resolveLocalValidator(options) {
     return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", reason: "manifest_invalid" }) };
   }
   if (manifest) {
+    const pluginRoot = canonicalPath(options.pluginRoot ?? join(options.runtimeRoot, ".."));
+    if (options.expectedPluginRoot && canonicalPath(options.expectedPluginRoot) !== pluginRoot) {
+      return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", pluginRoot, evidencePlane: "loaded_session", distributionProfile: "runtime-plugin", provenanceStatus: "mismatch", reason: "plugin_root_mismatch" }) };
+    }
+    const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"));
+    const profile = validateDistributionProfiles(definition);
+    if (profile.status !== "matched") {
+      return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", pluginRoot, distributionProfile: "runtime-plugin", provenanceStatus: "invalid", reason: "profile_invalid" }) };
+    }
+    const codexManifest = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"));
+    const claudeManifest = readJson(join(pluginRoot, ".claude-plugin", "plugin.json"));
+    const pluginVersion = codexManifest?.version ?? null;
+    if (!codexManifest || !claudeManifest || claudeManifest.version !== definition.version) {
+      return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile: "runtime-plugin", provenanceStatus: "invalid", reason: "manifest_invalid" }) };
+    }
     const packageRoot = join(options.runtimeRoot, "create-agdf");
     if (!existsSync(packageRoot)) {
-      return { envelope: envelope("unavailable", options, { source: "plugin_bundle", reason: "package_missing" }) };
+      return { envelope: envelope("unavailable", options, { source: "plugin_bundle", pluginRoot, pluginVersion, distributionProfile: "runtime-plugin", reason: "runtime_missing" }) };
     }
     const packageManifest = readJson(join(packageRoot, "package.json"));
     const observedVersion = packageManifest?.version ?? manifest.version ?? null;
     if (observedVersion !== options.expectedVersion || manifest.version !== options.expectedVersion) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile: "runtime-plugin" }) };
     }
     let observedDigest = null;
     try { observedDigest = digestDirectory(packageRoot); } catch {}
     if (!observedDigest || manifest.digest !== observedDigest) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", reason: "digest_mismatch" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile: "runtime-plugin", reason: "runtime_digest_mismatch" }) };
     }
     const entrypoint = resolve(options.runtimeRoot, manifest.entrypoint ?? "");
     const entrypointRelative = relative(options.runtimeRoot, entrypoint);
     if (!manifest.entrypoint || entrypointRelative === ".." || entrypointRelative.startsWith(`..${sep}`) || isAbsolute(entrypointRelative)) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", reason: "invalid_entrypoint" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile: "runtime-plugin", reason: "invalid_entrypoint" }) };
     }
     if (!existsSync(entrypoint)) {
-      return { envelope: envelope("unavailable", options, { observedVersion, source: "plugin_bundle", reason: "entrypoint_missing" }) };
+      return { envelope: envelope("unavailable", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile: "runtime-plugin", reason: "entrypoint_missing" }) };
+    }
+    const installed = existsSync(join(pluginRoot, INSTALLATION_PROVENANCE_FILE));
+    let provenanceStatus = "not_applicable";
+    let sourceDigest = null;
+    let evidencePlane = "loaded_session";
+    if (installed) {
+      const provenance = inspectInstallationProvenance(pluginRoot, {
+        definition,
+        runtimeManifest: manifest,
+        pluginVersion,
+      });
+      provenanceStatus = provenance.status;
+      sourceDigest = provenance.marker?.source_digest ?? null;
+      if (provenance.status !== "matched") {
+        return { envelope: envelope("version_mismatch", options, {
+          observedVersion,
+          source: "plugin_bundle",
+          pluginRoot,
+          pluginVersion,
+          canonicalVersion: definition.version,
+          runtimeDigest: observedDigest,
+          sourceDigest,
+          distributionProfile: "runtime-plugin",
+          evidencePlane: "loaded_session",
+          provenanceStatus,
+          reason: provenance.reason,
+        }) };
+      }
+    } else if (existsSync(join(pluginRoot, ".agdf-local-install.json"))) {
+      return { envelope: envelope("unavailable", options, {
+        observedVersion,
+        source: "plugin_bundle",
+        pluginRoot,
+        pluginVersion,
+        canonicalVersion: definition.version,
+        runtimeDigest: observedDigest,
+        distributionProfile: "runtime-plugin",
+        evidencePlane: "loaded_session",
+        provenanceStatus: "missing",
+        reason: "installation_provenance_missing",
+      }) };
+    } else {
+      const generatedRepository = inspectGeneratedRepositoryMarketplace(resolve(pluginRoot, "..", ".."));
+      if (pluginVersion !== definition.version
+          || generatedRepository.status !== "matched"
+          || canonicalPath(generatedRepository.pluginRoot) !== pluginRoot) {
+        return { envelope: envelope("unavailable", options, {
+          observedVersion,
+          source: "plugin_bundle",
+          pluginRoot,
+          pluginVersion,
+          canonicalVersion: definition.version,
+          runtimeDigest: observedDigest,
+          distributionProfile: "runtime-plugin",
+          evidencePlane: "installed_plugin_root",
+          provenanceStatus: "missing",
+          reason: "installation_provenance_missing",
+        }) };
+      }
+      evidencePlane = "generated_bundle";
     }
     return {
-      envelope: envelope("owned_version_matched", options, { observedVersion, source: "plugin_bundle" }),
+      envelope: envelope("owned_version_matched", options, {
+        observedVersion,
+        source: "plugin_bundle",
+        pluginRoot,
+        pluginVersion,
+        canonicalVersion: definition.version,
+        runtimeDigest: observedDigest,
+        sourceDigest,
+        distributionProfile: "runtime-plugin",
+        evidencePlane,
+        provenanceStatus,
+      }),
       executable: process.execPath,
       prefixArgs: [entrypoint],
     };

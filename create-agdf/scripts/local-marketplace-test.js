@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   classifyMarketplaceList,
   defaultAgdfDataRoot,
+  digestDirectory,
+  digestPluginSource,
   prepareLocalMarketplace,
 } from "../lib/installers/local-marketplace.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
@@ -69,10 +71,20 @@ try {
   assert.equal(json(join(first.root, "plugins", "agdf", ".codex-plugin", "plugin.json")).interface.displayName, "AI Governance & Delivery Framework");
   assert.equal(json(join(first.root, ".claude-plugin", "marketplace.json")).plugins[0].source, "./plugins/agdf");
   assert.equal(json(join(first.root, "plugins", "agdf", "runtime", "runtime-manifest.json")).version, pluginDefinition.version);
+  const installationProvenance = json(join(first.root, "plugins", "agdf", ".agdf-installation.json"));
+  assert.equal(installationProvenance.owner, "create-agdf");
+  assert.equal(installationProvenance.profile_id, "runtime-plugin");
+  assert.equal(installationProvenance.marketplace_id, "agdf");
+  assert.equal(installationProvenance.canonical_version, pluginDefinition.version);
+  assert.equal(installationProvenance.runtime_digest, json(join(first.root, "plugins", "agdf", "runtime", "runtime-manifest.json")).digest);
   const localEntrypoint = join(first.root, "plugins", "agdf", "runtime", "agdf-local.js");
   const resolved = spawnSync(process.execPath, [localEntrypoint, "--resolve-only", "--json"], { encoding: "utf8" });
   assert.equal(resolved.status, 0, resolved.stderr);
-  assert.equal(JSON.parse(resolved.stdout).registry_access, false);
+  const resolution = JSON.parse(resolved.stdout);
+  assert.equal(resolution.registry_access, false);
+  assert.equal(resolution.distribution_profile, "runtime-plugin");
+  assert.equal(resolution.provenance_status, "matched");
+  assert.equal(resolution.evidence_plane, "loaded_session");
   for (const args of [
     ["doctor", "--dir", repoRoot, "--all-active", "--json"],
     ["gate-check", "--dir", repoRoot, "--run", "automatic-version-asset-sync", "--json"],
@@ -84,9 +96,69 @@ try {
   }
   first.commit();
 
+  const firstPluginRoot = join(first.root, "plugins", "agdf");
+  const canonicalProvenancePath = join(firstPluginRoot, ".agdf-installation.json");
+  const canonicalProvenance = json(canonicalProvenancePath);
+  rmSync(canonicalProvenancePath);
+  const legacyInstalledDefinitionPath = join(firstPluginRoot, "meta", "agdf-plugin.definition.json");
+  const { distributionProfiles: _removedProfiles, ...legacyInstalledDefinition } = json(legacyInstalledDefinitionPath);
+  writeFileSync(legacyInstalledDefinitionPath, `${JSON.stringify(legacyInstalledDefinition, null, 2)}\n`);
+  const legacySourceDigest = digestPluginSource(firstPluginRoot, canonicalProvenance.canonical_version);
+  writeFileSync(join(firstPluginRoot, ".agdf-local-install.json"), `${JSON.stringify({
+    schema_version: 1,
+    owner: "create-agdf",
+    kind: "codex_local_development_projection",
+    canonical_version: canonicalProvenance.canonical_version,
+    codex_install_version: canonicalProvenance.codex_install_version,
+    source_digest: legacySourceDigest,
+  }, null, 2)}\n`);
+  const ownedMarkerPath = join(first.root, ".agdf-owned.json");
+  writeFileSync(ownedMarkerPath, `${JSON.stringify({
+    ...json(ownedMarkerPath),
+    source_digest: legacySourceDigest,
+    plugin_digest: digestDirectory(firstPluginRoot),
+  }, null, 2)}\n`);
+  const migratedProvenance = prepareLocalMarketplace({ dataRoot, builtPluginRoot });
+  assert.equal(migratedProvenance.changed, true, "explicit reinstall must migrate exact owned legacy provenance");
+  assert.equal(existsSync(join(migratedProvenance.pluginRoot, ".agdf-installation.json")), true);
+  assert.equal(existsSync(join(migratedProvenance.pluginRoot, ".agdf-local-install.json")), false);
+  migratedProvenance.commit();
+
   const current = prepareLocalMarketplace({ dataRoot, builtPluginRoot });
   assert.equal(current.changed, false, "matching marketplace stage must be idempotent");
   current.commit();
+
+  const invalidLegacyDataRoot = join(fixtureRoot, "invalid-legacy-data");
+  const invalidLegacyInitial = prepareLocalMarketplace({ dataRoot: invalidLegacyDataRoot, builtPluginRoot });
+  invalidLegacyInitial.commit();
+  const invalidLegacyPluginRoot = invalidLegacyInitial.pluginRoot;
+  rmSync(join(invalidLegacyPluginRoot, ".agdf-installation.json"));
+  writeFileSync(join(invalidLegacyPluginRoot, ".agdf-local-install.json"), "{}\n");
+  const invalidLegacyOwnedPath = join(invalidLegacyInitial.root, ".agdf-owned.json");
+  writeFileSync(invalidLegacyOwnedPath, `${JSON.stringify({
+    ...json(invalidLegacyOwnedPath),
+    plugin_digest: digestDirectory(invalidLegacyPluginRoot),
+  }, null, 2)}\n`);
+  assert.throws(
+    () => prepareLocalMarketplace({ dataRoot: invalidLegacyDataRoot, builtPluginRoot }),
+    /installation_provenance_invalid/,
+    "arbitrary legacy marker must not become migration authority",
+  );
+
+  const missingProvenanceDataRoot = join(fixtureRoot, "missing-provenance-data");
+  const missingProvenanceInitial = prepareLocalMarketplace({ dataRoot: missingProvenanceDataRoot, builtPluginRoot });
+  missingProvenanceInitial.commit();
+  rmSync(join(missingProvenanceInitial.pluginRoot, ".agdf-installation.json"));
+  const missingProvenanceOwnedPath = join(missingProvenanceInitial.root, ".agdf-owned.json");
+  writeFileSync(missingProvenanceOwnedPath, `${JSON.stringify({
+    ...json(missingProvenanceOwnedPath),
+    plugin_digest: digestDirectory(missingProvenanceInitial.pluginRoot),
+  }, null, 2)}\n`);
+  assert.throws(
+    () => prepareLocalMarketplace({ dataRoot: missingProvenanceDataRoot, builtPluginRoot }),
+    /installation_provenance_missing/,
+    "missing provenance must not become migration authority",
+  );
 
   const codexMarketplacePath = join(current.root, ".agents", "plugins", "marketplace.json");
   const previousCodexMarketplace = json(codexMarketplacePath);
@@ -183,7 +255,7 @@ try {
   writeFileSync(codexManifestPath, codexManifest);
 
   writeFileSync(join(update.root, "plugins", "agdf", "LICENSE"), "tampered\n");
-  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /tampered AGDF marketplace root/);
+  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /source_digest_mismatch|tampered AGDF marketplace root/);
   rmSync(update.root, { recursive: true, force: true });
   mkdirSync(update.root, { recursive: true });
   writeFileSync(join(update.root, "foreign.txt"), "foreign\n");
@@ -193,6 +265,15 @@ try {
   cpSync(builtPluginRoot, corruptBuiltPlugin, { recursive: true });
   writeFileSync(join(corruptBuiltPlugin, "runtime", "create-agdf", "NOTICE"), "corrupt\n");
   assert.throws(() => prepareLocalMarketplace({ dataRoot: join(fixtureRoot, "corrupt-data"), builtPluginRoot: corruptBuiltPlugin }), /runtime digest does not match/);
+
+  const wrongClaudeVersionPlugin = join(fixtureRoot, "wrong-claude-version-plugin");
+  cpSync(builtPluginRoot, wrongClaudeVersionPlugin, { recursive: true });
+  const wrongClaudeManifestPath = join(wrongClaudeVersionPlugin, ".claude-plugin", "plugin.json");
+  writeFileSync(wrongClaudeManifestPath, `${JSON.stringify({ ...json(wrongClaudeManifestPath), version: "9.9.9" }, null, 2)}\n`);
+  assert.throws(
+    () => prepareLocalMarketplace({ dataRoot: join(fixtureRoot, "wrong-claude-data"), builtPluginRoot: wrongClaudeVersionPlugin }),
+    /Built Claude plugin version mismatch/,
+  );
 
   const recoveryDataRoot = join(fixtureRoot, "recovery-data");
   const recoveryInitial = prepareLocalMarketplace({ dataRoot: recoveryDataRoot, builtPluginRoot });

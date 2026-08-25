@@ -20,7 +20,15 @@ export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepar
     transaction.commit();
     return {
       surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion: expectedInstallVersion, canonicalVersion: expectedVersion, installedVersion, verificationStatus: "healthy",
-      evidence: ["durable_local_marketplace", `marketplace:${migration.state}`, "codex plugin list", ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`])],
+      evidence: [
+        "durable_local_marketplace",
+        `marketplace:${migration.state}`,
+        "codex plugin list",
+        ...(transaction.pluginRoot ? [`staged_plugin_root:${transaction.pluginRoot}`, "staged_installation_provenance:matched"] : []),
+        ...(transaction.sourceDigest ? [`source_digest:${transaction.sourceDigest}`] : []),
+        ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
+        ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`]),
+      ],
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {
@@ -53,7 +61,15 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
       expectedVersion,
       installedVersion,
       verificationStatus: installedVersion ? "healthy" : "degraded",
-      evidence: ["durable_local_marketplace", `marketplace:${migration.state}`, "claude plugin list", ...(installedVersion ? [] : ["host_did_not_expose_version"])],
+      evidence: [
+        "durable_local_marketplace",
+        `marketplace:${migration.state}`,
+        "claude plugin list",
+        ...(transaction.pluginRoot ? [`staged_plugin_root:${transaction.pluginRoot}`, "staged_installation_provenance:matched"] : []),
+        ...(transaction.sourceDigest ? [`source_digest:${transaction.sourceDigest}`] : []),
+        ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
+        ...(installedVersion ? [] : ["host_did_not_expose_version"]),
+      ],
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {

@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { pluginDefinition } from "../cli/runtime-context.js";
 import { evaluateOpenCodeStatus, openCodeNpmInvocation } from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
+import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
 
 const CODEX_DISABLE_MARKER = "# AGDF-OWNED-REPOSITORY-PLUGIN-STATE";
 
@@ -12,8 +13,10 @@ function pluginSection(content, selector) {
   return content.match(new RegExp(`\\[plugins\\.${escaped}\\][\\s\\S]*?(?=\\n\\[|$)`))?.[0] ?? "";
 }
 
-function repositorySelector(targetDir) {
-  return existsSync(join(targetDir, ".agents", "plugins", "marketplace.json")) ? "agdf@agdf-repo" : "agdf@agdf";
+function repositorySelector(targetDir, config = "") {
+  const repository = inspectGeneratedRepositoryMarketplace(targetDir);
+  if (repository.status === "matched") return repository.selector;
+  return pluginSection(config, "agdf@agdf-repo") ? "agdf@agdf-repo" : "agdf@agdf";
 }
 
 export function planRepositoryDisable(targetDir, surface) {
@@ -22,7 +25,7 @@ export function planRepositoryDisable(targetDir, surface) {
   }
   const path = join(targetDir, ".codex", "config.toml");
   const existing = existsSync(path) ? readFileSync(path, "utf8") : "";
-  const selector = repositorySelector(targetDir);
+  const selector = repositorySelector(targetDir, existing);
   const escaped = JSON.stringify(selector).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const sectionPattern = new RegExp(`\\[plugins\\.${escaped}\\][\\s\\S]*?(?=\\n\\[|$)`);
   const currentSection = pluginSection(existing, selector);
@@ -49,8 +52,9 @@ export function planRepositoryDisable(targetDir, surface) {
 export function verifyRepositoryDisabled(targetDir) {
   const path = join(targetDir, ".codex", "config.toml");
   if (!existsSync(path)) return { status: "failed", evidence: [`missing:${path}`] };
-  const selector = repositorySelector(targetDir);
-  const section = pluginSection(readFileSync(path, "utf8"), selector);
+  const config = readFileSync(path, "utf8");
+  const selector = repositorySelector(targetDir, config);
+  const section = pluginSection(config, selector);
   const matches = [...section.matchAll(/^enabled\s*=\s*(true|false)\s*$/gm)];
   return matches.length === 1 && matches[0][1] === "false"
     ? { status: "healthy", evidence: [`${path}:${selector}:enabled=false`] }

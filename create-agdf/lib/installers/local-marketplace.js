@@ -1,23 +1,27 @@
-import { createHash } from "node:crypto";
 import {
   cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
-  readdirSync,
   renameSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
+import {
+  INSTALLATION_PROVENANCE_FILE,
+  LEGACY_LOCAL_INSTALL_FILE,
+  digestDirectory,
+  digestNormalizedPluginSource,
+  inspectInstallationProvenance,
+  validateDistributionProfiles,
+} from "../runtime/plugin-provenance.js";
 
 const MARKETPLACE_ID = "agdf";
 const OWNERSHIP_FILE = ".agdf-owned.json";
-const LOCAL_INSTALL_FILE = ".agdf-local-install.json";
 const LEGACY_REPOSITORY = "arndtgold/ai-native-governance-delivery-framework";
 export const CODEX_REGISTRATION_REVISION = 1;
 
@@ -26,52 +30,11 @@ function pathInside(root, candidate) {
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
 }
 
-export function digestDirectory(root) {
-  const files = [];
-  function visit(directory) {
-    for (const name of readdirSync(directory).sort()) {
-      const path = join(directory, name);
-      const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
-    }
-  }
-  visit(root);
-  const hash = createHash("sha256");
-  for (const path of files) {
-    hash.update(relative(root, path).replaceAll("\\", "/"));
-    hash.update("\0");
-    hash.update(readFileSync(path));
-    hash.update("\0");
-  }
-  return hash.digest("hex");
+export function digestPluginSource(root, canonicalVersion = pluginDefinition.version) {
+  return digestNormalizedPluginSource(root, canonicalVersion);
 }
 
-export function digestPluginSource(root, canonicalVersion = pluginDefinition.version) {
-  const files = [];
-  function visit(directory) {
-    for (const name of readdirSync(directory).sort()) {
-      const path = join(directory, name);
-      const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
-    }
-  }
-  visit(root);
-  const hash = createHash("sha256");
-  for (const path of files) {
-    const normalizedPath = relative(root, path).replaceAll("\\", "/");
-    if (normalizedPath === LOCAL_INSTALL_FILE) continue;
-    const content = normalizedPath === ".codex-plugin/plugin.json"
-      ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
-      : readFileSync(path);
-    hash.update(normalizedPath);
-    hash.update("\0");
-    hash.update(content);
-    hash.update("\0");
-  }
-  return hash.digest("hex");
-}
+export { digestDirectory };
 
 function semverBase(version) {
   return version.split("+")[0];
@@ -168,10 +131,14 @@ function claudeMarketplace(definition = pluginDefinition) {
   };
 }
 
-function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVersion = expectedVersion, sourceDigest = "") {
+function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVersion = expectedVersion, sourceDigest = "", {
+  requireInstallationProvenance = false,
+  allowLegacyProvenanceForMigration = false,
+} = {}) {
   const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "built plugin definition");
   const runtime = readJson(join(pluginRoot, "runtime", "runtime-manifest.json"), "built runtime manifest");
   const codex = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "built Codex plugin manifest");
+  const claude = readJson(join(pluginRoot, ".claude-plugin", "plugin.json"), "built Claude plugin manifest");
   for (const required of [
     join(pluginRoot, ".codex-plugin", "plugin.json"),
     join(pluginRoot, ".claude-plugin", "plugin.json"),
@@ -183,31 +150,46 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
   if (definition.version !== expectedVersion || runtime.version !== expectedVersion) {
     throw new Error(`Built plugin version mismatch: expected ${expectedVersion}, definition ${definition.version}, runtime ${runtime.version}`);
   }
+  let provenance = null;
+  if (validateDistributionProfiles(definition).status !== "matched"
+      && requireInstallationProvenance
+      && allowLegacyProvenanceForMigration) {
+    provenance = inspectInstallationProvenance(pluginRoot, {
+      definition,
+      runtimeManifest: runtime,
+      pluginVersion: expectedCodexInstallVersion,
+      allowLegacy: true,
+    });
+  }
+  if (validateDistributionProfiles(definition).status !== "matched" && provenance?.status !== "legacy") {
+    throw new Error("Built plugin distribution profile contract is invalid.");
+  }
   if (codex.version !== expectedCodexInstallVersion) {
     throw new Error(`Built Codex plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${codex.version}`);
+  }
+  if (claude.version !== expectedVersion) {
+    throw new Error(`Built Claude plugin version mismatch: expected ${expectedVersion}, observed ${claude.version}`);
   }
   if (expectedCodexInstallVersion !== expectedVersion) {
     if (!isCodexLocalInstallVersion(expectedVersion, expectedCodexInstallVersion, sourceDigest)) {
       throw new Error(`Invalid AGDF Codex local install version: ${expectedCodexInstallVersion}`);
     }
-    const marker = readJson(join(pluginRoot, LOCAL_INSTALL_FILE), "AGDF local install marker");
-    if (marker.schema_version !== 1
-        || marker.owner !== "create-agdf"
-        || marker.kind !== "codex_local_development_projection"
-        || marker.canonical_version !== expectedVersion
-        || marker.codex_install_version !== expectedCodexInstallVersion
-        || marker.source_digest !== sourceDigest) {
-      throw new Error(`Invalid AGDF local install marker: ${pluginRoot}`);
-    }
-    if (digestPluginSource(pluginRoot, expectedVersion) !== sourceDigest) {
-      throw new Error(`AGDF local install source digest does not match its projected plugin: ${pluginRoot}`);
-    }
-  } else if (existsSync(join(pluginRoot, LOCAL_INSTALL_FILE))) {
-    throw new Error(`Unexpected AGDF local install marker on canonical plugin: ${pluginRoot}`);
   }
   if (!/^[a-f0-9]{64}$/.test(runtime.digest ?? "")) throw new Error("Built plugin runtime digest is invalid.");
   if (digestDirectory(join(pluginRoot, "runtime", "create-agdf")) !== runtime.digest) {
     throw new Error("Built plugin runtime digest does not match its payload.");
+  }
+  if (requireInstallationProvenance) {
+    provenance ??= inspectInstallationProvenance(pluginRoot, {
+      definition,
+      runtimeManifest: runtime,
+      pluginVersion: expectedCodexInstallVersion,
+      allowLegacy: allowLegacyProvenanceForMigration,
+    });
+    if (provenance.status !== "matched"
+        && !(allowLegacyProvenanceForMigration && provenance.status === "legacy")) {
+      throw new Error(`Invalid AGDF installation provenance (${provenance.reason}): ${pluginRoot}`);
+    }
   }
   return definition;
 }
@@ -283,6 +265,7 @@ export function prepareLocalMarketplace({
       existing.version,
       existingCodexInstallVersion,
       existing.source_digest ?? "",
+      { requireInstallationProvenance: true, allowLegacyProvenanceForMigration: true },
     );
     existingMarketplace = validateMarketplaceRoot(stableRoot, existingDefinition);
     if (digestDirectory(existingPluginRoot) !== existing.plugin_digest) {
@@ -309,16 +292,22 @@ export function prepareLocalMarketplace({
     if (codexInstallVersion !== expectedVersion) {
       const codexManifestPath = join(stagedPluginRoot, ".codex-plugin", "plugin.json");
       writeJson(codexManifestPath, { ...readJson(codexManifestPath, "built Codex plugin manifest"), version: codexInstallVersion });
-      writeJson(join(stagedPluginRoot, LOCAL_INSTALL_FILE), {
-        schema_version: 1,
-        owner: "create-agdf",
-        kind: "codex_local_development_projection",
-        canonical_version: expectedVersion,
-        codex_install_version: codexInstallVersion,
-        source_digest: sourceDigest,
-      });
-      validateBuiltPlugin(stagedPluginRoot, expectedVersion, codexInstallVersion, sourceDigest);
     }
+    const runtimeManifest = readJson(join(stagedPluginRoot, "runtime", "runtime-manifest.json"), "built runtime manifest");
+    writeJson(join(stagedPluginRoot, INSTALLATION_PROVENANCE_FILE), {
+      schema_version: 1,
+      owner: "create-agdf",
+      profile_id: "runtime-plugin",
+      marketplace_id: MARKETPLACE_ID,
+      canonical_version: expectedVersion,
+      codex_install_version: codexInstallVersion,
+      source_digest: sourceDigest,
+      runtime_digest: runtimeManifest.digest,
+    });
+    if (existsSync(join(stagedPluginRoot, LEGACY_LOCAL_INSTALL_FILE))) {
+      rmSync(join(stagedPluginRoot, LEGACY_LOCAL_INSTALL_FILE));
+    }
+    validateBuiltPlugin(stagedPluginRoot, expectedVersion, codexInstallVersion, sourceDigest, { requireInstallationProvenance: true });
     writeJson(join(stageRoot, ".agents", "plugins", "marketplace.json"), codexMarketplace(targetDefinition));
     writeJson(join(stageRoot, ".claude-plugin", "marketplace.json"), claudeMarketplace(targetDefinition));
     validateMarketplaceRoot(stageRoot, targetDefinition);
@@ -409,6 +398,7 @@ export function inspectLocalMarketplaceProjection({
     marker.version,
     codexInstallVersion,
     marker.source_digest ?? "",
+    { requireInstallationProvenance: true },
   );
   validateMarketplaceRoot(root, definition);
   if (marker.version !== expectedVersion || digestDirectory(pluginRoot) !== marker.plugin_digest) {
@@ -472,6 +462,7 @@ export function classifyMarketplaceList(surface, output, stableRoot) {
 export const localMarketplaceConstants = Object.freeze({
   id: MARKETPLACE_ID,
   ownershipFile: OWNERSHIP_FILE,
-  localInstallFile: LOCAL_INSTALL_FILE,
+  installationProvenanceFile: INSTALLATION_PROVENANCE_FILE,
+  legacyLocalInstallFile: LEGACY_LOCAL_INSTALL_FILE,
   legacyRepository: LEGACY_REPOSITORY,
 });

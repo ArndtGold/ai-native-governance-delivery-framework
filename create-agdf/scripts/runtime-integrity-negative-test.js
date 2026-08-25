@@ -54,6 +54,18 @@ function expectIntegrityFailure(expected) {
 
 try {
   makeFixture();
+  mkdirSync(join(fixtureRoot, ".agents", "plugins"), { recursive: true });
+  writeFileSync(join(fixtureRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
+  expectIntegrityFailure(/source checkout must not expose a runtime-free Codex marketplace/);
+  rmSync(join(fixtureRoot, ".agents"), { recursive: true, force: true });
+
+  resetPluginFixture();
+  const invalidProfiles = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+  invalidProfiles.distributionProfiles.profiles["runtime-plugin"].runtime = "optional";
+  writeFileSync(pluginDefinitionPath, `${JSON.stringify(invalidProfiles, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/distribution profiles must match the runtime integrity contract/);
+
+  resetPluginFixture();
   unlinkSync(join(fixtureRoot, "plugin", "runtime"));
   mkdirSync(join(fixtureRoot, "plugin", "runtime"));
   writeFileSync(join(fixtureRoot, "plugin", "runtime", "runtime-manifest.json"), "{}\n");

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createLifecycleResult, globalInstallRestartAction } from "../lib/lifecycle/result.js";
 import { lifecycleCardLines, printLifecycleResult } from "../lib/lifecycle/presentation.js";
 import {
@@ -85,6 +86,25 @@ const disabledStatus = evaluateGeneralStatus(exactSectionRoot, { surface: "codex
 });
 assert.equal(disabledStatus.repository.status, "disabled");
 assert.match(disabledStatus.next_action.text, /Restart the host/);
+
+const generatedRepositoryRoot = mkdtempSync(join(tmpdir(), "agdf-generated-repository-"));
+cpSync(fileURLToPath(new URL("../generated/.agents", import.meta.url)), join(generatedRepositoryRoot, ".agents"), { recursive: true });
+cpSync(fileURLToPath(new URL("../generated/plugins", import.meta.url)), join(generatedRepositoryRoot, "plugins"), { recursive: true });
+const generatedRepositoryStatus = evaluateGeneralStatus(generatedRepositoryRoot, { surface: "codex" }, {
+  inspectPluginSurface: () => ({ status: "healthy", surface: "codex", version: pluginDefinition.version, evidence: ["fixture"] }),
+});
+assert.equal(generatedRepositoryStatus.repository.status, "active", "runtime-complete generated repository marketplace must remain active");
+const generatedDisablePlan = planRepositoryDisable(generatedRepositoryRoot, "codex");
+assert.match(generatedDisablePlan.mutations[0].content, /agdf@agdf-repo/);
+
+const invalidRepositoryRoot = mkdtempSync(join(tmpdir(), "agdf-invalid-repository-"));
+mkdirSync(join(invalidRepositoryRoot, ".agents", "plugins"), { recursive: true });
+writeFileSync(join(invalidRepositoryRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
+const invalidRepositoryStatus = evaluateGeneralStatus(invalidRepositoryRoot, { surface: "codex" }, {
+  inspectPluginSurface: () => ({ status: "healthy", surface: "codex", version: pluginDefinition.version, evidence: ["fixture"] }),
+});
+assert.equal(invalidRepositoryStatus.repository.status, "degraded", "runtime-free or malformed repository marketplace must not appear active");
+assert.match(invalidRepositoryStatus.next_action.text, /incomplete or invalid/);
 
 const ambiguousDisableRoot = mkdtempSync(join(tmpdir(), "agdf-disable-ambiguous-"));
 mkdirSync(join(ambiguousDisableRoot, ".codex"), { recursive: true });

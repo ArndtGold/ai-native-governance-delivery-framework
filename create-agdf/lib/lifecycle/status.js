@@ -5,6 +5,7 @@ import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import { evaluateOpenCodeStatus } from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
+import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
 
 function deliveryStatus(targetDir, selection, dependencies) {
   const controlDir = join(targetDir, ".agdf", "control");
@@ -29,7 +30,8 @@ function deliveryStatus(targetDir, selection, dependencies) {
 
 function repositoryStatus(targetDir, surface) {
   if (surface === "codex") {
-    const marketplace = join(targetDir, ".agents", "plugins", "marketplace.json");
+    const repository = inspectGeneratedRepositoryMarketplace(targetDir);
+    const marketplace = repository.marketplacePath;
     const disabled = join(targetDir, ".codex", "config.toml");
     const config = existsSync(disabled) ? readFileSync(disabled, "utf8") : "";
     const isDisabled = ["agdf@agdf-repo", "agdf@agdf"].some((selector) => {
@@ -37,7 +39,11 @@ function repositoryStatus(targetDir, surface) {
       const section = config.match(new RegExp(`\\[plugins\\.${escaped}\\][\\s\\S]*?(?=\\n\\[|$)`))?.[0] ?? "";
       return /^enabled\s*=\s*false\s*$/m.test(section);
     });
-    return { status: isDisabled ? "disabled" : existsSync(marketplace) ? "active" : "not_configured", scope: "repository", evidence: [marketplace] };
+    return {
+      status: isDisabled ? "disabled" : repository.status === "matched" ? "active" : repository.status === "invalid" ? "degraded" : "not_configured",
+      scope: "repository",
+      evidence: [marketplace, ...(repository.reason ? [repository.reason] : [])],
+    };
   }
   if (surface === "opencode") {
     const instructions = join(targetDir, ".opencode", pluginDefinition.opencode.instructionsFileName);
@@ -97,6 +103,8 @@ export function evaluateGeneralStatus(targetDir, options = {}, dependencies = {}
     ? `Run npx --yes @agdf/cli@latest ${surface} to install or repair AGDF.`
     : repository.status === "disabled"
     ? "Restart the host to apply the repository-local disable; the healthy global AGDF installation remains available."
+    : repository.status === "degraded"
+    ? "The repository marketplace is incomplete or invalid; use the supported repository scaffold or the healthy durable global AGDF installation."
     : repository.status === "not_configured"
     ? `Run npx --yes @agdf/cli@latest ${surface === "codex" ? "codex-repo" : `${surface}-repo`} in this repository.`
     : delivery.status === "blocked"

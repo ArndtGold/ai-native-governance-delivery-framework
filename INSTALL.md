@@ -93,12 +93,13 @@ install or update AGDF.
 
 AGDF supports four usage surfaces:
 
-1. **Codex** through the installable plugin manifest in `plugin/.codex-plugin/plugin.json`
-2. **Claude Code** through the installable plugin in `plugin/`
+1. **Codex** through the complete generated plugin containing the projected Codex manifest
+2. **Claude Code** through the same complete generated plugin containing the projected Claude manifest
 3. **GitHub Copilot** through generated repository files because Copilot does not currently consume the AGDF plugin package
 4. **OpenCode** through repository instructions, generated native skills, permissions and the `create-agdf` npm plugin
 
-Codex and Claude Code consume AGDF as an installable plugin runtime.
+Codex and Claude Code consume AGDF as an installable generated plugin runtime. The repository
+`plugin/` directory is the canonical runtime-free source and is not registered directly.
 GitHub Copilot consumes AGDF through an `AGENTS.md` bootstrap and visible repository skills.
 OpenCode consumes AGDF through AGENTS-style instructions, generated native skills, explicit permissions and npm plugin hooks.
 
@@ -267,7 +268,9 @@ node` (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS install
 
 ## Codex
 
-AGDF is available as a Codex plugin from the same `plugin/` root used for the Claude Code plugin.
+AGDF is delivered to Codex and Claude Code from one complete generated plugin bundle. The paths
+below are canonical source projections that are copied into that bundle; the repository `plugin/`
+directory itself is not an installable runtime.
 
 Codex uses:
 
@@ -618,7 +621,9 @@ In GitHub Actions they would only affect the temporary runner and would not inst
 Use GitHub Actions for:
 
 - validating `plugin/.codex-plugin/plugin.json`
-- validating `.claude-plugin/marketplace.json`
+- validating `plugin/.claude-plugin/plugin.json`
+- validating that the source checkout exposes neither root marketplace
+- validating the generated runtime-complete repository marketplace
 - running `node plugin/scripts/check-runtime-integrity.mjs`
 - publishing `create-agdf`
 - validating generated Copilot- and OpenCode-facing files
@@ -717,7 +722,8 @@ For Codex, the plugin manifest is:
 plugin/.codex-plugin/plugin.json
 ```
 
-For Claude Code, the same `plugin/` root is used as the installable plugin package.
+For Claude Code, the generated complete bundle uses the same canonical `plugin/` source projection.
+The source directory itself is not registered as an installable plugin package.
 
 Both surfaces load AGDF skills, hooks and shared meta instructions from the plugin bundle.
 Their skill routing comes from the plugin router and skill descriptions, not from a target-repository `AGENTS.md`.
@@ -737,7 +743,7 @@ AGENTS.md
 
 This creates a clear ownership boundary:
 
-- `plugin/` is the AGDF plugin runtime for Codex and Claude Code.
+- `plugin/` is the canonical runtime-free source for the generated Codex and Claude Code plugin.
 - `AGENTS.md` belongs to the target repository.
 - `.github/skills/**` exposes Copilot-visible AGDF skills.
 - `.agdf/control/**` stores durable AGDF control state owned by the target repository.

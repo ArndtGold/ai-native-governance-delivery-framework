@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import {
@@ -68,7 +68,8 @@ try {
   assert.equal(projected.codexInstallVersion, localVersion);
   assert.equal(json(join(projected.pluginRoot, ".codex-plugin", "plugin.json")).version, localVersion);
   assert.equal(json(join(projected.pluginRoot, ".claude-plugin", "plugin.json")).version, pluginDefinition.version);
-  assert.equal(json(join(projected.pluginRoot, ".agdf-local-install.json")).source_digest, sourceDigest);
+  assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).source_digest, sourceDigest);
+  assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).profile_id, "runtime-plugin");
   assert.equal(json(join(projected.root, ".agdf-owned.json")).codex_install_version, localVersion);
   projected.commit();
 
@@ -86,7 +87,7 @@ try {
   assert.equal(installedIntegrity.status, 0, `${installedIntegrity.stdout}\n${installedIntegrity.stderr}`);
   assert.match(installedIntegrity.stdout, /mode=installed/);
 
-  const localMarkerPath = join(projected.pluginRoot, ".agdf-local-install.json");
+  const localMarkerPath = join(projected.pluginRoot, ".agdf-installation.json");
   const localCodexManifestPath = join(projected.pluginRoot, ".codex-plugin", "plugin.json");
   const localMarker = readFileSync(localMarkerPath, "utf8");
   const localCodexManifest = readFileSync(localCodexManifestPath, "utf8");
@@ -140,6 +141,9 @@ try {
   assert.equal(installed.expectedVersion, localVersion);
   assert.equal(installed.canonicalVersion, pluginDefinition.version);
   assert.equal(installed.installedVersion, localVersion);
+  assert.equal(installed.evidence.some((item) => item.startsWith("staged_plugin_root:")), true);
+  assert.equal(installed.evidence.includes("staged_installation_provenance:matched"), true);
+  assert.equal(installed.evidence.some((item) => item.startsWith("installed_plugin_root:")), false, "installer must not claim the host-loaded root from staged evidence");
   assert.equal(codexCalls.includes("codex plugin add agdf@agdf --json"), true);
   assert.equal(inspectPluginSurface("codex", () => `agdf@agdf ${localVersion}\n`, { dataRoot: marketplaceDataRoot }).status, "healthy");
   assert.equal(inspectPluginSurface("codex", () => `agdf@agdf ${localVersion}\n`, { dataRoot: join(fixtureRoot, "missing-marketplace") }).status, "degraded");
@@ -166,6 +170,7 @@ try {
   });
   assert.equal(claudeInstalled.installedVersion, pluginDefinition.version);
   assert.equal(claudeListCalls, 2);
+  assert.equal(claudeInstalled.evidence.includes("staged_installation_provenance:matched"), true);
   assert.equal(json(join(projected.pluginRoot, ".codex-plugin", "plugin.json")).version, localVersion, "Claude must not replace the shared Codex projection");
 
   const codexLifecycleOutput = [];
@@ -326,7 +331,7 @@ try {
   });
   assert.equal(claudeCode, 4, "the lifecycle exit code must be preserved");
 
-  const openCodeDataRoot = join(fixtureRoot, "opencode-orchestration-data");
+  const openCodeDataRoot = join(fixtureRoot, "opencode orchestration data");
   const openCodeCode = await installLocalPlugin("opencode", {
     dataRoot: openCodeDataRoot,
     exec(executable, args, options) {
@@ -336,7 +341,8 @@ try {
     async runCli(args, adapters) {
       assert.deepEqual(args, ["opencode"]);
       assert.equal(adapters.openCodePackageSource.dataRoot, openCodeDataRoot);
-      assert.match(adapters.openCodePackageSource.specifier, /^file:/);
+      assert.equal(isAbsolute(adapters.openCodePackageSource.specifier), true);
+      assert.match(adapters.openCodePackageSource.specifier, /opencode orchestration data/);
       return 0;
     },
   });

@@ -11,8 +11,9 @@ import {
   digestPluginSource,
   prepareLocalMarketplace,
 } from "../lib/installers/local-marketplace.js";
-import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
+import { installClaudeGlobalPlugin, installCodexGlobalPlugin, pluginVersionFromList } from "../lib/installers/plugin-installers.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
+import { renameSyncWithRetry } from "../lib/fs-swap.js";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
@@ -331,6 +332,30 @@ try {
   assert.equal(claudeTx.state.committed, 1);
   assert.ok(claudeCalls.includes(`claude plugin marketplace add ${join(fixtureRoot, "claude-marketplace")} --scope user`));
   assert.ok(claudeCalls.includes("claude plugin marketplace update agdf"));
+  assert.ok(claudeCalls.includes("claude plugin uninstall agdf@agdf"), "installed plugin must be reinstalled, not updated");
+  assert.ok(claudeCalls.includes("claude plugin install agdf@agdf"));
+  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
+  assert.equal(claudeCalls.includes("claude plugin update agdf@agdf"), false, "same-version update must no longer be used");
+
+  const claudeFreshTx = fakeTransaction(join(fixtureRoot, "claude-fresh-marketplace"));
+  const claudeFreshCalls = [];
+  const multiLineList = `Installed plugins:\n\n  ❯ agdf@agdf\n    Version: ${pluginDefinition.version}\n    Scope: user\n    Status: ✔ enabled\n`;
+  const claudeFresh = installClaudeGlobalPlugin({
+    prepare: claudeFreshTx.prepare,
+    exec: scriptedExec({
+      "claude plugin marketplace list --json": "[]",
+      "claude plugin list": (() => {
+        let listCalls = 0;
+        return () => {
+          listCalls += 1;
+          return listCalls === 1 ? "Installed plugins:\n\n(none)\n" : multiLineList;
+        };
+      })(),
+    }, claudeFreshCalls),
+  });
+  assert.equal(claudeFresh.installedVersion, pluginDefinition.version, "multi-line list output must yield the real version");
+  assert.equal(claudeFresh.verificationStatus, "healthy");
+  assert.equal(claudeFreshCalls.includes("claude plugin uninstall agdf@agdf"), false, "a fresh install must not uninstall first");
 
   const currentTx = fakeTransaction(join(fixtureRoot, "current-marketplace"));
   const currentCalls = [];
@@ -447,6 +472,52 @@ try {
   }), /Refusing to replace/);
   assert.deepEqual(conflictCalls, ["claude plugin marketplace list --json"]);
   assert.equal(conflictTx.state.rolledBack, 1);
+
+  const epermError = () => Object.assign(new Error("locked"), { code: "EPERM" });
+  const retrySleeps = [];
+  renameSyncWithRetry("stage", "stable", {
+    platform: "win32",
+    sleep: (ms) => retrySleeps.push(ms),
+    rename: () => { if (retrySleeps.length < 2) throw epermError(); },
+  });
+  assert.deepEqual(retrySleeps, [50, 100], "transient EPERM renames must retry with backoff on win32");
+
+  let persistentAttempts = 0;
+  assert.throws(() => renameSyncWithRetry("stage", "stable", {
+    platform: "win32",
+    sleep: () => {},
+    rename: () => { persistentAttempts += 1; throw epermError(); },
+  }), /locked/, "persistent EPERM must surface after bounded attempts");
+  assert.equal(persistentAttempts, 5, "retry must stay bounded");
+
+  let posixAttempts = 0;
+  assert.throws(() => renameSyncWithRetry("stage", "stable", {
+    platform: "linux",
+    sleep: () => { throw new Error("must not sleep"); },
+    rename: () => { posixAttempts += 1; throw epermError(); },
+  }), /locked/);
+  assert.equal(posixAttempts, 1, "non-Windows EPERM must not retry");
+
+  let enoentAttempts = 0;
+  assert.throws(() => renameSyncWithRetry("stage", "stable", {
+    platform: "win32",
+    sleep: () => { throw new Error("must not sleep"); },
+    rename: () => { enoentAttempts += 1; throw Object.assign(new Error("missing"), { code: "ENOENT" }); },
+  }), /missing/);
+  assert.equal(enoentAttempts, 1, "non-EPERM errors must not retry");
+
+  assert.equal(pluginVersionFromList(`agdf@agdf ${pluginDefinition.version}\n`, "agdf@agdf"), pluginDefinition.version, "single-line format must keep working");
+  assert.equal(
+    pluginVersionFromList(`Installed plugins:\n\n  ❯ agdf@agdf\n    Version: ${pluginDefinition.version}\n    Scope: user\n`, "agdf@agdf"),
+    pluginDefinition.version,
+    "multi-line format must yield the version from the entry block",
+  );
+  assert.equal(
+    pluginVersionFromList("Installed plugins:\n\n  ❯ other@market\n    Version: 9.9.9\n  ❯ agdf@agdf\n    Scope: user\n", "agdf@agdf"),
+    "",
+    "a version from another entry block must not be attributed",
+  );
+  assert.equal(pluginVersionFromList("Installed plugins:\n\n(none)\n", "agdf@agdf"), "", "absent plugin must yield an empty version");
 
   console.log("Local marketplace tests passed");
 } finally {

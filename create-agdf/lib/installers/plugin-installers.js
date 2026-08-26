@@ -48,7 +48,12 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
     nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "marketplace", "update", "agdf"], "marketplace", captureOptions()));
     const beforeList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", captureOptions());
     const alreadyInstalled = pluginListHasPlugin(beforeList, "agdf@agdf");
-    nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", alreadyInstalled ? "update" : "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+    // `claude plugin update` keeps the cached copy when the version is unchanged, so a
+    // same-version local source change never reaches the host; reinstall replaces the content.
+    if (alreadyInstalled) {
+      nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "uninstall", "agdf@agdf"], "plugin_operation", captureOptions()));
+    }
+    nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
     const afterList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", captureOptions());
     const installedVersion = pluginVersionFromList(afterList, "agdf@agdf");
     if (installedVersion && installedVersion !== expectedVersion) {
@@ -217,14 +222,23 @@ export function pluginListHasPlugin(output, pluginId) {
     .some((line) => line.includes(pluginId));
 }
 
+const VERSION_PATTERN = "(\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?)";
+
 export function pluginVersionFromList(output, pluginId) {
   const escapedPluginId = pluginId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const line = output
-    .split(/\r?\n/)
-    .find((entry) => new RegExp(`(^|\\s)${escapedPluginId}(\\s|$)`).test(entry));
-  if (!line) return "";
-  const versionMatch = line.match(/\b(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)\b/);
-  return versionMatch?.[1] ?? "";
+  const lines = output.split(/\r?\n/);
+  const entryIndex = lines.findIndex((entry) => new RegExp(`(^|\\s)${escapedPluginId}(\\s|$)`).test(entry));
+  if (entryIndex < 0) return "";
+  const sameLine = lines[entryIndex].match(new RegExp(`\\b${VERSION_PATTERN}\\b`));
+  if (sameLine) return sameLine[1];
+  // Current `claude plugin list` prints the plugin id and its `Version:` on separate
+  // lines; scan the entry's block until the next plugin id line.
+  for (let index = entryIndex + 1; index < lines.length; index += 1) {
+    if (/\S+@\S+/.test(lines[index])) break;
+    const blockMatch = lines[index].match(new RegExp(`\\bVersion:?\\s*${VERSION_PATTERN}\\b`, "i"));
+    if (blockMatch) return blockMatch[1];
+  }
+  return "";
 }
 
 function versionMismatchMessage(surface, pluginId, expectedVersion, installedVersion, correctiveCommand) {

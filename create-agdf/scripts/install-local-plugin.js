@@ -4,15 +4,6 @@ import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
-import { runCli } from "../lib/cli/application.js";
-import { pluginDefinition } from "../lib/cli/runtime-context.js";
-import {
-  codexLocalInstallVersion,
-  defaultAgdfDataRoot,
-  digestPluginSource,
-  prepareLocalMarketplace,
-} from "../lib/installers/local-marketplace.js";
-import { prepareLocalOpenCodePackage } from "../lib/installers/local-development.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
@@ -29,10 +20,20 @@ function npmInvocation(args) {
 export async function installLocalPlugin(surface, adapters = {}) {
   if (!supportedSurfaces.has(surface)) throw new Error(`Unsupported AGDF local install surface: ${surface || "missing"}`);
   const exec = adapters.exec ?? execFileSync;
-  const cli = adapters.runCli ?? runCli;
-  const dataRoot = adapters.dataRoot ?? defaultAgdfDataRoot();
   const preparation = npmInvocation(["--prefix", packageRoot, "run", "release:prepare"]);
   exec(preparation.executable, preparation.args, { encoding: "utf8", stdio: "inherit" });
+
+  // The lib modules read generated plugin metadata at import time, so they are
+  // loadable only after release:prepare has produced generated/ on a fresh checkout.
+  const [{ runCli }, { pluginDefinition }, marketplace, { prepareLocalOpenCodePackage }] = await Promise.all([
+    import("../lib/cli/application.js"),
+    import("../lib/cli/runtime-context.js"),
+    import("../lib/installers/local-marketplace.js"),
+    import("../lib/installers/local-development.js"),
+  ]);
+  const { codexLocalInstallVersion, defaultAgdfDataRoot, digestPluginSource, prepareLocalMarketplace } = marketplace;
+  const cli = adapters.runCli ?? runCli;
+  const dataRoot = adapters.dataRoot ?? defaultAgdfDataRoot();
 
   const sourceDigest = digestPluginSource(builtPluginRoot, pluginDefinition.version);
   const codexInstallVersion = codexLocalInstallVersion(pluginDefinition.version, sourceDigest);

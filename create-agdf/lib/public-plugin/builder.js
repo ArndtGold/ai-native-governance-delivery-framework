@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { renameSyncWithRetry } from "../fs-swap.js";
 import { assertPublicPluginContract, loadJson } from "./contract.js";
 import { renderCodexPluginManifest } from "./manifest.js";
 import { createReadinessReport, renderReadinessReport } from "./report.js";
@@ -66,11 +67,11 @@ export function buildPublicPluginCandidate({ repoRoot, outputRoot }) {
     const backupRoot = `${outputRoot}.previous`;
     if (existsSync(backupRoot)) throw new Error(`Refusing candidate swap while recovery backup exists: ${backupRoot}`);
     const hadPrevious = existsSync(outputRoot);
-    if (hadPrevious) renameSync(outputRoot, backupRoot);
+    if (hadPrevious) renameSyncWithRetry(outputRoot, backupRoot);
     try {
-      renameSync(temporaryRoot, outputRoot);
+      renameSyncWithRetry(temporaryRoot, outputRoot);
     } catch (error) {
-      if (hadPrevious && existsSync(backupRoot) && !existsSync(outputRoot)) renameSync(backupRoot, outputRoot);
+      if (hadPrevious && existsSync(backupRoot) && !existsSync(outputRoot)) renameSyncWithRetry(backupRoot, outputRoot);
       throw error;
     }
     if (hadPrevious) rmSync(backupRoot, { recursive: true, force: true });

@@ -3,7 +3,6 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -11,6 +10,7 @@ import { homedir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
+import { renameSyncWithRetry } from "../fs-swap.js";
 import {
   INSTALLATION_PROVENANCE_FILE,
   LEGACY_LOCAL_INSTALL_FILE,
@@ -219,9 +219,9 @@ function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failed
     if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
     if (existsSync(stableRoot)) {
       ownership(stableRoot);
-      renameSync(stableRoot, failedRoot);
+      renameSyncWithRetry(stableRoot, failedRoot);
     }
-    renameSync(backupRoot, stableRoot);
+    renameSyncWithRetry(backupRoot, stableRoot);
     if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
   }
   if (existsSync(stageRoot)) removeOwnedRoot(stageRoot, parent, { allowBuilding: true });
@@ -344,11 +344,11 @@ export function prepareLocalMarketplace({
       });
     }
 
-    if (existsSync(stableRoot)) renameSync(stableRoot, backupRoot);
+    if (existsSync(stableRoot)) renameSyncWithRetry(stableRoot, backupRoot);
     try {
-      renameSync(stageRoot, stableRoot);
+      renameSyncWithRetry(stageRoot, stableRoot);
     } catch (error) {
-      if (existsSync(backupRoot) && !existsSync(stableRoot)) renameSync(backupRoot, stableRoot);
+      if (existsSync(backupRoot) && !existsSync(stableRoot)) renameSyncWithRetry(backupRoot, stableRoot);
       throw error;
     }
     let closed = false;
@@ -369,8 +369,8 @@ export function prepareLocalMarketplace({
         if (closed) return;
         if (existsSync(backupRoot)) {
           if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
-          if (existsSync(stableRoot)) renameSync(stableRoot, failedRoot);
-          renameSync(backupRoot, stableRoot);
+          if (existsSync(stableRoot)) renameSyncWithRetry(stableRoot, failedRoot);
+          renameSyncWithRetry(backupRoot, stableRoot);
           if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
         } else if (existsSync(stableRoot)) {
           removeOwnedRoot(stableRoot, parent);

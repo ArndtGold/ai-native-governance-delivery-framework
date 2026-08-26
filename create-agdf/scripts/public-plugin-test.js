@@ -158,6 +158,23 @@ negativeFixture("prompt-count", (root) => {
   value.interface.defaultPrompt.pop();
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 }, /AGDF_PUBLIC_PLUGIN_LISTING_LIMIT_EXCEEDED/);
-negativeFixture("symlink", (root) => symlinkSync(join(root, "assets", "agdf-logo.svg"), join(root, "linked-logo.svg")), /symlink not allowed/);
+function symlinkCreationAvailable() {
+  const probeRoot = mkdtempSync(join(tmpdir(), "agdf-public-symlink-probe-"));
+  try {
+    symlinkSync(join(probeRoot, "probe-target"), join(probeRoot, "probe-link"));
+    return true;
+  } catch (error) {
+    if (error?.code !== "EPERM") throw error;
+    return false;
+  } finally {
+    rmSync(probeRoot, { recursive: true, force: true });
+  }
+}
+
+if (symlinkCreationAvailable()) {
+  negativeFixture("symlink", (root) => symlinkSync(join(root, "assets", "agdf-logo.svg"), join(root, "linked-logo.svg")), /symlink not allowed/);
+} else {
+  console.log("Skipped symlink negative fixture: symlink creation is unavailable on this host (EPERM).");
+}
 
 console.log(`Public plugin tests passed (${second.fileCount} inventoried candidate files; digest ${second.digest})`);

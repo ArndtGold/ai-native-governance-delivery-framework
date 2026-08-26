@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import {
   codexLocalInstallVersion,
@@ -360,6 +360,21 @@ try {
     exec() { invalidExecCalls += 1; },
   }), /Unsupported AGDF local install surface/);
   assert.equal(invalidExecCalls, 0, "invalid surfaces must fail before preparation");
+
+  const freshCheckoutRoot = join(fixtureRoot, "fresh-checkout", "create-agdf");
+  mkdirSync(join(freshCheckoutRoot, "scripts"), { recursive: true });
+  cpSync(join(packageRoot, "package.json"), join(freshCheckoutRoot, "package.json"));
+  cpSync(join(packageRoot, "scripts", "install-local-plugin.js"), join(freshCheckoutRoot, "scripts", "install-local-plugin.js"));
+  cpSync(join(packageRoot, "lib"), join(freshCheckoutRoot, "lib"), { recursive: true });
+  const loadProbe = (modulePath) => spawnSync(process.execPath, [
+    "--input-type=module",
+    "-e",
+    `await import(${JSON.stringify(pathToFileURL(modulePath).href)});`,
+  ], { encoding: "utf8" });
+  const freshInstallerLoad = loadProbe(join(freshCheckoutRoot, "scripts", "install-local-plugin.js"));
+  assert.equal(freshInstallerLoad.status, 0, `installer must load on a checkout without generated/: ${freshInstallerLoad.stderr}`);
+  const freshRuntimeContextLoad = loadProbe(join(freshCheckoutRoot, "lib", "cli", "runtime-context.js"));
+  assert.notEqual(freshRuntimeContextLoad.status, 0, "fixture must actually lack generated plugin metadata");
 
   const rootManifest = json(join(repoRoot, "package.json"));
   const packageManifest = json(join(packageRoot, "package.json"));

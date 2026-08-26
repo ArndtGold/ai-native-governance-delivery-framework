@@ -1,6 +1,6 @@
 # Task Plan Review: Cross-Host Plugin Runtime Integrity
 
-Status: revise; revision 3
+Status: revise; revision 4
 Decision: revise
 Date: 2026-08-26
 Based on: approved TP revision 3 and CD+Tests revision 3
@@ -14,7 +14,7 @@ Based on: approved TP revision 3 and CD+Tests revision 3
 | CRI-14 | fully_done | Positive rebuild and negative current-markerless, malformed-marker, digest-tamper and incomplete-root fixtures exercise all three classifications; existing marketplace, version and runtime validators are reused | none | none |
 | CRI-15 | fully_done | Canonical-only stage, direct transaction rollback, simulated host-failure rollback, exact old-root digest restoration, commit cleanup and installer evidence assertions pass | none | none |
 | CRI-16 | partially_done | Target-platform POSIX and Windows path matrices pass with the complete local-marketplace suite on macOS | Direct native-Windows CRI-H05 execution | QA must remain revise |
-| CRI-17 | partially_done | All declared focused repository checks, release preparation, independent Runtime Integrity and full smoke pass | Direct native-Windows suite and rebuild transaction evidence | QA must remain revise |
+| CRI-17 | partially_done | All declared focused repository checks, release preparation, independent Runtime Integrity, full smoke and the public exact-version 0.13.6 bootstrap pass | Direct native-Windows suite and rebuild transaction evidence | QA must remain revise |
 | CRI-18 | partially_done | CD+Tests, Context Graph, TP Review, Clean Review and Code Review revision 3 are refreshed | QA rerun and direct Windows evidence remain | proceed to QA as revise |
 
 ## UX Intent Fidelity

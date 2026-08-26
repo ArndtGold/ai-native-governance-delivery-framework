@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-cross-host-runtime-integrity
 - lifecycle: active
-- revision: 19
-- revision_id: eca39c21-3c9d-4d8f-9124-2c0ac5ead162
+- revision: 20
+- revision_id: d42b9b9b-ec7e-4b21-9245-0930bee26fca
 - mode: structured_delivery
 - current_gate: QA
 - decision: in_progress
@@ -23,7 +23,7 @@ complete installation.
 
 | Question | Answer |
 |---|---|
-| What is known? | CRI-13 through CRI-15 are complete. Repository implementation, focused tests, full smoke, Clean Review and Code Review pass. QA Revision 4 remains revise only because direct native-Windows CRI-H05 evidence is absent. |
+| What is known? | CRI-13 through CRI-15 are complete. The exact public 0.13.6 bootstrap, repository implementation, focused tests, full smoke, Clean Review and Code Review pass. QA Revision 5 remains revise only because direct native-Windows CRI-H05 evidence is absent. |
 | What is approved? | UR Revision 1, PRD Revision 3, SD Revision 3 and TP Revision 3 are approved. TP Revision 2 remains historical approved evidence only. |
 | What is missing? | Direct native-Windows CRI-H05 execution, then refreshed TP Review and QA. |
 | What is the next allowed action? | Execute the complete local-marketplace suite and owned pre-provenance rebuild, host-failure rollback and commit probe on native Windows; attach direct evidence and rerun QA. |
@@ -50,7 +50,7 @@ complete installation.
 | PRD | approved | Exact `Approval: PRD` provided on 2026-08-25 after same-run, same-gate and revision-3 revalidation. |
 | SD | approved | Exact `Approval: SD` accepted on 2026-08-26 after same-run, same-gate and run-revision-15 revalidation. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-08-26 after same-run, same-gate and run-revision-16 revalidation; Revision 2 remains historical approved evidence only. |
-| QA | revise | QA Report Revision 4 resolves both implementation findings and retains one open native-Windows evidence gap, CRI-TPR-02. |
+| QA | revise | QA Report Revision 5 also resolves the release-bootstrap dist-tag cache race and retains one open native-Windows evidence gap, CRI-TPR-02. |
 | UAT | missing | Blocked by QA revise. |
 
 ## Artefacts
@@ -65,10 +65,10 @@ complete installation.
 | TP | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TP.md` | approved | Revision 3 adds CRI-13 through CRI-18, CRI-T18 through CRI-T25 and direct native-Windows CRI-H05 evidence. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/BROWNFIELD_ANALYSIS.md` | done | Revision 3 passed; the existing installer, transaction, provenance, lifecycle and test owners permit bounded CRI-13 through CRI-18 CD+Tests. |
 | CD+Tests | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CD_TESTS.md` | done | Revision 3 implements secure rebuild, exact rollback, target-platform paths and evidence projection; all repository checks pass. |
-| TP Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TASK_PLAN_REVIEW.md` | revise | 15/18 tasks fully done; CRI-16 through CRI-18 remain partial only for native-Windows CRI-H05 and QA closeout. |
-| Clean Implementation Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | One marketplace and transaction owner; no workaround, cache patch, platform skip or parallel structure. |
-| CR | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CODE_REVIEW.md` | done | Revision 3 passes after semantic-version eligibility and actual host-failure rollback coverage were added. |
-| QA | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/QA_REPORT.md` | revise | Revision 4 resolves CRI-QA-01 and CRI-QA-02 implementation work; open CRI-TPR-02 requires direct native-Windows evidence. |
+| TP Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TASK_PLAN_REVIEW.md` | revise | Revision 4 keeps 15/18 tasks fully done; CRI-16 through CRI-18 remain partial only for native-Windows CRI-H05 and QA closeout. |
+| Clean Implementation Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 4 confirms one marketplace and transaction owner plus separate dist-tag readiness and exact-version bootstrap responsibilities. |
+| CR | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CODE_REVIEW.md` | done | Revision 4 passes after semantic-version eligibility, host-failure rollback coverage and exact public release bootstrap were verified. |
+| QA | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/QA_REPORT.md` | revise | Revision 5 resolves CRI-QA-01 through CRI-QA-03; open CRI-TPR-02 requires direct native-Windows evidence. |
 
 ## Mode/Slice Decision
 
@@ -112,6 +112,7 @@ complete installation.
 | Clean Implementation Review revision 3 | reviews | CD+Tests revision 3 | Pass with one existing installer and transaction owner and no fallback-heavy path. |
 | Code Review revision 3 | reviews | CD+Tests revision 3 | Pass with no open code finding. |
 | QA Report revision 4 | tests | TP Review and implementation reviews revision 3 | Revise solely for open native-Windows evidence gap CRI-TPR-02. |
+| QA Report revision 5 | supersedes | QA Report revision 4 | Exact public 0.13.6 bootstrap resolves the dist-tag cache race; CRI-TPR-02 remains the sole open gap. |
 | UR | extends | completed_run:automatic-version-asset-sync | Reuse the canonical runtime build and durable marketplace architecture. |
 | UR | extends | completed_run:agdf-local-plugin-install-scripts | Reuse local-development installation and cachebuster orchestration. |
 
@@ -126,6 +127,7 @@ complete installation.
 | Full regression suite | `npm --prefix create-agdf run smoke-test` | Final implementation, package, integrity, routing and 66/66 skill-eval coverage | deterministic repository evidence |
 | Native-Windows pre-provenance reinstall | `.agdf/control/artefacts/windows-native-install-viability/VERIFIED_CHANGE.md` | Reproduced markerless owned-root failure and manual-recovery dependency; exposed non-portable local-marketplace assertions | direct host observation |
 | Revision-3 repository verification | Focused tests, canonical release preparation, source Runtime Integrity and full `create-agdf` smoke | Secure rebuild, exact rollback, target-platform paths, package and 66/66 skill-eval regressions | deterministic repository evidence |
+| Exact public release bootstrap | `AGDF_EXPECTED_VERSION=0.13.6 node create-agdf/scripts/release-bootstrap-smoke-test.js` | Public npm CLI 0.13.6 completes the isolated Codex bootstrap without a second `@latest` resolution | direct public-registry execution |
 
 ## Missing Evidence
 

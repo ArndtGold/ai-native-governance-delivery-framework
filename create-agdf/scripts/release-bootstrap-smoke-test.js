@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 const tempDir = mkdtempSync(join(tmpdir(), "agdf-release-bootstrap-"));
 const expectedVersion = process.env.AGDF_EXPECTED_VERSION
   || JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
+const packageSpec = `@agdf/cli@${expectedVersion}`;
 const homeDir = join(tempDir, "home");
 const npmCacheDir = join(tempDir, "npm-cache");
 const targetDir = join(tempDir, "target");
@@ -30,7 +31,7 @@ if (args.join(" ") === "plugin list") console.log("agdf@agdf " + process.env.AGD
 chmodSync(fakeCodexPath, 0o755);
 
 try {
-  const output = execFileSync("npx", ["--yes", "@agdf/cli@latest", "codex"], {
+  const output = execFileSync("npx", ["--yes", packageSpec, "codex"], {
     cwd: targetDir,
     encoding: "utf8",
     stdio: "pipe",

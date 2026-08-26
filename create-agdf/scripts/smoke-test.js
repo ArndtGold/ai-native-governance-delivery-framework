@@ -243,6 +243,13 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   if (publishWorkflow.indexOf("Wait for @agdf/cli readiness") > publishWorkflow.indexOf("Run clean public bootstrap smoke test")) {
     throw new Error("Clean public bootstrap smoke test must run after @agdf/cli readiness.");
   }
+  const releaseBootstrapPath = fileURLToPath(new URL("./release-bootstrap-smoke-test.js", import.meta.url));
+  const releaseBootstrap = readFileSync(releaseBootstrapPath, "utf8");
+  if (!releaseBootstrap.includes('const packageSpec = `@agdf/cli@${expectedVersion}`;')
+    || !releaseBootstrap.includes('["--yes", packageSpec, "codex"]')
+    || releaseBootstrap.includes('["--yes", "@agdf/cli@latest", "codex"]')) {
+    throw new Error("Clean public bootstrap must execute the exact release version after the workflow verifies the latest dist-tag separately.");
+  }
   const publishJobIndex = publishWorkflow.indexOf("\n  publish:");
   const validateJob = publishWorkflow.slice(0, publishJobIndex);
   const publishJob = publishWorkflow.slice(publishJobIndex);

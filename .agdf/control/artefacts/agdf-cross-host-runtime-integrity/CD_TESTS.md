@@ -113,6 +113,11 @@ Consume the refreshed Task Plan Review, Clean Implementation Review and Code Rev
   including 66/66 deterministic skill evaluations and routing render.
 - generated `agdf-local.js --resolve-only --json`: pass with 0.13.6 `owned_version_matched`,
   `generated_bundle`, matching runtime digest and no registry access.
+- `AGDF_EXPECTED_VERSION=0.13.6 node create-agdf/scripts/release-bootstrap-smoke-test.js`:
+  pass against the public npm registry. The script executed exact `@agdf/cli@0.13.6`; the workflow
+  retains a separate bounded check that the `latest` dist-tag resolves to 0.13.6.
+- `node create-agdf/scripts/smoke-test.js`: pass with a permanent assertion that the public
+  bootstrap uses the exact expected release and does not resolve `@latest` a second time.
 - selected-run generated validator `doctor --json`: pass with zero findings.
 - `npm --prefix create-agdf audit --audit-level=high`: not applicable because the package has no
   lockfile; npm returns `ENOLOCK`. No lockfile was created.

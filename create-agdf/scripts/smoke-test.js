@@ -373,13 +373,22 @@ const args = process.argv.slice(2);
 fs.appendFileSync(process.env.FAKE_CLAUDE_LOG, JSON.stringify(args) + "\\n");
 if (args.join(" ") === "plugin marketplace list --json") console.log("[]");
 if (args.join(" ") === "plugin list") {
-  console.log("agdf@agdf ${pluginDefinition.version}");
+  if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf ${pluginDefinition.version}");
+  process.exit(0);
+}
+if (args.join(" ") === "plugin uninstall agdf@agdf") {
+  fs.rmSync(process.env.FAKE_CLAUDE_STATE, { force: true });
+}
+if (args.join(" ") === "plugin install agdf@agdf") {
+  fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
 }
 `);
     runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
-    if (!calls.includes("plugin update agdf@agdf") || calls.includes("plugin install agdf@agdf")) {
-      throw new Error(`Claude existing install must use plugin update only: ${calls.join(" | ")}`);
+    const uninstallIndex = calls.indexOf("plugin uninstall agdf@agdf");
+    const installIndex = calls.indexOf("plugin install agdf@agdf");
+    if (uninstallIndex < 0 || installIndex < 0 || uninstallIndex >= installIndex || calls.includes("plugin update agdf@agdf")) {
+      throw new Error(`Claude existing install must use uninstall then install: ${calls.join(" | ")}`);
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

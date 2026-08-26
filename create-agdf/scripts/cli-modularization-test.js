@@ -229,9 +229,12 @@ function prepareMarketplace() {
 }
 
 {
-  const recording = installerRecording(["[]", "", "", `agdf@agdf ${pluginDefinition.version}\n`, "", `agdf@agdf ${pluginDefinition.version}\n`]);
+  const recording = installerRecording(["[]", "", "", `agdf@agdf ${pluginDefinition.version}\n`, "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
   installClaudeGlobalPlugin({ exec: recording.exec, prepare: prepareMarketplace });
-  assert.deepEqual(recording.calls[4].args, ["plugin", "update", "agdf@agdf"]);
+  assert.deepEqual(recording.calls.slice(4, 6).map(({ args }) => args), [
+    ["plugin", "uninstall", "agdf@agdf"],
+    ["plugin", "install", "agdf@agdf"],
+  ]);
 }
 
 {

@@ -1,6 +1,6 @@
 # Availability Decision Record
 
-- release: `0.13.5`
+- release: `0.13.6`
 - decision_state: `pending`
 - decision_owner: verified publisher
 - countries: not selected

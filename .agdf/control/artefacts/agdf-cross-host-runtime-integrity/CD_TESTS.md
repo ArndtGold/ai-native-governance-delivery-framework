@@ -1,8 +1,8 @@
 # CD+Tests: Cross-Host Plugin Runtime Integrity
 
-Status: done  
-Based on: approved TP revision 2  
-Date: 2026-08-25  
+Status: done; revision 3
+Based on: approved TP revision 3
+Date: 2026-08-26
 Owner: agent
 
 ## 1. Result
@@ -81,3 +81,43 @@ installer or temporary-root evidence.
 ## 5. Next Step
 
 Consume the refreshed Task Plan Review, Clean Implementation Review and Code Review in QA Gate.
+
+## 6. Revision 3 Reliability Delta
+
+| task_id | status | implementation and evidence |
+|---|---|---|
+| CRI-13 | done | The implementation baseline contained only this run's control artefacts. The delta changed the approved existing installer owners and their directly corresponding test only; no unrelated user path was modified. |
+| CRI-14 | done | `local-marketplace.js` now separates `current_or_marker_migration`, `owned_pre_provenance_rebuild` and `invalid_or_unowned`. Rebuild eligibility requires the exact outer owner, ready state, version and plugin digest, both owned marketplace manifests, coherent plugin and runtime versions, complete runtime payload, absent `distributionProfiles` and absence of both provenance markers. Current marker absence, malformed marker, tamper and incomplete historical roots remain blocking. |
+| CRI-15 | done | Eligible recovery reuses the existing stage, backup, failed-root, commit and rollback transaction. The fixture adds a historical-only file and proves it never enters the new canonical stage; rollback restores the exact old-root digest; commit removes the backup only after simulated host success. Installer evidence names the rebuild and `restart_required` without a loaded-session match claim. |
+| CRI-16 | repository_done; native_host_pending | Injected darwin and linux paths now use `path.posix`; injected win32 paths use `path.win32`, including data-root overrides and marketplace roots. The complete local-marketplace suite passes on macOS with all Windows semantics and retry assertions present. Direct native-Windows execution CRI-H05 remains required. |
+| CRI-17 | repository_done; native_host_pending | Focused validator, marketplace, local-development install, lifecycle, Runtime Integrity, portable, OpenCode, package build and package contents tests pass. Canonical release preparation, independent source Runtime Integrity and the complete smoke suite pass. Native-Windows execution remains separately open. |
+| CRI-18 | in_progress | CD+Tests and Context Graph are refreshed. Task Plan Review, Clean Implementation Review, Code Review and QA follow in the mandated order. |
+
+### Revision 3 verification
+
+- `npm --prefix create-agdf run test:local-marketplace`: pass, including positive rebuild,
+  markerless-current rejection, malformed-current rejection, digest tamper, incomplete historical
+  root, canonical-only stage, exact rollback, commit and evidence-plane assertions.
+- `npm --prefix create-agdf run test:local-validator`: pass.
+- `NPM_CONFIG_CACHE=/private/tmp/agdf-npm-cache npm --prefix create-agdf run test:local-development-install`: pass.
+- `npm --prefix create-agdf run test:lifecycle`: pass.
+- `npm --prefix create-agdf run test:runtime-integrity-layout`: pass.
+- `npm --prefix create-agdf run test:runtime-integrity-negative`: pass.
+- `npm --prefix create-agdf run test:public-plugin`: pass.
+- `npm --prefix create-agdf run test:opencode-hardening`: pass.
+- `NPM_CONFIG_CACHE=/private/tmp/agdf-npm-cache npm --prefix create-agdf run test:package-build`: pass.
+- `NPM_CONFIG_CACHE=/private/tmp/agdf-npm-cache npm --prefix create-agdf run test:package-contents`: pass.
+- `NPM_CONFIG_CACHE=/private/tmp/agdf-npm-cache npm --prefix create-agdf run release:prepare`: pass.
+- `node plugin/scripts/check-runtime-integrity.mjs`: pass in source mode.
+- `NPM_CONFIG_CACHE=/private/tmp/agdf-npm-cache npm --prefix create-agdf run smoke-test`: pass,
+  including 66/66 deterministic skill evaluations and routing render.
+- generated `agdf-local.js --resolve-only --json`: pass with 0.13.6 `owned_version_matched`,
+  `generated_bundle`, matching runtime digest and no registry access.
+- selected-run generated validator `doctor --json`: pass with zero findings.
+- `npm --prefix create-agdf audit --audit-level=high`: not applicable because the package has no
+  lockfile; npm returns `ENOLOCK`. No lockfile was created.
+
+Direct native-Windows CRI-H05 is not available from this macOS workspace and is not inferred from
+target-platform fixtures. Consequently the later QA decision must remain `revise` until that evidence
+is supplied. No real plugin installation, cache edit, fresh-host claim, UAT, release or VCS delivery
+action was performed for revision 3.

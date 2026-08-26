@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, posix, win32 } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   classifyMarketplaceList,
   defaultAgdfDataRoot,
   digestDirectory,
   digestPluginSource,
+  localMarketplaceRoot,
   prepareLocalMarketplace,
 } from "../lib/installers/local-marketplace.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin, pluginVersionFromList } from "../lib/installers/plugin-installers.js";
@@ -22,6 +23,18 @@ const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-local-marketplace-"));
 
 function json(path) {
   return JSON.parse(readFileSync(path, "utf8"));
+}
+
+function captureError(action, pattern) {
+  let caught;
+  try {
+    action();
+  } catch (error) {
+    caught = error;
+  }
+  assert.ok(caught, "expected action to throw");
+  assert.match(caught.message, pattern);
+  return caught;
 }
 
 function fakeTransaction(root = join(fixtureRoot, "fake-marketplace"), { changed = true, events } = {}) {
@@ -56,9 +69,13 @@ function scriptedExec(script, calls) {
 }
 
 try {
-  assert.equal(defaultAgdfDataRoot({ platform: "darwin", home: "/Users/test", env: {} }), "/Users/test/Library/Application Support/agdf");
-  assert.equal(defaultAgdfDataRoot({ platform: "linux", home: "/home/test", env: {} }), "/home/test/.local/share/agdf");
-  assert.equal(defaultAgdfDataRoot({ platform: "win32", home: "C:\\Users\\test", env: { LOCALAPPDATA: "C:\\Data" } }), "C:\\Data/agdf");
+  assert.equal(defaultAgdfDataRoot({ platform: "darwin", home: "/Users/test", env: {} }), posix.join("/Users/test", "Library", "Application Support", "agdf"));
+  assert.equal(defaultAgdfDataRoot({ platform: "linux", home: "/home/test", env: {} }), posix.join("/home/test", ".local", "share", "agdf"));
+  assert.equal(defaultAgdfDataRoot({ platform: "win32", home: "C:\\Users\\test", env: { LOCALAPPDATA: "C:\\Data" } }), win32.join("C:\\Data", "agdf"));
+  assert.equal(defaultAgdfDataRoot({ platform: "win32", home: "C:\\Users\\test", env: { AGDF_DATA_DIR: "D:\\AGDF Data" } }), win32.resolve("D:\\AGDF Data"));
+  assert.equal(defaultAgdfDataRoot({ platform: "linux", home: "/home/test", env: { AGDF_DATA_DIR: "/srv/agdf data" } }), posix.resolve("/srv/agdf data"));
+  assert.equal(localMarketplaceRoot({ platform: "win32", home: "C:\\Users\\test", env: { LOCALAPPDATA: "C:\\Data" } }), win32.join("C:\\Data", "agdf", "marketplaces", "agdf"));
+  assert.equal(localMarketplaceRoot({ platform: "linux", home: "/home/test", env: {} }), posix.join("/home/test", ".local", "share", "agdf", "marketplaces", "agdf"));
 
   const dataRoot = join(fixtureRoot, "data");
   const first = prepareLocalMarketplace({ dataRoot, builtPluginRoot });
@@ -160,6 +177,97 @@ try {
     /installation_provenance_missing/,
     "missing provenance must not become migration authority",
   );
+
+  const preProvenanceDataRoot = join(fixtureRoot, "pre-provenance-data");
+  const preProvenanceInitial = prepareLocalMarketplace({ dataRoot: preProvenanceDataRoot, builtPluginRoot });
+  preProvenanceInitial.commit();
+  const preProvenancePluginRoot = preProvenanceInitial.pluginRoot;
+  rmSync(join(preProvenancePluginRoot, ".agdf-installation.json"));
+  const preProvenanceDefinitionPath = join(preProvenancePluginRoot, "meta", "agdf-plugin.definition.json");
+  const { distributionProfiles: _preProvenanceProfiles, ...preProvenanceDefinition } = json(preProvenanceDefinitionPath);
+  writeFileSync(preProvenanceDefinitionPath, `${JSON.stringify(preProvenanceDefinition, null, 2)}\n`);
+  writeFileSync(join(preProvenancePluginRoot, "historical-only.txt"), "must not enter rebuilt stage\n");
+  const preProvenanceOwnedPath = join(preProvenanceInitial.root, ".agdf-owned.json");
+  writeFileSync(preProvenanceOwnedPath, `${JSON.stringify({
+    ...json(preProvenanceOwnedPath),
+    plugin_digest: digestDirectory(preProvenancePluginRoot),
+  }, null, 2)}\n`);
+  const historicalDigest = digestDirectory(preProvenanceInitial.root);
+  const rebuilt = prepareLocalMarketplace({ dataRoot: preProvenanceDataRoot, builtPluginRoot });
+  assert.equal(rebuilt.changed, true);
+  assert.equal(rebuilt.existingClassification, "owned_pre_provenance_rebuild");
+  assert.equal(existsSync(join(rebuilt.pluginRoot, "historical-only.txt")), false, "rebuild stage must contain canonical target content only");
+  assert.equal(existsSync(join(rebuilt.pluginRoot, ".agdf-installation.json")), true);
+  rebuilt.rollback();
+  assert.equal(digestDirectory(preProvenanceInitial.root), historicalDigest, "rollback must restore the historical owned root exactly");
+  assert.equal(existsSync(join(preProvenancePluginRoot, "historical-only.txt")), true);
+  const hostFailureCalls = [];
+  const hostFailure = Object.assign(new Error("simulated plugin install failure"), { stderr: "simulated plugin install failure" });
+  assert.throws(() => installCodexGlobalPlugin({
+    prepare: () => prepareLocalMarketplace({ dataRoot: preProvenanceDataRoot, builtPluginRoot }),
+    exec: scriptedExec({
+      "codex plugin marketplace list --json": '{"marketplaces":[]}',
+      "codex plugin add agdf@agdf --json": hostFailure,
+    }, hostFailureCalls),
+  }), /simulated plugin install failure/);
+  assert.equal(digestDirectory(preProvenanceInitial.root), historicalDigest, "host failure must restore the historical owned root exactly");
+  assert.ok(hostFailureCalls.includes("codex plugin marketplace remove agdf --json"), "host failure must recover the temporary registration");
+  const rebuiltForCommit = prepareLocalMarketplace({ dataRoot: preProvenanceDataRoot, builtPluginRoot });
+  assert.equal(rebuiltForCommit.existingClassification, "owned_pre_provenance_rebuild");
+  rebuiltForCommit.commit();
+  assert.equal(existsSync(`${rebuiltForCommit.root}.backup`), false, "commit must remove the owned backup");
+  const rebuiltCurrent = prepareLocalMarketplace({ dataRoot: preProvenanceDataRoot, builtPluginRoot });
+  assert.equal(rebuiltCurrent.changed, false);
+  assert.equal(rebuiltCurrent.existingClassification, "current_or_marker_migration");
+  rebuiltCurrent.commit();
+
+  const tamperedPreProvenanceDataRoot = join(fixtureRoot, "tampered-pre-provenance-data");
+  const tamperedPreProvenanceInitial = prepareLocalMarketplace({ dataRoot: tamperedPreProvenanceDataRoot, builtPluginRoot });
+  tamperedPreProvenanceInitial.commit();
+  rmSync(join(tamperedPreProvenanceInitial.pluginRoot, ".agdf-installation.json"));
+  const tamperedDefinitionPath = join(tamperedPreProvenanceInitial.pluginRoot, "meta", "agdf-plugin.definition.json");
+  const { distributionProfiles: _tamperedProfiles, ...tamperedDefinition } = json(tamperedDefinitionPath);
+  writeFileSync(tamperedDefinitionPath, `${JSON.stringify(tamperedDefinition, null, 2)}\n`);
+  const tamperedPreProvenanceError = captureError(
+    () => prepareLocalMarketplace({ dataRoot: tamperedPreProvenanceDataRoot, builtPluginRoot }),
+    /tampered AGDF marketplace root/,
+  );
+  assert.equal(tamperedPreProvenanceError.existingClassification, "invalid_or_unowned");
+
+  const incompletePreProvenanceDataRoot = join(fixtureRoot, "incomplete-pre-provenance-data");
+  const incompletePreProvenanceInitial = prepareLocalMarketplace({ dataRoot: incompletePreProvenanceDataRoot, builtPluginRoot });
+  incompletePreProvenanceInitial.commit();
+  rmSync(join(incompletePreProvenanceInitial.pluginRoot, ".agdf-installation.json"));
+  const incompleteDefinitionPath = join(incompletePreProvenanceInitial.pluginRoot, "meta", "agdf-plugin.definition.json");
+  const { distributionProfiles: _incompleteProfiles, ...incompleteDefinition } = json(incompleteDefinitionPath);
+  writeFileSync(incompleteDefinitionPath, `${JSON.stringify(incompleteDefinition, null, 2)}\n`);
+  rmSync(join(incompletePreProvenanceInitial.pluginRoot, "runtime", "agdf-local.js"));
+  const incompleteOwnedPath = join(incompletePreProvenanceInitial.root, ".agdf-owned.json");
+  writeFileSync(incompleteOwnedPath, `${JSON.stringify({
+    ...json(incompleteOwnedPath),
+    plugin_digest: digestDirectory(incompletePreProvenanceInitial.pluginRoot),
+  }, null, 2)}\n`);
+  const incompleteError = captureError(
+    () => prepareLocalMarketplace({ dataRoot: incompletePreProvenanceDataRoot, builtPluginRoot }),
+    /Built plugin is incomplete/,
+  );
+  assert.equal(incompleteError.existingClassification, "invalid_or_unowned");
+
+  const malformedCurrentDataRoot = join(fixtureRoot, "malformed-current-data");
+  const malformedCurrentInitial = prepareLocalMarketplace({ dataRoot: malformedCurrentDataRoot, builtPluginRoot });
+  malformedCurrentInitial.commit();
+  const malformedCurrentMarkerPath = join(malformedCurrentInitial.pluginRoot, ".agdf-installation.json");
+  writeFileSync(malformedCurrentMarkerPath, "{}\n");
+  const malformedCurrentOwnedPath = join(malformedCurrentInitial.root, ".agdf-owned.json");
+  writeFileSync(malformedCurrentOwnedPath, `${JSON.stringify({
+    ...json(malformedCurrentOwnedPath),
+    plugin_digest: digestDirectory(malformedCurrentInitial.pluginRoot),
+  }, null, 2)}\n`);
+  const malformedCurrentError = captureError(
+    () => prepareLocalMarketplace({ dataRoot: malformedCurrentDataRoot, builtPluginRoot }),
+    /installation_provenance_invalid/,
+  );
+  assert.equal(malformedCurrentError.existingClassification, "invalid_or_unowned");
 
   const codexMarketplacePath = join(current.root, ".agents", "plugins", "marketplace.json");
   const previousCodexMarketplace = json(codexMarketplacePath);
@@ -318,6 +426,23 @@ try {
     `codex plugin marketplace add ${join(fixtureRoot, "fake-marketplace")} --json`,
     "codex plugin add agdf@agdf --json",
   ]);
+
+  const recoveryEvidenceTx = fakeTransaction(join(fixtureRoot, "recovery-evidence-marketplace"));
+  const recoveryPrepare = () => ({
+    ...recoveryEvidenceTx.prepare(),
+    existingClassification: "owned_pre_provenance_rebuild",
+  });
+  const recoveryEvidenceCalls = [];
+  const recoveryEvidence = installCodexGlobalPlugin({
+    prepare: recoveryPrepare,
+    exec: scriptedExec({
+      "codex plugin marketplace list --json": '{"marketplaces":[]}',
+      "codex plugin list": `agdf@agdf ${pluginDefinition.version}\n`,
+    }, recoveryEvidenceCalls),
+  });
+  assert.ok(recoveryEvidence.evidence.includes("marketplace_recovery:owned_pre_provenance_rebuild"));
+  assert.ok(recoveryEvidence.evidence.includes("loaded_session:restart_required"));
+  assert.equal(recoveryEvidence.evidence.some((value) => value.includes("loaded_session:matched")), false);
 
   const claudeTx = fakeTransaction(join(fixtureRoot, "claude-marketplace"));
   const claudeCalls = [];

@@ -1,23 +1,22 @@
 # Code Review: Cross-Host Plugin Runtime Integrity
 
-Status: pass  
-Decision: pass  
-Date: 2026-08-25
+Status: pass; revision 3
+Decision: pass
+Date: 2026-08-26
 
 ## Code Review
 
 - decision: pass
-- findings: no open correctness, security, compatibility or maintainability finding remains in the reviewed final diff.
-- missing_evidence: none required for QA.
-- risks: provenance proves coherence of AGDF-owned content, not protection against an actor able to replace the complete installation and every ownership marker. Claude's model response remains unavailable until that separate CLI is authenticated; plugin loading itself is directly observed.
-- required_next_step: run QA Gate with all resolved findings and direct host evidence.
+- findings: no open correctness, security, compatibility or maintainability finding remains in the reviewed revision-3 diff.
+- reviewed_scope: `create-agdf/lib/installers/local-marketplace.js`, `create-agdf/lib/installers/plugin-installers.js`, `create-agdf/scripts/local-marketplace-test.js`, the existing transaction and provenance neighbours, and generated/package consumers exercised through canonical release preparation.
+- evidence: current and exact legacy-marker behavior remains green; the new path requires owned outer evidence, semantic version coherence, exact plugin digest, owned marketplace manifests, complete runtime and absent profiles and markers; current marker absence and all malformed or tampered states fail closed.
+- missing_evidence: direct native-Windows execution CRI-H05 remains outside code-review proof and is handed to QA as an evidence gap.
+- risks: an actor able to replace the complete plugin and outer ownership marker remains outside the provenance threat boundary, unchanged from the approved design. Historical content is set aside, never trusted or copied into the target stage.
+- required_next_step: run QA Gate with TP Review revise and CRI-TPR-02 open.
 
-## Resolved Findings
+## Resolved Review Findings
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| CRI-CR-01 | implementation_gap | CD+Tests | resolved | Wrong Claude manifest version is rejected by staging, generated-repository inspection and resolver tests | none |
-| CRI-CR-02 | implementation_gap | CD+Tests | resolved | A real prior 0.13.5 marketplace without the new profile block now migrates only after exact legacy marker and digest validation; focused regression and real install pass | none |
-| CRI-CR-03 | implementation_gap | CD+Tests | resolved | OpenCode local npm installation uses the validated absolute tarball path, including a space-containing regression fixture; real 0.13.5 install and fresh session pass | none |
-| CRI-CR-04 | implementation_gap | CD+Tests | resolved | Local Codex prompts now enforce at most three entries and 128 characters; final fresh Codex session emits no AGDF manifest warning | none |
-| CRI-CR-05 | implementation_gap | CD+Tests | resolved | Migration rejects a profile-valid installation with both provenance markers absent; arbitrary and tampered legacy markers also fail | none |
+| CRI-CR-06 | implementation_gap | CD+Tests | resolved | Outer historical version eligibility now requires a semantic version in addition to equality across definition, runtime, Codex and Claude manifests | none |
+| CRI-CR-07 | evidence_gap | evidence_obligation | resolved | The focused test now drives an actual pre-provenance transaction through simulated Codex host failure and proves exact old-root restoration; native-Windows execution remains separately owned by CRI-TPR-02 | none for repository review |

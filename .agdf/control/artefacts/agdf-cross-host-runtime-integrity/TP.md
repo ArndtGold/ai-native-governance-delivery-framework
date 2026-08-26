@@ -1,10 +1,10 @@
 # TP: Cross-Host Plugin Runtime Integrity
 
-Status: approved; revision 2  
-Gate: TP  
-Gate approval: approved by exact `Approval: TP` on 2026-08-25 after same-run, same-gate and revision-2 revalidation.  
-Based on: approved `SD.md` revision 2  
-Date: 2026-08-25  
+Status: approved; revision 3
+Gate: TP
+Gate approval: exact `Approval: TP` accepted on 2026-08-26 after same-run, same-gate and run-revision-16 revalidation; revision 2 remains historical approved evidence.
+Based on: approved `SD.md` revision 3 and `QA_REPORT.md` revision 3
+Date: 2026-08-26
 Owner: agent
 
 ## 1. Delivery Boundary
@@ -18,6 +18,10 @@ through existing lifecycle and SessionStart surfaces.
 Real Codex or Claude Code installation, cache deletion, publication, deployment, commit, push and PR
 creation are not implementation tasks. Direct host installation and fresh-session checks remain
 separately authorized evidence actions after repository implementation is review-clean.
+
+Revision 3 is a bounded correction delta. It preserves CRI-01 through CRI-12 as historical completed
+work and adds only the secure pre-provenance rebuild, target-platform path semantics, native-Windows
+coverage and refreshed quality evidence required by QA Revision 3.
 
 ## 2. Task List
 
@@ -35,6 +39,12 @@ separately authorized evidence actions after repository implementation is review
 | CRI-10 | Update contributor and installation documentation to make the source checkout non-installable, point to the existing explicit local install commands, explain restart/fresh-session proof and distinguish runtime-bearing from portable profiles. | PRD-RI-01, PRD-RI-06, PRD-RI-07, PRD-RI-08, PRD-RI-09 | Documentation assertions plus manual link and command-name inspection. |
 | CRI-11 | Regenerate all derived assets only through canonical sync, inspect generated drift, run focused and full regression verification, and record an exact post-change path snapshot. | PRD-RI-09, PRD-RI-10 | All declared commands pass; no unexplained generated drift; unrelated baseline remains isolated. |
 | CRI-12 | Persist `CD_TESTS.md` with task-by-task evidence and explicitly separate repository fixtures from direct Codex and Claude host evidence. Do not claim QA, loaded-host parity or UAT from lower evidence planes. | All PRD-RI criteria | Complete CRI-01 through CRI-11 evidence map, remaining external evidence obligations and no unsupported host claim. |
+| CRI-13 | Capture the revision-3 tracked and untracked baseline, revalidate the approved path boundary and preserve unrelated user work and completed-run evidence. | PRD-RI-09, PRD-RI-10; CRI-QA-01, CRI-QA-02 | Exact before-change snapshot; no candidate path has unexplained pre-existing drift; unrelated paths remain byte-untouched. |
+| CRI-14 | Refactor existing-root inspection in `local-marketplace.js` into explicit current or legacy-migration, owned-pre-provenance-rebuild and invalid or unowned classifications. Prove every AD-8 eligibility field before permitting replacement. | PRD-RI-03, PRD-RI-05, PRD-RI-08; CRI-QA-01 | Positive coherent pre-provenance fixture; negatives for absent or invalid outer ownership, current profile without provenance, present malformed marker, digest drift, manifest drift, runtime drift, unexpected layout and unsafe path. |
+| CRI-15 | Reuse the existing stage, backup and failed transaction to build only from canonical target content, atomically replace an eligible pre-provenance root, retain backup until host success and restore it on installer or interruption failure. Surface the rebuild classification as installer evidence without claiming loaded-host success. | PRD-RI-06, PRD-RI-08, PRD-RI-09; CRI-QA-01 | Commit, rollback and interrupted-transaction fixtures; old plugin content never enters the target stage; lifecycle evidence remains plane-correct. |
+| CRI-16 | Make `defaultAgdfDataRoot` and its assertions use target-platform `path.win32` or `path.posix` semantics when `platform` is injected. Remove no negative assertion and ensure the complete local-marketplace test file reaches Windows retry cases on native Windows. | PRD-RI-08, PRD-RI-10; CRI-QA-02 | Cross-host deterministic path matrix plus complete native-Windows `test:local-marketplace` exit 0 with no platform skip. |
+| CRI-17 | Run focused installer, lifecycle, runtime-integrity, package and full smoke regressions; regenerate only through canonical sync when source changes require it; record exact changed paths and direct native-Windows evidence separately. | PRD-RI-05, PRD-RI-08, PRD-RI-09, PRD-RI-10 | All declared focused and aggregate checks pass; native-Windows evidence is direct; no unsupported Claude loaded-host or UAT claim. |
+| CRI-18 | Refresh CD+Tests, Task Plan Review, Clean Implementation Review and Code Review, reconcile Context Graph evidence and rerun QA with CRI-QA-01 and CRI-QA-02 resolved or explicitly still open. | All affected criteria | Complete revision-3 evidence chain; no QA pass while either normalized finding or required native-Windows evidence remains open. |
 
 ## 3. Approved Implementation Paths
 
@@ -101,6 +111,14 @@ recovery mutation.
 | CRI-T15 | Package and generation | Two canonical syncs are idempotent; generated runtime contains the shared helper once; tarball includes the complete runtime-bearing plugin and no root repository marketplace owner. |
 | CRI-T16 | Full repository regression | Complete `create-agdf` smoke, skill evaluations, routing, package, Runtime Integrity and lifecycle suites pass without skipped or weakened assertions. |
 | CRI-T17 | Control and scope integrity | Selected-run doctor/gate/delivery reports have no block or revise finding; `git diff --check` passes; changed paths stay in Section 3 and preserve unrelated user work. |
+| CRI-T18 | Pre-provenance positive classification | A canonical owned historical root with coherent outer digest, manifests, runtime and no profile or provenance marker is classified only as rebuild-eligible, never as trusted provenance. |
+| CRI-T19 | Pre-provenance negative boundary | Unowned, malformed, tampered, current-profile-markerless, marker-present-invalid and structurally incomplete roots block before stage, stable-root or host-registration mutation. |
+| CRI-T20 | Canonical rebuild source | The replacement stage contains only canonical `builtPluginRoot` content plus the new current provenance marker; no legacy plugin file is copied or promoted. |
+| CRI-T21 | Atomic recovery | Stage validation occurs before stable movement; commit removes backup only after host success; host failure and simulated interruption restore the old owned root exactly. |
+| CRI-T22 | Evidence-plane projection | Installer output names the pre-provenance rebuild and restart requirement but does not claim installed cache, loaded session, QA or UAT evidence. |
+| CRI-T23 | Target-platform paths | Injected darwin and linux use POSIX semantics, injected win32 uses Windows semantics, environment overrides remain exact and normal current-platform behavior is unchanged. |
+| CRI-T24 | Native-Windows execution | The complete `test:local-marketplace` suite and focused install transaction tests pass on native Windows without skipping path or retry assertions. |
+| CRI-T25 | Revision-3 regression and control | Focused suites, full smoke, Runtime Integrity, generated and package checks, selected-run validator and `git diff --check` pass with exact changed-path evidence. |
 
 ## 6. Verification Commands
 
@@ -146,6 +164,7 @@ These are required before a final cross-host QA pass but are not authorized by T
 | CRI-H02 | Claude Code | Explicit supported install/update completes, reports restart required, a fresh session loads the intended `${CLAUDE_PLUGIN_ROOT}`, provenance matches and focused `doctor --json` runs registry-free. |
 | CRI-H03 | OpenCode | Existing config-local installation remains exact-version and the status surface reports the additive profile without permission or SDK regression. |
 | CRI-H04 | Portable profile | Packaged Skills-only surface remains usable agent-natively and does not claim a local executable. |
+| CRI-H05 | Native Windows | An owned pre-provenance fixture or preserved equivalent root executes the supported rebuild transaction, full local-marketplace suite and rollback probe without manual filesystem intervention; evidence records installer state separately from any restarted host claim. |
 
 If a host does not expose sufficient loaded-root evidence, record `unverified`; do not infer success
 from package or installer tests. Human acceptance remains the later UAT gate.
@@ -163,7 +182,7 @@ After TP approval, mandatory pre-implementation Brownfield Analysis must revalid
 - whether any new host, package or marketplace behavior has appeared since SD approval; and
 - whether the proposed shared helper can replace duplicate logic without widening its owner.
 
-Brownfield Analysis must pass before CRI-02 through CRI-12 implementation begins. A conflict, new
+Brownfield Analysis must pass before CRI-13 through CRI-18 implementation begins. A conflict, new
 full-depth trigger or required path outside Section 3 routes to SD or TP revision.
 
 ## 9. Review And QA Sequence
@@ -176,6 +195,9 @@ After CD+Tests:
 3. run mandatory Code Review and resolve blocking correctness, security and maintainability findings;
 4. run QA Gate only with separated repository, package, installed-host and fresh-session evidence;
 5. do not request or claim UAT before the QA report passes and receives its exact gate approval.
+
+Revision 3 repeats this sequence for CRI-13 through CRI-18. Historical review passes do not resolve
+the two open QA Revision 3 findings.
 
 ## 10. Out Of Scope
 
@@ -198,6 +220,11 @@ After CD+Tests:
 - Missing direct Codex or Claude Code evidence prevents a final cross-host QA pass; it is not
   downgraded to a warning.
 - OpenCode or portable-profile regression is at least revise.
+- Missing native-Windows CRI-H05 evidence prevents the revision-3 QA pass.
+- A current-profile installation with missing provenance must remain blocked and must not be
+  reclassified as pre-provenance merely because its outer marker is AGDF-owned.
+- Any rebuild that copies the old plugin into the new stage, moves the stable root before the target
+  stage is valid or deletes backup before host success blocks QA.
 - Unexplained generated drift, out-of-scope paths, weakened tests, failed rollback or modification of
   unrelated user work blocks QA.
 - The existing Context Graph warning remains open until the reusable invariant is reconciled before

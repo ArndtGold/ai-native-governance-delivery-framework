@@ -1,10 +1,10 @@
 # SD: Cross-Host Plugin Runtime Integrity
 
-Status: approved; revision 2  
-Gate: SD  
-Gate approval: approved by exact `Approval: SD` on 2026-08-25 after same-run, same-gate and revision-2 revalidation.  
-Based on: approved `PRD.md`  
-Date: 2026-08-25  
+Status: approved; revision 3
+Gate: SD
+Gate approval: approved by exact `Approval: SD` on 2026-08-26 after same-run, same-gate and run-revision-15 revalidation; revision 2 remains historical approved evidence.
+Based on: approved `PRD.md` revision 3 and `QA_REPORT.md` revision 3
+Date: 2026-08-26
 Owner: agent
 
 ## 1. Solution Overview
@@ -19,6 +19,12 @@ metadata and installer owners. Extend the existing local-validator resolution en
 invoked from the effective plugin root can prove its profile, evidence plane, version and digest.
 The shared SessionStart hook exposes a compact result from that same probe. It does not implement a
 second validator.
+
+Revision 3 keeps missing provenance untrusted while adding a distinct recovery transaction for an
+explicitly invoked install when the canonical durable marketplace root is provably AGDF-owned and
+matches the exact pre-provenance package shape. The old root is never promoted, migrated in place or
+used as the source of the new installation. A complete target bundle is staged from the canonical
+build, validated with current provenance and atomically swapped through the existing transaction.
 
 ```text
 plugin/ source (editable, non-installable, no runtime)
@@ -59,7 +65,7 @@ presentation.
 | Complete plugin composition | `create-agdf/scripts/sync-package-assets.js` | Continue to copy source and generate one runtime-bearing bundle. Stop writing the root repository marketplace. |
 | Validator payload composition | `create-agdf/scripts/sync-plugin-runtime.js` | Preserve one focused runtime payload and deterministic runtime digest. |
 | Local validator resolution | `create-agdf/lib/runtime/local-validator.js` and generated `runtime/agdf-local.js` | Extend the existing resolution envelope with profile and provenance evidence. |
-| Durable marketplace and installation provenance | `create-agdf/lib/installers/local-marketplace.js` | Stage one complete plugin, write and validate one marker, preserve ownership, atomic promotion and rollback. |
+| Durable marketplace, recovery and installation provenance | `create-agdf/lib/installers/local-marketplace.js` | Classify the existing root, stage one complete target plugin, write and validate current provenance, and preserve ownership, atomic promotion and rollback. |
 | Codex and Claude lifecycle | `create-agdf/lib/installers/plugin-installers.js` | Preserve host commands; add post-install profile/provenance verification and explicit restart state. |
 | Repository lifecycle state | `create-agdf/lib/lifecycle/operations.js` and `status.js` | Stop treating root marketplace presence as active AGDF; retain legacy selector recognition only for safe cleanup. |
 | OpenCode executable profile | `create-agdf/lib/installers/opencode.js` | Preserve the config-local package and current exact-version checks. |
@@ -143,7 +149,9 @@ tamper checks.
 
 The existing `.agdf-local-install.json` format is accepted only as migration input for already
 owned local-development installations. A successful explicit reinstall writes the canonical new
-marker. No cache is migrated in place.
+marker. A root with neither provenance marker never becomes trusted migration input. Revision 3
+permits only a separate pre-provenance rebuild classification under AD-8. No cache or installed
+plugin content is migrated in place.
 
 ### AD-4: Extend the existing resolve envelope, do not create a status engine
 
@@ -222,6 +230,64 @@ Each plane reports `healthy`, `degraded`, `unverified`, `not_applicable` or `res
 appropriate. A lower plane cannot promote a higher plane. The current general status owner consumes
 these results; no second status file or host-specific state store is introduced.
 
+### AD-8: Pre-provenance recovery is replacement, not trusted migration
+
+`prepareLocalMarketplace` classifies an existing durable marketplace before it validates or replaces
+the plugin. Exactly three consequential classes are permitted:
+
+1. `current_or_marker_migration`: current `.agdf-installation.json` provenance matches, or the exact
+   digest-matched `.agdf-local-install.json` legacy marker is accepted by the existing migration rule;
+2. `owned_pre_provenance_rebuild`: no provenance marker exists, the canonical outer marketplace
+   ownership and historical package shape pass every eligibility check below, and the current
+   explicit install command may rebuild the root from canonical target content; or
+3. `invalid_or_unowned`: any missing, malformed, contradictory or tampered evidence blocks without
+   filesystem or host-registration mutation.
+
+`owned_pre_provenance_rebuild` requires all of the following:
+
+- the root is the canonical `dataRoot/marketplaces/agdf` child and its `.agdf-owned.json` has the
+  existing exact schema, owner, marketplace identity and `ready` state;
+- the marker contains a valid version and plugin digest, and the digest matches the exact
+  `plugins/agdf` content;
+- both marketplace manifests target exactly `plugins/agdf` and match the observed historical plugin
+  definition through the existing marketplace validator;
+- Codex, Claude and runtime manifests agree on the observed version, required runtime files exist,
+  and the runtime payload matches its declared digest;
+- `distributionProfiles` is absent, identifying the bounded package as pre-provenance rather than a
+  damaged current-profile installation; and
+- neither provenance marker is present. A present malformed marker, a current profile with a missing
+  marker, a digest mismatch, an unexpected file shape or an unowned root remains blocking.
+
+Eligibility proves only that the existing root is safe for the owned installer transaction to set
+aside. It does not make the old plugin trusted machine evidence. No old plugin file, digest value or
+manifest is copied into the new stage. The new stage is built only from `builtPluginRoot`, receives
+current `.agdf-installation.json`, passes current Runtime Integrity and is complete before the stable
+root is renamed to the existing backup path.
+
+The existing transaction remains the sole recovery mechanism:
+
+```text
+classify stable root -> build and validate current stage -> stable to backup -> stage to stable
+        host install succeeds -> commit removes backup
+        host install fails    -> rollback restores backup
+```
+
+Interrupted-transaction recovery continues to use the same owned `stage`, `backup` and `failed`
+roots. The lifecycle result names the pre-provenance rebuild so installer evidence cannot be mistaken
+for loaded-host proof. Direct cache editing, automatic registry fallback and silent removal of an
+unowned or ambiguous root remain forbidden.
+
+### AD-9: Platform simulation uses target-platform path semantics
+
+`defaultAgdfDataRoot` already accepts an injected `platform`; its path construction must therefore
+use the matching `node:path` implementation rather than the process host implementation. `win32`
+uses `path.win32`; `darwin` and other POSIX targets use `path.posix`. Normal execution is unchanged
+because the injected platform defaults to `process.platform`.
+
+The same explicit path semantics are used by `local-marketplace-test.js` expectations. This lets the
+entire test file run natively on Windows, including the bounded `EPERM` retry assertions, without
+hard-coded separators, platform skips or weakened negative cases.
+
 ## 4. Integration Points
 
 | Integration point | Required change |
@@ -231,7 +297,7 @@ these results; no second status file or host-specific state store is introduced.
 | `plugin/meta/agdf-plugin.definition.json` | Add versioned distribution profiles; remove current repository-marketplace ownership metadata. |
 | `create-agdf/lib/public-plugin/manifest.js` | Remove repository marketplace rendering; preserve Codex, Claude and portable manifest generation. |
 | `create-agdf/scripts/sync-package-assets.js` | Stop rewriting the root marketplace; keep complete generated plugin and package-local marketplace generation. |
-| `create-agdf/lib/installers/local-marketplace.js` | Write and validate canonical installation provenance; migrate legacy local marker only through explicit reinstall. |
+| `create-agdf/lib/installers/local-marketplace.js` | Write and validate canonical installation provenance; preserve exact legacy-marker migration; classify and atomically rebuild only an eligible owned pre-provenance root; use target-platform path semantics for the injected platform. |
 | `create-agdf/lib/runtime/local-validator.js` | Validate adjacent profile, manifests, marker, normalized source digest and runtime digest; emit additive provenance fields. |
 | generated `runtime/agdf-local.js` | Pass the observed plugin root to the existing resolver. |
 | `plugin/hooks/session-start.sh` | Emit compact loaded-root integrity orientation from the existing resolve probe. |
@@ -239,7 +305,8 @@ these results; no second status file or host-specific state store is introduced.
 | `create-agdf/lib/lifecycle/operations.js` | Preserve generated complete `agdf@agdf-repo` selection when a valid repository marketplace exists; otherwise use durable `agdf@agdf`. |
 | `create-agdf/lib/lifecycle/status.js` | Treat source-repository marketplace absence as normal while preserving generated complete repository activation and layered installation evidence. |
 | `plugin/scripts/check-runtime-integrity.mjs` | Replace source-marketplace-presence assertions with source-non-installability and profile/provenance invariants. |
-| focused build, installer, lifecycle and integrity tests | Add positive and negative profile, provenance, shadowing, migration and evidence-plane coverage. |
+| `create-agdf/scripts/local-marketplace-test.js` | Add eligible rebuild, markerless-current, tamper, interruption, commit and rollback coverage; construct expected paths with the simulated target platform and execute the complete file on native Windows. |
+| focused build, installer, lifecycle and integrity tests | Add positive and negative profile, provenance, shadowing, migration, rebuild and evidence-plane coverage. |
 | contributor and installation documentation | Point source contributors to explicit local install commands and document restart/fresh-session proof. |
 
 Generated files are refreshed only through the existing canonical sync commands. No manual edit to a
@@ -265,6 +332,12 @@ generated bundle or installed cache is part of implementation.
   cross-platform.
 - Direct host evidence is required separately for Codex and Claude Code; one host cannot prove the
   other.
+- Missing provenance remains invalid machine evidence. Pre-provenance rebuild eligibility grants
+  replacement authority only inside the already explicit owned installer transaction.
+- Current-profile roots with a missing or malformed installation marker never enter the rebuild
+  path, preventing marker deletion from becoming an upgrade mechanism.
+- The backup remains available until the host installer succeeds and calls transaction `commit`;
+  every pre-commit failure restores the prior owned root through existing rollback ownership checks.
 
 ## 6. Test And Evidence Strategy
 
@@ -273,6 +346,9 @@ generated bundle or installed cache is part of implementation.
 | Repository source | Root Codex and Claude Code installable marketplaces are absent; `plugin/runtime/` is absent; source integrity and repository instructions remain healthy. |
 | Generated bundle | Complete plugin contains one runtime manifest, one entrypoint, one focused payload and coherent profile metadata. |
 | Marketplace transaction | Canonical and local-development stages write valid provenance; unchanged rerun is idempotent; tamper, interruption and rollback fixtures remain fail closed. |
+| Pre-provenance rebuild | Exact historical eligible shape rebuilds only during an explicit install; absent outer ownership, malformed or present provenance, current profile without provenance, digest drift, manifest drift and runtime drift block without mutation. |
+| Recovery transaction | Stage validation precedes stable-root movement; successful host installation commits and removes backup; simulated host failure and interrupted swaps restore the previous owned root. |
+| Native-Windows path semantics | The complete local-marketplace suite runs on native Windows; darwin, linux and win32 injected-platform expectations are generated with their target path module and no assertion is skipped. |
 | Repository-marketplace migration | Source sync recreates neither root marketplace; explicit `codex-repo` generation still creates a complete `agdf-repo` projection and lifecycle selection distinguishes it from the absent source projection. |
 | Runtime resolution | Exact version, runtime digest, normalized source digest, marker owner and profile pass; each independent mismatch has a stable reason and no executable result. |
 | Codex cache fixture | A copied installed plugin resolves from its cache root and reports installed profile and loaded evidence; runtime-free source and stale cache fail. |
@@ -292,12 +368,12 @@ obligation. Host UAT remains later evidence and is not inferred from fixtures.
 |---|---|
 | `PRD-RI-01` | AD-2 and profile-contract tests |
 | `PRD-RI-02` | AD-1, Runtime Integrity and negative install-target tests |
-| `PRD-RI-03` | AD-1 and legacy migration tests |
+| `PRD-RI-03` | AD-1, AD-8 and marketplace identity/recovery tests |
 | `PRD-RI-04` | AD-4 and AD-6 |
-| `PRD-RI-05` | AD-3 and AD-4 |
+| `PRD-RI-05` | AD-3, AD-4 and AD-8 |
 | `PRD-RI-06` | AD-5 and AD-7 |
 | `PRD-RI-07` | AD-2 and portable-profile tests |
-| `PRD-RI-08` | AD-3 through AD-7 and lifecycle recovery tests |
+| `PRD-RI-08` | AD-3 through AD-9 and lifecycle recovery tests |
 | `PRD-RI-09` | AD-7 and evidence-plane matrix |
 | `PRD-RI-10` | Constraints and full regression strategy |
 
@@ -314,8 +390,12 @@ obligation. Host UAT remains later evidence and is not inferred from fixtures.
   plugin. Documentation and fresh-clone tests must make these boundaries explicit.
 - Installed provenance is integrity evidence, not a cryptographic signature or host attestation.
   The design must not claim stronger trust.
-- The exact stable reason-code names and additive envelope field serialization belong in TP fixtures;
-  no product or architecture decision remains open.
+- Outer ownership and coherent historical package shape are local transaction authority, not
+  cryptographic proof against an actor able to replace the full marketplace and all markers.
+- A host process may fail after the marketplace swap but before registration verification. Existing
+  installer exception handling must invoke transaction rollback and record recovery evidence.
+- The exact recovery classification names, stable diagnostics and lifecycle evidence strings belong
+  in TP fixtures; no further product or architecture decision remains open in revision 3.
 
 ## 8.1 Revision 2 Trigger
 
@@ -324,6 +404,20 @@ Codex root marketplace, points directly to runtime-free `./plugin/`. PRD-RI-02 a
 Codex and Claude Code to reject that condition, but SD revision 1 named only the Codex root file.
 Revision 2 adds the missing Claude source path and clarifies that package-generated, runtime-complete
 `agdf-repo` scaffolding remains a valid distinct consumer. No PRD scope or user intent changes.
+
+## 8.2 Revision 3 Trigger
+
+QA Revision 3 consumes direct native-Windows evidence produced after the prior QA pass. A valid
+AGDF outer marketplace marker surrounded a coherent pre-provenance 0.13.5 plugin without either
+installation provenance marker. The supported reinstall failed before staging with
+`Built plugin distribution profile contract is invalid.` and required manual filesystem set-aside.
+The same verification found that POSIX expected paths were built with native win32 path semantics,
+preventing the complete local-marketplace suite from reaching its Windows-specific assertions.
+
+Revision 3 preserves the approved PRD intent and the strict missing-provenance boundary. It adds a
+separate owned rebuild transaction and deterministic target-platform test semantics. It does not
+accept markerless content as provenance, add a second installer, change public CLI or gate semantics,
+or authorize implementation before revised SD and TP approvals.
 
 ## 9. Rejected Parallel Structures
 

@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-cross-host-runtime-integrity
 - lifecycle: active
-- revision: 13
-- revision_id: 2693f073-b1e5-40a3-a146-ffcf17a06861
+- revision: 19
+- revision_id: eca39c21-3c9d-4d8f-9124-2c0ac5ead162
 - mode: structured_delivery
 - current_gate: QA
-- decision: pass
+- decision: in_progress
 - owner: agent
 
 ## Objective
@@ -23,11 +23,11 @@ complete installation.
 
 | Question | Answer |
 |---|---|
-| What is known? | The source checkout is non-installable, generated and installed runtime profiles are provenance-checked, and final supported Codex, Claude Code and OpenCode fresh sessions consume the intended 0.13.5 surfaces. |
-| What is approved? | UR Revision 1, PRD Revision 3, SD Revision 2 and TP Revision 2 are approved. Pre-implementation Brownfield Analysis passed against the revised path boundary. |
-| What is missing? | Exact `Approval: QA`; UAT remains later. |
-| What is the next allowed action? | Present the QA pass report and request exact `Approval: QA`. |
-| What is explicitly forbidden right now? | UAT work or approval, release, publication and VCS delivery actions before QA approval. |
+| What is known? | CRI-13 through CRI-15 are complete. Repository implementation, focused tests, full smoke, Clean Review and Code Review pass. QA Revision 4 remains revise only because direct native-Windows CRI-H05 evidence is absent. |
+| What is approved? | UR Revision 1, PRD Revision 3, SD Revision 3 and TP Revision 3 are approved. TP Revision 2 remains historical approved evidence only. |
+| What is missing? | Direct native-Windows CRI-H05 execution, then refreshed TP Review and QA. |
+| What is the next allowed action? | Execute the complete local-marketplace suite and owned pre-provenance rebuild, host-failure rollback and commit probe on native Windows; attach direct evidence and rerun QA. |
+| What is explicitly forbidden right now? | QA pass or approval, UAT, release, publication and VCS delivery actions before CRI-TPR-02 is resolved. |
 
 ## Source And Scope State
 
@@ -39,8 +39,8 @@ complete installation.
 - multi_scope_state: clear
 - active_scope_evidence: User explicitly requested starting with a UR for the continuing cross-host runtime solution.
 - competing_scope_lines: `agdf-public-plugin-distribution` remains a separate active external-delivery run; completed runtime-build and local-install runs are reused as existing owners rather than reopened.
-- branch_workspace_evidence: Pre-existing modified `docs/presentation/agdf_cto_praesentation.key` is unrelated user work and remains isolated.
-- branch_workspace_scope_effect: Only this run's currently permitted control artefacts and backlog pointer may change before later gate approvals.
+- branch_workspace_evidence: Revision-3 baseline contained only this run's control artefacts; no unrelated tracked change was present or modified.
+- branch_workspace_scope_effect: Revision-3 implementation is limited to approved installer owners, their direct test and this run's control artefacts.
 
 ## Approvals
 
@@ -48,10 +48,10 @@ complete installation.
 |---|---|---|
 | UR | approved | Exact `Approval: UR` provided on 2026-08-25 after same-run, same-gate and revision-1 revalidation. |
 | PRD | approved | Exact `Approval: PRD` provided on 2026-08-25 after same-run, same-gate and revision-3 revalidation. |
-| SD | approved | Exact `Approval: SD` provided on 2026-08-25 after same-run, same-gate and revision-2 revalidation. |
-| TP | approved | Exact `Approval: TP` provided on 2026-08-25 after same-run, same-gate and revision-2 revalidation. |
-| QA | missing | QA Report revision 2 passes and is ready for exact `Approval: QA`. |
-| UAT | missing | Blocked by SD and later steps. |
+| SD | approved | Exact `Approval: SD` accepted on 2026-08-26 after same-run, same-gate and run-revision-15 revalidation. |
+| TP | approved | Exact `Approval: TP` accepted on 2026-08-26 after same-run, same-gate and run-revision-16 revalidation; Revision 2 remains historical approved evidence only. |
+| QA | revise | QA Report Revision 4 resolves both implementation findings and retains one open native-Windows evidence gap, CRI-TPR-02. |
+| UAT | missing | Blocked by QA revise. |
 
 ## Artefacts
 
@@ -61,14 +61,14 @@ complete installation.
 | Brownfield Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/BROWNFIELD_REVIEW.md` | done | Pass; bounded Structured Slice and existing-owner reuse selected. |
 | Verified Change | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/VERIFIED_CHANGE.md` | missing | Mode not selected. |
 | PRD | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/PRD.md` | approved | Bounded product behavior, ten stable acceptance criteria, non-goals and evidence-plane obligations were approved at Revision 3. |
-| SD | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/SD.md` | approved | Revision 2 covers both root source marketplaces and distinguishes them from runtime-complete generated repository scaffolding. |
-| TP | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TP.md` | approved | Revision 2 adds the root Claude marketplace path and preserves generated runtime-complete repository projections. |
-| Brownfield Analysis | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/BROWNFIELD_ANALYSIS.md` | done | Revised owner, path, reuse, regression and protected-baseline analysis passed and permitted bounded CD+Tests. |
-| CD+Tests | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CD_TESTS.md` | done | CRI-01 through CRI-12 implemented and verified at repository, generated-bundle, package and temporary-root evidence planes. |
-| TP Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TASK_PLAN_REVIEW.md` | pass | 12/12 tasks fully done; CRI-H01 through CRI-H04 direct evidence resolves CRI-TPR-01. |
-| Clean Implementation Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | One shared provenance/runtime owner; bounded migration only; no workaround or parallel runtime. |
-| CR | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CODE_REVIEW.md` | done | Pass after resolving five implementation findings discovered by code and real-host review. |
-| QA | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/QA_REPORT.md` | pass | Sole QA decision: plan, solution, code, direct host evidence and Context Graph reconciliation pass; QA approval is still missing. |
+| SD | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/SD.md` | approved | Revision 3 defines owned pre-provenance rebuild eligibility, atomic recovery, strict rejection boundaries and target-platform path semantics. |
+| TP | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TP.md` | approved | Revision 3 adds CRI-13 through CRI-18, CRI-T18 through CRI-T25 and direct native-Windows CRI-H05 evidence. |
+| Brownfield Analysis | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/BROWNFIELD_ANALYSIS.md` | done | Revision 3 passed; the existing installer, transaction, provenance, lifecycle and test owners permit bounded CRI-13 through CRI-18 CD+Tests. |
+| CD+Tests | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CD_TESTS.md` | done | Revision 3 implements secure rebuild, exact rollback, target-platform paths and evidence projection; all repository checks pass. |
+| TP Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/TASK_PLAN_REVIEW.md` | revise | 15/18 tasks fully done; CRI-16 through CRI-18 remain partial only for native-Windows CRI-H05 and QA closeout. |
+| Clean Implementation Review | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | One marketplace and transaction owner; no workaround, cache patch, platform skip or parallel structure. |
+| CR | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/CODE_REVIEW.md` | done | Revision 3 passes after semantic-version eligibility and actual host-failure rollback coverage were added. |
+| QA | `.agdf/control/artefacts/agdf-cross-host-runtime-integrity/QA_REPORT.md` | revise | Revision 4 resolves CRI-QA-01 and CRI-QA-02 implementation work; open CRI-TPR-02 requires direct native-Windows evidence. |
 
 ## Mode/Slice Decision
 
@@ -98,7 +98,20 @@ complete installation.
 | TP revision 2 | approved_by | Approval: TP | Exact approval accepted on 2026-08-25 after same-run, same-gate and revision-2 revalidation. |
 | Brownfield Analysis revision 2 | derived_from | TP revision 2 | Revalidation confirms existing owners and revised paths are sufficient for bounded implementation. |
 | Brownfield Analysis | routes_to | SD revision 2 | Direct implementation inspection identified the design and approved-path gap. |
-| QA_REPORT | tests | TP | QA pass is based on 12/12 TP coverage, mandatory reviews, full regression evidence and direct host observations. |
+| QA_REPORT revision 3 | supersedes | QA_REPORT revision 2 | Native-Windows evidence invalidates the prior migration-completeness claim and routes the earliest open finding to SD. |
+| CRI-QA-01 | routes_to | SD revision 3 | Recovery for an AGDF-owned pre-provenance root needs an explicit fail-closed design before implementation. |
+| CRI-QA-02 | routes_to | CD+Tests | Native-Windows path expectations in `local-marketplace-test.js` must become platform-independent and execute on the actual host. |
+| SD revision 3 | derived_from | PRD revision 3 and QA Report revision 3 | Preserves the approved product boundary while adding the missing recovery and Windows-test architecture. |
+| SD revision 3 | supersedes | SD revision 2 for future work | Historical approvals and evidence remain recorded; new TP drafting requires exact approval of revision 3. |
+| SD revision 3 | approved_by | Approval: SD | Exact approval accepted on 2026-08-26 after same-run, same-gate and run-revision-15 revalidation. |
+| TP revision 3 | derived_from | SD revision 3 and QA Report revision 3 | Converts the approved rebuild and Windows-test design into bounded implementation, regression and evidence tasks. |
+| TP revision 3 | approved_by | Approval: TP | Exact approval accepted on 2026-08-26 after same-run, same-gate and run-revision-16 revalidation. |
+| Brownfield Analysis revision 3 | derived_from | TP revision 3 | Current owner, path, transaction, compatibility and regression evidence passed before implementation. |
+| CD+Tests revision 3 | implements | TP revision 3 | Secure owned rebuild, canonical-only staging, atomic rollback, target-platform paths and evidence projection pass repository verification. |
+| TP Review revision 3 | tests | TP revision 3 | 15/18 fully done; CRI-TPR-02 keeps native-Windows evidence open. |
+| Clean Implementation Review revision 3 | reviews | CD+Tests revision 3 | Pass with one existing installer and transaction owner and no fallback-heavy path. |
+| Code Review revision 3 | reviews | CD+Tests revision 3 | Pass with no open code finding. |
+| QA Report revision 4 | tests | TP Review and implementation reviews revision 3 | Revise solely for open native-Windows evidence gap CRI-TPR-02. |
 | UR | extends | completed_run:automatic-version-asset-sync | Reuse the canonical runtime build and durable marketplace architecture. |
 | UR | extends | completed_run:agdf-local-plugin-install-scripts | Reuse local-development installation and cachebuster orchestration. |
 
@@ -111,12 +124,15 @@ complete installation.
 | Final OpenCode surface | `/Users/arndtgold/.config/opencode`; final `opencode-status --json` and fresh `opencode run` | current 0.13.5 config-local validator, complete native surface and successful fresh session | direct host observation |
 | Portable profile | `create-agdf/generated/submissions/openai/agdf` | Skills-only candidate has no runtime or provenance marker | direct generated-candidate observation |
 | Full regression suite | `npm --prefix create-agdf run smoke-test` | Final implementation, package, integrity, routing and 66/66 skill-eval coverage | deterministic repository evidence |
+| Native-Windows pre-provenance reinstall | `.agdf/control/artefacts/windows-native-install-viability/VERIFIED_CHANGE.md` | Reproduced markerless owned-root failure and manual-recovery dependency; exposed non-portable local-marketplace assertions | direct host observation |
+| Revision-3 repository verification | Focused tests, canonical release preparation, source Runtime Integrity and full `create-agdf` smoke | Secure rebuild, exact rollback, target-platform paths, package and 66/66 skill-eval regressions | deterministic repository evidence |
 
 ## Missing Evidence
 
-- Exact `Approval: QA`.
-- Human UAT after QA approval.
-- Claude model-response evidence is unavailable until the separate Claude CLI is authenticated; plugin and hook loading evidence is complete and this does not block QA.
+- Direct post-change native-Windows CRI-H05 execution of the complete local-marketplace suite and rebuild transaction.
+- Refreshed TP Review and QA pass after CRI-H05 evidence is attached.
+- Human UAT after a later QA pass and exact QA approval.
+- The separate 12-case Claude loaded-host observation remains pending a user restart and fresh session.
 
 ## Risks
 
@@ -125,6 +141,8 @@ complete installation.
 - Claude's separately listed cache path retains an earlier same-semver copy, while the actual final fresh host loads the current durable marketplace root; status surfaces must keep these planes distinct.
 - Public Skills-only portability must not be confused with a guaranteed local validator runtime.
 - Unrelated user work could be included accidentally if the scope boundary is not preserved.
+- Missing provenance must never become migration authority; recovery must rely on a separately evidenced AGDF-owned transaction boundary and rebuild a fresh installation.
+- Target-platform tests cannot prove native-Windows filesystem and command behavior until CRI-H05 runs directly there.
 
 ## Context Graph Impact
 
@@ -133,7 +151,7 @@ complete installation.
 - context_graph_reconciliation: resolved
 - context_graph_required_action: update
 - context_graph_gate_effect: none
-- context_graph_evidence: Existing nodes now record shared profile/provenance ownership, exact legacy migration, independent evidence planes and the directly observed Codex prompt limits.
+- context_graph_evidence: `CG-CREATE-AGDF-CLI-COMPOSITION` records that trusted marker-bearing migration stays unchanged while a separately classified AGDF-owned pre-provenance root may only be set aside for canonical atomic rebuild.
 
 ## Knowledge Persistence Decision
 
@@ -143,5 +161,5 @@ complete installation.
 
 ## Closeout
 
-- next_allowed_action: Present the QA pass report and request exact `Approval: QA`; do not start UAT before same-run, same-gate and revision revalidation.
-- quality_outlook: QA evidence is complete; UAT remains the next user gate only after exact QA approval.
+- next_allowed_action: Execute CRI-H05 on native Windows, attach direct evidence and rerun TP Review and QA.
+- quality_outlook: Preserve fail-closed provenance while making supported reinstall recovery deterministic and native-Windows-testable.

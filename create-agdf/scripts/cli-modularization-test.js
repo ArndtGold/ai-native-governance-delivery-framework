@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
-  "status", "disable", "uninstall",
+  "status", "runtime-checks", "disable", "uninstall",
   "opencode-repo", "both", "init", "config", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",
   "run-render-legacy",
@@ -66,6 +66,8 @@ assert.deepEqual(parsed.options, {
   allActive: false,
   scope: undefined,
   confirm: false,
+  runtimeChecksDecision: undefined,
+  runtimeChecksAction: "status",
   generatorModel: "g",
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
@@ -76,6 +78,8 @@ const alias = parseArgs(["--target", "config", "--lang", "de"], { cwd: "/tmp/roo
 assert.equal(alias.options.target, "config");
 assert.deepEqual(alias.options.language, { language: "de" });
 assert.equal(parseArgs(["status", "--verbose"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.verbose, true);
+assert.equal(parseArgs(["runtime-checks", "enable", "--surface", "claude"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksAction, "enable");
+assert.equal(parseArgs(["claude", "--runtime-checks", "manual"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksDecision, "manual");
 assert.equal(parseArgs(["gate-check", "--approval-envelope"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.approvalEnvelope, true);
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
@@ -107,6 +111,8 @@ assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "
 assert.throws(() => validateCommandOptions({ target: "disable", surface: "generic" }), /explicit --surface/);
 assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "codex" }), /--scope global/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", confirm: true }));
+assert.doesNotThrow(() => validateCommandOptions({ target: "runtime-checks", surface: "claude" }));
+assert.throws(() => validateCommandOptions({ target: "runtime-checks", surface: "generic" }), /requires --surface/);
 
 const bin = readFileSync(join(packageRoot, "bin", "create-agdf.js"), "utf8");
 assert.match(bin, /from "\.\.\/lib\/cli\/application\.js"/);
@@ -218,6 +224,13 @@ function prepareMarketplace() {
   assert.equal(await runCli(["codex", "--verbose"], { io: verbose.io, exec() { return verboseOutputs.shift(); }, prepare: prepareMarketplace }), 0);
   assert.equal(verbose.out.includes("Host command output:"), true);
   assert.equal(verbose.out.some((line) => line.includes("marketplace added")), true);
+}
+
+{
+  const cancelled = installerRecording([]);
+  assert.equal(await runCli(["claude", "--runtime-checks", "cancel", "--json"], { io: cancelled.io.io, exec: cancelled.exec, prepare: prepareMarketplace }), 0);
+  assert.equal(cancelled.calls.length, 0, "cancel must stop before every host mutation");
+  assert.equal(JSON.parse(cancelled.io.out[0]).runtime_checks.effective, "cancelled");
 }
 
 {

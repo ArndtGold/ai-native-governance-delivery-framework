@@ -398,6 +398,7 @@ export function prepareLocalMarketplace({
         codexInstallVersion,
         sourceDigest,
         digest: pluginDigest,
+        runtimeDigest: runtimeManifest.digest,
         existingClassification,
         changed: false,
         commit() {},
@@ -420,6 +421,7 @@ export function prepareLocalMarketplace({
       codexInstallVersion,
       sourceDigest,
       digest: pluginDigest,
+      runtimeDigest: runtimeManifest.digest,
       existingClassification,
       changed: true,
       commit() {

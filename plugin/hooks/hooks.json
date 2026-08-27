@@ -5,8 +5,9 @@
                 "hooks": [
                     {
                         "type":         "command",
-                        "command":      "bash -lc 'hook=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}/hooks/session-start.sh\"; if [ -f \"$hook\" ]; then exec bash \"$hook\"; fi; hook=\"$PWD/plugins/agdf/hooks/session-start.sh\"; if [ -f \"$hook\" ]; then exec bash \"$hook\"; fi; exit 0'",
-                        "statusMessage": "Loading AGDF..."
+                        "command":      "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/runtime/agdf-session-check.js\"",
+                        "commandWindows": "node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\"",
+                        "statusMessage": "Checking AGDF runtime state..."
                     }
                 ]
             }

@@ -45,6 +45,8 @@ export function parseArgs(argv, dependencies = {}) {
   let allActive = false;
   let scope;
   let confirm = false;
+  let runtimeChecksDecision;
+  let runtimeChecksAction;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -59,6 +61,14 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--generate-candidates") { generateCandidates = true; continue; }
     if (arg === "--all-active") { allActive = true; continue; }
     if (arg === "--confirm") { confirm = true; continue; }
+
+    if (arg === "--runtime-checks") {
+      const next = requiredValue(args, i, arg);
+      if (!["enable", "manual", "cancel"].includes(next)) throw new CliUsageError("--runtime-checks must be enable, manual or cancel.");
+      runtimeChecksDecision = next;
+      i += 1;
+      continue;
+    }
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
@@ -119,6 +129,11 @@ export function parseArgs(argv, dependencies = {}) {
       target = arg;
       continue;
     }
+    if (!arg.startsWith("-") && target === "runtime-checks" && !runtimeChecksAction) {
+      if (!["status", "enable", "manual"].includes(arg)) throw new CliUsageError("runtime-checks action must be status, enable or manual.");
+      runtimeChecksAction = arg;
+      continue;
+    }
     throw new CliUsageError(`Unknown argument: ${arg}`);
   }
 
@@ -147,6 +162,8 @@ export function parseArgs(argv, dependencies = {}) {
       allActive,
       scope,
       confirm,
+      runtimeChecksDecision,
+      runtimeChecksAction: runtimeChecksAction ?? "status",
       generatorModel,
       maxGeneratedCandidates,
       generationTimeoutMs,

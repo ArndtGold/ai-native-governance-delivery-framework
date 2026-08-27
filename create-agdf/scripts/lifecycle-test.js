@@ -30,12 +30,13 @@ assert.deepEqual(globalInstallRestartAction("claude"), { kind: "restart", text: 
 assert.deepEqual(globalInstallRestartAction("opencode"), { kind: "restart", text: "Restart OpenCode." });
 assert.throws(() => globalInstallRestartAction("copilot"), /Unsupported global installation restart surface/);
 assert.deepEqual(lifecycleCardLines(success).slice(1).map((line) => line.split(":")[0]), [
-  "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Verification", "Restart required", "Next action",
+  "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Automatic runtime checks", "Verification", "Restart required", "Next action",
 ]);
 assert.equal(lifecycleCardLines(success)[0], "AGDF installation complete");
 assert.equal(success.installation.status, "healthy");
 assert.equal(success.activation.status, "pending_restart");
 assert.equal(success.delivery.status, "not_evaluated");
+assert.deepEqual(success.runtime_checks, { requested: "unknown", effective: "unknown", reason: "not_evaluated", capability_identity: null, verification: "not_evaluated", mutation: "none", rollback: "none" });
 assert.throws(() => createLifecycleResult({
   operation: "install", result: "success", surface: "unsupported", scope: "global",
   next_action: { text: "Continue" },
@@ -226,20 +227,27 @@ writeFileSync(join(activationRoot, ".opencode", "skills", "agdf-gate-check", "SK
 assert.equal(evaluateOpenCodeRepositoryActivation(activationRoot).state, "legacy_compatible");
 
 const pluginLogs = [];
-const hooks = await AGDFPlugin({ directory: activationRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } });
+const manualRuntimeCheck = () => ({ requested: "manual", effective: "manual", reason: "consent_not_provided", ran: false, output: "" });
+const hooks = await AGDFPlugin(
+  { directory: activationRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } },
+  { executeAutomaticRuntimeCheck: manualRuntimeCheck },
+);
 const activeSystem = { system: [] };
 await hooks["experimental.chat.system.transform"]({}, activeSystem);
 assert.match(activeSystem.system.join("\n"), /agdf-global-gate-check/);
 await hooks["experimental.chat.system.transform"]({}, null);
 await hooks["experimental.session.compacting"]({}, { context: null });
-assert.ok(pluginLogs.some((entry) => entry.body?.level === "warn" && /guidance degraded/.test(entry.body?.message)));
+assert.ok(pluginLogs.some((entry) => (entry.body ?? entry).level === "warn" && /guidance degraded/.test((entry.body ?? entry).message)));
 const activeEnvironment = { env: {} };
 await hooks["shell.env"]({}, activeEnvironment);
 assert.equal(activeEnvironment.env.AGDF_PLUGIN_ACTIVE, "1");
 assert.equal(activeEnvironment.env.AGDF_OPENCODE_REPOSITORY_ACTIVATION, "legacy_compatible");
 
 const inactiveRoot = mkdtempSync(join(tmpdir(), "agdf-opencode-inactive-"));
-const inactiveHooks = await AGDFPlugin({ directory: inactiveRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } });
+const inactiveHooks = await AGDFPlugin(
+  { directory: inactiveRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } },
+  { executeAutomaticRuntimeCheck: manualRuntimeCheck },
+);
 const inactiveSystem = { system: [] };
 await inactiveHooks["experimental.chat.system.transform"]({}, inactiveSystem);
 assert.match(inactiveSystem.system.join("\n"), /no valid `.agdf\/control\/config.json`/);

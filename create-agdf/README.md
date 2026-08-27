@@ -26,6 +26,22 @@ Use a different target when Codex is not your agent surface:
 | Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin for Claude Code. |
 | OpenCode, user-wide discovery | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
 | OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
+
+The runtime-bearing `codex`, `claude` and `opencode` installers ask before enabling narrow automatic
+local checks on an interactive terminal. The choices are `enable`, `manual` and `cancel`; enablement
+is never preselected. Non-interactive installation defaults to manual unless the exact option is
+provided:
+
+```sh
+npx --yes @agdf/cli@latest claude --runtime-checks enable
+npx --yes @agdf/cli@latest runtime-checks status --surface claude --json
+```
+
+The check is argument-free, read-only and offline. Consent is content-bound, reversible and separate
+from AGDF gate approval. A receipt alone never proves effective host permission. Codex native trust,
+Claude deny/ask precedence and all explicit OpenCode permissions remain authoritative. The public
+Skills-only OpenAI candidate has no runtime or hooks and therefore remains manual/external for this
+capability.
 | GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | Repository instructions, visible skills and control templates. |
 | Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
@@ -117,6 +133,7 @@ it does not localize the CLI lifecycle card.
 - `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
+- `runtime-checks status|enable|manual` reports the requested/effective automatic-check state or gives the exact reinstall route needed to change it
 - `disable` writes a supported repository-local opt-out while retaining global capability and durable control state
 - `uninstall` previews and, only with `--confirm`, applies a selected global removal through supported native/owned operations
 - `opencode-repo` writes durable AGDF control configuration and templates under `.agdf/control/`; it does not copy a second OpenCode runtime surface

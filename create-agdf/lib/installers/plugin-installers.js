@@ -30,6 +30,10 @@ export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepar
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
         ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`]),
       ],
+      pluginRoot: transaction.pluginRoot ?? null,
+      digest: transaction.digest ?? null,
+      runtimeDigest: transaction.runtimeDigest ?? null,
+      sourceDigest: transaction.sourceDigest ?? null,
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {
@@ -77,6 +81,10 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
         ...(installedVersion ? [] : ["host_did_not_expose_version"]),
       ],
+      pluginRoot: transaction.pluginRoot ?? null,
+      digest: transaction.digest ?? null,
+      runtimeDigest: transaction.runtimeDigest ?? null,
+      sourceDigest: transaction.sourceDigest ?? null,
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {

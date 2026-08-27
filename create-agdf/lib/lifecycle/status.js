@@ -6,6 +6,7 @@ import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import { evaluateOpenCodeStatus } from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
 import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
+import { runtimeCheckStatus } from "../runtime-check-consent/service.js";
 
 function deliveryStatus(targetDir, selection, dependencies) {
   const controlDir = join(targetDir, ".agdf", "control");
@@ -95,6 +96,9 @@ export function evaluateGeneralStatus(targetDir, options = {}, dependencies = {}
   }
   const repository = repositoryStatus(targetDir, surface);
   const delivery = deliveryStatus(targetDir, { runId: options.runId }, deps);
+  const runtimeChecks = ["codex", "claude", "opencode"].includes(surface)
+    ? runtimeCheckStatus(options.dataRoot, surface)
+    : { requested: "unknown", effective: "unavailable", reason: "unsupported_host_capability" };
   const nextText = surface === "multiple"
     ? "Multiple AGDF host surfaces were detected; rerun status with an explicit --surface."
     : surface === "generic"
@@ -112,5 +116,5 @@ export function evaluateGeneralStatus(targetDir, options = {}, dependencies = {}
     : delivery.status === "not_configured"
     ? "Start a new task; status created no run and requires no approval. Initialize durable control only when the repository needs it."
     : "Continue with the reported delivery next step.";
-  return { schema_version: 1, installation, repository, delivery, next_action: { kind: "action", text: nextText } };
+  return { schema_version: 1, installation, repository, delivery, runtime_checks: runtimeChecks, next_action: { kind: "action", text: nextText } };
 }

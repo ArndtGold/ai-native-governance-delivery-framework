@@ -407,45 +407,58 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     const logs = [];
     const toasts = [];
     const makeClient = (withToast = true) => ({
-      app: { async log({ body }) { logs.push(body); } },
+      app: { async log(input) { logs.push(input.body ?? input); } },
       tui: withToast ? { async showToast({ body }) { toasts.push(body); } } : undefined,
+    });
+    const automaticRuntimeCheck = () => ({
+      requested: "enabled",
+      effective: "enabled",
+      reason: "none",
+      verification: "host_observed",
+      ran: true,
+      output: "AGDF active.\n\nAGDF automatic runtime check: status=pass findings=0.",
     });
 
     const inactiveDir = join(pluginTemp, "inactive");
     mkdirSync(inactiveDir, { recursive: true });
-    const inactivePlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() });
+    const inactivePlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
     logs.length = 0;
     toasts.length = 0;
     await inactivePlugin.event({ event: { type: "session.created" } });
     assert.ok(logs.some((l) => l.level === "info" && l.message.includes("without durable control")), "inactive session must log");
+    assert.ok(logs.some((l) => l.extra?.automatic_runtime_check?.effective === "enabled"), "session log must expose automatic runtime-check evidence");
     assert.ok(toasts.some((t) => t.message.includes("No valid") && t.variant === "warning"), "inactive session must toast");
 
     const activeDir = join(pluginTemp, "active");
     mkdirSync(join(activeDir, ".agdf", "control"), { recursive: true });
     writeFileSync(join(activeDir, ".agdf", "control", "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "en", runtime_language: "en" }));
-    const activePlugin = await AGDFPlugin({ directory: activeDir, client: makeClient() });
+    const activePlugin = await AGDFPlugin({ directory: activeDir, client: makeClient() }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
     logs.length = 0;
     toasts.length = 0;
     await activePlugin.event({ event: { type: "session.created" } });
     assert.ok(logs.some((l) => l.level === "info" && l.message.includes("active through durable control")), "active session must log");
     assert.equal(toasts.length, 0, "active session must not toast");
+    const systemOutput = { system: [] };
+    await activePlugin["experimental.chat.system.transform"]({}, systemOutput);
+    assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF Runtime Reminder")), "active guidance must be injected");
+    assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF automatic runtime check: status=pass")), "successful automatic runtime-check output must be injected");
 
     const noToastClient = makeClient(false);
-    const noToastPlugin = await AGDFPlugin({ directory: inactiveDir, client: noToastClient });
+    const noToastPlugin = await AGDFPlugin({ directory: inactiveDir, client: noToastClient }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
     logs.length = 0;
     await noToastPlugin.event({ event: { type: "session.created" } });
     assert.ok(logs.some((l) => l.level === "info"), "inactive session must still log when TUI is unavailable");
 
     const throwingClient = {
-      app: { async log({ body }) { logs.push(body); } },
+      app: { async log(input) { logs.push(input.body ?? input); } },
       tui: { async showToast() { throw new Error("TUI unavailable"); } },
     };
-    const throwingPlugin = await AGDFPlugin({ directory: inactiveDir, client: throwingClient });
+    const throwingPlugin = await AGDFPlugin({ directory: inactiveDir, client: throwingClient }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
     logs.length = 0;
     await assert.doesNotReject(async () => { await throwingPlugin.event({ event: { type: "session.created" } }); }, "session.created must not reject when showToast throws");
     assert.ok(logs.some((l) => l.level === "info"), "session.created must still log when showToast throws");
 
-    const nonSessionPlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() });
+    const nonSessionPlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
     logs.length = 0;
     toasts.length = 0;
     await nonSessionPlugin.event({ event: { type: "session.idle" } });

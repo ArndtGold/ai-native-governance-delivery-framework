@@ -117,6 +117,7 @@ const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const brownfieldSkillPath = join(pluginRoot, "skills", "brownfield-analysis", "SKILL.md");
 const localRuntimeManifestPath = join(pluginRoot, "runtime", "runtime-manifest.json");
 const localRuntimeEntrypointPath = join(pluginRoot, "runtime", "agdf-local.js");
+const automaticRuntimeCheckPath = join(pluginRoot, "runtime", "agdf-session-check.js");
 const hooksConfigPath = join(pluginRoot, "hooks", "hooks.json");
 const sessionStartHookPath = join(pluginRoot, "hooks", "session-start.sh");
 const codexComposerIconPath = join(pluginRoot, "assets", "agdf-icon.svg");
@@ -317,6 +318,7 @@ if (sourceMode) {
 } else {
   assertFile(localRuntimeManifestPath, "surface-local runtime manifest");
   assertFile(localRuntimeEntrypointPath, "surface-local runtime entrypoint");
+  assertFile(automaticRuntimeCheckPath, "argument-free automatic runtime-check entrypoint");
 }
 assertFile(agentRouterPath, "canonical AGDF agent router");
 assertFile(codexPluginPath, "Codex plugin manifest");
@@ -854,12 +856,27 @@ if (hooksConfig) {
   const sessionStartGroups = hooksConfig.hooks?.SessionStart;
   if (!Array.isArray(sessionStartGroups) || sessionStartGroups.length === 0) failures.push("Codex plugin hooks config must define SessionStart hooks");
   const sessionStartCommands = sessionStartGroups?.flatMap((group) => group?.hooks ?? []) ?? [];
-  if (!sessionStartCommands.some((hook) => hook?.type === "command" && String(hook?.command ?? "").includes("session-start.sh"))) {
-    failures.push("Codex plugin SessionStart hooks must load session-start.sh");
+  if (!sessionStartCommands.some((hook) => hook?.type === "command" && String(hook?.command ?? "").includes("agdf-session-check.js"))) {
+    failures.push("Codex plugin SessionStart hooks must load the fixed automatic runtime-check entrypoint");
   }
   const sessionStartCommandText = sessionStartCommands.map((hook) => String(hook?.command ?? "")).join("\n");
   if (!sessionStartCommandText.includes("PLUGIN_ROOT")) failures.push("Codex plugin SessionStart hook command must use PLUGIN_ROOT");
+  if (!sessionStartCommands.every((hook) => String(hook?.commandWindows ?? "").includes("agdf-session-check.js"))) failures.push("Codex plugin SessionStart hooks must define a native Windows command");
   if (sessionStartCommandText.includes("/plugins/cache/*/")) failures.push("Codex plugin SessionStart hook command must not use cache wildcards");
+}
+
+if (pluginDefinition) {
+  const capability = pluginDefinition.automaticRuntimeChecks;
+  if (capability?.schemaVersion !== 1 || capability?.entrypoint !== "runtime/agdf-session-check.js"
+      || capability?.constraints?.arguments !== "forbidden"
+      || capability?.constraints?.filesystemWrites !== "forbidden"
+      || capability?.constraints?.network !== "forbidden"
+      || capability?.constraints?.gateAuthority !== "none") {
+    failures.push("Canonical automatic runtime-check capability must remain argument-free, read-only, offline and non-authorizing");
+  }
+  if (capability?.surfaces?.["portable-skills"] !== "manual-external-required") {
+    failures.push("Portable public Skills profile must not claim automatic runtime checks");
+  }
 }
 
 if (isFile(sessionStartHookPath)) {

@@ -39,6 +39,15 @@ export function createLifecycleResult(input = {}) {
     delivery: {
       status: text(input.delivery?.status) || "not_evaluated",
     },
+    runtime_checks: {
+      requested: text(input.runtime_checks?.requested) || "unknown",
+      effective: text(input.runtime_checks?.effective) || "unknown",
+      reason: text(input.runtime_checks?.reason) || "not_evaluated",
+      capability_identity: text(input.runtime_checks?.capability_identity) || null,
+      verification: text(input.runtime_checks?.verification) || "not_evaluated",
+      mutation: text(input.runtime_checks?.mutation) || "none",
+      rollback: text(input.runtime_checks?.rollback) || "none",
+    },
     restart: {
       required: Boolean(input.restart?.required),
       reason: text(input.restart?.reason) || "none",

@@ -8,6 +8,12 @@ The first candidate is Skills-only. It provides no AGDF-operated MCP server, hos
 telemetry or service authentication. Codex hooks and repository validation are surface-specific and
 must not be inferred for ChatGPT without direct exact-version host evidence.
 
+Runtime-bearing AGDF installation paths now define an informed `enable`, `manual` or `cancel`
+decision for one argument-free, read-only and offline local session check. Consent is bound to the
+effective command and runtime identity, is not AGDF gate authority, and cannot prove host activation
+without current native evidence. This public Skills-only candidate deliberately ships no runtime or
+hooks, so automatic runtime checks remain unavailable in this profile.
+
 AGDF is an independent open-source project by Arndt Gold. It is not affiliated with, endorsed by or
 sponsored by OpenAI and is not a security sandbox, legal assessment, compliance certification or
 autonomous shipping system.

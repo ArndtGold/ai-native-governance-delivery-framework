@@ -6,6 +6,7 @@ import process from "node:process";
 import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
 import { resolveLocalValidator } from "../runtime/local-validator.js";
+import { digestDirectory } from "../runtime/plugin-provenance.js";
 import { validateLocalOpenCodePackageSource } from "./local-development.js";
 
 const contractModules = ["gate-transition.md", "interaction.md", "modes.md", "quality.md", "context-graph.md", "control-scaffold.md", "closeout.md"];
@@ -17,6 +18,7 @@ const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-C
 const globalOpenCodeValidatorOwnershipMarker = "// AGDF-GLOBAL-LOCAL-VALIDATOR";
 const globalOpenCodeAgentOwnershipMarker = `<!-- AGDF-GLOBAL-AGENT: ${pluginDefinition.opencode.evaluatorAgentName} -->`;
 const globalOpenCodeValidatorPackageOwner = "create-agdf";
+export const openCodePluginEntrypoint = `./node_modules/${pluginDefinition.opencode.npmPackage}/opencode-plugin.js`;
 const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
 const npmCommand = testNpmCliPath ? process.execPath : process.platform === "win32" ? process.execPath : "npm";
 const npmPrefixArgs = testNpmCliPath ? [testNpmCliPath] : process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
@@ -67,10 +69,14 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
     throw openCodeLifecycleError("configuration", `Refusing to update OpenCode config with non-array plugin field: ${configPath}`, { configPath });
   }
 
-  const plugins = [...(config.plugin ?? [])];
-  const alreadyInstalled = plugins.includes(pluginDefinition.opencode.npmPackage);
+  const plugins = (config.plugin ?? []).map((entry) => (
+    entry === pluginDefinition.opencode.npmPackage || entry.startsWith(`${pluginDefinition.opencode.npmPackage}@`)
+      ? openCodePluginEntrypoint
+      : entry
+  ));
+  const alreadyInstalled = plugins.includes(openCodePluginEntrypoint);
   if (!alreadyInstalled) {
-    plugins.push(pluginDefinition.opencode.npmPackage);
+    plugins.push(openCodePluginEntrypoint);
   }
 
   const nextConfig = {
@@ -128,6 +134,10 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
     throw openCodeLifecycleError("configuration", `Failed to write OpenCode config ${configPath}: ${error.message}`, { configPath });
   }
   const installedPackage = resolveOpenCodePackage(configDir);
+  if (!installedPackage.loadable || !installedPackage.package_root) {
+    throw openCodeLifecycleError("verification", "Installed OpenCode AGDF package is not loadable after installation.", { configDir });
+  }
+  const installedPackageDigest = digestDirectory(installedPackage.package_root);
   const sdkAlignment = alignOpenCodePluginSdk(configDir);
 
   return {
@@ -135,6 +145,7 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
     added: !alreadyInstalled,
     transition: openCodePackageTransition(previousPackage, installedPackage),
     sdk_alignment: sdkAlignment,
+    installed_package: { root: installedPackage.package_root, digest: installedPackageDigest },
     package_source: localPackageSource
       ? { kind: "local_checkout", path: localPackageSource.tarball, digest: localPackageSource.digest, version: localPackageSource.version }
       : { kind: "registry", path: "", digest: "", version: pluginDefinition.version },
@@ -736,7 +747,8 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
   const configPath = join(configDir, "opencode.json");
   const configState = readOpenCodeConfig(configPath);
   const plugins = Array.isArray(configState.config.plugin) ? configState.config.plugin : [];
-  const globalConfigured = plugins.includes(pluginDefinition.opencode.npmPackage);
+  const globalConfigured = plugins.includes(openCodePluginEntrypoint);
+  const legacyPluginConfigured = plugins.some((entry) => entry === pluginDefinition.opencode.npmPackage || entry.startsWith(`${pluginDefinition.opencode.npmPackage}@`));
   const packageState = resolveOpenCodePackage(configDir);
   const packageVersionStatus = openCodePackageVersionStatus(packageState);
   const globalNativeSurface = evaluateGlobalOpenCodeSurface(configDir);
@@ -754,7 +766,9 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
   const findings = [];
   if (!configState.exists) findings.push("OpenCode global config not found.");
   if (configState.parseError) findings.push(`OpenCode global config is not valid JSON: ${configState.parseError}`);
-  if (!globalConfigured) findings.push(`OpenCode global config does not include ${pluginDefinition.opencode.npmPackage}.`);
+  if (!globalConfigured) findings.push(legacyPluginConfigured
+    ? `OpenCode global config still uses the host-managed npm cache entry for ${pluginDefinition.opencode.npmPackage}; rerun installation to bind the verified local package entrypoint.`
+    : `OpenCode global config does not include ${openCodePluginEntrypoint}.`);
   if (!packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is not loadable from the OpenCode config directory.`);
   if (packageVersionStatus === "outdated") findings.push(`${pluginDefinition.opencode.npmPackage} version ${packageState.installed_version} is outdated; expected ${pluginDefinition.version}.`);
   if (packageVersionStatus === "unknown" && packageState.loadable) findings.push(`${pluginDefinition.opencode.npmPackage} is loadable but its installed version is unknown.`);
@@ -783,6 +797,8 @@ export function evaluateOpenCodeStatus(targetDir, configDir = defaultOpenCodeCon
       exists: configState.exists,
       parse_error: configState.parseError,
       plugin_configured: globalConfigured,
+      plugin_entrypoint: openCodePluginEntrypoint,
+      legacy_plugin_configured: legacyPluginConfigured,
     },
     package: {
       name: pluginDefinition.opencode.npmPackage,

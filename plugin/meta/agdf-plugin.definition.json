@@ -68,6 +68,29 @@
       }
     }
   },
+  "automaticRuntimeChecks": {
+    "schemaVersion": 1,
+    "capabilityId": "automatic-runtime-checks",
+    "adapterContractVersion": 1,
+    "entrypoint": "runtime/agdf-session-check.js",
+    "operations": [
+      "resolve-local-runtime",
+      "inspect-control-state",
+      "render-bounded-orientation"
+    ],
+    "constraints": {
+      "arguments": "forbidden",
+      "filesystemWrites": "forbidden",
+      "network": "forbidden",
+      "gateAuthority": "none"
+    },
+    "surfaces": {
+      "codex": "native-hook-review",
+      "claude": "exact-command-rule",
+      "opencode": "plugin-internal",
+      "portable-skills": "manual-external-required"
+    }
+  },
   "interactions": {
     "fallback": "exact_text",
     "localeRegistry": "meta/agdf-interaction-locales.json",

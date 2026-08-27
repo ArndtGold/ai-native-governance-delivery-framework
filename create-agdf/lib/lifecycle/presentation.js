@@ -28,6 +28,7 @@ export function lifecycleCardLines(report) {
     `Installation: ${report.installation.status}`,
     `Activation: ${report.activation.status}`,
     `Repository delivery: ${report.delivery.status}`,
+    `Automatic runtime checks: requested=${report.runtime_checks.requested}; effective=${report.runtime_checks.effective}; reason=${report.runtime_checks.reason}`,
     `Verification: ${report.verification.status}`,
     `Restart required: ${report.restart.required ? "yes" : "no"}${report.restart.reason !== "none" ? ` (${report.restart.reason})` : ""}`,
     `Next action: ${report.next_action.text}`,
@@ -56,5 +57,6 @@ export function printGeneralStatus(report, { json = false, io = console } = {}) 
   io.log(`Installation: ${report.installation.status}${report.installation.version ? ` (${report.installation.version})` : ""}`);
   io.log(`Repository: ${report.repository.status}`);
   io.log(`Delivery: ${report.delivery.status}${report.delivery.current_gate ? ` (${report.delivery.current_gate})` : ""}`);
+  io.log(`Automatic runtime checks: requested=${report.runtime_checks.requested}; effective=${report.runtime_checks.effective}; reason=${report.runtime_checks.reason}`);
   io.log(`Next action: ${report.next_action.text}`);
 }

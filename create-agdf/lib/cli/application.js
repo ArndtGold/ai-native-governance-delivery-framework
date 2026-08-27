@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { createInterface } from "node:readline/promises";
 import process from "node:process";
 import {
   createRun,
@@ -26,6 +27,7 @@ import {
 } from "../lifecycle/operations.js";
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
+import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { evaluateGeneralStatus } from "../lifecycle/status.js";
 import { agdfFragmentPath, generatedFilesForTarget } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
@@ -35,7 +37,7 @@ import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
 
-function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
+function createHandlers({ io, env, exec, prepare, openCodePackageSource, askRuntimeCheckDecision, interactive }) {
   const installerAdapters = {
     ...(exec ? { exec } : {}),
     ...(prepare ? { prepare } : {}),
@@ -75,18 +77,40 @@ function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
       const report = evaluateGeneralStatus(options.dir, {
         ...options,
         configDir: env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir(),
+        dataRoot: env.AGDF_DATA_DIR,
       }, { exec });
       printGeneralStatus(report, { json: options.json, io });
       return report.installation.status === "healthy" ? 0 : 1;
     }],
+    ["runtime-checks", (options) => {
+      const report = options.runtimeChecksAction === "manual"
+        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface })
+        : runtimeCheckStatus(env.AGDF_DATA_DIR, options.surface);
+      if (options.runtimeChecksAction === "enable") {
+        report.next_action = `Rerun npx --yes @agdf/cli@latest ${options.surface} --runtime-checks ${options.runtimeChecksAction}; installation ownership and capability identity are revalidated before consent is persisted.`;
+      }
+      io.log(options.json ? JSON.stringify(report, null, 2) : [
+        "AGDF automatic runtime checks",
+        `Requested: ${report.requested}`,
+        `Effective: ${report.effective}`,
+        `Reason: ${report.reason}`,
+        ...(report.next_action ? [`Next action: ${report.next_action}`] : []),
+      ].join("\n"));
+      return report.effective === "enabled" || report.effective === "manual" ? 0 : 1;
+    }],
     ["disable", (options) => runDisable(options, { io, exec })],
     ["uninstall", (options) => runUninstall(options, { io, env, exec })],
-    ["codex", (options) => {
+    ["codex", async (options) => {
       try {
+        const consent = await installConsentDecision("codex", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
+        if (consent.decision === "cancel") return printCancelledConsent("codex", options, io);
         const installed = installCodexGlobalPlugin(installerAdapters);
+        const finalizedConsent = finalizeInstallConsent(consent, { surface: "codex", installed, dataRoot: installerAdapters.dataRoot });
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
           nextAction: globalInstallRestartAction(options.target).text,
+          runtimeChecks: finalizedConsent.state,
+          consentFailure: finalizedConsent.failure,
         }), { json: options.json, io });
         printVerboseHostOutput(installed, options, io);
         return 0;
@@ -95,12 +119,17 @@ function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
         return 1;
       }
     }],
-    ["claude", (options) => {
+    ["claude", async (options) => {
       try {
+        const consent = await installConsentDecision("claude", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
+        if (consent.decision === "cancel") return printCancelledConsent("claude", options, io);
         const installed = installClaudeGlobalPlugin(installerAdapters);
+        const finalizedConsent = finalizeInstallConsent(consent, { surface: "claude", installed, dataRoot: installerAdapters.dataRoot });
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
           nextAction: globalInstallRestartAction(options.target).text,
+          runtimeChecks: finalizedConsent.state,
+          consentFailure: finalizedConsent.failure,
         }), { json: options.json, io });
         printVerboseHostOutput(installed, options, io);
         return 0;
@@ -109,9 +138,11 @@ function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
         return 1;
       }
     }],
-    ["opencode", (options) => {
+    ["opencode", async (options) => {
       const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
       try {
+        const consent = await installConsentDecision("opencode", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
+        if (consent.decision === "cancel") return printCancelledConsent("opencode", options, io);
         const result = runLifecyclePhase("plugin_operation", () => installOpenCodeGlobalPlugin(configDir, { packageSource: openCodePackageSource }));
         runLifecyclePhase("global_surface", () => installOpenCodeGlobalSurface(configDir));
         const report = runLifecyclePhase("verification", () => evaluateOpenCodeStatus(options.dir, configDir, result.transition));
@@ -128,9 +159,18 @@ function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
               kind: "recovery",
               text: `Retry the OpenCode installation to align @opencode-ai/plugin to ${result.sdk_alignment.target_version || "the exact host version"}; observed SDK: ${result.sdk_alignment.installed_version || "unknown"}.`,
             };
+        const finalizedConsent = finalizeInstallConsent(consent, {
+              surface: "opencode",
+              installed: {
+                pluginRoot: result.installed_package.root,
+                digest: result.installed_package.digest,
+                sourceDigest: result.package_source.digest || result.installed_package.digest,
+              },
+              dataRoot: installerAdapters.dataRoot,
+            });
         printLifecycleResult(createLifecycleResult({
           operation: result.transition.status === "updated" ? "update" : "install",
-          result: verificationHealthy ? "success" : "partial",
+          result: verificationHealthy && !finalizedConsent.failure ? "success" : "partial",
           surface: options.target,
           scope: "global",
           version: {
@@ -154,7 +194,9 @@ function createHandlers({ io, env, exec, prepare, openCodePackageSource }) {
             ],
           },
           restart: { required: true, reason: "host_reload" },
+          runtime_checks: finalizedConsent.state,
           next_action: nextAction,
+          failure: finalizedConsent.failure,
         }), { json: options.json, io });
         if (!options.json) {
           io.log(`OpenCode host / plugin SDK: ${report.host.installed_version || "unknown"} / ${report.plugin_sdk.installed_version || "unknown"} (${report.host_sdk_version.status}; ${report.host_sdk_version.policy})`);
@@ -180,10 +222,10 @@ function runLifecyclePhase(phase, operation) {
   }
 }
 
-function installResult(installed, { restartRequired, nextAction }) {
+function installResult(installed, { restartRequired, nextAction, runtimeChecks, consentFailure }) {
   return createLifecycleResult({
     operation: installed.operation ?? "install",
-    result: "success",
+    result: consentFailure ? "partial" : "success",
     surface: installed.surface,
     scope: "global",
     version: { expected: installed.expectedVersion, installed: installed.installedVersion, status: installed.installedVersion ? "verified" : "unknown" },
@@ -191,9 +233,56 @@ function installResult(installed, { restartRequired, nextAction }) {
     installation: { status: installed.verificationStatus },
     activation: { status: restartRequired ? "pending_restart" : "active" },
     delivery: { status: "not_evaluated" },
+    runtime_checks: runtimeChecks,
     restart: { required: restartRequired, reason: restartRequired ? "host_reload" : "none" },
     next_action: { kind: restartRequired ? "restart" : "prompt", text: nextAction },
+    failure: consentFailure,
   });
+}
+
+function finalizeInstallConsent(consent, input) {
+  if (!consent.persist) return {
+    state: consent.retained && consent.decision === "enable"
+      ? { requested: "enabled", effective: "decision_required", reason: "host_permission_unverified" }
+      : { requested: "manual", effective: "manual", reason: "consent_not_provided" },
+    failure: null,
+  };
+  try {
+    return { state: persistInstallConsent({ ...input, decision: consent.decision }), failure: null };
+  } catch (error) {
+    return {
+      state: { requested: consent.decision === "enable" ? "enabled" : "manual", effective: "failed", reason: "configuration_invalid" },
+      failure: { phase: "runtime_check_permission", message: error.message },
+    };
+  }
+}
+
+async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot }) {
+  if (options.runtimeChecksDecision !== undefined) return prepareInstallConsent(surface, options);
+  const retained = retainCurrentInstallConsent(surface, dataRoot);
+  if (retained) return retained;
+  if (!interactive || options.json || typeof askRuntimeCheckDecision !== "function") {
+    return prepareInstallConsent(surface, options);
+  }
+  const disclosure = prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "manual" }).disclosure;
+  io.log(`Automatic runtime checks for ${disclosure.surface} (${disclosure.installation_scope}) run ${disclosure.when}: ${disclosure.runs}.`);
+  io.log(`Executable: ${disclosure.executable}. Reads: ${disclosure.reads}.`);
+  io.log(`Writes: ${disclosure.writes}. Permission owner: ${disclosure.permission_owner}. Network: ${disclosure.network}. AGDF gate authority: ${disclosure.gate_authority}.`);
+  io.log(`Renewal: ${disclosure.renewal}. Revoke: ${disclosure.revocation}.`);
+  const answer = await askRuntimeCheckDecision(disclosure);
+  return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: answer });
+}
+
+function printCancelledConsent(surface, options, io) {
+  const report = createLifecycleResult({
+    operation: "install", result: "preview", surface, scope: "global",
+    verification: { status: "unknown", evidence: ["cancelled_before_mutation"] },
+    runtime_checks: { requested: "cancelled", effective: "cancelled", reason: "consent_not_provided" },
+    restart: { required: false },
+    next_action: { kind: "none", text: "Installation was cancelled before any plugin or permission mutation." },
+  });
+  printLifecycleResult(report, { json: options.json, io });
+  return 0;
 }
 
 function printVerboseHostOutput(installed, options, io) {
@@ -342,9 +431,27 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
   }
   const command = resolveCommand(options.target);
   if (!command) throw new Error(`No handler is registered for ${options.target}.`);
-  const handler = createHandlers({ io, env, exec: adapters.exec, prepare: adapters.prepare, openCodePackageSource: adapters.openCodePackageSource }).get(command.handler);
+  const handler = createHandlers({
+    io,
+    env,
+    exec: adapters.exec,
+    prepare: adapters.prepare,
+    openCodePackageSource: adapters.openCodePackageSource,
+    askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
+    interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
+  }).get(command.handler);
   if (!handler) throw new Error(`No implementation is registered for ${command.name}.`);
   return await handler(options);
 }
 
 export const main = runCli;
+
+async function defaultAskRuntimeCheckDecision() {
+  const prompt = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = (await prompt.question("Choose enable, manual or cancel: ")).trim().toLowerCase();
+    return ["enable", "manual", "cancel"].includes(answer) ? answer : "cancel";
+  } finally {
+    prompt.close();
+  }
+}

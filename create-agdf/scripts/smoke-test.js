@@ -466,8 +466,8 @@ try {
   writeFileSync(join(openCodeSdkFixture, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\n', "utf8");
   const installOutput = runOpenCodeCli(["opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
   const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
-  if (!openCodeGlobalConfig.plugin?.includes(pluginDefinition.opencode.npmPackage)) {
-    throw new Error("opencode must add the AGDF npm plugin to OpenCode global config.");
+  if (!openCodeGlobalConfig.plugin?.includes(`./node_modules/${pluginDefinition.opencode.npmPackage}/opencode-plugin.js`)) {
+    throw new Error("opencode must bind the verified local AGDF plugin entrypoint in OpenCode global config.");
   }
   let status = JSON.parse(execFileSync(process.execPath, [binPath, "opencode-status", "--dir", openCodeConfigTempDir, "--json"], {
     encoding: "utf8",

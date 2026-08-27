@@ -17,6 +17,7 @@ export const commandRegistry = Object.freeze([
   command("opencode", { preferred: [""], scaffold: [""] }),
   command("opencode-status", { preferred: [""], scaffold: [""] }),
   command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
+  command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|opencode> [--json]"] }),
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [""], scaffold: [""] }),
@@ -65,6 +66,12 @@ export function validateCommandOptions(options) {
     throw new Error("uninstall requires explicit --scope global");
   }
   if (options.confirm && options.target !== "uninstall") throw new Error("--confirm is supported only by uninstall");
+  if (options.runtimeChecksDecision && !["codex", "claude", "opencode"].includes(options.target)) {
+    throw new Error("--runtime-checks is supported only by codex, claude and opencode installation commands");
+  }
+  if (options.target === "runtime-checks" && !["codex", "claude", "opencode"].includes(options.surface)) {
+    throw new Error("runtime-checks requires --surface codex, claude or opencode");
+  }
   if (options.approvalEnvelope && options.target !== "gate-check") throw new Error("--approval-envelope is supported only by gate-check");
   if (options.approvalEnvelope && (options.json || options.statusCard || options.allActive)) {
     throw new Error("--approval-envelope cannot be combined with --json, --status-card or --all-active");
@@ -120,6 +127,8 @@ Options:
   --scope <repository|global>
                  Select the lifecycle mutation scope
   --confirm      Apply a previously previewed global uninstall plan
+  --runtime-checks <enable|manual|cancel>
+                 Make the installation-time automatic-check decision explicitly; no TTY defaults to manual
   --fixture <path>
                  Use deterministic evaluator/candidate fixtures instead of a live evaluator
   --persist      Persist the redacted Delivery Path Search result under the current scope

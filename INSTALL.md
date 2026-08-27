@@ -20,6 +20,39 @@ repository-local commands inside the target Git repository, not inside this AGDF
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
+### Automatic runtime checks and installation consent
+
+The `codex`, `claude` and `opencode` installers distinguish plugin installation from permission to run
+narrow automatic checks. On an interactive terminal they disclose what the check reads and writes,
+that it uses no network, and that it never grants an AGDF gate. Choose `enable`, `manual` or `cancel`.
+There is no preselected enablement. For scripts and CI, use an explicit value or accept manual mode:
+
+```sh
+npx --yes @agdf/cli@latest claude --runtime-checks enable
+npx --yes @agdf/cli@latest claude --runtime-checks manual
+npx --yes @agdf/cli@latest runtime-checks status --surface claude --json
+```
+
+`cancel` stops before plugin or permission mutation. Consent records intent only. AGDF reports
+automatic checks as enabled only when the current content-bound identity and native host evidence
+both match. A changed command, runtime, capability scope or adapter contract requires renewal. Use
+`runtime-checks manual` to obtain the exact reinstall command for manual mode. Host-specific trust,
+deny and ask decisions remain authoritative and unrelated user settings are preserved.
+
+The fixed check accepts no arguments, performs no writes or network calls, and reads only local AGDF
+runtime identity and `.agdf/control` state. Codex uses native hook review and AGDF never edits its
+trust store. Claude Code may use only one exact fixed command rule; wildcard shell, Node or
+PowerShell permission is forbidden. OpenCode keeps every explicit permission and does not widen
+`permission.bash`.
+
+Native Windows uses a generated Windows hook command and PowerShell-specific permission projection.
+Repository fixtures do not prove Windows host behavior. Automatic-mode support is claimed only after
+direct native-Windows installation, permission, rollback, renewal and fresh-session evidence.
+
+The official public OpenAI candidate is currently a portable Skills-only profile. It contains no
+runtime or hooks, so automatic runtime checks are unavailable there and validation remains manual or
+external. The public listing must not imply otherwise.
+
 Contributors testing an unpublished checkout should use the local `npm run install:<surface>`
 commands in [CONTRIBUTING.md](CONTRIBUTING.md), not the public registry commands above.
 

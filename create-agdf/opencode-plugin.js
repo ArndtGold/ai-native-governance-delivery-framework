@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { evaluateOpenCodeRepositoryActivation } from "./lib/installers/opencode-activation.js";
+import { executeOpenCodeAutomaticRuntimeCheck } from "./lib/runtime-check-consent/service.js";
 
 const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 
@@ -15,7 +16,7 @@ const readValidatorExpectedVersion = () => {
   }
 };
 
-export const AGDFPlugin = async ({ directory, client }) => {
+export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
   const controlDir = `${directory}/.agdf/control`;
   const activation = () => evaluateOpenCodeRepositoryActivation(directory);
   const status = () => {
@@ -45,13 +46,11 @@ export const AGDFPlugin = async ({ directory, client }) => {
   const appendGuidance = async (output, key) => {
     if (!output || !Array.isArray(output[key])) {
       try {
-        await client.app.log({
-          body: {
-            service: "agdf",
-            level: "warn",
-            message: `AGDF OpenCode guidance degraded: ${key} output is unavailable`,
-            extra: { key, repositoryActivation: activation().state },
-          },
+        await safeLog({
+          service: "agdf",
+          level: "warn",
+          message: `AGDF OpenCode guidance degraded: ${key} output is unavailable`,
+          extra: { key, repositoryActivation: activation().state },
         });
       } catch {}
       return;
@@ -65,17 +64,31 @@ export const AGDFPlugin = async ({ directory, client }) => {
     } catch {}
   };
 
+  const safeLog = async (body) => {
+    try {
+      const response = await client?.app?.log?.({ body });
+      if (response?.error) await client?.app?.log?.(body);
+    } catch {
+      try { await client?.app?.log?.(body); } catch {}
+    }
+  };
+
+  let automaticCheck;
+  const currentAutomaticCheck = () => {
+    automaticCheck ??= (dependencies.executeAutomaticRuntimeCheck ?? executeOpenCodeAutomaticRuntimeCheck)({ directory });
+    return automaticCheck;
+  };
+
   return {
     event: async ({ event }) => {
       if (event?.type === "session.created") {
         const currentStatus = status();
-        await client.app.log({
-          body: {
-            service: "agdf",
-            level: "info",
-            message: currentStatus.active ? "AGDF OpenCode active through durable control" : "AGDF OpenCode global hook active without durable control",
-            extra: currentStatus,
-          },
+        const runtimeCheck = currentAutomaticCheck();
+        await safeLog({
+          service: "agdf",
+          level: "info",
+          message: currentStatus.active ? "AGDF OpenCode active through durable control" : "AGDF OpenCode global hook active without durable control",
+          extra: { ...currentStatus, automatic_runtime_check: { effective: runtimeCheck.effective, reason: runtimeCheck.reason, ran: runtimeCheck.ran } },
         });
         if (!currentStatus.active) {
           await safeToast(
@@ -112,6 +125,8 @@ export const AGDFPlugin = async ({ directory, client }) => {
 
     "experimental.chat.system.transform": async (_input, output) => {
       await appendGuidance(output, "system");
+      const runtimeCheck = currentAutomaticCheck();
+      if (runtimeCheck.ran && runtimeCheck.output && Array.isArray(output?.system)) output.system.push(runtimeCheck.output);
     },
 
     "experimental.session.compacting": async (_input, output) => {

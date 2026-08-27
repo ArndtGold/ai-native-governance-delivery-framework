@@ -31,7 +31,7 @@ if (args.join(" ") === "plugin list") console.log("agdf@agdf " + process.env.AGD
 chmodSync(fakeCodexPath, 0o755);
 
 try {
-  const output = execFileSync("npx", ["--yes", packageSpec, "codex"], {
+  const output = execFileSync("npx", ["--yes", packageSpec, "codex", "--verbose"], {
     cwd: targetDir,
     encoding: "utf8",
     stdio: "pipe",

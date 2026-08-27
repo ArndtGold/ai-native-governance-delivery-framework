@@ -1,6 +1,6 @@
 # QA Report: Installation Consent for Automatic Runtime Checks
 
-Status: `revise`; revision 2
+Status: `revise`; revision 9
 
 Gate: QA
 
@@ -11,27 +11,31 @@ Date: 2026-08-27
 
 | Dimension | Owner | Outcome | Evidence |
 |---|---|---|---|
-| Plan coverage | task-plan-review | revise | 15/16 fully done; IRC-12 remains partial for Windows |
-| Solution integrity | clean-implementation-review | pass | root defects fixed in shared owners; no parallel authority |
-| Code quality | code-review | pass | CR-01 and CR-02 resolved; complete regression green |
-| QA decision | qa-gate, sole decision owner | revise | TPR-01 remains open |
+| Plan coverage | task-plan-review | revise | 15/16 fully done; IRC-12 and direct-host cells remain partial |
+| Solution integrity | clean-implementation-review | pass | retained-consent bypass removed in the existing owner; no parallel authority |
+| Code quality | code-review | pass | QA-UX-01 through QA-UX-05 resolved; version identity, truthful intent and beginner recovery regressions green |
+| QA decision | qa-gate, sole decision owner | revise | TPR-01 remains open for required evidence planes |
 
-Decisive reason: macOS now proves Claude and OpenCode behavior, but QA cannot infer Codex enabled
-state, native Windows cells or the rendered public listing.
+Decisive reason: the approved interaction behavior is implemented and repository-tested, but the
+required revised live-host rendering, Codex trust cycle, native Windows and public rendered evidence
+remain incomplete.
 
-Permissible next action: the user completes exact Codex native trust, then the remaining Windows and
-public-candidate evidence runs on their actual hosts.
+Permissible next action: collect the remaining direct-host evidence without inferring parity or
+changing host state beyond separately authorized evidence runs.
 
 ## QA Gate
 
 - decision: `revise`
-- evidence: approved TP; Brownfield pass; CD+Tests; all reviews; full smoke; Runtime Integrity;
-  66/66 skill cases; 313-file package; direct Claude hook, OpenCode enabled/manual sessions and Codex review
-- missing_evidence: Codex trust plus enabled/change/disable cycle; IRC-H04 through H06; IRC-H07;
-  deliberately induced managed conflict/rollback
+- evidence: approved TP; Brownfield pass; CD+Tests; all reviews; final full smoke; Runtime Integrity;
+  compact/default and verbose diagnostic contracts; 66/66 skill cases; 313-file package; 43-file
+  public candidate; direct Claude hook, OpenCode enabled/manual sessions and Codex review
+- missing_evidence: revised interactive install/update rendering on Codex, Claude Code and OpenCode;
+  Codex trust plus enabled/change/disable cycle; IRC-H04 through H06; IRC-H07; deliberately induced
+  managed conflict/rollback
 - risks: Windows PowerShell, ACL and locked-file behavior cannot be inferred; rendered wording can drift;
   Codex native trust belongs to the user
-- required_next_step: complete TPR-01 and rerun QA; do not request `Approval: QA` yet
+- required_next_step: complete the authorized direct-host evidence cells; do not request
+  `Approval: QA` while TPR-01 remains open
 - impact_codes: none registered
 
 ## Normalized Findings Consumed
@@ -39,6 +43,11 @@ public-candidate evidence runs on their actual hosts.
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
 | TPR-01 | evidence_gap | evidence_obligation | open | `HOST_EVIDENCE_MACOS.md` proves only its stated cells | Complete remaining direct-host cells without inferred parity. |
+| QA-UX-01 | requirements_gap | PRD | resolved | PRD Revision 2, SD Revision 3 and TP Revision 2 are approved; the shared CLI owner now always prompts in interactive first-install and enabled/manual update fixtures. | None; retain as resolved traceability evidence. |
+| QA-UX-02 | implementation_gap | CD+Tests | resolved | The user-provided terminal output exposed noisy release tests and dense disclosure; successful preparation is now quiet, the complete disclosure is structured, and cancel/preview titles are truthful and regression-tested. | Obtain revised live-host rendering as part of TPR-01. |
+| QA-UX-03 | implementation_gap | CD+Tests | resolved | The TTY choice accepts 1/E, 2/M and immediate Esc without Enter; raw mode and stdin lifecycle are regression-tested and a mutation-forbidden pseudoterminal Esc run exited 0. | Obtain installed-host rendering as part of TPR-01. |
+| QA-UX-04 | implementation_gap | CD+Tests | resolved | The user-provided screen exposed excessive technical density; the primary view now uses plain language, preserves material consent facts, offers D for technical details and ends with a compact effective-state card and concrete Codex permission action. | Obtain installed-host rendering as part of TPR-01. |
+| QA-UX-05 | implementation_gap | CD+Tests | resolved | The follow-up exposed missing version identity and residual beginner ambiguity; target and verified/update versions, previous intent versus host permission, manual-mode explanation, quiet progress and invalid-key recovery are now regression-tested. | Obtain installed-host rendering as part of TPR-01. |
 
 ## Context Graph
 
@@ -51,4 +60,4 @@ public-candidate evidence runs on their actual hosts.
 
 ## QA Boundary
 
-QA Revision 2 does not authorize UAT, publication, release, commit, push or pull-request creation.
+QA Revision 9 does not authorize UAT, publication, release, commit, push or pull-request creation.

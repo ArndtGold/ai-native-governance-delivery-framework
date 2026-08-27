@@ -1,5 +1,7 @@
 # Brownfield Analysis: Installation Consent for Automatic Runtime Checks
 
+Revision: 2
+
 ## Decision
 
 - mode: `pre_implementation_analysis`
@@ -10,21 +12,23 @@
 
 ## Scope
 
-Validate approved TP Revision 1 against the current installer, runtime, provenance, lifecycle,
-interaction, public-plugin, generated-surface and native-platform owners before code changes. Confirm
-that the implementation can add informed installation consent without creating another validator,
-permission authority, public listing source or host-security bypass.
+Validate approved TP Revision 2 against the current consent coordinator, CLI interaction, receipt,
+installer transaction and regression owners. Confirm that every interactive install or update can
+offer enable, manual or cancel without creating another interaction owner, weakening non-interactive
+policy or causing a second native host trust prompt for identity-equivalent content.
 
 ## Baseline And Selected Run
 
 - selected run: `installation-consent-runtime-checks`
-- approved plan: TP Revision 1 through exact `Approval: TP` on 2026-08-27
+- approved plan: TP Revision 2 through exact `Approval: TP` on 2026-08-27
 - repository baseline: `753124e20adebb44acf53817823300cf73ea0ac8`
-- observed worktree before implementation: only this run's canonical backlog row and untracked run
-  artefacts; no unrelated implementation-path change was observed
+- observed worktree before this revision: the existing implementation paths are already dirty from
+  this run's prior delivery; the new correction remains bounded to the current CLI consent owner,
+  focused tests, documentation and this run's evidence artefacts
 - source version: canonical plugin definition `0.13.7`
-- validation boundary: the active session runtime is version-matched `0.13.6`; implementation and
-  generated verification must use the source-matched `0.13.7` validator produced by canonical sync
+- validation boundary: the active Codex session runtime is version-matched
+  `0.13.7+codex.local-b397dc228a8a`; repository verification still uses canonical source generation
+  and must not infer fresh-session success
 
 ## Existing Owners And Reuse Path
 
@@ -35,7 +39,7 @@ permission authority, public listing source or host-security bypass.
 | IRC-04/07 | canonical Codex hook manifest; `plugin/hooks/`; Codex native exact-hash review | partially_done | Generate native POSIX and Windows commands through the canonical manifest owner. Observe Codex trust only; never write or bypass the host trust store. |
 | IRC-04/08 | Claude plugin hooks; `create-agdf/lib/installers/plugin-installers.js`; host permission settings | partially_done | Use one exact fixed-entrypoint rule only when the installed command identity and settings ownership are observable. Preserve deny/ask precedence and degrade to manual when exact effective state cannot be proven. |
 | IRC-04/09 | `create-agdf/lib/installers/opencode.js`; config-local runtime and plugin hook evidence | partially_done | Extend the existing missing-only merge and plugin/config inspection. Preserve all explicit permissions and leave `permission.bash` unchanged. |
-| IRC-06/10/11 | CLI parser, registry and application; lifecycle result/status/presentation; installer transactions | partially_done | Add one coordinator behind current command and lifecycle owners. Consent precedes mutation; partial host-permission failure leaves a usable manual installation and rolls back only AGDF-owned state. |
+| IRC-06/10/11 | `installConsentDecision()` in `create-agdf/lib/cli/application.js`; `retainCurrentInstallConsent()`; lifecycle result/status/presentation; installer transactions | partially_done | Keep one interaction owner. Interactive calls must read retained state only for visible context and always invoke the existing decision adapter. Explicit CLI, JSON and no-TTY paths remain non-interactive. Cancel still returns before every plugin, permission or receipt mutation. |
 | IRC-12 | `create-agdf/lib/fs-swap.js`; target-platform path construction; native command adapters | partially_done | Reuse the bounded win32 `EPERM` retry and injected platform fixtures. Keep direct native-Windows evidence separate from simulation. |
 | IRC-13/14 | public distribution definition; public builder/contract; Runtime Integrity; submission sources | partially_done | Extend canonical metadata and validators. Generate `listing.json` only through the builder and preserve evidence-plane distinctions. |
 | IRC-15/16 | `sync-package-assets.js`; existing focused/aggregate suites; run artefacts | fully_done as generation and evidence boundary | Regenerate through the canonical owner, verify focused-to-aggregate, and record task/criterion evidence without promoting repository proof to host proof. |
@@ -91,6 +95,13 @@ from the host adapter, the clean result is manual or unavailable until host evid
 
 ## Change Impact And Regression Risk
 
+- Removing the interactive retained-consent shortcut must not remove `retainCurrentInstallConsent()`
+  from non-interactive compatibility paths or state inspection without evidence. Branch first on
+  explicit option, then interactive presentation, then retained/no-TTY behavior.
+- The prompt must expose `Current decision: enabled|manual` without treating it as a default. Empty
+  or invalid input remains cancel.
+- Choosing enable again for an unchanged capability may preserve native Codex or Claude trust, but
+  the installer must still persist and report the deliberate current decision.
 - A receipt can record deliberate intent but cannot become permission authority. Effective enabled
   state requires current identity plus observable native host evidence.
 - Content changes can stale Codex trust or Claude exact rules. Capability identity and renewal tests
@@ -124,7 +135,11 @@ listing source is a blocking parallel structure.
 - no-argument, no-network and no-write session-check fixtures using existing evaluator injection;
 - native POSIX/win32 hook command and quoting fixtures without a shared Bash fallback;
 - receipt ownership, atomicity, malformed/tampered/mismatched identity and receipt-only negatives;
-- deliberate enable/manual/cancel and non-interactive default-manual behavior before mutation;
+- first install plus identity-equivalent updates with enabled and manual receipts must all invoke
+  the deliberate enable/manual/cancel adapter before mutation; current state is visible and no
+  option is preselected;
+- cancel on an update with retained consent must leave plugin, permission and receipt state intact;
+- explicit CLI values, JSON and no-TTY behavior remain non-interactive and deterministic;
 - Codex trust observation with no trust-store write; Claude exact-rule and precedence fixtures;
   OpenCode explicit-decision and unchanged-Bash fixtures;
 - install/update/revoke/renewal rollback and lifecycle human/JSON parity;
@@ -137,24 +152,22 @@ listing source is a blocking parallel structure.
 
 - context_graph_impact: `update_existing_node`
 - context_graph_refs: `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-CREATE-AGDF-CLI-COMPOSITION`
-- context_graph_reconciliation: `open_gap`
-- context_graph_gate_effect: `warning`
+- context_graph_reconciliation: `resolved`
+- context_graph_gate_effect: `none`
 - context_graph_required_action: `update`
-- rationale: implementation extends the existing permission-versus-gate authority and CLI/runtime
-  composition invariants with content-bound renewal, explicit-decision preservation, honest
-  distribution-profile capability and direct host-evidence separation. Durable graph evidence should
-  be added only after implementation and verification establish the invariant.
+- rationale: `automatic_runtime_check_consent_2026_08_27` already records that every interactive
+  install or update presents enable/manual/cancel while identical native trust may remain valid.
 
 ## Minimal Clean Implementation Path
 
-Add and validate the canonical capability manifest and identity first. Build the pure receipt/state
-and argument-free session-check components against existing provenance and validator owners. Add
-focused host adapters and their negative fixtures before installer/CLI integration. Extend lifecycle
-projection and partial-failure handling. Then update canonical documentation and public submission
-sources, synchronize generated assets, run focused-to-aggregate verification and persist `CD_TESTS.md`.
-Keep unsupported or unobservable host/profile cells manual, unavailable or unverified.
+Change only the current CLI consent decision composition so an interactive run never returns early
+from retained consent. Add focused first-install, enabled-update, manual-update and cancel tests using
+the existing injectable decision adapter and isolated data roots. Update install documentation and
+run evidence only where their current wording permits silent reuse. Then run focused and aggregate
+verification and refresh reviews. Keep unsupported or unobservable host/profile cells manual,
+unavailable or unverified.
 
 ## Required Next Step
 
-Proceed to `CD+Tests` for IRC-01 through IRC-16 within TP Section 3. Do not mutate real host
+Proceed to `CD+Tests` for the TP Revision 2 delta within Section 3. Do not mutate real host
 configuration, publish, release, commit, push or create a pull request under TP approval.

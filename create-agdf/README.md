@@ -29,8 +29,17 @@ Use a different target when Codex is not your agent surface:
 
 The runtime-bearing `codex`, `claude` and `opencode` installers ask before enabling narrow automatic
 local checks on an interactive terminal. The choices are `enable`, `manual` and `cancel`; enablement
-is never preselected. Non-interactive installation defaults to manual unless the exact option is
-provided:
+is never preselected. Every interactive installation or update asks again. A previous choice is
+shown only as intent, never as proof of effective host permission. The prompt shows the target AGDF
+version and the result shows the verified installed version or transition. Matching capability
+identity may preserve host-native trust, but it never
+suppresses the installer choice. Non-interactive installation defaults to manual unless the exact
+option is provided:
+
+Interactive terminals accept `1` or `E` for enable, `2` or `M` for manual, `D` for technical
+details and `Esc` for immediate cancel without Enter. The primary choice uses beginner-safe language,
+keeps the material consent facts visible and has no preselected option. Manual mode explains that
+AGDF remains available on request; invalid keys redisplay the valid choices.
 
 ```sh
 npx --yes @agdf/cli@latest claude --runtime-checks enable

@@ -5,12 +5,16 @@
 - decision: `pass`
 - primary_solution: one capability and receipt contract, one fixed consent-gated entrypoint, existing
   installer/lifecycle/provenance owners and thin host adapters
-- evidence: OpenCode cache defect removed at package binding; Codex manual risk removed at the shared
-  entrypoint; full smoke and direct host probes pass
-- fallbacks_retained: manual, unavailable, degraded and native Codex review are explicit states with
-  observable exit conditions
-- workaround_or_shim_risk: low; explicit Node avoids Bun executable identity without a shell fallback
-- parallel_structure_risk: none; no second validator, permission authority, trust writer or listing owner
+- evidence: the shared CLI renderer now owns versioned consent, truthful previous intent, manual help,
+  progress and invalid-key recovery; the existing lifecycle renderer owns installed/update version,
+  compact and diagnostic results; one native Node keypress owner handles decisions and details with
+  deterministic raw-mode cleanup; focused and aggregate tests plus real non-mutating TTY D/Esc pass
+- fallbacks_retained: non-raw adapters retain the prior line-input fallback; manual, unavailable,
+  degraded and native Codex review remain explicit states with observable exit conditions
+- workaround_or_shim_risk: low; keypress handling uses Node native APIs without a prompt dependency;
+  successful preparation output is piped while captured failure output is preserved
+- parallel_structure_risk: none; progressive disclosure is composed in the existing CLI and lifecycle
+  owners, with no second validator, permission authority, trust writer or listing owner
 - brownfield_fit: pass
-- missing_evidence: Codex user trust, native Windows and rendered listing
+- missing_evidence: revised live installer rendering, Codex user trust, native Windows and rendered listing
 - required_next_step: QA retains the remaining evidence gap without reopening solution integrity

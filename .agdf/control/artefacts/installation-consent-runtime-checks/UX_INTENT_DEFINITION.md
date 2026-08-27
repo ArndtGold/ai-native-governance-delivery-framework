@@ -2,12 +2,13 @@
 
 - decision: `ready`
 - blocking_reason: `none`
-- primary_user_intent: Install or update AGDF once, understand the narrow automatic checks it wants
-  to perform, and make a durable but reversible choice without recurring low-value prompts or a broad
+- primary_user_intent: Install or update AGDF without needing technical knowledge, understand the
+  narrow automatic check in a few seconds, and make a durable but reversible choice without a broad
   permission grant.
-- success_signal: The user sees the capability, timing, access and revocation consequences; chooses
-  enable, continue without automatic checks or cancel; receives an accurate effective-state result;
-  and can later inspect, revoke or renew the choice.
+- success_signal: The user first sees a short plain-language summary with scope, timing, access,
+  authority, renewal, revocation and target AGDF version; can reveal implementation details on demand;
+  chooses automatic, manual or cancel with one key; and receives one compact result with verified
+  version, effective state and an accurate next action.
 - primary_decision_or_action: Deliberately choose whether AGDF may perform the disclosed automatic
   local checks for the selected host installation.
 - working_modes:
@@ -33,7 +34,8 @@
   - deliberate installer input records intent but never becomes AGDF gate authority;
   - unsupported or unverified combinations remain manual rather than inferred enabled.
 - primary_state_presentation_owner_by_mode:
-  - the existing AGDF installer lifecycle presentation shows requested and resulting state;
+  - the existing AGDF installer shows the beginner summary first and technical details on demand;
+  - the existing lifecycle presentation shows a compact requested/resulting state and one next action;
   - the host's native UI remains primary for host-owned permission or hook trust;
   - existing AGDF status and recovery presentation shows later enabled, manual, stale, revoked or
     unavailable state without creating a second settings product.
@@ -70,6 +72,11 @@
     before any consent-dependent mutation;
   - present enable, continue without automatic checks and cancel as distinct outcomes without hidden
     approval or coercive default;
+  - use plain-language beginner wording first, keep material consent facts visible, and place only
+    implementation details behind an explicit details action;
+  - show the target version before the choice and the verified installed version or transition after it;
+  - label persisted intent as a previous choice rather than effective host permission, explain that
+    manual mode keeps AGDF usable, and recover visibly from invalid input;
   - derive enabled state only from deliberate intent, current executable identity and host-effective
     permission/trust;
   - preserve every explicit host or managed-policy denial;
@@ -80,7 +87,6 @@
     every Windows-support claim;
   - keep repository, package, installed-host and fresh-session evidence separate.
 - open_product_questions:
-  - exact reviewed wording and information density for the installation decision;
   - exact list of automatic checks that meet the read-only and bounded-cost promise;
   - supported host/OS matrix at first delivery and the product label for partial combinations;
   - whether consent applies per host installation, per repository or another scope that remains both
@@ -94,5 +100,5 @@
   permission/trust behavior; native-Windows installer viability evidence.
 - missing_evidence: Direct enabled, declined, revoked, renewed and fresh-session observations for each
   claimed host/OS combination remain later delivery evidence and do not block PRD drafting.
-- required_next_step: Incorporate these criteria into the PRD and request `Approval: PRD`; do not
-  treat this analysis as approved product authority or implementation permission.
+- required_next_step: Verify the implemented beginner-first presentation on installed Codex, Claude
+  Code and OpenCode hosts; do not infer visible host behavior from repository tests.

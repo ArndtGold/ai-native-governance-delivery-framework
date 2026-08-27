@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { PassThrough } from "node:stream";
 import { fileURLToPath } from "node:url";
 import {
   commandRegistry,
@@ -9,10 +11,12 @@ import {
   validateCommandOptions,
 } from "../lib/cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
-import { runCli } from "../lib/cli/application.js";
+import { askRuntimeCheckDecisionByKey, runCli } from "../lib/cli/application.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
-import { pluginDefinition } from "../lib/cli/runtime-context.js";
+import { generatedRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
+import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
+import { persistInstallConsent, runtimeCheckStatus } from "../lib/runtime-check-consent/service.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
@@ -215,8 +219,9 @@ function prepareMarketplace() {
   const outputs = ['{"marketplaces":[]}', "marketplace added\n", "plugin added\n", `agdf@agdf ${pluginDefinition.version}\n`];
   assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace }), 0);
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
-  assert.equal(quiet.out[0], "AGDF installation complete");
-  assert.equal(quiet.out.at(-1), "Next action: Restart Codex.");
+  assert.equal(quiet.out[0], "AGDF installed for Codex");
+  assert.equal(quiet.out[1], `Version: ${pluginDefinition.version} (verified)`);
+  assert.equal(quiet.out.at(-1), "Next: Restart Codex.");
   assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
 
   const verbose = recordingIo();
@@ -234,10 +239,139 @@ function prepareMarketplace() {
 }
 
 {
+  const dataRoot = mkdtempSync(join(tmpdir(), "agdf-cli-install-consent-"));
+  try {
+    const pluginRoot = join(generatedRoot, "plugins", "agdf");
+    const runtimeDigest = JSON.parse(readFileSync(join(pluginRoot, "runtime", "runtime-manifest.json"), "utf8")).digest;
+    const installed = { pluginRoot, runtimeDigest, sourceDigest: digestNormalizedPluginSource(pluginRoot, pluginDefinition.version) };
+    const prepareConsentMarketplace = () => ({
+      root: fakeMarketplaceRoot,
+      ...installed,
+      digest: runtimeDigest,
+      commit() {},
+      rollback() {},
+    });
+
+    for (const currentDecision of [null, "enable", "manual"]) {
+      if (currentDecision) persistInstallConsent({ surface: "codex", decision: currentDecision, installed, dataRoot });
+      const cancelled = installerRecording([]);
+      let prompts = 0;
+      assert.equal(await runCli(["codex"], {
+        io: cancelled.io.io,
+        env: { AGDF_DATA_DIR: dataRoot },
+        exec: cancelled.exec,
+        prepare: prepareMarketplace,
+        interactive: true,
+        askRuntimeCheckDecision(disclosure) {
+          prompts += 1;
+          assert.equal(disclosure.surface, "codex");
+          return "cancel";
+        },
+      }), 0);
+      assert.equal(prompts, 1, "every interactive install or update must ask exactly once");
+      assert.equal(cancelled.calls.length, 0, "interactive cancel must stop before every host mutation");
+      assert.equal(cancelled.io.out.includes("AGDF installation cancelled"), true);
+      if (currentDecision) {
+        const expected = currentDecision === "enable"
+          ? "Your previous choice: automatic checks requested"
+          : "Your previous choice: manual checks";
+        assert.equal(cancelled.io.out.includes(expected), true);
+        assert.equal(cancelled.io.out.includes("Codex permission: checked after installation"), currentDecision === "enable");
+      } else {
+        assert.equal(cancelled.io.out.some((line) => line.startsWith("Your previous choice:")), false);
+      }
+      assert.equal(cancelled.io.out.includes(`AGDF ${pluginDefinition.version} for Codex`), true);
+      assert.equal(cancelled.io.out.includes("Applies to this Codex installation for your user account."), true);
+      assert.equal(cancelled.io.out.includes("Safe by design"), true);
+      assert.equal(cancelled.io.out.includes("  Changes no project files and uses no network"), true);
+      assert.equal(cancelled.io.out.includes("  Never approves AGDF work"), true);
+      assert.equal(cancelled.io.out.includes("Choose"), true);
+      assert.equal(cancelled.io.out.includes("  [1] Yes, check automatically"), true);
+      assert.equal(cancelled.io.out.includes("  [2] No automatic checks"), true);
+      assert.equal(cancelled.io.out.includes("      AGDF still works. Checks run when you request them."), true);
+      assert.equal(cancelled.io.out.includes("  [D] Show technical details"), true);
+      assert.equal(cancelled.io.out.includes("  [Esc] Cancel installation"), true);
+    }
+
+    for (const selectedDecision of ["manual", "enable"]) {
+      const outputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+      let prompts = 0;
+      const selectedIo = recordingIo();
+      assert.equal(await runCli(["codex"], {
+        io: selectedIo.io,
+        env: { AGDF_DATA_DIR: dataRoot },
+        exec() { return outputs.shift(); },
+        prepare: prepareConsentMarketplace,
+        interactive: true,
+        askRuntimeCheckDecision() { prompts += 1; return selectedDecision; },
+      }), 0);
+      assert.equal(prompts, 1);
+      assert.equal(selectedIo.out.includes(`Setting up AGDF ${pluginDefinition.version} for Codex...`), true);
+      assert.equal(runtimeCheckStatus(dataRoot, "codex").requested, selectedDecision === "enable" ? "enabled" : "manual");
+      if (selectedDecision === "enable") {
+        assert.equal(selectedIo.out.at(-1), "Next: Restart Codex, then approve the AGDF session hook when Codex asks.");
+      }
+    }
+
+    persistInstallConsent({ surface: "codex", decision: "enable", installed, dataRoot });
+    const nonInteractive = recordingIo();
+    const outputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+    assert.equal(await runCli(["codex", "--json"], {
+      io: nonInteractive.io,
+      env: { AGDF_DATA_DIR: dataRoot },
+      exec() { return outputs.shift(); },
+      prepare: prepareConsentMarketplace,
+      interactive: false,
+    }), 0);
+    assert.equal(JSON.parse(nonInteractive.out.at(-1)).runtime_checks.requested, "manual", "non-interactive install must not silently retain enabled consent");
+  } finally {
+    rmSync(dataRoot, { recursive: true, force: true });
+  }
+}
+
+async function rawRuntimeCheckChoice(inputBytes, expectedDecision, disclosure) {
+  const input = new PassThrough();
+  input.isTTY = true;
+  input.isRaw = false;
+  input.setRawMode = (value) => { input.isRaw = value; };
+  input.pause();
+  const output = new PassThrough();
+  let rendered = "";
+  output.on("data", (chunk) => { rendered += chunk.toString(); });
+  const decision = askRuntimeCheckDecisionByKey(input, output, disclosure);
+  input.write(inputBytes);
+  assert.equal(await decision, expectedDecision);
+  assert.equal(input.isRaw, false, "raw mode must be restored after the choice");
+  assert.equal(input.isPaused(), true, "input must be paused after the one-time installer choice");
+  if (!disclosure) assert.equal(rendered, `Choice: ${expectedDecision}\n`);
+  return rendered;
+}
+
+await rawRuntimeCheckChoice("1", "enable");
+await rawRuntimeCheckChoice("E", "enable");
+await rawRuntimeCheckChoice("2", "manual");
+await rawRuntimeCheckChoice("m", "manual");
+await rawRuntimeCheckChoice("\u001b", "cancel");
+assert.match(await rawRuntimeCheckChoice("x1", "enable", {}), /Press 1, 2, D or Esc\.\nChoice: enable/);
+const detailsRendered = await rawRuntimeCheckChoice("d\u001b", "cancel", {
+  installation_scope: "global user installation",
+  runs: "one local check",
+  when: "at session start",
+  reads: "runtime identity and .agdf/control",
+  writes: "one AGDF choice receipt",
+  permission_owner: "Codex native hook trust",
+  executable: "runtime/agdf-session-check.js",
+  renewal: "ask again when the check changes",
+});
+assert.match(detailsRendered, /Technical details/);
+assert.match(detailsRendered, /Command: runtime\/agdf-session-check\.js/);
+assert.match(detailsRendered, /Choice: cancel/);
+
+{
   const quiet = recordingIo();
   const outputs = ["[]", "", "", "", "", `agdf@agdf ${pluginDefinition.version}\n`];
   assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace }), 0);
-  assert.equal(quiet.out.at(-1), "Next action: Restart Claude Code.");
+  assert.equal(quiet.out.at(-1), "Next: Restart Claude Code.");
   assert.equal(quiet.out.some((line) => line.includes("new session")), false, "global installation must not add a second post-restart action");
 }
 

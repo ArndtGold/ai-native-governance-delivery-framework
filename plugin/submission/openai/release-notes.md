@@ -9,10 +9,15 @@ telemetry or service authentication. Codex hooks and repository validation are s
 must not be inferred for ChatGPT without direct exact-version host evidence.
 
 Runtime-bearing AGDF installation paths now define an informed `enable`, `manual` or `cancel`
-decision for one argument-free, read-only and offline local session check. Consent is bound to the
-effective command and runtime identity, is not AGDF gate authority, and cannot prove host activation
-without current native evidence. This public Skills-only candidate deliberately ships no runtime or
-hooks, so automatic runtime checks remain unavailable in this profile.
+decision for one argument-free, read-only and offline local session check. Every interactive install
+or update asks again; a prior decision is context only and is never preselected. Consent is bound to
+the effective command and runtime identity, is not AGDF gate authority, and cannot prove host
+activation without current native evidence. The installer presents a beginner summary first, keeps
+the material consent facts visible, offers technical implementation details on demand and reports one
+compact effective state with one next action. This public Skills-only candidate deliberately ships no
+runtime or hooks, so automatic runtime checks remain unavailable in this profile. Runtime-bearing
+installers also show the target and verified installed AGDF version, distinguish previous intent from
+effective host permission, explain manual mode and recover visibly from an invalid key.
 
 AGDF is an independent open-source project by Arndt Gold. It is not affiliated with, endorsed by or
 sponsored by OpenAI and is not a security sandbox, legal assessment, compliance certification or

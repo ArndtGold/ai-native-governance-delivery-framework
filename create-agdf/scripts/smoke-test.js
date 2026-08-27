@@ -246,7 +246,7 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const releaseBootstrapPath = fileURLToPath(new URL("./release-bootstrap-smoke-test.js", import.meta.url));
   const releaseBootstrap = readFileSync(releaseBootstrapPath, "utf8");
   if (!releaseBootstrap.includes('const packageSpec = `@agdf/cli@${expectedVersion}`;')
-    || !releaseBootstrap.includes('["--yes", packageSpec, "codex"]')
+    || !releaseBootstrap.includes('["--yes", packageSpec, "codex", "--verbose"]')
     || releaseBootstrap.includes('["--yes", "@agdf/cli@latest", "codex"]')) {
     throw new Error("Clean public bootstrap must execute the exact release version after the workflow verifies the latest dist-tag separately.");
   }
@@ -282,7 +282,7 @@ if (args.join(" ") === "plugin list") {
 }
 `);
     const dataRoot = join(tempDir, "agdf-data");
-    const output = runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: dataRoot });
+    const output = runCliWithPath(["codex", "--verbose"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: dataRoot });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     const expectedCalls = [
       "plugin marketplace list --json",
@@ -351,7 +351,7 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
 }
 `);
     const dataRoot = join(tempDir, "agdf-data");
-    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: dataRoot });
+    const output = runCliWithPath(["claude", "--verbose"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: dataRoot });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     if (!calls.includes(`plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --scope user`) || !calls.includes("plugin marketplace update agdf") || !calls.includes("plugin install agdf@agdf")) {
       throw new Error(`Claude first install must use marketplace add/update and plugin install: ${calls.join(" | ")}`);
@@ -421,7 +421,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
   fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
 }
 `);
-    const output = runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
+    const output = runCliWithPath(["claude", "--verbose"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     if (!output.includes(`Version: unknown; expected ${pluginDefinition.version} (unknown)`) || !output.includes("Installation: degraded") || !output.includes("Verification: degraded")) {
       throw new Error("Claude bootstrap must report verification limitation when list output has no version.");
     }
@@ -464,7 +464,7 @@ try {
     types: "dist/index.d.ts",
   }), "utf8");
   writeFileSync(join(openCodeSdkFixture, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\n', "utf8");
-  const installOutput = runOpenCodeCli(["opencode", "--dir", openCodeConfigTempDir], { encoding: "utf8", stdio: "pipe" });
+  const installOutput = runOpenCodeCli(["opencode", "--dir", openCodeConfigTempDir, "--verbose"], { encoding: "utf8", stdio: "pipe" });
   const openCodeGlobalConfig = JSON.parse(readFileSync(join(openCodeConfigTempDir, "opencode.json"), "utf8"));
   if (!openCodeGlobalConfig.plugin?.includes(`./node_modules/${pluginDefinition.opencode.npmPackage}/opencode-plugin.js`)) {
     throw new Error("opencode must bind the verified local AGDF plugin entrypoint in OpenCode global config.");
@@ -625,7 +625,7 @@ try {
     }
     rmSync(join(tempDir, "node_modules"), { recursive: true, force: true });
     try {
-      runOpenCodeCli(["opencode", "--dir", tempDir], {
+      runOpenCodeCli(["opencode", "--dir", tempDir, "--verbose"], {
         encoding: "utf8",
         stdio: "pipe",
         env: { FAKE_SDK_MODE: "unavailable" },
@@ -831,13 +831,13 @@ function readPackageStatus(tempDir) {
 
 function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
   const tempDir = packageStatusFixture(version, includeVersion);
-  const output = runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+  const output = runOpenCodeCli(["opencode", "--dir", tempDir, "--verbose"], { encoding: "utf8", stdio: "pipe" });
   return { tempDir, output };
 }
 
 {
   const updated = runOpenCodeWithPreinstalledVersion("0.0.1");
-  const unchanged = runOpenCodeCli(["opencode", "--dir", updated.tempDir], { encoding: "utf8", stdio: "pipe" });
+  const unchanged = runOpenCodeCli(["opencode", "--dir", updated.tempDir, "--verbose"], { encoding: "utf8", stdio: "pipe" });
   const unknown = runOpenCodeWithPreinstalledVersion("", false);
   try {
     if (!updated.output.includes(`Version: 0.0.1 -> ${pluginDefinition.version} (verified)`)) {

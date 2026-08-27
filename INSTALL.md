@@ -25,7 +25,18 @@ The OpenCode global layer only makes AGDF discoverable. It does **not** activate
 The `codex`, `claude` and `opencode` installers distinguish plugin installation from permission to run
 narrow automatic checks. On an interactive terminal they disclose what the check reads and writes,
 that it uses no network, and that it never grants an AGDF gate. Choose `enable`, `manual` or `cancel`.
-There is no preselected enablement. For scripts and CI, use an explicit value or accept manual mode:
+Every interactive installation or update asks again. If a current decision exists, it is shown only
+as a previous choice, never as proof that host permission is effective, and is never preselected.
+The choice header shows the target AGDF version; the result shows the verified installed version or
+version transition. Matching capability identity may preserve host-native trust,
+but it never suppresses this installer choice. For scripts and CI, use an explicit value or accept
+manual mode:
+
+On an interactive terminal, press `1` or `E` to enable, `2` or `M` for manual mode, `D` to inspect
+technical details, or `Esc` to cancel immediately without Enter. The main choice uses beginner-safe
+language while all material consent facts remain visible. Manual mode explicitly confirms that AGDF
+still works on request. Invalid keys show the valid choices instead of waiting silently. The installer
+restores the terminal mode before continuing and shows one quiet setup-progress line.
 
 ```sh
 npx --yes @agdf/cli@latest claude --runtime-checks enable

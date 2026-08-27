@@ -5,12 +5,12 @@
 - control_state_version: 2
 - run_id: installation-consent-runtime-checks
 - lifecycle: active
-- revision: 11
-- revision_id: BD16ADB1-1FA0-4DEE-BB06-279B2048B0B1
+- revision: 22
+- revision_id: 667840F0-974C-4194-874E-D225839CB82D
 - started_at: 2026-08-27
 - mode: `structured_delivery`
 - current_gate: `QA`
-- decision: `in_progress`
+- decision: `revise`
 - owner: Arndt Gold
 
 ## Objective
@@ -23,11 +23,11 @@ native-Windows combinations without weakening host security or AGDF gate authori
 
 | Question | Answer |
 |---|---|
-| What is known? | Repeated host permission prompts for routine AGDF checks harm usability; the repository already has shared runtime, installer, provenance, interaction and host-adapter owners; native Windows requires explicit evidence rather than inferred parity. |
-| What is approved? | UR Revision 2, PRD Revision 1, SD Revision 2 and TP Revision 1 are approved through exact approvals on 2026-08-27; mandatory pre-implementation Brownfield Analysis passed. |
-| What is missing? | Codex user trust and enabled/change/disable cycle, IRC-H04 through IRC-H06 native Windows, IRC-H07 rendered public candidate, and selected induced host conflict/rollback cases. |
-| What is the next allowed action? | Complete the remaining direct-host evidence cells, then rerun Task Plan Review and QA. |
-| What is explicitly forbidden right now? | `Approval: QA` request, UAT, publication, release and VCS actions. |
+| What is known? | Every interactive install or update presents a versioned beginner-first automatic, manual or cancel decision. A previous choice is intent, never effective host permission; manual mode stays usable and invalid input recovers visibly. Material consent facts stay visible, technical details open through D, and the result has verified version, one compact state and one next action. |
+| What is approved? | UR Revision 2, PRD Revision 2, SD Revision 3 and TP Revision 2 are approved through exact same-run, same-gate and revision-matched approvals; Brownfield Analysis Revision 2 passed. |
+| What is missing? | Revised live installer rendering on Codex, Claude Code and OpenCode; Codex trust cycle; native Windows; rendered public candidate; remaining conflict/rollback evidence. |
+| What is the next allowed action? | Collect separately authorized direct-host evidence without inferred parity. |
+| What is explicitly forbidden right now? | QA pass or approval request, UAT, publication, release and VCS actions. |
 
 ## Source And Scope State
 
@@ -44,13 +44,13 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | revise |
+| Status | open |
 | Current gate | QA |
-| Allowed now | Complete the remaining bounded direct-host evidence obligations; refine evidence only. |
-| Blocked by | QA Revision 2 is `revise`; narrowed TPR-01 is open. |
-| Missing approval | none requestable while QA is `revise` |
-| Next step | User completes exact Codex trust; run native Windows and rendered public evidence; rerun TP Review and QA. |
-| Quality outlook | Keep the product promise observable, least privilege, reversible and directly evidenced across every claimed host/OS path. |
+| Allowed now | Collect separately authorized direct-host evidence and keep evidence planes explicit. |
+| Blocked by | TPR-01 direct-host evidence gap |
+| Missing approval | none |
+| Next step | Observe the revised choice on real Codex, Claude Code and OpenCode hosts, then complete the remaining declared cells. |
+| Quality outlook | Preserve transparency at every interactive update without causing repeated native host trust prompts for unchanged capability identity. |
 
 ## Approvals
 
@@ -59,9 +59,9 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Gate | Status | Evidence |
 |---|---|---|
 | UR | `approved` | Exact `Approval: UR` from Arndt Gold on 2026-08-27 for UR Revision 2 |
-| PRD | `approved` | Exact `Approval: PRD` from Arndt Gold on 2026-08-27 for PRD Revision 1 |
-| SD | `approved` | Exact `Approval: SD` from Arndt Gold on 2026-08-27 for SD Revision 2 |
-| TP | `approved` | Exact `Approval: TP` from Arndt Gold on 2026-08-27 for TP Revision 1 |
+| PRD | `approved` | Exact `Approval: PRD` from Arndt Gold on 2026-08-27 for PRD Revision 2 |
+| SD | `approved` | Exact `Approval: SD` from Arndt Gold on 2026-08-27 for SD Revision 3 |
+| TP | `approved` | Exact `Approval: TP` from Arndt Gold on 2026-08-27 for TP Revision 2 |
 | QA | `missing` | none |
 | UAT | `missing` | none |
 
@@ -70,19 +70,19 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Type | Path | Status | Notes |
 |---|---|---|---|
 | UR | `.agdf/control/artefacts/installation-consent-runtime-checks/UR.md` | `approved` | Revision 2 approved on 2026-08-27. |
-| PRD | `.agdf/control/artefacts/installation-consent-runtime-checks/PRD.md` | `approved` | Revision 1 approved on 2026-08-27. |
-| SD | `.agdf/control/artefacts/installation-consent-runtime-checks/SD.md` | `approved` | Revision 2 approved on 2026-08-27. |
-| TP | `.agdf/control/artefacts/installation-consent-runtime-checks/TP.md` | `approved` | Revision 1 approved on 2026-08-27; sixteen implementation tasks, twenty repository tests and seven direct-host evidence obligations. |
+| PRD | `.agdf/control/artefacts/installation-consent-runtime-checks/PRD.md` | `approved` | Revision 2 approved on 2026-08-27. |
+| SD | `.agdf/control/artefacts/installation-consent-runtime-checks/SD.md` | `approved` | Revision 3 approved on 2026-08-27. |
+| TP | `.agdf/control/artefacts/installation-consent-runtime-checks/TP.md` | `approved` | Revision 2 approved on 2026-08-27. |
 | Brownfield Review | `.agdf/control/artefacts/installation-consent-runtime-checks/BROWNFIELD_REVIEW.md` | `done` | Existing owners, reuse, high UX impact and Structured Delivery routing are evidenced. |
 | UX Intent Definition | `.agdf/control/artefacts/installation-consent-runtime-checks/UX_INTENT_DEFINITION.md` | `ready` | Consent, effective state, activation, blockers, recovery and transitions are ready as PRD input. |
 | Verified Change |  | `missing` | No mode decision exists. |
-| Brownfield Analysis | `.agdf/control/artefacts/installation-consent-runtime-checks/BROWNFIELD_ANALYSIS.md` | `done` | Pre-implementation analysis passed with bounded public portable-profile and host-evidence constraints. |
-| CD+Tests | `.agdf/control/artefacts/installation-consent-runtime-checks/CD_TESTS.md` | `done` | Repository and package implementation/test evidence complete; host planes declared missing. |
+| Brownfield Analysis | `.agdf/control/artefacts/installation-consent-runtime-checks/BROWNFIELD_ANALYSIS.md` | `done` | Revision 2 passed for the bounded interactive-update correction and existing owner reuse. |
+| CD+Tests | `.agdf/control/artefacts/installation-consent-runtime-checks/CD_TESTS.md` | `done` | TP Revision 2 behavior plus version identity, truthful previous intent, manual help, invalid-input recovery, D details and compact result implemented; focused, real TTY and final aggregate tests pass. |
 | Direct Host Evidence | `.agdf/control/artefacts/installation-consent-runtime-checks/HOST_EVIDENCE_MACOS.md` | `partial` | Real macOS installation on all three, Claude hook success, OpenCode enabled/manual sessions and Codex native review. |
-| Task Plan Review | `.agdf/control/artefacts/installation-consent-runtime-checks/TASK_PLAN_REVIEW.md` | `revise` | 15/16 fully done; IRC-12 partial and narrowed TPR-01 open. |
+| Task Plan Review | `.agdf/control/artefacts/installation-consent-runtime-checks/TASK_PLAN_REVIEW.md` | `revise` | 15/16 fully done; revised host rendering, IRC-12 and narrowed TPR-01 remain open. |
 | Clean Implementation Review | `.agdf/control/artefacts/installation-consent-runtime-checks/CLEAN_IMPLEMENTATION_REVIEW.md` | `pass` | Existing owners reused; no broad fallback or parallel authority. |
-| CR | `.agdf/control/artefacts/installation-consent-runtime-checks/CODE_REVIEW.md` | `done` | Code Review decision pass; no meaningful repository diff finding remains. |
-| QA | `.agdf/control/artefacts/installation-consent-runtime-checks/QA_REPORT.md` | `revise` | macOS evidence improved; Codex trust, native Windows and rendered public candidate remain open. |
+| CR | `.agdf/control/artefacts/installation-consent-runtime-checks/CODE_REVIEW.md` | `done` | Code Review pass; QA-UX-01 through QA-UX-05 are resolved. |
+| QA | `.agdf/control/artefacts/installation-consent-runtime-checks/QA_REPORT.md` | `revise` | Revision 9 confirms versioned beginner presentation, truthful intent, recovery and compact results and retains only required installed-host evidence gaps. |
 | OR |  | `missing` | Not allowed. |
 
 ## Mode / Slice Decision
@@ -103,21 +103,21 @@ Keep the active work item traceable. A gate may open only when the previous gate
 | From | Relationship | To | Evidence |
 |---|---|---|---|
 | UR | `approved_by` | `Approval: UR` | exact approval recorded 2026-08-27 for UR Revision 2 |
-| PRD | `derived_from` | UR | PRD Revision 1 derives from approved UR Revision 2 and is informed by Brownfield Review and UX Intent Definition |
+| PRD | `derived_from` | UR | PRD Revision 2 derives from approved UR Revision 2 and is informed by Brownfield Review and UX Intent Definition |
 | Brownfield Review | `sizes` | `structured_delivery` | `.agdf/control/artefacts/installation-consent-runtime-checks/BROWNFIELD_REVIEW.md` |
 | UX Intent Definition | `informs` | PRD | `.agdf/control/artefacts/installation-consent-runtime-checks/UX_INTENT_DEFINITION.md` |
-| PRD | `approved_by` | `Approval: PRD` | exact approval recorded 2026-08-27 for PRD Revision 1 |
-| SD | `derived_from` | PRD | Revision 2 implements the approved product contract through one fixed entrypoint, thin host adapters and existing public-plugin pipeline |
-| SD | `approved_by` | `Approval: SD` | exact approval recorded 2026-08-27 for SD Revision 2 |
-| TP | `derived_from` | SD | Revision 1; sixteen bounded tasks with PRD mappings, repository tests and direct-host obligations |
-| TP | `approved_by` | `Approval: TP` | exact approval recorded 2026-08-27 for TP Revision 1 |
+| PRD | `approved_by` | `Approval: PRD` | exact approval recorded 2026-08-27 for PRD Revision 2 |
+| SD | `derived_from` | PRD | Revision 3 implements the approved product contract through one fixed entrypoint, thin host adapters and existing public-plugin pipeline |
+| SD | `approved_by` | `Approval: SD` | exact approval recorded 2026-08-27 for SD Revision 3 |
+| TP | `derived_from` | SD | Revision 2; sixteen bounded tasks with PRD mappings, repository tests and direct-host obligations |
+| TP | `approved_by` | `Approval: TP` | exact approval recorded 2026-08-27 for TP Revision 2 |
 | Brownfield Analysis | `validates` | TP | pre-implementation analysis passed with existing-owner reuse and honest profile/host boundaries |
 | CD_TESTS | `implements` | TP | repository/package implementation and aggregate tests complete; higher evidence planes declared |
 | HOST_EVIDENCE_MACOS | `evidences` | TP | direct macOS cells for Codex, Claude Code and OpenCode |
 | TASK_PLAN_REVIEW | `checks` | TP | revise; 15/16 fully done and narrowed TPR-01 open |
 | CLEAN_IMPLEMENTATION_REVIEW | `checks` | CD_TESTS | pass; existing-owner fit and no parallel authority |
 | CODE_REVIEW | `checks` | CD_TESTS | pass; mandatory CR done |
-| QA_REPORT | `tests` | TP | revise; open direct-host evidence prevents pass |
+| QA_REPORT | `tests` | TP | Revision 9 revise; versioned beginner presentation, truthful intent, recovery and compact result are clean but open installed-host evidence prevents pass |
 
 ## Evidence
 
@@ -135,9 +135,9 @@ Keep the active work item traceable. A gate may open only when the previous gate
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| Verified automatic-mode outcome for each Codex, Claude Code and OpenCode combination on macOS, Linux and native Windows | `warn` | PRD defines the target matrix and manual fallback; resolve exact adapter capability in SD and verify every release claim through TP and direct host evidence. |
-| Safe consent persistence and invalidation behavior for each supported host | `warn` | Resolve authority, storage and rollback design in SD after PRD approval. |
-| Direct fresh-session behavior after enabled, declined, revoked and updated consent | `warn` | Keep as later host evidence and UAT; do not infer it from repository tests. |
+| Verified automatic-mode outcome for each Codex, Claude Code and OpenCode combination on macOS, Linux and native Windows | `warn` | Complete the remaining direct-host matrix without inferred parity. |
+| Safe consent persistence and invalidation behavior for each supported host | `warn` | Observe revised install/update choices, renewal and rollback through separately authorized host evidence. |
+| Direct fresh-session behavior after enabled, declined, revoked and updated consent | `warn` | Complete the declared host evidence before QA pass; do not infer it from repository tests. |
 | Direct native-Windows evidence for installation, consent, status, revocation, update, rollback and fresh session | `warn` | Require native-Windows execution before claiming Windows support; simulation remains supporting evidence only. |
 
 ## Risks
@@ -168,9 +168,9 @@ Keep the active work item traceable. A gate may open only when the previous gate
 
 ## Closeout
 
-- delivered: Approved artefact chain; implementation and regression; real macOS installs; Claude hook success and revoke/renewal; OpenCode enabled/manual fresh sessions; Codex native review; QA Revision 2 revise.
-- not_delivered: Codex user trust and enabled cycle, native Windows, rendered public candidate, QA pass/approval, UAT, VCS, publication and release.
-- verification_performed: Source-matched 0.13.7 focused and aggregate tests; 66/66 skill cases; 313-file package; Runtime Integrity; direct macOS host runs; `git diff --check`.
-- unverified: Codex enabled/change/disable cycle, native-Windows cells, rendered listing, induced managed conflict/rollback and online dependency audit.
-- next_allowed_action: Complete the remaining TPR-01 evidence cells, then rerun Task Plan Review and QA.
-- quality_outlook: Make every consent, manual, stale, revoked and unsupported state observable while preserving host authority and direct native-Windows evidence boundaries.
+- delivered: Approved UR Revision 2, PRD Revision 2, SD Revision 3 and TP Revision 2; Brownfield Analysis Revision 2 pass; interactive retained-consent bypass removed; versioned beginner-first terminal consent UX with truthful previous intent, manual help, input recovery, on-demand technical details and compact result; docs and submission evidence updated; final aggregate green; reviews refreshed.
+- not_delivered: QA pass, revised direct-host rendering, Codex user trust and enabled cycle, native Windows, rendered public candidate, UAT, VCS, publication and release.
+- verification_performed: Source-matched 0.13.7 focused and final aggregate tests; target/installed/update version, truthful previous intent, post-install permission wording, manual help, progress, invalid-input recovery, D details, compact/default and verbose diagnostic regressions; 66/66 skill cases; 313-file package; 43-file public candidate; Runtime Integrity; doctor/gate-check; `git diff --check`.
+- unverified: revised real-host interaction, Codex enabled/change/disable cycle, native-Windows cells, rendered listing, induced managed conflict/rollback and online dependency audit.
+- next_allowed_action: Collect separately authorized direct-host evidence without inferred parity.
+- quality_outlook: Preserve transparency at every interactive update without causing repeated native host trust prompts for unchanged capability identity.

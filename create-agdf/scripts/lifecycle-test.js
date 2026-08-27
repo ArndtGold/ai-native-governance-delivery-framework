@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLifecycleResult, globalInstallRestartAction } from "../lib/lifecycle/result.js";
-import { lifecycleCardLines, printLifecycleResult } from "../lib/lifecycle/presentation.js";
+import { compactLifecycleCardLines, lifecycleCardLines, printLifecycleResult } from "../lib/lifecycle/presentation.js";
 import {
   applyLifecyclePlan,
   planGlobalUninstall,
@@ -33,6 +33,45 @@ assert.deepEqual(lifecycleCardLines(success).slice(1).map((line) => line.split("
   "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Automatic runtime checks", "Verification", "Restart required", "Next action",
 ]);
 assert.equal(lifecycleCardLines(success)[0], "AGDF installation complete");
+assert.deepEqual(compactLifecycleCardLines(success), [
+  "AGDF installed for Codex",
+  "Version: 1.2.3 (verified)",
+  "Installation: Ready",
+  "Automatic checks: Not configured",
+  "Next: Start a new task.",
+]);
+assert.deepEqual(compactLifecycleCardLines(createLifecycleResult({
+  operation: "install", result: "success", surface: "codex", scope: "global",
+  verification: { status: "healthy" },
+  runtime_checks: { requested: "enabled", effective: "decision_required" },
+  restart: { required: true },
+  next_action: { text: "Restart Codex." },
+})), [
+  "AGDF installed for Codex",
+  "Version: not verified",
+  "Installation: Ready",
+  "Automatic checks: Waiting for Codex permission",
+  "Next: Restart Codex.",
+]);
+assert.equal(lifecycleCardLines(createLifecycleResult({
+  operation: "install", result: "preview", surface: "codex", scope: "global",
+  next_action: { text: "Cancelled." },
+}))[0], "AGDF installation cancelled");
+assert.equal(lifecycleCardLines(createLifecycleResult({
+  operation: "uninstall", result: "preview", surface: "codex", scope: "global",
+  next_action: { text: "Review before uninstall." },
+}))[0], "AGDF uninstall preview");
+assert.deepEqual(compactLifecycleCardLines(createLifecycleResult({
+  operation: "install", result: "preview", surface: "codex", scope: "global",
+  runtime_checks: { requested: "cancelled", effective: "cancelled" },
+  next_action: { text: "Installation was cancelled." },
+})), ["AGDF installation cancelled", "No changes were made.", "Next: Installation was cancelled."]);
+assert.deepEqual(compactLifecycleCardLines(createLifecycleResult({
+  operation: "update", result: "success", surface: "opencode", scope: "global",
+  version: { previous: "1.2.2", installed: "1.2.3", status: "verified", transition: "updated" },
+  verification: { status: "healthy" },
+  next_action: { text: "Restart OpenCode." },
+})).slice(0, 2), ["AGDF updated for OpenCode", "Updated: 1.2.2 -> 1.2.3 (verified)"]);
 assert.equal(success.installation.status, "healthy");
 assert.equal(success.activation.status, "pending_restart");
 assert.equal(success.delivery.status, "not_evaluated");

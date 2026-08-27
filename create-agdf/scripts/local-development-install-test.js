@@ -299,10 +299,12 @@ try {
 
   let cliCalls = 0;
   const orchestrationCalls = [];
+  let preparationOptions;
   const orchestrationCode = await installLocalPlugin("codex", {
     dataRoot: join(fixtureRoot, "orchestration-data"),
-    exec(executable, args) {
+    exec(executable, args, options) {
       orchestrationCalls.push(`${executable} ${args.join(" ")}`);
+      preparationOptions = options;
       return "";
     },
     async runCli(args, adapters) {
@@ -317,6 +319,7 @@ try {
   assert.equal(orchestrationCode, 0);
   assert.equal(cliCalls, 1);
   assert.match(orchestrationCalls[0], /run release:prepare$/);
+  assert.equal(preparationOptions.stdio, "pipe", "successful local release preparation must stay out of the consent UI");
 
   const claudeCode = await installLocalPlugin("claude", {
     dataRoot: join(fixtureRoot, "claude-orchestration-data"),

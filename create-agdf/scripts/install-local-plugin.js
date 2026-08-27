@@ -21,7 +21,13 @@ export async function installLocalPlugin(surface, adapters = {}) {
   if (!supportedSurfaces.has(surface)) throw new Error(`Unsupported AGDF local install surface: ${surface || "missing"}`);
   const exec = adapters.exec ?? execFileSync;
   const preparation = npmInvocation(["--prefix", packageRoot, "run", "release:prepare"]);
-  exec(preparation.executable, preparation.args, { encoding: "utf8", stdio: "inherit" });
+  try {
+    exec(preparation.executable, preparation.args, { encoding: "utf8", stdio: "pipe" });
+  } catch (error) {
+    const output = [error?.stdout, error?.stderr].map((value) => String(value || "").trim()).filter(Boolean).join("\n");
+    if (!output) throw error;
+    throw new Error(`AGDF local release preparation failed.\n${output}`, { cause: error });
+  }
 
   // The lib modules read generated plugin metadata at import time, so they are
   // loadable only after release:prepare has produced generated/ on a fresh checkout.

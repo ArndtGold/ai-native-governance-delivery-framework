@@ -1,8 +1,8 @@
 # PRD: Informed Installation Consent for Automatic AGDF Runtime Checks
 
-Status: approved; revision 1
+Status: approved; revision 2
 Gate: PRD
-Gate approval: exact `Approval: PRD` recorded 2026-08-27 after same-run, same-gate and revision-1 revalidation
+Gate approval: exact `Approval: PRD` recorded 2026-08-27 after same-run, same-gate and revision-2 revalidation
 Based on: approved `UR.md` revision 2, completed `BROWNFIELD_REVIEW.md` and ready
 `UX_INTENT_DEFINITION.md`
 Date: 2026-08-27
@@ -10,11 +10,12 @@ Owner: Arndt Gold
 
 ## 1. Product Goal
 
-Give every AGDF user one informed, deliberate and reversible installation decision for narrowly
-defined automatic local runtime checks. When the selected host can express and verify the required
-least-privilege rule, enabling the capability should prevent repeated prompts for the same unchanged
-checks. Declining, omitting or revoking consent must leave AGDF usable through manual host
-confirmation.
+Give every AGDF user an informed, deliberate and reversible decision during every interactive
+installation or update for narrowly defined automatic local runtime checks. A still-valid existing
+decision is shown as context, but is never retained silently in an interactive update. When the
+selected host can express and verify the required least-privilege rule, enabling the capability
+should prevent repeated host prompts for the same unchanged checks between updates. Declining,
+omitting or revoking consent must leave AGDF usable through manual host confirmation.
 
 This is technical execution consent only. It never authorizes an AGDF gate, implementation, QA,
 UAT, release, version-control action, network access or a broader command family.
@@ -23,8 +24,8 @@ UAT, release, version-control action, network access or a broader command family
 
 - Interactive installer: understand the exact recurring capability and choose enable, manual or
   cancel before any consent-dependent mutation.
-- Existing user updating AGDF: retain a still-valid decision or review a changed capability before
-  renewed consent.
+- Existing user updating AGDF: see the current decision and deliberately choose enable, manual or
+  cancel again before the update mutates plugin or permission state.
 - Security-conscious user or administrator: preserve host and managed-policy restrictions, inspect
   effective state and revoke the capability without uninstalling AGDF.
 - Non-interactive operator: select an explicit policy value or receive the safe manual default;
@@ -161,22 +162,26 @@ where specified.
 
 ### PRD-IC-01 — Complete Informed Disclosure
 
-- source_state: interactive install or update reaches the consent decision
+- source_state: every interactive install or update reaches the consent decision, including an
+  identity-equivalent update with a still-valid receipt
 - trigger_action: the product requests automatic-check consent
 - expected_effective_state: no permission mutation has occurred yet
 - visible_feedback: host, scope, covered checks, local paths, read-only/no-network promise,
-  persistence owner, renewal trigger and revocation path are visible
+  persistence owner, renewal trigger, revocation path and current requested state are visible
 - blocker_failure_behavior: missing disclosure prevents enablement and leaves manual mode available
 - observable_success: the user can distinguish the narrow capability from arbitrary script access
+  and no interactive update silently retains the previous decision
 - required_evidence: presentation contract tests and rendered host-path review
 
 ### PRD-IC-02 — Three Deliberate Outcomes
 
-- source_state: complete disclosure is visible
+- source_state: complete disclosure and any current decision are visible
 - trigger_action: enable, manual or cancel is deliberately selected
-- expected_effective_state: exactly the selected outcome is applied; enable is never preselected
+- expected_effective_state: exactly the newly selected outcome is applied; enable is never
+  preselected and the previous decision is context only
 - visible_feedback: requested and resulting state plus one next action are shown
-- blocker_failure_behavior: invalid, missing or ambiguous input performs no enabling mutation
+- blocker_failure_behavior: invalid, missing or ambiguous input performs no plugin or permission
+  mutation during the interactive install or update
 - observable_success: fixtures prove enable, manual and cancel are distinct and deterministic
 - required_evidence: interaction and lifecycle tests plus direct host observation
 
@@ -218,10 +223,12 @@ where specified.
 - source_state: automatic mode was previously enabled
 - trigger_action: executable content or effective capability scope changes
 - expected_effective_state: material changes produce `renewal required` before automatic execution
-- visible_feedback: the changed capability is reviewable; unchanged capability may retain consent
+- visible_feedback: the changed capability is reviewable; an unchanged capability may retain its
+  technical identity, but every interactive update still presents enable, manual and cancel
 - blocker_failure_behavior: path stability or version text alone cannot preserve stale permission
-- observable_success: digest/scope changes invalidate while a proven identity-equivalent update does
-  not create unnecessary prompts
+- observable_success: digest/scope changes invalidate prior consent; an identity-equivalent update
+  avoids a second host-native trust prompt after the user deliberately chooses enable again, while
+  non-interactive operation follows PRD-IC-08
 - required_evidence: provenance, update and invalidation tests
 
 ### PRD-IC-07 — Revocation Leaves A Usable Manual Installation
@@ -336,5 +343,5 @@ Solution Design must decide and evidence:
 
 ## 13. Next Gate
 
-PRD Revision 1 is approved. Solution Design may be drafted; implementation remains forbidden until
-the later SD and TP gates are approved.
+PRD Revision 2 is approved. SD Revision 3 and TP Revision 2 carry this requirement into the current
+implementation and evidence chain.

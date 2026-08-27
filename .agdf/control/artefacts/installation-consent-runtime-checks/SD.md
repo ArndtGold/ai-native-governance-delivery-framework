@@ -1,9 +1,9 @@
 # SD: Informed Installation Consent for Automatic AGDF Runtime Checks
 
-Status: approved; revision 2
+Status: approved; revision 3
 Gate: SD
-Gate approval: exact `Approval: SD` recorded 2026-08-27 after same-run, same-gate and revision-2 revalidation
-Based on: approved `PRD.md` revision 1, completed `BROWNFIELD_REVIEW.md` and ready
+Gate approval: exact `Approval: SD` recorded 2026-08-27 after same-run, same-gate and revision-3 revalidation
+Based on: approved `PRD.md` revision 2, completed `BROWNFIELD_REVIEW.md` and ready
 `UX_INTENT_DEFINITION.md`
 Date: 2026-08-27
 Owner: Arndt Gold
@@ -11,9 +11,11 @@ Owner: Arndt Gold
 ## 1. Solution Summary
 
 Extend the existing AGDF installation lifecycle with one shared runtime-check consent contract and
-three thin host adapters. The installer asks before the first consent-dependent mutation. It can
-enable the narrow capability, retain manual mode or cancel. Status and revocation use the same
-contract and existing lifecycle presentation.
+three thin host adapters. Every interactive install or update renders the disclosure, shows the
+current requested state when one exists and asks for enable, manual or cancel before any plugin,
+permission or receipt mutation. Existing consent is context only and never silently skips this
+interactive decision. Status and revocation use the same contract and existing lifecycle
+presentation.
 
 Replace the shell-oriented session-start path with one generated, argument-free Node entrypoint that
 calls the existing version-matched validator in read-only mode. The fixed entrypoint is the only
@@ -98,8 +100,10 @@ permission adapter contract version
 ```
 
 Version text and path alone are insufficient. A material change to any field creates a new identity
-and makes prior automatic mode `renewal_required`. An unchanged identity may survive a version-only
-update. The host adapter never treats a receipt hash as permission evidence.
+and makes prior automatic mode `renewal_required`. An unchanged identity may preserve existing
+host-native trust after the user deliberately chooses enable during the interactive update, so the
+host need not ask again for identical content. It never suppresses the installer decision. The host
+adapter never treats a receipt hash as permission evidence.
 
 ### AD-3: One non-authoritative intent receipt
 
@@ -234,15 +238,20 @@ If live hook execution cannot be observed, status remains unverified or manual. 
 
 For `codex`, `claude` and `opencode` install/update commands:
 
-- default with an interactive TTY: render the canonical disclosure and ask enable, manual or cancel;
+- default with an interactive TTY: always render the canonical disclosure, show the current
+  requested state as non-authorizing context and ask enable, manual or cancel;
 - `--automatic-runtime-checks enable|manual`: explicit non-interactive-safe selection;
 - `--json` or no TTY without the explicit option: select manual, report `consent_not_provided`, and
   do not prompt;
 - cancel: stop before marketplace, plugin, config or receipt mutation.
 
-The parser rejects missing/unknown values and rejects interactive prompting with `--json`. The
-prompt implementation uses `node:readline/promises` through an injectable adapter for tests. A host
-plugin UI may supply the same canonical values, but decorated labels never become authority.
+The interactive path never calls the retained-consent shortcut. A matching receipt is read only to
+render `Current decision: enabled|manual` and to determine whether the subsequent enable choice can
+reuse unchanged host-native trust. There is no default or preselection. Empty or invalid input maps
+to cancel and performs no mutation. The parser rejects missing/unknown values and rejects
+interactive prompting with `--json`. The prompt implementation uses `node:readline/promises`
+through an injectable adapter for tests. A host plugin UI may supply the same canonical values, but
+decorated labels never become authority.
 
 Add one narrow lifecycle command:
 
@@ -302,8 +311,10 @@ If phase 6 or 7 fails, roll back only the proven consent/config mutation. Keep a
 installed plugin and report manual mode plus recovery. Existing marketplace rollback remains owned
 by its installer transaction and is not duplicated.
 
-Existing installations without a current receipt migrate to `decision_required` in interactive
-status or `manual` in non-interactive operation. No existing host rule is claimed as AGDF-owned.
+Existing installations with or without a current receipt enter the deliberate decision in every
+interactive install or update. A valid receipt supplies visible current-state context only.
+Non-interactive operation remains `manual` unless an explicit exact option is supplied. No existing
+host rule is claimed as AGDF-owned.
 Explicit deny/ask/manual decisions are never upgraded. A legacy AGDF receipt format is accepted only
 if a future migration is explicitly designed and digest matched; revision 1 defines no legacy format.
 
@@ -362,8 +373,10 @@ locations, ACL behavior, atomic replacement, restart and fresh-session state.
 1. Contract tests reject arguments, writes, network, unknown operations and broad host rules.
 2. Identity tests cover changed runtime digest, source digest, operation scope, command and adapter
    version; an identity-equivalent version update remains stable.
-3. Prompt tests cover enable, manual, cancel, empty/invalid input, no TTY, JSON and explicit CLI
-   selection without automatic timeout.
+3. Prompt tests cover first install and identity-equivalent update with enabled/manual receipts;
+   every interactive path renders current state and asks enable, manual or cancel without a
+   default. They also cover empty/invalid input, no TTY, JSON and explicit CLI selection without
+   automatic timeout.
 4. Fixed-entrypoint tests prove no arguments, no registry/network/write path, bounded output and
    delegation to existing gate/doctor semantics.
 5. Codex fixtures cover native trust pending, observed execution, changed hook hash, disabled hook
@@ -403,8 +416,8 @@ locations, ACL behavior, atomic replacement, restart and fresh-session state.
 
 ## 13. Compatibility And Rollout
 
-- Existing commands remain compatible; absent consent options preserve installation and select the
-  safe interactive/manual behavior defined above.
+- Existing commands remain compatible; absent consent options always enter the deliberate choice on
+  an interactive terminal and select safe manual behavior without a TTY.
 - Existing host permissions and plugin configuration are preserved unless one exact new capability
   is deliberately enabled or a proven AGDF-owned rule is revoked.
 - Lifecycle schema version remains 1 with additive data.
@@ -469,5 +482,5 @@ obligations and version the observed host capabilities.
 
 ## 16. Next Gate
 
-Solution Design Revision 2 is approved. A Task and Test Plan may be drafted; implementation remains
-forbidden until exact TP approval and the mandatory pre-implementation Brownfield Analysis pass.
+Solution Design Revision 3 is approved. TP Revision 2 and Brownfield Analysis Revision 2 validated
+the bounded implementation path now covered by CD+Tests and the mandatory reviews.

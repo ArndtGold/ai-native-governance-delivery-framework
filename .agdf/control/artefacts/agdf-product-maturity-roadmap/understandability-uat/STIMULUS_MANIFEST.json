@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "freeze_id": "pmr6-understandability-v1-20260827",
+  "status": "frozen_not_exposed",
+  "frozen_on": "2026-08-27",
+  "source_owners": [
+    {
+      "file": "create-agdf/lib/interaction-presentation.js",
+      "sha256": "3bf974032966c087191039a94ab3d84624f1530f9cb3daf2e843300d91406f1e"
+    },
+    {
+      "file": "create-agdf/lib/lifecycle/presentation.js",
+      "sha256": "1a91ef0102db67d563c8917fb791783b44f9b1d802e1e756b731e386bd423753"
+    },
+    {
+      "file": "plugin/meta/agdf-interaction-locales.json",
+      "sha256": "c2be4146bbf3972861697128ecb880369867360ea8a0efe61bee9ca9eae63266"
+    }
+  ],
+  "stimulus_count": 8,
+  "stimuli": [
+    {
+      "scenario_id": "PMR6-S01",
+      "file": "stimuli/PMR6-S01.md",
+      "sha256": "9b65e85da4cd4608e5df16e6e2d44a1ed28dffa181e361b1d39245c60c416a7d"
+    },
+    {
+      "scenario_id": "PMR6-S02",
+      "file": "stimuli/PMR6-S02.md",
+      "sha256": "d74b36aaf0f6ec55eea706dd1003c4ae1ee143cb60fca91d1b2421ed7b24ae68"
+    },
+    {
+      "scenario_id": "PMR6-S03",
+      "file": "stimuli/PMR6-S03.md",
+      "sha256": "a56183fc4f98dca017c1584755a238e2e7289717e93e7019a44bb4368ecdacd8"
+    },
+    {
+      "scenario_id": "PMR6-S04",
+      "file": "stimuli/PMR6-S04.md",
+      "sha256": "2467e22c1962f6022cf47ff337274acd70aab8cd71d30504eb6ad8245faf92d2"
+    },
+    {
+      "scenario_id": "PMR6-S05",
+      "file": "stimuli/PMR6-S05.md",
+      "sha256": "565752109bda302aa1d43e2419b39c9df023021b20982c40e4db039665269353"
+    },
+    {
+      "scenario_id": "PMR6-S06",
+      "file": "stimuli/PMR6-S06.md",
+      "sha256": "ac96db695575f954a32505a5fc773f8a918ab6047ea7bdfe95a1cdd9bf6e63df"
+    },
+    {
+      "scenario_id": "PMR6-S07",
+      "file": "stimuli/PMR6-S07.md",
+      "sha256": "2296d5583c8ea8a1b84203e6637dd6ddc6f640bd80a694cf5cc10724abe6fb13"
+    },
+    {
+      "scenario_id": "PMR6-S08",
+      "file": "stimuli/PMR6-S08.md",
+      "sha256": "85128981dd0db665cef81239c0fbd7987ea609ccc87d5e6fd097184c74602533"
+    }
+  ],
+  "randomization": {
+    "method": "fixed blinded allocation generated before exposure",
+    "seed": "pmr6-v1-independent-participants",
+    "assignments": [
+      {
+        "participant_id": "P01",
+        "scenario_ids": [
+          "PMR6-S02",
+          "PMR6-S08"
+        ]
+      },
+      {
+        "participant_id": "P02",
+        "scenario_ids": [
+          "PMR6-S03",
+          "PMR6-S04"
+        ]
+      },
+      {
+        "participant_id": "P03",
+        "scenario_ids": [
+          "PMR6-S01",
+          "PMR6-S05"
+        ]
+      },
+      {
+        "participant_id": "P04",
+        "scenario_ids": [
+          "PMR6-S06",
+          "PMR6-S07"
+        ]
+      }
+    ]
+  },
+  "participant_state": {
+    "required": 4,
+    "confirmed": 0,
+    "observations_required": 8,
+    "observations_completed": 0
+  },
+  "evidence_boundary": "Frozen repository fixtures only; no participant or UAT evidence exists yet."
+}

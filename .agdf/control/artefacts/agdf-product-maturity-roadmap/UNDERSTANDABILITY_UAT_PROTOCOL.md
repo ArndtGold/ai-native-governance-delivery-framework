@@ -107,6 +107,15 @@ Append exactly one row per primary observation after execution.
 ## Current Result
 
 - protocol_readiness: `ready_for_execution`
+- stimulus_freeze: `completed_not_exposed`
+- stimulus_freeze_id: `pmr6-understandability-v1-20260827`
+- stimulus_manifest: `understandability-uat/STIMULUS_MANIFEST.json`
+- participant_guide: `understandability-uat/PARTICIPANT_GUIDE.md`
+- observer_runbook: `understandability-uat/OBSERVER_RUNBOOK.md`
+- integrity_check: `node .agdf/control/artefacts/agdf-product-maturity-roadmap/understandability-uat/verify-stimuli.mjs`
+- observation_forms: eight empty records under `understandability-uat/records/`
+- randomization: fixed blinded allocation for `P01` through `P04`, two scenarios per participant;
+  participant identities remain unassigned
 - execution_availability: `blocked_external_participants`
 - observations_completed: `0/8`
 - participants_confirmed: `0/4 minimum`

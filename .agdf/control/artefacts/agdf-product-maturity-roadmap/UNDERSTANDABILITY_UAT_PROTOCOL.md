@@ -112,6 +112,8 @@ Append exactly one row per primary observation after execution.
 - stimulus_manifest: `understandability-uat/STIMULUS_MANIFEST.json`
 - participant_guide: `understandability-uat/PARTICIPANT_GUIDE.md`
 - observer_runbook: `understandability-uat/OBSERVER_RUNBOOK.md`
+- research_hypotheses: `understandability-uat/RESEARCH_HYPOTHESES.md`; five unconfirmed
+  understandability candidates registered before exposure without changing stimuli or scoring
 - integrity_check: `node .agdf/control/artefacts/agdf-product-maturity-roadmap/understandability-uat/verify-stimuli.mjs`
 - observation_forms: eight empty records under `understandability-uat/records/`
 - randomization: fixed blinded allocation for `P01` through `P04`, two scenarios per participant;

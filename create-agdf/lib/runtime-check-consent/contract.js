@@ -32,6 +32,7 @@ export function validateRuntimeCheckCapability(capability) {
   }
   const surfaces = capability.surfaces ?? {};
   if (surfaces.codex !== "native-hook-review" || surfaces.claude !== "exact-command-rule"
+      || surfaces.copilot !== "plugin-hook-review"
       || surfaces.opencode !== "plugin-internal"
       || surfaces["portable-skills"] !== "manual-external-required") {
     throw new Error("AGDF_RUNTIME_CHECK_CAPABILITY_INVALID: surface contract");
@@ -41,7 +42,7 @@ export function validateRuntimeCheckCapability(capability) {
 
 export function runtimeCheckCapabilityIdentity({ capability, surface, runtimeDigest, sourceDigest, command }) {
   validateRuntimeCheckCapability(capability);
-  if (!["codex", "claude", "opencode"].includes(surface)) throw new Error("AGDF_RUNTIME_CHECK_SURFACE_INVALID");
+  if (!["codex", "claude", "copilot", "opencode"].includes(surface)) throw new Error("AGDF_RUNTIME_CHECK_SURFACE_INVALID");
   for (const [name, value] of Object.entries({ runtimeDigest, sourceDigest })) {
     if (typeof value !== "string" || !/^[a-f0-9]{64}$/.test(value)) throw new Error(`AGDF_RUNTIME_CHECK_IDENTITY_INVALID: ${name}`);
   }
@@ -59,6 +60,7 @@ export function runtimeCheckCapabilityIdentity({ capability, surface, runtimeDig
 
 export function fixedRuntimeCheckCommand(surface, pluginRoot, platform = process.platform) {
   if (surface === "opencode") return "plugin:agdf:automatic-runtime-checks";
+  if (surface === "copilot") return 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"';
   if (surface === "codex" || surface === "claude") {
     return platform === "win32"
       ? "node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\""

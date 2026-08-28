@@ -14,10 +14,11 @@ export const commandRegistry = Object.freeze([
   command("codex-repo", { preferred: [""], scaffold: [""] }),
   command("claude", { preferred: [""], scaffold: [""] }),
   command("copilot", { preferred: [""], scaffold: [""] }),
+  command("copilot-plugin", { preferred: [""] }),
   command("opencode", { preferred: [""], scaffold: [""] }),
   command("opencode-status", { preferred: [""], scaffold: [""] }),
   command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
-  command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|opencode> [--json]"] }),
+  command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [""], scaffold: [""] }),
@@ -66,11 +67,11 @@ export function validateCommandOptions(options) {
     throw new Error("uninstall requires explicit --scope global");
   }
   if (options.confirm && options.target !== "uninstall") throw new Error("--confirm is supported only by uninstall");
-  if (options.runtimeChecksDecision && !["codex", "claude", "opencode"].includes(options.target)) {
-    throw new Error("--runtime-checks is supported only by codex, claude and opencode installation commands");
+  if (options.runtimeChecksDecision && !["codex", "claude", "copilot-plugin", "opencode"].includes(options.target)) {
+    throw new Error("--runtime-checks is supported only by codex, claude, copilot-plugin and opencode installation commands");
   }
-  if (options.target === "runtime-checks" && !["codex", "claude", "opencode"].includes(options.surface)) {
-    throw new Error("runtime-checks requires --surface codex, claude or opencode");
+  if (options.target === "runtime-checks" && !["codex", "claude", "copilot", "opencode"].includes(options.surface)) {
+    throw new Error("runtime-checks requires --surface codex, claude, copilot or opencode");
   }
   if (options.approvalEnvelope && options.target !== "gate-check") throw new Error("--approval-envelope is supported only by gate-check");
   if (options.approvalEnvelope && (options.json || options.statusCard || options.allActive)) {

@@ -39,14 +39,12 @@ export function createCodexPluginManifest(definition, { publicCandidate = false 
       websiteURL: distribution.urls.website,
       privacyPolicyURL: distribution.urls.privacy,
       termsOfServiceURL: distribution.urls.terms,
-      supportURL: distribution.urls.support,
       composerIcon: definition.codex.composerIcon,
       logo: definition.codex.logo,
       defaultPrompt: pluginInterface.defaultPrompt,
       brandColor: definition.brandColor,
     },
   };
-  if (!publicCandidate) manifest.hooks = `./${definition.codex.hooks}`;
   return manifest;
 }
 
@@ -69,4 +67,38 @@ export function createClaudePluginManifest(definition) {
 
 export function renderClaudePluginManifest(definition) {
   return `${JSON.stringify(createClaudePluginManifest(definition), null, 2)}\n`;
+}
+
+function requireCopilotPath(value, field) {
+  if (typeof value !== "string" || !value || value.startsWith("/") || value.includes("..") || value.includes("\\")) {
+    throw new Error(`AGDF_COPILOT_PLUGIN_CONTRACT_INVALID: ${field} must be a relative POSIX path`);
+  }
+  return value;
+}
+
+export function createCopilotPluginManifest(definition) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(definition.id ?? "") || definition.id.length > 64) {
+    throw new Error("AGDF_COPILOT_PLUGIN_CONTRACT_INVALID: kebab-case name is required");
+  }
+  if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(definition.version ?? "")) {
+    throw new Error("AGDF_COPILOT_PLUGIN_CONTRACT_INVALID: semantic version is required");
+  }
+  const copilot = definition.copilot ?? {};
+  return {
+    name: definition.id,
+    version: definition.version,
+    description: definition.description,
+    author: definition.author,
+    homepage: definition.homepage,
+    repository: definition.repository,
+    license: definition.license,
+    keywords: definition.keywords,
+    category: definition.category,
+    skills: requireCopilotPath(copilot.skills, "skills"),
+    hooks: requireCopilotPath(copilot.hooks, "hooks"),
+  };
+}
+
+export function renderCopilotPluginManifest(definition) {
+  return `${JSON.stringify(createCopilotPluginManifest(definition), null, 2)}\n`;
 }

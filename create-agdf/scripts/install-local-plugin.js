@@ -7,7 +7,7 @@ import process from "node:process";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
-const supportedSurfaces = new Set(["codex", "claude", "opencode"]);
+const supportedSurfaces = new Set(["codex", "claude", "copilot", "opencode"]);
 
 function npmInvocation(args) {
   if (process.platform !== "win32") return { executable: "npm", args };
@@ -53,7 +53,7 @@ export async function installLocalPlugin(surface, adapters = {}) {
   const env = { ...process.env, AGDF_DATA_DIR: dataRoot };
 
   if (surface !== "opencode") {
-    return await cli([surface], { env, prepare });
+    return await cli([surface === "copilot" ? "copilot-plugin" : surface], { env, prepare, exec });
   }
 
   const openCodePackageSource = prepareLocalOpenCodePackage({

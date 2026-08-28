@@ -5,6 +5,7 @@ const SURFACES = new Set(["codex", "claude", "copilot", "opencode", "generic"]);
 const GLOBAL_INSTALL_RESTART_ACTIONS = Object.freeze({
   codex: "Restart Codex.",
   claude: "Restart Claude Code.",
+  copilot: "Restart GitHub Copilot.",
   opencode: "Restart OpenCode.",
 });
 

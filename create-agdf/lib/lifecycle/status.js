@@ -63,7 +63,7 @@ function inspectInstallation(surface, targetDir, options, deps, exec) {
       evidence: [report.global_config.path],
     };
   }
-  if (["codex", "claude"].includes(surface)) return deps.inspectPluginSurface(surface, exec);
+  if (["codex", "claude", "copilot"].includes(surface)) return deps.inspectPluginSurface(surface, exec);
   return { status: "unknown", surface, version: null, evidence: [`unsupported_status_probe:${surface}`] };
 }
 
@@ -79,7 +79,7 @@ export function evaluateGeneralStatus(targetDir, options = {}, dependencies = {}
   if (surface) {
     installation = inspectInstallation(surface, targetDir, options, deps, dependencies.exec);
   } else {
-    const probes = ["codex", "claude", "opencode"].map((candidate) => inspectInstallation(candidate, targetDir, options, deps, dependencies.exec));
+    const probes = ["codex", "claude", "copilot", "opencode"].map((candidate) => inspectInstallation(candidate, targetDir, options, deps, dependencies.exec));
     const observed = probes.filter((probe) => ["healthy", "degraded"].includes(probe.status));
     if (observed.length === 1) {
       installation = observed[0];
@@ -96,7 +96,7 @@ export function evaluateGeneralStatus(targetDir, options = {}, dependencies = {}
   }
   const repository = repositoryStatus(targetDir, surface);
   const delivery = deliveryStatus(targetDir, { runId: options.runId }, deps);
-  const runtimeChecks = ["codex", "claude", "opencode"].includes(surface)
+  const runtimeChecks = ["codex", "claude", "copilot", "opencode"].includes(surface)
     ? runtimeCheckStatus(options.dataRoot, surface)
     : { requested: "unknown", effective: "unavailable", reason: "unsupported_host_capability" };
   const nextText = surface === "multiple"

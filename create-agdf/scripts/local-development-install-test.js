@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import {
@@ -15,8 +15,10 @@ import {
   localNpmExecutable,
   validateLocalOpenCodePackageSource,
 } from "../lib/installers/local-development.js";
-import { inspectPluginSurface, installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
+import { COPILOT_CLI_NPM_PACKAGE, copilotNpmInvocation, inspectPluginSurface, installClaudeGlobalPlugin, installCodexGlobalPlugin, installCopilotGlobalPlugin, setCopilotPluginEnabled } from "../lib/installers/plugin-installers.js";
 import { resolveOpenCodeInstallPackageSource } from "../lib/installers/opencode.js";
+import { diagnoseCopilotSkillPrecedence } from "../lib/installers/copilot-precedence.js";
+import { configureCopilotDeclarativePlugin, readCopilotSettings, revokeCopilotDeclarativePlugin } from "../lib/installers/copilot-settings.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { runCli } from "../lib/cli/application.js";
 import { installLocalPlugin } from "./install-local-plugin.js";
@@ -173,6 +175,144 @@ try {
   assert.equal(claudeInstalled.evidence.includes("staged_installation_provenance:matched"), true);
   assert.equal(json(join(projected.pluginRoot, ".codex-plugin", "plugin.json")).version, localVersion, "Claude must not replace the shared Codex projection");
 
+  const copilotCalls = [];
+  let copilotListCalls = 0;
+  const copilotInstalled = installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec(executable, args) {
+      copilotCalls.push(`${executable} ${args.join(" ")}`);
+      if (args.join(" ") === "plugin list") {
+        copilotListCalls += 1;
+        return copilotListCalls === 1 ? `agdf ${pluginDefinition.version}\n` : `agdf@agdf ${pluginDefinition.version}\n`;
+      }
+      return "";
+    },
+  });
+  assert.equal(copilotInstalled.installedVersion, pluginDefinition.version);
+  assert.equal(copilotCalls.includes("copilot plugin marketplace add " + resolve(builtPluginRoot, "..", "..")), true);
+  assert.equal(copilotCalls.includes("copilot plugin uninstall agdf"), true);
+  assert.equal(copilotCalls.includes("copilot plugin install agdf@agdf"), true);
+  assert.equal(inspectPluginSurface("copilot", () => `  • agdf (v${pluginDefinition.version})\n`).status, "healthy");
+  assert.equal(inspectPluginSurface("copilot", () => `agdf ${pluginDefinition.version}\n`).status, "healthy");
+  const packagedCalls = [];
+  let packagedListCalls = 0;
+  const copilotPackaged = installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec() {
+      const error = new Error("spawn copilot ENOENT");
+      error.code = "ENOENT";
+      throw error;
+    },
+    packagedCopilotExec(executable, args) {
+      packagedCalls.push({ executable, args });
+      if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+        packagedListCalls += 1;
+        return packagedListCalls === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;
+      }
+      return "installed\n";
+    },
+  });
+  assert.equal(copilotPackaged.verificationStatus, "healthy");
+  assert.equal(copilotPackaged.evidence.includes(`copilot_cli_npm_package:${COPILOT_CLI_NPM_PACKAGE}`), true);
+  assert.equal(packagedCalls.some(({ args }) => args.includes(`--package=${COPILOT_CLI_NPM_PACKAGE}`) && args.at(-2) === "plugin" && args.at(-1) === "list"), true);
+  assert.deepEqual(copilotNpmInvocation({ env: { npm_execpath: "/npm/cli.js" }, platform: "linux", execPath: "/node" }), {
+    executable: "/node",
+    args: ["/npm/cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  });
+  const copilotManual = installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec() {
+      const error = new Error("spawn copilot ENOENT");
+      error.code = "ENOENT";
+      throw error;
+    },
+    packagedCopilotExec() {
+      throw new Error("npm registry unavailable");
+    },
+  });
+  assert.equal(copilotManual.manualHandoff, true);
+  assert.equal(copilotManual.installedVersion, null);
+  assert.throws(() => installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec(_executable, args) {
+      if (args.join(" ") === "plugin list") return "";
+      if (args.join(" ") === "plugin marketplace list") return "  • agdf (Local: /foreign/agdf)\n";
+      return "";
+    },
+  }), /Refusing to replace non-AGDF Copilot marketplace/);
+  assert.throws(() => installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec(executable, args) {
+      if (args.join(" ") === "plugin list") return "agdf@agdf 9.9.9\n";
+      if (args.join(" ") === "plugin marketplace list") return `Registered marketplaces:\n  • agdf (Local: ${resolve(builtPluginRoot, "..", "..")} )\n`.replace(" )", ")");
+      return "";
+    },
+  }), /version mismatch/);
+  let malformedListCalls = 0;
+  assert.throws(() => installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec(executable, args) {
+      if (args.join(" ") === "plugin list") {
+        malformedListCalls += 1;
+        return malformedListCalls === 1 ? "" : "unparseable host output\n";
+      }
+      return "";
+    },
+  }), /not present/);
+  assert.throws(() => installCopilotGlobalPlugin({
+    pluginRoot: builtPluginRoot,
+    exec(executable, args) {
+      if (args.join(" ") === "plugin list") return "";
+      if (args.join(" ") === "plugin marketplace list") return `  • agdf (Local: ${resolve(builtPluginRoot, "..", "..")} )\n`.replace(" )", ")");
+      const error = new Error("install rejected");
+      error.stderr = "install rejected";
+      throw error;
+    },
+  }), (error) => error.phase === "plugin_operation" && /install rejected/.test(error.message));
+  for (const enabled of [true, false]) {
+    const stateCalls = [];
+    const state = setCopilotPluginEnabled({
+      enabled,
+      exec(executable, args) {
+        stateCalls.push(`${executable} ${args.join(" ")}`);
+        return args.join(" ") === "plugin list" ? `agdf ${pluginDefinition.version}\n` : "accepted\n";
+      },
+    });
+    assert.equal(state.requestedState, enabled ? "enabled" : "disabled");
+    assert.equal(state.status, "command_accepted_host_state_unverified");
+    assert.equal(stateCalls[0], `copilot plugin ${enabled ? "enable" : "disable"} agdf`);
+  }
+  const managedState = setCopilotPluginEnabled({
+    enabled: false,
+    exec() {
+      const error = new Error("Plugin is Managed by organization policy");
+      error.stderr = "Plugin is Managed by organization policy";
+      throw error;
+    },
+  });
+  assert.equal(managedState.status, "managed");
+  assert.throws(() => setCopilotPluginEnabled({ enabled: "yes" }), /must be boolean/);
+  assert.deepEqual(diagnoseCopilotSkillPrecedence({
+    declaredPluginSkills: ["agdf-gate-check", "agdf-qa-gate"],
+    projectSkills: ["agdf-gate-check"],
+    personalSkills: ["agdf-gate-check", "agdf-qa-gate"],
+  }).skills, [
+    { name: "agdf-gate-check", effective_source: "project", plugin_loaded: false, collisions: ["project", "personal"], mutation: "none" },
+    { name: "agdf-qa-gate", effective_source: "personal", plugin_loaded: false, collisions: ["personal"], mutation: "none" },
+  ]);
+  assert.equal(diagnoseCopilotSkillPrecedence({ declaredPluginSkills: ["agdf-gate-check"] }).skills[0].effective_source, "plugin");
+  assert.throws(() => diagnoseCopilotSkillPrecedence({ declaredPluginSkills: ["agdf-gate-check", "agdf-gate-check"] }), /DUPLICATE/);
+  const copilotSettingsPath = join(fixtureRoot, "copilot-home", "settings.json");
+  mkdirSync(dirname(copilotSettingsPath), { recursive: true });
+  writeFileSync(copilotSettingsPath, `${JSON.stringify({ model: "auto", enabledPlugins: { existing: true } }, null, 2)}\n`);
+  const declarative = configureCopilotDeclarativePlugin({ path: copilotSettingsPath, pluginRoot: builtPluginRoot });
+  assert.equal(declarative.status, "configured_pending_restart");
+  assert.equal(readCopilotSettings(copilotSettingsPath).settings.model, "auto");
+  assert.equal(readCopilotSettings(copilotSettingsPath).settings.enabledPlugins.existing, true);
+  assert.equal(readCopilotSettings(copilotSettingsPath).settings.enabledPlugins[builtPluginRoot], true);
+  assert.equal(revokeCopilotDeclarativePlugin({ path: copilotSettingsPath, pluginRoot: builtPluginRoot }).status, "removed");
+  assert.equal(readCopilotSettings(copilotSettingsPath).settings.enabledPlugins.existing, true);
+
   const codexLifecycleOutput = [];
   assert.equal(await runCli(["codex", "--json"], {
     io: { log(value) { codexLifecycleOutput.push(value); }, error(value) { codexLifecycleOutput.push(value); } },
@@ -205,6 +345,30 @@ try {
   const claudeLifecycle = JSON.parse(claudeLifecycleOutput.at(-1));
   assert.equal(claudeLifecycle.version.expected, pluginDefinition.version);
   assert.equal(claudeLifecycle.restart.required, true);
+
+  const copilotLifecycleOutput = [];
+  let lifecyclePackagedListCalls = 0;
+  assert.equal(await runCli(["copilot-plugin", "--json"], {
+    io: { log(value) { copilotLifecycleOutput.push(value); }, error(value) { copilotLifecycleOutput.push(value); } },
+    prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: join(fixtureRoot, "copilot-manual-handoff"), builtPluginRoot, codexInstallVersion: localVersion }),
+    exec() {
+      const error = new Error("spawn copilot ENOENT");
+      error.code = "ENOENT";
+      throw error;
+    },
+    packagedCopilotExec(_executable, args) {
+      if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+        lifecyclePackagedListCalls += 1;
+        return lifecyclePackagedListCalls === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;
+      }
+      return "installed\n";
+    },
+  }), 0);
+  const copilotLifecycle = JSON.parse(copilotLifecycleOutput.at(-1));
+  assert.equal(copilotLifecycle.result, "success");
+  assert.equal(copilotLifecycle.installation.status, "healthy");
+  assert.equal(copilotLifecycle.version.installed, pluginDefinition.version);
+  assert.match(copilotLifecycle.verification.evidence.join("\n"), /copilot_cli_npm_package/);
 
   const modifiedPluginRoot = join(fixtureRoot, "modified-plugin");
   cpSync(builtPluginRoot, modifiedPluginRoot, { recursive: true });
@@ -334,6 +498,16 @@ try {
   });
   assert.equal(claudeCode, 4, "the lifecycle exit code must be preserved");
 
+  const copilotCode = await installLocalPlugin("copilot", {
+    dataRoot: join(fixtureRoot, "copilot-orchestration-data"),
+    exec() { return ""; },
+    async runCli(args) {
+      assert.deepEqual(args, ["copilot-plugin"]);
+      return 3;
+    },
+  });
+  assert.equal(copilotCode, 3, "the Copilot plugin lifecycle exit code must be preserved");
+
   const openCodeDataRoot = join(fixtureRoot, "opencode orchestration data");
   const openCodeCode = await installLocalPlugin("opencode", {
     dataRoot: openCodeDataRoot,
@@ -381,14 +555,14 @@ try {
 
   const rootManifest = json(join(repoRoot, "package.json"));
   const packageManifest = json(join(packageRoot, "package.json"));
-  for (const surface of ["codex", "claude", "opencode"]) {
+  for (const surface of ["codex", "claude", "copilot", "opencode"]) {
     assert.equal(rootManifest.scripts[`install:${surface}`], `npm --prefix create-agdf run install:${surface}`);
     assert.equal(packageManifest.scripts[`install:${surface}`], `node ./scripts/install-local-plugin.js ${surface}`);
   }
-  assert.deepEqual(Object.keys(rootManifest.scripts).filter((name) => name.startsWith("install:")).sort(), ["install:claude", "install:codex", "install:opencode"]);
-  assert.deepEqual(Object.keys(packageManifest.scripts).filter((name) => name.startsWith("install:")).sort(), ["install:claude", "install:codex", "install:opencode"]);
+  assert.deepEqual(Object.keys(rootManifest.scripts).filter((name) => name.startsWith("install:")).sort(), ["install:claude", "install:codex", "install:copilot", "install:opencode"]);
+  assert.deepEqual(Object.keys(packageManifest.scripts).filter((name) => name.startsWith("install:")).sort(), ["install:claude", "install:codex", "install:copilot", "install:opencode"]);
   const contributing = readFileSync(join(repoRoot, "CONTRIBUTING.md"), "utf8");
-  for (const command of ["npm run install:codex", "npm run install:claude", "npm run install:opencode"]) {
+  for (const command of ["npm run install:codex", "npm run install:claude", "npm run install:copilot", "npm run install:opencode"]) {
     assert.match(contributing, new RegExp(command.replaceAll(":", "\\:")));
   }
   assert.match(contributing, /fresh task/i);

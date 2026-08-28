@@ -5,6 +5,7 @@ import { syncPluginRuntime } from "./sync-plugin-runtime.js";
 import {
   renderClaudePluginManifest,
   renderCodexPluginManifest,
+  renderCopilotPluginManifest,
 } from "../lib/public-plugin/manifest.js";
 import { buildPublicPluginCandidate } from "../lib/public-plugin/builder.js";
 
@@ -37,6 +38,7 @@ const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
 const generatedOpenCodeAgentsRoot = join(generatedOpenCodeRoot, "agents");
 const generatedOpenCodeSkillsRoot = join(generatedOpenCodeRoot, "skills");
 const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
+const generatedCopilotPluginSkillsRoot = join(generatedCodexPluginRoot, pluginDefinition.copilot.skills);
 const interactionLocaleFileName = pluginDefinition.interactions.localeRegistry.split("/").at(-1);
 
 function read(path) {
@@ -347,6 +349,45 @@ function syncSkill(skillSlug) {
   write(join(generatedSkillsRoot, targetName, "SKILL.md"), normalized);
 }
 
+function syncCopilotPluginContract() {
+  const contract = toCopilotSkillContent(read(sourceRuntimeContractPath)
+    .replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName));
+  write(join(generatedCopilotPluginSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), contract);
+  write(join(generatedCopilotPluginSkillsRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath));
+  for (const moduleName of contractModules) {
+    const source = read(join(sourceContractsRoot, moduleName))
+      .replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName);
+    write(join(generatedCopilotPluginSkillsRoot, "contracts", moduleName), toCopilotSkillContent(source));
+  }
+}
+
+function syncCopilotPluginSkill(skillSlug) {
+  const sourceName = sourceSkillName(skillSlug);
+  const targetName = copilotSkillName(skillSlug);
+  const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
+  const normalized = toCopilotSkillContent(read(sourcePath)
+    .replaceAll("../../meta/contracts/", "../contracts/")
+    .replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.copilot.runtimeContractFileName}`)
+    .replaceAll("plugin/meta/agdf-interaction-locales.json", `../${interactionLocaleFileName}`));
+  write(join(generatedCopilotPluginSkillsRoot, targetName, "SKILL.md"), normalized);
+}
+
+function writeCopilotPluginFiles() {
+  write(join(generatedCodexPluginRoot, pluginDefinition.copilot.pluginManifest), renderCopilotPluginManifest(pluginDefinition));
+  write(join(generatedCodexPluginRoot, pluginDefinition.copilot.hooks), `${JSON.stringify({
+    version: 1,
+    hooks: {
+      sessionStart: [{
+        type: "command",
+        command: "node \"${PLUGIN_ROOT}/runtime/agdf-session-check.js\"",
+        env: { AGDF_SURFACE: "copilot" },
+        timeoutSec: 10,
+      }],
+    },
+  }, null, 2)}\n`);
+  syncCopilotPluginContract();
+}
+
 function writeSkillsReadme(skillSlugs) {
   const lines = [
     "# AGDF repository skills",
@@ -412,11 +453,13 @@ function main() {
   syncRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
+  writeCopilotPluginFiles();
   writeCodexMarketplace();
   writeOpenCodeConfig();
   writeOpenCodeInstructions();
   for (const skillSlug of skillSlugs) {
     syncSkill(skillSlug);
+    syncCopilotPluginSkill(skillSlug);
     writeOpenCodeSkill(skillSlug);
   }
   rmSync(generatedOpenCodeAgentsRoot, { recursive: true, force: true });

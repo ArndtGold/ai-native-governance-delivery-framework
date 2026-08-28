@@ -85,6 +85,9 @@ export function planGlobalUninstall(surface, { configDir } = {}) {
   if (surface === "claude") {
     return nativeUninstallPlan(surface, "claude", ["plugin", "uninstall", "agdf@agdf", "--scope", "user"]);
   }
+  if (surface === "copilot") {
+    return nativeUninstallPlan(surface, "copilot", ["plugin", "uninstall", "agdf"]);
+  }
   if (surface === "opencode") {
     if (!configDir) throw new Error("OpenCode uninstall requires its explicit config directory.");
     const configPath = join(configDir, "opencode.json");

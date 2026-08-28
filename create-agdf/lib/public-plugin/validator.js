@@ -80,7 +80,7 @@ export function validateCandidate(root) {
   if (unicodeLength(manifest.interface?.developerName) > LISTING_LIMITS.developerName) throw new Error("AGDF_PUBLIC_PLUGIN_LISTING_LIMIT_EXCEEDED: developerName");
   const prompts = manifest.interface?.defaultPrompt ?? [];
   if (prompts.length !== LISTING_LIMITS.promptCount || prompts.some((prompt) => unicodeLength(prompt) > LISTING_LIMITS.promptLength)) throw new Error("AGDF_PUBLIC_PLUGIN_LISTING_LIMIT_EXCEEDED: defaultPrompt");
-  for (const field of ["websiteURL", "privacyPolicyURL", "termsOfServiceURL", "supportURL"]) {
+  for (const field of ["websiteURL", "privacyPolicyURL", "termsOfServiceURL"]) {
     let url;
     try { url = new URL(manifest.interface?.[field]); } catch { throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: ${field}`); }
     if (url.protocol !== "https:") throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: ${field} must use HTTPS`);

@@ -32,6 +32,7 @@ const VERSION_SURFACES = [
   jsonVersion("create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json"),
   jsonVersion("create-agdf/generated/plugins/agdf/.codex-plugin/plugin.json"),
   jsonVersion("create-agdf/generated/plugins/agdf/.claude-plugin/plugin.json"),
+  jsonVersion("create-agdf/generated/plugins/agdf/plugin.json"),
   jsonVersion("create-agdf/generated/plugins/agdf/runtime/runtime-manifest.json"),
   jsonVersion("create-agdf/generated/plugins/agdf/runtime/create-agdf/package.json"),
   jsonVersion("create-agdf/generated/submissions/openai/agdf/meta/agdf-plugin.definition.json"),

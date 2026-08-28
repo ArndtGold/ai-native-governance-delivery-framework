@@ -42,6 +42,8 @@ assert.throws(() => resolveRuntimeCheckDecision({ explicitValue: "yes" }), /DECI
 assert.equal(consentDisclosure("claude").network, "none");
 assert.equal(fixedRuntimeCheckCommand("claude", "/ignored", "darwin"), "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/runtime/agdf-session-check.js\"");
 assert.equal(fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32"), "node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\"");
+assert.equal(fixedRuntimeCheckCommand("copilot", "/ignored", "darwin"), 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"');
+assert.equal(consentDisclosure("copilot").permission_owner, "GitHub Copilot plugin hook review");
 assert.match(consentDisclosure("claude").revocation, /runtime-checks manual/);
 
 const root = mkdtempSync(join(tmpdir(), "agdf-runtime-check-consent-"));
@@ -71,6 +73,10 @@ try {
   assert.equal(runtimeCheckStatus(retainedRoot, "claude", "darwin").effective, "decision_required");
   assert.equal(runtimeCheckStatus(retainedRoot, "claude", "win32").effective, "renewal_required");
   assert.equal(retainCurrentInstallConsent("opencode", retainedRoot, "darwin"), null);
+  const copilotCommand = fixedRuntimeCheckCommand("copilot", generatedPluginRoot, "darwin");
+  const copilotIdentity = runtimeCheckCapabilityIdentity({ capability, surface: "copilot", runtimeDigest: manifest.digest, sourceDigest, command: copilotCommand });
+  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "copilot", decision: "enable", capabilityIdentity: copilotIdentity, command: copilotCommand }));
+  assert.equal(retainCurrentInstallConsent("copilot", retainedRoot, "win32")?.decision, "enable", "Copilot hook command identity is platform independent");
 } finally {
   rmSync(retainedRoot, { recursive: true, force: true });
 }
@@ -202,6 +208,27 @@ try {
   });
   assert.equal(withConsent.status, 0, withConsent.stderr);
   assert.match(withConsent.stdout, /AGDF automatic runtime check:/);
+
+  const copilotCommand = fixedRuntimeCheckCommand("copilot", join(process.cwd(), "generated", "plugins", "agdf"), process.platform);
+  writeRuntimeCheckReceipt(entrypointDataRoot, createRuntimeCheckReceipt({
+    surface: "copilot",
+    decision: "enable",
+    capabilityIdentity: runtimeCheckCapabilityIdentity({
+      capability,
+      surface: "copilot",
+      runtimeDigest: JSON.parse(readFileSync(join(process.cwd(), "generated", "plugins", "agdf", "runtime", "runtime-manifest.json"), "utf8")).digest,
+      sourceDigest: digestNormalizedPluginSource(join(process.cwd(), "generated", "plugins", "agdf"), pluginDefinition.version),
+      command: copilotCommand,
+    }),
+    command: copilotCommand,
+  }));
+  const withCopilotConsent = spawnSync(process.execPath, [generatedEntrypoint], {
+    cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "copilot" },
+  });
+  assert.equal(withCopilotConsent.status, 0, withCopilotConsent.stderr);
+  const copilotOutput = JSON.parse(withCopilotConsent.stdout);
+  assert.deepEqual(Object.keys(copilotOutput), ["additionalContext"]);
+  assert.match(copilotOutput.additionalContext, /AGDF automatic runtime check:/);
 } finally {
   rmSync(entrypointDataRoot, { recursive: true, force: true });
 }

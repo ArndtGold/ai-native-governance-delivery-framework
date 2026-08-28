@@ -10,6 +10,8 @@ Freeze ID: pmr6-understandability-v1-20260827
 4. Zeige jeder Person die Teilnehmerinformation und bestätige freiwillige Teilnahme.
 5. Öffne pro Person nur die beiden im Manifest zugewiesenen Stimuli und halte die dort angegebene Reihenfolge ein.
 6. Lege keine erwarteten Antworten, Szenariotypen oder Bewertungskriterien offen.
+7. Zeige die vorab registrierten Verständlichkeitshypothesen keiner teilnehmenden Person und nutze
+   sie nicht für Hinweise oder Rückfragen.
 
 ## Während der Beobachtung
 
@@ -24,3 +26,5 @@ Freeze ID: pmr6-understandability-v1-20260827
 2. Entferne keine unklaren oder falschen Beobachtungen.
 3. Aktualisiere Manifest, Protokoll und Aggregate Acceptance erst nach allen acht gültigen Beobachtungen.
 4. Eine kritische Fehlinterpretation bleibt Evidenz und wird vor RMP-12 zum verantwortlichen Produktowner geroutet.
+5. Ordne Antworten den vorab registrierten Hypothesen erst nach der regulären Bewertung aller acht
+   Beobachtungen zu. Die Zuordnung darf den Primärscore nicht verändern.

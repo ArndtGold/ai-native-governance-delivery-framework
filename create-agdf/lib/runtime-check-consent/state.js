@@ -4,12 +4,12 @@ import { dirname, join, resolve } from "node:path";
 import { renameSyncWithRetry } from "../fs-swap.js";
 
 export function runtimeCheckReceiptPath(dataRoot, surface) {
-  if (!["codex", "claude", "opencode"].includes(surface)) throw new Error("AGDF_RUNTIME_CHECK_RECEIPT_SURFACE_INVALID");
+  if (!["codex", "claude", "copilot", "opencode"].includes(surface)) throw new Error("AGDF_RUNTIME_CHECK_RECEIPT_SURFACE_INVALID");
   return join(resolve(dataRoot), "runtime-checks", `${surface}.json`);
 }
 
 export function createRuntimeCheckReceipt({ surface, decision, capabilityIdentity, command }) {
-  if (!["codex", "claude", "opencode"].includes(surface)) throw new Error("AGDF_RUNTIME_CHECK_RECEIPT_SURFACE_INVALID");
+  if (!["codex", "claude", "copilot", "opencode"].includes(surface)) throw new Error("AGDF_RUNTIME_CHECK_RECEIPT_SURFACE_INVALID");
   if (!["enable", "manual"].includes(decision)) throw new Error("AGDF_RUNTIME_CHECK_RECEIPT_DECISION_INVALID");
   if (!/^[a-f0-9]{64}$/.test(capabilityIdentity)) throw new Error("AGDF_RUNTIME_CHECK_RECEIPT_IDENTITY_INVALID");
   return Object.freeze({
@@ -26,7 +26,7 @@ export function createRuntimeCheckReceipt({ surface, decision, capabilityIdentit
 export function validateRuntimeCheckReceipt(receipt) {
   if (receipt?.schema_version !== 1 || receipt.owner !== "create-agdf"
       || receipt.capability_id !== "automatic-runtime-checks") return { status: "receipt_unowned", receipt: null };
-  if (!["codex", "claude", "opencode"].includes(receipt.surface)
+  if (!["codex", "claude", "copilot", "opencode"].includes(receipt.surface)
       || !["enabled", "manual"].includes(receipt.requested_state)
       || !/^[a-f0-9]{64}$/.test(receipt.capability_identity)
       || typeof receipt.command !== "string" || !receipt.command.trim()) {

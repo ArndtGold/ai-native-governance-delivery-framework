@@ -17,6 +17,11 @@ const packageManifest = JSON.parse(readFileSync(new URL("../package.json", impor
 const required = [
   "generated/plugins/agdf/.codex-plugin/plugin.json",
   "generated/plugins/agdf/.claude-plugin/plugin.json",
+  "generated/plugins/agdf/plugin.json",
+  "generated/plugins/agdf/hooks/copilot-hooks.json",
+  "generated/plugins/agdf/copilot-skills/agdf-gate-check/SKILL.md",
+  "generated/plugins/agdf/copilot-skills/agdf-runtime-contract.md",
+  "generated/plugins/agdf/copilot-skills/contracts/interaction.md",
   "generated/plugins/agdf/runtime/agdf-local.js",
   "generated/plugins/agdf/runtime/runtime-manifest.json",
   "generated/plugins/agdf/runtime/create-agdf/bin/agdf-validator.js",

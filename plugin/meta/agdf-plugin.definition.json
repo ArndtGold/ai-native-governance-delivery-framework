@@ -50,7 +50,10 @@
   },
   "copilot": {
     "skillPrefix": "agdf-",
-    "runtimeContractFileName": "agdf-runtime-contract.md"
+    "runtimeContractFileName": "agdf-runtime-contract.md",
+    "pluginManifest": "plugin.json",
+    "skills": "copilot-skills/",
+    "hooks": "hooks/copilot-hooks.json"
   },
   "opencode": {
     "skillPrefix": "agdf-",
@@ -87,6 +90,7 @@
     "surfaces": {
       "codex": "native-hook-review",
       "claude": "exact-command-rule",
+      "copilot": "plugin-hook-review",
       "opencode": "plugin-internal",
       "portable-skills": "manual-external-required"
     }
@@ -142,6 +146,21 @@
         "waitSafety": "deliberate_no_auto_resolution",
         "authorizationPath": "exact_text",
         "technicalPermissionOwner": "claude_host"
+      },
+      "copilot": {
+        "questionAdapter": "exact_text",
+        "availability": "always",
+        "gateSafety": "wait_for_deliberate_user_input",
+        "explicitOutcomes": [
+          "approve",
+          "revise",
+          "decline",
+          "cancel"
+        ],
+        "approvalValueTransport": "exact_option_value",
+        "waitSafety": "deliberate_no_auto_resolution",
+        "authorizationPath": "exact_text",
+        "technicalPermissionOwner": "copilot_host"
       },
       "opencode": {
         "questionAdapter": "question",

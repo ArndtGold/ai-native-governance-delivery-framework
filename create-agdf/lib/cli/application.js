@@ -17,6 +17,7 @@ import {
 } from "../installers/opencode.js";
 import {
   installClaudeGlobalPlugin,
+  installCopilotGlobalPlugin,
   installCodexGlobalPlugin,
 } from "../installers/plugin-installers.js";
 import {
@@ -38,10 +39,12 @@ import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
 
-function createHandlers({ io, env, exec, prepare, openCodePackageSource, askRuntimeCheckDecision, interactive }) {
+function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodePackageSource, copilotSettingsPath, askRuntimeCheckDecision, interactive }) {
   const installerAdapters = {
     ...(exec ? { exec } : {}),
+    ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
     ...(prepare ? { prepare } : {}),
+    ...(copilotSettingsPath ? { copilotSettingsPath } : {}),
     ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
   };
   const scaffoldHandler = (options) => runScaffold(options, io);
@@ -141,6 +144,56 @@ function createHandlers({ io, env, exec, prepare, openCodePackageSource, askRunt
         return 1;
       }
     }],
+    ["copilot-plugin", async (options) => {
+      const surface = "copilot";
+      try {
+        const consent = await installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
+        if (consent.decision === "cancel") return printCancelledConsent(surface, options, io);
+        printInstallProgress(surface, options, io, interactive);
+        const installed = installCopilotGlobalPlugin({
+          ...installerAdapters,
+        });
+        const finalizedConsent = finalizeInstallConsent(consent, { surface, installed, dataRoot: installerAdapters.dataRoot });
+        if (installed.declarativeConfigured) {
+          printLifecycleResult(createLifecycleResult({
+            operation: "install", result: "partial", surface, scope: "global",
+            version: { expected: installed.expectedVersion, installed: null, status: "unknown" },
+            verification: { status: "configured_pending_restart", evidence: installed.evidence },
+            installation: { status: "configured_pending_restart" },
+            activation: { status: "pending_restart" },
+            runtime_checks: finalizedConsent.state,
+            restart: { required: true, reason: "host_reload" },
+            next_action: { kind: "restart", text: "Restart GitHub Copilot. Then verify AGDF in Plugins and the agdf- skills in a fresh session." },
+          }), { json: options.json, compact: !options.verbose, io });
+          return 0;
+        }
+        if (installed.manualHandoff) {
+          printLifecycleResult(createLifecycleResult({
+            operation: "install", result: "partial", surface, scope: "global",
+            version: { expected: installed.expectedVersion, installed: null, status: "unknown" },
+            verification: { status: "unavailable", evidence: installed.evidence },
+            installation: { status: "not_verified" },
+            activation: { status: "not_verified" },
+            runtime_checks: finalizedConsent.state,
+            restart: { required: false, reason: "none" },
+            next_action: { kind: "manual_install", text: `In GitHub Copilot, run /plugins install ${installed.pluginRoot}. Then run /restart and verify /plugins list and /skills list.` },
+            failure: { phase: "executable", message: "Copilot CLI was not available; no plugin installation was performed." },
+          }), { json: options.json, compact: !options.verbose, io });
+          return 1;
+        }
+        printLifecycleResult(installResult(installed, {
+          restartRequired: true,
+          nextAction: installNextAction(surface, finalizedConsent.state, globalInstallRestartAction(surface).text),
+          runtimeChecks: finalizedConsent.state,
+          consentFailure: finalizedConsent.failure,
+        }), { json: options.json, compact: !options.verbose, io });
+        printVerboseHostOutput(installed, options, io);
+        return installed.verificationStatus === "healthy" ? 0 : 1;
+      } catch (error) {
+        printInstallFailure(surface, error, options, io, "copilot-plugin");
+        return 1;
+      }
+    }],
     ["opencode", async (options) => {
       const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
       try {
@@ -230,6 +283,9 @@ function installNextAction(surface, runtimeChecks, fallback) {
   if (surface === "codex" && runtimeChecks.requested === "enabled" && runtimeChecks.effective === "decision_required") {
     return "Restart Codex, then approve the AGDF session hook when Codex asks.";
   }
+  if (surface === "copilot" && runtimeChecks.requested === "enabled" && runtimeChecks.effective === "decision_required") {
+    return "Restart GitHub Copilot, then review the AGDF session hook when Copilot asks.";
+  }
   return fallback;
 }
 
@@ -313,6 +369,7 @@ function printInstallConsentDisclosure(disclosure, retained, io) {
 
 function installSurfaceLabel(surface) {
   if (surface === "claude") return "Claude Code";
+  if (surface === "copilot") return "GitHub Copilot";
   if (surface === "opencode") return "OpenCode";
   return "Codex";
 }
@@ -356,7 +413,7 @@ function printVerboseHostOutput(installed, options, io) {
   for (const output of installed.nativeOutput) io.log(output);
 }
 
-function printInstallFailure(surface, error, options, io) {
+function printInstallFailure(surface, error, options, io, command = surface) {
   const report = lifecycleFailure({
     operation: "install",
     surface,
@@ -364,7 +421,7 @@ function printInstallFailure(surface, error, options, io) {
     phase: error.phase || "plugin_operation",
     message: error.message,
     evidence: [error.evidence ?? {}],
-    nextAction: `Resolve the ${error.phase || "plugin operation"} failure and rerun npx --yes @agdf/cli@latest ${surface}.`,
+    nextAction: `Resolve the ${error.phase || "plugin operation"} failure and rerun npx --yes @agdf/cli@latest ${command}.`,
   });
   if (options.json) printLifecycleResult(report, { json: true, io });
   else {
@@ -500,8 +557,10 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     io,
     env,
     exec: adapters.exec,
+    packagedCopilotExec: adapters.packagedCopilotExec,
     prepare: adapters.prepare,
     openCodePackageSource: adapters.openCodePackageSource,
+    copilotSettingsPath: adapters.copilotSettingsPath,
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
   }).get(command.handler);

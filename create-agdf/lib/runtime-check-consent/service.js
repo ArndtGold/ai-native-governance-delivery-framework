@@ -35,7 +35,7 @@ function prospectiveRuntimeCheckIdentity(surface, platform = process.platform) {
       command: fixedRuntimeCheckCommand(surface, installed.root, platform),
     });
   }
-  if (!["codex", "claude"].includes(surface)) return null;
+  if (!["codex", "claude", "copilot"].includes(surface)) return null;
   const pluginRoot = join(generatedRoot, "plugins", "agdf");
   let runtimeManifest;
   try { runtimeManifest = JSON.parse(readFileSync(join(pluginRoot, "runtime", "runtime-manifest.json"), "utf8")); } catch { return null; }

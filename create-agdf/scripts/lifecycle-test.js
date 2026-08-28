@@ -27,8 +27,8 @@ const success = createLifecycleResult({
 });
 assert.deepEqual(globalInstallRestartAction("codex"), { kind: "restart", text: "Restart Codex." });
 assert.deepEqual(globalInstallRestartAction("claude"), { kind: "restart", text: "Restart Claude Code." });
+assert.deepEqual(globalInstallRestartAction("copilot"), { kind: "restart", text: "Restart GitHub Copilot." });
 assert.deepEqual(globalInstallRestartAction("opencode"), { kind: "restart", text: "Restart OpenCode." });
-assert.throws(() => globalInstallRestartAction("copilot"), /Unsupported global installation restart surface/);
 assert.deepEqual(lifecycleCardLines(success).slice(1).map((line) => line.split(":")[0]), [
   "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Automatic runtime checks", "Verification", "Restart required", "Next action",
 ]);
@@ -158,6 +158,8 @@ assert.deepEqual(calls, [["codex", ["plugin", "remove", "agdf@agdf"]]]);
 assert.equal(verifyGlobalUninstall(uninstall, root, {
   inspect: () => ({ status: "not_installed", evidence: ["fixture"] }),
 }).status, "healthy");
+const copilotUninstall = planGlobalUninstall("copilot");
+assert.deepEqual(copilotUninstall.mutations[0], { kind: "command", executable: "copilot", args: ["plugin", "uninstall", "agdf"] });
 
 const ownedConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-uninstall-"));
 writeFileSync(join(ownedConfig, "opencode.json"), `${JSON.stringify({ plugin: [pluginDefinition.opencode.npmPackage], instructions: ["AGDF.md", "USER.md"] })}\n`);

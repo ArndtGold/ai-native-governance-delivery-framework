@@ -18,6 +18,7 @@ export function resolveRuntimeCheckDecision({ explicitValue, interactive = false
 export function consentDisclosure(surface) {
   const permissionOwner = surface === "codex" ? "Codex native hook trust"
     : surface === "claude" ? "Claude Code user permission settings"
+    : surface === "copilot" ? "GitHub Copilot plugin hook review"
     : "OpenCode plugin and explicit permission configuration";
   return Object.freeze({
     surface,

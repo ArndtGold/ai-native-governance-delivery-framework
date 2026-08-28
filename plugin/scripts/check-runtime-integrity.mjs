@@ -96,6 +96,8 @@ const codexSourceMarketplacePath = sourceMode ? join(repoRoot, ".agents", "plugi
 const claudeSourceMarketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
 const claudePluginPath = join(pluginRoot, ".claude-plugin", "plugin.json");
+const copilotPluginPath = join(pluginRoot, "plugin.json");
+const copilotHooksPath = join(pluginRoot, "hooks", "copilot-hooks.json");
 const installationProvenancePath = join(pluginRoot, ".agdf-installation.json");
 const legacyLocalInstallMarkerPath = join(pluginRoot, ".agdf-local-install.json");
 const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
@@ -632,6 +634,9 @@ if (pluginDefinition) {
   if (pluginDefinition.codex?.logo !== "./assets/agdf-logo.svg") failures.push("canonical AGDF plugin definition Codex logo must point to ./assets/agdf-logo.svg");
   if (pluginDefinition.claude?.agentRouter !== "meta/agdf-agent-router.md") failures.push("canonical AGDF plugin definition Claude agent router must point to meta/agdf-agent-router.md");
   if (pluginDefinition.copilot?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition Copilot skill prefix must be agdf-");
+  if (pluginDefinition.copilot?.pluginManifest !== "plugin.json" || pluginDefinition.copilot?.skills !== "copilot-skills/" || pluginDefinition.copilot?.hooks !== "hooks/copilot-hooks.json") {
+    failures.push("canonical AGDF plugin definition Copilot paths must point to the generated root manifest, prefixed skills and hook config");
+  }
   if (pluginDefinition.opencode?.skillPrefix !== "agdf-") failures.push("canonical AGDF plugin definition OpenCode skill prefix must be agdf-");
   if (pluginDefinition.opencode?.globalSkillPrefix !== "agdf-global-") failures.push("canonical AGDF plugin definition OpenCode global skill prefix must be agdf-global-");
   if (pluginDefinition.opencode?.runtimeContractFileName !== "agdf-runtime-contract.md") failures.push("canonical AGDF plugin definition OpenCode runtime contract filename must be agdf-runtime-contract.md");
@@ -651,6 +656,7 @@ if (pluginDefinition) {
   for (const [surface, adapter, safety] of [
     ["codex", "request_user_input", "omit_auto_resolution"],
     ["claude", "AskUserQuestion", "no_timeout_or_hook_supplied_answer"],
+    ["copilot", "exact_text", "wait_for_deliberate_user_input"],
     ["opencode", "question", "preserve_explicit_deny"],
     ["fallback", "exact_text", "wait_for_deliberate_user_input"],
   ]) {
@@ -658,7 +664,7 @@ if (pluginDefinition) {
     if (interaction?.questionAdapter !== adapter || interaction?.gateSafety !== safety || !interaction?.technicalPermissionOwner) {
       failures.push(`canonical AGDF plugin definition ${surface} interaction mapping must declare adapter, gate safety and technical permission owner`);
     }
-    const expectedOutcomes = surface === "fallback" ? ["approve", "revise", "decline", "cancel"] : ["approve", "revise", "decline"];
+    const expectedOutcomes = ["copilot", "fallback"].includes(surface) ? ["approve", "revise", "decline", "cancel"] : ["approve", "revise", "decline"];
     if (JSON.stringify(interaction?.explicitOutcomes) !== JSON.stringify(expectedOutcomes)) {
       failures.push(`canonical AGDF plugin definition ${surface} interaction mapping must preserve stable explicit outcome order`);
     }
@@ -784,13 +790,13 @@ if (codexPlugin && pluginDefinition) {
   if (codexPlugin.interface?.websiteURL !== pluginDefinition.homepage) failures.push("Codex plugin website URL must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.privacyPolicyURL !== pluginDefinition.publicDistribution?.urls?.privacy) failures.push("Codex plugin privacy URL must match canonical public distribution definition");
   if (codexPlugin.interface?.termsOfServiceURL !== pluginDefinition.publicDistribution?.urls?.terms) failures.push("Codex plugin terms URL must match canonical public distribution definition");
-  if (codexPlugin.interface?.supportURL !== pluginDefinition.publicDistribution?.urls?.support) failures.push("Codex plugin support URL must match canonical public distribution definition");
+  if (Object.hasOwn(codexPlugin.interface ?? {}, "supportURL")) failures.push("Codex plugin manifest must omit unsupported interface.supportURL metadata");
   if (codexPlugin.interface?.composerIcon !== pluginDefinition.codex?.composerIcon) failures.push("Codex plugin composer icon must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.logo !== pluginDefinition.codex?.logo) failures.push("Codex plugin logo must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.brandColor !== pluginDefinition.brandColor) failures.push("Codex plugin brand color must match canonical AGDF plugin definition");
   if (JSON.stringify(codexPlugin.interface?.capabilities) !== JSON.stringify(pluginDefinition.codex?.capabilities)) failures.push("Codex plugin capabilities must match canonical AGDF plugin definition");
   if (JSON.stringify(codexPlugin.interface?.defaultPrompt) !== JSON.stringify(pluginDefinition.codex?.defaultPrompt)) failures.push("Codex plugin default prompts must match canonical AGDF plugin definition");
-  if (codexPlugin.hooks !== `./${pluginDefinition.codex?.hooks}`) failures.push("Codex plugin manifest hooks must explicitly point to ./hooks/hooks.json");
+  if (Object.hasOwn(codexPlugin, "hooks")) failures.push("Codex plugin manifest must rely on default hooks/hooks.json discovery");
 }
 
 if (claudePlugin && pluginDefinition) {
@@ -876,6 +882,28 @@ if (pluginDefinition) {
   }
   if (capability?.surfaces?.["portable-skills"] !== "manual-external-required") {
     failures.push("Portable public Skills profile must not claim automatic runtime checks");
+  }
+  if (capability?.surfaces?.copilot !== "plugin-hook-review") {
+    failures.push("Copilot automatic runtime checks must remain subject to plugin hook review");
+  }
+}
+
+if (!sourceMode) {
+  const copilotPlugin = isFile(copilotPluginPath) ? readJson(copilotPluginPath, "Copilot plugin manifest") : null;
+  const copilotHooks = isFile(copilotHooksPath) ? readJson(copilotHooksPath, "Copilot plugin hooks") : null;
+  if (!copilotPlugin) failures.push("installed runtime plugin must include root plugin.json for GitHub Copilot");
+  if (copilotPlugin && (copilotPlugin.name !== "agdf" || copilotPlugin.version !== pluginDefinition?.version
+      || copilotPlugin.skills !== "copilot-skills/" || copilotPlugin.hooks !== "hooks/copilot-hooks.json")) {
+    failures.push("Copilot root plugin manifest must preserve AGDF identity, version and generated component paths");
+  }
+  const copilotSessionStart = copilotHooks?.hooks?.sessionStart;
+  if (!Array.isArray(copilotSessionStart) || !copilotSessionStart.some((hook) => hook?.type === "command"
+      && hook?.command === 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"'
+      && hook?.env?.AGDF_SURFACE === "copilot")) {
+    failures.push("Copilot hooks must declare the fixed consent-bound AGDF sessionStart command");
+  }
+  for (const skill of pluginDefinition?.skillSet ?? []) {
+    assertFile(join(pluginRoot, "copilot-skills", `agdf-${skill.slug}`, "SKILL.md"), `Copilot prefixed plugin skill agdf-${skill.slug}`);
   }
 }
 

@@ -8,6 +8,7 @@ import { LISTING_LIMITS, loadJson, unicodeLength, validatePublicPluginContract }
 import {
   renderClaudePluginManifest,
   renderCodexPluginManifest,
+  renderCopilotPluginManifest,
 } from "../lib/public-plugin/manifest.js";
 import { inventory, validateCandidate } from "../lib/public-plugin/validator.js";
 
@@ -82,6 +83,19 @@ assert.equal(localManifest.interface.shortDescription, "Control layer for govern
 assert.equal(localManifest.interface.longDescription, expectedLongDescription);
 assert.equal(localClaudeManifest.description, expectedLongDescription);
 assert.equal(localManifest.interface.defaultPrompt.length, 3);
+assert.equal(localManifest.interface.supportURL, undefined, "Codex manifest must omit unsupported supportURL metadata");
+assert.equal(localManifest.hooks, undefined, "Codex manifest must rely on default hooks/hooks.json discovery");
+assert.equal(existsSync(join(pluginRoot, definition.codex.hooks)), true, "default Codex hook file must remain present");
+
+const copilotManifest = JSON.parse(renderCopilotPluginManifest(definition));
+assert.equal(copilotManifest.name, "agdf");
+assert.equal(copilotManifest.version, definition.version);
+assert.equal(copilotManifest.skills, "copilot-skills/");
+assert.equal(copilotManifest.hooks, "hooks/copilot-hooks.json");
+assert.equal(Object.hasOwn(copilotManifest, "mcpServers"), false);
+assert.equal(Object.hasOwn(copilotManifest, "lspServers"), false);
+assert.throws(() => renderCopilotPluginManifest({ ...definition, id: "AGDF" }), /kebab-case name/);
+assert.throws(() => renderCopilotPluginManifest({ ...definition, copilot: { ...definition.copilot, skills: "../skills" } }), /relative POSIX path/);
 
 const first = buildPublicPluginCandidate({ repoRoot, outputRoot });
 const firstInventory = inventory(outputRoot);
@@ -93,6 +107,7 @@ assert.equal(manifest.interface.displayName, "AGDF");
 assert.equal(manifest.interface.shortDescription, "Governed AI delivery controls");
 assert.equal(manifest.interface.longDescription, expectedLongDescription);
 assert.equal(manifest.interface.defaultPrompt.length, 3);
+assert.equal(manifest.interface.supportURL, undefined);
 assert.equal(manifest.hooks, undefined);
 assert.equal(files.some((path) => path.endsWith(".mcp.json") || path.endsWith(".app.json")), false);
 assert.equal(files.some((path) => path.startsWith(".agdf/control/")), false);

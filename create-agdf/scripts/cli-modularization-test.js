@@ -21,7 +21,7 @@ import { persistInstallConsent, runtimeCheckStatus } from "../lib/runtime-check-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const expectedCommands = [
-  "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
+  "codex", "codex-repo", "claude", "copilot", "copilot-plugin", "opencode", "opencode-status",
   "status", "runtime-checks", "disable", "uninstall",
   "opencode-repo", "both", "init", "config", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",

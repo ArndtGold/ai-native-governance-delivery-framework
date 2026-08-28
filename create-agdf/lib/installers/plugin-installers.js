@@ -1,6 +1,12 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import process from "node:process";
 import { pluginDefinition } from "../cli/runtime-context.js";
+import { digestNormalizedPluginSource } from "../runtime/plugin-provenance.js";
 import { CODEX_REGISTRATION_REVISION, classifyMarketplaceList, inspectLocalMarketplaceProjection, isCodexLocalInstallVersion, prepareLocalMarketplace } from "./local-marketplace.js";
+
+export const COPILOT_CLI_NPM_PACKAGE = "@github/copilot@1.0.80";
 
 export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
   const expectedVersion = pluginDefinition.version;
@@ -93,6 +99,142 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
   }
 }
 
+export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilotExec = execFileSync, prepare = prepareLocalMarketplace, dataRoot, pluginRoot } = {}) {
+  const expectedVersion = pluginDefinition.version;
+  const transaction = pluginRoot ? null : prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
+  const effectivePluginRoot = pluginRoot ?? transaction?.pluginRoot;
+  if (!effectivePluginRoot) throw lifecycleAdapterError("package", "AGDF Copilot plugin root is required.");
+  let runtimeManifest;
+  try {
+    runtimeManifest = JSON.parse(readFileSync(join(effectivePluginRoot, "runtime", "runtime-manifest.json"), "utf8"));
+  } catch (error) {
+    transaction?.rollback();
+    throw lifecycleAdapterError("package", `AGDF Copilot runtime manifest is unavailable: ${error.message}`);
+  }
+  const sourceDigest = transaction?.sourceDigest || digestNormalizedPluginSource(effectivePluginRoot, expectedVersion);
+  let before = "";
+  let activeExec = exec;
+  const bootstrapEvidence = [];
+  try {
+    before = activeExec("copilot", ["plugin", "list"], captureOptions());
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      transaction?.rollback();
+      throw lifecycleAdapterError("verification", commandErrorText(error), { executable: "copilot", args: ["plugin", "list"] });
+    }
+    const invocation = copilotNpmInvocation();
+    activeExec = (_executable, args, options) => packagedCopilotExec(invocation.executable, [...invocation.args, ...args], options);
+    try {
+      before = activeExec("copilot", ["plugin", "list"], captureOptions());
+      bootstrapEvidence.push("copilot_cli_not_found", `copilot_cli_npm_package:${COPILOT_CLI_NPM_PACKAGE}`);
+    } catch (bootstrapError) {
+      transaction?.commit();
+      return {
+        surface: "copilot", operation: "install", expectedVersion, installedVersion: null,
+        verificationStatus: "unavailable", manualHandoff: true,
+        evidence: ["copilot_cli_not_found", `copilot_cli_npm_bootstrap_failed:${commandErrorText(bootstrapError)}`, "durable_local_plugin_stage", `local_plugin_root:${effectivePluginRoot}`, `source_digest:${sourceDigest}`],
+        pluginRoot: effectivePluginRoot, runtimeDigest: runtimeManifest.digest, sourceDigest, nativeOutput: [],
+      };
+    }
+  }
+  const directInstalled = pluginListHasPlugin(before, "agdf");
+  const marketplaceInstalled = pluginListHasPlugin(before, "agdf@agdf");
+  let marketplaceAdded = false;
+  let directRemoved = false;
+  try {
+    const nativeOutput = [];
+    const marketplaceOutput = runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "list"], "marketplace", captureOptions());
+    const marketplace = classifyCopilotMarketplaceList(marketplaceOutput, transaction?.root ?? resolve(effectivePluginRoot, "..", ".."));
+    if (marketplace.state === "conflict") {
+      throw lifecycleAdapterError("marketplace", `Refusing to replace non-AGDF Copilot marketplace registration agdf (${marketplace.source || "unknown source"}).`);
+    }
+    if (marketplace.state === "absent") {
+      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "add", transaction?.root ?? resolve(effectivePluginRoot, "..", "..")], "marketplace", captureOptions()));
+      marketplaceAdded = true;
+    }
+    if (directInstalled) {
+      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "uninstall", "agdf"], "plugin_operation", captureOptions()));
+      directRemoved = true;
+    }
+    nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+    const after = runPluginPhase(activeExec, "copilot", ["plugin", "list"], "verification", captureOptions());
+    const installed = pluginListHasPlugin(after, "agdf@agdf");
+    const installedVersion = installed ? pluginVersionFromList(after, "agdf@agdf") : "";
+    if (!installed) throw lifecycleAdapterError("verification", "AGDF was not present in copilot plugin list after installation.");
+    if (installedVersion && installedVersion !== expectedVersion) {
+      throw lifecycleAdapterError("version", versionMismatchMessage("GitHub Copilot", "agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest copilot-plugin"));
+    }
+    transaction?.commit();
+    return {
+      surface: "copilot", operation: directInstalled || marketplaceInstalled ? "update" : "install", expectedVersion,
+      installedVersion: installedVersion || null, verificationStatus: installedVersion ? "healthy" : "degraded",
+      manualHandoff: false,
+      evidence: [...bootstrapEvidence, "durable_local_plugin_stage", "copilot plugin marketplace list", ...(marketplaceAdded ? ["copilot plugin marketplace add"] : ["marketplace:owned_local_current"]), ...(directRemoved ? ["direct_install_migrated"] : []), "copilot plugin install agdf@agdf", "copilot plugin list", `local_plugin_root:${effectivePluginRoot}`, `source_digest:${sourceDigest}`, ...(installedVersion ? [] : ["host_did_not_expose_version"])],
+      pluginRoot: effectivePluginRoot, runtimeDigest: runtimeManifest.digest, sourceDigest, nativeOutput: nativeOutput.filter(Boolean).map(String),
+    };
+  } catch (error) {
+    transaction?.rollback();
+    if (directRemoved) {
+      try {
+        activeExec("copilot", ["plugin", "install", effectivePluginRoot], captureOptions());
+      } catch (recoveryError) {
+        error.evidence = { ...(error.evidence ?? {}), direct_install_recovery: commandErrorText(recoveryError) };
+      }
+    }
+    if (marketplaceAdded) {
+      try {
+        activeExec("copilot", ["plugin", "marketplace", "remove", "agdf"], captureOptions());
+      } catch (recoveryError) {
+        error.evidence = { ...(error.evidence ?? {}), marketplace_recovery: commandErrorText(recoveryError) };
+      }
+    }
+    throw error;
+  }
+}
+
+export function classifyCopilotMarketplaceList(output, expectedRoot) {
+  const line = String(output || "").split(/\r?\n/).find((entry) => /^\s*[◆•]?\s*agdf\s+\(/.test(entry));
+  if (!line) return { state: "absent", source: "" };
+  const local = line.match(/\(Local:\s*(.+)\)\s*$/);
+  if (!local) return { state: "conflict", source: line.trim() };
+  return resolve(local[1]) === resolve(expectedRoot)
+    ? { state: "owned_local_current", source: local[1] }
+    : { state: "conflict", source: local[1] };
+}
+
+export function copilotNpmInvocation({ env = process.env, platform = process.platform, execPath = process.execPath } = {}) {
+  const args = ["exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"];
+  if (env.npm_execpath) return { executable: execPath, args: [env.npm_execpath, ...args] };
+  return { executable: platform === "win32" ? "npm.cmd" : "npm", args };
+}
+
+export function setCopilotPluginEnabled({ enabled, exec = execFileSync } = {}) {
+  if (typeof enabled !== "boolean") throw lifecycleAdapterError("plugin_operation", "Copilot plugin enabled state must be boolean.");
+  const operation = enabled ? "enable" : "disable";
+  try {
+    const nativeOutput = runPluginPhase(exec, "copilot", ["plugin", operation, "agdf"], "plugin_operation", captureOptions());
+    const listOutput = runPluginPhase(exec, "copilot", ["plugin", "list"], "verification", captureOptions());
+    if (!pluginListHasPlugin(listOutput, "agdf") && !pluginListHasPlugin(listOutput, "agdf@agdf")) {
+      throw lifecycleAdapterError("verification", "AGDF was not present in copilot plugin list after the state change.");
+    }
+    return {
+      surface: "copilot",
+      requestedState: enabled ? "enabled" : "disabled",
+      status: "command_accepted_host_state_unverified",
+      evidence: [`copilot plugin ${operation} agdf`, "copilot plugin list", "fresh_session_required"],
+      nativeOutput: String(nativeOutput || ""),
+    };
+  } catch (error) {
+    if (/\bmanaged\b/i.test(commandErrorText(error))) {
+      return {
+        surface: "copilot", requestedState: enabled ? "enabled" : "disabled", status: "managed",
+        evidence: ["managed_policy_precedence", commandErrorText(error)], nativeOutput: "",
+      };
+    }
+    throw error;
+  }
+}
+
 function migrateMarketplace({ surface, exec, output, root, nativeOutput, migration, refreshOwnedLocal = false }) {
   const classification = classifyMarketplaceList(surface, output, root);
   Object.assign(migration, classification);
@@ -176,10 +318,10 @@ function captureOptions() {
 }
 
 export function inspectPluginSurface(surface, exec = execFileSync, options = {}) {
-  const executable = surface === "claude" ? "claude" : "codex";
-  const pluginId = "agdf@agdf";
+  const executable = surface === "claude" ? "claude" : surface === "copilot" ? "copilot" : "codex";
   try {
     const output = exec(executable, ["plugin", "list"], { encoding: "utf8", stdio: "pipe" });
+    const pluginId = surface === "copilot" && !pluginListHasPlugin(output, "agdf@agdf") ? "agdf" : "agdf@agdf";
     const installed = pluginListHasPlugin(output, pluginId);
     const version = installed ? pluginVersionFromList(output, pluginId) : "";
     let localDevelopmentVersion = false;
@@ -227,12 +369,13 @@ function commandErrorText(error) {
 }
 
 export function pluginListHasPlugin(output, pluginId) {
+  const escapedPluginId = pluginId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return output
     .split(/\r?\n/)
-    .some((line) => line.includes(pluginId));
+    .some((line) => new RegExp(`(^|\\s)${escapedPluginId}(\\s|$)`).test(line));
 }
 
-const VERSION_PATTERN = "(\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?)";
+const VERSION_PATTERN = "v?(\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?)";
 
 export function pluginVersionFromList(output, pluginId) {
   const escapedPluginId = pluginId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

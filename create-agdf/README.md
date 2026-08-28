@@ -24,10 +24,13 @@ Use a different target when Codex is not your agent surface:
 | Surface or goal | Start with | What it gives you |
 |---|---|---|
 | Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin for Claude Code. |
+| GitHub Copilot plugin | `npx --yes @agdf/cli@latest copilot-plugin` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
+| GitHub Copilot repository files | `npx --yes @agdf/cli@latest copilot` | Repository instructions, visible skills and control templates. |
 | OpenCode, user-wide discovery | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
 | OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
+| Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
-The runtime-bearing `codex`, `claude` and `opencode` installers ask before enabling narrow automatic
+The runtime-bearing `codex`, `claude`, `copilot-plugin` and `opencode` installers ask before enabling narrow automatic
 local checks on an interactive terminal. The choices are `enable`, `manual` and `cancel`; enablement
 is never preselected. Every interactive installation or update asks again. A previous choice is
 shown only as intent, never as proof of effective host permission. The prompt shows the target AGDF
@@ -51,8 +54,6 @@ from AGDF gate approval. A receipt alone never proves effective host permission.
 Claude deny/ask precedence and all explicit OpenCode permissions remain authoritative. The public
 Skills-only OpenAI candidate has no runtime or hooks and therefore remains manual/external for this
 capability.
-| GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | Repository instructions, visible skills and control templates. |
-| Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
 For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
 
@@ -66,6 +67,7 @@ Installation, activation and explicit lifecycle changes:
 npx --yes @agdf/cli@latest codex
 npx --yes @agdf/cli@latest codex-repo
 npx --yes @agdf/cli@latest claude
+npx --yes @agdf/cli@latest copilot-plugin
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
@@ -138,6 +140,7 @@ it does not localize the CLI lifecycle card.
 - `codex` installs the AGDF plugin globally for Codex
 - `codex-repo` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `claude` installs the AGDF plugin globally for Claude Code
+- `copilot-plugin` registers the AGDF-owned local Marketplace and installs `agdf@agdf` through Copilot CLI; when `copilot` is not on `PATH`, it runs the pinned official `@github/copilot` CLI package through npm, then verifies AGDF in Copilot's own plugin list
 - `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
 - `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
@@ -149,7 +152,7 @@ it does not localize the CLI lifecycle card.
 - `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
 
-The `codex` and `claude` commands install from the complete plugin built into the released
+The `codex`, `claude` and `copilot-plugin` commands install from the complete plugin built into the released
 `create-agdf` package. They atomically stage it under an AGDF-owned user-data marketplace, register
 that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
 contains no generated runtime bytes and the source checkout exposes no installable root marketplace.

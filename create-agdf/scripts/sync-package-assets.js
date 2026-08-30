@@ -31,7 +31,6 @@ const contractModules = [
 const sourceInteractionLocalesPath = join(repoRoot, "plugin", "meta", "agdf-interaction-locales.json");
 const pluginDefinitionPath = join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const generatedRoot = join(packageRoot, "generated");
-const generatedSkillsRoot = join(generatedRoot, ".github", "skills");
 const generatedControlRoot = join(generatedRoot, ".agdf", "control");
 const generatedCodexPluginRoot = join(generatedRoot, "plugins", "agdf");
 const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
@@ -118,29 +117,6 @@ function toCopilotSkillContent(content) {
   return next;
 }
 
-function toCopilotAgentRouter(content) {
-  const copilotSurfaceConvention = [
-    "## Surface Convention",
-    "GitHub Copilot repository skills do not have a plugin namespace.",
-    "",
-    "Therefore generated Copilot skill names use the AGDF prefix:",
-    "",
-    ...pluginDefinition.skillSet.map((skill) => `- \`${copilotSkillName(skill.slug)}\``),
-    "",
-    "Do not remove that prefix in Copilot-facing repository skills.",
-    "Codex and Claude Code plugin surfaces use the same canonical router with unprefixed skill names because their plugin namespace already carries `agdf`.",
-    "",
-  ].join("\n");
-
-  return toCopilotSkillContent(content)
-    .replace("# AGDF Agent Router", "# AGENTS.md")
-    .replace(
-      "You are operating inside the AGDF plugin namespace.",
-      "You are an autonomous agent operating in an AGDF-governed delivery system.",
-    )
-    .replace(/## Surface Convention[\s\S]*?(?=## Mode Selection)/, copilotSurfaceConvention);
-}
-
 function toOpenCodeSkillContent(content) {
   let next = content;
   for (const skill of pluginDefinition.skillSet) {
@@ -196,56 +172,6 @@ function getSkillDirectories() {
   }
 
   return actualSkillNames;
-}
-
-function syncTopLevelAssets() {
-  write(join(generatedRoot, "AGENTS.md"), toCopilotAgentRouter(read(sourceAgentsPath)));
-}
-
-function writeCopilotInstructions() {
-  const lines = [
-    "# AGDF Copilot instructions",
-    "",
-    "AGDF is active in this repository.",
-    "",
-    "- Treat `AGENTS.md` as the primary repository instruction source.",
-    "- Use `.github/skills/` for AGDF task workflows instead of inventing parallel process rules.",
-    "- Use `.agdf/control/` for durable run state, backlog pointers, source-of-truth ownership, Context Graph knowledge and quality contracts.",
-    "- AGDF is agent-native first and CLI-verifiable by design.",
-    "- Apply AGDF natively from `AGENTS.md`, repository skills and live `.agdf/control/` state before reaching for helper commands.",
-    "- Before non-trivial implementation or formal delivery work, determine whether the request is a Quick Task or Structured Delivery.",
-    "- If approval, evidence, ownership or the next allowed action is unclear, run the AGDF gate-check workflow before creating later artefacts or code.",
-    "- Use `doctor --json`, `gate-check --json` or `delivery-map --json` as deterministic validators for CI, PR evidence, regression checks and audit trails, not as the primary workflow.",
-    "- Do not infer gate approval from generic consent such as \"ok\", \"go ahead\", \"do it\", \"continue\", \"leg los\" or \"approved\".",
-    "- Do not treat chat history as the source of truth for gate state, approvals, evidence or delivery status.",
-    "- Do not paste full control files, templates or artefact bodies into chat unless the user explicitly asks for the full content; summarize and link paths instead.",
-    "- For deterministic ready-gate rendering, prefer an installed `agdf gate-check --approval-envelope`; use `agdf gate-check --json` for native-adapter input, automation or audit evidence. Reserve `npx ...@latest` for bootstrap, installation, refresh or a missing local executable.",
-    "",
-  ];
-
-  write(join(generatedRoot, ".github", "copilot-instructions.md"), lines.join("\n"));
-}
-
-function writeCopilotGovernanceInstructions() {
-  const lines = [
-    "---",
-    'applyTo: "AGENTS.md,AGENTS.agdf.md,.agdf/**,.github/skills/**,.github/copilot-instructions.md,.github/instructions/**"',
-    "---",
-    "",
-    "# AGDF governance artefacts",
-    "",
-    "These files are control artefacts, not general documentation.",
-    "",
-    "- Keep AGDF rules sourced from `AGENTS.md`, `.github/skills/` and `.github/skills/agdf-runtime-contract.md`.",
-    "- Do not duplicate the full gate model, Quality Contract table or Context Graph relationship language in new files.",
-    "- Keep generated AGDF files small, reviewable and linked to the owning source of truth.",
-    "- Preserve the rule that missing approval, missing evidence or unclear ownership blocks later delivery steps.",
-    "- Preserve the rule that gates cannot be skipped by generic consent, urgency or a request to start.",
-    "- If changing AGDF bootstrap behaviour, update the generated files, smoke test and affected setup documentation together.",
-    "",
-  ];
-
-  write(join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"), lines.join("\n"));
 }
 
 function writeOpenCodeConfig() {
@@ -325,28 +251,14 @@ function writeOpenCodeReadme(skillSlugs) {
   write(join(generatedOpenCodeRoot, "README.md"), lines.join("\n"));
 }
 
-function syncRuntimeContract() {
-  write(join(generatedSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), toCopilotSkillContent(read(sourceRuntimeContractPath).replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName)));
-  write(join(generatedSkillsRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath));
+function syncOpenCodeRuntimeContract() {
   write(join(generatedOpenCodeRoot, pluginDefinition.opencode.runtimeContractFileName), toOpenCodeSkillContent(read(sourceRuntimeContractPath).replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName)));
   write(join(generatedOpenCodeRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath));
   for (const moduleName of contractModules) {
     const source = read(join(sourceContractsRoot, moduleName))
       .replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName);
-    write(join(generatedSkillsRoot, "contracts", moduleName), toCopilotSkillContent(source));
     write(join(generatedOpenCodeRoot, "contracts", moduleName), toOpenCodeSkillContent(source));
   }
-}
-
-function syncSkill(skillSlug) {
-  const sourceName = sourceSkillName(skillSlug);
-  const targetName = copilotSkillName(skillSlug);
-  const sourcePath = join(sourceSkillsRoot, sourceName, "SKILL.md");
-  const normalized = toCopilotSkillContent(read(sourcePath)
-    .replaceAll("../../meta/contracts/", "../contracts/")
-    .replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.copilot.runtimeContractFileName}`)
-    .replaceAll("plugin/meta/agdf-interaction-locales.json", `../${interactionLocaleFileName}`));
-  write(join(generatedSkillsRoot, targetName, "SKILL.md"), normalized);
 }
 
 function syncCopilotPluginContract() {
@@ -388,25 +300,6 @@ function writeCopilotPluginFiles() {
   syncCopilotPluginContract();
 }
 
-function writeSkillsReadme(skillSlugs) {
-  const lines = [
-    "# AGDF repository skills",
-    "",
-    "These repository skills were generated from the AGDF source repository and are intended to be checked into this repository.",
-    "",
-    "## Skills",
-    "",
-    ...skillSlugs.map((skill) => `- \`${copilotSkillName(skill)}\``),
-    "",
-    "## Runtime contract",
-    "",
-    "Shared output and gate rules for this checkout live in `agdf-runtime-contract.md`.",
-    "",
-  ];
-
-  write(join(generatedSkillsRoot, "README.md"), lines.join("\n"));
-}
-
 function writeCodexMarketplace() {
   const repositoryMarketplaceName = pluginDefinition.distributionProfiles.marketplaceIdentities.generatedRepository;
   const marketplace = {
@@ -445,12 +338,16 @@ function main() {
   write(join(sourcePluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition));
   // Synchronize source-owned assets in place. Removing the complete generated tree first creates a
   // real missing-assets window when pack, smoke and another agent/session run concurrently.
-  mkdirSync(generatedSkillsRoot, { recursive: true });
+  // Remove only obsolete package-owned Copilot repository projections. This cleanup never
+  // targets a consumer repository and therefore cannot delete existing user-owned files.
+  for (const obsoletePath of [
+    join(generatedRoot, "AGENTS.md"),
+    join(generatedRoot, ".github", "copilot-instructions.md"),
+    join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"),
+    join(generatedRoot, ".github", "skills"),
+  ]) rmSync(obsoletePath, { recursive: true, force: true });
 
-  syncTopLevelAssets();
-  writeCopilotInstructions();
-  writeCopilotGovernanceInstructions();
-  syncRuntimeContract();
+  syncOpenCodeRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
   writeCopilotPluginFiles();
@@ -458,12 +355,10 @@ function main() {
   writeOpenCodeConfig();
   writeOpenCodeInstructions();
   for (const skillSlug of skillSlugs) {
-    syncSkill(skillSlug);
     syncCopilotPluginSkill(skillSlug);
     writeOpenCodeSkill(skillSlug);
   }
   rmSync(generatedOpenCodeAgentsRoot, { recursive: true, force: true });
-  writeSkillsReadme(skillSlugs);
   writeOpenCodeReadme(skillSlugs);
   syncPluginRuntime({ outputRoot: join(generatedCodexPluginRoot, "runtime") });
   buildPublicPluginCandidate({

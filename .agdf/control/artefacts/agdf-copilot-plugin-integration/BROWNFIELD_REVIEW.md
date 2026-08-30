@@ -2,85 +2,87 @@
 
 Status: done  
 Mode: post_ur_review  
+Revision: 2
 Date: 2026-08-28  
-UR: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md`
+UR: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md` revision 2
 
 ## Decision
 
 - decision: `pass`
 - mode_slice_decision: `structured_delivery`
 - required_next_gate: `PRD`
-- scope: Generate, install, validate and document one AGDF plugin package for the supported GitHub
-  Copilot app and CLI while retaining repository-owned control state and the existing bootstrap path.
+- scope: Make the existing installable AGDF plugin the only supported GitHub Copilot integration.
+  Remap the public `copilot` command to plugin installation, retire the separate repository
+  projection and its `both` composition, preserve existing user files and align documentation and
+  tests with that single product path.
 - delivery_context: `brownfield`
 - ui_ux_impact: `medium`
-- ui_ux_impact_reason: The change adds install, update, activation, disabled, degraded and recovery
-  states that users must understand across the Copilot app and CLI. It changes a bounded capability's
-  effective state and recovery behavior without creating a broader application UX.
+- ui_ux_impact_reason: The change removes a visible installation choice, changes the meaning of a
+  public CLI command and changes recovery guidance. Installed, pending restart, active, degraded,
+  disabled and uninstalled states remain.
 - ux_intent_definition_required: `yes`
 - ux_intent_definition_result: `ready`
-- ux_intent_definition_evidence: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md`
-- transparency: A small proof can reuse much of the existing generated content, but delivery changes
-  a versioned external plugin contract and cross-host installation lifecycle. Compact Delivery and
-  Structured Slice therefore do not provide enough contract, recovery and release depth.
+- ux_intent_definition_evidence: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md` revision 2
+- transparency: The plugin implementation and lifecycle owners already exist, but the change is not
+  a documentation-only correction. It changes a published command contract and retires a supported
+  generated surface, so the structured artefact chain must be realigned before implementation.
 
 ## Current Coverage
 
 | Capability | Coverage | Evidence |
 |---|---|---|
-| Copilot repository instructions and skills | `fully_done` | `create-agdf/generated/.github/skills/**`, `.github/copilot-instructions.md`, `AGENTS.md` generation and routing smoke tests |
-| Canonical skill and metadata ownership | `fully_done` | `plugin/skills/**`, `plugin/meta/agdf-plugin.definition.json`, `plugin/meta/contracts/**` |
-| Complete generated runtime plugin | `fully_done` for Codex and Claude | `create-agdf/generated/plugins/agdf/**`, `sync-package-assets.js`, `sync-plugin-runtime.js` |
-| Copilot plugin manifest and marketplace projection | `not_done` | No Copilot plugin bundle or `.github/plugin/marketplace.json` owner exists |
-| Copilot plugin lifecycle | `partially_done` | Lifecycle schema recognizes `copilot`; install handlers, restart action, status and local install command do not |
-| Copilot session activation hook | `not_done` | Existing `plugin/hooks/hooks.json` is owned by the Codex and Claude bundle and does not match the documented Copilot hook contract |
-| Copilot exact-version validator resolution | `partially_done` | Validator payload exists; installed Copilot plugin root resolution and provenance are unimplemented and unobserved |
-| Copilot host evidence | `partially_done` | Installed app 1.1.14 and bundled SDK inspected; plugin installation, fresh-session loading and cross-platform behavior unverified |
-| Public documentation | `partially_done` | Current docs describe repository-only, instruction-only Copilot behavior and require revision after delivery evidence exists |
+| Generated Copilot plugin bundle | `fully_done` | `create-agdf/generated/plugins/agdf/plugin.json`, `copilot-skills/**`, `hooks/copilot-hooks.json`, exact runtime payload |
+| Copilot plugin lifecycle | `fully_done` for the existing `copilot-plugin` command | `create-agdf/lib/cli/application.js`, `plugin-installers.js`, lifecycle status and operations, focused tests |
+| Local checkout installation | `fully_done` | Root and package `install:copilot` scripts call the plugin lifecycle |
+| Public `copilot` plugin command | `not_done` | `copilot` currently routes to `scaffoldHandler`; plugin installation is exposed as `copilot-plugin` |
+| Copilot repository projection | `fully_done` but now retired by product decision | Scaffold plan and presentation, generated `AGENTS.md`, `.github/copilot-instructions.md`, `.github/skills/**`, smoke and routing tests |
+| `both` composition | `fully_done` but conflicts with revised scope | It combines the Codex repository marketplace with the retired Copilot repository projection |
+| Non-destructive migration | `partially_done` | Current lifecycle avoids deleting repository files, but command retirement and documentation need regression coverage |
+| Public documentation and Pages | `partially_done` | INSTALL and CLI README describe two Copilot paths; root README and Pages contain repository-only or missing plugin claims |
 
 ## Existing Owners And Reuse Strategy
 
 | Concern | Canonical owner | Strategy |
 |---|---|---|
-| Plugin identity and surface metadata | `plugin/meta/agdf-plugin.definition.json` | `extend`; add Copilot plugin and lifecycle metadata without a second manifest owner |
-| Copilot skill names and portable skill projection | `sync-package-assets.js`, `skillSet`, `copilot.skillPrefix` | `extend`; reuse the existing `agdf-` transformation and shared contracts |
-| Complete runtime payload | `sync-plugin-runtime.js` and generated runtime manifest | `extend`; compose the Copilot bundle through the same exact-version runtime owner |
-| Host installer and provenance | `create-agdf/lib/installers/**`, lifecycle modules and provenance contract | `extend`; add a thin Copilot adapter only after the supported transport is confirmed |
-| Runtime-check consent | `create-agdf/lib/runtime-check-consent/**` | `extend` only if automatic checks are supported; preserve manual mode and content-bound consent |
-| Gate approval and presentation | `plugin/meta/contracts/interaction.md`, locale registry and renderer | `reuse`; exact text remains baseline and native input stays capability-gated |
-| Package and routing validation | `check-runtime-integrity.mjs`, `smoke-test.js`, release preparation | `extend`; validate the exact Copilot candidate and keep generated parity |
-| Repository bootstrap | `create-agdf` scaffold plan and writer | `reuse unchanged`; plugin complements rather than replaces project-owned files |
-| Installation documentation and public capability copy | `INSTALL.md`, package READMEs and Pages compatibility data | `extend` after executable evidence; avoid a second documentation owner |
+| Public command registration and validation | `create-agdf/lib/cli/command-registry.js`, `application.js` | `refactor`; map `copilot` to the existing plugin handler and remove the separate public `copilot-plugin` contract |
+| Plugin install and lifecycle | `create-agdf/lib/installers/plugin-installers.js`, lifecycle modules | `reuse`; no second installer or provenance model |
+| Local checkout command | Root and `create-agdf/package.json`, `install-local-plugin.js` | `reuse`; keep `npm run install:copilot` as the local plugin path |
+| Copilot plugin bundle | `plugin/meta/agdf-plugin.definition.json`, `sync-package-assets.js`, `sync-plugin-runtime.js` | `reuse`; preserve the generated plugin and its prefixed skills, hook and exact validator |
+| Repository projection | Scaffold plan, presentation and generated repository assets | `remove from supported Copilot generation`; do not delete files already present in user repositories |
+| `both` target | CLI registry, scaffold handler and routing tests | `retire`; it cannot remain a Copilot setup path under plugin-only support |
+| Runtime-check consent | `create-agdf/lib/runtime-check-consent/**` | `reuse`; accept `copilot` as the plugin installer target and retain consent boundaries |
+| Documentation | `README.md`, `INSTALL.md`, `create-agdf/README.md`, `pages/src/data/site.ts` | `refactor`; publish one Copilot install command and one support model |
+| Verification | Existing smoke, lifecycle, local-install, routing and Pages tests | `refactor`; replace repository-projection assertions with plugin-command and non-deletion assertions |
 
 ## Impact And Compatibility
 
-- interfaces: Copilot `plugin.json`, marketplace metadata, skill discovery, hooks, lifecycle commands
-  and possibly extension APIs become compatibility-sensitive external host contracts.
-- persistence: no new AGDF governance store is required. Host plugin cache and existing content-bound
-  consent receipts are installation state, not delivery authority.
-- migration: existing repository-local Copilot users keep their files. Plugin skills must coexist
-  with project and personal skill precedence without overwriting either.
-- backwards_compatibility: `npm create agdf -- copilot` remains a supported repository setup path.
-  Existing Codex, Claude and OpenCode bundles retain their identifiers and behavior.
-- regression_surface: release preparation, generated asset parity, manifest validation, runtime
-  provenance, installer transactions, status output, routing, hooks and public documentation.
-- visible_state_ownership: Copilot owns effective installed, enabled, managed and loaded host state;
-  AGDF lifecycle output reports verified package state; `.agdf/control/` owns governance state.
-- ui_monolith_risk: `not_applicable`; no large UI component is proposed. Native host UI remains a
-  thin optional adapter rather than an AGDF-owned interface.
+- interfaces: `copilot` changes from repository generation to plugin installation;
+  `copilot-plugin` and `both` are retired public targets.
+- persistence: no new store. `.agdf/control/` remains repository-owned and is created through the
+  generic governed setup path when needed, not through a Copilot-specific projection.
+- migration: existing `AGENTS.md`, `AGENTS.agdf.md`, `.github/copilot-instructions.md`,
+  `.github/skills/**` and `.agdf/control/**` remain untouched by install, update and uninstall.
+- backwards_compatibility: the command change is intentionally breaking within the unreleased
+  Copilot plugin work. Existing checked-in files continue to function as user-owned legacy content
+  but are no longer generated, documented or supported as an AGDF Copilot distribution path.
+- regression_surface: CLI help, command registry, scaffold planning, generated package contents,
+  runtime-check consent, local install, lifecycle, routing tests, release checks and public docs.
+- visible_state_ownership: Copilot owns effective plugin installation and loading; AGDF lifecycle
+  owns verified package reporting; `.agdf/control/` owns governance state.
+- ui_monolith_risk: `not_applicable`; this is a bounded CLI and documentation contract change.
 
 ## Parallel Structure And Drift Assessment
 
-- A second Copilot-only skill source is prohibited. The existing canonical skills and surface
-  projector must generate the plugin content.
-- A second installer, provenance schema, approval renderer or gate model is prohibited.
-- The generated plugin directory is derived output, never a new source of truth.
-- Current documentation stating that Copilot cannot consume AGDF as a plugin is confirmed drift
-  against current official GitHub capabilities. It should change only with delivered package and
-  host evidence, not from documentation review alone.
-- The generated local runtime bundle observed during analysis was stale relative to source version
-  0.13.8. Normal `release:prepare` regeneration remains the owner; the stale output is not a design
-  signal and must not be patched directly.
+- The plugin is the single Copilot distribution surface. No replacement repository projection may
+  be created under another command name.
+- The current `copilot` scaffold mapping and `copilot-plugin` installation mapping are product
+  semantics drift against approved UR revision 2.
+- Existing generated repository assets are historical implementation evidence, not authority to
+  retain a second supported path.
+- Plugin skills remain generated from canonical AGDF skills. Removing the repository projection
+  must not remove or rename the plugin's `copilot-skills/**` payload.
+- Lifecycle, consent, approval and provenance owners remain shared. A Copilot-specific parallel
+  installer or gate model is prohibited.
 
 ## Structured Depth Evidence
 
@@ -88,52 +90,49 @@ UR: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md`
 - depth_facts_status: `complete`
 - primary_reason_code: `external_contract_depth`
 - decisive_full_depth_triggers: `external_contract_depth`; `release_cross_host_depth`
-- rejected_alternative: `structured_slice` is rejected because the work establishes a versioned
-  external plugin contract and coordinated package, installer, activation, compatibility and release
-  behavior across the Copilot app and CLI.
+- rejected_alternative: `structured_slice` is rejected because `copilot` changes meaning, two public
+  targets are retired and package, installer, generated assets, tests and public documentation must
+  move together without deleting user content.
 - missing_or_conflicting_facts: `none`
-- depth_evidence_refs: official Copilot plugin and hooks references; `plugin/meta/agdf-plugin.definition.json`;
-  `sync-package-assets.js`; `sync-plugin-runtime.js`; lifecycle and installer modules; existing smoke
-  and Runtime Integrity owners.
+- depth_evidence_refs: approved UR revision 2; CLI registry and handler mapping; scaffold plan and
+  generated Copilot assets; existing plugin lifecycle; smoke, routing and local-install tests.
 
 | Bounded-slice check | Result | Evidence |
 |---|---|---|
-| `coherent_outcome` | `pass` | One installable AGDF Copilot plugin has a clear installation, discovery, validation and documentation boundary. |
-| `authority_boundary` | `pass` | Copilot owns host installation and permissions; `.agdf/control/` and the exact approval contract retain governance authority. |
-| `owner_consumer_coordination` | `pass` | Internal AGDF owners and the Copilot app/CLI consumers are identified; repository bootstrap remains independently supported. |
-| `full_depth_impacts_absent` | `fail` | External plugin compatibility, versioned distribution, cross-host activation and release evidence are directly in scope. |
-| `migration_propagation_bounded` | `pass` | Existing repository files remain compatible; generated projections and owned installer transactions provide bounded propagation and rollback paths. |
-| `failure_recovery_local` | `pass` | Installation failure, stale version, disabled state and restart requirements can be surfaced and recovered through the existing lifecycle model; live proof remains later evidence. |
-| `independently_acceptable` | `pass` | A skills, runtime and exact-text plugin is useful without native approval UI or default-marketplace publication. |
+| `coherent_outcome` | `pass` | One supported Copilot plugin path and one canonical public install command. |
+| `authority_boundary` | `pass` | Copilot owns host state; `.agdf/control/` and exact approvals retain governance authority. |
+| `owner_consumer_coordination` | `pass` | Existing CLI, generator, lifecycle, consent, documentation and test owners are identified. |
+| `full_depth_impacts_absent` | `fail` | The public CLI contract and supported distribution surface change materially. |
+| `migration_propagation_bounded` | `pass` | Existing user files are retained; only future generation and supported guidance are removed. |
+| `failure_recovery_local` | `pass` | Existing plugin lifecycle already owns install, update, status, disable, uninstall and recovery. |
+| `independently_acceptable` | `pass` | The plugin is already useful without the repository projection. |
 
 ## Risks And Missing Evidence
 
-- Direct app installation, loaded skill inventory, hook behavior and plugin-local validator resolution
-  remain implementation and UAT evidence obligations.
-- Linux and native-Windows install, update, rollback and fresh-session behavior remain unverified.
-- Native Copilot input APIs must not be treated as gate-safe until exact value transport, deliberate
-  waiting and revalidation are directly proven.
-- Managed policy and project/personal skill precedence can change effective plugin behavior and need
-  explicit diagnostics and tests.
+- Retiring `both` can affect users who use it for a combined Codex and Copilot repository setup.
+  Documentation must state that Codex repository setup remains available separately.
+- Generated repository files may remain in source and package fixtures for unrelated consumers.
+  Removal must be owner-specific and verified through package inventory.
+- Existing user repositories can retain stale AGDF Copilot files. They must not be deleted or
+  presented as current supported installation evidence.
+- Linux and native Windows plugin lifecycle parity remains separately unverified.
 
 ## Context Graph And Knowledge Persistence
 
 - context_graph_impact: `link_only`
-- context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`; `CG-NATIVE-INTERACTION-AUTHORITY`;
-  `CG-TASK-TARGET-AUTHORITY`; `CG-RUN-STATUS-CARD`
-- context_graph_reconciliation: `resolved`
-- context_graph_required_action: `none`
+- context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`; `CG-CREATE-AGDF-CLI-COMPOSITION`;
+  `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-RUN-STATUS-CARD`
+- context_graph_reconciliation: `pending_after_delivery`
+- context_graph_required_action: `link`
 - context_graph_gate_effect: `none`
-- context_graph_evidence: Existing nodes already own public plugin evidence separation, exact approval
-  authority, target selection and deterministic status. No new reusable decision is final before PRD
-  and SD.
+- context_graph_evidence: The revised scope changes the public Copilot command and removes the
+  repository projection consumer while retaining existing authority and lifecycle owners.
 - memory_target: `scope_artifact`
-- memory_reason: The owner inventory and depth decision are specific to this run until design settles
-  a reusable Copilot lifecycle boundary.
-- memory_refs: this Brownfield Review and `UX_INTENT_DEFINITION.md`
+- memory_reason: The plugin-only command and migration decision remain run-specific until delivered.
+- memory_refs: this Brownfield Review and approved UR revision 2
 
 ## Required Next Step
 
-Draft the smallest PRD that defines the plugin package, complementary repository path, visible
-lifecycle states, exact-text approval baseline, support matrix and evidence obligations. Do not
-design or implement the adapter yet.
+Revise the PRD around one supported Copilot plugin path, canonical `copilot` installation,
+non-destructive legacy-file retention, lifecycle states and evidence boundaries. Do not implement
+until the revised PRD, SD and TP are separately approved.

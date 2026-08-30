@@ -53,7 +53,7 @@ export async function installLocalPlugin(surface, adapters = {}) {
   const env = { ...process.env, AGDF_DATA_DIR: dataRoot };
 
   if (surface !== "opencode") {
-    return await cli([surface === "copilot" ? "copilot-plugin" : surface], { env, prepare, exec });
+    return await cli([surface], { env, prepare, exec });
   }
 
   const openCodePackageSource = prepareLocalOpenCodePackage({

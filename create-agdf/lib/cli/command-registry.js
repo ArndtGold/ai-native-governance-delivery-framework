@@ -13,8 +13,7 @@ export const commandRegistry = Object.freeze([
   command("codex", { preferred: [""], scaffold: [""] }),
   command("codex-repo", { preferred: [""], scaffold: [""] }),
   command("claude", { preferred: [""], scaffold: [""] }),
-  command("copilot", { preferred: [""], scaffold: [""] }),
-  command("copilot-plugin", { preferred: [""] }),
+  command("copilot", { preferred: [""] }),
   command("opencode", { preferred: [""], scaffold: [""] }),
   command("opencode-status", { preferred: [""], scaffold: [""] }),
   command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
@@ -22,7 +21,6 @@ export const commandRegistry = Object.freeze([
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [""], scaffold: [""] }),
-  command("both", { scaffold: [""] }),
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
   command("doctor", { local: [""], scaffold: [""], legacy: [" --json"] }),
@@ -67,8 +65,8 @@ export function validateCommandOptions(options) {
     throw new Error("uninstall requires explicit --scope global");
   }
   if (options.confirm && options.target !== "uninstall") throw new Error("--confirm is supported only by uninstall");
-  if (options.runtimeChecksDecision && !["codex", "claude", "copilot-plugin", "opencode"].includes(options.target)) {
-    throw new Error("--runtime-checks is supported only by codex, claude, copilot-plugin and opencode installation commands");
+  if (options.runtimeChecksDecision && !["codex", "claude", "copilot", "opencode"].includes(options.target)) {
+    throw new Error("--runtime-checks is supported only by codex, claude, copilot and opencode installation commands");
   }
   if (options.target === "runtime-checks" && !["codex", "claude", "copilot", "opencode"].includes(options.surface)) {
     throw new Error("runtime-checks requires --surface codex, claude, copilot or opencode");

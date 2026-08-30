@@ -1,11 +1,13 @@
-# Clean Implementation Review: AGDF GitHub Copilot Plugin Integration
+# Clean Implementation Review: Plugin-Only AGDF Integration for GitHub Copilot
 
 - decision: pass
-- primary_solution: Extend the existing canonical definition, release projector, exact runtime, consent service, lifecycle schema and durable local staging owner with one thin Copilot host adapter.
-- evidence: Root `plugin.json`, `copilot-skills/agdf-*`, `hooks/copilot-hooks.json`, `PLUGIN_ROOT` validator binding, Copilot lifecycle adapter, deterministic precedence diagnostic, Runtime Integrity and full smoke suite.
-- fallbacks_retained: When `copilot` is unavailable on `PATH`, the installer invokes pinned official `@github/copilot@1.0.80` through npm and still uses Copilot's public install and list commands. Manual handoff remains only when both direct CLI and npm bootstrap are unavailable.
-- workaround_or_shim_risk: low. The existing `copilot` repository scaffold is intentionally preserved while `copilot-plugin` names the distinct user-wide plugin lifecycle. Both executable paths use the same public Copilot commands and durable AGDF-owned source stage.
-- parallel_structure_risk: none observed. Canonical skills, contracts, runtime, consent receipts, approval authority, lifecycle result and package provenance remain single owners.
-- brownfield_fit: pass. Codex, Claude Code, OpenCode and repository bootstrap regression suites remain green; source `plugin/` remains runtime-free.
-- missing_evidence: Direct Copilot app installation, fresh-session component loading, collision, disable and uninstall observations remain outside solution-integrity proof and are tracked in `TASK_PLAN_REVIEW.md`.
-- required_next_step: Perform the direct macOS Copilot app evidence sequence without changing the implementation architecture.
+- revision: 2
+- date: 2026-08-30
+- primary_solution: Make `copilot` delegate to the existing plugin lifecycle, remove the obsolete repository projection at its registry, scaffold and generator owners, and retain the existing plugin manifest, prefixed skills, hook, runtime, consent and Marketplace owners.
+- evidence: CLI registry and handler tests; package absence and plugin-presence assertions; byte-identical package build; dedicated repository-retention test; full smoke; direct local install and Copilot list evidence.
+- fallbacks_retained: The pre-existing pinned official `@github/copilot@1.0.80` fallback remains when `copilot` is absent from `PATH`. It uses the same public Copilot commands and does not create a second lifecycle owner.
+- workaround_or_shim_risk: low; no compatibility alias, renamed repository target or user-repository cleanup path was added.
+- parallel_structure_risk: none observed; the removed `.github/skills` projection no longer duplicates the plugin skill surface.
+- brownfield_fit: pass; Codex, Claude Code, OpenCode, generic control and local contributor installation remain in their existing owners.
+- missing_evidence: Fresh post-update Copilot app loading remains a host observation, not an implementation-integrity gap.
+- required_next_step: run Code Review and then prepare QA evidence.

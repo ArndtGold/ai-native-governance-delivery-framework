@@ -1,12 +1,10 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { tmpdir } from "node:os";
-import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = new URL("..", import.meta.url);
 const repoRoot = new URL("..", packageRoot);
-const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
+const generatedPluginRoot = fileURLToPath(new URL("./generated/plugins/agdf/", packageRoot));
 const pluginDefinitionPath = fileURLToPath(new URL("./plugin/meta/agdf-plugin.definition.json", repoRoot));
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 
@@ -32,19 +30,14 @@ function assertFile(path, label) {
   }
 }
 
-const tempDir = mkdtempSync(join(tmpdir(), "agdf-routing-test-"));
-
-try {
-  execFileSync(process.execPath, [binPath, "both", "--dir", tempDir], { stdio: "pipe" });
-
-  const pluginRouterPath = join(tempDir, "plugins", "agdf", "meta", "agdf-agent-router.md");
-  const copilotAgentsPath = join(tempDir, "AGENTS.md");
+{
+  const pluginRouterPath = join(generatedPluginRoot, "meta", "agdf-agent-router.md");
+  const copilotSkillsRoot = join(generatedPluginRoot, pluginDefinition.copilot.skills);
 
   assertFile(pluginRouterPath, "Plugin router");
-  assertFile(copilotAgentsPath, "Copilot AGENTS.md");
+  assertFile(join(copilotSkillsRoot, "agdf-gate-check", "SKILL.md"), "Copilot plugin gate-check skill");
 
   const pluginRouter = readFileSync(pluginRouterPath, "utf8");
-  const copilotAgents = readFileSync(copilotAgentsPath, "utf8");
 
   for (const skill of pluginDefinition.skillSet) {
     const pluginName = skillName("codex", skill.slug);
@@ -53,13 +46,12 @@ try {
     assertIncludes(pluginRouter, `| \`${pluginName}\` | ${skill.useFor} | ${skill.boundary} |`, "Plugin router");
     assertExcludes(pluginRouter, `\`${copilotName}\``, "Plugin router");
 
-    assertIncludes(copilotAgents, `| \`${copilotName}\` | ${skill.useFor} | ${skill.boundary} |`, "Copilot AGENTS.md");
-    if (pluginName !== copilotName) {
-      assertExcludes(copilotAgents, `| \`${pluginName}\` | ${skill.useFor} | ${skill.boundary} |`, "Copilot AGENTS.md");
-    }
+    const copilotSkillPath = join(copilotSkillsRoot, copilotName, "SKILL.md");
+    assertFile(copilotSkillPath, `Copilot plugin skill ${copilotName}`);
+    const copilotSkill = readFileSync(copilotSkillPath, "utf8");
+    assertIncludes(copilotSkill, `name: ${copilotName}`, `Copilot plugin skill ${copilotName}`);
+    if (pluginName !== copilotName) assertExcludes(copilotSkill, `name: ${pluginName}`, `Copilot plugin skill ${copilotName}`);
   }
 
-  console.log(`AGDF routing render test passed: ${tempDir}`);
-} finally {
-  rmSync(tempDir, { recursive: true, force: true });
+  console.log("AGDF routing render test passed for plugin-only Copilot skills");
 }

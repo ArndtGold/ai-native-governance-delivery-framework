@@ -348,7 +348,7 @@ try {
 
   const copilotLifecycleOutput = [];
   let lifecyclePackagedListCalls = 0;
-  assert.equal(await runCli(["copilot-plugin", "--json"], {
+  assert.equal(await runCli(["copilot", "--json"], {
     io: { log(value) { copilotLifecycleOutput.push(value); }, error(value) { copilotLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: join(fixtureRoot, "copilot-manual-handoff"), builtPluginRoot, codexInstallVersion: localVersion }),
     exec() {
@@ -502,7 +502,7 @@ try {
     dataRoot: join(fixtureRoot, "copilot-orchestration-data"),
     exec() { return ""; },
     async runCli(args) {
-      assert.deepEqual(args, ["copilot-plugin"]);
+      assert.deepEqual(args, ["copilot"]);
       return 3;
     },
   });

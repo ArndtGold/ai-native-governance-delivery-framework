@@ -12,7 +12,6 @@ const generatedRoot = fileURLToPath(new URL("./generated/", packageRoot));
 const pluginDefinitionPath = fileURLToPath(new URL("../plugin/meta/agdf-plugin.definition.json", packageRoot));
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
-const copilotSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.copilot.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
 const contractModules = [
@@ -870,7 +869,7 @@ function run(target, expectedFiles) {
       }
     }
 
-    if (target === "codex-repo" || target === "both") {
+    if (target === "codex-repo") {
       const pluginRouterPath = join(tempDir, "plugins", "agdf", "meta", "agdf-agent-router.md");
       const pluginRouter = readFileSync(pluginRouterPath, "utf8");
       if (!pluginRouter.includes("| `gate-check` |")) {
@@ -878,46 +877,6 @@ function run(target, expectedFiles) {
       }
       if (pluginRouter.includes("`agdf-gate-check`")) {
         throw new Error(`Plugin router for ${target} must not contain Copilot-prefixed skill names.`);
-      }
-    }
-
-    if (target === "copilot" || target === "both") {
-      const copilotAgentsPath = join(tempDir, "AGENTS.md");
-      const copilotAgents = readFileSync(copilotAgentsPath, "utf8");
-      const copilotSkillsReadmePath = join(tempDir, ".github", "skills", "README.md");
-      const copilotSkillsReadme = readFileSync(copilotSkillsReadmePath, "utf8");
-      if (!copilotAgents.includes("| `agdf-gate-check` |")) {
-        throw new Error(`Missing prefixed Copilot skill routing for ${target}.`);
-      }
-      if (copilotAgents.includes("| `gate-check` |")) {
-        throw new Error(`Copilot AGENTS.md for ${target} must not contain unprefixed skill routing.`);
-      }
-      for (const skillName of copilotSkillNames) {
-        const skillPath = join(tempDir, ".github", "skills", skillName, "SKILL.md");
-        if (!existsSync(skillPath)) {
-          throw new Error(`Copilot surface for ${target} routes ${skillName} but does not expose .github/skills/${skillName}/SKILL.md.`);
-        }
-        if (!copilotAgents.includes(`\`${skillName}\``)) {
-          throw new Error(`Copilot AGENTS.md for ${target} must route ${skillName}.`);
-        }
-        if (!copilotSkillsReadme.includes(`\`${skillName}\``)) {
-          throw new Error(`Copilot skills README for ${target} must list ${skillName}.`);
-        }
-      }
-      if (copilotAgents.includes("`agdf-brownfield-analysis`") && !existsSync(join(tempDir, ".github", "skills", "agdf-brownfield-analysis", "SKILL.md"))) {
-        throw new Error("Copilot AGENTS.md routes agdf-brownfield-analysis but the skill is not exposed.");
-      }
-
-      const copilotInstructionsPath = join(tempDir, ".github", "copilot-instructions.md");
-      const copilotInstructions = readFileSync(copilotInstructionsPath, "utf8");
-      if (!copilotInstructions.includes("Apply AGDF natively from `AGENTS.md`, repository skills and live `.agdf/control/` state")) {
-        throw new Error(`Copilot instructions for ${target} must state native AGDF operation before helper commands.`);
-      }
-      if (!copilotInstructions.includes("AGDF is agent-native first and CLI-verifiable by design")) {
-        throw new Error(`Copilot instructions for ${target} must state the agent-native and CLI-verifiable operating model.`);
-      }
-      if (!copilotInstructions.includes("Use `doctor --json`, `gate-check --json` or `delivery-map --json` as deterministic validators")) {
-        throw new Error(`Copilot instructions for ${target} must classify CLI checks as deterministic validators.`);
       }
     }
 
@@ -946,126 +905,6 @@ run("codex-repo", [
   join("plugins", "agdf", "meta", "agdf-tenets.md"),
   ...contractModules.map((moduleName) => join("plugins", "agdf", "meta", "contracts", moduleName)),
   ...["gate-check", "code-review", "qa-gate"].map((slug) => join("plugins", "agdf", "skills", `${pluginDefinition.codex.skillPrefix}${slug}`, "SKILL.md")),
-]);
-run("copilot", [
-  "AGENTS.md",
-  join(".agdf", "control", "config.json"),
-  join(".agdf", "control", "README.md"),
-  join(".agdf", "control", "templates", "AGDF_RUN.md"),
-  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
-  join(".agdf", "control", "templates", "artefacts", "PRD.md"),
-  join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
-  join(".agdf", "control", "templates", "artefacts", "OR.md"),
-  join(".agdf", "control", "templates", "SOT_REGISTRY.md"),
-  join(".agdf", "control", "templates", "CONTEXT_GRAPH.md"),
-  join(".agdf", "control", "templates", "AGENT_QUALITY_CONTRACTS.json"),
-  join(".github", "copilot-instructions.md"),
-  join(".github", "instructions", "agdf-governance.instructions.md"),
-  join(".github", "skills", "README.md"),
-  join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
-  ...contractModules.map((moduleName) => join(".github", "skills", "contracts", moduleName)),
-  ...["gate-check", "code-review", "qa-gate"].map((slug) => join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}${slug}`, "SKILL.md")),
-]);
-
-{
-  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-rerun-owned-"));
-
-  try {
-    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
-    const configPath = join(tempDir, ".agdf", "control", "config.json");
-    const instructionsPath = join(tempDir, ".github", "copilot-instructions.md");
-    const agentsPath = join(tempDir, "AGENTS.md");
-    writeFileSync(instructionsPath, "stale generated instructions\n", "utf8");
-    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en", "--verbose"], { encoding: "utf8", stdio: "pipe" });
-    const config = JSON.parse(readFileSync(configPath, "utf8"));
-    if (config.artifact_language !== "de" || config.chat_language !== "de") {
-      throw new Error("Copilot rerun must preserve an existing AGDF language config without --force.");
-    }
-    const refreshedInstructions = readFileSync(instructionsPath, "utf8");
-    if (refreshedInstructions === "stale generated instructions\n" || !refreshedInstructions.includes("AGDF is agent-native first and CLI-verifiable by design")) {
-      throw new Error("Copilot rerun must refresh AGDF-owned generated instruction files.");
-    }
-    const agents = readFileSync(agentsPath, "utf8");
-    if (!agents.includes("## Surface Convention")) {
-      throw new Error("Copilot rerun should refresh an AGDF-owned root AGENTS.md.");
-    }
-    if (!output.includes("refreshed: .github/copilot-instructions.md")) {
-      throw new Error("Copilot rerun output must name refreshed files.");
-    }
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
-}
-
-{
-  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-rerun-user-agents-"));
-
-  try {
-    writeFileSync(join(tempDir, "AGENTS.md"), "# Project Agent Notes\n\nKeep this user-owned file.\n", "utf8");
-    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
-    const userAgents = readFileSync(join(tempDir, "AGENTS.md"), "utf8");
-    if (!userAgents.includes("Keep this user-owned file.")) {
-      throw new Error("Copilot bootstrap must preserve a user-owned AGENTS.md.");
-    }
-    if (!existsSync(join(tempDir, "AGENTS.agdf.md"))) {
-      throw new Error("Copilot bootstrap must create the AGDF fragment when user-owned AGENTS.md exists.");
-    }
-    writeFileSync(join(tempDir, "AGENTS.agdf.md"), "stale fragment\n", "utf8");
-    const output = execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "en", "--verbose"], { encoding: "utf8", stdio: "pipe" });
-    const fragment = readFileSync(join(tempDir, "AGENTS.agdf.md"), "utf8");
-    if (fragment === "stale fragment\n" || !fragment.includes("## Surface Convention")) {
-      throw new Error("Copilot rerun must refresh AGENTS.agdf.md while preserving user AGENTS.md.");
-    }
-    const config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
-    if (config.artifact_language !== "de" || config.chat_language !== "de") {
-      throw new Error("Copilot rerun with user-owned AGENTS.md must preserve existing language config.");
-    }
-    if (!output.includes("Preserved:") || !output.includes("AGENTS.md")) {
-      throw new Error("Copilot rerun output must name preserved user-owned AGENTS.md.");
-    }
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
-}
-
-{
-  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-owned-agents-"));
-
-  try {
-    writeFileSync(join(tempDir, "AGENTS.md"), "# AGENTS.md\n\n## Surface Convention\nGitHub Copilot repository skills do not have a plugin namespace.\n\nAGDF is agent-native first and CLI-verifiable by design.\n\nstale\n", "utf8");
-    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir], { stdio: "pipe" });
-    const agents = readFileSync(join(tempDir, "AGENTS.md"), "utf8");
-    if (agents.includes("stale") || !agents.includes("## Skill Routing")) {
-      throw new Error("Copilot bootstrap must refresh a positively AGDF-owned root AGENTS.md.");
-    }
-    if (existsSync(join(tempDir, "AGENTS.agdf.md"))) {
-      throw new Error("Copilot bootstrap should not create a fragment when root AGENTS.md is AGDF-owned.");
-    }
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
-}
-run("both", [
-  "AGENTS.md",
-  join(".agdf", "control", "config.json"),
-  join(".agents", "plugins", "marketplace.json"),
-  join("plugins", "agdf", ".codex-plugin", "plugin.json"),
-  join("plugins", "agdf", "hooks", "hooks.json"),
-  join("plugins", "agdf", "meta", "agdf-agent-router.md"),
-  join("plugins", "agdf", "meta", "agdf-constitution.md"),
-  join("plugins", "agdf", "skills", `${pluginDefinition.codex.skillPrefix}release-or`, "SKILL.md"),
-  join(".agdf", "control", "README.md"),
-  join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),
-  join(".agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md"),
-  join(".agdf", "control", "templates", "artefacts", "TP.md"),
-  join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
-  join(".agdf", "control", "templates", "artefacts", "OR.md"),
-  join(".github", "copilot-instructions.md"),
-  join(".github", "instructions", "agdf-governance.instructions.md"),
-  join(".github", "skills", "README.md"),
-  join(".github", "skills", pluginDefinition.copilot.runtimeContractFileName),
-  join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}code-review`, "SKILL.md"),
-  join(".github", "skills", `${pluginDefinition.copilot.skillPrefix}release-or`, "SKILL.md"),
 ]);
 run("opencode-repo", [
   join(".agdf", "control", "config.json"),
@@ -1246,7 +1085,7 @@ run("config", [
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-explicit-"));
 
   try {
-    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "de"], { stdio: "pipe" });
     const config = JSON.parse(readFileSync(join(tempDir, ".agdf", "control", "config.json"), "utf8"));
     if (config.artifact_language !== "de" || config.chat_language !== "de" || config.runtime_language !== "en") {
       throw new Error("Explicit --language de should set artefact/chat language to de and runtime language to en.");
@@ -1438,17 +1277,17 @@ run("config", [
 {
   const transitionSkillPaths = [
     join(generatedRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md"),
-    join(generatedRoot, ".github", "skills", "agdf-gate-check", "SKILL.md"),
+    join(generatedRoot, "plugins", "agdf", "copilot-skills", "agdf-gate-check", "SKILL.md"),
     join(generatedRoot, ".opencode", "skills", "agdf-gate-check", "SKILL.md"),
   ];
   const transitionContractPaths = [
     join(generatedRoot, "plugins", "agdf", "meta", "contracts", "interaction.md"),
-    join(generatedRoot, ".github", "skills", "contracts", "interaction.md"),
+    join(generatedRoot, "plugins", "agdf", "copilot-skills", "contracts", "interaction.md"),
     join(generatedRoot, ".opencode", "contracts", "interaction.md"),
   ];
   const transitionLocalePaths = [
     join(generatedRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"),
-    join(generatedRoot, ".github", "skills", "agdf-interaction-locales.json"),
+    join(generatedRoot, "plugins", "agdf", "copilot-skills", "agdf-interaction-locales.json"),
     join(generatedRoot, ".opencode", "agdf-interaction-locales.json"),
   ];
 
@@ -2970,38 +2809,25 @@ ${missingCase.chain.join("\n")}
 }
 
 {
-  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-copilot-existing-agents-"));
+  const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-retired-copilot-targets-"));
   const existingAgentsPath = join(tempDir, "AGENTS.md");
 
   try {
     writeFileSync(existingAgentsPath, "# Existing repo instructions\n", "utf8");
-    execFileSync(process.execPath, [binPath, "copilot", "--dir", tempDir], { stdio: "pipe" });
-
+    for (const retiredTarget of ["copilot-plugin", "both"]) {
+      let failed = false;
+      try {
+        execFileSync(process.execPath, [binPath, retiredTarget, "--dir", tempDir], { stdio: "pipe" });
+      } catch {
+        failed = true;
+      }
+      if (!failed) throw new Error(`${retiredTarget} must be rejected.`);
+    }
     if (readFileSync(existingAgentsPath, "utf8") !== "# Existing repo instructions\n") {
-      throw new Error("Existing AGENTS.md should be preserved when no --force flag is used.");
+      throw new Error("Rejected Copilot targets must not rewrite existing repository files.");
     }
-
-    const agdfFragmentPath = join(tempDir, "AGENTS.agdf.md");
-    if (!existsSync(agdfFragmentPath)) {
-      throw new Error("Missing AGENTS.agdf.md fragment for existing AGENTS.md scenario.");
-    }
-    if (!readFileSync(agdfFragmentPath, "utf8").includes("| `agdf-gate-check` |")) {
-      throw new Error("AGENTS.agdf.md must contain prefixed Copilot skill routing.");
-    }
-
-    const expectedSkillPath = join(tempDir, ".github", "skills", `${pluginDefinition.copilot.skillPrefix}gate-check`, "SKILL.md");
-    if (!existsSync(expectedSkillPath)) {
-      throw new Error("Missing repository skills for existing AGENTS.md scenario.");
-    }
-
-    const expectedInstructionsPath = join(tempDir, ".github", "copilot-instructions.md");
-    if (!existsSync(expectedInstructionsPath)) {
-      throw new Error("Missing Copilot instructions for existing AGENTS.md scenario.");
-    }
-
-    const expectedControlPath = join(tempDir, ".agdf", "control", "templates", "AGDF_RUN.md");
-    if (!existsSync(expectedControlPath)) {
-      throw new Error("Missing AGDF control scaffold for existing AGENTS.md scenario.");
+    if (existsSync(join(tempDir, "AGENTS.agdf.md")) || existsSync(join(tempDir, ".github")) || existsSync(join(tempDir, ".agdf"))) {
+      throw new Error("Rejected Copilot targets must not create repository projections or control files.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

@@ -2,7 +2,7 @@
 
 # AI native Governance and Delivery Framework
 
-AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex, Claude Code und OpenCode. Zugleich ist es ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
+AGDF ist ein installierbares, kontrollorientiertes Plugin für Codex, Claude Code, GitHub Copilot und OpenCode. Zugleich ist es ein deutschsprachiger Diskussionsentwurf für kontrollierbare Softwareentwicklung mit KI Agenten.
 
 ## Installieren und prüfen
 
@@ -22,10 +22,11 @@ npx --yes @agdf/cli@latest codex
 
 Nach Abschluss zeigt die Installation Version, Installationsbereich, Prüfergebnis, erforderlichen Neustart und genau einen nächsten Schritt.
 
-Claude Code und OpenCode verwenden dieselbe Befehlsfamilie:
+Claude Code, GitHub Copilot und OpenCode verwenden dieselbe Befehlsfamilie:
 
 ```bash
 npx --yes @agdf/cli@latest claude
+npx --yes @agdf/cli@latest copilot
 npx --yes @agdf/cli@latest opencode
 ```
 

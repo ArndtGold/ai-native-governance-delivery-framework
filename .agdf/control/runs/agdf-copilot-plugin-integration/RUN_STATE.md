@@ -5,34 +5,34 @@
 - control_state_version: 2
 - run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 6
-- revision_id: 7007DB5A-DB37-458A-9CB4-40F8C7F8A07E
+- revision: 14
+- revision_id: CEA7616E-A21B-4B32-B290-8F3EE4748E64
 - started_at: 2026-08-28
 - mode: `structured_delivery`
-- current_gate: `CD+Tests`
-- decision: `in_progress`
+- current_gate: `UAT`
+- decision: `open`
 - owner: Arndt Gold
 
 ## Objective
 
-Deliver AGDF as an installable GitHub Copilot plugin while preserving repository-owned governance,
-portable AGDF semantics, exact approval authority and honest host-evidence boundaries.
+Make the installable AGDF plugin the only supported GitHub Copilot integration while preserving
+repository-owned governance, exact approval authority and honest host-evidence boundaries.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | Brownfield Review confirms existing canonical skill, generator, runtime, lifecycle, interaction and validation owners. The work changes an external plugin contract and cross-host release path. |
-| What is approved? | The durable UR, PRD, Solution Design and Task and Test Plan are approved. Both Brownfield passes and UX Intent Definition are complete. |
-| What is missing? | Post-restart Copilot app evidence for loaded skills, routing, precedence, disable, uninstall and hook behavior. |
-| What is the next allowed action? | Record the remaining direct-host evidence and prepare QA without claiming QA pass. |
-| What is explicitly forbidden right now? | QA pass, UAT, publication, release and automatic VCS actions. |
+| What is known? | The user has replaced the complementary plugin and repository model with one supported Copilot plugin path. The public `copilot` command must install that plugin. Existing repository files must not be deleted automatically. |
+| What is approved? | UR, PRD, Solution Design and Task and Test Plan revision 2 are approved. Brownfield implementation preparation revision 2 passes. |
+| What is missing? | UAT evidence and exact `Approval: UAT`; fresh post-update Copilot app loading remains the primary visible observation. |
+| What is the next allowed action? | Prepare bounded UAT evidence and request the exact UAT decision when ready. |
+| What is explicitly forbidden right now? | Claiming UAT, publication or release and performing automatic VCS actions without the corresponding authority. |
 
 ## Source And Scope State
 
 - normative_instruction_source: `plugin/meta/agdf-agent-router.md` and its focused Runtime Contract modules
 - multi_scope_state: `clear`
-- active_scope_evidence: Approved durable UR plus completed Brownfield Review and UX Intent Definition for the AGDF Copilot plugin scope.
+- active_scope_evidence: Approved UR revision 2 plus completed Brownfield Review and UX Intent Definition revision 2 define the plugin-only Copilot scope.
 - competing_scope_lines: Existing Codex, Claude, OpenCode, public-distribution and installation-consent runs remain independent; no existing Copilot plugin delivery run was found.
 - branch_workspace_evidence: Branch `main` at baseline `d473b710dad8ff3fc7f80878f029f887a40b51af`; pre-existing changes beneath `.agdf/control/artefacts/agdf-product-maturity-roadmap/` are unrelated and excluded.
 - branch_workspace_scope_effect: `supports`
@@ -44,12 +44,12 @@ This is a compact projection of the control state. It does not replace gate-chec
 | Run status | Value |
 |---|---|
 | Status | open |
-| Current gate | CD+Tests |
-| Allowed now | Record direct-host evidence and prepare QA. |
-| Blocked by | Fresh-session rendered Copilot app evidence is incomplete. |
+| Current gate | UAT |
+| Allowed now | Prepare visible UAT evidence for the plugin-only Copilot outcome. |
+| Blocked by | none |
 | Missing approval | none |
-| Next step | Restart GitHub Copilot and verify AGDF under Installed plus the loaded `agdf-` skills. |
-| Quality outlook | Preserve one shared bundle and distinguish package, installed-root, loaded-session and UAT evidence. |
+| Next step | Restart Copilot, verify the refreshed plugin and prefixed skills, then prepare the UAT decision. |
+| Quality outlook | Provide one Copilot plugin path, preserve existing user files and remove the parallel supported repository surface cleanly. |
 
 ## Approvals
 
@@ -57,49 +57,67 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `approved` | Exact `Approval: UR` supplied by Arndt Gold on 2026-08-28 for revision 1. |
-| PRD | `approved` | Exact `Approval: PRD` supplied by Arndt Gold on 2026-08-28 for revision 3. |
-| SD | `approved` | Exact `Approval: SD` supplied by Arndt Gold on 2026-08-28 for revision 4. |
-| TP | `approved` | Exact `Approval: TP` supplied by Arndt Gold on 2026-08-28 for revision 5. |
-| QA | `missing` | none |
+| UR | `approved` | Exact `Approval: UR` accepted for durable revision 2 on 2026-08-28 after revalidation. |
+| PRD | `approved` | Exact `Approval: PRD` accepted for durable revision 2 on 2026-08-28 after revalidation. |
+| SD | `approved` | Exact `Approval: SD` accepted for durable revision 2 on 2026-08-30 after revalidation. |
+| TP | `approved` | Exact `Approval: TP` accepted for durable revision 2 on 2026-08-30 after revalidation. |
+| QA | `approved` | Exact `Approval: QA` accepted for QA Report revision 2 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | UAT | `missing` | none |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md` | `approved` | Defines the installable plugin outcome and authority boundaries. |
-| Brownfield Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` | `done` | Existing owners mapped; Structured Delivery selected. |
+| UR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md` | `approved` | Revision 2 defines the plugin-only outcome and canonical `copilot` install command. |
+| Brownfield Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` | `done` | Revision 2 maps command, generator, migration, documentation and test owners; Structured Delivery retained. |
 | Verified Change |  | `missing` | No mode decision exists. |
-| PRD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md` | `approved` | Defines plugin outcome, working modes, lifecycle, recovery, compatibility and evidence. |
-| SD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` | `approved` | Defines the shared generated bundle, Copilot manifest, prefixed skills, lifecycle adapter, consent hook and evidence boundaries. |
-| TP | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | `approved` | Maps fifteen implementation tasks to twelve PRD criteria, deterministic suites and direct-host evidence. |
-| Brownfield Analysis | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | `done` | Existing owners, reuse path, compatibility, regression and parallel-structure risks pass. |
-| CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | Copilot package, installer and tests implemented; 66/66 deterministic skill evals pass. |
-| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `pass` | No code-review findings. |
-| QA |  | `missing` | Not allowed. |
+| PRD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md` | `approved` | Revision 2 defines one Copilot plugin path, canonical commands, retirement and non-deletion behavior. |
+| SD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` | `approved` | Revision 2 maps command routing, generator cleanup, non-deletion, lifecycle reuse, docs and tests. |
+| TP | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | `approved` | Revision 2 maps eleven tasks to all twelve PRD criteria, deterministic tests and bounded host evidence. |
+| Brownfield Analysis | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | `done` | Revision 2 confirms reuse of existing handler, generator, scaffold, lifecycle, docs and test owners. |
+| CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | Plugin-only implementation, regression evidence, local Marketplace and installed `agdf@agdf` `0.13.8` are recorded. |
+| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `done` | Pass: revision 2 records 11/11 tasks fully done with bounded host evidence. |
+| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Pass: one clean plugin owner; no compatibility alias, repository cleanup path or parallel surface. |
+| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Pass: revision 2 has no open findings. |
+| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `pass` | Revision 2 passes and exact QA approval is recorded. |
 
 ## Mode / Slice Decision
 
 - decision: `structured_delivery`
 - required_next_gate: `PRD`
-- scope_reason: `external_contract_depth`; the work establishes a versioned Copilot plugin contract and cross-host installation, activation, compatibility and release behavior. Structured Slice is rejected because external contract and release/cross-host depth are directly in scope.
-- evidence: `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md`; `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md`
-- transparency_note: A useful first release may omit native gate UI and default-marketplace publication, but the remaining plugin contract and lifecycle still require full structured depth.
+- scope_reason: `external_contract_depth`; `copilot` changes meaning, two public setup targets are retired and plugin, CLI, generator, migration, tests and public documentation must move together.
+- evidence: `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` revision 2; `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md` revision 2
+- transparency_note: The plugin runtime is already implemented, but the breaking command and supported-surface change require a realigned structured chain.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | `approved_by` | `Approval: UR` | exact approval recorded on 2026-08-28 |
-| Brownfield Review | `sizes` | UR | completed review and Structured Delivery decision |
+| UR revision 1 | `approved_by` | `Approval: UR` | historical approval recorded on 2026-08-28; superseded by revision 2 |
+| UR revision 2 | `revises` | UR revision 1 | removes the supported Copilot repository surface and makes `copilot` the plugin installer |
+| UR revision 2 | `approved_by` | `Approval: UR` | exact approval accepted on 2026-08-28 after same-run, same-gate and revision revalidation |
+| UR | `approved_by` | `Approval: UR` | canonical current relationship for approved revision 2 |
+| Brownfield Review revision 1 | `sizes` | UR revision 1 | historical and superseded by revision 2 |
+| Brownfield Review revision 2 | `sizes` | UR revision 2 | pass; Structured Delivery retained for the plugin-only external contract |
+| UX Intent Definition revision 2 | `informs` | PRD revision 2 | ready plugin-only installation, state and recovery intent |
+| PRD revision 1 | `superseded_by` | PRD revision 2 | former complementary repository contract retained as historical evidence |
+| PRD revision 2 | `derived_from` | UR revision 2 | plugin-only requirements aligned with Brownfield Review and UX Intent revision 2 |
+| PRD revision 2 | `approved_by` | `Approval: PRD` | exact approval accepted on 2026-08-28 after same-run, same-gate and revision revalidation |
+| PRD | `derived_from` | UR | canonical current relationship for approved revision 2 |
+| SD revision 1 | `superseded_by` | SD revision 2 | former complementary repository design retained as historical evidence |
+| SD revision 2 | `derived_from` | PRD revision 2 | plugin-only command, generator, migration, lifecycle, documentation and test design |
+| SD revision 2 | `approved_by` | `Approval: SD` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| SD | `derived_from` | PRD | canonical current relationship for approved revision 2 |
+| TP revision 1 | `superseded_by` | TP revision 2 | former complementary repository plan retained as historical evidence |
+| TP revision 2 | `derived_from` | SD revision 2 | eleven tasks cover command, scaffold, generation, lifecycle, docs, Pages, verification and reviews |
+| TP revision 2 | `approved_by` | `Approval: TP` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| TP | `derived_from` | SD | canonical current relationship for approved revision 2 |
+| Brownfield Analysis revision 2 | `prepares` | TP revision 2 | pass; clean existing-owner path confirmed before implementation |
+| QA Report revision 2 | `approved_by` | `Approval: QA` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
 | UX Intent Definition | `informs` | PRD | ready structured input incorporated into PRD |
-| PRD | `approved_by` | `Approval: PRD` | exact approval recorded on 2026-08-28 |
-| PRD | `derived_from` | UR | approved artefact at `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md` |
-| SD | `approved_by` | `Approval: SD` | exact approval recorded on 2026-08-28 |
-| SD | `derived_from` | PRD | approved artefact at `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` |
-| TP | `approved_by` | `Approval: TP` | exact approval recorded on 2026-08-28 |
-| TP | `derived_from` | SD | approved artefact at `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` |
+| PRD revision 1 | `derived_from` | UR revision 1 | historical and superseded for future work |
+| SD revision 1 | `derived_from` | PRD revision 1 | historical and superseded for future work |
+| TP revision 1 | `derived_from` | SD revision 1 | historical and superseded for future work |
 | Brownfield Analysis | `prepares` | TP | passed reuse and impact analysis before implementation |
 | QA_REPORT | `tests` | TP | pending fresh-session app evidence and QA decision |
 
@@ -110,7 +128,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Official Copilot plugin overview | `https://docs.github.com/en/copilot/concepts/agents/about-plugins` | App, CLI, cloud-agent and marketplace plugin availability | `direct` |
 | Official Copilot plugin reference | `https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference` | Manifest, component, installation, cache and precedence contract | `direct` |
 | Installed Copilot app 1.1.14 | `/Applications/GitHub Copilot.app` | Locally installed application and bundled SDK capability surface | `direct` |
-| Existing Copilot projection | `create-agdf/generated/.github/skills/**` | Ten prefixed skills and shared contract dependencies | `direct` |
+| Generated Copilot plugin skills | `create-agdf/generated/plugins/agdf/copilot-skills/**` | Ten prefixed plugin skills and shared contract dependencies; obsolete repository projection absent | `direct` |
 | Canonical plugin definition | `plugin/meta/agdf-plugin.definition.json` | Current cross-surface identity, skill prefix and interaction metadata | `direct` |
 | Existing generated runtime owner | `create-agdf/scripts/sync-plugin-runtime.js` | Exact-version local validator composition | `direct` |
 | Brownfield Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` | Existing owners, reuse strategy, impacts and Structured Depth decision | `direct` |
@@ -134,9 +152,9 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Risk | Impact | Mitigation or owner |
 |---|---|---|
-| A Copilot bundle duplicates canonical skills, runtime, installer or metadata owners. | `warn` | Brownfield Review must identify one generator and reuse existing runtime and lifecycle owners. |
+| A Copilot bundle duplicates canonical skills, runtime, installer or metadata owners. | `warn` | Refreshed Brownfield Review must identify one generator and reuse existing runtime and lifecycle owners. |
 | Copilot plugin installation or permissions are mistaken for AGDF gate approval. | `warn` | Preserve `interaction.md` and exact approval revalidation as the sole authority. |
-| Repository bootstrap is removed even though it owns project-specific files and control setup. | `warn` | Define plugin and repository bootstrap as complementary surfaces with explicit ownership. |
+| Retirement deletes or rewrites existing user-owned Copilot repository files. | `warn` | Stop generating and supporting the projection without automatically deleting existing files. |
 | Repository or package evidence is overstated as loaded app behavior. | `warn` | Maintain separate source, bundle, installed-root, fresh-session and human-UAT evidence. |
 | Native input or hook support drifts across the Copilot app, CLI and cloud agent. | `warn` | Start with the supported common subset and gate stronger claims on direct capability evidence. |
 
@@ -144,22 +162,22 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 - context_graph_impact: `link_only`
 - context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`; `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-TASK-TARGET-AUTHORITY`; `CG-RUN-STATUS-CARD`
-- context_graph_reconciliation: `resolved`
+- context_graph_reconciliation: `complete`
 - context_graph_required_action: `none`
 - context_graph_gate_effect: `none`
-- context_graph_evidence: Brownfield Review links existing nodes that own plugin-distribution evidence, approval transport, target authority and deterministic status. The approved SD establishes the proposed shared-bundle and Copilot lifecycle boundary; CPI-T15 requires reconciliation after implementation evidence confirms it.
+- context_graph_evidence: Brownfield Review revision 2 links the changed public command and removed repository consumer to existing CLI composition, distribution and authority owners.
 
 ## Knowledge Persistence Decision
 
 - memory_target: `scope_artifact`
-- memory_reason: Approved product and design decisions plus the draft execution plan remain owned by this run until implementation evidence permits reusable Context Graph reconciliation.
-- memory_refs: `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md`; `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md`; `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md`
+- memory_reason: Revised product scope remains owned by this run until the artefact chain is realigned.
+- memory_refs: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md` revision 2
 
 ## Closeout
 
-- delivered: Approved design chain, Copilot plugin bundle, exact runtime, public-command lifecycle adapter, one-command npm installer, persistent Copilot installation, Code Review and full deterministic test evidence.
-- not_delivered: Fresh-session app acceptance, QA, UAT, publication, VCS and release.
-- verification_performed: Full `create-agdf` smoke suite; 66/66 skill evals; Runtime Integrity in the installed root; direct `npm run install:copilot`; Copilot post-install list with AGDF `0.13.8`.
-- unverified: Loaded app skill inventory, hook execution, native gate UI, collision behavior and cross-platform behavior.
-- next_allowed_action: Restart GitHub Copilot, record direct-host evidence and prepare QA.
-- quality_outlook: Preserve one shared bundle and distinguish package, installed-root, loaded-session and UAT evidence.
+- delivered: One supported Copilot plugin command, retired parallel targets and repository projection, retained user files, refreshed docs and Pages, direct local install, 11/11 TP tasks and mandatory review passes.
+- not_delivered: UAT, publication, VCS and release.
+- verification_performed: Focused CLI, routing, local installer, retention, package and Pages tests; full smoke and 66/66 skill evals; direct Marketplace and `agdf@agdf` `0.13.8` read-back; `git diff --check`.
+- unverified: Fresh post-update Copilot app loading and native Linux/Windows parity.
+- next_allowed_action: Prepare bounded UAT evidence and request exact `Approval: UAT` only when the visible outcome is ready for acceptance.
+- quality_outlook: Provide one Copilot plugin path without deleting existing user-owned repository files.

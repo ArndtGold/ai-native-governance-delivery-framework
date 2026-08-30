@@ -24,13 +24,12 @@ Use a different target when Codex is not your agent surface:
 | Surface or goal | Start with | What it gives you |
 |---|---|---|
 | Claude Code | `npx --yes @agdf/cli@latest claude` | The AGDF plugin for Claude Code. |
-| GitHub Copilot plugin | `npx --yes @agdf/cli@latest copilot-plugin` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
-| GitHub Copilot repository files | `npx --yes @agdf/cli@latest copilot` | Repository instructions, visible skills and control templates. |
+| GitHub Copilot | `npx --yes @agdf/cli@latest copilot` | The AGDF plugin with prefixed skills and a consent-bound session hook. |
 | OpenCode, user-wide discovery | `npx --yes @agdf/cli@latest opencode` | The npm plugin and global native skills; repository governance remains opt-in. |
 | OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
 | Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
-The runtime-bearing `codex`, `claude`, `copilot-plugin` and `opencode` installers ask before enabling narrow automatic
+The runtime-bearing `codex`, `claude`, `copilot` and `opencode` installers ask before enabling narrow automatic
 local checks on an interactive terminal. The choices are `enable`, `manual` and `cancel`; enablement
 is never preselected. Every interactive installation or update asks again. A previous choice is
 shown only as intent, never as proof of effective host permission. The prompt shows the target AGDF
@@ -67,7 +66,7 @@ Installation, activation and explicit lifecycle changes:
 npx --yes @agdf/cli@latest codex
 npx --yes @agdf/cli@latest codex-repo
 npx --yes @agdf/cli@latest claude
-npx --yes @agdf/cli@latest copilot-plugin
+npx --yes @agdf/cli@latest copilot
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
@@ -106,11 +105,9 @@ Backward-compatible scaffold usage:
 npm create agdf@latest -- codex
 npm create agdf@latest -- codex-repo
 npm create agdf@latest -- claude
-npm create agdf@latest -- copilot
 npm create agdf@latest -- opencode
 npm create agdf@latest -- opencode-status
 npm create agdf@latest -- opencode-repo
-npm create agdf@latest -- both
 npm create agdf@latest -- init
 npm create agdf@latest -- config --language en
 npm create agdf@latest -- doctor
@@ -140,8 +137,7 @@ it does not localize the CLI lifecycle card.
 - `codex` installs the AGDF plugin globally for Codex
 - `codex-repo` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `claude` installs the AGDF plugin globally for Claude Code
-- `copilot-plugin` registers the AGDF-owned local Marketplace and installs `agdf@agdf` through Copilot CLI; when `copilot` is not on `PATH`, it runs the pinned official `@github/copilot` CLI package through npm, then verifies AGDF in Copilot's own plugin list
-- `copilot` writes `AGENTS.md`, Copilot custom instructions under `.github/`, visible repository skills under `.github/skills/`, and AGDF control templates under `.agdf/control/`
+- `copilot` registers the AGDF-owned local Marketplace and installs `agdf@agdf` through Copilot CLI; when `copilot` is not on `PATH`, it runs the pinned official `@github/copilot` CLI package through npm, then verifies AGDF in Copilot's own plugin list
 - `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
@@ -149,10 +145,9 @@ it does not localize the CLI lifecycle card.
 - `disable` writes a supported repository-local opt-out while retaining global capability and durable control state
 - `uninstall` previews and, only with `--confirm`, applies a selected global removal through supported native/owned operations
 - `opencode-repo` writes durable AGDF control configuration and templates under `.agdf/control/`; it does not copy a second OpenCode runtime surface
-- `both` writes the Codex repository-local marketplace plus the Copilot-facing repository files
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
 
-The `codex`, `claude` and `copilot-plugin` commands install from the complete plugin built into the released
+The `codex`, `claude` and `copilot` commands install from the complete plugin built into the released
 `create-agdf` package. They atomically stage it under an AGDF-owned user-data marketplace, register
 that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
 contains no generated runtime bytes and the source checkout exposes no installable root marketplace.
@@ -162,7 +157,7 @@ checkout, npm cache, PATH or registry. Rerunning either command performs the exp
 migrates only the exact known legacy AGDF GitHub marketplace; foreign same-name registrations fail
 closed and failed host operations restore the prior owned stage.
 
-If the target repository already has an `AGENTS.md`, `create-agdf` preserves it and writes `AGENTS.agdf.md` instead of replacing your existing instructions. Merge the AGDF fragment into your current `AGENTS.md` when you want Copilot to load both instruction sets. The generated `.github/copilot-instructions.md` keeps Copilot pointed at `AGENTS.md`, `.github/skills/` and `.agdf/control/` without duplicating the full AGDF rule model. Use `--force` only when you explicitly want to overwrite generated files.
+The Copilot installer does not create, rewrite or remove repository files. Existing `AGENTS.md`, `.github/` and `.agdf/control/` content remains untouched. Use `init` separately when a repository should own surface-neutral durable AGDF control state.
 
 Use the `codex-repo` target when AGDF should be available only inside one repository instead of being installed as a personal/global Codex plugin.
 

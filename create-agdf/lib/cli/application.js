@@ -31,7 +31,7 @@ import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentat
 import { createLifecycleResult, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { evaluateGeneralStatus } from "../lifecycle/status.js";
-import { agdfFragmentPath, generatedFilesForTarget } from "../scaffold/plan.js";
+import { generatedFilesForTarget } from "../scaffold/plan.js";
 import { printNextSteps } from "../scaffold/presentation.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
@@ -51,9 +51,7 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
   return new Map([
     ...createValidationHandlers(io),
     ["codex-repo", scaffoldHandler],
-    ["copilot", scaffoldHandler],
     ["opencode-repo", scaffoldHandler],
-    ["both", scaffoldHandler],
     ["init", scaffoldHandler],
     ["config", scaffoldHandler],
     ["run-create", (options) => {
@@ -144,7 +142,7 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
         return 1;
       }
     }],
-    ["copilot-plugin", async (options) => {
+    ["copilot", async (options) => {
       const surface = "copilot";
       try {
         const consent = await installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
@@ -190,7 +188,7 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
         printVerboseHostOutput(installed, options, io);
         return installed.verificationStatus === "healthy" ? 0 : 1;
       } catch (error) {
-        printInstallFailure(surface, error, options, io, "copilot-plugin");
+        printInstallFailure(surface, error, options, io, "copilot");
         return 1;
       }
     }],
@@ -502,7 +500,6 @@ function runUninstall(options, { io, env, exec }) {
 
 function runScaffold(options, io) {
   const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
-  const wroteAgentsFragment = files.some((file) => file.path === agdfFragmentPath);
   let removedOpenCodeAgents = [];
 
   try {
@@ -517,7 +514,7 @@ function runScaffold(options, io) {
     return 1;
   }
 
-  printNextSteps(options.target, options.dir, files, wroteAgentsFragment, removedOpenCodeAgents, { verbose: options.verbose, json: options.json, io });
+  printNextSteps(options.target, options.dir, files, removedOpenCodeAgents, { verbose: options.verbose, json: options.json, io });
   return 0;
 }
 

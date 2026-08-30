@@ -162,7 +162,7 @@ export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilo
     const installedVersion = installed ? pluginVersionFromList(after, "agdf@agdf") : "";
     if (!installed) throw lifecycleAdapterError("verification", "AGDF was not present in copilot plugin list after installation.");
     if (installedVersion && installedVersion !== expectedVersion) {
-      throw lifecycleAdapterError("version", versionMismatchMessage("GitHub Copilot", "agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest copilot-plugin"));
+      throw lifecycleAdapterError("version", versionMismatchMessage("GitHub Copilot", "agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest copilot"));
     }
     transaction?.commit();
     return {

@@ -148,8 +148,10 @@ for (const awkwardPhrase of ["active context", "expected-release source", "it do
   assert.equal(homepageText.toLowerCase().includes(awkwardPhrase), false, `first-reader copy must avoid unclear phrase: ${awkwardPhrase}`);
 }
 
-assert.equal(homepageText.includes("Recommended for Codex"), true);
+assert.equal(homepageText.includes("Install for your coding agent"), true);
 assert.equal(homepageText.includes("npx --yes @agdf/cli@latest codex"), true);
+assert.equal(homepageText.includes("npx --yes @agdf/cli@latest copilot"), true);
+assert.equal(homepageText.includes("Installable AGDF plugin"), true);
 assert.match(byId.setup.body, /https:\/\/github\.com\/arndtgold\/ai-native-governance-delivery-framework\/blob\/main\/INSTALL\.md/);
 for (const href of ["/privacy", "/terms", "/support"]) assert.equal(html.includes(`href="${href}"`), true, `homepage must link ${href}`);
 assert.match(html, /https:\/\/github\.com\/arndtgold\/ai-native-governance-delivery-framework\/tree\/main\/docs\/handbook/);

@@ -21,9 +21,9 @@ import { persistInstallConsent, runtimeCheckStatus } from "../lib/runtime-check-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const expectedCommands = [
-  "codex", "codex-repo", "claude", "copilot", "copilot-plugin", "opencode", "opencode-status",
+  "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "disable", "uninstall",
-  "opencode-repo", "both", "init", "config", "doctor", "gate-check",
+  "opencode-repo", "init", "config", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",
   "run-render-legacy",
 ];
@@ -95,6 +95,8 @@ for (const fixture of [
   [["doctor", "--generation-cost-units", "6"], "must be an integer from 1 to 5"],
   [["doctor", "--unknown"], "Unknown argument"],
   [["missing-command"], "Please choose one target"],
+  [["copilot-plugin"], "Please choose one target"],
+  [["both"], "Please choose one target"],
 ]) {
   assert.throws(() => parseArgs(fixture[0], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }), (error) => {
     assert.ok(error instanceof CliUsageError);

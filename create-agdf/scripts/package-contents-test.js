@@ -41,6 +41,12 @@ for (const path of required) {
   assert.equal(files.filter((candidate) => candidate === path).length, 1, `package must contain ${path} exactly once`);
 }
 assert.equal(new Set(files).size, files.length, "package file inventory must not contain duplicate paths");
+for (const retiredPath of [
+  "generated/AGENTS.md",
+  "generated/.github/copilot-instructions.md",
+  "generated/.github/instructions/agdf-governance.instructions.md",
+]) assert.equal(files.includes(retiredPath), false, `package must not contain retired Copilot repository projection ${retiredPath}`);
+assert.equal(files.some((path) => path.startsWith("generated/.github/skills/")), false, "package must not contain retired Copilot repository skills");
 for (const [name, target] of Object.entries(packageManifest.bin ?? {})) {
   assert.equal(files.includes(target.replace(/^\.\//, "")), true, `declared bin ${name} must exist in packed files`);
 }

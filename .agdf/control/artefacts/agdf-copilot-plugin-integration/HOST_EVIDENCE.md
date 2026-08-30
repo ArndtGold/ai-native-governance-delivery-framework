@@ -4,6 +4,20 @@ Date: 2026-08-28
 Run: `agdf-copilot-plugin-integration`
 Package version: `0.13.8`
 
+## Plugin-Only Refresh: 2026-08-30
+
+| Observation | Result | Boundary |
+|---|---|---|
+| Local checkout install | `npm run install:copilot` completed with `AGDF updated for GitHub Copilot`, version `0.13.8 (verified)`, installation `Ready` and restart required. | Proves installer and persistent host state, not a freshly loaded app session. |
+| Callable host route | No `copilot` executable was available on `PATH`; the installer and read-back used pinned official `@github/copilot@1.0.80`. | This is the supported fallback and remains distinct from a PATH-installed CLI. |
+| Marketplace read-back | Copilot listed registered local Marketplace `agdf` at `/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf`. | Local Marketplace only; no public/default Marketplace claim. |
+| Plugin read-back | Copilot listed `agdf@agdf (v0.13.8)`. | Persistent installed registration; restart remains required for refreshed loaded-session evidence. |
+| Repository retention | Deterministic byte-for-byte fixtures passed for install, update, status, rejected repository disable, global uninstall and install failure. | Proves the tested lifecycle does not alter existing `AGENTS.md`, `AGENTS.agdf.md`, `.github/**` or `.agdf/control/**`; it is not a claim about unrelated files. |
+
+The canonical public command is now `npx --yes @agdf/cli@latest copilot`. The retired
+`copilot-plugin` and `both` targets fail before mutation. Copilot repository projection is no longer
+generated or supported. Existing repository files remain untouched.
+
 ## Evidence Planes
 
 | Plane | Observed state | Evidence boundary |
@@ -12,7 +26,7 @@ Package version: `0.13.8`
 | Installed macOS app | `hook_execution_verified_context_pending` | `/Applications/GitHub Copilot.app` version `1.1.14` uses the embedded Copilot CLI session runtime. Session `4ef44ec1-0225-4756-98d4-12813789457b` recorded AGDF's only configured camel-case `sessionStart` command hook with `success: true`. Its output was `{}` because Copilot runtime-check consent was not effectively enabled. |
 | Callable Copilot CLI | `verified_via_official_npm_package` | `copilot` was not executable on `PATH`. The installer ran pinned `@github/copilot@1.0.80`; Copilot reported `Plugin "agdf" installed successfully. Installed 10 skills.` and a post-install list reported AGDF `v0.13.8`. |
 | Durable local stage | `verified` | Runtime Integrity passed in `/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf`; root manifest reports AGDF `0.13.8`, `copilot-skills/` and `hooks/copilot-hooks.json`. |
-| Copilot installed plugin store | `verified_pending_refresh` | Copilot migrated the direct install to Marketplace identity `agdf@agdf`, created `~/.copilot/installed-plugins/agdf/agdf`, persisted enabled version `0.13.8`, and verified all ten skills. The root manifest binds `hooks/copilot-hooks.json`; direct app session evidence proves that hook was loaded and executed. The Marketplace description and fixed `additionalContext` output still require a refreshed installation and session. |
+| Copilot installed plugin store | `verified_current_pending_restart` | The 2026-08-30 plugin-only refresh verified Marketplace identity `agdf@agdf` and version `0.13.8`. The root manifest binds `hooks/copilot-hooks.json`; prior direct app session evidence proves hook execution. Fresh post-update loaded-session evidence still requires restart. |
 | Linux host | `unavailable` | No direct environment was available. No parity claim. |
 | Native Windows host | `unavailable` | No direct environment was available. No parity claim. |
 | Marketplace and managed policy | `local_verified_publication_unverified` | The owned local Marketplace is registered and installed. Default-Marketplace publication was not authorized. Managed behavior is represented only by deterministic adapter fixtures. |

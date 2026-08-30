@@ -1,7 +1,7 @@
 # Installation and Setup
 
 Install AGDF for the coding agent you use. AGDF provides the appropriate plugin, native skills or
-repository files. It does not approve work automatically or replace product ownership, engineering
+supported repository surface. It does not approve work automatically or replace product ownership, engineering
 judgement, security review, tests or human acceptance.
 
 ## Choose your installation path
@@ -14,16 +14,15 @@ repository-local commands inside the target Git repository, not inside this AGDF
 | Codex available in your personal environment | `npx --yes @agdf/cli@latest codex` | Installs or updates the global plugin and verifies its version through the Codex CLI. | Start a new Codex task and ask: `Run an AGDF gate check for this request.` |
 | Codex only for one repository | `npx --yes @agdf/cli@latest codex-repo` | Writes the local marketplace and plugin files; restart Codex, open `/plugins`, select **This repository**, then install `agdf`. | Start a new task in that repository and ask for a gate check. |
 | Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after restart. | Use `/gate-check` for new build or change intent. |
-| GitHub Copilot plugin | `npx --yes @agdf/cli@latest copilot-plugin` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
+| GitHub Copilot plugin | `npx --yes @agdf/cli@latest copilot` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
 | OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
 | OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
-| GitHub Copilot repository files | `npx --yes @agdf/cli@latest copilot` | Writes repository instructions, visible skills and control templates. Verify with `/instructions`. | Start a repository task; AGDF instructions and skills are then visible to Copilot. |
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
 ### Automatic runtime checks and installation consent
 
-The `codex`, `claude`, `copilot-plugin` and `opencode` installers distinguish plugin installation from permission to run
+The `codex`, `claude`, `copilot` and `opencode` installers distinguish plugin installation from permission to run
 narrow automatic checks. On an interactive terminal they disclose what the check reads and writes,
 that it uses no network, and that it never grants an AGDF gate. Choose `enable`, `manual` or `cancel`.
 Every interactive installation or update asks again. If a current decision exists, it is shown only
@@ -143,12 +142,11 @@ AGDF supports four usage surfaces:
 
 1. **Codex** through the complete generated plugin containing the projected Codex manifest
 2. **Claude Code** through the same complete generated plugin containing the projected Claude manifest
-3. **GitHub Copilot** through the same generated plugin with a root `plugin.json`, prefixed skills and a consent-bound hook, or through repository files when that scope is preferred
+3. **GitHub Copilot** through the same generated plugin with a root `plugin.json`, prefixed skills and a consent-bound hook
 4. **OpenCode** through repository instructions, generated native skills, permissions and the `create-agdf` npm plugin
 
 Codex, Claude Code and GitHub Copilot consume AGDF as an installable generated plugin runtime. The repository
 `plugin/` directory is the canonical runtime-free source and is not registered directly.
-GitHub Copilot can alternatively consume AGDF through an `AGENTS.md` bootstrap and visible repository skills.
 OpenCode consumes AGDF through AGENTS-style instructions, generated native skills, explicit permissions and npm plugin hooks.
 
 Codex is the primary plugin-packaging surface for AGDF.
@@ -263,15 +261,15 @@ Example:
 /qa-gate
 ```
 
-GitHub Copilot uses prefixed skill names in both its plugin and repository projection. This prevents
+GitHub Copilot uses prefixed skill names in its plugin. This prevents
 collisions with higher-priority personal or repository skills while preserving one canonical skill source.
 
 Example:
 
 ```text
-.github/skills/agdf-gate-check/SKILL.md
-.github/skills/agdf-brownfield-analysis/SKILL.md
-.github/skills/agdf-qa-gate/SKILL.md
+copilot-skills/agdf-gate-check/SKILL.md
+copilot-skills/agdf-brownfield-analysis/SKILL.md
+copilot-skills/agdf-qa-gate/SKILL.md
 ```
 
 The prefix is generated from the shared AGDF skill definition model and must not be manually duplicated across independent files.
@@ -294,7 +292,7 @@ The shared router source is:
 plugin/meta/agdf-agent-router.md
 ```
 
-Copilot-facing `AGENTS.md` content is rendered from the same source with Copilot skill prefixes.
+Copilot plugin skills are rendered from the same source with Copilot skill prefixes.
 
 This avoids drift between:
 
@@ -781,43 +779,17 @@ check are native plugin components.
 All three surfaces load AGDF skills, hooks and shared meta instructions from the plugin bundle.
 Their skill routing comes from the plugin router and skill descriptions, not from a target-repository `AGENTS.md`.
 
-Repository-local Copilot delivery remains available when a team prefers checked-in instructions and
-visible repository skills instead of a user-wide plugin.
-
-Therefore the Copilot bootstrap writes the following files into the target repository:
-
-```text
-AGENTS.md
-.github/copilot-instructions.md
-.github/instructions/**
-.github/skills/**
-```
-
-This creates a clear ownership boundary:
-
-- `plugin/` is the canonical runtime-free source for the generated Codex and Claude Code plugin.
-- `AGENTS.md` belongs to the target repository.
-- `.github/skills/**` exposes Copilot-visible AGDF skills.
-- `.agdf/control/**` stores durable AGDF control state owned by the target repository.
-
-AGDF must not treat `AGENTS.md` as part of the Codex or Claude Code plugin package.
-It is a generated or manually merged Copilot-facing repository file.
-When `npm create agdf@latest -- both` writes `AGENTS.md`, the file is still for Copilot-style
-repository instruction loading. The Codex plugin continues to use
-`plugin/.codex-plugin/plugin.json`, `plugin/skills/**`, hooks and
-`plugin/meta/agdf-agent-router.md`.
-
-If the target repository already has an `AGENTS.md`, the Copilot bootstrap writes `AGENTS.agdf.md` instead.
-The repository owner must then merge the AGDF section intentionally. The existing file may already
-contain project-specific rules for build commands, tests, architecture, security constraints or
-team workflow.
+AGDF no longer creates a separate Copilot repository projection. Existing `AGENTS.md`, `.github/`
+or `.agdf/control/` files in user repositories are retained and are never removed by the Copilot
+installer. Durable `.agdf/control/` state remains surface-neutral repository governance and can be
+created separately with `init` when the delivery run requires it.
 
 ## GitHub Copilot
 
 Install the generated plugin first:
 
 ```bash
-npx --yes @agdf/cli@latest copilot-plugin
+npx --yes @agdf/cli@latest copilot
 ```
 
 The adapter registers the AGDF-owned local marketplace, installs `agdf@agdf` and verifies
@@ -839,43 +811,8 @@ Support claims are evidence-bound:
 | Linux and native Windows | No parity claim without direct lifecycle and fresh-session evidence on that operating system. Generated command fixtures are not host proof. |
 | Marketplace or managed policy | Unpublished and unverified unless separately authorized and directly observed. A managed result remains host-owned. |
 
-For a repository-only projection instead, run this inside the target Git repository:
-
-```bash
-npm create agdf@latest -- copilot
-```
-
-Add `--language de|en` or `--lang de|en` if AGDF artefacts and chat responses should follow an
-explicit project language. Without the flag, `create-agdf` derives the preference from the local
-system locale and writes it to `.agdf/control/config.json`.
-
-If the repository does not yet contain `AGENTS.md`, this writes:
-
-```text
-AGENTS.md
-.agdf/control/config.json
-.agdf/control/templates/**
-.github/copilot-instructions.md
-.github/instructions/agdf-governance.instructions.md
-.github/skills/**
-```
-
-If `AGENTS.md` already exists, AGDF keeps it unchanged and writes:
-
-```text
-AGENTS.agdf.md
-.agdf/control/config.json
-.agdf/control/templates/**
-.github/copilot-instructions.md
-.github/instructions/agdf-governance.instructions.md
-.github/skills/**
-```
-
-Then merge the AGDF instructions from `AGENTS.agdf.md` into your existing `AGENTS.md`.
-Use `--force` only if you intentionally want to replace existing generated files.
-
 When the repository is ready to own AGDF state as source-of-truth artefacts, let the agent initialize
-the scaffold as the next allowed action or run the deterministic setup path directly:
+the surface-neutral scaffold as the next allowed action or run the deterministic setup path directly:
 
 ```bash
 npm create agdf@latest -- init
@@ -883,63 +820,10 @@ npm create agdf@latest -- doctor
 npm create agdf@latest -- gate-check
 ```
 
-After bootstrapping the target repository, verify that Copilot sees the checked-in instructions:
-
-```text
-/instructions
-```
-
-You should see at least:
-
-```text
-AGENTS.md
-.github/copilot-instructions.md
-.github/instructions/agdf-governance.instructions.md
-.agdf/control/templates/RUN_STATE.md
-.agdf/control/runs/<run_id>/RUN_STATE.md after explicit run-create or migration
-.github/skills/agdf-runtime-contract.md
-.github/skills/agdf-gate-check/SKILL.md
-```
-
-Then trigger AGDF naturally, for example:
+After restarting Copilot, verify the installed plugin and its prefixed skills, then trigger AGDF naturally, for example:
 
 ```text
 Run an AGDF gate check for this request.
-```
-
-For code-changing runs, the repository skills also include:
-
-```text
-.github/skills/agdf-code-review/SKILL.md
-```
-
-## Combined surfaces
-
-If one target repository should support Copilot-oriented repository files and plugin use in Claude
-Code or Codex, run:
-
-```bash
-npm create agdf@latest -- both
-```
-
-This writes the repository-local Codex marketplace and the same Copilot-facing files as the
-`copilot` target:
-
-```text
-.agents/plugins/marketplace.json
-.agdf/control/config.json
-plugins/agdf/**
-AGENTS.md or AGENTS.agdf.md if an AGENTS.md already exists
-.github/copilot-instructions.md
-.github/instructions/agdf-governance.instructions.md
-.github/skills/**
-```
-
-Install the Claude Code plugin separately if you want Claude Code plugin support outside the
-checked-in Copilot files:
-
-```bash
-npx --yes @agdf/cli@latest claude
 ```
 
 ## Validate the runtime in this repository

@@ -2,29 +2,27 @@
 
 Status: approved  
 Gate: UR  
-Gate approval: `Approval: UR` recorded on 2026-08-28  
+Gate approval: exact `Approval: UR` accepted for revision 2 on 2026-08-28 after same-run, same-gate and revision revalidation
+Revision: 2
 Date: 2026-08-28  
 Owner: Arndt Gold
 
 ## 1. Problem
 
-AGDF supports GitHub Copilot today through repository-local `AGENTS.md`, Copilot instructions and
-prefixed repository skills. Current GitHub Copilot products now support installable plugins that can
-bundle skills, agents, hooks, extensions and runtime integrations. AGDF does not yet provide a
-Copilot plugin package, marketplace entry or verified plugin lifecycle for that host.
+AGDF currently exposes two different GitHub Copilot setup paths: an installable plugin and a
+repository projection containing Copilot instructions and prefixed skills. This creates an
+unnecessary product choice, two public command meanings and two support boundaries for the same
+user outcome.
 
-As a result, users must currently bootstrap AGDF into each repository even when they only need the
-portable AGDF workflow controls. The existing documentation also describes Copilot as an
-instruction-only, repository-file surface even though the host's current plugin capabilities make a
-stronger and more reusable integration possible.
+GitHub Copilot supports an installable plugin that can carry the portable AGDF workflow. AGDF should
+therefore expose one supported Copilot installation path and reserve repository state for
+project-owned governance data rather than a second Copilot distribution surface.
 
 ## 2. Goal
 
-Make AGDF available as an installable GitHub Copilot plugin that reuses the canonical AGDF skills,
-runtime contracts and exact-version validation model. The plugin should provide a consistent,
-updateable AGDF experience in the GitHub Copilot app and Copilot CLI without turning Copilot into a
-second governance authority or requiring portable plugin content to be copied into every target
-repository.
+Make the installable AGDF plugin the only supported GitHub Copilot integration. The public command
+`npx --yes @agdf/cli@latest copilot` and the local checkout command `npm run install:copilot` install
+that plugin. AGDF no longer publishes or documents a separate Copilot repository bootstrap.
 
 ## 3. User Outcome
 
@@ -44,8 +42,11 @@ This user need covers:
   mutate repository control state;
 - install, update, status, uninstall and fresh-session verification boundaries appropriate to the
   supported Copilot plugin lifecycle;
-- preservation of the existing repository bootstrap for project-owned instructions, control
-  templates and teams that deliberately prefer checked-in configuration;
+- the public `copilot` command as the canonical plugin installer and the local
+  `npm run install:copilot` command as its checkout equivalent;
+- retirement of the separate Copilot repository installer and generated Copilot instruction and
+  skill projection as supported product surfaces;
+- non-destructive migration behavior that leaves already checked-in repository files untouched;
 - deterministic package, runtime-integrity and routing tests for the Copilot bundle; and
 - documentation that distinguishes source, generated package, installed plugin, loaded session,
   human UAT and marketplace publication evidence.
@@ -59,8 +60,8 @@ post-response revalidation without creating a second approval path.
 - Replacing `.agdf/control/`, the AGDF gate model, the AGDF CLI or exact approval formulas.
 - Treating Copilot tool permissions, plan controls, plugin installation or hook execution as an AGDF
   gate approval.
-- Removing the existing Copilot repository bootstrap or automatically rewriting repositories when
-  the plugin is installed.
+- Automatically deleting or rewriting existing `AGENTS.md`, `.github/copilot-instructions.md`,
+  `.github/skills/**` or `.agdf/control/**` files during plugin installation, update or uninstall.
 - Publishing AGDF into a GitHub-managed default marketplace before package, security, legal and UAT
   evidence is separately ready and explicitly authorized.
 - Claiming GitHub Copilot cloud-agent, code-review, Visual Studio Code or cross-platform parity from
@@ -86,8 +87,9 @@ The user need is satisfied only when later approved delivery can demonstrate tha
 8. source, generated bundle, installed root, loaded session and human UAT evidence are reported
    separately;
 9. release preparation, Runtime Integrity, package inventory and focused Copilot routing tests pass;
-   and
-10. public documentation no longer describes a capability boundary that current supported Copilot
+10. `copilot` installs the plugin while the retired repository projection is no longer offered or
+    documented as a supported Copilot installation path; and
+11. public documentation no longer describes a capability boundary that current supported Copilot
     plugin behavior disproves.
 
 ## 7. Existing Sources Of Truth And Reuse Candidates
@@ -95,8 +97,9 @@ The user need is satisfied only when later approved delivery can demonstrate tha
 - `plugin/meta/agdf-plugin.definition.json` owns cross-surface AGDF identity, skills and capability
   metadata.
 - `plugin/skills/**` and `plugin/meta/contracts/**` own the portable workflows and Runtime Contract.
-- `create-agdf/scripts/sync-package-assets.js` already generates Copilot-prefixed repository skills
-  and shared contract files.
+- `create-agdf/scripts/sync-package-assets.js` currently generates Copilot-prefixed repository
+  skills and shared contract files; Brownfield Review must identify the smallest removal boundary
+  without affecting other generated consumers.
 - `create-agdf/scripts/sync-plugin-runtime.js` and the generated runtime bundle own exact-version
   validator composition.
 - `plugin/scripts/check-runtime-integrity.mjs` and `create-agdf/scripts/smoke-test.js` own package,
@@ -133,11 +136,14 @@ the installed app.
 - GitHub plugin and extension specifications can change independently of AGDF.
 - Cross-platform process, path, permission and cache behavior require direct macOS, Linux and native
   Windows evidence before parity is claimed.
+- Existing repositories may retain formerly generated Copilot files. Retirement must not delete user
+  content, and documentation must distinguish unsupported legacy files from the supported plugin.
 
 ## 9. Next Step
 
-Review this UR. Approval permits a Brownfield Review of the existing Copilot generators, plugin
-packaging, runtime, lifecycle, interaction and validation owners. It does not permit implementation.
+Approval permits a refreshed Brownfield Review of the existing Copilot command, repository
+projection, plugin packaging, runtime, lifecycle, interaction and validation owners. It does not
+permit implementation or deletion of existing repository files.
 
 Approve only with:
 

@@ -1,67 +1,50 @@
 # Brownfield Review: Sharpen AGDF Pages Positioning
 
-- revision: 1
+- revision: 2
 - mode: `post_ur_review`
-- decision: `block`
-- mode_slice_decision: `block`
+- decision: `pass`
+- mode_slice_decision: `verified_change`
 - required_next_gate: `none`
 
 ## Scope And Routing
 
 - delivery_context: `brownfield`
 - ui_ux_impact: `low`
-- ui_ux_impact_reason: The change refines explanatory copy without changing navigation, capability,
-  primary action, working mode, effective state, activation, blocker or recovery behaviour.
+- ui_ux_impact_reason: The change refines explanatory copy without changing navigation, capability, primary action, working mode, effective state, activation, blocker or recovery behaviour.
 - ux_intent_definition_required: `no`
 - ux_intent_definition_result: `not_applicable`
 
 ## Existing Owners And Coverage
 
-- `pages/src/data/site.ts` is the canonical landing-page content owner.
-- `pages/scripts/landing-page-test.mjs` is the deterministic first-reader regression owner.
-- The current page already owns the approved thesis `Agent activity is not delivery progress.` and
-  the single `Approved scope -> evidence -> gate -> transition` control loop.
-- The requested distinction is not yet stated explicitly.
-- Reuse strategy: `extend` the existing problem description and existing test owner.
-- Current coverage: `partially_done`.
+- `pages/src/data/site.ts` is the single canonical landing-page content owner.
+- `pages/scripts/landing-page-test.mjs` is the deterministic validation owner.
+- The page already owns the thesis `Agent activity is not delivery progress.` and the single `Approved scope -> evidence -> gate -> transition` control loop.
+- The requested category distinction and durable-control explanation are not yet explicit.
+- current_coverage: `partially_done`
+- reuse_strategy: `extend`
 
-## Blocking Brownfield Conflict
+## Baseline Re-evaluation
 
-Both candidate paths are already modified by the active
-`agdf-copilot-plugin-integration` run, whose QA revision 2 is approved and whose current gate is UAT.
-Changing either path now would alter that run's tested and awaiting-acceptance candidate after QA.
-The new copy therefore cannot be implemented in the shared worktree without invalidating or
-conflating the existing run's evidence boundary.
+The former candidate-path conflict is resolved. Copilot delivery was committed as `5b6ec9b`, tagged `agdf-v0.14.0`, followed by version alignment in `67eb3e6`. At baseline `67eb3e6`, both candidate paths are clean. The durable Copilot run still lacks exact UAT approval, but its committed candidate is independently identifiable and no longer shares an uncommitted file baseline with this run.
+
+## Verified Change Selection
+
+- exactly one canonical content owner: `pages/src/data/site.ts`
+- allowed source paths: `pages/src/data/site.ts`; `pages/scripts/landing-page-test.mjs`
+- prohibited impacts: gate, permission, security, persistence, architecture, API, CLI, runtime, installation, release and host behaviour
+- deterministic propagation: not applicable
+- deterministic validation: `npm --prefix pages run test:landing`
+- baseline commit: `67eb3e6`
+- baseline tracked paths: none
+- baseline untracked paths: none
+- escalation target: `structured_slice`
 
 ## Parallel-Structure And Drift Assessment
 
-- No second landing-page owner, section or comparison model is permitted.
-- No product-semantics drift is accepted beyond the approved UR wording.
-- The new run remains separate from Copilot installation and compatibility scope.
-- No Context Graph node is required while implementation is blocked.
-
-## Structured Depth Evidence
-
-- depth_policy_version: 1
-- depth_facts_status: `complete`
-- primary_reason_code: `depth_facts_conflicting`
-- decisive_full_depth_triggers: none
-- rejected_alternative: `quick_task` is rejected while the two candidate owners are dirty inside an
-  active QA-approved run; `verified_change` is ineligible for the same baseline reason.
-- missing_or_conflicting_facts: ownership is known, but the current candidate-path baseline belongs
-  to an active run awaiting UAT.
-- depth_evidence_refs: `git diff -- pages/src/data/site.ts pages/scripts/landing-page-test.mjs`;
-  `.agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md` revision 14.
-
-| Bounded-slice check | Result | Evidence |
-|---|---|---|
-| `coherent_outcome` | pass | One bounded public positioning clarification with explicit acceptance criteria. |
-| `authority_boundary` | pass | `site.ts`, the approved UR and human approval remain the known owners. |
-| `owner_consumer_coordination` | block | Candidate paths currently carry an unaccepted Copilot-run delta. |
-| `full_depth_impacts_absent` | pass | No runtime, policy, persistence, API, CLI, release or cross-host behaviour changes. |
-| `migration_propagation_bounded` | pass | One content owner and one deterministic Pages regression owner. |
-| `failure_recovery_local` | pass | The copy-only change is locally reversible after a clean baseline exists. |
-| `independently_acceptable` | block | Acceptance cannot currently be separated from the Copilot UAT candidate in this worktree. |
+- Extend only the existing problem description. Do not add a comparison section.
+- Preserve the current Hero, seven-section structure and one control-loop model.
+- Do not name competitors or claim exclusive ownership of gates, artefacts, review or human approval.
+- Keep the distinction bounded to AGDF's primary delivery-control purpose.
 
 ## Context Graph And Knowledge Persistence
 
@@ -70,16 +53,12 @@ conflating the existing run's evidence boundary.
 - context_graph_reconciliation: `not_applicable`
 - context_graph_required_action: `none`
 - context_graph_gate_effect: `none`
-- context_graph_evidence: The approved scope introduces no reusable architecture, runtime or policy
-  decision while implementation is blocked.
+- context_graph_evidence: The change clarifies an already-owned public thesis without adding a new architecture, runtime or policy decision.
 - memory_target: `scope_artifact`
-- memory_reason: The approved wording and overlap finding are local to this delivery scope.
-- memory_refs: `.agdf/control/artefacts/agdf-pages-positioning-clarity/UR.md`;
-  `.agdf/control/artefacts/agdf-pages-positioning-clarity/BROWNFIELD_REVIEW.md`.
+- memory_reason: The exact approved copy boundary remains specific to this delivery run.
+- memory_refs: `.agdf/control/artefacts/agdf-pages-positioning-clarity/UR.md`; `.agdf/control/artefacts/agdf-pages-positioning-clarity/VERIFIED_CHANGE.md`.
 
 ## Required Next Step
 
-Resolve the candidate-path evidence boundary first. Complete or explicitly reopen the Copilot run,
-then establish a non-conflicting baseline and repeat this Brownfield Review. Do not edit the Pages
-owners before that re-evaluation.
+Create the eligible Verified Change record, implement only the two declared paths, run the focused landing regression and record the exact changed-path snapshot.
 

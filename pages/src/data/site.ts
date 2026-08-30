@@ -40,7 +40,7 @@ export const landingPage = {
     problem: {
         eyebrow: "Speed needs control",
         title: "Agent activity is not delivery progress.",
-        description: "Useful agent activity becomes governed delivery progress only when scope is approved, evidence is visible and transitions are deliberate. Coding agents can produce convincing changes before the team has agreed the scope, checked the evidence or decided who can approve the next step. AGDF makes that next step explicit.",
+        description: "Many frameworks help agents do the work. AGDF controls whether that work may count as governed delivery progress. Governed transitions depend on approved scope, explicit human authority and evidence that supports the claim. Durable repository-owned control state keeps approvals, evidence and the next allowed action understandable across chats, agents and hosts.",
         context: [
             "Risk appears when useful agent output starts to look like a finished decision. A patch can look complete even when the request is unclear. The team may not have checked the existing owner, and a test may prove less than the summary suggests. These gaps are easy to miss in a short chat. In a real delivery, they lead to scope drift, rework and unclear responsibility.",
             "AGDF records the delivery state in the repository. It shows the intended result, the available evidence, the approved decision and the next action allowed for the agent. If a fact or approval is missing, AGDF stops visibly and explains what is needed next.",

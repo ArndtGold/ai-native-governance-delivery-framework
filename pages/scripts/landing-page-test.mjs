@@ -135,7 +135,21 @@ console.log(`Landing-page visible word count: ${wordCount} (editorial target 150
 assert.equal(visibleText(byId.problem.body).includes(problemComparisonTitle("without")), true);
 assert.equal(heroText.includes(problemComparisonTitle("without")), false, "before/after comparison must live outside Hero");
 assert.equal(visibleText(byId.problem.body).includes("Agent activity is not delivery progress."), true, "Problem must state the activity-to-delivery distinction");
-assert.equal(visibleText(byId.problem.body).includes("Useful agent activity becomes governed delivery progress only when scope is approved, evidence is visible and transitions are deliberate."), true, "Problem must connect activity to governed progress");
+const problemText = visibleText(byId.problem.body);
+for (const positioningClaim of [
+  "Many frameworks help agents do the work.",
+  "AGDF controls whether that work may count as governed delivery progress.",
+  "Governed transitions depend on approved scope, explicit human authority and evidence that supports the claim.",
+  "Durable repository-owned control state keeps approvals, evidence and the next allowed action understandable across chats, agents and hosts.",
+]) {
+  assert.equal(problemText.includes(positioningClaim), true, `Problem must preserve defensible positioning: ${positioningClaim}`);
+}
+for (const unsupportedComparison of ["superior", "better than", "the only framework"]) {
+  assert.equal(problemText.toLowerCase().includes(unsupportedComparison), false, `Problem must not claim ${unsupportedComparison}`);
+}
+for (const competitor of ["OpenSpec", "Spec Kit", "BMAD", "Superpowers", "Compound Engineering", "Ruflo", "Aperant"]) {
+  assert.equal(homepageText.includes(competitor), false, `homepage must not name competitor: ${competitor}`);
+}
 assert.equal(homepageText.includes("Fast output is not the same as governed delivery."), false, "superseded Problem thesis must not remain");
 
 validateControlLoop(byId["how-it-works"]);

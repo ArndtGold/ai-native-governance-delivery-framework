@@ -1,4 +1,4 @@
-# AGDF 0.14.1 — Initial OpenAI Public Plugin Candidate
+# AGDF 0.14.2 — Initial OpenAI Public Plugin Candidate
 
 This candidate packages the canonical AGDF workflow skills for public discovery in ChatGPT and
 Codex. It helps users assess delivery fit, preserve explicit human approvals, inspect existing-system

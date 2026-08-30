@@ -78,6 +78,73 @@ const pageTitle = `${site.name} — ${site.tagline}`
           {problem.context.map((paragraph) => <p class="mt-4 leading-7 text-dark-200">{paragraph}</p>)}
         </div>
 
+        <figure class="mt-12" data-governed-transition aria-labelledby="governed-transition-title" aria-describedby="governed-transition-description">
+          <figcaption>
+            <h3 id="governed-transition-title" class="text-2xl font-bold text-white sm:text-3xl">{problem.transition.title}</h3>
+            <p id="governed-transition-description" class="mt-3 max-w-3xl leading-7 text-dark-200">{problem.transition.description}</p>
+          </figcaption>
+
+          <div class="mt-7 grid gap-4 xl:grid-cols-[0.82fr_auto_1.35fr_auto_1fr] xl:items-stretch">
+            <article class="surface flex flex-col justify-center p-6 sm:p-7">
+              <p class="eyebrow">{problem.transition.output.eyebrow}</p>
+              <h4 class="mt-3 text-xl font-bold text-white">{problem.transition.output.title}</h4>
+              <ul class="mt-6 flex flex-wrap gap-2" aria-label="Agent outputs">
+                {problem.transition.output.items.map((item) => <li class="signal">{item}</li>)}
+              </ul>
+            </article>
+
+            <div class="flex items-center justify-center font-mono text-xl font-bold text-agdf-500" aria-hidden="true">
+              <span class="xl:hidden">↓</span><span class="hidden xl:inline">→</span>
+            </div>
+
+            <article class="surface controlled-card p-6 sm:p-7">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+                <p class="eyebrow">{problem.transition.control.eyebrow}</p>
+                <p class="max-w-xs font-semibold text-agdf-100 sm:text-right">{problem.transition.control.question}</p>
+              </div>
+
+              <ul class="mt-6 grid gap-3 text-dark-100">
+                {problem.transition.control.checks.map((item) => (
+                  <li class="check-row"><span aria-hidden="true">✓</span>{item}</li>
+                ))}
+              </ul>
+
+              <dl class="mt-7 grid gap-3 border-t border-agdf-700/50 pt-5 sm:grid-cols-2">
+                {problem.transition.control.visibility.map((item, index) => (
+                  <div class="rounded-xl bg-dark-950/45 p-4">
+                    <dt class="flex items-start gap-2 font-semibold text-white">
+                      <span class="mt-0.5 font-mono text-agdf-300" aria-hidden="true">{index === 0 ? "◉" : "▤"}</span>
+                      {item.title}
+                    </dt>
+                    <dd class="mt-2 leading-6 text-dark-200">{item.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </article>
+
+            <div class="flex items-center justify-center font-mono text-xl font-bold text-agdf-500" aria-hidden="true">
+              <span class="xl:hidden">↓</span><span class="hidden xl:inline">→</span>
+            </div>
+
+            <div class="grid gap-4" aria-label="Governed transition outcomes">
+              {problem.transition.outcomes.map((outcome) => (
+                <article class:list={[
+                  "flex flex-col justify-center rounded-2xl border p-6",
+                  outcome.tone === "risk"
+                    ? "border-red-500/30 bg-red-500/10"
+                    : "border-agdf-500/40 bg-agdf-950/40",
+                ]}>
+                  <h4 class:list={[
+                    "font-bold",
+                    outcome.tone === "risk" ? "text-red-200" : "text-agdf-200",
+                  ]}>{outcome.state}</h4>
+                  <p class="mt-2 leading-6 text-dark-200">{outcome.result}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </figure>
+
         <div class="mt-10 grid gap-5 lg:grid-cols-2">
           {[problem.without, problem.with].map((comparison, index) => (
             <article class:list={["surface p-6 sm:p-8", index === 1 && "controlled-card"]}>

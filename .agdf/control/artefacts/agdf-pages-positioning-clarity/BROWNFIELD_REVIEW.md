@@ -1,6 +1,6 @@
 # Brownfield Review: Sharpen AGDF Pages Positioning
 
-- revision: 2
+- revision: 3
 - mode: `post_ur_review`
 - decision: `pass`
 - mode_slice_decision: `verified_change`
@@ -19,13 +19,13 @@
 - `pages/src/data/site.ts` is the single canonical landing-page content owner.
 - `pages/scripts/landing-page-test.mjs` is the deterministic validation owner.
 - The page already owns the thesis `Agent activity is not delivery progress.` and the single `Approved scope -> evidence -> gate -> transition` control loop.
-- The requested category distinction and durable-control explanation are not yet explicit.
+- The delivered distinction is explicit, but its opening comparison remains abstract and its durable-control claim is broader than the mechanism the page immediately explains.
 - current_coverage: `partially_done`
 - reuse_strategy: `extend`
 
 ## Baseline Re-evaluation
 
-The former candidate-path conflict is resolved. Copilot delivery was committed as `5b6ec9b`, tagged `agdf-v0.14.0`, followed by version alignment in `67eb3e6`. At baseline `67eb3e6`, both candidate paths are clean. The durable Copilot run still lacks exact UAT approval, but its committed candidate is independently identifiable and no longer shares an uncommitted file baseline with this run.
+The first positioning change was committed as `3aa985e`. At baseline `3aa985e`, both candidate paths are clean. The requested refinement stays inside the approved problem-section scope and changes no capability, structure, authority or delivery contract.
 
 ## Verified Change Selection
 
@@ -34,7 +34,7 @@ The former candidate-path conflict is resolved. Copilot delivery was committed a
 - prohibited impacts: gate, permission, security, persistence, architecture, API, CLI, runtime, installation, release and host behaviour
 - deterministic propagation: not applicable
 - deterministic validation: `npm --prefix pages run test:landing`
-- baseline commit: `67eb3e6`
+- baseline commit: `3aa985e`
 - baseline tracked paths: none
 - baseline untracked paths: none
 - escalation target: `structured_slice`
@@ -60,5 +60,4 @@ The former candidate-path conflict is resolved. Copilot delivery was committed a
 
 ## Required Next Step
 
-Create the eligible Verified Change record, implement only the two declared paths, run the focused landing regression and record the exact changed-path snapshot.
-
+Reopen the existing Verified Change on baseline `3aa985e`, implement only the two declared paths, run the focused landing regression and record the exact changed-path snapshot.

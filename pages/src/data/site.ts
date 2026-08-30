@@ -40,11 +40,38 @@ export const landingPage = {
     problem: {
         eyebrow: "Speed needs control",
         title: "Agent activity is not delivery progress.",
-        description: "Many frameworks help agents do the work. AGDF controls whether that work may count as governed delivery progress. Governed transitions depend on approved scope, explicit human authority and evidence that supports the claim. Durable repository-owned control state keeps approvals, evidence and the next allowed action understandable across chats, agents and hosts.",
+        description: "Agents can produce plans, code and tests. AGDF controls whether that work may count as governed delivery progress. A transition requires approved scope, explicit human authority and evidence that supports the claim. Because the control state is recorded in the repository, later agents and reviewers can see what was approved, what was proven and what may happen next.",
         context: [
             "Risk appears when useful agent output starts to look like a finished decision. A patch can look complete even when the request is unclear. The team may not have checked the existing owner, and a test may prove less than the summary suggests. These gaps are easy to miss in a short chat. In a real delivery, they lead to scope drift, rework and unclear responsibility.",
             "AGDF records the delivery state in the repository. It shows the intended result, the available evidence, the approved decision and the next action allowed for the agent. If a fact or approval is missing, AGDF stops visibly and explains what is needed next.",
         ],
+        transition: {
+            title: "From agent output to governed delivery",
+            description: "AGDF does not turn activity into progress automatically. It makes the required decision and evidence boundary explicit.",
+            output: {
+                eyebrow: "Agent activity",
+                title: "Useful work is produced",
+                items: ["Plans", "Code", "Tests"],
+            },
+            control: {
+                eyebrow: "AGDF control point",
+                question: "May this count as delivery progress?",
+                checks: [
+                    "Scope is explicitly approved",
+                    "Human authority is recorded",
+                    "Evidence supports the claim",
+                    "Control state is recorded in the repository",
+                ],
+                visibility: [
+                    { title: "Shown in the AGDF interaction", detail: "Current gate, blocker and next allowed action" },
+                    { title: "Recorded in .agdf/control/", detail: "Scope, approvals, evidence references and run state" },
+                ],
+            },
+            outcomes: [
+                { state: "Requirement missing", result: "AGDF reports the blocker and stops the governed workflow", tone: "risk" },
+                { state: "Requirements satisfied", result: "The transition may count as governed delivery progress", tone: "control" },
+            ],
+        },
         without: {
             title: "Coding agent without AGDF",
             state: "state unclear",

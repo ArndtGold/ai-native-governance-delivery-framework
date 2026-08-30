@@ -137,10 +137,10 @@ assert.equal(heroText.includes(problemComparisonTitle("without")), false, "befor
 assert.equal(visibleText(byId.problem.body).includes("Agent activity is not delivery progress."), true, "Problem must state the activity-to-delivery distinction");
 const problemText = visibleText(byId.problem.body);
 for (const positioningClaim of [
-  "Many frameworks help agents do the work.",
+  "Agents can produce plans, code and tests.",
   "AGDF controls whether that work may count as governed delivery progress.",
-  "Governed transitions depend on approved scope, explicit human authority and evidence that supports the claim.",
-  "Durable repository-owned control state keeps approvals, evidence and the next allowed action understandable across chats, agents and hosts.",
+  "A transition requires approved scope, explicit human authority and evidence that supports the claim.",
+  "Because the control state is recorded in the repository, later agents and reviewers can see what was approved, what was proven and what may happen next.",
 ]) {
   assert.equal(problemText.includes(positioningClaim), true, `Problem must preserve defensible positioning: ${positioningClaim}`);
 }
@@ -150,6 +150,24 @@ for (const unsupportedComparison of ["superior", "better than", "the only framew
 for (const competitor of ["OpenSpec", "Spec Kit", "BMAD", "Superpowers", "Compound Engineering", "Ruflo", "Aperant"]) {
   assert.equal(homepageText.includes(competitor), false, `homepage must not name competitor: ${competitor}`);
 }
+assert.equal((byId.problem.body.match(/data-governed-transition/g) ?? []).length, 1, "Problem must contain exactly one governed-transition visual");
+for (const transitionClaim of [
+  "From agent output to governed delivery",
+  "Plans",
+  "Code",
+  "Tests",
+  "May this count as delivery progress?",
+  "Shown in the AGDF interaction",
+  "Current gate, blocker and next allowed action",
+  "Recorded in .agdf/control/",
+  "Scope, approvals, evidence references and run state",
+  "AGDF reports the blocker and stops the governed workflow",
+  "The transition may count as governed delivery progress",
+]) {
+  assert.equal(problemText.includes(transitionClaim), true, `Problem visual must preserve truthful transition copy: ${transitionClaim}`);
+}
+assert.match(byId.problem.body, /<figure[^>]*data-governed-transition[^>]*aria-labelledby="governed-transition-title"[^>]*aria-describedby="governed-transition-description"/);
+assert.equal(visibleText(byId["how-it-works"].body).includes("From agent output to governed delivery"), false, "Transition visual must stay inside Problem");
 assert.equal(homepageText.includes("Fast output is not the same as governed delivery."), false, "superseded Problem thesis must not remain");
 
 validateControlLoop(byId["how-it-works"]);

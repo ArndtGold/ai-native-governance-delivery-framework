@@ -4,10 +4,12 @@ import { isAbsolute, join, relative, resolve, sep } from "node:path";
 
 export const INSTALLATION_PROVENANCE_FILE = ".agdf-installation.json";
 export const LEGACY_LOCAL_INSTALL_FILE = ".agdf-local-install.json";
+export const COPILOT_PAYLOAD_INVENTORY_FILE = ".agdf-payload-inventory.json";
 
 const EXPECTED_PROFILES = Object.freeze({
   "source-development": Object.freeze({ runtime: "absent", installable: false, machineValidation: "unavailable" }),
   "runtime-plugin": Object.freeze({ runtime: "required", installable: true, machineValidation: "local_exact_version_digest" }),
+  "copilot-runtime-plugin": Object.freeze({ runtime: "required", installable: true, machineValidation: "local_exact_version_digest_inventory" }),
   "opencode-config-local": Object.freeze({ runtime: "config_local_package", installable: true, machineValidation: "local_exact_version" }),
   "portable-skills": Object.freeze({ runtime: "absent", installable: true, machineValidation: "unavailable_or_external_required" }),
 });
@@ -39,6 +41,50 @@ export function digestDirectory(root) {
     hash.update("\0");
   }
   return hash.digest("hex");
+}
+
+export function digestFile(path) {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+export function inspectCopilotPayloadInventory(pluginRoot, expectedVersion) {
+  const inventoryPath = join(pluginRoot, COPILOT_PAYLOAD_INVENTORY_FILE);
+  const inventory = readJson(inventoryPath);
+  if (!inventory || inventory.schema_version !== 1 || inventory.profile_id !== "copilot-runtime-plugin"
+      || inventory.version !== expectedVersion || !Array.isArray(inventory.entries)) {
+    return { status: "invalid", reason: "copilot_payload_inventory_invalid" };
+  }
+  const destinations = inventory.entries.map((entry) => entry.destination);
+  if (new Set(destinations).size !== destinations.length) {
+    return { status: "invalid", reason: "copilot_payload_inventory_duplicate" };
+  }
+  const actual = [];
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) visit(path);
+      else if (stats.isFile()) {
+        const normalized = relative(pluginRoot, path).replaceAll("\\", "/");
+        if (![COPILOT_PAYLOAD_INVENTORY_FILE, INSTALLATION_PROVENANCE_FILE, LEGACY_LOCAL_INSTALL_FILE].includes(normalized)) actual.push(normalized);
+      }
+    }
+  }
+  try { visit(pluginRoot); } catch { return { status: "invalid", reason: "copilot_payload_incomplete" }; }
+  if (JSON.stringify(actual.sort()) !== JSON.stringify([...destinations].sort())) {
+    return { status: "invalid", reason: "copilot_payload_inventory_mismatch" };
+  }
+  for (const entry of inventory.entries) {
+    const path = join(pluginRoot, entry.destination);
+    if (!existsSync(path) || digestFile(path) !== entry.digest || statSync(path).size !== entry.bytes) {
+      return { status: "invalid", reason: "copilot_payload_digest_mismatch", entry: entry.destination };
+    }
+  }
+  const excluded = actual.some((path) => path.startsWith("skills/") || path.startsWith(".codex-plugin/")
+    || path.startsWith(".claude-plugin/") || path.startsWith("submission/")
+    || path === "hooks/hooks.json" || path === "hooks/session-start.sh");
+  if (excluded) return { status: "invalid", reason: "copilot_payload_excluded_surface" };
+  return { status: "matched", inventory, inventoryDigest: digestFile(inventoryPath) };
 }
 
 export function digestNormalizedPluginSource(root, canonicalVersion) {
@@ -148,6 +194,8 @@ export function inspectInstallationProvenance(pluginRoot, {
   runtimeManifest,
   pluginVersion,
   allowLegacy = false,
+  profileId = "runtime-plugin",
+  inventoryDigest = null,
 } = {}) {
   const markerPath = join(pluginRoot, INSTALLATION_PROVENANCE_FILE);
   const legacyPath = join(pluginRoot, LEGACY_LOCAL_INSTALL_FILE);
@@ -181,11 +229,12 @@ export function inspectInstallationProvenance(pluginRoot, {
   if (!marker
       || marker.schema_version !== 1
       || marker.owner !== "create-agdf"
-      || marker.profile_id !== "runtime-plugin"
+      || marker.profile_id !== profileId
       || marker.marketplace_id !== profile.contract.marketplaceIdentities.durable
       || marker.canonical_version !== definition.version
       || marker.codex_install_version !== pluginVersion
       || marker.runtime_digest !== runtimeManifest?.digest
+      || (profileId === "copilot-runtime-plugin" && marker.inventory_digest !== inventoryDigest)
       || !/^[a-f0-9]{64}$/.test(marker.source_digest ?? "")) {
     return { status: "invalid", reason: "installation_provenance_invalid", marker };
   }

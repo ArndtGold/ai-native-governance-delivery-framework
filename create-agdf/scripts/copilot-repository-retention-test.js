@@ -26,7 +26,7 @@ const io = { log(value = "") { output.push(String(value)); }, error(value = "") 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const prepare = () => ({
   root: join(root, "marketplace"),
-  pluginRoot: join(packageRoot, "generated", "plugins", "agdf"),
+  pluginRoot: join(packageRoot, "generated", "plugins", "copilot", "agdf"),
   commit() {},
   rollback() {},
 });

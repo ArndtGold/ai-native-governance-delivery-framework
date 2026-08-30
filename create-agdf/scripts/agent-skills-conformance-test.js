@@ -197,7 +197,7 @@ execFileSync(process.execPath, [syncScript], { stdio: "pipe" });
 const generatedRoot = join(packageRoot, "generated");
 for (const [surface, generatedPluginRoot, surfaceRoot] of [
   ["plugin", join(generatedRoot, "plugins", "agdf"), join(generatedRoot, "plugins", "agdf")],
-  ["copilot", pluginRoot, join(generatedRoot, "plugins", "agdf", pluginDefinition.copilot.skills)],
+  ["copilot", pluginRoot, join(generatedRoot, "plugins", "copilot", "agdf", pluginDefinition.copilot.skills)],
   ["opencode", pluginRoot, join(generatedRoot, ".opencode")],
   ["public_candidate", join(generatedRoot, "submissions", "openai", "agdf"), join(generatedRoot, "submissions", "openai", "agdf")],
 ]) {
@@ -209,7 +209,7 @@ for (const [surface, generatedPluginRoot, surfaceRoot] of [
 
 const generatedFaultRoot = mkdtempSync(join(tmpdir(), "agdf-agent-skills-copilot-"));
 try {
-  cpSync(join(generatedRoot, "plugins", "agdf", pluginDefinition.copilot.skills), generatedFaultRoot, { recursive: true });
+  cpSync(join(generatedRoot, "plugins", "copilot", "agdf", pluginDefinition.copilot.skills), generatedFaultRoot, { recursive: true });
   const path = join(generatedFaultRoot, "agdf-gate-check", "SKILL.md");
   writeFileSync(path, readFileSync(path, "utf8").replace("name: agdf-gate-check", "name: generated-drift"));
   const result = validateAgentSkillsConformance({ pluginRoot, surfaceRoot: generatedFaultRoot, surface: "copilot" });

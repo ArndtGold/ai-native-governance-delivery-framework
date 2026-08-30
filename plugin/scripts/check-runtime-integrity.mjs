@@ -681,6 +681,7 @@ if (pluginDefinition) {
   const expectedProfiles = {
     "source-development": { runtime: "absent", installable: false, machineValidation: "unavailable" },
     "runtime-plugin": { runtime: "required", installable: true, machineValidation: "local_exact_version_digest" },
+    "copilot-runtime-plugin": { runtime: "required", installable: true, machineValidation: "local_exact_version_digest_inventory" },
     "opencode-config-local": { runtime: "config_local_package", installable: true, machineValidation: "local_exact_version" },
     "portable-skills": { runtime: "absent", installable: true, machineValidation: "unavailable_or_external_required" },
   };
@@ -888,7 +889,7 @@ if (pluginDefinition) {
   }
 }
 
-if (!sourceMode) {
+if (!sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugin") {
   const copilotPlugin = isFile(copilotPluginPath) ? readJson(copilotPluginPath, "Copilot plugin manifest") : null;
   const copilotHooks = isFile(copilotHooksPath) ? readJson(copilotHooksPath, "Copilot plugin hooks") : null;
   if (!copilotPlugin) failures.push("installed runtime plugin must include root plugin.json for GitHub Copilot");

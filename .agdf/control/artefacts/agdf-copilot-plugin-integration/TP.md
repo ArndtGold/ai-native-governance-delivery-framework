@@ -1,10 +1,10 @@
-# TP: Plugin-Only AGDF Integration for GitHub Copilot
+# TP: Host-Specific AGDF Artifact for GitHub Copilot
 
 Status: approved
 Gate: TP
-Gate approval: exact `Approval: TP` accepted for revision 2 on 2026-08-30 after same-run, same-gate and revision revalidation
-Revision: 2
-Based on: `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` revision 2
+Gate approval: exact `Approval: TP` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation
+Revision: 3
+Based on: `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` revision 3
 Date: 2026-08-30
 Owner: Arndt Gold
 
@@ -12,101 +12,112 @@ Owner: Arndt Gold
 
 | task_id | Task | Acceptance mapping | Evidence required |
 |---|---|---|---|
-| CPI2-T01 | Remap the CLI `copilot` command to the existing plugin installation handler. Remove `copilot-plugin` and `both` from the command registry, help and runtime-check option validation. | CPI2-AC-01, AC-03, AC-08, AC-09; AD-CPI2-01, AD-CPI2-02 | Command registry and handler tests; supported-name snapshot; retired targets fail before mutation; consent choices use `copilot`. |
-| CPI2-T02 | Remove Copilot repository planning and presentation from scaffold owners while preserving `codex-repo`, `opencode-repo`, `init` and `config`. | CPI2-AC-03, AC-05, AC-07; AD-CPI2-04 | Scaffold target inventory; write-plan tests; retired targets create no files; remaining targets unchanged. |
-| CPI2-T03 | Refactor asset synchronization so the plugin manifest, `copilot-skills/**`, hook, contracts and runtime remain generated while owned repository-only Copilot outputs are removed from `create-agdf/generated`. | CPI2-AC-04, AC-05, AC-11; AD-CPI2-03 | Generated inventory before and after `release:prepare`; plugin skill and contract parity; absence of root Copilot repository assets; Runtime Integrity. |
-| CPI2-T04 | Preserve local `npm run install:copilot` orchestration and update its public handler expectation from `copilot-plugin` to `copilot`. | CPI2-AC-02, AC-09; AD-CPI2-01, AD-CPI2-06 | Local installer unit and orchestration tests; exact checkout version; lifecycle exit-code preservation. |
-| CPI2-T05 | Add non-destructive legacy fixtures proving install, update, status, disable and uninstall never alter existing `AGENTS.md`, `AGENTS.agdf.md`, `.github/**` or `.agdf/control/**`. | CPI2-AC-06, AC-07, AC-09; AD-CPI2-05 | Before and after content hashes for user-owned and formerly generated fixtures; failure and rollback cases. |
-| CPI2-T06 | Update focused lifecycle, consent, routing, package, Agent Skills and smoke tests for the plugin-only contract. Remove assertions that require the retired repository projection without weakening plugin coverage. | CPI2-AC-04, AC-08, AC-09, AC-11, AC-12; AD-CPI2-06, AD-CPI2-08 | Copilot manifest, skill inventory, hook JSON, exact validator, approval negative cases, package absence and cross-surface regressions. |
-| CPI2-T07 | Update `README.md`, `INSTALL.md`, `create-agdf/README.md`, CLI help and contributor guidance to publish one Copilot command and distinguish public registry from local checkout installation. | CPI2-AC-03, AC-10, AC-12; AD-CPI2-07 | Documentation assertions; no `copilot-plugin`, `copilot-repo` or supported Copilot repository bootstrap claims; identity and evidence boundaries consistent. |
-| CPI2-T08 | Update Pages compatibility and installation content so GitHub Copilot is shown as an installable AGDF plugin using the canonical command. | CPI2-AC-03, AC-10, AC-12; AD-CPI2-07 | Pages landing tests and build; removal of repository-only claim; public command present; no publication overclaim. |
-| CPI2-T09 | Run release preparation and all focused and aggregate repository verification. Repair only failures caused by this scope and preserve unrelated worktree changes. | All criteria; AD-CPI2-08 | `release:prepare`, focused tests, full smoke suite, package inventory, Runtime Integrity, 66 skill evaluations and `git diff --check`. |
-| CPI2-T10 | Install through `npm run install:copilot`, verify the resulting Copilot host registration and record separate installed-root and fresh-session evidence where directly observable. | CPI2-AC-01, AC-02, AC-04, AC-08, AC-09, AC-12 | Exact installed version, marketplace and plugin identity, loaded skill inventory or explicit unavailable boundary, hook observation and retained repository files. |
-| CPI2-T11 | Run mandatory Task Plan Review, Clean Implementation Review and Code Review, then reconcile Context Graph links before QA. | All criteria | Per-task coverage, clean-owner decision, diff findings, resolved drift and updated run evidence. |
+| CPI3-T01 | Refresh Brownfield Analysis in `pre_implementation_analysis` mode. Map the shared plugin generator, runtime dependencies, marketplace transaction, provenance, CLI dependency injection and all cross-host consumers before changing code. | CPI2-AC-04, AC-09, AC-11, AC-13; AD-CPI3-01, AD-CPI3-05 through AD-CPI3-08 | Exact owner and call-path map; required Copilot runtime dependency list; coexistence and rollback boundaries; explicit stop conditions. |
+| CPI3-T02 | Introduce one Copilot profile builder that projects canonical skills and allowlisted runtime dependencies into `generated/plugins/copilot/agdf`. Remove Copilot manifest, hook and `copilot-skills/**` from the Codex/Claude profile only after the new profile passes focused validation. | CPI2-AC-04, AC-11, AC-13; AD-CPI3-01, AD-CPI3-02 | Generated-tree inventory; exactly ten prefixed skills; no canonical `skills/**`, Codex/Claude manifests or other host projections in the Copilot profile; retained shared-profile behavior. |
+| CPI3-T03 | Define and emit a deterministic Copilot semantic inventory with destination, component class, canonical owner, transformation rule, host requirement and content digest for every included file. | CPI2-AC-11, AC-13; AD-CPI3-03 | Stable inventory across two builds; every file and owner mapped exactly once; inventory digest recorded. |
+| CPI3-T04 | Add fail-closed Copilot profile validation and a reviewed file-count and byte baseline. Add negative fixtures for unmapped files, missing required files, duplicate semantic owners, stale projections, excluded host surfaces and unexplained growth. | CPI2-AC-11, AC-13; AD-CPI3-03, AD-CPI3-04 | Named negative tests for every failure class; exact baseline values and component breakdown; zero unexplained tolerance unless the reviewed baseline is updated. |
+| CPI3-T05 | Make Runtime Integrity and installation provenance profile-aware. Validate the Copilot profile without requiring Codex or Claude manifests and bind provenance to canonical version, runtime digest and inventory digest. | CPI2-AC-04, AC-09, AC-11, AC-13; AD-CPI3-07 | Positive and tamper tests; exact-version local validator resolution from the Copilot root; rejection of wrong profile or inventory digest. |
+| CPI3-T06 | Add an atomic `prepareCopilotMarketplace` owner under the surface-specific `marketplaces/agdf-copilot` root. Reuse safe staging, ownership, swap, recovery and digest primitives without changing the existing Codex/Claude marketplace root. | CPI2-AC-01, AC-02, AC-09, AC-13; AD-CPI3-05 | First install, idempotent refresh, upgrade, interrupted transaction, foreign-root refusal and rollback tests; root and manifest identity assertions. |
+| CPI3-T07 | Route `installCopilotGlobalPlugin`, public `copilot` and local `install:copilot` through the Copilot preparation owner while preserving consent, direct-install migration, lifecycle result, version verification and restart behavior. | CPI2-AC-01 through AC-04, AC-08, AC-09; AD-CPI3-06, AD-CPI3-09 | CLI and installer tests; injected preparer observation; `agdf@agdf` identity; no command or consent regression. |
+| CPI3-T08 | Add cross-host coexistence and failure-isolation coverage using one AGDF data root. Exercise Codex→Claude→Copilot and Copilot→Codex→Claude sequences and verify roots, digests and registrations after successful and failed Copilot operations. | CPI2-AC-09, AC-11, AC-12, AC-13; AD-CPI3-05, AD-CPI3-08 | Both orderings pass; Copilot rollback changes only `agdf-copilot`; Codex and Claude roots and digests remain byte-identical. |
+| CPI3-T09 | Update package, routing, Agent Skills conformance, lifecycle, retention and Runtime Integrity tests to consume the new Copilot profile. Preserve all revision 2 command, repository-retention and documentation guarantees. | CPI2-AC-03 through AC-12; AD-CPI3-08, AD-CPI3-09 | Package contains both separately owned profiles; Copilot tests use only its profile; retired repository surface remains absent; all prior relevant regressions stay green. |
+| CPI3-T10 | Update technical installation and contributor documentation only where profile paths or diagnostic evidence changed. Keep the public command, product identity and bounded support claims unchanged. | CPI2-AC-03, AC-10, AC-12; AD-CPI3-06, AD-CPI3-09 | README, INSTALL, package README and Pages consistency tests; no new user-facing command or publication claim. |
+| CPI3-T11 | Run release preparation, focused suites, complete smoke, package inventory, Runtime Integrity, skill conformance, skill evaluations, Pages checks and diff validation. Repair only scope-caused failures. | All criteria | Two deterministic release builds; all focused and aggregate suites pass; unrelated worktree changes preserved; `git diff --check` passes. |
+| CPI3-T12 | Install through `npm run install:copilot`, inspect the staged and installed Copilot roots, record the before/after payload breakdown and capture bounded fresh-session behavior where directly observable. | CPI2-AC-01, AC-02, AC-04, AC-09, AC-12, AC-13 | Exact version and `agdf@agdf`; installed root contains one skill projection; measured file and byte reduction; hook and skill observation or explicit unavailable boundary. |
+| CPI3-T13 | Run Task Plan Review, Clean Implementation Review and Code Review, reconcile Context Graph links and prepare revised QA evidence. | All criteria | 13/13 task coverage or explicit gaps; clean-owner decision; findings resolved or blocking; source, package, staged, installed and loaded evidence remain separated. |
 
 ## 2. Deterministic Test Plan
 
 | test_id | Scope | Required assertions | Blocking effect |
 |---|---|---|---|
-| CPI2-CLI | Command contract | `copilot` is the only supported Copilot setup command; it reaches the plugin handler; `copilot-plugin` and `both` fail before mutation. | Block on stale or ambiguous routing. |
-| CPI2-SCAFFOLD | Remaining scaffold surfaces | Codex repository, OpenCode repository, init and config outputs remain coherent; no Copilot repository plan exists. | Block on missing retained output or Copilot repository writes. |
-| CPI2-GEN | Generated assets | Plugin manifest, prefixed skills, hook, contracts and runtime exist; retired root Copilot repository assets do not. | Block on missing plugin content, stale retired content or parallel owner. |
-| CPI2-LOCAL | Local installation | `npm run install:copilot` invokes public handler `copilot`, installs the checkout version and preserves exit codes. | Block on wrong command, version or masked failure. |
-| CPI2-NONDELETE | Legacy file retention | All repository fixtures retain exact contents across every plugin lifecycle operation and failure path. | Block on any repository mutation. |
-| CPI2-CONSENT | Consent and hook | Manual default, explicit enable, cancel, renewal and hook JSON remain bounded; no result grants gate authority. | Block on execution without consent or authority confusion. |
-| CPI2-LIFE | Plugin lifecycle | Install, update, status, disable and uninstall report truthful package, host and restart states and preserve prior healthy state on failure. | Block on false healthy state or destructive rollback. |
-| CPI2-PACK | Package and runtime | Marketplace, `plugin.json`, `copilot-skills/**`, hook, exact runtime, version and digests are coherent. | Block on version, provenance or Runtime Integrity failure. |
-| CPI2-DOC | Documentation | All public surfaces use `npx --yes @agdf/cli@latest copilot`; contributor surfaces use `npm run install:copilot`; no retired path is recommended. | Revise on stale or conflicting copy. |
-| CPI2-PAGES | Website | Copilot is listed as plugin support with bounded evidence; build and landing tests pass. | Revise on stale repository-only or publication claims. |
-| CPI2-REG | Cross-surface regression | Codex, Claude Code and OpenCode install, scaffold, consent, runtime and routing tests remain unchanged in behavior. | Block on regression. |
+| CPI3-BUILD | Copilot profile build | Two builds are byte-stable; exactly one prefixed skill tree, one manifest and one Copilot hook exist. | Block on nondeterminism, missing content or parallel projection. |
+| CPI3-ALLOWLIST | Payload boundary | Copilot root excludes `skills/**`, `.codex-plugin/**`, `.claude-plugin/**`, Codex hooks, submissions and unrelated host assets. | Block on any excluded surface. |
+| CPI3-INVENTORY | Semantic ownership | Every payload file maps to one source owner, transformation and host requirement; the inventory digest matches. | Block on missing, multiple or stale ownership. |
+| CPI3-NEGATIVE | Integrity failures | Unmapped, missing, duplicated, stale, excluded-surface and unexpected-growth fixtures each fail with a named reason. | Block if any fixture passes or fails ambiguously. |
+| CPI3-BASELINE | Growth control | Exact reviewed file-count and byte ceilings match the accepted profile; any change requires an explicit baseline and rationale update. | Block on unexplained growth. |
+| CPI3-RUNTIME | Runtime and provenance | Exact validator, hook runtime, profile identifier, runtime digest and inventory digest agree; tampering fails closed. | Block on version, profile, provenance or Runtime Integrity mismatch. |
+| CPI3-MARKET | Copilot marketplace transaction | Surface root, ownership, idempotence, upgrade, foreign-root refusal, recovery and rollback are correct. | Block on unsafe mutation or false healthy state. |
+| CPI3-CLI | Public and local routing | Both canonical commands select the Copilot profile; consent and result contracts remain unchanged. | Block on wrong preparer, command, identity or consent behavior. |
+| CPI3-COEXIST | Cross-host coexistence | Both installation orders preserve independent roots, registrations and digests; Copilot failure cannot roll back another host. | Block on shared-root mutation or cross-host regression. |
+| CPI3-PACK | Registry package | The package includes separately owned shared and Copilot profiles; each inventory is complete and no retired repository projection returns. | Block on missing artifact, ambiguity or stale content. |
+| CPI3-RETENTION | Repository safety | Existing repository instructions, skills and `.agdf/control/**` remain byte-identical across lifecycle operations. | Block on repository mutation. |
+| CPI3-DOC | Public consistency | Commands, identity, restart behavior and evidence limits remain consistent; profile details appear only where useful. | Revise on conflicting or inflated claims. |
+| CPI3-REG | Aggregate regression | Codex, Claude, OpenCode, Pages, skill conformance, evaluations and full smoke retain expected behavior. | Block on scope-caused regression. |
 
-## 3. Direct Host Evidence
+## 3. Direct Host And Installed-Root Evidence
 
 | observation_id | Procedure | Required evidence |
 |---|---|---|
-| CPI2-H01 | Run `npm run install:copilot` from the approved checkout. | Exact target and installed version, `agdf@agdf`, lifecycle result and restart instruction. |
-| CPI2-H02 | List registered marketplaces and installed plugins after installation. | Marketplace and plugin identities reported by Copilot, separate from package metadata. |
-| CPI2-H03 | Start a fresh Copilot session. | Loaded plugin or skill inventory and hook invocation, or an explicit unavailable result. |
-| CPI2-H04 | Repeat lifecycle operations with a fixture repository containing legacy AGDF Copilot files. | Directly unchanged files and control state after install, status, disable and uninstall. |
+| CPI3-H01 | Run `npm run install:copilot` from the approved checkout. | Exact target, canonical version, `agdf@agdf`, Copilot marketplace source and restart instruction. |
+| CPI3-H02 | Inspect the generated profile and AGDF-owned Copilot marketplace before host cache copying. | Inventory digest, component breakdown, one skill projection and absence of other host surfaces. |
+| CPI3-H03 | Inspect the host-reported installed plugin and accessible installed root where available. | Installed identity and version; package, staged and host-cache evidence clearly distinguished. |
+| CPI3-H04 | Start a fresh Copilot session. | Loaded prefixed skills and hook behavior, or an explicit unavailable result tied to the tested host version. |
+| CPI3-H05 | Verify an existing Codex and Claude installation before and after Copilot refresh. | Unchanged registered source, version and digest for each independent host. |
 
-Rendered Copilot observations prove only the tested app or CLI version, operating system, account,
-permissions and session. They do not establish cross-platform parity, human acceptance or public
-Marketplace availability.
+Rendered or CLI Copilot observations prove only the tested app or CLI version, operating system,
+account, permissions and session. They do not establish public Marketplace availability, native
+Windows or Linux parity, human acceptance or general host enforcement.
 
 ## 4. Acceptance Coverage
 
 | PRD criterion | Tasks | Primary tests |
 |---|---|---|
-| CPI2-AC-01 | T01, T09, T10 | CPI2-CLI, CPI2-LIFE, H01 |
-| CPI2-AC-02 | T04, T09, T10 | CPI2-LOCAL, H01 |
-| CPI2-AC-03 | T01, T02, T07, T08 | CPI2-CLI, CPI2-SCAFFOLD, CPI2-DOC, CPI2-PAGES |
-| CPI2-AC-04 | T03, T06, T09, T10 | CPI2-GEN, CPI2-PACK, H02, H03 |
-| CPI2-AC-05 | T02, T03, T06 | CPI2-SCAFFOLD, CPI2-GEN |
-| CPI2-AC-06 | T05, T06, T10 | CPI2-NONDELETE, H04 |
-| CPI2-AC-07 | T02, T05 | CPI2-SCAFFOLD, CPI2-NONDELETE |
-| CPI2-AC-08 | T01, T06, T10 | CPI2-CONSENT, CPI2-LIFE, H03 |
-| CPI2-AC-09 | T01, T04, T05, T06 | CPI2-LOCAL, CPI2-NONDELETE, CPI2-LIFE |
-| CPI2-AC-10 | T07, T08 | CPI2-DOC, CPI2-PAGES |
-| CPI2-AC-11 | T01 through T09 | All deterministic suites |
-| CPI2-AC-12 | T07 through T11 | CPI2-DOC, CPI2-PAGES, CPI2-PACK, host evidence and reviews |
+| CPI2-AC-01 | T06, T07, T11, T12 | CPI3-MARKET, CPI3-CLI, H01 |
+| CPI2-AC-02 | T06, T07, T12 | CPI3-CLI, H01 |
+| CPI2-AC-03 | T07, T09, T10 | CPI3-CLI, CPI3-DOC |
+| CPI2-AC-04 | T02, T05, T07, T12 | CPI3-BUILD, CPI3-RUNTIME, H02 through H04 |
+| CPI2-AC-05 | T02, T09 | CPI3-ALLOWLIST, CPI3-PACK |
+| CPI2-AC-06 | T08, T09 | CPI3-RETENTION, CPI3-COEXIST |
+| CPI2-AC-07 | T08, T09 | CPI3-RETENTION, CPI3-REG |
+| CPI2-AC-08 | T07, T09 | CPI3-CLI, CPI3-RUNTIME |
+| CPI2-AC-09 | T05 through T09, T12 | CPI3-RUNTIME, CPI3-MARKET, CPI3-COEXIST |
+| CPI2-AC-10 | T10 | CPI3-DOC |
+| CPI2-AC-11 | T02 through T11, T13 | All deterministic suites and reviews |
+| CPI2-AC-12 | T08 through T13 | CPI3-DOC, CPI3-REG and bounded host evidence |
+| CPI2-AC-13 | T01 through T09, T11 through T13 | CPI3-BUILD through CPI3-PACK, H02, H03 |
 
 ## 5. Brownfield Preparation Before Implementation
 
-After TP approval, run `brownfield-analysis` in `pre_implementation_analysis` mode. It must confirm:
+After TP approval, run `brownfield-analysis` in `pre_implementation_analysis` mode and persist the
+refreshed result before changing code. It must confirm:
 
-- the existing plugin handler is reused rather than copied;
-- removal of repository projection code does not remove plugin `copilot-skills/**` generation;
-- only AGDF-owned derived paths inside `create-agdf/generated` are cleaned;
-- no target repository cleanup or migration is introduced;
-- Codex, OpenCode, generic control and other host owners remain intact;
-- existing unrelated worktree changes remain excluded.
+- the minimum runtime and metadata dependency closure for the Copilot profile;
+- how atomic marketplace helpers are reused without coupling surface roots;
+- the exact CLI injection change needed to select a Copilot preparer;
+- how existing installation provenance migrates without false ownership claims;
+- how Copilot content is removed from the shared generated profile without breaking Codex or Claude;
+- which package, routing, conformance and runtime tests own each regression boundary;
+- that unrelated working-tree changes can remain isolated.
 
-Stop before implementation if a second installer, generator, consent store, lifecycle model,
-approval path or repository cleanup mechanism would be required.
+Stop before implementation if the design requires a second editable skill source, post-install
+network fetch, broad cleanup of user data, shared-root replacement, weakened Runtime Integrity or a
+new approval authority.
 
 ## 6. Out Of Scope
 
-- Submission to `copilot-plugins`, `awesome-copilot` or another external Marketplace.
-- Automatic Marketplace publication or publisher verification.
-- A renamed Copilot repository command or compatibility alias.
-- Deletion or migration of existing user repository files.
-- Native approval buttons, new agents, MCP servers, LSP servers or canvas extensions.
-- Unsupported cross-platform claims, release, commit, push or pull request creation.
+- Public Marketplace submission, publisher verification or release.
+- Renaming the technical marketplace or plugin identity from `agdf@agdf`.
+- Changing the public install command or consent choices.
+- Deleting or migrating existing user repository files.
+- Reducing the registry package to a single-host product.
+- Native approval buttons or new Copilot agents, MCP servers, LSP servers or extensions.
+- Unsupported cross-platform claims, commit, push or pull request creation.
 
 ## 7. Required Verification Sequence
 
-1. Implement T01 through T08 with focused tests.
-2. Run `npm run release:prepare` before broad generated-asset validation.
-3. Run affected focused suites, full `npm --prefix create-agdf run smoke-test` and Runtime Integrity.
-4. Run local Copilot install and bounded host observations.
-5. Run Task Plan Review, Clean Implementation Review and Code Review.
-6. Run selected-run `doctor`, `gate-check`, `delivery-map` and `git diff --check`.
-7. Prepare QA evidence without claiming QA pass.
+1. Complete and persist CPI3-T01 before implementation.
+2. Implement T02 through T10 with their focused positive and negative tests.
+3. Run `npm run release:prepare` twice and compare the Copilot profile and inventory.
+4. Run focused tests, full `npm --prefix create-agdf run smoke-test`, Runtime Integrity, package and Pages checks.
+5. Execute T12 and record generated, staged, installed-root and fresh-session evidence separately.
+6. Run Task Plan Review, Clean Implementation Review and Code Review.
+7. Reconcile Context Graph links and run selected-run `doctor`, `gate-check`, `delivery-map` and `git diff --check`.
+8. Prepare revised QA evidence without claiming QA pass.
 
 ## 8. Next Step
 
-Review Task and Test Plan revision 2. Approval permits Brownfield implementation preparation and
-then implementation of the approved tasks. It does not approve QA, UAT, publication or release.
+Review Task and Test Plan revision 3. Approval permits Brownfield implementation preparation and then
+implementation of the approved tasks. It does not approve QA, UAT, publication or release.
 
 Approve only with:
 

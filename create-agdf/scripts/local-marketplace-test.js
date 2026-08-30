@@ -10,6 +10,7 @@ import {
   digestDirectory,
   digestPluginSource,
   localMarketplaceRoot,
+  prepareCopilotMarketplace,
   prepareLocalMarketplace,
 } from "../lib/installers/local-marketplace.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin, pluginVersionFromList } from "../lib/installers/plugin-installers.js";
@@ -19,6 +20,7 @@ import { renameSyncWithRetry } from "../lib/fs-swap.js";
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
+const builtCopilotPluginRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-local-marketplace-"));
 
 function json(path) {
@@ -102,7 +104,63 @@ try {
   assert.equal(resolution.registry_access, false);
   assert.equal(resolution.distribution_profile, "runtime-plugin");
   assert.equal(resolution.provenance_status, "matched");
-  assert.equal(resolution.evidence_plane, "loaded_session");
+  assert.equal(resolution.evidence_plane, "installed_plugin_root");
+
+  const sharedDigestBeforeCopilot = digestDirectory(first.pluginRoot);
+  const copilotProjection = prepareCopilotMarketplace({ dataRoot, builtPluginRoot: builtCopilotPluginRoot });
+  assert.equal(copilotProjection.root, join(dataRoot, "marketplaces", "agdf-copilot"));
+  assert.equal(json(join(copilotProjection.root, ".agdf-owned.json")).profile_id, "copilot-runtime-plugin");
+  assert.equal(json(join(copilotProjection.pluginRoot, ".agdf-installation.json")).profile_id, "copilot-runtime-plugin");
+  assert.match(json(join(copilotProjection.pluginRoot, ".agdf-installation.json")).inventory_digest, /^[a-f0-9]{64}$/);
+  assert.equal(existsSync(join(copilotProjection.root, ".claude-plugin")), false);
+  assert.equal(existsSync(join(copilotProjection.root, ".agents")), false);
+  assert.equal(json(join(copilotProjection.root, ".github", "plugin", "marketplace.json")).plugins[0].version, pluginDefinition.version);
+  assert.equal(existsSync(join(copilotProjection.pluginRoot, "skills")), false);
+  assert.equal(existsSync(join(copilotProjection.pluginRoot, ".codex-plugin")), false);
+  assert.equal(existsSync(join(copilotProjection.pluginRoot, "copilot-skills", "agdf-gate-check", "SKILL.md")), true);
+  assert.equal(digestDirectory(first.pluginRoot), sharedDigestBeforeCopilot, "Copilot staging must not mutate the shared Codex and Claude profile");
+  const copilotResolution = spawnSync(process.execPath, [join(copilotProjection.pluginRoot, "runtime", "agdf-local.js"), "--resolve-only", "--json"], { encoding: "utf8" });
+  assert.equal(copilotResolution.status, 0, copilotResolution.stderr);
+  assert.equal(JSON.parse(copilotResolution.stdout).distribution_profile, "copilot-runtime-plugin");
+  const copilotProvenancePath = join(copilotProjection.pluginRoot, ".agdf-installation.json");
+  const copilotProvenanceText = readFileSync(copilotProvenancePath, "utf8");
+  const resolveCopilot = () => JSON.parse(spawnSync(
+    process.execPath,
+    [join(copilotProjection.pluginRoot, "runtime", "agdf-local.js"), "--resolve-only", "--json"],
+    { encoding: "utf8" },
+  ).stdout);
+  writeFileSync(copilotProvenancePath, `${JSON.stringify({ ...JSON.parse(copilotProvenanceText), profile_id: "runtime-plugin" }, null, 2)}\n`);
+  assert.equal(resolveCopilot().reason, "installation_provenance_invalid", "wrong installed profile must fail closed");
+  writeFileSync(copilotProvenancePath, `${JSON.stringify({ ...JSON.parse(copilotProvenanceText), inventory_digest: "0".repeat(64) }, null, 2)}\n`);
+  assert.equal(resolveCopilot().reason, "installation_provenance_invalid", "wrong installed inventory digest must fail closed");
+  writeFileSync(copilotProvenancePath, copilotProvenanceText);
+  const copilotManifestPath = join(copilotProjection.pluginRoot, "plugin.json");
+  const copilotManifestText = readFileSync(copilotManifestPath, "utf8");
+  writeFileSync(copilotManifestPath, "{}\n");
+  assert.equal(resolveCopilot().reason, "manifest_invalid", "tampered Copilot payload must fail closed before execution");
+  writeFileSync(copilotManifestPath, copilotManifestText);
+  copilotProjection.commit();
+  const sameCopilotProjection = prepareCopilotMarketplace({ dataRoot, builtPluginRoot: builtCopilotPluginRoot });
+  assert.equal(sameCopilotProjection.changed, false);
+  sameCopilotProjection.commit();
+
+  const reverseDataRoot = join(fixtureRoot, "reverse-order-data");
+  const copilotFirst = prepareCopilotMarketplace({ dataRoot: reverseDataRoot, builtPluginRoot: builtCopilotPluginRoot });
+  copilotFirst.commit();
+  const copilotDigestBeforeShared = digestDirectory(copilotFirst.pluginRoot);
+  const sharedSecond = prepareLocalMarketplace({ dataRoot: reverseDataRoot, builtPluginRoot });
+  sharedSecond.commit();
+  assert.equal(digestDirectory(copilotFirst.pluginRoot), copilotDigestBeforeShared, "shared staging must not mutate the Copilot profile");
+
+  const rollbackDataRoot = join(fixtureRoot, "copilot-rollback-data");
+  const rollbackShared = prepareLocalMarketplace({ dataRoot: rollbackDataRoot, builtPluginRoot });
+  rollbackShared.commit();
+  const rollbackSharedDigest = digestDirectory(rollbackShared.pluginRoot);
+  const rolledBackCopilot = prepareCopilotMarketplace({ dataRoot: rollbackDataRoot, builtPluginRoot: builtCopilotPluginRoot });
+  assert.equal(rolledBackCopilot.changed, true);
+  rolledBackCopilot.rollback();
+  assert.equal(existsSync(rolledBackCopilot.root), false, "rolling back a first Copilot stage must remove only its isolated marketplace root");
+  assert.equal(digestDirectory(rollbackShared.pluginRoot), rollbackSharedDigest, "Copilot rollback must retain the shared profile byte-for-byte");
   for (const args of [
     ["doctor", "--dir", repoRoot, "--all-active", "--json"],
     ["gate-check", "--dir", repoRoot, "--run", "automatic-version-asset-sync", "--json"],

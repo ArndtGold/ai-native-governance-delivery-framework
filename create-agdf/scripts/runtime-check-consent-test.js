@@ -209,7 +209,7 @@ try {
   assert.equal(withConsent.status, 0, withConsent.stderr);
   assert.match(withConsent.stdout, /AGDF automatic runtime check:/);
 
-  const copilotCommand = fixedRuntimeCheckCommand("copilot", join(process.cwd(), "generated", "plugins", "agdf"), process.platform);
+  const copilotCommand = fixedRuntimeCheckCommand("copilot", join(process.cwd(), "generated", "plugins", "copilot", "agdf"), process.platform);
   writeRuntimeCheckReceipt(entrypointDataRoot, createRuntimeCheckReceipt({
     surface: "copilot",
     decision: "enable",

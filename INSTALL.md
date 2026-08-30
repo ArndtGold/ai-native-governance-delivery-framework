@@ -140,12 +140,13 @@ install or update AGDF.
 
 AGDF supports four usage surfaces:
 
-1. **Codex** through the complete generated plugin containing the projected Codex manifest
-2. **Claude Code** through the same complete generated plugin containing the projected Claude manifest
-3. **GitHub Copilot** through the same generated plugin with a root `plugin.json`, prefixed skills and a consent-bound hook
+1. **Codex** through the complete generated shared plugin containing the projected Codex manifest
+2. **Claude Code** through the same shared plugin containing the projected Claude manifest
+3. **GitHub Copilot** through a dedicated generated Copilot profile with a root `plugin.json`, prefixed skills and a consent-bound hook
 4. **OpenCode** through repository instructions, generated native skills, permissions and the `create-agdf` npm plugin
 
-Codex, Claude Code and GitHub Copilot consume AGDF as an installable generated plugin runtime. The repository
+Codex, Claude Code and GitHub Copilot consume AGDF as installable generated plugin runtimes. All profiles are
+rendered from the same canonical sources, but the Copilot package does not carry Codex or Claude components. The repository
 `plugin/` directory is the canonical runtime-free source and is not registered directly.
 OpenCode consumes AGDF through AGENTS-style instructions, generated native skills, explicit permissions and npm plugin hooks.
 
@@ -772,9 +773,10 @@ plugin/.codex-plugin/plugin.json
 For Claude Code, the generated complete bundle uses the same canonical `plugin/` source projection.
 The source directory itself is not registered as an installable plugin package.
 
-GitHub Copilot discovers the same generated bundle through its root `plugin.json`. Its manifest points
+GitHub Copilot discovers its dedicated generated profile through the root `plugin.json`. Its manifest points
 to `copilot-skills/` and `hooks/copilot-hooks.json` so prefixed skills and the consent-bound session
-check are native plugin components.
+check are native plugin components. The installer stages it independently under
+`<AGDF data directory>/marketplaces/agdf-copilot`; the visible Marketplace identity remains `agdf`.
 
 All three surfaces load AGDF skills, hooks and shared meta instructions from the plugin bundle.
 Their skill routing comes from the plugin router and skill descriptions, not from a target-repository `AGENTS.md`.
@@ -805,7 +807,7 @@ Support claims are evidence-bound:
 
 | Plane | Current claim boundary |
 |---|---|
-| Generated package | Deterministically verified at AGDF 0.13.8 for manifest, prefixed skills, hook, runtime digest and release contents. |
+| Generated package | Deterministically verified at AGDF 0.14.1 for the isolated manifest, prefixed skills, hook, runtime digest, semantic payload inventory and release contents. |
 | macOS Copilot client | Installation and loaded-session support require direct `/plugins` and fresh-session observation for the installed client version. Package tests alone are insufficient. |
 | Copilot CLI | Lifecycle is verified only when the installed or npm-provided official CLI accepts the documented commands and post-operation listing. A failed npm bootstrap remains an explicit manual handoff. |
 | Linux and native Windows | No parity claim without direct lifecycle and fresh-session evidence on that operating system. Generated command fixtures are not host proof. |

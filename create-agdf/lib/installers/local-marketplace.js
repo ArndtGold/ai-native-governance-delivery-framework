@@ -15,6 +15,7 @@ import {
   INSTALLATION_PROVENANCE_FILE,
   LEGACY_LOCAL_INSTALL_FILE,
   digestDirectory,
+  inspectCopilotPayloadInventory,
   digestNormalizedPluginSource,
   inspectInstallationProvenance,
   validateDistributionProfiles,
@@ -141,20 +142,39 @@ function claudeMarketplace(definition = pluginDefinition) {
   };
 }
 
+function copilotMarketplace(definition = pluginDefinition) {
+  return {
+    name: MARKETPLACE_ID,
+    owner: { name: definition.displayName, email: "" },
+    metadata: { description: definition.description, version: definition.version },
+    plugins: [{
+      name: definition.id,
+      description: definition.copilotDescription || definition.longDescription,
+      version: definition.version,
+      source: "./plugins/agdf",
+    }],
+  };
+}
+
 function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVersion = expectedVersion, sourceDigest = "", {
   requireInstallationProvenance = false,
   allowLegacyProvenanceForMigration = false,
   allowPreProvenanceShape = false,
+  profileId = "runtime-plugin",
 } = {}) {
   const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "built plugin definition");
   const runtime = readJson(join(pluginRoot, "runtime", "runtime-manifest.json"), "built runtime manifest");
-  const codex = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "built Codex plugin manifest");
-  const claude = readJson(join(pluginRoot, ".claude-plugin", "plugin.json"), "built Claude plugin manifest");
+  const copilotProfile = profileId === "copilot-runtime-plugin";
+  const codex = copilotProfile ? null : readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "built Codex plugin manifest");
+  const claude = copilotProfile ? null : readJson(join(pluginRoot, ".claude-plugin", "plugin.json"), "built Claude plugin manifest");
+  const copilot = copilotProfile ? readJson(join(pluginRoot, "plugin.json"), "built Copilot plugin manifest") : null;
   for (const required of [
-    join(pluginRoot, ".codex-plugin", "plugin.json"),
-    join(pluginRoot, ".claude-plugin", "plugin.json"),
+    ...(copilotProfile ? [join(pluginRoot, "plugin.json"), join(pluginRoot, ".agdf-payload-inventory.json")] : [
+      join(pluginRoot, ".codex-plugin", "plugin.json"),
+      join(pluginRoot, ".claude-plugin", "plugin.json"),
+      join(pluginRoot, "scripts", "check-runtime-integrity.mjs"),
+    ]),
     join(pluginRoot, "runtime", "agdf-local.js"),
-    join(pluginRoot, "scripts", "check-runtime-integrity.mjs"),
   ]) {
     if (!existsSync(required)) throw new Error(`Built plugin is incomplete: ${required}`);
   }
@@ -178,13 +198,20 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
   if (profile.status !== "matched" && provenance?.status !== "legacy" && !isPreProvenanceShape) {
     throw new Error("Built plugin distribution profile contract is invalid.");
   }
-  if (codex.version !== expectedCodexInstallVersion) {
+  if (!copilotProfile && codex.version !== expectedCodexInstallVersion) {
     throw new Error(`Built Codex plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${codex.version}`);
   }
-  if (claude.version !== expectedVersion) {
+  if (!copilotProfile && claude.version !== expectedVersion) {
     throw new Error(`Built Claude plugin version mismatch: expected ${expectedVersion}, observed ${claude.version}`);
   }
-  if (expectedCodexInstallVersion !== expectedVersion) {
+  if (copilotProfile && copilot.version !== expectedVersion) {
+    throw new Error(`Built Copilot plugin version mismatch: expected ${expectedVersion}, observed ${copilot.version}`);
+  }
+  const copilotInventory = copilotProfile ? inspectCopilotPayloadInventory(pluginRoot, expectedVersion) : null;
+  if (copilotProfile && copilotInventory.status !== "matched") {
+    throw new Error(`Built Copilot plugin inventory is invalid: ${copilotInventory.reason}`);
+  }
+  if (!copilotProfile && expectedCodexInstallVersion !== expectedVersion) {
     if (!isCodexLocalInstallVersion(expectedVersion, expectedCodexInstallVersion, sourceDigest)) {
       throw new Error(`Invalid AGDF Codex local install version: ${expectedCodexInstallVersion}`);
     }
@@ -199,6 +226,8 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
       runtimeManifest: runtime,
       pluginVersion: expectedCodexInstallVersion,
       allowLegacy: allowLegacyProvenanceForMigration,
+      profileId,
+      inventoryDigest: copilotInventory?.inventoryDigest ?? null,
     });
     if (provenance.status !== "matched"
         && !(allowLegacyProvenanceForMigration && provenance.status === "legacy")) {
@@ -208,11 +237,15 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
   return definition;
 }
 
-function validateMarketplaceRoot(root, definition = pluginDefinition) {
-  const codex = readJson(join(root, ".agents", "plugins", "marketplace.json"), "Codex local marketplace manifest");
-  const claude = readJson(join(root, ".claude-plugin", "marketplace.json"), "Claude local marketplace manifest");
+function validateMarketplaceRoot(root, definition = pluginDefinition, { profileId = "runtime-plugin" } = {}) {
+  const copilotProfile = profileId === "copilot-runtime-plugin";
+  const codex = copilotProfile ? null : readJson(join(root, ".agents", "plugins", "marketplace.json"), "Codex local marketplace manifest");
+  const copilot = copilotProfile ? readJson(join(root, ".github", "plugin", "marketplace.json"), "Copilot local marketplace manifest") : null;
+  const claude = copilotProfile ? null : readJson(join(root, ".claude-plugin", "marketplace.json"), "Claude local marketplace manifest");
   const serializedCodex = JSON.stringify(codex);
-  const codexShape = serializedCodex === JSON.stringify(codexMarketplace(definition))
+  const codexShape = copilotProfile
+    ? "current"
+    : serializedCodex === JSON.stringify(codexMarketplace(definition))
     ? "current"
     : serializedCodex === JSON.stringify(legacyCodexMarketplace(definition))
       ? "legacy_full_product_label"
@@ -220,15 +253,19 @@ function validateMarketplaceRoot(root, definition = pluginDefinition) {
   if (codexShape === "invalid") {
     throw new Error(`Codex local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
   }
-  if (JSON.stringify(claude) !== JSON.stringify(claudeMarketplace(definition))) {
+  if (!copilotProfile && JSON.stringify(claude) !== JSON.stringify(claudeMarketplace(definition))) {
     throw new Error(`Claude local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
+  }
+  if (copilotProfile && JSON.stringify(copilot) !== JSON.stringify(copilotMarketplace(definition))) {
+    throw new Error(`Copilot local marketplace manifest is not owned by ${MARKETPLACE_ID}: ${root}`);
   }
   return Object.freeze({ codexShape });
 }
 
-function classifyExistingMarketplace(stableRoot, marker) {
+function classifyExistingMarketplace(stableRoot, marker, { profileId = "runtime-plugin" } = {}) {
   const existingPluginRoot = join(stableRoot, "plugins", MARKETPLACE_ID);
-  const existingCodexInstallVersion = marker.codex_install_version ?? marker.version;
+  const copilotProfile = profileId === "copilot-runtime-plugin";
+  const existingCodexInstallVersion = copilotProfile ? marker.version : marker.codex_install_version ?? marker.version;
   if (!isSemanticVersion(marker.version)
       || !/^[a-f0-9]{64}$/.test(marker.plugin_digest ?? "")) {
     throw new Error(`Refusing invalid AGDF marketplace ownership evidence: ${stableRoot}`);
@@ -238,7 +275,7 @@ function classifyExistingMarketplace(stableRoot, marker) {
     "built plugin definition",
   );
   const hasCurrentProvenance = existsSync(join(existingPluginRoot, INSTALLATION_PROVENANCE_FILE));
-  const hasLegacyProvenance = existsSync(join(existingPluginRoot, LEGACY_LOCAL_INSTALL_FILE));
+  const hasLegacyProvenance = !copilotProfile && existsSync(join(existingPluginRoot, LEGACY_LOCAL_INSTALL_FILE));
   const preProvenanceCandidate = !hasCurrentProvenance
     && !hasLegacyProvenance
     && !Object.hasOwn(definition, "distributionProfiles");
@@ -249,9 +286,9 @@ function classifyExistingMarketplace(stableRoot, marker) {
     marker.source_digest ?? "",
     preProvenanceCandidate
       ? { allowPreProvenanceShape: true }
-      : { requireInstallationProvenance: true, allowLegacyProvenanceForMigration: true },
+      : { requireInstallationProvenance: true, allowLegacyProvenanceForMigration: true, profileId },
   );
-  const marketplace = validateMarketplaceRoot(stableRoot, existingDefinition);
+  const marketplace = validateMarketplaceRoot(stableRoot, existingDefinition, { profileId });
   if (digestDirectory(existingPluginRoot) !== marker.plugin_digest) {
     throw new Error(`Refusing tampered AGDF marketplace root: ${stableRoot}`);
   }
@@ -287,25 +324,30 @@ function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failed
 
 export function prepareLocalMarketplace({
   dataRoot = defaultAgdfDataRoot(),
-  builtPluginRoot = join(generatedRoot, "plugins", "agdf"),
+  builtPluginRoot,
   expectedVersion = pluginDefinition.version,
   codexInstallVersion = expectedVersion,
   codexRegistrationRevision = null,
+  profileId = "runtime-plugin",
 } = {}) {
   dataRoot = resolve(dataRoot);
+  const copilotProfile = profileId === "copilot-runtime-plugin";
+  if (!builtPluginRoot) builtPluginRoot = copilotProfile
+    ? join(generatedRoot, "plugins", "copilot", "agdf")
+    : join(generatedRoot, "plugins", "agdf");
   builtPluginRoot = resolve(builtPluginRoot);
-  const stableRoot = join(dataRoot, "marketplaces", MARKETPLACE_ID);
+  const stableRoot = join(dataRoot, "marketplaces", copilotProfile ? "agdf-copilot" : MARKETPLACE_ID);
   const parent = dirname(stableRoot);
   const stageRoot = `${stableRoot}.stage`;
   const backupRoot = `${stableRoot}.backup`;
   const failedRoot = `${stableRoot}.failed`;
   if (!pathInside(dataRoot, stableRoot) || dirname(stableRoot) !== parent) throw new Error(`Unsafe AGDF marketplace root: ${stableRoot}`);
   const sourceDigest = digestPluginSource(builtPluginRoot, expectedVersion);
-  if (codexInstallVersion !== expectedVersion
+  if (!copilotProfile && codexInstallVersion !== expectedVersion
       && !isCodexLocalInstallVersion(expectedVersion, codexInstallVersion, sourceDigest)) {
     throw new Error(`Invalid AGDF Codex local install version: ${codexInstallVersion}`);
   }
-  const targetDefinition = validateBuiltPlugin(builtPluginRoot, expectedVersion);
+  const targetDefinition = validateBuiltPlugin(builtPluginRoot, expectedVersion, expectedVersion, "", { profileId });
   mkdirSync(parent, { recursive: true });
   recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot);
 
@@ -313,6 +355,7 @@ export function prepareLocalMarketplace({
   if (existsSync(stableRoot)) {
     try {
       existing = ownership(stableRoot);
+      if ((existing.profile_id ?? "runtime-plugin") !== profileId) throw new Error(`AGDF marketplace profile mismatch: ${stableRoot}`);
     } catch (error) {
       throw invalidExistingMarketplace(error);
     }
@@ -325,7 +368,7 @@ export function prepareLocalMarketplace({
   if (existing) {
     let classified;
     try {
-      classified = classifyExistingMarketplace(stableRoot, existing);
+      classified = classifyExistingMarketplace(stableRoot, existing, { profileId });
     } catch (error) {
       throw invalidExistingMarketplace(error);
     }
@@ -338,6 +381,7 @@ export function prepareLocalMarketplace({
       schema_version: 1,
       owner: "create-agdf",
       marketplace_id: MARKETPLACE_ID,
+      profile_id: profileId,
       codex_registration_revision: targetCodexRegistrationRevision,
       version: expectedVersion,
       codex_install_version: codexInstallVersion,
@@ -348,8 +392,8 @@ export function prepareLocalMarketplace({
     });
     const stagedPluginRoot = join(stageRoot, "plugins", MARKETPLACE_ID);
     cpSync(builtPluginRoot, stagedPluginRoot, { recursive: true });
-    validateBuiltPlugin(stagedPluginRoot, expectedVersion);
-    if (codexInstallVersion !== expectedVersion) {
+    validateBuiltPlugin(stagedPluginRoot, expectedVersion, expectedVersion, "", { profileId });
+    if (!copilotProfile && codexInstallVersion !== expectedVersion) {
       const codexManifestPath = join(stagedPluginRoot, ".codex-plugin", "plugin.json");
       writeJson(codexManifestPath, { ...readJson(codexManifestPath, "built Codex plugin manifest"), version: codexInstallVersion });
     }
@@ -357,25 +401,31 @@ export function prepareLocalMarketplace({
     writeJson(join(stagedPluginRoot, INSTALLATION_PROVENANCE_FILE), {
       schema_version: 1,
       owner: "create-agdf",
-      profile_id: "runtime-plugin",
+      profile_id: profileId,
       marketplace_id: MARKETPLACE_ID,
       canonical_version: expectedVersion,
       codex_install_version: codexInstallVersion,
       source_digest: sourceDigest,
       runtime_digest: runtimeManifest.digest,
+      ...(copilotProfile ? { inventory_digest: inspectCopilotPayloadInventory(stagedPluginRoot, expectedVersion).inventoryDigest } : {}),
     });
     if (existsSync(join(stagedPluginRoot, LEGACY_LOCAL_INSTALL_FILE))) {
       rmSync(join(stagedPluginRoot, LEGACY_LOCAL_INSTALL_FILE));
     }
-    validateBuiltPlugin(stagedPluginRoot, expectedVersion, codexInstallVersion, sourceDigest, { requireInstallationProvenance: true });
-    writeJson(join(stageRoot, ".agents", "plugins", "marketplace.json"), codexMarketplace(targetDefinition));
-    writeJson(join(stageRoot, ".claude-plugin", "marketplace.json"), claudeMarketplace(targetDefinition));
-    validateMarketplaceRoot(stageRoot, targetDefinition);
+    validateBuiltPlugin(stagedPluginRoot, expectedVersion, copilotProfile ? expectedVersion : codexInstallVersion, sourceDigest, { requireInstallationProvenance: true, profileId });
+    if (copilotProfile) {
+      writeJson(join(stageRoot, ".github", "plugin", "marketplace.json"), copilotMarketplace(targetDefinition));
+    } else {
+      writeJson(join(stageRoot, ".agents", "plugins", "marketplace.json"), codexMarketplace(targetDefinition));
+      writeJson(join(stageRoot, ".claude-plugin", "marketplace.json"), claudeMarketplace(targetDefinition));
+    }
+    validateMarketplaceRoot(stageRoot, targetDefinition, { profileId });
     const pluginDigest = digestDirectory(stagedPluginRoot);
     const marker = {
       schema_version: 1,
       owner: "create-agdf",
       marketplace_id: MARKETPLACE_ID,
+      profile_id: profileId,
       codex_registration_revision: targetCodexRegistrationRevision,
       version: expectedVersion,
       codex_install_version: codexInstallVersion,
@@ -448,6 +498,10 @@ export function prepareLocalMarketplace({
   }
 }
 
+export function prepareCopilotMarketplace(options = {}) {
+  return prepareLocalMarketplace({ ...options, profileId: "copilot-runtime-plugin", codexInstallVersion: options.expectedVersion ?? pluginDefinition.version });
+}
+
 export function inspectLocalMarketplaceProjection({
   dataRoot = defaultAgdfDataRoot(),
   expectedVersion = pluginDefinition.version,
@@ -476,6 +530,34 @@ export function inspectLocalMarketplaceProjection({
     sourceDigest: marker.source_digest ?? "",
     digest: marker.plugin_digest,
   });
+}
+
+export function inspectOwnedSharedMarketplaceForCopilotMigration({
+  dataRoot = defaultAgdfDataRoot(),
+  expectedVersion = pluginDefinition.version,
+} = {}) {
+  const root = join(resolve(dataRoot), "marketplaces", MARKETPLACE_ID);
+  if (!existsSync(root)) return null;
+  const marker = ownership(root);
+  if ((marker.profile_id ?? "runtime-plugin") !== "runtime-plugin"
+      || marker.version !== expectedVersion
+      || !/^[a-f0-9]{64}$/.test(marker.plugin_digest ?? "")) {
+    throw new Error(`Refusing incompatible AGDF shared marketplace migration source: ${root}`);
+  }
+  const pluginRoot = join(root, "plugins", MARKETPLACE_ID);
+  const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "shared plugin definition");
+  const runtime = readJson(join(pluginRoot, "runtime", "runtime-manifest.json"), "shared runtime manifest");
+  const codex = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "shared Codex manifest");
+  const claude = readJson(join(pluginRoot, ".claude-plugin", "plugin.json"), "shared Claude manifest");
+  if (definition.id !== MARKETPLACE_ID
+      || definition.version !== expectedVersion
+      || runtime.version !== expectedVersion
+      || claude.version !== expectedVersion
+      || (codex.version !== expectedVersion && !isCodexLocalInstallVersion(expectedVersion, codex.version))
+      || digestDirectory(pluginRoot) !== marker.plugin_digest) {
+    throw new Error(`Refusing stale or tampered AGDF shared marketplace migration source: ${root}`);
+  }
+  return Object.freeze({ root, pluginRoot, version: marker.version, digest: marker.plugin_digest });
 }
 
 function normalizedLegacySource(value) {

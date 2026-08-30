@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
 const supportedSurfaces = new Set(["codex", "claude", "copilot", "opencode"]);
 
 function npmInvocation(args) {
@@ -37,18 +36,22 @@ export async function installLocalPlugin(surface, adapters = {}) {
     import("../lib/installers/local-marketplace.js"),
     import("../lib/installers/local-development.js"),
   ]);
-  const { codexLocalInstallVersion, defaultAgdfDataRoot, digestPluginSource, prepareLocalMarketplace } = marketplace;
+  const { codexLocalInstallVersion, defaultAgdfDataRoot, digestPluginSource, prepareCopilotMarketplace, prepareLocalMarketplace } = marketplace;
   const cli = adapters.runCli ?? runCli;
   const dataRoot = adapters.dataRoot ?? defaultAgdfDataRoot();
 
+  const builtPluginRoot = surface === "copilot"
+    ? join(packageRoot, "generated", "plugins", "copilot", "agdf")
+    : join(packageRoot, "generated", "plugins", "agdf");
   const sourceDigest = digestPluginSource(builtPluginRoot, pluginDefinition.version);
   const codexInstallVersion = codexLocalInstallVersion(pluginDefinition.version, sourceDigest);
-  const prepare = (options = {}) => prepareLocalMarketplace({
+  const prepareOwner = surface === "copilot" ? prepareCopilotMarketplace : prepareLocalMarketplace;
+  const prepare = (options = {}) => prepareOwner({
     ...options,
     dataRoot,
     builtPluginRoot,
     expectedVersion: pluginDefinition.version,
-    codexInstallVersion,
+    ...(surface === "copilot" ? {} : { codexInstallVersion }),
   });
   const env = { ...process.env, AGDF_DATA_DIR: dataRoot };
 

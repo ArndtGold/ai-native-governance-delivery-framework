@@ -147,8 +147,10 @@ it does not localize the CLI lifecycle card.
 - `opencode-repo` writes durable AGDF control configuration and templates under `.agdf/control/`; it does not copy a second OpenCode runtime surface
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
 
-The `codex`, `claude` and `copilot` commands install from the complete plugin built into the released
-`create-agdf` package. They atomically stage it under an AGDF-owned user-data marketplace, register
+The `codex` and `claude` commands install the complete shared plugin built into the released
+`create-agdf` package. The `copilot` command installs a dedicated generated profile containing only
+the Copilot manifest, prefixed skills, hook, required contracts and exact-version runtime. Every profile
+is rendered from the same canonical sources. The installers atomically stage their profile under an AGDF-owned user-data marketplace, register
 that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
 contains no generated runtime bytes and the source checkout exposes no installable root marketplace.
 The staged plugin contains one installation-provenance marker and the shared exact-version runtime;
@@ -156,6 +158,10 @@ routine installed validation does not depend on the GitHub
 checkout, npm cache, PATH or registry. Rerunning either command performs the explicit update and
 migrates only the exact known legacy AGDF GitHub marketplace; foreign same-name registrations fail
 closed and failed host operations restore the prior owned stage.
+
+Copilot staging uses the independent path `<AGDF data directory>/marketplaces/agdf-copilot`. This
+prevents Copilot updates and rollbacks from replacing the shared Codex and Claude payload while the
+host-facing Marketplace identity remains `agdf` and the install identity remains `agdf@agdf`.
 
 The Copilot installer does not create, rewrite or remove repository files. Existing `AGENTS.md`, `.github/` and `.agdf/control/` content remains untouched. Use `init` separately when a repository should own surface-neutral durable AGDF control state.
 

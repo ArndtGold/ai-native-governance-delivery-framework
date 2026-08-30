@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const packageRoot = new URL("..", import.meta.url);
 const repoRoot = new URL("..", packageRoot);
 const generatedPluginRoot = fileURLToPath(new URL("./generated/plugins/agdf/", packageRoot));
+const generatedCopilotPluginRoot = fileURLToPath(new URL("./generated/plugins/copilot/agdf/", packageRoot));
 const pluginDefinitionPath = fileURLToPath(new URL("./plugin/meta/agdf-plugin.definition.json", repoRoot));
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 
@@ -32,7 +33,7 @@ function assertFile(path, label) {
 
 {
   const pluginRouterPath = join(generatedPluginRoot, "meta", "agdf-agent-router.md");
-  const copilotSkillsRoot = join(generatedPluginRoot, pluginDefinition.copilot.skills);
+  const copilotSkillsRoot = join(generatedCopilotPluginRoot, pluginDefinition.copilot.skills);
 
   assertFile(pluginRouterPath, "Plugin router");
   assertFile(join(copilotSkillsRoot, "agdf-gate-check", "SKILL.md"), "Copilot plugin gate-check skill");

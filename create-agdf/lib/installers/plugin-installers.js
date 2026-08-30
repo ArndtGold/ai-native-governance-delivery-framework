@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import process from "node:process";
 import { pluginDefinition } from "../cli/runtime-context.js";
 import { digestNormalizedPluginSource } from "../runtime/plugin-provenance.js";
-import { CODEX_REGISTRATION_REVISION, classifyMarketplaceList, inspectLocalMarketplaceProjection, isCodexLocalInstallVersion, prepareLocalMarketplace } from "./local-marketplace.js";
+import { CODEX_REGISTRATION_REVISION, classifyMarketplaceList, inspectLocalMarketplaceProjection, inspectOwnedSharedMarketplaceForCopilotMigration, isCodexLocalInstallVersion, prepareCopilotMarketplace, prepareLocalMarketplace } from "./local-marketplace.js";
 
 export const COPILOT_CLI_NPM_PACKAGE = "@github/copilot@1.0.80";
 
@@ -99,7 +99,7 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
   }
 }
 
-export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilotExec = execFileSync, prepare = prepareLocalMarketplace, dataRoot, pluginRoot } = {}) {
+export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilotExec = execFileSync, prepare = prepareCopilotMarketplace, dataRoot, pluginRoot } = {}) {
   const expectedVersion = pluginDefinition.version;
   const transaction = pluginRoot ? null : prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
   const effectivePluginRoot = pluginRoot ?? transaction?.pluginRoot;
@@ -139,18 +139,40 @@ export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilo
   }
   const directInstalled = pluginListHasPlugin(before, "agdf");
   const marketplaceInstalled = pluginListHasPlugin(before, "agdf@agdf");
+  let legacySharedProjection = null;
+  if (transaction) {
+    try { legacySharedProjection = inspectOwnedSharedMarketplaceForCopilotMigration({ ...(dataRoot ? { dataRoot } : {}), expectedVersion }); } catch {}
+  }
   let marketplaceAdded = false;
+  let legacyMarketplaceRemoved = false;
+  let marketplacePluginRemoved = false;
   let directRemoved = false;
   try {
     const nativeOutput = [];
     const marketplaceOutput = runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "list"], "marketplace", captureOptions());
-    const marketplace = classifyCopilotMarketplaceList(marketplaceOutput, transaction?.root ?? resolve(effectivePluginRoot, "..", ".."));
+    const marketplace = classifyCopilotMarketplaceList(
+      marketplaceOutput,
+      transaction?.root ?? resolve(effectivePluginRoot, "..", ".."),
+      { ownedLegacyRoots: legacySharedProjection ? [legacySharedProjection.root] : [] },
+    );
     if (marketplace.state === "conflict") {
       throw lifecycleAdapterError("marketplace", `Refusing to replace non-AGDF Copilot marketplace registration agdf (${marketplace.source || "unknown source"}).`);
     }
-    if (marketplace.state === "absent") {
+    if (marketplace.state === "owned_legacy_shared") {
+      if (marketplaceInstalled) {
+        nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "uninstall", "agdf@agdf"], "plugin_operation", captureOptions()));
+        marketplacePluginRemoved = true;
+      }
+      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "remove", "agdf"], "marketplace", captureOptions()));
+      legacyMarketplaceRemoved = true;
+    }
+    if (["absent", "owned_legacy_shared"].includes(marketplace.state)) {
       nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "add", transaction?.root ?? resolve(effectivePluginRoot, "..", "..")], "marketplace", captureOptions()));
       marketplaceAdded = true;
+    }
+    if (marketplace.state === "owned_local_current" && marketplaceInstalled) {
+      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "uninstall", "agdf@agdf"], "plugin_operation", captureOptions()));
+      marketplacePluginRemoved = true;
     }
     if (directInstalled) {
       nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "uninstall", "agdf"], "plugin_operation", captureOptions()));
@@ -169,7 +191,7 @@ export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilo
       surface: "copilot", operation: directInstalled || marketplaceInstalled ? "update" : "install", expectedVersion,
       installedVersion: installedVersion || null, verificationStatus: installedVersion ? "healthy" : "degraded",
       manualHandoff: false,
-      evidence: [...bootstrapEvidence, "durable_local_plugin_stage", "copilot plugin marketplace list", ...(marketplaceAdded ? ["copilot plugin marketplace add"] : ["marketplace:owned_local_current"]), ...(directRemoved ? ["direct_install_migrated"] : []), "copilot plugin install agdf@agdf", "copilot plugin list", `local_plugin_root:${effectivePluginRoot}`, `source_digest:${sourceDigest}`, ...(installedVersion ? [] : ["host_did_not_expose_version"])],
+      evidence: [...bootstrapEvidence, "durable_local_plugin_stage", "copilot plugin marketplace list", ...(marketplaceAdded ? ["copilot plugin marketplace add"] : ["marketplace:owned_local_current"]), ...(legacyMarketplaceRemoved ? ["shared_marketplace_registration_migrated"] : []), ...(directRemoved ? ["direct_install_migrated"] : []), "copilot plugin install agdf@agdf", "copilot plugin list", `local_plugin_root:${effectivePluginRoot}`, `source_digest:${sourceDigest}`, ...(installedVersion ? [] : ["host_did_not_expose_version"])],
       pluginRoot: effectivePluginRoot, runtimeDigest: runtimeManifest.digest, sourceDigest, nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {
@@ -188,18 +210,32 @@ export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilo
         error.evidence = { ...(error.evidence ?? {}), marketplace_recovery: commandErrorText(recoveryError) };
       }
     }
+    if (legacyMarketplaceRemoved && legacySharedProjection) {
+      try {
+        activeExec("copilot", ["plugin", "marketplace", "add", legacySharedProjection.root], captureOptions());
+        if (marketplacePluginRemoved) activeExec("copilot", ["plugin", "install", "agdf@agdf"], captureOptions());
+      } catch (recoveryError) {
+        error.evidence = { ...(error.evidence ?? {}), legacy_marketplace_recovery: commandErrorText(recoveryError) };
+      }
+    } else if (marketplacePluginRemoved) {
+      try {
+        activeExec("copilot", ["plugin", "install", "agdf@agdf"], captureOptions());
+      } catch (recoveryError) {
+        error.evidence = { ...(error.evidence ?? {}), marketplace_plugin_recovery: commandErrorText(recoveryError) };
+      }
+    }
     throw error;
   }
 }
 
-export function classifyCopilotMarketplaceList(output, expectedRoot) {
+export function classifyCopilotMarketplaceList(output, expectedRoot, { ownedLegacyRoots = [] } = {}) {
   const line = String(output || "").split(/\r?\n/).find((entry) => /^\s*[◆•]?\s*agdf\s+\(/.test(entry));
   if (!line) return { state: "absent", source: "" };
   const local = line.match(/\(Local:\s*(.+)\)\s*$/);
   if (!local) return { state: "conflict", source: line.trim() };
-  return resolve(local[1]) === resolve(expectedRoot)
-    ? { state: "owned_local_current", source: local[1] }
-    : { state: "conflict", source: local[1] };
+  if (resolve(local[1]) === resolve(expectedRoot)) return { state: "owned_local_current", source: local[1] };
+  if (ownedLegacyRoots.some((root) => resolve(root) === resolve(local[1]))) return { state: "owned_legacy_shared", source: local[1] };
+  return { state: "conflict", source: local[1] };
 }
 
 export function copilotNpmInvocation({ env = process.env, platform = process.platform, execPath = process.execPath } = {}) {

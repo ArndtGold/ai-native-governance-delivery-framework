@@ -10,6 +10,7 @@ const packageRoot = dirname(dirname(scriptPath));
 const repoRoot = dirname(packageRoot);
 const sourcePluginRoot = join(repoRoot, "plugin");
 const generatedPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
+const generatedCopilotPluginRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
 
 function digestDirectory(root) {
   const files = [];
@@ -36,9 +37,12 @@ assert.equal(existsSync(join(sourcePluginRoot, "runtime")), false, "source plugi
 const sourceBefore = digestDirectory(sourcePluginRoot);
 execFileSync(process.execPath, [scriptPath], { stdio: "pipe" });
 const first = digestDirectory(generatedPluginRoot);
+const firstCopilot = digestDirectory(generatedCopilotPluginRoot);
 execFileSync(process.execPath, [scriptPath], { stdio: "pipe" });
 const second = digestDirectory(generatedPluginRoot);
+const secondCopilot = digestDirectory(generatedCopilotPluginRoot);
 assert.equal(second, first, "two complete plugin builds must be byte-identical");
+assert.equal(secondCopilot, firstCopilot, "two Copilot profile builds must be byte-identical");
 assert.equal(digestDirectory(sourcePluginRoot), sourceBefore, "package build must not modify source plugin bytes");
 assert.equal(existsSync(join(sourcePluginRoot, "runtime")), false, "package build must not materialize source plugin runtime");
 console.log("Package build tests passed (byte-identical complete builds; source untouched)");

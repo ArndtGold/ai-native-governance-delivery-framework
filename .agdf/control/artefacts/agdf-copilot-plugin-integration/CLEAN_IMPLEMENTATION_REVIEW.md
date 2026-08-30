@@ -1,13 +1,13 @@
-# Clean Implementation Review: Plugin-Only AGDF Integration for GitHub Copilot
+# Clean Implementation Review: Copilot-Specific AGDF Payload
 
 - decision: pass
-- revision: 2
+- revision: 3
 - date: 2026-08-30
-- primary_solution: Make `copilot` delegate to the existing plugin lifecycle, remove the obsolete repository projection at its registry, scaffold and generator owners, and retain the existing plugin manifest, prefixed skills, hook, runtime, consent and Marketplace owners.
-- evidence: CLI registry and handler tests; package absence and plugin-presence assertions; byte-identical package build; dedicated repository-retention test; full smoke; direct local install and Copilot list evidence.
-- fallbacks_retained: The pre-existing pinned official `@github/copilot@1.0.80` fallback remains when `copilot` is absent from `PATH`. It uses the same public Copilot commands and does not create a second lifecycle owner.
-- workaround_or_shim_risk: low; no compatibility alias, renamed repository target or user-repository cleanup path was added.
-- parallel_structure_risk: none observed; the removed `.github/skills` projection no longer duplicates the plugin skill surface.
-- brownfield_fit: pass; Codex, Claude Code, OpenCode, generic control and local contributor installation remain in their existing owners.
-- missing_evidence: Fresh post-update Copilot app loading remains a host observation, not an implementation-integrity gap.
-- required_next_step: run Code Review and then prepare QA evidence.
+- primary_solution: Generate one Copilot-only artifact from the canonical plugin sources, bind every payload file to a semantic inventory, and stage it under an independent atomic Marketplace owner.
+- evidence: One editable source under `plugin/`; one generated Copilot profile; exact inventory baseline; profile-aware validator and provenance; independent marketplace transaction; complete smoke and direct installed-root evidence.
+- fallbacks_retained: The pinned official Copilot CLI fallback remains when `copilot` is absent from `PATH`. A legacy shared-marketplace registration is migrated only when its AGDF ownership marker, version, manifests and plugin digest all match. Its exit condition is the successful registration of `marketplaces/agdf-copilot`; failed migration restores the prior registration and plugin.
+- workaround_or_shim_risk: low; compatibility logic is limited to one evidenced predecessor state and has deterministic success and rollback tests.
+- parallel_structure_risk: none; the Copilot artifact is generated, not editable, and the semantic inventory rejects an additional skill tree or host surface.
+- brownfield_fit: pass; existing atomic swap, provenance, runtime and installer owners are extended without replacing the shared Codex/Claude root.
+- missing_evidence: Fresh loaded-session behavior remains a host/UAT observation and is not treated as implementation-integrity evidence.
+- required_next_step: run Code Review and then QA Gate.

@@ -5,6 +5,7 @@ import process from "node:process";
 import {
   INSTALLATION_PROVENANCE_FILE,
   digestDirectory,
+  inspectCopilotPayloadInventory,
   inspectGeneratedRepositoryMarketplace,
   inspectInstallationProvenance,
   validateDistributionProfiles,
@@ -83,41 +84,52 @@ export function resolveLocalValidator(options) {
     }
     const codexManifest = readJson(join(pluginRoot, ".codex-plugin", "plugin.json"));
     const claudeManifest = readJson(join(pluginRoot, ".claude-plugin", "plugin.json"));
-    const pluginVersion = codexManifest?.version ?? null;
-    if (!codexManifest || !claudeManifest || claudeManifest.version !== definition.version) {
-      return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile: "runtime-plugin", provenanceStatus: "invalid", reason: "manifest_invalid" }) };
+    const copilotManifest = readJson(join(pluginRoot, "plugin.json"));
+    const copilotProfile = Boolean(copilotManifest && !codexManifest && !claudeManifest);
+    const distributionProfile = copilotProfile ? "copilot-runtime-plugin" : "runtime-plugin";
+    const pluginVersion = copilotProfile ? copilotManifest?.version ?? null : codexManifest?.version ?? null;
+    if (copilotProfile
+      ? copilotManifest.version !== definition.version
+      : (!codexManifest || !claudeManifest || claudeManifest.version !== definition.version)) {
+      return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile, provenanceStatus: "invalid", reason: "manifest_invalid" }) };
+    }
+    const copilotInventory = copilotProfile ? inspectCopilotPayloadInventory(pluginRoot, definition.version) : null;
+    if (copilotProfile && copilotInventory.status !== "matched") {
+      return { envelope: envelope("version_mismatch", options, { source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile, provenanceStatus: "invalid", reason: copilotInventory.reason }) };
     }
     const packageRoot = join(options.runtimeRoot, "create-agdf");
     if (!existsSync(packageRoot)) {
-      return { envelope: envelope("unavailable", options, { source: "plugin_bundle", pluginRoot, pluginVersion, distributionProfile: "runtime-plugin", reason: "runtime_missing" }) };
+      return { envelope: envelope("unavailable", options, { source: "plugin_bundle", pluginRoot, pluginVersion, distributionProfile, reason: "runtime_missing" }) };
     }
     const packageManifest = readJson(join(packageRoot, "package.json"));
     const observedVersion = packageManifest?.version ?? manifest.version ?? null;
     if (observedVersion !== options.expectedVersion || manifest.version !== options.expectedVersion) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile: "runtime-plugin" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, distributionProfile }) };
     }
     let observedDigest = null;
     try { observedDigest = digestDirectory(packageRoot); } catch {}
     if (!observedDigest || manifest.digest !== observedDigest) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile: "runtime-plugin", reason: "runtime_digest_mismatch" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile, reason: "runtime_digest_mismatch" }) };
     }
     const entrypoint = resolve(options.runtimeRoot, manifest.entrypoint ?? "");
     const entrypointRelative = relative(options.runtimeRoot, entrypoint);
     if (!manifest.entrypoint || entrypointRelative === ".." || entrypointRelative.startsWith(`..${sep}`) || isAbsolute(entrypointRelative)) {
-      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile: "runtime-plugin", reason: "invalid_entrypoint" }) };
+      return { envelope: envelope("version_mismatch", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile, reason: "invalid_entrypoint" }) };
     }
     if (!existsSync(entrypoint)) {
-      return { envelope: envelope("unavailable", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile: "runtime-plugin", reason: "entrypoint_missing" }) };
+      return { envelope: envelope("unavailable", options, { observedVersion, source: "plugin_bundle", pluginRoot, pluginVersion, canonicalVersion: definition.version, runtimeDigest: observedDigest, distributionProfile, reason: "entrypoint_missing" }) };
     }
     const installed = existsSync(join(pluginRoot, INSTALLATION_PROVENANCE_FILE));
     let provenanceStatus = "not_applicable";
     let sourceDigest = null;
-    let evidencePlane = "loaded_session";
+    let evidencePlane = options.expectedPluginRoot ? "loaded_session" : "installed_plugin_root";
     if (installed) {
       const provenance = inspectInstallationProvenance(pluginRoot, {
         definition,
         runtimeManifest: manifest,
         pluginVersion,
+        profileId: distributionProfile,
+        inventoryDigest: copilotInventory?.inventoryDigest ?? null,
       });
       provenanceStatus = provenance.status;
       sourceDigest = provenance.marker?.source_digest ?? null;
@@ -130,8 +142,8 @@ export function resolveLocalValidator(options) {
           canonicalVersion: definition.version,
           runtimeDigest: observedDigest,
           sourceDigest,
-          distributionProfile: "runtime-plugin",
-          evidencePlane: "loaded_session",
+          distributionProfile,
+          evidencePlane,
           provenanceStatus,
           reason: provenance.reason,
         }) };
@@ -144,16 +156,16 @@ export function resolveLocalValidator(options) {
         pluginVersion,
         canonicalVersion: definition.version,
         runtimeDigest: observedDigest,
-        distributionProfile: "runtime-plugin",
+        distributionProfile,
         evidencePlane: "loaded_session",
         provenanceStatus: "missing",
         reason: "installation_provenance_missing",
       }) };
     } else {
-      const generatedRepository = inspectGeneratedRepositoryMarketplace(resolve(pluginRoot, "..", ".."));
+      const generatedRepository = copilotProfile ? null : inspectGeneratedRepositoryMarketplace(resolve(pluginRoot, "..", ".."));
       if (pluginVersion !== definition.version
-          || generatedRepository.status !== "matched"
-          || canonicalPath(generatedRepository.pluginRoot) !== pluginRoot) {
+          || (!copilotProfile && (generatedRepository.status !== "matched"
+            || canonicalPath(generatedRepository.pluginRoot) !== pluginRoot))) {
         return { envelope: envelope("unavailable", options, {
           observedVersion,
           source: "plugin_bundle",
@@ -161,7 +173,7 @@ export function resolveLocalValidator(options) {
           pluginVersion,
           canonicalVersion: definition.version,
           runtimeDigest: observedDigest,
-          distributionProfile: "runtime-plugin",
+          distributionProfile,
           evidencePlane: "installed_plugin_root",
           provenanceStatus: "missing",
           reason: "installation_provenance_missing",
@@ -178,7 +190,7 @@ export function resolveLocalValidator(options) {
         canonicalVersion: definition.version,
         runtimeDigest: observedDigest,
         sourceDigest,
-        distributionProfile: "runtime-plugin",
+        distributionProfile,
         evidencePlane,
         provenanceStatus,
       }),

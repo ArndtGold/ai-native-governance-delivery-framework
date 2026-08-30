@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,10 @@ import {
   renderCopilotPluginManifest,
 } from "../lib/public-plugin/manifest.js";
 import { buildPublicPluginCandidate } from "../lib/public-plugin/builder.js";
+import {
+  buildCopilotPayloadInventory,
+  validateCopilotPayload,
+} from "../lib/public-plugin/copilot-profile.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, "..");
@@ -33,12 +38,15 @@ const pluginDefinitionPath = join(repoRoot, "plugin", "meta", "agdf-plugin.defin
 const generatedRoot = join(packageRoot, "generated");
 const generatedControlRoot = join(generatedRoot, ".agdf", "control");
 const generatedCodexPluginRoot = join(generatedRoot, "plugins", "agdf");
+const generatedCopilotPluginRoot = join(generatedRoot, "plugins", "copilot", "agdf");
 const generatedOpenCodeRoot = join(generatedRoot, ".opencode");
 const generatedOpenCodeAgentsRoot = join(generatedOpenCodeRoot, "agents");
 const generatedOpenCodeSkillsRoot = join(generatedOpenCodeRoot, "skills");
 const pluginDefinition = JSON.parse(read(pluginDefinitionPath));
-const generatedCopilotPluginSkillsRoot = join(generatedCodexPluginRoot, pluginDefinition.copilot.skills);
+const generatedCopilotPluginSkillsRoot = join(generatedCopilotPluginRoot, pluginDefinition.copilot.skills);
 const interactionLocaleFileName = pluginDefinition.interactions.localeRegistry.split("/").at(-1);
+const copilotBaselinePath = join(repoRoot, "plugin", "meta", "copilot-payload-baseline.json");
+const copilotMappings = [];
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -47,6 +55,35 @@ function read(path) {
 function write(path, content) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content, "utf8");
+}
+
+function sha256(content) {
+  return createHash("sha256").update(content).digest("hex");
+}
+
+function copilotDestination(path) {
+  return path.slice(generatedCopilotPluginRoot.length + 1).replaceAll("\\", "/");
+}
+
+function writeCopilot(path, content, { component, owner, rule, requirement, source } = {}) {
+  write(path, content);
+  copilotMappings.push({
+    destination: copilotDestination(path),
+    component,
+    owner,
+    rule,
+    requirement,
+    ...(source ? { source, sourceDigest: sha256(read(join(repoRoot, source))) } : {}),
+  });
+}
+
+function mapGeneratedDirectory(root, metadata) {
+  for (const entry of readdirSync(root)) {
+    const path = join(root, entry);
+    const stats = statSync(path);
+    if (stats.isDirectory()) mapGeneratedDirectory(path, metadata);
+    else if (stats.isFile()) copilotMappings.push({ destination: copilotDestination(path), ...metadata });
+  }
 }
 
 function syncDirectory(sourceRoot, targetRoot) {
@@ -264,12 +301,21 @@ function syncOpenCodeRuntimeContract() {
 function syncCopilotPluginContract() {
   const contract = toCopilotSkillContent(read(sourceRuntimeContractPath)
     .replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName));
-  write(join(generatedCopilotPluginSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), contract);
-  write(join(generatedCopilotPluginSkillsRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath));
+  writeCopilot(join(generatedCopilotPluginSkillsRoot, pluginDefinition.copilot.runtimeContractFileName), contract, {
+    component: "runtime_contract", owner: "plugin/meta/agdf-runtime-contract.md", rule: "copilot_name_projection",
+    requirement: "shared gate and output contract", source: "plugin/meta/agdf-runtime-contract.md",
+  });
+  writeCopilot(join(generatedCopilotPluginSkillsRoot, interactionLocaleFileName), read(sourceInteractionLocalesPath), {
+    component: "locale_registry", owner: "plugin/meta/agdf-interaction-locales.json", rule: "copy",
+    requirement: "localized interaction presentation", source: "plugin/meta/agdf-interaction-locales.json",
+  });
   for (const moduleName of contractModules) {
     const source = read(join(sourceContractsRoot, moduleName))
       .replaceAll("plugin/meta/agdf-interaction-locales.json", interactionLocaleFileName);
-    write(join(generatedCopilotPluginSkillsRoot, "contracts", moduleName), toCopilotSkillContent(source));
+    writeCopilot(join(generatedCopilotPluginSkillsRoot, "contracts", moduleName), toCopilotSkillContent(source), {
+      component: "runtime_contract_module", owner: `plugin/meta/contracts/${moduleName}`, rule: "copilot_name_projection",
+      requirement: "focused runtime contract", source: `plugin/meta/contracts/${moduleName}`,
+    });
   }
 }
 
@@ -281,12 +327,18 @@ function syncCopilotPluginSkill(skillSlug) {
     .replaceAll("../../meta/contracts/", "../contracts/")
     .replaceAll("../../meta/agdf-runtime-contract.md", `../${pluginDefinition.copilot.runtimeContractFileName}`)
     .replaceAll("plugin/meta/agdf-interaction-locales.json", `../${interactionLocaleFileName}`));
-  write(join(generatedCopilotPluginSkillsRoot, targetName, "SKILL.md"), normalized);
+  writeCopilot(join(generatedCopilotPluginSkillsRoot, targetName, "SKILL.md"), normalized, {
+    component: "skill", owner: `plugin/skills/${sourceName}/SKILL.md`, rule: "copilot_name_projection",
+    requirement: `Copilot skill ${targetName}`, source: `plugin/skills/${sourceName}/SKILL.md`,
+  });
 }
 
 function writeCopilotPluginFiles() {
-  write(join(generatedCodexPluginRoot, pluginDefinition.copilot.pluginManifest), renderCopilotPluginManifest(pluginDefinition));
-  write(join(generatedCodexPluginRoot, pluginDefinition.copilot.hooks), `${JSON.stringify({
+  writeCopilot(join(generatedCopilotPluginRoot, pluginDefinition.copilot.pluginManifest), renderCopilotPluginManifest(pluginDefinition), {
+    component: "manifest", owner: "plugin/meta/agdf-plugin.definition.json", rule: "render_copilot_manifest",
+    requirement: "Copilot plugin discovery", source: "plugin/meta/agdf-plugin.definition.json",
+  });
+  writeCopilot(join(generatedCopilotPluginRoot, pluginDefinition.copilot.hooks), `${JSON.stringify({
     version: 1,
     hooks: {
       sessionStart: [{
@@ -296,8 +348,30 @@ function writeCopilotPluginFiles() {
         timeoutSec: 10,
       }],
     },
-  }, null, 2)}\n`);
+  }, null, 2)}\n`, {
+    component: "hook", owner: "plugin/meta/agdf-plugin.definition.json", rule: "render_copilot_hook",
+    requirement: "consent-bound session start check", source: "plugin/meta/agdf-plugin.definition.json",
+  });
   syncCopilotPluginContract();
+}
+
+function writeCopilotSupportFiles() {
+  for (const source of [
+    "plugin/meta/agdf-plugin.definition.json",
+    "plugin/meta/agdf-agent-router.md",
+    "plugin/meta/agdf-constitution.md",
+    "plugin/meta/agdf-runtime-contract.md",
+    "LICENSE",
+  ]) {
+    const destination = source === "LICENSE" ? "LICENSE" : source.replace(/^plugin\//, "");
+    writeCopilot(join(generatedCopilotPluginRoot, destination), read(join(repoRoot, source)), {
+      component: source === "LICENSE" ? "license" : "runtime_support",
+      owner: source,
+      rule: "copy",
+      requirement: source === "LICENSE" ? "license notice" : "local validator and session orientation dependency",
+      source,
+    });
+  }
 }
 
 function writeCodexMarketplace() {
@@ -346,11 +420,13 @@ function main() {
     join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"),
     join(generatedRoot, ".github", "skills"),
   ]) rmSync(obsoletePath, { recursive: true, force: true });
+  rmSync(generatedCopilotPluginRoot, { recursive: true, force: true });
 
   syncOpenCodeRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
   writeCopilotPluginFiles();
+  writeCopilotSupportFiles();
   writeCodexMarketplace();
   writeOpenCodeConfig();
   writeOpenCodeInstructions();
@@ -361,6 +437,27 @@ function main() {
   rmSync(generatedOpenCodeAgentsRoot, { recursive: true, force: true });
   writeOpenCodeReadme(skillSlugs);
   syncPluginRuntime({ outputRoot: join(generatedCodexPluginRoot, "runtime") });
+  syncPluginRuntime({ outputRoot: join(generatedCopilotPluginRoot, "runtime") });
+  mapGeneratedDirectory(join(generatedCopilotPluginRoot, "runtime"), {
+    component: "runtime",
+    owner: "create-agdf/scripts/sync-plugin-runtime.js",
+    rule: "generated_exact_runtime",
+    requirement: "offline exact-version validator and session check",
+  });
+  const copilotBaseline = JSON.parse(read(copilotBaselinePath));
+  buildCopilotPayloadInventory({
+    profileRoot: generatedCopilotPluginRoot,
+    mappings: copilotMappings,
+    version: pluginDefinition.version,
+    baseline: { max_files: copilotBaseline.max_files, max_bytes: copilotBaseline.max_bytes },
+  });
+  validateCopilotPayload({
+    profileRoot: generatedCopilotPluginRoot,
+    repoRoot,
+    expectedVersion: pluginDefinition.version,
+    expectedSkills: skillSlugs,
+    baseline: copilotBaseline,
+  });
   buildPublicPluginCandidate({
     repoRoot,
     outputRoot: join(packageRoot, "generated", "submissions", "openai", "agdf"),

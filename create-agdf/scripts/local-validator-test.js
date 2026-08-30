@@ -23,6 +23,7 @@ try {
     profiles: {
       "source-development": { runtime: "absent", installable: false, machineValidation: "unavailable" },
       "runtime-plugin": { runtime: "required", installable: true, machineValidation: "local_exact_version_digest" },
+      "copilot-runtime-plugin": { runtime: "required", installable: true, machineValidation: "local_exact_version_digest_inventory" },
       "opencode-config-local": { runtime: "config_local_package", installable: true, machineValidation: "local_exact_version" },
       "portable-skills": { runtime: "absent", installable: true, machineValidation: "unavailable_or_external_required" },
     },
@@ -96,7 +97,9 @@ try {
   writeFileSync(provenancePath, `${JSON.stringify(validProvenance)}\n`);
   const installedMatch = resolveLocalValidator({ runtimeRoot, expectedVersion: "1.2.3", surface: "codex" });
   assert.equal(installedMatch.envelope.machine_validation, "owned_version_matched");
-  assert.equal(installedMatch.envelope.evidence_plane, "loaded_session");
+  assert.equal(installedMatch.envelope.evidence_plane, "installed_plugin_root");
+  const loadedMatch = resolveLocalValidator({ runtimeRoot, pluginRoot, expectedPluginRoot: pluginRoot, expectedVersion: "1.2.3", surface: "codex" });
+  assert.equal(loadedMatch.envelope.evidence_plane, "loaded_session");
   assert.equal(installedMatch.envelope.provenance_status, "matched");
 
   writeFileSync(provenancePath, `${JSON.stringify({ ...validProvenance, owner: "foreign" })}\n`);

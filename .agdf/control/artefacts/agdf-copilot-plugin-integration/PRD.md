@@ -2,8 +2,8 @@
 
 Status: approved
 Gate: PRD
-Gate approval: exact `Approval: PRD` accepted for revision 2 on 2026-08-28 after same-run, same-gate and revision revalidation
-Revision: 2
+Gate approval: exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation
+Revision: 3
 Based on: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md` revision 2
 Brownfield Review: `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` revision 2
 UX Intent: `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md` revision 2
@@ -45,6 +45,11 @@ consent-bound session hook without treating installation or hook execution as AG
   `.github/copilot-instructions.md` and `.github/skills/**`.
 - Preserve the generated plugin bundle, `copilot-skills/**`, plugin manifest, hook and exact-version
   runtime.
+- Materialize a Copilot-specific installation artifact from canonical sources. The artifact registered
+  with Copilot must contain exactly one Copilot-facing skill projection and must not carry an unused
+  canonical `skills/**` tree or another editable copy of the same semantic content.
+- Add fail-closed package inventory and source-to-projection integrity checks so unexpected semantic
+  duplication, stale projections and unexplained payload growth block release preparation.
 - Preserve installation consent, lifecycle, provenance, status, disable and uninstall behavior.
 - Preserve existing user-owned repository files. No installation, update or uninstall operation may
   delete or rewrite historical Copilot files.
@@ -144,6 +149,20 @@ Repository and package tests prove only source and bundle behavior. Loaded app b
 system parity, human UAT and marketplace publication require separate evidence and must remain
 explicitly unverified where absent.
 
+### CPI2-AC-13 — Single-projection Copilot payload
+
+The plugin artifact materialized and registered for GitHub Copilot must contain exactly one complete
+Copilot-facing skill projection. It must not include an unused canonical `skills/**` tree, a second
+host's skill projection or duplicate editable owners for skills, runtime contracts, hooks or plugin
+metadata. Shared runtime code and contracts may be included only where the Copilot artifact needs
+them to operate offline and validate the exact installed version.
+
+The release build must produce a deterministic semantic inventory that maps every Copilot payload
+component to one canonical source owner. It must fail closed when the artifact contains an
+unmapped semantic duplicate, a stale derived projection, an unexpected host surface or unexplained
+growth beyond an explicitly reviewed baseline. The check must compare semantic ownership and
+required host behavior, not file names or byte count alone.
+
 ## 6. Non-Goals
 
 - Deleting or migrating files in existing user repositories.
@@ -151,6 +170,10 @@ explicitly unverified where absent.
 - Creating a renamed Copilot repository installer such as `copilot-repo`.
 - Treating generic `init` or repository governance state as a second Copilot distribution surface.
 - Adding a second installer, consent model, provenance model, skill source or gate authority.
+- Removing host-required runtime or contract content merely to minimize byte size.
+- Requiring the registry package itself to contain only Copilot assets; the constraint applies to
+  the artifact materialized and registered for Copilot, while other host release outputs may remain
+  in the registry package as separately owned artifacts.
 - Claiming default marketplace publication, cross-platform parity or human acceptance without direct
   evidence.
 - Changing Codex, Claude Code or OpenCode installation semantics except where removal of `both`
@@ -169,9 +192,10 @@ explicitly unverified where absent.
 ## 8. Evidence And Release Boundary
 
 Required deterministic evidence includes CLI and lifecycle tests, generated package inventory,
-Runtime Integrity, routing tests, hook contract tests, non-deletion fixtures, Pages tests and
-`git diff --check`. Direct Copilot evidence must separately record the installed version, fresh
-session, loaded skills and hook execution for the tested host version.
+semantic source-to-projection mapping, negative duplicate and stale-projection fixtures, reviewed
+payload baseline, Runtime Integrity, routing tests, hook contract tests, non-deletion fixtures,
+Pages tests and `git diff --check`. Direct Copilot evidence must separately record the installed
+version, fresh session, loaded skills and hook execution for the tested host version.
 
 QA, UAT, publication, release, commit and push remain separately gated.
 
@@ -184,10 +208,15 @@ QA, UAT, publication, release, commit and push remain separately gated.
 - Stale repository files may look supported. Documentation and status output must not use their
   presence as plugin activation proof.
 - Host plugin behavior may drift across Copilot app, CLI, cloud agent and operating systems.
+- A physically shared multi-host plugin root can make Copilot install content that its manifest does
+  not load. This increases the number of derived copies that can drift even when the host ignores
+  the extra files.
+- A byte-only optimization can remove required offline validation or contract content while leaving
+  semantic duplication intact. Integrity checks must therefore prove ownership and behavior first.
 
 ## 10. Next Step
 
-Review PRD revision 2. Approval permits drafting the revised Solution Design. It does not permit
+Review PRD revision 3. Approval permits drafting the revised Solution Design. It does not permit
 implementation.
 
 Approve only with:

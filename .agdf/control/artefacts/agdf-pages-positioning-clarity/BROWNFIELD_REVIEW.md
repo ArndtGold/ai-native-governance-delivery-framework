@@ -1,6 +1,6 @@
 # Brownfield Review: Sharpen AGDF Pages Positioning
 
-- revision: 3
+- revision: 4
 - mode: `post_ur_review`
 - decision: `pass`
 - mode_slice_decision: `verified_change`
@@ -19,13 +19,13 @@
 - `pages/src/data/site.ts` is the single canonical landing-page content owner.
 - `pages/scripts/landing-page-test.mjs` is the deterministic validation owner.
 - The page already owns the thesis `Agent activity is not delivery progress.` and the single `Approved scope -> evidence -> gate -> transition` control loop.
-- The delivered distinction is explicit, but its opening comparison remains abstract and its durable-control claim is broader than the mechanism the page immediately explains.
+- The delivered transition is explicit, but the Hero still describes a generic control layer and the problem copy does not directly contrast AGDF with specification, development and orchestration frameworks.
 - current_coverage: `partially_done`
 - reuse_strategy: `extend`
 
 ## Baseline Re-evaluation
 
-The first positioning change was committed as `3aa985e`. At baseline `3aa985e`, both candidate paths are clean. The requested refinement stays inside the approved problem-section scope and changes no capability, structure, authority or delivery contract.
+The prior positioning and graphic work is committed. At baseline `59c11d8`, both candidate paths are clean. The requested refinement stays inside the approved positioning UR and changes no capability, structure, authority or delivery contract.
 
 ## Verified Change Selection
 
@@ -33,8 +33,8 @@ The first positioning change was committed as `3aa985e`. At baseline `3aa985e`, 
 - allowed source paths: `pages/src/data/site.ts`; `pages/scripts/landing-page-test.mjs`
 - prohibited impacts: gate, permission, security, persistence, architecture, API, CLI, runtime, installation, release and host behaviour
 - deterministic propagation: not applicable
-- deterministic validation: `npm --prefix pages run test:landing`
-- baseline commit: `3aa985e`
+- deterministic validation: `npm --prefix pages run test:landing`; `npm --prefix pages run check`; `git diff --check`
+- baseline commit: `59c11d8`
 - baseline tracked paths: none
 - baseline untracked paths: none
 - escalation target: `structured_slice`
@@ -60,4 +60,4 @@ The first positioning change was committed as `3aa985e`. At baseline `3aa985e`, 
 
 ## Required Next Step
 
-Reopen the existing Verified Change on baseline `3aa985e`, implement only the two declared paths, run the focused landing regression and record the exact changed-path snapshot.
+Reopen the existing Verified Change on baseline `59c11d8`, implement only the two declared paths, run the focused landing regression and record the exact changed-path snapshot.

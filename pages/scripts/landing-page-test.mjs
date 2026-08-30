@@ -19,7 +19,7 @@ const expectedSectionIds = ["home", "problem", "how-it-works", "outcomes", "proo
 const exactHero = {
   audience: "For engineering teams using coding agents on real repositories",
   title: "Agent speed needs a control system.",
-  lead: "AGDF is the control layer for governed AI-assisted delivery.",
+  lead: "AGDF controls when agent output may count as delivery progress.",
   formula: "In Formula 1, the engine creates speed. Rules, evidence, strategy and human decisions determine what happens next. AI-assisted delivery has the same challenge: agent output is fast, but teams still need approved scope, visible evidence and controlled transitions.",
 };
 
@@ -135,11 +135,12 @@ console.log(`Landing-page visible word count: ${wordCount} (editorial target 150
 assert.equal(visibleText(byId.problem.body).includes(problemComparisonTitle("without")), true);
 assert.equal(heroText.includes(problemComparisonTitle("without")), false, "before/after comparison must live outside Hero");
 assert.equal(visibleText(byId.problem.body).includes("Agent activity is not delivery progress."), true, "Problem must state the activity-to-delivery distinction");
+assert.equal(heroText.includes("AGDF controls when agent output may count as delivery progress."), true, "Hero must state AGDF's delivery-control role concretely");
 const problemText = visibleText(byId.problem.body);
 for (const positioningClaim of [
-  "Agents can produce plans, code and tests.",
-  "AGDF controls whether that work may count as governed delivery progress.",
-  "A transition requires approved scope, explicit human authority and evidence that supports the claim.",
+  "Specification methods, coding workflows and orchestration frameworks help agents plan, build and collaborate.",
+  "AGDF controls whether that agent output may count as governed delivery progress.",
+  "That transition requires approved scope, explicit human authority and evidence that supports the claim.",
   "Because the control state is recorded in the repository, later agents and reviewers can see what was approved, what was proven and what may happen next.",
 ]) {
   assert.equal(problemText.includes(positioningClaim), true, `Problem must preserve defensible positioning: ${positioningClaim}`);

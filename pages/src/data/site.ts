@@ -27,7 +27,7 @@ export const landingPage = {
     hero: {
         audience: "For engineering teams using coding agents on real repositories",
         title: "Agent speed needs a control system.",
-        lead: "AGDF is the control layer for governed AI-assisted delivery.",
+        lead: "AGDF controls when agent output may count as delivery progress.",
         formulaOne: "In Formula 1, the engine creates speed. Rules, evidence, strategy and human decisions determine what happens next. AI-assisted delivery has the same challenge: agent output is fast, but teams still need approved scope, visible evidence and controlled transitions.",
         roles: [
             { label: "Agent", value: "speed" },
@@ -40,7 +40,7 @@ export const landingPage = {
     problem: {
         eyebrow: "Speed needs control",
         title: "Agent activity is not delivery progress.",
-        description: "Agents can produce plans, code and tests. AGDF controls whether that work may count as governed delivery progress. A transition requires approved scope, explicit human authority and evidence that supports the claim. Because the control state is recorded in the repository, later agents and reviewers can see what was approved, what was proven and what may happen next.",
+        description: "Specification methods, coding workflows and orchestration frameworks help agents plan, build and collaborate. AGDF controls whether that agent output may count as governed delivery progress. That transition requires approved scope, explicit human authority and evidence that supports the claim. Because the control state is recorded in the repository, later agents and reviewers can see what was approved, what was proven and what may happen next.",
         context: [
             "Risk appears when useful agent output starts to look like a finished decision. A patch can look complete even when the request is unclear. The team may not have checked the existing owner, and a test may prove less than the summary suggests. These gaps are easy to miss in a short chat. In a real delivery, they lead to scope drift, rework and unclear responsibility.",
             "AGDF records the delivery state in the repository. It shows the intended result, the available evidence, the approved decision and the next action allowed for the agent. If a fact or approval is missing, AGDF stops visibly and explains what is needed next.",

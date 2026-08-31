@@ -4,11 +4,24 @@
 
 Delivery Path Search is an optional read-only planning step for high-impact decisions with several materially different next actions.
 
-- It consumes current AGDF state and must reject gate-illegal candidates before model evaluation.
-- It returns one advisory recommendation or `no_safe_recommendation`.
+- It consumes the canonical selected-run `gate-check` evaluation for run, revision, current gate and
+  legal actions. Persisted presentation Markdown such as the Run Status Card is never policy input.
+- It binds the selected `scope_key`, `scope_revision` and objective to one control snapshot. A stale
+  or incomplete snapshot fails before candidate generation or evaluation.
+- It reports the phase that actually ran: `input | candidate | evaluation | search`. A phase that
+  did not run cannot produce a later-phase conclusion.
+- Terminal status is `input_unavailable | no_legal_candidates | evaluator_unavailable |
+  evaluator_error | recommendation | no_safe_recommendation`. Recommendation-facing statuses
+  require at least one contract-valid evaluation. `candidate_queue_exhausted` is a stopping reason,
+  not recommendation evidence.
+- It reports baseline/generated/legal/rejected candidate counts and attempted/valid/invalid
+  evaluation counts. Zero valid evaluations must never be presented or persisted as an evaluated
+  recommendation conclusion.
 - It must report budgets, stopping reason and `full | tool_enforced | instruction_only` enforcement.
 - Model scores are judgements, not measurements.
 - Search output is evidence only. Canonical `gate-check` independently decides what may proceed.
+- Search applies only to the selected run objective. An unrelated decision needs the correct
+  governed scope; Delivery Path Search is not a second task-target resolver.
 - The bounded first-release algorithm must not be labelled MCTS.
 - Surface adapters may translate transport and presentation, but must not fork scoring, search or gate semantics.
 - Optional AI-native candidate generation supplements the deterministic candidate baseline; it never replaces it.
@@ -19,6 +32,8 @@ Delivery Path Search is an optional read-only planning step for high-impact deci
 - Codex and Claude Code may provide tool-enforced generator transports. Copilot, OpenCode and generic surfaces remain instruction-only without conforming evidence.
 - OpenCode may provide a tool-enforced evaluator only for an invocation whose capability preflight proves `opencode run --pure --agent`, the owned evaluator agent and effective executable-tool denies. Preflight or transport failure must return `evaluator_unavailable` with `instruction_only` enforcement and point to the existing instruction-only workflow; it must not continue through a weaker subprocess.
 - OpenCode candidate generation remains unavailable.
+- Persistence accepts only contract-valid `recommendation` or `no_safe_recommendation` results with
+  at least one valid evaluation. Input, candidate and evaluator failure results remain transient.
 
 The field names above are the stable machine-readable contract used by JSON
 reports and automation. Human-facing Markdown must present the same projection

@@ -68,6 +68,10 @@ export function validateSearchInput(value) {
   }
   requireString(input.objective, "objective");
   requireString(input.current_gate, "current_gate");
+  optionalBoundedString(input.scope_revision, "scope_revision", 200);
+  optionalBoundedString(input.input_failure_code, "input_failure_code", 200);
+  optionalBoundedString(input.input_failure_detail, "input_failure_detail", 1000);
+  optionalBoundedString(input.input_recovery_action, "input_recovery_action", 1000);
   stringArray(input.allowed_actions, "allowed_actions");
   stringArray(input.forbidden_actions, "forbidden_actions");
   stringArray(input.evidence_refs ?? [], "evidence_refs");
@@ -79,6 +83,39 @@ export function validateSearchInput(value) {
   }
   generationConfig(input.generation, budgets);
   return structuredClone(input);
+}
+
+const RESULT_PHASE_BY_STATUS = new Map([
+  ["input_unavailable", "input"],
+  ["no_legal_candidates", "candidate"],
+  ["evaluator_unavailable", "evaluation"],
+  ["evaluator_error", "evaluation"],
+  ["recommendation", "search"],
+  ["no_safe_recommendation", "search"],
+]);
+
+export function validateSearchResult(value) {
+  const result = requireObject(value, "search result");
+  if (result.contract_version !== CONTRACT_VERSION) throw new Error(`unsupported search result contract_version: ${result.contract_version}`);
+  const status = requireString(result.status, "result.status");
+  const expectedPhase = RESULT_PHASE_BY_STATUS.get(status);
+  if (!expectedPhase) throw new Error(`unsupported search result status: ${status}`);
+  if (result.outcome_phase !== expectedPhase) throw new Error(`${status} requires outcome_phase ${expectedPhase}`);
+  requireString(result.scope_key, "result.scope_key");
+  optionalBoundedString(result.scope_revision, "result.scope_revision", 200);
+  const provenance = requireObject(result.provenance, "result.provenance");
+  for (const key of ["baseline_candidates", "generated_candidates", "legal_candidates", "rejected_candidates", "evaluation_attempts", "valid_evaluations", "invalid_evaluations"]) {
+    if (!Number.isInteger(provenance[key]) || provenance[key] < 0) throw new Error(`result.provenance.${key} must be a non-negative integer`);
+  }
+  if (provenance.evaluation_attempts !== provenance.valid_evaluations + provenance.invalid_evaluations) throw new Error("result evaluation provenance counts are inconsistent");
+  const recommendationFacing = status === "recommendation" || status === "no_safe_recommendation";
+  if (recommendationFacing && provenance.valid_evaluations < 1) throw new Error(`${status} requires at least one valid evaluation`);
+  if (status === "recommendation" && !result.recommendation) throw new Error("recommendation status requires recommendation content");
+  if (status !== "recommendation" && result.recommendation != null) throw new Error(`${status} must not contain recommendation content`);
+  if (status === "no_legal_candidates" && (provenance.legal_candidates !== 0 || provenance.evaluation_attempts !== 0)) throw new Error("no_legal_candidates requires zero legal candidates and evaluation attempts");
+  if (status === "input_unavailable" && provenance.evaluation_attempts !== 0) throw new Error("input_unavailable requires zero evaluation attempts");
+  if ((status === "evaluator_unavailable" || status === "evaluator_error") && provenance.valid_evaluations !== 0) throw new Error(`${status} requires zero valid evaluations`);
+  return structuredClone(result);
 }
 
 export function validateCandidate(value) {

@@ -344,10 +344,12 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     surface: "opencode", dir: temp, runId: "fixture", json: true, persist: true,
   }, quiet, {
     preflightOpenCodeEvaluator: () => ({ surface: "opencode", status: "failed", code: "opencode_agent_unavailable", detail: "missing", evidence: [] }),
+    searchInputFromControl: () => input,
     runDeliveryPathSearch: async () => { searchCalls += 1; },
     persistSearchResult: () => { persistenceCalls += 1; },
   });
   assert.equal(unavailable.status, "evaluator_unavailable");
+  assert.equal(unavailable.scope_key, "fixture");
   assert.equal(unavailable.executable_evaluator.attempted, false);
   assert.equal(unavailable.enforcement.level, "instruction_only");
   assert.equal(searchCalls, 0);
@@ -377,14 +379,18 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     searchInputFromControl: () => input,
     openCodeEvaluator: () => ({ name: "opencode", metadata: { name: "opencode" }, async evaluate() {} }),
     runDeliveryPathSearch: async () => ({
-      status: "no_safe_recommendation",
+      status: "evaluator_error",
+      outcome_phase: "evaluation",
       recommendation: null,
       enforcement: input.enforcement,
       budgets: { evaluations: 0 },
-      stopping_reason: "candidate_queue_exhausted",
+      provenance: { evaluation_attempts: 1, valid_evaluations: 0, invalid_evaluations: 1 },
+      stopping_reason: "evaluator_error",
       next_gate_action: "Run canonical AGDF gate-check; search does not grant permission.",
     }),
   });
+  assert.equal(noEvaluation.status, "evaluator_error");
+  assert.equal(noEvaluation.provenance.valid_evaluations, 0);
   assert.equal(noEvaluation.enforcement.level, "instruction_only", "preflight alone must not yield a final tool_enforced claim");
 
   const mutation = new Error("repository mutation detected");

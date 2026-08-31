@@ -286,7 +286,11 @@ Requirements and boundaries:
 - OpenCode candidate generation is intentionally unavailable; Copilot has no executable native evaluator
 - cost units are rubric values used for bounded comparison, not measured provider currency
 
-The result is either one recommendation or `no_safe_recommendation`. In both cases run canonical `gate-check` afterwards.
+The result reports the selected run/revision/objective, the phase that actually ran and candidate and
+evaluation provenance. `input_unavailable`, `no_legal_candidates`, `evaluator_unavailable` and
+`evaluator_error` are non-recommendation outcomes. `recommendation` and
+`no_safe_recommendation` require at least one valid evaluation; only those evaluated outcomes may be
+persisted. A result applies only to its selected run objective. Run canonical `gate-check` afterwards.
 
 `gate-check --json` and `delivery-map --json` also expose a `status_card` object. It is a compact projection of the current control state: current gate, allowed and forbidden actions, blocker, next skill, next permissible step and `quality_outlook`. `next_step` is process permission; `quality_outlook` is the next meaningful quality-improvement focus and does not unlock gates.
 

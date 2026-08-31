@@ -1,0 +1,22 @@
+# UX Intent Definition: Delivery Path Search Control Input Integrity
+
+- decision: ready
+- blocking_reason: none
+- primary_user_intent: Ask Delivery Path Search to compare only the delivery actions currently legal for one selected run and understand whether a result is a recommendation, an evaluated absence of a safe path, or a failure before evaluation.
+- success_signal: The human and machine projections identify the selected run and objective, show whether evaluation started, and never label missing input as a recommendation conclusion.
+- primary_decision_or_action: Decide whether to follow the advisory recommendation, repair the selected run/input, or stop because no legal/evaluable path exists; canonical gate-check remains authoritative.
+- working_modes: canonical_input_ready; input_unavailable; no_legal_candidates; evaluating; recommendation; no_safe_recommendation; evaluator_unavailable_or_error
+- effective_state_by_mode: Canonical gate evaluation determines input readiness and legal actions; the search core determines candidate/evaluation outcome; no presentation text changes effective authority.
+- visible_state_types: selected run and objective; current gate; input readiness; candidate and evaluation counts; terminal status; stopping/failure reason; one recovery or next-gate action; enforcement and budgets when evaluation runs
+- effective_state_authority_by_mode: Gate evaluation owns selected-run identity and actions; candidate policy owns legality; search engine owns evaluated outcome; evaluator adapters own only transport evidence.
+- primary_state_presentation_owner_by_mode: `delivery-path-search-command.js` projects the core result to JSON or concise terminal text; persisted summaries reuse the same result without reclassification.
+- activation_paths: Explicit Delivery Path Search invocation with exactly one selected run and a canonical evaluated control snapshot.
+- blockers: Missing/ambiguous run, stale revision, unavailable canonical actions, empty legal candidate space, evaluator preflight/transport failure, invalid evaluator output, budget exhaustion or detected mutation.
+- recovery_paths: Re-run canonical gate-check for selection/state failures; clarify or create the correct governed scope for an unrelated question; repair evaluator capability for transport failure; never retry through a weaker provider automatically.
+- relevant_state_transitions: selected run to input-ready or input-unavailable; input-ready to candidates-ready or no-legal-candidates; candidates-ready to evaluating; evaluating to recommendation, no-safe-recommendation, evaluator-error or budget stop; every transition exposes counts and one next action.
+- proposed_prd_acceptance_criteria: Canonical action parity; selected-run/revision identity; typed pre-evaluation outcomes; recommendation status impossible at zero evaluations; visible recovery; JSON/text parity; no weaker fallback; real-run regression without persisted status card.
+- open_product_questions: Stable scalar names and backward-compatible projection are decided in PRD/SD; technical snapshot API remains an SD decision.
+- affected_outputs: PRD; later SD and TP; Delivery Path Search CLI/JSON/persistence; skill/runtime contract wording; focused and release-projection tests.
+- evidence: Approved UR; Brownfield Review; reproduced zero-candidate result; existing Gate Check and Delivery Path Search owners.
+- missing_evidence: Implementation and compatibility evidence remain intentionally deferred to SD, TP and CD+Tests.
+- required_next_step: Incorporate these observable semantics into the PRD and request PRD approval.

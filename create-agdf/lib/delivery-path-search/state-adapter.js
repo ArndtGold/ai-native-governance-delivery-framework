@@ -1,11 +1,10 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   CONTRACT_VERSION,
   GENERATOR_CONTRACT_VERSION,
   validateGeneratorRequest,
 } from "./contracts.js";
-import { resolveRuns, verifyLegacyProjection } from "../control-state/index.js";
+import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
+import { readRunState } from "../control-evaluation/run-state.js";
 
 function section(content, heading) {
   return (
@@ -15,100 +14,44 @@ function section(content, heading) {
   );
 }
 
-function tableAnswers(content) {
-  const answers = {};
-  for (const line of section(content, "Current Control State").split(/\r?\n/)) {
-    const cells = line
-      .split("|")
-      .slice(1, -1)
-      .map((cell) => cell.trim());
-    if (
-      cells.length >= 2 &&
-      cells[0] &&
-      !cells[0].startsWith("---") &&
-      cells[0] !== "Question"
-    )
-      answers[cells[0]] = cells[1];
-  }
-  return answers;
+function metaField(content, name) {
+  return content.match(new RegExp(`^- ${name}:\\s*(.+)$`, "m"))?.[1]
+    ?.replace(/^`|`$/g, "")
+    .trim() ?? "";
 }
 
-function statusCard(content) {
-  const card = {};
-  for (const line of section(content, "Run Status Card").split(/\r?\n/)) {
-    const cells = line
-      .split("|")
-      .slice(1, -1)
-      .map((cell) => cell.trim().replace(/^`|`$/g, ""));
-    if (
-      cells.length >= 2 &&
-      cells[0] &&
-      !cells[0].startsWith("---") &&
-      cells[0] !== "Run status"
-    )
-      card[cells[0]] = cells[1];
+export function searchInputFromControl(targetDir, options = {}, dependencies = {}) {
+  const evaluate = dependencies.evaluateGateCheck ?? evaluateGateCheck;
+  const readRun = dependencies.readRunState ?? readRunState;
+  const selection = options.scopeKey ? { runId: options.scopeKey } : {};
+  const gate = evaluate(targetDir, selection);
+  const run = readRun(targetDir, selection);
+  const content = run.content ?? "";
+  const evaluatedRunId = gate.status_card?.run_id ?? "";
+  const evaluatedRevision = gate.status_presentation?.revision_id ?? "";
+  const runId = metaField(content, "run_id");
+  const runRevision = metaField(content, "revision_id");
+  const runGate = metaField(content, "current_gate");
+  let inputFailureCode = "";
+  if (!content || run.resolution_error) inputFailureCode = "canonical_control_unavailable";
+  else if (!evaluatedRunId || !evaluatedRevision) inputFailureCode = "canonical_snapshot_identity_missing";
+  else if (evaluatedRunId !== runId || evaluatedRevision !== runRevision || gate.current_gate !== runGate) {
+    inputFailureCode = "stale_control_snapshot";
+  } else if (!Array.isArray(gate.allowed) || gate.allowed.length === 0) {
+    inputFailureCode = "canonical_actions_unavailable";
   }
-  return card;
-}
-
-function listCell(value) {
-  return String(value ?? "")
-    .split(/\s*;\s*/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-export function searchInputFromControl(targetDir, options = {}) {
-  const canonicalRoot = join(targetDir, ".agdf", "control", "runs");
-  if (existsSync(canonicalRoot)) {
-    const projection = verifyLegacyProjection(targetDir);
-    if (!["absent", "valid"].includes(projection.status)) {
-      throw new Error(`AGDF_LEGACY_PROJECTION_DRIFT:${projection.status}`);
-    }
-  }
-  const resolved = existsSync(canonicalRoot)
-    ? resolveRuns(targetDir, {
-        runIdArg: options.scopeKey,
-        runIdEnv: process.env.AGDF_RUN_ID,
-      })
-    : null;
-  const runPath =
-    resolved?.run.path ?? join(targetDir, ".agdf", "control", "AGDF_RUN.md");
-  if (!existsSync(runPath)) throw new Error("missing AGDF run state");
-  const content = readFileSync(runPath, "utf8");
-  const meta = Object.fromEntries(
-    [...content.matchAll(/^- ([a-z_]+):\s*(.+)$/gm)].map((match) => [
-      match[1],
-      match[2].replace(/^`|`$/g, "").trim(),
-    ]),
-  );
-  const answers = tableAnswers(content);
-  const card = statusCard(content);
   const result = {
     contract_version: CONTRACT_VERSION,
-    scope_key: options.scopeKey ?? meta.run_id ?? "unknown-scope",
-    objective: section(content, "Objective").trim(),
-    current_gate: card["Current gate"] ?? meta.current_gate ?? "unknown",
-    allowed_actions: options.allowedActions ?? listCell(card["Allowed now"]),
-    forbidden_actions:
-      options.forbiddenActions ??
-      listCell(answers["What is explicitly forbidden right now?"]),
-    evidence_refs: [
-      ...content.matchAll(
-        /\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*(direct|indirect)\s*\|/g,
-      ),
-    ]
-      .slice(1)
-      .map((match) => `${match[1].trim()}: ${match[2].trim()}`),
-    risks: section(content, "Risks")
-      .split(/\r?\n/)
-      .filter(
-        (line) =>
-          line.startsWith("|") &&
-          !line.includes("---") &&
-          !line.includes("| Risk |"),
-      )
-      .map((line) => line.split("|")[1].trim()),
+    scope_key: evaluatedRunId || runId || options.scopeKey || "unknown-scope",
+    scope_revision: evaluatedRevision || runRevision || "unversioned",
+    objective: section(content, "Objective").trim() || "Canonical Delivery Path Search input unavailable",
+    current_gate: gate.current_gate || runGate || "unknown",
+    allowed_actions: inputFailureCode ? [] : [...gate.allowed],
+    forbidden_actions: Array.isArray(gate.forbidden) ? [...gate.forbidden] : [],
+    evidence_refs: Array.isArray(gate.evidence_refs)
+      ? gate.evidence_refs.map((item) => `${item.evidence}: ${item.source}`)
+      : [],
+    risks: Array.isArray(run.risks) ? run.risks.map((item) => item.risk).filter(Boolean) : [],
     enforcement: options.enforcement ?? {
       level: "instruction_only",
       evidence: ["surface instruction prohibits implementation during search"],
@@ -122,6 +65,11 @@ export function searchInputFromControl(targetDir, options = {}) {
       stability_window: options.stabilityWindow ?? 3,
     },
   };
+  if (inputFailureCode) {
+    result.input_failure_code = inputFailureCode;
+    result.input_failure_detail = run.resolution_error || (gate.blocking_reason !== "none" ? gate.blocking_reason : "") || "canonical input is not ready";
+    result.input_recovery_action = gate.next_allowed_action || "Run canonical AGDF gate-check and repair the selected control state.";
+  }
   if (options.generation?.enabled)
     result.generation = {
       enabled: true,

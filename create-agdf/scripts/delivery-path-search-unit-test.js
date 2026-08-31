@@ -8,6 +8,7 @@ import {
   validateEnforcement,
   validateGeneratorRequest,
   validateGeneratorResponse,
+  validateSearchResult,
   generatorOutputSchema,
 } from "../lib/delivery-path-search/contracts.js";
 import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
@@ -122,6 +123,37 @@ assert.throws(() => validateSearchInput({ ...validSearchInput, scope_key: "" }),
 assert.throws(
   () => validateSearchInput({ ...validSearchInput, budgets: { ...validSearchInput.budgets, max_candidates: 0 } }),
   /budgets\.max_candidates must be a positive integer/,
+);
+
+const validSearchResult = {
+  contract_version: "1",
+  scope_key: "fixture-scope",
+  scope_revision: "fixture-revision",
+  status: "recommendation",
+  outcome_phase: "search",
+  recommendation: { action: "inspect existing tests" },
+  provenance: {
+    baseline_candidates: 1,
+    generated_candidates: 0,
+    legal_candidates: 1,
+    rejected_candidates: 0,
+    evaluation_attempts: 1,
+    valid_evaluations: 1,
+    invalid_evaluations: 0,
+  },
+};
+assert.equal(validateSearchResult(validSearchResult).status, "recommendation");
+assert.throws(
+  () => validateSearchResult({ ...validSearchResult, provenance: { ...validSearchResult.provenance, evaluation_attempts: 0, valid_evaluations: 0 } }),
+  /requires at least one valid evaluation/,
+);
+assert.throws(
+  () => validateSearchResult({ ...validSearchResult, provenance: { ...validSearchResult.provenance, evaluation_attempts: 2 } }),
+  /provenance counts are inconsistent/,
+);
+assert.throws(
+  () => validateSearchResult({ ...validSearchResult, status: "input_unavailable", outcome_phase: "search", recommendation: null }),
+  /requires outcome_phase input/,
 );
 
 {

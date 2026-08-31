@@ -19,6 +19,12 @@ runtime or hooks, so automatic runtime checks remain unavailable in this profile
 installers also show the target and verified installed AGDF version, distinguish previous intent from
 effective host permission, explain manual mode and recover visibly from an invalid key.
 
+Delivery Path Search now consumes canonical selected-run gate actions instead of persisted
+presentation Markdown. Its additive version-1 result fields expose run revision, objective, outcome
+phase and candidate/evaluation provenance. Missing input, zero legal candidates and evaluator
+failures no longer appear as `no_safe_recommendation`; recommendation-facing results require at
+least one valid evaluation and are the only persistable outcomes.
+
 AGDF is an independent open-source project by Arndt Gold. It is not affiliated with, endorsed by or
 sponsored by OpenAI and is not a security sandbox, legal assessment, compliance certification or
 autonomous shipping system.

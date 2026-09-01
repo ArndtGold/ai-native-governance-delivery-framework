@@ -96,3 +96,22 @@ Based on: approved `TP.md` revision 3
 
 The reuse path is clear, all implementation paths are inside TP Section 3, and no blocking owner,
 scope or product decision conflict remains. CD+Tests may begin for CRI-13 through CRI-18.
+
+## Native-Windows Delta — 2026-09-01
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- scope: CRI-17 native-Windows release preparation and generated-package verification
+- evidence: `npm run install:copilot` failed before host mutation because the generated payload was
+  569327 bytes against a reviewed 568459-byte ceiling; normalizing its 11659 CRLF pairs to LF yields
+  557668 bytes, proving checkout line endings rather than semantic payload growth caused the failure.
+- current_coverage: generation is idempotent on one host, but `write()` preserves checkout-specific
+  CRLF bytes and the package-build test does not assert cross-platform line-ending stability.
+- reuse_strategy: extend the existing `sync-package-assets.js` write owner and its existing
+  `package-build-test.js`; do not raise the reviewed payload baseline or create another generator.
+- risks: normalization must remain text-only and must not mutate source files; existing sync already
+  reads and writes these assets as UTF-8 strings.
+- context_graph_impact: `none`; this is direct CRI-17/CRI-H05 evidence for the existing cross-host
+  determinism invariant.
+- required_next_step: normalize generated UTF-8 text to LF, assert LF-only generated outputs, rerun
+  package/release checks, then retry the explicitly authorized Copilot installation.

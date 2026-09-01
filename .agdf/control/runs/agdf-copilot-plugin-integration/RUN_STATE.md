@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 20
-- revision_id: DF8D92C6-45A0-4935-AF6A-EE2DB28DF1F4
+- revision: 21
+- revision_id: 5CBA1BA2-5CA1-41AC-BE24-80DD28320156
 - started_at: 2026-08-28
 - mode: `structured_delivery`
-- current_gate: `QA`
+- current_gate: `UAT`
 - decision: `open`
 - owner: Arndt Gold
 
@@ -23,10 +23,10 @@ repository-owned governance, exact approval authority and honest host-evidence b
 | Question | Answer |
 |---|---|
 | What is known? | The isolated Copilot profile, semantic inventory, Marketplace migration and host installation are implemented. All 13 TP tasks and mandatory reviews pass. |
-| What is approved? | UR revision 2 plus PRD, SD and TP revision 3 are approved. QA revision 3 has a technical `pass` decision but no user approval yet. |
-| What is missing? | Exact `Approval: QA` for revision 3 and fresh-session Copilot evidence for later UAT. |
-| What is the next allowed action? | Request exact QA approval for the persisted revision 3 QA Report. |
-| What is explicitly forbidden right now? | UAT, publication, release, automatic VCS actions and loaded-session or cross-platform claims. |
+| What is approved? | UR revision 2 plus PRD, SD, TP and QA revision 3 are approved. |
+| What is missing? | Fresh-session Copilot evidence and exact `Approval: UAT`. |
+| What is the next allowed action? | Prepare bounded fresh-session UAT evidence, then request exact UAT approval. |
+| What is explicitly forbidden right now? | Publication, release, automatic VCS actions and unevidenced loaded-session or cross-platform claims. |
 
 ## Source And Scope State
 
@@ -43,13 +43,13 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | QA ready |
-| Current gate | QA |
-| Allowed now | Review QA Report revision 3 and request its exact approval. |
-| Blocked by | Exact QA approval not yet granted. |
-| Missing approval | `Approval: QA` |
-| Next step | Obtain exact `Approval: QA` for revision 3. |
-| Quality outlook | Technical QA passes; preserve the fresh-session boundary for UAT. |
+| Status | Awaiting UAT |
+| Current gate | UAT |
+| Allowed now | Prepare bounded fresh-session UAT evidence and request exact UAT approval. |
+| Blocked by | Exact UAT approval not yet granted. |
+| Missing approval | `Approval: UAT` |
+| Next step | Install the current Copilot payload, restart into a fresh session and capture bounded UAT evidence. |
+| Quality outlook | Preserve the distinction between installed state and fresh-session loaded behavior. |
 
 ## Approvals
 
@@ -61,8 +61,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | PRD | `approved` | Exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | SD | `approved` | Exact `Approval: SD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | TP | `approved` | Exact `Approval: TP` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
-| QA | `pending` | QA Report revision 3 has decision `pass`; exact user approval is not yet granted. Revision 2 remains historical. |
-| UAT | `not_reached` | UAT remains forbidden until revision 3 QA is approved. |
+| QA | `approved` | Exact `Approval: QA` accepted for durable revision 3 on 2026-09-01 after same-run, same-gate and revision revalidation. |
+| UAT | `pending` | Fresh-session evidence and exact `Approval: UAT` remain outstanding. |
 
 ## Artefacts
 
@@ -79,7 +79,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `done` | Revision 3 records 13/13 tasks fully done. |
 | Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 3 passes with one generated profile and bounded legacy migration. |
 | CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 3 has no open findings. |
-| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `pending_approval` | Revision 3 technical decision is `pass`; user approval is missing. |
+| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `pass` | Revision 3 technical decision is `pass`; exact user approval was accepted after revalidation. |
 
 ## Mode / Slice Decision
 
@@ -127,13 +127,14 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Task Plan Review revision 3 | `tests` | TP revision 3 | pass; 13/13 tasks fully done |
 | Clean Implementation Review revision 3 | `reviews` | CD+Tests revision 3 | pass; one generated profile and bounded compatibility migration |
 | Code Review revision 3 | `reviews` | CD+Tests revision 3 | pass; no open findings after host-discovered defects were resolved |
-| QA Report revision 3 | `tests` | TP revision 3 | technical decision `pass`; exact `Approval: QA` pending |
+| QA Report revision 3 | `tests` | TP revision 3 | technical decision `pass` |
+| QA Report revision 3 | `approved_by` | `Approval: QA` | exact approval accepted on 2026-09-01 after same-run, same-gate and revision revalidation |
 | UX Intent Definition | `informs` | PRD | ready structured input incorporated into PRD |
 | PRD revision 1 | `derived_from` | UR revision 1 | historical and superseded for future work |
 | SD revision 1 | `derived_from` | PRD revision 1 | historical and superseded for future work |
 | TP revision 1 | `derived_from` | SD revision 1 | historical and superseded for future work |
 | Brownfield Analysis | `prepares` | TP | passed reuse and impact analysis before implementation |
-| QA_REPORT | `tests` | TP | revision 3 technical decision `pass`; exact QA approval pending and fresh-session evidence deferred to UAT |
+| QA_REPORT | `tests` | TP | revision 3 technical decision `pass`; exact QA approval accepted and fresh-session evidence deferred to UAT |
 
 ## Evidence
 
@@ -190,8 +191,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 ## Closeout
 
 - delivered: Copilot-only generated payload, semantic inventory and exact baseline, profile-aware validation and provenance, independent atomic Marketplace, safe predecessor migration, same-version refresh, coexistence tests, documentation, real 0.14.1 installation and mandatory review passes.
-- not_delivered: QA approval, UAT, public Marketplace publication, cross-platform parity, VCS and release.
+- not_delivered: UAT approval, public Marketplace publication, cross-platform parity, VCS and release.
 - verification_performed: Two deterministic builds; complete smoke; package, Runtime Integrity, negative profile, coexistence and recovery tests; 66/66 skill evals; Pages checks; official CLI Marketplace and plugin read-back; installed-root validator; `git diff --check`.
 - unverified: Fresh post-final-refresh Copilot app loading and native Linux/Windows parity.
-- next_allowed_action: Request exact `Approval: QA` for QA Report revision 3.
-- quality_outlook: Technical QA passes; next quality gain is fresh-session UAT evidence.
+- next_allowed_action: Install the current Copilot payload, restart into a fresh session and capture bounded UAT evidence.
+- quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.

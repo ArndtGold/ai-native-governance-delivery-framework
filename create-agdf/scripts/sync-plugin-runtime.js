@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -51,6 +51,20 @@ function digestDirectory(root) {
   return hash.digest("hex");
 }
 
+function copyRuntimeText(source, destination) {
+  const stats = statSync(source);
+  if (stats.isDirectory()) {
+    mkdirSync(destination, { recursive: true });
+    for (const entry of readdirSync(source)) {
+      copyRuntimeText(join(source, entry), join(destination, entry));
+    }
+    return;
+  }
+  mkdirSync(dirname(destination), { recursive: true });
+  writeFileSync(destination, readFileSync(source, "utf8").replaceAll("\r\n", "\n"), "utf8");
+  chmodSync(destination, stats.mode);
+}
+
 export function syncPluginRuntime({ outputRoot } = {}) {
   outputRoot = safeOutputRoot(outputRoot);
   const bundledPackageRoot = join(outputRoot, "create-agdf");
@@ -83,8 +97,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
   for (const entry of runtimeEntries) {
     const source = join(packageRoot, entry);
     const destination = join(bundledPackageRoot, entry);
-    mkdirSync(dirname(destination), { recursive: true });
-    cpSync(source, destination, { recursive: true });
+    copyRuntimeText(source, destination);
   }
   const runtimePackageManifest = {
     name: "@agdf/local-validator-runtime",

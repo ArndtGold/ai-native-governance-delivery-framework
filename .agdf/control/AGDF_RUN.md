@@ -1,149 +1,203 @@
 <!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->
-<!-- canonical_source: .agdf/control/runs/pre-decision-status-card-visibility/RUN_STATE.md -->
-<!-- run_id: pre-decision-status-card-visibility -->
-<!-- revision_id: ed6136d7-da71-477b-b098-20d67d33be14 -->
-<!-- sha256: 8cdb1c4545a82108dab12a4f65f20b41ac6ef6317bc0bdd6601b00da96015692 -->
+<!-- canonical_source: .agdf/control/runs/agdf-copilot-plugin-integration/RUN_STATE.md -->
+<!-- run_id: agdf-copilot-plugin-integration -->
+<!-- revision_id: 5CBA1BA2-5CA1-41AC-BE24-80DD28320156 -->
+<!-- sha256: 503ae057847347bf29185c4d342a51eab0a7b220c4dfcde09afb4427cd583f7a -->
 # AGDF Run State
 
 ## Run Meta
 
 - control_state_version: 2
-- run_id: pre-decision-status-card-visibility
+- run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 12
-- revision_id: ed6136d7-da71-477b-b098-20d67d33be14
-- mode: structured_delivery
-- current_gate: UAT
-- decision: in_progress
-- owner: agent
+- revision: 21
+- revision_id: 5CBA1BA2-5CA1-41AC-BE24-80DD28320156
+- started_at: 2026-08-28
+- mode: `structured_delivery`
+- current_gate: `UAT`
+- decision: `open`
+- owner: Arndt Gold
 
 ## Objective
 
-Ensure every ready-gate approval request is preceded by, or visibly offers, the full canonical
-operational Run Status Card, so users decide with complete authority context (path, allowed,
-forbidden, blocker, quality outlook) without weakening exactly-once or non-authorizing semantics.
+Make the installable AGDF plugin the only supported GitHub Copilot integration while preserving
+repository-owned governance, exact approval authority and honest host-evidence boundaries.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | The approved envelope change is implemented in commit `072213c`; canonical source and freshly generated Codex/Copilot surfaces contain the full-card sequence; TP Review, Clean Review, Code Review and QA revision 1 pass on the repository evidence plane; the previously inspected Claude and GitHub Copilot installations still showed older content. |
-| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA` accepted on 2026-09-01; Brownfield Review selected `structured_slice`. |
-| What is missing? | Refreshed installed-host and fresh-session UAT evidence for Claude and GitHub Copilot, followed by exact `Approval: UAT`. |
-| What is the next allowed action? | Prepare the bounded UAT and, only after explicit host-lifecycle instruction, refresh the intended Claude and GitHub Copilot installations and collect fresh-session evidence. |
-| What is explicitly forbidden right now? | Host installation changes without explicit instruction; UAT approval, release and installed-host success claims before fresh-session evidence; commit, push or PR without explicit instruction. |
+| What is known? | The isolated Copilot profile, semantic inventory, Marketplace migration and host installation are implemented. All 13 TP tasks and mandatory reviews pass. |
+| What is approved? | UR revision 2 plus PRD, SD, TP and QA revision 3 are approved. |
+| What is missing? | Fresh-session Copilot evidence and exact `Approval: UAT`. |
+| What is the next allowed action? | Prepare bounded fresh-session UAT evidence, then request exact UAT approval. |
+| What is explicitly forbidden right now? | Publication, release, automatic VCS actions and unevidenced loaded-session or cross-platform claims. |
 
 ## Source And Scope State
 
-- normative_instruction_source: approved UR, PRD, SD and TP revision 1; AGDF Runtime Contract
-- primary_target: ready-gate approval envelope status-card visibility in canonical and generated repository surfaces
-- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
-- evidence_sources: commit `072213c`; fresh generated Codex/Copilot profiles; installed Claude and Copilot roots as negative UAT evidence only
-- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
-- multi_scope_state: clear
-- active_scope_evidence: approved TP PDV-T1..PDV-T8
-- competing_scope_lines: systemic version immutability and source-to-loaded-host enforcement require a separate future UR; they are not implemented here
-- branch_workspace_evidence: only the regenerated legacy projection and this run's review/control artefacts are tracked changes; two unrelated untracked image assets remain excluded
-- branch_workspace_scope_effect: supports
+- normative_instruction_source: `plugin/meta/agdf-agent-router.md` and its focused Runtime Contract modules
+- multi_scope_state: `clear`
+- active_scope_evidence: Approved UR revision 2 plus completed Brownfield Review and UX Intent Definition revision 2 define the plugin-only Copilot scope.
+- competing_scope_lines: Existing Codex, Claude, OpenCode, public-distribution and installation-consent runs remain independent; no existing Copilot plugin delivery run was found.
+- branch_workspace_evidence: Branch `main` at baseline `d473b710dad8ff3fc7f80878f029f887a40b51af`; pre-existing changes beneath `.agdf/control/artefacts/agdf-product-maturity-roadmap/` are unrelated and excluded.
+- branch_workspace_scope_effect: `supports`
+
+## Run Status Card
+
+This is a compact projection of the control state. It does not replace gate-check, QA, OR or approvals.
+
+| Run status | Value |
+|---|---|
+| Status | Awaiting UAT |
+| Current gate | UAT |
+| Allowed now | Prepare bounded fresh-session UAT evidence and request exact UAT approval. |
+| Blocked by | Exact UAT approval not yet granted. |
+| Missing approval | `Approval: UAT` |
+| Next step | Install the current Copilot payload, restart into a fresh session and capture bounded UAT evidence. |
+| Quality outlook | Preserve the distinction between installed state and fresh-session loaded behavior. |
 
 ## Approvals
 
+Valid approval format for new runs: `Approval: <GateName>`.
+
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| Brownfield Review | done | `.agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_REVIEW.md` 2026-09-01; owner inventory, first-visible-line conflict named, compact-path evaluation and Structured Depth Evidence complete. |
-| Mode/Slice Decision | structured_slice | Bounded presentation-sequence change across contract, skill text, envelope code and tests with all consumers in-repo; compact paths ineligible (excluded paths, multiple owners, user-visible behavior); no full-depth trigger; primary_reason_code `bounded_structured_slice`. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-09-01 via native gate question for revision 1 after same-run, same-gate, revision and durable-artefact revalidation. A premature `Approval: PRD` given before the artefact existed had been rejected fail-closed. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| QA | approved | Exact `Approval: QA` accepted on 2026-09-01 after same-run, same-gate, revision `0adecabc-abd8-4ed0-bcfd-1539047c7599` and durable QA artefact revalidation. |
-| UAT | open | |
+| UR | `approved` | Exact `Approval: UR` accepted for durable revision 2 on 2026-08-28 after revalidation. |
+| PRD | `approved` | Exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
+| SD | `approved` | Exact `Approval: SD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
+| TP | `approved` | Exact `Approval: TP` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
+| QA | `approved` | Exact `Approval: QA` accepted for durable revision 3 on 2026-09-01 after same-run, same-gate and revision revalidation. |
+| UAT | `pending` | Fresh-session evidence and exact `Approval: UAT` remain outstanding. |
 
 ## Artefacts
 
 | Type | Path | Status | Notes |
 |---|---|---|---|
-| UR | `.agdf/control/artefacts/pre-decision-status-card-visibility/UR.md` | approved | Revision 1 approved 2026-09-01; defines pre-decision status-card visibility scope, non-goals and acceptance signals. |
-| Brownfield Review | `.agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_REVIEW.md` | done | 2026-09-01 post_ur_review; Mode/Slice Decision `structured_slice`; PRD must decide always-render vs visible offer and the decision-title placement. |
-| PRD | `.agdf/control/artefacts/pre-decision-status-card-visibility/PRD.md` | approved | Revision 1 approved 2026-09-01; decides always-render (offer rejected), fixes sequence compact → full card → transition card → interaction, keeps decision title first and scopes the once-only rule to the snapshot blocks. |
-| SD | `.agdf/control/artefacts/pre-decision-status-card-visibility/SD.md` | approved | Revision 1 approved 2026-09-01; full card rendered from `status_presentation` outside the untouched snapshot, envelope as single composition point, diagnostics-based degradation, contract/skill/integrity wording amendments. |
-| TP | `.agdf/control/artefacts/pre-decision-status-card-visibility/TP.md` | approved | Revision 1 approved 2026-09-01; eight tasks PDV-T1..PDV-T8 mapped to AC-01..AC-09 with test plan and negative controls. |
-| Brownfield Analysis | `.agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_ANALYSIS.md` | done | 2026-09-01 pre_implementation_analysis pass (PDV-T1): no integrity phrase to swap (add-only), smoke-test envelope count 2→3 disclosed as deviation, envelope unit fixtures need `status_presentation`, shared uncommitted `gate-check.js` regions disclosed. |
-| CD+Tests | `.agdf/control/runs/pre-decision-status-card-visibility/RUN_STATE.md` | done | PDV-T2..PDV-T7 implemented in commit `072213c`; two fresh sync runs are hash-identical; all approved regression commands pass after run-state reconciliation. |
-| TP Review | `.agdf/control/artefacts/pre-decision-status-card-visibility/TP_REVIEW.md` | done | Pass; 8/8 tasks fully done and installed-host rendering retained for UAT. |
-| Clean Review | `.agdf/control/artefacts/pre-decision-status-card-visibility/CLEAN_REVIEW.md` | done | Pass; one existing envelope owner, bounded diagnostic fallback and no parallel renderer. |
-| CR | `.agdf/control/artefacts/pre-decision-status-card-visibility/CODE_REVIEW.md` | done | Pass; no meaningful correctness, regression, security or maintainability finding remains. |
-| QA | `.agdf/control/artefacts/pre-decision-status-card-visibility/QA_REPORT.md` | pass | Revision 1 repository QA pass approved on 2026-09-01; loaded-host UAT remains open. |
+| UR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md` | `approved` | Revision 2 defines the plugin-only outcome and canonical `copilot` install command. |
+| Brownfield Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` | `done` | Revision 2 maps command, generator, migration, documentation and test owners; Structured Delivery retained. |
+| Verified Change |  | `missing` | No mode decision exists. |
+| PRD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md` | `approved` | Revision 3 adds a Copilot-specific single-projection artifact and fail-closed semantic inventory. |
+| SD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` | `approved` | Revision 3 separates generated and staged Copilot profiles, adds semantic inventory and protects cross-host coexistence. |
+| TP | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | `approved` | Revision 3 defines thirteen tasks, thirteen deterministic suites and five bounded host observations. |
+| Brownfield Analysis | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | `done` | Revision 3 passes and maps the minimal existing-owner implementation path, runtime closure and stop conditions. |
+| CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | Revision 3 separates generated, staged, installed-root and loaded-session evidence and records the real 0.14.1 install. |
+| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `done` | Revision 3 records 13/13 tasks fully done. |
+| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 3 passes with one generated profile and bounded legacy migration. |
+| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 3 has no open findings. |
+| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `pass` | Revision 3 technical decision is `pass`; exact user approval was accepted after revalidation. |
 
-## Evidence
+## Mode / Slice Decision
 
-| Evidence | Source | Covers | Strength |
-|---|---|---|---|
-| Approval-time replacement of the full card is contract-mandated | `plugin/skills/gate-check/SKILL.md` §Output; `plugin/meta/contracts/interaction.md` approval sequence | Current designed behavior | direct |
-| Full card appeared once in a complete six-gate run; user asked twice why | Session observation 2026-09-01, run `doctor-presentation-identity-parity` | User-visible gap at decision time | direct |
-| Compact projection lacks path, forbidden actions, blocker and quality outlook | `APPROVAL_SEQUENCE` blocks in `create-agdf/lib/interaction-presentation.js` vs `renderOperationalStatusCard` fields | Missing decision context | direct |
-| Two fresh canonical generations produced stable generated-surface hashes | `sync-package-assets` twice; generated Codex gate-check hash `7f49c129...`; generated Copilot gate-check hash `251e482d...` | PDV-T7 propagation and idempotence | direct |
-| Approved regression set passes | interaction, control-state, verified-change, local-marketplace, Copilot profile, routing, version coherence, public plugin, Runtime Integrity and `git diff --check` on 2026-09-01 | Repository implementation and generated-surface integrity | direct |
-| Claude and GitHub Copilot did not show the new full card because their loaded/installed content predated the change | user observation plus installed-root inspection on 2026-09-01 | Negative host evidence and UAT boundary | direct |
-
-## Missing Evidence
-
-Fresh installed-host and fresh-session rendering of the synchronized build in Claude and GitHub
-Copilot. Existing observations are negative evidence for stale installations and must not be
-promoted to a passing UAT claim.
-
-## Risks
-
-| Risk | Impact | Mitigation or owner |
-|---|---|---|
-| Reintroducing ceremony the compact design removed | medium | Brownfield Review weighs always-render vs localized offer |
-| Sequence validators and envelope tests pin the three-block shape | medium | Scope item 4/5; canonical sync for mirrors |
-| Two blocks claiming semantic id `run_status_card` | medium | Naming decision in SD; single semantic owner preserved |
-| A host reports the same semantic version while loading older content | high | Preserve as UAT blocker; a future separate scope must add immutable build identity and content-bound refresh. |
-
-## Mode/Slice Decision
-
-- decision: `structured_slice`
-- required_next_gate: PRD
-- scope_reason: Bounded presentation-sequence change (contract wording, skill text, envelope rendering, tests, optional one locale key) with one coherent outcome and all consumers in-repo; compact paths ineligible (excluded paths, multiple owners, user-visible behavior); no evidenced full-depth trigger; primary_reason_code `bounded_structured_slice`; rejected alternatives `verified_change` and `structured_delivery`.
-- evidence: `.agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_REVIEW.md` 2026-09-01 §Structured Depth Evidence; `plugin/meta/contracts/interaction.md:141-158`; `create-agdf/lib/interaction-presentation.js:8,635,670`.
+- decision: `structured_delivery`
+- required_next_gate: `PRD`
+- scope_reason: `external_contract_depth`; `copilot` changes meaning, two public setup targets are retired and plugin, CLI, generator, migration, tests and public documentation must move together.
+- evidence: `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` revision 2; `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md` revision 2
+- transparency_note: The plugin runtime is already implemented, but the breaking command and supported-surface change require a realigned structured chain.
 
 ## Artefact Chain
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | `Approval: UR` | Exact approval provided on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| UR | motivated_by | Full status card appeared once in a six-gate run; user asked twice | Session observation 2026-09-01 documented in UR §1 and the Evidence table. |
-| UR | scoped_by | Non-Goals section of UR | Excludes gate/approval-value changes, card layout changes, status-only reporting and VCS actions. |
-| Brownfield Review | sizes | UR | Owner inventory and Structured Depth Evidence in BROWNFIELD_REVIEW.md 2026-09-01. |
-| Brownfield Review | selects_mode | structured_slice | All seven bounded-slice checks pass; compact paths ineligible; no full-depth trigger. |
-| PRD | approved_by | `Approval: PRD` | Exact approval provided on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| PRD | derived_from | UR | PRD revision 1 encodes the UR scope as PDV-01..PDV-06 with AC-01..AC-09 and decides always-render over the rejected offer variant. |
-| SD | approved_by | `Approval: SD` | Exact approval provided on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| SD | derived_from | PRD | SD revision 1 resolves PRD §7: plain separator, envelope composition outside the untouched snapshot, contract/skill/integrity amendments together. |
-| TP | approved_by | `Approval: TP` | Exact approval provided on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| TP | derived_from | SD | TP revision 1 maps SD §4 integration points to PDV-T1..PDV-T8 and SD §6 to the executable test plan. |
-| QA_REPORT | tests | TP | QA revision 1 consumes 8/8 TP coverage plus Clean Review, Code Review and synchronized regression evidence. |
-| QA_REPORT | approved_by | `Approval: QA` | Exact approval provided on 2026-09-01 after same-run, same-gate, revision and durable-artefact revalidation. |
+| UR revision 1 | `approved_by` | `Approval: UR` | historical approval recorded on 2026-08-28; superseded by revision 2 |
+| UR revision 2 | `revises` | UR revision 1 | removes the supported Copilot repository surface and makes `copilot` the plugin installer |
+| UR revision 2 | `approved_by` | `Approval: UR` | exact approval accepted on 2026-08-28 after same-run, same-gate and revision revalidation |
+| UR | `approved_by` | `Approval: UR` | canonical current relationship for approved revision 2 |
+| Brownfield Review revision 1 | `sizes` | UR revision 1 | historical and superseded by revision 2 |
+| Brownfield Review revision 2 | `sizes` | UR revision 2 | pass; Structured Delivery retained for the plugin-only external contract |
+| UX Intent Definition revision 2 | `informs` | PRD revision 2 | ready plugin-only installation, state and recovery intent |
+| PRD revision 1 | `superseded_by` | PRD revision 2 | former complementary repository contract retained as historical evidence |
+| PRD revision 2 | `derived_from` | UR revision 2 | plugin-only requirements aligned with Brownfield Review and UX Intent revision 2 |
+| PRD revision 2 | `approved_by` | `Approval: PRD` | exact approval accepted on 2026-08-28 after same-run, same-gate and revision revalidation |
+| PRD revision 3 | `revises` | PRD revision 2 | adds the single-projection Copilot artifact and fail-closed semantic inventory requirement |
+| PRD revision 3 | `derived_from` | UR revision 2 | preserves the approved plugin-only outcome while making its payload integrity measurable |
+| PRD revision 3 | `approved_by` | `Approval: PRD` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| PRD | `derived_from` | UR | canonical current relationship for approved revision 3 |
+| SD revision 1 | `superseded_by` | SD revision 2 | former complementary repository design retained as historical evidence |
+| SD revision 2 | `derived_from` | PRD revision 2 | plugin-only command, generator, migration, lifecycle, documentation and test design |
+| SD revision 2 | `approved_by` | `Approval: SD` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| SD revision 3 | `revises` | SD revision 2 | replaces the shared Copilot install root with a host-specific generated and staged profile |
+| SD revision 3 | `derived_from` | PRD revision 3 | maps the single-projection and semantic inventory requirements to existing build and lifecycle owners |
+| SD revision 3 | `approved_by` | `Approval: SD` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| SD | `derived_from` | PRD | canonical current relationship for approved revision 3 |
+| TP revision 1 | `superseded_by` | TP revision 2 | former complementary repository plan retained as historical evidence |
+| TP revision 2 | `derived_from` | SD revision 2 | eleven tasks cover command, scaffold, generation, lifecycle, docs, Pages, verification and reviews |
+| TP revision 2 | `approved_by` | `Approval: TP` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| TP revision 3 | `revises` | TP revision 2 | adds host-profile build, semantic inventory, negative fixtures, isolated marketplace and coexistence tasks |
+| TP revision 3 | `derived_from` | SD revision 3 | maps all revised design decisions to implementation, deterministic tests and host evidence |
+| TP revision 3 | `approved_by` | `Approval: TP` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| TP | `derived_from` | SD | canonical current relationship for approved revision 3 |
+| Brownfield Analysis revision 2 | `prepares` | TP revision 2 | historical pass for the previous scope |
+| Brownfield Analysis revision 3 | `prepares` | TP revision 3 | pass; reuse path, runtime closure, isolated transaction and regression boundaries confirmed |
+| QA Report revision 2 | `approved_by` | `Approval: QA` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
+| Task Plan Review revision 3 | `tests` | TP revision 3 | pass; 13/13 tasks fully done |
+| Clean Implementation Review revision 3 | `reviews` | CD+Tests revision 3 | pass; one generated profile and bounded compatibility migration |
+| Code Review revision 3 | `reviews` | CD+Tests revision 3 | pass; no open findings after host-discovered defects were resolved |
+| QA Report revision 3 | `tests` | TP revision 3 | technical decision `pass` |
+| QA Report revision 3 | `approved_by` | `Approval: QA` | exact approval accepted on 2026-09-01 after same-run, same-gate and revision revalidation |
+| UX Intent Definition | `informs` | PRD | ready structured input incorporated into PRD |
+| PRD revision 1 | `derived_from` | UR revision 1 | historical and superseded for future work |
+| SD revision 1 | `derived_from` | PRD revision 1 | historical and superseded for future work |
+| TP revision 1 | `derived_from` | SD revision 1 | historical and superseded for future work |
+| Brownfield Analysis | `prepares` | TP | passed reuse and impact analysis before implementation |
+| QA_REPORT | `tests` | TP | revision 3 technical decision `pass`; exact QA approval accepted and fresh-session evidence deferred to UAT |
+
+## Evidence
+
+| Evidence | Source | Covers | Strength |
+|---|---|---|---|
+| Official Copilot plugin overview | `https://docs.github.com/en/copilot/concepts/agents/about-plugins` | App, CLI, cloud-agent and marketplace plugin availability | `direct` |
+| Official Copilot plugin reference | `https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference` | Manifest, component, installation, cache and precedence contract | `direct` |
+| Installed Copilot app 1.1.14 | `/Applications/GitHub Copilot.app` | Locally installed application and bundled SDK capability surface | `direct` |
+| Generated Copilot profile | `create-agdf/generated/plugins/copilot/agdf/**` | Ten prefixed skills, semantic inventory, Copilot hook and exact runtime with other host surfaces absent | `direct` |
+| Canonical plugin definition | `plugin/meta/agdf-plugin.definition.json` | Current cross-surface identity, skill prefix and interaction metadata | `direct` |
+| Existing generated runtime owner | `create-agdf/scripts/sync-plugin-runtime.js` | Exact-version local validator composition | `direct` |
+| Brownfield Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md` | Existing owners, reuse strategy, impacts and Structured Depth decision | `direct` |
+| UX Intent Definition | `.agdf/control/artefacts/agdf-copilot-plugin-integration/UX_INTENT_DEFINITION.md` | Working modes, visible state authority, activation, blockers and recovery | `direct` |
+| Approved PRD revision 3 | `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md` | Product scope plus measurable single-projection and semantic inventory requirements | `direct` |
+| Approved Solution Design revision 3 | `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` | Host-specific build profile, semantic inventory, marketplace isolation, provenance and regression design | `direct` |
+| Approved Task and Test Plan revision 3 | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | Thirteen tasks, deterministic failure fixtures, coexistence checks and bounded host observations | `direct` |
+| Brownfield Analysis revision 3 | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | Existing-owner fit, runtime closure, transaction reuse, regressions and stop conditions | `direct` |
+| Copilot host evidence | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | Official npm CLI install, exact version, ten installed skills and persistent Copilot plugin state | `direct` |
+| Full deterministic suite | `npm --prefix create-agdf run smoke-test` | Release build, lifecycle, integrity, interaction, routing, 66 skill evals and regressions | `direct` |
+
+## Missing Evidence
+
+| Missing evidence | Impact | Required next step |
+|---|---|---|
+| Fresh-session skill discovery in the installed Copilot app | `warn` | Restart the app and capture Installed Plugins plus the loaded `agdf-` skill inventory. |
+| Direct Linux and native-Windows lifecycle behavior | `warn` | Require separately authorized host evidence before cross-platform parity claims. |
+| Gate-safe native Copilot input transport | `warn` | Keep exact-text approval as the baseline until a later adapter preflight proves exact values and deliberate waiting. |
+
+## Risks
+
+| Risk | Impact | Mitigation or owner |
+|---|---|---|
+| A Copilot bundle duplicates canonical skills, runtime, installer or metadata owners. | `mitigated` | Copilot profile inventory and exact baseline fail closed on duplicate, excluded, stale, unmapped or growing payloads. |
+| Copilot plugin installation or permissions are mistaken for AGDF gate approval. | `warn` | Preserve `interaction.md` and exact approval revalidation as the sole authority. |
+| Retirement deletes or rewrites existing user-owned Copilot repository files. | `warn` | Stop generating and supporting the projection without automatically deleting existing files. |
+| Repository or package evidence is overstated as loaded app behavior. | `warn` | Maintain separate source, bundle, installed-root, fresh-session and human-UAT evidence. |
+| Native input or hook support drifts across the Copilot app, CLI and cloud agent. | `warn` | Start with the supported common subset and gate stronger claims on direct capability evidence. |
 
 ## Context Graph Impact
 
-- context_graph_impact: link_only
-- context_graph_refs: `CG-RUN-STATUS-CARD`; `CG-NATIVE-INTERACTION-AUTHORITY`
-- context_graph_reconciliation: resolved
-- context_graph_required_action: link
-- context_graph_gate_effect: none
-- context_graph_evidence: The canonical interaction contract owns the sequence; the existing nodes already own status projection and approval authority.
+- context_graph_impact: `update_existing_node`
+- context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `none`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: `CG-PUBLIC-PLUGIN-DISTRIBUTION` records the isolated profile, inventory, migration, installed 0.14.1 evidence and evidence-plane boundaries.
 
 ## Knowledge Persistence Decision
 
-- memory_target: scope_artifact
-- memory_reason: Repository implementation evidence and stale-host observations remain run-specific until a separately approved systemic delivery-integrity scope establishes a reusable invariant.
-- memory_refs: QA Report revision 1; TP Review; installed-host observation 2026-09-01
+- memory_target: `context_graph`
+- memory_reason: The host-specific payload, semantic inventory and isolated Marketplace are reusable distribution invariants.
+- memory_refs: `.agdf/control/CONTEXT_GRAPH.md#CG-PUBLIC-PLUGIN-DISTRIBUTION`
 
-## Next Step
+## Closeout
 
-Prepare refreshed installed-host and fresh-session UAT evidence for Claude and GitHub Copilot.
-
-- next_allowed_action: Prepare the bounded UAT and request explicit instruction before changing either host installation.
-- quality_outlook: Repository implementation, generated surfaces, mandatory reviews and QA approval pass; refreshed installed-host rendering remains required before any UAT decision.
+- delivered: Copilot-only generated payload, semantic inventory and exact baseline, profile-aware validation and provenance, independent atomic Marketplace, safe predecessor migration, same-version refresh, coexistence tests, documentation, real 0.14.1 installation and mandatory review passes.
+- not_delivered: UAT approval, public Marketplace publication, cross-platform parity, VCS and release.
+- verification_performed: Two deterministic builds; complete smoke; package, Runtime Integrity, negative profile, coexistence and recovery tests; 66/66 skill evals; Pages checks; official CLI Marketplace and plugin read-back; installed-root validator; `git diff --check`.
+- unverified: Fresh post-final-refresh Copilot app loading and native Linux/Windows parity.
+- next_allowed_action: Install the current Copilot payload, restart into a fresh session and capture bounded UAT evidence.
+- quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.

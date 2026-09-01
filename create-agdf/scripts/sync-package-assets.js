@@ -54,7 +54,8 @@ function read(path) {
 
 function write(path, content) {
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, content, "utf8");
+  // Generated text must remain byte-identical across autocrlf checkouts.
+  writeFileSync(path, content.replaceAll("\r\n", "\n"), "utf8");
 }
 
 function sha256(content) {

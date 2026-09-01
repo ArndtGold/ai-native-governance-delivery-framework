@@ -33,9 +33,25 @@ function digestDirectory(root) {
   return hash.digest("hex");
 }
 
+function assertLfOnly(root) {
+  function visit(directory) {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name);
+      const stats = statSync(path);
+      if (stats.isDirectory()) visit(path);
+      else if (stats.isFile()) {
+        assert.equal(readFileSync(path).includes(Buffer.from("\r\n")), false, `${relative(root, path)} must use LF line endings`);
+      }
+    }
+  }
+  visit(root);
+}
+
 assert.equal(existsSync(join(sourcePluginRoot, "runtime")), false, "source plugin runtime must be absent before build");
 const sourceBefore = digestDirectory(sourcePluginRoot);
 execFileSync(process.execPath, [scriptPath], { stdio: "pipe" });
+assertLfOnly(generatedPluginRoot);
+assertLfOnly(generatedCopilotPluginRoot);
 const first = digestDirectory(generatedPluginRoot);
 const firstCopilot = digestDirectory(generatedCopilotPluginRoot);
 execFileSync(process.execPath, [scriptPath], { stdio: "pipe" });

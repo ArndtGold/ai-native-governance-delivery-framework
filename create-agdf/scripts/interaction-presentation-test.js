@@ -27,7 +27,10 @@ import {
   normalizeReconciliationText,
   validateLocaleRegistry,
   validateApprovalOrientationSnapshot,
+  validateApprovalOrientationPreconditions,
+  validateOperationalStatusCardPreconditions,
 } from "../lib/interaction-presentation.js";
+import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
@@ -468,6 +471,113 @@ assert.equal(validateLocaleRegistry(longLocale).valid, true);
 assert.ok(gateOptions(longLocale, "fr", "TP").every((option) => option.label && option.description));
 longLocale.locales.fr.interaction.reviseLabel += "R";
 assert.equal(validateLocaleRegistry(longLocale).valid, false);
+
+// IPP: single identity owner — presentation consumes the canonical pattern, no second regex
+{
+  const presentationSource = readFileSync(join(import.meta.dirname, "..", "lib", "interaction-presentation.js"), "utf8");
+  assert.match(presentationSource, /from "\.\/control-state\/run-identity\.js"/, "IPP: presentation imports the shared identity owner");
+  assert.equal(presentationSource.includes("/^[A-Za-z0-9._-]+$/"), false, "IPP: retired presentation-local run_id superset regex is gone");
+  assert.equal(RUN_ID_PATTERN.test("approval-run"), true);
+  assert.equal(RUN_ID_PATTERN.test("Approval-Run"), false, "IPP: canonical pattern is authoritative for presentation eligibility");
+}
+
+// IPP: status-card precondition validator mirrors the silent-null conditions
+{
+  assert.deepEqual([...validateOperationalStatusCardPreconditions(null, { registry }).errors], ["status_card_missing"]);
+  assert.deepEqual(
+    [...validateOperationalStatusCardPreconditions({ current_gate: "QA", presentation_language: "de" }, { registry, humanPresentation: {} }).errors],
+    ["run_id_missing"],
+  );
+  assert.deepEqual(
+    [...validateOperationalStatusCardPreconditions({ run_id: "status-run", presentation_language: "de" }, { registry, humanPresentation: {} }).errors],
+    ["current_gate_missing"],
+  );
+  assert.deepEqual(
+    [...validateOperationalStatusCardPreconditions({ run_id: "status-run", current_gate: "QA" }, { registry, humanPresentation: null }).errors],
+    ["human_presentation_missing"],
+  );
+  const healthy = validateOperationalStatusCardPreconditions({ run_id: "status-run", current_gate: "QA", presentation_language: "de" }, { registry, humanPresentation: {} });
+  assert.deepEqual([...healthy.errors], []);
+  assert.equal(healthy.valid, true);
+}
+
+// IPP: approval precondition validator mirrors buildApprovalOrientationSnapshot guards
+{
+  assert.deepEqual([...validateApprovalOrientationPreconditions({ statusCard: null, registry }).errors], ["status_card_missing"]);
+  const readyCard = {
+    run_id: "approval-run",
+    status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
+    next_gate_after_approval: "PRD",
+    next_user_gate: "PRD",
+    user_action_required: "yes",
+  };
+  const healthy = validateApprovalOrientationPreconditions({ statusCard: readyCard, humanPresentation: {}, registry, requestedLocale: "de" });
+  assert.deepEqual([...healthy.errors], []);
+  assert.equal(healthy.valid, true);
+  assert.deepEqual(
+    [...validateApprovalOrientationPreconditions({ statusCard: { ...readyCard, run_id: "Bad Run" }, humanPresentation: {}, registry, requestedLocale: "de" }).errors],
+    ["run_id_invalid"],
+  );
+  assert.deepEqual(
+    [...validateApprovalOrientationPreconditions({ statusCard: { ...readyCard, current_gate: "Brownfield Review", missing_approval: "none" }, humanPresentation: {}, registry, requestedLocale: "de" }).errors],
+    ["gate_not_user_gate", "missing_approval_mismatch"],
+  );
+  assert.deepEqual(
+    [...validateApprovalOrientationPreconditions({ statusCard: { ...readyCard, status: "blocked" }, humanPresentation: {}, registry, requestedLocale: "de" }).errors],
+    ["status_not_open"],
+  );
+  assert.deepEqual(
+    [...validateApprovalOrientationPreconditions({ statusCard: { ...readyCard, user_action_required: "yes", next_user_gate: "none" }, humanPresentation: {}, registry, requestedLocale: "de" }).errors],
+    ["user_action_semantics_invalid"],
+  );
+  // matching the retired superset but failing the canonical pattern must now be a precondition error
+  assert.deepEqual(
+    [...validateApprovalOrientationPreconditions({ statusCard: { ...readyCard, run_id: "Uppercase-Run" }, humanPresentation: {}, registry, requestedLocale: "de" }).errors],
+    ["run_id_invalid"],
+  );
+  assert.equal(
+    buildApprovalOrientationSnapshot({
+      ready: true,
+      statusCard: { ...readyCard, run_id: "Uppercase-Run" },
+      humanPresentation: { runTitle: "Approval run", gateTitle: "UR", artefactRefs: refs },
+      revisionId: "revision-1",
+      registry,
+      requestedLocale: "de",
+    }),
+    null,
+    "IPP: canonical pattern gates snapshot eligibility",
+  );
+}
+
+// IPP: CLI fallback lines carry the concrete presentation error codes
+{
+  const statusLines = [];
+  const statusIo = { log: (line) => statusLines.push(String(line)) };
+  const rendered = printGateCheckReport({
+    status_card: { presentation_language: "en" },
+    status_presentation: null,
+    presentation_diagnostics: { status_presentation_errors: ["run_id_missing", "locale_unresolved"] },
+  }, false, true, statusIo);
+  assert.equal(rendered, false);
+  assert.match(statusLines.join("\n"), /run_id_missing, locale_unresolved/, "IPP: status-card fallback names the error codes");
+
+  const envelopeLines = [];
+  const envelopeIo = { log: (line) => envelopeLines.push(String(line)) };
+  const readyReport = {
+    status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
+    approval_presentation: null,
+    presentation_diagnostics: { approval_presentation_errors: ["revision_identity"] },
+    status_card: { presentation_language: "en" },
+  };
+  const envelopeResult = printApprovalEnvelope(readyReport, { io: envelopeIo, reEvaluate: () => readyReport });
+  assert.equal(envelopeResult.outcome, "exact_text_recovery");
+  assert.match(envelopeLines.join("\n"), /revision_identity/, "IPP: envelope fallback names the error codes");
+  assert.match(envelopeLines.join("\n"), /Approval: UR/, "IPP: envelope fallback still requests the exact approval");
+}
 
 console.log("interaction presentation tests passed");
 

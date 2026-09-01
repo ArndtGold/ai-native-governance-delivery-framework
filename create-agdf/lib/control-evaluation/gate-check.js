@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderOperationalStatusCard, resolveHumanRunTitle } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderOperationalStatusCard, resolveHumanRunTitle, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -300,8 +300,9 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     humanPresentation,
     revisionId,
   });
+  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
   const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
-    ready: isReadyUserGateApproval({ status, currentGate, missingApproval }),
+    ready: readyForApproval,
     humanPresentation,
     revisionId,
     registry: interactionLocales,
@@ -311,6 +312,50 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     value: runState,
     enumerable: false,
   });
+
+  const approvalPresentation = renderApprovalOrientationSnapshot(approvalOrientation, {
+    registry: interactionLocales,
+    expectedIdentity: {
+      run_id: statusCard.run_id,
+      revision_id: revisionId,
+      current_gate: currentGate,
+      presentation_language: statusCard.presentation_language,
+    },
+  });
+  const presentationDiagnostics = {};
+  if (!statusPresentation) {
+    presentationDiagnostics.status_presentation_errors = [
+      ...validateOperationalStatusCardPreconditions(statusCard, {
+        registry: interactionLocales,
+        humanPresentation,
+      }).errors,
+    ];
+  }
+  if (readyForApproval && !approvalPresentation) {
+    presentationDiagnostics.approval_presentation_errors = approvalOrientation
+      ? [
+          ...validateApprovalOrientationSnapshot(approvalOrientation, {
+            registry: interactionLocales,
+            expectedIdentity: {
+              run_id: statusCard.run_id,
+              revision_id: revisionId,
+              current_gate: currentGate,
+              presentation_language: statusCard.presentation_language,
+            },
+          }).errors,
+        ]
+      : [
+          ...validateApprovalOrientationPreconditions({
+            statusCard,
+            humanPresentation,
+            registry: interactionLocales,
+            requestedLocale: presentationLocale,
+          }).errors,
+        ];
+    if (!presentationDiagnostics.approval_presentation_errors.length) {
+      presentationDiagnostics.approval_presentation_errors = ["snapshot_unavailable"];
+    }
+  }
 
   return {
     schema_version: "1",
@@ -332,15 +377,8 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     candidate_runs: runState.candidate_runs ?? [],
     status_card: statusCard,
     status_presentation: statusPresentation,
-    approval_presentation: renderApprovalOrientationSnapshot(approvalOrientation, {
-      registry: interactionLocales,
-      expectedIdentity: {
-        run_id: statusCard.run_id,
-        revision_id: revisionId,
-        current_gate: currentGate,
-        presentation_language: statusCard.presentation_language,
-      },
-    }),
+    approval_presentation: approvalPresentation,
+    ...(Object.keys(presentationDiagnostics).length ? { presentation_diagnostics: presentationDiagnostics } : {}),
     delivery_map: {
       relationships: deliveryMap.relationships,
       mode_slice_decision: runState.mode_slice_decision,
@@ -386,7 +424,10 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
   const pack = localePack(interactionLocales, refreshed?.status_card?.presentation_language || report?.status_card?.presentation_language || "en");
   const refreshedApproval = canonicalApprovalForReport(refreshed);
   if (initialApproval && refreshedApproval) {
-    io.log(pack.interaction.presentationFailure);
+    const codes = refreshed?.presentation_diagnostics?.approval_presentation_errors
+      ?? report?.presentation_diagnostics?.approval_presentation_errors
+      ?? [];
+    io.log(codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure);
     io.log(pack.interaction.exactTextRequest.replace("{approval}", refreshedApproval));
     return Object.freeze({ outcome: "exact_text_recovery", requested_decision: true, status: refreshed.status });
   }
@@ -404,7 +445,9 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
 function printGateCheckStatusCard(report, io) {
   const card = report.status_card;
   if (!report.status_presentation?.markdown) {
-    io.log(localePack(interactionLocales, card?.presentation_language || "en").interaction.statusPresentationFailure);
+    const failure = localePack(interactionLocales, card?.presentation_language || "en").interaction.statusPresentationFailure;
+    const codes = report.presentation_diagnostics?.status_presentation_errors ?? [];
+    io.log(codes.length ? `${failure} (${codes.join(", ")})` : failure);
     return false;
   }
   io.log(report.status_presentation.markdown);

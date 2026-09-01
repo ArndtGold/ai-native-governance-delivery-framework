@@ -27,6 +27,7 @@ function runState(recordStatus = "eligible", lifecycle = "active") {
 ## Run Meta
 
 - run_id: example
+- revision_id: 6f0f2f9a-1d0a-4b7e-9c2d-3a5b8c1d2e4f
 - lifecycle: ${lifecycle}
 - current_gate: Verified Change Execution
 

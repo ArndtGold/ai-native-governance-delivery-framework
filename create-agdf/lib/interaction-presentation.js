@@ -1,3 +1,5 @@
+import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
+
 const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
 const OUTCOMES = new Set(["approve", "revise", "decline", "cancel", "no_response", "timeout", "empty", "invalid", "stale"]);
@@ -313,17 +315,37 @@ function operationalBreadcrumb(value, labels) {
     .join(labels.breadcrumbSeparator);
 }
 
+export function validateOperationalStatusCardPreconditions(statusCard, {
+  registry,
+  humanPresentation,
+} = {}) {
+  const errors = [];
+  if (!plainObject(statusCard)) errors.push("status_card_missing");
+  if (humanPresentation !== undefined && !plainObject(humanPresentation)) errors.push("human_presentation_missing");
+  if (plainObject(statusCard)) {
+    if (!String(statusCard.run_id ?? "").trim()) errors.push("run_id_missing");
+    if (!String(statusCard.current_gate ?? "").trim()) errors.push("current_gate_missing");
+    let locale = "";
+    try {
+      locale = resolvePresentationLocale(registry, statusCard.presentation_language);
+    } catch {
+      locale = "";
+    }
+    if (!locale) errors.push("locale_unresolved");
+  }
+  return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
+}
+
 export function renderOperationalStatusCard(statusCard, {
   registry,
   humanPresentation,
   revisionId = "",
 } = {}) {
-  if (!plainObject(statusCard) || !plainObject(humanPresentation)) return null;
+  if (!validateOperationalStatusCardPreconditions(statusCard, { registry, humanPresentation: humanPresentation ?? null }).valid) return null;
   const runId = String(statusCard.run_id ?? "").trim();
   const currentGate = String(statusCard.current_gate ?? "").trim();
   const revision = String(revisionId ?? "").trim() || "unversioned";
   const locale = resolvePresentationLocale(registry, statusCard.presentation_language);
-  if (!runId || !currentGate || !locale) return null;
 
   const pack = localePack(registry, locale);
   const labels = pack.statusCard;
@@ -537,6 +559,37 @@ export function normalizeInteractionOutcome(value, { expectedApproval, stale = f
   return "invalid";
 }
 
+export function validateApprovalOrientationPreconditions({
+  statusCard,
+  humanPresentation,
+  registry,
+  requestedLocale,
+} = {}) {
+  const errors = [];
+  if (!plainObject(statusCard)) return Object.freeze({ valid: false, errors: Object.freeze(["status_card_missing"]) });
+  if (humanPresentation !== undefined && !plainObject(humanPresentation)) errors.push("human_presentation_missing");
+  const gate = String(statusCard.current_gate ?? "").trim();
+  const runId = String(statusCard.run_id ?? "").trim();
+  if (!REQUIRED_GATES.includes(gate)) errors.push("gate_not_user_gate");
+  if (!RUN_ID_PATTERN.test(runId)) errors.push("run_id_invalid");
+  if (statusCard.status !== "open") errors.push("status_not_open");
+  if (statusCard.missing_approval !== `Approval: ${gate}`) errors.push("missing_approval_mismatch");
+  const nextGate = String(statusCard.next_gate_after_approval ?? "none");
+  const nextUserGate = String(statusCard.next_user_gate ?? "").trim();
+  const userActionRequired = String(statusCard.user_action_required ?? "").trim();
+  const userActionSemanticsValid = (userActionRequired === "no" && nextUserGate === "none")
+    || (userActionRequired === "yes" && REQUIRED_GATES.includes(nextUserGate) && nextGate === nextUserGate);
+  if (!userActionSemanticsValid) errors.push("user_action_semantics_invalid");
+  let locale = "";
+  try {
+    locale = resolvePresentationLocale(registry, requestedLocale);
+  } catch {
+    locale = "";
+  }
+  if (!locale) errors.push("locale_unresolved");
+  return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
+}
+
 export function buildApprovalOrientationSnapshot({
   ready = false,
   statusCard,
@@ -545,11 +598,11 @@ export function buildApprovalOrientationSnapshot({
   registry,
   requestedLocale,
 } = {}) {
-  if (!ready || !plainObject(statusCard) || !plainObject(humanPresentation)) return null;
+  if (!ready) return null;
+  if (!validateApprovalOrientationPreconditions({ statusCard, humanPresentation: humanPresentation ?? null, registry, requestedLocale }).valid) return null;
   const gate = String(statusCard.current_gate ?? "").trim();
   const runId = String(statusCard.run_id ?? "").trim();
   const expectedApproval = `Approval: ${gate}`;
-  if (!REQUIRED_GATES.includes(gate) || !/^[A-Za-z0-9._-]+$/.test(runId) || statusCard.status !== "open" || statusCard.missing_approval !== expectedApproval) return null;
 
   const locale = resolvePresentationLocale(registry, requestedLocale);
   const pack = localePack(registry, locale);
@@ -560,9 +613,6 @@ export function buildApprovalOrientationSnapshot({
   const nextGate = String(statusCard.next_gate_after_approval ?? "none");
   const nextUserGate = String(statusCard.next_user_gate ?? "").trim();
   const userActionRequired = String(statusCard.user_action_required ?? "").trim();
-  const userActionSemanticsValid = (userActionRequired === "no" && nextUserGate === "none")
-    || (userActionRequired === "yes" && REQUIRED_GATES.includes(nextUserGate) && nextGate === nextUserGate);
-  if (!userActionSemanticsValid) return null;
   const narration = pack.primary.narration.gates[gate] ?? {};
   const nextDecision = userActionRequired === "no"
     ? pack.primary.narration.noAction

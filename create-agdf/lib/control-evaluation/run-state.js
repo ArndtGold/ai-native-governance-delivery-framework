@@ -2,6 +2,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import process from "node:process";
 import { parseControlState, resolveRuns } from "../control-state/index.js";
+import { validateRunIdentity } from "../control-state/run-identity.js";
 import { buildRunCandidates } from "../interaction-presentation.js";
 import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./shared.js";
 import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
@@ -87,6 +88,7 @@ export function readRunState(targetDir, selection = {}) {
       memory: {},
       candidate_runs: candidateRuns,
       resolution_error: resolutionError,
+      identity_findings: [],
     };
   }
 
@@ -101,6 +103,10 @@ export function readRunState(targetDir, selection = {}) {
     path: runPath,
     content,
     ...parsed,
+    identity_findings: validateRunIdentity({
+      runId: extractField(content, "run_id").replace(/^`|`$/g, ""),
+      revisionId: extractField(content, "revision_id").replace(/^`|`$/g, ""),
+    }),
   };
 }
 

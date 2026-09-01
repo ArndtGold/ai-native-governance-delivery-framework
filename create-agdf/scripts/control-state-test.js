@@ -23,7 +23,8 @@ import {
   writeRun,
   validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
-import { parseControlState } from "../lib/control-state/run-state-parser.js";
+import { parseControlState, RUN_ID_PATTERN } from "../lib/control-state/run-state-parser.js";
+import { validateRunIdentity, RUN_ID_PATTERN as identityRunIdPattern } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { normalizeBacklogStatus } from "../lib/control-evaluation/shared.js";
@@ -756,6 +757,61 @@ ${approvals}
       assert.ok(localeRegistry.locales[locale].gateTitles["Verified Change"], `BT-14: ${locale} Verified Change gateTitle exists`);
       assert.ok(localeRegistry.locales[locale].gateTitles["Quick Task"], `BT-14: ${locale} Quick Task gateTitle exists`);
       assert.ok(localeRegistry.locales[locale].gateTitles["Block"], `BT-14: ${locale} Block gateTitle exists`);
+    }
+  }
+
+  // IPP-1: run-identity unit matrix and single-owner re-export
+  {
+    assert.equal(RUN_ID_PATTERN, identityRunIdPattern, "IPP-1: parser re-exports the shared pattern object");
+    assert.deepEqual(validateRunIdentity({ runId: "example-run.1", revisionId: "6f0f2f9a-1d0a-4b7e-9c2d-3a5b8c1d2e4f" }), [], "IPP-1: valid identity yields no findings");
+    for (const runId of ["Example", ".leading-dot", "", `a${"b".repeat(128)}`, "spaced id"]) {
+      assert.deepEqual(validateRunIdentity({ runId, revisionId: "6f0f2f9a-1d0a-4b7e-9c2d-3a5b8c1d2e4f" }).map((finding) => finding.code), ["AGDF_RUN_ID_INVALID"], `IPP-1: run_id ${JSON.stringify(runId)} is invalid`);
+    }
+    for (const revisionId of ["", "not-a-uuid", "6f0f2f9a-1d0a-4b7e-9c2d"]) {
+      assert.deepEqual(validateRunIdentity({ runId: "example", revisionId }).map((finding) => finding.code), ["AGDF_RUN_REVISION_ID_INVALID"], `IPP-1: revision_id ${JSON.stringify(revisionId)} is invalid`);
+    }
+    assert.deepEqual(validateRunIdentity({}).map((finding) => finding.code), ["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID"], "IPP-1: missing identity yields both findings");
+  }
+
+  // IPP-2 / IPP-3: legacy content path yields doctor identity findings and a loud gate-check outcome
+  {
+    const identityRoot = mkdtempSync(join(tmpdir(), "agdf-identity-parity-"));
+    try {
+      execFileSync(process.execPath, [cli, "init", "--dir", identityRoot]);
+      const legacyState = `# AGDF Run State\n\n## Run Meta\n\n- run_id: Bad Run\n- lifecycle: active\n- current_gate: UR\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Legacy fixture without identity. |\n| What is the next allowed action? | Draft the UR. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Fixture | identity-parity-test | legacy path | direct |\n\n## Closeout\n\n- next_allowed_action: Draft the UR.\n`;
+      writeFileSync(join(identityRoot, ".agdf", "control", "AGDF_RUN.md"), legacyState, "utf8");
+      const doctorResult = spawnSync(process.execPath, [cli, "doctor", "--dir", identityRoot, "--json"], { encoding: "utf8" });
+      const doctorReport = JSON.parse(doctorResult.stdout);
+      const doctorCodes = doctorReport.findings.map((finding) => finding.code);
+      assert.ok(doctorCodes.includes("AGDF_RUN_ID_INVALID"), "IPP-2: doctor reports invalid run_id on the legacy content path");
+      assert.ok(doctorCodes.includes("AGDF_RUN_REVISION_ID_INVALID"), "IPP-2: doctor reports missing revision_id on the legacy content path");
+      for (const finding of doctorReport.findings.filter((entry) => ["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID"].includes(entry.code))) {
+        assert.equal(finding.severity, "revise", `IPP-2: ${finding.code} severity is revise`);
+        assert.match(finding.next_step, /run-migrate/, `IPP-2: ${finding.code} names the repair path`);
+      }
+      assert.notEqual(doctorReport.status, "warn", "IPP-2: identity defects are never reported as mere warn");
+
+      const gateResult = spawnSync(process.execPath, [cli, "gate-check", "--dir", identityRoot, "--json"], { encoding: "utf8" });
+      const gateReport = JSON.parse(gateResult.stdout);
+      assert.ok(["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID"].includes(gateReport.blocking_reason), "IPP-3: gate-check names the identity defect instead of silently dropping the card");
+      assert.match(gateReport.next_allowed_action, /run-migrate|Fill the current UR control state/, "IPP-3: gate-check names a concrete repair action");
+    } finally {
+      rmSync(identityRoot, { recursive: true, force: true });
+    }
+  }
+
+  // IPP-4: healthy canonical run renders cards without presentation diagnostics
+  {
+    const healthyRoot = mkdtempSync(join(tmpdir(), "agdf-identity-healthy-"));
+    try {
+      execFileSync(process.execPath, [cli, "init", "--dir", healthyRoot]);
+      execFileSync(process.execPath, [cli, "run-create", "--dir", healthyRoot, "--run", "identity-healthy-run"]);
+      const gateResult = spawnSync(process.execPath, [cli, "gate-check", "--dir", healthyRoot, "--run", "identity-healthy-run", "--json"], { encoding: "utf8" });
+      const gateReport = JSON.parse(gateResult.stdout);
+      assert.ok(gateReport.status_presentation?.markdown, "IPP-4: healthy run renders the status card");
+      assert.equal("presentation_diagnostics" in gateReport, false, "IPP-4: healthy run report has no presentation_diagnostics key");
+    } finally {
+      rmSync(healthyRoot, { recursive: true, force: true });
     }
   }
 

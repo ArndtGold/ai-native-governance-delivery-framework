@@ -130,6 +130,19 @@ export function evaluateDoctor(targetDir, selection = {}) {
           "Add at least one evidence row or explicitly document that no evidence exists yet.",
         );
       }
+
+      for (const identityFinding of selectedRunState.identity_findings ?? []) {
+        addFinding(
+          findings,
+          "revise",
+          identityFinding.code,
+          identityFinding.code === "AGDF_RUN_ID_INVALID"
+            ? "The selected run state has a missing or invalid run_id; interaction cards cannot be rendered for it."
+            : "The selected run state has a missing or invalid revision_id; approval interactions cannot be rendered for it.",
+          runPath,
+          "Run run-migrate to repair the run identity, or migrate the legacy state to a canonical run record.",
+        );
+      }
     }
 
     const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");

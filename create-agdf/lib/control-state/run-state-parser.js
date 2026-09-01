@@ -1,4 +1,6 @@
-export const RUN_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/;
+import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
+
+export { RUN_ID_PATTERN } from "./run-identity.js";
 export const LIFECYCLES = new Set([
   "active",
   "completed",
@@ -34,7 +36,7 @@ export function parseRunState(content, expected) {
     findings.push({ code: "AGDF_RUN_LIFECYCLE_INVALID" });
   if (!/^[1-9]\d*$/.test(values.get("revision") ?? ""))
     findings.push({ code: "AGDF_RUN_REVISION_INVALID" });
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(values.get("revision_id") ?? ""))
+  if (!REVISION_ID_PATTERN.test(values.get("revision_id") ?? ""))
     findings.push({ code: "AGDF_RUN_REVISION_ID_INVALID" });
   return {
     content,

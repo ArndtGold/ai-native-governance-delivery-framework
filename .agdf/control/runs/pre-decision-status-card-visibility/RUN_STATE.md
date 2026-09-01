@@ -5,10 +5,10 @@
 - control_state_version: 2
 - run_id: pre-decision-status-card-visibility
 - lifecycle: active
-- revision: 10
-- revision_id: f262782a-4aff-4c1f-96c3-c0bffbcedaaf
+- revision: 12
+- revision_id: ed6136d7-da71-477b-b098-20d67d33be14
 - mode: structured_delivery
-- current_gate: CD+Tests
+- current_gate: UAT
 - decision: in_progress
 - owner: agent
 
@@ -22,11 +22,24 @@ forbidden, blocker, quality outlook) without weakening exactly-once or non-autho
 
 | Question | Answer |
 |---|---|
-| What is known? | The interaction contract's approval sequence replaces the full status card with the compact projection; over a gate-to-gate run the user almost never sees the full card at decision time (observed 2026-09-01, `doctor-presentation-identity-parity`). |
-| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD` and `Approval: TP` accepted on 2026-09-01; Brownfield Review selected `structured_slice`. |
-| What is missing? | CD+Tests evidence for PDV-T2..PDV-T7, then reviews and QA. |
-| What is the next allowed action? | Implement PDV-T2..PDV-T7 with tests and record CD+Tests evidence. |
-| What is explicitly forbidden right now? | QA or release claims before evidence; commit, push, PR without explicit instruction. |
+| What is known? | The approved envelope change is implemented in commit `072213c`; canonical source and freshly generated Codex/Copilot surfaces contain the full-card sequence; TP Review, Clean Review, Code Review and QA revision 1 pass on the repository evidence plane; the previously inspected Claude and GitHub Copilot installations still showed older content. |
+| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA` accepted on 2026-09-01; Brownfield Review selected `structured_slice`. |
+| What is missing? | Refreshed installed-host and fresh-session UAT evidence for Claude and GitHub Copilot, followed by exact `Approval: UAT`. |
+| What is the next allowed action? | Prepare the bounded UAT and, only after explicit host-lifecycle instruction, refresh the intended Claude and GitHub Copilot installations and collect fresh-session evidence. |
+| What is explicitly forbidden right now? | Host installation changes without explicit instruction; UAT approval, release and installed-host success claims before fresh-session evidence; commit, push or PR without explicit instruction. |
+
+## Source And Scope State
+
+- normative_instruction_source: approved UR, PRD, SD and TP revision 1; AGDF Runtime Contract
+- primary_target: ready-gate approval envelope status-card visibility in canonical and generated repository surfaces
+- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
+- evidence_sources: commit `072213c`; fresh generated Codex/Copilot profiles; installed Claude and Copilot roots as negative UAT evidence only
+- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
+- multi_scope_state: clear
+- active_scope_evidence: approved TP PDV-T1..PDV-T8
+- competing_scope_lines: systemic version immutability and source-to-loaded-host enforcement require a separate future UR; they are not implemented here
+- branch_workspace_evidence: only the regenerated legacy projection and this run's review/control artefacts are tracked changes; two unrelated untracked image assets remain excluded
+- branch_workspace_scope_effect: supports
 
 ## Approvals
 
@@ -38,7 +51,7 @@ forbidden, blocker, quality outlook) without weakening exactly-once or non-autho
 | PRD | approved | Exact `Approval: PRD` accepted on 2026-09-01 via native gate question for revision 1 after same-run, same-gate, revision and durable-artefact revalidation. A premature `Approval: PRD` given before the artefact existed had been rejected fail-closed. |
 | SD | approved | Exact `Approval: SD` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| QA | open | |
+| QA | approved | Exact `Approval: QA` accepted on 2026-09-01 after same-run, same-gate, revision `0adecabc-abd8-4ed0-bcfd-1539047c7599` and durable QA artefact revalidation. |
 | UAT | open | |
 
 ## Artefacts
@@ -51,6 +64,11 @@ forbidden, blocker, quality outlook) without weakening exactly-once or non-autho
 | SD | `.agdf/control/artefacts/pre-decision-status-card-visibility/SD.md` | approved | Revision 1 approved 2026-09-01; full card rendered from `status_presentation` outside the untouched snapshot, envelope as single composition point, diagnostics-based degradation, contract/skill/integrity wording amendments. |
 | TP | `.agdf/control/artefacts/pre-decision-status-card-visibility/TP.md` | approved | Revision 1 approved 2026-09-01; eight tasks PDV-T1..PDV-T8 mapped to AC-01..AC-09 with test plan and negative controls. |
 | Brownfield Analysis | `.agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_ANALYSIS.md` | done | 2026-09-01 pre_implementation_analysis pass (PDV-T1): no integrity phrase to swap (add-only), smoke-test envelope count 2→3 disclosed as deviation, envelope unit fixtures need `status_presentation`, shared uncommitted `gate-check.js` regions disclosed. |
+| CD+Tests | `.agdf/control/runs/pre-decision-status-card-visibility/RUN_STATE.md` | done | PDV-T2..PDV-T7 implemented in commit `072213c`; two fresh sync runs are hash-identical; all approved regression commands pass after run-state reconciliation. |
+| TP Review | `.agdf/control/artefacts/pre-decision-status-card-visibility/TP_REVIEW.md` | done | Pass; 8/8 tasks fully done and installed-host rendering retained for UAT. |
+| Clean Review | `.agdf/control/artefacts/pre-decision-status-card-visibility/CLEAN_REVIEW.md` | done | Pass; one existing envelope owner, bounded diagnostic fallback and no parallel renderer. |
+| CR | `.agdf/control/artefacts/pre-decision-status-card-visibility/CODE_REVIEW.md` | done | Pass; no meaningful correctness, regression, security or maintainability finding remains. |
+| QA | `.agdf/control/artefacts/pre-decision-status-card-visibility/QA_REPORT.md` | pass | Revision 1 repository QA pass approved on 2026-09-01; loaded-host UAT remains open. |
 
 ## Evidence
 
@@ -59,11 +77,15 @@ forbidden, blocker, quality outlook) without weakening exactly-once or non-autho
 | Approval-time replacement of the full card is contract-mandated | `plugin/skills/gate-check/SKILL.md` §Output; `plugin/meta/contracts/interaction.md` approval sequence | Current designed behavior | direct |
 | Full card appeared once in a complete six-gate run; user asked twice why | Session observation 2026-09-01, run `doctor-presentation-identity-parity` | User-visible gap at decision time | direct |
 | Compact projection lacks path, forbidden actions, blocker and quality outlook | `APPROVAL_SEQUENCE` blocks in `create-agdf/lib/interaction-presentation.js` vs `renderOperationalStatusCard` fields | Missing decision context | direct |
+| Two fresh canonical generations produced stable generated-surface hashes | `sync-package-assets` twice; generated Codex gate-check hash `7f49c129...`; generated Copilot gate-check hash `251e482d...` | PDV-T7 propagation and idempotence | direct |
+| Approved regression set passes | interaction, control-state, verified-change, local-marketplace, Copilot profile, routing, version coherence, public plugin, Runtime Integrity and `git diff --check` on 2026-09-01 | Repository implementation and generated-surface integrity | direct |
+| Claude and GitHub Copilot did not show the new full card because their loaded/installed content predated the change | user observation plus installed-root inspection on 2026-09-01 | Negative host evidence and UAT boundary | direct |
 
 ## Missing Evidence
 
-Design-level comparison (always-render vs visible offer) with chat-noise assessment; produced in
-Brownfield Review, not required for UR approval.
+Fresh installed-host and fresh-session rendering of the synchronized build in Claude and GitHub
+Copilot. Existing observations are negative evidence for stale installations and must not be
+promoted to a passing UAT claim.
 
 ## Risks
 
@@ -72,6 +94,7 @@ Brownfield Review, not required for UR approval.
 | Reintroducing ceremony the compact design removed | medium | Brownfield Review weighs always-render vs localized offer |
 | Sequence validators and envelope tests pin the three-block shape | medium | Scope item 4/5; canonical sync for mirrors |
 | Two blocks claiming semantic id `run_status_card` | medium | Naming decision in SD; single semantic owner preserved |
+| A host reports the same semantic version while loading older content | high | Preserve as UAT blocker; a future separate scope must add immutable build identity and content-bound refresh. |
 
 ## Mode/Slice Decision
 
@@ -95,11 +118,27 @@ Brownfield Review, not required for UR approval.
 | SD | derived_from | PRD | SD revision 1 resolves PRD §7: plain separator, envelope composition outside the untouched snapshot, contract/skill/integrity amendments together. |
 | TP | approved_by | `Approval: TP` | Exact approval provided on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
 | TP | derived_from | SD | TP revision 1 maps SD §4 integration points to PDV-T1..PDV-T8 and SD §6 to the executable test plan. |
+| QA_REPORT | tests | TP | QA revision 1 consumes 8/8 TP coverage plus Clean Review, Code Review and synchronized regression evidence. |
+| QA_REPORT | approved_by | `Approval: QA` | Exact approval provided on 2026-09-01 after same-run, same-gate, revision and durable-artefact revalidation. |
+
+## Context Graph Impact
+
+- context_graph_impact: link_only
+- context_graph_refs: `CG-RUN-STATUS-CARD`; `CG-NATIVE-INTERACTION-AUTHORITY`
+- context_graph_reconciliation: resolved
+- context_graph_required_action: link
+- context_graph_gate_effect: none
+- context_graph_evidence: The canonical interaction contract owns the sequence; the existing nodes already own status projection and approval authority.
+
+## Knowledge Persistence Decision
+
+- memory_target: scope_artifact
+- memory_reason: Repository implementation evidence and stale-host observations remain run-specific until a separately approved systemic delivery-integrity scope establishes a reusable invariant.
+- memory_refs: QA Report revision 1; TP Review; installed-host observation 2026-09-01
 
 ## Next Step
 
-Implement PDV-T2..PDV-T7 inside the TP §3 allowed paths (plus the disclosed `smoke-test.js`
-deviation), run the test plan and record CD+Tests evidence before reviews and QA.
+Prepare refreshed installed-host and fresh-session UAT evidence for Claude and GitHub Copilot.
 
-- next_allowed_action: Implement PDV-T2..PDV-T7 with tests and record CD+Tests evidence.
-- quality_outlook: Contract, skill text and code-owned rendering must end up describing one identical sequence; main design tension is decision context vs chat noise.
+- next_allowed_action: Prepare the bounded UAT and request explicit instruction before changing either host installation.
+- quality_outlook: Repository implementation, generated surfaces, mandatory reviews and QA approval pass; refreshed installed-host rendering remains required before any UAT decision.

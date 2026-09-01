@@ -4,9 +4,21 @@ import { join, resolve } from "node:path";
 import process from "node:process";
 import { pluginDefinition } from "../cli/runtime-context.js";
 import { digestNormalizedPluginSource } from "../runtime/plugin-provenance.js";
+import { recoverClaudeCacheTemp } from "./claude-cache-recovery.js";
 import { CODEX_REGISTRATION_REVISION, classifyMarketplaceList, inspectLocalMarketplaceProjection, inspectOwnedSharedMarketplaceForCopilotMigration, isCodexLocalInstallVersion, prepareCopilotMarketplace, prepareLocalMarketplace } from "./local-marketplace.js";
 
 export const COPILOT_CLI_NPM_PACKAGE = "@github/copilot@1.0.80";
+
+function historicalEvidenceEntries(transaction) {
+  const historical = transaction.historicalEvidence;
+  if (!historical) return [];
+  return [
+    `historical_release:${historical.releaseVersion}`,
+    `historical_contract:${historical.contractId}`,
+    `historical_contract_digest:${historical.contractDigest}`,
+    `historical_entry_digest:${historical.entryDigest}`,
+  ];
+}
 
 export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
   const expectedVersion = pluginDefinition.version;
@@ -34,12 +46,15 @@ export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepar
         ...(transaction.sourceDigest ? [`source_digest:${transaction.sourceDigest}`] : []),
         ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
+        ...(transaction.existingClassification === "owned_supported_historical_rebuild" ? ["marketplace_recovery:owned_supported_historical_rebuild", "loaded_session:fresh_session_required"] : []),
+        ...historicalEvidenceEntries(transaction),
         ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`]),
       ],
       pluginRoot: transaction.pluginRoot ?? null,
       digest: transaction.digest ?? null,
       runtimeDigest: transaction.runtimeDigest ?? null,
       sourceDigest: transaction.sourceDigest ?? null,
+      historicalEvidence: transaction.historicalEvidence ?? null,
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {
@@ -48,11 +63,19 @@ export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepar
   }
 }
 
-export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
+export function installClaudeGlobalPlugin({
+  exec = execFileSync,
+  prepare = prepareLocalMarketplace,
+  dataRoot,
+  recoverCache = recoverClaudeCacheTemp,
+  cacheRecoveryOptions = {},
+} = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
   const transaction = prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
   const migration = { state: "unknown", source: "", addedLocal: false, removedLegacy: false };
+  let previousPluginRemoved = false;
+  let pluginInstalled = false;
   try {
     const marketplaceOutput = runPluginPhase(exec, "claude", ["plugin", "marketplace", "list", "--json"], "marketplace", captureOptions());
     migrateMarketplace({ surface: "claude", exec, output: marketplaceOutput, root: transaction.root, nativeOutput, migration });
@@ -63,11 +86,41 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
     // same-version local source change never reaches the host; reinstall replaces the content.
     if (alreadyInstalled) {
       nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "uninstall", "agdf@agdf"], "plugin_operation", captureOptions()));
+      previousPluginRemoved = true;
     }
-    nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+    let cacheRecovery = null;
+    try {
+      nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+      pluginInstalled = true;
+    } catch (installError) {
+      cacheRecovery = recoverCache({
+        error: installError,
+        expectedVersion,
+        ...cacheRecoveryOptions,
+      });
+      if (cacheRecovery.status !== "recovered") {
+        installError.evidence = {
+          ...(installError.evidence ?? {}),
+          claude_cache_recovery: cacheRecovery.reason,
+        };
+        throw installError;
+      }
+      try {
+        nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+        pluginInstalled = true;
+      } catch (retryError) {
+        retryError.evidence = {
+          ...(retryError.evidence ?? {}),
+          claude_cache_recovery: "claude_cache_temp_retry_exhausted",
+        };
+        throw retryError;
+      }
+    }
     const afterList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", captureOptions());
     const installedVersion = pluginVersionFromList(afterList, "agdf@agdf");
-    if (installedVersion && installedVersion !== expectedVersion) {
+    const historicalRebuild = transaction.existingClassification === "owned_supported_historical_rebuild";
+    if ((historicalRebuild && installedVersion !== expectedVersion)
+        || (installedVersion && installedVersion !== expectedVersion)) {
       throw lifecycleAdapterError("version", versionMismatchMessage("Claude Code", "agdf@agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest claude"));
     }
     transaction.commit();
@@ -85,16 +138,20 @@ export function installClaudeGlobalPlugin({ exec = execFileSync, prepare = prepa
         ...(transaction.sourceDigest ? [`source_digest:${transaction.sourceDigest}`] : []),
         ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
+        ...(transaction.existingClassification === "owned_supported_historical_rebuild" ? ["marketplace_recovery:owned_supported_historical_rebuild", "loaded_session:fresh_session_required"] : []),
+        ...historicalEvidenceEntries(transaction),
+        ...(cacheRecovery?.status === "recovered" ? ["claude_cache_temp_recovery:bounded_retry"] : []),
         ...(installedVersion ? [] : ["host_did_not_expose_version"]),
       ],
       pluginRoot: transaction.pluginRoot ?? null,
       digest: transaction.digest ?? null,
       runtimeDigest: transaction.runtimeDigest ?? null,
       sourceDigest: transaction.sourceDigest ?? null,
+      historicalEvidence: transaction.historicalEvidence ?? null,
       nativeOutput: nativeOutput.filter(Boolean).map(String),
     };
   } catch (error) {
-    recoverMarketplace({ surface: "claude", exec, migration, transaction, error });
+    recoverMarketplace({ surface: "claude", exec, migration, transaction, error, previousPluginRemoved, pluginInstalled });
     throw error;
   }
 }
@@ -302,7 +359,15 @@ function migrateMarketplace({ surface, exec, output, root, nativeOutput, migrati
   }
 }
 
-function recoverMarketplace({ surface, exec, migration, transaction, error }) {
+function recoverMarketplace({
+  surface,
+  exec,
+  migration,
+  transaction,
+  error,
+  previousPluginRemoved = false,
+  pluginInstalled = false,
+}) {
   const executable = surface === "claude" ? "claude" : "codex";
   const recovery = [];
   const attempt = (args) => {
@@ -316,12 +381,18 @@ function recoverMarketplace({ surface, exec, migration, transaction, error }) {
     }
   };
   if (migration?.refreshOwnedLocal) {
+    if (surface === "claude" && pluginInstalled) {
+      attempt(["plugin", "uninstall", "agdf@agdf"]);
+    }
     const refreshedRegistrationRemoved = migration.addedLocal
       ? attempt(["plugin", "marketplace", "remove", "agdf", "--json"])
       : true;
-    rollbackMarketplaceFilesystem(transaction, recovery);
+    const filesystemRestored = rollbackMarketplaceFilesystem(transaction, recovery);
     if (migration.removedOwnedLocal && refreshedRegistrationRemoved) {
       attempt(["plugin", "marketplace", "add", migration.source || transaction.root, "--json"]);
+    }
+    if (surface === "claude" && previousPluginRemoved && filesystemRestored) {
+      attempt(["plugin", "install", "agdf@agdf"]);
     }
     error.evidence = { ...(error.evidence ?? {}), rollback: recovery };
     return;
@@ -336,7 +407,13 @@ function recoverMarketplace({ surface, exec, migration, transaction, error }) {
       ? ["plugin", "marketplace", "add", migration.source, "--scope", "user"]
       : ["plugin", "marketplace", "add", migration.source, "--json"]);
   }
-  rollbackMarketplaceFilesystem(transaction, recovery);
+  if (surface === "claude" && pluginInstalled) {
+    attempt(["plugin", "uninstall", "agdf@agdf"]);
+  }
+  const filesystemRestored = rollbackMarketplaceFilesystem(transaction, recovery);
+  if (surface === "claude" && previousPluginRemoved && filesystemRestored) {
+    attempt(["plugin", "install", "agdf@agdf"]);
+  }
   error.evidence = { ...(error.evidence ?? {}), rollback: recovery };
 }
 
@@ -344,8 +421,10 @@ function rollbackMarketplaceFilesystem(transaction, recovery) {
   try {
     transaction.rollback();
     recovery.push({ filesystem: transaction.root, status: "restored" });
+    return true;
   } catch (rollbackError) {
     recovery.push({ filesystem: transaction.root, status: "failed", message: rollbackError.message });
+    return false;
   }
 }
 

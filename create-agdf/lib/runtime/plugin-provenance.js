@@ -137,6 +137,22 @@ export function validateDistributionProfiles(definition) {
   return { status: "matched", contract };
 }
 
+function classifyInstalledHistoricalProfile(catalogue, definition, classifyHistoricalProfile) {
+  if (typeof classifyHistoricalProfile !== "function") {
+    return { status: "invalid", reason: "profile_history_invalid" };
+  }
+  const result = classifyHistoricalProfile({
+    catalogue,
+    version: definition?.version,
+    distributionProfiles: definition?.distributionProfiles,
+  });
+  if (result.status !== "matched") return result;
+  return {
+    ...result,
+    contract: catalogue.contracts[result.contract_id].distribution_profiles,
+  };
+}
+
 export function inspectGeneratedRepositoryMarketplace(targetDir) {
   const marketplacePath = join(targetDir, ".agents", "plugins", "marketplace.json");
   if (!existsSync(marketplacePath)) return { status: "absent", marketplacePath };
@@ -196,11 +212,23 @@ export function inspectInstallationProvenance(pluginRoot, {
   allowLegacy = false,
   profileId = "runtime-plugin",
   inventoryDigest = null,
+  allowHistoricalProfilesForMigration = false,
+  distributionProfileHistory = null,
+  classifyHistoricalProfile = null,
 } = {}) {
   const markerPath = join(pluginRoot, INSTALLATION_PROVENANCE_FILE);
   const legacyPath = join(pluginRoot, LEGACY_LOCAL_INSTALL_FILE);
   if (!existsSync(markerPath)) {
     if (allowLegacy && existsSync(legacyPath)) {
+      const currentProfile = validateDistributionProfiles(definition);
+      if (Object.hasOwn(definition ?? {}, "distributionProfiles")
+          && currentProfile.status !== "matched") {
+        return allowHistoricalProfilesForMigration
+          ? classifyInstalledHistoricalProfile(distributionProfileHistory, definition, classifyHistoricalProfile).status === "matched"
+            ? { status: "invalid", reason: "installation_provenance_invalid" }
+            : classifyInstalledHistoricalProfile(distributionProfileHistory, definition, classifyHistoricalProfile)
+          : currentProfile;
+      }
       const marker = readJson(legacyPath);
       if (!marker
           || marker.schema_version !== 1
@@ -223,8 +251,14 @@ export function inspectInstallationProvenance(pluginRoot, {
     if (profile.status !== "matched") return profile;
     return { status: "missing", reason: "installation_provenance_missing" };
   }
-  const profile = validateDistributionProfiles(definition);
-  if (profile.status !== "matched") return profile;
+  const currentProfile = validateDistributionProfiles(definition);
+  const historicalProfile = currentProfile.status !== "matched" && allowHistoricalProfilesForMigration
+    ? classifyInstalledHistoricalProfile(distributionProfileHistory, definition, classifyHistoricalProfile)
+    : null;
+  if (currentProfile.status !== "matched" && historicalProfile?.status !== "matched") {
+    return historicalProfile ?? currentProfile;
+  }
+  const profile = currentProfile.status === "matched" ? currentProfile : historicalProfile;
   const marker = readJson(markerPath);
   if (!marker
       || marker.schema_version !== 1
@@ -247,7 +281,16 @@ export function inspectInstallationProvenance(pluginRoot, {
   if (observedSourceDigest !== marker.source_digest) {
     return { status: "invalid", reason: "source_digest_mismatch", marker, observedSourceDigest };
   }
-  return { status: "matched", marker, observedSourceDigest };
+  return {
+    status: "matched",
+    marker,
+    observedSourceDigest,
+    profileClassification: historicalProfile ? "supported_historical" : "current",
+    historicalReleaseVersion: historicalProfile?.release_version ?? null,
+    historicalContractId: historicalProfile?.contract_id ?? null,
+    historicalContractDigest: historicalProfile?.contract_digest ?? null,
+    historicalEntryDigest: historicalProfile?.entry_digest ?? null,
+  };
 }
 
 export const distributionProfileContract = Object.freeze({

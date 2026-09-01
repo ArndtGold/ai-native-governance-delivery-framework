@@ -13,7 +13,7 @@ repository-local commands inside the target Git repository, not inside this AGDF
 |---|---|---|---|
 | Codex available in your personal environment | `npx --yes @agdf/cli@latest codex` | Installs or updates the global plugin and verifies its version through the Codex CLI. | Start a new Codex task and ask: `Run an AGDF gate check for this request.` |
 | Codex only for one repository | `npx --yes @agdf/cli@latest codex-repo` | Writes the local marketplace and plugin files; restart Codex, open `/plugins`, select **This repository**, then install `agdf`. | Start a new task in that repository and ask for a gate check. |
-| Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after restart. | Use `/gate-check` for new build or change intent. |
+| Claude Code | `npx --yes @agdf/cli@latest claude` | Installs or updates the global plugin; if the CLI cannot expose a version, check `claude plugin list` after a full restart. | Start a fresh session and use `/gate-check` for new build or change intent. |
 | GitHub Copilot plugin | `npx --yes @agdf/cli@latest copilot` | Installs through Copilot CLI. If `copilot` is not on `PATH`, the installer runs a pinned official `@github/copilot` package through npm and verifies the installed version. | Restart Copilot, verify Installed Plugins and the `agdf-` skills, then request an AGDF gate check. |
 | OpenCode, global discovery | `npx --yes @agdf/cli@latest opencode` | Installs or updates the npm plugin and global native skills. Verify with `npx --yes @agdf/cli@latest opencode-status --json`, then restart OpenCode. | Create durable control in a repository before expecting governance to be active. |
 | OpenCode, repository governance | `npx --yes @agdf/cli@latest opencode-repo` | Writes durable control configuration and templates without copying a runtime surface. Re-run `opencode-status --json` from that repository. | Load `agdf-global-gate-check` through OpenCode's native skill tool. |
@@ -61,6 +61,20 @@ only the user's content-bound intent until a restarted session provides direct h
 Native Windows uses a generated Windows hook command and PowerShell-specific permission projection.
 Repository fixtures do not prove Windows host behavior. Automatic-mode support is claimed only after
 direct native-Windows installation, permission, rollback, renewal and fresh-session evidence.
+
+The installer can rebuild the exact verified AGDF-owned shared profiles from `0.13.6`, `0.13.7`,
+`0.13.8` and `0.14.1` into the current canonical profile. Exact snapshots for current-shape `0.14.2`
+and `0.14.3` remain ordinary validation evidence. The internally `0.13.8` `agdf-v0.14.0` tag grants
+no compatibility. Unknown versions, partial profile shapes, unowned roots and tampered provenance
+are rejected. Installation uses only the packaged catalogue and performs no Git or network lookup.
+On Windows, Claude installation may remove and retry only the exact
+`temp_local_*` cache directory named by an `EPERM` rename failure from the current install command;
+it never scans or broadly clears the Claude cache. Unsafe or ambiguous failures preserve the original
+error and use the existing marketplace rollback.
+
+A successful global installation verifies installed bytes, not the skill registry of an already
+loaded session. Fully restart the application and start a fresh session or task. Restoring the
+pre-upgrade session can retain stale AGDF skills and is not activation evidence.
 
 The official public OpenAI candidate is currently a portable Skills-only profile. It contains no
 runtime or hooks, so automatic runtime checks are unavailable there and validation remains manual or

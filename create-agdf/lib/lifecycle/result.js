@@ -3,10 +3,10 @@ const RESULTS = new Set(["success", "partial", "failed", "preview"]);
 const SCOPES = new Set(["global", "repository"]);
 const SURFACES = new Set(["codex", "claude", "copilot", "opencode", "generic"]);
 const GLOBAL_INSTALL_RESTART_ACTIONS = Object.freeze({
-  codex: "Restart Codex.",
-  claude: "Restart Claude Code.",
-  copilot: "Restart GitHub Copilot.",
-  opencode: "Restart OpenCode.",
+  codex: "Fully restart Codex, then start a fresh session. Restoring the previous session can retain stale AGDF skills.",
+  claude: "Fully restart Claude Code, then start a fresh session. Restoring the previous session can retain stale AGDF skills.",
+  copilot: "Fully restart GitHub Copilot, then start a fresh session. Restoring the previous session can retain stale AGDF skills.",
+  opencode: "Fully restart OpenCode, then start a fresh session. Restoring the previous session can retain stale AGDF skills.",
 });
 
 function text(value) {

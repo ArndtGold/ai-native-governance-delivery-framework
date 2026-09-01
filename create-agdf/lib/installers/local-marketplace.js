@@ -11,6 +11,7 @@ import { dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from 
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { renameSyncWithRetry } from "../fs-swap.js";
+import { classifyHistoricalDistributionProfile } from "../runtime/distribution-profile-history.js";
 import {
   INSTALLATION_PROVENANCE_FILE,
   LEGACY_LOCAL_INSTALL_FILE,
@@ -29,6 +30,14 @@ export const CODEX_REGISTRATION_REVISION = 1;
 function pathInside(root, candidate) {
   const rel = relative(root, candidate);
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+}
+
+function readOptionalJson(path) {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
 }
 
 export function digestPluginSource(root, canonicalVersion = pluginDefinition.version) {
@@ -160,6 +169,9 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
   requireInstallationProvenance = false,
   allowLegacyProvenanceForMigration = false,
   allowPreProvenanceShape = false,
+  allowHistoricalProfilesForMigration = false,
+  distributionProfileHistory = null,
+  classifyHistoricalProfile = classifyHistoricalDistributionProfile,
   profileId = "runtime-plugin",
 } = {}) {
   const definition = readJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "built plugin definition");
@@ -193,10 +205,18 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
       runtimeManifest: runtime,
       pluginVersion: expectedCodexInstallVersion,
       allowLegacy: true,
+      allowHistoricalProfilesForMigration,
+      distributionProfileHistory,
+      classifyHistoricalProfile,
     });
   }
-  if (profile.status !== "matched" && provenance?.status !== "legacy" && !isPreProvenanceShape) {
-    throw new Error("Built plugin distribution profile contract is invalid.");
+  const supportedHistoricalProfile = provenance?.status === "matched"
+    && provenance.profileClassification === "supported_historical";
+  if (profile.status !== "matched"
+      && provenance?.status !== "legacy"
+      && !supportedHistoricalProfile
+      && !isPreProvenanceShape) {
+    throw new Error(`Built plugin distribution profile contract is invalid (${provenance?.reason ?? profile.reason}).`);
   }
   if (!copilotProfile && codex.version !== expectedCodexInstallVersion) {
     throw new Error(`Built Codex plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${codex.version}`);
@@ -226,6 +246,9 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
       runtimeManifest: runtime,
       pluginVersion: expectedCodexInstallVersion,
       allowLegacy: allowLegacyProvenanceForMigration,
+      allowHistoricalProfilesForMigration,
+      distributionProfileHistory,
+      classifyHistoricalProfile,
       profileId,
       inventoryDigest: copilotInventory?.inventoryDigest ?? null,
     });
@@ -234,7 +257,11 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
       throw new Error(`Invalid AGDF installation provenance (${provenance.reason}): ${pluginRoot}`);
     }
   }
-  return definition;
+  return {
+    definition,
+    provenance,
+    profileClassification: provenance?.profileClassification ?? "current",
+  };
 }
 
 function validateMarketplaceRoot(root, definition = pluginDefinition, { profileId = "runtime-plugin" } = {}) {
@@ -262,7 +289,10 @@ function validateMarketplaceRoot(root, definition = pluginDefinition, { profileI
   return Object.freeze({ codexShape });
 }
 
-function classifyExistingMarketplace(stableRoot, marker, { profileId = "runtime-plugin" } = {}) {
+function classifyExistingMarketplace(stableRoot, marker, {
+  profileId = "runtime-plugin",
+  distributionProfileHistory = null,
+} = {}) {
   const existingPluginRoot = join(stableRoot, "plugins", MARKETPLACE_ID);
   const copilotProfile = profileId === "copilot-runtime-plugin";
   const existingCodexInstallVersion = copilotProfile ? marker.version : marker.codex_install_version ?? marker.version;
@@ -279,15 +309,32 @@ function classifyExistingMarketplace(stableRoot, marker, { profileId = "runtime-
   const preProvenanceCandidate = !hasCurrentProvenance
     && !hasLegacyProvenance
     && !Object.hasOwn(definition, "distributionProfiles");
-  const existingDefinition = validateBuiltPlugin(
+  const existingValidation = validateBuiltPlugin(
     existingPluginRoot,
     marker.version,
     existingCodexInstallVersion,
     marker.source_digest ?? "",
     preProvenanceCandidate
       ? { allowPreProvenanceShape: true }
-      : { requireInstallationProvenance: true, allowLegacyProvenanceForMigration: true, profileId },
+      : {
+          requireInstallationProvenance: true,
+          allowLegacyProvenanceForMigration: true,
+          allowHistoricalProfilesForMigration: !copilotProfile,
+          distributionProfileHistory,
+          profileId,
+        },
   );
+  if (!preProvenanceCandidate) {
+    if (!/^[a-f0-9]{64}$/.test(marker.source_digest ?? "")) {
+      throw new Error(`Refusing invalid AGDF marketplace ownership source digest: ${stableRoot}`);
+    }
+    const observedSourceDigest = existingValidation.provenance?.observedSourceDigest
+      ?? digestPluginSource(existingPluginRoot, marker.version);
+    if (marker.source_digest !== observedSourceDigest) {
+      throw new Error(`Refusing AGDF marketplace ownership source digest mismatch: ${stableRoot}`);
+    }
+  }
+  const existingDefinition = existingValidation.definition;
   const marketplace = validateMarketplaceRoot(stableRoot, existingDefinition, { profileId });
   if (digestDirectory(existingPluginRoot) !== marker.plugin_digest) {
     throw new Error(`Refusing tampered AGDF marketplace root: ${stableRoot}`);
@@ -295,9 +342,19 @@ function classifyExistingMarketplace(stableRoot, marker, { profileId = "runtime-
   return Object.freeze({
     classification: preProvenanceCandidate
       ? "owned_pre_provenance_rebuild"
-      : "current_or_marker_migration",
+      : existingValidation.profileClassification === "supported_historical"
+        ? "owned_supported_historical_rebuild"
+        : "current_or_marker_migration",
     definition: existingDefinition,
     marketplace,
+    historicalEvidence: existingValidation.profileClassification === "supported_historical"
+      ? {
+          releaseVersion: existingValidation.provenance.historicalReleaseVersion,
+          contractId: existingValidation.provenance.historicalContractId,
+          contractDigest: existingValidation.provenance.historicalContractDigest,
+          entryDigest: existingValidation.provenance.historicalEntryDigest,
+        }
+      : null,
   });
 }
 
@@ -347,7 +404,10 @@ export function prepareLocalMarketplace({
       && !isCodexLocalInstallVersion(expectedVersion, codexInstallVersion, sourceDigest)) {
     throw new Error(`Invalid AGDF Codex local install version: ${codexInstallVersion}`);
   }
-  const targetDefinition = validateBuiltPlugin(builtPluginRoot, expectedVersion, expectedVersion, "", { profileId });
+  const targetDefinition = validateBuiltPlugin(builtPluginRoot, expectedVersion, expectedVersion, "", { profileId }).definition;
+  const distributionProfileHistory = readOptionalJson(
+    join(builtPluginRoot, "meta", "distribution-profile-history.json"),
+  );
   mkdirSync(parent, { recursive: true });
   recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot);
 
@@ -365,15 +425,17 @@ export function prepareLocalMarketplace({
     ?? 0;
   let existingMarketplace = null;
   let existingClassification = "none";
+  let historicalEvidence = null;
   if (existing) {
     let classified;
     try {
-      classified = classifyExistingMarketplace(stableRoot, existing, { profileId });
+      classified = classifyExistingMarketplace(stableRoot, existing, { profileId, distributionProfileHistory });
     } catch (error) {
       throw invalidExistingMarketplace(error);
     }
     existingClassification = classified.classification;
     existingMarketplace = classified.marketplace;
+    historicalEvidence = classified.historicalEvidence;
   }
   mkdirSync(stageRoot, { recursive: false });
   try {
@@ -450,6 +512,7 @@ export function prepareLocalMarketplace({
         digest: pluginDigest,
         runtimeDigest: runtimeManifest.digest,
         existingClassification,
+        historicalEvidence,
         changed: false,
         commit() {},
         rollback() {},
@@ -473,6 +536,7 @@ export function prepareLocalMarketplace({
       digest: pluginDigest,
       runtimeDigest: runtimeManifest.digest,
       existingClassification,
+      historicalEvidence,
       changed: true,
       commit() {
         if (closed) return;
@@ -517,7 +581,7 @@ export function inspectLocalMarketplaceProjection({
     codexInstallVersion,
     marker.source_digest ?? "",
     { requireInstallationProvenance: true },
-  );
+  ).definition;
   validateMarketplaceRoot(root, definition);
   if (marker.version !== expectedVersion || digestDirectory(pluginRoot) !== marker.plugin_digest) {
     throw new Error(`Refusing stale or tampered AGDF marketplace projection: ${root}`);

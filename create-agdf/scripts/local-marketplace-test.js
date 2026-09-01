@@ -16,6 +16,8 @@ import {
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin, pluginVersionFromList } from "../lib/installers/plugin-installers.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { renameSyncWithRetry } from "../lib/fs-swap.js";
+import { validateDistributionProfiles } from "../lib/runtime/plugin-provenance.js";
+import { classifyHistoricalDistributionProfile } from "../lib/runtime/distribution-profile-history.js";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
@@ -172,6 +174,139 @@ try {
   }
   first.commit();
 
+  assert.equal(validateDistributionProfiles(pluginDefinition).status, "matched");
+  const profileHistory = json(join(builtPluginRoot, "meta", "distribution-profile-history.json"));
+  const fourProfileContract = profileHistory.contracts["four-profile-v1"].distribution_profiles;
+  for (const version of ["0.13.6", "0.13.7", "0.13.8", "0.14.1"]) {
+    const historicalDefinitionFixture = {
+      ...structuredClone(pluginDefinition),
+      version,
+      distributionProfiles: structuredClone(fourProfileContract),
+    };
+    assert.equal(validateDistributionProfiles(historicalDefinitionFixture).status, "invalid", "ordinary callers must remain current-only");
+    assert.equal(classifyHistoricalDistributionProfile({
+      catalogue: profileHistory,
+      version,
+      distributionProfiles: historicalDefinitionFixture.distributionProfiles,
+    }).status, "matched");
+
+    const historicalDataRoot = join(fixtureRoot, `historical-profile-${version}`);
+    const historicalInitial = prepareLocalMarketplace({ dataRoot: historicalDataRoot, builtPluginRoot });
+    historicalInitial.commit();
+    const historicalPluginRoot = historicalInitial.pluginRoot;
+    writeFileSync(
+      join(historicalPluginRoot, "meta", "agdf-plugin.definition.json"),
+      `${JSON.stringify(historicalDefinitionFixture, null, 2)}\n`,
+    );
+    for (const manifestPath of [
+      join(historicalPluginRoot, "runtime", "runtime-manifest.json"),
+      join(historicalPluginRoot, ".codex-plugin", "plugin.json"),
+      join(historicalPluginRoot, ".claude-plugin", "plugin.json"),
+    ]) {
+      writeFileSync(manifestPath, `${JSON.stringify({ ...json(manifestPath), version }, null, 2)}\n`);
+    }
+    rmSync(join(historicalPluginRoot, "meta", "distribution-profile-history.json"));
+    writeFileSync(join(historicalPluginRoot, "historical-only.txt"), "rollback-only\n");
+    const historicalSourceDigest = digestPluginSource(historicalPluginRoot, version);
+    const historicalProvenancePath = join(historicalPluginRoot, ".agdf-installation.json");
+    writeFileSync(historicalProvenancePath, `${JSON.stringify({
+      ...json(historicalProvenancePath),
+      canonical_version: version,
+      codex_install_version: version,
+      source_digest: historicalSourceDigest,
+    }, null, 2)}\n`);
+    const historicalMarkerPath = join(historicalInitial.root, ".agdf-owned.json");
+    writeFileSync(historicalMarkerPath, `${JSON.stringify({
+      ...json(historicalMarkerPath),
+      version,
+      codex_install_version: version,
+      source_digest: historicalSourceDigest,
+      plugin_digest: digestDirectory(historicalPluginRoot),
+    }, null, 2)}\n`);
+    const historicalRootDigest = digestDirectory(historicalInitial.root);
+    const historicalMarker = json(historicalMarkerPath);
+    writeFileSync(historicalMarkerPath, `${JSON.stringify({
+      ...historicalMarker,
+      source_digest: "0".repeat(64),
+    }, null, 2)}\n`);
+    captureError(
+      () => prepareLocalMarketplace({ dataRoot: historicalDataRoot, builtPluginRoot }),
+      /ownership source digest mismatch/,
+    );
+    writeFileSync(historicalMarkerPath, `${JSON.stringify(historicalMarker, null, 2)}\n`);
+    assert.equal(digestDirectory(historicalInitial.root), historicalRootDigest, "ownership source digest mismatch must block before marketplace mutation");
+    if (version === "0.13.8") {
+      const invalidHistoryPlugin = join(fixtureRoot, "invalid-history-built-plugin");
+      cpSync(builtPluginRoot, invalidHistoryPlugin, { recursive: true });
+      writeFileSync(join(invalidHistoryPlugin, "meta", "distribution-profile-history.json"), "{}\n");
+      captureError(
+        () => prepareLocalMarketplace({ dataRoot: historicalDataRoot, builtPluginRoot: invalidHistoryPlugin }),
+        /profile_history_invalid/,
+      );
+      assert.equal(digestDirectory(historicalInitial.root), historicalRootDigest, "invalid history must block before marketplace mutation");
+    }
+    const historicalUpgrade = prepareLocalMarketplace({ dataRoot: historicalDataRoot, builtPluginRoot });
+    assert.equal(historicalUpgrade.existingClassification, "owned_supported_historical_rebuild");
+    assert.equal(historicalUpgrade.historicalEvidence.releaseVersion, version);
+    assert.equal(historicalUpgrade.historicalEvidence.contractId, "four-profile-v1");
+    assert.match(historicalUpgrade.historicalEvidence.contractDigest, /^[a-f0-9]{64}$/);
+    assert.match(historicalUpgrade.historicalEvidence.entryDigest, /^[a-f0-9]{64}$/);
+    assert.equal(existsSync(join(historicalUpgrade.pluginRoot, "historical-only.txt")), false);
+    assert.equal(json(join(historicalUpgrade.pluginRoot, ".agdf-installation.json")).canonical_version, pluginDefinition.version);
+    historicalUpgrade.rollback();
+    assert.equal(digestDirectory(historicalInitial.root), historicalRootDigest, `${version} rollback must be byte-identical`);
+    const historicalCommit = prepareLocalMarketplace({ dataRoot: historicalDataRoot, builtPluginRoot });
+    assert.equal(historicalCommit.existingClassification, "owned_supported_historical_rebuild");
+    historicalCommit.commit();
+  }
+
+  for (const version of ["0.14.2", "0.14.3"]) {
+    const currentShape = structuredClone(pluginDefinition);
+    currentShape.version = version;
+    assert.equal(validateDistributionProfiles(currentShape).status, "matched");
+    assert.equal(classifyHistoricalDistributionProfile({
+      catalogue: profileHistory,
+      version,
+      distributionProfiles: currentShape.distributionProfiles,
+    }).status, "matched");
+
+    const currentShapeDataRoot = join(fixtureRoot, `current-shape-${version}`);
+    const currentShapeInitial = prepareLocalMarketplace({ dataRoot: currentShapeDataRoot, builtPluginRoot });
+    currentShapeInitial.commit();
+    writeFileSync(
+      join(currentShapeInitial.pluginRoot, "meta", "agdf-plugin.definition.json"),
+      `${JSON.stringify(currentShape, null, 2)}\n`,
+    );
+    for (const manifestPath of [
+      join(currentShapeInitial.pluginRoot, "runtime", "runtime-manifest.json"),
+      join(currentShapeInitial.pluginRoot, ".codex-plugin", "plugin.json"),
+      join(currentShapeInitial.pluginRoot, ".claude-plugin", "plugin.json"),
+    ]) {
+      writeFileSync(manifestPath, `${JSON.stringify({ ...json(manifestPath), version }, null, 2)}\n`);
+    }
+    rmSync(join(currentShapeInitial.pluginRoot, "meta", "distribution-profile-history.json"));
+    const currentShapeSourceDigest = digestPluginSource(currentShapeInitial.pluginRoot, version);
+    const currentShapeProvenance = join(currentShapeInitial.pluginRoot, ".agdf-installation.json");
+    writeFileSync(currentShapeProvenance, `${JSON.stringify({
+      ...json(currentShapeProvenance),
+      canonical_version: version,
+      codex_install_version: version,
+      source_digest: currentShapeSourceDigest,
+    }, null, 2)}\n`);
+    const currentShapeMarker = join(currentShapeInitial.root, ".agdf-owned.json");
+    writeFileSync(currentShapeMarker, `${JSON.stringify({
+      ...json(currentShapeMarker),
+      version,
+      codex_install_version: version,
+      source_digest: currentShapeSourceDigest,
+      plugin_digest: digestDirectory(currentShapeInitial.pluginRoot),
+    }, null, 2)}\n`);
+    const currentShapeUpgrade = prepareLocalMarketplace({ dataRoot: currentShapeDataRoot, builtPluginRoot });
+    assert.equal(currentShapeUpgrade.existingClassification, "current_or_marker_migration");
+    assert.equal(currentShapeUpgrade.historicalEvidence, null);
+    currentShapeUpgrade.commit();
+  }
+
   const firstPluginRoot = join(first.root, "plugins", "agdf");
   const canonicalProvenancePath = join(firstPluginRoot, ".agdf-installation.json");
   const canonicalProvenance = json(canonicalProvenancePath);
@@ -246,8 +381,9 @@ try {
   writeFileSync(preProvenanceDefinitionPath, `${JSON.stringify(preProvenanceDefinition, null, 2)}\n`);
   writeFileSync(join(preProvenancePluginRoot, "historical-only.txt"), "must not enter rebuilt stage\n");
   const preProvenanceOwnedPath = join(preProvenanceInitial.root, ".agdf-owned.json");
+  const { source_digest: _preProvenanceSourceDigest, ...preProvenanceOwnership } = json(preProvenanceOwnedPath);
   writeFileSync(preProvenanceOwnedPath, `${JSON.stringify({
-    ...json(preProvenanceOwnedPath),
+    ...preProvenanceOwnership,
     plugin_digest: digestDirectory(preProvenancePluginRoot),
   }, null, 2)}\n`);
   const historicalDigest = digestDirectory(preProvenanceInitial.root);
@@ -502,6 +638,67 @@ try {
   assert.ok(recoveryEvidence.evidence.includes("loaded_session:restart_required"));
   assert.equal(recoveryEvidence.evidence.some((value) => value.includes("loaded_session:matched")), false);
 
+  for (const version of ["0.13.6", "0.13.7", "0.13.8", "0.14.1"]) {
+    const exactHistoricalEvidence = {
+      releaseVersion: version,
+      contractId: "four-profile-v1",
+      contractDigest: "1".repeat(64),
+      entryDigest: "2".repeat(64),
+    };
+    for (const [surface, install] of [
+      ["codex", installCodexGlobalPlugin],
+      ["claude", installClaudeGlobalPlugin],
+    ]) {
+      const historicalRecoveryEvidence = install({
+        prepare: () => ({
+          ...fakeTransaction(join(fixtureRoot, `${surface}-${version}-historical-recovery-evidence-marketplace`)).prepare(),
+          existingClassification: "owned_supported_historical_rebuild",
+          historicalEvidence: exactHistoricalEvidence,
+        }),
+        exec: scriptedExec({
+          [`${surface} plugin marketplace list --json`]: surface === "codex" ? '{"marketplaces":[]}' : "[]",
+          ...(surface === "claude" ? {
+            "claude plugin list": `agdf@agdf ${pluginDefinition.version}\n`,
+          } : {
+            "codex plugin list": `agdf@agdf ${pluginDefinition.version}\n`,
+          }),
+        }, []),
+      });
+      assert.ok(historicalRecoveryEvidence.evidence.includes("marketplace_recovery:owned_supported_historical_rebuild"));
+      assert.ok(historicalRecoveryEvidence.evidence.includes("loaded_session:fresh_session_required"));
+      assert.deepEqual(historicalRecoveryEvidence.historicalEvidence, exactHistoricalEvidence);
+      assert.ok(historicalRecoveryEvidence.evidence.includes(`historical_release:${version}`));
+      assert.ok(historicalRecoveryEvidence.evidence.includes("historical_contract:four-profile-v1"));
+      assert.ok(historicalRecoveryEvidence.evidence.includes(`historical_contract_digest:${"1".repeat(64)}`));
+      assert.ok(historicalRecoveryEvidence.evidence.includes(`historical_entry_digest:${"2".repeat(64)}`));
+    }
+  }
+  const unverifiedHistoricalClaudeTx = fakeTransaction(join(fixtureRoot, "claude-unverified-historical-marketplace"));
+  const unverifiedHistoricalClaudeCalls = [];
+  assert.throws(() => installClaudeGlobalPlugin({
+    prepare: () => ({
+      ...unverifiedHistoricalClaudeTx.prepare(),
+      existingClassification: "owned_supported_historical_rebuild",
+      historicalEvidence: {
+        releaseVersion: "0.13.8",
+        contractId: "four-profile-v1",
+        contractDigest: "1".repeat(64),
+        entryDigest: "2".repeat(64),
+      },
+    }),
+    exec: scriptedExec({
+      "claude plugin marketplace list --json": "[]",
+      "claude plugin list": "",
+    }, unverifiedHistoricalClaudeCalls),
+  }), /version/);
+  assert.equal(unverifiedHistoricalClaudeTx.state.committed, 0);
+  assert.equal(unverifiedHistoricalClaudeTx.state.rolledBack, 1);
+  assert.ok(unverifiedHistoricalClaudeCalls.includes("claude plugin uninstall agdf@agdf"));
+  assert.ok(
+    unverifiedHistoricalClaudeCalls.indexOf("claude plugin install agdf@agdf")
+      < unverifiedHistoricalClaudeCalls.lastIndexOf("claude plugin uninstall agdf@agdf"),
+  );
+
   const claudeTx = fakeTransaction(join(fixtureRoot, "claude-marketplace"));
   const claudeCalls = [];
   const claude = installClaudeGlobalPlugin({
@@ -519,6 +716,53 @@ try {
   assert.ok(claudeCalls.includes("claude plugin install agdf@agdf"));
   assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
   assert.equal(claudeCalls.includes("claude plugin update agdf@agdf"), false, "same-version update must no longer be used");
+
+  const claudeRetryTx = fakeTransaction(join(fixtureRoot, "claude-retry-marketplace"));
+  const claudeRetryCalls = [];
+  let claudeInstallAttempts = 0;
+  const claudeRetry = installClaudeGlobalPlugin({
+    prepare: claudeRetryTx.prepare,
+    recoverCache: () => ({ status: "recovered", reason: "claude_cache_temp_recovery_bounded_retry" }),
+    exec: scriptedExec({
+      "claude plugin marketplace list --json": "[]",
+      "claude plugin install agdf@agdf": () => {
+        claudeInstallAttempts += 1;
+        if (claudeInstallAttempts === 1) throw Object.assign(new Error("EPERM rename"), { stderr: "EPERM rename" });
+        return "";
+      },
+      "claude plugin list": `agdf@agdf ${pluginDefinition.version}\n`,
+    }, claudeRetryCalls),
+  });
+  assert.equal(claudeInstallAttempts, 2);
+  assert.ok(claudeRetry.evidence.includes("claude_cache_temp_recovery:bounded_retry"));
+  assert.equal(claudeRetryTx.state.committed, 1);
+
+  const claudeRetryFailureTx = fakeTransaction(join(fixtureRoot, "claude-retry-failure-marketplace"));
+  let retryFailureAttempts = 0;
+  let retryFailureListCalls = 0;
+  const retryFailure = captureError(() => installClaudeGlobalPlugin({
+    prepare: claudeRetryFailureTx.prepare,
+    recoverCache: () => ({ status: "recovered", reason: "claude_cache_temp_recovery_bounded_retry" }),
+    exec: scriptedExec({
+      "claude plugin marketplace list --json": "[]",
+      "claude plugin list": () => {
+        retryFailureListCalls += 1;
+        return retryFailureListCalls === 1 ? `agdf@agdf ${pluginDefinition.version}\n` : "";
+      },
+      "claude plugin install agdf@agdf": () => {
+        retryFailureAttempts += 1;
+        if (retryFailureAttempts <= 2) {
+          throw Object.assign(new Error(`install failure ${retryFailureAttempts}`), { stderr: `install failure ${retryFailureAttempts}` });
+        }
+        return "";
+      },
+    }, []),
+  }), /install failure 2/);
+  assert.equal(retryFailureAttempts, 3, "two current install attempts and one previous-plugin restoration are expected");
+  assert.equal(retryFailure.evidence.claude_cache_recovery, "claude_cache_temp_retry_exhausted");
+  assert.equal(claudeRetryFailureTx.state.rolledBack, 1);
+  assert.ok(retryFailure.evidence.rollback.some((entry) =>
+    entry.status === "restored" && entry.args?.join(" ") === "plugin install agdf@agdf"));
 
   const claudeFreshTx = fakeTransaction(join(fixtureRoot, "claude-fresh-marketplace"));
   const claudeFreshCalls = [];

@@ -25,10 +25,18 @@ const success = createLifecycleResult({
   restart: { required: true, reason: "host_reload" },
   next_action: { kind: "prompt", text: "Start a new task." },
 });
-assert.deepEqual(globalInstallRestartAction("codex"), { kind: "restart", text: "Restart Codex." });
-assert.deepEqual(globalInstallRestartAction("claude"), { kind: "restart", text: "Restart Claude Code." });
-assert.deepEqual(globalInstallRestartAction("copilot"), { kind: "restart", text: "Restart GitHub Copilot." });
-assert.deepEqual(globalInstallRestartAction("opencode"), { kind: "restart", text: "Restart OpenCode." });
+for (const [surface, host] of Object.entries({
+  codex: "Codex",
+  claude: "Claude Code",
+  copilot: "GitHub Copilot",
+  opencode: "OpenCode",
+})) {
+  const action = globalInstallRestartAction(surface);
+  assert.equal(action.kind, "restart");
+  assert.match(action.text, new RegExp(`^Fully restart ${host.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+  assert.match(action.text, /fresh session/);
+  assert.match(action.text, /Restoring the previous session can retain stale AGDF skills/);
+}
 assert.deepEqual(lifecycleCardLines(success).slice(1).map((line) => line.split(":")[0]), [
   "Surface", "Version", "Installation scope", "Installation", "Activation", "Repository delivery", "Automatic runtime checks", "Verification", "Restart required", "Next action",
 ]);

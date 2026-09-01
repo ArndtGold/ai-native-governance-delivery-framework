@@ -362,6 +362,7 @@ function writeCopilotSupportFiles() {
     "plugin/meta/agdf-agent-router.md",
     "plugin/meta/agdf-constitution.md",
     "plugin/meta/agdf-runtime-contract.md",
+    "plugin/meta/distribution-profile-history.json",
     "LICENSE",
   ]) {
     const destination = source === "LICENSE" ? "LICENSE" : source.replace(/^plugin\//, "");

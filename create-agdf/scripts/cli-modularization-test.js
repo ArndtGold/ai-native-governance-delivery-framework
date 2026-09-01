@@ -223,7 +223,8 @@ function prepareMarketplace() {
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
   assert.equal(quiet.out[0], "AGDF installed for Codex");
   assert.equal(quiet.out[1], `Version: ${pluginDefinition.version} (verified)`);
-  assert.equal(quiet.out.at(-1), "Next: Restart Codex.");
+  assert.match(quiet.out.at(-1), /^Next: Fully restart Codex, then start a fresh session\./);
+  assert.match(quiet.out.at(-1), /Restoring the previous session can retain stale AGDF skills/);
   assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
 
   const verbose = recordingIo();
@@ -311,7 +312,8 @@ function prepareMarketplace() {
       assert.equal(selectedIo.out.includes(`Setting up AGDF ${pluginDefinition.version} for Codex...`), true);
       assert.equal(runtimeCheckStatus(dataRoot, "codex").requested, selectedDecision === "enable" ? "enabled" : "manual");
       if (selectedDecision === "enable") {
-        assert.equal(selectedIo.out.at(-1), "Next: Restart Codex, then approve the AGDF session hook when Codex asks.");
+        assert.match(selectedIo.out.at(-1), /^Next: Fully restart Codex, then start a fresh session\./);
+        assert.match(selectedIo.out.at(-1), /Approve the AGDF session hook when the fresh Codex session asks/);
       }
     }
 
@@ -373,8 +375,8 @@ assert.match(detailsRendered, /Choice: cancel/);
   const quiet = recordingIo();
   const outputs = ["[]", "", "", "", "", `agdf@agdf ${pluginDefinition.version}\n`];
   assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace }), 0);
-  assert.equal(quiet.out.at(-1), "Next: Restart Claude Code.");
-  assert.equal(quiet.out.some((line) => line.includes("new session")), false, "global installation must not add a second post-restart action");
+  assert.match(quiet.out.at(-1), /^Next: Fully restart Claude Code, then start a fresh session\./);
+  assert.match(quiet.out.at(-1), /Restoring the previous session can retain stale AGDF skills/);
 }
 
 {

@@ -61,11 +61,20 @@ Do not register the repository root or `plugin/` directly as a Codex or Claude m
 commands above build one complete runtime-bearing plugin, stage it in the AGDF-owned durable
 marketplace and attach installation provenance before invoking the host CLI.
 
-After a successful command, restart the selected host. For Codex, then start a fresh task so the
-host loads the new plugin content. The command proves checkout preparation and the existing
+After a successful command, fully restart the selected host and start a fresh task or session so the
+host loads the new plugin content. A restored session can retain a stale skill registry. The command proves checkout preparation and the existing
 installation verification only. It does not prove restarted-host loading, repository activation or
 UAT. A later public OpenCode installation replaces the development-local file dependency through
 the normal registry path.
+
+Upgrade recovery remains deliberately narrow. Only exact catalogue records for the verified
+AGDF-owned four-profile releases `0.13.6`, `0.13.7`, `0.13.8` and `0.14.1` may use
+historical-profile rebuilding; current-shape `0.14.2` and `0.14.3` remain on current validation.
+`agdf-v0.14.0` is explicitly ineligible because its internal version surfaces identify `0.13.8`.
+Claude's Windows recovery may remove only the one
+contained `temp_local_*` directory named by the current install command's `EPERM` rename failure and
+retry once. Do not add cache enumeration, wildcard cleanup or manual broad-cache deletion to tests or
+recovery instructions.
 
 These contributor commands are for local development validation. Published installation remains
 the `npx --yes @agdf/cli@latest ...` path documented in [INSTALL.md](INSTALL.md).

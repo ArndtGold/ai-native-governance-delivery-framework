@@ -17,7 +17,7 @@ If you use Codex, this is the recommended first installation:
 npx --yes @agdf/cli@latest codex
 ```
 
-Restart Codex, open a new task in the repository you want to work in, and describe the intended change. AGDF starts with the smallest permitted governance step; it does not make implementation automatic.
+Fully restart Codex, open a fresh task in the repository you want to work in, and describe the intended change. Restoring a previous task can retain stale AGDF skills. AGDF starts with the smallest permitted governance step; it does not make implementation automatic.
 
 Use a different target when Codex is not your agent surface:
 
@@ -158,6 +158,19 @@ routine installed validation does not depend on the GitHub
 checkout, npm cache, PATH or registry. Rerunning either command performs the explicit update and
 migrates only the exact known legacy AGDF GitHub marketplace; foreign same-name registrations fail
 closed and failed host operations restore the prior owned stage.
+
+The shared installer recognizes exact packaged snapshots for the verified AGDF-owned four-profile
+releases `0.13.6`, `0.13.7`, `0.13.8` and `0.14.1`, then rebuilds them from current canonical
+package content. Current-shape `0.14.2` and `0.14.3` stay on ordinary current validation.
+`agdf-v0.14.0` is not a release alias: its internal version is `0.13.8`, so it grants no
+compatibility. Historical lookup uses no Git or network access and does not accept unknown versions,
+partial contracts or tampered provenance. Claude's Windows-only contention recovery removes at most the one
+contained `temp_local_*` directory named by the current install command's `EPERM` rename failure and
+retries once; it does not enumerate or broadly clear the host cache.
+
+Successful installation verifies the installed version but not an already loaded session. Fully
+restart the host and start a fresh session or task. Restoring the previous session can retain stale
+AGDF skills and must not be treated as current loaded-session evidence.
 
 Copilot staging uses the independent path `<AGDF data directory>/marketplaces/agdf-copilot`. This
 prevents Copilot updates and rollbacks from replacing the shared Codex and Claude payload while the

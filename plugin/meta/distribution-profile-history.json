@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "contracts": {
+    "five-profile-v1": {
+      "distribution_profiles": {
+        "schemaVersion": 1,
+        "marketplaceIdentities": {
+          "durable": "agdf",
+          "generatedRepository": "agdf-repo"
+        },
+        "profiles": {
+          "source-development": {
+            "runtime": "absent",
+            "installable": false,
+            "machineValidation": "unavailable"
+          },
+          "runtime-plugin": {
+            "runtime": "required",
+            "installable": true,
+            "machineValidation": "local_exact_version_digest"
+          },
+          "copilot-runtime-plugin": {
+            "runtime": "required",
+            "installable": true,
+            "machineValidation": "local_exact_version_digest_inventory"
+          },
+          "opencode-config-local": {
+            "runtime": "config_local_package",
+            "installable": true,
+            "machineValidation": "local_exact_version"
+          },
+          "portable-skills": {
+            "runtime": "absent",
+            "installable": true,
+            "machineValidation": "unavailable_or_external_required"
+          }
+        }
+      },
+      "contract_digest": "0211f4e6054a23f0a3ba302e57303adcb8f5903581e99643f803647dd156fe32"
+    },
+    "four-profile-v1": {
+      "distribution_profiles": {
+        "schemaVersion": 1,
+        "marketplaceIdentities": {
+          "durable": "agdf",
+          "generatedRepository": "agdf-repo"
+        },
+        "profiles": {
+          "source-development": {
+            "runtime": "absent",
+            "installable": false,
+            "machineValidation": "unavailable"
+          },
+          "runtime-plugin": {
+            "runtime": "required",
+            "installable": true,
+            "machineValidation": "local_exact_version_digest"
+          },
+          "opencode-config-local": {
+            "runtime": "config_local_package",
+            "installable": true,
+            "machineValidation": "local_exact_version"
+          },
+          "portable-skills": {
+            "runtime": "absent",
+            "installable": true,
+            "machineValidation": "unavailable_or_external_required"
+          }
+        }
+      },
+      "contract_digest": "9987baa4ea91e28a096cac2be8daa876f1c0593e7edbfe2e96b713814aa65ce8"
+    }
+  },
+  "releases": {
+    "0.13.6": {
+      "contract_id": "four-profile-v1",
+      "provenance_schema_version": 1,
+      "profile_id": "runtime-plugin",
+      "entry_digest": "1c21c3fa99cdd788994013f25cbe606ffdcea2cc91d53c679cf061567f652bf3",
+      "status": "supported"
+    },
+    "0.13.7": {
+      "contract_id": "four-profile-v1",
+      "provenance_schema_version": 1,
+      "profile_id": "runtime-plugin",
+      "entry_digest": "6d5383537d2640dc13773f2929dd94d0e7e219e82d08418464c77786b475c3ee",
+      "status": "supported"
+    },
+    "0.13.8": {
+      "contract_id": "four-profile-v1",
+      "provenance_schema_version": 1,
+      "profile_id": "runtime-plugin",
+      "entry_digest": "405e8cfa72ec2e469354dab52197675783b3723adb969a0692e56ba7c95c85c8",
+      "status": "supported"
+    },
+    "0.14.1": {
+      "contract_id": "four-profile-v1",
+      "provenance_schema_version": 1,
+      "profile_id": "runtime-plugin",
+      "entry_digest": "1a6fd6f6a411eddb29e82d7b7abc7d5f658312f555dcf39e160a709194a8b867",
+      "status": "supported"
+    },
+    "0.14.2": {
+      "contract_id": "five-profile-v1",
+      "provenance_schema_version": 1,
+      "profile_id": "runtime-plugin",
+      "entry_digest": "f71ee26df3d4a89ecc727a1c30b40221cf062fce9f716a83453bced9503be8fd",
+      "status": "supported"
+    },
+    "0.14.3": {
+      "contract_id": "five-profile-v1",
+      "provenance_schema_version": 1,
+      "profile_id": "runtime-plugin",
+      "entry_digest": "c5dbe4044d11a976cd4ccd6de6cf1405ebfcb4a26ce5c6308c34f10142db50c9",
+      "status": "supported"
+    }
+  }
+}

@@ -1,8 +1,3 @@
-<!-- AGDF LEGACY PROJECTION: NON-AUTHORITATIVE -->
-<!-- canonical_source: .agdf/control/runs/legacy-profile-upgrade-recovery/RUN_STATE.md -->
-<!-- run_id: legacy-profile-upgrade-recovery -->
-<!-- revision_id: 20A528F6-8E34-4E83-B6E0-C3807F58122E -->
-<!-- sha256: 0ad1fc271ea8d5848a80cc604d8339d3e16ff4f186b354ae909fb77b67e68f16 -->
 # AGDF Run State
 
 ## Run Meta

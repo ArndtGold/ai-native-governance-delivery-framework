@@ -279,10 +279,10 @@ function runLifecyclePhase(phase, operation) {
 
 function installNextAction(surface, runtimeChecks, fallback) {
   if (surface === "codex" && runtimeChecks.requested === "enabled" && runtimeChecks.effective === "decision_required") {
-    return "Restart Codex, then approve the AGDF session hook when Codex asks.";
+    return `${fallback} Approve the AGDF session hook when the fresh Codex session asks.`;
   }
   if (surface === "copilot" && runtimeChecks.requested === "enabled" && runtimeChecks.effective === "decision_required") {
-    return "Restart GitHub Copilot, then review the AGDF session hook when Copilot asks.";
+    return `${fallback} Review the AGDF session hook when the fresh Copilot session asks.`;
   }
   return fallback;
 }

@@ -36,6 +36,14 @@ node plugin/scripts/check-runtime-integrity.mjs
 npm --prefix pages run build
 ```
 
+Before preparing or tagging every release, append its exact version to
+`plugin/meta/distribution-profile-history.json`. Reuse an existing contract only when the complete
+`distributionProfiles` object is identical; otherwise add a new contract. Recompute both digests,
+retain every previously supported record unchanged and run `release:prepare` to verify the source,
+generated package copies and exact local release-tag lineage. Never infer a record from an
+incoherent tag (notably `agdf-v0.14.0`), delete a record as implicit deprecation or use a range.
+Retirement requires a separately reviewed compatibility design.
+
 ## Publish
 
 Commit and push the versioned release changes first. Do not tag unpublished or

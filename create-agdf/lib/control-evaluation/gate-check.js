@@ -406,6 +406,14 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
   if (report?.approval_presentation) {
     io.log(report.approval_presentation.blocks.run_status_card.markdown);
     io.log("");
+    if (report.status_presentation?.markdown) {
+      io.log(report.status_presentation.markdown);
+    } else {
+      const pack = localePack(interactionLocales, report.approval_presentation.presentation_language || "en");
+      const codes = report.presentation_diagnostics?.status_presentation_errors ?? [];
+      io.log(codes.length ? `${pack.interaction.statusPresentationFailure} (${codes.join(", ")})` : pack.interaction.statusPresentationFailure);
+    }
+    io.log("");
     io.log(report.approval_presentation.blocks.gate_transition_card.markdown);
     io.log("");
     io.log(report.approval_presentation.approval_interaction.exact_text_fallback);

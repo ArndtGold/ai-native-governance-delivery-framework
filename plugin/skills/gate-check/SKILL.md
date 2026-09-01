@@ -209,10 +209,12 @@ the primary chat card into an audit dump. Do not maintain or render a skill-loca
 
 This complete operational status table remains the status-reporting and detail
 surface. When the same response immediately requests a ready gate approval,
-render its five-field compact approval-time projection first, then the Gate
-Transition Card in the same immediately preceding assistant message, then
-invoke exactly one native question or exact-text fallback. Both cards derive
-from the same snapshot and are shown exactly once.
+render its five-field compact approval-time projection first, then the complete
+operational Run Status Card verbatim (or its localized failure line with
+diagnostic codes when undeliverable), then the Gate Transition Card in the same
+immediately preceding assistant message, then invoke exactly one native
+question or exact-text fallback. The runtime contract owns this sequence; every
+block is shown exactly once.
 
 If this skill creates or updates control artefacts, do not paste full file bodies into the chat.
 List paths, summarize the decision, name the blocker or approval needed, and keep the durable content in the files.

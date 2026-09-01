@@ -154,8 +154,8 @@ required decision and one neutral instruction to choose approve, request revisio
 or decline. It does not contain the exact approval value or quality outlook. It uses localized human-readable labels
 and must not contain evidence, diagnostic codes, raw control-state keys,
 allowed/forbidden inventories or machine values. The complete Run Status Card remains the operational,
-CLI and audit projection and remains available for complete detail outside the
-approval-time compact view.
+CLI and audit projection. Every ready-gate presentation renders the complete operational Run Status Card exactly once, between the compact approval-time Run Status Card and the Gate Transition Card, consumed verbatim from the code-owned status presentation; when it is undeliverable, the localized status-presentation failure line with its concrete diagnostic codes takes its place and the decision is still requested.
+The exact-approval once-only requirement applies to the compact approval-time Run Status Card and the Gate Transition Card only; the complete Run Status Card may carry the missing approval as audit data.
 
 The first scan across both cards reveals the requested decision, readiness,
 required approval, approval effect, remaining boundary and next transition.

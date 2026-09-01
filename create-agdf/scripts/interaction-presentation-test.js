@@ -384,12 +384,48 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
 {
   const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
   const lines = [];
-  const output = printApprovalEnvelope({ status: "open", approval_presentation: rendered }, { io: { log: (line = "") => lines.push(String(line)) } });
+  const fullCardMarkdown = "## AGDF status card\n\n| Field | Value |\n|---|---|\n| Missing approval | Approval: UR |";
+  const output = printApprovalEnvelope({
+    status: "open",
+    approval_presentation: rendered,
+    status_presentation: { markdown: fullCardMarkdown },
+  }, { io: { log: (line = "") => lines.push(String(line)) } });
   assert.equal(output.outcome, "rendered");
   assert.equal(output.requested_decision, true);
-  assert.equal(lines.length, 5);
+  assert.equal(lines.length, 7);
   assert.match(lines[0], /^## Nutzeranforderungen prüfen und entscheiden/);
+  assert.equal(lines[2], fullCardMarkdown, "envelope renders the full operational status card verbatim between the cards");
+  assert.equal(lines.filter((line) => line === fullCardMarkdown).length, 1, "full card appears exactly once");
+  assert.match(lines[4], /Nutzeranforderungen ·/);
   assert.match(lines.at(-1), /Approval: UR/);
+}
+
+{
+  // Degradation: a ready gate without a deliverable full card names the codes at the card position.
+  const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
+  const lines = [];
+  const output = printApprovalEnvelope({
+    status: "open",
+    approval_presentation: rendered,
+    status_presentation: null,
+    presentation_diagnostics: { status_presentation_errors: ["run_id_missing"] },
+  }, { io: { log: (line = "") => lines.push(String(line)) } });
+  assert.equal(output.outcome, "rendered");
+  assert.match(lines[2], /run_id_missing/, "degradation line carries the concrete codes");
+  assert.match(lines.at(-1), /Approval: UR/, "decision is still requested");
+}
+
+{
+  // Negative control: empty diagnostics never render empty parentheses.
+  const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
+  const lines = [];
+  printApprovalEnvelope({
+    status: "open",
+    approval_presentation: rendered,
+    status_presentation: null,
+    presentation_diagnostics: { status_presentation_errors: [] },
+  }, { io: { log: (line = "") => lines.push(String(line)) } });
+  assert.doesNotMatch(lines[2], /\(\)/, "no empty parentheses on the degradation line");
 }
 
 {

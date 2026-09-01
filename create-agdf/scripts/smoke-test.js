@@ -1266,8 +1266,11 @@ run("config", [
       throw new Error(`gate-check --approval-envelope must render both cards and the safe exact-text request: ${envelope}`);
     }
     const envelopeApprovalCount = envelope.split("Approval: TP").length - 1;
-    if (envelopeApprovalCount !== 2) {
-      throw new Error(`Approval envelope must contain the exact value once in the cards and once in the request, got ${envelopeApprovalCount}.`);
+    if (envelopeApprovalCount !== 3) {
+      throw new Error(`Approval envelope must contain the exact value once in the snapshot cards, once in the full status card and once in the request, got ${envelopeApprovalCount}.`);
+    }
+    if (!envelope.includes("| Missing approval |") || !envelope.includes("| Allowed now |")) {
+      throw new Error("Approval envelope must render the complete operational Run Status Card between the cards.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

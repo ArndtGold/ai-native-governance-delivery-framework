@@ -607,6 +607,8 @@ for (const required of [
   "### Human Decision Presentation Contract",
   "Never guess a path or emit a broken link",
   "A localized label, description, option position, recommendation style or host action never authorizes a gate",
+  "renders the complete operational Run Status Card exactly once, between the compact approval-time Run Status Card and the Gate Transition Card",
+  "may carry the missing approval as audit data",
 ]) {
   if (!runtimeContract.includes(required)) failures.push(`interaction contract ownership boundary missing: ${required}`);
 }

@@ -1191,7 +1191,7 @@ run("config", [
 - run_id: tp-transition
 - mode: structured_delivery
 - current_gate: TP
-- revision_id: tp-transition-revision-1
+- revision_id: 6f0f2f9a-1d0a-4b7e-9c2d-3a5b8c1d2e4f
 - decision: in_progress
 - owner: test
 
@@ -1338,6 +1338,7 @@ run("config", [
 ## Run Meta
 
 - run_id: test-run
+- revision_id: 11111111-1111-4111-8111-111111111111
 - started_at: 2026-07-06
 - mode: structured_delivery
 - current_gate: UR
@@ -1434,6 +1435,7 @@ run("config", [
 ## Run Meta
 
 - run_id: late-gate-${testCase.name}
+- revision_id: 22222222-2222-4222-8222-222222222222
 - started_at: 2026-07-13
 - mode: structured_delivery
 - current_gate: OR
@@ -1526,6 +1528,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: qa-passed-run
+- revision_id: 33333333-3333-4333-8333-333333333333
 - started_at: 2026-07-08
 - mode: structured_delivery
 - current_gate: UAT
@@ -1617,6 +1620,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: qa-status-mismatch
+- revision_id: 44444444-4444-4444-8444-444444444444
 - started_at: 2026-07-09
 - mode: structured_delivery
 - current_gate: QA
@@ -1761,6 +1765,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: 55555555-5555-4555-8555-555555555555
 - started_at: 2026-07-06
 - mode: structured_delivery
 - current_gate: UR
@@ -1845,6 +1850,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: 66666666-6666-4666-8666-666666666666
 - started_at: 2026-07-05
 - mode: structured_delivery
 - current_gate: UR
@@ -1961,6 +1967,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: 77777777-7777-4777-8777-777777777777
 - started_at: 2026-07-06
 - mode: structured_delivery
 - current_gate: Brownfield Review
@@ -2045,6 +2052,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: or-run
+- revision_id: 88888888-8888-4888-8888-888888888888
 - started_at: 2026-07-10
 - mode: structured_delivery
 - current_gate: OR
@@ -2122,6 +2130,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: 99999999-9999-4999-8999-999999999999
 - started_at: 2026-07-06
 - mode: structured_delivery
 - current_gate: Brownfield Review
@@ -2212,6 +2221,7 @@ ${internalRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
 - started_at: 2026-07-06
 - mode: structured_delivery
 - current_gate: SD
@@ -2506,6 +2516,7 @@ ${statusRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
 - started_at: 2026-07-05
 - mode: structured_delivery
 - current_gate: UR
@@ -2584,6 +2595,7 @@ ${statusRows}
 ## Run Meta
 
 - run_id: test-run
+- revision_id: cccccccc-cccc-4ccc-8ccc-cccccccccccc
 - started_at: 2026-07-05
 - mode: structured_delivery
 - current_gate: PRD
@@ -2742,6 +2754,7 @@ for (const missingCase of [
 ## Run Meta
 
 - run_id: test-run
+- revision_id: dddddddd-dddd-4ddd-8ddd-dddddddddddd
 - started_at: 2026-07-05
 - mode: structured_delivery
 - current_gate: ${missingCase.gate}

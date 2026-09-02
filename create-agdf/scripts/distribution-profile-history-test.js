@@ -10,7 +10,7 @@ import {
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const catalogue = JSON.parse(readFileSync(join(packageRoot, "..", "plugin", "meta", "distribution-profile-history.json"), "utf8"));
-const versions = ["0.13.6", "0.13.7", "0.13.8", "0.14.1", "0.14.2", "0.14.3"];
+const versions = ["0.13.6", "0.13.7", "0.13.8", "0.14.1", "0.14.2", "0.14.3", "0.14.4"];
 
 assert.deepEqual(validateDistributionProfileHistory(catalogue), {
   status: "matched",

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 const SHA256 = /^[a-f0-9]{64}$/;
+const RELEASE_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const TOP_LEVEL_KEYS = ["contracts", "releases", "schema_version"];
 const CONTRACT_KEYS = ["contract_digest", "distribution_profiles"];
 const RELEASE_KEYS = ["contract_id", "entry_digest", "profile_id", "provenance_schema_version", "status"];
@@ -41,6 +42,24 @@ export function canonicalDistributionProfileDigest(distributionProfiles) {
   return digest(distributionProfiles);
 }
 
+export function canonicalDistributionProfileEntryDigest({
+  version,
+  contract_id,
+  contract_digest,
+  provenance_schema_version = 1,
+  profile_id = "runtime-plugin",
+  status = "supported",
+}) {
+  return digest({
+    version,
+    contract_id,
+    contract_digest,
+    provenance_schema_version,
+    profile_id,
+    status,
+  });
+}
+
 export function validateDistributionProfileHistory(catalogue) {
   if (!exactKeys(catalogue, TOP_LEVEL_KEYS)
       || catalogue.schema_version !== 1
@@ -70,7 +89,7 @@ export function validateDistributionProfileHistory(catalogue) {
   const referencedContracts = new Set();
   for (const [version, release] of Object.entries(catalogue.releases)) {
     const contract = catalogue.contracts[release?.contract_id];
-    if (!/^\d+\.\d+\.\d+$/.test(version)
+    if (!RELEASE_VERSION.test(version)
         || !exactKeys(release, RELEASE_KEYS)
         || !contract
         || release.provenance_schema_version !== 1
@@ -80,7 +99,7 @@ export function validateDistributionProfileHistory(catalogue) {
       return invalid("profile_history_invalid");
     }
     referencedContracts.add(release.contract_id);
-    const expectedDigest = digest({
+    const expectedDigest = canonicalDistributionProfileEntryDigest({
       version,
       contract_id: release.contract_id,
       contract_digest: contract.contract_digest,

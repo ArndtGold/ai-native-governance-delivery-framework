@@ -1,73 +1,76 @@
 # CD+Tests: Release-Owned Historical Profile Compatibility
 
 Status: done
-Decision: pass_with_disclosed_baselines
-Revision: 3
-Date: 2026-09-01
+Decision: revise
+Revision: 6
+Date: 2026-09-02
 Run: `legacy-profile-upgrade-recovery`
-Based on: approved TP Revision 5 and Brownfield Analysis Revision 4
+Based on: approved TP Revision 9 and Brownfield Analysis Revision 8 (`pass`)
 
-## Implemented
+## Delivered In Revision 6
 
-- Added canonical `plugin/meta/distribution-profile-history.json` with two exact contracts and six
-  supported release records: `0.13.6`, `0.13.7`, `0.13.8`, `0.14.1`, `0.14.2`, `0.14.3`.
-- Added a pure runtime history validator/classifier with strict schema, canonical digest, exact version
-  and exact semantic contract checks.
-- Replaced the incident-specific provenance registry with packaged, migration-only catalogue lookup while
-  preserving current validation first.
-- Extended local marketplace fixtures across all historical records and current-shape predecessors.
-- Added release-history verification for supported tags, generated parity, continuity and explicit
-  rejection of internally version-incoherent `agdf-v0.14.0`.
-- Added generated/package projection wiring, reviewed Copilot payload measurement and directly affected
-  installation, contributor and release documentation.
-- Preserved existing marketplace transaction, Claude cache recovery and restart/fresh-session owners.
+- `local-marketplace.js` now owns one immutable local source snapshot and retains the existing
+  normalized digest, marketplace staging, provenance, swap, commit and rollback authorities.
+- Snapshot capture compares pre-source, snapshot and post-source digests. A mismatch raises typed
+  `local_install_source_unstable`, cleans the exact temporary root and never enters marketplace
+  preparation.
+- The validated snapshot descriptor supplies canonical version, profile, source digest, source root
+  and per-surface install version. Codex remains `0.14.4+codex.local-<digest>`; Claude and Copilot
+  remain `0.14.4`.
+- Snapshot cleanup occurs immediately after bytes enter the existing building stage and before any
+  stable marketplace swap. A cleanup failure removes the stage, retries owned snapshot cleanup and
+  leaves no stable marketplace.
+- `install-local-plugin.js` no longer imports or computes the source digest or Codex local version.
+  It selects the generated surface source and requests snapshot-owned preparation.
+- OpenCode remains on its existing durable package-archive owner and was not generalized into the
+  marketplace path.
 
-## Review Fixes
+## Focused Evidence
 
-- Required outer ownership `source_digest` agreement for provenance-bearing current and historical
-  roots while preserving authentic source-digest-less pre-provenance migration.
-- Made release continuity fail closed when merge-base or baseline evidence is unavailable; only a
-  confirmed initial absence permits catalogue introduction.
-- Rejected valid-but-unreferenced semantic contracts.
-- Propagated exact historical release, contract and digest evidence through Codex and Claude results.
-- Required exact Claude version verification before committing a historical rebuild.
-- Removed a failed/unverified Claude installation before filesystem rollback and prior-plugin restore.
+| Evidence | Result |
+|---|---|
+| `test:local-development-install` with isolated npm cache | pass; stable descriptor, exact Codex identity, canonical Claude/Copilot identity, caller-identity rejection, injected digest change, cleanup retry, zero host call and orchestration coverage |
+| `test:local-marketplace` | pass; existing classification, migration, idempotence, swap, rollback, interrupted recovery and tamper matrices remain green |
+| `test:lifecycle` | pass |
+| source Runtime Integrity | pass; source mode, 10 skills and 16 control files |
+| `release:prepare` | pass; 7 exact releases, 13-file release transaction, 33 coherent version surfaces and public plugin projection |
+| syntax and `git diff --check` | pass |
 
-## Deterministic Evidence
+## Aggregate Evidence
 
-| Check | Result | Evidence |
-|---|---|---|
-| `test:distribution-profile-history` | pass | Six exact records, malformed catalogue and closed-policy matrices pass. |
-| `test:release-version-coherence` | pass | Current source, supported tags, incoherent `0.14.0` negative and generated parity pass. |
-| `test:local-marketplace` | pass | Exact migration, ownership digest, authentic pre-provenance, public evidence, host verification, uninstall-before-rollback and transaction matrices pass. |
-| `test:claude-cache-recovery` | pass | Bounded Windows cleanup and one-retry contract remains green. |
-| `test:lifecycle` | pass | Restart plus fresh-session behavior remains green. |
-| `test:local-development-install` | pass | Existing local development behavior remains green. |
-| `test:package-build` | pass | Canonical package generation and payload checks pass. |
-| `release:prepare` | pass | Release-owned history validation composes with the existing release path. |
-| Direct `npm.cmd pack` projection check | pass | Packaged catalogue projection is present when invoked through the native Windows executable. |
-| AGDF doctor/gate/delivery-map and `git diff --check` | pass with warning | No block/revise finding; expected Context Graph update warning remains. |
+The isolated-cache `create-agdf smoke-test` passed release preparation, CLI modularization, local
+validator, marketplace, Claude cache recovery, Copilot profile, local development installation,
+package build/contents, lifecycle, Copilot repository retention, control state, parent reconciliation,
+interaction presentation and Verified Change. It then stopped at the unchanged
+`runtime-integrity-layout-test.js` fixture because its generated plugin lacks three expected
+surface-local runtime modules: `validator-application.js`, `plugin-provenance.js` and
+`validation-handlers.js`.
 
-## Disclosed Baseline Failures
+The snapshot implementation changes neither runtime packaging, generated runtime inventory nor that
+fixture. The direct source Runtime Integrity check passes. This is a separately owned aggregate
+baseline, but TP Revision 9 still requires a complete green smoke result, so it remains an evidence
+gap. Later aggregate steps and earlier disclosed stale-eval/invalid-revision baselines were not
+reclassified as green because this run stopped at the first failure.
 
-- `test:package-contents` still fails on native Windows because its child process resolves `npm` through
-  `spawnSync` and receives `ENOENT`; direct `npm.cmd pack` succeeds. This is not represented as a pass.
-- Runtime Integrity still reports the pre-existing interaction-contract phrase mismatch owned by another
-  active run.
-- Aggregate smoke still reports the pre-existing native-Windows path expectation owned outside this
-  approved TP.
+## Scope And Side Effects
 
-These failures do not weaken focused catalogue evidence and are not repaired under this run. They remain
-open inputs to mandatory review and QA.
+- Changed implementation paths are limited to the three TP-approved marketplace/orchestration/test
+  files plus this run's control artefacts and Context Graph.
+- Tests used temporary data roots and an isolated npm cache. No real Codex, Claude, Copilot or
+  OpenCode registration/cache was changed.
+- Public commands, marketplace layout, ownership/provenance schemas and host lifecycle remain
+  unchanged.
+- No commit, push, tag, publication or release was performed.
 
-## Evidence Boundaries
+## Missing Evidence
 
-- Repository and temporary-root tests prove deterministic catalogue, migration and transaction behavior.
-- They do not prove npm publication, a real native-Windows upgrade, application restart or fresh-session
-  skill loading.
-- No real host/cache mutation, publication, version change or VCS delivery was performed.
+- Green complete `create-agdf smoke-test` after the runtime-packaging fixture and any subsequent
+  separately owned aggregate baselines are reconciled.
+- A successful affected GitHub Actions rerun with complete tag/default-branch history.
+- Direct host/UAT evidence remains separate and unauthorized.
 
-## Next Step
+## Decision
 
-Run Task Plan Review, Clean Implementation Review and Code Review against approved TP Revision 5. Resolve
-every blocking finding before QA.
+`revise`: CAT-T13 through CAT-T16 are implemented with strong focused evidence and the existing
+marketplace/lifecycle regressions pass. Aggregate and remote evidence required by CAT-T12 remains
+open, so release readiness and QA pass cannot be claimed.

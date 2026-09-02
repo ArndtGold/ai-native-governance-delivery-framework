@@ -130,10 +130,34 @@ Prefer repository-local opt-out when AGDF should remain globally available:
 
 ```bash
 npx --yes @agdf/cli@latest disable --surface codex --scope repository
+npx --yes @agdf/cli@latest disable --surface copilot --scope repository
+npx --yes @agdf/cli@latest disable --surface copilot --scope repository --shared
 ```
 
-This writes only an exact AGDF Codex repository plugin-state section, retains `.agdf/control` and
-requires a host restart. Unsupported or unowned repository configuration fails closed.
+Repository lifecycle support is explicit rather than artificially symmetric:
+
+| Surface | Personal repository opt-out | Shared repository opt-out | Repository activation | Global uninstall |
+|---|---|---|---|---|
+| Codex | existing repository plugin-state disable | no new `--shared` mode | existing `codex-repo` path | supported |
+| Claude Code | not supported without a verified host mechanism | not supported | no new mechanism | supported |
+| GitHub Copilot | default through `.github/copilot/settings.local.json` | explicit `--shared` through `.github/copilot/settings.json` | plugin discovery remains separate | supported |
+| OpenCode | not supported as disable | not supported | existing `opencode-repo` marker | supported |
+
+Codex writes only its exact AGDF repository plugin-state section. The default Copilot command writes
+only `enabledPlugins["agdf@agdf"] = false` in personal-local settings. Before writing, Git must
+confirm that `.github/copilot/settings.local.json` is ignored. AGDF never changes `.gitignore` or
+`.git/info/exclude` automatically. If the path is not ignored, add the exact path to an effective
+Git ignore source and retry, or choose `--shared` deliberately.
+
+`--shared` writes the same exact setting to the commit-capable repository file and can affect
+collaborators and supported cloud agents. Existing foreign settings are retained. JSONC, comments,
+invalid JSON, incompatible value types and symlinked settings paths fail closed without a partial
+change. Both modes retain global AGDF availability and `.agdf/control`.
+
+After either Copilot mode, restart Copilot and inspect `/plugin list`. Plugin disablement does not
+disable independent repository instructions. Inspect `/instructions` separately and manage
+`AGENTS.md`, `.github/copilot-instructions.md` or path-specific instructions independently when that
+is the intended outcome.
 
 Global removal always requires an explicit surface and scope. Without `--confirm` it is a
 non-mutating preview:
@@ -143,7 +167,7 @@ npx --yes @agdf/cli@latest uninstall --surface codex --scope global
 npx --yes @agdf/cli@latest uninstall --surface codex --scope global --confirm
 ```
 
-The same shape applies to `claude` and `opencode`. AGDF invokes supported native removal and removes
+The same shape applies to `claude`, `copilot` and `opencode`. AGDF invokes supported native removal and removes
 only exact known entries or marker-proven generated state. Repository files, `.agdf/control`,
 user-authored files and ambiguous configuration are retained. Review the preview before confirmation.
 

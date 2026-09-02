@@ -1,68 +1,59 @@
 # QA Report: Release-Owned Historical Profile Compatibility
 
-Status: pass
-Decision: pass
-Gate approval: exact `Approval: QA` accepted on 2026-09-01 after same-run, QA-gate, durable
-Revision 2 and run revision_id `4CDFB6C4-4DA1-44D0-ADAD-8F4BBB98F50B` revalidation
-Revision: 2
-Date: 2026-09-01
+Status: done
+Decision: revise
+Revision: 5
+Date: 2026-09-02
 Run: `legacy-profile-upgrade-recovery`
-Based on: approved TP Revision 5, CD+Tests Revision 3 and mandatory reviews Revision 2
+Based on: approved TP Revision 9, Brownfield Analysis Revision 8, CD+Tests Revision 6 and mandatory
+reviews Revision 5
 
-## Scope Decision
+## Quality Readiness
 
-QA covers the repository-owned catalogue, exact migration classification, ownership/provenance
-authority, canonical rebuild and rollback, historical host evidence, release continuity, generated and
-package projections, and preservation of bounded Claude recovery/lifecycle behavior.
+| Dimension | Result | Decisive evidence |
+|---|---|---|
+| Plan coverage | revise | 15/16 tasks fully done; CAT-T12 remains partial because complete aggregate and remote evidence are open |
+| Solution integrity | pass | one immutable snapshot inside the existing digest and marketplace transaction owners; no fallback, schema drift or parallel structure |
+| Code quality | pass | Code Review Revision 5 has no open correctness, error-path, security, compatibility or maintainability finding |
+| QA decision | revise | `qa-gate` cannot pass while normalized finding TPR-5-01 remains open |
 
-It does not claim npm publication, a real native-Windows upgrade, application restart or fresh-session
-skill loading.
+Sole decision owner: `qa-gate`.
 
-## Passing Evidence
+## QA Gate
 
-| Evidence | Result |
-|---|---|
-| Distribution profile history suite | pass: six exact releases and malformed/closed-policy matrices |
-| Release version coherence | pass: 33 surfaces, six snapshots and explicit incoherent `agdf-v0.14.0` rejection |
-| Local marketplace | pass: authority, migration, exact historical evidence, host verification and rollback matrices |
-| Claude cache recovery | pass |
-| Lifecycle | pass |
-| Local development install | pass |
-| Package build | pass: deterministic complete builds |
-| Release preparation and public plugin | pass |
-| Native `npm.cmd pack --dry-run --json` | pass: shared and Copilot catalogue projections present |
-| Mandatory reviews | pass after seven resolved findings; independent final Code Review `PASS` |
-| Doctor, gate-check and delivery-map | no block/revise; expected Context Graph update warning |
-| `git diff --check` | pass |
+- decision: revise
+- evidence: Brownfield, Clean and Code Review pass. Stable source identity, injected source change,
+  cleanup retry, zero-host-call, Codex/Claude/Copilot versions, existing marketplace recovery,
+  lifecycle, release preparation and source Runtime Integrity all pass.
+- missing_evidence: a complete green `create-agdf smoke-test` and an affected remote GitHub Actions
+  rerun.
+- risks: the implementation-specific behavior is strongly evidenced, but release readiness would
+  overstate the repository while the unchanged generated-runtime layout fixture still fails. Later
+  aggregate checks were not reached, and remote workflow behavior is not proven by local YAML or
+  release preparation alone.
+- required_next_step: route TPR-5-01 to its evidence obligation. Reconcile the separately owned
+  runtime-packaging baseline and any later aggregate blockers, rerun complete smoke, then rerun the
+  affected GitHub Actions workflow.
+- impact_codes: `qa_revise_required`, `evidence_gap`
 
-## Disclosed Non-Success Baselines
+## Normalized Findings Consumed
 
-- `test:package-contents` exits non-zero on native Windows at `spawnSync npm ENOENT`; direct
-  `npm.cmd pack --dry-run --json` succeeds and contains both catalogue projections.
-- Runtime Integrity exits non-zero on the pre-existing interaction-contract ownership-boundary phrase
-  owned by another active run.
-- Aggregate smoke exits non-zero on the pre-existing status-card/native-Windows expectation owned
-  outside this TP.
+| finding_id | gap_type | routing_target | gap_status | QA disposition |
+|---|---|---|---|---|
+| TPR-5-01 | evidence_gap | evidence_obligation | open | prevents QA pass; classification and route retained unchanged |
 
-These failures remain non-successful. They do not contradict a requirement changed by this run, do not
-mask a focused catalogue failure and were not weakened or repaired under this scope.
+## Context Graph
 
-## Risk And Evidence Boundaries
+- context_graph_impact: `update_existing_node`
+- context_graph_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `update`
+- context_graph_gate_effect: `none`
+- context_graph_evidence: the node records one immutable local source snapshot, explicit per-surface
+  versions, pre-swap cleanup and fail-closed no-host behavior.
 
-- Unknown versions, malformed history, ownership/provenance/digest mismatch and unavailable release
-  continuity evidence fail closed.
-- Authentic pre-provenance migration remains supported without extending catalogue authority.
-- Historical Claude rebuilds require exact installed-version evidence before commit and uninstall any
-  failed installation before filesystem/prior-plugin restoration.
-- Direct host mutation and loaded-session evidence remain UAT-only.
+## Evidence Boundaries
 
-## Decision
-
-Pass. The repository implementation satisfies approved TP Revision 5 with unrelated baseline failures
-explicitly preserved. Exact `Approval: QA` may advance the run to UAT preparation only.
-
-## Next Step
-
-Review this report and approve only with:
-
-`Approval: QA`
+- No QA approval is requested while decision is `revise`.
+- No direct host/cache mutation, UAT, loaded-session, publication, tag, push or release claim is made.
+- Unrelated worktree changes and untracked assets remain untouched.

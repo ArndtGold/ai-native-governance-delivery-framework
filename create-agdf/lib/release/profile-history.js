@@ -43,6 +43,21 @@ function defaultReadTagFile(repoRoot) {
   );
 }
 
+function defaultTagExists(repoRoot) {
+  return (tag) => {
+    try {
+      execFileSync(
+        "git",
+        ["rev-parse", "--verify", "--quiet", `refs/tags/${tag}`],
+        { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  };
+}
+
 function assertTagRecord(catalogue, version, readTagFile) {
   const tag = `agdf-v${version}`;
   let definition;
@@ -150,6 +165,7 @@ export function assertDistributionProfileHistory({
   generatedContents,
   currentDefinition,
   readTagFile,
+  tagExists,
   baselineContent,
 } = {}) {
   repoRoot = repoRoot ? resolve(repoRoot) : null;
@@ -180,11 +196,18 @@ export function assertDistributionProfileHistory({
     }
   }
 
+  const suppliedReadTagFile = Boolean(readTagFile);
   readTagFile ??= defaultReadTagFile(repoRoot);
-  for (const version of new Set([
+  tagExists ??= suppliedReadTagFile && !repoRoot ? () => true : defaultTagExists(repoRoot);
+  const supportedVersions = [...new Set([
     ...SUPPORTED_PROFILE_RELEASES,
     ...Object.keys(catalogue.releases),
-  ])) assertTagRecord(catalogue, version, readTagFile);
+  ])];
+  for (const version of supportedVersions) {
+    const tag = `agdf-v${version}`;
+    if (version === currentDefinition.version && !tagExists(tag)) continue;
+    assertTagRecord(catalogue, version, readTagFile);
+  }
   assertIncoherentTagNegative(catalogue, readTagFile);
 
   if (baselineContent === undefined && repoRoot) baselineContent = baselineFromRepository(repoRoot);
@@ -192,7 +215,7 @@ export function assertDistributionProfileHistory({
   return {
     catalogue,
     currentVersion: currentDefinition.version,
-    supportedVersions: [...SUPPORTED_PROFILE_RELEASES],
+    supportedVersions,
     generatedPaths: [...GENERATED_HISTORY_PATHS],
     continuity,
   };

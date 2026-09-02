@@ -175,7 +175,7 @@ export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilo
   try {
     before = activeExec("copilot", ["plugin", "list"], captureOptions());
   } catch (error) {
-    if (error?.code !== "ENOENT") {
+    if (!copilotCliUnavailable(error)) {
       transaction?.rollback();
       throw lifecycleAdapterError("verification", commandErrorText(error), { executable: "copilot", args: ["plugin", "list"] });
     }
@@ -183,7 +183,10 @@ export function installCopilotGlobalPlugin({ exec = execFileSync, packagedCopilo
     activeExec = (_executable, args, options) => packagedCopilotExec(invocation.executable, [...invocation.args, ...args], options);
     try {
       before = activeExec("copilot", ["plugin", "list"], captureOptions());
-      bootstrapEvidence.push("copilot_cli_not_found", `copilot_cli_npm_package:${COPILOT_CLI_NPM_PACKAGE}`);
+      bootstrapEvidence.push(
+        error?.code === "ENOENT" ? "copilot_cli_not_found" : "copilot_cli_launcher_unavailable",
+        `copilot_cli_npm_package:${COPILOT_CLI_NPM_PACKAGE}`,
+      );
     } catch (bootstrapError) {
       transaction?.commit();
       return {
@@ -481,6 +484,11 @@ function lifecycleAdapterError(phase, message, evidence = {}) {
 
 function commandErrorText(error) {
   return (error.stderr || error.stdout || error.message || "").toString().trim();
+}
+
+function copilotCliUnavailable(error) {
+  return error?.code === "ENOENT"
+    || /^Cannot find GitHub Copilot CLI(?:\s|$|\()/i.test(commandErrorText(error));
 }
 
 export function pluginListHasPlugin(output, pluginId) {

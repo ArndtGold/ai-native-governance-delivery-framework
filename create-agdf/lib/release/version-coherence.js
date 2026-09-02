@@ -1,34 +1,78 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-function jsonVersion(relativePath, select = (value) => value.version) {
-  return {
-    relativePath,
-    read: (repoRoot) => select(JSON.parse(readFileSync(join(repoRoot, relativePath), "utf8"))),
-  };
+function valueAtPath(value, path) {
+  return path.reduce((current, key) => current?.[key], value);
 }
 
-function textVersion(relativePath, pattern) {
-  return {
-    relativePath,
-    read: (repoRoot) => readFileSync(join(repoRoot, relativePath), "utf8").match(pattern)?.[1],
-  };
+function setValueAtPath(value, path, nextVersion) {
+  let current = value;
+  for (const key of path.slice(0, -1)) {
+    if (!current?.[key] || typeof current[key] !== "object" || Array.isArray(current[key])) {
+      throw new Error(`missing JSON version path ${path.join(".")}`);
+    }
+    current = current[key];
+  }
+  const key = path.at(-1);
+  if (typeof current?.[key] !== "string") {
+    throw new Error(`missing JSON version path ${path.join(".")}`);
+  }
+  current[key] = nextVersion;
 }
 
-const VERSION_SURFACES = [
-  jsonVersion("plugin/.codex-plugin/plugin.json"),
-  jsonVersion("plugin/.claude-plugin/plugin.json"),
-  jsonVersion("create-agdf/package.json"),
-  jsonVersion("agdf/package.json"),
-  jsonVersion("agdf/package.json", (value) => value.dependencies?.["create-agdf"]),
-  jsonVersion("pages/package.json"),
-  jsonVersion("pages/package-lock.json"),
-  jsonVersion("pages/package-lock.json", (value) => value.packages?.[""]?.version),
-  textVersion("pages/src/data/site.ts", /version:\s*"([^"]+)"/),
-  jsonVersion("plugin/submission/openai/capability-matrix.json", (value) => value.releaseVersion),
-  jsonVersion("plugin/submission/openai/reviewer-cases.json", (value) => value.releaseVersion),
-  textVersion("plugin/submission/openai/release-notes.md", /^# AGDF (\S+) —/m),
-  textVersion("plugin/submission/openai/availability.md", /^- release: `([^`]+)`$/m),
+function jsonVersion(relativePath, path = ["version"], options = {}) {
+  return Object.freeze({
+    relativePath,
+    writable: options.writable ?? false,
+    evidence: options.evidence ?? true,
+    readContent(content) {
+      return valueAtPath(JSON.parse(content), path);
+    },
+    updateContent(content, nextVersion) {
+      const value = JSON.parse(content);
+      setValueAtPath(value, path, nextVersion);
+      return `${JSON.stringify(value, null, 2)}\n`;
+    },
+  });
+}
+
+function textVersion(relativePath, pattern, replacement, options = {}) {
+  return Object.freeze({
+    relativePath,
+    writable: options.writable ?? false,
+    evidence: options.evidence ?? true,
+    readContent(content) {
+      return content.match(pattern)?.[1];
+    },
+    updateContent(content, nextVersion) {
+      const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+      const matches = [...content.matchAll(new RegExp(pattern.source, flags))];
+      if (matches.length !== 1) {
+        throw new Error(`expected exactly one version field in ${relativePath}; found ${matches.length}`);
+      }
+      return content.replace(pattern, replacement(nextVersion));
+    },
+  });
+}
+
+const writable = Object.freeze({ writable: true });
+const authority = Object.freeze({ writable: true, evidence: false });
+
+export const RELEASE_VERSION_SURFACES = Object.freeze([
+  jsonVersion("plugin/meta/agdf-plugin.definition.json", ["version"], authority),
+  jsonVersion("plugin/.codex-plugin/plugin.json", ["version"], writable),
+  jsonVersion("plugin/.claude-plugin/plugin.json", ["version"], writable),
+  jsonVersion("create-agdf/package.json", ["version"], writable),
+  jsonVersion("agdf/package.json", ["version"], writable),
+  jsonVersion("agdf/package.json", ["dependencies", "create-agdf"], writable),
+  jsonVersion("pages/package.json", ["version"], writable),
+  jsonVersion("pages/package-lock.json", ["version"], writable),
+  jsonVersion("pages/package-lock.json", ["packages", "", "version"], writable),
+  textVersion("pages/src/data/site.ts", /version:\s*"([^"]+)"/, (version) => `version: "${version}"`, writable),
+  jsonVersion("plugin/submission/openai/capability-matrix.json", ["releaseVersion"], writable),
+  jsonVersion("plugin/submission/openai/reviewer-cases.json", ["releaseVersion"], writable),
+  textVersion("plugin/submission/openai/release-notes.md", /^# AGDF (\S+) —/m, (version) => `# AGDF ${version} —`, writable),
+  textVersion("plugin/submission/openai/availability.md", /^- release: `([^`]+)`$/m, (version) => `- release: \`${version}\``, writable),
   jsonVersion("create-agdf/generated/plugins/agdf/meta/agdf-plugin.definition.json"),
   jsonVersion("create-agdf/generated/plugins/agdf/.codex-plugin/plugin.json"),
   jsonVersion("create-agdf/generated/plugins/agdf/.claude-plugin/plugin.json"),
@@ -40,25 +84,35 @@ const VERSION_SURFACES = [
   jsonVersion("create-agdf/generated/plugins/copilot/agdf/runtime/create-agdf/package.json"),
   jsonVersion("create-agdf/generated/submissions/openai/agdf/meta/agdf-plugin.definition.json"),
   jsonVersion("create-agdf/generated/submissions/openai/agdf/.codex-plugin/plugin.json"),
-  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/capability-matrix.json", (value) => value.releaseVersion),
-  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/reviewer-cases.json", (value) => value.releaseVersion),
-  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/listing.json", (value) => value.releaseVersion),
-  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/inventory.json", (value) => value.releaseVersion),
-  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/readiness.json", (value) => value.releaseVersion),
-  textVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/release-notes.md", /^# AGDF (\S+) —/m),
-  textVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/availability.md", /^- release: `([^`]+)`$/m),
-  textVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/readiness.md", /^- release: `([^`]+)`$/m),
-];
+  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/capability-matrix.json", ["releaseVersion"]),
+  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/reviewer-cases.json", ["releaseVersion"]),
+  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/listing.json", ["releaseVersion"]),
+  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/inventory.json", ["releaseVersion"]),
+  jsonVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/readiness.json", ["releaseVersion"]),
+  textVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/release-notes.md", /^# AGDF (\S+) —/m, () => ""),
+  textVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/availability.md", /^- release: `([^`]+)`$/m, () => ""),
+  textVersion("create-agdf/generated/submissions/openai/agdf/submission/openai/readiness.md", /^- release: `([^`]+)`$/m, () => ""),
+]);
+
+export const WRITABLE_RELEASE_VERSION_SURFACES = Object.freeze(
+  RELEASE_VERSION_SURFACES.filter((surface) => surface.writable),
+);
 
 export function collectReleaseVersionEvidence({ repoRoot }) {
   repoRoot = resolve(repoRoot);
-  const definitionPath = join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json");
-  const expectedVersion = JSON.parse(readFileSync(definitionPath, "utf8")).version;
-  const entries = VERSION_SURFACES.map(({ relativePath, read }) => {
-    const absolutePath = join(repoRoot, relativePath);
-    if (!existsSync(absolutePath)) return { relativePath, actualVersion: undefined };
-    return { relativePath, actualVersion: read(repoRoot) };
-  });
+  const authoritySurface = RELEASE_VERSION_SURFACES[0];
+  const definitionPath = join(repoRoot, authoritySurface.relativePath);
+  const expectedVersion = authoritySurface.readContent(readFileSync(definitionPath, "utf8"));
+  const entries = RELEASE_VERSION_SURFACES
+    .filter((surface) => surface.evidence)
+    .map((surface) => {
+      const absolutePath = join(repoRoot, surface.relativePath);
+      if (!existsSync(absolutePath)) return { relativePath: surface.relativePath, actualVersion: undefined };
+      return {
+        relativePath: surface.relativePath,
+        actualVersion: surface.readContent(readFileSync(absolutePath, "utf8")),
+      };
+    });
   return { expectedVersion, entries };
 }
 

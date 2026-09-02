@@ -18,7 +18,7 @@ export const commandRegistry = Object.freeze([
   command("opencode-status", { preferred: [""], scaffold: [""] }),
   command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
   command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
-  command("disable", { preferred: [" --surface <surface> [--scope repository] [--dir <path>]"] }),
+  command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [""], scaffold: [""] }),
   command("init", { preferred: [""], scaffold: [""] }),
@@ -65,6 +65,12 @@ export function validateCommandOptions(options) {
     throw new Error("uninstall requires explicit --scope global");
   }
   if (options.confirm && options.target !== "uninstall") throw new Error("--confirm is supported only by uninstall");
+  if (options.shared && !(options.target === "disable" && options.surface === "copilot" && options.scope === "repository")) {
+    throw new Error("--shared is supported only by disable --surface copilot --scope repository");
+  }
+  if (options.target === "disable" && options.surface === "copilot" && options.scope !== "repository") {
+    throw new Error("Copilot disable requires explicit --scope repository");
+  }
   if (options.runtimeChecksDecision && !["codex", "claude", "copilot", "opencode"].includes(options.target)) {
     throw new Error("--runtime-checks is supported only by codex, claude, copilot and opencode installation commands");
   }
@@ -126,6 +132,7 @@ Options:
   --scope <repository|global>
                  Select the lifecycle mutation scope
   --confirm      Apply a previously previewed global uninstall plan
+  --shared       Apply Copilot repository disable through shared .github/copilot/settings.json
   --runtime-checks <enable|manual|cancel>
                  Make the installation-time automatic-check decision explicitly; no TTY defaults to manual
   --fixture <path>

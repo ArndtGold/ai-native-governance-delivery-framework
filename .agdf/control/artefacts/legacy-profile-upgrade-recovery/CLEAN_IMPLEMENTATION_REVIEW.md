@@ -1,25 +1,28 @@
 # Clean Implementation Review: Release-Owned Historical Profile Compatibility
 
-Status: pass
+Status: done
 Decision: pass
-Revision: 2
-Date: 2026-09-01
+Revision: 5
+Date: 2026-09-02
 Run: `legacy-profile-upgrade-recovery`
-Based on: approved SD Revision 3, Brownfield Analysis Revision 4 and CD+Tests Revision 3
 
-## Findings
+## Clean Implementation Review
 
-- One canonical JSON catalogue owns compatibility; existing generic metadata copying produces runtime
-  and package projections.
-- One focused pure runtime module validates and classifies exact history; current profile validation
-  remains first and historical lookup remains migration-only.
-- Existing marketplace transaction, provenance, host sequencing, Claude cache and lifecycle owners are
-  reused. No duplicate authority or broad recovery subsystem was introduced.
-- Release-only Git evidence is isolated from installed runtime. Continuity now fails closed unless
-  catalogue absence is confirmed at the merge base.
-- Exact historical evidence reaches both host results, and unverified Claude historical installs unwind
-  host state before filesystem/prior-plugin restoration.
-
-## Decision
-
-Pass. The structure is minimal, owner-aligned and fail-closed.
+- decision: pass
+- primary_solution: local orchestration delegates source identity and staging to the existing
+  marketplace preparation owner; that owner captures one immutable snapshot and feeds its single
+  descriptor into the existing stage/swap transaction.
+- evidence: duplicate digest/version lines and imports are removed from `install-local-plugin.js`;
+  `digestNormalizedPluginSource` remains the sole digest algorithm; focused stable, mutation,
+  cleanup-failure, per-surface and regression tests pass.
+- fallbacks_retained: none. Explicit non-snapshot preparation remains the existing internal/package
+  behavior for direct marketplace callers, while the production local-install path always selects
+  snapshot ownership. It does not accept an arbitrary caller-supplied Codex suffix.
+- workaround_or_shim_risk: low. The temporary directory and three digest observations are bounded
+  transaction preconditions with immediate cleanup, not a compatibility shim.
+- parallel_structure_risk: none. No second marketplace, provenance schema, digest owner or host
+  lifecycle was introduced. OpenCode retains its deliberately separate package archive owner.
+- brownfield_fit: pass against Brownfield Analysis Revision 8 and approved TP Revision 9.
+- missing_evidence: aggregate and remote evidence in TPR-5-01 does not create a solution-integrity
+  defect in the reviewed implementation.
+- required_next_step: complete Code Review, then let QA consume TPR-5-01 without reclassification.

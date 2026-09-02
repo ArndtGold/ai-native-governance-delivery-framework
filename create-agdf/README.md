@@ -72,6 +72,8 @@ npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest status --surface codex
 npx --yes @agdf/cli@latest disable --surface codex --scope repository
+npx --yes @agdf/cli@latest disable --surface copilot --scope repository
+npx --yes @agdf/cli@latest disable --surface copilot --scope repository --shared
 npx --yes @agdf/cli@latest uninstall --surface codex --scope global
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
@@ -125,6 +127,7 @@ Optional flags:
 - `--verbose` show captured host installer output and generated-file details after the concise lifecycle card
 - `--scope <repository|global>` select an explicit lifecycle mutation scope
 - `--confirm` apply a global uninstall after reviewing the default non-mutating preview
+- `--shared` use commit-capable `.github/copilot/settings.json` for an explicit shared Copilot repository disable; without it Copilot uses ignored personal-local settings
 
 If no language is provided, `create-agdf` derives the preference from the local system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE` or the Node.js runtime locale) and falls back to `en`.
 
@@ -142,7 +145,7 @@ it does not localize the CLI lifecycle card.
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
 - `runtime-checks status|enable|manual` reports the requested/effective automatic-check state or gives the exact reinstall route needed to change it
-- `disable` writes a supported repository-local opt-out while retaining global capability and durable control state
+- `disable` keeps Codex repository behavior and supports Copilot personal-local opt-out by default; Copilot shared repository effect requires `--shared`
 - `uninstall` previews and, only with `--confirm`, applies a selected global removal through supported native/owned operations
 - `opencode-repo` writes durable AGDF control configuration and templates under `.agdf/control/`; it does not copy a second OpenCode runtime surface
 - `config` writes or updates only `.agdf/control/config.json` for an already installed plugin or an existing repository
@@ -153,6 +156,22 @@ the Copilot manifest, prefixed skills, hook, required contracts and exact-versio
 is rendered from the same canonical sources. The installers atomically stage their profile under an AGDF-owned user-data marketplace, register
 that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
 contains no generated runtime bytes and the source checkout exposes no installable root marketplace.
+
+Repository lifecycle support is deliberately asymmetric:
+
+| Surface | Personal repository opt-out | Shared repository opt-out | Repository activation | Global uninstall |
+|---|---|---|---|---|
+| Codex | supported by its existing local plugin state | no new `--shared` mode | `codex-repo` | supported |
+| Claude Code | not supported without a verified host mechanism | not supported | no new mechanism | supported |
+| GitHub Copilot | default in ignored `.github/copilot/settings.local.json` | explicit `--shared` in `.github/copilot/settings.json` | plugin discovery remains separate | supported |
+| OpenCode | not supported as disable | not supported | `opencode-repo` | supported |
+
+The personal Copilot command fails before mutation unless Git confirms the local settings path is
+ignored. It never edits `.gitignore` or `.git/info/exclude`. Existing JSON must be strict JSON;
+JSONC, comments, invalid types and symlinked paths fail closed. Only
+`enabledPlugins["agdf@agdf"]` changes. Restart Copilot and inspect `/plugin list`; inspect
+`/instructions` separately because plugin disablement does not disable `AGENTS.md`,
+`.github/copilot-instructions.md` or other applicable instructions.
 The staged plugin contains one installation-provenance marker and the shared exact-version runtime;
 routine installed validation does not depend on the GitHub
 checkout, npm cache, PATH or registry. Rerunning either command performs the explicit update and

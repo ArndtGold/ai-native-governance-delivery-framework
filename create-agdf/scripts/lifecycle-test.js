@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,12 @@ import { installOpenCodeGlobalPlugin, installOpenCodeGlobalSurface } from "../li
 import { evaluateOpenCodeRepositoryActivation } from "../lib/installers/opencode-activation.js";
 import AGDFPlugin from "../opencode-plugin.js";
 import { evaluateGeneralStatus } from "../lib/lifecycle/status.js";
+import {
+  applyCopilotRepositoryDisable,
+  atomicSettingsWrite,
+  planCopilotRepositoryDisable,
+  repositoryCopilotSettingsPath,
+} from "../lib/installers/copilot-settings.js";
 
 const success = createLifecycleResult({
   operation: "install", result: "success", surface: "codex", scope: "global",
@@ -120,6 +126,90 @@ assert.match(readFileSync(join(root, ".codex", "config.toml"), "utf8"), /enabled
 assert.equal(verifyRepositoryDisabled(root).status, "healthy");
 assert.ok(disablePlan.retained.some((value) => value.includes(".agdf")));
 assert.throws(() => planRepositoryDisable(root, "claude"), /not supported safely/);
+
+const ignoredExec = (executable, args, options) => {
+  assert.equal(executable, "git");
+  assert.deepEqual(args, ["check-ignore", "--quiet", "--", ".github/copilot/settings.local.json"]);
+  assert.ok(options.cwd);
+};
+const copilotPersonalRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-personal-"));
+const personalPlan = planRepositoryDisable(copilotPersonalRoot, "copilot", { exec: ignoredExec });
+assert.equal(personalPlan.audience, "personal");
+assert.equal(personalPlan.mutations[0].path, join(copilotPersonalRoot, ".github", "copilot", "settings.local.json"));
+assert.equal(applyLifecyclePlan(personalPlan).status, "success");
+assert.equal(verifyRepositoryDisabled(copilotPersonalRoot, "copilot").status, "healthy");
+assert.equal(JSON.parse(readFileSync(personalPlan.mutations[0].path, "utf8")).enabledPlugins["agdf@agdf"], false);
+if (process.platform !== "win32") assert.equal(statSync(personalPlan.mutations[0].path).mode & 0o777, 0o600);
+
+const copilotSharedRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-shared-"));
+const sharedPath = join(copilotSharedRoot, ".github", "copilot", "settings.json");
+mkdirSync(join(copilotSharedRoot, ".github", "copilot"), { recursive: true });
+writeFileSync(sharedPath, `${JSON.stringify({ theme: "dark", enabledPlugins: { "other@market": true, "agdf@agdf": true } }, null, 2)}\n`);
+const sharedPlan = planRepositoryDisable(copilotSharedRoot, "copilot", { shared: true });
+assert.equal(sharedPlan.audience, "shared");
+assert.equal(applyLifecyclePlan(sharedPlan).status, "success");
+assert.deepEqual(JSON.parse(readFileSync(sharedPath, "utf8")), {
+  theme: "dark",
+  enabledPlugins: { "other@market": true, "agdf@agdf": false },
+});
+assert.equal(verifyRepositoryDisabled(copilotSharedRoot, "copilot", { shared: true }).status, "healthy");
+assert.equal(planRepositoryDisable(copilotSharedRoot, "copilot", { shared: true }).mutations.length, 0, "repeat disable must be an idempotent no-op");
+assert.throws(() => planRepositoryDisable(copilotSharedRoot, "codex", { shared: true }), /not supported safely/);
+
+const unignoredError = Object.assign(new Error("not ignored"), { status: 1 });
+const unignoredRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-unignored-"));
+assert.throws(() => planCopilotRepositoryDisable({ targetDir: unignoredRoot, exec() { throw unignoredError; } }), /LOCAL_SETTINGS_NOT_IGNORED/);
+assert.equal(existsSync(repositoryCopilotSettingsPath(unignoredRoot)), false);
+const unavailableGitError = Object.assign(new Error("missing Git"), { code: "ENOENT" });
+assert.throws(() => planCopilotRepositoryDisable({ targetDir: unignoredRoot, exec() { throw unavailableGitError; } }), /GIT_UNAVAILABLE/);
+const nonWorktreeError = Object.assign(new Error("not a worktree"), { status: 128 });
+assert.throws(() => planCopilotRepositoryDisable({ targetDir: unignoredRoot, exec() { throw nonWorktreeError; } }), /GIT_IGNORE_UNVERIFIED/);
+assert.throws(() => planCopilotRepositoryDisable({ targetDir: join(unignoredRoot, "missing"), shared: true }), /REPOSITORY_UNOWNED_PATH/);
+const parentFileRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-parent-file-"));
+writeFileSync(join(parentFileRoot, ".github"), "not a directory\n");
+assert.throws(() => planCopilotRepositoryDisable({ targetDir: parentFileRoot, shared: true }), /SETTINGS_UNOWNED_PATH/);
+
+for (const [name, content, pattern] of [
+  ["invalid", "{broken\n", /SETTINGS_INVALID/],
+  ["jsonc", "{\n  // comment\n  \"enabledPlugins\": {}\n}\n", /SETTINGS_INVALID/],
+  ["root-array", "[]\n", /SETTINGS_INVALID/],
+  ["plugins-array", "{\"enabledPlugins\":[]}\n", /SETTINGS_INVALID/],
+  ["ambiguous", "{\"enabledPlugins\":{\"agdf@agdf\":\"false\"}}\n", /AMBIGUOUS_PLUGIN_STATE/],
+]) {
+  const invalidRoot = mkdtempSync(join(tmpdir(), `agdf-copilot-${name}-`));
+  const invalidPath = join(invalidRoot, ".github", "copilot", "settings.json");
+  mkdirSync(join(invalidRoot, ".github", "copilot"), { recursive: true });
+  writeFileSync(invalidPath, content);
+  assert.throws(() => planRepositoryDisable(invalidRoot, "copilot", { shared: true }), pattern);
+  assert.equal(readFileSync(invalidPath, "utf8"), content, `${name} fixture must remain unchanged`);
+}
+
+const symlinkRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-symlink-"));
+mkdirSync(join(symlinkRoot, ".github"), { recursive: true });
+symlinkSync(copilotSharedRoot, join(symlinkRoot, ".github", "copilot"));
+assert.throws(() => planRepositoryDisable(symlinkRoot, "copilot", { shared: true }), /UNOWNED_PATH/);
+
+const atomicRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-atomic-"));
+const atomicPath = join(atomicRoot, "settings.json");
+writeFileSync(atomicPath, "{\"before\":true}\n");
+assert.throws(() => atomicSettingsWrite(atomicPath, { after: true }, { rename() { throw new Error("injected rename failure"); } }), /injected rename failure/);
+assert.equal(readFileSync(atomicPath, "utf8"), "{\"before\":true}\n");
+assert.equal(readdirSync(atomicRoot).some((name) => name.includes("agdf-tmp")), false);
+
+const rollbackRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-verify-rollback-"));
+const rollbackPath = join(rollbackRoot, ".github", "copilot", "settings.json");
+mkdirSync(join(rollbackRoot, ".github", "copilot"), { recursive: true });
+writeFileSync(rollbackPath, "{\n  \"keep\": true\n}\n");
+const rollbackBytes = readFileSync(rollbackPath, "utf8");
+const rollbackMutation = planCopilotRepositoryDisable({ targetDir: rollbackRoot, shared: true });
+let writes = 0;
+assert.throws(() => applyCopilotRepositoryDisable(rollbackMutation, {
+  writeSettings(path, settings) {
+    writes += 1;
+    atomicSettingsWrite(path, writes === 1 ? { ...settings, enabledPlugins: { "agdf@agdf": true } } : settings);
+  },
+}), /VERIFICATION_FAILED/);
+assert.equal(readFileSync(rollbackPath, "utf8"), rollbackBytes, "verification rollback must restore exact prior bytes");
 
 const exactSectionRoot = mkdtempSync(join(tmpdir(), "agdf-disable-exact-"));
 mkdirSync(join(exactSectionRoot, ".agents", "plugins"), { recursive: true });

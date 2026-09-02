@@ -70,6 +70,7 @@ assert.deepEqual(parsed.options, {
   allActive: false,
   scope: undefined,
   confirm: false,
+  shared: false,
   runtimeChecksDecision: undefined,
   runtimeChecksAction: "status",
   generatorModel: "g",
@@ -88,6 +89,8 @@ assert.equal(parseArgs(["gate-check", "--approval-envelope"], { cwd: "/tmp/root"
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
+const sharedDisableArgs = parseArgs(["disable", "--surface", "copilot", "--scope", "repository", "--shared"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(sharedDisableArgs.options.shared, true);
 
 for (const fixture of [
   [["doctor", "--run"], "Missing value for --run"],
@@ -114,6 +117,18 @@ assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvel
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "codex" }));
+assert.throws(() => validateCommandOptions({ target: "disable", surface: "copilot" }), /requires explicit --scope repository/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "copilot", scope: "repository", shared: true }));
+for (const options of [
+  { target: "disable", surface: "codex", scope: "repository", shared: true },
+  { target: "disable", surface: "claude", scope: "repository", shared: true },
+  { target: "disable", surface: "opencode", scope: "repository", shared: true },
+  { target: "disable", surface: "copilot", shared: true },
+  { target: "uninstall", surface: "copilot", scope: "global", shared: true },
+  { target: "status", surface: "copilot", shared: true },
+]) assert.throws(() => validateCommandOptions(options), /--shared is supported only/);
+assert.match(usage, /disable --surface <surface> \[--scope repository\] \[--shared\]/);
+assert.match(usage, /--shared\s+Apply Copilot repository disable/);
 assert.throws(() => validateCommandOptions({ target: "disable", surface: "generic" }), /explicit --surface/);
 assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "codex" }), /--scope global/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", confirm: true }));
@@ -131,6 +146,24 @@ for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-se
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }
 assert.match(packageReadme, /BCP 47 language tag/);
+
+const repositoryRoot = join(packageRoot, "..");
+for (const [label, content] of [
+  ["root README", readFileSync(join(repositoryRoot, "README.md"), "utf8")],
+  ["installation guide", readFileSync(join(repositoryRoot, "INSTALL.md"), "utf8")],
+  ["package README", packageReadme],
+]) {
+  for (const required of [
+    "disable --surface copilot --scope repository",
+    "disable --surface copilot --scope repository --shared",
+    ".github/copilot/settings.local.json",
+    ".github/copilot/settings.json",
+    "Claude Code",
+    "GitHub Copilot",
+    "OpenCode",
+  ]) assert.ok(content.includes(required), `${label} must document ${required}`);
+  assert.ok(content.includes("AGENTS.md"), `${label} must preserve the independent-instructions boundary`);
+}
 
 const backlogTemplate = readFileSync(join(packageRoot, "..", "plugin", "control", "templates", "MASTER_BACKLOG.md"), "utf8");
 assert.match(backlogTemplate, /create-agdf\/lib\/control-evaluation\/shared\.js/);

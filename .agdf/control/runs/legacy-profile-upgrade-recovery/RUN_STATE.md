@@ -5,12 +5,12 @@
 - control_state_version: 2
 - run_id: legacy-profile-upgrade-recovery
 - lifecycle: active
-- revision: 26
-- revision_id: 20A528F6-8E34-4E83-B6E0-C3807F58122E
+- revision: 41
+- revision_id: 10B14394-2D95-49D0-9A8B-41939DF1081C
 - started_at: 2026-09-01
 - mode: `structured_delivery`
-- current_gate: `UAT`
-- decision: `in_progress`
+- current_gate: `QA`
+- decision: `revise`
 - owner: Arndt Gold
 
 ## Objective
@@ -22,11 +22,11 @@ preserving fail-closed provenance and bounded Windows cache recovery.
 
 | Question | Answer |
 |---|---|
-| What is known? | A verified AGDF-owned 0.13.8 shared marketplace was rejected by 0.14.3 because its older profile contract lacked the newer Copilot profile. Direct tag evidence identifies exact supported records for 0.13.6, 0.13.7, 0.13.8 and 0.14.1, current-shape records for 0.14.2 and 0.14.3, and no authoritative 0.14.0 record. PRD Revision 3 stated that set in its authority contract but contradicted it in acceptance criteria and non-goals. |
-| What is approved? | UR, PRD Revision 4, SD Revision 3, TP Revision 5 and QA Revision 2 are approved. Brownfield Analysis Revision 4 and mandatory reviews pass. |
-| What is missing? | UAT is deliberately deferred. Separately authorized native-Windows host/fresh-session evidence, a passing UAT report and exact `Approval: UAT` remain missing. |
-| What is the next allowed action? | Resume only after deliberate bounded host authorization; do not approve UAT before direct evidence. |
-| What is explicitly forbidden right now? | Unapproved real host/cache mutation, publication, release and VCS actions. |
+| What is known? | One immutable snapshot now binds normalized source identity, Codex local version, staged bytes and provenance inside the existing marketplace owner. Focused installer, marketplace, lifecycle, release and source Runtime Integrity evidence passes. |
+| What is approved? | UR, PRD Revision 4, SD Revision 5 and TP Revision 9 are approved. |
+| What is missing? | Complete green create-agdf smoke and affected remote GitHub Actions evidence under TPR-5-01. |
+| What is the next allowed action? | Reconcile the separately owned runtime-packaging aggregate baseline, then rerun complete smoke and remote CI evidence. |
+| What is explicitly forbidden right now? | QA approval request while TPR-5-01 is open, UAT approval, real host/cache mutation, publication, release and automatic VCS actions. |
 
 ## Source And Scope State
 
@@ -43,13 +43,13 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | QA approved; UAT deliberately deferred |
-| Current gate | UAT |
-| Allowed now | Preserve the non-operative delivery summary or resume after explicit bounded host authority. |
-| Blocked by | UAT execution is deferred and current host/fresh-session evidence is missing. |
-| Missing approval | `Approval: UAT` only after a passing UAT report |
-| Next step | Resume UAT only after explicit bounded native-Windows host authorization. |
-| Quality outlook | Make compatibility systematic at release time without turning exact provenance into permissive version inference. |
+| Status | QA revise |
+| Current gate | QA |
+| Allowed now | Repair the separately owned aggregate baseline and refresh evidence. |
+| Blocked by | TPR-5-01: complete smoke and remote CI evidence are open. |
+| Missing approval | none at this gate |
+| Next step | Reconcile runtime packaging, rerun complete smoke and then rerun the affected GitHub Actions workflow. |
+| Quality outlook | Remove duplicate digest ownership while retaining exact source-bound local provenance. |
 
 ## Approvals
 
@@ -59,9 +59,9 @@ Valid approval format for new runs: `Approval: <GateName>`.
 |---|---|---|
 | UR | `approved` | Exact `Approval: UR` accepted on 2026-09-01 after same-run, same-gate and revision revalidation. |
 | PRD | `approved` | Exact `Approval: PRD` accepted for durable Revision 4 after same-run, same-gate and revision revalidation. |
-| SD | `approved` | Exact `Approval: SD` accepted for durable Revision 3 after same-run, same-gate and revision revalidation. |
-| TP | `approved` | Exact `Approval: TP` accepted for durable Revision 5 after same-run, same-gate and revision revalidation. |
-| QA | `approved` | Exact `Approval: QA` accepted for durable Revision 2 after same-run, same-gate and revision revalidation. |
+| SD | `approved` | Exact `Approval: SD` accepted for durable Revision 5 on 2026-09-02 after same-run, SD-gate and revision_id `0BF255D2-4F89-4C2C-B179-88A13E4A32E0` revalidation. |
+| TP | `approved` | Exact `Approval: TP` accepted for durable Revision 9 on 2026-09-02 after same-run, TP-gate and revision_id `2B83E2C1-3523-4D19-AD03-C1DD27F42B67` revalidation. |
+| QA | `open` | Revision 5 decides `revise`; no approval may be requested while TPR-5-01 is open. |
 | UAT | `missing` | none |
 
 ## Artefacts
@@ -73,21 +73,21 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | UX Intent Definition | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/UX_INTENT_DEFINITION.md` | `ready` | High UI/UX impact; app restart and fresh-session activation states are defined as PRD input. |
 | Verified Change |  | `not_applicable` | Public compatibility, migration, runtime recovery and cross-host activation impacts prohibit the compact path. |
 | PRD | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/PRD.md` | `approved` | Revision 4 makes acceptance criteria, non-goals and evidence consistent with the exact tag-evidenced support set and fail-closed `agdf-v0.14.0` mismatch handling. |
-| SD | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/SD.md` | `approved` | Revision 3 maps exact supported releases and explicitly rejects the incoherent `agdf-v0.14.0` tag. |
-| TP | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/TP.md` | `approved` | Revision 5 aligns tasks and release matrices and requires a new Brownfield Analysis Revision 4 rather than overwriting durable Revision 3. |
-| Brownfield Analysis | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/BROWNFIELD_ANALYSIS.md` | `done` | Revision 4 passes the exact owner, call-path, reuse and stop-condition assessment for approved TP Revision 5. |
-| CD+Tests | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/CD_TESTS.md` | `done` | Revision 2 records catalogue implementation, focused passes and three disclosed non-success baseline failures. |
-| Task Plan Review | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/TASK_PLAN_REVIEW.md` | `done` | Revision 2 decision pass covers CAT-T01 through CAT-T10 and preserves disclosed baseline failures. |
-| Clean Implementation Review | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 2 decision pass confirms minimal owner-aligned structure and no duplicate authority. |
-| CR | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/CODE_REVIEW.md` | `done` | Revision 2 decision pass records seven resolved findings and an independent final pass. |
-| QA | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/QA_REPORT.md` | `pass` | Revision 2 passes the approved catalogue scope with three unrelated baseline failures explicitly non-successful. |
+| SD | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/SD.md` | `approved` | Revision 5 adds one immutable local-build snapshot and single source-identity owner while preserving strict Codex provenance and existing public contracts; exact approval recorded. |
+| TP | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/TP.md` | `approved` | Revision 9 maps the snapshot owner, unstable-source failure, approved paths and deterministic regression matrix; exact approval recorded. |
+| Brownfield Analysis | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/BROWNFIELD_ANALYSIS.md` | `done` | Revision 8 passes the existing owner, reuse, cleanup, compatibility and host-sequencing fit for TP Revision 9. |
+| CD+Tests | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/CD_TESTS.md` | `done` | Revision 6 records the immutable snapshot implementation, focused passes and the unchanged aggregate runtime-packaging failure. |
+| Task Plan Review | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/TASK_PLAN_REVIEW.md` | `done` | Revision 5 is revise: 15/16 fully done; CAT-T12 remains partial because aggregate and remote evidence are open. |
+| Clean Implementation Review | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 5 passes the single snapshot owner, no-fallback and Brownfield-fit solution. |
+| CR | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/CODE_REVIEW.md` | `done` | Revision 5 passes with no open correctness, error-path, security, compatibility or maintainability finding. |
+| QA | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/QA_REPORT.md` | `revise` | Revision 5 retains open normalized evidence finding TPR-5-01. |
 | UAT | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/UAT_REPORT.md` | `pending` | Revision 2 records deliberate deferral and preserves required direct native-Windows and fresh-session evidence. |
 | OR |  | `missing` | Not allowed. |
 
 ## Mode / Slice Decision
 
 - decision: `structured_delivery`
-- required_next_gate: `UAT`
+- required_next_gate: `TP`
 - scope_reason: `external_contract_depth` is primary: the public installer changes its accepted historical compatibility contract and activation promise. Decisive persistence/migration, architecture/runtime and release/cross-host effects also apply because one durable shared marketplace is rebuilt across a closed compatibility window, Claude-owned cache recovery needs a separate exact authority boundary, and application restart plus fresh-session activation must remain coherent. `structured_slice` is rejected because these effects are not independently acceptable or recoverable as one local owner change.
 - evidence: `.agdf/control/artefacts/legacy-profile-upgrade-recovery/BROWNFIELD_REVIEW.md`; `.agdf/control/artefacts/legacy-profile-upgrade-recovery/UX_INTENT_DEFINITION.md`; direct native-Windows public 0.14.3 recovery evidence from 2026-09-01; existing provenance, marketplace, installer, filesystem-swap, lifecycle and test owners.
 - transparency_note: Brownfield Review and UX Intent Definition are complete internal routing inputs. They permit PRD drafting only and do not authorize implementation, installation mutation or loaded-host claims.
@@ -100,10 +100,18 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Brownfield Review | `derived_from` | UR | completed post-UR owner, compatibility, recovery, UX-impact and structured-depth assessment |
 | UX Intent Definition | `derived_from` | Brownfield Review | ready internal PRD input; no approval or implementation authority |
 | PRD | `derived_from` | UR | approved Revision 4 derived from approved UR, completed Brownfield Review and ready UX Intent Definition |
-| SD | `derived_from` | PRD | approved Revision 3 derived from approved PRD Revision 4 |
-| TP | `derived_from` | SD | approved Revision 5 derived from approved SD Revision 3 |
-| CD+Tests | `implements` | TP | Revision 3 implements approved TP Revision 5 with disclosed unrelated baselines |
-| QA_REPORT | `tests` | TP | approved Revision 2 tests TP Revision 5 after mandatory review pass |
+| SD Revision 5 | `derived_from` | PRD | preserves approved behavior while closing the observed mutable-source identity race through one immutable snapshot owner |
+| SD Revision 5 | `approved_by` | `Approval: SD` | exact approval accepted on 2026-09-02 after same-run, SD-gate and revision_id `0BF255D2-4F89-4C2C-B179-88A13E4A32E0` revalidation |
+| TP Revision 9 | `derived_from` | SD Revision 5 | maps the approved snapshot owner and fail-closed unstable-source behavior to bounded tasks, paths and tests |
+| TP Revision 9 | `approved_by` | `Approval: TP` | exact approval accepted on 2026-09-02 after same-run, TP-gate and revision_id `2B83E2C1-3523-4D19-AD03-C1DD27F42B67` revalidation |
+| TP Revision 8 | `approved_by` | `Approval: TP` | historical approval accepted on 2026-09-01; it does not authorize Revision 9 implementation |
+| SD | `derived_from` | PRD | approved Revision 5 preserves PRD Revision 4 behavior and adds one immutable local-build snapshot owner |
+| SD | `approved_by` | `Approval: SD` | canonical current relationship for approved Revision 5 |
+| TP | `derived_from` | SD | approved Revision 9 maps SD Revision 5 to CAT-T13 through CAT-T16 and deterministic snapshot evidence |
+| TP | `approved_by` | `Approval: TP` | canonical current relationship for approved Revision 9 |
+| Brownfield Analysis Revision 8 | `derived_from` | TP Revision 9 | pass; existing marketplace transaction and normalized digest owners can host one bounded immutable snapshot without public contract drift |
+| CD+Tests | `implements` | TP | Revision 6 implements TP Revision 9, passes the focused snapshot and regression evidence and retains the aggregate/remote obligation |
+| QA_REPORT | `tests` | TP | Revision 5 decides revise for TP Revision 9 after mandatory reviews Revision 5 because TPR-5-01 remains open |
 
 ## Evidence
 
@@ -147,10 +155,29 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | QA Report Revision 2 | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/QA_REPORT.md` | pass decision over focused evidence, package projection and disclosed unrelated baselines | direct |
 | Revalidated QA Revision 2 approval | deliberate native decision `Approval: QA` on 2026-09-01 | same run, QA gate, durable Revision 2 and revision_id `4CDFB6C4-4DA1-44D0-ADAD-8F4BBB98F50B` | direct |
 | UAT Report Revision 2 | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/UAT_REPORT.md` | deferred by deliberate user decision; no host authority or mutation | direct |
+| GitHub Actions release preparation failure | `test:release-version-coherence` on 2026-09-01 | default shallow checkout lacks `agdf-v0.13.6`; real-tag CI requirement is not fulfilled | direct |
+| Revalidated TP Revision 6 approval | deliberate exact `Approval: TP` on 2026-09-01 | same run, TP gate, durable Revision 6 and revision_id `C38FA15E-4D0E-4925-9296-E4796AE6F989` | direct |
+| Brownfield Analysis Revision 5 | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/BROWNFIELD_ANALYSIS.md` | existing checkout owner, bounded three-workflow scope and no-fallback solution | direct |
+| CD+Tests Revision 4 and reviews Revision 3 | run artefacts | checkout correction, static/YAML/tag evidence, clean pass, code review pass and TP Review revise | direct |
+| Current 0.14.4 release preparation failure | local `release:prepare` on commit `2cc30a6` | exact current catalogue snapshot missing independently of the checkout correction | direct |
+| Revalidated SD Revision 4 approval | deliberate exact `Approval: SD` on 2026-09-01 | same run, SD gate, durable Revision 4 and revision_id `633F7F8A-4CAC-4B03-B986-923F3C3149C9` | direct |
+| Revalidated TP Revision 7 approval | deliberate exact `Approval: TP` on 2026-09-01 | same run, TP gate, durable Revision 7 and revision_id `71EC4F47-0C01-4935-B6CC-9A4644239088` | direct |
+| Revalidated TP Revision 8 approval | deliberate exact `Approval: TP` on 2026-09-01 | same run, TP gate, durable Revision 8 and revision_id `69DB7F6C-3D85-4270-B8C5-610CDAFF26EE` | direct |
+| Brownfield Analysis Revision 7 | run artefact | single existing owner, descriptor reuse, recoverable transaction and exact tag boundary | direct |
+| Real 0.14.4 reconciliation | `npm run set-version -- 0.14.4` | both packages unpublished; exact current catalogue record added without version advance | direct |
+| Focused implementation evidence | release preparation, transaction/history/coherence/package/runtime tests | automatic bump correctness, rollback, recovery and current-versus-historical tag behavior | direct |
+| Mandatory reviews Revision 4 | Task Plan, Clean Implementation and Code Review artefacts | 11/12 TP coverage, clean pass, code pass and open evidence gap TPR-4-01 | direct |
+| QA Report Revision 4 | `.agdf/control/artefacts/legacy-profile-upgrade-recovery/QA_REPORT.md` | revise because aggregate and remote evidence remain open | direct |
+| Local identity race diagnosis | `create-agdf/scripts/install-local-plugin.js`; `create-agdf/lib/installers/local-marketplace.js`; prior aggregate failure; focused isolated-cache pass on 2026-09-02 | caller and marketplace recompute one identity from a mutable source, while the version syntax itself remains valid | direct |
+| Immutable local snapshot evidence | `test:local-development-install`, `test:local-marketplace`, `test:lifecycle`, release preparation and source Runtime Integrity on 2026-09-02 | one descriptor, exact per-surface identities, injected instability, cleanup retry, zero host call and unchanged transaction regressions | direct |
+| Aggregate runtime layout failure | isolated-cache `create-agdf smoke-test` on 2026-09-02 | first unchanged aggregate blocker after all affected installer, marketplace, package, lifecycle and control tests passed | direct |
 
 ## Missing Evidence
 
-- Separately authorized direct native-Windows upgrade, restart and fresh-session evidence; passing UAT report and exact approval.
+- Green complete create-agdf smoke after separately owned aggregate repair and affected remote GitHub Actions evidence;
+- Green complete create-agdf smoke after separately owned baseline repairs, remote GitHub Actions
+  evidence and repeated QA;
+  later, separately authorized direct native-Windows upgrade, restart and fresh-session evidence.
 
 ## Risks
 
@@ -159,15 +186,17 @@ Valid approval format for new runs: `Approval: <GateName>`.
 - Cache recovery could delete unowned or unrelated host state if exact ownership is not proven.
 - Shared Codex/Claude marketplace migration could disturb one registration while repairing the other.
 - Installer success could be overstated as active loaded skills unless restart and fresh-session states remain separate.
+- A shallow CI checkout can make required tag and default-branch continuity evidence unavailable even when the canonical repository contains it.
+- A mutable generated plugin root can change between duplicate digest calculations and produce a misleading invalid-version failure unless installation binds identity and staging to one immutable snapshot.
 
 ## Context Graph Impact
 
 - context_graph_impact: `update_existing_node`
 - context_graph_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`
-- context_graph_reconciliation: `open_gap`
+- context_graph_reconciliation: `resolved`
 - context_graph_required_action: `update`
-- context_graph_gate_effect: `warning`
-- context_graph_evidence: Existing node extensions own provenance, atomic marketplace replacement, Windows retry, Claude refresh and loaded-session separation; closeout must add the explicit historical compatibility and app-restart-versus-fresh-session invariant.
+- context_graph_gate_effect: `none`
+- context_graph_evidence: `CG-CREATE-AGDF-CLI-COMPOSITION` records complete CI history, the stable root command, one transactional version/catalogue owner and current-pre-tag versus historical-tag evidence.
 
 ## Knowledge Persistence Decision
 
@@ -177,5 +206,5 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 ## Closeout
 
-- next_allowed_action: Resume UAT only after explicit bounded native-Windows host authorization; do not approve UAT before direct evidence.
-- quality_outlook: Move compatibility evidence into the release lifecycle while keeping every accepted version and contract exact.
+- next_allowed_action: Reconcile the separately owned runtime-packaging baseline, rerun complete smoke and then obtain affected remote GitHub Actions evidence.
+- quality_outlook: Remove duplicate digest ownership while retaining strict source-bound local provenance and the existing marketplace transaction authority.

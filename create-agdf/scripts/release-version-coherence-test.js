@@ -6,6 +6,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assertReleaseVersionCoherence, collectReleaseVersionEvidence } from "../lib/release/version-coherence.js";
 import { assertDistributionProfileHistory } from "../lib/release/profile-history.js";
+import { canonicalDistributionProfileEntryDigest } from "../lib/runtime/distribution-profile-history.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
@@ -50,6 +51,7 @@ const commonHistoryOptions = {
   currentDefinition,
   generatedContents,
   readTagFile,
+  tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
   baselineContent: null,
 };
 const missingCurrent = JSON.parse(catalogueContent);
@@ -75,6 +77,68 @@ assert.throws(
       }
       return content;
     },
+  }),
+  (error) => error.code === "profile_history_tag_mismatch",
+);
+
+assert.doesNotThrow(() => assertDistributionProfileHistory({
+  ...commonHistoryOptions,
+  tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
+}));
+const currentTagFiles = {
+  "plugin/meta/agdf-plugin.definition.json": `${JSON.stringify(currentDefinition)}\n`,
+  "create-agdf/package.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
+  "plugin/.codex-plugin/plugin.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
+};
+assert.doesNotThrow(() => assertDistributionProfileHistory({
+  ...commonHistoryOptions,
+  tagExists: () => true,
+  readTagFile(tag, path) {
+    if (tag === `agdf-v${currentDefinition.version}`) return currentTagFiles[path];
+    return readTagFile(tag, path);
+  },
+}));
+assert.throws(
+  () => assertDistributionProfileHistory({
+    ...commonHistoryOptions,
+    tagExists: () => true,
+    readTagFile(tag, path) {
+      if (tag === `agdf-v${currentDefinition.version}`) {
+        const value = JSON.parse(currentTagFiles[path]);
+        value.version = "0.0.0";
+        return `${JSON.stringify(value)}\n`;
+      }
+      return readTagFile(tag, path);
+    },
+  }),
+  (error) => error.code === "profile_history_tag_mismatch",
+);
+
+const advancedVersion = "0.14.5";
+const advancedCatalogue = JSON.parse(catalogueContent);
+const currentRelease = advancedCatalogue.releases[currentDefinition.version];
+const currentContract = advancedCatalogue.contracts[currentRelease.contract_id];
+advancedCatalogue.releases[advancedVersion] = {
+  ...currentRelease,
+  entry_digest: canonicalDistributionProfileEntryDigest({
+    version: advancedVersion,
+    contract_id: currentRelease.contract_id,
+    contract_digest: currentContract.contract_digest,
+  }),
+};
+advancedCatalogue.releases = Object.fromEntries(Object.entries(advancedCatalogue.releases).sort(([left], [right]) => left.localeCompare(right)));
+const advancedContent = `${JSON.stringify(advancedCatalogue, null, 2)}\n`;
+assert.throws(
+  () => assertDistributionProfileHistory({
+    catalogueContent: advancedContent,
+    currentDefinition: { ...currentDefinition, version: advancedVersion },
+    generatedContents: Object.fromEntries(Object.keys(generatedContents).map((path) => [path, advancedContent])),
+    readTagFile(tag, path) {
+      if (tag === `agdf-v${currentDefinition.version}`) throw new Error("missing prior tag");
+      return readTagFile(tag, path);
+    },
+    tagExists: (tag) => tag !== `agdf-v${advancedVersion}`,
+    baselineContent: catalogueContent,
   }),
   (error) => error.code === "profile_history_tag_mismatch",
 );
@@ -112,6 +176,7 @@ assert.throws(
     currentDefinition,
     generatedContents,
     readTagFile,
+    tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
   }),
   (error) => error.code === "profile_history_continuity_break",
 );

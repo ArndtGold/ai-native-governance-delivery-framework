@@ -430,9 +430,11 @@ function printInstallFailure(surface, error, options, io, command = surface) {
 
 function runDisable(options, { io, exec }) {
   try {
-    const plan = planRepositoryDisable(options.dir, options.surface);
+    const plan = planRepositoryDisable(options.dir, options.surface, { shared: options.shared, exec });
     const applied = applyLifecyclePlan(plan, exec ? { exec } : {});
-    const verified = applied.status === "success" ? verifyRepositoryDisabled(options.dir) : { status: "failed", evidence: [] };
+    const verified = applied.status === "success"
+      ? verifyRepositoryDisabled(options.dir, options.surface, { shared: options.shared })
+      : { status: "failed", evidence: [] };
     const result = applied.status === "success" && verified.status !== "healthy" ? "failed" : applied.status;
     const report = createLifecycleResult({
       operation: "disable",
@@ -440,9 +442,12 @@ function runDisable(options, { io, exec }) {
       surface: options.surface,
       scope: "repository",
       verification: { status: verified.status === "healthy" ? "healthy" : "degraded", evidence: [...applied.completed.map((item) => item.path || item.executable), ...verified.evidence] },
+      activation: { status: result === "success" ? "pending_restart" : "unknown" },
       restart: { required: result === "success", reason: result === "success" ? "host_reload" : "none" },
       next_action: result === "success"
-        ? { kind: "restart", text: "Restart the host in this repository; global AGDF availability and .agdf/control are retained." }
+        ? options.surface === "copilot"
+          ? { kind: "restart", text: "Restart GitHub Copilot in this repository, then inspect /plugin list; independent instructions remain separate." }
+          : { kind: "restart", text: "Restart the host in this repository; global AGDF availability and .agdf/control are retained." }
         : { kind: "verify", text: "Inspect the reported repository configuration failure before retrying disable." },
       changes: applied.completed,
       retained: applied.retained,
@@ -453,7 +458,20 @@ function runDisable(options, { io, exec }) {
     printLifecycleResult(report, { json: options.json, io });
     return result === "success" ? 0 : 1;
   } catch (error) {
-    io.error(error.message);
+    const report = lifecycleFailure({
+      operation: "disable",
+      surface: options.surface,
+      scope: "repository",
+      phase: "repository_preflight",
+      message: error.message,
+      evidence: [error.message],
+      nextAction: "Resolve the reported repository configuration or ignore precondition, then retry disable without changing unrelated files.",
+    });
+    if (options.json) printLifecycleResult(report, { json: true, io });
+    else {
+      io.error(error.message);
+      printLifecycleResult(report, { io });
+    }
     return 1;
   }
 }

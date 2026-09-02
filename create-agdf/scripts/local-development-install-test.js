@@ -5,6 +5,7 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import {
+  captureLocalPluginSnapshot,
   codexLocalInstallVersion,
   digestPluginSource,
   isCodexLocalInstallVersion,
@@ -62,6 +63,69 @@ try {
   ]) {
     assert.equal(isCodexLocalInstallVersion(pluginDefinition.version, invalidVersion, sourceDigest), false);
   }
+
+  const stableSnapshotRoot = join(fixtureRoot, "stable-source-snapshot");
+  const stableSnapshot = captureLocalPluginSnapshot({
+    builtPluginRoot,
+    expectedVersion: pluginDefinition.version,
+    adapters: {
+      createRoot() {
+        mkdirSync(stableSnapshotRoot, { recursive: false });
+        return stableSnapshotRoot;
+      },
+    },
+  });
+  assert.equal(stableSnapshot.sourceDigest, sourceDigest);
+  assert.equal(stableSnapshot.codexInstallVersion, localVersion);
+  assert.equal(digestPluginSource(stableSnapshot.pluginRoot, pluginDefinition.version), sourceDigest);
+  stableSnapshot.cleanup();
+  assert.equal(existsSync(stableSnapshotRoot), false, "successful snapshot capture must clean only its owned root");
+
+  const unstableSnapshotRoot = join(fixtureRoot, "unstable-source-snapshot");
+  const digestSequence = [sourceDigest, sourceDigest, "f".repeat(64)];
+  assert.throws(() => captureLocalPluginSnapshot({
+    builtPluginRoot,
+    expectedVersion: pluginDefinition.version,
+    adapters: {
+      createRoot() {
+        mkdirSync(unstableSnapshotRoot, { recursive: false });
+        return unstableSnapshotRoot;
+      },
+      digest() { return digestSequence.shift(); },
+    },
+  }), (error) => error?.code === "local_install_source_unstable");
+  assert.equal(existsSync(unstableSnapshotRoot), false, "unstable snapshot capture must clean its owned root");
+
+  assert.throws(() => prepareLocalMarketplace({
+    dataRoot: join(fixtureRoot, "snapshot-identity-conflict-data"),
+    builtPluginRoot,
+    snapshotSource: true,
+    codexInstallVersion: localVersion,
+  }), /owns the Codex local install version/);
+
+  const cleanupFailureDataRoot = join(fixtureRoot, "cleanup-failure-data");
+  const cleanupFailureSnapshotRoot = join(fixtureRoot, "cleanup-failure-snapshot");
+  let cleanupAttempts = 0;
+  assert.throws(() => prepareLocalMarketplace({
+    dataRoot: cleanupFailureDataRoot,
+    builtPluginRoot,
+    snapshotSource: true,
+    snapshotAdapters: {
+      createRoot() {
+        mkdirSync(cleanupFailureSnapshotRoot, { recursive: false });
+        return cleanupFailureSnapshotRoot;
+      },
+      remove(root) {
+        cleanupAttempts += 1;
+        if (cleanupAttempts === 1) throw new Error("injected snapshot cleanup failure");
+        rmSync(root, { recursive: true, force: true });
+      },
+    },
+  }), /injected snapshot cleanup failure/);
+  assert.equal(cleanupAttempts, 2, "failed pre-swap cleanup must be retried by the snapshot owner");
+  assert.equal(existsSync(cleanupFailureSnapshotRoot), false);
+  assert.equal(existsSync(join(cleanupFailureDataRoot, "marketplaces", "agdf")), false, "cleanup failure must not swap the stable marketplace");
+  assert.equal(existsSync(join(cleanupFailureDataRoot, "marketplaces", "agdf.stage")), false, "cleanup failure must remove the marketplace stage");
 
   const marketplaceDataRoot = join(fixtureRoot, "marketplace-data");
   const projected = prepareLocalMarketplace({
@@ -276,6 +340,25 @@ try {
   assert.equal(copilotPackaged.verificationStatus, "healthy");
   assert.equal(copilotPackaged.evidence.includes(`copilot_cli_npm_package:${COPILOT_CLI_NPM_PACKAGE}`), true);
   assert.equal(packagedCalls.some(({ args }) => args.includes(`--package=${COPILOT_CLI_NPM_PACKAGE}`) && args.at(-2) === "plugin" && args.at(-1) === "list"), true);
+  let launcherFallbackListCalls = 0;
+  const copilotLauncherFallback = installCopilotGlobalPlugin({
+    pluginRoot: builtCopilotPluginRoot,
+    exec() {
+      const error = new Error("Copilot launcher could not resolve its binary");
+      error.stderr = "Cannot find GitHub Copilot CLI (https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli)";
+      throw error;
+    },
+    packagedCopilotExec(_executable, args) {
+      if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+        launcherFallbackListCalls += 1;
+        return launcherFallbackListCalls === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;
+      }
+      return "installed\n";
+    },
+  });
+  assert.equal(copilotLauncherFallback.verificationStatus, "healthy");
+  assert.equal(copilotLauncherFallback.evidence.includes("copilot_cli_launcher_unavailable"), true);
+  assert.equal(copilotLauncherFallback.evidence.includes(`copilot_cli_npm_package:${COPILOT_CLI_NPM_PACKAGE}`), true);
   assert.deepEqual(copilotNpmInvocation({ env: { npm_execpath: "/npm/cli.js" }, platform: "linux", execPath: "/node" }), {
     executable: "/node",
     args: ["/npm/cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
@@ -562,12 +645,37 @@ try {
   const copilotCode = await installLocalPlugin("copilot", {
     dataRoot: join(fixtureRoot, "copilot-orchestration-data"),
     exec() { return ""; },
-    async runCli(args) {
+    async runCli(args, adapters) {
       assert.deepEqual(args, ["copilot"]);
+      const transaction = adapters.prepare();
+      assert.equal(transaction.codexInstallVersion, pluginDefinition.version, "Copilot must retain the canonical version");
+      transaction.rollback();
       return 3;
     },
   });
   assert.equal(copilotCode, 3, "the Copilot plugin lifecycle exit code must be preserved");
+
+  const unstableOrchestrationSnapshotRoot = join(fixtureRoot, "unstable-orchestration-snapshot");
+  const unstableOrchestrationDigests = [sourceDigest, sourceDigest, "e".repeat(64)];
+  let hostCallsAfterUnstableSource = 0;
+  await assert.rejects(() => installLocalPlugin("codex", {
+    dataRoot: join(fixtureRoot, "unstable-orchestration-data"),
+    exec() { return ""; },
+    snapshotAdapters: {
+      createRoot() {
+        mkdirSync(unstableOrchestrationSnapshotRoot, { recursive: false });
+        return unstableOrchestrationSnapshotRoot;
+      },
+      digest() { return unstableOrchestrationDigests.shift(); },
+    },
+    async runCli(_args, adapters) {
+      adapters.prepare();
+      hostCallsAfterUnstableSource += 1;
+      return 0;
+    },
+  }), (error) => error?.code === "local_install_source_unstable");
+  assert.equal(hostCallsAfterUnstableSource, 0, "unstable source must fail before a host call");
+  assert.equal(existsSync(unstableOrchestrationSnapshotRoot), false, "orchestration failure must clean its snapshot");
 
   const openCodeDataRoot = join(fixtureRoot, "opencode orchestration data");
   const openCodeCode = await installLocalPlugin("opencode", {

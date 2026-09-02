@@ -1,12 +1,28 @@
 # Code Review: Copilot-Specific AGDF Payload
 
+Status: done
+Decision: pass
+Revision: 4
+Date: 2026-09-02
+
+## Code Review
+
 - decision: pass
-- revision: 3
-- date: 2026-08-30
-- findings: none open
-- reviewed_scope: Copilot profile builder and inventory; runtime/provenance profile detection; isolated marketplace creation; legacy registration migration and recovery; same-version cache refresh; public and local installer routing; package, conformance, lifecycle and documentation changes.
-- resolved_findings: Real-host verification exposed two implementation defects before review completion: the prior AGDF-owned shared registration was initially classified as foreign, and the isolated Marketplace used the wrong descriptor location. Both were corrected with exact ownership validation, rollback tests and GitHub's documented `.github/plugin/marketplace.json` layout. Installed-root evidence was also separated from host-loaded-session evidence.
-- evidence: Actual diff and adjacent-owner inspection; negative payload and provenance fixtures; migration failure recovery; two installation orderings; full smoke; package contents; Runtime Integrity; Pages tests; direct `agdf@agdf` 0.14.1 read-back; installed local-validator result; `git diff --check`.
-- missing_evidence: A restarted Copilot app session was not observed after the final refresh. This limits loaded-session claims but is not a code defect.
-- risks: Future Copilot CLI manifest or output changes may require adapter maintenance. Parsing and ownership checks fail closed on unknown or foreign state.
-- required_next_step: run QA Gate and persist the revision 3 decision.
+- findings: none open in the launcher-fallback correction.
+- correctness: `installCopilotGlobalPlugin` now converges `ENOENT` and the observed official
+  missing-binary launcher output on the existing pinned npm executor. The executor remains active for
+  every subsequent marketplace, install and verification command in that lifecycle call.
+- failure_isolation: only an anchored `Cannot find GitHub Copilot CLI` prefix is classified as
+  unavailable. Authentication, policy, malformed output and plugin-operation failures retain their
+  prior phases and rollback behavior.
+- compatibility: the command, package pin, consent flow, marketplace identity, result shape and
+  manual handoff remain unchanged. Evidence distinguishes missing executable from unavailable
+  launcher.
+- maintainability: the classification is centralized beside `commandErrorText`; the regression uses
+  the exact observed host message and verifies successful pinned-fallback completion.
+- missing_evidence: current real installation and fresh-session behavior remain unverified after the
+  correction.
+- risks: if GitHub changes the official launcher text, the adapter will fail closed as verification
+  rather than silently broadening fallback classification.
+- required_next_step: QA consumes Task Plan Review Revision 4, Clean Review Revision 4, this pass and
+  the open evidence finding CPI-TPR4-01.

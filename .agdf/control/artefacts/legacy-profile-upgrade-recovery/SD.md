@@ -2,10 +2,10 @@
 
 Status: approved
 Gate: SD
-Gate approval: exact `Approval: SD` accepted on 2026-09-01 after same-run, SD-gate, durable
-Revision 3 and run revision_id `D3AE6C92-6AF1-4DE8-9D0B-6FBFDF3A2957` revalidation
-Revision: 3
-Date: 2026-09-01
+Gate approval: exact `Approval: SD` accepted on 2026-09-02 after same-run, SD-gate, durable
+Revision 5 and run revision_id `0BF255D2-4F89-4C2C-B179-88A13E4A32E0` revalidation
+Revision: 5
+Date: 2026-09-02
 Run: `legacy-profile-upgrade-recovery`
 Based on: approved PRD Revision 4
 
@@ -33,6 +33,19 @@ reviewed compatibility metadata; there is no automatic pruning.
 
 The bounded Claude Windows cache recovery and restart-plus-fresh-session lifecycle behavior from
 Revision 1 remain unchanged.
+
+Revision 4 replaces the manual current-release snapshot step with one internal, transactional
+version-bump owner. It updates every canonical version surface and the exact current catalogue entry
+as one validated change. Existing historical entries remain immutable. An unchanged semantic profile
+contract is reused automatically; a changed contract fails before mutation and requires an explicit
+reviewed contract-digest acceptance on a subsequent invocation.
+
+Revision 5 closes the local-install source-identity race exposed by the aggregate smoke run. Local
+installation takes one validated immutable build snapshot, derives every surface identity from that
+snapshot exactly once and stages only those same bytes. The strict Codex
+`<canonical>+codex.local-<digest>` identity remains unchanged; arbitrary local versions are not
+accepted. A source tree that changes while the snapshot is captured fails with a precise unstable-
+source result instead of being misreported as an invalid local release version.
 
 ## 2. Canonical Catalogue
 
@@ -96,8 +109,11 @@ the tag/version mismatch without aliasing or inferring compatibility.
 | Current profile validation | `create-agdf/lib/runtime/plugin-provenance.js` | Preserve `validateDistributionProfiles()` unchanged |
 | Migration classification | `plugin-provenance.js` | Ask the validated catalogue only for an otherwise non-current existing root |
 | Release continuity | new `create-agdf/lib/release/profile-history.js` plus existing release coherence test | Verify source, generated copies, exact tags and append-only support |
+| Version bump transaction | new focused release module and repository-only script, exposed through one `release:bump` package script | Plan, validate and atomically update version surfaces plus the exact current catalogue snapshot |
 | Package projection | existing canonical build/sync owners | Copy catalogue as ordinary canonical plugin metadata |
 | Marketplace rebuild | `local-marketplace.js` | Reuse current provenance checks and unchanged atomic transaction |
+| Local build snapshot and surface identity | `local-marketplace.js` | Capture and validate one immutable source snapshot, derive the source digest and surface versions once, and feed the existing marketplace transaction from those exact bytes |
+| Local install orchestration | `scripts/install-local-plugin.js` | Select the surface/profile and delegate identity derivation to the snapshot owner; never precompute a second source digest |
 | Host sequencing/recovery | `plugin-installers.js` and `claude-cache-recovery.js` | No catalogue policy; retain bounded retry and rollback |
 | Lifecycle guidance | `lifecycle/result.js` | No change from Revision 1 |
 
@@ -178,10 +194,30 @@ run them.
 
 Future release procedure:
 
-1. Before changing version/profile semantics, retain all existing records unchanged.
-2. Add the new exact release record and reuse or add its semantic contract.
-3. Run canonical generation and release continuity verification.
-4. Publish only after the package, tag and append-only matrices pass.
+1. Run the single repository-only bump command with the exact target version.
+2. The command reads the canonical current `distributionProfiles`, reuses an identical existing
+   contract and computes the new release-entry digest automatically.
+3. If no identical contract exists, the first invocation makes no writes and returns
+   `profile_history_contract_review_required` with the proposed exact digest. A second deliberate
+   invocation must carry that exact digest before a new contract and release entry are written.
+4. The command plans every version and catalogue edit in memory, validates the complete target state,
+   then commits the files atomically; any validation/write failure restores the original bytes.
+5. Canonical generation and release preparation run after the transaction. Publication remains a
+   separate explicit action.
+
+### 5.1 Pre-Tag And Tag Evidence
+
+- The current source version is authoritative before its tag exists. Its catalogue entry must exactly
+  match the current source definition and does not require a tag during branch/PR preparation.
+- Every non-current supported release record requires its exact `agdf-v<version>` tag.
+- If the current tag is present, it must also match exactly.
+- A tag-triggered publication validates the current tag because checkout includes it and the workflow
+  already verifies that the tag name equals the current package version.
+- Advancing to the next version turns the former current record into historical evidence; its tag must
+  then exist or the next release preparation fails closed.
+
+This removes the impossible ordering in which a pre-tag bump would require its own not-yet-created tag
+while preserving exact tag evidence before any later release can proceed.
 
 This makes compatibility evidence proactive. A later schema change consumes already packaged
 predecessor records instead of reconstructing them after an incident.
@@ -202,6 +238,30 @@ The existing marketplace flow remains:
 Catalogue match is necessary but not sufficient. It does not relax ownership, marketplace identity,
 profile identity, provenance schema, source digest, runtime digest, plugin digest or manifest checks.
 
+### 6.1 Immutable Local Build Snapshot
+
+Local-checkout installation adds a preparation step before the existing marketplace transaction:
+
+1. Validate the canonical generated plugin metadata and canonical version at the requested source
+   root.
+2. Capture the plugin tree in an AGDF-owned temporary snapshot outside the stable marketplace root.
+3. Compute normalized source digests before and after capture and compute the snapshot digest. All
+   three values must match. A mismatch returns `local_install_source_unstable`, cleans only the owned
+   snapshot and performs no marketplace or host mutation.
+4. Build one immutable descriptor containing canonical version, profile ID, snapshot root, source
+   digest and per-surface version identity. Codex derives
+   `<canonical>+codex.local-<first-12-digest>`; Claude and Copilot retain the canonical version.
+5. Pass that descriptor to the existing marketplace transaction. The transaction copies only the
+   snapshot bytes, writes manifests and provenance from the descriptor, and validates the completed
+   stage against the same descriptor before any stable-root swap.
+6. Remove the owned snapshot after commit or rollback. A caller cannot supply an arbitrary derived
+   Codex version on the normal local-install path.
+
+The descriptor is an internal value object, not a new persisted source of truth or marker schema.
+Public install commands, canonical release versions, marketplace layout, ownership markers,
+provenance fields and host activation behavior remain unchanged. The existing transaction retains
+sole authority for stable/backup replacement and recovery.
+
 Claude recovery remains Windows-only, source-operand-ordered, exact-namespace and one-retry maximum.
 Lifecycle output remains one action requiring full application restart and a fresh session while
 warning that restoration can retain stale skills.
@@ -217,7 +277,11 @@ warning that restoration can retain stale skills.
 | Current release snapshot missing or different | `profile_history_current_release_mismatch` |
 | Backfilled tag differs | `profile_history_tag_mismatch` |
 | Previously supported entry removed/changed | `profile_history_continuity_break` |
+| New semantic contract lacks exact deliberate digest acceptance | `profile_history_contract_review_required` |
+| Version/catalogue target plan is incomplete or inconsistent | `release_version_bump_invalid` |
+| Transactional write fails | `release_version_bump_write_failed`; restore original bytes |
 | Ownership/provenance/digest mismatch | existing precise failure; no historical exception |
+| Generated source changes during local snapshot capture | `local_install_source_unstable`; no marketplace or host mutation |
 
 Catalogue validation failure blocks historical migration but must not make a current healthy
 installation invalid. Release preparation always blocks on the same defect.
@@ -253,6 +317,16 @@ Required deterministic matrices:
     silent deletion.
 11. Existing Claude cache, rollback and lifecycle suites remain green.
 12. Full release preparation, package smoke, Runtime Integrity and control validation.
+13. Version bump with an unchanged contract appends the exact current record and updates all version
+    surfaces atomically.
+14. Changed-contract first invocation performs zero writes and returns the exact review digest;
+    wrong/stale digest rejects, exact deliberate digest permits one new contract.
+15. Pre-tag current validation passes without its tag; tag publication validates the present current
+    tag; the next bump requires the prior release tag.
+16. Injected write failure restores every original file byte-for-byte.
+17. Local-install orchestration performs no caller-side digest derivation; one stable snapshot yields
+    one exact Codex local identity, while an injected mid-capture source change fails before the
+    marketplace transaction and host calls.
 
 Tag fixtures use repository objects read-only. Installer tests use temporary roots and injected
 executors only; no real host/cache mutation is part of implementation verification.
@@ -266,6 +340,15 @@ The later TP may change:
 - existing provenance, marketplace and canonical generation/release-coherence owners;
 - directly corresponding tests and generated projections;
 - documentation of the release compatibility lifecycle;
+- a new focused internal version-bump module/script and package-script entry;
+- the existing version-coherence surface inventory, refactored only as needed so reading and writing
+  use one canonical target list;
+- existing canonical version surfaces already covered by release coherence;
+- `create-agdf/lib/installers/local-marketplace.js` for the internal immutable-snapshot descriptor,
+  single digest derivation and pre-transaction unstable-source rejection;
+- `create-agdf/scripts/install-local-plugin.js` to delegate local identity derivation to that owner;
+- `create-agdf/scripts/local-development-install-test.js` and directly corresponding marketplace
+  tests for stable-snapshot, source-change and no-host-mutation regression evidence;
 - existing Revision 1 implementation only where needed to consume the catalogue; and
 - this run's control artefacts and Context Graph.
 
@@ -286,12 +369,21 @@ release publication or real host mutation.
   forgotten; every release must snapshot proactively.
 - **Automatically retain the last N releases:** silently narrows public compatibility and conflates age
   with safety.
+- **Keep version bumps manual and rely on CI:** repeats the observed omission; CI detects drift only
+  after an invalid multi-file version commit already exists.
+- **Always create new contracts automatically:** silently creates a compatibility promise when profile
+  semantics change; changed contracts require exact digest review.
+- **Require the current tag before preparing the current release:** creates a circular pre-tag
+  dependency and encourages bypasses.
+- **Accept any syntactically valid local build metadata:** disconnects the installed identity from
+  the exact source bytes and weakens provenance.
+- **Compute the digest in both orchestrator and marketplace preparation:** preserves the observed
+  time-of-check/time-of-use race and turns a changing build source into a misleading version error.
+- **Serialize all surfaces behind one universal version string:** ignores host-specific identity
+  needs; the shared snapshot is generic, while surface version strategies remain explicit.
 
 ## 12. Next Step
 
-Review Solution Design Revision 3. Approve only with:
-
-`Approval: SD`
-
-Approval permits drafting Task and Test Plan Revision 4 only. It does not authorize catalogue
-implementation, real installation/cache mutation, QA, UAT, release or VCS actions.
+Draft and review Task and Test Plan Revision 9. Implementation remains forbidden until exact
+`Approval: TP` is accepted for that durable revision and the required pre-implementation Brownfield
+Analysis passes.

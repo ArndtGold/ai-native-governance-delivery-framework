@@ -45,6 +45,7 @@ export function parseArgs(argv, dependencies = {}) {
   let allActive = false;
   let scope;
   let confirm = false;
+  let shared = false;
   let runtimeChecksDecision;
   let runtimeChecksAction;
 
@@ -61,6 +62,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--generate-candidates") { generateCandidates = true; continue; }
     if (arg === "--all-active") { allActive = true; continue; }
     if (arg === "--confirm") { confirm = true; continue; }
+    if (arg === "--shared") { shared = true; continue; }
 
     if (arg === "--runtime-checks") {
       const next = requiredValue(args, i, arg);
@@ -162,6 +164,7 @@ export function parseArgs(argv, dependencies = {}) {
       allActive,
       scope,
       confirm,
+      shared,
       runtimeChecksDecision,
       runtimeChecksAction: runtimeChecksAction ?? "status",
       generatorModel,

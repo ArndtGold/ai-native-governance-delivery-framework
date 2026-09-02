@@ -4,6 +4,22 @@ Date: 2026-08-30
 Run: `agdf-copilot-plugin-integration`
 Package version: `0.14.1`
 
+## 2026-09-02 Launcher Fallback Revision
+
+| Observation | Result | Boundary |
+|---|---|---|
+| Real local install | `npm run install:copilot` failed during initial verification because a present launcher returned `Cannot find GitHub Copilot CLI`; no successful installation or loaded-session claim follows. | Direct negative macOS UAT. |
+| Isolated official fallback | `npm exec --yes --package=@github/copilot@1.0.80 -- copilot --version` returned `GitHub Copilot CLI 1.0.80`. | Proves the pinned fallback is executable, not that AGDF installation completed. |
+| Implementation correction | The unavailable classifier now accepts both process `ENOENT` and the exact official missing-binary launcher prefix, then routes both through the same pinned fallback. | Repository implementation and injected host evidence only. |
+| Focused verification | Local development install, lifecycle, Copilot profile, marketplace, CLI modularization, release preparation and `git diff --check` pass. | Deterministic evidence; real installation must be repeated deliberately. |
+| Corrected real install | User confirmed the repeated install succeeds; independent official CLI read-back reports `agdf@agdf (v0.14.4)`. | Direct installed-state evidence, not fresh-session loading. |
+| Installed-root validation | Installed validator reports `owned_version_matched`, profile `copilot-runtime-plugin`, version 0.14.4 and matched provenance; ten prefixed skill directories are present. | Direct filesystem/runtime evidence from the installed root. |
+
+The failed real run supersedes the earlier assumption that every non-`ENOENT` launcher result is a
+normal verification failure. It does not invalidate the prior 0.14.1 installed-root evidence, but it
+reopened current 0.14.4 installation and fresh-session evidence. The corrected rerun closes the
+installation/read-back gap; fresh-session evidence remains open.
+
 ## Copilot-Specific Profile Refresh
 
 | Observation | Result | Boundary |

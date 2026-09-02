@@ -1,40 +1,49 @@
 # QA Report: Copilot-Specific AGDF Payload
 
-Status: pending_approval
-Decision: pass
-Revision: 3
-Date: 2026-08-30
-Gate approval: not yet granted for revision 3
+Status: done
+Decision: revise
+Revision: 6
+Date: 2026-09-02
+Run: `agdf-copilot-plugin-integration`
+Based on: approved TP Revision 3, negative macOS UAT, focused correction evidence and mandatory
+reviews Revision 4
 
 ## Quality Readiness
 
 | Dimension | Status | Decisive evidence |
 |---|---|---|
-| Plan coverage | pass | Task Plan Review revision 3 records 13/13 tasks fully done. |
-| Solution integrity | pass | Clean Implementation Review revision 3 confirms one canonical source, one generated Copilot projection and bounded legacy recovery. |
-| Code quality | pass | Code Review revision 3 has no open findings after real-host defects were corrected and retested. |
-| QA decision | pass | `qa-gate` finds the approved TP fulfilled with strong deterministic, installed-root and bounded host evidence. |
+| Plan coverage | revise | 12/13 tasks fully done; only CPI3-T11 remains partial for the combined aggregate baseline |
+| Solution integrity | pass | both unavailable CLI variants converge on one existing pinned fallback without a new lifecycle path |
+| Code quality | pass | Code Review Revision 4 has no open correctness, failure-isolation, compatibility or maintainability finding |
+| QA decision | revise | `qa-gate` cannot pass while CPI-TPR4-01 remains open |
+
+Sole decision owner: `qa-gate`.
 
 ## QA Gate
 
-- decision: pass
-- evidence: Approved TP revision 3; Brownfield Analysis pass; 13/13 TP tasks; Clean and Code Review pass; deterministic inventory digest; exact baseline of 78 files and 539607 bytes; full smoke; package inventory; Runtime Integrity; 66/66 skill evals; Pages checks; GitHub-conformant local Marketplace; installed `agdf@agdf` 0.14.1; installed-root provenance matched; unchanged shared-root digest; `git diff --check`.
-- missing_evidence: Fresh restarted Copilot app behavior and native Linux/Windows lifecycle remain unverified. These are explicit UAT/support boundaries and no loaded-session or platform-parity claim is made.
-- risks: Copilot CLI and app plugin contracts may drift. The adapter fails closed on foreign Marketplace state, invalid inventory, provenance mismatch and unsupported output.
-- required_next_step: obtain exact `Approval: QA` for revision 3, then request bounded UAT with a fresh Copilot session where available.
-- impact_codes: none
+- decision: revise
+- evidence: the exact observed missing-binary launcher result now uses the same pinned official npm
+  fallback as `ENOENT`; unrelated errors remain fail-closed. Release preparation, local development
+  installation, lifecycle, Copilot profile, marketplace, CLI modularization and diff validation pass.
+  The corrected real install succeeds; official CLI read-back reports `agdf@agdf` 0.14.4 and the
+  installed validator reports matched provenance with ten skills.
+- missing_evidence: complete combined-worktree smoke after its separately owned runtime-packaging
+  baseline is repaired. Fresh-session behavior remains a later UAT boundary.
+- risks: current installation and installed-root behavior are directly proven, but QA readiness would
+  overstate aggregate repository evidence while CPI3-T11 remains partial.
+- required_next_step: repair the foreign aggregate baseline, rerun complete smoke and refresh QA.
+- impact_codes: `qa_revise_required`, `evidence_gap`
 
-## Context Graph Impact
+## Normalized Findings Consumed
 
-- context_graph_impact: `update_existing_node`
-- context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`
-- context_graph_reconciliation: `resolved`
-- context_graph_required_action: `none`
-- context_graph_gate_effect: `none`
-- context_graph_evidence: The node now records the isolated Copilot payload, semantic inventory, dedicated Marketplace root, real 0.14.1 installation and separate installed-root versus loaded-session evidence.
+| finding_id | gap_type | routing_target | gap_status | QA disposition |
+|---|---|---|---|---|
+| CPI-QA4-01 | implementation_gap | CD+Tests | resolved | anchored launcher-unavailable classifier and exact regression test are present and green |
+| CPI-TPR4-01 | evidence_gap | evidence_obligation | open | corrected real installation is resolved; complete aggregate evidence still prevents QA pass |
 
-## Approval Boundary
+## Evidence Boundaries
 
-The technical QA decision is `pass`, but revision 3 is not QA-approved until the exact user value
-`Approval: QA` is accepted after same-run, same-gate and revision revalidation. QA does not grant
-UAT, publication, release or automatic VCS authority.
+- Previous QA approval remains historical evidence for Revision 3 only.
+- No QA or UAT approval is requested while CPI-TPR4-01 is open.
+- Corrected installation and installed-root evidence do not prove fresh-session loading.
+- No publication, release, commit or push was performed.

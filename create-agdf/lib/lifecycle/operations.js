@@ -2,6 +2,11 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pluginDefinition } from "../cli/runtime-context.js";
+import {
+  applyCopilotRepositoryDisable,
+  planCopilotRepositoryDisable,
+  verifyCopilotRepositoryDisabled,
+} from "../installers/copilot-settings.js";
 import { evaluateOpenCodeStatus, openCodeNpmInvocation } from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
 import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
@@ -19,8 +24,22 @@ function repositorySelector(targetDir, config = "") {
   return pluginSection(config, "agdf@agdf-repo") ? "agdf@agdf-repo" : "agdf@agdf";
 }
 
-export function planRepositoryDisable(targetDir, surface) {
-  if (surface !== "codex") {
+export function planRepositoryDisable(targetDir, surface, { shared = false, exec = execFileSync } = {}) {
+  if (surface === "copilot") {
+    const settings = planCopilotRepositoryDisable({ targetDir, shared, exec });
+    return Object.freeze({
+      operation: "disable",
+      surface,
+      scope: "repository",
+      audience: settings.audience,
+      mutations: Object.freeze(settings.changed
+        ? [{ kind: "copilot_settings", path: settings.path, settings }]
+        : []),
+      retained: Object.freeze([join(targetDir, ".agdf", "control"), "global AGDF plugin availability", "independent repository instructions"]),
+      expected: Object.freeze({ repository_status: "configured_disabled", activation_status: "pending_restart", settings_path: settings.path }),
+    });
+  }
+  if (surface !== "codex" || shared) {
     throw new Error(`Repository disable is not supported safely for ${surface}; no files were changed.`);
   }
   const path = join(targetDir, ".codex", "config.toml");
@@ -49,7 +68,9 @@ export function planRepositoryDisable(targetDir, surface) {
   });
 }
 
-export function verifyRepositoryDisabled(targetDir) {
+export function verifyRepositoryDisabled(targetDir, surface = "codex", { shared = false } = {}) {
+  if (surface === "copilot") return verifyCopilotRepositoryDisabled(targetDir, { shared });
+  if (surface !== "codex") return { status: "failed", evidence: [`unsupported_surface:${surface}`] };
   const path = join(targetDir, ".codex", "config.toml");
   if (!existsSync(path)) return { status: "failed", evidence: [`missing:${path}`] };
   const config = readFileSync(path, "utf8");
@@ -165,7 +186,7 @@ function nativeUninstallPlan(surface, executable, args) {
   });
 }
 
-export function applyLifecyclePlan(plan, { exec = execFileSync } = {}) {
+export function applyLifecyclePlan(plan, { exec = execFileSync, applyCopilotSettings = applyCopilotRepositoryDisable } = {}) {
   const completed = [];
   for (const mutation of plan.mutations) {
     try {
@@ -173,6 +194,9 @@ export function applyLifecyclePlan(plan, { exec = execFileSync } = {}) {
         mkdirSync(dirname(mutation.path), { recursive: true });
         writeFileSync(mutation.path, mutation.content, "utf8");
         completed.push({ kind: "write", path: mutation.path });
+      } else if (mutation.kind === "copilot_settings") {
+        const result = applyCopilotSettings(mutation.settings);
+        completed.push({ kind: "copilot_settings", path: mutation.path, status: result.status });
       } else if (mutation.kind === "remove") {
         rmSync(mutation.path);
         completed.push({ kind: "remove", path: mutation.path });

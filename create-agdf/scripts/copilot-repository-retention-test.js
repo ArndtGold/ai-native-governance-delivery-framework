@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -7,6 +8,8 @@ import { runCli } from "../lib/cli/application.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
 
 const root = mkdtempSync(join(tmpdir(), "agdf-copilot-retention-"));
+execFileSync("git", ["init", "-q"], { cwd: root });
+writeFileSync(join(root, ".gitignore"), ".github/copilot/settings.local.json\n", "utf8");
 const paths = [
   "AGENTS.md",
   "AGENTS.agdf.md",
@@ -70,8 +73,27 @@ try {
   });
   assertRetained("status");
 
+  assert.equal(await runCli(["disable", "--surface", "copilot", "--scope", "repository", "--dir", root, "--json"], { io, env }), 0);
+  assert.equal(JSON.parse(readFileSync(join(root, ".github", "copilot", "settings.local.json"), "utf8")).enabledPlugins["agdf@agdf"], false);
+  assertRetained("personal Copilot repository disable");
+  output.length = 0;
+
+  execFileSync("git", ["add", "-f", ".github/copilot/settings.local.json"], { cwd: root });
   assert.equal(await runCli(["disable", "--surface", "copilot", "--scope", "repository", "--dir", root, "--json"], { io, env }), 1);
-  assertRetained("unsupported Copilot repository disable");
+  const trackedLocalReport = JSON.parse(output.at(-1));
+  assert.equal(trackedLocalReport.failure.phase, "repository_preflight");
+  assert.match(trackedLocalReport.failure.message, /LOCAL_SETTINGS_NOT_IGNORED/);
+  assertRetained("tracked personal Copilot settings rejection");
+  output.length = 0;
+
+  assert.equal(await runCli(["disable", "--surface", "copilot", "--scope", "repository", "--shared", "--dir", root, "--json"], { io, env }), 0);
+  assert.equal(JSON.parse(readFileSync(join(root, ".github", "copilot", "settings.json"), "utf8")).enabledPlugins["agdf@agdf"], false);
+  const sharedReport = JSON.parse(output.at(-1));
+  assert.equal(sharedReport.activation.status, "pending_restart");
+  assert.match(sharedReport.next_action.text, /\/plugin list/);
+  assert.ok(sharedReport.retained.includes("independent repository instructions"));
+  assertRetained("shared Copilot repository disable");
+  output.length = 0;
 
   assert.equal(await runCli(["uninstall", "--surface", "copilot", "--scope", "global", "--confirm", "--dir", root, "--json"], {
     io,

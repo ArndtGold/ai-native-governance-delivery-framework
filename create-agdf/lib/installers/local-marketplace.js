@@ -2,11 +2,12 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from "node:path";
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
@@ -65,6 +66,59 @@ export function isCodexLocalInstallVersion(version, candidate, sourceDigest = ""
   if (sourceDigest) return candidate === codexLocalInstallVersion(version, sourceDigest);
   const escaped = semverBase(version).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`^${escaped}\\+codex\\.local-[a-f0-9]{12}$`).test(candidate);
+}
+
+function localInstallSourceUnstable(detail) {
+  const error = new Error(`AGDF local plugin source changed during snapshot capture: ${detail}`);
+  error.code = "local_install_source_unstable";
+  return error;
+}
+
+export function captureLocalPluginSnapshot({
+  builtPluginRoot,
+  expectedVersion = pluginDefinition.version,
+  profileId = "runtime-plugin",
+  adapters = {},
+} = {}) {
+  if (!builtPluginRoot) throw new Error("AGDF local plugin source root is required.");
+  const sourceRoot = resolve(builtPluginRoot);
+  const digest = adapters.digest ?? digestPluginSource;
+  const createRoot = adapters.createRoot ?? (() => mkdtempSync(join(tmpdir(), "agdf-local-plugin-")));
+  const copy = adapters.copy ?? ((source, target) => cpSync(source, target, { recursive: true }));
+  const remove = adapters.remove ?? ((root) => rmSync(root, { recursive: true, force: true }));
+  const beforeDigest = digest(sourceRoot, expectedVersion);
+  let snapshotRoot = null;
+  try {
+    snapshotRoot = resolve(createRoot());
+    const pluginRoot = join(snapshotRoot, "agdf");
+    copy(sourceRoot, pluginRoot);
+    const snapshotDigest = digest(pluginRoot, expectedVersion);
+    const afterDigest = digest(sourceRoot, expectedVersion);
+    if (beforeDigest !== snapshotDigest || snapshotDigest !== afterDigest) {
+      throw localInstallSourceUnstable(
+        `before=${beforeDigest}, snapshot=${snapshotDigest}, after=${afterDigest}`,
+      );
+    }
+    const copilotProfile = profileId === "copilot-runtime-plugin";
+    return Object.freeze({
+      canonicalVersion: expectedVersion,
+      profileId,
+      pluginRoot,
+      sourceDigest: snapshotDigest,
+      codexInstallVersion: copilotProfile
+        ? expectedVersion
+        : codexLocalInstallVersion(expectedVersion, snapshotDigest),
+      cleanup() {
+        if (!snapshotRoot) return;
+        const ownedRoot = snapshotRoot;
+        remove(ownedRoot);
+        snapshotRoot = null;
+      },
+    });
+  } catch (error) {
+    if (snapshotRoot) remove(snapshotRoot);
+    throw error;
+  }
 }
 
 function readJson(path, label) {
@@ -379,13 +433,15 @@ function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failed
   if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
 }
 
-export function prepareLocalMarketplace({
+function prepareLocalMarketplaceFromSource({
   dataRoot = defaultAgdfDataRoot(),
   builtPluginRoot,
   expectedVersion = pluginDefinition.version,
   codexInstallVersion = expectedVersion,
   codexRegistrationRevision = null,
   profileId = "runtime-plugin",
+  knownSourceDigest = "",
+  sourceStaged = () => {},
 } = {}) {
   dataRoot = resolve(dataRoot);
   const copilotProfile = profileId === "copilot-runtime-plugin";
@@ -399,7 +455,7 @@ export function prepareLocalMarketplace({
   const backupRoot = `${stableRoot}.backup`;
   const failedRoot = `${stableRoot}.failed`;
   if (!pathInside(dataRoot, stableRoot) || dirname(stableRoot) !== parent) throw new Error(`Unsafe AGDF marketplace root: ${stableRoot}`);
-  const sourceDigest = digestPluginSource(builtPluginRoot, expectedVersion);
+  const sourceDigest = knownSourceDigest || digestPluginSource(builtPluginRoot, expectedVersion);
   if (!copilotProfile && codexInstallVersion !== expectedVersion
       && !isCodexLocalInstallVersion(expectedVersion, codexInstallVersion, sourceDigest)) {
     throw new Error(`Invalid AGDF Codex local install version: ${codexInstallVersion}`);
@@ -454,6 +510,7 @@ export function prepareLocalMarketplace({
     });
     const stagedPluginRoot = join(stageRoot, "plugins", MARKETPLACE_ID);
     cpSync(builtPluginRoot, stagedPluginRoot, { recursive: true });
+    sourceStaged();
     validateBuiltPlugin(stagedPluginRoot, expectedVersion, expectedVersion, "", { profileId });
     if (!copilotProfile && codexInstallVersion !== expectedVersion) {
       const codexManifestPath = join(stagedPluginRoot, ".codex-plugin", "plugin.json");
@@ -562,8 +619,42 @@ export function prepareLocalMarketplace({
   }
 }
 
+export function prepareLocalMarketplace(options = {}) {
+  if (!options.snapshotSource) return prepareLocalMarketplaceFromSource(options);
+  if (Object.hasOwn(options, "codexInstallVersion")) {
+    throw new Error("AGDF snapshot preparation owns the Codex local install version.");
+  }
+  const snapshot = captureLocalPluginSnapshot({
+    builtPluginRoot: options.builtPluginRoot,
+    expectedVersion: options.expectedVersion,
+    profileId: options.profileId,
+    adapters: options.snapshotAdapters,
+  });
+  try {
+    const { snapshotSource: _snapshotSource, snapshotAdapters: _snapshotAdapters, ...stableOptions } = options;
+    return prepareLocalMarketplaceFromSource({
+      ...stableOptions,
+      builtPluginRoot: snapshot.pluginRoot,
+      expectedVersion: snapshot.canonicalVersion,
+      profileId: snapshot.profileId,
+      codexInstallVersion: snapshot.codexInstallVersion,
+      knownSourceDigest: snapshot.sourceDigest,
+      sourceStaged: snapshot.cleanup,
+    });
+  } finally {
+    snapshot.cleanup();
+  }
+}
+
 export function prepareCopilotMarketplace(options = {}) {
-  return prepareLocalMarketplace({ ...options, profileId: "copilot-runtime-plugin", codexInstallVersion: options.expectedVersion ?? pluginDefinition.version });
+  const { codexInstallVersion, ...copilotOptions } = options;
+  return prepareLocalMarketplace({
+    ...copilotOptions,
+    profileId: "copilot-runtime-plugin",
+    ...(!options.snapshotSource
+      ? { codexInstallVersion: codexInstallVersion ?? options.expectedVersion ?? pluginDefinition.version }
+      : {}),
+  });
 }
 
 export function inspectLocalMarketplaceProjection({

@@ -24,8 +24,23 @@ From the repository root, run:
 npm run set-version -- <version>
 ```
 
-The script updates the coupled package, plugin, site and OpenAI submission-source versions. It also
-checks that `create-agdf@<version>` and `@agdf/cli@<version>` are not already published.
+The script checks that `create-agdf@<version>` and `@agdf/cli@<version>` are not already published,
+then updates the coupled package, plugin, site and OpenAI submission-source versions together with the
+exact `plugin/meta/distribution-profile-history.json` release record. Do not edit these release
+surfaces individually.
+
+When the complete `distributionProfiles` contract is unchanged, the command reuses its existing
+contract automatically. When it changed, the command performs no writes and reports
+`profile_history_contract_review_required` with the proposed SHA-256 digest. Review the complete
+contract, then deliberately rerun with that exact digest:
+
+```bash
+npm run set-version -- <version> --accept-profile-contract-digest <sha256>
+```
+
+The command stages and validates every target before replacement and maintains an owned recovery
+journal plus exact backups while replacing files. If an earlier invocation was interrupted, the next
+invocation restores or completes only that declared transaction and asks you to rerun the command.
 
 Run the validation printed by the script before tagging:
 
@@ -36,13 +51,11 @@ node plugin/scripts/check-runtime-integrity.mjs
 npm --prefix pages run build
 ```
 
-Before preparing or tagging every release, append its exact version to
-`plugin/meta/distribution-profile-history.json`. Reuse an existing contract only when the complete
-`distributionProfiles` object is identical; otherwise add a new contract. Recompute both digests,
-retain every previously supported record unchanged and run `release:prepare` to verify the source,
-generated package copies and exact local release-tag lineage. Never infer a record from an
-incoherent tag (notably `agdf-v0.14.0`), delete a record as implicit deprecation or use a range.
-Retirement requires a separately reviewed compatibility design.
+`release:prepare` verifies the automatic snapshot, generated package copies and exact local
+release-tag lineage. The exact current source version may be validated before its tag exists. Every
+historical supported release still requires its immutable exact tag, and a present current tag must
+also match. Never infer a record from an incoherent tag (notably `agdf-v0.14.0`), delete a record as
+implicit deprecation or use a range. Retirement requires a separately reviewed compatibility design.
 
 ## Publish
 

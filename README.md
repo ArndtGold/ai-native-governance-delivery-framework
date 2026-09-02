@@ -31,6 +31,20 @@ npx --yes @agdf/cli@latest opencode
 ```
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
+Für GitHub Copilot ist die persönliche Deaktivierung pro Repository der sichere Standard:
+
+```bash
+npx --yes @agdf/cli@latest disable --surface copilot --scope repository
+npx --yes @agdf/cli@latest disable --surface copilot --scope repository --shared
+```
+
+Der erste Befehl schreibt nur `.github/copilot/settings.local.json`, wenn Git den Pfad bereits
+ignoriert. `--shared` schreibt bewusst die commit-fähige `.github/copilot/settings.json` und kann
+Mitarbeitende sowie unterstützte Cloud Agents betreffen. Beide Varianten deaktivieren nur das
+Plugin. `AGENTS.md` und andere Repository-Instruktionen bleiben unabhängig aktiv. Codex behält
+seinen vorhandenen Repository-Opt-out. Für Claude Code und OpenCode wird kein unbelegter lokaler
+Disable-Pfad angeboten.
+
 Beginne mit dem [Coding Agent Handbuch](docs/handbook/README.md), wähle dort Deutsch oder Englisch
 und nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine
 strukturierte Auslieferung.

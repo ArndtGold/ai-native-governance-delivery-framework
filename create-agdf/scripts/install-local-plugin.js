@@ -36,22 +36,21 @@ export async function installLocalPlugin(surface, adapters = {}) {
     import("../lib/installers/local-marketplace.js"),
     import("../lib/installers/local-development.js"),
   ]);
-  const { codexLocalInstallVersion, defaultAgdfDataRoot, digestPluginSource, prepareCopilotMarketplace, prepareLocalMarketplace } = marketplace;
+  const { defaultAgdfDataRoot, prepareCopilotMarketplace, prepareLocalMarketplace } = marketplace;
   const cli = adapters.runCli ?? runCli;
   const dataRoot = adapters.dataRoot ?? defaultAgdfDataRoot();
 
   const builtPluginRoot = surface === "copilot"
     ? join(packageRoot, "generated", "plugins", "copilot", "agdf")
     : join(packageRoot, "generated", "plugins", "agdf");
-  const sourceDigest = digestPluginSource(builtPluginRoot, pluginDefinition.version);
-  const codexInstallVersion = codexLocalInstallVersion(pluginDefinition.version, sourceDigest);
   const prepareOwner = surface === "copilot" ? prepareCopilotMarketplace : prepareLocalMarketplace;
   const prepare = (options = {}) => prepareOwner({
     ...options,
     dataRoot,
     builtPluginRoot,
     expectedVersion: pluginDefinition.version,
-    ...(surface === "copilot" ? {} : { codexInstallVersion }),
+    snapshotSource: true,
+    ...(adapters.snapshotAdapters ? { snapshotAdapters: adapters.snapshotAdapters } : {}),
   });
   const env = { ...process.env, AGDF_DATA_DIR: dataRoot };
 

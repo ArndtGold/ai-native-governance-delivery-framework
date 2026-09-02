@@ -5,12 +5,12 @@
 - control_state_version: 2
 - run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 21
-- revision_id: 5CBA1BA2-5CA1-41AC-BE24-80DD28320156
+- revision: 24
+- revision_id: 29438DF8-07E4-4E17-A3DE-45D98A6DEF63
 - started_at: 2026-08-28
 - mode: `structured_delivery`
-- current_gate: `UAT`
-- decision: `open`
+- current_gate: `QA`
+- decision: `revise`
 - owner: Arndt Gold
 
 ## Objective
@@ -22,11 +22,11 @@ repository-owned governance, exact approval authority and honest host-evidence b
 
 | Question | Answer |
 |---|---|
-| What is known? | The isolated Copilot profile, semantic inventory, Marketplace migration and host installation are implemented. All 13 TP tasks and mandatory reviews pass. |
+| What is known? | The corrected real install succeeds. Official CLI read-back reports `agdf@agdf` 0.14.4; the installed validator reports `owned_version_matched`, profile `copilot-runtime-plugin`, matched provenance and ten prefixed skills. |
 | What is approved? | UR revision 2 plus PRD, SD, TP and QA revision 3 are approved. |
-| What is missing? | Fresh-session Copilot evidence and exact `Approval: UAT`. |
-| What is the next allowed action? | Prepare bounded fresh-session UAT evidence, then request exact UAT approval. |
-| What is explicitly forbidden right now? | Publication, release, automatic VCS actions and unevidenced loaded-session or cross-platform claims. |
+| What is missing? | Complete combined-worktree smoke after separately owned runtime-packaging baseline repair. Fresh-session evidence remains the later UAT boundary. |
+| What is the next allowed action? | Repair the foreign aggregate baseline, rerun complete smoke and refresh QA. |
+| What is explicitly forbidden right now? | UAT approval request, publication, release, automatic VCS actions and unevidenced loaded-session or cross-platform claims. |
 
 ## Source And Scope State
 
@@ -43,12 +43,12 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | Awaiting UAT |
-| Current gate | UAT |
-| Allowed now | Prepare bounded fresh-session UAT evidence and request exact UAT approval. |
-| Blocked by | Exact UAT approval not yet granted. |
-| Missing approval | `Approval: UAT` |
-| Next step | Install the current Copilot payload, restart into a fresh session and capture bounded UAT evidence. |
+| Status | QA revise after negative UAT |
+| Current gate | QA |
+| Allowed now | Repair and retest the approved Copilot CLI fallback behavior. |
+| Blocked by | CPI3-T11 remains partial because the combined aggregate baseline is not green. |
+| Missing approval | none during revision |
+| Next step | Reconcile the foreign runtime-packaging baseline and rerun complete smoke. |
 | Quality outlook | Preserve the distinction between installed state and fresh-session loaded behavior. |
 
 ## Approvals
@@ -61,8 +61,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | PRD | `approved` | Exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | SD | `approved` | Exact `Approval: SD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | TP | `approved` | Exact `Approval: TP` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
-| QA | `approved` | Exact `Approval: QA` accepted for durable revision 3 on 2026-09-01 after same-run, same-gate and revision revalidation. |
-| UAT | `pending` | Fresh-session evidence and exact `Approval: UAT` remain outstanding. |
+| QA | `open` | Revision 6 decides `revise`; implementation and real-install gaps are resolved, but aggregate evidence gap CPI-TPR4-01 remains open. |
+| UAT | `missing` | Real installation failed before UAT could continue; fresh-session evidence and exact approval remain unavailable. |
 
 ## Artefacts
 
@@ -76,10 +76,10 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | TP | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | `approved` | Revision 3 defines thirteen tasks, thirteen deterministic suites and five bounded host observations. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | `done` | Revision 3 passes and maps the minimal existing-owner implementation path, runtime closure and stop conditions. |
 | CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | Revision 3 separates generated, staged, installed-root and loaded-session evidence and records the real 0.14.1 install. |
-| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `done` | Revision 3 records 13/13 tasks fully done. |
-| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 3 passes with one generated profile and bounded legacy migration. |
-| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 3 has no open findings. |
-| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `pass` | Revision 3 technical decision is `pass`; exact user approval was accepted after revalidation. |
+| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `done` | Revision 5 records 12/13 tasks fully done; only combined aggregate evidence remains partial. |
+| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 4 passes the single unavailable-classifier and existing pinned fallback solution. |
+| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 4 passes with no open correctness, isolation, compatibility or maintainability finding. |
+| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `revise` | Revision 6 records successful real installation and retains only aggregate evidence finding CPI-TPR4-01. |
 
 ## Mode / Slice Decision
 
@@ -129,12 +129,15 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Code Review revision 3 | `reviews` | CD+Tests revision 3 | pass; no open findings after host-discovered defects were resolved |
 | QA Report revision 3 | `tests` | TP revision 3 | technical decision `pass` |
 | QA Report revision 3 | `approved_by` | `Approval: QA` | exact approval accepted on 2026-09-01 after same-run, same-gate and revision revalidation |
+| QA Report revision 4 | `revises` | QA Report revision 3 | negative macOS UAT reopens launcher-unavailable fallback behavior for correction and renewed evidence |
+| QA Report revision 5 | `revises` | QA Report revision 4 | implementation correction and focused reviews pass; real-host and aggregate evidence remain open |
+| QA Report revision 6 | `revises` | QA Report revision 5 | corrected real installation and installed-root validation pass; aggregate evidence remains open |
 | UX Intent Definition | `informs` | PRD | ready structured input incorporated into PRD |
 | PRD revision 1 | `derived_from` | UR revision 1 | historical and superseded for future work |
 | SD revision 1 | `derived_from` | PRD revision 1 | historical and superseded for future work |
 | TP revision 1 | `derived_from` | SD revision 1 | historical and superseded for future work |
 | Brownfield Analysis | `prepares` | TP | passed reuse and impact analysis before implementation |
-| QA_REPORT | `tests` | TP | revision 3 technical decision `pass`; exact QA approval accepted and fresh-session evidence deferred to UAT |
+| QA_REPORT | `tests` | TP | revision 6 decides revise because only CPI3-T11 still lacks complete combined aggregate evidence |
 
 ## Evidence
 
@@ -154,12 +157,15 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Brownfield Analysis revision 3 | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | Existing-owner fit, runtime closure, transaction reuse, regressions and stop conditions | `direct` |
 | Copilot host evidence | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | Official npm CLI install, exact version, ten installed skills and persistent Copilot plugin state | `direct` |
 | Full deterministic suite | `npm --prefix create-agdf run smoke-test` | Release build, lifecycle, integrity, interaction, routing, 66 skill evals and regressions | `direct` |
+| Negative Copilot install UAT | real `npm run install:copilot` on macOS, 2026-09-02 | present non-functional launcher is misclassified as verification failure and bypasses the npm fallback | `direct` |
+| Isolated pinned fallback probe | `npm exec --yes --package=@github/copilot@1.0.80 -- copilot --version` with isolated cache, 2026-09-02 | official pinned fallback remains executable and reports version 1.0.80 | `direct` |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| Fresh-session skill discovery in the installed Copilot app | `warn` | Restart the app and capture Installed Plugins plus the loaded `agdf-` skill inventory. |
+| Complete combined aggregate evidence | `revise` | Repair the separately owned runtime-packaging baseline, rerun complete smoke and refresh QA. |
+| Fresh-session skill discovery in the installed Copilot app | `warn` | After corrected installation and QA, restart the app and capture Installed Plugins plus the loaded `agdf-` skill inventory. |
 | Direct Linux and native-Windows lifecycle behavior | `warn` | Require separately authorized host evidence before cross-platform parity claims. |
 | Gate-safe native Copilot input transport | `warn` | Keep exact-text approval as the baseline until a later adapter preflight proves exact values and deliberate waiting. |
 
@@ -194,5 +200,5 @@ Valid approval format for new runs: `Approval: <GateName>`.
 - not_delivered: UAT approval, public Marketplace publication, cross-platform parity, VCS and release.
 - verification_performed: Two deterministic builds; complete smoke; package, Runtime Integrity, negative profile, coexistence and recovery tests; 66/66 skill evals; Pages checks; official CLI Marketplace and plugin read-back; installed-root validator; `git diff --check`.
 - unverified: Fresh post-final-refresh Copilot app loading and native Linux/Windows parity.
-- next_allowed_action: Install the current Copilot payload, restart into a fresh session and capture bounded UAT evidence.
+- next_allowed_action: Repair the separately owned runtime-packaging baseline, rerun complete smoke and refresh QA.
 - quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.

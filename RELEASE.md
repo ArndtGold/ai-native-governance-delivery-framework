@@ -24,6 +24,12 @@ From the repository root, run:
 npm run set-version -- <version>
 ```
 
+When advancing to a newer version, the current version must already have its exact local
+`agdf-v<current-version>` tag. This prevents an untagged catalogue entry from silently becoming
+historical compatibility evidence. A same-version catalogue repair remains possible without that
+tag. Fetch the complete tag history before running the command; do not create a tag only to bypass
+this check.
+
 The script checks that `create-agdf@<version>` and `@agdf/cli@<version>` are not already published,
 then updates the coupled package, plugin, site and OpenAI submission-source versions together with the
 exact `plugin/meta/distribution-profile-history.json` release record. Do not edit these release

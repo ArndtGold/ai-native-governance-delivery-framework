@@ -114,7 +114,9 @@ assert.throws(
   (error) => error.code === "profile_history_tag_mismatch",
 );
 
-const advancedVersion = "0.14.5";
+const currentVersionMatch = currentDefinition.version.match(/^(\d+)\.(\d+)\.(\d+)(?:-|$)/);
+assert.ok(currentVersionMatch, `repository version must be semver, got ${currentDefinition.version}`);
+const advancedVersion = `${currentVersionMatch[1]}.${currentVersionMatch[2]}.${Number(currentVersionMatch[3]) + 1}`;
 const advancedCatalogue = JSON.parse(catalogueContent);
 const currentRelease = advancedCatalogue.releases[currentDefinition.version];
 const currentContract = advancedCatalogue.contracts[currentRelease.contract_id];

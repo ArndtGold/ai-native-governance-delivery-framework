@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import {
   existsSync,
   lstatSync,
@@ -85,6 +86,19 @@ function compareSemver(leftValue, rightValue) {
     return a.localeCompare(b);
   }
   return 0;
+}
+
+function defaultTagExists(repoRoot, tag) {
+  try {
+    execFileSync(
+      "git",
+      ["rev-parse", "--verify", "--quiet", `refs/tags/${tag}`],
+      { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function groupedWritableSurfaces() {
@@ -192,6 +206,7 @@ export function planReleaseVersionBump({
   nextVersion,
   acceptedContractDigest,
   fs = defaultFs,
+  tagExists = defaultTagExists,
 } = {}) {
   repoRoot = resolve(repoRoot);
   parseSemver(nextVersion);
@@ -208,6 +223,12 @@ export function planReleaseVersionBump({
   const comparison = compareSemver(nextVersion, currentVersion);
   if (comparison < 0) {
     throw failure("release_version_bump_invalid", `target ${nextVersion} is older than current ${currentVersion}`);
+  }
+  if (comparison > 0 && !tagExists(repoRoot, `agdf-v${currentVersion}`)) {
+    throw failure(
+      "release_version_bump_invalid",
+      `current release agdf-v${currentVersion} has no exact tag; finish or reconcile that release before advancing to ${nextVersion}`,
+    );
   }
 
   let catalogue;
@@ -446,11 +467,12 @@ export function executeReleaseVersionBump({
   nextVersion,
   acceptedContractDigest,
   fs = defaultFs,
+  tagExists = defaultTagExists,
   hooks = {},
 } = {}) {
   repoRoot = resolve(repoRoot);
   recoverReleaseVersionBump({ repoRoot, fs });
-  const plan = planReleaseVersionBump({ repoRoot, nextVersion, acceptedContractDigest, fs });
+  const plan = planReleaseVersionBump({ repoRoot, nextVersion, acceptedContractDigest, fs, tagExists });
   const transactionId = randomUUID();
   const entries = plan.entries.map((entry) => ({
     relative_path: entry.relativePath,

@@ -24,6 +24,13 @@ import { runReleaseBumpCommand } from "./release-bump.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
+const currentVersion = JSON.parse(
+  readFileSync(join(repoRoot, "plugin/meta/agdf-plugin.definition.json"), "utf8"),
+).version;
+const currentVersionMatch = currentVersion.match(/^(\d+)\.(\d+)\.(\d+)(?:-|$)/);
+assert.ok(currentVersionMatch, `repository version must be semver, got ${currentVersion}`);
+const nextPatchVersion = `${currentVersionMatch[1]}.${currentVersionMatch[2]}.${Number(currentVersionMatch[3]) + 1}`;
+const nextPrereleaseVersion = `${nextPatchVersion}-beta.1`;
 const roots = [];
 
 function fixture() {
@@ -35,7 +42,7 @@ function fixture() {
   }
   const cataloguePath = join(root, "plugin/meta/distribution-profile-history.json");
   const catalogue = JSON.parse(readFileSync(cataloguePath, "utf8"));
-  delete catalogue.releases["0.14.4"];
+  delete catalogue.releases[currentVersion];
   writeFileSync(cataloguePath, `${JSON.stringify(catalogue, null, 2)}\n`);
   mkdirSync(join(root, ".agdf"), { recursive: true });
   return root;
@@ -57,6 +64,14 @@ function readCatalogue(root) {
   return JSON.parse(readFileSync(join(root, "plugin/meta/distribution-profile-history.json"), "utf8"));
 }
 
+function executeFixtureBump(options) {
+  return executeReleaseVersionBump({ tagExists: () => true, ...options });
+}
+
+function planFixtureBump(options) {
+  return planReleaseVersionBump({ tagExists: () => true, ...options });
+}
+
 try {
   assert.throws(
     () => runReleaseBumpCommand({ args: ["not-semver"], recover() {}, checkNpmVersion: () => assert.fail("npm called"), execute: () => assert.fail("write called") }),
@@ -64,7 +79,7 @@ try {
   );
   assert.throws(
     () => runReleaseBumpCommand({
-      args: ["0.14.5"],
+      args: [nextPatchVersion],
       recover() {},
       checkNpmVersion() { throw Object.assign(new Error("published"), { code: "release_version_bump_invalid" }); },
       execute: () => assert.fail("write called"),
@@ -75,35 +90,39 @@ try {
 
   const repairRoot = fixture();
   const beforeRepair = bytes(repairRoot);
-  const repairPlan = executeReleaseVersionBump({ repoRoot: repairRoot, nextVersion: "0.14.4" });
+  const repairPlan = executeFixtureBump({ repoRoot: repairRoot, nextVersion: currentVersion });
   assert.equal(repairPlan.mode, "reconcile_current");
-  assert.ok(readCatalogue(repairRoot).releases["0.14.4"]);
+  assert.ok(readCatalogue(repairRoot).releases[currentVersion]);
   for (const path of releaseBumpTargetPaths().filter((path) => path !== "plugin/meta/distribution-profile-history.json")) {
     assert.equal(readFileSync(join(repairRoot, path), "utf8"), beforeRepair[path]);
   }
   for (const surface of WRITABLE_RELEASE_VERSION_SURFACES) {
-    assert.equal(surface.readContent(readFileSync(join(repairRoot, surface.relativePath), "utf8")), "0.14.4");
+    assert.equal(surface.readContent(readFileSync(join(repairRoot, surface.relativePath), "utf8")), currentVersion);
   }
   assert.throws(
-    () => executeReleaseVersionBump({ repoRoot: repairRoot, nextVersion: "0.14.4" }),
+    () => executeFixtureBump({ repoRoot: repairRoot, nextVersion: currentVersion }),
     (error) => error.code === "release_version_bump_invalid",
   );
 
-  const forwardPlan = executeReleaseVersionBump({ repoRoot: repairRoot, nextVersion: "0.14.5" });
+  assert.throws(
+    () => executeReleaseVersionBump({ repoRoot: repairRoot, nextVersion: nextPatchVersion, tagExists: () => false }),
+    (error) => error.code === "release_version_bump_invalid" && /has no exact tag/.test(error.message),
+  );
+  const forwardPlan = executeFixtureBump({ repoRoot: repairRoot, nextVersion: nextPatchVersion });
   assert.equal(forwardPlan.mode, "forward_bump");
-  assert.ok(readCatalogue(repairRoot).releases["0.14.5"]);
+  assert.ok(readCatalogue(repairRoot).releases[nextPatchVersion]);
   for (const surface of WRITABLE_RELEASE_VERSION_SURFACES) {
-    assert.equal(surface.readContent(readFileSync(join(repairRoot, surface.relativePath), "utf8")), "0.14.5");
+    assert.equal(surface.readContent(readFileSync(join(repairRoot, surface.relativePath), "utf8")), nextPatchVersion);
   }
 
   const prereleaseRoot = fixture();
-  executeReleaseVersionBump({ repoRoot: prereleaseRoot, nextVersion: "0.14.4" });
-  const prereleasePlan = executeReleaseVersionBump({ repoRoot: prereleaseRoot, nextVersion: "0.14.5-beta.1" });
-  assert.equal(prereleasePlan.nextVersion, "0.14.5-beta.1");
-  assert.ok(readCatalogue(prereleaseRoot).releases["0.14.5-beta.1"]);
+  executeFixtureBump({ repoRoot: prereleaseRoot, nextVersion: currentVersion });
+  const prereleasePlan = executeFixtureBump({ repoRoot: prereleaseRoot, nextVersion: nextPrereleaseVersion });
+  assert.equal(prereleasePlan.nextVersion, nextPrereleaseVersion);
+  assert.ok(readCatalogue(prereleaseRoot).releases[nextPrereleaseVersion]);
 
   const changedRoot = fixture();
-  executeReleaseVersionBump({ repoRoot: changedRoot, nextVersion: "0.14.4" });
+  executeFixtureBump({ repoRoot: changedRoot, nextVersion: currentVersion });
   const changedDefinitionPath = join(changedRoot, "plugin/meta/agdf-plugin.definition.json");
   const changedDefinition = JSON.parse(readFileSync(changedDefinitionPath, "utf8"));
   changedDefinition.distributionProfiles.profiles["future-profile"] = {
@@ -115,7 +134,7 @@ try {
   const beforeReview = bytes(changedRoot);
   let proposedDigest;
   assert.throws(
-    () => planReleaseVersionBump({ repoRoot: changedRoot, nextVersion: "0.14.5" }),
+    () => planFixtureBump({ repoRoot: changedRoot, nextVersion: nextPatchVersion }),
     (error) => {
       proposedDigest = error.proposedDigest;
       return error.code === "profile_history_contract_review_required" && /^[a-f0-9]{64}$/.test(proposedDigest);
@@ -123,20 +142,20 @@ try {
   );
   assertBytes(changedRoot, beforeReview);
   assert.throws(
-    () => executeReleaseVersionBump({ repoRoot: changedRoot, nextVersion: "0.14.5", acceptedContractDigest: "0".repeat(64) }),
+    () => executeFixtureBump({ repoRoot: changedRoot, nextVersion: nextPatchVersion, acceptedContractDigest: "0".repeat(64) }),
     (error) => error.code === "profile_history_contract_review_required",
   );
   assertBytes(changedRoot, beforeReview);
-  executeReleaseVersionBump({ repoRoot: changedRoot, nextVersion: "0.14.5", acceptedContractDigest: proposedDigest });
+  executeFixtureBump({ repoRoot: changedRoot, nextVersion: nextPatchVersion, acceptedContractDigest: proposedDigest });
   assert.ok(Object.values(readCatalogue(changedRoot).contracts).some((contract) => contract.contract_digest === proposedDigest));
 
   const rollbackRoot = fixture();
-  executeReleaseVersionBump({ repoRoot: rollbackRoot, nextVersion: "0.14.4" });
+  executeFixtureBump({ repoRoot: rollbackRoot, nextVersion: currentVersion });
   const beforeFailure = bytes(rollbackRoot);
   assert.throws(
-    () => executeReleaseVersionBump({
+    () => executeFixtureBump({
       repoRoot: rollbackRoot,
-      nextVersion: "0.14.5",
+      nextVersion: nextPatchVersion,
       hooks: { afterReplacement({ index }) { if (index === 2) throw new Error("injected replacement failure"); } },
     }),
     (error) => error.code === "release_version_bump_write_failed",
@@ -144,9 +163,9 @@ try {
   assertBytes(rollbackRoot, beforeFailure);
 
   const recoveryRoot = fixture();
-  executeReleaseVersionBump({ repoRoot: recoveryRoot, nextVersion: "0.14.4" });
+  executeFixtureBump({ repoRoot: recoveryRoot, nextVersion: currentVersion });
   const recoveryOriginal = bytes(recoveryRoot);
-  const interruptedPlan = planReleaseVersionBump({ repoRoot: recoveryRoot, nextVersion: "0.14.5" });
+  const interruptedPlan = planFixtureBump({ repoRoot: recoveryRoot, nextVersion: nextPatchVersion });
   const journalEntries = interruptedPlan.entries.map((entry) => ({
     relative_path: entry.relativePath,
     stage_path: `${entry.relativePath}.agdf-release-bump-stage`,
@@ -172,7 +191,7 @@ try {
   assertBytes(recoveryRoot, recoveryOriginal);
 
   const unsafeRoot = fixture();
-  const unsafePlan = planReleaseVersionBump({ repoRoot: unsafeRoot, nextVersion: "0.14.4" });
+  const unsafePlan = planFixtureBump({ repoRoot: unsafeRoot, nextVersion: currentVersion });
   const unsafeOriginal = bytes(unsafeRoot);
   const unsafeEntries = unsafePlan.entries.map((entry) => ({
     relative_path: entry.relativePath,

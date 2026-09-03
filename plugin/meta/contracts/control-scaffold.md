@@ -92,7 +92,9 @@ AGDF is agent-native first and CLI-verifiable by design.
 
 The primary operating path is the active skill plus the live `.agdf/control/` artefacts.
 Agents should read the repository state, apply this Runtime Contract, create or update only the currently allowed artefact, and make the next permissible step explicit.
-When control state is missing for a fresh request, keep the first step lightweight: draft the minimal UR in the response and request `Approval: UR`.
+When control state is missing for a resolved governance target and the current request contains a
+concrete outcome, keep the first step lightweight: draft the minimal UR in the response and request
+`Approval: UR`. This branch is unreachable for `target_unresolved`.
 Initialize a control scaffold only when durable AGDF control state is explicitly requested, already used by the repository, or required by a deterministic CLI/CI setup path.
 
 Helper commands are deterministic proof and automation interfaces, not the normal-work ritual:

@@ -83,7 +83,7 @@ export function validateLocaleRegistry(registry) {
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("gateRequiredDecisions.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -298,9 +298,35 @@ function markdownCell(value) {
     .replace(/\r?\n/g, "<br>");
 }
 
-function operationalList(value, none) {
-  if (!Array.isArray(value) || value.length === 0) return none;
-  return value.map((item) => String(item ?? "").trim()).filter(Boolean).join("\n") || none;
+function localizedOperationalValue(value, pack, fallbackPack, fallbackLocale) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized || normalized === "none") return pack.primary.none;
+  if (fallbackLocale) return normalized;
+  for (const [key, source] of Object.entries(fallbackPack.operationalValues ?? {})) {
+    if (source === normalized) return String(pack.operationalValues?.[key] ?? "").trim() || null;
+  }
+  for (const [key, source] of Object.entries(fallbackPack.primary.actions ?? {})) {
+    if (source === normalized) return String(pack.primary.actions?.[key] ?? "").trim() || null;
+  }
+  for (const [key, source] of Object.entries(fallbackPack.primary.afterApproval ?? {})) {
+    if (source === normalized) return String(pack.primary.afterApproval?.[key] ?? "").trim() || null;
+  }
+  if (fallbackPack.primary.quality === normalized) return String(pack.primary.quality ?? "").trim() || null;
+  return null;
+}
+
+function localizedOperationalList(value, pack, fallbackPack, fallbackLocale) {
+  if (!Array.isArray(value) || value.length === 0) return pack.primary.none;
+  const localized = value.map((item) => localizedOperationalValue(item, pack, fallbackPack, fallbackLocale));
+  if (localized.some((item) => !item)) return null;
+  return localized.join("\n");
+}
+
+function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized || normalized === "none") return pack.primary.none;
+  if (/^[A-Za-z0-9_]+$/.test(normalized)) return normalized;
+  return localizedOperationalValue(normalized, pack, fallbackPack, fallbackLocale);
 }
 
 function operationalBreadcrumb(value, labels) {
@@ -332,6 +358,19 @@ export function validateOperationalStatusCardPreconditions(statusCard, {
       locale = "";
     }
     if (!locale) errors.push("locale_unresolved");
+    if (locale) {
+      const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
+      if (locale !== fallbackLocale) {
+        const pack = localePack(registry, locale);
+        const fallbackPack = localePack(registry, fallbackLocale);
+        if (!localizedOperationalList(statusCard.allowed_now, pack, fallbackPack, false)) errors.push("allowed_now_unlocalized");
+        if (!localizedOperationalList(statusCard.forbidden_now, pack, fallbackPack, false)) errors.push("forbidden_now_unlocalized");
+        if (!localizedBlockingCondition(statusCard.blocking_condition, pack, fallbackPack, false)) errors.push("blocking_condition_unlocalized");
+        if (statusCard.allowed_after_approval !== "none" && !localizedOperationalValue(statusCard.allowed_after_approval, pack, fallbackPack, false)) errors.push("allowed_after_approval_unlocalized");
+        if (!localizedOperationalValue(statusCard.next_step, pack, fallbackPack, false)) errors.push("next_step_unlocalized");
+        if (!localizedOperationalValue(statusCard.quality_outlook, pack, fallbackPack, false)) errors.push("quality_outlook_unlocalized");
+      }
+    }
   }
   return Object.freeze({ valid: errors.length === 0, errors: Object.freeze(errors) });
 }
@@ -348,25 +387,37 @@ export function renderOperationalStatusCard(statusCard, {
   const locale = resolvePresentationLocale(registry, statusCard.presentation_language);
 
   const pack = localePack(registry, locale);
+  const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
+  const fallbackPack = localePack(registry, fallbackLocale);
+  const usesFallbackLocale = locale === fallbackLocale;
   const labels = pack.statusCard;
   const primary = pack.primary;
   const none = primary.none;
   const gateLabel = String(humanPresentation.gateTitle ?? "").trim() || gateTitle(registry, locale, currentGate);
   const runTitle = displaySafeTitle(humanPresentation.runTitle, normalizedRunTitle(runId));
   const breadcrumb = operationalBreadcrumb(statusCard.breadcrumb, labels);
+  const allowedNow = localizedOperationalList(statusCard.allowed_now, pack, fallbackPack, usesFallbackLocale);
+  const forbiddenNow = localizedOperationalList(statusCard.forbidden_now, pack, fallbackPack, usesFallbackLocale);
+  const blockingCondition = localizedBlockingCondition(statusCard.blocking_condition, pack, fallbackPack, usesFallbackLocale);
+  const allowedAfter = statusCard.allowed_after_approval === "none"
+    ? none
+    : localizedOperationalValue(statusCard.allowed_after_approval, pack, fallbackPack, usesFallbackLocale);
+  const nextStep = localizedOperationalValue(statusCard.next_step, pack, fallbackPack, usesFallbackLocale);
+  const qualityOutlook = localizedOperationalValue(statusCard.quality_outlook, pack, fallbackPack, usesFallbackLocale);
+  if (!allowedNow || !forbiddenNow || !blockingCondition || !allowedAfter || !nextStep || !qualityOutlook) return null;
   const rows = [
     [labels.run, `${runTitle} · \`${runId}\``],
     ...(breadcrumb ? [[labels.breadcrumb, breadcrumb]] : []),
     [labels.status, primary.status[statusCard.status] ?? statusCard.status],
     [labels.gate, `${gateLabel} (\`${currentGate}\`)`],
-    [labels.allowed, operationalList(statusCard.allowed_now, none)],
-    [labels.forbidden, operationalList(statusCard.forbidden_now, none)],
-    [labels.blocked, statusCard.blocking_condition === "none" ? none : statusCard.blocking_condition],
+    [labels.allowed, allowedNow],
+    [labels.forbidden, forbiddenNow],
+    [labels.blocked, blockingCondition],
     [labels.missing, statusCard.missing_approval === "none" ? none : statusCard.missing_approval],
     [labels.nextGate, statusCard.next_gate_after_approval === "none" ? none : statusCard.next_gate_after_approval],
-    [labels.allowedAfter, statusCard.allowed_after_approval === "none" ? none : statusCard.allowed_after_approval],
-    [labels.step, statusCard.next_step || none],
-    [labels.quality, statusCard.quality_outlook || none],
+    [labels.allowedAfter, allowedAfter],
+    [labels.step, nextStep],
+    [labels.quality, qualityOutlook],
   ];
   const markdown = [
     `## ${labels.title}`,
@@ -432,9 +483,11 @@ export function renderTaskTargetOrientation(resolution, {
 
   const pack = localePack(registry, locale);
   const labels = pack?.taskTargetResolution;
-  if (!plainObject(labels) || !plainObject(labels.reasonCodes)) return null;
+  if (!plainObject(labels) || !plainObject(labels.reasonCodes) || !plainObject(labels.nextActions)) return null;
   const reason = labels.reasonCodes[reasonCode];
   if (!reason) return null;
+  const localizedNextAction = resolutionState === "unresolved" ? labels.nextActions[reasonCode] : "";
+  if (resolutionState === "unresolved" && !localizedNextAction) return null;
 
   const rows = resolutionState === "resolved"
     ? [
@@ -451,7 +504,7 @@ export function renderTaskTargetOrientation(resolution, {
         [labels.reason, reason],
         [labels.evidenceSources, evidenceSources.join("; ") || labels.none],
         [labels.workingDirectory, workingDirectory],
-        [labels.nextAction, nextAction],
+        [labels.nextAction, localizedNextAction],
       ];
 
   const markdown = [

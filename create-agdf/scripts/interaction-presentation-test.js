@@ -80,7 +80,7 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
 {
   const presentation = renderOperationalStatusCard({
     run_id: "status-run",
-    presentation_language: "de-AT",
+    presentation_language: "en",
     mode: "structured_delivery",
     status: "blocked",
     current_gate: "QA",
@@ -104,22 +104,112 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   }, {
     registry,
     revisionId: "status-revision",
-    humanPresentation: { runTitle: "Status run", gateTitle: "Qualitätssicherung", artefactRefs: refs },
+    humanPresentation: { runTitle: "Status run", gateTitle: "Quality assurance", artefactRefs: refs },
   });
   assert.equal(presentation.semantic_block, "run_status_card");
-  assert.equal(presentation.presentation_language, "de");
+  assert.equal(presentation.presentation_language, "en");
   assert.equal(presentation.revision_id, "status-revision");
   assert.equal(presentation.authorizes, false);
   assert.equal(Object.isFrozen(presentation), true);
-  assert.match(presentation.markdown, /^## AGDF-Statuskarte/);
+  assert.match(presentation.markdown, /^## AGDF status-card/);
   assert.match(presentation.markdown, /review &lt;evidence&gt;<br>keep a \\\| literal/);
-  assert.match(presentation.markdown, /Aktuell verboten \| release/);
+  assert.match(presentation.markdown, /Forbidden now \| release/);
   assert.doesNotMatch(presentation.markdown, /Direct fixture/);
   assert.equal(renderOperationalStatusCard(null, { registry, humanPresentation: {} }), null);
   assert.equal(renderOperationalStatusCard({ run_id: "status-run", current_gate: "QA", presentation_language: "de" }, { registry, revisionId: "", humanPresentation: {} }).revision_id, "unversioned");
   const failedLines = [];
   assert.equal(printGateCheckReport({ status_card: { presentation_language: "de" }, status_presentation: null }, false, true, { log: (line) => failedLines.push(line) }), false);
   assert.match(failedLines[0], /Statuskarte nicht sicher darstellbar/);
+}
+
+{
+  const germanPresentation = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de-AT",
+    status: "blocked",
+    current_gate: "QA",
+    breadcrumb: [{ gate: "UR", status: "fulfilled" }, { gate: "QA", status: "current" }],
+    allowed_now: [
+      "complete the current control-state fields",
+      "revise the implementation against the QA findings",
+      "refresh CD+Tests and mandatory reviews",
+      "rerun QA with refreshed evidence",
+      "run doctor again",
+    ],
+    forbidden_now: [
+      "create later-gate artefacts beyond the current allowed gate",
+      "implement gated work before the gate allows it",
+      "claim QA or release readiness",
+    ],
+    blocking_condition: "AGDF_MISSING_EVIDENCE_DECLARED",
+    missing_approval: "none",
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+    next_step: "Repair the separately owned runtime-packaging baseline, rerun complete smoke and refresh QA.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, {
+    registry,
+    revisionId: "status-revision",
+    humanPresentation: { runTitle: "Status run", gateTitle: "Qualitätssicherung", artefactRefs: refs },
+  });
+  assert.equal(germanPresentation.presentation_language, "de");
+  assert.match(germanPresentation.markdown, /die aktuellen Felder des Kontrollstatus vervollständigen/);
+  assert.match(germanPresentation.markdown, /Die separat verwaltete Runtime-Packaging-Baseline reparieren/);
+  assert.match(germanPresentation.markdown, /Ladeverhalten einer frischen Session/);
+  assert.doesNotMatch(germanPresentation.markdown, /complete the current|revise the implementation|Repair the separately|Preserve the distinction/);
+
+  const unregisteredGermanCard = {
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "blocked",
+    current_gate: "QA",
+    allowed_now: ["unregistered English value"],
+    forbidden_now: [],
+    blocking_condition: "none",
+    missing_approval: "none",
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+    next_step: "Repair the separately owned runtime-packaging baseline, rerun complete smoke and refresh QA.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  };
+  assert.equal(renderOperationalStatusCard(unregisteredGermanCard, { registry, humanPresentation: {} }), null, "non-fallback locales fail closed instead of mixing unregistered text");
+  assert.ok(validateOperationalStatusCardPreconditions(unregisteredGermanCard, { registry, humanPresentation: {} }).errors.includes("allowed_now_unlocalized"));
+
+  const germanQaApproval = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "QA",
+    allowed_now: ["run QA gate", "persist or refine the QA report", "request exact QA approval"],
+    forbidden_now: ["request UAT approval", "release", "claim delivery readiness before QA approval and report evidence"],
+    blocking_condition: "none",
+    missing_approval: "Approval: QA",
+    next_gate_after_approval: "UAT",
+    allowed_after_approval: "Request UAT when QA has passed; release remains gated.",
+    next_step: "Request exact approval: Approval: QA.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Qualitätssicherung" } });
+  assert.match(germanQaApproval.markdown, /das QA-Gate durchführen/);
+  assert.match(germanQaApproval.markdown, /Die exakte Freigabe Approval: QA anfordern/);
+  assert.doesNotMatch(germanQaApproval.markdown, /run QA gate|Request UAT when|Request exact approval/);
+
+  const germanUatApproval = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "UAT",
+    allowed_now: ["request exact UAT approval", "prepare non-operative delivery summary"],
+    forbidden_now: ["release", "push", "open PR", "commit without explicit user instruction and required approval"],
+    blocking_condition: "none",
+    missing_approval: "Approval: UAT",
+    next_gate_after_approval: "OR",
+    allowed_after_approval: "Produce OR or delivery closeout; VCS and release actions still require explicit instruction.",
+    next_step: "Restart GitHub Copilot and capture fresh-session installed-plugin, skill-discovery and SessionStart evidence before the UAT decision.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Nutzerabnahme" } });
+  assert.match(germanUatApproval.markdown, /die exakte UAT-Freigabe anfordern/);
+  assert.match(germanUatApproval.markdown, /GitHub Copilot neu starten/);
+  assert.doesNotMatch(germanUatApproval.markdown, /request exact UAT|prepare non-operative|Produce OR|Restart GitHub Copilot/);
 }
 
 const candidates = buildRunCandidates([
@@ -818,7 +908,21 @@ for (const reasonCode of [
   assert.ok(unresolved, `${reasonCode} renders a fail-closed orientation`);
   assert.equal(unresolved.resolution_state, "unresolved");
   assert.ok(unresolved.markdown.includes("Next action"), `${reasonCode} shows recovery`);
+  assert.ok(!unresolved.markdown.includes("Clarify or supply"), `${reasonCode} uses the locale-owned recovery text`);
 }
+
+const targetCardDe = renderTaskTargetOrientation({
+  resolution_state: "unresolved",
+  reason_code: "no_reliable_target",
+  primary_target: "",
+  governance_target: "",
+  evidence_sources: [],
+  working_directory: "/tmp/chat",
+  target_changed: false,
+  next_action: "Name exactly one primary task target.",
+}, { registry, requestedLocale: "de" });
+assert.match(targetCardDe.markdown, /Ein primäres Ziel benennen\./);
+assert.doesNotMatch(targetCardDe.markdown, /Name exactly one/);
 
 const incompleteTargetRegistry = JSON.parse(JSON.stringify(registry));
 delete incompleteTargetRegistry.locales.de.taskTargetResolution;

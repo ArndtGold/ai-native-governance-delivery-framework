@@ -23,6 +23,7 @@ export const commandRegistry = Object.freeze([
   command("opencode-repo", { preferred: [""], scaffold: [""] }),
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
+  command("target-check", { local: [" --json [--language <tag>] [--working-directory <absolute-path>] [--target-source <source> --primary-target <absolute-path>]"] }),
   command("doctor", { local: [""], scaffold: [""], legacy: [" --json"] }),
   command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
@@ -46,6 +47,14 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  const targetOptionsUsed = Boolean(options.targetSource || options.primaryTarget || options.workingDirectoryExplicit || options.targetChanged
+    || options.targetCandidates?.length || options.evidenceSources?.length);
+  if (targetOptionsUsed && options.target !== "target-check") {
+    throw new Error("Task-target options are supported only by target-check");
+  }
+  if (options.target === "target-check" && !options.json) {
+    throw new Error("target-check requires --json");
+  }
   if (options.allActive && !["doctor", "delivery-map"].includes(options.target)) {
     throw new Error("--all-active is supported only by doctor and delivery-map");
   }
@@ -126,6 +135,18 @@ Options:
   --approval-envelope
                  Print the deterministic ready-gate cards and exact-text request
   --run <run_id> Select one canonical run
+  --target-source <explicit_target|continued_target|current_repository>
+                 Classify the semantic source for target-check
+  --primary-target <absolute-path>
+                 Supply exactly one target for target-check; cwd is never implied
+  --working-directory <absolute-path>
+                 Report execution context without granting target authority
+  --target-candidate <absolute-path>
+                 Repeat to expose competing plausible targets
+  --evidence-source <value>
+                 Repeat to report non-authorizing evidence sources
+  --target-changed
+                 Mark an explicit replacement of a previously confirmed target
   --all-active   Evaluate every active run (doctor and delivery-map only)
   --surface <codex|claude|copilot|opencode|generic>
                  Declare the active Delivery Path Search surface

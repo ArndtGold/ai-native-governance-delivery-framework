@@ -28,6 +28,54 @@ Use these focused runtime-contract modules:
 - `../../meta/contracts/quality.md`
 The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
 
+## Mandatory Target First And Early Return
+
+Resolve or revalidate the task target before reading repository control state, selecting a run or
+reasoning about a gate. This is the first operational decision, including in a resumed chat.
+
+If target resolution is `unresolved`, return immediately after consuming the canonical
+`task_target_orientation.markdown` and asking only for its concrete recovery action. This early return overrides every later branch in this skill, including continuation from chat history,
+missing-control handling, fresh-UR drafting and approval guidance. A prior UR, prior run, prior
+approval or plausible repository mentioned in the conversation is only candidate context; it must
+not be presented conditionally as the current target or used to report `BLOCKED`, a current gate or
+`Approval: <GateName>`.
+
+For a repo-less Copilot GeneralChat with no reliable target, ask for one concrete primary target,
+such as the repository or file to inspect. Do not append alternatives for a previous UR, a new
+project or an existing repository, and do not add an "if the previous UR applies" gate result after
+the unresolved orientation.
+
+## Task Target Preflight
+
+Before `doctor`, run selection or `gate-check`, invoke `target-check --json`. When one target is
+semantically selected, pass its source and absolute path. When no reliable target exists, omit both
+`--target-source` and `--primary-target`; pass only the absolute `--working-directory` as context and
+the current chat language through `--language`. `--working-directory` never grants target authority.
+Resolve the chat language from the user's current natural-language conversation before invoking the
+command. A German user turn or an ongoing German conversation requires the literal argument
+`--language de`. English skill text, command names, host process text and the system locale do not
+override the user's conversation language. Always pass a concrete supported language tag; never
+omit `--language` and never leave `<current-chat-language>` as a placeholder.
+Do not label or pass the host cwd as `current_repository` unless the user explicitly or deictically
+selected that verified Git repository under the precedence contract. A Copilot chat-storage folder
+is never a repository selection merely because it is the working directory.
+
+If the result is `unresolved`, apply the mandatory early return above. Do not report a repository,
+run, current gate, missing approval or Run Status Card, and do not draft a synthetic UR. In
+particular, a repo-less Copilot GeneralChat is `target_unresolved`, not
+`repository_ungoverned`.
+
+After emitting the canonical unresolved orientation, ask exactly one short target clarification.
+The clarification must use the orientation's `presentation_language`; a German orientation therefore
+requires a German question. Do not add contract narration, an `Early Return` heading, path examples
+or a menu of target types.
+
+Only a `resolved` result may provide its repeated `governance_target` to `doctor`, `gate-check` or
+`delivery-map` through `--dir`. A fresh-UR branch is allowed only when doctor finds that exact
+resolved repository ungoverned and the user's request contains a concrete outcome. Without that
+observable intent, ask what should be changed and do not invent a placeholder feature or request
+`Approval: UR`.
+
 ## Agent-Native Control Path
 
 AGDF is agent-native first and CLI-verifiable by design.
@@ -41,18 +89,26 @@ First inspect the durable control state directly:
 - `.agdf/control/CONTEXT_GRAPH.md`
 - `.agdf/control/AGENT_QUALITY_CONTRACTS.json`
 
-If required control files are missing, do not automatically create a full `.agdf/control/` scaffold for a fresh small request.
-The default first action is to draft the minimal UR in the response and request `Approval: UR`.
+Only after target resolution returned `resolved` and activation checked that exact governance
+target may missing control files enter the fresh-request branch. Then do not automatically create a
+full `.agdf/control/` scaffold for a fresh small request. When the current user turn contains a
+concrete outcome, the default first action is to draft the minimal UR in the response and request
+`Approval: UR`.
 Use `init` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
 
-Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, when CI or PR evidence is needed, when deterministic ready-gate rendering is required, or when a repository-local automation needs JSON output. Resolve the version-matched validator owned by the active surface first: `<plugin-root>/runtime/agdf-local.js` for Codex or Claude, or `<opencode-config>/agdf/bin/agdf-local.js` for OpenCode. Run its `--resolve-only --json` probe before treating its output as machine evidence. An explicitly configured absolute `AGDF_VALIDATOR_PATH` is the only secondary local candidate and must match the active AGDF version.
+Use the executable control path when a machine-readable check is requested, when the gate state is ambiguous, when CI or PR evidence is needed, when deterministic ready-gate rendering is required, or when a repository-local automation needs JSON output. Resolve the version-matched validator owned by the active surface first: `<plugin-root>/runtime/agdf-local.js` for Codex, Claude or Copilot, or `<opencode-config>/agdf/bin/agdf-local.js` for OpenCode. Run its `--resolve-only --json` probe before treating its output as machine evidence. An explicitly configured absolute `AGDF_VALIDATOR_PATH` is the only secondary local candidate and must match the active AGDF version.
 
 Routine validation uses that resolved local entrypoint:
 
 ```bash
-node <surface-local-agdf> doctor --json
-node <surface-local-agdf> gate-check --json
-node <surface-local-agdf> delivery-map --json
+# No reliable target yet: context and locale only; do not invent target authority.
+node <surface-local-agdf> target-check --json --language <current-chat-language> --working-directory <absolute-path>
+
+# One semantically selected target:
+node <surface-local-agdf> target-check --json --language <current-chat-language> --target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path> --working-directory <absolute-path>
+node <surface-local-agdf> doctor --json --dir <resolved-governance-target>
+node <surface-local-agdf> gate-check --json --dir <resolved-governance-target>
+node <surface-local-agdf> delivery-map --json --dir <resolved-governance-target>
 ```
 
 If no exact-version local validator exists, continue through agent-native inspection where permitted
@@ -122,7 +178,7 @@ missing, follow the contract's fail-closed outcome and leave authority unchanged
 12. Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions. Approval text without the corresponding persisted or linked artefact keeps the current gate at that gate.
 13. After Brownfield Review, decide the process size before drafting PRD or implementing: `quick_task | verified_change | structured_slice | structured_delivery | block`.
 14. The Mode/Slice Decision must be visible and evidenced before any Quick Task execution, PRD shortcut or implementation. A decision value without scope reason and evidence is still missing.
-15. Missing or incomplete control state must not push setup work back to the user. For a fresh request, draft the current minimal artefact in the response and request the exact approval. Initialize or write `.agdf/control/` only when durable control state is explicitly requested, already live for the repository, or required for a deterministic CLI/CI setup path. Implementation remains forbidden.
+15. Apply this rule only after the task target is resolved. Missing or incomplete control state must not push setup work back to the user. For a fresh request, draft the current minimal artefact in the response only when the current turn supplies a concrete outcome, then request the exact approval. This rule never applies to `target_unresolved`. Initialize or write `.agdf/control/` only when durable control state is explicitly requested, already live for the repository, or required for a deterministic CLI/CI setup path. Implementation remains forbidden.
 16. Branch names, uncommitted diffs, generated summaries and chat history are not sufficient scope proof when durable artefacts or approvals are missing or conflicting.
 17. If multiple active scopes are plausible, list the evidenced competing lines and keep the current step at scope clarification or the earliest common safe gate.
 18. When maintaining `MASTER_BACKLOG.md`, use its canonical compact columns, readable status labels and document-relative Markdown links. Do not expose raw long paths or internal snake_case statuses in the human-facing table. The canonical status/artefact label vocabulary is defined in the AGDF control scaffold's `MASTER_BACKLOG.md` template Rules section; do not invent other labels.
@@ -180,7 +236,7 @@ If a status is not explicit, do not assume it is satisfied.
 11. Treat a generic "start", "continue" or "leg los" request as a request to perform only the current next allowed action.
 12. After Brownfield Review, choose the smallest safe process path before creating later artefacts.
 13. If the selected path is not visibly recorded with scope reason and evidence, keep the run at `Mode/Slice Decision`.
-14. When `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request, that means draft the minimal UR in the response, then request `Approval: UR`. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
+14. Only for a resolved governance target, when `.agdf/control/` is missing or incomplete, make the next allowed artefact action explicit. For a fresh request with a concrete outcome, that means draft the minimal UR in the response, then request `Approval: UR`. This step is unreachable after an unresolved early return. Do not write a full control scaffold unless durable control state was explicitly requested or is already the repository's live AGDF working state.
 15. If branch, workspace and durable artefacts disagree, do not choose a scope silently; report the ambiguity and ask for the smallest clarifying gate action.
 
 ### Task Target Orientation

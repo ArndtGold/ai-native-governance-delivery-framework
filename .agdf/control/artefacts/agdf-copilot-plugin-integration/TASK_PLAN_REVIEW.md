@@ -1,41 +1,42 @@
-# Task Plan Review: Copilot-Specific AGDF Payload
+# Task Plan Review: Copilot Task-Target Binding
 
 Status: done
 Decision: revise
-Revision: 5
-Date: 2026-09-02
-Reference: approved `TP.md` Revision 3 and QA finding CPI-QA4-01
+Revision: 11
+Date: 2026-09-03
+Reference: approved `TP.md` Revision 4 and Brownfield Analysis Revision 4
 
 ## TP Coverage
 
 | task_id | status | evidence | missing_evidence | QA impact |
 |---|---|---|---|---|
-| CPI3-T01 | fully_done | Brownfield Analysis Revision 3 remains applicable; the correction stays in the existing installer owner | none | none |
-| CPI3-T02 | fully_done | generated Copilot-only artifact and ten prefixed skills remain unchanged | none | none |
-| CPI3-T03 | fully_done | semantic inventory owner remains unchanged | none | none |
-| CPI3-T04 | fully_done | profile negative and growth matrices pass | none | none |
-| CPI3-T05 | fully_done | profile-aware Runtime Integrity and provenance remain unchanged | none | none |
-| CPI3-T06 | fully_done | isolated marketplace and transaction regression pass | none | none |
-| CPI3-T07 | fully_done | both process `ENOENT` and the exact official missing-binary launcher prefix use the same pinned npm fallback; unrelated verification failures remain fail-closed | none | none |
-| CPI3-T08 | fully_done | marketplace coexistence and rollback regression pass | none | none |
-| CPI3-T09 | fully_done | local development, lifecycle, Copilot profile, marketplace and CLI modularization tests pass | none | none |
-| CPI3-T10 | fully_done | public command and documentation contract remain unchanged | none | none |
-| CPI3-T11 | partially_done | focused suites and release preparation pass | complete smoke remains blocked by separately owned combined-worktree runtime packaging baseline | prevents QA pass |
-| CPI3-T12 | fully_done | corrected real install succeeds; official CLI lists `agdf@agdf` 0.14.4 and installed validator reports matched provenance with ten skills | fresh-session behavior remains the explicit UAT boundary | none |
-| CPI3-T13 | fully_done | revised Task Plan, Clean Implementation and Code Reviews plus QA Revision 5 are persisted | none | none |
+| CPI3-T01 through CPI3-T13 | fully_done | Historical Revision 3 implementation, reviews, complete smoke and installed 0.14.5 evidence remain valid; final profile regression is green | none for the Revision 3 slice | none |
+| CPI4-T14 | fully_done | Brownfield Analysis Revision 4 maps parser, registry, validator dispatch, resolver, presentation, SessionStart generator and regression owners with explicit stop conditions | none | none |
+| CPI4-T15 | fully_done | `repository-context.js`, `task-target-resolution.js`, validator dispatch and `target-check --json`; unit matrix covers all four unresolved reason codes, three sources, real paths, repository membership, contradictory continuation and stale/current context | none | none |
+| CPI4-T16 | partially_done | Three restarted observations prove correct unresolved stopping, no prior-UR/approval leak, no chat-folder target promotion and one concise question. The third remains English. The final skill now binds a German user conversation to literal `--language de` and requires the question to match the renderer language; focused and aggregate tests pass. | fourth fresh restarted Copilot GeneralChat observation against the locale-corrected install | open visible-behavior locale evidence gap; all observed implementation defects are corrected |
+| CPI4-T17 | partially_done | SessionStart generator and focused fixtures prove `repo_less` skips doctor/config, `repository_bound` uses verified root, malformed input fails closed and disabled consent stays silent | fresh restarted Copilot SessionStart observation after renewed consent | evidence gap only; hook implementation and byte identity pass |
+| CPI4-T18 | fully_done | Resolver matrix, locale-safe orientation tests, the new prior-UR adversarial case and 70/70 deterministic evals cover explicit, continued, current, unavailable, multiple, stale, intent-less ungoverned and unresolved-with-history paths | live model behavior remains UAT evidence | none before UAT |
+| CPI4-T19 | partially_done | Final full smoke passes; 82-file/604901-byte baseline is exact; refreshed install is 0.14.5 and Ready | fourth repo-less observation plus repository-bound and optional consented SessionStart observations | keep UAT closed until observed |
+
+## UX Intent Fidelity
+
+| prd_criterion | working_mode_state | task_id | visible_evidence | fidelity_status | gap_type |
+|---|---|---|---|---|---|
+| CPI2-AC-02, AC-04, AC-11 | repo-less GeneralChat | CPI4-T16, CPI4-T17 | third host run now stops correctly, keeps chat cwd non-authorizing and asks one concise question, but remains English; final locale-corrected bytes are not yet observed | partial | evidence_gap |
+| CPI2-AC-02, AC-04, AC-11 | repository-bound session | CPI4-T15, CPI4-T17 | installed runtime resolves only matching Git context; deterministic hook fixture uses verified root | not_verifiable | evidence_gap |
+| CPI2-AC-02, AC-04, AC-11 | deterministic and installed runtime | CPI4-T15, CPI4-T18 | focused matrix, 70/70 evals, full smoke, installed 0.14.5 and byte identity | fulfilled | none |
 
 ## Summary
 
-- fully_done: 12/13
-- partially_done: 1/13 (`CPI3-T11`)
-- not_done: 0/13
-- out_of_scope_changes: none in the reviewed fallback correction
-- risks: deterministic and current installed-state behavior are corrected, but complete combined
-  aggregate evidence remains open
-- required_next_step: retain the separately owned aggregate evidence gap and rerun QA
+- fully_done: 16/19
+- partially_done: 3/19
+- not_done: 0/19
+- out_of_scope_changes: none identified; all changes remain within approved CLI, runtime, interaction, generated-profile, eval and control owners
+- risks: Copilot remains `instruction_only`; loaded-session behavior cannot be inferred from installed bytes
+- required_next_step: QA retains the fourth fresh-session locale proof as the decisive evidence obligation; the clean and code reviews are complete
 
 ## Normalized Findings
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| CPI-TPR4-01 | evidence_gap | evidence_obligation | open | corrected real installation and installed-state read-back pass; combined-worktree full smoke still has a separately owned runtime-packaging blocker | refresh aggregate evidence after the foreign baseline is repaired |
+| CPI-TPR11-01 | evidence_gap | evidence_obligation | open | the third restarted GeneralChat proves target and concise-output corrections but remains English; the literal German conversation-locale correction is installed but not loaded-host observed | restart Copilot and capture one German `no_reliable_target` card followed by one short German target question, then test repository-bound behavior separately |

@@ -8,11 +8,30 @@ import {
 import { evaluateDeliveryMap, printDeliveryMapReport } from "../control-evaluation/delivery-map.js";
 import { evaluateDoctor, printDoctorReport } from "../control-evaluation/doctor.js";
 import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
+import { resolveTaskTarget } from "../task-target-resolution.js";
+import { renderTaskTargetOrientation } from "../interaction-presentation.js";
+import { interactionLocales } from "./runtime-context.js";
 
 const deliveryMapDependencies = Object.freeze({ evaluateDoctor, buildStatusCard, postApprovalTransition });
 
 export function createValidationHandlers(io = console) {
   return new Map([
+    ["target-check", (options) => {
+      const report = resolveTaskTarget({
+        targetSource: options.targetSource,
+        primaryTarget: options.primaryTarget,
+        workingDirectory: options.workingDirectory,
+        targetChanged: options.targetChanged,
+        candidates: options.targetCandidates,
+        evidenceSources: options.evidenceSources,
+      });
+      const taskTargetOrientation = renderTaskTargetOrientation(report, {
+        registry: interactionLocales,
+        requestedLocale: options.language?.chat_language,
+      });
+      io.log(JSON.stringify({ ...report, task_target_orientation: taskTargetOrientation }, null, 2));
+      return report.resolution_state === "resolved" ? 0 : 2;
+    }],
     ["doctor", (options) => {
       const report = evaluateDoctor(options.dir, options);
       printDoctorReport(report, options.json, io);

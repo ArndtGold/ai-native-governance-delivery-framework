@@ -14,7 +14,10 @@ The canonical order is:
 3. activate repository-local AGDF control only for that governance target;
 4. then apply read-only orientation, Scope Classification, mode selection and gate evaluation.
 
-If task-target resolution is unresolved, steps 2–4 and every mutation are forbidden.
+If task-target resolution is unresolved, steps 2–4 and every mutation are forbidden. The unresolved
+result is terminal for the current response and overrides continuation, missing-control, fresh-UR
+and approval branches. Prior chat artefacts, runs and approvals remain candidate context only; they
+must not produce a conditional gate result until one target is resolved.
 
 ## Resolution Result
 

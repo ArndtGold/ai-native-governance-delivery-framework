@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { isAbsolute, resolve } from "node:path";
 import process from "node:process";
 import { configuredLanguage, resolveLanguagePreference } from "./runtime-context.js";
 import { resolveCommand, supportedCommandNames } from "./command-registry.js";
@@ -48,6 +48,13 @@ export function parseArgs(argv, dependencies = {}) {
   let shared = false;
   let runtimeChecksDecision;
   let runtimeChecksAction;
+  let targetSource;
+  let primaryTarget;
+  let workingDirectory = cwd;
+  let workingDirectoryExplicit = false;
+  let targetChanged = false;
+  const targetCandidates = [];
+  const evidenceSources = [];
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -63,6 +70,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--all-active") { allActive = true; continue; }
     if (arg === "--confirm") { confirm = true; continue; }
     if (arg === "--shared") { shared = true; continue; }
+    if (arg === "--target-changed") { targetChanged = true; continue; }
 
     if (arg === "--runtime-checks") {
       const next = requiredValue(args, i, arg);
@@ -74,6 +82,17 @@ export function parseArgs(argv, dependencies = {}) {
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
+    if (["--target-source", "--primary-target", "--working-directory", "--target-candidate", "--evidence-source"].includes(arg)) {
+      const next = requiredValue(args, i, arg);
+      if (arg === "--target-source") targetSource = next;
+      else if (arg === "--primary-target") primaryTarget = next;
+      else if (arg === "--working-directory") { workingDirectory = next; workingDirectoryExplicit = true; }
+      else if (arg === "--target-candidate") targetCandidates.push(next);
+      else evidenceSources.push(next);
       i += 1;
       continue;
     }
@@ -171,6 +190,13 @@ export function parseArgs(argv, dependencies = {}) {
       maxGeneratedCandidates,
       generationTimeoutMs,
       generationCostUnits,
+      targetSource,
+      primaryTarget,
+      workingDirectory: isAbsolute(workingDirectory) ? workingDirectory : resolve(cwd, workingDirectory),
+      workingDirectoryExplicit,
+      targetChanged,
+      targetCandidates,
+      evidenceSources,
     },
   };
 }

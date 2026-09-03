@@ -208,6 +208,8 @@ try {
   });
   assert.equal(withConsent.status, 0, withConsent.stderr);
   assert.match(withConsent.stdout, /AGDF automatic runtime check:/);
+  assert.match(withConsent.stdout, /AGDF host context: repo_less/);
+  assert.doesNotMatch(withConsent.stdout, /Project config:/);
 
   const copilotCommand = fixedRuntimeCheckCommand("copilot", join(process.cwd(), "generated", "plugins", "copilot", "agdf"), process.platform);
   writeRuntimeCheckReceipt(entrypointDataRoot, createRuntimeCheckReceipt({
@@ -229,6 +231,42 @@ try {
   const copilotOutput = JSON.parse(withCopilotConsent.stdout);
   assert.deepEqual(Object.keys(copilotOutput), ["additionalContext"]);
   assert.match(copilotOutput.additionalContext, /AGDF automatic runtime check:/);
+  assert.match(copilotOutput.additionalContext, /AGDF host context: repo_less/);
+  assert.doesNotMatch(copilotOutput.additionalContext, /Project config:/);
+
+  const foreignHookCwd = mkdtempSync(join(tmpdir(), "agdf-copilot-hook-cwd-"));
+  try {
+    const withEventCwd = spawnSync(process.execPath, [generatedEntrypoint], {
+      cwd: foreignHookCwd,
+      encoding: "utf8",
+      input: JSON.stringify({
+        sessionId: "session-fixture",
+        timestamp: Date.now(),
+        cwd: join(process.cwd(), ".."),
+        source: "new",
+      }),
+      env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "copilot" },
+    });
+    assert.equal(withEventCwd.status, 0, withEventCwd.stderr);
+    const eventCwdOutput = JSON.parse(withEventCwd.stdout);
+    assert.match(eventCwdOutput.additionalContext, /AGDF host context: repository_bound/);
+    assert.match(eventCwdOutput.additionalContext, /Verified repository root:/);
+    assert.match(eventCwdOutput.additionalContext, /Project config: \.agdf\/control\/config\.json \(artefacts=en, chat=de, runtime=en\)\./);
+    assert.doesNotMatch(eventCwdOutput.additionalContext, /config\.json not found/);
+
+    const malformedInput = spawnSync(process.execPath, [generatedEntrypoint], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      input: JSON.stringify({ cwd: "relative/path" }),
+      env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "copilot" },
+    });
+    assert.equal(malformedInput.status, 0, malformedInput.stderr);
+    const malformedOutput = JSON.parse(malformedInput.stdout);
+    assert.match(malformedOutput.additionalContext, /AGDF host context: repo_less/);
+    assert.doesNotMatch(malformedOutput.additionalContext, /Project config:/);
+  } finally {
+    rmSync(foreignHookCwd, { recursive: true, force: true });
+  }
 } finally {
   rmSync(entrypointDataRoot, { recursive: true, force: true });
 }

@@ -488,6 +488,22 @@ if (!gateCheckSkill.includes("## Repository Activation Diagnosis")) {
 if (!gateCheckSkill.includes("`doctor --json` on the resolved surface-local validator is the sole canonical, code-owned, tool-shell-safe activation probe")) {
   failures.push("gate-check must name doctor --json as the sole canonical activation probe");
 }
+for (const targetBoundary of [
+  "target-check --json",
+  "a repo-less Copilot GeneralChat is `target_unresolved`, not",
+  "do not draft a synthetic UR",
+  "observable intent, ask what should be changed",
+  "This early return overrides every later branch in this skill",
+  "do not add an \"if the previous UR applies\" gate result",
+  "omit both\n`--target-source` and `--primary-target`",
+  "A Copilot chat-storage folder\nis never a repository selection",
+  "A German user turn or an ongoing German conversation requires the literal argument\n`--language de`",
+  "never\nomit `--language` and never leave `<current-chat-language>` as a placeholder",
+  "a German orientation therefore\nrequires a German question",
+  "Do not add contract narration, an `Early Return` heading, path examples",
+]) {
+  if (!gateCheckSkill.includes(targetBoundary)) failures.push(`gate-check target-preflight boundary missing: ${targetBoundary}`);
+}
 if (!gateCheckSkill.includes("must not be used as the only proof of activation")) {
   failures.push("gate-check must forbid AGDF_* env vars as sole activation proof");
 }
@@ -561,6 +577,7 @@ for (const locale of ["en", "de"]) {
   if (!pack?.taskTargetResolution?.title
     || !pack?.taskTargetResolution?.primaryTarget
     || !pack?.taskTargetResolution?.reasonCodes?.target_content_mismatch
+    || !pack?.taskTargetResolution?.nextActions?.no_reliable_target
     || !pack?.taskTargetResolution?.nextAction) {
     failures.push(`Interaction locale ${locale} missing taskTargetResolution section keys`);
   }

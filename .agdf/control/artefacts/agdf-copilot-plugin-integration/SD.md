@@ -2,10 +2,11 @@
 
 Status: approved
 Gate: SD
-Gate approval: exact `Approval: SD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation
-Revision: 3
+Gate approval: exact `Approval: SD` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation
+Revision: 4
 Based on: `.agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md` revision 3
-Date: 2026-08-30
+UAT input: repo-less GitHub Copilot `GeneralChat` observation from 2026-09-03
+Date: 2026-09-03
 Owner: Arndt Gold
 
 ## 1. Design Summary
@@ -22,6 +23,12 @@ several hosts.
 
 The design optimizes semantic ownership first. Reduced package size is a measured consequence, not
 the primary correctness rule.
+
+Revision 4 adds a mandatory target-binding boundary before repository activation. The fresh-session
+UAT showed that Copilot can resume a `GeneralChat` with an internal chat directory as its process
+working directory. The skill treated that directory as a repository, reported a false missing-control
+state and invented an unrelated UR. Host execution context is therefore separated from task-target
+authority by one code-owned preflight before any doctor or gate evaluation.
 
 ## 2. Architectural Decisions
 
@@ -136,6 +143,83 @@ Revision 2 decisions for the canonical `copilot` command, retired `copilot-plugi
 commands, non-destructive legacy repository boundary, consent authority, documentation ownership and
 evidence separation remain unchanged unless this revision explicitly replaces them.
 
+### AD-CPI4-01 — Target binding is a mandatory ordered precondition
+
+The Copilot workflow applies one strict sequence:
+
+```text
+host context observation
+        |
+        v
+task target binding
+        |
+        v only when resolved
+repository activation
+        |
+        v only when valid
+run selection and gate evaluation
+        |
+        v
+canonical presentation
+```
+
+An unresolved task target terminates the operation before repository activation. It cannot expose a
+current gate, missing approval, Run Status Card or new-UR path. `target_unresolved` and
+`repository_ungoverned` remain different states.
+
+### AD-CPI4-02 — One code-owned target preflight validates physical context
+
+A new focused runtime owner under `create-agdf/lib/**` validates the target-binding input and emits
+the normalized result already defined by `task-target-resolution.md`. Its executable entry point is
+provided by the exact installed `agdf-local.js` runtime as `target-check --json`.
+
+The preflight accepts an explicitly classified target source and target path. It resolves real paths,
+verifies the containing Git worktree when repository governance is claimed and records the supplied
+working directory only as execution context. It never promotes `process.cwd()` by itself. A caller
+must provide one of the contract-valid sources `explicit_target`, `continued_target` or
+`current_repository`; missing, contradictory, inaccessible or non-repository input returns the
+corresponding unresolved reason and no governance target.
+
+The result includes `resolution_state`, `reason_code`, `primary_target`, `working_directory`,
+`governance_target`, `target_source`, `target_changed` and `next_action`. Repository and gate commands
+accept only the resolved absolute governance target produced by this preflight and repeat that target
+identity in machine output.
+
+### AD-CPI4-03 — Copilot chat directories are observed, never granted target authority
+
+The implementation does not depend on one hard-coded home-directory pattern. It classifies the
+observable host context by verified repository membership. A Copilot chat directory with no Git
+worktree is `repo_less`; a repository worktree is `repository_bound`. A repo-less chat may still use
+an explicitly named accessible repository, but it may not use its working directory as an implicit
+fallback.
+
+This rule also covers other temporary, cache or launcher directories and therefore removes the
+complete error class instead of special-casing `~/.copilot/chats/**`.
+
+### AD-CPI4-04 — SessionStart reports context without selecting a task target
+
+The consent-bound SessionStart checker first performs the same physical host-context classification.
+For `repo_less`, it emits one structured, non-authorizing context statement and skips repository
+doctor and project-config lookup. It must not describe `.agdf/control/config.json` as missing because
+no repository has been selected.
+
+For `repository_bound`, it may run the existing read-only doctor path against the verified repository
+root. The hook remains unable to choose a task target, select a run, decide a gate or grant approval.
+
+### AD-CPI4-05 — A new-UR path requires both a resolved repository and real user intent
+
+The gate-check skill may enter the fresh ungoverned-repository branch only after target preflight
+returns `resolved` and doctor confirms that exact repository has no AGDF control state. A minimal UR
+must be derived from an observable user request. If the requested outcome is absent, the interaction
+is clarification and no placeholder requirement, invented feature or approval request is emitted.
+
+### AD-CPI4-06 — Copilot enforcement remains honestly classified
+
+The executable preflight reduces model discretion and supplies deterministic evidence, but the
+Copilot skill surface remains `instruction_only` until a future host tool can prove that every command
+is intercepted. The current slice does not add MCP, credentials, network access or new permissions.
+Skill evaluation and live UAT verify conformance without relabelling it as tool enforcement.
+
 ## 3. Component Changes
 
 | Component | Revision 3 change | Preserved boundary |
@@ -147,6 +231,10 @@ evidence separation remain unchanged unless this revision explicitly replaces th
 | Provenance | Add Copilot profile and inventory digest | Canonical version and runtime digest semantics |
 | Package tests | Require Copilot profile and reject unused host projections inside it | Registry package may contain separately owned host artifacts |
 | Cross-host tests | Exercise coexistence and install order | No inferred live-host parity |
+| Target preflight | Validate target source, path, repository membership and normalized fail-closed result | Working directory remains context only |
+| Copilot gate-check projection | Require target preflight before doctor or gate evaluation | Canonical validator and presentation remain authoritative |
+| SessionStart checker | Report `repo_less` or verified repository context before any doctor/config lookup | Hook never selects target, run or gate |
+| Skill evaluations | Cover unresolved target, explicit target and ungoverned-repository branches | Copilot remains `instruction_only` |
 
 ## 4. Build And Installation Flow
 
@@ -184,6 +272,9 @@ previous proven Copilot marketplace and the independent Codex/Claude marketplace
 - Existing direct installs are migrated through the current lifecycle and recover to the prior
   proven state when marketplace installation fails.
 - Coexisting Codex and Claude installations are verified as unchanged after Copilot failure cases.
+- Missing target binding stops before doctor, gate evaluation and presentation.
+- A repo-less host context never becomes repository authority through its working directory.
+- A fresh UR is impossible without both a resolved repository and a concrete user outcome.
 
 ## 6. Security And Authority
 
@@ -192,6 +283,9 @@ previous proven Copilot marketplace and the independent Codex/Claude marketplace
 - Generated inventory and provenance are evidence, not AGDF gate approval.
 - Ownership markers constrain cleanup to exact surface-specific roots.
 - `.agdf/control/` and exact revalidated `Approval: <GateName>` remain the delivery authority.
+- Target-preflight input is treated as untrusted. Real-path and repository-boundary validation reject
+  unavailable paths, contradictory source claims and accidental traversal outside the selected target.
+- Target results are non-authorizing evidence and cannot grant tool permission or gate approval.
 
 ## 7. Verification Strategy
 
@@ -207,6 +301,14 @@ Focused deterministic tests must prove:
 8. rollback affects only the failing surface;
 9. package inventory, Runtime Integrity, routing, skill conformance and full smoke remain green;
 10. installed-root and fresh-session evidence remain separately reported.
+11. a repo-less GeneralChat returns `no_reliable_target` without doctor, gate or approval output;
+12. an explicit accessible repository from GeneralChat can be resolved without promoting the chat cwd;
+13. an unavailable target returns `target_unavailable` without searching neighboring repositories;
+14. several plausible targets return `multiple_plausible_targets` without gate evaluation;
+15. a repository-bound session evaluates only the verified repository root and repeats its identity;
+16. an ungoverned repository offers a UR only when concrete user intent exists;
+17. SessionStart does not report missing project config for repo-less context;
+18. generated, packaged and installed Copilot runtimes contain the same target-preflight owner.
 
 ## 8. Acceptance Mapping
 
@@ -220,6 +322,7 @@ Focused deterministic tests must prove:
 | CPI2-AC-10 | AD-CPI3-09 |
 | CPI2-AC-11, AC-12 | AD-CPI3-03, AD-CPI3-07, AD-CPI3-08 |
 | CPI2-AC-13 | AD-CPI3-01 through AD-CPI3-08 |
+| CPI2-AC-02, AC-04, AC-11 | AD-CPI4-01 through AD-CPI4-06 |
 
 ## 9. Rejected Alternatives
 
@@ -232,10 +335,18 @@ Focused deterministic tests must prove:
   duplicates can pass while required runtime content can be removed incorrectly.
 - **Download shared runtime dependencies after installation:** rejected because it weakens offline,
   exact-version and rollback guarantees.
+- **Special-case only `~/.copilot/chats/**`:** rejected because other temporary or launcher working
+  directories can cause the same authority error.
+- **Rely on stronger skill wording alone:** rejected because the failed UAT already contained the
+  correct textual contract and still skipped target resolution.
+- **Treat every repo-less chat as permanently unsupported:** rejected because an explicit accessible
+  repository can still be a valid target when the user names it.
+- **Add an MCP enforcement service in this revision:** rejected because it expands permissions and
+  host architecture beyond the approved plugin slice. It remains a separately governed future option.
 
 ## 10. Next Step
 
-Review Solution Design revision 3. Approval permits drafting the revised Task and Test Plan. It does
+Review Solution Design revision 4. Approval permits drafting the revised Task and Test Plan. It does
 not permit implementation.
 
 Approve only with:

@@ -23,7 +23,7 @@ const packageRoot = join(__dirname, "..");
 const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "disable", "uninstall",
-  "opencode-repo", "init", "config", "doctor", "gate-check",
+  "opencode-repo", "init", "config", "target-check", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",
   "run-render-legacy",
 ];
@@ -77,6 +77,13 @@ assert.deepEqual(parsed.options, {
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
   generationCostUnits: 2,
+  targetSource: undefined,
+  primaryTarget: undefined,
+  workingDirectory: "/tmp/root",
+  workingDirectoryExplicit: false,
+  targetChanged: false,
+  targetCandidates: [],
+  evidenceSources: [],
 });
 
 const alias = parseArgs(["--target", "config", "--lang", "de"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
@@ -86,6 +93,17 @@ assert.equal(parseArgs(["status", "--verbose"], { cwd: "/tmp/root", resolveLangu
 assert.equal(parseArgs(["runtime-checks", "enable", "--surface", "claude"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksAction, "enable");
 assert.equal(parseArgs(["claude", "--runtime-checks", "manual"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksDecision, "manual");
 assert.equal(parseArgs(["gate-check", "--approval-envelope"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.approvalEnvelope, true);
+const targetCheck = parseArgs([
+  "target-check", "--json", "--target-source", "continued_target", "--primary-target", "/tmp/repo",
+  "--working-directory", "/tmp/chat", "--target-candidate", "/tmp/repo", "--evidence-source", "request", "--target-changed",
+], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(targetCheck.options.targetSource, "continued_target");
+assert.equal(targetCheck.options.primaryTarget, "/tmp/repo");
+assert.equal(targetCheck.options.workingDirectory, "/tmp/chat");
+assert.equal(targetCheck.options.workingDirectoryExplicit, true);
+assert.deepEqual(targetCheck.options.targetCandidates, ["/tmp/repo"]);
+assert.deepEqual(targetCheck.options.evidenceSources, ["request"]);
+assert.equal(targetCheck.options.targetChanged, true);
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
@@ -112,6 +130,10 @@ assert.doesNotThrow(() => validateCommandOptions({ target: "doctor", allActive: 
 assert.doesNotThrow(() => validateCommandOptions({ target: "delivery-map", allActive: true }));
 assert.throws(() => validateCommandOptions({ target: "gate-check", allActive: true }), /supported only/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true }));
+assert.doesNotThrow(() => validateCommandOptions({ target: "target-check", json: true }));
+assert.throws(() => validateCommandOptions({ target: "target-check", json: false }), /requires --json/);
+assert.throws(() => validateCommandOptions({ target: "doctor", primaryTarget: "/tmp/repo" }), /only by target-check/);
+assert.throws(() => validateCommandOptions({ target: "doctor", workingDirectoryExplicit: true }), /only by target-check/);
 assert.throws(() => validateCommandOptions({ target: "doctor", approvalEnvelope: true }), /supported only/);
 assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true, json: true }), /cannot be combined/);
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);

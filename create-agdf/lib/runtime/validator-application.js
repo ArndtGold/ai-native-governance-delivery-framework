@@ -4,7 +4,7 @@ import { validateCommandOptions } from "../cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../cli/parse-args.js";
 import { pluginDefinition } from "../cli/runtime-context.js";
 
-const validatorCommands = new Set(["doctor", "gate-check", "delivery-map", "delivery-path-search"]);
+const validatorCommands = new Set(["target-check", "doctor", "gate-check", "delivery-map", "delivery-path-search"]);
 
 export async function runValidatorCli(argv = process.argv.slice(2), adapters = {}) {
   const io = adapters.io ?? console;
@@ -22,7 +22,7 @@ export async function runValidatorCli(argv = process.argv.slice(2), adapters = {
     return error.exitCode;
   }
   if (parsed.kind === "help") {
-    io.log("AGDF surface-local validator: doctor | gate-check | delivery-map | delivery-path-search");
+    io.log("AGDF surface-local validator: target-check | doctor | gate-check | delivery-map | delivery-path-search");
     return 0;
   }
   let options;

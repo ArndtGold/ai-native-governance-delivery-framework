@@ -90,6 +90,8 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "lib/control-state",
     "lib/delivery-path-search",
     "lib/interaction-presentation.js",
+    "lib/repository-context.js",
+    "lib/task-target-resolution.js",
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",
     "generated/plugins/agdf/meta/agdf-interaction-locales.json",
     "NOTICE",
@@ -122,11 +124,12 @@ export function syncPluginRuntime({ outputRoot } = {}) {
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { digestNormalizedPluginSource } from "./create-agdf/lib/runtime/plugin-provenance.js";
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from "./create-agdf/lib/runtime-check-consent/contract.js";
+import { resolveRepositoryContext } from "./create-agdf/lib/repository-context.js";
 
 if (process.argv.length !== 2) {
   console.error("AGDF automatic runtime check accepts no arguments.");
@@ -165,38 +168,61 @@ if (process.argv.length !== 2) {
     } catch {}
   }
   if (!consentEnabled) process.exit(0);
+  let hookInput = {};
+  try {
+    const input = readFileSync(0, "utf8").trim();
+    if (input) hookInput = JSON.parse(input);
+  } catch {}
+  const hookCwd = typeof hookInput.cwd === "string" && isAbsolute(hookInput.cwd) ? hookInput.cwd : "";
+  const hostContext = resolveRepositoryContext(hookCwd);
+  const repositoryRoot = hostContext.context_state === "repository_bound" ? hostContext.repository_root : "";
   const validator = fileURLToPath(new URL("./agdf-local.js", import.meta.url));
   const pluginRoot = fileURLToPath(new URL("../", import.meta.url));
-  const child = spawnSync(process.execPath, [validator, "doctor", "--all-active", "--json"], {
-    cwd: process.cwd(),
-    env: { ...process.env, AGDF_SURFACE: process.env.AGDF_SURFACE || "plugin" },
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    timeout: 10000,
-    maxBuffer: 1024 * 1024,
-  });
-  let message = "AGDF automatic runtime check: no governed control state was found; manual validation remains available.";
-  try {
-    const report = JSON.parse(child.stdout || "{}");
-    const status = report.status || "unknown";
-    const findings = report.summary?.findings ?? report.reports?.reduce((sum, item) => sum + (item.summary?.findings ?? 0), 0) ?? 0;
-    message = \`AGDF automatic runtime check: status=\${status} findings=\${findings}. This is read-only technical evidence and never grants an AGDF approval.\`;
-  } catch {}
-  const configPath = join(process.cwd(), ".agdf", "control", "config.json");
-  let configHint = "Project config: .agdf/control/config.json not found. Persist project language only when durable control is needed.";
-  if (existsSync(configPath)) {
+  let message = "AGDF automatic runtime check: skipped because SessionStart is not repository-bound. Resolve the task target before repository activation.";
+  let configHint = "";
+  let languagePolicy = "Language policy: follow the user language until a verified repository config is available.";
+  if (repositoryRoot) {
+    const child = spawnSync(process.execPath, [validator, "doctor", "--all-active", "--json", "--dir", repositoryRoot], {
+      cwd: repositoryRoot,
+      env: { ...process.env, AGDF_SURFACE: process.env.AGDF_SURFACE || "plugin" },
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 10000,
+      maxBuffer: 1024 * 1024,
+    });
     try {
-      const config = JSON.parse(readFileSync(configPath, "utf8"));
-      configHint = \`Project config: .agdf/control/config.json (artefacts=\${config.artifact_language || "unset"}, chat=\${config.chat_language || "unset"}, runtime=\${config.runtime_language || "en"}).\`;
+      const report = JSON.parse(child.stdout || "{}");
+      const status = report.status || "unknown";
+      const findings = report.summary?.findings ?? report.reports?.reduce((sum, item) => sum + (item.summary?.findings ?? 0), 0) ?? 0;
+      message = \`AGDF automatic runtime check: status=\${status} findings=\${findings}. This is read-only technical evidence and never grants an AGDF approval.\`;
     } catch {
-      configHint = "Project config: .agdf/control/config.json is invalid. Run the surface-local doctor command manually.";
+      message = "AGDF automatic runtime check: repository-bound validation was unavailable; run the surface-local doctor command manually.";
+    }
+    const configPath = join(repositoryRoot, ".agdf", "control", "config.json");
+    configHint = "Project config: .agdf/control/config.json not found in the verified repository. Persist project language only when durable control is needed.";
+    if (existsSync(configPath)) {
+      try {
+        const config = JSON.parse(readFileSync(configPath, "utf8"));
+        const artifactLanguage = config.artifact_language || "unset";
+        const chatLanguage = config.chat_language || "unset";
+        configHint = \`Project config: .agdf/control/config.json (artefacts=\${artifactLanguage}, chat=\${chatLanguage}, runtime=\${config.runtime_language || "en"}).\`;
+        languagePolicy = \`Language policy: write durable AGDF artefacts in \${artifactLanguage} and chat in \${chatLanguage}.\`;
+      } catch {
+        configHint = "Project config: .agdf/control/config.json is invalid in the verified repository. Run the surface-local doctor command manually.";
+      }
     }
   }
   const additionalContext = [
     "AGDF active.",
     "",
+    \`AGDF host context: \${hostContext.context_state}.\`,
+    \`Working directory: \${hostContext.working_directory} (execution context only; not task-target or governance authority).\`,
+    ...(repositoryRoot
+      ? [\`Verified repository root: \${repositoryRoot}. SessionStart does not select the task target or gate.\`]
+      : ["No repository was selected by SessionStart. Task-target resolution is required before doctor or gate evaluation."]),
     message,
-    configHint,
+    ...(configHint ? [configHint] : []),
+    languagePolicy,
     "",
     "Use the installed AGDF skills as workflow controls.",
     "For a new build, change, extension, refactor, CLI, app, fix with product semantics, Structured Delivery request, unclear approval, or unclear next step, use gate-check before implementation or later-gate artefacts.",

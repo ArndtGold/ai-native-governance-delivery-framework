@@ -4,9 +4,9 @@
 
 - control_state_version: 2
 - run_id: windows-release-bump-symlink-fixture
-- lifecycle: active
-- revision: 3
-- revision_id: 4E78606B-3456-49B5-BA95-5F2B14B24FC1
+- lifecycle: completed
+- revision: 4
+- revision_id: 488CDD5D-4DC5-4CA2-805B-019A6BC9BAB3
 - started_at: 2026-09-04
 - mode: `verified_change`
 - current_gate: OR
@@ -22,11 +22,11 @@ Produktionsschutz oder Fehlererkennung zu schwächen.
 
 | Question | Answer |
 |---|---|
-| What is known? | Der Capability-Guard ist im einen deklarierten Testpfad implementiert; fokussierter Test, vollständiges `release:prepare`, Diff-Prüfung und Code Review bestehen. |
+| What is known? | Der Capability-Guard ist im einen deklarierten Testpfad implementiert; fokussierter Test, vollständiges `release:prepare`, Diff-Prüfung, Code Review und die vom Nutzer bestätigte Windows-Installation bestehen. |
 | What is approved? | UR Revision 1 durch exaktes `Approval: UR` nach Revalidierung von Run, Gate und Revision 1. |
-| What is missing? | Direkter nativer Windows-Nachtest von `npm run install:copilot`. |
-| What is the next allowed action? | Den ausgeführten Verified Change kompakt übergeben und den nativen Windows-Nachtest durchführen. |
-| What is explicitly forbidden right now? | Native-Windows-Erfolg ohne Nachtest behaupten; Scope-Vermischung, Commit, Push, PR und Release. |
+| What is missing? | Nichts für den begrenzten Symlink-Fixture-Fix; Rohlog und genaue Latenzursache des anschließenden Copilot-Skillaufrufs gehören nicht zu diesem Run. |
+| What is the next allowed action? | Optionaler Delivery Closeout nur auf ausdrücklichen VCS-Auftrag; langsamen `/agdf-gate-check` separat untersuchen. |
+| What is explicitly forbidden right now? | Den langsamen Skillaufruf als Installerfehler umdeuten; Commit, Push, PR und Release ohne ausdrücklichen Auftrag. |
 
 ## Source And Scope State
 
@@ -47,13 +47,13 @@ Produktionsschutz oder Fehlererkennung zu schwächen.
 
 | Run status | Value |
 |---|---|
-| Status | Verified Change lokal ausgeführt und geprüft; Windows-Nachweis offen |
+| Status | Completed |
 | Current gate | OR |
-| Allowed now | Mini-Closeout verwenden und nativen Windows-Nachtest erfassen |
-| Blocked by | Kein interner Codeblocker; nur direkte native Windows-Evidenz fehlt |
+| Allowed now | Optionalen Delivery Closeout anbieten und den getrennten Copilot-Laufzeitbefund untersuchen |
+| Blocked by | none |
 | Missing approval | none |
-| Next step | Unter Windows `npm run install:copilot` erneut ausführen und das Ergebnis zurückmelden |
-| Quality outlook | Lokale Evidenz und Review bestehen; Hostclaim bleibt bis zum Windows-Nachtest begrenzt |
+| Next step | Den mehr als zwei Minuten laufenden `/agdf-gate-check` als separaten Hostbefund zeitlich begrenzen und diagnostizieren |
+| Quality outlook | Symlink-Fixture-Fix ist geschlossen; Copilot-Skill-Latenz bleibt ein unabhängiges Untersuchungsfeld |
 
 ## Approvals
 
@@ -103,14 +103,15 @@ Produktionsschutz oder Fehlererkennung zu schwächen.
 | Focused test | `node create-agdf/scripts/release-bump-test.js` | Release-Bump-Transaktion und Recovery einschließlich Symlink-Ablehnung | direct |
 | Release preparation | `npm --prefix create-agdf run release:prepare` | Distribution, Bump, Versionskohärenz und Public Plugin | direct |
 | Diff review | `CODE_REVIEW.md`; `git diff --check` | Fehlerpfade, Sicherheitsassertion und Scope | direct |
+| Native Windows installation | Nutzerbericht 2026-09-04 | `install:copilot` schließt auf der zuvor betroffenen Umgebung erfolgreich ab | direct user-attested |
 
 ## Missing Evidence
 
-- Native-Windows-Nachtest von `release:prepare` und `install:copilot` nach der Korrektur.
+- Rohlog der erfolgreichen Windows-Installation; für den Nutzer bestätigten Outcome nicht blockierend.
+- Ursache und Endzustand des mehr als zwei Minuten laufenden `/agdf-gate-check`; außerhalb dieses Runs.
 
 ## Risks
 
-- Ein macOS-Test kann den gemeldeten Windows-Privilegpfad nicht beweisen.
 - Vermischung mit dem laufenden Target-Preflight- oder Dispatcher-Scope.
 
 ## Context Graph Impact
@@ -130,5 +131,5 @@ Produktionsschutz oder Fehlererkennung zu schwächen.
 
 ## Closeout
 
-- next_allowed_action: Mini-Closeout übergeben und `npm run install:copilot` auf dem gemeldeten nativen Windows-Host wiederholen.
-- quality_outlook: Capability-Guard, lokale Release-Kette und Code Review bestehen; der Windows-Erfolg ist bis zum direkten Nachtest nicht beansprucht.
+- next_allowed_action: Optionaler Delivery Closeout nur auf ausdrücklichen VCS-Auftrag; den langsamen Copilot-Skillaufruf in einem separaten Scope diagnostizieren.
+- quality_outlook: Capability-Guard, lokale Release-Kette, Code Review und user-attestierte Windows-Installation bestehen; keine Produktionssemantik wurde geändert.

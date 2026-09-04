@@ -63,5 +63,6 @@ fixture and emit an explicit diagnostic. Rethrow every other error.
 - aggregate_validation_evidence: `npm --prefix create-agdf run release:prepare` passed distribution history, release bump, version coherence and public plugin tests.
 - diff_validation_evidence: `git diff --check` passed; release asset synchronization introduced no generated-file drift.
 - code_review: `pass`; `.agdf/control/artefacts/windows-release-bump-symlink-fixture/CODE_REVIEW.md`
-- native_windows_status: `pending_external_retest`
-- mini_closeout: Source implementation, local validation and mandatory Code Review pass. Native Windows `release:prepare` and `install:copilot` remain an explicit host-evidence boundary; no VCS, installation or release action was performed.
+- native_windows_status: `pass_user_attested`; the user reported successful Copilot installation on the previously failing Windows environment after the change.
+- post_install_observation: `/agdf-gate-check` remained in Copilot reasoning for more than two minutes without visible response; this is a separate host-dispatch or execution-latency finding and not evidence against installer completion.
+- mini_closeout: Source implementation, local validation, mandatory Code Review and user-attested native-Windows installation pass. The symlink fixture no longer blocks the install chain. The separate slow gate-check observation is intentionally not absorbed into this fix. No VCS or release action was performed.

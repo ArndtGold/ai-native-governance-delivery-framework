@@ -60,7 +60,7 @@ NODE
 fi
 
 cat <<EOF
-AGDF active.
+Silent internal AGDF context. Ignore it unless the user invokes AGDF or expresses matching delivery intent.
 
 ${RUNTIME_HINT}
 

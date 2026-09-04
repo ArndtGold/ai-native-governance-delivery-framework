@@ -17,22 +17,19 @@ It answers:
 - whether Brownfield, TP, or clean-review follow-up remains open
 
 ## Runtime Contract
-Use these focused runtime-contract modules:
+After `skill_continuation`, use these focused runtime-contract modules:
 
-- `../../meta/contracts/task-target-resolution.md`
-- `../../meta/contracts/interaction.md`
 - `../../meta/contracts/quality.md`
 - `../../meta/contracts/context-graph.md`
 
-## Direct Skill Invocation Boundary
+`instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.
 
-Before any skill-specific input discovery or workflow, execute
-`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
-`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
-`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
-Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
-the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
-downstream.
+## Executable Dispatch
+
+First invoke the supplied dispatcher with `--skill code-review`, current language and working directory, and
+only explicit target/run evidence. On `terminal: true`, return presentation verbatim;
+only if absent return recovery, then stop. On `skill_continuation`, use only its target/control. If unavailable, report `dispatcher_unavailable`;
+do not search for another runtime. Dispatch never authorizes.
 
 Code-review-specific output must make actual findings, missing review scope, evidence strength, and the next required step visible.
 Applicable findings must use `../../meta/contracts/quality.md` §Normalized Review Gaps. Concrete diff

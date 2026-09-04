@@ -18,7 +18,7 @@ Determine the earliest blocking user approval gate and derive:
 This skill must not create later artefacts such as PRD, SD, TP, CD, CR, QA, or UAT when the gate does not allow them.
 
 ## Runtime Contract
-Use these focused runtime-contract modules:
+Only for a declared `instruction_only` fallback, use these focused runtime-contract modules:
 
 - `../../meta/contracts/task-target-resolution.md`
 - `../../meta/contracts/gate-transition.md`
@@ -28,14 +28,13 @@ Use these focused runtime-contract modules:
 - `../../meta/contracts/quality.md`
 The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
 
-## Direct Skill Invocation Boundary
+## Executable Dispatch
 
-Before any gate-check input discovery or workflow, execute
-`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
-`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
-`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
-Do not inspect repository control state, select a run, evaluate a gate, draft a synthetic UR or
-mutate files. On `resolved`, use only the derived `governance_target` downstream.
+As the first operational action, invoke the supplied AGDF dispatcher binding with
+`--skill gate-check`, current language and working directory, plus only explicit target/run
+evidence. On `terminal: true`, return its presentation verbatim; only if absent return recovery, then stop. If
+the binding is absent, report `dispatcher_unavailable` and do not search for another runtime.
+Dispatch never authorizes; the gate and approval rules below remain binding.
 
 ## Agent-Native Control Path
 

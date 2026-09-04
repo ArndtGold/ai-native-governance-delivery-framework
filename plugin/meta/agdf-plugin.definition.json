@@ -237,61 +237,71 @@
       "slug": "delivery-path-search",
       "discovery": "optional",
       "useFor": "high-impact planning decisions with several plausible next delivery steps before implementation",
-      "boundary": "read-only advisory search; never grants gate permission or replaces gate-check"
+      "boundary": "read-only advisory search; never grants gate permission or replaces gate-check",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "brownfield-analysis",
       "discovery": "automatic",
       "useFor": "after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems",
-      "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission"
+      "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "ux-intent-definition",
       "discovery": "automatic",
       "useFor": "after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness",
-      "boundary": "non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth"
+      "boundary": "non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "clean-implementation-review",
       "discovery": "automatic",
       "useFor": "evidence dimension: inspect whether the solution is structurally clean",
-      "boundary": "supports Quality Readiness; not a TP or QA substitute"
+      "boundary": "supports Quality Readiness; not a TP or QA substitute",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "code-review",
       "discovery": "automatic",
       "useFor": "evidence dimension: review the actual diff for defects, regression and security findings",
-      "boundary": "supports Quality Readiness; does not replace QA"
+      "boundary": "supports Quality Readiness; does not replace QA",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "delivery-closeout",
       "discovery": "automatic",
       "useFor": "commit/PR-near handoff after QA/OR/UAT",
-      "boundary": "never performs VCS actions automatically"
+      "boundary": "never performs VCS actions automatically",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "gate-check",
       "discovery": "start_here",
       "useFor": "new build/change intent, unclear approval, Structured Delivery, later-gate artefact requested",
-      "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review"
+      "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review",
+      "dispatch": { "mode": "deterministic_control", "deterministicCommand": "gate-check", "requiresControlSnapshot": true }
     },
     {
       "slug": "qa-gate",
       "discovery": "automatic",
       "useFor": "sole final Quality Readiness decision",
-      "boundary": "only instance for `pass | revise | block`"
+      "boundary": "only instance for `pass | revise | block`",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "release-or",
       "discovery": "automatic",
       "useFor": "auditable closeout for every relevant run",
-      "boundary": "not a QA substitute"
+      "boundary": "not a QA substitute",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     },
     {
       "slug": "task-plan-review",
       "discovery": "automatic",
       "useFor": "evidence dimension: verify whether the approved Task Plan was fulfilled",
-      "boundary": "supports Quality Readiness; no final QA decision"
+      "boundary": "supports Quality Readiness; no final QA decision",
+      "dispatch": { "mode": "judgement_required", "requiresControlSnapshot": true }
     }
   ],
   "distributionProfiles": {

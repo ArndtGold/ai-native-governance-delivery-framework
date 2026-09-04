@@ -31,8 +31,11 @@ export function parseArgs(argv, dependencies = {}) {
   let statusCard = false;
   let approvalEnvelope = false;
   let language;
+  let languageExplicit = false;
   let dirExplicit = false;
   let surface = "generic";
+  let surfaceExplicit = false;
+  let skillId;
   let fixture;
   let persist = false;
   let model;
@@ -86,6 +89,12 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (arg === "--skill") {
+      skillId = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
     if (["--target-source", "--primary-target", "--working-directory", "--target-candidate", "--evidence-source"].includes(arg)) {
       const next = requiredValue(args, i, arg);
       if (arg === "--target-source") targetSource = next;
@@ -104,6 +113,7 @@ export function parseArgs(argv, dependencies = {}) {
           throw new CliUsageError("Unsupported surface. Use codex, claude, copilot, opencode or generic.");
         }
         surface = next;
+        surfaceExplicit = true;
       } else if (arg === "--scope") {
         if (!["repository", "global"].includes(next)) throw new CliUsageError("Unsupported scope. Use repository or global.");
         scope = next;
@@ -129,6 +139,7 @@ export function parseArgs(argv, dependencies = {}) {
       const normalized = normalizeLanguage(next);
       if (!normalized) throw new CliUsageError("Invalid language tag. Use a BCP 47 tag such as de, en or fr-CA.");
       language = normalized;
+      languageExplicit = true;
       i += 1;
       continue;
     }
@@ -174,7 +185,10 @@ export function parseArgs(argv, dependencies = {}) {
       approvalEnvelope,
       dirExplicit,
       language: languagePreference(language),
+      languageExplicit,
       surface,
+      surfaceExplicit,
+      skillId,
       fixture: fixture ? resolve(cwd, fixture) : null,
       persist,
       model,

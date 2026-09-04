@@ -190,7 +190,21 @@ try {
     cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "codex" },
   });
   assert.equal(withoutConsent.status, 0, withoutConsent.stderr);
-  assert.equal(withoutConsent.stdout, "", "automatic entrypoint must stay silent without enabled consent");
+  assert.match(withoutConsent.stdout, /AGDF dispatcher binding:/, "safe dispatcher binding must be available without automatic-check consent");
+  assert.match(withoutConsent.stdout, /"skill-dispatch","--json","--surface","codex"/);
+  assert.match(withoutConsent.stdout, /Obey result\.host_action exactly/);
+  assert.match(withoutConsent.stdout, /"activation_trigger":"invoked_skill_or_matching_delivery_intent"/);
+  assert.match(withoutConsent.stdout, /"ordinary_conversation":"ignore_agdf_context"/);
+  assert.match(withoutConsent.stdout, /"runtime_mention":"only_when_user_requests_agdf"/);
+  assert.match(withoutConsent.stdout, /"pre_dispatch_output":"none"/);
+  assert.match(withoutConsent.stdout, /"terminal_output":"host_action.text_verbatim_only"/);
+  assert.match(withoutConsent.stdout, /Ignore this AGDF context completely/);
+  assert.match(withoutConsent.stdout, /ordinary conversation or a language preference alone/);
+  assert.match(withoutConsent.stdout, /output host_action\.text byte-for-byte/);
+  assert.match(withoutConsent.stdout, /Automatic repository checks remain disabled/);
+  assert.doesNotMatch(withoutConsent.stdout, /AGDF automatic runtime check:/);
+  assert.doesNotMatch(withoutConsent.stdout, /AGDF host context:/);
+  assert.doesNotMatch(withoutConsent.stdout, /Project config:/);
   writeRuntimeCheckReceipt(entrypointDataRoot, createRuntimeCheckReceipt({
     surface: "codex",
     decision: "enable",

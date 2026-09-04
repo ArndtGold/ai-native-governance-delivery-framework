@@ -86,10 +86,18 @@ agdf doctor
 agdf gate-check --status-card
 agdf gate-check --approval-envelope
 agdf gate-check --json
+agdf skill-dispatch --json --skill gate-check --surface codex --language en --working-directory /absolute/context
 agdf delivery-map --json
 agdf delivery-path-search --surface codex --json
 agdf delivery-path-search --surface claude --json
 ```
+
+Installed AGDF sessions supply the exact version-matched `skill-dispatch` binding to canonical
+skills. It resolves the target first and returns either a terminal canonical result or one bounded
+continuation packet. The result's `host_action.text` carries the exact terminal presentation or
+recovery text for byte-for-byte output, without added choices or run/evidence questions. It never
+grants approval. Pass an explicit target pair only when the conversation has actually selected one;
+do not substitute the working directory.
 
 Canonical run lifecycle:
 

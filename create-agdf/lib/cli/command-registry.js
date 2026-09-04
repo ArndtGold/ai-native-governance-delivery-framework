@@ -24,6 +24,7 @@ export const commandRegistry = Object.freeze([
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
   command("target-check", { local: [" --json [--language <tag>] [--working-directory <absolute-path>] [--target-source <source> --primary-target <absolute-path>]"] }),
+  command("skill-dispatch", { local: [" --json --skill <skill-id> --surface <surface> --language <tag> --working-directory <absolute-path> [--target-source <source> --primary-target <absolute-path>] [--run <run_id>]"] }),
   command("doctor", { local: [""], scaffold: [""], legacy: [" --json"] }),
   command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
@@ -49,11 +50,22 @@ export function supportedCommandNames() {
 export function validateCommandOptions(options) {
   const targetOptionsUsed = Boolean(options.targetSource || options.primaryTarget || options.workingDirectoryExplicit || options.targetChanged
     || options.targetCandidates?.length || options.evidenceSources?.length);
-  if (targetOptionsUsed && options.target !== "target-check") {
-    throw new Error("Task-target options are supported only by target-check");
+  if (targetOptionsUsed && !["target-check", "skill-dispatch"].includes(options.target)) {
+    throw new Error("Task-target options are supported only by target-check and skill-dispatch");
   }
   if (options.target === "target-check" && !options.json) {
     throw new Error("target-check requires --json");
+  }
+  if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
+  if (options.target === "skill-dispatch") {
+    if (!options.json) throw new Error("skill-dispatch requires --json");
+    if (!options.skillId) throw new Error("skill-dispatch requires --skill");
+    if (!options.surfaceExplicit || options.surface === "generic") throw new Error("skill-dispatch requires --surface codex, claude, copilot or opencode");
+    if (!options.languageExplicit) throw new Error("skill-dispatch requires --language");
+    if (!options.workingDirectoryExplicit) throw new Error("skill-dispatch requires --working-directory");
+    if (options.targetChanged || options.targetCandidates?.length || options.evidenceSources?.length) {
+      throw new Error("skill-dispatch accepts only the paired --target-source and --primary-target target options");
+    }
   }
   if (options.allActive && !["doctor", "delivery-map"].includes(options.target)) {
     throw new Error("--all-active is supported only by doctor and delivery-map");
@@ -141,6 +153,8 @@ Options:
                  Supply exactly one target for target-check; cwd is never implied
   --working-directory <absolute-path>
                  Report execution context without granting target authority
+  --skill <skill-id>
+                 Select one canonical skill for skill-dispatch
   --target-candidate <absolute-path>
                  Repeat to expose competing plausible targets
   --evidence-source <value>

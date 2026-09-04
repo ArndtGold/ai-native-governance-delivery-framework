@@ -321,6 +321,8 @@ if (sourceMode) {
   assertFile(localRuntimeManifestPath, "surface-local runtime manifest");
   assertFile(localRuntimeEntrypointPath, "surface-local runtime entrypoint");
   assertFile(automaticRuntimeCheckPath, "argument-free automatic runtime-check entrypoint");
+  assertFile(join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "contract.js"), "skill dispatch contract");
+  assertFile(join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "service.js"), "skill dispatch service");
 }
 assertFile(agentRouterPath, "canonical AGDF agent router");
 assertFile(codexPluginPath, "Codex plugin manifest");
@@ -694,6 +696,16 @@ if (pluginDefinition) {
       if (!skill?.slug) failures.push("canonical AGDF plugin definition skill set entries must declare slug");
       if (!skill?.useFor) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare useFor`);
       if (!skill?.boundary) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare boundary`);
+      if (!["deterministic_control", "judgement_required"].includes(skill?.dispatch?.mode)) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare a valid dispatch mode`);
+      if (skill?.dispatch?.requiresControlSnapshot !== true) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must require the canonical control snapshot`);
+      if (skill?.slug === "gate-check"
+          && (skill?.dispatch?.mode !== "deterministic_control" || skill?.dispatch?.deterministicCommand !== "gate-check")) {
+        failures.push("gate-check must map deterministic_control to its existing deterministic command");
+      }
+      if (skill?.slug !== "gate-check"
+          && (skill?.dispatch?.mode !== "judgement_required" || skill?.dispatch?.deterministicCommand)) {
+        failures.push(`judgement skill ${skill?.slug ?? "<unknown>"} must use judgement_required without a deterministic command`);
+      }
     }
   }
   const expectedProfiles = {
@@ -945,6 +957,27 @@ if (isFile(sessionStartHookPath)) {
   }
 }
 
+if (!sourceMode && isFile(automaticRuntimeCheckPath)) {
+  const automaticRuntimeCheck = read(automaticRuntimeCheckPath);
+  if (!automaticRuntimeCheck.includes("AGDF dispatcher binding:") || !automaticRuntimeCheck.includes('"skill-dispatch", "--json", "--surface"')) {
+    failures.push("AGDF SessionStart runtime must emit the exact dispatcher binding");
+  }
+  if (!automaticRuntimeCheck.includes("Obey result.host_action exactly")
+      || !automaticRuntimeCheck.includes('pre_dispatch_output: "none"')
+      || !automaticRuntimeCheck.includes('terminal_output: "host_action.text_verbatim_only"')
+      || !automaticRuntimeCheck.includes("output host_action.text byte-for-byte")) {
+    failures.push("AGDF SessionStart runtime must bind terminal dispatcher transfer and stopping");
+  }
+  if (!automaticRuntimeCheck.includes('ordinary_conversation: "ignore_agdf_context"')
+      || !automaticRuntimeCheck.includes('runtime_mention: "only_when_user_requests_agdf"')
+      || !automaticRuntimeCheck.includes("Ignore this AGDF context completely")) {
+    failures.push("AGDF SessionStart runtime must not activate AGDF from binding presence alone");
+  }
+  if (!automaticRuntimeCheck.includes("Automatic repository checks remain disabled")) {
+    failures.push("AGDF SessionStart runtime must separate safe binding emission from consent-gated repository checks");
+  }
+}
+
 if (isFile(agentRouterPath)) {
   const agentRouter = read(agentRouterPath);
   assertRouterMatchesDefinition("plugin/meta/agdf-agent-router.md", agentRouter, "codex");
@@ -1101,16 +1134,25 @@ for (const skill of expectedSkills) {
   const skillMd = read(skillPath);
   const helpMd = read(helpPath);
   for (const required of [
-    "../../meta/contracts/task-target-resolution.md",
-    "../../meta/contracts/interaction.md",
-    "## Direct Skill Invocation Boundary",
-    "§Direct Skill Invocation Preflight",
-    "`task_target_orientation.markdown` verbatim",
-    "request only the normalized recovery action and stop",
-    "use only the derived `governance_target`",
+    "## Executable Dispatch",
+    `--skill ${skill}`,
+    "`terminal: true`",
+    "only if absent return recovery",
+    "`dispatcher_unavailable`",
+    "do not search for another runtime",
+    "Dispatch never authorizes",
   ]) {
-    if (!skillMd.includes(required)) failures.push(`${skill} direct skill target-preflight boundary missing: ${required}`);
+    if (!skillMd.includes(required)) failures.push(`${skill} executable dispatch boundary missing: ${required}`);
   }
+  if (skill === "gate-check") {
+    for (const required of ["../../meta/contracts/task-target-resolution.md", "../../meta/contracts/interaction.md", "`instruction_only` fallback"]) {
+      if (!skillMd.includes(required)) failures.push(`${skill} instruction-only dispatch fallback missing: ${required}`);
+    }
+  } else if (!skillMd.includes("`instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.")) {
+    failures.push(`${skill} instruction-only dispatch fallback is incomplete`);
+  }
+  if ((skillMd.match(/^## Executable Dispatch$/gm) ?? []).length !== 1) failures.push(`${skill} must contain exactly one executable dispatch boundary`);
+  if (skill !== "gate-check" && !skillMd.includes("`skill_continuation`")) failures.push(`${skill} judgement dispatch must consume skill_continuation`);
   if (skillMd.includes("## Task Target Orientation Template")
       || skillMd.includes("| Primary target | Governance target | Evidence sources |")) {
     failures.push(`${skill} must not maintain a skill-local task target orientation template`);

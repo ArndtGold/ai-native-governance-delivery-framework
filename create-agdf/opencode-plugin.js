@@ -1,4 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import process from "node:process";
 import { evaluateOpenCodeRepositoryActivation } from "./lib/installers/opencode-activation.js";
 import { executeOpenCodeAutomaticRuntimeCheck } from "./lib/runtime-check-consent/service.js";
 
@@ -29,9 +31,23 @@ export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
     repositorySurface: repositoryActivation.legacy_surface,
     };
   };
+  const validatorPath = fileURLToPath(new URL("../../agdf/bin/agdf-local.js", import.meta.url));
+  const dispatcherGuidance = `AGDF dispatcher binding: ${JSON.stringify({
+    schema_version: "1",
+    executable: process.execPath,
+    argv_prefix: [validatorPath, "skill-dispatch", "--json", "--surface", "opencode"],
+    expected_version: packageJson.version,
+    activation_trigger: "invoked_skill_or_matching_delivery_intent",
+    ordinary_conversation: "ignore_agdf_context",
+    runtime_mention: "only_when_user_requests_agdf",
+    pre_dispatch_output: "none",
+    terminal_output: "host_action.text_verbatim_only",
+    authorizes: false,
+  })}. Ignore this AGDF context completely for ordinary conversation or a language preference alone: do not mention AGDF, runtime availability, tasks, repositories, runs, evidence, approvals or skills. For an invoked AGDF skill, emit no pre-dispatch prose: invoke this binding first with --language matching the current conversation, --working-directory, and explicit target/run evidence only when available. Obey result.host_action exactly. When terminal is true, output host_action.text byte-for-byte and stop.`;
 
   const activeGuidance = [
     "## AGDF Runtime Reminder",
+    dispatcherGuidance,
     "This repository is AGDF-active through `.agdf/control/config.json`; use the globally installed AGDF runtime surface.",
     "For new build/change intent or unclear approval, load the native `agdf-global-gate-check` skill before later artefacts or implementation.",
     "Use the config-local `agdf/bin/agdf-local.js gate-check --status-card` for compact interactive status. Use `--json` only as deterministic proof for automation or audit evidence, and summarize it instead of mirroring full JSON into chat.",
@@ -39,6 +55,7 @@ export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
 
   const inactiveGuidance = [
     "## AGDF Plugin Notice",
+    dispatcherGuidance,
     "The AGDF OpenCode npm plugin is loaded, but this repository has no valid `.agdf/control/config.json`.",
     "Do not apply AGDF gates from the global plugin alone. Create or repair durable AGDF control state with `npx --yes @agdf/cli@latest opencode-repo` when governance should be active here.",
   ].join("\n");

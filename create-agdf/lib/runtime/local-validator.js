@@ -221,6 +221,7 @@ export function resolveLocalValidator(options) {
 }
 
 export function runLocalValidator(options, args, io = console) {
+  const wrapperStart = process.hrtime.bigint().toString();
   const resolved = resolveLocalValidator(options);
   if (args[0] === "--resolve-only") {
     io.log(JSON.stringify(resolved.envelope, null, args.includes("--json") ? 2 : 0));
@@ -232,7 +233,14 @@ export function runLocalValidator(options, args, io = console) {
   }
   const child = spawnSync(resolved.executable, [...resolved.prefixArgs, ...args], {
     cwd: options.cwd ?? process.cwd(),
-    env: { ...process.env, AGDF_MACHINE_VALIDATION: resolved.envelope.machine_validation },
+    env: {
+      ...process.env,
+      AGDF_MACHINE_VALIDATION: resolved.envelope.machine_validation,
+      AGDF_DISPATCH_WRAPPER_START_NS: wrapperStart,
+      AGDF_DISPATCH_PLUGIN_ROOT: resolved.envelope.plugin_root ?? "",
+      AGDF_DISPATCH_RUNTIME_DIGEST: resolved.envelope.runtime_digest ?? "",
+      AGDF_DISPATCH_PROVENANCE_STATUS: resolved.envelope.provenance_status ?? "",
+    },
     stdio: "inherit",
   });
   return child.status ?? 2;

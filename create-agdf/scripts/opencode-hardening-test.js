@@ -448,6 +448,15 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     await activePlugin["experimental.chat.system.transform"]({}, systemOutput);
     assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF Runtime Reminder")), "active guidance must be injected");
     assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF automatic runtime check: status=pass")), "successful automatic runtime-check output must be injected");
+    assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF dispatcher binding:") && entry.includes('"skill-dispatch","--json","--surface","opencode"')), "active guidance must expose the exact dispatcher binding");
+    assert.ok(systemOutput.system.some((entry) => entry.includes("Obey result.host_action exactly") && entry.includes('"pre_dispatch_output":"none"') && entry.includes('"terminal_output":"host_action.text_verbatim_only"') && entry.includes("output host_action.text byte-for-byte")), "active guidance must bind terminal dispatcher transfer");
+    assert.ok(systemOutput.system.some((entry) => entry.includes('"ordinary_conversation":"ignore_agdf_context"') && entry.includes('"runtime_mention":"only_when_user_requests_agdf"')), "active guidance must not activate AGDF from binding presence alone");
+
+    const inactiveSystemOutput = { system: [] };
+    await inactivePlugin["experimental.chat.system.transform"]({}, inactiveSystemOutput);
+    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes("AGDF dispatcher binding:") && entry.includes('"skill-dispatch","--json","--surface","opencode"')), "inactive guidance must expose the exact dispatcher binding");
+    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes("Obey result.host_action exactly")), "inactive guidance must bind terminal dispatcher transfer");
+    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes('"ordinary_conversation":"ignore_agdf_context"')), "inactive guidance must not activate AGDF from binding presence alone");
 
     const noToastClient = makeClient(false);
     const noToastPlugin = await AGDFPlugin({ directory: inactiveDir, client: noToastClient }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });

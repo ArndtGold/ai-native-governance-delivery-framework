@@ -10,11 +10,14 @@ import { evaluateDoctor, printDoctorReport } from "../control-evaluation/doctor.
 import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { resolveTaskTarget } from "../task-target-resolution.js";
 import { renderTaskTargetOrientation } from "../interaction-presentation.js";
-import { interactionLocales } from "./runtime-context.js";
+import { interactionLocales, pluginDefinition } from "./runtime-context.js";
+import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
+import { createSkillDispatchService } from "../skill-dispatch/service.js";
 
 const deliveryMapDependencies = Object.freeze({ evaluateDoctor, buildStatusCard, postApprovalTransition });
 
 export function createValidationHandlers(io = console) {
+  const executeSkillDispatch = createSkillDispatchService();
   return new Map([
     ["target-check", (options) => {
       const report = resolveTaskTarget({
@@ -31,6 +34,22 @@ export function createValidationHandlers(io = console) {
       });
       io.log(JSON.stringify({ ...report, task_target_orientation: taskTargetOrientation }, null, 2));
       return report.resolution_state === "resolved" ? 0 : 2;
+    }],
+    ["skill-dispatch", (options) => {
+      const result = executeSkillDispatch({
+        skillSet: pluginDefinition.skillSet,
+        interactionLocales,
+        skillId: options.skillId,
+        surface: options.surface,
+        presentationLanguage: options.language?.chat_language,
+        workingDirectory: options.workingDirectory,
+        targetSource: options.targetSource,
+        primaryTarget: options.primaryTarget,
+        runId: options.runId,
+        expectedVersion: pluginDefinition.version,
+      });
+      io.log(serializeSkillDispatchResult(result));
+      return ["control_result", "skill_continuation"].includes(result.outcome) ? 0 : 2;
     }],
     ["doctor", (options) => {
       const report = evaluateDoctor(options.dir, options);

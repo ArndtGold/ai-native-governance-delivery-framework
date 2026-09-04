@@ -168,10 +168,16 @@ try {
   resetPluginFixture();
   writeFileSync(
     cleanReviewPath,
-    readFileSync(cleanReviewPath, "utf8").replace("request only the normalized recovery action and stop", "continue without a resolved target"),
+    readFileSync(cleanReviewPath, "utf8").replace("`--skill clean-implementation-review`", "`--skill missing-review`"),
     "utf8",
   );
-  expectIntegrityFailure(/clean-implementation-review direct skill target-preflight boundary missing:/);
+  expectIntegrityFailure(/clean-implementation-review executable dispatch boundary missing:/);
+
+  resetPluginFixture();
+  const invalidDispatchMode = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+  invalidDispatchMode.skillSet.find((skill) => skill.slug === "qa-gate").dispatch.mode = "deterministic_control";
+  writeFileSync(pluginDefinitionPath, `${JSON.stringify(invalidDispatchMode, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/judgement skill qa-gate must use judgement_required without a deterministic command/);
 
   resetPluginFixture();
   writeFileSync(

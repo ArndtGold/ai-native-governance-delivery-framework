@@ -12,22 +12,19 @@ approved product promise instead of inventing requirements after code exists.
 
 ## Runtime Contract
 
-Use:
+After `skill_continuation`, use:
 
-- `../../meta/contracts/task-target-resolution.md` for the direct invocation boundary;
-- `../../meta/contracts/interaction.md` for canonical target presentation;
 - `../../meta/contracts/gate-transition.md` for impact routing, authority and revision behavior;
 - `../../meta/contracts/quality.md` for evidence and fail-closed output discipline.
 
-## Direct Skill Invocation Boundary
+`instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.
 
-Before any skill-specific input discovery or workflow, execute
-`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
-`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
-`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
-Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
-the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
-downstream.
+## Executable Dispatch
+
+First invoke the supplied dispatcher with `--skill ux-intent-definition`, current language and working directory,
+and only explicit target/run evidence. On `terminal: true`, return presentation verbatim;
+only if absent return recovery, then stop. On `skill_continuation`, use only its target/control. If unavailable, report `dispatcher_unavailable`;
+do not search for another runtime. Dispatch never authorizes.
 
 ## Authority
 

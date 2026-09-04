@@ -20,23 +20,20 @@ It answers:
 This skill does not replace `qa-gate`, `release-or`, user approvals, or gate decisions.
 
 ## Runtime Contract
-Use these focused runtime-contract modules:
+After `skill_continuation`, use these focused runtime-contract modules:
 
-- `../../meta/contracts/task-target-resolution.md`
-- `../../meta/contracts/interaction.md`
 - `../../meta/contracts/closeout.md`
 - `../../meta/contracts/context-graph.md`
 - `../../meta/contracts/gate-transition.md`
 
-## Direct Skill Invocation Boundary
+`instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.
 
-Before any skill-specific input discovery or workflow, execute
-`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
-`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
-`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
-Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
-the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
-downstream.
+## Executable Dispatch
+
+First invoke the supplied dispatcher with `--skill delivery-closeout`, current language and working directory,
+and only explicit target/run evidence. On `terminal: true`, return presentation verbatim;
+only if absent return recovery, then stop. On `skill_continuation`, use only its target/control. If unavailable, report `dispatcher_unavailable`;
+do not search for another runtime. Dispatch never authorizes.
 
 ## Rules
 1. Delivery follows gate clarity.

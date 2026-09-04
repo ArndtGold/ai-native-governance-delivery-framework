@@ -685,6 +685,7 @@ Load `agdf-global-gate-check` for new build/change intent or unclear approval be
 node ~/.config/opencode/agdf/bin/agdf-local.js doctor --json
 node ~/.config/opencode/agdf/bin/agdf-local.js gate-check --status-card
 node ~/.config/opencode/agdf/bin/agdf-local.js gate-check --json
+node ~/.config/opencode/agdf/bin/agdf-local.js skill-dispatch --json --skill gate-check --surface opencode --language en --working-directory /absolute/context
 node ~/.config/opencode/agdf/bin/agdf-local.js delivery-map --json
 ```
 

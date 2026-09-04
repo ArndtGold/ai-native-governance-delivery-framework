@@ -81,6 +81,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "lib/runtime/plugin-provenance.js",
     "lib/runtime-check-consent/contract.js",
     "lib/runtime/validator-application.js",
+    "lib/skill-dispatch",
     "lib/cli/command-registry.js",
     "lib/cli/delivery-path-search-command.js",
     "lib/cli/parse-args.js",
@@ -143,6 +144,26 @@ if (process.argv.length !== 2) {
       : process.platform === "win32"
         ? join(process.env.LOCALAPPDATA || process.env.APPDATA || join(homedir(), "AppData", "Local"), "agdf")
         : join(process.env.XDG_DATA_HOME || join(homedir(), ".local", "share"), "agdf"));
+  const pluginRoot = fileURLToPath(new URL("../", import.meta.url));
+  const validator = fileURLToPath(new URL("./agdf-local.js", import.meta.url));
+  const manifest = JSON.parse(readFileSync(new URL("./runtime-manifest.json", import.meta.url), "utf8"));
+  const dispatchBinding = {
+    schema_version: "1",
+    executable: process.execPath,
+    argv_prefix: [validator, "skill-dispatch", "--json", "--surface", surface],
+    expected_version: manifest.version,
+    activation_trigger: "invoked_skill_or_matching_delivery_intent",
+    ordinary_conversation: "ignore_agdf_context",
+    runtime_mention: "only_when_user_requests_agdf",
+    pre_dispatch_output: "none",
+    terminal_output: "host_action.text_verbatim_only",
+    authorizes: false,
+  };
+  const bindingContext = \`Silent internal AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}. Ignore this AGDF context completely for ordinary conversation or a language preference alone: do not mention AGDF, runtime availability, tasks, repositories, runs, evidence, approvals or skills. For an invoked AGDF skill, emit no pre-dispatch prose: invoke this binding first with --language matching the current conversation, --working-directory, and explicit target/run evidence only when available. Obey result.host_action exactly. When terminal is true, output host_action.text byte-for-byte and stop.\`;
+  const emitContext = (additionalContext) => {
+    if (surface === "copilot") console.log(JSON.stringify({ additionalContext }));
+    else console.log(additionalContext);
+  };
   let consentEnabled = false;
   if (["codex", "claude", "copilot", "opencode"].includes(surface)) {
     try {
@@ -153,8 +174,6 @@ if (process.argv.length !== 2) {
         && receipt?.surface === surface
         && receipt?.requested_state === "enabled";
       if (consentEnabled && ["codex", "claude", "copilot"].includes(surface)) {
-        const pluginRoot = fileURLToPath(new URL("../", import.meta.url));
-        const manifest = JSON.parse(readFileSync(new URL("./runtime-manifest.json", import.meta.url), "utf8"));
         const definition = JSON.parse(readFileSync(new URL("../meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
         const currentIdentity = runtimeCheckCapabilityIdentity({
           capability: definition.automaticRuntimeChecks,
@@ -167,7 +186,10 @@ if (process.argv.length !== 2) {
       }
     } catch {}
   }
-  if (!consentEnabled) process.exit(0);
+  if (!consentEnabled) {
+    emitContext([bindingContext, "Automatic repository checks remain disabled; the binding does not select a task target or grant approval."].join("\\n"));
+    process.exit(0);
+  }
   let hookInput = {};
   try {
     const input = readFileSync(0, "utf8").trim();
@@ -176,8 +198,6 @@ if (process.argv.length !== 2) {
   const hookCwd = typeof hookInput.cwd === "string" && isAbsolute(hookInput.cwd) ? hookInput.cwd : "";
   const hostContext = resolveRepositoryContext(hookCwd);
   const repositoryRoot = hostContext.context_state === "repository_bound" ? hostContext.repository_root : "";
-  const validator = fileURLToPath(new URL("./agdf-local.js", import.meta.url));
-  const pluginRoot = fileURLToPath(new URL("../", import.meta.url));
   let message = "AGDF automatic runtime check: skipped because SessionStart is not repository-bound. Resolve the task target before repository activation.";
   let configHint = "";
   let languagePolicy = "Language policy: follow the user language until a verified repository config is available.";
@@ -213,13 +233,13 @@ if (process.argv.length !== 2) {
     }
   }
   const additionalContext = [
-    "AGDF active.",
+    bindingContext,
     "",
     \`AGDF host context: \${hostContext.context_state}.\`,
     \`Working directory: \${hostContext.working_directory} (execution context only; not task-target or governance authority).\`,
     ...(repositoryRoot
       ? [\`Verified repository root: \${repositoryRoot}. SessionStart does not select the task target or gate.\`]
-      : ["No repository was selected by SessionStart. Task-target resolution is required before doctor or gate evaluation."]),
+      : ["No repository was selected by SessionStart. Do not request a target until the user invokes an AGDF skill or expresses matching delivery intent."]),
     message,
     ...(configHint ? [configHint] : []),
     languagePolicy,
@@ -232,11 +252,7 @@ if (process.argv.length !== 2) {
     \`- \${join(pluginRoot, "meta", "agdf-constitution.md")}\`,
     \`- \${join(pluginRoot, "meta", "agdf-runtime-contract.md")}\`,
   ].join("\\n");
-  if (surface === "copilot") {
-    console.log(JSON.stringify({ additionalContext }));
-  } else {
-    console.log(additionalContext);
-  }
+  emitContext(additionalContext);
   process.exitCode = 0;
 }
 `, "utf8");

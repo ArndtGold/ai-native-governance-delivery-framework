@@ -23,7 +23,7 @@ const packageRoot = join(__dirname, "..");
 const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "disable", "uninstall",
-  "opencode-repo", "init", "config", "target-check", "doctor", "gate-check",
+  "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",
   "run-render-legacy",
 ];
@@ -61,7 +61,10 @@ assert.deepEqual(parsed.options, {
   approvalEnvelope: false,
   dirExplicit: true,
   language: { language: "default" },
+  languageExplicit: false,
   surface: "codex",
+  surfaceExplicit: true,
+  skillId: undefined,
   fixture: "/tmp/root/fixture.json",
   persist: true,
   model: undefined,
@@ -104,6 +107,14 @@ assert.equal(targetCheck.options.workingDirectoryExplicit, true);
 assert.deepEqual(targetCheck.options.targetCandidates, ["/tmp/repo"]);
 assert.deepEqual(targetCheck.options.evidenceSources, ["request"]);
 assert.equal(targetCheck.options.targetChanged, true);
+const skillDispatch = parseArgs([
+  "skill-dispatch", "--json", "--skill", "qa-gate", "--surface", "copilot", "--language", "de",
+  "--working-directory", "/tmp/chat", "--target-source", "continued_target", "--primary-target", "/tmp/repo", "--run", "delivery-run",
+], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(skillDispatch.options.skillId, "qa-gate");
+assert.equal(skillDispatch.options.surfaceExplicit, true);
+assert.equal(skillDispatch.options.languageExplicit, true);
+assert.doesNotThrow(() => validateCommandOptions(skillDispatch.options));
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
@@ -132,8 +143,10 @@ assert.throws(() => validateCommandOptions({ target: "gate-check", allActive: tr
 assert.doesNotThrow(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true }));
 assert.doesNotThrow(() => validateCommandOptions({ target: "target-check", json: true }));
 assert.throws(() => validateCommandOptions({ target: "target-check", json: false }), /requires --json/);
-assert.throws(() => validateCommandOptions({ target: "doctor", primaryTarget: "/tmp/repo" }), /only by target-check/);
-assert.throws(() => validateCommandOptions({ target: "doctor", workingDirectoryExplicit: true }), /only by target-check/);
+assert.throws(() => validateCommandOptions({ target: "doctor", primaryTarget: "/tmp/repo" }), /only by target-check and skill-dispatch/);
+assert.throws(() => validateCommandOptions({ target: "doctor", workingDirectoryExplicit: true }), /only by target-check and skill-dispatch/);
+assert.throws(() => validateCommandOptions({ target: "skill-dispatch", json: true, skillId: "gate-check", surface: "codex", surfaceExplicit: true, languageExplicit: true }), /requires --working-directory/);
+assert.throws(() => validateCommandOptions({ target: "doctor", skillId: "gate-check" }), /--skill is supported only/);
 assert.throws(() => validateCommandOptions({ target: "doctor", approvalEnvelope: true }), /supported only/);
 assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true, json: true }), /cannot be combined/);
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);

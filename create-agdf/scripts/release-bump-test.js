@@ -72,6 +72,19 @@ function planFixtureBump(options) {
   return planReleaseVersionBump({ tagExists: () => true, ...options });
 }
 
+function symlinkCreationAvailable() {
+  const probeRoot = mkdtempSync(join(tmpdir(), "agdf-release-bump-symlink-probe-"));
+  try {
+    symlinkSync(join(probeRoot, "probe-target"), join(probeRoot, "probe-link"));
+    return true;
+  } catch (error) {
+    if (error?.code !== "EPERM") throw error;
+    return false;
+  } finally {
+    rmSync(probeRoot, { recursive: true, force: true });
+  }
+}
+
 try {
   assert.throws(
     () => runReleaseBumpCommand({ args: ["not-semver"], recover() {}, checkNpmVersion: () => assert.fail("npm called"), execute: () => assert.fail("write called") }),
@@ -220,18 +233,22 @@ try {
     original_digest: entry.originalDigest,
     target_digest: entry.targetDigest,
   }));
-  const symlinkStage = join(unsafeRoot, symlinkEntries[0].stage_path);
-  symlinkSync(join(unsafeRoot, symlinkEntries[0].relative_path), symlinkStage);
-  writeFileSync(join(unsafeRoot, ".agdf/release-bump-transaction.json"), `${JSON.stringify({
-    schema_version: 1,
-    transaction_id: randomUUID(),
-    entries: symlinkEntries,
-  })}\n`);
-  assert.throws(
-    () => recoverReleaseVersionBump({ repoRoot: unsafeRoot }),
-    (error) => error.code === "release_version_bump_recovery_invalid",
-  );
-  assertBytes(unsafeRoot, unsafeOriginal);
+  if (symlinkCreationAvailable()) {
+    const symlinkStage = join(unsafeRoot, symlinkEntries[0].stage_path);
+    symlinkSync(join(unsafeRoot, symlinkEntries[0].relative_path), symlinkStage);
+    writeFileSync(join(unsafeRoot, ".agdf/release-bump-transaction.json"), `${JSON.stringify({
+      schema_version: 1,
+      transaction_id: randomUUID(),
+      entries: symlinkEntries,
+    })}\n`);
+    assert.throws(
+      () => recoverReleaseVersionBump({ repoRoot: unsafeRoot }),
+      (error) => error.code === "release_version_bump_recovery_invalid",
+    );
+    assertBytes(unsafeRoot, unsafeOriginal);
+  } else {
+    console.log("Skipped release-bump symlink recovery fixture: symlink creation is unavailable on this host (EPERM).");
+  }
 
   console.log(`Release bump passed (${releaseBumpTargetPaths().length} transactional files; repair, forward, review, rollback and recovery)`);
 } finally {

@@ -14,8 +14,20 @@ approved product promise instead of inventing requirements after code exists.
 
 Use:
 
+- `../../meta/contracts/task-target-resolution.md` for the direct invocation boundary;
+- `../../meta/contracts/interaction.md` for canonical target presentation;
 - `../../meta/contracts/gate-transition.md` for impact routing, authority and revision behavior;
 - `../../meta/contracts/quality.md` for evidence and fail-closed output discipline.
+
+## Direct Skill Invocation Boundary
+
+Before any skill-specific input discovery or workflow, execute
+`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
+`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
+`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
+Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
+the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
+downstream.
 
 ## Authority
 

@@ -19,8 +19,20 @@ It answers:
 ## Runtime Contract
 Use these focused runtime-contract modules:
 
+- `../../meta/contracts/task-target-resolution.md`
+- `../../meta/contracts/interaction.md`
 - `../../meta/contracts/quality.md`
 - `../../meta/contracts/context-graph.md`
+
+## Direct Skill Invocation Boundary
+
+Before any skill-specific input discovery or workflow, execute
+`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
+`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
+`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
+Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
+the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
+downstream.
 
 Code-review-specific output must make actual findings, missing review scope, evidence strength, and the next required step visible.
 Applicable findings must use `../../meta/contracts/quality.md` §Normalized Review Gaps. Concrete diff

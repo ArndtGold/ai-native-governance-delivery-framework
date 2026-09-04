@@ -28,53 +28,14 @@ Use these focused runtime-contract modules:
 - `../../meta/contracts/quality.md`
 The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`. This skill evaluates the current state against that model; it must not maintain a second complete gate table.
 
-## Mandatory Target First And Early Return
+## Direct Skill Invocation Boundary
 
-Resolve or revalidate the task target before reading repository control state, selecting a run or
-reasoning about a gate. This is the first operational decision, including in a resumed chat.
-
-If target resolution is `unresolved`, return immediately after consuming the canonical
-`task_target_orientation.markdown` and asking only for its concrete recovery action. This early return overrides every later branch in this skill, including continuation from chat history,
-missing-control handling, fresh-UR drafting and approval guidance. A prior UR, prior run, prior
-approval or plausible repository mentioned in the conversation is only candidate context; it must
-not be presented conditionally as the current target or used to report `BLOCKED`, a current gate or
-`Approval: <GateName>`.
-
-For a repo-less Copilot GeneralChat with no reliable target, ask for one concrete primary target,
-such as the repository or file to inspect. Do not append alternatives for a previous UR, a new
-project or an existing repository, and do not add an "if the previous UR applies" gate result after
-the unresolved orientation.
-
-## Task Target Preflight
-
-Before `doctor`, run selection or `gate-check`, invoke `target-check --json`. When one target is
-semantically selected, pass its source and absolute path. When no reliable target exists, omit both
-`--target-source` and `--primary-target`; pass only the absolute `--working-directory` as context and
-the current chat language through `--language`. `--working-directory` never grants target authority.
-Resolve the chat language from the user's current natural-language conversation before invoking the
-command. A German user turn or an ongoing German conversation requires the literal argument
-`--language de`. English skill text, command names, host process text and the system locale do not
-override the user's conversation language. Always pass a concrete supported language tag; never
-omit `--language` and never leave `<current-chat-language>` as a placeholder.
-Do not label or pass the host cwd as `current_repository` unless the user explicitly or deictically
-selected that verified Git repository under the precedence contract. A Copilot chat-storage folder
-is never a repository selection merely because it is the working directory.
-
-If the result is `unresolved`, apply the mandatory early return above. Do not report a repository,
-run, current gate, missing approval or Run Status Card, and do not draft a synthetic UR. In
-particular, a repo-less Copilot GeneralChat is `target_unresolved`, not
-`repository_ungoverned`.
-
-After emitting the canonical unresolved orientation, ask exactly one short target clarification.
-The clarification must use the orientation's `presentation_language`; a German orientation therefore
-requires a German question. Do not add contract narration, an `Early Return` heading, path examples
-or a menu of target types.
-
-Only a `resolved` result may provide its repeated `governance_target` to `doctor`, `gate-check` or
-`delivery-map` through `--dir`. A fresh-UR branch is allowed only when doctor finds that exact
-resolved repository ungoverned and the user's request contains a concrete outcome. Without that
-observable intent, ask what should be changed and do not invent a placeholder feature or request
-`Approval: UR`.
+Before any gate-check input discovery or workflow, execute
+`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
+`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
+`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
+Do not inspect repository control state, select a run, evaluate a gate, draft a synthetic UR or
+mutate files. On `resolved`, use only the derived `governance_target` downstream.
 
 ## Agent-Native Control Path
 

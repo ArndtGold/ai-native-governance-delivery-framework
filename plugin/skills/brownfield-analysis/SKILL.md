@@ -21,10 +21,22 @@ The skill answers:
 ## Runtime Contract
 Use these focused runtime-contract modules:
 
+- `../../meta/contracts/task-target-resolution.md`
+- `../../meta/contracts/interaction.md`
 - `../../meta/contracts/gate-transition.md`
 - `../../meta/contracts/modes.md`
 - `../../meta/contracts/context-graph.md`
 - `../../meta/contracts/quality.md`
+
+## Direct Skill Invocation Boundary
+
+Before any skill-specific input discovery or workflow, execute
+`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
+`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
+`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
+Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
+the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
+downstream.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
 When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`.

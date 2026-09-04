@@ -24,9 +24,21 @@ It answers:
 ## Runtime Contract
 Use these focused runtime-contract modules:
 
+- `../../meta/contracts/task-target-resolution.md`
+- `../../meta/contracts/interaction.md`
 - `../../meta/contracts/quality.md`
 - `../../meta/contracts/context-graph.md`
 - `../../meta/contracts/gate-transition.md`
+
+## Direct Skill Invocation Boundary
+
+Before any skill-specific input discovery or workflow, execute
+`../../meta/contracts/task-target-resolution.md` §Direct Skill Invocation Preflight and use
+`../../meta/contracts/interaction.md` for its presentation. On `unresolved`, consume
+`task_target_orientation.markdown` verbatim, request only the normalized recovery action and stop.
+Do not inspect repository control state, select a run, evaluate a gate or quality decision, produce
+the normal skill output or mutate files. On `resolved`, use only the derived `governance_target`
+downstream.
 
 QA-specific `decision` is exactly `pass | revise | block`.
 `pass` is allowed only when TP coverage, Brownfield fit, solution integrity, and relevant documentation/Context Graph impact are sufficiently evidenced.
@@ -41,6 +53,31 @@ decisive reason and one permissible next action, and keep detailed reports as ev
 on-demand detail. The projection is non-authorizing and must not replace the Run Status Card,
 Gate Transition Card or the durable QA report.
 
+## Resolved Target Run And Evidence Discovery
+
+After the Direct Skill Invocation Preflight resolves one governance target, discover QA context from
+that target instead of asking the user to reconstruct repository evidence:
+
+1. Prefer an explicit run identifier only when it belongs to the resolved governance target and
+   matches the requested QA scope. Otherwise inspect the durable active-run inventory.
+2. Select exactly one run whose objective matches the request and whose canonical gate state permits
+   QA. Validate that state through gate-check or the equivalent agent-native control inspection.
+3. If no eligible run exists, report the current earlier gate or internal step and stop before a QA
+   decision. If several runs remain plausible, list only their identifiers and objectives, request
+   one run selection and stop before a QA decision. Run clarification is a pre-decision outcome, not
+   a fabricated `block` result.
+4. From the selected run and its Artefacts/Artefact Chain, resolve and read the approved TP,
+   Brownfield Analysis, CD+Tests evidence, Task Plan Review, Clean Implementation Review, Code
+   Review, normalized findings, test results and Context Graph state that are present and readable.
+5. Treat inaccessible external evidence and missing mandatory artefacts as explicit evidence gaps.
+   Do not ask the user to paste or relink repository files that the skill can read itself.
+6. Once one eligible QA run is established, evaluate the discovered evidence and emit exactly one
+   `pass | revise | block` decision with one permissible next step.
+
+QA owns the Quality Readiness and QA decision only. It must not reconstruct or promise a Run Status
+Card, Gate Transition Card, native QA card or interactive QA card. Operational run status and gate
+approval orientation remain owned by gate-check and the Interaction Contract.
+
 ## Rules
 1. No QA pass without strong evidence.
 2. TP is the reference, not merely working code.
@@ -48,7 +85,7 @@ Gate Transition Card or the durable QA report.
 4. Brownfield fit is mandatory.
 5. UI surface integrity is mandatory for UI-impacting changes.
 6. Solution integrity is mandatory.
-7. Always output exactly one decision: `pass`, `revise`, or `block`.
+7. After one eligible QA run is selected, always output exactly one decision: `pass`, `revise`, or `block`.
 8. Open risks, missing tests, partial TP coverage, or side effects must be visible.
 9. Applicable UX Intent Fidelity rows must all be `fulfilled` with suitable visible evidence before `pass`.
 10. A `requirements_gap` routes to PRD revision; QA must not invent or accept the missing criterion.
@@ -85,8 +122,8 @@ Use what is available:
 If evidence is missing, lower the decision accordingly.
 
 ## Workflow
-1. Confirm the relevant gate context.
-2. Verify TP coverage.
+1. Resolve the target, select exactly one eligible run and discover its durable evidence.
+2. Confirm the relevant gate context and verify TP coverage.
 3. Verify P0/P1 completion.
 4. Verify Brownfield fit.
 5. Verify UX Intent Fidelity when applicable, including visible evidence for visible-behavior claims.

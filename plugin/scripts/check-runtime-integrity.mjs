@@ -374,6 +374,7 @@ if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
   }
 }
 const runtimeContract = readAllContracts();
+const taskTargetContract = isFile(join(contractsDir, "task-target-resolution.md")) ? read(join(contractsDir, "task-target-resolution.md")) : "";
 const modesContract = isFile(join(contractsDir, "modes.md")) ? read(join(contractsDir, "modes.md")) : "";
 const gateTransitionContract = isFile(join(contractsDir, "gate-transition.md")) ? read(join(contractsDir, "gate-transition.md")) : "";
 const agentRouterContent = isFile(agentRouterPath) ? read(agentRouterPath) : "";
@@ -489,20 +490,18 @@ if (!gateCheckSkill.includes("`doctor --json` on the resolved surface-local vali
   failures.push("gate-check must name doctor --json as the sole canonical activation probe");
 }
 for (const targetBoundary of [
-  "target-check --json",
-  "a repo-less Copilot GeneralChat is `target_unresolved`, not",
-  "do not draft a synthetic UR",
-  "observable intent, ask what should be changed",
-  "This early return overrides every later branch in this skill",
-  "do not add an \"if the previous UR applies\" gate result",
-  "omit both\n`--target-source` and `--primary-target`",
-  "A Copilot chat-storage folder\nis never a repository selection",
-  "A German user turn or an ongoing German conversation requires the literal argument\n`--language de`",
-  "never\nomit `--language` and never leave `<current-chat-language>` as a placeholder",
-  "a German orientation therefore\nrequires a German question",
-  "Do not add contract narration, an `Early Return` heading, path examples",
+  "## Direct Skill Invocation Preflight",
+  "before skill-specific input",
+  "`task_target_orientation.markdown` verbatim",
+  "request only the normalized `next_action`",
+  "terminal pre-decision outcome",
+  "do not\n   inspect repository control state",
+  "use only its `governance_target`",
+  "subsequent skill-owned chat output must not mix locale packs",
+  "target-check --json --language <current-chat-language>",
+  "Do not install or resolve a remote",
 ]) {
-  if (!gateCheckSkill.includes(targetBoundary)) failures.push(`gate-check target-preflight boundary missing: ${targetBoundary}`);
+  if (!taskTargetContract.includes(targetBoundary)) failures.push(`shared direct skill target-preflight boundary missing: ${targetBoundary}`);
 }
 if (!gateCheckSkill.includes("must not be used as the only proof of activation")) {
   failures.push("gate-check must forbid AGDF_* env vars as sole activation proof");
@@ -1101,6 +1100,21 @@ for (const skill of expectedSkills) {
 
   const skillMd = read(skillPath);
   const helpMd = read(helpPath);
+  for (const required of [
+    "../../meta/contracts/task-target-resolution.md",
+    "../../meta/contracts/interaction.md",
+    "## Direct Skill Invocation Boundary",
+    "§Direct Skill Invocation Preflight",
+    "`task_target_orientation.markdown` verbatim",
+    "request only the normalized recovery action and stop",
+    "use only the derived `governance_target`",
+  ]) {
+    if (!skillMd.includes(required)) failures.push(`${skill} direct skill target-preflight boundary missing: ${required}`);
+  }
+  if (skillMd.includes("## Task Target Orientation Template")
+      || skillMd.includes("| Primary target | Governance target | Evidence sources |")) {
+    failures.push(`${skill} must not maintain a skill-local task target orientation template`);
+  }
   if (skill === "gate-check") {
     for (const required of [
       "## Native Interaction Path",
@@ -1157,6 +1171,17 @@ for (const skill of expectedSkills) {
     }
     if (!skillMd.includes("The CLI reports are validators and JSON evidence, not the primary user experience")) {
       failures.push("gate-check must classify CLI reports as validators, not the primary workflow");
+    }
+  } else if (skill === "qa-gate") {
+    for (const required of [
+      "## Resolved Target Run And Evidence Discovery",
+      "Select exactly one run whose objective matches the request",
+      "request\n   one run selection and stop before a QA decision",
+      "Do not ask the user to paste or relink repository files that the skill can read itself",
+      "emit exactly one\n   `pass | revise | block` decision",
+      "must not reconstruct or promise a Run Status\nCard, Gate Transition Card, native QA card or interactive QA card",
+    ]) {
+      if (!skillMd.includes(required)) failures.push(`qa-gate evidence-discovery boundary missing: ${required}`);
     }
   }
   if (skill === "release-or") {

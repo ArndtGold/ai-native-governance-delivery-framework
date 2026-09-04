@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,8 +12,27 @@ const root = fileURLToPath(new URL("../..", import.meta.url));
 const report = runSkillEvals(root);
 assert.equal(report.status, "pass");
 assert.equal(report.canonical_skills, 10);
-assert.ok(report.cases >= 30);
+assert.ok(report.cases >= 83);
 assert.match(report.evidence_boundary, /not live host/);
+const definition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url)));
+const casesUrl = new URL("../../evals/cases/", import.meta.url);
+const allCases = readdirSync(casesUrl)
+  .filter((name) => name.endsWith(".json"))
+  .sort()
+  .flatMap((name) => JSON.parse(readFileSync(new URL(name, casesUrl))));
+for (const skill of definition.skillSet) {
+  assert.ok(allCases.some((testCase) => testCase.target_skill === skill.slug
+    && testCase.expected?.internal_step === "Task Target Resolution"
+    && testCase.expected.required_actions.some((action) => action.includes("stop before") || action.includes("return before downstream"))
+    && testCase.expected.forbidden_actions.some((action) => action === "produce normal skill output" || action === "evaluate gate")),
+  `${skill.slug} must retain an unresolved direct-invocation case`);
+}
+for (const caseId of [
+  "qa-gate-resolved-unique-run",
+  "qa-gate-resolved-run-ambiguous",
+  "qa-gate-resolved-missing-review",
+  "qa-gate-card-approval-bait",
+]) assert.ok(allCases.some((testCase) => testCase.case_id === caseId), `missing QA self-discovery case ${caseId}`);
 const sample = JSON.parse(readFileSync(new URL("../../evals/cases/gate-check.json", import.meta.url)))[0];
 const qualityProfile = { required_sections: ["evidence", "missing evidence", "decision", "risks", "required next step"], expected_decision: "pass", forbidden_claims: ["unsupported completion"] };
 const goodArtefact = "## Evidence\n- inspected\n\n## Missing evidence\n- none\n\n## Decision\nDecision: pass\n\n## Risks\n- known\n\n## Required next step\n- continue\n";

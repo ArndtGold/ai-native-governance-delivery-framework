@@ -12,11 +12,13 @@ const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefa
 const brownfieldTemplatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md");
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
 const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
+const taskTargetContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "task-target-resolution.md");
 const modesContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "modes.md");
 const qualityContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "quality.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
 const brownfieldSkillPath = join(fixtureRoot, "plugin", "skills", "brownfield-analysis", "SKILL.md");
 const cleanReviewPath = join(fixtureRoot, "plugin", "skills", "clean-implementation-review", "SKILL.md");
+const qaGatePath = join(fixtureRoot, "plugin", "skills", "qa-gate", "SKILL.md");
 const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL.md");
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 const agentSkillsPolicyPath = join(fixtureRoot, "plugin", "meta", "agent-skills-conformance.json");
@@ -154,6 +156,30 @@ try {
     writeFileSync(gateCheckPath, readFileSync(gateCheckPath, "utf8").replace(boundary, "boundary removed"), "utf8");
     expectIntegrityFailure(/gate-check operational boundary missing:/);
   }
+
+  resetPluginFixture();
+  writeFileSync(
+    taskTargetContractPath,
+    readFileSync(taskTargetContractPath, "utf8").replace("## Direct Skill Invocation Preflight", "## Removed Direct Skill Invocation Preflight"),
+    "utf8",
+  );
+  expectIntegrityFailure(/shared direct skill target-preflight boundary missing: ## Direct Skill Invocation Preflight/);
+
+  resetPluginFixture();
+  writeFileSync(
+    cleanReviewPath,
+    readFileSync(cleanReviewPath, "utf8").replace("request only the normalized recovery action and stop", "continue without a resolved target"),
+    "utf8",
+  );
+  expectIntegrityFailure(/clean-implementation-review direct skill target-preflight boundary missing:/);
+
+  resetPluginFixture();
+  writeFileSync(
+    qaGatePath,
+    readFileSync(qaGatePath, "utf8").replace("Do not ask the user to paste or relink repository files that the skill can read itself", "Ask the user to supply repository evidence"),
+    "utf8",
+  );
+  expectIntegrityFailure(/qa-gate evidence-discovery boundary missing:/);
 
   resetPluginFixture();
   writeFileSync(

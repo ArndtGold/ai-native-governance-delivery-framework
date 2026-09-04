@@ -19,6 +19,50 @@ result is terminal for the current response and overrides continuation, missing-
 and approval branches. Prior chat artefacts, runs and approvals remain candidate context only; they
 must not produce a conditional gate result until one target is resolved.
 
+## Direct Skill Invocation Preflight
+
+Every canonical AGDF skill invocation starts with this preflight before skill-specific input
+discovery, repository inspection, run selection, gate evaluation, quality evaluation or mutation.
+This applies equally when a host invokes a skill directly and when the agent router selected it.
+
+1. Determine the current conversation language for presentation. A German user turn or an ongoing
+   German conversation uses `de`; an unsupported language falls back to the complete English locale
+   pack through the Interaction Contract.
+2. Resolve or revalidate the primary target under Target Authority Precedence. When an exact-version
+   surface-local validator is available, use one of the existing `target-check --json` forms below.
+3. Validate the normalized Resolution Result. Do not infer missing fields from cwd, chat storage,
+   an inspected repository, a prior run or evidence sources.
+4. If `resolution_state` is `unresolved`, consume `task_target_orientation.markdown` verbatim from
+   the Interaction Contract, request only the normalized `next_action` in the same presentation
+   language and stop the current skill invocation. This is a terminal pre-decision outcome: do not
+   inspect repository control state, select a run, evaluate a gate or quality decision, produce the
+   skill's normal output, or mutate files.
+5. If `resolution_state` is `resolved`, use only its `governance_target` for downstream repository,
+   run, gate and evidence access. Revalidate after an explicit target change and before every
+   mutation or gate decision.
+
+The resolved `presentation_language` remains binding for the complete user-facing interaction:
+target orientation, clarification and subsequent skill-owned chat output must not mix locale packs.
+Durable artefacts, machine fields, task identifiers and exact approval values retain their canonical
+language as defined by the Interaction Contract.
+
+Context-only form when no reliable target is selected:
+
+```bash
+node <surface-local-agdf> target-check --json --language <current-chat-language> --working-directory <absolute-path>
+```
+
+Selected-target form:
+
+```bash
+node <surface-local-agdf> target-check --json --language <current-chat-language> --target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path> --working-directory <absolute-path>
+```
+
+The two forms are validation paths, not permission to invent a target or contact a registry. If no
+exact-version surface-local validator exists, continue agent-natively only as far as the observable
+evidence permits and report machine validation as unavailable. Do not install or resolve a remote
+runtime during ordinary skill invocation.
+
 ## Resolution Result
 
 Use one normalized result:

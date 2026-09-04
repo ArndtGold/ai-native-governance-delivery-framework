@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: cross-surface-executable-skill-dispatcher
 - lifecycle: active
-- revision: 13
-- revision_id: 22165494-7FAA-4853-B950-0F594F0E8E8E
+- revision: 17
+- revision_id: AB264203-1E6B-4885-AF28-AD5061BB1DAB
 - started_at: 2026-09-04
 - mode: `structured_delivery`
 - current_gate: QA
@@ -23,10 +23,10 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 | Question | Answer |
 |---|---|
-| What is known? | CSED-HOST-04 lief bytegleich: Target-/Approval-Fragen und Text vor dem Dispatcher sind beseitigt; Copilot erwähnt AGDF aber noch ungefragt und zieht `Feld`/`Wert` zusammen. SessionStart ist jetzt für normale Unterhaltung still, Runtime-Erwähnung erfordert AGDF-Intent und exakter Terminaltext liegt direkt in `host_action.text`. |
+| What is known? | Copilot bleibt teilweise offen. CSED-HOST-07 beweist, dass der statische globale OpenCode-Skill trotz fehlender Plugin-Bindung einen Paketpfad rekonstruierte. Der Generator verlangt nun aktive Deklaration plus exakte Bindung und verbietet Suche, Ableitung und Shell-Recovery. Release, Smoke und Runtime Integrity bestehen. |
 | What is approved? | UR, PRD, SD und TP Revision 1 durch exakte, jeweils revalidierte Freigaben. |
-| What is missing? | Frischer Copilot-Retest der Nicht-Aktivierungs-Korrektur sowie übrige Copilot-, Codex-, Claude-Code-, OpenCode- und native Windows-Nachweise aus TP-09. |
-| What is the next allowed action? | Neueste Pluginfassung installieren, Copilot neu starten und eine reine Sprachpräferenz ohne AGDF-Aufruf wiederholen. |
+| What is missing? | Sauber abgeschlossener OpenCode-Installations-Retest, frischer Nachweis für den korrigierten Early Return, danach Ausführungsnachweis in einem explizit aktivierten Repository sowie übrige Hostevidenz. |
+| What is the next allowed action? | Den korrigierten OpenCode-Installer erneut ausführen und dessen Abschlusskarte erfassen. |
 | What is explicitly forbidden right now? | Hostinstallation oder Neustart ohne separate Autorisierung, QA-Pass, UAT, Commit, Push, PR und Release. |
 
 ## Source And Scope State
@@ -48,14 +48,14 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 | Run status | Value |
 |---|---|
-| Status | QA Revision 6: revise; weitere Hostverbesserung belegt, letzter Retest offen |
+| Status | QA Revision 10: revise; OpenCode-Aktivierung, Skill-Rekonstruktion und Installationswartezeit repository-seitig gelöst, Hostnachweis offen |
 | Current gate | QA |
-| Allowed now | Nicht-Aktivierungs-Korrektur installieren und TP-09-Nachweise vervollständigen |
-| Blocked by | Sichtbare Tabellenfidelity, Nicht-Aktivierungs-Retest sowie übrige Loaded-Host- und native Windows-Nachweise fehlen |
+| Allowed now | Korrigierte OpenCode-Fassung installieren und TP-09-Nachweise vervollständigen |
+| Blocked by | CSED-QA-01: Loaded-Host- und native Windows-Nachweise fehlen |
 | Missing approval | none |
 | Next gate after approval | none |
 | Allowed after approval | none |
-| Next step | Copilot mit einer reinen Sprachpräferenz erneut prüfen; AGDF darf dabei nicht ungefragt starten |
+| Next step | Korrigierte Installation erneut ausführen; danach in derselben inaktiven Repo-Session ohne Shell-Anforderung retesten |
 | Quality outlook | Dispatcher besteht; Hostbefolgung und restliche Plattformmatrix bleiben getrennte Evidenzebenen |
 
 ## Approvals
@@ -66,7 +66,7 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | PRD | approved | Exaktes `Approval: PRD` nach Revalidierung von Ziel, Run, Gate und Revision 3. |
 | SD | approved | Exaktes `Approval: SD` nach Revalidierung von Ziel, Run, Gate und Revision 4. |
 | TP | approved | Exaktes `Approval: TP` nach Revalidierung von Ziel, Run, Gate und Revision 5. |
-| QA | blocked | QA Revision 6 entscheidet `revise`; CSED-QA-02 bis CSED-QA-04 sind im Repository gelöst, CSED-QA-01 bleibt für direkte Hostevidenz offen. |
+| QA | blocked | QA Revision 10 entscheidet `revise`; CSED-QA-05 und CSED-QA-06 sind repository-seitig gelöst, CSED-QA-01 bleibt offen. |
 | UAT | blocked | QA fehlt. |
 
 ## Artefacts
@@ -80,12 +80,12 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | SD | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/SD.md` | approved | Revision 1 definiert einen lokalen Dispatcher-Service, CLI-Schema, Outcome-Vertrag, Bindings, Tests, Rollout und Rollback. |
 | TP | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP.md` | approved | Revision 1 ordnet 18 Anforderungen zehn ausführbaren Arbeitspaketen, Tests, Stopbedingungen sowie Windows- und Hostevidenz zu. |
 | Brownfield Analysis | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/BROWNFIELD_ANALYSIS.md` | done | Revision 1 bestätigt Erweiterung und Wiederverwendung der bestehenden Owner; TP-01 bis TP-08 dürfen in CD+Tests beginnen. |
-| CD+Tests | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CD_TESTS.md` | done | Revision 5 ergänzt stillen Kontext und exakten `host_action.text`; fokussierte und Release-Regressionen bestehen. TP-09 bleibt teilweise offen. |
-| Loaded-host Evidence | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md` | partial | Revision 4: Bytegleicher Retest beseitigt Targetfragen und Vorabtext; ungefragte Runtime-Erwähnung und sichtbarer Tabellenkopf bleiben für neueste Korrektur offen. |
+| CD+Tests | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CD_TESTS.md` | done | Revision 8 ergänzt die globale OpenCode-Skill-Grenze; Release, Smoke und Runtime Integrity bestehen. TP-09 bleibt teilweise offen. |
+| Loaded-host Evidence | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md` | partial | Revision 7 ergänzt den rekonstruierten Paket-Runtimepfad trotz inaktivem Repository. |
 | TP Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP_REVIEW.md` | revise | 8/10 vollständig; TP-09 und TP-10 teilweise. |
-| Clean Implementation Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 5 bestätigt stillen Kontext und direkte Textübergabe ohne parallele Owner. |
-| CR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CODE_REVIEW.md` | done | Revision 5 besteht nach `host_action.text` und Ordinary-Chat-Policy. |
-| QA | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md` | revise | Revision 6: CSED-QA-04 repository-seitig gelöst; CSED-QA-01 hält neuesten Retest und Restmatrix offen. |
+| Clean Implementation Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 8 bestätigt die zentrale globale Skill-Grenze ohne parallelen Owner. |
+| CR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CODE_REVIEW.md` | done | Revision 8 besteht nach globalem Skill-, Binding- und npm-Audit-Fix. |
+| QA | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md` | revise | Revision 10: CSED-QA-05/CSED-QA-06 repository-seitig gelöst; frischer Hostnachweis bleibt in CSED-QA-01 offen. |
 | UAT |  | missing | QA fehlt. |
 
 ## Mode/Slice Decision
@@ -110,12 +110,12 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | TP | derived_from | SD | Revision 1 plant Dispatcher, Instruktionskürzung und Beweisführung vollständig gegen PRD und SD. |
 | TP | approved_by | `Approval: TP` | Exakte Freigabe nach Revalidierung von Ziel, Run, Gate und Revision 5. |
 | Brownfield Analysis | validates | TP | Revision 1 bestätigt den reuse-before-create Implementierungspfad ohne blockierenden SoT- oder Ownership-Konflikt. |
-| CD+Tests | implements_and_tests | TP | Revision 5 ergänzt stillen Kontext und exakten `host_action.text`; vollständiger Smoke sowie fokussierte Release- und Runtime-Nachweise bestehen; TP-09 bleibt separat. |
-| Loaded-host Evidence | validates | TP-09 | Revision 4: Targetfragen und Vorabtext beseitigt; stille normale Unterhaltung und exakte Tabellenfidelity bleiben zu retesten. |
+| CD+Tests | implements_and_tests | TP | Revision 8 ergänzt die globale OpenCode-Skill-Grenze; vollständiger Smoke besteht; TP-09 bleibt separat. |
+| Loaded-host Evidence | validates | TP-09 | Revision 7: OpenCode Ordinary Chat, Permission-Grenze, npm-Audit-Wartezustand und rekonstruierter Runtimepfad belegt; korrigierter Retest offen. |
 | TP Review | verifies | TP | 8/10 vollständig; TP-09 und TP-10 teilweise. |
-| Clean Implementation Review | reviews | CD+Tests | Revision 5 besteht; kein zusätzlicher Skill- oder Renderer-Owner. |
-| Code Review | reviews | CD+Tests | Revision 5 besteht; keine offene Code-Lücke nach direkter Textübergabe. |
-| QA Report | tests | TP | Revision 6 entscheidet `revise`; neueste Hostevidenz und Restmatrix fehlen. |
+| Clean Implementation Review | reviews | CD+Tests | Revision 8 besteht; Generator, Adapter und Installer bleiben vorhandene Owner. |
+| Code Review | reviews | CD+Tests | Revision 8 besteht; inaktive Bindung, statische Pfadrekonstruktion und npm-Audit-Wartezeit sind korrigiert. |
+| QA Report | tests | TP | Revision 10 entscheidet `revise`; CSED-QA-05 und CSED-QA-06 sind gelöst, die Hostmatrix bleibt offen. |
 
 ## Evidence
 
@@ -151,6 +151,16 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | Copilot silent-context retest | Nutzertranskript 2026-09-04; `HOST_EVIDENCE.md` Revision 4 | Targetfragen und Vorabtext beseitigt; Runtime-Erwähnung und Header-Fidelity offen | direct user-attested plus local digest |
 | Direct terminal text correction | `service.js`; `sync-plugin-runtime.js`; `opencode-plugin.js` | stiller Ordinary-Chat-Kontext und bytegenaue Ausgabe aus `host_action.text` | direct |
 | QA Report Revision 6 | `QA_REPORT.md` | QA `revise`; CSED-QA-04 gelöst, CSED-QA-01 offen | direct QA decision |
+| OpenCode Desktop pre-execution | Nutzer-Screenshot 2026-09-04; `HOST_EVIDENCE.md` Revision 5 | Ordinary-Chat-Isolation und `bash: ask` bestehen; lokale Prüfung belegt fehlende durable Repository-Aktivierung vor unerlaubtem Dispatch-Versuch | direct user-attested plus installed-config and repository inspection |
+| QA Report Revision 7 | `QA_REPORT.md` | QA `revise`; CSED-QA-05 und Restmatrix offen | direct QA decision |
+| OpenCode inactive-binding correction | `opencode-plugin.js`; `opencode-hardening-test.js` | Inaktive Guidance enthält keine ausführbare Bindung und fordert keine Shell-Permission; aktive Guidance bleibt ausführbar | direct repository test |
+| QA Report Revision 8 | `QA_REPORT.md` | QA `revise`; CSED-QA-05 repository-seitig gelöst, CSED-QA-01 offen | direct QA decision |
+| OpenCode installer wait diagnosis | Prozessliste und npm-Debuglog 2026-09-04; `HOST_EVIDENCE.md` Revision 6 | stiller lokaler npm-Install wartete in `audit bulk request` mit offener HTTPS-Verbindung | direct local observation |
+| OpenCode audit-free installer correction | `opencode.js`; `smoke-test.js`; vollständiger `smoke-test` | lokales Paketupdate ohne Scripts, Audit oder Funding; Regression fail-closed | direct repository test |
+| QA Report Revision 9 | `QA_REPORT.md` | QA `revise`; CSED-QA-05/CSED-QA-06 gelöst, CSED-QA-01 offen | direct QA decision |
+| OpenCode inactive-skill retest | Nutzer-Screenshot 2026-09-04; `HOST_EVIDENCE.md` Revision 7 | globaler Skill rekonstruierte einen Paket-Runtimepfad und forderte Shell-Permission trotz inaktivem Repository | direct user-attested plus installed-content inspection |
+| Global OpenCode skill guard correction | `opencode.js`; `smoke-test.js`; Release, OpenCode, Smoke und Runtime Integrity | aktive Deklaration plus exakte Plugin-Bindung zwingend; keine Suche, Pfadableitung oder Shell-Recovery | direct repository test |
+| QA Report Revision 10 | `QA_REPORT.md` | QA `revise`; CSED-QA-05/CSED-QA-06 repository-seitig gelöst, CSED-QA-01 offen | direct QA decision |
 
 ## Missing Evidence
 
@@ -162,8 +172,8 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 ## Risks
 
 - Host-Plugin-APIs können direkte ausführbare Skill-Aufrufe unterschiedlich oder gar nicht unterstützen.
-- SessionStart-Kontext kann AGDF in normaler Unterhaltung überaktivieren; die zentrale Korrektur ist
-  noch nicht in einer frischen Hostsession verifiziert.
+- SessionStart- und OpenCode-Aktivierungsgrenzen sind repository-seitig korrigiert, aber noch nicht
+  vollständig in frischen Hostsessions verifiziert.
 - Windows-Pfade und tatsächliche Host-Latenz bleiben bis TP-09 unbewiesen.
 
 ## Context Graph Impact

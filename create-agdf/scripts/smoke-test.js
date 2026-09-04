@@ -119,7 +119,9 @@ if (args[0] === "install" && args.at(-1) === sdkSpecifier) {
     : 'export type Hooks = { "experimental.chat.system.transform": unknown; "experimental.session.compacting": unknown; };\\n');
   process.exit(0);
 }
-if (args.includes("--prefix") || !args.includes("--save-exact") || args.at(-1) !== expectedSpecifier) {
+if (args.includes("--prefix")
+  || !["--save-exact", "--ignore-scripts", "--no-audit", "--no-fund"].every((required) => args.includes(required))
+  || args.at(-1) !== expectedSpecifier) {
   console.error("unexpected fake npm invocation: " + JSON.stringify(args));
   process.exit(2);
 }
@@ -495,7 +497,7 @@ try {
   }
   const npmCallsAfterInstall = readJsonLines(openCodeNpmLog).length;
   const npmArgs = readJsonLines(openCodeNpmLog).find((args) => args.at(-1) === `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`);
-  if (!npmArgs.includes("--save-exact")
+  if (!["--save-exact", "--ignore-scripts", "--no-audit", "--no-fund"].every((required) => npmArgs.includes(required))
     || npmArgs.includes("--prefix")
     || npmArgs.at(-1) !== `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`
     || npmArgs.some((arg) => arg.includes(".npm/_npx") || arg === fileURLToPath(packageRoot))) {
@@ -548,6 +550,7 @@ try {
   }
   let fullBoundaryCount = (globalInstructions.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
   let activationGuardCount = 0;
+  let conditionalDispatchCount = 0;
   for (const skillName of globalOpenCodeSkillNames) {
     const globalSkillPath = join(openCodeConfigTempDir, "skills", skillName, "SKILL.md");
     const globalSkill = existsSync(globalSkillPath) ? readFileSync(globalSkillPath, "utf8") : "";
@@ -556,9 +559,18 @@ try {
     }
     fullBoundaryCount += (globalSkill.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
     activationGuardCount += (globalSkill.match(/## Repository Activation Guard/g) ?? []).length;
+    conditionalDispatchCount += (globalSkill.match(/## Conditional Executable Dispatch/g) ?? []).length;
+    if (globalSkill.includes("## Executable Dispatch")
+      || !globalSkill.includes("Do not inspect files, search installed packages, derive a runtime path or request shell permission")
+      || !globalSkill.includes("Never search for, infer or construct an executable or runtime path")
+      || !globalSkill.includes("Without the explicit active declaration and exact binding")) {
+      throw new Error(`opencode global skill ${skillName} must fail closed without an active supplied binding and forbid runtime reconstruction.`);
+    }
   }
-  if (fullBoundaryCount !== 1 || activationGuardCount !== globalOpenCodeSkillNames.length) {
-    throw new Error(`opencode must install one full global boundary and ${globalOpenCodeSkillNames.length} compact skill guards.`);
+  if (fullBoundaryCount !== 1
+    || activationGuardCount !== globalOpenCodeSkillNames.length
+    || conditionalDispatchCount !== globalOpenCodeSkillNames.length) {
+    throw new Error(`opencode must install one full global boundary and ${globalOpenCodeSkillNames.length} fail-closed skill guards.`);
   }
   const localValidatorPath = join(openCodeConfigTempDir, "agdf", "bin", "agdf-local.js");
   if (!existsSync(localValidatorPath)

@@ -117,7 +117,16 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
     const packageSource = resolveOpenCodeInstallPackageSource(dependencies.packageSource);
     localPackageSource = packageSource.local;
     const packageSpecifier = packageSource.specifier;
-    const invocation = openCodeNpmInvocation(["install", "--silent", "--save-prod", "--save-exact", packageSpecifier]);
+    const invocation = openCodeNpmInvocation([
+      "install",
+      "--silent",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund",
+      "--save-prod",
+      "--save-exact",
+      packageSpecifier,
+    ]);
     execFileSync(invocation.executable, invocation.args, {
       cwd: configDir,
       stdio: "pipe",
@@ -255,8 +264,10 @@ function globalOpenCodeActivationGuard() {
   return [
     "## Repository Activation Guard",
     "",
-    "Apply AGDF governance only when this repository has valid `.agdf/control/config.json` durable control.",
-    "If it is missing or invalid, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo`; the global installation alone is not activation.",
+    "Apply AGDF governance only when the current OpenCode plugin system context explicitly declares this repository AGDF-active and supplies an exact `AGDF dispatcher binding:`.",
+    "If either signal is absent, stop and direct the user to `npx --yes @agdf/cli@latest opencode-repo`; the global installation alone is not activation.",
+    "Do not inspect files, search installed packages, derive a runtime path or request shell permission to establish activation or recover a missing binding.",
+    "The Conditional Executable Dispatch section below is unreachable unless both signals are present.",
     "",
   ].join("\n");
 }
@@ -269,6 +280,20 @@ function toGlobalOpenCodeContent(content) {
     next = next.replaceAll(localName, globalName);
   }
   return next;
+}
+
+function toGlobalOpenCodeSkillContent(content) {
+  return toGlobalOpenCodeContent(content).replace(
+    "## Executable Dispatch\n",
+    [
+      "## Conditional Executable Dispatch",
+      "",
+      "Use only the exact dispatcher binding supplied by the active OpenCode plugin system context.",
+      "Never search for, infer or construct an executable or runtime path from this skill, the npm package, the filesystem or prior messages.",
+      "Without the explicit active declaration and exact binding, return the activation recovery above without invoking `bash` or another tool.",
+      "",
+    ].join("\n"),
+  );
 }
 
 export function installOpenCodeGlobalSurface(configDir) {
@@ -337,7 +362,7 @@ export function installOpenCodeGlobalSurface(configDir) {
     const sourcePath = join(generatedOpenCodeRoot, "skills", sourceName, "SKILL.md");
     const sourceContent = readFileSync(sourcePath, "utf8");
     const marker = `${globalOpenCodeSkillOwnershipMarker}${skillName} -->`;
-    const content = toGlobalOpenCodeContent(sourceContent).replace(/^(---[\s\S]*?\n---\n)/, `$1${marker}\n\n${globalOpenCodeActivationGuard()}`);
+    const content = toGlobalOpenCodeSkillContent(sourceContent).replace(/^(---[\s\S]*?\n---\n)/, `$1${marker}\n\n${globalOpenCodeActivationGuard()}`);
     writeOwnedGlobalOpenCodeFile(join(paths.skills, skillName, "SKILL.md"), content, marker, "after-frontmatter");
   }
 

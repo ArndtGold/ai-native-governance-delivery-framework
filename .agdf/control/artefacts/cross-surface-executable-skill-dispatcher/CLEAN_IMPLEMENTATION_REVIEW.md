@@ -1,6 +1,6 @@
 # Clean Implementation Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 5
+Revision: 8
 Decision: pass
 Date: 2026-09-04
 
@@ -27,7 +27,16 @@ Date: 2026-09-04
   another exception over it; three bounded binding fields make activation and output behavior explicit.
 - final transfer simplification: pass. Removing the remaining availability headline reduces prompt
   competition, while co-locating exact output in `host_action.text` avoids model-owned pointer resolution.
+- OpenCode activation fit: pass. The existing adapter remains the activation owner and now exposes
+  the executable binding only after durable repository activation. No duplicate guard, dispatcher
+  fallback or broader shell permission was introduced.
+- installer wait correction: pass. The existing npm invocation is made offline with respect to audit
+  and lifecycle scripts; no retry loop, timeout workaround or second installer was introduced.
+- inactive global-skill correction: pass. The generator strengthens the existing activation/binding
+  boundary once for all ten global skills; it does not add a runtime locator, adapter or parallel
+  activation owner.
 - brownfield_fit: pass. Changes extend the approved CLI, runtime, generator, skill and integrity seams.
-- missing_evidence: The German repo-less Copilot QA case passes. The later non-activation correction,
-  remaining loaded-host cases and native Windows behavior still need direct evidence.
-- required_next_step: Retest language-preference isolation, then collect the remaining TP-09 evidence.
+- missing_evidence: The German repo-less Copilot QA case passes. The later Copilot and OpenCode
+  activation corrections, remaining loaded-host cases and native Windows behavior need direct evidence.
+- required_next_step: Retest OpenCode first in an inactive repository without a shell prompt and then
+  in an explicitly activated repository; collect the remaining TP-09 evidence.

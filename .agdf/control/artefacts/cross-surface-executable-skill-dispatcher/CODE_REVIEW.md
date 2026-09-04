@@ -1,6 +1,6 @@
 # Code Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 5
+Revision: 8
 Decision: pass
 Date: 2026-09-04
 Reviewed scope: dispatch contract/service, CLI and wrapper integration, generated host bindings,
@@ -35,6 +35,17 @@ The review found and resolved these issues before the final decision:
    mention or table rewriting. The remaining availability headline is removed, ordinary chat and
    runtime mention are separately machine-bound, and exact terminal Markdown is embedded in
    `host_action.text`; focused dispatcher, projection, integrity and release tests pass.
+9. CSED-HOST-05 exposed the OpenCode dispatcher before durable repository activation. Inactive
+   guidance now omits the executable binding and forbids an AGDF shell-permission request; active
+   guidance still receives the exact binding. The focused OpenCode test covers both branches and
+   release preparation plus Runtime Integrity pass.
+10. The local package installation used `--silent` but still allowed npm audit traffic, leaving the
+    user without progress while npm waited on the registry. It now disables audit, funding and
+    package scripts. The end-to-end smoke fixture rejects a regression in these flags.
+11. The inactive plugin guidance no longer exposed a binding, but the static global skill still
+    allowed the model to reconstruct an installed-package runtime path. The generator now makes the
+    dispatch section explicitly conditional on both active context signals and rejects search,
+    inference or shell recovery. All ten generated global skills are asserted.
 
 ## Evidence
 
@@ -51,7 +62,8 @@ The review found and resolved these issues before the final decision:
 ## Missing Evidence And Risks
 
 - Prompt terminal behavior is loaded-host proven, but visible header fidelity is not. The newest
-  neutral-state correction, remaining loaded-host behavior and native Windows invocation are unverified.
+  Copilot and OpenCode activation corrections, remaining loaded-host behavior and native Windows
+  invocation are unverified.
 - `instruction_only` is an honest capability classification, not an executable fallback guarantee.
 - required_next_step: collect separately authorized TP-09 host evidence, refresh review evidence and
   only then run `qa-gate`.

@@ -1,6 +1,6 @@
 # Loaded-host Evidence: Cross-surface Executable Skill Dispatcher
 
-Revision: 4
+Revision: 7
 Date: 2026-09-04
 Status: partial
 
@@ -136,6 +136,70 @@ pass; installed-host behavior is pending.
 | CSED-HOST-03 non-activation retest | revise | The first prose-only binding fix was loaded but contradicted by `AGDF active.`; Copilot also emitted pre-dispatch prose and again merged the visible table header. |
 | CSED-HOST-04 silent-context retest | partial | Target/approval questions and pre-dispatch prose are gone, but unsolicited AGDF mention and merged table header remain. |
 
+## OpenCode Desktop Pre-execution CSED-HOST-05
+
+The user restarted OpenCode after installing AGDF 0.14.5 and supplied a screenshot of a German
+ordinary-conversation turn followed by the native global QA skill.
+
+| Field | Evidence |
+|---|---|
+| Ordinary conversation isolation | pass; `Antworte auf Deutsch` received a normal German acknowledgement without AGDF activation or runtime mention |
+| Skill surface | `agdf-global-qa-gate` loaded through OpenCode's native skill UI |
+| Visible skill body | OpenCode displays the loaded skill instructions in host chrome; this is not the dispatcher result or AGDF chat presentation |
+| Repository activation guard | visible and correctly states that global installation alone is not repository activation |
+| Dispatcher command | requested with `--surface opencode`, `--skill qa-gate`, `--language de` and a quoted working directory containing spaces |
+| Repository state | working directory is inside Git root `/Volumes/Media Drive/Arndt Gold/Workspace/ai-agents`; no `.agdf/control/config.json` exists at the working directory or Git root |
+| Permission state | `permission.bash: ask` correctly prompts if execution is attempted, but the Repository Activation Guard should have stopped before requesting this command in an inactive repository |
+| Executable | OpenCode Desktop exposes its `OpenCode Helper` through `process.execPath`, followed by the installed `agdf-local.js` script |
+| Dispatcher outcome | not available; execution is waiting for user permission |
+| Classification | revise; safe permission boundary held, but inactive-repository early return was not obeyed |
+
+The permission prompt is an OpenCode security boundary, not AGDF gate approval. This evidence does
+not justify changing global `bash` permission. Because durable repository activation is absent, the
+correct action for this case is to deny execution. The model should have returned the documented
+`opencode-repo` recovery without requesting a shell command. Desktop-helper executable conformance
+must be tested separately in an explicitly activated repository.
+
+The repository correction removes the dispatcher binding from inactive OpenCode guidance and adds
+an explicit no-shell-request instruction. Active guidance still contains the exact executable
+binding. Focused hardening, asset synchronization, release preparation and Runtime Integrity pass;
+this correction is not yet loaded-host evidence.
+
+## OpenCode Local Installation CSED-HOST-06
+
+The next local installation printed `Setting up AGDF 0.14.5 for OpenCode...` and then remained
+silent for several minutes. Process and npm-log inspection established the exact wait:
+
+- `install-local-plugin.js opencode` was waiting for `npm install <local-create-agdf-tarball>`;
+- npm had already retired the installed package and entered `silly audit bulk request`;
+- the npm process held an established HTTPS connection while installer output was hidden by
+  `--silent` and `stdio: pipe`;
+- no further npm log progress or AGDF prompt existed.
+
+The primary OpenCode package-install invocation now uses `--ignore-scripts --no-audit --no-fund`,
+matching the already hardened SDK-alignment install. The smoke fixture requires all three flags.
+The complete smoke test passes. The observed process later ended; read-only `opencode-status`
+reports version 0.14.5, matching host/SDK 1.18.3 and a complete global native surface. A clean rerun
+with the corrected installer remains the completion evidence.
+
+## OpenCode Inactive-skill Retest CSED-HOST-07
+
+After the inactive plugin-guidance correction was installed, the user invoked the global QA skill
+again in the same repository without durable AGDF control. OpenCode still requested permission for:
+
+`node <config>/node_modules/create-agdf/generated/plugins/agdf/runtime/agdf-local.js skill-dispatch ...`
+
+This differs from the plugin-supplied config-local binding and proves that the model reconstructed a
+runtime path from the globally installed package after reading the skill's generic Executable
+Dispatch section. Removing the binding from inactive system guidance alone was therefore
+insufficient.
+
+The global-skill generator now makes executable dispatch conditional on both an explicit active
+repository declaration and an exact binding supplied by the OpenCode plugin system context. It
+forbids file inspection, installed-package search, runtime-path inference and shell permission when
+either signal is absent. Release preparation, OpenCode hardening, the end-to-end smoke test and
+Runtime Integrity pass. A fresh installed-host retest remains required.
+
 ## Remaining Matrix
 
 - Copilot: ordinary-language-preference isolation retest, repository-bound `gate-check`, repo-less
@@ -143,13 +207,17 @@ pass; installed-host behavior is pending.
   visible table-header fidelity needs retest.
 - Codex: all four loaded-host cases.
 - Claude Code: all four loaded-host cases.
-- OpenCode: all four loaded-host cases or an explicit `instruction_only` classification.
+- OpenCode: CSED-HOST-05 proves ordinary-chat isolation and the permission boundary, and exposed an
+  inactive-repository guard violation now corrected in the repository. Retest the inactive early
+  return first; test execution only after explicit `opencode-repo` activation in the intended repo.
+  CSED-HOST-06 explains the apparent installer hang and its repository correction; clean rerun evidence
+  is pending. CSED-HOST-07 proves that inactive global-skill dispatch also required a skill-generation
+  correction; its fresh retest is pending.
 - Native Windows: command invocation plus independent package and installation-path evidence.
 
 ## Required Correction
 
-Keep the executable dispatcher as the semantic source. Strengthen the shared host binding so a
-terminal result requires exactly one operation: transmit `presentation.markdown` unchanged and
-stop. The host must not ask for run or evidence selection before the primary target is resolved.
-Retest locale with an explicit German user turn; do not infer a German-locale failure from a
-slash-command-only fresh session. Do not duplicate these rules across the ten skill bodies.
+Install the corrected OpenCode profile and verify that the same inactive repository stops without
+requesting shell permission and points to `opencode-repo`. After explicit activation of an intended
+repository, verify that execution still uses `bash: ask`, the exact dispatcher binding and the
+terminal `host_action.text`. Do not broaden global shell permission.

@@ -454,9 +454,8 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
 
     const inactiveSystemOutput = { system: [] };
     await inactivePlugin["experimental.chat.system.transform"]({}, inactiveSystemOutput);
-    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes("AGDF dispatcher binding:") && entry.includes('"skill-dispatch","--json","--surface","opencode"')), "inactive guidance must expose the exact dispatcher binding");
-    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes("Obey result.host_action exactly")), "inactive guidance must bind terminal dispatcher transfer");
-    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes('"ordinary_conversation":"ignore_agdf_context"')), "inactive guidance must not activate AGDF from binding presence alone");
+    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes("No executable AGDF dispatcher binding is available") && entry.includes("Do not request shell permission for AGDF commands")), "inactive guidance must withhold executable dispatch");
+    assert.ok(inactiveSystemOutput.system.every((entry) => !entry.includes('"skill-dispatch","--json","--surface","opencode"')), "inactive guidance must not expose the executable binding");
 
     const noToastClient = makeClient(false);
     const noToastPlugin = await AGDFPlugin({ directory: inactiveDir, client: noToastClient }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });

@@ -55,8 +55,8 @@ export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
 
   const inactiveGuidance = [
     "## AGDF Plugin Notice",
-    dispatcherGuidance,
     "The AGDF OpenCode npm plugin is loaded, but this repository has no valid `.agdf/control/config.json`.",
+    "No executable AGDF dispatcher binding is available in this inactive repository. Do not request shell permission for AGDF commands.",
     "Do not apply AGDF gates from the global plugin alone. Create or repair durable AGDF control state with `npx --yes @agdf/cli@latest opencode-repo` when governance should be active here.",
   ].join("\n");
 

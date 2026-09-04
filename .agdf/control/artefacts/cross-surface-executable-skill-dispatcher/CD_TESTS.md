@@ -1,6 +1,6 @@
 # CD+Tests: Cross-surface Executable Skill Dispatcher
 
-Revision: 5
+Revision: 8
 Status: done
 Decision: revise
 Date: 2026-09-04
@@ -68,18 +68,35 @@ contains root-owned entries. No cache ownership was changed.
    availability and merged the header. SessionStart now has no visible availability headline,
    ordinary chat must ignore AGDF context, runtime mention requires an AGDF request and exact
    terminal Markdown is co-located in `host_action.text`.
+9. CSED-HOST-05 showed that OpenCode exposed the executable dispatcher in a repository without
+   durable AGDF control. The existing OpenCode activation owner now withholds the binding while
+   inactive and explicitly forbids an AGDF shell-permission request; active repositories retain the
+   exact binding and `bash: ask` boundary. Focused hardening, asset synchronization, release
+   preparation and Runtime Integrity pass after the correction.
+10. CSED-HOST-06 showed the local OpenCode package update waiting in npm's network audit while all
+    output was piped. The primary tarball install now uses `--ignore-scripts --no-audit --no-fund`,
+    matching the SDK-alignment path. The smoke fixture requires these flags and the complete smoke
+    test passes.
+11. CSED-HOST-07 proved that an inactive global skill reconstructed a package runtime even after the
+    plugin stopped publishing its binding. Generated global skills now require both the explicit
+    active declaration and exact plugin-supplied binding, and forbid file search, path inference and
+    shell permission otherwise. Release, OpenCode, smoke and integrity checks pass.
 
 ## Missing Evidence
 
 - The German repo-less Copilot `qa-gate` flow is prompt and terminal. The newest silent-context and
   `host_action.text` correction has not yet been installed/retested; visible fidelity remains open.
+- The OpenCode inactive-repository correction passes repository tests but needs a fresh loaded-host
+  retest after the stronger global-skill correction. Actual execution remains to be tested only in
+  an explicitly activated repo.
+- The audit-free OpenCode installer passes the full smoke test; a clean user-host rerun is pending.
 - Remaining loaded-host timing and behavior for Copilot, Codex, Claude Code and OpenCode remain open.
 - Native Windows dispatcher invocation, install path and first-visible latency remain open.
 - The TP-09 evidence matrix needs separate lifecycle authorization.
 
 ## Decision
 
-`revise`: TP-01 through TP-08 and the repository-side correction from the first Copilot observation
-are implemented with green deterministic, generated, package and full regression evidence. QA
-readiness remains open because the corrected Copilot binding and the rest of TP-09 are not yet
-verified in loaded hosts or native Windows.
+`revise`: TP-01 through TP-08 and the repository-side Copilot and OpenCode corrections are
+implemented with green deterministic, generated, package and regression evidence. QA readiness
+remains open because the corrected bindings and the rest of TP-09 are not yet verified in loaded
+hosts or native Windows.

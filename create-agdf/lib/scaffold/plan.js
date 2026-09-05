@@ -5,15 +5,13 @@ export { doctorRequiredFiles } from "../control-evaluation/required-files.js";
 
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
-const contractModules = [
-  "gate-transition.md",
-  "interaction.md",
-  "modes.md",
-  "quality.md",
-  "context-graph.md",
-  "control-scaffold.md",
-  "closeout.md",
-];
+const contractModules = pluginDefinition.runtimeContract.modules.map((modulePath) => {
+  const prefix = "meta/contracts/";
+  if (!modulePath.startsWith(prefix) || modulePath.slice(prefix.length).includes("/")) {
+    throw new Error(`Invalid definition-owned runtime contract module path: ${modulePath}`);
+  }
+  return modulePath.slice(prefix.length);
+});
 const codexPluginFiles = [
   join(".agents", "plugins", "marketplace.json"),
   join("plugins", "agdf", ".codex-plugin", "plugin.json"),
@@ -62,10 +60,6 @@ const controlFiles = [
   join(".agdf", "control", "templates", "artefacts", "OR.md"),
 ];
 const liveControlFiles = [
-  {
-    path: join(".agdf", "control", "AGDF_RUN.md"),
-    source: join(".agdf", "control", "templates", "AGDF_RUN.md"),
-  },
   {
     path: join(".agdf", "control", "MASTER_BACKLOG.md"),
     source: join(".agdf", "control", "templates", "MASTER_BACKLOG.md"),

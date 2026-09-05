@@ -1,6 +1,6 @@
 ---
 name: ux-intent-definition
-description: Use this skill after approved UR and post-UR routing when UI/UX impact is medium or high, or low with ambiguous product semantics, to define user intent, success, working modes, effective state, visible state ownership, activation, blockers, recovery and transitions as structured PRD input; fail closed when evidence or product decisions are unresolved. This internal analysis never grants gate permission or replaces the approved PRD.
+description: "Use this skill for this scope: after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness. Boundary: non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth. Automatic discovery alone does not activate AGDF."
 ---
 
 # ux-intent-definition
@@ -18,6 +18,25 @@ After `skill_continuation`, use:
 - `../../meta/contracts/quality.md` for evidence and fail-closed output discipline.
 
 `instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.
+
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
+## Request Activation
+
+- `owner`: `request_activation_contract`
+- `path`: `plugin/meta/contracts/request-activation.md`
+- `policy_version`: `1`
+- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+
+Decide effect from loaded instructions before AGDF action/output.
+
+Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+
+Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+
+Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
+
+Then choose one catalog route. Non-authorizing; downstream checks remain.
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
 
 ## Executable Dispatch
 

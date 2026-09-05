@@ -113,6 +113,16 @@ assert.equal(files.some((path) => path.endsWith(".mcp.json") || path.endsWith(".
 assert.equal(files.some((path) => path.startsWith(".agdf/control/")), false);
 assert.equal(files.includes("submission/openai/readiness.json"), true);
 assert.equal(files.includes("submission/openai/readiness.md"), true);
+const requestActivationContract = readFileSync(join(pluginRoot, "meta", "contracts", "request-activation.md"), "utf8");
+const requestActivationFingerprint = /- `guard_fingerprint`: `(sha256:[0-9a-f]{64})`/.exec(requestActivationContract)?.[1];
+assert.ok(requestActivationFingerprint, "canonical Request Activation fingerprint must be available");
+for (const { slug } of definition.skillSet) {
+  const skill = readFileSync(join(outputRoot, "skills", slug, "SKILL.md"), "utf8");
+  assert.equal((skill.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->/g) ?? []).length, 1, `${slug} must contain one Request Activation Guard`);
+  assert.equal((skill.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->/g) ?? []).length, 1, `${slug} must contain one complete Request Activation Guard`);
+  assert.ok(skill.indexOf("<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->") < skill.indexOf("## Executable Dispatch"), `${slug} must apply Request Activation before dispatch`);
+  assert.ok(skill.includes(`- \`guard_fingerprint\`: \`${requestActivationFingerprint}\``), `${slug} must carry the canonical Request Activation fingerprint`);
+}
 const readiness = loadJson(join(outputRoot, "submission", "openai", "readiness.json"));
 assert.equal(readiness.candidateState, "repository_ready");
 assert.equal(readiness.submissionReady, false);

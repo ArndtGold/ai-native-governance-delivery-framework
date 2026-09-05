@@ -39,6 +39,22 @@
         "breadcrumbOpen": "\u25cb",
         "breadcrumbSeparator": " \u00b7 "
       },
+      "controlSetup": {
+        "title": "AGDF control setup",
+        "field": "Setup field",
+        "value": "Value",
+        "status": "Status",
+        "target": "Target",
+        "durableScope": "Durable scope",
+        "plannedEffect": "Planned effect",
+        "excludedAuthority": "Not authorized",
+        "nextAction": "Next action",
+        "required": "Control setup required",
+        "scopeValue": ".agdf/control in the selected repository",
+        "effectValue": "Create an owned canonical control scaffold and empty canonical run store.",
+        "excludedValue": "This card creates no automatic run or UR and grants no gate approval.",
+        "actionValue": "Authorize setup or cancel. An active delivery intake then persists its reviewed run and UR without another setup prompt; standalone init remains scaffold-only."
+      },
       "operationalValues": {
         "completeControlStateFields": "complete the current control-state fields",
         "repairControlScaffold": "repair the AGDF control scaffold",
@@ -58,6 +74,9 @@
         "implementApprovedTpTasks": "implement the approved TP tasks",
         "runApprovedTestPlan": "run the approved test plan",
         "recordImplementationTestEvidence": "record implementation and test evidence",
+        "createOrMigrateCanonicalRun": "create or migrate a canonical run with an explicit run id",
+        "selectCanonicalRunExplicitly": "select an existing canonical run explicitly",
+        "persistRealUrBeforeApproval": "persist a real UR revision before requesting gate approval",
         "forbidLaterGateArtefacts": "create later-gate artefacts beyond the current allowed gate",
         "forbidPrematureImplementation": "implement gated work before the gate allows it",
         "forbidGatedImplementation": "implement gated work",
@@ -70,6 +89,7 @@
         "forbidPush": "push",
         "forbidOpenPr": "open PR",
         "forbidCommitWithoutInstruction": "commit without explicit user instruction and required approval",
+        "forbidApprovalWithoutDurableRun": "request gate approval without a durable run and artefact",
         "repairRuntimePackagingBaseline": "Repair the separately owned runtime-packaging baseline, rerun complete smoke and refresh QA.",
         "fillUrControlState": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
         "afterUrApproval": "Run Brownfield Review and proportional routing as one internal operation; no user action is required now.",
@@ -84,7 +104,8 @@
         "renewCopilotTargetEvidence": "Obtain a separate runtime-check consent decision, restart Copilot and capture both fresh-session paths.",
         "proveCopilotTargetContexts": "Prove both repo-less suppression and repository-bound gate selection in the installed Copilot host.",
         "retestCopilotUnresolvedEarlyReturn": "Fully restart Copilot, start a new repo-less GeneralChat and invoke `/agdf-gate-check`; capture the repository-bound path separately afterward.",
-        "proveCopilotUnresolvedEarlyReturn": "Prove that the refreshed installed skill terminates unresolved responses before prior-UR, gate and approval branches."
+        "proveCopilotUnresolvedEarlyReturn": "Prove that the refreshed installed skill terminates unresolved responses before prior-UR, gate and approval branches.",
+        "createSelectOrMigrateRun": "Create, migrate or select the canonical run, then persist its UR revision before requesting approval."
       },
       "scopeClassification": {
         "title": "AGDF scope classification",
@@ -342,6 +363,22 @@
         "breadcrumbOpen": "\u25cb",
         "breadcrumbSeparator": " \u00b7 "
       },
+      "controlSetup": {
+        "title": "AGDF-Kontrollstatus einrichten",
+        "field": "Einrichtungsfeld",
+        "value": "Wert",
+        "status": "Status",
+        "target": "Ziel",
+        "durableScope": "Dauerhafter Umfang",
+        "plannedEffect": "Geplante Wirkung",
+        "excludedAuthority": "Nicht autorisiert",
+        "nextAction": "Nächste Aktion",
+        "required": "Kontrollstatus muss eingerichtet werden",
+        "scopeValue": ".agdf/control im ausgewählten Repository",
+        "effectValue": "Ein eigenes kanonisches Kontrollgerüst mit leerem Run-Speicher anlegen.",
+        "excludedValue": "Diese Karte erzeugt weder automatisch Run noch UR und erteilt keine Gate-Freigabe.",
+        "actionValue": "Einrichtung autorisieren oder abbrechen. Aktiver Delivery-Intake persistiert danach Run und UR ohne zweite Frage; eigenständiges Init bleibt gerüstbezogen."
+      },
       "operationalValues": {
         "completeControlStateFields": "die aktuellen Felder des Kontrollstatus vervollständigen",
         "repairControlScaffold": "das AGDF-Kontrollgerüst reparieren",
@@ -361,6 +398,9 @@
         "implementApprovedTpTasks": "die freigegebenen TP-Aufgaben implementieren",
         "runApprovedTestPlan": "den freigegebenen Testplan ausführen",
         "recordImplementationTestEvidence": "Implementierungs- und Testnachweise erfassen",
+        "createOrMigrateCanonicalRun": "einen kanonischen Run mit expliziter Run-ID erstellen oder migrieren",
+        "selectCanonicalRunExplicitly": "einen vorhandenen kanonischen Run explizit auswählen",
+        "persistRealUrBeforeApproval": "eine echte UR-Revision dauerhaft festhalten, bevor eine Gate-Freigabe angefordert wird",
         "forbidLaterGateArtefacts": "Artefakte späterer Gates außerhalb des aktuell erlaubten Gates erstellen",
         "forbidPrematureImplementation": "gesperrte Arbeit implementieren, bevor das Gate sie erlaubt",
         "forbidGatedImplementation": "gesperrte Arbeit implementieren",
@@ -373,6 +413,7 @@
         "forbidPush": "pushen",
         "forbidOpenPr": "einen Pull Request öffnen",
         "forbidCommitWithoutInstruction": "ohne ausdrückliche Nutzeranweisung und erforderliche Freigabe committen",
+        "forbidApprovalWithoutDurableRun": "eine Gate-Freigabe ohne dauerhaften Run und Artefakt anfordern",
         "repairRuntimePackagingBaseline": "Die separat verwaltete Runtime-Packaging-Baseline reparieren, den vollständigen Smoke-Test erneut ausführen und QA aktualisieren.",
         "fillUrControlState": "Den aktuellen UR-Kontrollstatus vervollständigen, den UR-Entwurf dauerhaft festhalten und die exakte Freigabe Approval: UR anfordern.",
         "afterUrApproval": "Brownfield Review und die angemessene Routenwahl als einen internen Vorgang durchführen; jetzt ist keine Nutzeraktion erforderlich.",
@@ -387,7 +428,8 @@
         "renewCopilotTargetEvidence": "Eine separate Entscheidung zu automatischen Runtime-Prüfungen einholen, Copilot neu starten und beide frischen Session-Pfade erfassen.",
         "proveCopilotTargetContexts": "Die Unterdrückung ohne Repository und die Gate-Auswahl mit Repository im installierten Copilot belegen.",
         "retestCopilotUnresolvedEarlyReturn": "Copilot vollständig neu starten, einen neuen GeneralChat ohne Repository öffnen und `/agdf-gate-check` aufrufen; den Repository-Pfad danach separat prüfen.",
-        "proveCopilotUnresolvedEarlyReturn": "Belegen, dass der aktualisierte installierte Skill ungeklärte Ziele vor früheren UR-, Gate- und Freigabezweigen beendet."
+        "proveCopilotUnresolvedEarlyReturn": "Belegen, dass der aktualisierte installierte Skill ungeklärte Ziele vor früheren UR-, Gate- und Freigabezweigen beendet.",
+        "createSelectOrMigrateRun": "Den kanonischen Run erstellen, migrieren oder auswählen und seine UR-Revision vor jeder Freigabe dauerhaft festhalten."
       },
       "scopeClassification": {
         "title": "AGDF-Scope-Klassifizierung",

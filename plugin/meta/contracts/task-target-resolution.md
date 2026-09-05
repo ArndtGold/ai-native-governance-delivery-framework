@@ -2,12 +2,14 @@
 
 ## Purpose And Ordering
 
-Resolve the user's primary work target before repository activation, Scope Classification, mode
-selection or gate evaluation. Repository governance is downstream of the task target; the current
-working directory, an inspected repository or a source mentioned as evidence must never become the
-work target by accident.
+After positive Request Activation, resolve the user's primary work target before repository
+activation, Scope Classification, mode selection or gate evaluation for routes that require a
+target. Repository governance is downstream of the task target; the current working directory, an
+inspected repository or a source mentioned as evidence must never become the work target by
+accident. Silent Request Activation abstention and targetless catalog routes do not invoke this
+contract.
 
-The canonical order is:
+The canonical order after Request Activation selected a target-bound route is:
 
 1. resolve or revalidate the task target;
 2. derive the governance target from that resolved target;
@@ -21,9 +23,12 @@ must not produce a conditional gate result until one target is resolved.
 
 ## Direct Skill Invocation Preflight
 
-Every canonical AGDF skill invocation starts with this preflight before skill-specific input
-discovery, repository inspection, run selection, gate evaluation, quality evaluation or mutation.
-This applies equally when a host invokes a skill directly and when the agent router selected it.
+After the already-loaded Request Activation guard has positively selected a direct, target-bound
+skill route, every canonical AGDF skill invocation starts with this preflight before skill-specific
+input discovery, repository inspection, run selection, gate evaluation, quality evaluation or
+mutation. This applies equally when a user invokes a skill explicitly and when the agent router
+selected it. Automatic selection alone is not positive activation; on silent abstention this
+preflight is not run.
 
 1. Determine the current conversation language for presentation. A German user turn or an ongoing
    German conversation uses `de`; an unsupported language falls back to the complete English locale

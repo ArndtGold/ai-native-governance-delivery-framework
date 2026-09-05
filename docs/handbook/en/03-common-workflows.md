@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:9144306b4670dbbd1403d314e3c615c9c49085865eb54b156bae60728debadba
+source_revision: sha256:d192c294c2a64e9e41660e7a32f7545fbdfe3cbdebab09572ab102ec68c71f79
 translation_status: reviewed
 ---
 
@@ -11,14 +11,12 @@ translation_status: reviewed
 AGDF uses the smallest safe workflow. The choice depends on impact, ownership, risk and available
 evidence—not on the number of changed files.
 
-## Quick Task
+## Ordinary work outside AGDF
 
-A Quick Task works well outside a formal delivery run for:
-
-- questions about existing code or documentation;
-- read-only checks and reviews;
-- debugging;
-- suitable small corrections without new product semantics or formal gate artefacts.
+Questions about existing code or documentation, read-only checks and reviews, explanations,
+comparisons, recommendations and diagnoses remain outside AGDF unless the request asks for actual
+implementation, a binding delivery artefact or an explicit AGDF operation. No AGDF status card is
+shown and no AGDF owner is invoked.
 
 Inspection and modification remain separate. For example, a German-language request may say:
 
@@ -31,9 +29,28 @@ In English: “Check whether the README links to a page that does not exist.”
 This authorizes only the inspection and its findings. The original request or a later instruction
 must explicitly include correcting the link before the agent may change it.
 
-A Quick Task records the result, evidence, remaining risk and next step in compact form. It is not
-appropriate when new product semantics, architecture, policy, persistence, a public contract, a
-release boundary or formal approvals are involved.
+## Two-stage instructions
+
+Before positive activation, generated AGDF profiles contain only a compact activation kernel and
+short skill descriptions. They make detailed target, gate, quality and closeout rules available on
+demand only afterwards. This requires neither a second hook nor an executable prompt classifier.
+
+A versioned contract limits the model-visible UTF-8 bytes for the kernel, discovery, SessionStart,
+OpenCode context, compaction and the selected `gate-check` skill. The `skillSet.discovery` metadata
+describes the intended discovery boundary. It does not prove that every host technically enforces
+that boundary.
+
+Source, generation and package checks remain separate from installed and freshly loaded host
+evidence. The [Instruction Footprint Audit](../../../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md)
+records the rationale, measurements and evidence limits.
+
+## Quick Task and Compact Delivery
+
+A Quick Task is a compact AGDF path for already positively activated work that is small and clearly
+bounded. After an approved UR, the Brownfield Review may record the same bounded path as Compact
+Delivery. Both record the result, evidence, remaining risk and next step. They are not appropriate
+when new product semantics, architecture, policy, persistence, a public contract, a release boundary
+or formal approvals are involved.
 
 ## Brownfield Review and path selection
 

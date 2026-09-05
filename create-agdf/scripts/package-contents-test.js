@@ -14,7 +14,10 @@ assert.notEqual(reportStart, -1, "npm pack must emit a JSON report after prepack
 const report = JSON.parse(packOutput.slice(reportStart));
 const files = report[0]?.files?.map((entry) => entry.path) ?? [];
 const packageManifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+const pluginDefinition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
 const required = [
+  "generated/.opencode/AGDF.md",
+  "generated/.opencode/agdf-agent-router.md",
   "generated/plugins/agdf/.codex-plugin/plugin.json",
   "generated/plugins/agdf/.claude-plugin/plugin.json",
   "generated/plugins/copilot/agdf/plugin.json",
@@ -33,6 +36,7 @@ const required = [
   "generated/plugins/agdf/runtime/create-agdf/lib/runtime/validator-application.js",
   "generated/plugins/agdf/scripts/check-runtime-integrity.mjs",
   "generated/plugins/agdf/scripts/agent-skills-conformance.mjs",
+  "generated/plugins/agdf/scripts/instruction-footprint.mjs",
   "generated/plugins/agdf/meta/agent-skills-conformance.json",
   "generated/plugins/agdf/skills/ux-intent-definition/SKILL.md",
   "generated/plugins/agdf/skills/ux-intent-definition/help.md",
@@ -51,6 +55,26 @@ for (const excluded of [
   "generated/plugins/agdf/copilot-skills/agdf-gate-check/SKILL.md",
 ]) assert.equal(files.includes(excluded), false, `shared plugin package must exclude Copilot-only path ${excluded}`);
 assert.equal(new Set(files).size, files.length, "package file inventory must not contain duplicate paths");
+assert.equal(packageManifest.files.includes("generated"), false, "package manifest must not include the unbounded generated tree");
+assert.equal(
+  files.some((path) => path.includes("/.agdf-build-") || path.includes("/agdf 2/") || path.startsWith("generated/submissions/openai/agdf 2/")),
+  false,
+  "package must exclude stale build directories and non-canonical OpenAI submission siblings",
+);
+assert.equal(
+  files.filter((path) => path.startsWith("generated/submissions/openai/")).every((path) => path.startsWith("generated/submissions/openai/agdf/")),
+  true,
+  "only the canonical OpenAI submission directory may be packed",
+);
+const expectedContractNames = new Set(pluginDefinition.runtimeContract.modules.map((path) => path.slice("meta/contracts/".length)));
+for (const path of files.filter((candidate) => candidate.startsWith("generated/.opencode/contracts/"))) {
+  assert.equal(expectedContractNames.has(path.slice("generated/.opencode/contracts/".length)), true, `package must not contain unknown OpenCode contract ${path}`);
+}
+const expectedOpenCodeSkills = new Set(pluginDefinition.skillSet.map(({ slug }) => `${pluginDefinition.opencode.skillPrefix}${slug}`));
+for (const path of files.filter((candidate) => candidate.startsWith("generated/.opencode/skills/"))) {
+  const match = /^generated\/\.opencode\/skills\/([^/]+)\/SKILL\.md$/.exec(path);
+  assert.ok(match && expectedOpenCodeSkills.has(match[1]), `package must not contain unknown OpenCode skill content ${path}`);
+}
 for (const retiredPath of [
   "generated/AGENTS.md",
   "generated/.github/copilot-instructions.md",

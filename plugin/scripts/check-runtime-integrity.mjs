@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, relative, resolve } from "node:path";
 
 const scriptPluginRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -92,6 +92,20 @@ try {
   console.error("- AGDF_AGENT_SKILLS_VALIDATOR_MISSING: scripts/agent-skills-conformance.mjs must be present and loadable");
   process.exit(1);
 }
+let extractSerializedDescriptionScalar;
+let requestActivationKernelFingerprint;
+let validateInstructionFootprintProfile;
+try {
+  ({
+    extractSerializedDescriptionScalar,
+    requestActivationKernelFingerprint,
+    validateInstructionFootprintProfile,
+  } = await import("./instruction-footprint.mjs"));
+} catch {
+  console.error("[agdf-runtime-integrity] FAIL");
+  console.error("- AGDF_INSTRUCTION_FOOTPRINT_VALIDATOR_MISSING: scripts/instruction-footprint.mjs must be present and loadable");
+  process.exit(1);
+}
 const codexSourceMarketplacePath = sourceMode ? join(repoRoot, ".agents", "plugins", "marketplace.json") : null;
 const claudeSourceMarketplacePath = sourceMode ? join(repoRoot, ".claude-plugin", "marketplace.json") : null;
 const codexPluginPath = join(pluginRoot, ".codex-plugin", "plugin.json");
@@ -104,16 +118,10 @@ const pluginDefinitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.js
 const agentRouterPath = join(pluginRoot, "meta", "agdf-agent-router.md");
 const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md");
 const contractsDir = join(pluginRoot, "meta", "contracts");
-const contractModules = [
-  "task-target-resolution.md",
-  "gate-transition.md",
-  "interaction.md",
-  "modes.md",
-  "quality.md",
-  "context-graph.md",
-  "control-scaffold.md",
-  "closeout.md",
-];
+const requestActivationContractPath = join(contractsDir, "request-activation.md");
+const commandRegistryPath = sourceMode
+  ? join(repoRoot, "create-agdf", "lib", "cli", "command-registry.js")
+  : join(pluginRoot, "runtime", "create-agdf", "lib", "cli", "command-registry.js");
 const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const brownfieldSkillPath = join(pluginRoot, "skills", "brownfield-analysis", "SKILL.md");
@@ -131,7 +139,9 @@ const pagesSiteDataPath = sourceMode ? join(repoRoot, "pages", "src", "data", "s
 const pagesSkillsPath = sourceMode ? join(repoRoot, "pages", "src", "data", "skills.ts") : null;
 const pagesIndexPath = sourceMode ? join(repoRoot, "pages", "src", "pages", "index.astro") : null;
 const syncPackageAssetsPath = sourceMode ? join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js") : null;
+const syncPluginRuntimePath = sourceMode ? join(repoRoot, "create-agdf", "scripts", "sync-plugin-runtime.js") : null;
 const createAgdfOpenCodeInstallerPath = sourceMode ? join(repoRoot, "create-agdf", "lib", "installers", "opencode.js") : null;
+const openCodeNpmPluginPath = sourceMode ? join(repoRoot, "create-agdf", "opencode-plugin.js") : null;
 const activeRunStatePath = sourceMode ? join(repoRoot, ".agdf", "control", "AGDF_RUN.md") : null;
 const rootLicensePath = sourceMode ? join(repoRoot, "LICENSE") : null;
 const pluginLicensePath = join(pluginRoot, "LICENSE");
@@ -186,6 +196,19 @@ const germanRuntimePatterns = [
 ];
 
 const failures = [];
+const skillSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const requestActivationMarkers = Object.freeze({
+  guardStart: "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->",
+  guardEnd: "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->",
+  discoveryStart: "<!-- AGDF-REQUEST-ACTIVATION-DISCOVERY-SUFFIX:START -->",
+  discoveryEnd: "<!-- AGDF-REQUEST-ACTIVATION-DISCOVERY-SUFFIX:END -->",
+  operationsStart: "<!-- AGDF-REQUEST-ACTIVATION-OPERATIONS:START -->",
+  operationsEnd: "<!-- AGDF-REQUEST-ACTIVATION-OPERATIONS:END -->",
+  runtimeModulesStart: "<!-- AGDF-RUNTIME-CONTRACT-MODULES:START -->",
+  runtimeModulesEnd: "<!-- AGDF-RUNTIME-CONTRACT-MODULES:END -->",
+  skillRoutingStart: "<!-- AGDF-SKILL-ROUTING:START -->",
+  skillRoutingEnd: "<!-- AGDF-SKILL-ROUTING:END -->",
+});
 
 function read(path) {
   return readFileSync(path, "utf8");
@@ -207,6 +230,244 @@ function readJson(path, label) {
     failures.push(`${label} must be readable JSON`);
     return null;
   }
+}
+
+function normalizeLf(content) {
+  return content.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+}
+
+function normalizeProse(content) {
+  return normalizeLf(content).replace(/\s+/g, " ").trim();
+}
+
+function countOccurrences(content, needle) {
+  return needle ? content.split(needle).length - 1 : 0;
+}
+
+function ownedBlock(content, startMarker, endMarker, label) {
+  const startCount = countOccurrences(content, startMarker);
+  const endCount = countOccurrences(content, endMarker);
+  if (startCount !== 1 || endCount !== 1) {
+    failures.push(`${label} must contain exactly one complete marker-bounded projection`);
+    return "";
+  }
+  const start = content.indexOf(startMarker);
+  const end = content.indexOf(endMarker, start) + endMarker.length;
+  if (end <= start) {
+    failures.push(`${label} projection markers are out of order`);
+    return "";
+  }
+  return content.slice(start, end);
+}
+
+function requestActivationDiscoverySuffix(contractContent) {
+  const block = ownedBlock(
+    contractContent,
+    requestActivationMarkers.discoveryStart,
+    requestActivationMarkers.discoveryEnd,
+    "request activation discovery suffix",
+  );
+  if (!block) return "";
+  const suffix = block
+    .split(/\r?\n/)
+    .filter((line) => line !== requestActivationMarkers.discoveryStart
+      && line !== requestActivationMarkers.discoveryEnd)
+    .join("\n")
+    .trim();
+  if (!suffix || suffix.includes("\n")) {
+    failures.push("request activation discovery suffix must contain exactly one non-empty line");
+    return "";
+  }
+  return suffix;
+}
+
+function parseRequestActivationCatalog(contractContent) {
+  const block = ownedBlock(
+    contractContent,
+    requestActivationMarkers.operationsStart,
+    requestActivationMarkers.operationsEnd,
+    "request activation operation catalog",
+  );
+  if (!block) return null;
+  const match = block.match(/```json\r?\n([\s\S]*?)\r?\n```/);
+  if (!match || (block.match(/^```json$/gm) ?? []).length !== 1 || (block.match(/^```$/gm) ?? []).length !== 1) {
+    failures.push("request activation operation catalog must contain exactly one JSON block");
+    return null;
+  }
+  try {
+    return JSON.parse(match[1]);
+  } catch {
+    failures.push("request activation operation catalog must be valid JSON");
+    return null;
+  }
+}
+
+function javascriptTokens(content) {
+  const tokens = [];
+  let index = 0;
+  let lineStart = true;
+  const push = (type, value) => {
+    tokens.push({ type, value, lineStart });
+    lineStart = false;
+  };
+
+  while (index < content.length) {
+    const character = content[index];
+    const next = content[index + 1];
+    if (/\s/.test(character)) {
+      if (character === "\n" || character === "\r") lineStart = true;
+      index += 1;
+      continue;
+    }
+    if (character === "/" && next === "/") {
+      index += 2;
+      while (index < content.length && !["\n", "\r"].includes(content[index])) index += 1;
+      continue;
+    }
+    if (character === "/" && next === "*") {
+      index += 2;
+      while (index < content.length && !(content[index] === "*" && content[index + 1] === "/")) {
+        if (content[index] === "\n" || content[index] === "\r") lineStart = true;
+        index += 1;
+      }
+      index = Math.min(index + 2, content.length);
+      continue;
+    }
+    if (character === "`") {
+      index += 1;
+      while (index < content.length) {
+        if (content[index] === "\\") {
+          index += 2;
+          continue;
+        }
+        if (content[index] === "`") {
+          index += 1;
+          break;
+        }
+        index += 1;
+      }
+      push("template", "");
+      continue;
+    }
+    if (character === "\"" || character === "'") {
+      const quote = character;
+      let value = "";
+      let plain = true;
+      index += 1;
+      while (index < content.length) {
+        if (content[index] === "\\") {
+          plain = false;
+          index += 2;
+          continue;
+        }
+        if (content[index] === quote) {
+          index += 1;
+          break;
+        }
+        value += content[index];
+        index += 1;
+      }
+      push("string", plain ? value : "");
+      continue;
+    }
+    if (/[A-Za-z_$]/.test(character)) {
+      let end = index + 1;
+      while (end < content.length && /[A-Za-z0-9_$]/.test(content[end])) end += 1;
+      push("identifier", content.slice(index, end));
+      index = end;
+      continue;
+    }
+    push("punctuation", character);
+    index += 1;
+  }
+  return tokens;
+}
+
+function commandRegistryNames(content) {
+  const commands = new Set();
+  const tokens = javascriptTokens(content);
+  for (let index = 0; index < tokens.length - 2; index += 1) {
+    const [commandToken, openingToken, nameToken] = tokens.slice(index, index + 3);
+    if (commandToken.type === "identifier"
+        && commandToken.value === "command"
+        && commandToken.lineStart
+        && openingToken.type === "punctuation"
+        && openingToken.value === "("
+        && nameToken.type === "string"
+        && skillSlugPattern.test(nameToken.value)) {
+      commands.add(nameToken.value);
+    }
+  }
+  return commands;
+}
+
+function validateRequestActivationCatalog(catalog, definition, registryContent) {
+  if (catalog?.schema_version !== 1 || !Array.isArray(catalog?.operations) || !Array.isArray(catalog?.derived_operations)) {
+    failures.push("request activation operation catalog must use schema_version 1 with operations and derived_operations arrays");
+    return;
+  }
+  const skillSlugs = new Set((definition?.skillSet ?? []).map((skill) => skill.slug));
+  const commands = commandRegistryNames(registryContent);
+  if (commands.size === 0) failures.push("commandRegistry must expose operation-owner commands");
+  const operationIds = new Set();
+  const ownerKinds = new Set(["contract", "skill", "command", "function"]);
+  for (const operation of catalog.operations) {
+    const operationId = operation?.operation_id ?? "";
+    if (!/^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$/.test(operationId)) {
+      failures.push(`request activation catalog contains a missing or unknown operation ID: ${operationId || "<missing>"}`);
+      continue;
+    }
+    if (operationIds.has(operationId)) failures.push(`request activation catalog contains duplicate operation ID: ${operationId}`);
+    operationIds.add(operationId);
+    if (!operation.route_family || !operation.target_boundary || !operation.control_boundary) {
+      failures.push(`request activation operation ${operationId} has an incomplete route boundary`);
+    }
+    if (!ownerKinds.has(operation.owner_kind) || !operation.owner) {
+      failures.push(`request activation operation ${operationId} has an unknown owner declaration`);
+    } else if (operation.owner_kind === "command" && !commands.has(operation.owner)) {
+      failures.push(`request activation operation ${operationId} references unknown commandRegistry owner ${operation.owner}`);
+    } else if (operation.owner_kind === "skill" && !skillSlugs.has(operation.owner)) {
+      failures.push(`request activation operation ${operationId} references unknown skillSet owner ${operation.owner}`);
+    }
+    if (operationId.startsWith("skill.")) {
+      failures.push("request activation direct skill IDs must derive from pluginDefinition.skillSet");
+    }
+  }
+  const [derived] = catalog.derived_operations;
+  if (catalog.derived_operations.length !== 1
+      || derived?.operation_id_pattern !== "skill.<slug>"
+      || derived?.derive_from !== "pluginDefinition.skillSet"
+      || derived?.owner_kind !== "dispatcher"
+      || derived?.owner !== "skill-dispatch-v1"
+      || derived?.target_boundary !== "dispatcher_v1"
+      || derived?.control_boundary !== "dispatcher_v1") {
+    failures.push("request activation derived skill operation owner must be dispatcher v1 over pluginDefinition.skillSet");
+  }
+}
+
+function runtimeModuleIndex(modulePaths) {
+  const rows = [];
+  for (const modulePath of modulePaths) {
+    const path = join(pluginRoot, modulePath);
+    if (!isFile(path)) continue;
+    const title = read(path).match(/^# AGDF Runtime Contract (?:—|-) (.+)$/m)?.[1]?.trim();
+    if (!title) {
+      failures.push(`runtime contract module lacks its canonical title: ${modulePath}`);
+      continue;
+    }
+    rows.push(`| ${title} | \`${modulePath.replace(/^meta\//, "")}\` | Canonical focused module; follow the linked source for semantics. |`);
+  }
+  return [
+    requestActivationMarkers.runtimeModulesStart,
+    "| Module | Path | Coverage |",
+    "|---|---|---|",
+    ...rows,
+    requestActivationMarkers.runtimeModulesEnd,
+  ].join("\n");
+}
+
+function expectedSkillDescription(skill, suffix) {
+  return `Use this skill for this scope: ${skill.useFor}. Boundary: ${skill.boundary}. ${suffix}`;
 }
 
 function digestPluginSource(root, canonicalVersion) {
@@ -309,12 +570,41 @@ function assertRouterMatchesDefinition(pathLabel, content, surface) {
   }
 }
 
-assertFile(runtimeContractPath, "runtime contract");
-for (const moduleName of contractModules) {
-  assertFile(join(contractsDir, moduleName), `runtime contract module ${moduleName}`);
-}
-assertFile(interactionLocalesPath, "interaction locale registry");
 assertFile(pluginDefinitionPath, "canonical AGDF plugin definition");
+const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
+const runtimeContractDefinition = pluginDefinition?.runtimeContract;
+let runtimeContractModulePaths = [];
+if (runtimeContractDefinition?.schemaVersion !== 1
+    || runtimeContractDefinition?.manifestPath !== "meta/agdf-runtime-contract.md"
+    || !Array.isArray(runtimeContractDefinition?.modules)
+    || runtimeContractDefinition.modules.length === 0) {
+  failures.push("canonical AGDF plugin definition must declare runtimeContract schemaVersion 1, manifestPath and ordered modules");
+} else {
+  runtimeContractModulePaths = [...runtimeContractDefinition.modules];
+  if (new Set(runtimeContractModulePaths).size !== runtimeContractModulePaths.length) {
+    failures.push("runtimeContract.modules must not contain duplicates");
+  }
+  for (const modulePath of runtimeContractModulePaths) {
+    if (!/^meta\/contracts\/[a-z0-9-]+\.md$/.test(modulePath)) {
+      failures.push(`runtimeContract.modules contains an unknown module path: ${modulePath}`);
+    }
+  }
+  if (runtimeContractModulePaths[0] !== "meta/contracts/request-activation.md"
+      || runtimeContractModulePaths[1] !== "meta/contracts/task-target-resolution.md") {
+    failures.push("runtimeContract.modules must order Request Activation before Task Target Resolution");
+  }
+}
+const contractModules = runtimeContractModulePaths.map((modulePath) => modulePath.replace(/^meta\/contracts\//, ""));
+assertFile(runtimeContractPath, "runtime contract");
+for (const modulePath of runtimeContractModulePaths) {
+  assertFile(
+    join(pluginRoot, modulePath),
+    `runtime contract module ${modulePath.replace(/^meta\/contracts\//, "")}`,
+  );
+}
+assertFile(requestActivationContractPath, "request activation contract");
+assertFile(commandRegistryPath, "commandRegistry operation owner");
+assertFile(interactionLocalesPath, "interaction locale registry");
 if (sourceMode) {
   if (isDirectory(join(pluginRoot, "runtime"))) failures.push("source plugin must not contain generated runtime");
 } else {
@@ -343,6 +633,8 @@ if (sourceMode) {
   assertFile(pagesSiteDataPath, "Pages site data");
   assertFile(pagesIndexPath, "Pages index");
   assertFile(syncPackageAssetsPath, "create-agdf package asset sync");
+  assertFile(syncPluginRuntimePath, "create-agdf plugin runtime sync");
+  assertFile(openCodeNpmPluginPath, "OpenCode npm plugin source");
   assertFile(rootLicensePath, "root LICENSE");
 
   if (isFile(rootLicensePath) && isFile(pluginLicensePath) && read(rootLicensePath) !== read(pluginLicensePath)) {
@@ -350,7 +642,6 @@ if (sourceMode) {
   }
 }
 
-const pluginDefinition = isFile(pluginDefinitionPath) ? readJson(pluginDefinitionPath, "canonical AGDF plugin definition") : null;
 const localRuntimeManifest = isFile(localRuntimeManifestPath) ? readJson(localRuntimeManifestPath, "surface-local runtime manifest") : null;
 if (pluginDefinition && localRuntimeManifest) {
   if (localRuntimeManifest.version !== pluginDefinition.version) failures.push("surface-local runtime version must match the plugin definition");
@@ -376,13 +667,119 @@ if (!sourceMode && isFile(localRuntimeEntrypointPath)) {
   }
 }
 const runtimeContract = readAllContracts();
+const requestActivationContract = isFile(requestActivationContractPath) ? read(requestActivationContractPath) : "";
+const canonicalRequestActivationGuard = requestActivationContract
+  ? ownedBlock(
+    requestActivationContract,
+    requestActivationMarkers.guardStart,
+    requestActivationMarkers.guardEnd,
+    "canonical request activation guard",
+  )
+  : "";
+let canonicalGuardFingerprint = "";
+if (canonicalRequestActivationGuard) {
+  try {
+    canonicalGuardFingerprint = requestActivationKernelFingerprint(canonicalRequestActivationGuard);
+  } catch (error) {
+    failures.push(`canonical request activation guard fingerprint is invalid: ${error.message}`);
+  }
+}
+if (canonicalRequestActivationGuard && canonicalGuardFingerprint
+    && !canonicalRequestActivationGuard.includes(`- \`guard_fingerprint\`: \`${canonicalGuardFingerprint}\``)) {
+  failures.push("canonical request activation guard fingerprint does not match its source block");
+}
+if (requestActivationContract) {
+  for (const required of [
+    "sole semantic owner",
+    "no raw prompt or derived request classification is written",
+    "no network request, remote classifier, repository read, tool call, or dispatcher call",
+    "requested_effect",
+    "invocation_provenance",
+    "selection_origin",
+    "persist: false",
+  ]) {
+    if (!requestActivationContract.includes(required)) {
+      failures.push(`request activation contract missing non-authorizing/privacy boundary: ${required}`);
+    }
+  }
+  const catalog = parseRequestActivationCatalog(requestActivationContract);
+  validateRequestActivationCatalog(
+    catalog,
+    pluginDefinition,
+    isFile(commandRegistryPath) ? read(commandRegistryPath) : "",
+  );
+}
+const activationDiscoverySuffix = requestActivationContract
+  ? requestActivationDiscoverySuffix(requestActivationContract)
+  : "";
+if (isFile(runtimeContractPath) && runtimeContractModulePaths.length > 0) {
+  const manifestContent = read(runtimeContractPath);
+  const projectedIndex = ownedBlock(
+    manifestContent,
+    requestActivationMarkers.runtimeModulesStart,
+    requestActivationMarkers.runtimeModulesEnd,
+    "runtime contract module index",
+  );
+  const expectedIndex = runtimeModuleIndex(runtimeContractModulePaths);
+  if (projectedIndex && projectedIndex !== expectedIndex) {
+    failures.push("runtime contract module index is stale or out of definition order");
+  }
+}
 const taskTargetContract = isFile(join(contractsDir, "task-target-resolution.md")) ? read(join(contractsDir, "task-target-resolution.md")) : "";
+const interactionContract = isFile(join(contractsDir, "interaction.md")) ? read(join(contractsDir, "interaction.md")) : "";
 const modesContract = isFile(join(contractsDir, "modes.md")) ? read(join(contractsDir, "modes.md")) : "";
 const gateTransitionContract = isFile(join(contractsDir, "gate-transition.md")) ? read(join(contractsDir, "gate-transition.md")) : "";
 const agentRouterContent = isFile(agentRouterPath) ? read(agentRouterPath) : "";
 const interactionLocales = isFile(interactionLocalesPath) ? readJson(interactionLocalesPath, "interaction locale registry") : null;
 const gateCheckSkill = isFile(gateCheckSkillPath) ? read(gateCheckSkillPath) : "";
 const brownfieldSkill = isFile(brownfieldSkillPath) ? read(brownfieldSkillPath) : "";
+if (pluginDefinition && canonicalRequestActivationGuard && activationDiscoverySuffix && gateCheckSkill) {
+  const expectedDescriptions = Object.fromEntries(pluginDefinition.skillSet.map((skill) => [
+    skill.slug,
+    JSON.stringify(expectedSkillDescription(skill, activationDiscoverySuffix)),
+  ]));
+  const discoveryRecords = [];
+  for (const skill of pluginDefinition.skillSet) {
+    const path = join(skillRoot, skill.slug, "SKILL.md");
+    if (!isFile(path)) continue;
+    try {
+      discoveryRecords.push({
+        id: skill.slug,
+        slug: skill.slug,
+        content: extractSerializedDescriptionScalar(read(path)),
+      });
+    } catch (error) {
+      failures.push(`${skill.slug} discovery scalar is invalid: ${error.message}`);
+    }
+  }
+  const footprintReport = validateInstructionFootprintProfile({
+    definition: pluginDefinition.instructionFootprint,
+    canonicalKernel: canonicalRequestActivationGuard,
+    expectedDescriptions,
+    expectedVersion: pluginDefinition.version,
+    expectedInstanceIds: {
+      activationKernel: ["canonical"],
+      skillDiscoveryDescription: pluginDefinition.skillSet.map((skill) => skill.slug),
+      allSkillDiscoveryDescriptions: ["definition-order"],
+      selectedGateCheckSkill: ["canonical"],
+    },
+    surfaces: {
+      activationKernel: [{ id: "canonical", content: canonicalRequestActivationGuard }],
+      skillDiscoveryDescription: discoveryRecords,
+      allSkillDiscoveryDescriptions: [{ id: "definition-order", content: discoveryRecords.map((record) => record.content).join("") }],
+      selectedGateCheckSkill: [{ id: "canonical", variant: "canonical", content: gateCheckSkill }],
+    },
+    requiredSurfaceIds: [
+      "activationKernel",
+      "skillDiscoveryDescription",
+      "allSkillDiscoveryDescriptions",
+      "selectedGateCheckSkill",
+    ],
+  });
+  for (const finding of footprintReport.failures) {
+    failures.push(`${finding.code}: ${finding.message}`);
+  }
+}
 if (!brownfieldSkill.includes("Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation")) {
   failures.push("brownfield-analysis must own atomic post-UR review and routing persistence");
 }
@@ -457,40 +854,7 @@ if (!runtimeContract.includes("### Interaction Locale Contract")
   failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
 }
 
-const gateCheckOperationalBoundaries = [
-  "Resolve or revalidate the primary task target before selecting repository control state.",
-  "Derive repository activation only from the resolved governance target",
-  "Select exactly one run and evaluate its current gate.",
-  "Confirm that the required durable artefact is present and ready.",
-  "Consume the canonical `approval_presentation` verbatim",
-  "obtain deliberate input through the contract-selected native or exact-text path",
-  "Revalidate the same target, run, gate and revision immediately after the response and before persistence.",
-  "Persist only a currently valid exact approval through the existing control-state workflow.",
-];
-if (!gateCheckSkill.includes("../../meta/contracts/task-target-resolution.md")) {
-  failures.push("gate-check must load the focused task-target-resolution contract");
-}
-if (!gateCheckSkill.includes("../../meta/contracts/interaction.md")) {
-  failures.push("gate-check must load the focused interaction contract");
-}
-for (const required of gateCheckOperationalBoundaries) {
-  if (!gateCheckSkill.includes(required)) failures.push(`gate-check operational boundary missing: ${required}`);
-}
-for (const duplicatedPolicy of ["Surface behavior:", "Make exactly one native-attempt", "Interaction Locale Contract", "decorated_label_only"]) {
-  if (gateCheckSkill.includes(duplicatedPolicy)) failures.push(`gate-check must not duplicate normative interaction policy: ${duplicatedPolicy}`);
-}
-if (!gateCheckSkill.includes("`status_presentation.markdown` verbatim")) {
-  failures.push("gate-check must consume the deterministic operational status presentation");
-}
-if (gateCheckSkill.includes("| Run status | Value |")) {
-  failures.push("gate-check must not maintain a second operational status-card template");
-}
-if (!gateCheckSkill.includes("## Repository Activation Diagnosis")) {
-  failures.push("gate-check must own the repository activation diagnosis section");
-}
-if (!gateCheckSkill.includes("`doctor --json` on the resolved surface-local validator is the sole canonical, code-owned, tool-shell-safe activation probe")) {
-  failures.push("gate-check must name doctor --json as the sole canonical activation probe");
-}
+const taskTargetContractProse = normalizeProse(taskTargetContract);
 for (const targetBoundary of [
   "## Direct Skill Invocation Preflight",
   "before skill-specific input",
@@ -503,22 +867,54 @@ for (const targetBoundary of [
   "target-check --json --language <current-chat-language>",
   "Do not install or resolve a remote",
 ]) {
-  if (!taskTargetContract.includes(targetBoundary)) failures.push(`shared direct skill target-preflight boundary missing: ${targetBoundary}`);
+  if (!taskTargetContractProse.includes(normalizeProse(targetBoundary))) failures.push(`shared direct skill target-preflight boundary missing: ${targetBoundary}`);
 }
-if (!gateCheckSkill.includes("must not be used as the only proof of activation")) {
-  failures.push("gate-check must forbid AGDF_* env vars as sole activation proof");
-}
-if (!gateCheckSkill.includes("must not be used as proof of presence or absence of `.agdf/control/config.json`")) {
-  failures.push("gate-check must forbid relative glob/grep as activation proof");
-}
-for (const antiPattern of [
-  "AGDF_CONTROL_DIR` to confirm",
-  "AGDF_CONTROL_DIR` to verify",
-  "AGDF_CONTROL_DIR` to check",
-  "relative glob to confirm",
-  "relative glob to verify",
+for (const activationBoundary of [
+  "After positive Request Activation, resolve the user's primary work target",
+  "Silent Request Activation abstention and targetless catalog routes do not invoke this contract.",
+  "After the already-loaded Request Activation guard has positively selected a direct, target-bound skill route",
+  "Automatic selection alone is not positive activation; on silent abstention this preflight is not run.",
 ]) {
-  if (gateCheckSkill.includes(antiPattern)) failures.push(`gate-check must not instruct agents to use anti-pattern diagnosis: ${antiPattern}`);
+  if (!taskTargetContractProse.includes(activationBoundary)) {
+    failures.push(`task-target-resolution must remain downstream of positive Request Activation: ${activationBoundary}`);
+  }
+}
+
+const modesContractProse = normalizeProse(modesContract);
+for (const activationBoundary of [
+  "Request Activation precedes Mode Selection.",
+  "read-only handling and are not Quick Tasks.",
+  "Quick Task is a downstream process choice for an actual delivery effect or explicit AGDF operation; it is never an activation fallback.",
+  "Read-only questions, reviews and diagnosis without a requested delivery effect remain outside AGDF.",
+]) {
+  if (!modesContractProse.includes(activationBoundary)) {
+    failures.push(`modes contract must keep ordinary read-only work outside Quick Task: ${activationBoundary}`);
+  }
+}
+if (modesContractProse.includes("| Quick Task Mode | small questions, reviews, debugging")) {
+  failures.push("modes contract must not classify ordinary questions or reviews as Quick Task");
+}
+
+const interactionContractProse = normalizeProse(interactionContract);
+for (const activationBoundary of [
+  "Silent Request Activation abstention for an ordinary read-only request renders no AGDF orientation, status or other AGDF-visible text.",
+  "Only after positive activation may a downstream AGDF owner use the localized `primary.readOnlyOrientationDescription` sentence",
+  "After positive Request Activation selects a target-bound route, render the target orientation",
+]) {
+  if (!interactionContractProse.includes(activationBoundary)) {
+    failures.push(`interaction contract must keep ordinary read-only handling silent and pre-target: ${activationBoundary}`);
+  }
+}
+const controlSetupBoundary = interactionContract.indexOf("`control_setup` is a non-gate envelope");
+const gateApprovalPresentationBoundary = interactionContract.indexOf("Before presenting `gate_approval`");
+if (controlSetupBoundary < 0
+    || gateApprovalPresentationBoundary < 0
+    || controlSetupBoundary >= gateApprovalPresentationBoundary
+    || !interactionContractProse.includes("before automatic run creation, automatic UR persistence or any gate approval can occur.")
+    || !interactionContractProse.includes("After successful setup, the agent continues the same delivery intake by persisting the already reviewed canonical run and revision-stable UR without a second setup prompt.")
+    || !interactionContractProse.includes("For the explicit standalone `lifecycle.control.init` operation, setup remains scaffold-only and creates neither a run nor UR.")
+    || !interactionContractProse.includes("It renders no approval value, native gate control or synthetic selected run.")) {
+  failures.push("interaction contract must define non-authorizing control_setup before any gate approval presentation");
 }
 if (!runtimeContract.includes("### Repository Activation Diagnosis Boundary")) {
   failures.push("control-scaffold contract must own the repository activation diagnosis boundary");
@@ -539,15 +935,9 @@ if (!agentRouterContent.includes("## Task Target Resolution")
   || agentRouterContent.indexOf("## Task Target Resolution") > agentRouterContent.indexOf("## Mode Selection")) {
   failures.push("agent router must resolve the task target before Mode Selection");
 }
-if (!gateCheckSkill.includes("task_target_orientation.markdown` verbatim")) {
-  failures.push("gate-check must consume the canonical task target orientation verbatim");
-}
 if (gateCheckSkill.includes("## Task Target Orientation Template")
   || gateCheckSkill.includes("| Primary target | Governance target | Evidence sources |")) {
   failures.push("gate-check must not maintain a skill-local task target orientation template");
-}
-if (!gateCheckSkill.includes("scope_classification.markdown` verbatim")) {
-  failures.push("gate-check must consume the canonical scope classification projection verbatim");
 }
 if (gateCheckSkill.includes("## Scope Classification Card Template") || gateCheckSkill.includes("| Classification | Mode | Boundary |")) {
   failures.push("gate-check must not maintain a skill-local scope classification card template");
@@ -692,10 +1082,24 @@ if (pluginDefinition) {
   if (!Array.isArray(pluginDefinition.skillSet) || pluginDefinition.skillSet.length === 0) {
     failures.push("canonical AGDF plugin definition must declare the workflow skill set");
   } else {
+    const skillSlugs = new Set();
     for (const skill of pluginDefinition.skillSet) {
-      if (!skill?.slug) failures.push("canonical AGDF plugin definition skill set entries must declare slug");
-      if (!skill?.useFor) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare useFor`);
-      if (!skill?.boundary) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare boundary`);
+      if (!skillSlugPattern.test(skill?.slug ?? "")) {
+        failures.push(`canonical AGDF plugin definition contains invalid skill slug: ${skill?.slug ?? "<unknown>"}`);
+      } else if (skillSlugs.has(skill.slug)) {
+        failures.push(`canonical AGDF plugin definition contains duplicate skill slug: ${skill.slug}`);
+      } else {
+        skillSlugs.add(skill.slug);
+      }
+      if (typeof skill?.useFor !== "string" || !skill.useFor.trim() || skill.useFor.trim() !== skill.useFor || /[\r\n]/.test(skill.useFor)) {
+        failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare single-line useFor`);
+      }
+      if (typeof skill?.boundary !== "string" || !skill.boundary.trim() || skill.boundary.trim() !== skill.boundary || /[\r\n]/.test(skill.boundary)) {
+        failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare single-line boundary`);
+      }
+      if (typeof skill?.discovery !== "string" || !skill.discovery.trim() || skill.discovery.trim() !== skill.discovery || /[\r\n]/.test(skill.discovery)) {
+        failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare single-line discovery`);
+      }
       if (!["deterministic_control", "judgement_required"].includes(skill?.dispatch?.mode)) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must declare a valid dispatch mode`);
       if (skill?.dispatch?.requiresControlSnapshot !== true) failures.push(`canonical AGDF plugin definition skill ${skill?.slug ?? "<unknown>"} must require the canonical control snapshot`);
       if (skill?.slug === "gate-check"
@@ -722,6 +1126,7 @@ if (pluginDefinition) {
     failures.push("canonical AGDF plugin definition distribution profiles must match the runtime integrity contract");
   }
   expectedSkills = (pluginDefinition.skillSet ?? [])
+    .filter((skill) => skillSlugPattern.test(skill?.slug ?? ""))
     .map((skill) => `${pluginDefinition.codex?.skillPrefix ?? ""}${skill?.slug ?? ""}`)
     .sort();
 }
@@ -871,25 +1276,209 @@ if (isFile(syncPackageAssetsPath)) {
   if (!syncPackageAssets.includes("toOpenCodeInstructionsRouter")) {
     failures.push("OpenCode instructions must be rendered from the canonical AGDF router");
   }
+  if (!syncPackageAssets.includes("getRuntimeContractModulePaths(pluginDefinition)")
+      || /const contractModules\s*=\s*\[/.test(syncPackageAssets)) {
+    failures.push("create-agdf package asset sync must consume the definition-owned runtimeContract inventory");
+  }
+  const packageSyncEntry = syncPackageAssets.indexOf("export function syncPackageAssets");
+  const projectionCheck = syncPackageAssets.indexOf("syncRequestActivationProjections({ repoRoot, mode: \"check\" })", packageSyncEntry);
+  const firstPackageMutation = [
+    syncPackageAssets.indexOf("write(join(sourcePluginRoot", packageSyncEntry),
+    syncPackageAssets.indexOf("rmSync(", packageSyncEntry),
+    syncPackageAssets.indexOf("syncDirectory(", packageSyncEntry),
+  ].filter((position) => position >= 0).sort((left, right) => left - right)[0] ?? -1;
+  if (packageSyncEntry < 0 || projectionCheck < packageSyncEntry
+      || (firstPackageMutation >= 0 && projectionCheck > firstPackageMutation)) {
+    failures.push("create-agdf package asset sync must pass request-activation projection check before every mutation");
+  }
+  if (!syncPackageAssets.includes('"## Surface Convention",\n    REQUEST_ACTIVATION_MARKERS.guardStart')
+      || syncPackageAssets.includes('replaceUniqueRouterSection(\n    transformed,\n    "## Surface Convention",\n    "## Request Activation"')
+      || syncPackageAssets.includes("(?=## Mode Selection)")) {
+    failures.push("OpenCode router transform must end Surface Convention replacement before the exact Request Activation guard marker");
+  }
+  if (!syncPackageAssets.includes("hooks: {\n      sessionStart: [{")) {
+    failures.push("Copilot package projection must generate the sessionStart-only hook surface");
+  }
 }
 
 if (isFile(createAgdfOpenCodeInstallerPath)) {
   const createAgdfOpenCodeInstaller = read(createAgdfOpenCodeInstallerPath);
-  if (!createAgdfOpenCodeInstaller.includes("globalOpenCodeBoundary") || !createAgdfOpenCodeInstaller.includes("globalOpenCodeSkillOwnershipMarker")) {
+  if (!createAgdfOpenCodeInstaller.includes("globalOpenCodeInstructionsOwnershipMarker")
+      || !createAgdfOpenCodeInstaller.includes("globalOpenCodeSkillOwnershipMarker")
+      || !createAgdfOpenCodeInstaller.includes("toGlobalOpenCodeInstructionsBootstrap")
+      || !createAgdfOpenCodeInstaller.includes("insertRepositoryActivationGuard")) {
     failures.push("OpenCode global native-surface ownership and fail-closed boundary must remain in the canonical installer path");
+  }
+  if (createAgdfOpenCodeInstaller.includes("tool.execute.before")) {
+    failures.push("OpenCode installer must not require a pre-tool request-classifier hook");
   }
 }
 
-const openCodeNpmPluginPath = sourceMode ? join(repoRoot, "create-agdf", "opencode-plugin.js") : null;
+if (isFile(syncPluginRuntimePath)) {
+  const syncPluginRuntime = read(syncPluginRuntimePath);
+  for (const required of [
+    "const activationKernel = requestActivationKernel()",
+    "request_activation: ${JSON.stringify({",
+    "owner: activationKernel.identity.owner",
+    "policy_version: activationKernel.identity.policy_version",
+    "guard_fingerprint: activationKernel.identity.guard_fingerprint",
+    "route_source_after_activation:",
+    "../meta/contracts/request-activation.md",
+    "../copilot-skills/contracts/request-activation.md",
+    "const bindingContext =",
+    "AGDF dispatcher binding:",
+    "const baseContext = [activationKernel, bindingContext].join",
+    "const additionalContext = [baseContext",
+    "AGDF runtime facts:",
+    "authorizes: false",
+  ]) {
+    if (!syncPluginRuntime.includes(required)) {
+      failures.push(`plugin runtime sync missing compact kernel/binding/runtime-facts structure: ${required}`);
+    }
+  }
+  if (syncPluginRuntime.includes("activation_trigger") || syncPluginRuntime.includes("raw_prompt")) {
+    failures.push("plugin runtime sync must not retain the broad activation trigger or raw request transport");
+  }
+}
+
 if (sourceMode && isFile(openCodeNpmPluginPath)) {
   const openCodeNpmPlugin = read(openCodeNpmPluginPath);
   if (!openCodeNpmPlugin.includes("experimental.session.compacting") || !openCodeNpmPlugin.includes("AGDF_CONTROL_DIR")) {
     failures.push("OpenCode npm plugin must preserve AGDF runtime context hooks");
   }
+  for (const required of [
+    'identity?.owner !== "request_activation_contract"',
+    'identity?.path !== "plugin/meta/contracts/request-activation.md"',
+    "identity?.policy_version !== 1",
+    "fingerprint mismatch",
+    "const activeContext = [",
+    "request_activation: {",
+    "owner: activationIdentity.owner",
+    "policy_version: activationIdentity.policy_version",
+    "guard_fingerprint: activationIdentity.guard_fingerprint",
+    "authorizes: false",
+    "if (!activation().active) return",
+  ]) {
+    if (!openCodeNpmPlugin.includes(required)) {
+      failures.push(`OpenCode npm plugin missing compact active-context boundary: ${required}`);
+    }
+  }
+  if (openCodeNpmPlugin.includes("activation_trigger")
+      || openCodeNpmPlugin.includes("raw_prompt")
+      || openCodeNpmPlugin.includes("tool.execute.before")) {
+    failures.push("OpenCode npm plugin must not retain a broad activation trigger, raw request transport or pre-tool classifier hook");
+  }
+  if (!openCodeNpmPlugin.includes("if (validatorVersion && validatorVersion !== packageJson.version)")
+      || countOccurrences(openCodeNpmPlugin, "await safeToast(") !== 1) {
+    failures.push("OpenCode npm plugin must reserve its only session-created toast for version drift");
+  }
+
+  try {
+    const expectedIdentity = {
+      owner: "request_activation_contract",
+      path: "plugin/meta/contracts/request-activation.md",
+      policy_version: 1,
+      guard_fingerprint: canonicalGuardFingerprint,
+    };
+    const { AGDFPlugin } = await import(pathToFileURL(openCodeNpmPluginPath).href);
+    const observedToasts = [];
+    const hooks = await AGDFPlugin({
+      directory: join(repoRoot, ".agdf-runtime-integrity-inactive"),
+      client: {
+        app: { async log() { return {}; } },
+        tui: { async showToast({ body }) { observedToasts.push(body); } },
+      },
+    }, {
+      requestActivationIdentity: expectedIdentity,
+      executeAutomaticRuntimeCheck: () => ({ effective: false, reason: "integrity_fixture", ran: false, output: "" }),
+    });
+    const expectedHookKeys = [
+      "event",
+      "experimental.chat.system.transform",
+      "experimental.session.compacting",
+      "shell.env",
+    ];
+    if (JSON.stringify(Object.keys(hooks).sort()) !== JSON.stringify(expectedHookKeys.sort())) {
+      failures.push("OpenCode npm plugin hook inventory must remain exact and exclude tool.execute.before");
+    }
+    await hooks.event({ event: { type: "session.created" } });
+    if (observedToasts.length !== 0) {
+      failures.push("inactive OpenCode session creation must remain log-only and emit no toast");
+    }
+    const inactiveSystemOutput = { system: [] };
+    await hooks["experimental.chat.system.transform"]({}, inactiveSystemOutput);
+    if (inactiveSystemOutput.system.length !== 0) {
+      failures.push("inactive OpenCode system transform must emit zero bytes");
+    }
+    const inactiveCompactionOutput = { context: [] };
+    await hooks["experimental.session.compacting"]({}, inactiveCompactionOutput);
+    if (inactiveCompactionOutput.context.length !== 0) {
+      failures.push("inactive OpenCode compaction must emit zero bytes");
+    }
+
+    const activeHooks = await AGDFPlugin({
+      directory: repoRoot,
+      client: {
+        app: { async log() { return {}; } },
+        tui: { async showToast() { return {}; } },
+      },
+    }, {
+      requestActivationIdentity: expectedIdentity,
+      executeAutomaticRuntimeCheck: () => ({ effective: false, reason: "integrity_fixture", ran: false, output: "" }),
+    });
+    const activeSystemOutput = { system: [] };
+    await activeHooks["experimental.chat.system.transform"]({}, activeSystemOutput);
+    await activeHooks["experimental.chat.system.transform"]({}, activeSystemOutput);
+    const activeCompactionOutput = { context: [] };
+    await activeHooks["experimental.session.compacting"]({}, activeCompactionOutput);
+    await activeHooks["experimental.session.compacting"]({}, activeCompactionOutput);
+    const eagerPath = join(repoRoot, "create-agdf", "generated", ".opencode", pluginDefinition.opencode.instructionsFileName);
+    if (activeSystemOutput.system.length !== 1 || activeCompactionOutput.context.length !== 1 || !isFile(eagerPath)) {
+      failures.push("active OpenCode hooks must expose one idempotent dynamic context and one kernel-only compaction block");
+    } else {
+      const activeContext = activeSystemOutput.system[0];
+      const bindingLine = activeContext.split("\n").find((line) => line.startsWith("AGDF dispatcher binding: "));
+      const binding = JSON.parse(bindingLine.slice("AGDF dispatcher binding: ".length));
+      const eager = read(eagerPath);
+      const dynamicValues = { executable: binding.executable, validator: binding.argv_prefix[0] };
+      const report = validateInstructionFootprintProfile({
+        definition: pluginDefinition.instructionFootprint,
+        canonicalKernel: canonicalRequestActivationGuard,
+        expectedVersion: pluginDefinition.version,
+        expectedInstanceIds: {
+          openCodeEagerInstructions: ["repository"],
+          openCodeActiveDynamicContext: ["active"],
+          openCodeInactiveDynamicContext: ["inactive"],
+          openCodeComposedStaticAndActiveDynamic: ["repository"],
+          openCodeCompactionAddition: ["active"],
+        },
+        surfaces: {
+          openCodeEagerInstructions: [{ id: "repository", content: eager }],
+          openCodeActiveDynamicContext: [{ id: "active", content: activeContext, dynamicValues }],
+          openCodeInactiveDynamicContext: [{ id: "inactive", content: "" }],
+          openCodeComposedStaticAndActiveDynamic: [{ id: "repository", content: `${eager}\n${activeContext}`, dynamicValues }],
+          openCodeCompactionAddition: [{ id: "active", content: activeCompactionOutput.context[0] }],
+        },
+        requiredSurfaceIds: [
+          "openCodeEagerInstructions",
+          "openCodeActiveDynamicContext",
+          "openCodeInactiveDynamicContext",
+          "openCodeComposedStaticAndActiveDynamic",
+          "openCodeCompactionAddition",
+        ],
+      });
+      for (const finding of report.failures) failures.push(`${finding.code}: ${finding.message}`);
+    }
+  } catch (error) {
+    failures.push(`OpenCode npm plugin Request Activation integrity probe failed: ${error.message}`);
+  }
 }
 
 const hooksConfig = isFile(hooksConfigPath) ? readJson(hooksConfigPath, "Codex plugin hooks config") : null;
 if (hooksConfig) {
+  if (JSON.stringify(Object.keys(hooksConfig.hooks ?? {}).sort()) !== JSON.stringify(["SessionStart"])) {
+    failures.push("shared plugin hooks must expose SessionStart only");
+  }
   const sessionStartGroups = hooksConfig.hooks?.SessionStart;
   if (!Array.isArray(sessionStartGroups) || sessionStartGroups.length === 0) failures.push("Codex plugin hooks config must define SessionStart hooks");
   const sessionStartCommands = sessionStartGroups?.flatMap((group) => group?.hooks ?? []) ?? [];
@@ -928,59 +1517,138 @@ if (!sourceMode && installationProvenance?.profile_id === "copilot-runtime-plugi
     failures.push("Copilot root plugin manifest must preserve AGDF identity, version and generated component paths");
   }
   const copilotSessionStart = copilotHooks?.hooks?.sessionStart;
+  if (JSON.stringify(Object.keys(copilotHooks?.hooks ?? {}).sort()) !== JSON.stringify(["sessionStart"])) {
+    failures.push("Copilot hooks must expose sessionStart only");
+  }
   if (!Array.isArray(copilotSessionStart) || !copilotSessionStart.some((hook) => hook?.type === "command"
       && hook?.command === 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"'
       && hook?.env?.AGDF_SURFACE === "copilot")) {
     failures.push("Copilot hooks must declare the fixed consent-bound AGDF sessionStart command");
   }
   for (const skill of pluginDefinition?.skillSet ?? []) {
+    if (!skillSlugPattern.test(skill?.slug ?? "")) continue;
     assertFile(join(pluginRoot, "copilot-skills", `agdf-${skill.slug}`, "SKILL.md"), `Copilot prefixed plugin skill agdf-${skill.slug}`);
   }
 }
 
 if (isFile(sessionStartHookPath)) {
   const sessionStartHook = read(sessionStartHookPath);
-  if (!sessionStartHook.includes("agdf-agent-router.md")) failures.push("AGDF SessionStart hook must load the canonical agent router");
-  if (!sessionStartHook.includes("agdf-constitution.md")) failures.push("AGDF SessionStart hook must load the AGDF constitution");
-  if (!sessionStartHook.includes("agdf-runtime-contract.md")) failures.push("AGDF SessionStart hook must expose the canonical runtime contract source");
-  if (!sessionStartHook.includes("Do not print the full router or constitution unless the user asks for them")) {
-    failures.push("AGDF SessionStart hook must avoid flooding the chat with full router or constitution text");
+  for (const required of [
+    "Compatibility transport only",
+    'SESSION_CHECK="${SCRIPT_DIR}/../runtime/agdf-session-check.js"',
+    'exec node "${SESSION_CHECK}"',
+    "AGDF SessionStart transport unavailable: generated runtime entrypoint not found.",
+  ]) {
+    if (!sessionStartHook.includes(required)) failures.push(`AGDF SessionStart compatibility transport missing: ${required}`);
   }
-  if (!sessionStartHook.includes(".agdf/control/config.json") || !sessionStartHook.includes("artefacts=") || !sessionStartHook.includes("chat=")) {
-    failures.push("AGDF SessionStart hook must report the project language config hint compactly");
-  }
-  if (!sessionStartHook.includes("Language policy: write durable AGDF artefacts in")) {
-    failures.push("AGDF SessionStart hook must turn language config into an explicit artefact/chat language instruction");
-  }
-  if (sessionStartHook.includes('cat "$ROUTER"') || sessionStartHook.includes('cat "$CONSTITUTION"')) {
-    failures.push("AGDF SessionStart hook must not print full router or constitution files by default");
+  if (/agdf-agent-router|agdf-constitution|agdf-runtime-contract|\.agdf\/control|Language policy|Request Activation Guard/iu.test(sessionStartHook)) {
+    failures.push("AGDF SessionStart compatibility transport must not own model-visible policy or repository inspection");
   }
 }
 
-if (!sourceMode && isFile(automaticRuntimeCheckPath)) {
-  const automaticRuntimeCheck = read(automaticRuntimeCheckPath);
-  if (!automaticRuntimeCheck.includes("AGDF dispatcher binding:") || !automaticRuntimeCheck.includes('"skill-dispatch", "--json", "--surface"')) {
-    failures.push("AGDF SessionStart runtime must emit the exact dispatcher binding");
+const footprintSessionEntrypoint = sourceMode
+  ? join(repoRoot, "create-agdf", "generated", "plugins", "agdf", "runtime", "agdf-session-check.js")
+  : automaticRuntimeCheckPath;
+if (pluginDefinition && canonicalRequestActivationGuard && isFile(footprintSessionEntrypoint)) {
+  const records = [];
+  for (const surface of ["codex", "claude", "copilot"]) {
+    const probe = spawnSync(process.execPath, [footprintSessionEntrypoint], {
+      cwd: sourceMode ? repoRoot : pluginRoot,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        AGDF_DATA_DIR: join(sourceMode ? repoRoot : pluginRoot, ".agdf-runtime-integrity-no-consent"),
+        AGDF_SURFACE: surface,
+      },
+    });
+    if (probe.status !== 0) {
+      failures.push(`SessionStart footprint probe failed for ${surface}: ${probe.stderr.trim()}`);
+      continue;
+    }
+    try {
+      const transported = surface === "copilot" ? JSON.parse(probe.stdout).additionalContext : probe.stdout;
+      const content = normalizeLf(transported).replace(/\n$/u, "");
+      const bindingLine = content.split("\n").find((line) => line.startsWith("AGDF dispatcher binding: "));
+      const binding = JSON.parse(bindingLine.slice("AGDF dispatcher binding: ".length));
+      const routeSource = binding.route_source_after_activation;
+      const routeSourcePath = routeSource?.relative_to === "validator_directory" && typeof routeSource.path === "string"
+        ? resolve(dirname(binding.argv_prefix[0]), routeSource.path)
+        : "";
+      if (!routeSourcePath || !isFile(routeSourcePath)) {
+        throw new Error("post-activation route source is missing or unresolved");
+      }
+      const routeSourceContent = read(routeSourcePath);
+      if (!routeSourceContent.includes(requestActivationMarkers.operationsStart)
+          || !routeSourceContent.includes(requestActivationMarkers.operationsEnd)
+          || !routeSourceContent.includes(canonicalRequestActivationGuard)) {
+        throw new Error("post-activation route source is not the packaged canonical operation catalog");
+      }
+      records.push({
+        id: surface,
+        content,
+        dynamicValues: { executable: binding.executable, validator: binding.argv_prefix[0] },
+      });
+    } catch (error) {
+      failures.push(`SessionStart footprint output is invalid for ${surface}: ${error.message}`);
+    }
   }
-  if (!automaticRuntimeCheck.includes("Obey result.host_action exactly")
-      || !automaticRuntimeCheck.includes('pre_dispatch_output: "none"')
-      || !automaticRuntimeCheck.includes('terminal_output: "host_action.text_verbatim_only"')
-      || !automaticRuntimeCheck.includes("output host_action.text byte-for-byte")) {
-    failures.push("AGDF SessionStart runtime must bind terminal dispatcher transfer and stopping");
-  }
-  if (!automaticRuntimeCheck.includes('ordinary_conversation: "ignore_agdf_context"')
-      || !automaticRuntimeCheck.includes('runtime_mention: "only_when_user_requests_agdf"')
-      || !automaticRuntimeCheck.includes("Ignore this AGDF context completely")) {
-    failures.push("AGDF SessionStart runtime must not activate AGDF from binding presence alone");
-  }
-  if (!automaticRuntimeCheck.includes("Automatic repository checks remain disabled")) {
-    failures.push("AGDF SessionStart runtime must separate safe binding emission from consent-gated repository checks");
-  }
+  const report = validateInstructionFootprintProfile({
+    definition: pluginDefinition.instructionFootprint,
+    canonicalKernel: canonicalRequestActivationGuard,
+    expectedVersion: pluginDefinition.version,
+    expectedInstanceIds: { sessionStartBase: ["codex", "claude", "copilot"] },
+    surfaces: { sessionStartBase: records },
+    requiredSurfaceIds: ["sessionStartBase"],
+  });
+  for (const finding of report.failures) failures.push(`${finding.code}: ${finding.message}`);
 }
 
 if (isFile(agentRouterPath)) {
   const agentRouter = read(agentRouterPath);
   assertRouterMatchesDefinition("plugin/meta/agdf-agent-router.md", agentRouter, "codex");
+  const routerGuard = ownedBlock(
+    agentRouter,
+    requestActivationMarkers.guardStart,
+    requestActivationMarkers.guardEnd,
+    "plugin/meta/agdf-agent-router.md request activation guard",
+  );
+  if (routerGuard && canonicalRequestActivationGuard && routerGuard !== canonicalRequestActivationGuard) {
+    failures.push("plugin/meta/agdf-agent-router.md request activation guard must be byte-identical to the canonical source block");
+  }
+  const expectedRoutingBlock = [
+    requestActivationMarkers.skillRoutingStart,
+    "| Skill | Use For | Boundary |",
+    "|---|---|---|",
+    ...(pluginDefinition?.skillSet ?? []).map((skill) => routingRowForSurface(skill, "codex")),
+    requestActivationMarkers.skillRoutingEnd,
+  ].join("\n");
+  const routingBlock = ownedBlock(
+    agentRouter,
+    requestActivationMarkers.skillRoutingStart,
+    requestActivationMarkers.skillRoutingEnd,
+    "plugin/meta/agdf-agent-router.md skill routing",
+  );
+  if (routingBlock && routingBlock !== expectedRoutingBlock) {
+    failures.push("plugin/meta/agdf-agent-router.md skill routing must exactly match definition order and metadata");
+  }
+  const activationOrder = [
+    "## Surface Convention",
+    "## Request Activation",
+    "## Task Target Resolution",
+    "## Mode Selection",
+  ];
+  const positions = activationOrder.map((heading) => {
+    const count = countOccurrences(agentRouter, heading);
+    if (count !== 1) failures.push(`plugin/meta/agdf-agent-router.md must contain exactly one ${heading}; found ${count}`);
+    return agentRouter.indexOf(heading);
+  });
+  if (!positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1]))) {
+    failures.push("plugin/meta/agdf-agent-router.md must order Surface Convention -> Request Activation -> Task Target Resolution -> Mode Selection");
+  }
+  if (!agentRouter.includes("Only after positive Request Activation, and only for a target-bound route")
+      || !agentRouter.includes("A request that abstained or remained an\nordinary read-only request never enters AGDF Mode Selection or Quick Task handling.")) {
+    failures.push("plugin/meta/agdf-agent-router.md must keep target and mode routing downstream of positive Request Activation");
+  }
   if (!agentRouter.includes("Default entry rule: a new user intent to build, add, change, extend, refactor or otherwise deliver something starts with `gate-check`")) {
     failures.push("plugin/meta/agdf-agent-router.md must state the gate-check default entry rule for new build/change intents");
   }
@@ -1030,14 +1698,28 @@ if (isFile(runtimeContractPath)) {
   if (!runtimeContract.includes("A Mode/Slice Decision without scope reason and evidence is not recorded")) {
     failures.push("runtime contract must treat unevidenced Mode/Slice Decision as missing");
   }
-  if (!runtimeContract.includes("Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact")) {
-    failures.push("runtime contract must allow constructive artefact drafting when control state is missing");
+  const gateRulesProse = normalizeProse(sectionAfterHeading(gateTransitionContract, "Gate Rules"));
+  const gateRulesSearch = gateRulesProse.toLowerCase();
+  const missingControlRuleStart = gateRulesSearch.indexOf("- after positive request activation and task-target resolution, missing control files");
+  const missingControlRuleEnd = gateRulesSearch.indexOf("- `approval: ur` permits", missingControlRuleStart);
+  const missingControlRule = missingControlRuleStart >= 0 && missingControlRuleEnd > missingControlRuleStart
+    ? gateRulesSearch.slice(missingControlRuleStart, missingControlRuleEnd)
+    : "";
+  const missingControlSetup = missingControlRule.indexOf("obtain explicit setup or link authority");
+  const missingControlPersistence = missingControlRule.indexOf("persist", missingControlSetup);
+  const missingControlApproval = missingControlRule.indexOf("approval: ur", missingControlPersistence);
+  if (!missingControlRule
+      || !missingControlRule.includes("drafting the current minimal ur")
+      || !missingControlRule.includes("forbid later-gate work, implementation and every gate-approval request")
+      || missingControlSetup < 0
+      || missingControlPersistence < 0
+      || missingControlApproval < 0
+      || !(missingControlSetup < missingControlPersistence
+        && missingControlPersistence < missingControlApproval)) {
+    failures.push("gate-transition contract must require setup/link authority and durable persistence before Approval: UR for missing control");
   }
-  if (!runtimeContract.includes("For a fresh request, the default allowed work is to draft a minimal UR in the response")) {
-    failures.push("runtime contract must keep fresh missing-control requests lightweight");
-  }
-  if (!runtimeContract.includes("Initialize or write `.agdf/control/` only when the user explicitly asks for durable AGDF control state")) {
-    failures.push("runtime contract must prevent default full scaffold writes for fresh requests");
+  if (missingControlRule.includes("then request `approval: ur`. this branch is unreachable for `target_unresolved`. initialize or write `.agdf/control/`")) {
+    failures.push("gate-transition contract must not request Approval: UR before missing-control setup and persistence");
   }
   if (!runtimeContract.includes("`config.json` stores project language preferences")) {
     failures.push("runtime contract must define AGDF language preference config");
@@ -1133,19 +1815,50 @@ for (const skill of expectedSkills) {
 
   const skillMd = read(skillPath);
   const helpMd = read(helpPath);
+  const requestActivationHeadingCount = countOccurrences(skillMd, "## Request Activation");
+  if (requestActivationHeadingCount !== 1) {
+    failures.push(`${skill} must contain exactly one Request Activation heading; found ${requestActivationHeadingCount}`);
+  }
+  const skillSlug = pluginDefinition?.codex?.skillPrefix && skill.startsWith(pluginDefinition.codex.skillPrefix)
+    ? skill.slice(pluginDefinition.codex.skillPrefix.length)
+    : skill;
+  const skillDefinition = (pluginDefinition?.skillSet ?? []).find((entry) => entry.slug === skillSlug);
+  const skillGuard = ownedBlock(
+    skillMd,
+    requestActivationMarkers.guardStart,
+    requestActivationMarkers.guardEnd,
+    `${skill} request activation guard`,
+  );
+  if (skillGuard && canonicalRequestActivationGuard && skillGuard !== canonicalRequestActivationGuard) {
+    failures.push(`${skill} request activation guard must be byte-identical to the canonical source block`);
+  }
+  if (skillGuard && skillMd.indexOf(requestActivationMarkers.guardEnd) > skillMd.indexOf("## Executable Dispatch")) {
+    failures.push(`${skill} request activation guard must precede executable dispatch`);
+  }
+  if (skillDefinition && activationDiscoverySuffix) {
+    const expectedDescription = `description: ${JSON.stringify(expectedSkillDescription(skillDefinition, activationDiscoverySuffix))}`;
+    if ((skillMd.match(/^description:.*$/gm) ?? []).length !== 1 || !skillMd.includes(expectedDescription)) {
+      failures.push(`${skill} frontmatter description must derive exactly from skillSet useFor/boundary and the activation suffix`);
+    }
+  }
   for (const required of [
     "## Executable Dispatch",
     `--skill ${skill}`,
     "`terminal: true`",
-    "only if absent return recovery",
     "`dispatcher_unavailable`",
-    "do not search for another runtime",
-    "Dispatch never authorizes",
   ]) {
     if (!skillMd.includes(required)) failures.push(`${skill} executable dispatch boundary missing: ${required}`);
   }
   if (skill === "gate-check") {
-    for (const required of ["../../meta/contracts/task-target-resolution.md", "../../meta/contracts/interaction.md", "`instruction_only` fallback"]) {
+    for (const required of [
+      "../../meta/contracts/task-target-resolution.md",
+      "../../meta/contracts/gate-transition.md",
+      "../../meta/contracts/interaction.md",
+      "../../meta/contracts/control-scaffold.md",
+      "../../meta/contracts/modes.md",
+      "../../meta/contracts/quality.md",
+      "## Declared `instruction_only` Fallback",
+    ]) {
       if (!skillMd.includes(required)) failures.push(`${skill} instruction-only dispatch fallback missing: ${required}`);
     }
   } else if (!skillMd.includes("`instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.")) {
@@ -1158,61 +1871,11 @@ for (const skill of expectedSkills) {
     failures.push(`${skill} must not maintain a skill-local task target orientation template`);
   }
   if (skill === "gate-check") {
-    for (const required of [
-      "## Native Interaction Path",
-      "complete normative owner for interaction kinds, locale",
-      "Resolve or revalidate the primary task target before selecting repository control state",
-      "Select exactly one run and evaluate its current gate",
-      "Confirm that the required durable artefact is present and ready",
-      "Revalidate the same target, run, gate and revision immediately after the response and before persistence",
-      "Persist only a currently valid exact approval",
-    ]) {
-      if (!skillMd.includes(required)) failures.push(`gate-check native interaction guidance missing: ${required}`);
-    }
-    if (!skillMd.includes("If `Approval: UR` is present, do not say implementation is the next step.")) {
-      failures.push("gate-check must prevent implementation immediately after Approval: UR");
-    }
     if (skillMd.includes("## Gate Transitions") || skillMd.includes("## Gate Order") || skillMd.includes("| State | Current gate or step | Allowed | Forbidden | Missing approval |")) {
       failures.push("gate-check must not duplicate the Runtime Contract gate transition table");
     }
-    if (!skillMd.includes("The canonical gate order and transition model live only in `../../meta/contracts/gate-transition.md`")) {
-      failures.push("gate-check must point to gate-transition.md as gate transition SoT");
-    }
-    if (!skillMd.includes("`status_presentation.markdown` verbatim") || !skillMd.includes("Do not maintain or render a skill-local table template")) {
-      failures.push("gate-check must delegate operational status rendering to the canonical projection");
-    }
-    if (!skillMd.includes("A decision value without scope reason and evidence is still missing")) {
-      failures.push("gate-check must require evidenced Mode/Slice Decision before later work");
-    }
-    if (!skillMd.includes("Missing or incomplete control state must not push setup work back to the user")) {
-      failures.push("gate-check must make missing control state constructive for current artefact drafting");
-    }
-    if (!skillMd.includes("For a fresh request, draft the current minimal artefact in the response")) {
-      failures.push("gate-check must keep fresh missing-control requests lightweight");
-    }
-    if (!skillMd.includes("Do not write a full control scaffold unless durable control state was explicitly requested")) {
-      failures.push("gate-check must prevent full control scaffold writes by default");
-    }
-    if (!skillMd.includes("do not paste full file bodies into the chat")) {
-      failures.push("gate-check must keep control artefact content out of chat by default");
-    }
-    if (!skillMd.includes("requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT")) {
-      failures.push("gate-check must require durable UR persistence for new product semantics or functional change");
-    }
-    if (!skillMd.includes("Approval text and durable artefact presence are separate requirements for UR, PRD, SD, TP and QA report decisions")) {
-      failures.push("gate-check must separate approval text from durable artefact presence for UR, PRD, SD, TP and QA report decisions");
-    }
-    if (!skillMd.includes("node <surface-local-agdf> delivery-map --json")) {
-      failures.push("gate-check must expose the machine-readable delivery-map command");
-    }
-    if (!skillMd.includes("This skill is the primary operating path for gate judgement")) {
-      failures.push("gate-check must state that the skill is the primary operating path before helper commands");
-    }
-    if (!skillMd.includes("not a required ritual for normal work")) {
-      failures.push("gate-check must state that CLI reports are not a required ritual for normal work");
-    }
-    if (!skillMd.includes("The CLI reports are validators and JSON evidence, not the primary user experience")) {
-      failures.push("gate-check must classify CLI reports as validators, not the primary workflow");
+    if (/## Native Interaction Path|## Repository Activation Diagnosis|## OpenCode Passive Hook Boundary/u.test(skillMd)) {
+      failures.push("gate-check must keep focused-contract handbooks out of the compact selected skill");
     }
   } else if (skill === "qa-gate") {
     for (const required of [

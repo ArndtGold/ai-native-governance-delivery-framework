@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 import { AGDFPlugin } from "../opencode-plugin.js";
-import { alignOpenCodePluginSdk, evaluateOpenCodeHostSdk, printOpenCodeStatus } from "../lib/installers/opencode.js";
+import {
+  alignOpenCodePluginSdk,
+  defaultOpenCodeConfigDir,
+  evaluateOpenCodeGlobalStatus,
+  evaluateOpenCodeHostSdk,
+  printOpenCodeStatus,
+  toGlobalOpenCodeInstructionsBootstrap,
+} from "../lib/installers/opencode.js";
 import {
   OPENCODE_DENY_PERMISSIONS,
   openCodeEvaluator,
@@ -15,6 +22,22 @@ import {
 import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capabilities.js";
 import { runDeliveryPathSearch } from "../lib/delivery-path-search/search-engine.js";
 import { executeDeliveryPathSearch } from "../lib/cli/delivery-path-search-command.js";
+import { toOpenCodeInstructionsBootstrap, toOpenCodeInstructionsRouter } from "./sync-package-assets.js";
+
+const openCodeBootstrap = toOpenCodeInstructionsBootstrap();
+assert.ok(Buffer.byteLength(openCodeBootstrap, "utf8") <= 4000, "OpenCode eager instructions must stay within budget");
+assert.equal(openCodeBootstrap.split("<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->").length - 1, 1);
+assert.equal(openCodeBootstrap.split("<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->").length - 1, 1);
+assert.doesNotMatch(openCodeBootstrap, /AGDF dispatcher binding:|^## (Task Target Resolution|Mode Selection|Skill Routing|Runtime Contract|Durable Control State|Closeout)$/m);
+assert.match(openCodeBootstrap, /agdf-agent-router\.md/);
+const globalOpenCodeBootstrap = toGlobalOpenCodeInstructionsBootstrap(openCodeBootstrap);
+assert.ok(Buffer.byteLength(`<!-- AGDF-GLOBAL-INSTRUCTIONS -->\n${globalOpenCodeBootstrap}`, "utf8") <= 4000);
+assert.match(globalOpenCodeBootstrap, /agdf-global-gate-check/);
+assert.match(globalOpenCodeBootstrap, /\.\/node_modules\/create-agdf\/generated\/\.opencode\/agdf-agent-router\.md/);
+assert.doesNotMatch(globalOpenCodeBootstrap, /the sibling `agdf-agent-router\.md`|AGDF dispatcher binding:/);
+const fullOpenCodeRouter = toOpenCodeInstructionsRouter(readFileSync(new URL("../../plugin/meta/agdf-agent-router.md", import.meta.url), "utf8"));
+assert.match(fullOpenCodeRouter, /^## Task Target Resolution$/m);
+assert.match(fullOpenCodeRouter, /^## Mode Selection$/m);
 
 const temp = mkdtempSync(join(tmpdir(), "agdf-opencode-hardening-"));
 try {
@@ -40,6 +63,7 @@ try {
   const human = [];
   printOpenCodeStatus({
     status: "configured",
+    installation_status: "degraded",
     global_config: { path: "fixture", plugin_configured: true },
     package: { loadable: true, installed_version: "0.11.3", expected_version: "0.11.3", version_status: "current" },
     host: supported.host,
@@ -56,7 +80,35 @@ try {
     next_step: "none",
   }, false, { log(line) { human.push(line); } });
   assert.ok(human.some((line) => line.includes("Host/SDK version: divergent (warn_only)")));
+  assert.ok(human.includes("Installation health: degraded"));
   assert.ok(human.some((line) => line.includes("sdk_declaration; live invocation not observed")));
+
+  let repositoryProbeCalls = 0;
+  const globalStatusDependencies = {
+    readOpenCodeConfig: (path) => ({ exists: true, parseError: "", config: { plugin: ["./node_modules/create-agdf/opencode-plugin.js"] }, path }),
+    resolveOpenCodePackage: () => ({ loadable: true, path: "fixture", installed_version: "0.14.5", error: "" }),
+    evaluateGlobalOpenCodeSurface: () => ({ complete: true, skill_count: 10, expected_skill_count: 10, contract_count: 9, expected_contract_count: 9 }),
+    evaluateOpenCodeHostSdk: () => ({
+      host: { installed_version: "1.18.3" },
+      plugin_sdk: { installed_version: "1.18.3" },
+      experimental_hooks: { aggregate: "declared_supported", evidence_level: "sdk_declaration", hooks: [], live_invocation_observed: false },
+      host_sdk_version: { status: "matching", policy: "warn_only", host_version: "1.18.3", sdk_version: "1.18.3" },
+    }),
+    evaluateOpenCodeRepositoryActivation() { repositoryProbeCalls += 1; throw new Error("global status must not probe a repository"); },
+  };
+  const globalStatus = evaluateOpenCodeGlobalStatus(temp, globalStatusDependencies);
+  assert.equal(globalStatus.status, "configured");
+  assert.equal(globalStatus.package.version_status, "current");
+  assert.equal(globalStatus.global_config.path, join(temp, "opencode.json"));
+  assert.equal(repositoryProbeCalls, 0, "targetless OpenCode status must not invoke repository activation");
+  assert.equal("repository_activation" in globalStatus, false);
+  const defaultGlobalStatus = evaluateOpenCodeGlobalStatus(undefined, globalStatusDependencies);
+  assert.equal(defaultGlobalStatus.global_config.path, join(defaultOpenCodeConfigDir(), "opencode.json"));
+  assert.equal(repositoryProbeCalls, 0, "default global status must not invoke repository activation");
+  const globalHuman = [];
+  printOpenCodeStatus(globalStatus, false, { log(line) { globalHuman.push(line); } });
+  assert.equal(globalHuman.some((line) => line.startsWith("Repository activation:")), false);
+  assert.equal(globalHuman.some((line) => line.startsWith("Session active signal:")), false);
 
   writeFileSync(join(sdkRoot, "dist", "index.d.ts"), 'export type Hooks = { "experimental.chat.system.transform": unknown; };\n');
   const missing = evaluateOpenCodeHostSdk(temp, { execFileSync: resolver, openCodeBin: "fixture-opencode" });
@@ -428,12 +480,18 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     const inactiveDir = join(pluginTemp, "inactive");
     mkdirSync(inactiveDir, { recursive: true });
     const inactivePlugin = await AGDFPlugin({ directory: inactiveDir, client: makeClient() }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
+    assert.deepEqual(Object.keys(inactivePlugin), [
+      "event",
+      "shell.env",
+      "experimental.chat.system.transform",
+      "experimental.session.compacting",
+    ], "OpenCode hook inventory must remain exact and must not add a request classifier or tool.execute.before hook");
     logs.length = 0;
     toasts.length = 0;
     await inactivePlugin.event({ event: { type: "session.created" } });
     assert.ok(logs.some((l) => l.level === "info" && l.message.includes("without durable control")), "inactive session must log");
     assert.ok(logs.some((l) => l.extra?.automatic_runtime_check?.effective === "enabled"), "session log must expose automatic runtime-check evidence");
-    assert.ok(toasts.some((t) => t.message.includes("No valid") && t.variant === "warning"), "inactive session must toast");
+    assert.equal(toasts.length, 0, "inactive session must remain silent and must not toast");
 
     const activeDir = join(pluginTemp, "active");
     mkdirSync(join(activeDir, ".agdf", "control"), { recursive: true });
@@ -446,16 +504,45 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     assert.equal(toasts.length, 0, "active session must not toast");
     const systemOutput = { system: [] };
     await activePlugin["experimental.chat.system.transform"]({}, systemOutput);
-    assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF Runtime Reminder")), "active guidance must be injected");
-    assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF automatic runtime check: status=pass")), "successful automatic runtime-check output must be injected");
-    assert.ok(systemOutput.system.some((entry) => entry.includes("AGDF dispatcher binding:") && entry.includes('"skill-dispatch","--json","--surface","opencode"')), "active guidance must expose the exact dispatcher binding");
-    assert.ok(systemOutput.system.some((entry) => entry.includes("Obey result.host_action exactly") && entry.includes('"pre_dispatch_output":"none"') && entry.includes('"terminal_output":"host_action.text_verbatim_only"') && entry.includes("output host_action.text byte-for-byte")), "active guidance must bind terminal dispatcher transfer");
-    assert.ok(systemOutput.system.some((entry) => entry.includes('"ordinary_conversation":"ignore_agdf_context"') && entry.includes('"runtime_mention":"only_when_user_requests_agdf"')), "active guidance must not activate AGDF from binding presence alone");
+    assert.equal(systemOutput.system.length, 1, "active system transform must add one compact context block");
+    const [bindingLine, factsLine, ...extraLines] = systemOutput.system[0].split("\n");
+    assert.equal(extraLines.length, 0, "active dynamic context must contain only binding and facts lines");
+    const binding = JSON.parse(bindingLine.slice("AGDF dispatcher binding: ".length));
+    assert.deepEqual(Object.keys(binding), ["schema_version", "executable", "argv_prefix", "expected_version", "request_activation", "authorizes"]);
+    assert.deepEqual(binding.argv_prefix.slice(1), ["skill-dispatch", "--json", "--surface", "opencode"]);
+    assert.deepEqual(binding.request_activation, {
+      owner: "request_activation_contract",
+      policy_version: 1,
+      guard_fingerprint: "sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab",
+    });
+    assert.equal(binding.authorizes, false);
+    assert.deepEqual(JSON.parse(factsLine.slice("AGDF runtime facts: ".length)), { active: true, version: binding.expected_version });
+    assert.ok(Buffer.byteLength(systemOutput.system[0], "utf8") <= 1000, "active dynamic context must stay within its byte budget");
+    assert.doesNotMatch(systemOutput.system[0], /AGDF automatic runtime check|REQUEST-ACTIVATION-GUARD|Obey result\.host_action|ordinary_conversation|passive_guard/);
+    const composedContext = `${openCodeBootstrap}\n${systemOutput.system[0]}`;
+    assert.ok(Buffer.byteLength(composedContext, "utf8") <= 5000, "composed eager and active context must stay within budget");
+    assert.equal(composedContext.split("<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->").length - 1, 1);
+    assert.equal(composedContext.split("AGDF dispatcher binding:").length - 1, 1);
+    await activePlugin["experimental.chat.system.transform"]({}, systemOutput);
+    assert.equal(systemOutput.system.length, 1, "active system transform must be content-idempotent");
+
+    const contract = readFileSync(new URL("../../plugin/meta/contracts/request-activation.md", import.meta.url), "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+    const kernelStart = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->";
+    const kernelEnd = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->";
+    const activationKernel = contract.slice(contract.indexOf(kernelStart), contract.indexOf(kernelEnd) + kernelEnd.length);
+    const compactionOutput = { context: [] };
+    await activePlugin["experimental.session.compacting"]({}, compactionOutput);
+    await activePlugin["experimental.session.compacting"]({}, compactionOutput);
+    assert.deepEqual(compactionOutput.context, [activationKernel], "compaction must add at most one kernel-only recovery block");
+    assert.equal(Buffer.byteLength(compactionOutput.context[0], "utf8"), 1092);
+    assert.doesNotMatch(compactionOutput.context[0], /AGDF dispatcher binding:|AGDF runtime facts:/);
 
     const inactiveSystemOutput = { system: [] };
     await inactivePlugin["experimental.chat.system.transform"]({}, inactiveSystemOutput);
-    assert.ok(inactiveSystemOutput.system.some((entry) => entry.includes("No executable AGDF dispatcher binding is available") && entry.includes("Do not request shell permission for AGDF commands")), "inactive guidance must withhold executable dispatch");
-    assert.ok(inactiveSystemOutput.system.every((entry) => !entry.includes('"skill-dispatch","--json","--surface","opencode"')), "inactive guidance must not expose the executable binding");
+    const inactiveCompactionOutput = { context: [] };
+    await inactivePlugin["experimental.session.compacting"]({}, inactiveCompactionOutput);
+    assert.deepEqual(inactiveSystemOutput.system, [], "inactive system transform must add exactly zero bytes");
+    assert.deepEqual(inactiveCompactionOutput.context, [], "inactive compaction must add exactly zero bytes");
 
     const noToastClient = makeClient(false);
     const noToastPlugin = await AGDFPlugin({ directory: inactiveDir, client: noToastClient }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });

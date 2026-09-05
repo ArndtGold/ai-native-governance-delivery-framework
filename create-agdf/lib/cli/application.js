@@ -10,6 +10,7 @@ import {
 } from "../control-state/index.js";
 import {
   defaultOpenCodeConfigDir,
+  evaluateOpenCodeGlobalStatus,
   evaluateOpenCodeStatus,
   installOpenCodeGlobalPlugin,
   installOpenCodeGlobalSurface,
@@ -28,10 +29,11 @@ import {
   verifyRepositoryDisabled,
 } from "../lifecycle/operations.js";
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
-import { createLifecycleResult, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
+import { createLifecycleResult, createOperationStatus, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
-import { evaluateGeneralStatus } from "../lifecycle/status.js";
+import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { generatedFilesForTarget } from "../scaffold/plan.js";
+import { initializeCanonicalControl } from "../scaffold/canonical-init.js";
 import { printNextSteps } from "../scaffold/presentation.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
@@ -39,7 +41,22 @@ import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
 
-function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodePackageSource, copilotSettingsPath, askRuntimeCheckDecision, interactive }) {
+function createHandlers({
+  io,
+  env,
+  exec,
+  packagedCopilotExec,
+  prepare,
+  openCodePackageSource,
+  copilotSettingsPath,
+  askRuntimeCheckDecision,
+  interactive,
+  evaluateStatus = evaluateStatusOverview,
+  evaluateOpenCodeGlobal = evaluateOpenCodeGlobalStatus,
+  evaluateOpenCodeRepository = evaluateOpenCodeStatus,
+  installOpenCodePackage = installOpenCodeGlobalPlugin,
+  installOpenCodeSurface = installOpenCodeGlobalSurface,
+}) {
   const installerAdapters = {
     ...(exec ? { exec } : {}),
     ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
@@ -55,8 +72,13 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
     ["init", scaffoldHandler],
     ["config", scaffoldHandler],
     ["run-create", (options) => {
-      io.log(createRun(options.dir, options.runId));
-      return 0;
+      try {
+        io.log(createRun(options.dir, options.runId));
+        return 0;
+      } catch (error) {
+        io.error(error instanceof Error ? error.message : String(error));
+        return 1;
+      }
     }],
     ["run-migrate", (options) => {
       io.log(JSON.stringify(migrateLegacy(options.dir, options.runId), null, 2));
@@ -71,13 +93,26 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
     }],
     ["opencode-status", (options) => {
       const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
-      const report = evaluateOpenCodeStatus(options.dir, configDir);
+      const rawReport = options.dirExplicit
+        ? evaluateOpenCodeRepository(options.dir, configDir)
+        : evaluateOpenCodeGlobal(configDir);
+      const installationEnvelope = installationEnvelopeForOpenCode(rawReport, configDir);
+      const report = options.dirExplicit
+        ? {
+            ...withOpenCodeRepositoryStatusEnvelope(rawReport, options.dir),
+            installation_status: installationEnvelope.installation_status,
+          }
+        : {
+            ...rawReport,
+            ...installationEnvelope,
+          };
       printOpenCodeStatus(report, options.json, io);
-      return report.status === "configured" ? 0 : 1;
+      return report.installation_status === "healthy" ? 0 : 1;
     }],
     ["status", (options) => {
-      const report = evaluateGeneralStatus(options.dir, {
+      const report = evaluateStatus({
         ...options,
+        targetDir: options.dirExplicit ? options.dir : null,
         configDir: env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir(),
         dataRoot: env.AGDF_DATA_DIR,
       }, { exec });
@@ -85,18 +120,34 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
       return report.installation.status === "healthy" ? 0 : 1;
     }],
     ["runtime-checks", (options) => {
-      const report = options.runtimeChecksAction === "manual"
+      const runtimeState = options.runtimeChecksAction === "manual"
         ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface })
         : runtimeCheckStatus(env.AGDF_DATA_DIR, options.surface);
-      if (options.runtimeChecksAction === "enable") {
-        report.next_action = `Rerun npx --yes @agdf/cli@latest ${options.surface} --runtime-checks ${options.runtimeChecksAction}; installation ownership and capability identity are revalidated before consent is persisted.`;
-      }
+      const nextActionText = options.runtimeChecksAction === "enable"
+        ? `Rerun npx --yes @agdf/cli@latest ${options.surface} --runtime-checks ${options.runtimeChecksAction}; installation ownership and capability identity are revalidated before consent is persisted.`
+        : runtimeState.next_action || (runtimeState.effective === "manual" || runtimeState.effective === "enabled"
+          ? "No further runtime-check action is required."
+          : `Review the runtime-check state, then rerun runtime-checks for ${options.surface}.`);
+      const report = {
+        schema_version: 1,
+        ...runtimeState,
+        operation_status: createOperationStatus({
+          operationId: "runtime.checks",
+          outcome: options.runtimeChecksAction === "manual" ? "succeeded" : "reported",
+          targetScope: "global",
+          plannedEffect: options.runtimeChecksAction === "manual" ? "set_runtime_checks_manual" : "read_only_status",
+          excludedAuthority: ["target_inference", "run_creation", "gate_approval", "delivery_mutation"],
+        }),
+        next_action: { kind: "runtime_checks", text: nextActionText },
+      };
       io.log(options.json ? JSON.stringify(report, null, 2) : [
         "AGDF automatic runtime checks",
+        `Operation: ${report.operation_status.operation_id}`,
+        `Outcome: ${report.operation_status.outcome}`,
         `Requested: ${report.requested}`,
         `Effective: ${report.effective}`,
         `Reason: ${report.reason}`,
-        ...(report.next_action ? [`Next action: ${report.next_action}`] : []),
+        `Next action: ${report.next_action.text}`,
       ].join("\n"));
       return report.effective === "enabled" || report.effective === "manual" ? 0 : 1;
     }],
@@ -198,9 +249,16 @@ function createHandlers({ io, env, exec, packagedCopilotExec, prepare, openCodeP
         const consent = await installConsentDecision("opencode", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
         if (consent.decision === "cancel") return printCancelledConsent("opencode", options, io);
         printInstallProgress("opencode", options, io, interactive);
-        const result = runLifecyclePhase("plugin_operation", () => installOpenCodeGlobalPlugin(configDir, { packageSource: openCodePackageSource }));
-        runLifecyclePhase("global_surface", () => installOpenCodeGlobalSurface(configDir));
-        const report = runLifecyclePhase("verification", () => evaluateOpenCodeStatus(options.dir, configDir, result.transition));
+        const result = runLifecyclePhase("plugin_operation", () => installOpenCodePackage(configDir, { packageSource: openCodePackageSource }));
+        runLifecyclePhase("global_surface", () => installOpenCodeSurface(configDir));
+        const globalReport = runLifecyclePhase("verification", () => evaluateOpenCodeGlobal(configDir));
+        const report = {
+          ...globalReport,
+          package: {
+            ...globalReport.package,
+            transition: result.transition,
+          },
+        };
         const alignmentHealthy = ["already_matching", "aligned"].includes(result.sdk_alignment.status);
         const verificationHealthy = report.status === "configured"
           && report.package.version_status === "current"
@@ -275,6 +333,36 @@ function runLifecyclePhase(phase, operation) {
     if (!error.evidence) error.evidence = {};
     throw error;
   }
+}
+
+function withOpenCodeRepositoryStatusEnvelope(report, target) {
+  return Object.freeze({
+    ...report,
+    operation_status: createOperationStatus({
+      operationId: "status.opencode_repository",
+      outcome: "reported",
+      targetScope: "repository",
+      target,
+      plannedEffect: "read_only_status",
+      excludedAuthority: ["target_inference", "run_creation", "gate_approval", "mutation"],
+    }),
+    next_action: {
+      kind: "action",
+      text: report.next_step || "Review the reported OpenCode status.",
+    },
+  });
+}
+
+function installationEnvelopeForOpenCode(report, configDir) {
+  const canonical = inspectGlobalInstallationStatus(
+    { surface: "opencode", configDir },
+    { evaluateOpenCodeGlobalStatus: () => report },
+  );
+  return {
+    installation_status: canonical.status,
+    operation_status: canonical.operation_status,
+    next_action: canonical.next_action,
+  };
 }
 
 function installNextAction(surface, runtimeChecks, fallback) {
@@ -441,6 +529,7 @@ function runDisable(options, { io, exec }) {
       result,
       surface: options.surface,
       scope: "repository",
+      target: options.dir,
       verification: { status: verified.status === "healthy" ? "healthy" : "degraded", evidence: [...applied.completed.map((item) => item.path || item.executable), ...verified.evidence] },
       activation: { status: result === "success" ? "pending_restart" : "unknown" },
       restart: { required: result === "success", reason: result === "success" ? "host_reload" : "none" },
@@ -462,6 +551,7 @@ function runDisable(options, { io, exec }) {
       operation: "disable",
       surface: options.surface,
       scope: "repository",
+      target: options.dir,
       phase: "repository_preflight",
       message: error.message,
       evidence: [error.message],
@@ -511,28 +601,72 @@ function runUninstall(options, { io, env, exec }) {
     printLifecycleResult(report, { json: options.json, io });
     return result === "success" ? 0 : 1;
   } catch (error) {
-    io.error(error.message);
+    const report = lifecycleFailure({
+      operation: "uninstall",
+      surface: options.surface,
+      scope: "global",
+      phase: error.phase || "uninstall_preflight",
+      message: error.message,
+      evidence: [error.evidence ?? error.message],
+      nextAction: "Resolve the reported global uninstall precondition, then rerun the uninstall preview before applying changes.",
+    });
+    if (options.json) printLifecycleResult(report, { json: true, io });
+    else {
+      io.error(error.message);
+      printLifecycleResult(report, { io });
+    }
     return 1;
   }
 }
 
 function runScaffold(options, io) {
-  const files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
+  let files = [];
   let removedOpenCodeAgents = [];
+  let initialization = null;
 
   try {
-    assertGeneratedWritePlan(options.dir, files, options.force);
-    for (const file of files) {
-      writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
+    files = generatedFilesForTarget(options.target, options.dir, options.force, options.language);
+    if (options.target === "init") {
+      initialization = initializeCanonicalControl(options.dir, files, { force: options.force });
+      files = [...initialization.files];
+    } else {
+      assertGeneratedWritePlan(options.dir, files, options.force);
+      for (const file of files) {
+        writeGeneratedFile(options.dir, file.path, file.content, options.force, file.allowOverwrite);
+      }
     }
     // Legacy OpenCode assets are intentionally preserved. A future explicit migration command
     // may remove only ownership-proven files after its precedence behavior is verified.
   } catch (error) {
-    io.error(error.message);
+    const repositorySurface = { "codex-repo": "codex", "opencode-repo": "opencode" }[options.target];
+    if (options.target === "init" || repositorySurface) {
+      const report = lifecycleFailure({
+        operation: options.target === "init" ? "control_init" : "repository_setup",
+        surface: repositorySurface ?? "generic",
+        scope: "repository",
+        target: options.dir,
+        phase: options.target === "init" ? "canonical_control_setup" : "repository_setup",
+        message: error.message,
+        evidence: [error.message],
+        nextAction: "Resolve the reported repository setup conflict, then retry with the same explicit target.",
+      });
+      if (options.json) printLifecycleResult(report, { json: true, io });
+      else {
+        io.error(error.message);
+        printLifecycleResult(report, { io });
+      }
+    } else {
+      io.error(error.message);
+    }
     return 1;
   }
 
-  printNextSteps(options.target, options.dir, files, removedOpenCodeAgents, { verbose: options.verbose, json: options.json, io });
+  printNextSteps(options.target, options.dir, files, removedOpenCodeAgents, {
+    verbose: options.verbose,
+    json: options.json,
+    io,
+    initialization,
+  });
   return 0;
 }
 
@@ -578,6 +712,11 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     copilotSettingsPath: adapters.copilotSettingsPath,
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
+    evaluateStatus: adapters.evaluateStatusOverview,
+    evaluateOpenCodeGlobal: adapters.evaluateOpenCodeGlobalStatus,
+    evaluateOpenCodeRepository: adapters.evaluateOpenCodeStatus,
+    installOpenCodePackage: adapters.installOpenCodeGlobalPlugin,
+    installOpenCodeSurface: adapters.installOpenCodeGlobalSurface,
   }).get(command.handler);
   if (!handler) throw new Error(`No implementation is registered for ${command.name}.`);
   return await handler(options);

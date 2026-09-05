@@ -11,7 +11,7 @@ function command(name, usages) {
 
 export const commandRegistry = Object.freeze([
   command("codex", { preferred: [""], scaffold: [""] }),
-  command("codex-repo", { preferred: [""], scaffold: [""] }),
+  command("codex-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("claude", { preferred: [""], scaffold: [""] }),
   command("copilot", { preferred: [""] }),
   command("opencode", { preferred: [""], scaffold: [""] }),
@@ -20,7 +20,7 @@ export const commandRegistry = Object.freeze([
   command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
-  command("opencode-repo", { preferred: [""], scaffold: [""] }),
+  command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
   command("target-check", { local: [" --json [--language <tag>] [--working-directory <absolute-path>] [--target-source <source> --primary-target <absolute-path>]"] }),
@@ -48,6 +48,9 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if (["codex-repo", "opencode-repo"].includes(options.target) && !options.dirExplicit) {
+    throw new Error(`${options.target} requires an explicit --dir`);
+  }
   const targetOptionsUsed = Boolean(options.targetSource || options.primaryTarget || options.workingDirectoryExplicit || options.targetChanged
     || options.targetCandidates?.length || options.evidenceSources?.length);
   if (targetOptionsUsed && !["target-check", "skill-dispatch"].includes(options.target)) {

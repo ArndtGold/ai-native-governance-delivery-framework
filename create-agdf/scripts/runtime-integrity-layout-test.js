@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
-import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
+import {
+  DISPATCHER_BINDING_PREFIX,
+  REQUEST_ACTIVATION_MARKERS,
+  validateInstructionFootprintProfile,
+} from "../../plugin/scripts/instruction-footprint.mjs";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const sourcePluginRoot = join(repoRoot, "plugin");
@@ -43,6 +48,38 @@ function combinedOutput(result) {
   return `${result.stdout}\n${result.stderr}`;
 }
 
+function assertSessionBase(stdout, pluginRoot, expectedSurface) {
+  const content = stdout.replaceAll("\r\n", "\n").replace(/\n$/u, "");
+  const definition = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "utf8"));
+  const contract = readFileSync(join(pluginRoot, "meta", "contracts", "request-activation.md"), "utf8")
+    .replaceAll("\r\n", "\n")
+    .replaceAll("\r", "\n");
+  const kernelStart = contract.indexOf(REQUEST_ACTIVATION_MARKERS.start);
+  const kernelEnd = contract.indexOf(REQUEST_ACTIVATION_MARKERS.end, kernelStart);
+  assert.ok(kernelStart >= 0 && kernelEnd > kernelStart, "request-activation contract must expose one ordered kernel");
+  const kernel = contract.slice(kernelStart, kernelEnd + REQUEST_ACTIVATION_MARKERS.end.length);
+  const report = validateInstructionFootprintProfile({
+    definition: definition.instructionFootprint,
+    canonicalKernel: kernel,
+    expectedVersion: definition.version,
+    expectedInstanceIds: { sessionStartBase: [expectedSurface] },
+    surfaces: { sessionStartBase: [{ id: expectedSurface, content }] },
+    requiredSurfaceIds: ["sessionStartBase"],
+  });
+  assert.equal(report.status, "pass", JSON.stringify(report.failures));
+  const bindingLine = content.split("\n").find((line) => line.startsWith(`${DISPATCHER_BINDING_PREFIX} `));
+  const binding = JSON.parse(bindingLine.slice(DISPATCHER_BINDING_PREFIX.length + 1));
+  assert.equal(binding.argv_prefix[4], expectedSurface, "binding must name the effective host surface");
+  assert.deepEqual(binding.route_source_after_activation, {
+    relative_to: "validator_directory",
+    path: "../meta/contracts/request-activation.md",
+  }, "SessionStart binding must expose the packaged on-demand operation catalog after positive activation");
+  const routeSourcePath = resolve(dirname(binding.argv_prefix[0]), binding.route_source_after_activation.path);
+  assert.equal(realpathSync(routeSourcePath), realpathSync(join(pluginRoot, "meta", "contracts", "request-activation.md")));
+  assert.equal(readFileSync(routeSourcePath, "utf8"), contract, "SessionStart route source must resolve to the packaged canonical contract");
+  assert.equal(content.includes("AGDF runtime facts:"), false, "runtime facts require explicit automatic-check consent");
+}
+
 try {
   stageInstalledPlugin();
   const installedDefault = runIntegrity(join(installedPluginRoot, "scripts", "check-runtime-integrity.mjs"));
@@ -59,19 +96,28 @@ try {
   const healthyHook = spawnSync("bash", [join(installedPluginRoot, "hooks", "session-start.sh")], {
     cwd: fixtureRoot,
     encoding: "utf8",
-    env: { ...process.env, AGDF_SURFACE: "claude", CLAUDE_PLUGIN_ROOT: installedPluginRoot },
+    env: {
+      ...process.env,
+      AGDF_DATA_DIR: join(fixtureRoot, "no-consent"),
+      AGDF_SURFACE: "claude",
+      CLAUDE_PLUGIN_ROOT: installedPluginRoot,
+    },
   });
   assert.equal(healthyHook.status, 0, healthyHook.stderr);
-  assert.match(healthyHook.stdout, /AGDF runtime: profile=runtime-plugin evidence=loaded_session/);
-  assert.match(healthyHook.stdout, /provenance=matched machine_validation=owned_version_matched/);
+  assertSessionBase(healthyHook.stdout, installedPluginRoot, "claude");
 
   const mismatchedHook = spawnSync("bash", [join(installedPluginRoot, "hooks", "session-start.sh")], {
     cwd: fixtureRoot,
     encoding: "utf8",
-    env: { ...process.env, AGDF_SURFACE: "claude", CLAUDE_PLUGIN_ROOT: join(fixtureRoot, "wrong-plugin-root") },
+    env: {
+      ...process.env,
+      AGDF_DATA_DIR: join(fixtureRoot, "no-consent"),
+      AGDF_SURFACE: "claude",
+      CLAUDE_PLUGIN_ROOT: join(fixtureRoot, "wrong-plugin-root"),
+    },
   });
   assert.equal(mismatchedHook.status, 0, mismatchedHook.stderr);
-  assert.match(mismatchedHook.stdout, /provenance=mismatch machine_validation=version_mismatch/);
+  assertSessionBase(mismatchedHook.stdout, installedPluginRoot, "claude");
 
   const provenancePath = join(installedPluginRoot, ".agdf-installation.json");
   const validProvenance = readFileSync(provenancePath, "utf8");
@@ -89,10 +135,10 @@ try {
   const malformedHook = spawnSync("bash", [join(installedPluginRoot, "hooks", "session-start.sh")], {
     cwd: fixtureRoot,
     encoding: "utf8",
-    env: { ...process.env, AGDF_SURFACE: "codex" },
+    env: { ...process.env, AGDF_DATA_DIR: join(fixtureRoot, "no-consent"), AGDF_SURFACE: "codex" },
   });
   assert.equal(malformedHook.status, 0, malformedHook.stderr);
-  assert.match(malformedHook.stdout, /evidence=unverified machine_validation=unavailable provenance=invalid/);
+  assertSessionBase(malformedHook.stdout, installedPluginRoot, "codex");
   writeFileSync(runtimeEntrypoint, validRuntimeEntrypoint);
 
   const missingRuntimeEntrypoint = `${runtimeEntrypoint}.missing`;
@@ -100,19 +146,26 @@ try {
   const missingRuntimeHook = spawnSync("bash", [join(installedPluginRoot, "hooks", "session-start.sh")], {
     cwd: fixtureRoot,
     encoding: "utf8",
-    env: { ...process.env, AGDF_SURFACE: "codex" },
+    env: { ...process.env, AGDF_DATA_DIR: join(fixtureRoot, "no-consent"), AGDF_SURFACE: "codex" },
   });
   assert.equal(missingRuntimeHook.status, 0, missingRuntimeHook.stderr);
-  assert.match(missingRuntimeHook.stdout, /profile=runtime-plugin evidence=installed_plugin_root machine_validation=unavailable provenance=unverified/);
+  assertSessionBase(missingRuntimeHook.stdout, installedPluginRoot, "codex");
   renameSync(missingRuntimeEntrypoint, runtimeEntrypoint);
 
   const sourceHook = spawnSync("bash", [join(sourcePluginRoot, "hooks", "session-start.sh")], {
     cwd: repoRoot,
     encoding: "utf8",
-    env: { ...process.env, AGDF_SURFACE: "source" },
+    env: { ...process.env, AGDF_DATA_DIR: join(fixtureRoot, "no-consent"), AGDF_SURFACE: "source" },
   });
   assert.equal(sourceHook.status, 0, sourceHook.stderr);
-  assert.match(sourceHook.stdout, /profile=source-development evidence=source_checkout machine_validation=unavailable/);
+  assert.equal(
+    sourceHook.stdout,
+    "AGDF SessionStart transport unavailable: generated runtime entrypoint not found.\n",
+    "the non-configured source compatibility wrapper must not carry activation policy",
+  );
+  assert.equal(sourceHook.stdout.includes(REQUEST_ACTIVATION_MARKERS.start), false);
+  assert.equal(sourceHook.stdout.includes(DISPATCHER_BINDING_PREFIX), false);
+  assert.equal(sourceHook.stdout.includes("AGDF runtime facts:"), false);
 
   const sourceOverride = runIntegrity(sourceIntegrityScript, repoRoot);
   assert.equal(sourceOverride.status, 0, combinedOutput(sourceOverride));

@@ -1,12 +1,28 @@
 # Schnellstart
 
 Du musst keine AGDF-Befehle lernen. Beschreibe dem Coding-Agenten dein Ziel und nenne betroffene
-Dateien, Systeme oder Grenzen, soweit du sie kennst. Der Agent klärt zuerst, welches Vorhaben gemeint
-ist, prüft den erlaubten nächsten Schritt und bereitet nur die dafür erforderlichen Inhalte vor.
+Dateien, Systeme oder Grenzen, soweit du sie kennst. Wenn du eine Umsetzung, ein verbindliches
+Delivery-Artefakt oder eine ausdrückliche AGDF-Aktion verlangst, klärt der Agent zuerst das Vorhaben,
+prüft den erlaubten nächsten Schritt und bereitet nur die dafür erforderlichen Inhalte vor.
+
+Eine gewöhnliche Frage, Bewertung, Erklärung, Empfehlung, Prüfung oder Diagnose aktiviert AGDF nicht.
+Der Agent beantwortet sie ohne AGDF-Statuskarte, Gate-Hinweis oder versteckte AGDF-Aktion. Das gilt
+auch dann, wenn der Text AGDF oder eine mögliche Implementierung nur als Thema, Zitat, Beispiel,
+Hypothese oder verneinte Handlung nennt. Ein gemischter Auftrag aktiviert AGDF erst dann, wenn er
+tatsächlich eine Umsetzung oder ein anderes verbindliches Delivery-Ergebnis verlangt.
+
+Vor dieser Entscheidung enthalten die erzeugten AGDF-Profile nur einen kleinen gemeinsamen
+Aktivierungskern und kurze Skill-Beschreibungen. Ausführliche Regeln für Routing, Gates, Qualität und
+Abschluss stellen sie erst nach positiver Aktivierung bei Bedarf bereit. Versionierte Größenbudgets
+begrenzen diese sichtbaren Anweisungen und werden beim Erzeugen und Paketieren geprüft. Das reduziert
+unnötige Systemanweisungen, ohne die Freigabe- oder Sicherheitsregeln zu lockern.
+
+Diese Prüfungen belegen Quellcode und erzeugte Pakete. Ob ein konkreter Host dieselben Inhalte nach
+Installation und Neustart tatsächlich lädt und behält, benötigt einen getrennten Host-Nachweis.
 
 Du entscheidest bewusst, wann ein Nutzer-Gate freigegeben wird.
 
-## Der erste Auftrag
+## Der erste Delivery-Auftrag
 
 Ein fachlicher Auftrag kann zum Beispiel so beginnen:
 
@@ -64,8 +80,8 @@ Review wählt mit Begründung den kleinsten sicheren Pfad:
 - **Structured Delivery** für umfassende oder folgenreiche Änderungen;
 - **Block**, wenn wichtige Entscheidungsgrundlagen fehlen oder widersprüchlich sind.
 
-Unabhängige Fragen, reine Prüfungen und geeignete kleine Korrekturen ohne neue Produktsemantik können
-außerhalb eines formalen Runs als **Quick Task** bearbeitet werden.
+Unabhängige Fragen und reine Prüfungen bleiben außerhalb von AGDF. Eine kleine Korrektur ist dagegen
+eine Umsetzung und aktiviert den passenden begrenzten Delivery-Pfad.
 
 ## Typischer strukturierter Ablauf
 

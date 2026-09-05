@@ -232,6 +232,112 @@
       "availabilityDecision": "submission/openai/availability.md"
     }
   },
+  "runtimeContract": {
+    "schemaVersion": 1,
+    "manifestPath": "meta/agdf-runtime-contract.md",
+    "modules": [
+      "meta/contracts/request-activation.md",
+      "meta/contracts/task-target-resolution.md",
+      "meta/contracts/gate-transition.md",
+      "meta/contracts/interaction.md",
+      "meta/contracts/modes.md",
+      "meta/contracts/quality.md",
+      "meta/contracts/context-graph.md",
+      "meta/contracts/control-scaffold.md",
+      "meta/contracts/closeout.md"
+    ]
+  },
+  "instructionFootprint": {
+    "schemaVersion": 1,
+    "measurement": {
+      "encoding": "utf8",
+      "lineEndings": "lf",
+      "dynamicAbsolutePathTokens": {
+        "executable": "<executable>",
+        "validator": "<validator>",
+        "workingDirectory": "<working-directory>"
+      }
+    },
+    "budgets": {
+      "activationKernel": {
+        "maxNormalizedBytes": 1100,
+        "structuralConditions": [
+          "exactly_one_semantic_kernel_source"
+        ]
+      },
+      "skillDiscoveryDescription": {
+        "maxNormalizedBytes": 420,
+        "structuralConditions": [
+          "one_skill_purpose_and_boundary_plus_compact_common_boundary"
+        ]
+      },
+      "allSkillDiscoveryDescriptions": {
+        "maxNormalizedBytes": 3000,
+        "structuralConditions": [
+          "exactly_ten_in_definition_order",
+          "no_full_exclusion_taxonomy",
+          "no_operation_catalog"
+        ]
+      },
+      "sessionStartBase": {
+        "maxNormalizedBytes": 1900,
+        "structuralConditions": [
+          "exactly_one_kernel",
+          "exactly_one_dispatcher_binding",
+          "no_router_or_target_gate_quality_closeout_handbook"
+        ]
+      },
+      "runtimeCheckSupplement": {
+        "maxNormalizedBytes": 320,
+        "structuralConditions": [
+          "separately_measurable_variable_facts_only"
+        ]
+      },
+      "openCodeEagerInstructions": {
+        "maxNormalizedBytes": 4000,
+        "structuralConditions": [
+          "exactly_one_kernel",
+          "no_dispatcher_binding",
+          "no_full_router_target_mode_gate_quality_or_closeout_sections"
+        ]
+      },
+      "openCodeActiveDynamicContext": {
+        "maxNormalizedBytes": 1000,
+        "structuralConditions": [
+          "exactly_one_dispatcher_binding",
+          "active_and_version_facts_only",
+          "no_kernel_or_immutable_policy_prose"
+        ]
+      },
+      "openCodeInactiveDynamicContext": {
+        "maxNormalizedBytes": 0,
+        "structuralConditions": [
+          "no_binding_notice_policy_or_runtime_supplement"
+        ]
+      },
+      "openCodeComposedStaticAndActiveDynamic": {
+        "maxNormalizedBytes": 5000,
+        "structuralConditions": [
+          "exactly_one_kernel_and_one_dispatcher_binding_across_repository_and_global_variants"
+        ]
+      },
+      "openCodeCompactionAddition": {
+        "maxNormalizedBytes": 1100,
+        "structuralConditions": [
+          "at_most_one_kernel_only_recovery_block",
+          "no_dispatcher_binding_or_active_inactive_guidance"
+        ]
+      },
+      "selectedGateCheckSkill": {
+        "maxNormalizedBytes": 6500,
+        "structuralConditions": [
+          "exactly_one_kernel_before_unchanged_terminal_dispatch",
+          "dispatch_and_bootstrap_only",
+          "detailed_fallback_only_through_focused_contracts"
+        ]
+      }
+    }
+  },
   "skillSet": [
     {
       "slug": "delivery-path-search",
@@ -278,7 +384,7 @@
     {
       "slug": "gate-check",
       "discovery": "start_here",
-      "useFor": "new build/change intent, unclear approval, Structured Delivery, later-gate artefact requested",
+      "useFor": "new build/change intent, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context",
       "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review",
       "dispatch": { "mode": "deterministic_control", "deterministicCommand": "gate-check", "requiresControlSnapshot": true }
     },

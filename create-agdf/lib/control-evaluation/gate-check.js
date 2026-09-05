@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderOperationalStatusCard, resolveHumanRunTitle, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, resolveHumanRunTitle, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -127,13 +127,15 @@ export function buildStatusCard({
   runState,
   chatLanguage = "en",
   findings = [],
+  interactionKind: requestedInteractionKind,
 }) {
   const qualityOutlook = deriveQualityOutlook(runState, findings);
   const postApproval = postApprovalTransition(missingApproval);
   const isUserGateApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
   const nativeAttemptRequired = false;
-  const interactionKind = status === "open" && isUserGateApproval ? "gate_approval" : status === "blocked" ? "blocked" : "status";
+  const interactionKind = requestedInteractionKind
+    || (status === "open" && isUserGateApproval ? "gate_approval" : status === "blocked" ? "blocked" : "status");
   return {
     run_id: extractField(runState.content ?? "", "run_id") || "unknown",
     presentation_language: chatLanguage,
@@ -246,19 +248,34 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     : isPlaceholderValue(runState.next_allowed_action)
     ? transitionDecision.next_allowed_action
     : runState.next_allowed_action;
+  let controlSetupRequired = false;
 
   if (doctorBlocker?.code === "AGDF_CONTROL_FILE_MISSING") {
+    controlSetupRequired = true;
     status = "blocked";
     blockingReason = doctorBlocker.code;
     currentGate = "UR";
-    missingApproval = "Approval: UR";
+    missingApproval = "none";
     allowed = [
       "draft the minimal UR for the requested change in the response",
-      "request exact approval: Approval: UR",
-      "run npx --yes @agdf/cli@latest init only when durable control state or deterministic setup is explicitly needed",
+      "obtain explicit authority to initialize or link durable control",
+      "initialize and persist durable control before requesting a gate approval",
     ];
     forbidden = ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"];
-    nextAllowedAction = "Draft the minimal UR for the request in the response, then ask for exact approval: Approval: UR. Do not write a full .agdf/control scaffold unless durable control state or deterministic setup is explicitly needed.";
+    nextAllowedAction = "Draft the minimal UR, obtain explicit setup or link authority, then initialize and persist durable control before requesting any gate approval.";
+  } else if (doctorBlocker?.code === "AGDF_ACTIVE_RUN_MISSING") {
+    status = "blocked";
+    blockingReason = doctorBlocker.code;
+    currentGate = "UR";
+    missingApproval = "none";
+    allowed = [
+      "create or migrate a canonical run with an explicit run id",
+      "select an existing canonical run explicitly",
+      "persist a real UR revision before requesting gate approval",
+      "run doctor again",
+    ];
+    forbidden = ["request gate approval without a durable run and artefact", "implement gated work", "claim QA or release readiness"];
+    nextAllowedAction = "Create, migrate or select the canonical run, then persist its UR revision before requesting approval.";
   } else if (doctorBlocker && !routesInvalidVerifiedChange) {
     status = "blocked";
     blockingReason = doctorBlocker.code;
@@ -288,6 +305,7 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     runState,
     chatLanguage: presentationLocale,
     findings: deliveryMap.findings,
+    interactionKind: controlSetupRequired ? "control_setup" : undefined,
   });
   const humanPresentation = buildHumanPresentation(targetDir, runState, currentGate, presentationLocale);
   Object.defineProperty(statusCard, "humanPresentation", {
@@ -295,11 +313,16 @@ export function evaluateGateCheck(targetDir, selection = {}) {
     enumerable: false,
   });
   const revisionId = extractField(runState.content ?? "", "revision_id");
-  const statusPresentation = renderOperationalStatusCard(statusCard, {
-    registry: interactionLocales,
-    humanPresentation,
-    revisionId,
-  });
+  const statusPresentation = controlSetupRequired
+    ? renderControlSetupOrientation({ target: targetDir }, {
+        registry: interactionLocales,
+        requestedLocale: presentationLocale,
+      })
+    : renderOperationalStatusCard(statusCard, {
+        registry: interactionLocales,
+        humanPresentation,
+        revisionId,
+      });
   const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
   const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
     ready: readyForApproval,
@@ -324,12 +347,14 @@ export function evaluateGateCheck(targetDir, selection = {}) {
   });
   const presentationDiagnostics = {};
   if (!statusPresentation) {
-    presentationDiagnostics.status_presentation_errors = [
-      ...validateOperationalStatusCardPreconditions(statusCard, {
-        registry: interactionLocales,
-        humanPresentation,
-      }).errors,
-    ];
+    presentationDiagnostics.status_presentation_errors = controlSetupRequired
+      ? ["control_setup_presentation_unavailable"]
+      : [
+          ...validateOperationalStatusCardPreconditions(statusCard, {
+            registry: interactionLocales,
+            humanPresentation,
+          }).errors,
+        ];
   }
   if (readyForApproval && !approvalPresentation) {
     presentationDiagnostics.approval_presentation_errors = approvalOrientation

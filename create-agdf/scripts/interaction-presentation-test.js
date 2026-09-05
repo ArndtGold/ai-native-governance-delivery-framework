@@ -21,6 +21,7 @@ import {
   resolvePresentationLocale,
   reconcileRunScope,
   renderApprovalOrientationSnapshot,
+  renderControlSetupOrientation,
   renderOperationalStatusCard,
   renderScopeClassificationCard,
   renderTaskTargetOrientation,
@@ -34,12 +35,30 @@ import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
+const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "agdf-interaction-locales.json"), "utf8"));
 
 assert.deepEqual(validateLocaleRegistry(registry), { valid: true, errors: [] });
+assert.deepEqual(validateLocaleRegistry(sourceRegistry), { valid: true, errors: [] });
 assert.equal(canonicalizeLanguageTag("de_DE.UTF-8"), "de-de");
 assert.equal(resolvePresentationLocale(registry, "de-AT"), "de");
 assert.equal(resolvePresentationLocale(registry, "fr-FR"), "en");
 assert.equal(resolvePresentationLocale(registry, ""), "en");
+
+const controlSetup = renderControlSetupOrientation({ target: "/repo/target" }, { registry: sourceRegistry, requestedLocale: "de" });
+assert.equal(controlSetup.semantic_block, "control_setup");
+assert.equal(controlSetup.status, "control_setup_required");
+assert.equal(controlSetup.target, "/repo/target");
+assert.equal(controlSetup.durable_scope, ".agdf/control");
+assert.deepEqual(controlSetup.excluded_authority, ["automatic_run_creation", "automatic_ur_persistence", "gate_approval"]);
+assert.equal(controlSetup.authorizes, false);
+assert.match(controlSetup.markdown, /AGDF-Kontrollstatus einrichten/);
+assert.match(controlSetup.markdown, /Aktiver Delivery-Intake persistiert danach Run und UR ohne zweite Frage/);
+assert.match(controlSetup.markdown, /eigenständiges Init bleibt gerüstbezogen/);
+assert.doesNotMatch(controlSetup.markdown, /Approval: UR/);
+assert.equal(renderControlSetupOrientation({ target: "" }, { registry: sourceRegistry, requestedLocale: "de" }), null);
+const incompleteControlSetupRegistry = JSON.parse(JSON.stringify(sourceRegistry));
+delete incompleteControlSetupRegistry.locales.de.controlSetup.actionValue;
+assert.equal(renderControlSetupOrientation({ target: "/repo/target" }, { registry: incompleteControlSetupRegistry, requestedLocale: "de" }), null);
 
 for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.ok(gateTitle(registry, "de", gate));
@@ -257,9 +276,26 @@ assert.equal(registry.locales.en.primary.readOnlyOrientationDescription, "Read-o
 assert.equal(registry.locales.de.primary.readOnlyOrientationDescription, "Read-only Prüfung – kein neuer AGDF-Run und keine Freigabe erforderlich.");
 const interactionContract = readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "contracts", "interaction.md"), "utf8");
 const gateCheckSkill = readFileSync(join(import.meta.dirname, "..", "..", "plugin", "skills", "gate-check", "SKILL.md"), "utf8");
-assert.equal((interactionContract.match(/^### Read-only request orientation$/gm) ?? []).length, 1);
+assert.equal((interactionContract.match(/^### Post-activation read-only request orientation$/gm) ?? []).length, 1);
+assert.match(interactionContract, /Silent Request Activation abstention for an ordinary read-only request renders no AGDF orientation/);
+assert.match(interactionContract, /interaction_kind: clarification \| tool_permission \| gate_approval \| control_setup \| blocked \| status/);
+assert.match(interactionContract, /For read-only status, `planned_effect` is `read_only_status`/);
 assert.match(interactionContract, /do not create a run, write control files, request gate approval or\s+repeat the sentence/);
-assert.match(gateCheckSkill, /For status, blocked, read-only or rationale interactions,[\s\S]*without asking for approval/);
+assert.match(
+  interactionContract,
+  /Clarification, blocked, internal-step and status-only\s+interactions must not display gate-approval controls/,
+  "the focused interaction owner must keep non-approval interactions free of gate controls",
+);
+assert.equal(
+  (gateCheckSkill.match(/`\.\.\/\.\.\/meta\/contracts\/interaction\.md`/g) ?? []).length,
+  1,
+  "compact gate-check must load the interaction owner only through its declared fallback",
+);
+assert.doesNotMatch(
+  gateCheckSkill,
+  /For status, blocked, read-only or rationale interactions/,
+  "compact gate-check must not duplicate the focused interaction handbook",
+);
 assert.doesNotMatch(gateCheckSkill, /Surface behavior:/);
 assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" } }).eligible, true);
 assert.equal(evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "exact_option_value", waitSafety: "deliberate_no_auto_resolution" } }).native_attempt_required, true);

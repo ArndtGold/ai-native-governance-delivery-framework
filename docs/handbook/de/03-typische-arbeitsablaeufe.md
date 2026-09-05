@@ -3,14 +3,12 @@
 AGDF verwendet den kleinsten sicheren Arbeitsablauf. Die Auswahl richtet sich nach Wirkung,
 Verantwortung, Risiko und Nachweisbarkeit – nicht nach der Zahl geänderter Dateien.
 
-## Quick Task
+## Gewöhnliche Arbeit außerhalb von AGDF
 
-Ein Quick Task eignet sich außerhalb eines formalen Delivery-Runs für:
-
-- Fragen zum bestehenden Code oder zur Dokumentation;
-- reine Prüfungen und Reviews;
-- Debugging;
-- geeignete kleine Korrekturen ohne neue Produktsemantik oder formale Gate-Artefakte.
+Fragen zum bestehenden Code oder zur Dokumentation, reine Prüfungen und Reviews, Erklärungen,
+Vergleiche, Empfehlungen und Diagnosen bleiben außerhalb von AGDF, solange der Auftrag keine
+tatsächliche Umsetzung, kein verbindliches Delivery-Artefakt und keine ausdrückliche AGDF-Aktion
+verlangt. Dabei erscheint keine AGDF-Statuskarte und es wird kein AGDF-Owner aufgerufen.
 
 Prüfung und Änderung bleiben getrennt. Der Auftrag
 
@@ -21,9 +19,29 @@ Prüfe, ob die README auf einen nicht vorhandenen Link verweist.
 autorisiert zunächst die Prüfung und den Befund. Soll der Link auch korrigiert werden, muss dies aus
 dem Auftrag hervorgehen oder anschließend beauftragt werden.
 
-Ein Quick Task dokumentiert kompakt Ergebnis, Evidenz, verbleibendes Risiko und nächsten Schritt. Er
-reicht nicht aus, wenn neue Produktsemantik, Architektur, Policy, Persistenz, ein öffentlicher
-Vertrag, eine Release-Grenze oder formale Freigaben betroffen sind.
+## Zweistufige Anweisungen
+
+Vor einer positiven Aktivierung enthalten die erzeugten AGDF-Profile nur einen kompakten
+Aktivierungskern und kurze Skill-Beschreibungen. Erst danach stellen sie die ausführlichen Regeln für
+Zielauflösung, Gates, Qualität und Abschluss bei Bedarf bereit. Es gibt dafür keinen zweiten Hook und
+keinen ausführbaren Prompt-Klassifikator.
+
+Ein versionierter Vertrag begrenzt die sichtbaren UTF-8-Bytes für Kern, Discovery, SessionStart,
+OpenCode-Kontext, Kompaktierung und den ausgewählten `gate-check`-Skill. Die Metadaten unter
+`skillSet.discovery` beschreiben die beabsichtigte Discovery-Grenze. Sie beweisen nicht, dass jeder
+Host diese Grenze technisch erzwingt.
+
+Quell-, Generierungs- und Paketprüfungen bleiben von installierter und frisch geladener
+Host-Evidenz getrennt. Die Gründe, Messwerte und Nachweisgrenzen stehen im
+[Instruction Footprint Audit](../../../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md).
+
+## Quick Task und Compact Delivery
+
+Ein Quick Task ist ein kompakter AGDF-Pfad für bereits positiv aktivierte, kleine und klar begrenzte
+Arbeit. Nach freigegebener UR kann der Brownfield Review denselben begrenzten Pfad als Compact
+Delivery festhalten. Beide dokumentieren Ergebnis, Evidenz, verbleibendes Risiko und nächsten
+Schritt. Sie reichen nicht aus, wenn neue Produktsemantik, Architektur, Policy, Persistenz, ein
+öffentlicher Vertrag, eine Release-Grenze oder formale Freigaben betroffen sind.
 
 ## Brownfield Review und Pfadauswahl
 

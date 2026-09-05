@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "corpus_version": "1.2.0",
+  "policy_version": 1,
+  "evidence_boundary": "Deterministic validation proves corpus structure, expected callback policy and source identity only. Behavioral model output and loaded-host behavior are separate evidence planes.",
+  "source_fingerprint": {
+    "algorithm": "sha256",
+    "sources": [
+      "plugin/meta/contracts/request-activation.md",
+      "plugin/meta/agdf-plugin.definition.json"
+    ],
+    "value": "sha256:c98779792c46852298b0a14563b06a8e2a7ee55e13817567a551e7db174bb088"
+  },
+  "required_locales": ["de", "en"],
+  "required_case_families": [
+    "ordinary_assessment",
+    "agdf_as_topic",
+    "advice_vs_delivery",
+    "mixed_intent",
+    "quoted_or_current",
+    "negated_or_current",
+    "example_or_current",
+    "code_block_or_current",
+    "advisory_or_binding_artefact",
+    "ambiguous_effect",
+    "explicit_help",
+    "explicit_status",
+    "explicit_lifecycle",
+    "direct_skill",
+    "missing_control_delivery",
+    "active_run_continuation"
+  ],
+  "required_pairs": [
+    { "id": "assessment-repair-de", "sides": ["assessment", "repair"] },
+    { "id": "advice-delivery-de", "sides": ["advice", "delivery"] },
+    { "id": "quoted-current-de", "sides": ["quoted", "current"] },
+    { "id": "artefact-de", "sides": ["advisory", "binding"] },
+    { "id": "negated-current-en", "sides": ["negated", "current"] },
+    { "id": "example-current-en", "sides": ["example", "current"] },
+    { "id": "code-current-en", "sides": ["code", "current"] },
+    { "id": "explicit-operation-de", "sides": ["negative", "operation"] },
+    { "id": "continuation-en", "sides": ["unrelated", "continue"] }
+  ],
+  "composed_profile": {
+    "schema_version": 1,
+    "evidence_plane": "source_composed",
+    "loaded_profile": false,
+    "evaluator_surfaces": ["codex", "claude"],
+    "profiles": {
+      "codex": {
+        "eager_kind": "session_start",
+        "eager_source": "create-agdf/generated/plugins/agdf/runtime/agdf-session-check.js",
+        "skill_root": "create-agdf/generated/plugins/agdf/skills",
+        "skill_prefix": ""
+      },
+      "claude": {
+        "eager_kind": "session_start",
+        "eager_source": "create-agdf/generated/plugins/agdf/runtime/agdf-session-check.js",
+        "skill_root": "create-agdf/generated/plugins/agdf/skills",
+        "skill_prefix": ""
+      },
+      "copilot": {
+        "eager_kind": "session_start",
+        "eager_source": "create-agdf/generated/plugins/copilot/agdf/runtime/agdf-session-check.js",
+        "skill_root": "create-agdf/generated/plugins/copilot/agdf/copilot-skills",
+        "skill_prefix": "agdf-"
+      },
+      "opencode": {
+        "eager_kind": "opencode",
+        "eager_source": "create-agdf/generated/.opencode/AGDF.md",
+        "dynamic_source": "create-agdf/opencode-plugin.js",
+        "skill_root": "create-agdf/generated/.opencode/skills",
+        "skill_prefix": "agdf-"
+      }
+    },
+    "required_pairs": [
+      { "id": "assessment-repair-de", "coverage": ["negative", "mixed"] },
+      { "id": "advice-delivery-de", "coverage": ["negative", "positive"] },
+      { "id": "explicit-operation-de", "coverage": ["negative", "explicit_operation"] },
+      { "id": "continuation-en", "coverage": ["negative", "continuation"] }
+    ]
+  },
+  "callback_vocabulary": [
+    "dispatcher_v1",
+    "target_resolver",
+    "repository_activation",
+    "control_presence",
+    "run_selector",
+    "control_evaluator",
+    "agdf_renderer",
+    "installation_status_owner",
+    "repository_status_owner",
+    "help_suitability_owner",
+    "lifecycle_owner",
+    "canonical_init"
+  ],
+  "privacy": {
+    "raw_prompt_transport": false,
+    "remote_classifier": false,
+    "activation_persistence": false
+  }
+}

@@ -56,7 +56,12 @@ They must not override AGDF gates, approvals or the Runtime Contract.
 - For UR, PRD, SD, TP and QA, approval and durable artefact presence are separate requirements. A gate is not satisfied by approval text alone when its artefact is missing from `.agdf/control/` or not linked to the authoritative repository SoT.
 - Approval of one user gate permits work on the next allowed gate artefact or required internal step only. It does not permit implementation unless the approved gate is `TP` and required internal implementation prerequisites are satisfied.
 - Gates must never be skipped or inferred from urgency, tone, chat history, task wording or an instruction to "start". The next allowed action is always the next unsatisfied gate or internal mandatory step.
-- Missing control files or missing current-state fields do not forbid the agent from preparing the current allowed artefact after task-target resolution has produced one resolved governance target. They forbid later-gate work and implementation. For a fresh request, the default allowed work is to draft a minimal UR in the response only when the current turn supplies a concrete outcome, then request `Approval: UR`. This branch is unreachable for `target_unresolved`. Initialize or write `.agdf/control/` only when the user explicitly asks for durable AGDF control state, the repository already uses `.agdf/control/` as its live working state, or a deterministic CLI/CI setup path is being executed.
+- After positive Request Activation and task-target resolution, missing control files or missing
+  current-state fields do not forbid drafting the current minimal UR when the turn supplies a concrete
+  outcome. They do forbid later-gate work, implementation and every gate-approval request. Obtain
+  explicit setup or link authority, initialize or link canonical control and persist a revision-stable
+  UR first; only then may revalidation determine whether `Approval: UR` is ready. This branch is
+  unreachable for `target_unresolved` and never creates a free-standing legacy live run.
 - `Approval: UR` permits Brownfield Review after G-00 first. The review records its Mode/Slice Decision in the same internal operation when evidence is sufficient; the user is told that no action is required now. A separate `Mode/Slice Decision` step is fail-closed recovery for incomplete or legacy review state, not a normal user decision. UR approval never permits implementation by itself and does not preselect PRD.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
 - The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in the selected canonical `RUN_STATE.md` or an equivalent linked control artefact.
@@ -135,6 +140,7 @@ This table is the canonical transition model. Skills may reference it, but must 
 
 | State | Current gate or step | Allowed | Forbidden | Missing approval |
 |---|---|---|---|---|
+| Positive delivery intake has one resolved target, but canonical control is absent or incomplete | `Control setup` | draft the minimal UR, obtain explicit setup or link authority, initialize or link canonical control and persist the revision-stable UR | gate approval requests, live legacy run creation, PRD, SD, TP, Brownfield Analysis, implementation, QA, release | none |
 | No approved UR | `UR` | clarify user need, formulate and persist UR, request `Approval: UR` | PRD, SD, TP, Brownfield Analysis, implementation, QA, release | `Approval: UR` |
 | `UR` approved and UR artefact persisted or linked, Brownfield Review missing | `Brownfield Review` | classify workstream, existing owners, SoT, reuse risks, change size and PRD/SD open questions; mark review done or not_applicable | PRD, SD, TP, implementation, QA, release | none |
 | Brownfield Review done or not_applicable, Mode/Slice Decision missing or incomplete | `Mode/Slice Decision` | decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery` or `block`; record scope reason, evidence and required next gate depth | PRD, SD, TP, implementation, QA, release | none |

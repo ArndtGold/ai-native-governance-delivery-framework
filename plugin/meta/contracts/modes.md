@@ -4,8 +4,13 @@
 
 | Mode | Default | Escalate When |
 |---|---|---|
-| Quick Task Mode | small questions, reviews, debugging, local fixes without new product semantics | a new user capability, architecture/policy/persistence impact, formal artefacts, or approvals are involved |
+| Quick Task Mode | positively activated narrow delivery work such as bounded debugging or a local fix without new product semantics | a new user capability, architecture/policy/persistence impact, formal artefacts, or approvals are involved |
 | Structured Delivery Mode | formal delivery runs, gate-relevant work, release-critical changes | always use gate discipline, internal reviews, and OR |
+
+Request Activation precedes Mode Selection. Ordinary assessment, explanation, comparison,
+recommendation, review, diagnosis, hypothetical advice and AGDF-as-topic discussion remain ordinary
+read-only handling and are not Quick Tasks. Quick Task is a downstream process choice for an actual
+delivery effect or explicit AGDF operation; it is never an activation fallback.
 
 Quick Task Mode must not become ritual gate overhead.
 Structured Delivery must not bypass missing approvals.
@@ -26,10 +31,12 @@ Do not add a separate `Quality outlook` line for pure Quick Tasks unless the tas
 
 ### Quick Task and Compact Delivery
 
-Use **Quick Task** for ungated questions, reviews, debugging and eligible narrow fixes that introduce
-no new product semantics or formal artefacts. When an approved UR is followed by a Brownfield Review
-that selects the persisted `quick_task` mode, use **Compact Delivery** as the human-facing label. The
-stored and JSON value remains `quick_task`; Compact Delivery is not a new mode or approval gate.
+Use **Quick Task** only after positive Request Activation for bounded debugging, operational work and
+eligible narrow fixes that introduce no new product semantics or formal artefacts. Read-only
+questions, reviews and diagnosis without a requested delivery effect remain outside AGDF. When an
+approved UR is followed by a Brownfield Review that selects the persisted `quick_task` mode, use
+**Compact Delivery** as the human-facing label. The stored and JSON value remains `quick_task`;
+Compact Delivery is not a new mode or approval gate.
 
 Brownfield Review owns the Mode/Slice selection. A completed review records its decision, scope
 reason, evidence and required next depth in the same internal operation. `Mode/Slice Decision` remains

@@ -235,9 +235,30 @@ npm create agdf@latest -- opencode-repo
 ```
 
 OpenCode loads the AGDF npm plugin and global native skills from global OpenCode config. Global adapters use the collision-safe `agdf-global-` prefix, including `agdf-global-gate-check`. `opencode-repo` adds the durable `.agdf/control/config.json` marker and control templates; it does not write `opencode.json`, `.opencode/AGDF.md`, copied contracts or copied skills.
-The global skills load on demand through OpenCode's native `skill` tool. Use `agdf-global-gate-check` first for new build/change intent or unclear approval. Existing local `.opencode/` assets remain supported as a compatibility path and are not deleted.
+The global skills load on demand through OpenCode's native `skill` tool. After positive Request Activation selects actual delivery work, use `agdf-global-gate-check` first. Unclear approval alone never activates AGDF. Existing local `.opencode/` assets remain supported as a compatibility path and are not deleted.
 The built-in `question` tool can present a gate choice, but `.agdf/control/` and exact post-response validation remain authoritative; technical permission and auto-mode outcomes never approve an AGDF gate. Explicit `permission.question: deny` remains unchanged and uses exact-text fallback.
 The global layer makes the ten native AGDF skills discoverable, but does not activate repository governance by itself. Global skills fail closed until the current repository has valid `.agdf/control/config.json`. Use `opencode-repo` to create the durable activation marker.
+
+### Request activation and instruction loading
+
+AGDF uses one two-stage instruction model across its generated surfaces. Before selection, generated
+profiles provide one compact Request Activation kernel and short discovery descriptions. They make
+detailed routing, gate, quality and closeout instructions available on demand only after the current
+request has positively activated AGDF. OpenCode uses the same compact bootstrap and keeps the full
+router available on demand instead of registering it as an eager instruction.
+
+The versioned `instructionFootprint` contract defines UTF-8 byte budgets and structural conditions
+for the kernel, discovery descriptions, SessionStart, OpenCode static and dynamic context,
+compaction and the selected `gate-check` skill. Deterministic generation and package checks enforce
+those limits. The `skillSet.discovery` metadata describes the intended discovery boundary; it is not
+a claim that every host technically enforces that boundary.
+
+Source, generated and package evidence do not prove what an installed host ultimately retains or
+orders. Fresh loaded-host evidence remains separate. In particular, OpenCode keeps one bounded
+kernel-only compaction recovery block until same-version and same-digest host observations prove
+that the system transform is reapplied and the current dispatcher binding remains available. The
+[Instruction Footprint Audit](../.agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md)
+records the design evidence and its limits.
 
 ## Control scaffold
 

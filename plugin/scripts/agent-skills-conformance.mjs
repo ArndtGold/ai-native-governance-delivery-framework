@@ -196,16 +196,20 @@ function parseFrontmatter(content, skillPath, policy) {
   return { fields, findings };
 }
 
-function runtimeContractSection(content) {
-  const heading = content.match(/^## Runtime Contract\s*\r?\n/m);
+function resourceDeclarationSection(content, allowInstructionOnlyFallback = false) {
+  const runtimeHeading = content.match(/^## Runtime Contract\s*\r?\n/m);
+  const fallbackHeading = allowInstructionOnlyFallback
+    ? content.match(/^## Declared `instruction_only` Fallback\s*\r?\n/m)
+    : null;
+  const heading = runtimeHeading ?? fallbackHeading;
   if (!heading || heading.index === undefined) return "";
   const body = content.slice(heading.index + heading[0].length);
   const nextHeading = body.search(/^##\s/m);
   return nextHeading < 0 ? body : body.slice(0, nextHeading);
 }
 
-function declaredResources(content) {
-  const section = runtimeContractSection(content);
+function declaredResources(content, allowInstructionOnlyFallback = false) {
+  const section = resourceDeclarationSection(content, allowInstructionOnlyFallback);
   const bulletResources = section.split(/\r?\n/).map((line) => line.match(RESOURCE_BULLET)?.[1]).filter(Boolean);
   return [...new Set([...dependencyTokens(section), ...bulletResources])];
 }
@@ -500,7 +504,7 @@ export function validateAgentSkillsConformance({ pluginRoot, surfaceRoot = plugi
       }));
     }
 
-    const declarations = declaredResources(content);
+    const declarations = declaredResources(content, expectedName === `${prefix}gate-check`);
     if (policy.agdfRules.requiresRuntimeContractResource && declarations.length === 0) {
       findings.push(finding({
         code: "AGDF_SKILL_RUNTIME_CONTRACT_RESOURCE_MISSING",

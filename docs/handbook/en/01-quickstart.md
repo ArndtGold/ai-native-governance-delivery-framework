@@ -2,19 +2,35 @@
 language: en
 chapter_role: quickstart
 translation_of: ../de/01-schnellstart.md
-source_revision: sha256:32ac67ce441c30248724b32ac903e0011c4afaa5b1f33aff11be6230bcfb1136
+source_revision: sha256:44207d8dbd4e9b643113e3a6defa3debef4978e13205226e8bd1b6c5ddb49941
 translation_status: reviewed
 ---
 
 # Quickstart
 
 You do not need to learn AGDF commands. Tell the coding agent what you want to achieve. If you know
-which files, systems or boundaries are affected, name them as well. The agent confirms the intended
-work, checks the next permitted step and prepares only what that step requires.
+which files, systems or boundaries are affected, name them as well. When you request implementation,
+a binding delivery artefact or an explicit AGDF operation, the agent confirms the intended work,
+checks the next permitted step and prepares only what that step requires.
+
+An ordinary question, assessment, explanation, recommendation, review or diagnosis does not activate
+AGDF. The agent answers it without an AGDF status card, gate notice or hidden AGDF action. This also
+applies when the text mentions AGDF or possible implementation only as a topic, quotation, example,
+hypothesis or negated action. A mixed request activates AGDF only when it actually asks for
+implementation or another binding delivery outcome.
+
+Before that decision, generated AGDF profiles contain only a small common activation kernel and
+short skill descriptions. They make detailed routing, gate, quality and closeout rules available on
+demand only after positive activation. Versioned size budgets constrain these visible instructions
+and are checked during generation and packaging. This reduces unnecessary system instructions
+without weakening approval or safety rules.
+
+Those checks prove source and generated package behavior. Proving what a specific host actually
+loads and retains after installation and restart requires separate loaded-host evidence.
 
 You decide when to approve each user gate.
 
-## Your first request
+## Your first delivery request
 
 A German-language business request might start like this:
 
@@ -76,8 +92,8 @@ recorded rationale:
 - **Structured Delivery** for broad or consequential changes;
 - **Block** when important decision evidence is missing or contradictory.
 
-Independent questions, read-only checks and small corrections without new product semantics may be
-handled outside a formal run as a **Quick Task**.
+Independent questions and read-only checks remain outside AGDF. A small correction is implementation
+and therefore activates the suitable bounded delivery path.
 
 ## Typical structured workflow
 

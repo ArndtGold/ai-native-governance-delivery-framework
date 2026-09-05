@@ -1,6 +1,6 @@
 ---
 name: release-or
-description: Use this skill at the end of every relevant run to produce a compact, auditable Orchestration Report. It summarizes gate status, delivered and intentionally not delivered work, TP coverage, Brownfield fit, solution integrity, open risks, and the next permissible step.
+description: "Use this skill for this scope: auditable closeout for every relevant run. Boundary: not a QA substitute. Automatic discovery alone does not activate AGDF."
 ---
 
 # release-or
@@ -34,6 +34,25 @@ After `skill_continuation`, use these focused runtime-contract modules:
 - `../../meta/contracts/control-scaffold.md`
 
 `instruction_only`: first load `../../meta/contracts/task-target-resolution.md` and `../../meta/contracts/interaction.md`.
+
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
+## Request Activation
+
+- `owner`: `request_activation_contract`
+- `path`: `plugin/meta/contracts/request-activation.md`
+- `policy_version`: `1`
+- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+
+Decide effect from loaded instructions before AGDF action/output.
+
+Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+
+Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+
+Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
+
+Then choose one catalog route. Non-authorizing; downstream checks remain.
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
 
 ## Executable Dispatch
 

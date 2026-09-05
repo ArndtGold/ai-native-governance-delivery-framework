@@ -7,12 +7,24 @@ const surfaceLabels = Object.freeze({
 });
 
 function titleFor(report) {
+  if (report.operation === "control_init") return report.result === "failed"
+    ? "AGDF control initialization failed"
+    : "AGDF control initialization complete";
+  if (report.operation === "repository_setup") return report.result === "success"
+    ? "AGDF repository setup complete"
+    : report.result === "partial" ? "AGDF repository setup partially completed"
+    : report.result === "preview" ? "AGDF repository setup preview"
+    : "AGDF repository setup failed";
+  if (report.operation === "disable") return report.result === "success"
+    ? "AGDF repository disable complete"
+    : report.result === "partial" ? "AGDF repository disable partially completed" : "AGDF repository disable failed";
+  if (report.operation === "uninstall") return report.result === "preview"
+    ? "AGDF uninstall preview"
+    : report.result === "success" ? "AGDF uninstall complete"
+    : report.result === "partial" ? "AGDF uninstall partially completed" : "AGDF uninstall failed";
   if (report.result === "failed") return "AGDF installation failed";
   if (report.result === "partial") return "AGDF installation partially completed";
-  if (report.result === "preview") return report.operation === "uninstall"
-    ? "AGDF uninstall preview"
-    : "AGDF installation cancelled";
-  if (report.operation === "repository_setup") return "AGDF repository setup complete";
+  if (report.result === "preview") return "AGDF installation cancelled";
   return "AGDF installation complete";
 }
 
@@ -26,6 +38,11 @@ export function lifecycleCardLines(report) {
   return [
     titleFor(report),
     `Surface: ${surfaceLabels[report.surface]}`,
+    `Operation: ${report.operation_status.operation_id}`,
+    `Operation outcome: ${report.operation_status.outcome}`,
+    `Target: ${report.operation_status.target ?? "global"}`,
+    `Planned effect: ${report.operation_status.planned_effect}`,
+    `Authorizes: ${report.operation_status.authorizes ? "yes" : "no"}`,
     `Version: ${version} (${versionStatus})`,
     `Installation scope: ${report.scope}`,
     `Installation: ${report.installation.status}`,
@@ -60,13 +77,21 @@ function compactVersionLine(report) {
 export function compactLifecycleCardLines(report) {
   if (report.result === "preview") return [
     titleFor(report),
+    `Operation: ${report.operation_status.operation_id} (${report.operation_status.outcome}; ${report.operation_status.target ?? "global"})`,
     "No changes were made.",
+    `Next: ${report.next_action.text}`,
+  ];
+  if (report.operation === "control_init") return [
+    titleFor(report),
+    `Operation: ${report.operation_status.operation_id} (${report.operation_status.target})`,
+    `Control scaffold: ${report.operation_status?.outcome ?? "unknown"}`,
     `Next: ${report.next_action.text}`,
   ];
   return [
     report.result === "success"
       ? `AGDF ${report.operation === "update" ? "updated" : "installed"} for ${surfaceLabels[report.surface]}`
       : titleFor(report),
+    `Operation: ${report.operation_status.operation_id} (${report.operation_status.outcome}; ${report.operation_status.target ?? "global"})`,
     compactVersionLine(report),
     `Installation: ${report.installation.status === "healthy" ? "Ready" : report.installation.status}`,
     `Automatic checks: ${friendlyRuntimeCheckState(report)}`,
@@ -93,7 +118,9 @@ export function printGeneralStatus(report, { json = false, io = console } = {}) 
     return;
   }
   io.log("AGDF status");
+  if (report.operation_status?.operation_id) io.log(`Operation: ${report.operation_status.operation_id}`);
   io.log(`Installation: ${report.installation.status}${report.installation.version ? ` (${report.installation.version})` : ""}`);
+  if (report.operation_status?.target) io.log(`Target: ${report.operation_status.target}`);
   io.log(`Repository: ${report.repository.status}`);
   io.log(`Delivery: ${report.delivery.status}${report.delivery.current_gate ? ` (${report.delivery.current_gate})` : ""}`);
   io.log(`Automatic runtime checks: requested=${report.runtime_checks.requested}; effective=${report.runtime_checks.effective}; reason=${report.runtime_checks.reason}`);

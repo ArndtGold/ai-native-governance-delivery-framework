@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agdf.dev/schemas/request-activation-host-observation-v1.json",
+  "title": "AGDF Request Activation fresh-host observations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "evidence_plane", "status", "request_activation", "hosts"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "const": "agdf-request-activation-boundary" },
+    "evidence_plane": { "const": "fresh_loaded_host" },
+    "status": { "enum": ["unavailable", "partial", "complete"] },
+    "request_activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "path", "policy_version", "guard_fingerprint"],
+      "properties": {
+        "owner": { "const": "request_activation_contract" },
+        "path": { "const": "plugin/meta/contracts/request-activation.md" },
+        "policy_version": { "const": 1 },
+        "guard_fingerprint": { "const": "sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab" }
+      }
+    },
+    "hosts": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/host" }
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "hosts": {
+          "allOf": [
+            { "contains": { "required": ["host"], "properties": { "host": { "const": "codex" } } }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "required": ["host"], "properties": { "host": { "const": "claude_code" } } }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "required": ["host"], "properties": { "host": { "const": "github_copilot" } } }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "required": ["host"], "properties": { "host": { "const": "opencode" } } }, "minContains": 1, "maxContains": 1 }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "complete" } }
+      },
+      "then": {
+        "properties": {
+          "hosts": {
+            "items": {
+              "allOf": [
+                { "$ref": "#/$defs/host" },
+                { "properties": { "status": { "const": "complete" } } }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "case_family_id": {
+      "enum": [
+        "repository_contexts",
+        "ordinary_and_topic",
+        "advice_delivery_mixed",
+        "invocation_and_selection_origin",
+        "lifecycle_and_status",
+        "unavailable_later_gate",
+        "continuation_and_unrelated",
+        "ambiguous_effect"
+      ]
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": { "enum": ["unavailable", "observed"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "installed_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "install_result", "version", "root", "digest", "identity"],
+      "properties": {
+        "status": { "enum": ["unavailable", "observed"] },
+        "install_result": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "root": { "type": ["string", "null"] },
+        "digest": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "identity": { "type": ["string", "null"] }
+      }
+    },
+    "callback_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_start",
+        "dispatcher_v1",
+        "target_resolver",
+        "repository_activation",
+        "control_presence",
+        "run_selector",
+        "control_evaluator",
+        "agdf_renderer",
+        "installation_status_owner",
+        "repository_status_owner",
+        "help_suitability_owner",
+        "lifecycle_owner",
+        "canonical_init"
+      ],
+      "properties": {
+        "session_start": { "type": "integer", "minimum": 0 },
+        "dispatcher_v1": { "type": "integer", "minimum": 0 },
+        "target_resolver": { "type": "integer", "minimum": 0 },
+        "repository_activation": { "type": "integer", "minimum": 0 },
+        "control_presence": { "type": "integer", "minimum": 0 },
+        "run_selector": { "type": "integer", "minimum": 0 },
+        "control_evaluator": { "type": "integer", "minimum": 0 },
+        "agdf_renderer": { "type": "integer", "minimum": 0 },
+        "installation_status_owner": { "type": "integer", "minimum": 0 },
+        "repository_status_owner": { "type": "integer", "minimum": 0 },
+        "help_suitability_owner": { "type": "integer", "minimum": 0 },
+        "lifecycle_owner": { "type": "integer", "minimum": 0 },
+        "canonical_init": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "callback_delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispatcher_v1",
+        "target_resolver",
+        "repository_activation",
+        "control_presence",
+        "run_selector",
+        "control_evaluator",
+        "agdf_renderer",
+        "installation_status_owner",
+        "repository_status_owner",
+        "help_suitability_owner",
+        "lifecycle_owner",
+        "canonical_init"
+      ],
+      "properties": {
+        "dispatcher_v1": { "type": "integer", "minimum": 0 },
+        "target_resolver": { "type": "integer", "minimum": 0 },
+        "repository_activation": { "type": "integer", "minimum": 0 },
+        "control_presence": { "type": "integer", "minimum": 0 },
+        "run_selector": { "type": "integer", "minimum": 0 },
+        "control_evaluator": { "type": "integer", "minimum": 0 },
+        "agdf_renderer": { "type": "integer", "minimum": 0 },
+        "installation_status_owner": { "type": "integer", "minimum": 0 },
+        "repository_status_owner": { "type": "integer", "minimum": 0 },
+        "help_suitability_owner": { "type": "integer", "minimum": 0 },
+        "lifecycle_owner": { "type": "integer", "minimum": 0 },
+        "canonical_init": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "fresh_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "host_version", "model", "profile_version", "profile_digest", "profile_identity", "session_start_consent", "post_session_start_callback_baseline"],
+      "properties": {
+        "status": { "enum": ["unavailable", "observed"] },
+        "host_version": { "type": ["string", "null"] },
+        "model": { "type": ["string", "null"] },
+        "profile_version": { "type": ["string", "null"] },
+        "profile_digest": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "profile_identity": { "type": ["string", "null"] },
+        "session_start_consent": { "enum": ["unavailable", "manual", "enabled", "disabled"] },
+        "post_session_start_callback_baseline": {
+          "oneOf": [
+            { "const": "unavailable" },
+            { "$ref": "#/$defs/callback_baseline" }
+          ]
+        }
+      }
+    },
+    "case_family": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/case_family_id" },
+        "status": { "enum": ["unavailable", "pass", "fail", "partial"] }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "case_family", "invocation_provenance", "selection_origin", "visible_transcript", "callback_delta", "filesystem_control_delta", "covered_criteria", "outcome"],
+      "properties": {
+        "case_id": { "type": "string", "minLength": 1 },
+        "case_family": { "$ref": "#/$defs/case_family_id" },
+        "invocation_provenance": { "enum": ["current_user_text", "trusted_ephemeral_user_action", "unavailable"] },
+        "selection_origin": { "enum": ["explicit_user_action", "automatic_discovery", "router_selection", "unavailable"] },
+        "visible_transcript": { "type": "string", "minLength": 1 },
+        "callback_delta": { "oneOf": [{ "const": "unavailable" }, { "$ref": "#/$defs/callback_delta" }] },
+        "filesystem_control_delta": { "oneOf": [{ "const": "unavailable" }, { "type": "object" }] },
+        "covered_criteria": { "type": "array", "items": { "type": "string", "pattern": "^RAB-[0-9]{2}$" }, "minItems": 1, "uniqueItems": true },
+        "outcome": { "enum": ["pass", "fail", "partial", "unavailable"] }
+      }
+    },
+    "opencode_probes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_vs_model_skill_origin",
+        "subagent_hook_propagation",
+        "system_transform_reapplied_after_compaction",
+        "current_binding_available_after_compaction"
+      ],
+      "properties": {
+        "user_vs_model_skill_origin": { "enum": ["unavailable", "pass", "fail", "partial"] },
+        "subagent_hook_propagation": { "enum": ["unavailable", "pass", "fail", "partial"] },
+        "system_transform_reapplied_after_compaction": { "enum": ["unavailable", "pass", "fail", "partial"] },
+        "current_binding_available_after_compaction": { "enum": ["unavailable", "pass", "fail", "partial"] }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "status", "reason", "install", "staged_profile", "installed_profile", "fresh_session", "trusted_invocation_signal", "callback_trace", "case_families", "observations", "host_specific_probes", "claims_allowed"],
+      "properties": {
+        "host": { "enum": ["codex", "claude_code", "github_copilot", "opencode"] },
+        "status": { "enum": ["unavailable", "partial", "complete"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "install": { "$ref": "#/$defs/availability" },
+        "staged_profile": { "$ref": "#/$defs/installed_profile" },
+        "installed_profile": { "$ref": "#/$defs/installed_profile" },
+        "fresh_session": { "$ref": "#/$defs/fresh_session" },
+        "trusted_invocation_signal": { "enum": ["unavailable", "observed"] },
+        "callback_trace": { "enum": ["unavailable", "observed"] },
+        "case_families": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/case_family" },
+          "allOf": [
+            { "contains": { "properties": { "id": { "const": "repository_contexts" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "ordinary_and_topic" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "advice_delivery_mixed" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "invocation_and_selection_origin" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "lifecycle_and_status" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "unavailable_later_gate" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "continuation_and_unrelated" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 },
+            { "contains": { "properties": { "id": { "const": "ambiguous_effect" } }, "required": ["id"] }, "minContains": 1, "maxContains": 1 }
+          ]
+        },
+        "observations": { "type": "array", "items": { "$ref": "#/$defs/observation" } },
+        "host_specific_probes": { "type": "object" },
+        "claims_allowed": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["host"],
+            "properties": { "host": { "const": "opencode" } }
+          },
+          "then": {
+            "properties": { "host_specific_probes": { "$ref": "#/$defs/opencode_probes" } }
+          },
+          "else": {
+            "properties": { "host_specific_probes": { "type": "object", "maxProperties": 0 } }
+          }
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": { "status": { "const": "complete" } }
+          },
+          "then": {
+            "properties": {
+              "install": {
+                "properties": { "status": { "const": "observed" } }
+              },
+              "staged_profile": {
+                "properties": {
+                  "status": { "const": "observed" },
+                  "install_result": { "$ref": "#/$defs/non_empty_string" },
+                  "version": { "const": "0.14.5" },
+                  "root": { "$ref": "#/$defs/non_empty_string" },
+                  "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+                  "identity": { "$ref": "#/$defs/non_empty_string" }
+                }
+              },
+              "installed_profile": {
+                "properties": {
+                  "status": { "const": "observed" },
+                  "install_result": { "$ref": "#/$defs/non_empty_string" },
+                  "version": { "const": "0.14.5" },
+                  "root": { "$ref": "#/$defs/non_empty_string" },
+                  "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+                  "identity": { "$ref": "#/$defs/non_empty_string" }
+                }
+              },
+              "fresh_session": {
+                "properties": {
+                  "status": { "const": "observed" },
+                  "host_version": { "$ref": "#/$defs/non_empty_string" },
+                  "model": { "$ref": "#/$defs/non_empty_string" },
+                  "profile_version": { "const": "0.14.5" },
+                  "profile_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+                  "profile_identity": { "$ref": "#/$defs/non_empty_string" },
+                  "session_start_consent": { "enum": ["manual", "enabled"] },
+                  "post_session_start_callback_baseline": { "$ref": "#/$defs/callback_baseline" }
+                }
+              },
+              "trusted_invocation_signal": { "const": "observed" },
+              "callback_trace": { "const": "observed" },
+              "case_families": {
+                "minItems": 8,
+                "maxItems": 8,
+                "uniqueItems": true,
+                "items": {
+                  "allOf": [
+                    { "$ref": "#/$defs/case_family" },
+                    { "properties": { "status": { "const": "pass" } } }
+                  ]
+                }
+              },
+              "observations": {
+                "minItems": 8,
+                "items": {
+                  "allOf": [
+                    { "$ref": "#/$defs/observation" },
+                    {
+                      "properties": {
+                        "invocation_provenance": { "enum": ["current_user_text", "trusted_ephemeral_user_action"] },
+                        "selection_origin": { "enum": ["explicit_user_action", "automatic_discovery", "router_selection"] },
+                        "callback_delta": { "$ref": "#/$defs/callback_delta" },
+                        "filesystem_control_delta": { "type": "object" },
+                        "outcome": { "const": "pass" }
+                      }
+                    }
+                  ]
+                },
+                "allOf": [
+                  { "contains": { "properties": { "case_family": { "const": "repository_contexts" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "ordinary_and_topic" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "advice_delivery_mixed" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "invocation_and_selection_origin" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "lifecycle_and_status" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "unavailable_later_gate" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "continuation_and_unrelated" } }, "required": ["case_family"] }, "minContains": 1 },
+                  { "contains": { "properties": { "case_family": { "const": "ambiguous_effect" } }, "required": ["case_family"] }, "minContains": 1 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["host", "status"],
+            "properties": {
+              "host": { "const": "opencode" },
+              "status": { "const": "complete" }
+            }
+          },
+          "then": {
+            "properties": {
+              "host_specific_probes": {
+                "properties": {
+                  "user_vs_model_skill_origin": { "const": "pass" },
+                  "subagent_hook_propagation": { "const": "pass" },
+                  "system_transform_reapplied_after_compaction": { "const": "pass" },
+                  "current_binding_available_after_compaction": { "const": "pass" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

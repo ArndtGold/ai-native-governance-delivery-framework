@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -76,6 +77,7 @@ try {
     assert.equal(JSON.stringify(approvalCandidate), before, `${name} must not mutate control input`);
   }
 
+  execFileSync(process.execPath, [cli, "init", "--dir", root]);
   const a = createRun(root, "run-a", "## Objective\n\nA\n");
   assert.equal(discoverRuns(root).length, 1);
   assert.equal(resolveRuns(root, {}).run.run_id, "run-a");
@@ -486,6 +488,11 @@ ${approvals}
   for (const expected of ["--run <run_id>", "--all-active", "run-create", "run-migrate", "run-render-legacy"]) {
     assert.match(help, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+  const missingScaffoldRun = spawnSync(process.execPath, [cli, "run-create", "--dir", cliRoot, "--run", "cli-run"], { encoding: "utf8" });
+  assert.notEqual(missingScaffoldRun.status, 0);
+  assert.match(missingScaffoldRun.stderr, /AGDF_CANONICAL_SCAFFOLD_REQUIRED/);
+  assert.equal(existsSync(join(cliRoot, ".agdf")), false, "run-create must not create a dead-end control tree before init");
+  execFileSync(process.execPath, [cli, "init", "--dir", cliRoot]);
   execFileSync(process.execPath, [cli, "run-create", "--dir", cliRoot, "--run", "cli-run"]);
   assert.ok(readFileSync(join(cliRoot, ".agdf", "control", "runs", "cli-run", "RUN_STATE.md"), "utf8").includes("- run_id: cli-run"));
   const cliLegacyPath = join(cliRoot, ".agdf", "control", "AGDF_RUN.md");
@@ -778,6 +785,7 @@ ${approvals}
     const identityRoot = mkdtempSync(join(tmpdir(), "agdf-identity-parity-"));
     try {
       execFileSync(process.execPath, [cli, "init", "--dir", identityRoot]);
+      rmSync(join(identityRoot, ".agdf", "control", "runs"), { recursive: true, force: true });
       const legacyState = `# AGDF Run State\n\n## Run Meta\n\n- run_id: Bad Run\n- lifecycle: active\n- current_gate: UR\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Legacy fixture without identity. |\n| What is the next allowed action? | Draft the UR. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Fixture | identity-parity-test | legacy path | direct |\n\n## Closeout\n\n- next_allowed_action: Draft the UR.\n`;
       writeFileSync(join(identityRoot, ".agdf", "control", "AGDF_RUN.md"), legacyState, "utf8");
       const doctorResult = spawnSync(process.execPath, [cli, "doctor", "--dir", identityRoot, "--json"], { encoding: "utf8" });

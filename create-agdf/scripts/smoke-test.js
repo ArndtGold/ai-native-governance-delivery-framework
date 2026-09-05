@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { delimiter, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -14,15 +14,13 @@ const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
 const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`);
-const contractModules = [
-  "gate-transition.md",
-  "interaction.md",
-  "modes.md",
-  "quality.md",
-  "context-graph.md",
-  "control-scaffold.md",
-  "closeout.md",
-];
+const contractModules = pluginDefinition.runtimeContract.modules.map((modulePath) => {
+  const prefix = "meta/contracts/";
+  if (!modulePath.startsWith(prefix) || modulePath.slice(prefix.length).includes("/")) {
+    throw new Error(`Invalid definition-owned runtime contract module path: ${modulePath}`);
+  }
+  return modulePath.slice(prefix.length);
+});
 
 function runJson(args) {
   try {
@@ -544,11 +542,14 @@ try {
     throw new Error("opencode must generate the owned global instructions, Runtime Contract and evaluator agent.");
   }
   const globalInstructions = readFileSync(join(openCodeConfigTempDir, "AGDF.md"), "utf8");
-  if (!globalInstructions.includes("global adapters use the `agdf-global-*` namespace")
-    || globalInstructions.includes("global adapters use the `agdf-*` namespace")) {
-    throw new Error("opencode global instructions must keep the collision-safe agdf-global-* namespace current.");
+  if (pluginDefinition.opencode.globalSkillPrefix !== "agdf-global-"
+    || globalOpenCodeSkillNames.some((name) => !name.startsWith(pluginDefinition.opencode.globalSkillPrefix))
+    || globalOpenCodeSkillNames.some((name) => openCodeSkillNames.includes(name))
+    || new Set(globalOpenCodeSkillNames).size !== globalOpenCodeSkillNames.length) {
+    throw new Error("opencode global surface must keep the collision-safe agdf-global-* namespace current.");
   }
-  let fullBoundaryCount = (globalInstructions.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
+  let legacyFullBoundaryCount = (globalInstructions.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
+  let requestActivationGuardCount = (globalInstructions.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->/g) ?? []).length;
   let activationGuardCount = 0;
   let conditionalDispatchCount = 0;
   for (const skillName of globalOpenCodeSkillNames) {
@@ -557,7 +558,8 @@ try {
     if (!globalSkill.includes(`AGDF-GLOBAL-SKILL: ${skillName} -->`)) {
       throw new Error(`opencode must generate an owned global skill adapter for ${skillName}.`);
     }
-    fullBoundaryCount += (globalSkill.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
+    legacyFullBoundaryCount += (globalSkill.match(/## Global OpenCode Surface Boundary/g) ?? []).length;
+    requestActivationGuardCount += (globalSkill.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->/g) ?? []).length;
     activationGuardCount += (globalSkill.match(/## Repository Activation Guard/g) ?? []).length;
     conditionalDispatchCount += (globalSkill.match(/## Conditional Executable Dispatch/g) ?? []).length;
     if (globalSkill.includes("## Executable Dispatch")
@@ -567,10 +569,11 @@ try {
       throw new Error(`opencode global skill ${skillName} must fail closed without an active supplied binding and forbid runtime reconstruction.`);
     }
   }
-  if (fullBoundaryCount !== 1
+  if (legacyFullBoundaryCount !== 0
+    || requestActivationGuardCount !== globalOpenCodeSkillNames.length + 1
     || activationGuardCount !== globalOpenCodeSkillNames.length
     || conditionalDispatchCount !== globalOpenCodeSkillNames.length) {
-    throw new Error(`opencode must install one full global boundary and ${globalOpenCodeSkillNames.length} fail-closed skill guards.`);
+    throw new Error(`opencode must install one activation micro-bootstrap and ${globalOpenCodeSkillNames.length} fail-closed skill guards without the legacy full boundary.`);
   }
   const localValidatorPath = join(openCodeConfigTempDir, "agdf", "bin", "agdf-local.js");
   if (!existsSync(localValidatorPath)
@@ -992,7 +995,7 @@ run("config", [
     for (const relativePath of [
       join(".agdf", "control", "config.json"),
       join(".agdf", "control", "README.md"),
-      join(".agdf", "control", "AGDF_RUN.md"),
+      join(".agdf", "control", "runs"),
       join(".agdf", "control", "MASTER_BACKLOG.md"),
       join(".agdf", "control", "SOT_REGISTRY.md"),
       join(".agdf", "control", "CONTEXT_GRAPH.md"),
@@ -1009,20 +1012,17 @@ run("config", [
         throw new Error(`Missing live control file for init: ${relativePath}`);
       }
     }
+    if (existsSync(join(tempDir, ".agdf", "control", "AGDF_RUN.md"))
+        || readdirSync(join(tempDir, ".agdf", "control", "runs")).length !== 0) {
+      throw new Error("Canonical init must create an empty run store without a live legacy run.");
+    }
 
-    const doctorOutput = execFileSync(process.execPath, [binPath, "doctor", "--dir", tempDir, "--json"], { encoding: "utf8" });
-    const doctorReport = JSON.parse(doctorOutput);
-    if (doctorReport.status !== "revise") {
-      throw new Error(`Doctor should classify a fresh unfilled control scaffold as revise, got ${doctorReport.status}.`);
+    const doctorReport = runJson(["doctor", "--dir", tempDir, "--json"]);
+    if (doctorReport.status !== "block") {
+      throw new Error(`Doctor should block a fresh canonical scaffold without a selected run, got ${doctorReport.status}.`);
     }
-    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_CURRENT_GATE_MISSING")) {
-      throw new Error("Doctor should report a missing current gate for a fresh control scaffold.");
-    }
-    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_NEXT_ALLOWED_ACTION_MISSING")) {
-      throw new Error("Doctor should report a missing next allowed action for a fresh control scaffold.");
-    }
-    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_EVIDENCE_EMPTY")) {
-      throw new Error("Doctor should report empty evidence for a fresh control scaffold.");
+    if (!doctorReport.findings.some((finding) => finding.code === "AGDF_ACTIVE_RUN_MISSING")) {
+      throw new Error("Doctor should report that canonical control exists without an active run.");
     }
 
     let gateCheckFailed = false;
@@ -1037,16 +1037,19 @@ run("config", [
       if (gateCheckReport.current_gate !== "UR") {
         throw new Error(`Gate-check should fall back to UR for a fresh scaffold, got ${gateCheckReport.current_gate}.`);
       }
-      if (!gateCheckReport.allowed.includes("formulate and persist UR")) {
-        throw new Error("Gate-check should require UR persistence before later artefacts.");
+      if (!gateCheckReport.allowed.includes("create or migrate a canonical run with an explicit run id")) {
+        throw new Error("Gate-check should require canonical run creation or migration before later artefacts.");
       }
-      if (!gateCheckReport.next_allowed_action.includes("persist the UR draft")) {
-        throw new Error("Gate-check should make UR drafting the constructive next action for a fresh scaffold.");
+      if (gateCheckReport.missing_approval !== "none" || gateCheckReport.approval_presentation !== null) {
+        throw new Error("Gate-check must not request approval before a durable run and UR revision exist.");
       }
-      if (gateCheckReport.doctor_status !== "revise") {
-        throw new Error(`Gate-check should embed the doctor revise status, got ${gateCheckReport.doctor_status}.`);
+      if (!gateCheckReport.next_allowed_action.includes("Create, migrate or select")) {
+        throw new Error("Gate-check should make canonical run setup the constructive next action for a fresh scaffold.");
       }
-      if (!gateCheckReport.doctor_report?.findings?.some((finding) => finding.code === "AGDF_CURRENT_GATE_MISSING")) {
+      if (gateCheckReport.doctor_status !== "block") {
+        throw new Error(`Gate-check should embed the doctor block status, got ${gateCheckReport.doctor_status}.`);
+      }
+      if (!gateCheckReport.doctor_report?.findings?.some((finding) => finding.code === "AGDF_ACTIVE_RUN_MISSING")) {
         throw new Error("Gate-check should include the doctor report as evidence.");
       }
       if (!gateCheckReport.status_card || gateCheckReport.status_card.current_gate !== "UR") {
@@ -1192,15 +1195,19 @@ run("config", [
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-status-card-tp-transition-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "tp-transition", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "tp-transition"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: tp-transition
+- lifecycle: active
+- revision: 1
 - mode: structured_delivery
 - current_gate: TP
 - revision_id: 6f0f2f9a-1d0a-4b7e-9c2d-3a5b8c1d2e4f
@@ -1251,7 +1258,7 @@ run("config", [
 
 - next_allowed_action: Request exact TP approval.
 `, "utf8");
-    const report = runJson(["gate-check", "--dir", tempDir, "--json"]);
+    const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json"]);
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
     }
@@ -1271,7 +1278,7 @@ run("config", [
     if (cardApprovalCount !== 1) {
       throw new Error(`Ready gate-check cards must contain the exact approval value once, got ${cardApprovalCount}.`);
     }
-    const envelope = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--approval-envelope"], { encoding: "utf8", stdio: "pipe" });
+    const envelope = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "tp-transition", "--approval-envelope"], { encoding: "utf8", stdio: "pipe" });
     if (!envelope.includes("## Review and decide on task and test plan")
       || !envelope.includes("Required decision: Task and Test Plan approval")
       || !envelope.includes("To approve, reply exactly with `Approval: TP`")) {
@@ -1308,14 +1315,16 @@ run("config", [
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("Consume the canonical `approval_presentation` verbatim")
-      || !content.includes("`status_presentation.markdown` verbatim")
+    if (!content.includes("This compact bootstrap owns no")
+      || !content.includes("`skill.gate-check` is a direct-skill route. Invoke dispatcher v1 as the first operational call")
+      || !content.includes("`delivery.start` is a delivery-intake route, not a direct-skill route")
+      || !content.includes("On `terminal: true`, execute the returned")
+      || !content.includes("transmit `host_action.text` verbatim and stop")
+      || !content.includes("Only trusted runtime evidence explicitly declaring this invocation `instruction_only`")
+      || (content.match(/interaction\.md/g) ?? []).length !== 1
+      || content.includes("Consume the canonical `approval_presentation` verbatim")
+      || content.includes("`status_presentation.markdown` verbatim")
       || content.includes("| Run status | Value |")
-      || !content.includes("Resolve or revalidate the primary task target before selecting repository control state")
-      || !content.includes("Select exactly one run and evaluate its current gate")
-      || !content.includes("Confirm that the required durable artefact is present and ready")
-      || !content.includes("Revalidate the same target, run, gate and revision")
-      || !content.includes("Persist only a currently valid exact approval")
       || content.includes("Surface behavior:")) {
       throw new Error(`Generated gate-check surface must preserve compact orchestration and single contract ownership: ${path}`);
     }
@@ -1341,15 +1350,19 @@ run("config", [
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-implicit-consent-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: 11111111-1111-4111-8111-111111111111
 - started_at: 2026-07-06
 - mode: structured_delivery
@@ -1384,7 +1397,7 @@ run("config", [
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| implicit consent | AGDF_RUN.md | UR gate | direct |
+| implicit consent | RUN_STATE.md | UR gate | direct |
 
 ## Closeout
 
@@ -1393,7 +1406,7 @@ run("config", [
 
     const gateCheckReport = JSON.parse(execFileSync(
       process.execPath,
-      [binPath, "gate-check", "--dir", tempDir, "--json"],
+      [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"],
       { encoding: "utf8", stdio: "pipe" },
     ));
     if (gateCheckReport.status !== "open") {
@@ -1436,9 +1449,11 @@ run("config", [
 
   for (const testCase of cases) {
     const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-late-gate-${testCase.name}-`));
-    const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+    const runId = `late-gate-${testCase.name}`;
+    const runPath = join(tempDir, ".agdf", "control", "runs", runId, "RUN_STATE.md");
     try {
       execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", runId], { stdio: "pipe" });
       const internalRows = ["Brownfield Analysis", "CD+Tests", "CR"]
         .map((step) => `| ${step} | ${testCase.steps[step] ? `${step.replace(/[^A-Za-z]+/g, "_").toUpperCase()}.md` : ""} | ${testCase.steps[step] ?? "missing"} | |`)
         .join("\n");
@@ -1446,7 +1461,10 @@ run("config", [
 
 ## Run Meta
 
-- run_id: late-gate-${testCase.name}
+- control_state_version: 2
+- run_id: ${runId}
+- lifecycle: active
+- revision: 1
 - revision_id: 22222222-2222-4222-8222-222222222222
 - started_at: 2026-07-13
 - mode: structured_delivery
@@ -1514,7 +1532,7 @@ ${internalRows}
 
 - next_allowed_action: ${testCase.next}
 `, "utf8");
-      const report = runJson(["gate-check", "--dir", tempDir, "--json"]);
+      const report = runJson(["gate-check", "--dir", tempDir, "--run", runId, "--json"]);
       if (report.current_gate !== testCase.gate
         || report.missing_approval !== testCase.missing
         || report.status !== (testCase.status ?? "open")
@@ -1531,15 +1549,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-qa-passed-uat-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "qa-passed-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "qa-passed-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: qa-passed-run
+- lifecycle: active
+- revision: 1
 - revision_id: 33333333-3333-4333-8333-333333333333
 - started_at: 2026-07-08
 - mode: structured_delivery
@@ -1603,7 +1625,7 @@ ${internalRows}
 - next_allowed_action: Request Approval: UAT before delivery handoff.
 `, "utf8");
 
-    const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" }));
+    const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "qa-passed-run", "--json"], { encoding: "utf8" }));
     if (gateCheckReport.current_gate !== "UAT") {
       throw new Error(`Gate-check should stay at UAT after QA passed, got ${gateCheckReport.current_gate}.`);
     }
@@ -1623,15 +1645,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-qa-status-mismatch-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "qa-status-mismatch", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "qa-status-mismatch"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: qa-status-mismatch
+- lifecycle: active
+- revision: 1
 - revision_id: 44444444-4444-4444-8444-444444444444
 - started_at: 2026-07-09
 - mode: structured_delivery
@@ -1694,7 +1720,7 @@ ${internalRows}
 | QA report | .agdf/control/artefacts/qa-status-mismatch/QA_REPORT.md | QA | direct |
 `, "utf8");
 
-    const doctorReport = runJson(["doctor", "--dir", tempDir, "--json"]);
+    const doctorReport = runJson(["doctor", "--dir", tempDir, "--run", "qa-status-mismatch", "--json"]);
     if (doctorReport.status !== "revise") {
       throw new Error(`Doctor should revise on QA durable artefact status mismatch, got ${doctorReport.status}.`);
     }
@@ -1747,11 +1773,13 @@ ${internalRows}
       if (!gateCheckReport.allowed.includes("draft the minimal UR for the requested change in the response")) {
         throw new Error("Gate-check should allow minimal in-response UR drafting when control files are missing.");
       }
-      if (!gateCheckReport.next_allowed_action.includes("Draft the minimal UR for the request in the response")) {
-        throw new Error("Gate-check should give in-response UR draft as the next action when control files are missing.");
+      if (gateCheckReport.missing_approval !== "none" || gateCheckReport.approval_presentation !== null) {
+        throw new Error("Gate-check must not request gate approval before durable control and a revision-stable UR exist.");
       }
-      if (!gateCheckReport.next_allowed_action.includes("Do not write a full .agdf/control scaffold")) {
-        throw new Error("Gate-check should prevent full control scaffold writes by default when control files are missing.");
+      if (gateCheckReport.interaction_kind !== "control_setup"
+        || gateCheckReport.status_presentation?.status !== "control_setup_required"
+        || !gateCheckReport.next_allowed_action.includes("obtain explicit setup or link authority")) {
+        throw new Error("Gate-check should orient missing control to explicit setup before any gate approval.");
       }
       if (!gateCheckReport.forbidden.includes("implement code")) {
         throw new Error("Gate-check should still forbid implementation when control files are missing.");
@@ -1768,15 +1796,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-ur-triage-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: 55555555-5555-4555-8555-555555555555
 - started_at: 2026-07-06
 - mode: structured_delivery
@@ -1812,7 +1844,7 @@ ${internalRows}
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |
 
 ## Mode / Slice Decision
 
@@ -1825,14 +1857,14 @@ ${internalRows}
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| UR approval | AGDF_RUN.md | UR gate | direct |
+| UR approval | RUN_STATE.md | UR gate | direct |
 
 ## Closeout
 
 - next_allowed_action: Run Brownfield Review after G-00.
 `, "utf8");
 
-    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
     if (gateCheckReport.status !== "open") {
       throw new Error(`Gate-check should open Brownfield Review after approved UR, got ${gateCheckReport.status}.`);
@@ -1853,15 +1885,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-open-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: 66666666-6666-4666-8666-666666666666
 - started_at: 2026-07-05
 - mode: structured_delivery
@@ -1902,7 +1938,7 @@ ${internalRows}
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |
 
 ## Mode / Slice Decision
 
@@ -1915,14 +1951,14 @@ ${internalRows}
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| UR approval | AGDF_RUN.md | UR gate | direct |
+| UR approval | RUN_STATE.md | UR gate | direct |
 
 ## Closeout
 
 - next_allowed_action: Draft PRD.
 `, "utf8");
 
-    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
     if (gateCheckReport.status !== "open") {
       throw new Error(`Gate-check should be open when current gate is approved and next action exists, got ${gateCheckReport.status}.`);
@@ -1954,7 +1990,7 @@ ${internalRows}
     if (gateCheckReport.interaction_kind !== "gate_approval" || gateCheckReport.native_attempt_required !== false || gateCheckReport.status_card?.native_attempt_required !== false) {
       throw new Error("A report-only ready gate must remain a gate approval while failing closed before native invocation without host capability evidence.");
     }
-    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
+    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
     if (!statusCardOutput.includes("| Next gate after approval | SD |")
       || !statusCardOutput.includes("| Allowed after approval | Draft Solution Design; implementation remains forbidden. |")
       || statusCardOutput.includes("| User action required |")) {
@@ -1970,15 +2006,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-mode-slice-missing-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: 77777777-7777-4777-8777-777777777777
 - started_at: 2026-07-06
 - mode: structured_delivery
@@ -2014,20 +2054,20 @@ ${internalRows}
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Brownfield Review | AGDF_RUN.md | Mode selection | direct |
+| Brownfield Review | RUN_STATE.md | Mode selection | direct |
 
 ## Closeout
 
 - next_allowed_action: Decide process size.
 `, "utf8");
 
-    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
     if (gateCheckReport.status !== "open") {
       throw new Error(`Gate-check should open Mode/Slice Decision after Brownfield Review, got ${gateCheckReport.status}.`);
@@ -2044,7 +2084,7 @@ ${internalRows}
     if (gateCheckReport.status_card?.next_user_gate !== "none" || gateCheckReport.status_card?.user_action_required !== "no" || !gateCheckReport.status_card?.internal_next_step) {
       throw new Error("Internal-step status card should distinguish its next internal step from user approval.");
     }
-    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
+    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
     if (!statusCardOutput.includes("| Next gate after approval | none |") || !statusCardOutput.includes("| Allowed after approval | none |")) {
       throw new Error("Internal-step status card should deterministically render empty post-approval authority.");
     }
@@ -2055,15 +2095,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-or-handoff-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "or-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "or-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: or-run
+- lifecycle: active
+- revision: 1
 - revision_id: 88888888-8888-4888-8888-888888888888
 - started_at: 2026-07-10
 - mode: structured_delivery
@@ -2108,21 +2152,21 @@ ${internalRows}
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| UAT approval | AGDF_RUN.md | UAT | direct |
+| UAT approval | RUN_STATE.md | UAT | direct |
 
 ## Closeout
 
 - next_allowed_action: Produce delivery closeout.
 `, "utf8");
 
-    const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" }));
+    const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--json"], { encoding: "utf8" }));
     if (gateCheckReport.current_gate !== "OR" || gateCheckReport.missing_approval !== "none") {
       throw new Error("OR handoff should have no missing approval.");
     }
     if (gateCheckReport.next_gate_after_approval !== "none" || gateCheckReport.status_card?.allowed_after_approval !== "none") {
       throw new Error("OR handoff should not expose post-approval transition fields.");
     }
-    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8" });
+    const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--status-card"], { encoding: "utf8" });
     if (!statusCardOutput.includes("| Next gate after approval | none |") || !statusCardOutput.includes("| Allowed after approval | none |")) {
       throw new Error("OR handoff status card should deterministically render empty post-approval authority.");
     }
@@ -2133,15 +2177,19 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-mode-slice-incomplete-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: 99999999-9999-4999-8999-999999999999
 - started_at: 2026-07-06
 - mode: structured_delivery
@@ -2177,7 +2225,7 @@ ${internalRows}
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |
 
 ## Mode / Slice Decision
 
@@ -2190,14 +2238,14 @@ ${internalRows}
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| Brownfield Review | AGDF_RUN.md | Mode selection | direct |
+| Brownfield Review | RUN_STATE.md | Mode selection | direct |
 
 ## Closeout
 
 - next_allowed_action: Record Mode/Slice Decision with evidence.
 `, "utf8");
 
-    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
     if (gateCheckReport.status !== "open") {
       throw new Error(`Gate-check should remain open for incomplete Mode/Slice Decision, got ${gateCheckReport.status}.`);
@@ -2215,11 +2263,12 @@ ${internalRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-delivery-map-chain-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(backlogPath, `# AGDF Master Backlog
 
 ## Active Backlog
@@ -2232,7 +2281,10 @@ ${internalRows}
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
 - started_at: 2026-07-06
 - mode: structured_delivery
@@ -2270,15 +2322,15 @@ ${internalRows}
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |
 | PRD | derived_from | UR |  |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| UR approval | AGDF_RUN.md | UR gate | direct |
-| PRD approval | AGDF_RUN.md | PRD gate | direct |
+| UR approval | RUN_STATE.md | UR gate | direct |
+| PRD approval | RUN_STATE.md | PRD gate | direct |
 
 ## Missing Evidence
 
@@ -2305,7 +2357,7 @@ ${internalRows}
 - next_allowed_action: Fill Artefact Chain evidence.
 `, "utf8");
 
-    const deliveryMapOutput = execFileSync(process.execPath, [binPath, "delivery-map", "--dir", tempDir, "--json"], { encoding: "utf8" });
+    const deliveryMapOutput = execFileSync(process.execPath, [binPath, "delivery-map", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const deliveryMapReport = JSON.parse(deliveryMapOutput);
     if (deliveryMapReport.status !== "revise") {
       throw new Error(`Delivery-map should revise approved PRD without relationship evidence, got ${deliveryMapReport.status}.`);
@@ -2337,7 +2389,7 @@ ${internalRows}
 
     let gateCheckFailed = false;
     try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8", stdio: "pipe" });
     } catch (error) {
       gateCheckFailed = true;
       const gateCheckReport = JSON.parse(error.stdout.toString());
@@ -2519,15 +2571,19 @@ ${statusRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-missing-ur-artifact-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
 - started_at: 2026-07-05
 - mode: structured_delivery
@@ -2562,7 +2618,7 @@ ${statusRows}
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| UR approval | AGDF_RUN.md | UR gate | direct |
+| UR approval | RUN_STATE.md | UR gate | direct |
 
 ## Closeout
 
@@ -2571,7 +2627,7 @@ ${statusRows}
 
     let failed = false;
     try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8", stdio: "pipe" });
     } catch (error) {
       failed = true;
       const gateCheckReport = JSON.parse(error.stdout.toString());
@@ -2598,15 +2654,19 @@ ${statusRows}
 
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-missing-prd-artifact-"));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: cccccccc-cccc-4ccc-8ccc-cccccccccccc
 - started_at: 2026-07-05
 - mode: structured_delivery
@@ -2643,14 +2703,14 @@ ${statusRows}
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
-| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |
+| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |
 
 ## Evidence
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| UR approval | AGDF_RUN.md | UR gate | direct |
-| PRD approval | AGDF_RUN.md | PRD gate | direct |
+| UR approval | RUN_STATE.md | UR gate | direct |
+| PRD approval | RUN_STATE.md | PRD gate | direct |
 
 ## Closeout
 
@@ -2659,7 +2719,7 @@ ${statusRows}
 
     let failed = false;
     try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8", stdio: "pipe" });
     } catch (error) {
       failed = true;
       const gateCheckReport = JSON.parse(error.stdout.toString());
@@ -2700,7 +2760,7 @@ for (const missingCase of [
       "| SD |  | missing |  |",
     ],
     chain: [
-      "| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |",
+      "| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |",
       "| PRD | derived_from | UR | PRD links to approved UR. |",
     ],
     reason: "missing_durable_sd_artefact",
@@ -2721,7 +2781,7 @@ for (const missingCase of [
       "| TP |  | missing |  |",
     ],
     chain: [
-      "| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |",
+      "| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |",
       "| PRD | derived_from | UR | PRD links to approved UR. |",
       "| SD | derived_from | PRD | SD links to approved PRD. |",
     ],
@@ -2748,7 +2808,7 @@ for (const missingCase of [
       "| QA |  | missing |  |",
     ],
     chain: [
-      "| UR | approved_by | Approval: UR | Approval evidence in AGDF_RUN.md |",
+      "| UR | approved_by | Approval: UR | Approval evidence in RUN_STATE.md |",
       "| PRD | derived_from | UR | PRD links to approved UR. |",
       "| SD | derived_from | PRD | SD links to approved PRD. |",
       "| TP | derived_from | SD | TP links to approved SD. |",
@@ -2757,15 +2817,19 @@ for (const missingCase of [
   },
 ]) {
   const tempDir = mkdtempSync(join(tmpdir(), `create-agdf-gate-check-missing-${missingCase.gate.toLowerCase()}-artifact-`));
-  const runPath = join(tempDir, ".agdf", "control", "AGDF_RUN.md");
+  const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
 
   try {
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "test-run"], { stdio: "pipe" });
     writeFileSync(runPath, `# AGDF Run State
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: test-run
+- lifecycle: active
+- revision: 1
 - revision_id: dddddddd-dddd-4ddd-8ddd-dddddddddddd
 - started_at: 2026-07-05
 - mode: structured_delivery
@@ -2805,7 +2869,7 @@ ${missingCase.chain.join("\n")}
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
-| ${missingCase.gate} approval | AGDF_RUN.md | ${missingCase.gate} gate | direct |
+| ${missingCase.gate} approval | RUN_STATE.md | ${missingCase.gate} gate | direct |
 
 ## Closeout
 
@@ -2814,7 +2878,7 @@ ${missingCase.chain.join("\n")}
 
     let failed = false;
     try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8", stdio: "pipe" });
     } catch (error) {
       failed = true;
       const gateCheckReport = JSON.parse(error.stdout.toString());

@@ -25,10 +25,30 @@ Therefore plugin skill names are intentionally unprefixed:
 Do not duplicate the plugin namespace in Codex or Claude Code plugin skill names.
 That `agdf-` prefix is reserved for GitHub Copilot repository skills, where no plugin namespace exists.
 
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
+## Request Activation
+
+- `owner`: `request_activation_contract`
+- `path`: `plugin/meta/contracts/request-activation.md`
+- `policy_version`: `1`
+- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+
+Decide effect from loaded instructions before AGDF action/output.
+
+Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+
+Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+
+Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
+
+Then choose one catalog route. Non-authorizing; downstream checks remain.
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
+
 ## Task Target Resolution
 
-Before repository activation, Mode Selection or `gate-check`, resolve or revalidate the primary work
-target through `contracts/task-target-resolution.md`.
+Only after positive Request Activation, and only for a target-bound route, resolve or revalidate the
+primary work target through `contracts/task-target-resolution.md` before repository activation,
+Mode Selection or `gate-check`.
 
 An explicit file, artefact or repository named as the work target outranks the current working
 directory. A repository mentioned or inspected as evidence does not gain mutation or governance
@@ -41,9 +61,13 @@ file or an evidence source. A confirmed target may continue across related turns
 unambiguous revalidation; a new explicit target wins and ends the old binding.
 
 ## Mode Selection
+This section is downstream of positive Request Activation. A request that abstained or remained an
+ordinary read-only request never enters AGDF Mode Selection or Quick Task handling.
+
 Default entry rule: a new user intent to build, add, change, extend, refactor or otherwise deliver something starts with `gate-check` unless it is clearly only a question, explanation, local inspection, or explicitly scoped review.
 
-Use Quick Task Mode for questions, small reviews, local debugging and narrow fixes without new product semantics. Use Verified Change only after approved UR and Brownfield Review when the Runtime Contract's compact record can prove bounded ownership, clean-at-baseline paths, prohibited-impact absence and deterministic validation.
+Use Quick Task Mode only for a positively invoked AGDF operation that remains a small question,
+review, local debugging task or narrow fix without new product semantics. Use Verified Change only after approved UR and Brownfield Review when the Runtime Contract's compact record can prove bounded ownership, clean-at-baseline paths, prohibited-impact absence and deterministic validation.
 
 Use Structured Delivery Mode for new capabilities, architecture, policy, persistence, release-critical work, formal artefacts or explicit approvals.
 
@@ -68,6 +92,7 @@ Narrow defect work may use the Runtime Contract's Bug Lightweight Track only whe
 Structured Delivery Mode must respect gates, reviews and closeout discipline.
 
 ## Skill Routing
+<!-- AGDF-SKILL-ROUTING:START -->
 | Skill | Use For | Boundary |
 |---|---|---|
 | `delivery-path-search` | high-impact planning decisions with several plausible next delivery steps before implementation | read-only advisory search; never grants gate permission or replaces gate-check |
@@ -76,10 +101,11 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
-| `gate-check` | new build/change intent, unclear approval, Structured Delivery, later-gate artefact requested | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
+| `gate-check` | new build/change intent, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
 | `qa-gate` | sole final Quality Readiness decision | only instance for `pass | revise | block` |
 | `release-or` | auditable closeout for every relevant run | not a QA substitute |
 | `task-plan-review` | evidence dimension: verify whether the approved Task Plan was fulfilled | supports Quality Readiness; no final QA decision |
+<!-- AGDF-SKILL-ROUTING:END -->
 
 Select exactly one primary skill first.
 Add more only when they cover a distinct concrete risk dimension.
@@ -89,6 +115,7 @@ Never jump directly from `Approval: UR`, implicit consent, or a generic "start" 
 ## Runtime Contract
 For repeated output, gate, Quality Contract and Context Graph rules, use:
 
+- `contracts/request-activation.md` for pre-target request applicability, operation routing and silent abstention
 - `contracts/task-target-resolution.md` for primary target authority before repository activation
 - `contracts/gate-transition.md` for gate terms, Brownfield routing and transition rules
 - `contracts/interaction.md` for status cards, approval orientation and native interaction

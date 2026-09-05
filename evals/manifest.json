@@ -3,17 +3,21 @@
   "corpus_version": "1.9.0",
   "required_case_classes": ["normal", "boundary", "adversarial"],
   "source_fingerprints": {
-    "delivery-path-search": "30b8d2212fcbdf90cfb1c18dac2ada494c1800cb62cf00d605ff17e716f3ebc6",
-    "brownfield-analysis": "2bbe1aa366cec8f37cd8d42cdd0779d64142296938ee52df4fbc30ea5a2a24a9",
-    "ux-intent-definition": "6efea744ac7439a1680efb255c3ea9ca09e9fab38150bd52ec0e2ffa523d8776",
-    "clean-implementation-review": "b28946802c8aeb0c5d64d3d40798f9972961899f42db88eb02ed6ff6f70268c5",
-    "code-review": "1bd1d17a7ffc7261b1ff9587d22caff54f94e6bbad477bc8cc9acc70589d0e89",
-    "delivery-closeout": "e2afb10acb5004eef6f98cddfed93dbcd360b08062c075ae628db4b0ab9a37b8",
-    "gate-check": "d3b24ea4972121683c219bbe931b3e8c401c2e057746d8258c94ff193641a5b4",
-    "qa-gate": "da3ad73d245e52fa96af22976e1b0a9a8369ee570c077f58d3c8aa6114e485aa",
-    "release-or": "d6194f48a860eb7b165f3224119699428adf66118cb337fa00334b9bd1029c7e",
-    "task-plan-review": "88d202e231ca87042362449e7f351b5dafedbed0742ea51221dc146ca2cd3ee7"
+    "delivery-path-search": "a810229a0166271d6ec4adce31a4ed40776c4e97bb4aaaa62b5ad524b2e75b47",
+    "brownfield-analysis": "185496deb614587b2f5032190f4f9147006c0ce37eeb085503591c10b9b4b5e9",
+    "ux-intent-definition": "84afd5617bf8f45c6a44833d04954085668b3b81e01d54e33cf86923529d74cd",
+    "clean-implementation-review": "76cc7e8e9442ce97c9ebda13d5cffb5a177ef733aee11d65bcb13302db6beb89",
+    "code-review": "774fb5c58338fcd4045c419e7a8ae306f1a545f4b9075531108569fae425d6a5",
+    "delivery-closeout": "4a3421bd3066f54deafae2661687b7558858d5dd1dd657eef09fe5dfbc830bfb",
+    "gate-check": "7e0a35ce476ad4bb557829c2b6570dc5a8e4dd127ff04ad5abf76cc26fdc4de2",
+    "qa-gate": "b808d2552c043ffad87b055e15bd374d1579e4363b0576dae9a80e42586cd05f",
+    "release-or": "5d49054915c8986df4b19082998f9701abbd9b935edde43d2deb879147ea3018",
+    "task-plan-review": "aa7a092571883ea718286dc303a3b1eace4dad75c2d37787af2b206995761ba2"
   },
   "thresholds": { "coverage": 1, "routing": 1, "gate": 1, "actions": 1, "mutation": 1, "artefact_quality": 1 },
+  "request_activation": {
+    "manifest": "request-activation/manifest.json",
+    "schema": "request-activation/schema.json"
+  },
   "evidence_boundary": "deterministic replay is required in offline CI; live host recording is separate supporting evidence"
 }

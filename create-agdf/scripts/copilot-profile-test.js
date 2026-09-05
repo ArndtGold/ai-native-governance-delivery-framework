@@ -44,6 +44,20 @@ try {
   const first = validate(generatedRoot);
   const second = validate(generatedRoot);
   assert.equal(second.inventoryDigest, first.inventoryDigest, "unchanged Copilot payload inventory must be deterministic");
+  const hooks = JSON.parse(readFileSync(join(generatedRoot, "hooks", "copilot-hooks.json"), "utf8"));
+  assert.deepEqual(Object.keys(hooks.hooks), ["sessionStart"], "Copilot profile must expose only the existing sessionStart hook");
+  assert.equal(hooks.hooks.sessionStart.length, 1, "Copilot profile must expose one passive sessionStart command");
+  assert.equal(JSON.stringify(hooks).includes("tool.execute.before"), false, "Copilot profile must not add a prompt or pre-tool classifier hook");
+  const canonicalContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "request-activation.md"), "utf8");
+  const fingerprint = /- `guard_fingerprint`: `(sha256:[0-9a-f]{64})`/.exec(canonicalContract)?.[1];
+  assert.ok(fingerprint, "canonical Request Activation fingerprint must be available");
+  for (const slug of expectedSkills) {
+    const skillPath = join(generatedRoot, "copilot-skills", `${definition.copilot.skillPrefix}${slug}`, "SKILL.md");
+    const skill = readFileSync(skillPath, "utf8");
+    assert.equal((skill.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->/g) ?? []).length, 1, `${slug} must contain one Request Activation Guard`);
+    assert.equal((skill.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->/g) ?? []).length, 1, `${slug} must contain one complete Request Activation Guard`);
+    assert.ok(skill.includes(`- \`guard_fingerprint\`: \`${fingerprint}\``), `${slug} must carry the canonical Request Activation fingerprint`);
+  }
 
   fixture("unmapped", (root) => {
     writeFileSync(join(root, "unexpected.txt"), "not inventoried\n");

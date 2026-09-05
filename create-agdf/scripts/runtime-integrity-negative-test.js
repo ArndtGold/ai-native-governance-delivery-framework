@@ -11,9 +11,11 @@ const integrityScript = join(fixtureRoot, "plugin", "scripts", "check-runtime-in
 const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "VERIFIED_CHANGE.md");
 const brownfieldTemplatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md");
 const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
+const requestActivationContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "request-activation.md");
 const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
 const taskTargetContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "task-target-resolution.md");
 const modesContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "modes.md");
+const gateTransitionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "gate-transition.md");
 const qualityContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "quality.md");
 const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
 const brownfieldSkillPath = join(fixtureRoot, "plugin", "skills", "brownfield-analysis", "SKILL.md");
@@ -23,6 +25,7 @@ const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL
 const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
 const agentSkillsPolicyPath = join(fixtureRoot, "plugin", "meta", "agent-skills-conformance.json");
 const agentSkillsValidatorPath = join(fixtureRoot, "plugin", "scripts", "agent-skills-conformance.mjs");
+const instructionFootprintValidatorPath = join(fixtureRoot, "plugin", "scripts", "instruction-footprint.mjs");
 
 function copyPluginFixture() {
   const source = join(repoRoot, "plugin");
@@ -40,6 +43,12 @@ function makeFixture() {
   }
 }
 
+function materializeCreateAgdfFixture() {
+  const target = join(fixtureRoot, "create-agdf");
+  unlinkSync(target);
+  cpSync(join(repoRoot, "create-agdf"), target, { recursive: true });
+}
+
 function resetPluginFixture() {
   rmSync(join(fixtureRoot, "plugin"), { recursive: true, force: true });
   copyPluginFixture();
@@ -50,12 +59,29 @@ function expectIntegrityFailure(expected) {
     encoding: "utf8",
     env: { ...process.env, AGDF_RUNTIME_INTEGRITY_ROOT: fixtureRoot },
   });
-  assert.notEqual(result.status, 0, "runtime integrity must reject a broken Verified Change surface");
+  assert.notEqual(result.status, 0, "runtime integrity must reject the independently broken fixture");
   assert.match(`${result.stdout}\n${result.stderr}`, expected);
+}
+
+function expectIntegrityPass() {
+  const result = spawnSync(process.execPath, [integrityScript], {
+    encoding: "utf8",
+    env: { ...process.env, AGDF_RUNTIME_INTEGRITY_ROOT: fixtureRoot },
+  });
+  assert.equal(result.status, 0, `runtime integrity baseline must pass before negative mutations:\n${result.stdout}\n${result.stderr}`);
+}
+
+function replaceRequired(path, from, to) {
+  const current = readFileSync(path, "utf8");
+  const changed = current.replace(from, to);
+  assert.notEqual(changed, current, `fixture mutation source missing: ${from}`);
+  writeFileSync(path, changed, "utf8");
 }
 
 try {
   makeFixture();
+  expectIntegrityPass();
+
   mkdirSync(join(fixtureRoot, ".agents", "plugins"), { recursive: true });
   writeFileSync(join(fixtureRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
   expectIntegrityFailure(/source checkout must not expose a runtime-free Codex marketplace/);
@@ -76,6 +102,10 @@ try {
   resetPluginFixture();
   unlinkSync(agentSkillsValidatorPath);
   expectIntegrityFailure(/AGDF_AGENT_SKILLS_VALIDATOR_MISSING/);
+
+  resetPluginFixture();
+  unlinkSync(instructionFootprintValidatorPath);
+  expectIntegrityFailure(/AGDF_INSTRUCTION_FOOTPRINT_VALIDATOR_MISSING/);
 
   resetPluginFixture();
   unlinkSync(agentSkillsPolicyPath);
@@ -142,21 +172,6 @@ try {
   );
   expectIntegrityFailure(/runtime contract Native Interaction Contract missing: ## Native Interaction Contract/);
 
-  for (const boundary of [
-    "Resolve or revalidate the primary task target before selecting repository control state.",
-    "Derive repository activation only from the resolved governance target",
-    "Select exactly one run and evaluate its current gate.",
-    "Confirm that the required durable artefact is present and ready.",
-    "Consume the canonical `approval_presentation` verbatim",
-    "obtain deliberate input through the contract-selected native or exact-text path",
-    "Revalidate the same target, run, gate and revision immediately after the response and before persistence.",
-    "Persist only a currently valid exact approval through the existing control-state workflow.",
-  ]) {
-    resetPluginFixture();
-    writeFileSync(gateCheckPath, readFileSync(gateCheckPath, "utf8").replace(boundary, "boundary removed"), "utf8");
-    expectIntegrityFailure(/gate-check operational boundary missing:/);
-  }
-
   resetPluginFixture();
   writeFileSync(
     taskTargetContractPath,
@@ -164,6 +179,95 @@ try {
     "utf8",
   );
   expectIntegrityFailure(/shared direct skill target-preflight boundary missing: ## Direct Skill Invocation Preflight/);
+
+  resetPluginFixture();
+  replaceRequired(
+    taskTargetContractPath,
+    "After positive Request Activation, resolve the user's primary work target",
+    "Before positive Request Activation, resolve the user's primary work target",
+  );
+  expectIntegrityFailure(/task-target-resolution must remain downstream of positive Request Activation/);
+
+  resetPluginFixture();
+  replaceRequired(
+    modesContractPath,
+    "read-only handling and are not Quick Tasks.",
+    "read-only handling and are Quick Tasks.",
+  );
+  expectIntegrityFailure(/modes contract must keep ordinary read-only work outside Quick Task/);
+
+  resetPluginFixture();
+  replaceRequired(
+    interactionContractPath,
+    "renders no AGDF orientation,",
+    "renders an AGDF orientation,",
+  );
+  expectIntegrityFailure(/interaction contract must keep ordinary read-only handling silent and pre-target/);
+
+  resetPluginFixture();
+  replaceRequired(
+    interactionContractPath,
+    "`control_setup` is a non-gate envelope",
+    "`control_setup` is a gate envelope",
+  );
+  expectIntegrityFailure(/interaction contract must define non-authorizing control_setup before any gate approval presentation/);
+
+  resetPluginFixture();
+  replaceRequired(
+    gateTransitionContractPath,
+    "Obtain\n  explicit setup or link authority",
+    "Request\n  gate approval without setup authority",
+  );
+  expectIntegrityFailure(/gate-transition contract must require setup\/link authority and durable persistence before Approval: UR/);
+
+  resetPluginFixture();
+  const raisedBudget = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+  raisedBudget.instructionFootprint.budgets.activationKernel.maxNormalizedBytes += 1;
+  writeFileSync(pluginDefinitionPath, `${JSON.stringify(raisedBudget, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/AGDF_INSTRUCTION_FOOTPRINT_CONTRACT_UNAUTHORIZED/);
+
+  for (const [label, mutate, expected] of [
+    ["missing", (content) => content.replace(/<!--[ ]*AGDF-REQUEST-ACTIVATION-GUARD:START -->[\s\S]*?<!--[ ]*AGDF-REQUEST-ACTIVATION-GUARD:END -->/u, ""), /AGDF_INSTRUCTION_FOOTPRINT_CANONICAL_KERNEL_MISSING|canonical request activation guard/],
+    ["duplicate", (content) => `${content}\n${content.match(/<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->[\s\S]*?<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->/u)?.[0]}`, /canonical request activation guard must contain exactly one complete marker-bounded projection/],
+    ["partial", (content) => content.replace("<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->", ""), /canonical request activation guard must contain exactly one complete marker-bounded projection/],
+    ["reordered", (content) => content.replace("<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->", "<!-- AGDF-REQUEST-ACTIVATION-GUARD:TEMP -->").replace("<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->", "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->").replace("<!-- AGDF-REQUEST-ACTIVATION-GUARD:TEMP -->", "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->"), /canonical request activation guard projection markers are out of order/],
+    ["manual", (content) => content.replace("Decide effect from loaded instructions", "Decide the effect from loaded instructions"), /AGDF_INSTRUCTION_FOOTPRINT_KERNEL_COUNT|request activation guard fingerprint/],
+  ]) {
+    resetPluginFixture();
+    const current = readFileSync(requestActivationContractPath, "utf8");
+    const changed = mutate(current);
+    assert.notEqual(changed, current, `${label} marker fixture must make one mutation`);
+    writeFileSync(requestActivationContractPath, changed, "utf8");
+    expectIntegrityFailure(expected);
+  }
+
+  resetPluginFixture();
+  writeFileSync(
+    gateCheckPath,
+    readFileSync(gateCheckPath, "utf8").replace(
+      "## Executable Dispatch",
+      "## Request Activation\n\nUnowned duplicate guard residue.\n\n## Executable Dispatch",
+    ),
+    "utf8",
+  );
+  expectIntegrityFailure(/gate-check must contain exactly one Request Activation heading; found 2/);
+
+  resetPluginFixture();
+  const invalidSkillSlug = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+  invalidSkillSlug.skillSet[0].slug = "../outside";
+  writeFileSync(pluginDefinitionPath, `${JSON.stringify(invalidSkillSlug, null, 2)}\n`, "utf8");
+  expectIntegrityFailure(/canonical AGDF plugin definition contains invalid skill slug: \.\.\/outside/);
+
+  materializeCreateAgdfFixture();
+  resetPluginFixture();
+  replaceRequired(requestActivationContractPath, '"owner": "doctor"', '"owner": "comment-only-command"');
+  const fixtureCommandRegistryPath = join(fixtureRoot, "create-agdf", "lib", "cli", "command-registry.js");
+  writeFileSync(
+    fixtureCommandRegistryPath,
+    `${readFileSync(fixtureCommandRegistryPath, "utf8")}\n// command("comment-only-command", {})\nconst commandTemplate = \`\ncommand("comment-only-command", {})\n\`;\n`,
+    "utf8",
+  );
+  expectIntegrityFailure(/request activation operation control\.doctor references unknown commandRegistry owner comment-only-command/);
 
   resetPluginFixture();
   writeFileSync(
@@ -186,14 +290,6 @@ try {
     "utf8",
   );
   expectIntegrityFailure(/qa-gate evidence-discovery boundary missing:/);
-
-  resetPluginFixture();
-  writeFileSync(
-    gateCheckPath,
-    readFileSync(gateCheckPath, "utf8").replaceAll("`status_presentation.markdown` verbatim", "status presentation removed"),
-    "utf8",
-  );
-  expectIntegrityFailure(/gate-check must consume the deterministic operational status presentation/);
 
   resetPluginFixture();
   writeFileSync(

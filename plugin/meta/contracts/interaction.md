@@ -242,13 +242,14 @@ Every AGDF interaction belongs to exactly one semantic kind:
 - `clarification`: asks for missing intent or a choice that does not itself authorize a gated transition.
 - `tool_permission`: requests host-owned authority for a command, file change, network access, external path, app action or comparable technical side effect.
 - `gate_approval`: requests deliberate user input for the one current AGDF user gate after its durable artefact and selected run are ready.
+- `control_setup`: presents one resolved, non-ready canonical-control setup or link decision before automatic run creation, automatic UR persistence or any gate approval can occur.
 - `blocked`: explains a blocker and the one permissible recovery action without offering approval controls.
 - `status`: reports current state without asking for a decision.
 
 The semantic interaction envelope is:
 
 ```text
-interaction_kind: clarification | tool_permission | gate_approval | blocked | status
+interaction_kind: clarification | tool_permission | gate_approval | control_setup | blocked | status
 surface: codex | claude | opencode | fallback
 run_id: required for gate_approval
 current_gate: required for gate_approval
@@ -262,6 +263,40 @@ response_origin: deliberate_user_input for gate_approval
 ```
 
 This envelope is not a new persisted record. The selected canonical `RUN_STATE.md` and existing artefact chain remain the durable authority.
+
+`control_setup` is a non-gate envelope. It requires one resolved target, durable scope
+`.agdf/control`, the planned canonical-control effect, explicit excluded authority for automatic run
+creation, automatic UR persistence and gate approval, one authorize/link-or-cancel next action, and
+`authorizes: false`. It renders no approval value, native gate control or synthetic selected run.
+
+For `delivery.start`, the original positive delivery request already supplies the bounded delivery
+intent. The deliberate setup decision authorizes only creation or linking of the canonical control
+scaffold. After successful setup, the agent continues the same delivery intake by persisting the
+already reviewed canonical run and revision-stable UR without a second setup prompt. This continuation
+does not approve UR or any later gate. For the explicit standalone `lifecycle.control.init` operation,
+setup remains scaffold-only and creates neither a run nor UR. Gate readiness is always evaluated
+separately after canonical state and a revision-stable artefact exist.
+
+Every explicit lifecycle or status route exposes a normalized, non-authorizing operation envelope:
+
+```text
+operation_status:
+  operation_id: exact Request Activation catalog id
+  outcome: reported | created | unchanged | repaired | preview | succeeded | partial | failed
+  target_scope: global | repository
+  target: required for repository scope, otherwise null
+  planned_effect: one bounded operation effect
+  excluded_authority: non-empty list including gate_approval and every authority not granted
+  authorizes: false
+next_action:
+  kind: one normalized action kind
+  text: exactly one non-empty next action
+```
+
+For read-only status, `planned_effect` is `read_only_status` and `excluded_authority` includes
+`target_inference`, `run_creation`, `gate_approval` and `mutation`. The envelope reports what the
+selected owner observed; it never supplies request applicability, target authority, run selection or
+gate permission.
 
 Before presenting `gate_approval` for any user gate (`UR`, `PRD`, `SD`, `TP`,
 `QA`, or `UAT`), the agent must emit the compact localized Run Status Card and
@@ -329,14 +364,16 @@ Surface adapter rules:
 
 Native structured questions are for real decision points. Prefer repository inspection over clarification and do not show them for status reporting, discoverable facts, routine read-only work or repeated non-ready gate prompts.
 
-### Read-only request orientation
+### Post-activation read-only request orientation
 
-For a newly classified read-only request that does not require a run decision, render the localized
-`primary.readOnlyOrientationDescription` sentence exactly once before the findings. This is a visible
-orientation, not durable state: do not create a run, write control files, request gate approval or
-repeat the sentence later in the same request. Existing-run status inspection remains read-only and
-uses the existing status projection; this branch must not create a second status-card or narration
-owner.
+Silent Request Activation abstention for an ordinary read-only request renders no AGDF orientation,
+status or other AGDF-visible text. Only after positive activation may a downstream AGDF owner use the
+localized `primary.readOnlyOrientationDescription` sentence, and only when that owner classifies the
+selected operation as read-only, no run decision is required and no more specific operation or status
+presentation applies. Render it exactly once before the findings. This is a visible orientation, not
+durable state: do not create a run, write control files, request gate approval or repeat the sentence
+later in the same request. Existing-run status inspection remains read-only and uses the existing
+status projection; this branch must not create a second status-card or narration owner.
 
 ### Task Target Orientation
 
@@ -350,11 +387,12 @@ directory for a resolved result. For an unresolved result it shows the localized
 next action. It carries `authorizes: false`, never renders approval controls and never selects or
 derives a target.
 
-For a fresh request, render the target orientation before read-only orientation, Scope
-Classification or any gate presentation when it is required. An unresolved result suppresses every
-downstream orientation and gate surface. A resolved result with material target separation may be
-followed by the one applicable downstream surface. Avoid a redundant target block for an obvious
-unchanged target.
+After positive Request Activation selects a target-bound route, render the target orientation before
+post-activation read-only orientation, Scope Classification or any gate presentation when it is
+required. An unresolved result suppresses every downstream orientation and gate surface. A resolved
+result with material target separation may be followed by the one applicable downstream surface.
+Avoid a redundant target block for an obvious unchanged target. Silent abstention and targetless
+catalog routes do not render target orientation.
 
 If the input is incomplete or contradictory, the renderer returns `null`. The agent then fails closed
 to target clarification and must not model-reconstruct Markdown. `gate-check` must not maintain a
@@ -373,8 +411,9 @@ and the challenge path. It carries `authorizes: false` and never renders approva
 The card renders exactly once per valid fresh-scope Quick Task classification, before work proceeds.
 It must not appear for Verified Change, Structured Delivery, gated, ambiguous, unknown or selected-
 run states, internal steps of a selected run, or as a substitute for the two-card approval envelope.
-Read-only requests keep the single read-only orientation sentence above; the scope classification
-card and the read-only orientation are mutually exclusive for the same request.
+Eligible post-activation read-only operations keep the single read-only orientation sentence above;
+ordinary read-only requests remain outside AGDF. The scope classification card and the read-only
+orientation are mutually exclusive for the same request.
 
 Every dynamic scalar and escalation-trigger item is a non-empty, single-line plain-text string of at
 most 240 Unicode code points. Markdown control tokens and line-leading heading, blockquote, list or

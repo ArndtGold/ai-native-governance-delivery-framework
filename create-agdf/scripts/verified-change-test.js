@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 const root = mkdtempSync(join(tmpdir(), "agdf-verified-change-"));
 const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
 const repoRoot = join(import.meta.dirname, "..", "..");
+const runStatePath = ".agdf/control/runs/example/RUN_STATE.md";
 let baselineCommit = "0".repeat(40);
 
 function write(path, content) {
@@ -16,7 +17,7 @@ function write(path, content) {
 }
 
 function run(target = "gate-check") {
-  const result = spawnSync(process.execPath, [cli, target, "--dir", root, "--json"], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [cli, target, "--dir", root, "--run", "example", "--json"], { encoding: "utf8" });
   if (!result.stdout.trim()) throw new Error(`Verified Change CLI produced no JSON: ${result.stderr.trim()}`);
   return { result, report: JSON.parse(result.stdout) };
 }
@@ -26,10 +27,15 @@ function runState(recordStatus = "eligible", lifecycle = "active") {
 
 ## Run Meta
 
+- control_state_version: 2
 - run_id: example
+- revision: 2
 - revision_id: 6f0f2f9a-1d0a-4b7e-9c2d-3a5b8c1d2e4f
 - lifecycle: ${lifecycle}
+- mode: verified_change
 - current_gate: Verified Change Execution
+- decision: in_progress
+- owner: test
 
 ## Approvals
 
@@ -70,7 +76,7 @@ function runState(recordStatus = "eligible", lifecycle = "active") {
 `;
 }
 
-function record({ status = "eligible", relatedUr = ".agdf/control/artefacts/example/UR.md", escalationTarget = "structured_slice", owner = "README.md", sourcePaths = "README.md", derivedPaths = "none", prohibitedImpacts = "none", propagationCommand = "none", validationCommands = "node --check fixture", baselineTracked = ".agdf/control/AGDF_RUN.md, .agdf/control/artefacts/example/VERIFIED_CHANGE.md, unrelated-tracked.md", baselineUntracked = "unrelated-untracked.md", executionChangedPaths, executionScopeStatus, validationStatus = "pending", propagationStatus = "not_applicable", extra = "" } = {}) {
+function record({ status = "eligible", relatedUr = ".agdf/control/artefacts/example/UR.md", escalationTarget = "structured_slice", owner = "README.md", sourcePaths = "README.md", derivedPaths = "none", prohibitedImpacts = "none", propagationCommand = "none", validationCommands = "node --check fixture", baselineTracked = ".agdf/control/runs/example/RUN_STATE.md, .agdf/control/artefacts/example/VERIFIED_CHANGE.md, unrelated-tracked.md", baselineUntracked = "unrelated-untracked.md", executionChangedPaths, executionScopeStatus, validationStatus = "pending", propagationStatus = "not_applicable", extra = "" } = {}) {
   const changedPaths = executionChangedPaths ?? (status === "executed" ? "README.md" : "none");
   const scopeStatus = executionScopeStatus ?? (status === "executed" ? "pass" : "pending");
   return `# Verified Change: Fixture
@@ -123,6 +129,7 @@ try {
   execFileSync("git", ["config", "user.email", "test@example.com"], { cwd: root });
   execFileSync("git", ["config", "user.name", "Test"], { cwd: root });
   execFileSync(process.execPath, [cli, "init", "--dir", root]);
+  execFileSync(process.execPath, [cli, "run-create", "--dir", root, "--run", "example"]);
   write("README.md", "baseline\n");
   write("unrelated-tracked.md", "baseline\n");
   execFileSync("git", ["add", "."], { cwd: root });
@@ -132,7 +139,7 @@ try {
   write("unrelated-tracked.md", "pre-existing tracked work\n");
   write("unrelated-untracked.md", "pre-existing untracked work\n");
 
-  write(".agdf/control/AGDF_RUN.md", runState());
+  write(runStatePath, runState());
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record());
   let check = run();
   assert.equal(check.report.current_gate, "Verified Change Execution");
@@ -141,20 +148,20 @@ try {
   assert.equal(check.report.blocking_reason, "none");
   assert.ok(check.report.forbidden.includes("touch unlisted paths"));
 
-  write(".agdf/control/AGDF_RUN.md", runState().replace("| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md |", "| Verified Change | `.agdf/control/artefacts/example/VERIFIED_CHANGE.md` |"));
+  write(runStatePath, runState().replace("| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md |", "| Verified Change | `.agdf/control/artefacts/example/VERIFIED_CHANGE.md` |"));
   check = run();
   assert.equal(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_ARTEFACT_PATH_FORMAT_INVALID"), false);
-  write(".agdf/control/AGDF_RUN.md", runState().replace("| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md |", "| Verified Change | `.agdf/control/artefacts/example/VERIFIED_CHANGE.md |"));
+  write(runStatePath, runState().replace("| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md |", "| Verified Change | `.agdf/control/artefacts/example/VERIFIED_CHANGE.md |"));
   check = run();
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_ARTEFACT_PATH_FORMAT_INVALID"));
 
   for (const unsafePath of ["/tmp/VERIFIED_CHANGE.md", "../VERIFIED_CHANGE.md", ".agdf\\control\\VERIFIED_CHANGE.md"]) {
-    write(".agdf/control/AGDF_RUN.md", runState().replace(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", unsafePath));
+    write(runStatePath, runState().replace(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", unsafePath));
     check = run("doctor");
     assert.ok(check.report.findings.some((finding) => finding.code === "AGDF_ARTEFACT_PATH_INVALID"), `${unsafePath} must fail repository-relative path validation`);
   }
 
-  write(".agdf/control/AGDF_RUN.md", runState("draft"));
+  write(runStatePath, runState("draft"));
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "draft" }));
   check = run();
   assert.equal(check.report.current_gate, "Verified Change Execution");
@@ -163,7 +170,7 @@ try {
   assert.ok(check.report.forbidden.includes("implement candidate changes"));
   assert.match(check.report.next_allowed_action, /satisfy every eligibility check/);
 
-  write(".agdf/control/AGDF_RUN.md", runState());
+  write(runStatePath, runState());
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record());
 
   write(".agdf/control/artefacts/example/BROWNFIELD_REVIEW.md", "# Linked Brownfield Review\n");
@@ -246,21 +253,21 @@ try {
   const consolidatedState = runState("executed")
     .replace(".agdf/control/artefacts/example/BROWNFIELD_REVIEW.md", ".agdf/control/artefacts/example/VERIFIED_CHANGE.md")
     .replace("| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md | executed | bounded |", "| Verified Change | .agdf/control/artefacts/example/VERIFIED_CHANGE.md | executed | bounded |\n| OR | .agdf/control/artefacts/example/VERIFIED_CHANGE.md | done | compact closeout |");
-  write(".agdf/control/AGDF_RUN.md", consolidatedState);
+  write(runStatePath, consolidatedState);
   check = run("doctor");
   assert.equal(check.report.findings.some((finding) => finding.code?.includes("ROLE")), false);
 
-  write(".agdf/control/AGDF_RUN.md", consolidatedState);
+  write(runStatePath, consolidatedState);
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "eligible" }));
   check = run("doctor");
   assert.ok(check.report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_ROLE_STATUS_MISMATCH"));
   assert.ok(check.report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_OR_ROLE_INVALID"));
 
-  write(".agdf/control/AGDF_RUN.md", consolidatedState.replace("- decision: verified_change", "- decision: structured_slice"));
+  write(runStatePath, consolidatedState.replace("- decision: verified_change", "- decision: structured_slice"));
   check = run("doctor");
   assert.ok(check.report.findings.some((finding) => finding.code === "AGDF_ARTEFACT_ROLE_ALIAS_INVALID"));
 
-  write(".agdf/control/AGDF_RUN.md", runState("executed"));
+  write(runStatePath, runState("executed"));
 
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed" }));
   check = run();
@@ -285,20 +292,20 @@ try {
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_SCOPE_ESCAPE"));
   rmSync(join(root, "unlisted.md"));
 
-  write(".agdf/control/AGDF_RUN.md", runState("executed").replace("| Verified Change |", "| Notes | .agdf/control/artefacts/example/UNRECOGNIZED.md | done | ignored |\n| Verified Change |"));
+  write(runStatePath, runState("executed").replace("| Verified Change |", "| Notes | .agdf/control/artefacts/example/UNRECOGNIZED.md | done | ignored |\n| Verified Change |"));
   write(".agdf/control/artefacts/example/UNRECOGNIZED.md", "unrecognized role\n");
   check = run();
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_SCOPE_ESCAPE"));
   rmSync(join(root, ".agdf/control/artefacts/example/UNRECOGNIZED.md"));
 
-  write(".agdf/control/AGDF_RUN.md", runState("executed").replaceAll(".agdf/control/artefacts/example/UR.md", ".agdf/control/artefacts/other/UR.md"));
+  write(runStatePath, runState("executed").replaceAll(".agdf/control/artefacts/example/UR.md", ".agdf/control/artefacts/other/UR.md"));
   write(".agdf/control/artefacts/other/UR.md", "# Other run UR\n");
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", relatedUr: ".agdf/control/artefacts/other/UR.md", validationStatus: "pass", executionChangedPaths: "README.md, .agdf/control/artefacts/other/UR.md" }));
   check = run();
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_SCOPE_ESCAPE"));
   rmSync(join(root, ".agdf/control/artefacts/other/UR.md"));
 
-  write(".agdf/control/AGDF_RUN.md", runState("executed", "completed"));
+  write(runStatePath, runState("executed", "completed"));
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", validationStatus: "pass" }));
   write("later-unrelated.md", "future work\n");
   check = run("doctor");
@@ -310,7 +317,7 @@ try {
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", validationStatus: "pass", executionChangedPaths: "README.md, ../unsafe.md" }));
   check = run("doctor");
   assert.ok(check.report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_EXECUTION_SCOPE_INVALID"));
-  write(".agdf/control/AGDF_RUN.md", runState());
+  write(runStatePath, runState());
 
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ owner: "README.md, plugin/meta/agdf-runtime-contract.md" }));
   check = run();

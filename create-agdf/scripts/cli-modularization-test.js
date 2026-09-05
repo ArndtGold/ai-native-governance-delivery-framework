@@ -169,6 +169,18 @@ assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "code
 assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", confirm: true }));
 assert.doesNotThrow(() => validateCommandOptions({ target: "runtime-checks", surface: "claude" }));
 assert.throws(() => validateCommandOptions({ target: "runtime-checks", surface: "generic" }), /requires --surface/);
+for (const command of ["codex-repo", "opencode-repo"]) {
+  assert.throws(() => validateCommandOptions({ target: command, dirExplicit: false }), /requires an explicit --dir/);
+  assert.doesNotThrow(() => validateCommandOptions({ target: command, dirExplicit: true }));
+  assert.match(usage, new RegExp(`${command} --dir <path>`));
+
+  const target = mkdtempSync(join(tmpdir(), `agdf-${command}-missing-dir-`));
+  const before = readdirSync(target);
+  const recording = recordingIo();
+  assert.equal(await runCli([command], { parser: { cwd: target }, io: recording.io }), 1);
+  assert.deepEqual(readdirSync(target), before, `${command} without --dir must not mutate parser cwd`);
+  assert.match(recording.err[0], /requires an explicit --dir/);
+}
 
 const bin = readFileSync(join(packageRoot, "bin", "create-agdf.js"), "utf8");
 assert.match(bin, /from "\.\.\/lib\/cli\/application\.js"/);
@@ -290,7 +302,8 @@ function prepareMarketplace() {
   assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace }), 0);
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
   assert.equal(quiet.out[0], "AGDF installed for Codex");
-  assert.equal(quiet.out[1], `Version: ${pluginDefinition.version} (verified)`);
+  assert.equal(quiet.out[1], "Operation: lifecycle.plugin.install.codex (succeeded; global)");
+  assert.equal(quiet.out[2], `Version: ${pluginDefinition.version} (verified)`);
   assert.match(quiet.out.at(-1), /^Next: Fully restart Codex, then start a fresh session\./);
   assert.match(quiet.out.at(-1), /Restoring the previous session can retain stale AGDF skills/);
   assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
@@ -306,7 +319,11 @@ function prepareMarketplace() {
   const cancelled = installerRecording([]);
   assert.equal(await runCli(["claude", "--runtime-checks", "cancel", "--json"], { io: cancelled.io.io, exec: cancelled.exec, prepare: prepareMarketplace }), 0);
   assert.equal(cancelled.calls.length, 0, "cancel must stop before every host mutation");
-  assert.equal(JSON.parse(cancelled.io.out[0]).runtime_checks.effective, "cancelled");
+  const cancelledReport = JSON.parse(cancelled.io.out[0]);
+  assert.equal(cancelledReport.runtime_checks.effective, "cancelled");
+  assert.equal(cancelledReport.operation_status.operation_id, "lifecycle.plugin.install.claude");
+  assert.equal(cancelledReport.operation_status.outcome, "preview");
+  assert.equal(cancelledReport.operation_status.authorizes, false);
 }
 
 {

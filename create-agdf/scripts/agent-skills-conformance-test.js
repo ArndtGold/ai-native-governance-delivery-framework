@@ -22,7 +22,13 @@ const pluginDefinition = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-
 const policySource = join(pluginRoot, "meta", "agent-skills-conformance.json");
 const syncScript = join(packageRoot, "scripts", "sync-package-assets.js");
 
-function skill({ name = "demo", description = "Use this skill for a focused fixture.", resource = "../../meta/contracts/quality.md", extra = "" } = {}) {
+function skill({
+  name = "demo",
+  description = "Use this skill for a focused fixture.",
+  resource = "../../meta/contracts/quality.md",
+  resourceHeading = "Runtime Contract",
+  extra = "",
+} = {}) {
   return [
     "---",
     `name: ${name}`,
@@ -31,7 +37,7 @@ function skill({ name = "demo", description = "Use this skill for a focused fixt
     "",
     "# demo",
     "",
-    "## Runtime Contract",
+    `## ${resourceHeading}`,
     `- \`${resource}\``,
     "",
     "## Rules",
@@ -122,6 +128,32 @@ assert.equal(advisoryFinding.severity, "warning");
 assert.deepEqual(Object.keys(advisoryFinding), ["code", "classification", "severity", "skillPath", "resource", "message", "remediation"]);
 const localRuleResult = fixtureCase((root) => writeFileSync(join(root, "skills", "demo", "SKILL.md"), skill({ description: "Different discovery wording." })), "AGDF_SKILL_DESCRIPTION_PREFIX_INVALID");
 assert.equal(localRuleResult.findings.find(({ code }) => code === "AGDF_SKILL_DESCRIPTION_PREFIX_INVALID").classification, "agdf_policy");
+
+fixtureCase((root) => writeFileSync(
+  join(root, "skills", "demo", "SKILL.md"),
+  skill({ resourceHeading: "Declared `instruction_only` Fallback" }),
+), "AGDF_SKILL_RUNTIME_CONTRACT_RESOURCE_MISSING");
+
+const gateCheckFallbackRoot = createFixture();
+try {
+  const definitionPath = join(gateCheckFallbackRoot, "meta", "agdf-plugin.definition.json");
+  const definition = JSON.parse(readFileSync(definitionPath, "utf8"));
+  definition.skillSet[0].slug = "gate-check";
+  writeFileSync(definitionPath, `${JSON.stringify(definition, null, 2)}\n`);
+  renameSync(
+    join(gateCheckFallbackRoot, "skills", "demo"),
+    join(gateCheckFallbackRoot, "skills", "gate-check"),
+  );
+  writeFileSync(
+    join(gateCheckFallbackRoot, "skills", "gate-check", "SKILL.md"),
+    skill({ name: "gate-check", resourceHeading: "Declared `instruction_only` Fallback" }),
+  );
+  const result = validate(gateCheckFallbackRoot);
+  assert.equal(result.blocking, false, JSON.stringify(result.findings, null, 2));
+  assert.deepEqual(result.skills[0].resources, ["../../meta/contracts/quality.md"]);
+} finally {
+  rmSync(gateCheckFallbackRoot, { recursive: true, force: true });
+}
 
 for (const description of [`"Use this skill ${"x".repeat(1009)}"`, "'Use this skill for a single-quoted fixture.'"]) {
   const root = createFixture();

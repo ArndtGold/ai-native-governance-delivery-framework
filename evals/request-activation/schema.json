@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agdf.iself.eu/schemas/request-activation-eval-case-v1.json",
+  "title": "AGDF Request Activation evaluation case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "locale",
+    "case_family",
+    "user_text",
+    "prior_context",
+    "control_context",
+    "requested_effect",
+    "invocation_provenance",
+    "selection_origin",
+    "expected",
+    "covered_criteria"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "case_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$" },
+    "locale": { "enum": ["de", "en"] },
+    "case_family": {
+      "enum": [
+        "ordinary_assessment",
+        "agdf_as_topic",
+        "advice_vs_delivery",
+        "mixed_intent",
+        "quoted_or_current",
+        "negated_or_current",
+        "example_or_current",
+        "code_block_or_current",
+        "advisory_or_binding_artefact",
+        "ambiguous_effect",
+        "explicit_help",
+        "explicit_status",
+        "explicit_lifecycle",
+        "direct_skill",
+        "missing_control_delivery",
+        "active_run_continuation"
+      ]
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "side"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$" },
+        "side": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$" }
+      }
+    },
+    "composed_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instruction_skill"],
+      "properties": {
+        "instruction_skill": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+      }
+    },
+    "user_text": { "type": "string", "minLength": 1 },
+    "prior_context": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "text"],
+        "properties": {
+          "role": { "enum": ["user", "assistant"] },
+          "text": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "control_context": { "enum": ["not_applicable", "repositoryless", "no_control", "active_run"] },
+    "requested_effect": {
+      "enum": [
+        "read_only_assistance",
+        "governed_delivery",
+        "binding_delivery_artefact",
+        "named_agdf_operation",
+        "control_lifecycle",
+        "continuation_action",
+        "ambiguous"
+      ]
+    },
+    "invocation_provenance": { "enum": ["current_user_text", "trusted_ephemeral_user_action", "unavailable"] },
+    "selection_origin": { "enum": ["explicit_user_action", "automatic_discovery", "router_selection", "unavailable"] },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_class",
+        "decision",
+        "operation_id",
+        "selected_skill",
+        "visible_agdf",
+        "allowed_callbacks",
+        "forbidden_callbacks",
+        "callback_order",
+        "authorizes",
+        "persist"
+      ],
+      "properties": {
+        "request_class": {
+          "enum": [
+            "ordinary_read_only",
+            "delivery_intent",
+            "explicit_agdf_operation",
+            "explicit_control_lifecycle",
+            "active_run_continuation",
+            "ambiguous_effect"
+          ]
+        },
+        "decision": {
+          "enum": ["abstain", "clarify", "activate_named_operation", "activate_delivery_intake", "activate_continuation"]
+        },
+        "operation_id": { "type": ["string", "null"] },
+        "selected_skill": { "type": "string", "minLength": 1 },
+        "visible_agdf": { "enum": ["silent", "clarification_without_agdf", "normal_answer", "operation_result"] },
+        "allowed_callbacks": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "forbidden_callbacks": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "callback_order": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "authorizes": { "const": false },
+        "persist": { "const": false }
+      }
+    },
+    "covered_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^RAB-[0-9]{2}$" }
+    }
+  }
+}

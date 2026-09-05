@@ -4,7 +4,46 @@ import { pluginDefinition } from "../cli/runtime-context.js";
 import { printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult } from "../lifecycle/result.js";
 
-export function printNextSteps(target, destination, files, removedOpenCodeAgents = [], { verbose = false, json = false, io = console } = {}) {
+export function createCanonicalInitLifecycleResult(destination, initialization) {
+  if (!initialization || !["created", "unchanged", "repaired"].includes(initialization.status)) {
+    throw new Error("Canonical init presentation requires a created, unchanged or repaired result.");
+  }
+  const created = initialization.files
+    .filter((file) => file.action === "created")
+    .map((file) => Object.freeze({ kind: "create", path: file.path }));
+  const retained = initialization.files
+    .filter((file) => file.action === "preserved_exact")
+    .map((file) => file.path);
+  return createLifecycleResult({
+    operation: "control_init",
+    result: "success",
+    surface: "generic",
+    scope: "repository",
+    target: destination,
+    operationOutcome: initialization.status,
+    verification: {
+      status: "healthy",
+      evidence: [".agdf/control/runs", ...initialization.files.map((file) => file.path)],
+    },
+    installation: { status: "not_applicable" },
+    activation: { status: "not_applicable" },
+    delivery: { status: "not_evaluated" },
+    restart: { required: false, reason: "none" },
+    next_action: {
+      kind: "control_setup",
+      text: "Create or migrate one canonical run with an explicit run id before drafting durable delivery state.",
+    },
+    changes: created,
+    retained,
+  });
+}
+
+export function printNextSteps(target, destination, files, removedOpenCodeAgents = [], {
+  verbose = false,
+  json = false,
+  io = console,
+  initialization = null,
+} = {}) {
   const repositorySurface = { "codex-repo": "codex", "opencode-repo": "opencode" }[target];
   const verified = files.every((file) => {
     const path = join(destination, file.path);
@@ -19,6 +58,7 @@ export function printNextSteps(target, destination, files, removedOpenCodeAgents
       result: verified ? "success" : "partial",
       surface: repositorySurface,
       scope: "repository",
+      target: destination,
       version: { expected: pluginDefinition.version, status: "expected" },
       verification: { status: verified ? "healthy" : "degraded", evidence: files.map((file) => file.path) },
       installation: { status: verified ? "healthy" : "degraded" },
@@ -28,6 +68,15 @@ export function printNextSteps(target, destination, files, removedOpenCodeAgents
       next_action: { kind: "host_action", text: nextAction },
     }), { json, io });
     if (!verbose || json) return;
+  }
+
+  if (target === "init") {
+    const report = createCanonicalInitLifecycleResult(destination, initialization);
+    if (json) {
+      printLifecycleResult(report, { json: true, io });
+      return;
+    }
+    printLifecycleResult(report, { compact: true, io });
   }
 
   if (verbose) {
@@ -77,7 +126,7 @@ export function printNextSteps(target, destination, files, removedOpenCodeAgents
   if (target === "opencode-repo") {
     io.log("- Install the global OpenCode surface once with npx --yes @agdf/cli@latest opencode if it is not already installed.");
     io.log("- Start or restart OpenCode in this repository; valid .agdf/control/config.json activates the global AGDF runtime here.");
-    io.log("- Load agdf-global-gate-check through OpenCode's native skill tool for new build/change intent or unclear approval before later artefacts or implementation.");
+    io.log("- After positive Request Activation selects actual delivery work, load agdf-global-gate-check through OpenCode's native skill tool before later artefacts or implementation. Unclear approval alone never activates AGDF.");
     io.log("- Existing .opencode files are left untouched as a compatibility path; this command does not copy a second runtime surface.");
   }
   io.log("- Commit the generated files so the repository becomes the source of truth.");

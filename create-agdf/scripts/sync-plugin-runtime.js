@@ -2,11 +2,53 @@ import { createHash } from "node:crypto";
 import { chmodSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  REQUEST_ACTIVATION_MARKERS,
+  computeRequestActivationGuardFingerprint,
+} from "./sync-request-activation-projections.js";
 
 const scriptsRoot = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(scriptsRoot, "..");
 const repoRoot = resolve(packageRoot, "..");
 const sourcePluginRoot = join(repoRoot, "plugin");
+
+function countOccurrences(content, needle) {
+  return content.split(needle).length - 1;
+}
+
+function requestActivationKernel() {
+  const contractPath = join(sourcePluginRoot, "meta", "contracts", "request-activation.md");
+  const content = readFileSync(contractPath, "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+  const { guardStart, guardEnd } = REQUEST_ACTIVATION_MARKERS;
+  if (countOccurrences(content, guardStart) !== 1 || countOccurrences(content, guardEnd) !== 1) {
+    throw new Error("Request Activation Guard markers must occur exactly once before runtime sync.");
+  }
+  const start = content.indexOf(guardStart);
+  const end = content.indexOf(guardEnd, start);
+  if (end < start) throw new Error("Request Activation Guard markers are out of order before runtime sync.");
+  const guard = content.slice(start, end + guardEnd.length);
+  const readMetadata = (name, pattern) => {
+    const matches = [...guard.matchAll(pattern)];
+    if (matches.length !== 1) throw new Error(`Request Activation Guard ${name} must occur exactly once.`);
+    return matches[0][1];
+  };
+  const identity = {
+    owner: readMetadata("owner", /- `owner`: `([^`]+)`/g),
+    path: readMetadata("path", /- `path`: `([^`]+)`/g),
+    policy_version: Number(readMetadata("policy_version", /- `policy_version`: `(\d+)`/g)),
+    guard_fingerprint: readMetadata("guard_fingerprint", /- `guard_fingerprint`: `(sha256:[0-9a-f]{64})`/g),
+  };
+  if (identity.owner !== "request_activation_contract"
+      || identity.path !== "plugin/meta/contracts/request-activation.md"
+      || identity.policy_version !== 1) {
+    throw new Error("Request Activation Guard identity does not match the runtime binding contract.");
+  }
+  const computedFingerprint = computeRequestActivationGuardFingerprint(guard);
+  if (identity.guard_fingerprint !== computedFingerprint) {
+    throw new Error(`Request Activation Guard fingerprint mismatch: declared ${identity.guard_fingerprint}, computed ${computedFingerprint}.`);
+  }
+  return Object.freeze({ identity: Object.freeze(identity), kernel: guard });
+}
 
 function isInside(root, candidate) {
   const path = relative(root, candidate);
@@ -70,6 +112,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
   const bundledPackageRoot = join(outputRoot, "create-agdf");
   const packageManifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8"));
   const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+  const activationKernel = requestActivationKernel();
   if (packageManifest.version !== pluginDefinition.version) {
     throw new Error(`Refusing runtime sync with version skew: create-agdf ${packageManifest.version}, plugin ${pluginDefinition.version}`);
   }
@@ -136,8 +179,9 @@ if (process.argv.length !== 2) {
   console.error("AGDF automatic runtime check accepts no arguments.");
   process.exitCode = 2;
 } else {
-  const surface = process.env.AGDF_SURFACE
-    || (process.env.CLAUDE_PLUGIN_ROOT ? "claude" : process.env.COPILOT_PLUGIN_DATA ? "copilot" : process.env.PLUGIN_ROOT ? "codex" : "");
+  const requestedSurface = process.env.AGDF_SURFACE
+    || (process.env.CLAUDE_PLUGIN_ROOT ? "claude" : process.env.COPILOT_PLUGIN_DATA ? "copilot" : "codex");
+  const surface = ["codex", "claude", "copilot", "opencode"].includes(requestedSurface) ? requestedSurface : "codex";
   const dataRoot = process.env.AGDF_DATA_DIR
     || (process.platform === "darwin"
       ? join(homedir(), "Library", "Application Support", "agdf")
@@ -146,20 +190,29 @@ if (process.argv.length !== 2) {
         : join(process.env.XDG_DATA_HOME || join(homedir(), ".local", "share"), "agdf"));
   const pluginRoot = fileURLToPath(new URL("../", import.meta.url));
   const validator = fileURLToPath(new URL("./agdf-local.js", import.meta.url));
+  const routeSourceAfterActivation = existsSync(join(pluginRoot, "meta", "contracts", "request-activation.md"))
+    ? "../meta/contracts/request-activation.md"
+    : "../copilot-skills/contracts/request-activation.md";
   const manifest = JSON.parse(readFileSync(new URL("./runtime-manifest.json", import.meta.url), "utf8"));
   const dispatchBinding = {
     schema_version: "1",
     executable: process.execPath,
     argv_prefix: [validator, "skill-dispatch", "--json", "--surface", surface],
     expected_version: manifest.version,
-    activation_trigger: "invoked_skill_or_matching_delivery_intent",
-    ordinary_conversation: "ignore_agdf_context",
-    runtime_mention: "only_when_user_requests_agdf",
-    pre_dispatch_output: "none",
-    terminal_output: "host_action.text_verbatim_only",
+    request_activation: ${JSON.stringify({
+      owner: activationKernel.identity.owner,
+      policy_version: activationKernel.identity.policy_version,
+      guard_fingerprint: activationKernel.identity.guard_fingerprint,
+    })},
+    route_source_after_activation: {
+      relative_to: "validator_directory",
+      path: routeSourceAfterActivation,
+    },
     authorizes: false,
   };
-  const bindingContext = \`Silent internal AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}. Ignore this AGDF context completely for ordinary conversation or a language preference alone: do not mention AGDF, runtime availability, tasks, repositories, runs, evidence, approvals or skills. For an invoked AGDF skill, emit no pre-dispatch prose: invoke this binding first with --language matching the current conversation, --working-directory, and explicit target/run evidence only when available. Obey result.host_action exactly. When terminal is true, output host_action.text byte-for-byte and stop.\`;
+  const activationKernel = ${JSON.stringify(activationKernel.kernel)};
+  const bindingContext = \`AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}\`;
+  const baseContext = [activationKernel, bindingContext].join("\\n\\n");
   const emitContext = (additionalContext) => {
     if (surface === "copilot") console.log(JSON.stringify({ additionalContext }));
     else console.log(additionalContext);
@@ -187,7 +240,7 @@ if (process.argv.length !== 2) {
     } catch {}
   }
   if (!consentEnabled) {
-    emitContext([bindingContext, "Automatic repository checks remain disabled; the binding does not select a task target or grant approval."].join("\\n"));
+    emitContext(baseContext);
     process.exit(0);
   }
   let hookInput = {};
@@ -198,9 +251,9 @@ if (process.argv.length !== 2) {
   const hookCwd = typeof hookInput.cwd === "string" && isAbsolute(hookInput.cwd) ? hookInput.cwd : "";
   const hostContext = resolveRepositoryContext(hookCwd);
   const repositoryRoot = hostContext.context_state === "repository_bound" ? hostContext.repository_root : "";
-  let message = "AGDF automatic runtime check: skipped because SessionStart is not repository-bound. Resolve the task target before repository activation.";
-  let configHint = "";
-  let languagePolicy = "Language policy: follow the user language until a verified repository config is available.";
+  let check = { status: "skipped", findings: 0 };
+  let configState = "unavailable";
+  let languages;
   if (repositoryRoot) {
     const child = spawnSync(process.execPath, [validator, "doctor", "--all-active", "--json", "--dir", repositoryRoot], {
       cwd: repositoryRoot,
@@ -212,46 +265,49 @@ if (process.argv.length !== 2) {
     });
     try {
       const report = JSON.parse(child.stdout || "{}");
-      const status = report.status || "unknown";
-      const findings = report.summary?.findings ?? report.reports?.reduce((sum, item) => sum + (item.summary?.findings ?? 0), 0) ?? 0;
-      message = \`AGDF automatic runtime check: status=\${status} findings=\${findings}. This is read-only technical evidence and never grants an AGDF approval.\`;
+      const supportedStatuses = new Set(["pass", "warn", "block", "blocked", "error", "failed", "unknown", "unavailable"]);
+      const rawStatus = typeof report.status === "string" ? report.status : "unknown";
+      const rawFindings = report.summary?.findings ?? report.reports?.reduce((sum, item) => sum + (item.summary?.findings ?? 0), 0) ?? 0;
+      check = {
+        status: supportedStatuses.has(rawStatus) ? rawStatus : "unknown",
+        findings: Number.isSafeInteger(rawFindings) && rawFindings >= 0 ? Math.min(rawFindings, 999999) : 0,
+      };
     } catch {
-      message = "AGDF automatic runtime check: repository-bound validation was unavailable; run the surface-local doctor command manually.";
+      check = { status: "unavailable", findings: 0 };
     }
     const configPath = join(repositoryRoot, ".agdf", "control", "config.json");
-    configHint = "Project config: .agdf/control/config.json not found in the verified repository. Persist project language only when durable control is needed.";
+    configState = "missing";
     if (existsSync(configPath)) {
       try {
         const config = JSON.parse(readFileSync(configPath, "utf8"));
-        const artifactLanguage = config.artifact_language || "unset";
-        const chatLanguage = config.chat_language || "unset";
-        configHint = \`Project config: .agdf/control/config.json (artefacts=\${artifactLanguage}, chat=\${chatLanguage}, runtime=\${config.runtime_language || "en"}).\`;
-        languagePolicy = \`Language policy: write durable AGDF artefacts in \${artifactLanguage} and chat in \${chatLanguage}.\`;
+        const requiredLanguageFields = ["artifact_language", "chat_language", "runtime_language"];
+        if (!config || typeof config !== "object" || Array.isArray(config)
+            || !requiredLanguageFields.every((field) => typeof config[field] === "string" && config[field].trim())) {
+          throw new Error("invalid AGDF language config");
+        }
+        const compactLanguage = (value, fallback) => {
+          const candidate = typeof value === "string" ? value.trim() : "";
+          return /^[A-Za-z0-9-]{1,24}$/.test(candidate) ? candidate : fallback;
+        };
+        configState = "valid";
+        languages = {
+          artifact: compactLanguage(config.artifact_language, "unset"),
+          chat: compactLanguage(config.chat_language, "unset"),
+          runtime: compactLanguage(config.runtime_language, "en"),
+        };
       } catch {
-        configHint = "Project config: .agdf/control/config.json is invalid in the verified repository. Run the surface-local doctor command manually.";
+        configState = "invalid";
       }
     }
   }
-  const additionalContext = [
-    bindingContext,
-    "",
-    \`AGDF host context: \${hostContext.context_state}.\`,
-    \`Working directory: \${hostContext.working_directory} (execution context only; not task-target or governance authority).\`,
-    ...(repositoryRoot
-      ? [\`Verified repository root: \${repositoryRoot}. SessionStart does not select the task target or gate.\`]
-      : ["No repository was selected by SessionStart. Do not request a target until the user invokes an AGDF skill or expresses matching delivery intent."]),
-    message,
-    ...(configHint ? [configHint] : []),
-    languagePolicy,
-    "",
-    "Use the installed AGDF skills as workflow controls.",
-    "For a new build, change, extension, refactor, CLI, app, fix with product semantics, Structured Delivery request, unclear approval, or unclear next step, use gate-check before implementation or later-gate artefacts.",
-    "Do not print the full router or constitution unless the user asks for them.",
-    "Source of truth:",
-    \`- \${join(pluginRoot, "meta", "agdf-agent-router.md")}\`,
-    \`- \${join(pluginRoot, "meta", "agdf-constitution.md")}\`,
-    \`- \${join(pluginRoot, "meta", "agdf-runtime-contract.md")}\`,
-  ].join("\\n");
+  const facts = {
+    context_state: hostContext.context_state,
+    working_directory: hostContext.working_directory,
+    automatic_check: check,
+    config: configState,
+    ...(languages ? { languages } : {}),
+  };
+  const additionalContext = [baseContext, \`AGDF runtime facts: \${JSON.stringify(facts)}\`].join("\\n\\n");
   emitContext(additionalContext);
   process.exitCode = 0;
 }

@@ -7,7 +7,11 @@ import {
   planCopilotRepositoryDisable,
   verifyCopilotRepositoryDisabled,
 } from "../installers/copilot-settings.js";
-import { evaluateOpenCodeStatus, openCodeNpmInvocation } from "../installers/opencode.js";
+import {
+  evaluateOpenCodeGlobalStatus as inspectOpenCodeGlobalStatus,
+  openCodeNpmInvocation,
+  openCodePluginEntrypoint,
+} from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
 import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
 
@@ -82,16 +86,32 @@ export function verifyRepositoryDisabled(targetDir, surface = "codex", { shared 
     : { status: "failed", evidence: [`postcondition_failed:${path}:${selector}`] };
 }
 
-export function verifyGlobalUninstall(plan, targetDir, { configDir, exec, inspect = inspectPluginSurface, evaluateOpenCode = evaluateOpenCodeStatus } = {}) {
+export function verifyGlobalUninstall(plan, _targetDir, {
+  configDir,
+  exec,
+  inspect = inspectPluginSurface,
+  evaluateOpenCodeGlobalStatus = inspectOpenCodeGlobalStatus,
+} = {}) {
   if (plan.surface === "opencode") {
-    const report = evaluateOpenCode(targetDir, configDir);
+    const report = evaluateOpenCodeGlobalStatus(configDir);
     const remainingOwnedFiles = plan.mutations
       .filter((mutation) => mutation.kind === "remove")
       .map((mutation) => mutation.path)
       .filter((path) => existsSync(path));
-    return report.status === "not_configured" && remainingOwnedFiles.length === 0
-      ? { status: "healthy", evidence: [report.global_config.path, "marker_owned_global_files_removed"] }
-      : { status: "failed", evidence: [report.global_config.path, ...remainingOwnedFiles.map((path) => `still_present:${path}`)] };
+    const configClean = report.global_config?.plugin_configured === false
+      && report.global_config?.legacy_plugin_configured === false;
+    const packageRemoved = report.package?.loadable === false;
+    const statusClean = report.status === "not_configured";
+    const evidence = [
+      report.global_config?.path || join(configDir, "opencode.json"),
+      ...(configClean ? [] : ["postcondition_failed:agdf_plugin_entry_still_configured_or_uninspectable"]),
+      ...(packageRemoved ? [] : ["postcondition_failed:create-agdf_package_still_loadable_or_uninspectable"]),
+      ...(statusClean ? [] : [`postcondition_failed:observed_status:${report.status || "unknown"}`]),
+      ...remainingOwnedFiles.map((path) => `still_present:${path}`),
+    ];
+    return statusClean && configClean && packageRemoved && remainingOwnedFiles.length === 0
+      ? { status: "healthy", evidence: [...evidence, "marker_owned_global_files_removed"] }
+      : { status: "failed", evidence };
   }
   const report = inspect(plan.surface, exec);
   return report.status === "not_installed"
@@ -123,7 +143,7 @@ export function planGlobalUninstall(surface, { configDir } = {}) {
       throw new Error(`Refusing to modify OpenCode config with non-array plugin field: ${configPath}`);
     }
     const next = { ...config };
-    next.plugin = (config.plugin ?? []).filter((entry) => entry !== pluginDefinition.opencode.npmPackage);
+    next.plugin = (config.plugin ?? []).filter((entry) => !isOwnedOpenCodePluginEntry(entry));
     if (Array.isArray(config.instructions)) next.instructions = config.instructions.filter((entry) => entry !== "AGDF.md");
     const npm = openCodeNpmInvocation(["uninstall", "--silent", pluginDefinition.opencode.npmPackage]);
     const mutations = [
@@ -156,15 +176,31 @@ function openCodeOwnedGlobalFiles(configDir) {
     const end = lines.findIndex((line, index) => index > 0 && line === "---");
     return end >= 0 && lines[end + 1] === marker;
   };
+  const ownedValidatorPackage = (content) => {
+    try {
+      const manifest = JSON.parse(content);
+      return manifest?.agdf?.owner === "create-agdf"
+        && manifest?.agdf?.surface === "opencode-global-validator";
+    } catch {
+      return false;
+    }
+  };
   const files = [
     { path: join(configDir, pluginDefinition.opencode.instructionsFileName), owned: firstLine("<!-- AGDF-GLOBAL-INSTRUCTIONS -->") },
     { path: join(configDir, pluginDefinition.opencode.runtimeContractFileName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") },
+    { path: join(configDir, "agdf", "bin", "agdf-local.js"), owned: firstLine("// AGDF-GLOBAL-LOCAL-VALIDATOR") },
+    { path: join(configDir, "agdf", "package.json"), owned: ownedValidatorPackage },
     {
       path: join(configDir, "agents", `${pluginDefinition.opencode.evaluatorAgentName}.md`),
       owned: afterFrontmatter(`<!-- AGDF-GLOBAL-AGENT: ${pluginDefinition.opencode.evaluatorAgentName} -->`),
     },
   ];
-  for (const moduleName of ["gate-transition.md", "interaction.md", "modes.md", "quality.md", "context-graph.md", "control-scaffold.md", "closeout.md"]) {
+  for (const modulePath of pluginDefinition.runtimeContract.modules) {
+    const prefix = "meta/contracts/";
+    if (!modulePath.startsWith(prefix) || modulePath.slice(prefix.length).includes("/")) {
+      throw new Error(`Invalid definition-owned runtime contract module path: ${modulePath}`);
+    }
+    const moduleName = modulePath.slice(prefix.length);
     files.push({ path: join(configDir, "contracts", moduleName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") });
   }
   for (const skill of pluginDefinition.skillSet) {
@@ -173,6 +209,13 @@ function openCodeOwnedGlobalFiles(configDir) {
     files.push({ path: join(configDir, "skills", name, "SKILL.md"), owned: afterFrontmatter(marker) });
   }
   return files;
+}
+
+function isOwnedOpenCodePluginEntry(entry) {
+  return typeof entry === "string"
+    && (entry === openCodePluginEntrypoint
+      || entry === pluginDefinition.opencode.npmPackage
+      || entry.startsWith(`${pluginDefinition.opencode.npmPackage}@`));
 }
 
 function nativeUninstallPlan(surface, executable, args) {

@@ -83,7 +83,7 @@ export function validateLocaleRegistry(registry) {
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -433,6 +433,56 @@ export function renderOperationalStatusCard(statusCard, {
     run_id: runId,
     revision_id: revision,
     current_gate: currentGate,
+    presentation_language: locale,
+    markdown,
+    authorizes: false,
+  });
+}
+
+export function renderControlSetupOrientation({ target } = {}, {
+  registry,
+  requestedLocale,
+} = {}) {
+  const normalizedTarget = String(target ?? "").trim();
+  if (!normalizedTarget || /[\r\n\0]/u.test(normalizedTarget)) return null;
+  let locale;
+  try {
+    locale = resolvePresentationLocale(registry, requestedLocale);
+  } catch {
+    return null;
+  }
+  const labels = localePack(registry, locale)?.controlSetup;
+  if (!plainObject(labels)) return null;
+  const required = [
+    "title", "field", "value", "status", "target", "durableScope", "plannedEffect",
+    "excludedAuthority", "nextAction", "required", "scopeValue", "effectValue",
+    "excludedValue", "actionValue",
+  ];
+  if (required.some((key) => !String(labels[key] ?? "").trim())) return null;
+  const rows = [
+    [labels.status, labels.required],
+    [labels.target, normalizedTarget],
+    [labels.durableScope, labels.scopeValue],
+    [labels.plannedEffect, labels.effectValue],
+    [labels.excludedAuthority, labels.excludedValue],
+    [labels.nextAction, labels.actionValue],
+  ];
+  const markdown = [
+    `## ${labels.title}`,
+    "",
+    `| ${labels.field} | ${labels.value} |`,
+    "|---|---|",
+    ...rows.map(([label, value]) => `| ${markdownCell(label)} | ${markdownCell(value)} |`),
+  ].join("\n");
+  return Object.freeze({
+    schema_version: "1",
+    semantic_block: "control_setup",
+    status: "control_setup_required",
+    target: normalizedTarget,
+    durable_scope: ".agdf/control",
+    planned_effect: "create_canonical_control_scaffold",
+    excluded_authority: Object.freeze(["automatic_run_creation", "automatic_ur_persistence", "gate_approval"]),
+    next_action: "authorize_or_cancel",
     presentation_language: locale,
     markdown,
     authorizes: false,

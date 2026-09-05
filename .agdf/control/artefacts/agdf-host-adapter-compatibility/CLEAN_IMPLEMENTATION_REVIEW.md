@@ -1,7 +1,7 @@
 # Clean Implementation Review
 
 Run: agdf-host-adapter-compatibility
-Revision: 1
+Revision: 2
 Date: 2026-09-05
 
 - decision: pass
@@ -27,3 +27,9 @@ Cleanup belongs to a separately approved native compatibility change only after 
 version, OS and failure/recovery proof establishes a replacement. No unbounded retry or new general
 permission grant was introduced. Reporter failure guards protect evidence integrity and exact owned
 output; they do not create a weaker alternate successful result.
+
+CI follow-up: pass. The existing workflow now produces required assets before consuming them.
+This reuses the single release preparation and existing smoke-test owner. No runtime fallback,
+missing-file skip, automatic evidence refresh or additional build path was introduced. The clean
+clone and two order-reversal probes are recorded in `evidence/CI_CHECK_ORDER.json`; an actual
+GitHub-hosted rerun remains unobserved.

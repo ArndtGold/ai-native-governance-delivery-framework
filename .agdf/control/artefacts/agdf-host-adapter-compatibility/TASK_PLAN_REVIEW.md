@@ -1,7 +1,7 @@
 # Task Plan Review
 
 Run: agdf-host-adapter-compatibility
-Revision: 1
+Revision: 2
 Date: 2026-09-05
 
 ## TP Coverage
@@ -66,3 +66,13 @@ by the existing lifecycle/consent output and is covered by its preserved regress
 - context_graph_evidence: CONTEXT_GRAPH.md links this implementation evidence from the existing CLI
   owner; SOT_REGISTRY.md refines its native-owner path and labels the report as derived. Protected
   dispatch/interaction owners remain unchanged and linked from approved SD/TP.
+
+## CI follow-up coverage
+
+T10 and T11 were reopened by the missing generated-payload CI failure and are fully_done again for
+the corrected local implementation. Existing workflow preparation now precedes both consuming
+checks. T12 consumes the focused Code/Clean reviews, five passing clean-clone commands and two
+negative order probes in `evidence/CI_CHECK_ORDER.json`. T01–T09 retain their prior evidence because
+production code, payloads and recorded observations did not change. This is an implementation-gap
+correction within the approved integration and verification tasks, not a new product or permission
+scope. Overall coverage remains 12/12 with the remote GitHub-hosted rerun explicitly unobserved.

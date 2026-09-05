@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-host-adapter-compatibility
 - lifecycle: active
-- revision: 7
-- revision_id: c9fbfccc-523c-4824-8de0-131e62f15a48
+- revision: 8
+- revision_id: d139cedf-3a58-4a20-874a-e0380dd169a4
 - mode: structured_delivery
 - current_gate: QA
 - decision: pass
@@ -24,8 +24,8 @@ for the exact host environment and execution path.
 |---|---|
 | What is known? | The approved private host-adapter refactor and dated comparison are implemented. Final verification has 31 successful command groups, 56 shared scenarios and 64 evidence checks; all twelve TP tasks and acceptance criteria are covered. |
 | What is approved? | UR, PRD, SD and TP Revision 1 after exact approvals and same-run/gate/revision revalidation on 2026-09-05. |
-| What is missing? | Exact QA and UAT user approvals. Current native host/session evidence remains explicitly unverified within the approved comparison scope. |
-| What is the next allowed action? | Request exact Approval: QA for the ready QA Report Revision 1. |
+| What is missing? | Exact QA and UAT user approvals. Current native host/session evidence remains explicitly unverified within the approved comparison scope. The corrected GitHub-hosted Ubuntu run has not yet been observed. |
+| What is the next allowed action? | Request exact Approval: QA for the ready QA Report Revision 2. |
 | What is explicitly forbidden right now? | UAT acceptance and VCS/release/site delivery without the required subsequent approvals; unsupported native capability claims and unrelated scope changes. |
 
 ## Source And Scope State
@@ -49,7 +49,7 @@ for the exact host environment and execution path.
 | PRD | approved | Exact `Approval: PRD` accepted on 2026-09-05 after the version-matched validator confirmed run agdf-host-adapter-compatibility, gate PRD, durable PRD Revision 1 and revision identity 30df3462-9235-4495-a2e5-02a6eb858be9. |
 | SD | approved | Exact `Approval: SD` accepted on 2026-09-05 after the version-matched validator confirmed run agdf-host-adapter-compatibility, gate SD, durable SD Revision 1 and revision identity 7cf5934a-35d0-4d91-a43c-3f5e1bc03e97. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-09-05 after version-matched same-run/gate/revision revalidation of durable TP Revision 1 and revision identity d2803cf5-c221-4243-9ced-71a24f88dcad. |
-| QA | missing | QA Report Revision 1 has agent decision pass and is ready for exact user Approval: QA. |
+| QA | missing | QA Report Revision 2 has agent decision pass and is ready for exact user Approval: QA. |
 | UAT | missing | Not yet allowed. |
 
 ## Artefacts
@@ -66,7 +66,7 @@ for the exact host environment and execution path.
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-host-adapter-compatibility/BROWNFIELD_ANALYSIS.md` | done | Pre-implementation analysis passed for approved TP Revision 1; existing owners, isolated fixtures and runtime boundary confirmed. |
 | CD+Tests | `.agdf/control/artefacts/agdf-host-adapter-compatibility/CD_TESTS.md` | done | Final implementation and 31 successful command groups, including 56 common scenarios and 64 evidence checks, are recorded with preserved failures and native limits. |
 | CR | `.agdf/control/artefacts/agdf-host-adapter-compatibility/CODE_REVIEW.md` | done | Final diff review passes; four concrete findings resolved. Clean Review and TP Review also pass with 12/12 tasks fully done. |
-| QA | `.agdf/control/artefacts/agdf-host-adapter-compatibility/QA_REPORT.md` | ready | Revision 1: qa-gate decision pass for the approved deterministic/refactor slice; awaiting exact user approval. |
+| QA | `.agdf/control/artefacts/agdf-host-adapter-compatibility/QA_REPORT.md` | ready | Revision 2: qa-gate decision pass for the approved deterministic/refactor slice; awaiting exact user approval. |
 | OR | `.agdf/control/artefacts/agdf-host-adapter-compatibility/OR.md` | done | OR-full records delivered scope, native evidence gaps, missing QA/UAT approvals and next gate. |
 
 ## Mode/Slice Decision
@@ -121,6 +121,8 @@ for the exact host environment and execution path.
 | Final implementation verification | CD_TESTS.md; evidence/FINAL_VERIFICATION.json; docs/compatibility/evidence/snapshot.json | 31 passing final command groups, 56 actual common scenarios, 64 evidence checks and matching 105-file source/payload snapshot | deterministic repository/package and visible generated-output evidence only |
 | Final reviews and QA | CODE_REVIEW.md; CLEAN_IMPLEMENTATION_REVIEW.md; TASK_PLAN_REVIEW.md; QA_REPORT.md | Twelve tasks and HAC-01 through HAC-12 covered; all concrete review findings resolved; qa-gate pass | agent review and actual tests, no human UAT or current native support claim |
 
+| CI prerequisite correction | evidence/CI_CHECK_ORDER.json; CD_TESTS.md Revision 2; QA_REPORT.md Revision 2 | User-reported missing payload reproduced, existing build ordered before consumers, five clean-clone checks and two rejected order reversals | Local repository evidence with reused dependencies, not an observed GitHub-hosted run |
+
 ## Context Graph Impact
 
 - context_graph_impact: link_only
@@ -138,8 +140,8 @@ for the exact host environment and execution path.
 
 ## Closeout
 
-- next_allowed_action: Request exact Approval: QA for QA Report Revision 1, then follow the canonical UAT transition.
-- quality_outlook: The approved implementation and deterministic comparison pass QA with all twelve tasks and criteria covered. Native host/session support and human UAT remain separate, unverified evidence obligations.
+- next_allowed_action: Request exact Approval: QA for QA Report Revision 2, then follow the canonical UAT transition.
+- quality_outlook: The approved implementation, deterministic comparison and clean-checkout CI ordering correction pass qa-gate with all twelve tasks and criteria covered. Native host/session support and human UAT remain separate, unverified evidence obligations.
 
 ## Prior Run Pointers
 

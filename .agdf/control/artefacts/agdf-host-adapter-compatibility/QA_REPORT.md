@@ -1,7 +1,7 @@
 # QA Report
 
 Run: agdf-host-adapter-compatibility
-Revision: 1
+Revision: 2
 Date: 2026-09-05
 
 ## QA Gate
@@ -21,11 +21,19 @@ Date: 2026-09-05
 - impact_codes: HAC-01, HAC-02, HAC-03, HAC-04, HAC-05, HAC-06, HAC-07, HAC-08, HAC-09, HAC-10, HAC-11, HAC-12
 
 This is the qa-gate quality decision, not user Approval: QA, UAT acceptance or release authorization.
-All four normalized Code Review findings are resolved with concrete correction and executed evidence.
+All five normalized Code Review findings are resolved with concrete correction and executed evidence.
 No applicable open/invalid normalized finding, partial TP task or unfulfilled UX criterion remains.
 Baseline failures, corrections and rerun results are retained in evidence/VERIFICATION_HISTORY.json;
 redundant raw logs were removed at the user's request. Final success never erases failed observations
 or baseline limitations. Native capabilities stay unverified in the actual generated comparison.
+
+Revision 2 includes the CI prerequisite correction under HAC-CR-05. The reported clean-checkout
+failure was reproduced before repair. Release preparation, runtime integrity, both community-health
+commands and CLI smoke now pass in an initially ungenerated local clone; both reversed-order
+mutations are rejected. Code Review, Clean Review and TP Review pass on the actual correction.
+`evidence/CI_CHECK_ORDER.json` records the bounded evidence. QA decision remains pass for the
+repository correction. An actual GitHub-hosted Ubuntu rerun remains unobserved and is not claimed
+as passing. Human QA and UAT approvals remain missing.
 
 ## Context Graph and SoT
 

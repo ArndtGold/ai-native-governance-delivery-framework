@@ -1,7 +1,7 @@
 # Code Deliverables and Tests
 
 Run: agdf-host-adapter-compatibility
-Revision: 1
+Revision: 2
 Date: 2026-09-05
 
 Status: done
@@ -152,3 +152,20 @@ commit, push, release or site publication occurred. The unrelated untracked asse
 Context Graph/SoT links point to the existing owners and this run's reports; no new authority exists.
 
 Next required step: mandatory final review and QA evaluation of this exact evidence.
+
+## CI prerequisite correction
+
+The user-reported CI failure exposed an implementation gap in T10/T11: community health consumed
+generated host payloads before the workflow's existing release preparation. A clean local clone of
+commit `6cf9a9f` reproduced the exact missing Copilot payload error. It also exposed the source
+runtime-integrity probe's dependency on the generated full plugin. The original local verification
+had already-generated files and did not establish clean-checkout ordering.
+
+The existing `release:prepare` step now precedes both consumers. The existing CLI smoke test checks
+both dependencies as well as its previous delivery-map dependency. Release preparation, source
+runtime integrity, both community-health commands and the CLI smoke test all pass in the initially
+ungenerated clone. Moving either consumer back before preparation is rejected by the final test.
+Evidence: `evidence/CI_CHECK_ORDER.json` retains reproduction, five passing commands, two negative
+probes, exact implementation hashes and environment limits. Production payload sources and the
+accepted compatibility report remain unchanged. Root dependencies were reused locally; an actual
+GitHub-hosted Ubuntu rerun is still unobserved.

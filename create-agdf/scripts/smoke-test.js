@@ -206,7 +206,17 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const guardrailsWorkflowPath = fileURLToPath(new URL("../.github/workflows/agdf-guardrails.yml", packageRoot));
   const guardrailsWorkflow = readFileSync(guardrailsWorkflowPath, "utf8");
   const syncMarker = "run: npm --prefix create-agdf run release:prepare";
+  const runtimeIntegrityMarker = "run: node plugin/scripts/check-runtime-integrity.mjs";
+  const communityHealthMarker = "run: npm run test:community-health && npm run check:community-health";
   const deliveryMapMarker = "run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active";
+  if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(runtimeIntegrityMarker)
+    || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(runtimeIntegrityMarker)) {
+    throw new Error("AGDF guardrails must prepare and verify release assets before checking source runtime integrity.");
+  }
+  if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(communityHealthMarker)
+    || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(communityHealthMarker)) {
+    throw new Error("AGDF guardrails must prepare and verify release assets before checking community health compatibility evidence.");
+  }
   if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(deliveryMapMarker)
     || guardrailsWorkflow.indexOf(syncMarker) > guardrailsWorkflow.indexOf(deliveryMapMarker)) {
     throw new Error("AGDF guardrails must prepare and verify release assets before running delivery-map directly from source.");

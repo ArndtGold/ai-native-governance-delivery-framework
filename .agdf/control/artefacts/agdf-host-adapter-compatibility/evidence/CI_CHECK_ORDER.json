@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "run_id": "agdf-host-adapter-compatibility",
+  "date": "2026-09-05",
+  "finding_id": "HAC-CR-05",
+  "source_commit": "6cf9a9f2bed3d456c4b2e9ee2d5582b6e6c415d1",
+  "scope": "Repair the existing CI prerequisite order for T10/T11 without changing compatibility semantics.",
+  "environment": {
+    "os": "Darwin",
+    "node": "v22.22.3",
+    "checkout": "clean local clone with no generated payloads initially",
+    "dependencies": "existing local root dependencies copied into the isolated clone; registry installation was not repeated",
+    "remote_github_actions_executed": false
+  },
+  "original_failure": {
+    "command": "npm run test:community-health && npm run check:community-health",
+    "test_exit_code": 0,
+    "check_exit_code": 1,
+    "diagnostic": "source_missing:create-agdf/generated/plugins/copilot/agdf"
+  },
+  "additional_dependency": {
+    "command": "node plugin/scripts/check-runtime-integrity.mjs",
+    "exit_code": 1,
+    "diagnostic": "OpenCode npm plugin Request Activation integrity probe cannot read missing generated/plugins/agdf/meta/agdf-plugin.definition.json"
+  },
+  "fix": "Move the single existing release:prepare step ahead of source runtime integrity and community-health checks.",
+  "verified_commands": [
+    {
+      "command": "npm --prefix create-agdf run release:prepare",
+      "exit_code": 0,
+      "elapsed_seconds": 19.376,
+      "result_excerpt": "\nPublic plugin tests passed (46 inventoried candidate files; digest 6a913277203b062c27ea487e3a347e78c285c8310d75eea68c06446db116ed54)"
+    },
+    {
+      "command": "node plugin/scripts/check-runtime-integrity.mjs",
+      "exit_code": 0,
+      "elapsed_seconds": 1.928,
+      "result_excerpt": "[agdf-runtime-integrity] ok (mode=source; 10 skills and 16 control files checked)"
+    },
+    {
+      "command": "npm run test:community-health",
+      "exit_code": 0,
+      "elapsed_seconds": 3.843,
+      "result_excerpt": "\ncommunity-health-test: pass (reviewed baseline + 29 negative contracts)"
+    },
+    {
+      "command": "npm run check:community-health",
+      "exit_code": 0,
+      "elapsed_seconds": 1.471,
+      "result_excerpt": "\ncommunity-health: pass (39 required files, 4 issue forms)"
+    },
+    {
+      "command": "node create-agdf/scripts/smoke-test.js",
+      "exit_code": 0,
+      "elapsed_seconds": 84.596,
+      "result_excerpt": "create-agdf smoke test passed"
+    }
+  ],
+  "negative_checks": [
+    {
+      "case": "community-health",
+      "mutation": "move consuming check before release preparation",
+      "exit_code": 1,
+      "diagnostic": "Error: AGDF guardrails must prepare and verify release assets before checking community health compatibility evidence."
+    },
+    {
+      "case": "runtime-integrity",
+      "mutation": "move consuming check before release preparation",
+      "exit_code": 1,
+      "diagnostic": "Error: AGDF guardrails must prepare and verify release assets before checking source runtime integrity."
+    }
+  ],
+  "workflow_yaml_and_order": "pass; repository dependency install precedes exactly one release preparation, which precedes runtime integrity, community health and delivery-map",
+  "changed_implementation_files": {
+    ".github/workflows/agdf-guardrails.yml": "ff7c34f3a56acc0c08ac8b40d19c4e3f7b5b0c0c78a47431653ef06d0153ea67",
+    "create-agdf/scripts/smoke-test.js": "2602aca2cff129419c97e19098ab727971de0ff059220c205906803cad36bffc"
+  },
+  "compatibility_source_fingerprint": "aa8766489bfe22b032456d8be86c9bc8f9bfc1e03d28c5b67132733e570b084c",
+  "compatibility_evidence": "unchanged; the repaired workflow validates existing observations without re-recording them",
+  "limits": [
+    "Local clean-checkout validation is not an observed GitHub-hosted Ubuntu run.",
+    "Native host/session and human QA/UAT approvals remain separate."
+  ],
+  "final_worktree_command": {
+    "command": "npm run test:community-health && npm run check:community-health",
+    "exit_code": 0
+  },
+  "control_validation": {
+    "selected_run": "agdf-host-adapter-compatibility",
+    "current_gate": "QA",
+    "doctor_status": "pass",
+    "approval_pending": "Approval: QA",
+    "all_active_findings_unchanged": true,
+    "findings": {
+      "warn": 55,
+      "revise": 1,
+      "block": 0
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # Orchestration Report
 
 Run: agdf-host-adapter-compatibility
-Revision: 1
+Revision: 2
 Date: 2026-09-05
 
 ## OR
@@ -71,6 +71,16 @@ relationship was inferred and no other run was modified.
 ```
 
 Next permissible step: exact Approval: QA, then the canonical UAT step.
+
+## CI correction handoff
+
+The existing guardrails workflow now prepares release assets before source runtime integrity and
+community-health compatibility validation. Its prior order failed in an initially ungenerated
+clone. The corrected sequence and CLI smoke pass there, and two order reversals fail as expected.
+Focused Code/Clean/TP reviews and QA Report Revision 2 pass for this repository correction.
+Evidence: `evidence/CI_CHECK_ORDER.json`. No source or observation was refreshed to conceal drift.
+An actual GitHub-hosted Ubuntu rerun remains unobserved. No agent commit, push, installation or
+release occurred. QA/UAT user approvals remain separate and missing.
 
 ## Final control validation
 

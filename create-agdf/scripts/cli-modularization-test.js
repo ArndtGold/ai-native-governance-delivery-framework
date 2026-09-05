@@ -392,17 +392,45 @@ function prepareMarketplace() {
         prepare: prepareConsentMarketplace,
         interactive: true,
         askRuntimeCheckDecision() { prompts += 1; return selectedDecision; },
+        observeCodexHookTrust: async () => ({ status: "unavailable" }),
       }), 0);
       assert.equal(prompts, 1);
       assert.equal(selectedIo.out.includes(`Setting up AGDF ${pluginDefinition.version} for Codex...`), true);
       assert.equal(runtimeCheckStatus(dataRoot, "codex").requested, selectedDecision === "enable" ? "enabled" : "manual");
       if (selectedDecision === "enable") {
         assert.match(selectedIo.out.at(-1), /^Next: Fully restart Codex, then start a fresh session\./);
-        assert.match(selectedIo.out.at(-1), /Approve the AGDF session hook when the fresh Codex session asks/);
+        assert.match(selectedIo.out.at(-1), /Inspect the AGDF session hook in Codex \/hooks/);
       }
     }
 
     persistInstallConsent({ surface: "codex", decision: "enable", installed, dataRoot });
+    for (const [trustStatus, enabled, verification] of [
+      ["trusted", true, "hook_trusted_session_unverified"],
+      ["modified", true, "hook_review_required"],
+      ["trusted", false, "hook_disabled"],
+    ]) {
+      const observed = { status: "observed", hook: { trust_status: trustStatus, enabled } };
+      const installIo = recordingIo();
+      const installOutputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+      assert.equal(await runCli(["codex", "--runtime-checks", "enable"], {
+        io: installIo.io, env: { AGDF_DATA_DIR: dataRoot },
+        exec() { return installOutputs.shift(); }, prepare: prepareConsentMarketplace,
+        observeCodexHookTrust: async () => observed,
+      }), 0);
+      if (trustStatus === "trusted" && enabled) {
+        assert.ok(installIo.out.includes("Automatic checks: Hook trusted; fresh-session check pending"));
+        assert.match(installIo.out.at(-1), /already trusted/);
+        assert.doesNotMatch(installIo.out.at(-1), /Approve|review and trust/);
+      }
+      const statusIo = recordingIo();
+      assert.equal(await runCli(["runtime-checks", "status", "--surface", "codex", "--json"], {
+        io: statusIo.io, env: { AGDF_DATA_DIR: dataRoot }, observeCodexHookTrust: async () => observed,
+      }), 1);
+      const report = JSON.parse(statusIo.out[0]);
+      assert.equal(report.effective, "decision_required");
+      assert.equal(report.verification, verification);
+      assert.equal(report.operation_status.authorizes, false);
+    }
     const nonInteractive = recordingIo();
     const outputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
     assert.equal(await runCli(["codex", "--json"], {

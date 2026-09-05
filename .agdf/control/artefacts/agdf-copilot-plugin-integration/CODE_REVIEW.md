@@ -2,8 +2,8 @@
 
 Status: done
 Decision: pass
-Revision: 10
-Date: 2026-09-03
+Revision: 11
+Date: 2026-09-05
 
 ## Code Review
 
@@ -27,3 +27,16 @@ Date: 2026-09-03
 5. Made unresolved terminal before every later skill branch and added an adversarial prior-UR replay case.
 6. Split context-only unresolved invocation from selected-target invocation, passed chat locale and removed extra unresolved narration/examples.
 7. Bound a German user conversation to literal `--language de` and required the follow-up question to match the canonical presentation language.
+
+## 2026-09-05 Installer correction review
+
+- decision: pass for the reviewed installer correction
+- scope: actual diff in local-marketplace.js, plugin-installers.js, copilot-settings.js, CLI composition, the new marketplace-transport and skill-discovery modules, focused tests and installer documentation; pre-existing dispatcher and OpenCode changes are excluded
+- findings: no open defect in this correction; review found that native recovery can re-enable a previously disabled plugin, so AGDF settings are restored again after recovery and the regression test now covers disabled prior state
+- correctness: the normal preparation owner generates Git metadata in its existing atomic stage; content-derived refs invalidate same-version catalog entries; native discovery must find exactly one enabled plugin skill per expected name, one installation root and the exact normalized source digest
+- isolation: source registration is checked against the canonical owned root or a validated predecessor; foreign configured and native sources stop before host mutation; settings writes preserve unrelated entries; no native cache is edited directly
+- rollback: real Copilot 1.0.80 and 1.0.83-5 tests restore the prior managed package and settings after injected discovery failure; rollback errors remain visible rather than being reported as success
+- security: Git receives fixed argv, a clean stage, disabled hooks/signing and filtered inherited GIT variables; generated Git trees reject symlinks and byte mismatches; all package transport is local
+- compatibility: the common native skill-list command passes on both tested CLI versions; Git checkout with autocrlf enabled preserves plugin bytes; native Windows remains unobserved
+- missing_evidence: successful final normal installation and pending desktop rendering are recorded separately in HOST_EVIDENCE.md
+- required_next_step: consume final installer and host evidence in QA

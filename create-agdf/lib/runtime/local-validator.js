@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
+import { runtimeEnvironment } from "../skill-dispatch/binding.js";
 import {
   INSTALLATION_PROVENANCE_FILE,
   digestDirectory,
@@ -235,6 +236,7 @@ export function runLocalValidator(options, args, io = console) {
     cwd: options.cwd ?? process.cwd(),
     env: {
       ...process.env,
+      ...(resolved.executable === process.execPath ? runtimeEnvironment() : {}),
       AGDF_MACHINE_VALIDATION: resolved.envelope.machine_validation,
       AGDF_DISPATCH_WRAPPER_START_NS: wrapperStart,
       AGDF_DISPATCH_PLUGIN_ROOT: resolved.envelope.plugin_root ?? "",

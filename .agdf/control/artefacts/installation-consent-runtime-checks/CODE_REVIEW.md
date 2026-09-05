@@ -1,5 +1,34 @@
 # Code Review: Installation Consent for Automatic Runtime Checks
 
+## Codex Correction Review, 2026-09-05
+
+- decision: `pass` for the bounded correction diff
+- reviewed_scope: native metadata client, consent adapter, async CLI integration, lifecycle
+  presentation, directly related regression tests and documentation; compared against the
+  pre-correction worktree snapshot to preserve unrelated Copilot and dispatcher changes
+- evidence: inspected actual diff and surrounding state/installer owners; focused transport,
+  consent, CLI and lifecycle tests pass; implemented native observer tested on both local Codex
+  binaries
+- resolved_finding: `IRC-CODEX-01`; native review now takes precedence, and the CLI obtains native
+  metadata before giving hook-specific advice
+- correctness: one selected AGDF plugin SessionStart command; native hash/trust validation;
+  bounded output and time; initialization ordering; child/pipe error handling and cleanup;
+  no hook/task start; metadata never promotes automatic checks to enabled
+- state_ownership: manual, failed and renewal states are preserved; no trust-store writes,
+  capability-identity changes or cached permission persistence; general status retains its
+  existing target/delivery next action
+- missing_evidence: revised installed-host rendering and complete fresh-session lifecycle;
+  retained under `TPR-01`, not inferred from native metadata
+- risks: native API or host configuration divergence can make observation unavailable; the CLI
+  then directs native inspection and does not claim permission or successful execution
+- required_next_step: consume these findings in QA while retaining `TPR-01`
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| IRC-CODEX-01 | implementation_gap | CD+Tests | resolved | New native observer; review precedence, transport and rendered CLI regressions; `CODEX_HOOK_EVIDENCE.md` | Retain evidence and complete installed-host checks under TPR-01. |
+
+The review below is the historical implementation review from 2026-08-27.
+
 ## Code Review
 
 - decision: `pass`

@@ -43,6 +43,12 @@ export function resolveCommand(name) {
   return commandByName.get(name) ?? null;
 }
 
+// Binding guidance is a projection of the public grammar, not a second flag inventory.
+export function skillDispatchArgumentGrammar() {
+  return resolveCommand("skill-dispatch").usages.local[0]
+    .replace(" --json", "").replace(" --surface <surface>", "").trim();
+}
+
 export function supportedCommandNames() {
   return commandRegistry.map((entry) => entry.name);
 }

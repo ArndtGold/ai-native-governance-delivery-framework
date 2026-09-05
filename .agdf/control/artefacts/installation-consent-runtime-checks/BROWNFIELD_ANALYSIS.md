@@ -1,6 +1,47 @@
 # Brownfield Analysis: Installation Consent for Automatic Runtime Checks
 
-Revision: 2
+Revision: 3
+
+## Codex Hook Correction, 2026-09-05
+
+- mode: `pre_implementation_analysis`
+- decision: `pass` for the bounded correction below
+- approved scope: UR Revision 2, SD Revision 3 AD-2/AD-6, TP Revision 2 IRC-07/10/14/16
+- baseline: `4d38db394d05bf2afb5280dc3af92dfee042a2bb`; tracked and untracked
+  snapshot and both existing diffs captured before edits in
+  `/private/tmp/agdf-codex-hook-fix-baseline/`
+- existing changes: dispatcher and Copilot work already modify the CLI and tests; preserve every
+  pre-existing hunk. This correction owns only its native Codex observation, projection and tests.
+- coverage before correction: `partially_done`. `codexRuntimeCheckEvidence` can return enabled even when
+  `reviewRequired` is true. CLI install/status paths never obtain the native `hooks/list` result,
+  so their generic permission guidance cannot distinguish modified from already trusted hooks.
+- initial normalized finding: `IRC-CODEX-01 | implementation_gap | CD+Tests | open`
+- correction outcome: `resolved`; native observer and adapter/CLI regression evidence are recorded
+  in `CD_TESTS.md`, `CODE_REVIEW.md` and `CODEX_HOOK_EVIDENCE.md`.
+- reuse strategy: extend the existing runtime-check consent adapter and existing async CLI
+  handlers. One bounded stdio client reads only initialization metadata and `hooks/list`; it
+  creates no task, executes no hook, writes no trust and exposes no general RPC operation.
+- evidence: the original desktop probe returned enabled plus `trustStatus: modified`; the current
+  CLI 0.145.0 and desktop 0.153.4 both return trusted and the same hash. The installed plugin hash
+  is also identical across the previously observed local-digest root and current release root.
+- corrected hypothesis: the cache path change does not explain the stale trust record. Codex
+  normalizes plugin-root differences. Do not change the hook command or add a stable-path wrapper
+  to solve an unproven path problem. The older trusted definition remains unknown.
+- change boundary: `runtime-check-consent/`, existing CLI async handlers, lifecycle copy and
+  directly corresponding tests. Preserve the shared capability identity, receipt schema, plugin
+  hook definition, dispatcher binding and native trust authority.
+- effective-state boundary: trusted metadata proves permission, not execution. It must never
+  produce `enabled` or a fresh-session pass without the required runtime evidence. Manual mode
+  and content-bound renewal remain authoritative.
+- tests: modified/untrusted/disabled/trusted/ambiguous/unavailable native observations, bounded
+  transport failure, no mutating RPC, retained trust on an identity-equivalent update, explicit
+  review on a changed native definition and CLI human/JSON recovery parity.
+- context_graph_impact: `update_existing_node`, reusing `CG-NATIVE-INTERACTION-AUTHORITY`
+  and `CG-CREATE-AGDF-CLI-COMPOSITION`; reconcile before closeout.
+- required_next_step: implement IRC-CODEX-01, refresh the existing reviews and retain unrelated
+  host/OS evidence gaps. No new gate approval or scope expansion is needed for this correction.
+
+The sections below retain the previous implementation baseline and analysis for traceability.
 
 ## Decision
 

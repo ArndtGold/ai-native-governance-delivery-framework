@@ -58,6 +58,14 @@ PowerShell permission is forbidden. OpenCode keeps every explicit permission and
 Copilot uses the plugin's `sessionStart` hook and keeps hook review under Copilot control. AGDF records
 only the user's content-bound intent until a restarted session provides direct host evidence.
 
+For Codex, install completion and `runtime-checks status --surface codex` query native `hooks/list`
+metadata through the local Codex CLI. Only a modified or untrusted hook asks for native review in
+`/hooks`; a trusted, enabled hook reports that fresh-session verification is pending. Unsupported,
+missing or ambiguous metadata stays unverified and directs you to inspect `/hooks`. These probes
+start no task, execute no hook and never write a trust hash. Fully restart Codex after an update and
+open a fresh task; restoring an old task can retain the previous skill context. Hook trust does not
+prove execution, and CLI metadata does not prove which context an existing desktop task loaded.
+
 Native Windows uses a generated Windows hook command and PowerShell-specific permission projection.
 Repository fixtures do not prove Windows host behavior. Automatic-mode support is claimed only after
 direct native-Windows installation, permission, rollback, renewal and fresh-session evidence.

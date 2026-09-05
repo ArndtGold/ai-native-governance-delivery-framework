@@ -104,8 +104,8 @@ None of these conditions is present in the approved implementation path.
 
 - context_graph_impact: `link_only`
 - context_graph_refs: `CG-PUBLIC-PLUGIN-DISTRIBUTION`; `CG-CREATE-AGDF-CLI-COMPOSITION`; `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-RUN-STATUS-CARD`
-- context_graph_reconciliation: `pending_after_delivery`
-- context_graph_required_action: `link`
+- context_graph_reconciliation: `resolved`
+- context_graph_required_action: `none`
 - context_graph_gate_effect: `none`
 
 ## Required Next Step
@@ -113,3 +113,17 @@ None of these conditions is present in the approved implementation path.
 Proceed to CD+Tests for CPI4-T15 through CPI4-T18 through the identified owners. Start with the
 pure target resolver and its matrix, then wire the validator command, skill routing and SessionStart
 classification. Regenerate only after focused source tests pass.
+
+## 2026-09-05 Installer correction: native marketplace transport and skill discovery
+
+- mode: `pre_implementation_analysis`
+- decision: `pass`
+- scope: corrective work within approved CPI3-T06, T07, T09, T10 and T12. The user requires the normal installer to restore visible skills without a manual installation path.
+- evidence: Copilot 1.0.83-5 lists local directory-marketplace plugins but its global skill-discovery API returns no plugin skills, including a minimal plugin using the default `skills/` convention. A fresh SDK session in that exact runtime can load the same skills. The earlier 1.0.80 SDK result must not be attributed to 1.0.83-5. Native Git-marketplace installation exposes the same ten skills through both APIs.
+- existing coverage: `prepareCopilotMarketplace` already owns atomic staging, provenance, rollback and a separate canonical root. `installCopilotGlobalPlugin` only verifies plugin registration and version, so it can incorrectly report a usable installation when discovery is empty.
+- reuse strategy: extend the existing Copilot staging transaction with generated Git transport metadata and a content-derived branch. Register that same canonical root with Copilot's supported Git marketplace transport. No additional editable payload, direct plugin identity, persistent recovery snapshot or alternate skill source is introduced.
+- verification: consume the existing `copilot skill list --json` command, supported by both tested CLI versions. Verify all expected prefixed skills, enabled plugin origin, one installed root and matching package content before reporting healthy. Discovery evidence remains distinct from rendered desktop UAT.
+- migration: accept the proven AGDF-owned directory registration and keep foreign registrations protected. The temporary source created during this task is removed through a separately verified local restoration before exercising the corrected normal installer; arbitrary recovery directories do not become a product migration allowlist.
+- regression boundaries: unchanged `agdf@agdf`, commands, consent, opt-out selectors, source version, payload inventory, Codex/Claude roots and repository files. Git metadata stays outside `plugins/agdf`; checkout attributes preserve package bytes on Windows.
+- required tests: initial install; idempotent repeat; same-version changed payload; branch/source refresh; registration and filesystem rollback; foreign source refusal; missing/disabled/shadowed/stale skills; Git checkout byte identity; both tested Copilot runtimes; fresh SDK discovery and session inspection after the actual installer.
+- context_graph_impact: `link_only`, existing public-plugin-distribution and CLI-composition owners.

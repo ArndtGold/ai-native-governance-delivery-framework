@@ -2,8 +2,8 @@
 
 Status: done
 Decision: pass
-Revision: 10
-Date: 2026-09-03
+Revision: 11
+Date: 2026-09-05
 
 ## Clean Implementation Review
 
@@ -18,3 +18,15 @@ Date: 2026-09-03
 - required_next_step: route the fourth fresh-session observation through Code Review Revision 10 into QA
 
 No normalized implementation finding remains open.
+
+## 2026-09-05 Installer correction review
+
+- decision: pass for the installer architecture
+- primary_solution: one managed Copilot marketplace at marketplaces/agdf-copilot uses Copilot's native Git source contract, declarative registration and native plugin installation; Git metadata belongs to the existing atomic staging owner and stays outside the plugin payload
+- evidence: both actual CLI versions pass first install, repeat, same-version content update and rollback; current desktop SDK reports ten global and ten fresh-session skills
+- fallbacks_retained: existing pinned official CLI bootstrap only when the normal launcher is unavailable; it executes the same installation and verification path; exit condition is a functional normal CLI
+- workaround_or_shim_risk: the temporary recovery snapshot is not part of the product and is being replaced by the canonical registration; no direct-install fallback, host-cache patch, duplicate skill projection or recovery-path allowlist was added
+- parallel_structure_risk: none introduced; the existing generated profile, installation provenance, marketplace transaction and settings writer retain ownership
+- brownfield_fit: pass against the 2026-09-05 analysis; this corrects CPI3-T06/T07 discovery without changing plugin identity, approved governance behavior or other hosts
+- missing_evidence: visual desktop discovery after restart remains a host observation; fixing the host application's directory-source implementation itself is outside this repository
+- required_next_step: retain the desktop evidence boundary in QA

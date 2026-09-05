@@ -21,6 +21,7 @@ import {
   installCopilotGlobalPlugin,
   installCodexGlobalPlugin,
 } from "../installers/plugin-installers.js";
+import { defaultCopilotSettingsPath } from "../installers/copilot-settings.js";
 import {
   applyLifecyclePlan,
   planGlobalUninstall,
@@ -31,6 +32,8 @@ import {
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult, createOperationStatus, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
+import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
+import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
 import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { generatedFilesForTarget } from "../scaffold/plan.js";
 import { initializeCanonicalControl } from "../scaffold/canonical-init.js";
@@ -51,6 +54,7 @@ function createHandlers({
   copilotSettingsPath,
   askRuntimeCheckDecision,
   interactive,
+  observeCodexHookTrust = observeCodexHooks,
   evaluateStatus = evaluateStatusOverview,
   evaluateOpenCodeGlobal = evaluateOpenCodeGlobalStatus,
   evaluateOpenCodeRepository = evaluateOpenCodeStatus,
@@ -61,10 +65,15 @@ function createHandlers({
     ...(exec ? { exec } : {}),
     ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
     ...(prepare ? { prepare } : {}),
-    ...(copilotSettingsPath ? { copilotSettingsPath } : {}),
+    copilotSettingsPath: copilotSettingsPath ?? defaultCopilotSettingsPath({ env }),
     ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
   };
   const scaffoldHandler = (options) => runScaffold(options, io);
+  const observeRuntimeChecks = async (surface, state, cwd) => {
+    if (surface !== "codex" || state.requested !== "enabled" || state.effective !== "decision_required") return state;
+    const observation = await observeCodexHookTrust({ cwd, env });
+    return projectCodexHookObservation(state, observation);
+  };
   return new Map([
     ...createValidationHandlers(io),
     ["codex-repo", scaffoldHandler],
@@ -109,20 +118,23 @@ function createHandlers({
       printOpenCodeStatus(report, options.json, io);
       return report.installation_status === "healthy" ? 0 : 1;
     }],
-    ["status", (options) => {
-      const report = evaluateStatus({
+    ["status", async (options) => {
+      let report = evaluateStatus({
         ...options,
         targetDir: options.dirExplicit ? options.dir : null,
         configDir: env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir(),
         dataRoot: env.AGDF_DATA_DIR,
       }, { exec });
+      const runtimeChecks = await observeRuntimeChecks(report.installation.surface, report.runtime_checks, options.dir);
+      report = { ...report, runtime_checks: runtimeChecks };
       printGeneralStatus(report, { json: options.json, io });
       return report.installation.status === "healthy" ? 0 : 1;
     }],
-    ["runtime-checks", (options) => {
-      const runtimeState = options.runtimeChecksAction === "manual"
+    ["runtime-checks", async (options) => {
+      let runtimeState = options.runtimeChecksAction === "manual"
         ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface })
         : runtimeCheckStatus(env.AGDF_DATA_DIR, options.surface);
+      runtimeState = await observeRuntimeChecks(options.surface, runtimeState, options.dir);
       const nextActionText = options.runtimeChecksAction === "enable"
         ? `Rerun npx --yes @agdf/cli@latest ${options.surface} --runtime-checks ${options.runtimeChecksAction}; installation ownership and capability identity are revalidated before consent is persisted.`
         : runtimeState.next_action || (runtimeState.effective === "manual" || runtimeState.effective === "enabled"
@@ -160,6 +172,7 @@ function createHandlers({
         printInstallProgress("codex", options, io, interactive);
         const installed = installCodexGlobalPlugin(installerAdapters);
         const finalizedConsent = finalizeInstallConsent(consent, { surface: "codex", installed, dataRoot: installerAdapters.dataRoot });
+        finalizedConsent.state = await observeRuntimeChecks("codex", finalizedConsent.state, options.dir);
         printLifecycleResult(installResult(installed, {
           restartRequired: true,
           nextAction: installNextAction("codex", finalizedConsent.state, globalInstallRestartAction(options.target).text),
@@ -225,7 +238,7 @@ function createHandlers({
             activation: { status: "not_verified" },
             runtime_checks: finalizedConsent.state,
             restart: { required: false, reason: "none" },
-            next_action: { kind: "manual_install", text: `In GitHub Copilot, run /plugins install ${installed.pluginRoot}. Then run /restart and verify /plugins list and /skills list.` },
+            next_action: { kind: "manual_install", text: "Install the Copilot CLI, then rerun the AGDF Copilot installer. The prepared package is retained." },
             failure: { phase: "executable", message: "Copilot CLI was not available; no plugin installation was performed." },
           }), { json: options.json, compact: !options.verbose, io });
           return 1;
@@ -367,7 +380,7 @@ function installationEnvelopeForOpenCode(report, configDir) {
 
 function installNextAction(surface, runtimeChecks, fallback) {
   if (surface === "codex" && runtimeChecks.requested === "enabled" && runtimeChecks.effective === "decision_required") {
-    return `${fallback} Approve the AGDF session hook when the fresh Codex session asks.`;
+    return `${fallback} ${runtimeChecks.next_action}`;
   }
   if (surface === "copilot" && runtimeChecks.requested === "enabled" && runtimeChecks.effective === "decision_required") {
     return `${fallback} Review the AGDF session hook when the fresh Copilot session asks.`;
@@ -712,6 +725,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     copilotSettingsPath: adapters.copilotSettingsPath,
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
+    observeCodexHookTrust: adapters.observeCodexHookTrust,
     evaluateStatus: adapters.evaluateStatusOverview,
     evaluateOpenCodeGlobal: adapters.evaluateOpenCodeGlobalStatus,
     evaluateOpenCodeRepository: adapters.evaluateOpenCodeStatus,

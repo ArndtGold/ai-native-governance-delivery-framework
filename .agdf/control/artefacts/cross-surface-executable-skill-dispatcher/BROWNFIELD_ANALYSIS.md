@@ -1,12 +1,103 @@
 # Brownfield Analysis: Cross-surface Executable Skill Dispatcher
 
-- revision: 1
+- revision: 5
 - status: `done`
 - mode: `pre_implementation_analysis`
 - decision: `pass`
 - related_tp: `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP.md`
 
 ## Scope
+
+## Codex Host Feedback, 2026-09-05
+
+Current pre-implementation decision: `pass` for bounded corrections under approved TP-04/06/14/15/16.
+The native task `Run AGDF QA gate` (`01a07112-556e-7383-88dd-81ab23a8ebfe`) supplies direct evidence:
+the hook emitted binding schema 2 with `--surface claude` inside Codex; after explicit target input,
+the deterministic renderer rejected the ambiguous-run recovery with `next_step_unlocalized`.
+
+- `CSED-CODEX-09 | implementation_gap | CD+Tests | resolved`: the existing locale registry omits
+  `runSelectionRecovery("gate-check")`. Reuse that exact semantic owner and add reviewed locale
+  entries; do not loosen renderer validation, silently choose a run or invent an approval.
+- `CSED-CODEX-10 | implementation_gap | CD+Tests | resolved`: generated host detection treats
+  `CLAUDE_PLUGIN_ROOT` as exclusive Claude evidence, although Codex supplies that compatibility
+  alias alongside its native `PLUGIN_ROOT`. Preserve explicit AGDF_SURFACE and Copilot's specific
+  signal; prefer native PLUGIN_ROOT over the compatibility alias.
+- Correction evidence: code, locale and native-environment tests pass; see CD_TESTS Revision 10
+  and CODE_REVIEW Revision 10. Corrected installed-host evidence is still missing.
+- Regression gaps: prior fixtures force AGDF_SURFACE and initialize ambiguous-run control in
+  English. Add real host-shaped environment fixtures and German control plus German dispatch.
+- Boundaries: native metadata and gate semantics, target policy, hooks manifest and permissions
+  remain unchanged; no cache mutation, install, trust write or gate approval is included.
+- Baseline: HEAD `4d38db394d05bf2afb5280dc3af92dfee042a2bb` plus the existing dirty worktree;
+  preserve previous hook-status, Copilot and dispatcher changes. Snapshot:
+  `/private/tmp/agdf-codex-followup-baseline/`.
+- Context Graph: update existing interaction and dispatcher authority nodes after verification.
+
+## Current Revision 4 Pre-implementation Decision
+
+Approved TP2 is revalidated against baseline `4d38db394d05bf2afb5280dc3af92dfee042a2bb`.
+Only this run's prior seven control/design files and the unrelated image were dirty. No runtime
+code or installed profile was changed before this analysis. TP-11 through TP-16 are the correction
+scope; prior task results remain regression inputs, not new implementation evidence.
+
+- Coverage: dispatcher/target/gate authority fully exists; launch environment, common binding
+  validation and exact argument guidance are partially implemented or absent.
+- Reuse: extend the canonical CLI registry for derived argument metadata, add one bounded
+  skill-dispatch transport module, reuse its launch preparation in local-validator, and consume
+  it from the generated session runtime and existing OpenCode transform. Existing generators and
+  footprint/profile/composed-input validators are affected consumers, not separate owners.
+- Risk: tests currently assert binding v1 literals and exact keys; update them to validate v2
+  semantically without weakening activation, consent, footprint or CLI-v1 assertions. Windows
+  shell and Electron runtime require separate runtime/host evidence.
+- No SoT, target, gate, rendering or policy change is required. No native tool, hook, daemon,
+  PATH search or permission expansion is needed. Existing template and generated files remain
+  generated, not primary edit targets.
+- Context Graph: approved transport boundary is already curated; implementation evidence must
+  later reconcile with that node. The old planning-only state is not proof of working hosts.
+- Decision: pass for scoped CD+Tests. Implement TP-11 through TP-15 and complete TP-16 reviews;
+  host lifecycle changes remain separately authorized. Stop on any SD2/TP2 boundary violation.
+
+## Historical Revision 2 Scope
+
+Revision 2 revalidates the existing implementation against the 2026-09-05 OpenCode QA invocation
+and the user's request to correct dispatch across Codex, OpenCode, Claude Code and Copilot. The
+Revision 1 implementation analysis below remains historical. Its permission to implement does not
+cover the proposed binding-schema change until SD2 and the subsequent TP revision are approved.
+
+## Revision 2 Findings And Routing
+
+Revision 3 records the accepted SD2 decision and TP2 mapping only. It does not represent a new
+pre-implementation pass. Refresh this analysis against the approved TP2 and current source before
+implementation begins.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-BA-08 | design_gap | SD | resolved | SD Revision 2 approved by exact Approval: SD against run revision 18; TP2 tasks TP-11 through TP-16 map the decision | Preserve the approved SD2 transport boundary; any new design deviation routes back to SD. |
+
+The actual installed OpenCode binding names an Electron Helper through `process.execPath`, without
+the environment required for standalone script execution. The generated session-runtime owner for
+Codex, Claude Code and Copilot independently emits the same incomplete tuple shape. Only OpenCode's
+failure is host-observed; shared source structure does not prove the others fail at runtime.
+
+The final observed call supplied `--working-directory` but omitted both target fields. The unchanged
+resolver correctly returned `target_unresolved`; no QA decision ran. Do not convert that observation
+into permission to infer targets from cwd. Complete argument guidance and carry established target
+evidence, retaining clarification for genuinely absent or ambiguous evidence.
+
+Reuse the existing dispatcher contract, CLI grammar, local-validator process chain, session-runtime
+generator and OpenCode transform. Add only a common transport helper. Existing target policy,
+activation kernel, gate/QA owners, permissions, renderers and public skills-only profile remain
+unchanged. No additional hook or native tool is needed.
+
+The binding-version/environment/compatibility decision is absent from SD1, so this is not solely an
+implementation gap under TP1. UR and PRD remain sufficient; route to SD rather than start a new run.
+Context Graph impact is `update_existing_node` for `CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY`, pending SD
+approval. Keep host installation, restart, native Windows and live-host evidence separately bounded.
+
+Current required next step: obtain the decision on ready TP Revision 2. After approval, refresh
+pre-implementation analysis against that revision and the current baseline before code changes.
+
+## Historical Revision 1 Analysis
 
 Verify the approved TP implementation path against the current runtime, CLI, skill, generator,
 package, host-adapter and test owners before CD+Tests.

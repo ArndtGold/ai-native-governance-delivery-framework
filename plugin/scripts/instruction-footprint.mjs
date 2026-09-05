@@ -364,8 +364,8 @@ function validateBindingJson(content, canonicalKernel, expectedVersion, surfaceI
     : null;
   const kernelIdentity = requestActivationKernelIdentity(canonicalKernel);
   const expectedBindingKeys = surfaceId === "sessionStartBase"
-    ? "argv_prefix,authorizes,executable,expected_version,request_activation,route_source_after_activation,schema_version"
-    : "argv_prefix,authorizes,executable,expected_version,request_activation,schema_version";
+    ? "arguments,argv_prefix,authorizes,environment,executable,expected_version,request_activation,route_source_after_activation,schema_version"
+    : "arguments,argv_prefix,authorizes,environment,executable,expected_version,request_activation,schema_version";
   const exactKeys = binding && typeof binding === "object" && !Array.isArray(binding)
     ? Object.keys(binding).sort().join(",") === expectedBindingKeys
     : false;
@@ -392,7 +392,10 @@ function validateBindingJson(content, canonicalKernel, expectedVersion, surfaceI
     && exactKeys
     && activationKeys
     && routeSourceValid
-    && binding.schema_version === "1"
+    && binding.schema_version === "2"
+    && typeof binding.arguments === "string" && binding.arguments.length > 0 && binding.arguments.length <= 240
+    && binding.environment && typeof binding.environment === "object" && !Array.isArray(binding.environment)
+    && Object.keys(binding.environment).every((key) => key === "ELECTRON_RUN_AS_NODE" && binding.environment[key] === "1")
     && isAbsoluteInstructionPath(binding.executable)
     && Array.isArray(binding.argv_prefix)
     && binding.argv_prefix.length === 5

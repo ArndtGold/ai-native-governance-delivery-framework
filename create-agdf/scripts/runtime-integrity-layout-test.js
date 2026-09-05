@@ -149,7 +149,10 @@ try {
     env: { ...process.env, AGDF_DATA_DIR: join(fixtureRoot, "no-consent"), AGDF_SURFACE: "codex" },
   });
   assert.equal(missingRuntimeHook.status, 0, missingRuntimeHook.stderr);
-  assertSessionBase(missingRuntimeHook.stdout, installedPluginRoot, "codex");
+  assert.equal(missingRuntimeHook.stdout.includes(DISPATCHER_BINDING_PREFIX), false, "missing entrypoint must not advertise an executable binding");
+  assert.match(missingRuntimeHook.stdout, /"outcome":"dispatcher_unavailable"/);
+  assert.match(missingRuntimeHook.stdout, /"authorizes":false/);
+  assert.equal(missingRuntimeHook.stdout.split(REQUEST_ACTIVATION_MARKERS.start).length - 1, 1, "unavailability does not remove the passive activation boundary");
   renameSync(missingRuntimeEntrypoint, runtimeEntrypoint);
 
   const sourceHook = spawnSync("bash", [join(sourcePluginRoot, "hooks", "session-start.sh")], {

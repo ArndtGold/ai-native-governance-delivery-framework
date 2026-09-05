@@ -12,6 +12,7 @@ import { dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from 
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { renameSyncWithRetry } from "../fs-swap.js";
+import { buildCopilotMarketplaceTransport, copilotMarketplaceSpec, COPILOT_TRANSPORT_REVISION, verifyCopilotMarketplaceTransport } from "./copilot-marketplace-transport.js";
 import { classifyHistoricalDistributionProfile } from "../runtime/distribution-profile-history.js";
 import {
   INSTALLATION_PROVENANCE_FILE,
@@ -442,6 +443,7 @@ function prepareLocalMarketplaceFromSource({
   profileId = "runtime-plugin",
   knownSourceDigest = "",
   sourceStaged = () => {},
+  transportAdapters = {},
 } = {}) {
   dataRoot = resolve(dataRoot);
   const copilotProfile = profileId === "copilot-runtime-plugin";
@@ -552,13 +554,18 @@ function prepareLocalMarketplaceFromSource({
       plugin_digest: pluginDigest,
       source_package_version: readJson(join(packageRoot, "package.json"), "create-agdf package manifest").version,
       staging_state: "ready",
+      ...(copilotProfile ? { copilot_transport_revision: COPILOT_TRANSPORT_REVISION } : {}),
     };
     writeJson(join(stageRoot, OWNERSHIP_FILE), marker);
+
+    if (copilotProfile) buildCopilotMarketplaceTransport(stageRoot, sourceDigest, transportAdapters);
 
     if (existing?.version === expectedVersion
         && existing?.plugin_digest === pluginDigest
         && existing?.codex_registration_revision === targetCodexRegistrationRevision
-        && existingMarketplace?.codexShape === "current") {
+        && existingMarketplace?.codexShape === "current"
+        && (!copilotProfile || existing.copilot_transport_revision === COPILOT_TRANSPORT_REVISION)) {
+      if (copilotProfile) verifyCopilotMarketplaceTransport(stableRoot, sourceDigest, transportAdapters);
       removeOwnedRoot(stageRoot, parent);
       return Object.freeze({
         root: stableRoot,
@@ -570,6 +577,7 @@ function prepareLocalMarketplaceFromSource({
         runtimeDigest: runtimeManifest.digest,
         existingClassification,
         historicalEvidence,
+        ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
         changed: false,
         commit() {},
         rollback() {},
@@ -594,6 +602,7 @@ function prepareLocalMarketplaceFromSource({
       runtimeDigest: runtimeManifest.digest,
       existingClassification,
       historicalEvidence,
+      ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
       changed: true,
       commit() {
         if (closed) return;

@@ -23,6 +23,7 @@ import {
   writeRuntimeCheckReceipt,
 } from "../lib/runtime-check-consent/state.js";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
+import "./codex-hook-observation-test.js";
 
 const capability = validateRuntimeCheckCapability(pluginDefinition.automaticRuntimeChecks);
 assert.throws(() => validateRuntimeCheckCapability({ ...capability, operations: [...capability.operations, "write"] }), /closed operation/);
@@ -224,7 +225,11 @@ try {
   const base = parseSessionStartContext(withoutConsent.stdout);
   assert.equal(base.kernel, activationKernel, "SessionStart must embed the canonical kernel byte-for-byte exactly once");
   assert.equal(base.facts, null, "runtime facts require exact automatic-check consent");
-  assert.deepEqual(Object.keys(base.binding), ["schema_version", "executable", "argv_prefix", "expected_version", "request_activation", "route_source_after_activation", "authorizes"]);
+  assert.deepEqual(Object.keys(base.binding), ["schema_version", "executable", "argv_prefix", "environment", "arguments", "expected_version", "request_activation", "route_source_after_activation", "authorizes"]);
+  assert.equal(base.binding.schema_version, "2");
+  assert.deepEqual(base.binding.environment, {});
+  assert.match(base.binding.arguments, /--working-directory <absolute-path>/);
+  assert.doesNotMatch(base.binding.arguments, /--cwd/);
   assert.deepEqual(base.binding.argv_prefix.slice(1), ["skill-dispatch", "--json", "--surface", "codex"]);
   assert.deepEqual(base.binding.request_activation, {
     owner: "request_activation_contract",
@@ -246,6 +251,24 @@ try {
   assert.equal(withoutConsent.stdout.split(activationStart).length - 1, 1);
   assert.equal(withoutConsent.stdout.split("AGDF dispatcher binding:").length - 1, 1);
   assert.doesNotMatch(withoutConsent.stdout, /AGDF runtime facts:|Automatic repository checks|Project config:|Language policy:|Source of truth:|Obey result\.host_action/);
+
+  // Codex supplies the Claude compatibility aliases as well as its native plugin variables.
+  // Do not force AGDF_SURFACE: that would hide native host-detection regressions.
+  const nativeEnv = { ...process.env, AGDF_DATA_DIR: entrypointDataRoot };
+  for (const key of ["AGDF_SURFACE", "PLUGIN_ROOT", "PLUGIN_DATA", "CLAUDE_PLUGIN_ROOT", "CLAUDE_PLUGIN_DATA", "COPILOT_PLUGIN_DATA"]) delete nativeEnv[key];
+  for (const [expectedSurface, hostEnv] of [
+    ["codex", { PLUGIN_ROOT: projectedPluginRoot, PLUGIN_DATA: entrypointDataRoot, CLAUDE_PLUGIN_ROOT: projectedPluginRoot, CLAUDE_PLUGIN_DATA: entrypointDataRoot }],
+    ["claude", { CLAUDE_PLUGIN_ROOT: projectedPluginRoot }],
+    ["copilot", { PLUGIN_ROOT: projectedPluginRoot, COPILOT_PLUGIN_DATA: entrypointDataRoot }],
+    ["claude", { AGDF_SURFACE: "claude", PLUGIN_ROOT: projectedPluginRoot, CLAUDE_PLUGIN_ROOT: projectedPluginRoot }],
+  ]) {
+    const result = spawnSync(process.execPath, [generatedEntrypoint], {
+      cwd: process.cwd(), encoding: "utf8", env: { ...nativeEnv, ...hostEnv },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const context = expectedSurface === "copilot" ? JSON.parse(result.stdout).additionalContext : result.stdout;
+    assert.equal(parseSessionStartContext(context).binding.argv_prefix.at(-1), expectedSurface);
+  }
 
   const wrapperOutput = spawnSync("bash", [join(projectedPluginRoot, "hooks", "session-start.sh")], {
     cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "codex" },

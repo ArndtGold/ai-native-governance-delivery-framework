@@ -174,13 +174,15 @@ import { fileURLToPath } from "node:url";
 import { digestNormalizedPluginSource } from "./create-agdf/lib/runtime/plugin-provenance.js";
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from "./create-agdf/lib/runtime-check-consent/contract.js";
 import { resolveRepositoryContext } from "./create-agdf/lib/repository-context.js";
+import { createDispatchBinding, unavailableDispatchContext } from "./create-agdf/lib/skill-dispatch/binding.js";
 
 if (process.argv.length !== 2) {
   console.error("AGDF automatic runtime check accepts no arguments.");
   process.exitCode = 2;
 } else {
   const requestedSurface = process.env.AGDF_SURFACE
-    || (process.env.CLAUDE_PLUGIN_ROOT ? "claude" : process.env.COPILOT_PLUGIN_DATA ? "copilot" : "codex");
+    || (process.env.COPILOT_PLUGIN_DATA ? "copilot" : process.env.PLUGIN_ROOT ? "codex"
+      : process.env.CLAUDE_PLUGIN_ROOT ? "claude" : "codex");
   const surface = ["codex", "claude", "copilot", "opencode"].includes(requestedSurface) ? requestedSurface : "codex";
   const dataRoot = process.env.AGDF_DATA_DIR
     || (process.platform === "darwin"
@@ -194,24 +196,25 @@ if (process.argv.length !== 2) {
     ? "../meta/contracts/request-activation.md"
     : "../copilot-skills/contracts/request-activation.md";
   const manifest = JSON.parse(readFileSync(new URL("./runtime-manifest.json", import.meta.url), "utf8"));
-  const dispatchBinding = {
-    schema_version: "1",
-    executable: process.execPath,
-    argv_prefix: [validator, "skill-dispatch", "--json", "--surface", surface],
-    expected_version: manifest.version,
-    request_activation: ${JSON.stringify({
+  let dispatchBinding;
+  try {
+  dispatchBinding = createDispatchBinding({
+    validator,
+    surface,
+    expectedVersion: manifest.version,
+    requestActivation: ${JSON.stringify({
       owner: activationKernel.identity.owner,
       policy_version: activationKernel.identity.policy_version,
       guard_fingerprint: activationKernel.identity.guard_fingerprint,
     })},
-    route_source_after_activation: {
+    routeSource: {
       relative_to: "validator_directory",
       path: routeSourceAfterActivation,
     },
-    authorizes: false,
-  };
+  });
+  } catch { /* Invalid launch capability must never expose an executable binding. */ }
   const activationKernel = ${JSON.stringify(activationKernel.kernel)};
-  const bindingContext = \`AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}\`;
+  const bindingContext = dispatchBinding ? \`AGDF dispatcher binding: \${JSON.stringify(dispatchBinding)}\` : unavailableDispatchContext();
   const baseContext = [activationKernel, bindingContext].join("\\n\\n");
   const emitContext = (additionalContext) => {
     if (surface === "copilot") console.log(JSON.stringify({ additionalContext }));

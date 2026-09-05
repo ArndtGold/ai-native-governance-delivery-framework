@@ -105,7 +105,9 @@
         "proveCopilotTargetContexts": "Prove both repo-less suppression and repository-bound gate selection in the installed Copilot host.",
         "retestCopilotUnresolvedEarlyReturn": "Fully restart Copilot, start a new repo-less GeneralChat and invoke `/agdf-gate-check`; capture the repository-bound path separately afterward.",
         "proveCopilotUnresolvedEarlyReturn": "Prove that the refreshed installed skill terminates unresolved responses before prior-UR, gate and approval branches.",
-        "createSelectOrMigrateRun": "Create, migrate or select the canonical run, then persist its UR revision before requesting approval."
+        "createSelectOrMigrateRun": "Create, migrate or select the canonical run, then persist its UR revision before requesting approval.",
+        "selectIntendedRun": "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run.",
+        "selectOrEvaluateActiveRuns": "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run, or use --all-active to evaluate every active run independently."
       },
       "scopeClassification": {
         "title": "AGDF scope classification",
@@ -429,7 +431,9 @@
         "proveCopilotTargetContexts": "Die Unterdrückung ohne Repository und die Gate-Auswahl mit Repository im installierten Copilot belegen.",
         "retestCopilotUnresolvedEarlyReturn": "Copilot vollständig neu starten, einen neuen GeneralChat ohne Repository öffnen und `/agdf-gate-check` aufrufen; den Repository-Pfad danach separat prüfen.",
         "proveCopilotUnresolvedEarlyReturn": "Belegen, dass der aktualisierte installierte Skill ungeklärte Ziele vor früheren UR-, Gate- und Freigabezweigen beendet.",
-        "createSelectOrMigrateRun": "Den kanonischen Run erstellen, migrieren oder auswählen und seine UR-Revision vor jeder Freigabe dauerhaft festhalten."
+        "createSelectOrMigrateRun": "Den kanonischen Run erstellen, migrieren oder auswählen und seine UR-Revision vor jeder Freigabe dauerhaft festhalten.",
+        "selectIntendedRun": "Den gewünschten Run mit --run <run_id> oder AGDF_RUN_ID auswählen.",
+        "selectOrEvaluateActiveRuns": "Den gewünschten Run mit --run <run_id> oder AGDF_RUN_ID auswählen oder alle aktiven Runs mit --all-active unabhängig prüfen."
       },
       "scopeClassification": {
         "title": "AGDF-Scope-Klassifizierung",

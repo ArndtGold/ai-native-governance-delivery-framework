@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 36
-- revision_id: 191DFF7C-F997-46C8-AFAC-C22EEC45EA3F
+- revision: 37
+- revision_id: 80043768-ee06-46c1-a2b4-ddbbf4e9df68
 - started_at: 2026-08-28
 - mode: `structured_delivery`
 - current_gate: `QA`
@@ -22,10 +22,10 @@ repository-owned governance, exact approval authority and honest host-evidence b
 
 | Question | Answer |
 |---|---|
-| What is known? | The third restarted repo-less Copilot session correctly stops, keeps the chat folder non-authorizing and asks one concise question, but still responds in English. The final correction binds the German user conversation to literal `--language de`; complete smoke and refreshed installed 0.14.5 pass. |
+| What is known? | The permanent normal installer now succeeds using canonical Git transport. Generated, staged and installed 0.14.5 match; all ten skills are found globally and in a fresh SDK session. |
 | What is approved? | UR revision 2, PRD revision 3, SD revision 4 and TP revision 4 are approved. Earlier QA approvals are historical only. |
-| What is missing? | A fourth restarted repo-less observation against the locale-corrected installed skill, plus repository-bound Copilot evidence. Consented automatic SessionStart evidence remains separate and optional for the slash-command retest. |
-| What is the next allowed action? | Fully restart Copilot, continue in German, invoke `/agdf-gate-check` in a new repo-less GeneralChat and verify one German `no_reliable_target` card plus one short German question. |
+| What is missing? | Visual discovery after fully restarting Desktop, followed by the existing German repo-less and repository-bound model observations. |
+| What is the next allowed action? | Fully quit and reopen GitHub Copilot, start a fresh session and verify the ten AGDF skills. |
 | What is explicitly forbidden right now? | QA pass or approval request, UAT approval, publication, release and automatic VCS actions. |
 
 ## Source And Scope State
@@ -43,12 +43,12 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | Target and concise-output behavior pass; explicit German conversation-locale correction is installed and awaits one fresh Copilot retest |
+| Status | Permanent installer correction is installed; ten skills pass native discovery; visual Desktop verification remains open |
 | Current gate | QA |
-| Allowed now | Restart Copilot and capture the locale-corrected repo-less response, then the repository-bound path separately. |
-| Blocked by | Open host-evidence obligation CPI-TPR11-01. |
+| Allowed now | Fully restart Copilot and verify skill visibility in a fresh session; continue the existing German task-target observations afterward. |
+| Blocked by | Host-evidence obligations CPI-TPR12-02 and CPI-TPR11-01. |
 | Missing approval | none |
-| Next step | Fully restart Copilot, start a new German repo-less GeneralChat and invoke `/agdf-gate-check`. |
+| Next step | Fully restart Copilot and verify skill visibility in a fresh session; then continue the German target-routing retest. |
 | Quality outlook | Prove both repo-less suppression and repository-bound gate selection in the installed Copilot host. |
 
 ## Approvals
@@ -61,7 +61,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | PRD | `approved` | Exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | SD | `approved` | Exact `Approval: SD` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation. |
 | TP | `approved` | Exact `Approval: TP` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation. |
-| QA | `revise` | Revision 12 consumes the third host observation, its locale correction and the open fourth-session evidence gap; no approval is requested. |
+| QA | `revise` | Revision 13 consumes the permanent installer correction and open desktop/target-routing host evidence; no approval is requested. |
 | UAT | `revise` | Target and concise-output behavior pass, but the third session remains English; final locale-corrected installed behavior is not yet observed. |
 
 ## Artefacts
@@ -76,10 +76,11 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | TP | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | `approved` | Revision 4 adds six target-binding tasks, six deterministic suites and separate repo-less and repository-bound host observations. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | `done` | Revision 4 passes with one CLI resolver, existing validator dispatch, presentation owner and SessionStart generator. |
 | CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | Final smoke, installed 0.14.5, target matrix and byte identity are recorded; fresh-session evidence remains separate. |
-| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `revise` | Revision 11 records 16/19 fully done and retains the final locale host-evidence obligation. |
-| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 10 passes with one resolver and no runtime locale shim. |
-| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 10 passes after explicit user-conversation locale binding. |
-| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `revise` | Revision 12 is held by the fourth fresh-session locale evidence obligation. |
+| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `revise` | Revision 12 records final installer correction coverage and current 15/19 overall coverage with visible host obligations. |
+| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 11 passes for the canonical transport and discovery correction. |
+| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 11 passes after transactional recovery and discovery review. |
+| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `revise` | Revision 13 retains desktop discovery and existing German task-target evidence obligations. |
+| OR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/OR.md` | `done` | Current installer correction is installed; QA revise and next desktop observation remain explicit. |
 
 ## Mode / Slice Decision
 
@@ -242,3 +243,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 - unverified: Final loaded German context-only repo-less behavior, repository-bound Copilot behavior and native Linux/Windows parity.
 - next_allowed_action: Fully restart Copilot, start a new repo-less GeneralChat and invoke `/agdf-gate-check`; capture the repository-bound path separately afterward.
 - quality_outlook: Prove that the refreshed installed skill terminates unresolved responses before prior-UR, gate and approval branches.
+
+## 2026-09-05 Installer Correction Closeout
+
+The final normal installation is successful. See [OR](../../artefacts/agdf-copilot-plugin-integration/OR.md) and the dated HOST_EVIDENCE addendum. Canonical Git source replaces the temporary recovery registration; installation and fresh SDK discovery are verified. Current QA is Revision 13 revise. Previous QA approvals remain historical. The next action is a full Desktop restart and fresh-session skill visibility observation.

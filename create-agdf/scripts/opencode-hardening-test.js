@@ -3,6 +3,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 import { AGDFPlugin } from "../opencode-plugin.js";
 import {
   alignOpenCodePluginSdk,
@@ -496,7 +497,7 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     const activeDir = join(pluginTemp, "active");
     mkdirSync(join(activeDir, ".agdf", "control"), { recursive: true });
     writeFileSync(join(activeDir, ".agdf", "control", "config.json"), JSON.stringify({ artifact_language: "en", chat_language: "en", runtime_language: "en" }));
-    const activePlugin = await AGDFPlugin({ directory: activeDir, client: makeClient() }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck });
+    const activePlugin = await AGDFPlugin({ directory: activeDir, client: makeClient() }, { executeAutomaticRuntimeCheck: automaticRuntimeCheck, validatorPath: fileURLToPath(new URL("../bin/agdf-validator.js", import.meta.url)) });
     logs.length = 0;
     toasts.length = 0;
     await activePlugin.event({ event: { type: "session.created" } });
@@ -508,7 +509,10 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     const [bindingLine, factsLine, ...extraLines] = systemOutput.system[0].split("\n");
     assert.equal(extraLines.length, 0, "active dynamic context must contain only binding and facts lines");
     const binding = JSON.parse(bindingLine.slice("AGDF dispatcher binding: ".length));
-    assert.deepEqual(Object.keys(binding), ["schema_version", "executable", "argv_prefix", "expected_version", "request_activation", "authorizes"]);
+    assert.deepEqual(Object.keys(binding), ["schema_version", "executable", "argv_prefix", "environment", "arguments", "expected_version", "request_activation", "authorizes"]);
+    assert.equal(binding.schema_version, "2");
+    assert.deepEqual(binding.environment, {});
+    assert.match(binding.arguments, /--working-directory/);
     assert.deepEqual(binding.argv_prefix.slice(1), ["skill-dispatch", "--json", "--surface", "opencode"]);
     assert.deepEqual(binding.request_activation, {
       owner: "request_activation_contract",

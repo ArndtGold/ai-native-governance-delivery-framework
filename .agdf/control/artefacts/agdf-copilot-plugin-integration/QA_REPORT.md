@@ -2,8 +2,8 @@
 
 Status: done
 Decision: revise
-Revision: 12
-Date: 2026-09-03
+Revision: 13
+Date: 2026-09-05
 Run: `agdf-copilot-plugin-integration`
 Based on: approved TP Revision 4, Brownfield Analysis Revision 4, refreshed implementation,
 Task Plan Review Revision 11, Clean Implementation Review Revision 10 and Code Review Revision 10
@@ -66,3 +66,26 @@ Sole decision owner: `qa-gate`.
 - context_graph_reconciliation: `resolved`
 - context_graph_required_action: `none`
 - context_graph_gate_effect: `none`
+
+## 2026-09-05 Installer correction QA
+
+| Dimension | Status | Decisive evidence |
+|---|---|---|
+| Plan coverage | revise | final correction coverage is 7/8; desktop discovery remains unobserved, alongside earlier task-target host gaps |
+| Solution integrity | pass | one canonical managed Git marketplace and native discovery verification replace the temporary registration |
+| Code quality | pass | actual diff reviewed; failed-recovery enablement regression corrected and tested |
+| QA decision | revise | qa-gate consumes CPI-TPR12-02 and the unchanged CPI-TPR11-01 host obligations |
+
+- decision: revise
+- evidence: final normal installer succeeds; identical generated/staged/installed content; ten global and ten fresh-session skills; native 1.0.80/1.0.83-5 update/rollback matrices; full smoke and 83/83 evals
+- missing_evidence: restarted desktop skill presentation, German repo-less/repository-bound model behavior and optional consented automatic SessionStart; native Windows remains unobserved
+- risks: SDK discovery cannot establish rendered app or model conformance; no upstream directory-discovery fix is claimed
+- required_next_step: fully restart GitHub Copilot and verify AGDF skill visibility in a fresh desktop session
+- impact_codes: qa_revise_required, host_evidence_missing
+- context_graph_impact: link_only
+- context_graph_refs: CG-PUBLIC-PLUGIN-DISTRIBUTION; CG-CREATE-AGDF-CLI-COMPOSITION
+- context_graph_reconciliation: resolved
+- context_graph_required_action: none
+- context_graph_gate_effect: none
+
+Sole decision owner: qa-gate. Earlier report sections retain historical target-routing evidence; this dated addendum is the current installer assessment. QA and UAT approval are not requested.

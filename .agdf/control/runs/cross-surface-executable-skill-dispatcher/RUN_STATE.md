@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: cross-surface-executable-skill-dispatcher
 - lifecycle: active
-- revision: 17
-- revision_id: AB264203-1E6B-4885-AF28-AD5061BB1DAB
+- revision: 24
+- revision_id: 294028aa-ecbc-4a32-b27e-97bd4854ad8b
 - started_at: 2026-09-04
 - mode: `structured_delivery`
 - current_gate: QA
@@ -19,44 +19,55 @@ Einen versionsgleichen ausführbaren AGDF-Skill-Dispatcher bereitstellen, der au
 Claude Code und OpenCode die gemeinsame Preflight-Logik deterministisch ausführt und dem Modell nur
 einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
+## Codex Follow-up, 2026-09-05
+
+- target: das vom Nutzer ausdrücklich benannte AGDF-Repository; keine erneute Zielrückfrage nötig.
+- source: Task `Run AGDF QA gate`, `01a07112-556e-7383-88dd-81ab23a8ebfe`, und Nutzertranskript.
+- corrected: fehlende deutsche Run-Auswahl-Recovery und falsche Claude-Zuordnung der Codex-Bindung.
+- evidence: Brownfield 5, CD/Reviews/Host Evidence 10 und QA 12; vollständiger isolierter Smoke,
+  83/83 Skill-Fälle und 40 Referenzfälle bestehen. 1088 Quelldateien sind bytegleich.
+  Generierter lokaler Replay liefert control_result ohne Darstellungsdiagnostik.
+- workspace_limit: zusätzliche generierte Copilot-Dateien tauchen im geteilten Checkout wieder auf;
+  Paketierung dort bleibt ungeklärt. Der isolierte geprüfte Stand ist keine Hostinstallation.
+- authority: vorhandene SD2/TP2-Freigaben gelten; keine neue Gatefreigabe, Installation oder
+  Änderung von Hostberechtigungen. QA bleibt revise, frischer Host-Retest offen.
+
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | Copilot bleibt teilweise offen. CSED-HOST-07 beweist, dass der statische globale OpenCode-Skill trotz fehlender Plugin-Bindung einen Paketpfad rekonstruierte. Der Generator verlangt nun aktive Deklaration plus exakte Bindung und verbietet Suche, Ableitung und Shell-Recovery. Release, Smoke und Runtime Integrity bestehen. |
-| What is approved? | UR, PRD, SD und TP Revision 1 durch exakte, jeweils revalidierte Freigaben. |
-| What is missing? | Sauber abgeschlossener OpenCode-Installations-Retest, frischer Nachweis für den korrigierten Early Return, danach Ausführungsnachweis in einem explizit aktivierten Repository sowie übrige Hostevidenz. |
-| What is the next allowed action? | Den korrigierten OpenCode-Installer erneut ausführen und dessen Abschlusskarte erfassen. |
-| What is explicitly forbidden right now? | Hostinstallation oder Neustart ohne separate Autorisierung, QA-Pass, UAT, Commit, Push, PR und Release. |
+| What is known? | Die freigegebene Transportkorrektur ist implementiert. Vollständiger Smoke, 40 Adapterfälle, 83 geprüfte Offline-Replays, Integrität, Pakete und isolierter Rollback bestehen. CSED-RUNTIME-01 belegt die echte Electron-Prozesskette. |
+| What is approved? | UR und PRD Revision 1, SD Revision 2 und TP Revision 2 durch die jeweiligen exakten Freigaben. |
+| What is missing? | Frische Host-, native Windows/Linux- und sichtbare Latenznachweise. QA Revision 12 entscheidet revise. |
+| What is the next allowed action? | Separate Autorisierung für kohärente Installation, Neustart und frische Hostprüfung einholen. |
+| What is explicitly forbidden right now? | Unbelegter QA-Pass, UAT, Installation/Neustart ohne eigene Autorisierung, externe Modellläufe, Commit, Push, PR und Release. |
 
 ## Source And Scope State
 
 - normative_instruction_source: live `.agdf/control/` state and AGDF Runtime Contract
 - multi_scope_state: `clear`
-- active_scope_evidence: Explicit user request to implement the separately scoped executable dispatcher after the Windows-fix closeout.
+- active_scope_evidence: Original dispatcher request plus explicit 2026-09-05 request to fix the observed invocation defect across Codex, OpenCode, Claude Code and other supported surfaces; UR/PRD scope remains unchanged.
 - competing_scope_lines: `cross-surface-skill-target-preflight` remains independently at UAT and is not reopened; completed `windows-release-bump-symlink-fixture` supplies latency evidence only.
-- branch_workspace_evidence: HEAD `c83d4e1b22b714c4f206dc3cc58b9aae65b94d2f`; only unrelated untracked `assets/agdf-von-agentenarbeit-zu-verantwortbarer-auslieferung.png` existed before this run.
+- branch_workspace_evidence: Correction baseline HEAD `4d38db394d05bf2afb5280dc3af92dfee042a2bb`; tracked worktree clean, only unrelated untracked `assets/agdf-von-agentenarbeit-zu-verantwortbarer-auslieferung.png` present.
 - branch_workspace_scope_effect: `supports`
 - primary_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
 - governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
 - evidence_sources: Copilot three-minute observation; prior Copilot QA invocation trace; existing skill, target contract and installed runtime owners
 - working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
-- scope_stability: new cross-surface runtime and adapter capability
-- excluded_mutation_targets: prior runs; Windows fixture; unrelated image asset; approvals and repository content outside later approved scope
+- scope_stability: approved cross-surface outcome unchanged; CSED-BA-08 resolved by approved SD2; TP2 maps the bounded correction without new product or authority scope
+- excluded_mutation_targets: other runs including opencode-native-dispatch-tool and agdf-request-activation-boundary; iself.eu; installed caches and host settings; Windows fixture; unrelated image asset; historical approvals
 
 ## Run Status Card
 
 | Run status | Value |
 |---|---|
-| Status | QA Revision 10: revise; OpenCode-Aktivierung, Skill-Rekonstruktion und Installationswartezeit repository-seitig gelöst, Hostnachweis offen |
+| Status | TP2 implementiert, Repository-Regression grün, QA Revision 12 revise |
 | Current gate | QA |
-| Allowed now | Korrigierte OpenCode-Fassung installieren und TP-09-Nachweise vervollständigen |
-| Blocked by | CSED-QA-01: Loaded-Host- und native Windows-Nachweise fehlen |
+| Allowed now | Offene Evidenzpflicht bearbeiten, Lifecycle-Autorisierung einholen |
+| Blocked by | Frische Host- und native Betriebssystemnachweise fehlen |
 | Missing approval | none |
-| Next gate after approval | none |
-| Allowed after approval | none |
-| Next step | Korrigierte Installation erneut ausführen; danach in derselben inaktiven Repo-Session ohne Shell-Anforderung retesten |
-| Quality outlook | Dispatcher besteht; Hostbefolgung und restliche Plattformmatrix bleiben getrennte Evidenzebenen |
+| Next step | Getrennte Lifecycle-Autorisierung für kohärente Installation und frische Hostprüfung einholen |
+| Quality outlook | Kein Host-Pass aus lokalen Prozess- oder Replay-Tests ableiten |
 
 ## Approvals
 
@@ -64,9 +75,9 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 |---|---|---|
 | UR | approved | Exaktes `Approval: UR` nach Revalidierung von Ziel, Run, Gate und Revision 1. |
 | PRD | approved | Exaktes `Approval: PRD` nach Revalidierung von Ziel, Run, Gate und Revision 3. |
-| SD | approved | Exaktes `Approval: SD` nach Revalidierung von Ziel, Run, Gate und Revision 4. |
-| TP | approved | Exaktes `Approval: TP` nach Revalidierung von Ziel, Run, Gate und Revision 5. |
-| QA | blocked | QA Revision 10 entscheidet `revise`; CSED-QA-05 und CSED-QA-06 sind repository-seitig gelöst, CSED-QA-01 bleibt offen. |
+| SD | approved | Exaktes Approval: SD für SD Revision 2 nach Revalidierung von Ziel, Run und Gate SD bei Revision 18 / 3CA1DBAC-196A-4268-A103-F8B79045B18F. Frühere SD1-Freigabe bleibt historische Evidenz. |
+| TP | approved | Exaktes Approval: TP für TP Revision 2 nach Revalidierung von Ziel, Run, Gate und Revision 19 / 38F9EC31-0A51-42DA-B60E-1EE409BCAB5D. |
+| QA | blocked | Revision 12 entscheidet revise. CSED-QA-01 ist offen, CSED-QA-07 repository-seitig gelöst. Kein Approval: QA angefordert. |
 | UAT | blocked | QA fehlt. |
 
 ## Artefacts
@@ -77,16 +88,17 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | Brownfield Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/BROWNFIELD_REVIEW.md` | done | Bestehende Owner werden erweitert; Structured Delivery ist wegen Runtime-, Public-Contract- und Cross-Host-Release-Tiefe erforderlich. |
 | UX Intent Definition | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/UX_INTENT_DEFINITION.md` | ready | Sichtbare Start-, Terminal-, Continuation-, Fehler-, Recovery- und Capability-Zustände sind als PRD-Input vollständig. |
 | PRD | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/PRD.md` | approved | Revision 1 definiert Dispatcher-Grenze, Registry, typed outcomes, Timing, Hostparität, Authority und Release-Evidenz. |
-| SD | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/SD.md` | approved | Revision 1 definiert einen lokalen Dispatcher-Service, CLI-Schema, Outcome-Vertrag, Bindings, Tests, Rollout und Rollback. |
-| TP | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP.md` | approved | Revision 1 ordnet 18 Anforderungen zehn ausführbaren Arbeitspaketen, Tests, Stopbedingungen sowie Windows- und Hostevidenz zu. |
-| Brownfield Analysis | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/BROWNFIELD_ANALYSIS.md` | done | Revision 1 bestätigt Erweiterung und Wiederverwendung der bestehenden Owner; TP-01 bis TP-08 dürfen in CD+Tests beginnen. |
-| CD+Tests | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CD_TESTS.md` | done | Revision 8 ergänzt die globale OpenCode-Skill-Grenze; Release, Smoke und Runtime Integrity bestehen. TP-09 bleibt teilweise offen. |
-| Loaded-host Evidence | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md` | partial | Revision 7 ergänzt den rekonstruierten Paket-Runtimepfad trotz inaktivem Repository. |
-| TP Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP_REVIEW.md` | revise | 8/10 vollständig; TP-09 und TP-10 teilweise. |
-| Clean Implementation Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 8 bestätigt die zentrale globale Skill-Grenze ohne parallelen Owner. |
-| CR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CODE_REVIEW.md` | done | Revision 8 besteht nach globalem Skill-, Binding- und npm-Audit-Fix. |
-| QA | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md` | revise | Revision 10: CSED-QA-05/CSED-QA-06 repository-seitig gelöst; frischer Hostnachweis bleibt in CSED-QA-01 offen. |
-| UAT |  | missing | QA fehlt. |
+| SD | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/SD.md` | approved | Revision 2 wurde exakt freigegeben und definiert gemeinsamen Laufzeit-, Environment- und Argumenttransport ohne neue Ziel- oder Gateautorität. |
+| TP | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP.md` | approved | Revision 2 exakt freigegeben; TP-11 bis TP-16 korrigieren Binding/Transport, TP-01 bis TP-10 bleiben Foundation und Regression. |
+| Brownfield Analysis | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/BROWNFIELD_ANALYSIS.md` | done | Revision 5, pass für die begrenzte Codex- und Locale-Korrektur im freigegebenen TP2-Scope. |
+| CD+Tests | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CD_TESTS.md` | done | Revision 10, Codex-Hostvariablen und deutsche Run-Recovery korrigiert; fokussierte Tests und 40 Adapterfälle bestehen. Native und Hostevidenz bleibt getrennt. |
+| Loaded-host Evidence | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md` | partial | Revision 10 ergänzt CSED-HOST-09: tatsächlicher Codex-Fehler, geladene Profilfassung, falsche Hostbindung und getrennte Replay-Evidenz. |
+| TP Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP_REVIEW.md` | revise | Revision 10: 12/16 vollständig, TP-09/10/14/16 wegen externer Evidenz teilweise. |
+| Clean Implementation Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 10, gemeinsame Primärlösung ohne neue Fallbacks oder Governance-Owner. |
+| CR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CODE_REVIEW.md` | done | Revision 10, direkte Prüfung des tatsächlichen Diffs besteht. Keine unabhängige Agentenprüfung behauptet. |
+| QA | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md` | revise | Revision 12: aktuelle Reviews bestehen, CSED-QA-01 für native und frische Hostevidenz bleibt offen. |
+| UAT |  | missing | QA pass fehlt. |
+| OR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/OR.md` | done | Revision 2, OR-full mit offenem QA-Evidenzbedarf, kein Release-Closeout. |
 
 ## Mode/Slice Decision
 
@@ -105,19 +117,23 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | UX Intent Definition | derived_from | UR and Brownfield Review | Ready; ausführbarer Preflight bleibt von Skill-Judgement und Hostchrome getrennt. |
 | PRD | derived_from | UR | Revision 1 übernimmt freigegebenen Scope und alle ready UX-Kriterien. |
 | PRD | approved_by | `Approval: PRD` | Exakte Freigabe nach Revalidierung von Ziel, Run, Gate und Revision 3. |
-| SD | derived_from | PRD | Revision 1 ordnet Runtime, Registry, CLI, Bindings, Generierung, Tests und Rollback bestehenden Ownern zu. |
-| SD | approved_by | `Approval: SD` | Exakte Freigabe nach Revalidierung von Ziel, Run, Gate und Revision 4. |
-| TP | derived_from | SD | Revision 1 plant Dispatcher, Instruktionskürzung und Beweisführung vollständig gegen PRD und SD. |
-| TP | approved_by | `Approval: TP` | Exakte Freigabe nach Revalidierung von Ziel, Run, Gate und Revision 5. |
-| Brownfield Analysis | validates | TP | Revision 1 bestätigt den reuse-before-create Implementierungspfad ohne blockierenden SoT- oder Ownership-Konflikt. |
-| CD+Tests | implements_and_tests | TP | Revision 8 ergänzt die globale OpenCode-Skill-Grenze; vollständiger Smoke besteht; TP-09 bleibt separat. |
-| Loaded-host Evidence | validates | TP-09 | Revision 7: OpenCode Ordinary Chat, Permission-Grenze, npm-Audit-Wartezustand und rekonstruierter Runtimepfad belegt; korrigierter Retest offen. |
-| TP Review | verifies | TP | 8/10 vollständig; TP-09 und TP-10 teilweise. |
-| Clean Implementation Review | reviews | CD+Tests | Revision 8 besteht; Generator, Adapter und Installer bleiben vorhandene Owner. |
-| Code Review | reviews | CD+Tests | Revision 8 besteht; inaktive Bindung, statische Pfadrekonstruktion und npm-Audit-Wartezeit sind korrigiert. |
-| QA Report | tests | TP | Revision 10 entscheidet `revise`; CSED-QA-05 und CSED-QA-06 sind gelöst, die Hostmatrix bleibt offen. |
+| SD | derived_from | PRD | Revision 2 konkretisiert gemeinsamen Runtime- und Argumenttransport unter unveränderter PRD1; SD1 bleibt Git-Historie. |
+| SD | approved_by | `Approval: SD` | SD2: exakte Freigabe nach Ziel-, Run-, Gate- und Revisionsprüfung bei Run-Revision 18. SD1 wurde zuvor bei Revision 4 freigegeben. |
+| TP | derived_from | SD | Revision 2 bildet SD2 auf TP-11 bis TP-16 ab und erhält TP-01 bis TP-10 als Foundation- und Regressionspflichten. |
+| TP | approved_by | `Approval: TP` | TP2 wurde nach Revalidierung von Ziel, Run, Gate und Revision 19 exakt freigegeben. TP1 bleibt historische Evidenz. |
+| Brownfield Analysis | validates | TP | Revision 4 bestätigt den bestehenden Owner-Pfad nach TP2-Freigabe. |
+| CD+Tests | implements_and_tests | TP | Revision 9 belegt TP2-Implementierung und grüne vollständige Repository-Regression. |
+| Loaded-host Evidence | validates | TP-09 | Revision 9 trennt historische Hostbeobachtungen von CSED-RUNTIME-01 und der offenen frischen Hostmatrix. |
+| TP Review | verifies | TP | Revision 10: 12/16 vollständig, vier Aufgaben teilweise wegen externer Evidenz. |
+| Clean Implementation Review | reviews | CD+Tests | Revision 9 besteht für die gemeinsame Transportlösung. |
+| Code Review | reviews | CD+Tests | Revision 9 besteht für den tatsächlich geprüften Korrekturdiff. |
+| QA_REPORT | tests | TP | Revision 12 entscheidet revise, aktuelle Code-/Clean-Reviews bestehen, externe Evidenz fehlt. |
+| OR | summarizes | QA_REPORT | Revision 1 erhält QA revise und die getrennte Lifecycle-Grenze. |
+| Loaded-host Evidence | motivates | SD | CSED-HOST-08 und Brownfield Revision 2 begründen die neue Transportentscheidung in SD2; frühere SD1/TP1-Freigaben werden nicht übertragen. |
 
 ## Evidence
+
+Die bisherigen datierten Zeilen dokumentieren die Historie. Der aktuelle Nachweis ist CD_TESTS.md Revision 9 mit den drei Reviews Revision 9 und HOST_EVIDENCE.md Revision 9.
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
@@ -161,13 +177,16 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | OpenCode inactive-skill retest | Nutzer-Screenshot 2026-09-04; `HOST_EVIDENCE.md` Revision 7 | globaler Skill rekonstruierte einen Paket-Runtimepfad und forderte Shell-Permission trotz inaktivem Repository | direct user-attested plus installed-content inspection |
 | Global OpenCode skill guard correction | `opencode.js`; `smoke-test.js`; Release, OpenCode, Smoke und Runtime Integrity | aktive Deklaration plus exakte Plugin-Bindung zwingend; keine Suche, Pfadableitung oder Shell-Recovery | direct repository test |
 | QA Report Revision 10 | `QA_REPORT.md` | QA `revise`; CSED-QA-05/CSED-QA-06 repository-seitig gelöst, CSED-QA-01 offen | direct QA decision |
+| OpenCode Electron invocation failure | `HOST_EVIDENCE.md` CSED-HOST-08 | Nutzerbericht durch lokale Tool-Aufzeichnungen und installierte Producer bestätigt; keine QA durchgeführt | direct user report and read-only host inspection |
+| Shared transport design gap | `BROWNFIELD_ANALYSIS.md` Revision 2; `SD.md` Revision 2 | Gemeinsame fehlende Startumgebung und unvollständige Argumentübergabe, unveränderte UR/PRD-Ziele | direct source inspection and design, not implementation evidence |
+| SD2 approval and TP2 preparation | Exakte Nutzereingabe Approval: SD; revalidierter Gate-Snapshot bei Run-Revision 18; `TP.md` Revision 2 | Designfreigabe angenommen, Korrekturplan und Evidenzzuordnung erstellt, kein Code implementiert | direct deliberate approval and planning |
 
 ## Missing Evidence
 
-- Restliche Direct-command-Fälle und erste sichtbare Ausgabe pro unterstütztem Host.
-- Native Windows Dispatcher-, Installations- und Pfadevidenz.
-- Sichtbare unveränderte Tabellenüberschrift und Nicht-Aktivierung bei einer reinen Sprachpräferenz mit der neuesten Copilot-Bindung.
-- Modell- und Host-Tool-Latenzgrenzen der übrigen Fälle sowie QA.
+- Getrennte Lifecycle-Autorisierung für kohärente Installation und Neustart.
+- Frische Codex-, Claude-Code-, Copilot- und OpenCode-Referenzfälle einschließlich Ordinary Chat und inaktivem OpenCode.
+- Native Windows/Linux-Prozessnachweise, erste sichtbare Ausgabe und Modelltreue.
+- Die vorhandenen Offline-Replays und CSED-RUNTIME-01 ersetzen diese Evidenz nicht.
 
 ## Risks
 
@@ -178,12 +197,12 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 ## Context Graph Impact
 
-- context_graph_impact: `updated`
+- context_graph_impact: `update_existing_node`
 - context_graph_refs: `CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY`; `CG-TASK-TARGET-AUTHORITY`; `CG-NATIVE-INTERACTION-AUTHORITY`
 - context_graph_reconciliation: `resolved`
 - context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: Der neue Dispatcher-Owner und seine begrenzten Beziehungen zu Target- und Interaction-Autorität sind nach der SD-Freigabe im Context Graph verankert.
+- context_graph_evidence: CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY trennt freigegebenes Design, implementierten Transport, CSED-RUNTIME-01 und die noch offene frische Hostmatrix.
 
 ## Knowledge Persistence Decision
 
@@ -193,5 +212,6 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 ## Closeout
 
-- next_allowed_action: record implementation and test evidence
-- quality_outlook: Keep the presentation contract, evidence and gate authority aligned.
+- next_allowed_action: record evidence
+- quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.
+- lifecycle_authorization_required: Obtain separate authorization for coherent installation/restart and fresh host verification. Until then, do not change installed profiles or run external model evaluations.

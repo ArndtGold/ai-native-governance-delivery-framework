@@ -1,5 +1,23 @@
 # Clean Implementation Review: Installation Consent for Automatic Runtime Checks
 
+## Codex Correction Integrity Review, 2026-09-05
+
+- decision: `pass` for the bounded correction
+- primary_solution: native metadata transport in the existing consent module; one existing
+  consent adapter owns its projection, and existing CLI/lifecycle owners consume it
+- evidence: actual diff review, focused tests and direct read-only native observation
+- fallbacks_retained: native metadata unavailable or unsupported remains explicitly unverified;
+  exit condition is a successful native inspection, followed by the required fresh-session check
+- workaround_or_shim_risk: no stable-path wrapper or alternate hook command was introduced;
+  the cache-root hypothesis was disproven by native observations
+- parallel_structure_risk: no duplicate trust database, permission authority, capability identity,
+  status target selector or generated-hook owner
+- brownfield_fit: pass; preserves the approved SD AD-2/AD-6 and IRC-07/10 boundaries
+- missing_evidence: installed rendering and full fresh-session matrix remain under `TPR-01`
+- required_next_step: QA retains the evidence gap without turning metadata into execution proof
+
+The review below is the historical implementation review from 2026-08-27.
+
 ## Clean Implementation Review
 
 - decision: `pass`

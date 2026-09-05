@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCli } from "../lib/cli/application.js";
+import { prepareCopilotMarketplace } from "../lib/installers/local-marketplace.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
 
 const root = mkdtempSync(join(tmpdir(), "agdf-copilot-retention-"));
@@ -27,13 +28,10 @@ const baseline = snapshot();
 const output = [];
 const io = { log(value = "") { output.push(String(value)); }, error(value = "") { output.push(String(value)); } };
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const prepare = () => ({
-  root: join(root, "marketplace"),
-  pluginRoot: join(packageRoot, "generated", "plugins", "copilot", "agdf"),
-  commit() {},
-  rollback() {},
-});
-const env = { ...process.env, AGDF_DATA_DIR: join(root, "data") };
+const builtPluginRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
+const prepare = (options) => prepareCopilotMarketplace({ ...options, dataRoot: join(root, "data"), builtPluginRoot });
+const env = { ...process.env, AGDF_DATA_DIR: join(root, "data"), COPILOT_HOME: join(root, "home") };
+
 
 function assertRetained(label) {
   assert.deepEqual(snapshot(), baseline, `${label} must retain existing Copilot and AGDF repository files byte-for-byte`);
@@ -52,6 +50,9 @@ try {
         throw error;
       },
       packagedCopilotExec(_executable, args) {
+        if (args.slice(-3).join(" ") === "skill list --json") return JSON.stringify(pluginDefinition.skillSet.map(({ slug }) => ({
+          name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(builtPluginRoot, "copilot-skills", `agdf-${slug}`),
+        })));
         if (args.at(-2) === "plugin" && args.at(-1) === "list") {
           listCalls += 1;
           return listCalls === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;

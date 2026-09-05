@@ -56,10 +56,13 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 ## Executable Dispatch
 
-First invoke the supplied dispatcher with `--skill release-or`, current language and working directory, and only
-explicit target/run evidence. On `terminal: true`, return presentation verbatim; only if absent return recovery,
-then stop. On `skill_continuation`, use only its target/control. If unavailable, report `dispatcher_unavailable`;
-do not search for another runtime. Dispatch never authorizes.
+Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
+Follow binding.arguments exactly with `--skill release-or`, language and working directory. Carry
+established explicit/continued/current-repository target evidence as both target fields; otherwise
+omit both. Cwd or skill invocation alone is not target authority. Quote shell values as data.
+On `terminal: true`, transmit host_action.text verbatim and stop; on skill_continuation use only its
+target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+or help retries. Dispatch never authorizes.
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
 When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` or `MASTER_BACKLOG.md` when it is steering-relevant.

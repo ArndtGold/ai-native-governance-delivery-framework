@@ -1,8 +1,45 @@
 # Loaded-host Evidence: Cross-surface Executable Skill Dispatcher
 
-Revision: 7
-Date: 2026-09-04
+Revision: 10
+Date: 2026-09-05
 Status: partial
+
+
+## Codex Fresh-task Case CSED-HOST-09
+
+- source: user transcript and read-only inspection of task `Run AGDF QA gate`,
+  `01a07112-556e-7383-88dd-81ab23a8ebfe`; rollout dated 2026-09-05 12:17:02.
+- loaded runtime at that time: `0.14.5+codex.local-3f17b01eff82`, runtime digest
+  `12176590c987ba400bced93d6debf0af5094e0ba3c426a039dc63946db459986`, provenance matched.
+- actual supplied SessionStart binding: schema 2, executable Node 22.22.3,
+  argv prefix ending in `--surface claude` inside Codex. This is producer evidence, not a
+  model-invented surface argument.
+- first QA/gate invocations supplied working-directory but no target evidence; terminal
+  `target_unresolved` therefore followed the target contract. The skill invocation alone
+  did not select a repository.
+- after user explicitly named the AGDF repository, both target fields were supplied correctly.
+  The command exited 2 with `evaluator_error` and `next_step_unlocalized`.
+- root cause: several active runs require `runSelectionRecovery("gate-check")`; that exact
+  English recovery was absent from the locale registry. This is independent of wrong host identity.
+- host identity cause: Codex documents native PLUGIN_ROOT and compatibility CLAUDE_PLUGIN_ROOT
+  together. Source generation chose the compatibility alias first. Official source:
+  [Codex hooks](https://learn.chatgpt.com/docs/hooks).
+- fidelity: tool Markdown and the stored assistant final both contain `| Feld | Wert |`; only
+  the user-supplied rendered/copied transcript merges the header. The exact downstream rendering
+  or copying cause was not inspected. The assistant also added prose after terminal output.
+  Neither behavior is fixed or verified by adding locale values; retain it under CSED-QA-01.
+- timing: recorded shell calls took 687 ms, 664 ms and 906 ms. Full turns took substantially
+  longer. These are distinct measurements; do not attribute full-turn duration to the dispatcher.
+- installation boundary: current on-disk `0.14.5` resolves to a different runtime digest
+  `c5065a1f27cad7399b0a4bf8f6c580b54a012e6b174c11705cdcfa9b629ea423` and legacy agent-native skill text.
+  The failure task's loaded local-development profile and current installed root are distinct
+  snapshots. No claim of current installed/source coherence is made.
+- correction evidence: generated SessionStart native-env cases now identify Codex correctly;
+  German ambiguous-run replay returns control_result without diagnostics; explicit selection of
+  this run returns QA / revise. Files: `/private/tmp/agdf-codex-followup-replay.json` and
+  `/private/tmp/agdf-codex-followup-selected.json`. These are repository replays, not installed-host proof.
+- required_next_step: coherent installation and a fresh Codex retest, retaining unresolved
+  visible-output, latency and other host/OS evidence cells.
 
 ## Evidence Boundary
 
@@ -202,6 +239,56 @@ Runtime Integrity pass. A fresh installed-host retest remains required.
 
 ## Remaining Matrix
 
+### OpenCode Desktop QA Invocation CSED-HOST-08
+
+- Source: user report, confirmed by read-only inspection of OpenCode's local session/tool records
+  and the installed plugin source on 2026-09-05. No hidden reasoning or unrelated conversation was
+  copied into this evidence.
+- Session: `ses_065c386d3ffezDDe5der6gzWhX`; workspace was the separate `iself.eu` repository, not this
+  framework. It remains evidence only and is not a mutation target of this correction.
+- Installed runtime: `0.14.5`; successful wrapper reported `owned_version_matched` and matched
+  config-local package provenance. This is not a full loaded-host conformance claim.
+- Binding executable: OpenCode application's Electron Helper; wrapper:
+  `/Users/arndtgold/.config/opencode/agdf/bin/agdf-local.js`.
+- First call: helper plus wrapper, `skill-dispatch --json --surface opencode --skill qa-gate
+  --language de --cwd ...`; failed with `FATAL ... Unable to find helper app`.
+- Second call: agent added `ELECTRON_RUN_AS_NODE=1`; CLI then rejected `Unknown argument: --cwd`.
+- Third call: agent inspected `skill-dispatch --help` before constructing another invocation.
+- Final call: same environment override with `--working-directory`; neither `--target-source` nor
+  `--primary-target` was supplied. Dispatcher returned `target_unresolved`, `terminal: true`,
+  `authorizes: false`, empty primary/governance target and no control snapshot.
+- Result: no QA evaluation or QA pass took place. The final unresolved outcome is correct for the
+  actual inputs. Electron startup and argument reconstruction violate first-action conformance.
+- Cross-host evidence: source inspection confirms both OpenCode and generated session bindings use
+  `process.execPath`; no equivalent crash in Codex, Claude Code or Copilot was observed here.
+- Routing: CSED-BA-08 is an open `design_gap` to SD2 in the existing dispatcher run. Do not patch
+  installed caches, broaden permissions, treat cwd as target, or introduce a second hook.
+
+### Read-only Runtime Check CSED-RUNTIME-01, 2026-09-05
+
+Evidence class: real local process on macOS, not a fresh OpenCode session or user acceptance.
+The installed executable was used read-only; no host installation, restart or config edit occurred.
+
+- Executable: `/Applications/OpenCode.app/Contents/Frameworks/OpenCode Helper.app/Contents/MacOS/OpenCode Helper`.
+- Observed runtime metadata: Node `24.15.0`, Electron `42.3.3`.
+- Exact child override: `ELECTRON_RUN_AS_NODE=1`. The parent environment remained unchanged.
+- The shared fixed capability probe passed with the exact expected stdout and exit 0, in
+  400.403 ms in one observation. Probe limits remain 1000 ms and 4096 bytes per output stream.
+- macOS emitted `task_name_for_pid: (os/kern) failure (5)` on stderr while the fixed probe
+  succeeded. Bounded stderr alone is not failure; a signal, nonzero exit, spawn error, timeout,
+  overflow or unexpected stdout still fails. The fatal unmodified launch was not repeated.
+- The same executable then ran the generated `agdf-local.js` wrapper and its validator child with
+  `skill-dispatch --json --surface opencode --skill qa-gate --language de --working-directory
+  /private/tmp`, without target fields. Exit 2, `target_unresolved`, `terminal: true`, runtime
+  `owned_version_matched`, and no control evaluation were observed.
+- Reported timings: `wrapper_ms=453.093`, `total_ms=3.300`, `control_ms=0`. The wrapper value
+  includes resolution and child execution. This was not QA and is not a Node/Electron speed
+  comparison or a measurement of model-visible latency.
+- This proves the corrected child launch and wrapper chain on the observed executable. It does
+  not prove that OpenCode has loaded the new package or that any model obeys the new binding.
+
+### Remaining Cases
+
 - Copilot: ordinary-language-preference isolation retest, repository-bound `gate-check`, repo-less
   `gate-check` and QA-ready `qa-gate` cases. Repo-less German `qa-gate` functionally passes but its
   visible table-header fidelity needs retest.
@@ -217,7 +304,8 @@ Runtime Integrity pass. A fresh installed-host retest remains required.
 
 ## Required Correction
 
-Install the corrected OpenCode profile and verify that the same inactive repository stops without
-requesting shell permission and points to `opencode-repo`. After explicit activation of an intended
-repository, verify that execution still uses `bash: ask`, the exact dispatcher binding and the
-terminal `host_action.text`. Do not broaden global shell permission.
+SD2 and TP2 are approved. The shared transport correction and 40 adapter-to-dispatch repository
+cases are implemented; CSED-RUNTIME-01 proves the real Electron process chain only. Complete
+separately authorized installation/restart and fresh host evidence. Preserve the
+inactive early return, `bash: ask`, exact binding, terminal `host_action.text` and unresolved-target
+boundary. The earlier inactive-profile retest and remaining matrix are still required.

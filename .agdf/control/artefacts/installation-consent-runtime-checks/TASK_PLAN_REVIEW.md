@@ -1,5 +1,28 @@
 # Task Plan Review: Installation Consent for Automatic Runtime Checks
 
+## Codex Correction Coverage, 2026-09-05
+
+The correction revalidates IRC-07/10/14/16 against approved TP Revision 2. The historical
+repository completion count below does not close any of the separately declared host obligations.
+
+| task_id | status | AC coverage | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|---|
+| IRC-07 | fully_done | done for specified native fixtures and no-write boundary | `codex-hook-observation-test.js`, adapter regression and direct native observations | fresh enabled/change/disable cycle | TPR-01 remains open |
+| IRC-10 | partially_done | repository AC done; installed visible behavior not_verifiable | trusted/review/disabled human and JSON CLI fixtures; existing manual/cancel and identity tests | revised real installer rendering | prevents QA pass |
+| IRC-14 | fully_done | focused regressions done; aggregate recorded in CD_TESTS | parser/transport failures, state preservation and suite wiring | none at focused repository scope | retain final aggregate evidence |
+| IRC-16 | fully_done | done | `CD_TESTS.md`, `CODEX_HOOK_EVIDENCE.md` and refreshed reviews | none for evidence separation | missing host proof remains explicit |
+
+- correction coverage: three repository/evidence tasks fulfilled; IRC-10 remains partial at its
+  visible installed-host plane. Evidence confidence is high for repository tests and native
+  metadata, and absent for the declared new installed-session observations.
+- out_of_scope_changes: pre-existing Copilot and dispatcher changes retained and not attributed
+  to this correction
+- required_next_step: complete the remaining direct-host evidence under `TPR-01`
+
+The tables below retain the 2026-08-27 evidence inventory; the current correction assessment above
+supersedes the affected rows and the old completion count. Native trust is now observed, while
+execution and installed UI completion remain open.
+
 ## TP Coverage
 
 | task_id | status | evidence | missing_evidence | QA impact |

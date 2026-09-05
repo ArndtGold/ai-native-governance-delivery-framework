@@ -126,3 +126,25 @@ installation/read-back gap; fresh-session evidence remains open.
 
 These are UAT and support-boundary observations. Package, stage and installed-root evidence do not
 substitute for them.
+
+## 2026-09-05 Permanent installer and skill-discovery correction
+
+Environment: macOS, GitHub Copilot Desktop 1.1.15, current cached runtime 1.0.83-5, pinned npm CLI 1.0.80, AGDF 0.14.5. The app's native executable is sandbox-restricted; runtime identity is recorded explicitly instead of inferring it from the npm package name.
+
+| Observation | Result | Boundary |
+|---|---|---|
+| Original directory registration | The exact 1.0.83-5 global discovery API finds zero AGDF skills while plugin listing reports the enabled live plugin. Its fresh-session API can find ten. Minimal default-skills and explicit-path fixtures reproduce global discovery failure. | The earlier 1.0.80 session result is not evidence about the newer runtime. Plugin visibility alone does not prove global skill visibility. |
+| Permanent installer | Existing canonical marketplace stage now includes generated Git metadata and a content-derived branch, registered through native declarative Git settings. The native installer still installs agdf@agdf. | No separate editable package, host-cache patch or manual snapshot is part of the product. The host's directory-discovery implementation itself was not modified. |
+| Actual CLI matrix | Both 1.0.80 and 1.0.83-5 pass fresh install, repeat, same-public-version changed payload, and rollback after injected missing-skill discovery. Each rediscovers ten skills from the prior payload after rollback. | Isolated local host profiles; actual native Git catalog and plugin operations. |
+| Current runtime SDK | Global discovery and a newly created SDK session each return ten skills after the corrected installation. | No model prompt, remote session or UI interaction. |
+| Aggregate verification | Complete smoke exits 0, including the new installer suite, package build, 410-file package contents, lifecycle/retention, Runtime Integrity, 83/83 deterministic skill evaluations and plugin-only Copilot routing. | Full repository/worktree regression, not independent human UAT. Pre-existing dispatcher changes remain outside this correction. |
+| First normal install attempt | Rejected before plugin installation with copilot_payload_inventory_mismatch. An additional generated copilot-skills 2 directory and other numbered directories appeared between build and use. The final complete build contained no duplicates. | Origin of the duplicate folders is unconfirmed. A concurrent aggregate/build run was active. No native plugin mutation occurred in the rejected attempt; shared marketplace and consent were unchanged. |
+| Final normal installation | After aggregate completion, npm run install:copilot exits 0: AGDF updated, version 0.14.5 verified, Installation Ready. Canonical Git registration replaces the temporary recovery source. | Actual user profile. Prior request for automatic checks remains enabled; Copilot reports its own permission is still required. |
+| Installed readback | Generated, staged and installed normalized source digest is 9671ef9082352387d6f4b9f3091a8ad90f3e9c411817e25758900edf6ed034b7; inventory records 86 files and 679898 bytes. Installed root: /Users/arndtgold/.copilot/installed-plugins/agdf/agdf. | Profile size includes pre-existing dispatcher work; the installer adds Git metadata outside the plugin payload. |
+| Fresh installed-profile probe | A copy of final installed settings/configuration/cache is read through Desktop SDK with exact runtime 1.0.83-5. Global and new-session APIs return the same ten expected AGDF skill names. | Original installed bytes verified before copying; this is fresh runtime evidence, not visual evidence from the user's running app. |
+
+Final registered source: file:///Users/arndtgold/Library/Application%20Support/agdf/marketplaces/agdf-copilot, ref agdf-9671ef9082352387d6f4b9f3091a8ad90f3e9c411817e25758900edf6ed034b7. Shared marketplace digest at final readback: 0056efb1dee8f47fa1d349ff088da524ee78e82e761ea92e9c6802b05d878fe7. Codex/Claude isolation is additionally covered by the deterministic coexistence tests. The old recovery directories are inert backups and are no longer registered.
+
+Reproduction: npm --prefix create-agdf run test:copilot-installer; npm --prefix create-agdf run smoke-test; npm run install:copilot; copilot skill list --json. Local raw evidence: /tmp/agdf-copilot-final-smoke.log, /tmp/agdf-copilot-native-final-result.json and /tmp/agdf-copilot-installed-final-result.json. Native probe harnesses are /tmp/agdf-copilot-native-matrix.mjs and /tmp/agdf-copilot-verify-installed.mjs.
+
+Remaining evidence: fully quit the desktop app, open a fresh session and observe skill visibility. Existing German repo-less/repository-bound model behavior and optional consented SessionStart observations are still open. No commit, push, publication or release occurred.

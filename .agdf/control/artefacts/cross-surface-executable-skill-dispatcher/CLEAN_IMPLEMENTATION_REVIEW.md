@@ -1,42 +1,42 @@
 # Clean Implementation Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 8
-Decision: pass
-Date: 2026-09-04
+Revision: 10
+Date: 2026-09-05
+
+
+## Codex Follow-up Integrity
+
+- decision: pass.
+- primary_solution: missing reviewed text belongs in the existing locale registry; native host
+  precedence belongs in the existing SessionStart generator. No duplicate semantic owner exists.
+- evidence: direct diff review and focused/end-to-end regression tests.
+- fallbacks_retained: existing unknown-translation rejection and existing surface defaults only.
+  No unconditional English fallback or alternate hook path was added.
+- brownfield_fit: pass under Revision 5 and the approved TP.
+- missing_evidence: source-generated output remains distinct from a corrected installed session.
+- required_next_step: retain the fresh-host evidence obligation in QA.
 
 ## Review
 
-- primary_solution: One thin local orchestration service composes the existing target resolver,
-  gate evaluator and interaction renderer. Registry membership remains derived from the canonical
-  plugin definition and every host receives a generated binding to the same runtime command.
-- evidence: Focused tests, Runtime Integrity, 83/83 deterministic skill evals, package/public-plugin
-  checks and the complete smoke test pass. Direct generated-runtime calls prove terminality,
-  non-authority and sub-second deterministic execution.
-- fallbacks_retained: Only the explicit `instruction_only` capability remains for a host without an
-  executable binding. It uses the existing shared contracts, is not promoted to executable
-  conformance and has no automatic runtime search.
-- workaround_or_shim_risk: none. No daemon, retry loop, `npx` fallback, host registry, second target
-  resolver, private renderer or duplicate gate table was introduced.
-- parallel_structure_risk: none. The dispatcher owns orchestration only; target, gate, presentation,
-  locale, approval persistence and QA remain in their existing owners.
-- host-transfer correction: pass. `host_action` is produced once by the dispatcher service and
-  projected through one shared binding string; no duplicate rule was added to ten skill bodies.
-- activation boundary: pass. The ordinary-conversation exclusion is added to the same shared binding
-  owner and does not create a second router, prompt path or per-skill exception.
-- root-cause correction: pass. The contradictory `AGDF active.` claim is removed instead of layering
-  another exception over it; three bounded binding fields make activation and output behavior explicit.
-- final transfer simplification: pass. Removing the remaining availability headline reduces prompt
-  competition, while co-locating exact output in `host_action.text` avoids model-owned pointer resolution.
-- OpenCode activation fit: pass. The existing adapter remains the activation owner and now exposes
-  the executable binding only after durable repository activation. No duplicate guard, dispatcher
-  fallback or broader shell permission was introduced.
-- installer wait correction: pass. The existing npm invocation is made offline with respect to audit
-  and lifecycle scripts; no retry loop, timeout workaround or second installer was introduced.
-- inactive global-skill correction: pass. The generator strengthens the existing activation/binding
-  boundary once for all ten global skills; it does not add a runtime locator, adapter or parallel
-  activation owner.
-- brownfield_fit: pass. Changes extend the approved CLI, runtime, generator, skill and integrity seams.
-- missing_evidence: The German repo-less Copilot QA case passes. The later Copilot and OpenCode
-  activation corrections, remaining loaded-host cases and native Windows behavior need direct evidence.
-- required_next_step: Retest OpenCode first in an inactive repository without a shell prompt and then
-  in an explicitly activated repository; collect the remaining TP-09 evidence.
+- decision: pass
+- primary_solution: one shared binding/probe owner fixes the incomplete executable/environment tuple
+  at both producers. CLI argument names come from command-registry. The existing wrapper carries
+  the child environment, while target, gates, approval, QA and presentation stay with their owners.
+- evidence: actual source diff from 4d38db394d05bf2afb5280dc3af92dfee042a2bb, 40 adapter scenarios,
+  negative runtime/identity tests, code/provenance regressions and CSED-RUNTIME-01.
+- fallbacks_retained: none added. Failed capability emits unavailable, not a second launch attempt.
+  Existing direct-CLI and instruction-only boundaries are retained.
+- workaround_or_shim_risk: Electron environment is an explicit verified launch property, not a
+  model-created shell repair. No PATH search, global environment write, runtime replacement or
+  persistent cache exists. Unsupported bootstrap module configuration is rejected before probing.
+- parallel_structure_risk: none introduced. A draft production argv serializer with no real host
+  consumer was removed; it exists only as a clearly labelled host-emulation test helper.
+  Footprint checks validate envelope/budget structure, not a private per-host argument inventory.
+- brownfield_fit: conforms to approved SD2/TP2 and Brownfield Analysis Revision 4.
+- missing_evidence: fresh model/host behavior and unobserved native platforms, tracked by
+  CSED-TP-EVIDENCE-01. This code-structure review is not that evidence and is not independent review.
+- required_next_step: carry the open evidence obligation into QA.
+
+The existing dispatch-time resolver remains the version/digest/provenance authority. The new
+binding probe checks executable capability and entrypoint presence, not arbitrary wrapper content
+or a new provenance scheme. No extra architectural owner or approval is implied.

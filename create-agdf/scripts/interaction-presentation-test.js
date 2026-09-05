@@ -33,12 +33,26 @@ import {
 } from "../lib/interaction-presentation.js";
 import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
+import { runSelectionRecovery } from "../lib/control-evaluation/shared.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "agdf-interaction-locales.json"), "utf8"));
 
 assert.deepEqual(validateLocaleRegistry(registry), { valid: true, errors: [] });
 assert.deepEqual(validateLocaleRegistry(sourceRegistry), { valid: true, errors: [] });
+for (const [command, key] of [["gate-check", "selectIntendedRun"], ["doctor", "selectOrEvaluateActiveRuns"], ["delivery-map", "selectOrEvaluateActiveRuns"]]) {
+  assert.equal(sourceRegistry.locales.en.operationalValues[key], runSelectionRecovery(command), "locale source must match the canonical recovery owner exactly");
+  const card = {
+    run_id: "unknown", current_gate: "UR", presentation_language: "de", status: "blocked",
+    allowed_now: [], forbidden_now: [], blocking_condition: "AGDF_ACTIVE_RUN_AMBIGUOUS",
+    allowed_after_approval: "none", next_step: runSelectionRecovery(command), quality_outlook: "none",
+  };
+  const rendered = renderOperationalStatusCard(card, { registry: sourceRegistry, humanPresentation: {} });
+  assert.ok(rendered, JSON.stringify(validateOperationalStatusCardPreconditions(card, { registry: sourceRegistry })));
+  assert.match(rendered.markdown, /Den gewünschten Run/);
+  assert.doesNotMatch(rendered.markdown, /Pass --run/);
+  assert.equal(renderOperationalStatusCard({ ...card, next_step: "Unreviewed new recovery text" }, { registry: sourceRegistry, humanPresentation: {} }), null, "unknown English recovery must still fail closed in German");
+}
 assert.equal(canonicalizeLanguageTag("de_DE.UTF-8"), "de-de");
 assert.equal(resolvePresentationLocale(registry, "de-AT"), "de");
 assert.equal(resolvePresentationLocale(registry, "fr-FR"), "en");

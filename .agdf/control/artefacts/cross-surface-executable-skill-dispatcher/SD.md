@@ -1,11 +1,18 @@
 # Solution Design: Cross-surface Executable Skill Dispatcher
 
-- revision: 1
+- revision: 2
 - status: `approved`
 - related_prd: `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/PRD.md`
 - delivery_depth: `structured_delivery`
 
 ## Design Summary
+
+Revision 2 corrects the transport design after CSED-HOST-08. UR and PRD Revision 1 remain
+unchanged. The earlier SD approval applies only to Revision 1, recoverable at commit
+`4d38db394d05bf2afb5280dc3af92dfee042a2bb`. Revision 2 was approved by the user's exact
+`Approval: SD` after revalidation of target, run, gate and run revision 18
+(`3CA1DBAC-196A-4268-A103-F8B79045B18F`). It permits the TP revision, not implementation,
+installation or release.
 
 Extend the existing surface-local `agdf-local.js` runtime with one `skill-dispatch --json` command.
 The command validates the invocation, derives the shipped skill registry from the canonical plugin
@@ -200,8 +207,71 @@ returns code 0. No automatic retry occurs.
 ### Common rule
 
 Every loaded profile provides one exact version-matched dispatch binding to the model before a
-direct skill is invoked. The binding consists of the executable, immutable prefix arguments,
-surface and expected version. It is context, not task-target or gate authority.
+direct skill is invoked. One shared transport owner constructs the binding for every runtime-bearing
+surface. Binding schema `2` extends the existing executable, immutable prefix arguments, surface and
+expected version with a bounded child-process environment and a code-derived invocation grammar.
+The `skill-dispatch` command, its input/output schema and contract version remain `1`. Binding version
+and dispatcher protocol version are separate identities. A binding is context, not target or gate
+authority.
+
+### Shared Invocation Owner And Runtime Suitability
+
+- Add one small transport module under `create-agdf/lib/skill-dispatch/`, consumed by the existing
+  session-runtime generator and OpenCode plugin. It owns binding construction and validation only.
+- Keep Node/Electron child-process launch preparation reusable by the existing local-validator
+  wrapper. Do not duplicate process policy in four host adapters or construct a second dispatcher.
+- An absolute `process.execPath` alone is not proof that the executable can run a script. Inspect
+  runtime metadata and verify the exact launch tuple with a bounded, fixed, repository-free probe.
+  The probe performs no network, control inspection, installation or target selection.
+- For a normal Node runtime, retain the exact executable and an empty environment override map.
+  For an Electron runtime, supply the fixed child-only override `ELECTRON_RUN_AS_NODE=1` and verify
+  that exact tuple. Other Node-compatible runtimes need their own passing capability evidence;
+  unknown or failed runtime capability is unavailable, never an invitation to search PATH.
+- Allow only AGDF-owned, necessary transport overrides. Do not publish inherited environment
+  variables, credentials or arbitrary user-supplied override keys in model context.
+- Preserve the environment across the verified wrapper-to-validator process chain. Do not mutate
+  the parent application's environment or globally persist an Electron workaround.
+- Bound probe time and output and reuse its result only within the same session and exact launch
+  identity. Invalid or stale identity requires revalidation, not a persistent capability store.
+- Missing executable, failed probe, invalid environment or incompatible binding yields one
+  non-authorizing `dispatcher_unavailable` recovery through existing owners. Never advertise an
+  executable binding that failed preflight or retry with a guessed executable.
+
+### Exact Argument And Target Transport
+
+- Derive the invocation grammar from the existing canonical CLI owner. Expose the exact required
+  `--skill`, `--language`, `--working-directory` and optional paired `--target-source`,
+  `--primary-target`, plus optional `--run`. Do not maintain another per-host flag list.
+- Fixed prefix arguments remain immutable. The host supplies semantic values, not invented flag
+  names. `--cwd` remains invalid; this correction introduces no convenience alias.
+- Carry already established explicit, continued or deictic current-repository target evidence into
+  both target fields. A bare skill invocation or cwd does not establish that evidence. Omit both
+  target fields when no target is established; preserve the existing terminal target clarification.
+- Do not add a heuristic that treats every direct skill invocation as work on the current folder.
+  Multiple plausible targets still require clarification. Target/run decisions remain outside the
+  transport owner and are revalidated by the existing resolver/evaluator.
+- Keep working directory, primary target and run distinct. A successfully resolved target may still
+  expose an earlier gate or ambiguous run and must not be represented as completed QA.
+- Prefer host process APIs carrying executable, argv and environment separately. Existing shell
+  transports must preserve argument boundaries and child-only environment on POSIX and Windows,
+  including spaces, quotes, metacharacters and non-ASCII paths. Do not introduce `eval`, change
+  global shell permissions or add a new native tool in this correction.
+
+### Compatibility And Distribution
+
+- Binding schema 2 is emitted coherently with matching skills and runtime consumers. New consumers
+  reject unknown/incomplete versions; old binding context requires a coherent update and restart,
+  never an agent-written adapter. Existing direct CLI v1 calls remain supported unchanged.
+- Retain activation guards, route-source identity, request-activation fingerprint, consent-bound
+  automatic checks, terminal host-action transfer and instruction-only capability boundaries.
+- Generate canonical and derived skill entry blocks from one source. Put exact invocation guidance
+  at the dispatch boundary, not into the request-activation kernel or every eager bootstrap.
+- Enforce the current instruction-footprint budgets. This correction does not authorize restoring
+  duplicated system instructions or silently increasing those budgets.
+- Runtime-bearing Codex, Claude Code, Copilot and OpenCode profiles share the same binding owner.
+  The public skills-only profile remains runtime-free and honestly instruction-only where applicable.
+- Scope stays separate from `opencode-native-dispatch-tool`; no native tool, hook, remote service,
+  permission expansion or new target policy is introduced.
 
 ### Codex, Claude Code And Copilot
 
@@ -217,15 +287,18 @@ unchanged.
 ### OpenCode
 
 The plugin system transform emits the exact config-local `agdf/bin/agdf-local.js` dispatch prefix
-and expected version after verifying the configured runtime. Repository activation guidance remains
-separate. The documented subagent hook limitation is retained.
+and expected version through the shared binding owner after verifying runtime identity and launch
+suitability. It emits executable guidance only under the existing repository-activation boundary.
+Electron runtime metadata is handled by shared launch preparation, not a host-name-specific shell
+fallback. The documented subagent hook limitation is retained.
 
 ### Skill-first instruction
 
 Every generated/canonical skill begins with one compact dispatcher block:
 
 1. use the supplied dispatch binding as the first operational action;
-2. pass current language and explicit target evidence only;
+2. follow the supplied invocation grammar, preserve child environment and argv, and pass the current
+   language plus established target evidence under the unchanged target-authority precedence;
 3. consume terminal presentation and stop, or continue only with the returned packet;
 4. do not search for alternate runtimes or contract files;
 5. if no binding exists, report dispatcher unavailable with the supported install/restart action and
@@ -348,6 +421,25 @@ Generated files are never edited as primary owners.
 3. Install/restart each host only with explicit lifecycle authorization.
 4. Capture loaded-host evidence separately, beginning with Copilot repo-less `gate-check` regression.
 5. Release only after QA approval, UAT decision, Context Graph reconciliation and explicit delivery action.
+
+### Revision 2 Acceptance And Evidence Additions
+
+- For every supported runtime-bearing surface, assert the same binding schema, CLI grammar and
+  target/authority behavior. Exercise both `gate-check` and `qa-gate` entry paths.
+- Reproduce the Electron-Helper failure before correction and prove the exact generated launch
+  tuple succeeds without a model-invented environment override or exploratory help call.
+- Test Node, Electron and unsupported/failed runtime probes, child environment propagation,
+  stale/missing/malformed binding, version skew, output/time bounds and no alternate-runtime search.
+- Verify required flags, paired target preservation, explicit and continued targets, deictic repo
+  references, unresolved and ambiguous targets, and no cwd-to-target substitution.
+- Cover POSIX and Windows transport with hostile quoting/path fixtures. Native Windows and real
+  Electron evidence remain separate from mocks or simulated platform paths.
+- Verify all generated packages, instruction budgets, idempotent regeneration, provenance,
+  runtime digest, existing consent/permission policy and unchanged CLI v1 regression suites.
+- A fresh host matrix records installation, restart, host/OS/runtime identity and exact invocations
+  separately. Until observed, a surface is unverified; another host's success is not parity proof.
+- Update TP before code changes to map these obligations to executable tests and bounded host
+  evidence. Existing SD1/TP1 test results remain historical evidence only for this correction.
 
 ## Rollback
 

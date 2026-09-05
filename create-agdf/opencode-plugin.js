@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import process from "node:process";
 import { evaluateOpenCodeRepositoryActivation } from "./lib/installers/opencode-activation.js";
 import { executeOpenCodeAutomaticRuntimeCheck } from "./lib/runtime-check-consent/service.js";
+import { createDispatchBinding, unavailableDispatchContext } from "./lib/skill-dispatch/binding.js";
 
 const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 const requestActivationMarkers = Object.freeze({
@@ -93,7 +94,7 @@ export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
     repositorySurface: repositoryActivation.legacy_surface,
     };
   };
-  const validatorPath = fileURLToPath(new URL("../../agdf/bin/agdf-local.js", import.meta.url));
+  const validatorPath = dependencies.validatorPath ?? fileURLToPath(new URL("../../agdf/bin/agdf-local.js", import.meta.url));
   const activationContract = readRequestActivationContract();
   const activationIdentity = validateRequestActivationIdentity(
     dependencies.requestActivationIdentity ?? activationContract.identity,
@@ -101,21 +102,24 @@ export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
   if (Object.entries(activationContract.identity).some(([key, value]) => activationIdentity[key] !== value)) {
     throw new Error("AGDF Request Activation dependency identity does not match the installed kernel.");
   }
-  const activeContext = [
-    `AGDF dispatcher binding: ${JSON.stringify({
-      schema_version: "1",
-      executable: process.execPath,
-      argv_prefix: [validatorPath, "skill-dispatch", "--json", "--surface", "opencode"],
-      expected_version: packageJson.version,
-      request_activation: {
-        owner: activationIdentity.owner,
-        policy_version: activationIdentity.policy_version,
-        guard_fingerprint: activationIdentity.guard_fingerprint,
-      },
-      authorizes: false,
-    })}`,
-    `AGDF runtime facts: ${JSON.stringify({ active: true, version: packageJson.version })}`,
-  ].join("\n");
+  const activeContext = () => {
+    try {
+      const binding = createDispatchBinding({
+        validator: validatorPath,
+        surface: "opencode",
+        expectedVersion: packageJson.version,
+        requestActivation: {
+          owner: activationIdentity.owner,
+          policy_version: activationIdentity.policy_version,
+          guard_fingerprint: activationIdentity.guard_fingerprint,
+        },
+      });
+      return [
+        `AGDF dispatcher binding: ${JSON.stringify(binding)}`,
+        `AGDF runtime facts: ${JSON.stringify({ active: true, version: packageJson.version })}`,
+      ].join("\n");
+    } catch { return unavailableDispatchContext(); }
+  };
 
   const appendContentOnce = async (output, key, content) => {
     if (!content) return;
@@ -194,7 +198,7 @@ export const AGDFPlugin = async ({ directory, client }, dependencies = {}) => {
 
     "experimental.chat.system.transform": async (_input, output) => {
       if (!activation().active) return;
-      await appendContentOnce(output, "system", activeContext);
+      await appendContentOnce(output, "system", activeContext());
     },
 
     "experimental.session.compacting": async (_input, output) => {

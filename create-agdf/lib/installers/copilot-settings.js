@@ -4,6 +4,7 @@ import { homedir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import process from "node:process";
 import { renameSyncWithRetry } from "../fs-swap.js";
+import { copilotMarketplaceSource } from "./copilot-marketplace-transport.js";
 
 const COPILOT_PLUGIN_SELECTOR = "agdf@agdf";
 const COPILOT_LOCAL_SETTINGS = join(".github", "copilot", "settings.local.json");
@@ -24,6 +25,10 @@ export function readCopilotSettings(path = defaultCopilotSettingsPath()) {
     if (settings.enabledPlugins !== undefined
         && (!settings.enabledPlugins || typeof settings.enabledPlugins !== "object" || Array.isArray(settings.enabledPlugins))) {
       throw new Error("enabledPlugins must be an object");
+    }
+    if (settings.extraKnownMarketplaces !== undefined
+        && (!settings.extraKnownMarketplaces || typeof settings.extraKnownMarketplaces !== "object" || Array.isArray(settings.extraKnownMarketplaces))) {
+      throw new Error("extraKnownMarketplaces must be an object");
     }
     return { exists: true, settings, content };
   } catch (error) {
@@ -59,6 +64,31 @@ function atomicContentWrite(path, content, dependencies = {}) {
 
 export function atomicSettingsWrite(path, settings, dependencies = {}) {
   atomicContentWrite(path, `${JSON.stringify(settings, null, 2)}\n`, dependencies);
+}
+
+export function configureCopilotMarketplace({ path = defaultCopilotSettingsPath(), root, sourceDigest }) {
+  const before = readCopilotSettings(path);
+  const next = structuredClone(before.settings);
+  const entry = { ...(next.extraKnownMarketplaces?.agdf ?? {}), source: copilotMarketplaceSource(root, sourceDigest) };
+  next.extraKnownMarketplaces = { ...(next.extraKnownMarketplaces ?? {}), agdf: entry };
+  if (JSON.stringify(before.settings.extraKnownMarketplaces?.agdf) !== JSON.stringify(entry)) atomicSettingsWrite(path, next);
+  return { path, source: entry.source };
+}
+
+export function restoreCopilotMarketplaceSettings(path, before) {
+  // Native install/uninstall can also change enablement. Restore only AGDF's
+  // entries, preserving any concurrent changes to unrelated user preferences.
+  const current = readCopilotSettings(path);
+  const next = structuredClone(current.settings);
+  for (const [key, entry] of [["extraKnownMarketplaces", "agdf"], ["enabledPlugins", COPILOT_PLUGIN_SELECTOR]]) {
+    next[key] = { ...(next[key] ?? {}) };
+    if (Object.hasOwn(before.settings[key] ?? {}, entry)) next[key][entry] = before.settings[key][entry];
+    else delete next[key][entry];
+    if (Object.keys(next[key]).length === 0) delete next[key];
+  }
+  if (!before.exists && Object.keys(next).length === 0) {
+    if (current.exists) rmSync(path);
+  } else atomicSettingsWrite(path, next);
 }
 
 export function repositoryCopilotSettingsPath(targetDir, { shared = false } = {}) {

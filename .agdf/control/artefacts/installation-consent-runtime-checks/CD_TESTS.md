@@ -1,5 +1,55 @@
 # CD+Tests: Installation Consent for Automatic Runtime Checks
 
+## Codex Hook Correction, 2026-09-05
+
+This section supersedes the earlier Codex native-observation claim for the bounded correction.
+Approved scope: SD Revision 3 AD-2/AD-6; TP Revision 2 IRC-07/10/14/16.
+
+- `runtime-check-consent/codex-hooks.js` now reads the native hook state through a bounded,
+  injectable app-server client. Initialization and `hooks/list` are its only requests. Malformed,
+  ambiguous, unsupported, failed, timed-out or oversized responses remain unverified.
+- The existing consent adapter gives native review precedence over an apparent enabled state and
+  distinguishes review-required, disabled, unverified and trusted-but-session-unverified hooks.
+- The existing async CLI handlers use that observation after enabled Codex installation and for
+  status. Manual, failed and identity-renewal states retain their owners and skip the probe.
+- Compact install output no longer asks for approval of an already trusted hook. General status
+  preserves its repository/delivery next action and exposes the separate runtime verification.
+- The hook command, capability identity, receipt schema and native trust store are unchanged.
+- The canonical install guide, package README and two existing Context Graph nodes record the
+  observation/execution boundary. No installation, commit, push or publication was performed.
+
+| task_id | correction evidence | result and limit |
+|---|---|---|
+| IRC-07 | native parser/transport tests, review precedence regression, actual CLI and desktop-binary metadata | repository pass; native observation pass; fresh execution remains open |
+| IRC-10 | CLI install and runtime-check status fixtures for trusted, modified and disabled hooks; compact rendered output; general-status recovery preservation | repository pass; revised installed installer rendering remains open |
+| IRC-14 | focused runtime-check suite now includes the native observer regression suite and is included in aggregate smoke | focused pass; final aggregate result below |
+| IRC-16 | this section and `CODEX_HOOK_EVIDENCE.md` | evidence planes and original-hash uncertainty preserved |
+
+Verification on this correction:
+
+- `node create-agdf/scripts/codex-hook-observation-test.js`: pass.
+- Runtime-check consent, CLI modularization and lifecycle suites: pass.
+- The implemented observer returns the same enabled, trusted hook/hash from Codex CLI 0.145.0
+  and desktop binary 0.153.4. This does not prove a loaded fresh-session context.
+- Initial full smoke stopped on npm cache `EPERM`; no code assertion failure was reported at
+  that stop. Retest uses a dedicated temporary npm cache without changing the user cache.
+- Final aggregate verification: pass with
+  `npm_config_cache=/private/tmp/agdf-codex-hook-fix-npm-cache npm --prefix create-agdf run smoke-test`.
+  This includes release preparation, package build/content checks, runtime integrity negatives,
+  83/83 deterministic skill cases, OpenCode hardening and routing. Log:
+  `/private/tmp/agdf-codex-hook-fix-smoke-final.log`.
+- A final malformed-hash type guard was added during review. The native observer, full consent,
+  CLI modularization and lifecycle suites were rerun afterward and pass; log:
+  `/private/tmp/agdf-codex-hook-fix-focused-final.log`.
+- Source Runtime Integrity: pass. `git diff --check`: pass. Baseline staged diff remains identical;
+  the changed file set contains only the declared correction and its evidence.
+- Current version-matched installed-validator gate-check: open at QA, `qa_revise_required`.
+  All-active doctor remains at its baseline 0 block / 1 revise / 55 warnings; the sole revise
+  belongs to the unrelated `cross-surface-plugin-opt-out` run.
+
+Finding `IRC-CODEX-01` is resolved by the implementation and focused/native evidence.
+`TPR-01` remains open for revised installed-host rendering and the declared host matrix.
+
 Status: `done_with_declared_host_evidence_gaps`
 Run: `installation-consent-runtime-checks`
 Approved plan: TP Revision 2

@@ -47,13 +47,14 @@ npm run install:copilot
 npm run install:opencode
 ```
 
-Node.js 18 or later, npm and the selected agent CLI are required. Run only the command for the
-selected agent. Each command validates and prepares the current
+Node.js 18 or later, npm and the selected agent CLI are required. Copilot installation also requires
+Git. Run only the command for the selected agent. Each command validates and prepares the current
 checkout before changing that agent's global AGDF installation. Codex receives a content-derived
 local version so a changed checkout is not mistaken for the previous cache entry. Claude Code uses
-the same local marketplace with the canonical project version. Copilot installs the generated root
-plugin through the AGDF-owned local marketplace when its CLI is available. Otherwise the command
-runs a pinned official `@github/copilot` npm package, verifies the host plugin list and requires an app restart. The npm
+the same local marketplace with the canonical project version. Copilot installs the generated profile
+through its AGDF-owned canonical marketplace root using native Git transport and a content-derived ref. If its CLI is unavailable, the command runs a pinned
+official `@github/copilot` npm package. It verifies plugin identity, skill discovery and installed
+package content, then requires an app restart. The npm
 fallback requires Node.js 22 or later. OpenCode installs a marker-owned
 local package built from this checkout instead of resolving the public npm package.
 

@@ -1318,11 +1318,11 @@ if (isFile(syncPluginRuntimePath)) {
   const syncPluginRuntime = read(syncPluginRuntimePath);
   for (const required of [
     "const activationKernel = requestActivationKernel()",
-    "request_activation: ${JSON.stringify({",
+    "requestActivation: ${JSON.stringify({",
     "owner: activationKernel.identity.owner",
     "policy_version: activationKernel.identity.policy_version",
     "guard_fingerprint: activationKernel.identity.guard_fingerprint",
-    "route_source_after_activation:",
+    "routeSource:",
     "../meta/contracts/request-activation.md",
     "../copilot-skills/contracts/request-activation.md",
     "const bindingContext =",
@@ -1330,7 +1330,7 @@ if (isFile(syncPluginRuntimePath)) {
     "const baseContext = [activationKernel, bindingContext].join",
     "const additionalContext = [baseContext",
     "AGDF runtime facts:",
-    "authorizes: false",
+    "createDispatchBinding",
   ]) {
     if (!syncPluginRuntime.includes(required)) {
       failures.push(`plugin runtime sync missing compact kernel/binding/runtime-facts structure: ${required}`);
@@ -1351,12 +1351,12 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     'identity?.path !== "plugin/meta/contracts/request-activation.md"',
     "identity?.policy_version !== 1",
     "fingerprint mismatch",
-    "const activeContext = [",
-    "request_activation: {",
+    "const activeContext = () =>",
+    "requestActivation: {",
     "owner: activationIdentity.owner",
     "policy_version: activationIdentity.policy_version",
     "guard_fingerprint: activationIdentity.guard_fingerprint",
-    "authorizes: false",
+    "createDispatchBinding",
     "if (!activation().active) return",
   ]) {
     if (!openCodeNpmPlugin.includes(required)) {
@@ -1391,6 +1391,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     }, {
       requestActivationIdentity: expectedIdentity,
       executeAutomaticRuntimeCheck: () => ({ effective: false, reason: "integrity_fixture", ran: false, output: "" }),
+      validatorPath: join(repoRoot, "create-agdf", "bin", "agdf-validator.js"),
     });
     const expectedHookKeys = [
       "event",
@@ -1425,6 +1426,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     }, {
       requestActivationIdentity: expectedIdentity,
       executeAutomaticRuntimeCheck: () => ({ effective: false, reason: "integrity_fixture", ran: false, output: "" }),
+      validatorPath: join(repoRoot, "create-agdf", "bin", "agdf-validator.js"),
     });
     const activeSystemOutput = { system: [] };
     await activeHooks["experimental.chat.system.transform"]({}, activeSystemOutput);

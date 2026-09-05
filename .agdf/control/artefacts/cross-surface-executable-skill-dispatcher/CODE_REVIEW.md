@@ -1,69 +1,70 @@
 # Code Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 8
+Revision: 10
 Decision: pass
-Date: 2026-09-04
-Reviewed scope: dispatch contract/service, CLI and wrapper integration, generated host bindings,
-canonical skills, locale registry, Runtime Integrity, package profile and tests.
+Date: 2026-09-05
+Review mode: direct review by the implementing agent, not independent-agent evidence.
+Baseline: 4d38db394d05bf2afb5280dc3af92dfee042a2bb.
+
+
+## Codex Follow-up Review
+
+- decision: pass for the bounded follow-up diff against `/private/tmp/agdf-codex-followup-baseline/`.
+- evidence: exact registry/recovery-owner equality, strict untranslated-value rejection, native
+  environment fixtures, 40 reference cases and real-repository generated-runtime replay.
+- correctness: native Codex PLUGIN_ROOT precedes its Claude compatibility alias; explicit surface
+  and the specific Copilot marker retain precedence. No new target, run or gate inference exists.
+- regression: the prior fixtures forced the host and used English control, masking both defects;
+  the new cases exercise those boundaries independently. Locale formatting is preserved.
+- security/ownership: no renderer weakening, trust/permission mutation, hook manifest change or
+  added runtime search. Existing dirty work remains outside this correction.
+- missing_evidence: corrected installed profile and fresh host execution under CSED-QA-01.
+- required_next_step: QA consumes resolved code findings and retains the open host evidence.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-CODEX-09 | implementation_gap | CD+Tests | resolved | Canonical recovery locale entries and German ambiguous-run replay | Retest the corrected installed host. |
+| CSED-CODEX-10 | implementation_gap | CD+Tests | resolved | Native-variable precedence and generated SessionStart fixtures | Retest the corrected Codex binding in a fresh task. |
+
+## Reviewed Scope
+
+Actual diff and affected neighbours: binding.js, CLI command registry, local-validator child env,
+OpenCode transform, SessionStart generator, all ten skill entry blocks, composed-profile and
+footprint consumers, integrity/consent/lifecycle/hardening tests, new transport tests and the
+reviewed offline replay fingerprints. Generated profiles and payload budgets were checked.
+Target resolver, gate semantics, activation kernel and permissions are unchanged. The current
+locale-registry addition is assessed in the follow-up review above.
 
 ## Findings
 
-No open correctness, security, compatibility or maintainability finding remains in the reviewed
-repository scope.
+No open code defect remains evident in the reviewed scope. Resolved issues found during this work:
 
-The review found and resolved these issues before the final decision:
+1. The original tuple omitted Electron child env and exact argument names. The shared owner and
+   code-derived grammar correct both without weakening --cwd rejection or target pairing.
+2. Runtime suitability needed positive evidence, bounded failure and stale-file invalidation.
+   The probe is fixed, repository-free and cached only for the exact current launch identity.
+3. Inherited Node bootstrap module configuration could run code before the fixed probe. It is
+   rejected before spawn and is never printed. The parent env remains untouched.
+4. Real Electron emitted OS stderr despite correct output and exit 0. Stderr is bounded but is
+   not treated alone as failure. Error, signal, timeout, overflow and malformed stdout still fail.
+5. Source-only fixtures had advertised nonexistent installed runtime paths. Explicit source
+   fixture paths now preserve the new missing-runtime failure rather than bypass it in production.
+6. The missing-entrypoint layout test had expected the obsolete permissive binding. Its new
+   assertion requires unavailable, no executable binding and the unchanged passive kernel.
+7. Review removed an unused production serializer. Model argument construction is not falsely
+   represented as enforcement by a helper used only in tests.
+8. The offline replay stamp was stale. A compatibility review found no changed case-specific
+   source or judgement text outside dispatch blocks. Only reviewed source fingerprints changed;
+   no observation, threshold, case rule or provenance kind was relabelled as live execution.
 
-1. The new backlog entry used an unsupported compact artefact label, which made focused doctor
-   return `AGDF_BACKLOG_ARTEFACT_LABEL_UNKNOWN`. The unsupported projection was removed and focused
-   gate-check now reports doctor `pass`.
-2. `control_result` accepted a missing renderer presentation. The service now fails closed to
-   `evaluator_error` with presentation diagnostics, matching the approved SD failure matrix.
-3. Terminal skill wording allowed recovery to compete with the localized renderer. All ten skills
-   now return the presentation verbatim when present and use recovery only when it is absent.
-4. The canonical locale registry lacked three CD+Tests operational values used by gate policy.
-   Complete English and German entries now preserve locale parity and fail-closed validation.
-5. A fresh Copilot run obeyed dispatcher-first execution but reconstructed the terminal result.
-   The service now emits one bounded `host_action`; shared SessionStart and OpenCode bindings require
-   exact terminal transfer, stop and no added choices or run/evidence questions.
-6. The German QA retest passed, while its preceding language-only turn exposed binding-driven AGDF
-   over-activation. The central binding now excludes activation or announcement from its presence,
-   ordinary conversation or a language preference alone. Focused projection and integrity tests pass.
-7. A further byte-matched retest proved the prose-only exclusion insufficient because SessionStart
-   still began with `AGDF active.`. The root claim is now neutral, target requests are intent-gated,
-   and the binding object exposes exact activation, pre-dispatch and terminal-output policies.
-8. CSED-HOST-04 proved those fields removed pre-dispatch prose and target questions, but not runtime
-   mention or table rewriting. The remaining availability headline is removed, ordinary chat and
-   runtime mention are separately machine-bound, and exact terminal Markdown is embedded in
-   `host_action.text`; focused dispatcher, projection, integrity and release tests pass.
-9. CSED-HOST-05 exposed the OpenCode dispatcher before durable repository activation. Inactive
-   guidance now omits the executable binding and forbids an AGDF shell-permission request; active
-   guidance still receives the exact binding. The focused OpenCode test covers both branches and
-   release preparation plus Runtime Integrity pass.
-10. The local package installation used `--silent` but still allowed npm audit traffic, leaving the
-    user without progress while npm waited on the registry. It now disables audit, funding and
-    package scripts. The end-to-end smoke fixture rejects a regression in these flags.
-11. The inactive plugin guidance no longer exposed a binding, but the static global skill still
-    allowed the model to reconstruct an installed-package runtime path. The generator now makes the
-    dispatch section explicitly conditional on both active context signals and rejects search,
-    inference or shell recovery. All ten generated global skills are asserted.
+## Evidence And Limits
 
-## Evidence
+CD_TESTS.md records green focused/aggregate tests, all corrected red tests, exact measurements
+and the rollback fixture. CSED-RUNTIME-01 proves the real local Electron process chain only.
+The 2000 ms E2E timeout was retained after one transient failure under concurrent aggregate load.
+Native Windows/Linux execution, real loaded models, visible output fidelity and fresh-session
+adherence remain an explicit evidence gap, not an unsubstantiated defect or a fabricated pass.
+No other user change was included. The unrelated image was not edited.
+The existing wrapper owns dispatch-time version/digest/provenance validation.
 
-- `skill-dispatch-test.js` covers all ten registry entries, invalid classes, terminality, immutable
-  continuation, timing, output bounds and missing presentation.
-- Runtime Integrity rejects invalid dispatch metadata, damaged skill bindings and missing generated
-  runtime components.
-- OpenCode and SessionStart tests prove exact binding projection while preserving consent boundaries.
-- `host_action` tests cover terminal presentation, recovery, continuation and oversized output.
-- Full smoke, release preparation, package contents, interaction presentation and 83/83 skill evals
-  pass after the corrections.
-- `git diff --check` passes and the unrelated untracked image is not part of the reviewed change.
-
-## Missing Evidence And Risks
-
-- Prompt terminal behavior is loaded-host proven, but visible header fidelity is not. The newest
-  Copilot and OpenCode activation corrections, remaining loaded-host behavior and native Windows
-  invocation are unverified.
-- `instruction_only` is an honest capability classification, not an executable fallback guarantee.
-- required_next_step: collect separately authorized TP-09 host evidence, refresh review evidence and
-  only then run `qa-gate`.
+- required_next_step: evaluate plan coverage and the retained host evidence gap through qa-gate.

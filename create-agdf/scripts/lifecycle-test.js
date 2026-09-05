@@ -943,7 +943,7 @@ const pluginLogs = [];
 const manualRuntimeCheck = () => ({ requested: "manual", effective: "manual", reason: "consent_not_provided", ran: false, output: "" });
 const hooks = await AGDFPlugin(
   { directory: activationRoot, client: { app: { log: async (entry) => pluginLogs.push(entry) } } },
-  { executeAutomaticRuntimeCheck: manualRuntimeCheck },
+  { executeAutomaticRuntimeCheck: manualRuntimeCheck, validatorPath: fileURLToPath(new URL("../bin/agdf-validator.js", import.meta.url)) },
 );
 const activeSystem = { system: [] };
 await hooks["experimental.chat.system.transform"]({}, activeSystem);

@@ -54,6 +54,13 @@ Claude deny/ask precedence and all explicit OpenCode permissions remain authorit
 Skills-only OpenAI candidate has no runtime or hooks and therefore remains manual/external for this
 capability.
 
+For Codex, the installer and `runtime-checks status --surface codex` read native `hooks/list`
+metadata through the local Codex CLI. A modified or untrusted AGDF session hook requires review
+in `/hooks`. An enabled, trusted hook instead reports that verification in a fresh session is
+pending; it does not ask you to grant the same trust again. Missing, ambiguous or unsupported
+native metadata stays unverified. AGDF never writes Codex trust hashes, and native trust alone
+does not prove that a session hook ran. After an update, fully restart Codex and open a fresh task.
+
 For prerequisites, all surface-specific flows and operational boundaries, use the authoritative [installation guide](../INSTALL.md). Do not run `init` merely to ask a fresh question: an agent can first clarify the request and ask for `Approval: UR` when durable control state is needed.
 
 ## Command overview
@@ -148,7 +155,7 @@ it does not localize the CLI lifecycle card.
 - `codex` installs the AGDF plugin globally for Codex
 - `codex-repo` writes a repository-local Codex marketplace under `.agents/plugins/` and a local AGDF plugin copy under `plugins/agdf/`
 - `claude` installs the AGDF plugin globally for Claude Code
-- `copilot` registers the AGDF-owned local Marketplace and installs `agdf@agdf` through Copilot CLI; when `copilot` is not on `PATH`, it runs the pinned official `@github/copilot` CLI package through npm, then verifies AGDF in Copilot's own plugin list
+- `copilot` registers the AGDF-owned local Marketplace and installs `agdf@agdf` through Copilot CLI; when `copilot` is not on `PATH`, it runs the pinned official `@github/copilot` CLI package through npm, then verifies the plugin identity and all expected enabled plugin skills against the installed package content
 - `opencode` installs the AGDF npm plugin and ten native skills as a user-wide OpenCode surface
 - `opencode-status` reports OpenCode global config, package loadability, global native-skill completeness, installed host/plugin-SDK versions, declaration-level support for AGDF's two experimental hooks, durable repository activation, legacy compatibility and observable session signals
 - `status` reports installation, repository activation and delivery separately without mutating state
@@ -162,7 +169,7 @@ The `codex` and `claude` commands install the complete shared plugin built into 
 `create-agdf` package. The `copilot` command installs a dedicated generated profile containing only
 the Copilot manifest, prefixed skills, hook, required contracts and exact-version runtime. Every profile
 is rendered from the same canonical sources. The installers atomically stage their profile under an AGDF-owned user-data marketplace, register
-that stable local path through the host CLI and verify the exposed version. Source `plugin/` therefore
+that stable local source with the host and verify the exposed version. Source `plugin/` therefore
 contains no generated runtime bytes and the source checkout exposes no installable root marketplace.
 
 Repository lifecycle support is deliberately asymmetric:
@@ -202,6 +209,18 @@ AGDF skills and must not be treated as current loaded-session evidence.
 Copilot staging uses the independent path `<AGDF data directory>/marketplaces/agdf-copilot`. This
 prevents Copilot updates and rollbacks from replacing the shared Codex and Claude payload while the
 host-facing Marketplace identity remains `agdf` and the install identity remains `agdf@agdf`.
+
+Copilot uses Git transport from this same canonical staging root. The installer generates Git
+metadata and a content-derived branch outside the plugin payload, registers the source through
+Copilot's `extraKnownMarketplaces` settings and runs the native plugin installer. Git must be
+available. Existing AGDF-owned directory registrations are migrated automatically; foreign
+marketplaces are refused. Same-version source changes receive a new ref, and failures restore the
+previous package and AGDF settings. There is no separate manual package snapshot to maintain.
+
+Installation is healthy only when `copilot skill list --json` exposes every expected skill from one
+enabled plugin installation with matching package content. Missing, disabled, shadowed or stale
+skills produce a verification failure. This is host discovery evidence; restart the desktop app and
+check a fresh session for rendered behavior.
 
 The Copilot installer does not create, rewrite or remove repository files. Existing `AGENTS.md`, `.github/` and `.agdf/control/` content remains untouched. Use `init` separately when a repository should own surface-neutral durable AGDF control state.
 

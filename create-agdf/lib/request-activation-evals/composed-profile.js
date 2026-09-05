@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { validateDispatchBinding } from "../skill-dispatch/binding.js";
 
 export const REQUEST_ACTIVATION_PROFILE_SURFACES = Object.freeze(["codex", "claude", "copilot", "opencode"]);
 export const REQUEST_ACTIVATION_EVALUATOR_SURFACES = Object.freeze(["codex", "claude"]);
@@ -63,6 +64,7 @@ function validateDispatcherBinding(content, surface, label) {
   if (matches.length !== 1) throw new Error(`${label} must contain exactly one dispatcher binding`);
   let binding;
   try { binding = JSON.parse(matches[0][1]); } catch { throw new Error(`${label} dispatcher binding must be valid JSON`); }
+  validateDispatchBinding(binding);
   const surfaceIndex = Array.isArray(binding.argv_prefix) ? binding.argv_prefix.indexOf("--surface") : -1;
   if (surfaceIndex < 0 || binding.argv_prefix[surfaceIndex + 1] !== surface || binding.authorizes !== false) {
     throw new Error(`${label} dispatcher binding does not match profile surface ${surface}`);
@@ -169,7 +171,10 @@ async function openCodeContext(repoRoot, profile, sandbox) {
   const moduleUrl = pathToFileURL(repositoryPath(repoRoot, profile.dynamic_source)).href;
   const { AGDFPlugin } = await import(moduleUrl);
   if (typeof AGDFPlugin !== "function") throw new Error("OpenCode composed-profile source does not export AGDFPlugin");
-  const hooks = await AGDFPlugin({ directory: sandbox, client: {} });
+  // Source composition is not an installed OpenCode config layout.
+  const hooks = await AGDFPlugin({ directory: sandbox, client: {} }, {
+    validatorPath: repositoryPath(repoRoot, "create-agdf/bin/agdf-validator.js"),
+  });
   const transform = hooks?.["experimental.chat.system.transform"];
   if (typeof transform !== "function") throw new Error("OpenCode composed-profile source has no system transform");
   const output = { system: [] };

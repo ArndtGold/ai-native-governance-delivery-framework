@@ -15,6 +15,7 @@ import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AGDFPlugin } from "../opencode-plugin.js";
+import { skillDispatchArgumentGrammar } from "../lib/cli/command-registry.js";
 import { installOpenCodeGlobalSurface } from "../lib/installers/opencode.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity, validateRuntimeCheckCapability } from "../lib/runtime-check-consent/contract.js";
@@ -154,7 +155,9 @@ function buildBinding(canonicalKernel, version = sourceDefinition.version, surfa
     guard_fingerprint: requestActivationKernelFingerprint(canonicalKernel),
   };
   return {
-    schema_version: "1",
+    schema_version: "2",
+    environment: {},
+    arguments: skillDispatchArgumentGrammar(),
     executable: "/absolute/runtime/node",
     argv_prefix: ["/absolute/runtime/agdf-local.js", "skill-dispatch", "--json", "--surface", surface],
     expected_version: version,
@@ -278,7 +281,7 @@ async function collectProfile() {
   })}\n`, "utf8");
   const inactiveRepository = temporaryRoot("agdf-footprint-inactive-");
   const client = { app: { log: async () => ({}) }, tui: { showToast: async () => ({}) } };
-  const activePlugin = await AGDFPlugin({ directory: activeRepository, client });
+  const activePlugin = await AGDFPlugin({ directory: activeRepository, client }, { validatorPath: fileURLToPath(new URL("../bin/agdf-validator.js", import.meta.url)) });
   const inactivePlugin = await AGDFPlugin({ directory: inactiveRepository, client });
   const activeOutput = { system: [] };
   await activePlugin["experimental.chat.system.transform"]({}, activeOutput);

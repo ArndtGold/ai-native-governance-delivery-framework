@@ -17,7 +17,7 @@ import {
   localNpmExecutable,
   validateLocalOpenCodePackageSource,
 } from "../lib/installers/local-development.js";
-import { COPILOT_CLI_NPM_PACKAGE, copilotNpmInvocation, inspectPluginSurface, installClaudeGlobalPlugin, installCodexGlobalPlugin, installCopilotGlobalPlugin, setCopilotPluginEnabled } from "../lib/installers/plugin-installers.js";
+import { COPILOT_CLI_NPM_PACKAGE, copilotNpmInvocation, inspectPluginSurface, installClaudeGlobalPlugin, installCodexGlobalPlugin, installCopilotGlobalPlugin as installCopilot, setCopilotPluginEnabled } from "../lib/installers/plugin-installers.js";
 import { resolveOpenCodeInstallPackageSource } from "../lib/installers/opencode.js";
 import { diagnoseCopilotSkillPrecedence } from "../lib/installers/copilot-precedence.js";
 import { configureCopilotDeclarativePlugin, readCopilotSettings, revokeCopilotDeclarativePlugin } from "../lib/installers/copilot-settings.js";
@@ -30,6 +30,22 @@ const repoRoot = dirname(packageRoot);
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
 const builtCopilotPluginRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-local-development-install-"));
+
+const copilotTestDataRoot = join(fixtureRoot, "copilot-standard");
+const copilotTestRoot = join(copilotTestDataRoot, "marketplaces", "agdf-copilot");
+function discoveredCopilotSkills(root = builtCopilotPluginRoot) {
+  return JSON.stringify(pluginDefinition.skillSet.map(({ slug }) => ({
+    name: `agdf-${slug}`, source: "plugin", enabled: true,
+    path: join(root, "copilot-skills", `agdf-${slug}`),
+  })));
+}
+function installCopilotGlobalPlugin(options) {
+  const settingsPath = join(mkdtempSync(join(fixtureRoot, "copilot-settings-")), "settings.json");
+  const wrap = (exec) => exec && ((executable, args, config) => args.slice(-3).join(" ") === "skill list --json"
+    ? discoveredCopilotSkills() : exec(executable, args, config));
+  return { ...installCopilot({ ...options, dataRoot: options.dataRoot ?? copilotTestDataRoot,
+    copilotSettingsPath: settingsPath, exec: wrap(options.exec), packagedCopilotExec: wrap(options.packagedCopilotExec) }), testSettingsPath: settingsPath };
+}
 
 function json(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -260,7 +276,7 @@ try {
   assert.equal(migratedCopilot.evidence.includes("shared_marketplace_registration_migrated"), true);
   assert.equal(legacyCopilotCalls.includes("copilot plugin uninstall agdf@agdf"), true);
   assert.equal(legacyCopilotCalls.includes("copilot plugin marketplace remove agdf"), true);
-  assert.equal(legacyCopilotCalls.includes(`copilot plugin marketplace add ${isolatedCopilotMarketplaceRoot}`), true);
+  assert.equal(json(migratedCopilot.testSettingsPath).extraKnownMarketplaces.agdf.source.url, pathToFileURL(isolatedCopilotMarketplaceRoot).href);
   assert.equal(legacyCopilotCalls.includes("copilot plugin install agdf@agdf"), true);
   assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).profile_id, "runtime-plugin", "Copilot migration must retain shared staging");
 
@@ -314,7 +330,7 @@ try {
     },
   });
   assert.equal(copilotInstalled.installedVersion, pluginDefinition.version);
-  assert.equal(copilotCalls.includes("copilot plugin marketplace add " + resolve(builtCopilotPluginRoot, "..", "..")), true);
+  assert.equal(json(copilotInstalled.testSettingsPath).extraKnownMarketplaces.agdf.source.url, pathToFileURL(copilotTestRoot).href);
   assert.equal(copilotCalls.includes("copilot plugin uninstall agdf"), true);
   assert.equal(copilotCalls.includes("copilot plugin install agdf@agdf"), true);
   assert.equal(inspectPluginSurface("copilot", () => `  • agdf (v${pluginDefinition.version})\n`).status, "healthy");
@@ -349,6 +365,7 @@ try {
       throw error;
     },
     packagedCopilotExec(_executable, args) {
+      if (args.slice(-3).join(" ") === "skill list --json") return discoveredCopilotSkills();
       if (args.at(-2) === "plugin" && args.at(-1) === "list") {
         launcherFallbackListCalls += 1;
         return launcherFallbackListCalls === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;
@@ -388,7 +405,7 @@ try {
     pluginRoot: builtCopilotPluginRoot,
     exec(executable, args) {
       if (args.join(" ") === "plugin list") return "agdf@agdf 9.9.9\n";
-      if (args.join(" ") === "plugin marketplace list") return `Registered marketplaces:\n  • agdf (Local: ${resolve(builtCopilotPluginRoot, "..", "..")} )\n`.replace(" )", ")");
+      if (args.join(" ") === "plugin marketplace list") return `Registered marketplaces:\n  • agdf (Local: ${copilotTestRoot} )\n`.replace(" )", ")");
       return "";
     },
   }), /version mismatch/);
@@ -407,7 +424,8 @@ try {
     pluginRoot: builtCopilotPluginRoot,
     exec(executable, args) {
       if (args.join(" ") === "plugin list") return "";
-      if (args.join(" ") === "plugin marketplace list") return `  • agdf (Local: ${resolve(builtCopilotPluginRoot, "..", "..")} )\n`.replace(" )", ")");
+      if (args.join(" ") === "plugin marketplace list") return `  • agdf (Local: ${copilotTestRoot} )\n`.replace(" )", ")");
+      if (args.join(" ") === "plugin marketplace remove agdf") return "";
       const error = new Error("install rejected");
       error.stderr = "install rejected";
       throw error;
@@ -493,6 +511,7 @@ try {
   const copilotLifecycleOutput = [];
   let lifecyclePackagedListCalls = 0;
   assert.equal(await runCli(["copilot", "--json"], {
+    copilotSettingsPath: join(fixtureRoot, "copilot-lifecycle-settings.json"),
     io: { log(value) { copilotLifecycleOutput.push(value); }, error(value) { copilotLifecycleOutput.push(value); } },
     prepare: (options) => prepareCopilotMarketplace({ ...options, dataRoot: join(fixtureRoot, "copilot-manual-handoff"), builtPluginRoot: builtCopilotPluginRoot }),
     exec() {
@@ -501,6 +520,7 @@ try {
       throw error;
     },
     packagedCopilotExec(_executable, args) {
+      if (args.slice(-3).join(" ") === "skill list --json") return discoveredCopilotSkills();
       if (args.at(-2) === "plugin" && args.at(-1) === "list") {
         lifecyclePackagedListCalls += 1;
         return lifecyclePackagedListCalls === 1 ? "" : `agdf@agdf ${pluginDefinition.version}\n`;

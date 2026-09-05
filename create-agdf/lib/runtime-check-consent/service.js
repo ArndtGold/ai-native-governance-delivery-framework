@@ -4,13 +4,12 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import process from "node:process";
 import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
-import { defaultOpenCodeConfigDir, resolveOpenCodeInstalledPackage } from "../installers/opencode.js";
+import { openCodeRuntimeSource, executeOpenCodeRuntimeCheck } from "../host-adapters/opencode/runtime-check.js";
 import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
 import { digestNormalizedPluginSource } from "../runtime/plugin-provenance.js";
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from "./contract.js";
 import { consentDisclosure, resolveRuntimeCheckDecision } from "./coordinator.js";
-import { claudePermissionRule } from "./adapters.js";
-import { configureClaudeExactRuntimeRule, defaultClaudeSettingsPath, revokeClaudeRuntimeRule } from "./claude-settings.js";
+import { configureClaudeRuntimeCheck, revokeClaudeRuntimeCheck } from "../host-adapters/claude/runtime-check.js";
 import { createRuntimeCheckReceipt, readRuntimeCheckReceipt, writeRuntimeCheckReceipt } from "./state.js";
 
 export { fixedRuntimeCheckCommand } from "./contract.js";
@@ -25,7 +24,7 @@ export function prepareInstallConsent(surface, options = {}, adapters = {}) {
 
 function prospectiveRuntimeCheckIdentity(surface, platform = process.platform) {
   if (surface === "opencode") {
-    const installed = resolveOpenCodeInstalledPackage(defaultOpenCodeConfigDir(), pluginDefinition.opencode.npmPackage);
+    const installed = openCodeRuntimeSource();
     if (!installed.loadable || !installed.digest) return null;
     return runtimeCheckCapabilityIdentity({
       capability: pluginDefinition.automaticRuntimeChecks,
@@ -82,10 +81,7 @@ export function persistInstallConsent({ surface, decision, installed, dataRoot, 
   let configured = null;
   let configurationReason = null;
   if (surface === "claude" && decision === "enable") {
-    configured = configureClaudeExactRuntimeRule({
-      path: claudeSettingsPath ?? defaultClaudeSettingsPath(),
-      rule: claudePermissionRule({ platform: platform ?? process.platform, command }),
-    });
+    configured = configureClaudeRuntimeCheck({ claudeSettingsPath, platform: platform ?? process.platform, command });
     if (configured.status !== "configured") {
       configurationReason = configured.reason;
       configured = null;
@@ -114,10 +110,7 @@ export function setRuntimeChecksManual({ dataRoot = defaultAgdfDataRoot(), surfa
   if (result.status === "receipt_missing") return { requested: "manual", effective: "manual", reason: "consent_not_provided", capability_identity: null, verification: "not_required", mutation: "none", rollback: "none", path: result.path };
   if (result.status !== "valid") return { requested: "manual", effective: result.status, reason: result.status, capability_identity: null, verification: "unavailable", mutation: "none", rollback: "none", path: result.path };
   if (surface === "claude" && result.receipt.requested_state === "enabled") {
-    revokeClaudeRuntimeRule({
-      path: claudeSettingsPath ?? defaultClaudeSettingsPath(),
-      rule: claudePermissionRule({ platform, command: result.receipt.command }),
-    });
+    revokeClaudeRuntimeCheck({ claudeSettingsPath, platform, command: result.receipt.command });
   }
   const receipt = createRuntimeCheckReceipt({
     surface,
@@ -157,25 +150,5 @@ export function executeOpenCodeAutomaticRuntimeCheck({
   statusResolver = runtimeCheckStatus,
   entrypointExists = existsSync,
 } = {}) {
-  const status = statusResolver(dataRoot, "opencode");
-  if (status.requested !== "enabled" || status.effective !== "decision_required") {
-    return { ...status, ran: false, output: "" };
-  }
-  const entrypoint = join(packageRoot, "generated", "plugins", "agdf", "runtime", "agdf-session-check.js");
-  if (!entrypointExists(entrypoint)) {
-    return { ...status, effective: "unavailable", reason: "unsupported_host_capability", verification: "entrypoint_missing", ran: false, output: "" };
-  }
-  const child = run(executable, [entrypoint], {
-    cwd: directory,
-    env: { ...process.env, AGDF_SURFACE: "opencode" },
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    timeout: 10000,
-    maxBuffer: 1024 * 1024,
-  });
-  const output = String(child.stdout || "").trim().slice(0, 20000);
-  if (child.status !== 0 || !output.includes("AGDF automatic runtime check:")) {
-    return { ...status, effective: "degraded", reason: "host_permission_unverified", verification: "execution_failed", ran: true, output: "" };
-  }
-  return { ...status, effective: "enabled", reason: "none", verification: "host_observed", ran: true, output };
+  return executeOpenCodeRuntimeCheck({ directory, dataRoot, packageRoot, run, executable, statusResolver, entrypointExists });
 }

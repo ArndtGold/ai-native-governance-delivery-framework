@@ -1,0 +1,18 @@
+digraph evidence {
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.55, ranksep=0.65, fontname="Helvetica", label="05  /  WAS EIN NACHWEIS AUSSAGT", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#5284AD", fillcolor="#E5F0FC", fontname="Helvetica", fontsize=17, margin="0.22,0.17", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.8, fontname="Helvetica", fontsize=13, fontcolor="#354D61"];
+  outcomes [label="Fünf unabhängige Ergebnisse\nInstalliert · Entdeckt · Aufrufbar\nAktualisiert · Wiederherstellbar", fillcolor="#DDF4EE", color="#2D8B7B"];
+  fixtures [label="Deterministische Szenarien\nIsolierte Produktions-Fixtures\nErwartete Fehlerfälle eingeschlossen"];
+  native [label="Native Beobachtungen\nExakter Host + Version + OS\nGeladene Identität + Ausführungspfad"];
+  observed [label="Datierte Beobachtung\nErgebnis + Beleg + Grenzen"];
+  promises [label="Vier getrennte Zusagen\nVerfügbare Skills · Automatische Checks\nBeobachtete Governance · Technische Durchsetzung", fillcolor="#FFF2CF", color="#BF9840"];
+  boundary [label="Fixture-Pass beweist keine native Ausführung.\nEinwilligung beweist keinen erfolgten Check.\nEin grüner Test erteilt keine Freigabe.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=15];
+  outcomes -> fixtures [label="prüfen in Fixtures"];
+  outcomes -> native [label="prüfen im realen Host"];
+  fixtures -> observed [label="Repository-Beleg"];
+  native -> observed [label="Host-Beleg"];
+  observed -> promises [label="nur mit jeweils passendem Beleg", style=dashed];
+  promises -> boundary [style=invis];
+  {rank=same; fixtures; native;}
+}

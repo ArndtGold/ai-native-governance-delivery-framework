@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { renameSyncWithRetry } from "../fs-swap.js";
-import { applyClaudeExactRule, revokeClaudeExactRule } from "./adapters.js";
+import { applyClaudeExactRule, revokeClaudeExactRule } from "../host-adapters/claude/permission-rules.js";
 
 export function defaultClaudeSettingsPath({ env = process.env, home = homedir() } = {}) {
   return join(resolve(env.CLAUDE_CONFIG_DIR || join(home, ".claude")), "settings.json");

@@ -89,4 +89,15 @@ for (const [name, target] of Object.entries(packageManifest.exports ?? {})) {
   assert.equal(files.includes(target.replace(/^\.\//, "")), true, `declared export ${name} must exist in packed files`);
 }
 assert.equal(files.some((path) => path.startsWith("plugin/runtime/")), false, "package must not leak a source plugin runtime path");
+for (const host of ["codex", "claude", "copilot", "opencode"]) {
+  assert.ok(files.includes(`lib/host-adapters/${host}/session-command.js`));
+  for (const profile of ["generated/plugins/agdf", "generated/plugins/copilot/agdf"]) {
+    assert.ok(files.includes(`${profile}/runtime/create-agdf/lib/host-adapters/${host}/session-command.js`));
+  }
+}
+for (const host of ["codex", "claude", "copilot"]) assert.ok(files.includes(`lib/host-adapters/${host}/plugin.js`));
+assert.equal(files.some(path => path.includes("/host-compatibility/") || path.startsWith("evals/")), false, "repository comparison tooling and observations must not ship");
+for (const path of files.filter(path => path.includes("/runtime/create-agdf/lib/host-adapters/"))) {
+  assert.ok(path.endsWith("/session-command.js"), `installed runtime must contain only pure command leaves: ${path}`);
+}
 console.log(`Package contents tests passed (${files.length} files; complete release-built plugin present)`);

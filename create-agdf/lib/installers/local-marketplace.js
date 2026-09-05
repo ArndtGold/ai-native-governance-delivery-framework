@@ -1,3 +1,6 @@
+import { CODEX_REGISTRATION_REVISION, codexLocalInstallVersion, isCodexLocalInstallVersion, marketplaceEntries as codexMarketplaceEntries } from "../host-adapters/codex/identity.js";
+import { marketplaceEntries as claudeMarketplaceEntries } from "../host-adapters/claude/marketplace.js";
+export { CODEX_REGISTRATION_REVISION, codexLocalInstallVersion, isCodexLocalInstallVersion } from "../host-adapters/codex/identity.js";
 import {
   cpSync,
   existsSync,
@@ -27,7 +30,6 @@ import {
 const MARKETPLACE_ID = "agdf";
 const OWNERSHIP_FILE = ".agdf-owned.json";
 const LEGACY_REPOSITORY = "arndtgold/ai-native-governance-delivery-framework";
-export const CODEX_REGISTRATION_REVISION = 1;
 
 function pathInside(root, candidate) {
   const rel = relative(root, candidate);
@@ -48,25 +50,9 @@ export function digestPluginSource(root, canonicalVersion = pluginDefinition.ver
 
 export { digestDirectory };
 
-function semverBase(version) {
-  return version.split("+")[0];
-}
-
 function isSemanticVersion(version) {
   return typeof version === "string"
     && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(version);
-}
-
-export function codexLocalInstallVersion(version, sourceDigest) {
-  if (!/^[a-f0-9]{64}$/.test(sourceDigest)) throw new Error("AGDF local source digest must be a deterministic SHA-256 value.");
-  return `${semverBase(version)}+codex.local-${sourceDigest.slice(0, 12)}`;
-}
-
-export function isCodexLocalInstallVersion(version, candidate, sourceDigest = "") {
-  if (typeof candidate !== "string") return false;
-  if (sourceDigest) return candidate === codexLocalInstallVersion(version, sourceDigest);
-  const escaped = semverBase(version).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`^${escaped}\\+codex\\.local-[a-f0-9]{12}$`).test(candidate);
 }
 
 function localInstallSourceUnstable(detail) {
@@ -754,7 +740,7 @@ export function classifyMarketplaceList(surface, output, stableRoot) {
   } catch {
     return { state: "unknown", source: "", reason: "invalid_json" };
   }
-  const entries = surface === "codex" ? parsed?.marketplaces : parsed;
+  const entries = surface === "codex" ? codexMarketplaceEntries(parsed) : claudeMarketplaceEntries(parsed);
   if (!Array.isArray(entries)) return { state: "unknown", source: "", reason: "invalid_shape" };
   const matches = entries.filter((entry) => entry?.name === MARKETPLACE_ID);
   if (matches.length === 0) return { state: "absent", source: "" };

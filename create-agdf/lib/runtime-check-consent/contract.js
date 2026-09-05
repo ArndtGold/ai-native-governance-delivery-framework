@@ -1,3 +1,7 @@
+import { sessionCommand as codexSessionCommand } from "../host-adapters/codex/session-command.js";
+import { sessionCommand as claudeSessionCommand } from "../host-adapters/claude/session-command.js";
+import { sessionCommand as copilotSessionCommand } from "../host-adapters/copilot/session-command.js";
+import { sessionCommand as openCodeSessionCommand } from "../host-adapters/opencode/session-command.js";
 import { createHash } from "node:crypto";
 
 const OPERATIONS = Object.freeze([
@@ -59,13 +63,10 @@ export function runtimeCheckCapabilityIdentity({ capability, surface, runtimeDig
 }
 
 export function fixedRuntimeCheckCommand(surface, pluginRoot, platform = process.platform) {
-  if (surface === "opencode") return "plugin:agdf:automatic-runtime-checks";
-  if (surface === "copilot") return 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"';
-  if (surface === "codex" || surface === "claude") {
-    return platform === "win32"
-      ? "node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\""
-      : "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/runtime/agdf-session-check.js\"";
-  }
+  if (surface === "opencode") return openCodeSessionCommand(pluginRoot, platform);
+  if (surface === "copilot") return copilotSessionCommand(pluginRoot, platform);
+  if (surface === "codex") return codexSessionCommand(pluginRoot, platform);
+  if (surface === "claude") return claudeSessionCommand(pluginRoot, platform);
   const normalizedRoot = platform === "win32" ? pluginRoot.replaceAll("/", "\\") : pluginRoot;
   return `node \"${normalizedRoot}${platform === "win32" ? "\\" : "/"}runtime${platform === "win32" ? "\\" : "/"}agdf-session-check.js\"`;
 }

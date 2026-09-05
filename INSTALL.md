@@ -4,6 +4,12 @@ Install AGDF for the coding agent you use. AGDF provides the appropriate plugin,
 supported repository surface. It does not approve work automatically or replace product ownership, engineering
 judgement, security review, tests or human acceptance.
 
+The [host compatibility comparison](docs/compatibility/HOST_COMPATIBILITY.md) distinguishes installed,
+discovered, callable, correctly updated and recoverable outcomes. It is a dated evidence snapshot
+with explicit host and operating-system gaps. Available skills, automatic checks, observed governance
+and technical enforcement are separate claims. Use local status and a fresh host session to verify
+your own installation.
+
 ## Choose your installation path
 
 Before running a command, install Node.js 18 or later with npm and the selected agent runtime. Run

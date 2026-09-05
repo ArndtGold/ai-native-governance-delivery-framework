@@ -2,11 +2,21 @@
 language: en
 chapter_role: troubleshooting
 translation_of: ../de/06-fehlerbehebung.md
-source_revision: sha256:e5240f75df37a5f2ef725da6695eb33006d2cc2b1744c6e127516957e5baf727
+source_revision: sha256:d92359d35f3906e77dce17e46d60f05aac1842395c63836b32f53a3d6d6e3081
 translation_status: reviewed
 ---
 
 # Troubleshooting
+
+The [host compatibility comparison](../../compatibility/HOST_COMPATIBILITY.md) distinguishes whether
+AGDF is installed, discovered, callable, correctly updated and recoverable after failure. It identifies
+the date, environment and evidence class. Simulated tests do not prove a fresh session in a real host.
+Missing evidence remains explicitly unverified.
+
+Available skills, automatic checks, observed governance and technical enforcement are separate claims.
+Approving a hook does not prove that a check ran. Inspect local status and the specific session. Manual
+verification remains available when automatic checks are declined. After a failure, a retry becomes
+successful only when its result has been observed.
 
 When the agent stops, first identify which layer is affected:
 

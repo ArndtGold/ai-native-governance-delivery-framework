@@ -7,6 +7,7 @@ import process from "node:process";
 import { isDeepStrictEqual } from "node:util";
 import { fileURLToPath } from "node:url";
 import { parseDocument } from "yaml";
+import { checkComparison } from "./host-compatibility/run.mjs";
 
 const EXPECTED_METADATA = Object.freeze({
   schema_version: 1,
@@ -615,7 +616,7 @@ async function validateSocialPreview(root, findings) {
   }
 }
 
-export async function validateCommunityHealth(root) {
+export async function validateCommunityHealth(root, { checkCompatibility = checkComparison } = {}) {
   const resolvedRoot = path.resolve(root);
   const findings = [];
   await validateRequiredFiles(resolvedRoot, findings);
@@ -627,6 +628,8 @@ export async function validateCommunityHealth(root) {
   await validateHandbookInvariants(resolvedRoot, findings);
   await validateMarkdownLinks(resolvedRoot, findings);
   await validateSocialPreview(resolvedRoot, findings);
+  const compatibility = checkCompatibility(resolvedRoot);
+  if (compatibility.status !== "pass") findings.push(finding("HOST_COMPATIBILITY_INVALID", "docs/compatibility/HOST_COMPATIBILITY.md", compatibility.diagnostic));
   return findings;
 }
 

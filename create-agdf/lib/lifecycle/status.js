@@ -1,11 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import * as openCodeInstaller from "../installers/opencode.js";
 import { evaluateOpenCodeRepositoryActivation } from "../installers/opencode-activation.js";
-import { inspectPluginSurface } from "../installers/plugin-installers.js";
-import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
+import { inspectPluginSurface, pluginBootstrapCommands } from "../installers/plugin-installers.js";
+import { inspectCodexRepositoryStatus } from "../host-adapters/codex/plugin.js";
+import { inspectOpenCodeInstallation, inspectOpenCodeRepositoryStatus } from "../host-adapters/opencode/status.js";
 import { runtimeCheckStatus } from "../runtime-check-consent/service.js";
 import { createOperationStatus } from "./result.js";
 
@@ -36,64 +37,17 @@ function deliveryStatus(targetDir, selection, dependencies) {
 
 function repositoryStatus(targetDir, surface, dependencies) {
   if (surface === "codex") {
-    const repository = inspectGeneratedRepositoryMarketplace(targetDir);
-    const marketplace = repository.marketplacePath;
-    const disabled = join(targetDir, ".codex", "config.toml");
-    const config = existsSync(disabled) ? readFileSync(disabled, "utf8") : "";
-    const isDisabled = ["agdf@agdf-repo", "agdf@agdf"].some((selector) => {
-      const escaped = JSON.stringify(selector).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const section = config.match(new RegExp(`\\[plugins\\.${escaped}\\][\\s\\S]*?(?=\\n\\[|$)`))?.[0] ?? "";
-      return /^enabled\s*=\s*false\s*$/m.test(section);
-    });
-    return {
-      status: isDisabled ? "disabled" : repository.status === "matched" ? "active" : repository.status === "invalid" ? "degraded" : "not_configured",
-      scope: "repository",
-      evidence: [marketplace, ...(repository.reason ? [repository.reason] : [])],
-    };
+    return inspectCodexRepositoryStatus(targetDir);
   }
   if (surface === "opencode") {
-    const activation = dependencies.evaluateOpenCodeRepositoryActivation(targetDir);
-    return {
-      status: activation.active ? "active" : activation.state === "invalid_control" ? "degraded" : "not_configured",
-      scope: "repository",
-      evidence: [
-        activation.config_path,
-        activation.diagnostic,
-        ...(activation.error ? [activation.error] : []),
-      ].filter(Boolean),
-    };
+    return inspectOpenCodeRepositoryStatus(targetDir, dependencies.evaluateOpenCodeRepositoryActivation);
   }
   return { status: "unknown", scope: "repository", evidence: [] };
 }
 
 function inspectGlobalSurface(surface, options, dependencies) {
   if (surface === "opencode") {
-    const configDir = options.configDir ?? openCodeInstaller.defaultOpenCodeConfigDir();
-    const report = dependencies.evaluateOpenCodeGlobalStatus(configDir);
-    const healthy = report.status === "configured"
-      && report.global_config?.plugin_configured === true
-      && report.package?.loadable === true
-      && report.package?.version_status === "current"
-      && report.global_native_surface?.complete === true
-      && report.experimental_hooks?.aggregate === "declared_supported"
-      && report.host_sdk_version?.status === "matching";
-    const hasAgdfEvidence = report.global_config?.plugin_configured === true
-      || report.global_config?.legacy_plugin_configured === true
-      || report.package?.loadable === true
-      || report.global_native_surface?.present === true;
-    return {
-      status: healthy ? "healthy" : hasAgdfEvidence ? "degraded" : "not_installed",
-      surface,
-      version: report.package?.installed_version ?? null,
-      evidence: [
-        report.global_config?.path,
-        `package:${report.package?.version_status ?? "unknown"}`,
-        `global_native_surface:${report.global_native_surface?.complete === true ? "complete" : "incomplete"}`,
-        `experimental_hooks:${report.experimental_hooks?.aggregate ?? "unknown"}`,
-        `host_sdk_version:${report.host_sdk_version?.status ?? "unknown"};policy=${report.host_sdk_version?.policy ?? "unknown"}`,
-      ].filter(Boolean),
-      recommended_action: report.next_step || null,
-    };
+    return inspectOpenCodeInstallation(options, dependencies.evaluateOpenCodeGlobalStatus);
   }
   if (SUPPORTED_SURFACES.includes(surface)) return dependencies.inspectPluginSurface(surface, dependencies.exec);
   return { status: "unknown", surface, version: null, evidence: [`unsupported_status_probe:${surface}`] };
@@ -148,7 +102,7 @@ function installationStatusReport(installation) {
   const nextAction = installation.recommended_action
     || (installation.status === "healthy"
       ? "No further installation action is required."
-      : `Run npx --yes @agdf/cli@latest ${installation.surface} to install or repair AGDF.`);
+      : `Run ${bootstrapCommands(installation.surface).install} to install or repair AGDF.`);
   return Object.freeze({
     schema_version: 1,
     ...facts,
@@ -173,11 +127,11 @@ function nextStatusAction(installation, repository, delivery) {
   const surface = installation.surface;
   if (surface === "multiple") return "Multiple AGDF host surfaces were detected; rerun status with an explicit --surface.";
   if (surface === "generic") return "No installed AGDF host surface could be selected safely; rerun status with an explicit --surface.";
-  if (installation.status !== "healthy") return `Run npx --yes @agdf/cli@latest ${surface} to install or repair AGDF.`;
+  if (installation.status !== "healthy") return `Run ${bootstrapCommands(surface).install} to install or repair AGDF.`;
   if (repository.status === "unresolved") return "Provide an explicit --dir to include repository and delivery status; cwd is not target authority.";
   if (repository.status === "disabled") return "Restart the host to apply the repository-local disable; the healthy global AGDF installation remains available.";
   if (repository.status === "degraded") return "The repository marketplace is incomplete or invalid; use the supported repository scaffold or the healthy durable global AGDF installation.";
-  if (repository.status === "not_configured") return `Run npx --yes @agdf/cli@latest ${surface === "codex" ? "codex-repo" : `${surface}-repo`} in this repository.`;
+  if (repository.status === "not_configured") return `Run ${bootstrapCommands(surface).repository} in this repository.`;
   if (delivery.status === "blocked") return "Resolve the reported delivery blocker without changing the healthy installation.";
   if (delivery.status === "not_configured") return "Start a new task; status created no run and requires no approval. Initialize durable control only when the repository needs it.";
   return "Continue with the reported delivery next step.";
@@ -241,4 +195,9 @@ export function evaluateStatusOverview(options = {}, dependencies = {}) {
     installation,
     dependencies: statusDependencies(dependencies),
   });
+}
+
+function bootstrapCommands(surface) {
+  if (surface === "opencode") return openCodeInstaller.bootstrapCommands();
+  return pluginBootstrapCommands(surface) ?? { install: `npx --yes @agdf/cli@latest ${surface}`, repository: `npx --yes @agdf/cli@latest ${surface}-repo` };
 }

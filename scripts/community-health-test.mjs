@@ -21,8 +21,10 @@ const fixturePaths = [
   "assets/intro.png",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
+  ".agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md",
   "docs/agenten-handbuch",
   "docs/handbook",
+  "docs/compatibility",
   "docs/00-manifest.md",
   "docs/01-framework-ueberblick.md",
   "docs/02-gates.md",
@@ -67,7 +69,7 @@ async function withFixture(mutator, expectedCode) {
   const root = await makeFixture();
   try {
     await mutator(root);
-    const findings = await validateCommunityHealth(root);
+    const findings = await validateCommunityHealth(root, { checkCompatibility: () => ({ status: "pass" }) });
     assert.ok(
       findings.some((entry) => entry.code === expectedCode),
       `Expected ${expectedCode}; observed ${JSON.stringify(findings)}`,
@@ -86,8 +88,10 @@ async function replace(root, relativePath, from, to) {
 
 const baselineRoot = await makeFixture();
 try {
-  const baseline = await validateCommunityHealth(baselineRoot);
+  const baseline = await validateCommunityHealth(baselineRoot, { checkCompatibility: () => ({ status: "pass" }) });
   assert.deepEqual(baseline, [], `Reviewed fixture baseline must pass: ${JSON.stringify(baseline)}`);
+  const missingCompatibility = await validateCommunityHealth(baselineRoot);
+  assert.ok(missingCompatibility.some(entry => entry.code === "HOST_COMPATIBILITY_INVALID"), "the default read-only check rejects missing source/evidence inputs");
 } finally {
   await fs.rm(baselineRoot, { recursive: true, force: true });
 }

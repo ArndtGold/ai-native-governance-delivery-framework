@@ -9,9 +9,13 @@
     "install:copilot": "npm --prefix create-agdf run install:copilot",
     "install:opencode": "npm --prefix create-agdf run install:opencode",
     "test:community-health": "node scripts/community-health-test.mjs",
-    "set-version": "node scripts/set-version.mjs"
+    "set-version": "node scripts/set-version.mjs",
+    "test:host-compatibility": "node create-agdf/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
+    "compatibility:record": "node scripts/host-compatibility/run.mjs record",
+    "compatibility:check": "node scripts/host-compatibility/run.mjs check"
   },
   "devDependencies": {
-    "yaml": "2.9.0"
+    "yaml": "2.9.0",
+    "acorn": "8.17.0"
   }
 }

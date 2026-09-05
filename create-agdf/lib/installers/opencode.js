@@ -978,3 +978,114 @@ export function printOpenCodeStatus(report, json, io = console) {
     for (const finding of report.findings) io.log(`- ${finding}`);
   }
 }
+
+export function planOpenCodeGlobalUninstall(configDir) {
+  const surface = "opencode";
+    if (!configDir) throw new Error("OpenCode uninstall requires its explicit config directory.");
+    const configPath = join(configDir, "opencode.json");
+    if (!existsSync(configPath)) throw new Error(`OpenCode config not found: ${configPath}`);
+    let config;
+    try {
+      config = JSON.parse(readFileSync(configPath, "utf8"));
+    } catch {
+      throw new Error(`Refusing to modify unreadable OpenCode config: ${configPath}`);
+    }
+    if (config.plugin !== undefined && !Array.isArray(config.plugin)) {
+      throw new Error(`Refusing to modify OpenCode config with non-array plugin field: ${configPath}`);
+    }
+    const next = { ...config };
+    next.plugin = (config.plugin ?? []).filter((entry) => !isOwnedOpenCodePluginEntry(entry));
+    if (Array.isArray(config.instructions)) next.instructions = config.instructions.filter((entry) => entry !== "AGDF.md");
+    const npm = openCodeNpmInvocation(["uninstall", "--silent", pluginDefinition.opencode.npmPackage]);
+    const mutations = [
+      { kind: "write", path: configPath, content: `${JSON.stringify(next, null, 2)}\n`, ownership: "exact_known_entries" },
+      { kind: "command", executable: npm.executable, args: npm.args, cwd: configDir },
+    ];
+    const retained = ["repository AGDF files", ".agdf/control"];
+    for (const candidate of openCodeOwnedGlobalFiles(configDir)) {
+      if (!existsSync(candidate.path)) continue;
+      const content = readFileSync(candidate.path, "utf8");
+      if (candidate.owned(content)) mutations.push({ kind: "remove", path: candidate.path, ownership: "agdf_marker" });
+      else retained.push(candidate.path);
+    }
+    return Object.freeze({
+      operation: "uninstall",
+      surface,
+      scope: "global",
+      mutations: Object.freeze(mutations),
+      retained: Object.freeze(retained),
+      expected: Object.freeze({ installation_status: "not_installed" }),
+    });
+}
+function openCodeOwnedGlobalFiles(configDir) {
+  const firstLine = (marker) => (content) => content.split(/\r?\n/)[0] === marker;
+  const afterFrontmatter = (marker) => (content) => {
+    const lines = content.split(/\r?\n/);
+    const end = lines.findIndex((line, index) => index > 0 && line === "---");
+    return end >= 0 && lines[end + 1] === marker;
+  };
+  const ownedValidatorPackage = (content) => {
+    try {
+      const manifest = JSON.parse(content);
+      return manifest?.agdf?.owner === "create-agdf"
+        && manifest?.agdf?.surface === "opencode-global-validator";
+    } catch {
+      return false;
+    }
+  };
+  const files = [
+    { path: join(configDir, pluginDefinition.opencode.instructionsFileName), owned: firstLine("<!-- AGDF-GLOBAL-INSTRUCTIONS -->") },
+    { path: join(configDir, pluginDefinition.opencode.runtimeContractFileName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") },
+    { path: join(configDir, "agdf", "bin", "agdf-local.js"), owned: firstLine("// AGDF-GLOBAL-LOCAL-VALIDATOR") },
+    { path: join(configDir, "agdf", "package.json"), owned: ownedValidatorPackage },
+    {
+      path: join(configDir, "agents", `${pluginDefinition.opencode.evaluatorAgentName}.md`),
+      owned: afterFrontmatter(`<!-- AGDF-GLOBAL-AGENT: ${pluginDefinition.opencode.evaluatorAgentName} -->`),
+    },
+  ];
+  for (const modulePath of pluginDefinition.runtimeContract.modules) {
+    const prefix = "meta/contracts/";
+    if (!modulePath.startsWith(prefix) || modulePath.slice(prefix.length).includes("/")) {
+      throw new Error(`Invalid definition-owned runtime contract module path: ${modulePath}`);
+    }
+    const moduleName = modulePath.slice(prefix.length);
+    files.push({ path: join(configDir, "contracts", moduleName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") });
+  }
+  for (const skill of pluginDefinition.skillSet) {
+    const name = `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`;
+    const marker = `<!-- AGDF-GLOBAL-SKILL: ${name} -->`;
+    files.push({ path: join(configDir, "skills", name, "SKILL.md"), owned: afterFrontmatter(marker) });
+  }
+  return files;
+}
+
+function isOwnedOpenCodePluginEntry(entry) {
+  return typeof entry === "string"
+    && (entry === openCodePluginEntrypoint
+      || entry === pluginDefinition.opencode.npmPackage
+      || entry.startsWith(`${pluginDefinition.opencode.npmPackage}@`));
+}
+
+export function verifyOpenCodeGlobalUninstall(plan, configDir, evaluate = evaluateOpenCodeGlobalStatus) {
+    const report = evaluate(configDir);
+    const remainingOwnedFiles = plan.mutations
+      .filter((mutation) => mutation.kind === "remove")
+      .map((mutation) => mutation.path)
+      .filter((path) => existsSync(path));
+    const configClean = report.global_config?.plugin_configured === false
+      && report.global_config?.legacy_plugin_configured === false;
+    const packageRemoved = report.package?.loadable === false;
+    const statusClean = report.status === "not_configured";
+    const evidence = [
+      report.global_config?.path || join(configDir, "opencode.json"),
+      ...(configClean ? [] : ["postcondition_failed:agdf_plugin_entry_still_configured_or_uninspectable"]),
+      ...(packageRemoved ? [] : ["postcondition_failed:create-agdf_package_still_loadable_or_uninspectable"]),
+      ...(statusClean ? [] : [`postcondition_failed:observed_status:${report.status || "unknown"}`]),
+      ...remainingOwnedFiles.map((path) => `still_present:${path}`),
+    ];
+    return statusClean && configClean && packageRemoved && remainingOwnedFiles.length === 0
+      ? { status: "healthy", evidence: [...evidence, "marker_owned_global_files_removed"] }
+      : { status: "failed", evidence };
+}
+
+export const bootstrapCommands = () => ({ install: "npx --yes @agdf/cli@latest opencode", repository: "npx --yes @agdf/cli@latest opencode-repo" });

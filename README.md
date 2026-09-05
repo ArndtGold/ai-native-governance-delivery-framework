@@ -202,6 +202,9 @@ Empfohlene Reihenfolge:
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
 9. [Glossar](docs/glossar.md)
 
+Für die Implementierung führt der [Architektur-Einstieg im Überblick](docs/01-framework-ueberblick.md#technische-architektur)
+zur technischen Architekturdokumentation mit fünf Diagrammen und Verweisen auf die maßgeblichen Quellen.
+
 ## Projektstruktur
 
 ```text
@@ -217,6 +220,9 @@ Empfohlene Reihenfolge:
 │  ├─ 05-vom-mythos-zur-pruefung.md
 │  ├─ 06-vom-notizzettel-zum-delivery-lagebild.md
 │  ├─ 07-domain-driven-delivery.md
+│  ├─ architecture/
+│  │  ├─ README.md  (technische Architektur und Quellen)
+│  │  └─ diagrams/  (SVG-Abbildungen und DOT-Quellen)
 │  ├─ handbook/
 │  │  ├─ README.md
 │  │  ├─ de/  (kanonische deutsche Fassung)

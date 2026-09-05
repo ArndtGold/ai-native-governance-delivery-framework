@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { pluginDefinition } from "../cli/runtime-context.js";
 import {
   applyCopilotRepositoryDisable,
   planCopilotRepositoryDisable,
@@ -9,24 +8,13 @@ import {
 } from "../installers/copilot-settings.js";
 import {
   evaluateOpenCodeGlobalStatus as inspectOpenCodeGlobalStatus,
-  openCodeNpmInvocation,
-  openCodePluginEntrypoint,
+  planOpenCodeGlobalUninstall,
+  verifyOpenCodeGlobalUninstall,
 } from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
-import { inspectGeneratedRepositoryMarketplace } from "../runtime/plugin-provenance.js";
-
-const CODEX_DISABLE_MARKER = "# AGDF-OWNED-REPOSITORY-PLUGIN-STATE";
-
-function pluginSection(content, selector) {
-  const escaped = JSON.stringify(selector).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return content.match(new RegExp(`\\[plugins\\.${escaped}\\][\\s\\S]*?(?=\\n\\[|$)`))?.[0] ?? "";
-}
-
-function repositorySelector(targetDir, config = "") {
-  const repository = inspectGeneratedRepositoryMarketplace(targetDir);
-  if (repository.status === "matched") return repository.selector;
-  return pluginSection(config, "agdf@agdf-repo") ? "agdf@agdf-repo" : "agdf@agdf";
-}
+import { planCodexRepositoryDisable, verifyCodexRepositoryDisabled, uninstallCommand as codexUninstallCommand } from "../host-adapters/codex/plugin.js";
+import { uninstallCommand as claudeUninstallCommand } from "../host-adapters/claude/plugin.js";
+import { uninstallCommand as copilotUninstallCommand } from "../host-adapters/copilot/plugin.js";
 
 export function planRepositoryDisable(targetDir, surface, { shared = false, exec = execFileSync } = {}) {
   if (surface === "copilot") {
@@ -46,44 +34,13 @@ export function planRepositoryDisable(targetDir, surface, { shared = false, exec
   if (surface !== "codex" || shared) {
     throw new Error(`Repository disable is not supported safely for ${surface}; no files were changed.`);
   }
-  const path = join(targetDir, ".codex", "config.toml");
-  const existing = existsSync(path) ? readFileSync(path, "utf8") : "";
-  const selector = repositorySelector(targetDir, existing);
-  const escaped = JSON.stringify(selector).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const sectionPattern = new RegExp(`\\[plugins\\.${escaped}\\][\\s\\S]*?(?=\\n\\[|$)`);
-  const currentSection = pluginSection(existing, selector);
-  const enabledMatches = [...currentSection.matchAll(/^enabled\s*=\s*(true|false)\s*$/gm)];
-  if (currentSection && enabledMatches.length !== 1) {
-    throw new Error(`Refusing to modify ambiguous AGDF plugin state in ${path}.`);
-  }
-  const section = currentSection
-    ? currentSection.replace(/^enabled\s*=\s*(true|false)\s*$/m, "enabled = false")
-    : `${CODEX_DISABLE_MARKER}\n[plugins.${JSON.stringify(selector)}]\nenabled = false`;
-  const content = currentSection
-    ? existing.replace(sectionPattern, section).replace(/\s*$/, "\n")
-    : `${existing.replace(/\s*$/, "")}${existing.trim() ? "\n\n" : ""}${section}\n`;
-  return Object.freeze({
-    operation: "disable",
-    surface,
-    scope: "repository",
-    mutations: Object.freeze([{ kind: "write", path, content, ownership: currentSection ? "exact_plugin_section" : "agdf_marker" }]),
-    retained: Object.freeze([join(targetDir, ".agdf", "control"), "global AGDF plugin availability"]),
-    expected: Object.freeze({ repository_status: "disabled" }),
-  });
+  return planCodexRepositoryDisable(targetDir);
 }
 
 export function verifyRepositoryDisabled(targetDir, surface = "codex", { shared = false } = {}) {
   if (surface === "copilot") return verifyCopilotRepositoryDisabled(targetDir, { shared });
   if (surface !== "codex") return { status: "failed", evidence: [`unsupported_surface:${surface}`] };
-  const path = join(targetDir, ".codex", "config.toml");
-  if (!existsSync(path)) return { status: "failed", evidence: [`missing:${path}`] };
-  const config = readFileSync(path, "utf8");
-  const selector = repositorySelector(targetDir, config);
-  const section = pluginSection(config, selector);
-  const matches = [...section.matchAll(/^enabled\s*=\s*(true|false)\s*$/gm)];
-  return matches.length === 1 && matches[0][1] === "false"
-    ? { status: "healthy", evidence: [`${path}:${selector}:enabled=false`] }
-    : { status: "failed", evidence: [`postcondition_failed:${path}:${selector}`] };
+  return verifyCodexRepositoryDisabled(targetDir);
 }
 
 export function verifyGlobalUninstall(plan, _targetDir, {
@@ -93,25 +50,7 @@ export function verifyGlobalUninstall(plan, _targetDir, {
   evaluateOpenCodeGlobalStatus = inspectOpenCodeGlobalStatus,
 } = {}) {
   if (plan.surface === "opencode") {
-    const report = evaluateOpenCodeGlobalStatus(configDir);
-    const remainingOwnedFiles = plan.mutations
-      .filter((mutation) => mutation.kind === "remove")
-      .map((mutation) => mutation.path)
-      .filter((path) => existsSync(path));
-    const configClean = report.global_config?.plugin_configured === false
-      && report.global_config?.legacy_plugin_configured === false;
-    const packageRemoved = report.package?.loadable === false;
-    const statusClean = report.status === "not_configured";
-    const evidence = [
-      report.global_config?.path || join(configDir, "opencode.json"),
-      ...(configClean ? [] : ["postcondition_failed:agdf_plugin_entry_still_configured_or_uninspectable"]),
-      ...(packageRemoved ? [] : ["postcondition_failed:create-agdf_package_still_loadable_or_uninspectable"]),
-      ...(statusClean ? [] : [`postcondition_failed:observed_status:${report.status || "unknown"}`]),
-      ...remainingOwnedFiles.map((path) => `still_present:${path}`),
-    ];
-    return statusClean && configClean && packageRemoved && remainingOwnedFiles.length === 0
-      ? { status: "healthy", evidence: [...evidence, "marker_owned_global_files_removed"] }
-      : { status: "failed", evidence };
+    return verifyOpenCodeGlobalUninstall(plan, configDir, evaluateOpenCodeGlobalStatus);
   }
   const report = inspect(plan.surface, exec);
   return report.status === "not_installed"
@@ -120,102 +59,12 @@ export function verifyGlobalUninstall(plan, _targetDir, {
 }
 
 export function planGlobalUninstall(surface, { configDir } = {}) {
-  if (surface === "codex") {
-    return nativeUninstallPlan(surface, "codex", ["plugin", "remove", "agdf@agdf"]);
-  }
-  if (surface === "claude") {
-    return nativeUninstallPlan(surface, "claude", ["plugin", "uninstall", "agdf@agdf", "--scope", "user"]);
-  }
-  if (surface === "copilot") {
-    return nativeUninstallPlan(surface, "copilot", ["plugin", "uninstall", "agdf"]);
-  }
-  if (surface === "opencode") {
-    if (!configDir) throw new Error("OpenCode uninstall requires its explicit config directory.");
-    const configPath = join(configDir, "opencode.json");
-    if (!existsSync(configPath)) throw new Error(`OpenCode config not found: ${configPath}`);
-    let config;
-    try {
-      config = JSON.parse(readFileSync(configPath, "utf8"));
-    } catch {
-      throw new Error(`Refusing to modify unreadable OpenCode config: ${configPath}`);
-    }
-    if (config.plugin !== undefined && !Array.isArray(config.plugin)) {
-      throw new Error(`Refusing to modify OpenCode config with non-array plugin field: ${configPath}`);
-    }
-    const next = { ...config };
-    next.plugin = (config.plugin ?? []).filter((entry) => !isOwnedOpenCodePluginEntry(entry));
-    if (Array.isArray(config.instructions)) next.instructions = config.instructions.filter((entry) => entry !== "AGDF.md");
-    const npm = openCodeNpmInvocation(["uninstall", "--silent", pluginDefinition.opencode.npmPackage]);
-    const mutations = [
-      { kind: "write", path: configPath, content: `${JSON.stringify(next, null, 2)}\n`, ownership: "exact_known_entries" },
-      { kind: "command", executable: npm.executable, args: npm.args, cwd: configDir },
-    ];
-    const retained = ["repository AGDF files", ".agdf/control"];
-    for (const candidate of openCodeOwnedGlobalFiles(configDir)) {
-      if (!existsSync(candidate.path)) continue;
-      const content = readFileSync(candidate.path, "utf8");
-      if (candidate.owned(content)) mutations.push({ kind: "remove", path: candidate.path, ownership: "agdf_marker" });
-      else retained.push(candidate.path);
-    }
-    return Object.freeze({
-      operation: "uninstall",
-      surface,
-      scope: "global",
-      mutations: Object.freeze(mutations),
-      retained: Object.freeze(retained),
-      expected: Object.freeze({ installation_status: "not_installed" }),
-    });
-  }
-  throw new Error(`Global uninstall is not supported for ${surface}.`);
-}
-
-function openCodeOwnedGlobalFiles(configDir) {
-  const firstLine = (marker) => (content) => content.split(/\r?\n/)[0] === marker;
-  const afterFrontmatter = (marker) => (content) => {
-    const lines = content.split(/\r?\n/);
-    const end = lines.findIndex((line, index) => index > 0 && line === "---");
-    return end >= 0 && lines[end + 1] === marker;
-  };
-  const ownedValidatorPackage = (content) => {
-    try {
-      const manifest = JSON.parse(content);
-      return manifest?.agdf?.owner === "create-agdf"
-        && manifest?.agdf?.surface === "opencode-global-validator";
-    } catch {
-      return false;
-    }
-  };
-  const files = [
-    { path: join(configDir, pluginDefinition.opencode.instructionsFileName), owned: firstLine("<!-- AGDF-GLOBAL-INSTRUCTIONS -->") },
-    { path: join(configDir, pluginDefinition.opencode.runtimeContractFileName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") },
-    { path: join(configDir, "agdf", "bin", "agdf-local.js"), owned: firstLine("// AGDF-GLOBAL-LOCAL-VALIDATOR") },
-    { path: join(configDir, "agdf", "package.json"), owned: ownedValidatorPackage },
-    {
-      path: join(configDir, "agents", `${pluginDefinition.opencode.evaluatorAgentName}.md`),
-      owned: afterFrontmatter(`<!-- AGDF-GLOBAL-AGENT: ${pluginDefinition.opencode.evaluatorAgentName} -->`),
-    },
-  ];
-  for (const modulePath of pluginDefinition.runtimeContract.modules) {
-    const prefix = "meta/contracts/";
-    if (!modulePath.startsWith(prefix) || modulePath.slice(prefix.length).includes("/")) {
-      throw new Error(`Invalid definition-owned runtime contract module path: ${modulePath}`);
-    }
-    const moduleName = modulePath.slice(prefix.length);
-    files.push({ path: join(configDir, "contracts", moduleName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") });
-  }
-  for (const skill of pluginDefinition.skillSet) {
-    const name = `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`;
-    const marker = `<!-- AGDF-GLOBAL-SKILL: ${name} -->`;
-    files.push({ path: join(configDir, "skills", name, "SKILL.md"), owned: afterFrontmatter(marker) });
-  }
-  return files;
-}
-
-function isOwnedOpenCodePluginEntry(entry) {
-  return typeof entry === "string"
-    && (entry === openCodePluginEntrypoint
-      || entry === pluginDefinition.opencode.npmPackage
-      || entry.startsWith(`${pluginDefinition.opencode.npmPackage}@`));
+  if (surface === "opencode") return planOpenCodeGlobalUninstall(configDir);
+  const command = surface === "codex" ? codexUninstallCommand()
+    : surface === "claude" ? claudeUninstallCommand()
+      : surface === "copilot" ? copilotUninstallCommand() : null;
+  if (!command) throw new Error(`Global uninstall is not supported for ${surface}.`);
+  return nativeUninstallPlan(surface, command.executable, command.args);
 }
 
 function nativeUninstallPlan(surface, executable, args) {

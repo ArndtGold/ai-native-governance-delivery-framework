@@ -1,0 +1,565 @@
+{
+  "schema_version": 1,
+  "run_id": "agdf-host-adapter-compatibility",
+  "date": "2026-09-05",
+  "evidence_scope": "Consolidated execution history, not raw transcripts or current native-host evidence. Failed development attempts stay recorded; final status does not overwrite their original results.",
+  "baseline": [
+    {
+      "test": "local-marketplace",
+      "command": [
+        "node",
+        "create-agdf/scripts/local-marketplace-test.js"
+      ],
+      "exit_code": 1,
+      "seconds": 0.8
+    },
+    {
+      "test": "claude-cache-recovery",
+      "command": [
+        "node",
+        "create-agdf/scripts/claude-cache-recovery-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4
+    },
+    {
+      "test": "copilot-installer",
+      "command": [
+        "node",
+        "create-agdf/scripts/copilot-installer-test.js"
+      ],
+      "exit_code": 1,
+      "seconds": 0.3
+    },
+    {
+      "test": "cli-modularization",
+      "command": [
+        "node",
+        "create-agdf/scripts/cli-modularization-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.7
+    },
+    {
+      "test": "runtime-check-consent",
+      "command": [
+        "node",
+        "create-agdf/scripts/runtime-check-consent-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 5.8
+    },
+    {
+      "test": "codex-hook-observation",
+      "command": [
+        "node",
+        "create-agdf/scripts/codex-hook-observation-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.3
+    },
+    {
+      "test": "lifecycle",
+      "command": [
+        "node",
+        "create-agdf/scripts/lifecycle-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "copilot-repository-retention",
+      "command": [
+        "node",
+        "create-agdf/scripts/copilot-repository-retention-test.js"
+      ],
+      "exit_code": 1,
+      "seconds": 0.4
+    },
+    {
+      "test": "opencode-hardening",
+      "command": [
+        "node",
+        "create-agdf/scripts/opencode-hardening-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.9
+    },
+    {
+      "test": "skill-dispatch",
+      "command": [
+        "node",
+        "create-agdf/scripts/skill-dispatch-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4
+    },
+    {
+      "test": "skill-dispatch-binding",
+      "command": [
+        "node",
+        "create-agdf/scripts/skill-dispatch-binding-test.js"
+      ],
+      "exit_code": 1,
+      "seconds": 17.8
+    },
+    {
+      "test": "task-target-resolution",
+      "command": [
+        "node",
+        "create-agdf/scripts/task-target-resolution-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2
+    },
+    {
+      "test": "interaction-presentation",
+      "command": [
+        "node",
+        "create-agdf/scripts/interaction-presentation-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.1
+    }
+  ],
+  "baseline_after_preparation": [
+    {
+      "test": "local-marketplace",
+      "exit_code": 0,
+      "seconds": 17.6
+    },
+    {
+      "test": "copilot-installer",
+      "exit_code": 0,
+      "seconds": 14.2
+    },
+    {
+      "test": "copilot-repository-retention",
+      "exit_code": 0,
+      "seconds": 5.5
+    },
+    {
+      "test": "skill-dispatch-binding",
+      "exit_code": 0,
+      "seconds": 29.2
+    }
+  ],
+  "common_before_extraction": [
+    {
+      "host": "codex",
+      "scenario": "installed-discovered",
+      "assertions": 4
+    },
+    {
+      "host": "claude",
+      "scenario": "installed-discovered",
+      "assertions": 4
+    },
+    {
+      "host": "copilot",
+      "scenario": "installed-discovered",
+      "assertions": 4
+    }
+  ],
+  "common_after_extraction": [
+    {
+      "host": "codex",
+      "scenario": "installed-discovered",
+      "assertions": 4
+    },
+    {
+      "host": "claude",
+      "scenario": "installed-discovered",
+      "assertions": 4
+    },
+    {
+      "host": "copilot",
+      "scenario": "installed-discovered",
+      "assertions": 4
+    }
+  ],
+  "initial_common_run": {
+    "evaluated": 56,
+    "unexpected_failure_count": 23,
+    "failures": [
+      {
+        "id": "codex.callable",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "codex/callable\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "codex.target-unresolved",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "codex/target-unresolved\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "codex.missing-approval",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "codex/missing-approval\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "claude.callable",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "claude/callable\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "claude.target-unresolved",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "claude/target-unresolved\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "claude.missing-approval",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "claude/missing-approval\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "copilot.callable",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "copilot/callable\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "copilot.target-unresolved",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "copilot/target-unresolved\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "copilot.missing-approval",
+        "original": {
+          "result": "target_unresolved",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "copilot/missing-approval\n+ actual - expected\n\n+ 'failed'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.installed",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/installed\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.discovered",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/discovered\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.discovery-missing",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/discovery-missing\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.discovery-wrong-payload",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/discovery-wrong-payload\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.callable",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/callable\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.target-unresolved",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/target-unresolved\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.missing-approval",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/missing-approval\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.invalid-input",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/invalid-input\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.updated",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/updated\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.update-stale",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/update-stale\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.recoverable",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/recoverable\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.recovery-partial",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/recovery-partial\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.manual-checks",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/manual-checks\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      },
+      {
+        "id": "opencode.trusted-unexecuted",
+        "original": {
+          "result": "fixture_failed",
+          "evidence_class": "repository_fixture"
+        },
+        "conformance": {
+          "expected": "demonstrated",
+          "passed": false,
+          "diagnostic": "opencode/trusted-unexecuted\n+ actual - expected\n\n+ 'unverified'\n- 'demonstrated'\n"
+        }
+      }
+    ]
+  },
+  "superseded_failed_commands": [
+    {
+      "name": "copilot-installer",
+      "command": [
+        "node",
+        "create-agdf/scripts/copilot-installer-test.js"
+      ],
+      "exit_code": 1,
+      "seconds": 11.92,
+      "phase": "final_regressions"
+    },
+    {
+      "name": "package-contents",
+      "command": [
+        "node",
+        "create-agdf/scripts/package-contents-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 1,
+      "seconds": 5.74,
+      "phase": "package_checks"
+    },
+    {
+      "name": "local-development-install",
+      "command": [
+        "node",
+        "create-agdf/scripts/local-development-install-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 1,
+      "seconds": 32.84,
+      "phase": "package_checks"
+    },
+    {
+      "name": "test:community-health",
+      "command": [
+        "npm",
+        "run",
+        "test:community-health"
+      ],
+      "exit_code": 1,
+      "seconds": 1.4,
+      "phase": "first_comparison_integration"
+    }
+  ],
+  "issues": {
+    "stale_generated_baseline": {
+      "diagnostic": "copilot_payload_inventory_mismatch; Unexpected end of JSON input in skill-dispatch-binding",
+      "affected_tests": [
+        "local-marketplace",
+        "copilot-installer",
+        "copilot-repository-retention",
+        "skill-dispatch-binding"
+      ],
+      "correction": "Regenerated using the existing release preparation before the extraction baseline; all four repeated baseline checks passed.",
+      "verification": "baseline_after_preparation"
+    },
+    "common_fixture_context": {
+      "diagnostic": "Initial full common run recorded unexpected failures; fixture target/Git/locale setup and OpenCode realpath context were incomplete.",
+      "correction": "Initialized fixture Git/control context, supplied interaction locales and normalized the temporary root with realpath.",
+      "verification": "Final common suite: 56 evaluated, no unexpected failures."
+    },
+    "copilot_payload_budget": {
+      "diagnostic": "Error: AGDF_COPILOT_PAYLOAD_GROWTH: observed 91 files/682058 bytes; baseline 86/696486",
+      "correction": "Reviewed exactly five new pure runtime modules; file ceiling 86 to 91, unchanged byte ceiling 696486.",
+      "verification": "release:prepare"
+    },
+    "copilot_fixture_import": {
+      "diagnostic": "ReferenceError: skills is not defined; the pre-existing missing-discovery assertion caught the absent fixture import.",
+      "correction": "Restored the shared skills helper import without weakening the assertion.",
+      "verification": "copilot-installer"
+    },
+    "source_closure_input": {
+      "diagnostic": "Error: unsafe_relative_path",
+      "correction": "Declared the copied/inspected OpenCode plugin file as an explicit host file input; installed-relative URLs are not repository execution dependencies.",
+      "verification": "64 named evidence checks in the final test:host-compatibility run."
+    },
+    "npm_cache_access": {
+      "diagnostic": "npm error code EPERM when npm pack tried to write the default user cache.",
+      "affected_tests": [
+        "package-contents",
+        "local-development-install"
+      ],
+      "correction": "Reran with an isolated writable temporary npm cache, retaining all substantive assertions.",
+      "verification": "package-contents and local-development-install"
+    },
+    "offline_dependency_cache": {
+      "diagnostic": "npm error code ENOTCACHED",
+      "correction": "Reused the exact existing local Acorn 8.17.0 package and lockfile integrity.",
+      "verification": "FINAL_VERIFICATION.json dependency_versions and the evidence suite."
+    },
+    "community_fixture_reference": {
+      "diagnostic": "MARKDOWN_LINK_BROKEN for the already-linked INSTRUCTION_FOOTPRINT_AUDIT.md in both handbook workflow fixture copies.",
+      "correction": "Added the existing referenced audit to the test fixture inventory.",
+      "verification": "test:community-health and check:community-health"
+    }
+  },
+  "final_result": "31 final command groups passed; 56 common scenarios and 64 evidence checks. Exact final invocations, results and counts are in FINAL_VERIFICATION.json."
+}

@@ -7,7 +7,7 @@
 | Runtime contracts | plugin/meta/contracts/ | active | AGDF | 2026-07-18 |
 | CLI control checks | create-agdf/lib/control-evaluation/; create-agdf/lib/cli/validation-handlers.js | active | AGDF | 2026-07-18 |
 | Surface-local validator resolution and generation | create-agdf/lib/runtime/; create-agdf/scripts/sync-plugin-runtime.js | active | AGDF | 2026-07-18 |
-| Release-built plugin composition and durable marketplace staging | create-agdf/scripts/sync-package-assets.js; create-agdf/lib/installers/local-marketplace.js; create-agdf/lib/installers/plugin-installers.js | active | AGDF | 2026-07-18 |
+| Release-built plugin composition and durable marketplace staging | create-agdf/scripts/sync-package-assets.js; create-agdf/lib/installers/local-marketplace.js; create-agdf/lib/installers/plugin-installers.js; create-agdf/lib/host-adapters/ (native mechanisms) | active | AGDF | 2026-09-05 |
 | Control templates | plugin/control/templates/ | active | AGDF | 2026-07-08 |
 | Skill routing | plugin/meta/agdf-plugin.definition.json | active | AGDF | 2026-07-18 |
 | Agent Skills conformance baseline and plugin-scoped portability policy | plugin/meta/agent-skills-conformance.json | active | AGDF | 2026-08-19 |
@@ -23,6 +23,7 @@
 
 | Reference | Purpose | Limit |
 |---|---|---|
+| docs/compatibility/HOST_COMPATIBILITY.md; evals/host-compatibility/ | Dated repository compatibility evidence derived by scripts/host-compatibility/ | No live installation, capability, approval or runtime authority; exact environment and lane only |
 | README.md; INSTALL.md; create-agdf/README.md | User-facing explanation | Must follow runtime and CLI source files |
 | plugin/meta/agdf-runtime-contract.md | Compatibility manifest for runtime-contract modules | Must not duplicate module content |
 | create-agdf/generated/plugins/agdf/runtime/ | Package-built exact-version validator payload for full plugin surfaces | Derived at sync/prepack/publish; never edited or committed as source runtime |

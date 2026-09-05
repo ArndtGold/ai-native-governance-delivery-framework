@@ -11,6 +11,17 @@ Wenn der Agent anhält, ist zuerst zu klären, welche Ebene betroffen ist:
 
 Eine gesunde Installation und ein blockierter Delivery-Status können gleichzeitig korrekt sein.
 
+Der [Kompatibilitätsvergleich](../../compatibility/HOST_COMPATIBILITY.md) zeigt getrennt, ob AGDF
+installiert, entdeckt, aufrufbar, korrekt aktualisiert und nach Fehlern wiederherstellbar ist.
+Er nennt Datum, Umgebung und Art des Nachweises. Simulierte Tests belegen keine frische Sitzung
+im echten Host. Fehlende Nachweise bleiben ausdrücklich offen.
+
+Verfügbare Skills, automatische Prüfungen, beobachtete Governance und technische Durchsetzung sind
+unterschiedliche Zusagen. Eine Freigabe für einen Hook belegt noch keine ausgeführte Prüfung.
+Prüfe den lokalen Status und die konkrete Sitzung. Wenn automatische Prüfungen abgelehnt wurden,
+bleibt die manuelle Prüfung verfügbar. Nach einem Fehler zählt ein erneuter Versuch erst mit seinem
+beobachteten Ergebnis als erfolgreich.
+
 ## Eine Freigabe fehlt
 
 Prüfe zuerst, ob du den richtigen Run, das richtige Gate und die aktuelle Artefaktrevision siehst.

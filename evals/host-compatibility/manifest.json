@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "hosts": [
+    "codex",
+    "claude",
+    "copilot",
+    "opencode"
+  ],
+  "systems": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "scenarios": [
+    "installed",
+    "discovered",
+    "discovery-missing",
+    "discovery-wrong-payload",
+    "callable",
+    "target-unresolved",
+    "missing-approval",
+    "invalid-input",
+    "updated",
+    "update-stale",
+    "recoverable",
+    "recovery-partial",
+    "manual-checks",
+    "trusted-unexecuted"
+  ],
+  "source_entrypoints": {
+    "codex": [
+      "create-agdf/scripts/fixtures/host-compatibility/codex.js"
+    ],
+    "claude": [
+      "create-agdf/scripts/fixtures/host-compatibility/claude.js"
+    ],
+    "copilot": [
+      "create-agdf/scripts/fixtures/host-compatibility/copilot.js"
+    ],
+    "opencode": [
+      "create-agdf/scripts/fixtures/host-compatibility/opencode.js"
+    ]
+  },
+  "common_entrypoints": [
+    "scripts/host-compatibility/contract.mjs",
+    "scripts/host-compatibility/evaluate.mjs",
+    "scripts/host-compatibility/render.mjs",
+    "scripts/host-compatibility/run.mjs",
+    "create-agdf/scripts/host-compatibility-test.js"
+  ],
+  "extra_sources": [
+    "package.json",
+    "package-lock.json",
+    "create-agdf/package.json",
+    "plugin/meta/agdf-plugin.definition.json",
+    "create-agdf/scripts/sync-plugin-runtime.js",
+    "create-agdf/scripts/sync-package-assets.js",
+    "scripts/host-compatibility/test.mjs",
+    "plugin/meta/copilot-payload-baseline.json"
+  ],
+  "historical_sources": [
+    {
+      "path": ".agdf/control/artefacts/agdf-live-host-conformance-matrix/HOST_CONFORMANCE_MATRIX.json",
+      "schema_path": ".agdf/control/artefacts/agdf-live-host-conformance-matrix/OBSERVATION_SCHEMA.json",
+      "format": "historical_hc_v1"
+    }
+  ],
+  "native_sources": [],
+  "native_targets": [],
+  "public_evidence": [],
+  "source_files": {
+    "opencode": [
+      "create-agdf/opencode-plugin.js"
+    ]
+  }
+}

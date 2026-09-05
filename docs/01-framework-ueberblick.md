@@ -13,6 +13,13 @@ Es verbindet das Manifest mit den späteren Detaildokumenten. Im Kern geht es um
 Der Überblick beschreibt noch kein Tool, keine Agent Runtime und keinen fertigen Implementierungsprozess. Er skizziert
 das Arbeitsmodell, die Gates, die wichtigsten Artefakte und die offenen Fragen.
 
+## Technische Architektur
+
+Die [Technische Architektur von AGDF](architecture/README.md) beschreibt die vorhandene Implementierung
+mit fünf Diagrammen: Systemkontext, Bausteine, Skill-Aufruf, Verteilung und Kompatibilitätsnachweise.
+Sie erklärt die Grenze zwischen Agentenanweisung, maschineller Prüfung und technischer Durchsetzung
+und verlinkt die jeweils maßgeblichen Verträge und Quellmodule.
+
 ## Kernaussage in fünf Sätzen
 
 KI-Agenten machen Softwareentwicklung schneller, aber nicht automatisch klarer.

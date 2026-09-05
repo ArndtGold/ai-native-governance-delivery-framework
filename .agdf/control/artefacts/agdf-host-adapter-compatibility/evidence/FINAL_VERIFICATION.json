@@ -1,0 +1,377 @@
+{
+  "date": "2026-09-05",
+  "checks": [
+    {
+      "name": "local-marketplace",
+      "command": [
+        "node",
+        "create-agdf/scripts/local-marketplace-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 15.18,
+      "result_excerpt": "Local marketplace tests passed"
+    },
+    {
+      "name": "claude-cache-recovery",
+      "command": [
+        "node",
+        "create-agdf/scripts/claude-cache-recovery-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.22,
+      "result_excerpt": "Claude cache recovery tests passed"
+    },
+    {
+      "name": "copilot-installer",
+      "command": [
+        "node",
+        "create-agdf/scripts/copilot-installer-test.js"
+      ],
+      "exit_code": 0,
+      "result_excerpt": "Copilot installer tests passed (native Git checkout, same-version updates, migration, rollback, discovery and isolation)",
+      "resolved_issue": "copilot_fixture_import"
+    },
+    {
+      "name": "cli-modularization",
+      "command": [
+        "node",
+        "create-agdf/scripts/cli-modularization-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.54,
+      "result_excerpt": "cli modularization tests passed"
+    },
+    {
+      "name": "runtime-check-consent",
+      "command": [
+        "node",
+        "create-agdf/scripts/runtime-check-consent-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 7.63,
+      "result_excerpt": "Codex hook observation tests passed.\nRuntime-check consent tests passed"
+    },
+    {
+      "name": "codex-hook-observation",
+      "command": [
+        "node",
+        "create-agdf/scripts/codex-hook-observation-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4,
+      "result_excerpt": "Codex hook observation tests passed."
+    },
+    {
+      "name": "lifecycle",
+      "command": [
+        "node",
+        "create-agdf/scripts/lifecycle-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 2.13,
+      "result_excerpt": "lifecycle tests passed"
+    },
+    {
+      "name": "copilot-repository-retention",
+      "command": [
+        "node",
+        "create-agdf/scripts/copilot-repository-retention-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 4.98,
+      "result_excerpt": "Copilot repository retention tests passed (install, update, status, disable, uninstall and failure)"
+    },
+    {
+      "name": "opencode-hardening",
+      "command": [
+        "node",
+        "create-agdf/scripts/opencode-hardening-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.26,
+      "result_excerpt": "OpenCode hardening tests passed."
+    },
+    {
+      "name": "skill-dispatch",
+      "command": [
+        "node",
+        "create-agdf/scripts/skill-dispatch-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 0.33,
+      "result_excerpt": "skill dispatch tests passed"
+    },
+    {
+      "name": "skill-dispatch-binding",
+      "command": [
+        "node",
+        "create-agdf/scripts/skill-dispatch-binding-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 28.27,
+      "result_excerpt": "Skill dispatch binding tests passed"
+    },
+    {
+      "name": "task-target-resolution",
+      "command": [
+        "node",
+        "create-agdf/scripts/task-target-resolution-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.12,
+      "result_excerpt": "task target resolution tests passed"
+    },
+    {
+      "name": "interaction-presentation",
+      "command": [
+        "node",
+        "create-agdf/scripts/interaction-presentation-test.js"
+      ],
+      "exit_code": 0,
+      "seconds": 1.3,
+      "result_excerpt": "interaction presentation tests passed\ngate rationale and why tests passed\nscope classification card tests passed\ntask target orientation tests passed"
+    },
+    {
+      "name": "runtime-integrity-layout",
+      "command": [
+        "node",
+        "create-agdf/scripts/runtime-integrity-layout-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 12.98,
+      "result_excerpt": "Runtime integrity layout tests passed"
+    },
+    {
+      "name": "runtime-integrity-negative",
+      "command": [
+        "node",
+        "create-agdf/scripts/runtime-integrity-negative-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 82.33,
+      "result_excerpt": "Runtime integrity negative tests passed"
+    },
+    {
+      "name": "local-validator",
+      "command": [
+        "node",
+        "create-agdf/scripts/local-validator-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 1.39,
+      "result_excerpt": "Local validator tests passed"
+    },
+    {
+      "name": "package-build",
+      "command": [
+        "node",
+        "create-agdf/scripts/package-build-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 3.2,
+      "result_excerpt": "Package build tests passed (all generated profiles byte-identical across complete builds; source untouched)"
+    },
+    {
+      "name": "package-contents",
+      "command": [
+        "node",
+        "create-agdf/scripts/package-contents-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true",
+        "npm_config_cache": "/private/tmp/agdf-hac-npm-cache"
+      },
+      "exit_code": 0,
+      "seconds": 3.32,
+      "result_excerpt": "Package contents tests passed (437 files; complete release-built plugin present)"
+    },
+    {
+      "name": "copilot-profile",
+      "command": [
+        "node",
+        "create-agdf/scripts/copilot-profile-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 2.2,
+      "result_excerpt": "Copilot profile tests passed (inventory, drift, exclusions and growth fail closed)"
+    },
+    {
+      "name": "local-development-install",
+      "command": [
+        "node",
+        "create-agdf/scripts/local-development-install-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true",
+        "npm_config_cache": "/private/tmp/agdf-hac-npm-cache"
+      },
+      "exit_code": 0,
+      "seconds": 28.78,
+      "result_excerpt": "Local development install tests passed"
+    },
+    {
+      "name": "agent-skills-conformance",
+      "command": [
+        "node",
+        "create-agdf/scripts/agent-skills-conformance-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 1.04,
+      "result_excerpt": "Agent Skills conformance tests passed (source, policy, metadata, resources, symlinks and 4 generated surfaces)"
+    },
+    {
+      "name": "smoke",
+      "command": [
+        "node",
+        "create-agdf/scripts/smoke-test.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 109.51,
+      "result_excerpt": "create-agdf smoke test passed"
+    },
+    {
+      "name": "routing",
+      "command": [
+        "node",
+        "create-agdf/scripts/test-routing.js"
+      ],
+      "environment": {
+        "npm_config_ignore_scripts": "true"
+      },
+      "exit_code": 0,
+      "seconds": 0.21,
+      "result_excerpt": "AGDF routing render test passed for plugin-only Copilot skills"
+    },
+    {
+      "name": "test:host-compatibility",
+      "command": [
+        "npm",
+        "run",
+        "test:host-compatibility"
+      ],
+      "exit_code": 0,
+      "seconds": 34.07,
+      "result_excerpt": "Host compatibility evidence tests passed (64 named checks, recording failure and isolation controls).\n\"evaluated\": 56\n\"failed\": []"
+    },
+    {
+      "name": "compatibility:record",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:record"
+      ],
+      "exit_code": 0,
+      "seconds": 27.6,
+      "result_excerpt": "\"evaluated\": 56\n\"failed\": 0\n\"source_fingerprint\": \"aa8766489bfe22b032456d8be86c9bc8f9bfc1e03d28c5b67132733e570b084c\""
+    },
+    {
+      "name": "compatibility:check",
+      "command": [
+        "npm",
+        "run",
+        "compatibility:check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.86,
+      "result_excerpt": "\"evaluated\": 56\n\"failed\": 0\n\"source_fingerprint\": \"aa8766489bfe22b032456d8be86c9bc8f9bfc1e03d28c5b67132733e570b084c\""
+    },
+    {
+      "name": "test:community-health",
+      "command": [
+        "npm",
+        "run",
+        "test:community-health"
+      ],
+      "exit_code": 0,
+      "seconds": 6.0,
+      "result_excerpt": "community-health-test: pass (reviewed baseline + 29 negative contracts)"
+    },
+    {
+      "name": "check:community-health",
+      "command": [
+        "npm",
+        "run",
+        "check:community-health"
+      ],
+      "exit_code": 0,
+      "seconds": 1.44,
+      "result_excerpt": "community-health: pass (39 required files, 4 issue forms)"
+    },
+    {
+      "name": "check",
+      "command": [
+        "npm",
+        "--prefix",
+        "pages",
+        "run",
+        "check"
+      ],
+      "exit_code": 0,
+      "seconds": 9.36,
+      "result_excerpt": "Result (12 files):\n- 0 errors\n- 0 warnings\n- 0 hints"
+    },
+    {
+      "name": "test:landing",
+      "command": [
+        "npm",
+        "--prefix",
+        "pages",
+        "run",
+        "test:landing"
+      ],
+      "exit_code": 0,
+      "seconds": 6.99,
+      "result_excerpt": "Landing-page visible word count: 1710 (editorial target 1500–1800; hard maximum 2200)\nLanding-page local image payload: 1210792 bytes across 2 unique assets\nLanding-page structure, copy, boundary, metadata, No-JS and payload tests passed"
+    },
+    {
+      "name": "release:prepare",
+      "command": [
+        "npm",
+        "--prefix",
+        "create-agdf",
+        "run",
+        "release:prepare"
+      ],
+      "exit_code": 0,
+      "result_excerpt": "Release version coherence passed (33 surfaces at 0.14.5; 8 profile snapshots)\nPublic plugin tests passed (46 inventoried candidate files; digest 6a913277203b062c27ea487e3a347e78c285c8310d75eea68c06446db116ed54)"
+    }
+  ],
+  "passed": 31,
+  "failed": 0,
+  "native_host_observations": 0,
+  "deterministic_scenarios": 56,
+  "evidence_checks": 64,
+  "source_fingerprint": "aa8766489bfe22b032456d8be86c9bc8f9bfc1e03d28c5b67132733e570b084c",
+  "dependency_versions": {
+    "acorn": "8.17.0",
+    "yaml": "2.9.0"
+  },
+  "evidence_retention": {
+    "authorized_on": "2026-09-05",
+    "method": "User-requested removal of redundant raw logs and diagnostic exports; actual commands, exits, result excerpts, baseline and failure history are retained in these summaries.",
+    "history": "VERIFICATION_HISTORY.json",
+    "control": "CONTROL_VALIDATION.json",
+    "raw_logs_retained": false
+  }
+}

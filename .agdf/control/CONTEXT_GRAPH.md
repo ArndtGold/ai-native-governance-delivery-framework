@@ -133,6 +133,8 @@
 
 ### CG-CREATE-AGDF-CLI-COMPOSITION
 
+- host_adapter_compatibility_2026_09_05: Approved TP extraction assigns native plugin commands, session commands, permissions and host observations to `create-agdf/lib/host-adapters/`, retaining the established OpenCode installer. Existing installer/consent/lifecycle facades retain shared target, decision, receipt, result and transaction ownership. The repository-only comparison in `docs/compatibility/HOST_COMPATIBILITY.md` derives from `scripts/host-compatibility/` and explicit `evals/host-compatibility/` inputs; it is no runtime capability or governance authority. Evidence: `.agdf/control/artefacts/agdf-host-adapter-compatibility/CD_TESTS.md`; `.agdf/control/artefacts/agdf-host-adapter-compatibility/QA_REPORT.md`. Native support requires matching separate observations.
+
 - situation: The published `create-agdf` CLI had accumulated command discovery, parsing, orchestration, installers, scaffolding and control evaluation in one executable entry point, making ownership and isolated verification difficult.
 - refs: create-agdf/bin/create-agdf.js; create-agdf/lib/cli/; create-agdf/lib/installers/; create-agdf/lib/scaffold/; create-agdf/lib/control-evaluation/; .agdf/control/artefacts/create-agdf-cli-modularization/SD.md; .agdf/control/artefacts/create-agdf-cli-modularization/OR.md
 - evidence: UAT-approved implementation leaves the executable as an 11-line composition root, assigns the approved responsibilities to 16 focused modules, uses a single immutable command registry and explicit handler map, and passes focused modularization, aggregate package smoke, release-bootstrap and Runtime Integrity verification.

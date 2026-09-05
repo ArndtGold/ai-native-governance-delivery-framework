@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import {
   DISPATCHER_BINDING_PREFIX,
@@ -82,6 +83,18 @@ function assertSessionBase(stdout, pluginRoot, expectedSurface) {
 
 try {
   stageInstalledPlugin();
+  const isolatedContract = join(installedPluginRoot, "runtime/create-agdf/lib/runtime-check-consent/contract.js");
+  const isolatedCommands = spawnSync(process.execPath, ["--input-type=module", "-e", `
+    import { fixedRuntimeCheckCommand } from ${JSON.stringify(pathToFileURL(isolatedContract).href)};
+    console.log(JSON.stringify(["codex", "claude", "copilot", "opencode"].flatMap(host =>
+      ["darwin", "linux", "win32"].map(platform => fixedRuntimeCheckCommand(host, "/fixture/plugin", platform)))));
+  `], { cwd: fixtureRoot, encoding: "utf8" });
+  assert.equal(isolatedCommands.status, 0, isolatedCommands.stderr);
+  assert.deepEqual(JSON.parse(isolatedCommands.stdout), ["codex", "claude", "copilot", "opencode"].flatMap(host =>
+    ["darwin", "linux", "win32"].map(platform => fixedRuntimeCheckCommand(host, "/fixture/plugin", platform))));
+  for (const forbidden of ["installers", "lifecycle", "runtime-check-consent/service.js", "host-adapters/codex/plugin.js"]) {
+    assert.equal(existsSync(join(installedPluginRoot, "runtime/create-agdf/lib", forbidden)), false, `runtime excludes ${forbidden}`);
+  }
   const installedDefault = runIntegrity(join(installedPluginRoot, "scripts", "check-runtime-integrity.mjs"));
   assert.equal(installedDefault.status, 0, combinedOutput(installedDefault));
   assert.match(installedDefault.stdout, /mode=installed/);

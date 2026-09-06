@@ -140,6 +140,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "lib/delivery-path-search",
     "lib/interaction-presentation.js",
     "lib/repository-context.js",
+    "lib/repository-context-reader.js",
     "lib/task-target-resolution.js",
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",
     "generated/plugins/agdf/meta/agdf-interaction-locales.json",

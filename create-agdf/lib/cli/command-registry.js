@@ -24,6 +24,7 @@ export const commandRegistry = Object.freeze([
   command("opencode-status", { preferred: [""], scaffold: [""] }),
   command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
   command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
+  command("mcp", { preferred: [" <status|enable|disable> --surface <codex|claude|opencode> [--scope <project|user>] --dir <absolute-target> [--json]"] }),
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
@@ -54,6 +55,9 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if (options.target !== "mcp" && ["project", "user"].includes(options.scope)) {
+    throw new Error("project and user scopes are supported only by mcp");
+  }
   if (["codex-repo", "opencode-repo"].includes(options.target) && !options.dirExplicit) {
     throw new Error(`${options.target} requires an explicit --dir`);
   }
@@ -107,6 +111,14 @@ export function validateCommandOptions(options) {
   if (options.target === "runtime-checks" && !["codex", "claude", "copilot", "opencode"].includes(options.surface)) {
     throw new Error("runtime-checks requires --surface codex, claude, copilot or opencode");
   }
+  if (options.target === "mcp") {
+    if (!["status", "enable", "disable"].includes(options.mcpAction)) throw new Error("mcp requires status, enable or disable");
+    if (!["codex", "claude", "opencode"].includes(options.surface) || !options.surfaceExplicit) {
+      throw new Error("mcp requires --surface codex, claude or opencode");
+    }
+    if (!options.dirExplicit) throw new Error("mcp requires an explicit --dir target");
+    if (options.scope && !["project", "user"].includes(options.scope)) throw new Error("mcp --scope must be project or user");
+  }
   if (options.approvalEnvelope && options.target !== "gate-check") throw new Error("--approval-envelope is supported only by gate-check");
   if (options.approvalEnvelope && (options.json || options.statusCard || options.allActive)) {
     throw new Error("--approval-envelope cannot be combined with --json, --status-card or --all-active");
@@ -145,7 +157,7 @@ Backward-compatible create-agdf usage:
 ${usageLines("legacy", "npx --yes create-agdf@latest ")}
 
 Options:
-  --dir <path>   Write files into a specific directory. With opencode, use this as the OpenCode config directory.
+  --dir <path>   Select an explicit target directory. OpenCode installation uses it as its config directory; MCP requires an absolute repository target.
   --force        Overwrite existing generated files
   --language <tag>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
@@ -172,9 +184,9 @@ Options:
                  Mark an explicit replacement of a previously confirmed target
   --all-active   Evaluate every active run (doctor and delivery-map only)
   --surface <codex|claude|copilot|opencode|generic>
-                 Declare the active Delivery Path Search surface
-  --scope <repository|global>
-                 Select the lifecycle mutation scope
+                 Declare the selected coding-agent surface
+  --scope <repository|global|project|user>
+                 Select the lifecycle mutation scope. MCP defaults to project.
   --confirm      Apply a previously previewed global uninstall plan
   --shared       Apply Copilot repository disable through shared .github/copilot/settings.json
   --runtime-checks <enable|manual|cancel>

@@ -34,6 +34,19 @@ function runtimeEvidence(expectedVersion, env) {
   };
 }
 
+function trustedRuntimeEvidence(expectedVersion, evidence) {
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+    throw new SkillDispatchRuntimeError("runtime_evidence_invalid");
+  }
+  return Object.freeze({
+    machine_validation: typeof evidence.machine_validation === "string" ? evidence.machine_validation : "unavailable",
+    expected_version: expectedVersion,
+    plugin_root: typeof evidence.plugin_root === "string" ? evidence.plugin_root : null,
+    runtime_digest: typeof evidence.runtime_digest === "string" ? evidence.runtime_digest : null,
+    provenance_status: typeof evidence.provenance_status === "string" ? evidence.provenance_status : null,
+  });
+}
+
 function wrapperMilliseconds(now, env) {
   const raw = env.AGDF_DISPATCH_WRAPPER_START_NS;
   if (!raw || !/^\d+$/u.test(raw)) return 0;
@@ -60,12 +73,27 @@ function baseResult({ outcome, terminal, skill, runtime, timing }) {
   };
 }
 
+function terminalPresentationAction(presentation) {
+  if (typeof presentation?.markdown === "string" && presentation.markdown) {
+    return { source: "presentation.markdown", text: presentation.markdown };
+  }
+  if (!Array.isArray(presentation?.sequence) || !presentation.sequence.length) return null;
+  const parts = presentation.sequence.map((blockId) => {
+    if (blockId === "approval_interaction") {
+      return presentation.approval_interaction?.exact_text_fallback;
+    }
+    return presentation.blocks?.[blockId]?.markdown;
+  });
+  if (parts.some((part) => typeof part !== "string" || !part.trim())) return null;
+  return { source: "presentation.sequence", text: parts.join("\n\n") };
+}
+
 function bindHostAction(result) {
-  if (result.terminal && typeof result.presentation?.markdown === "string") {
+  const presentationAction = terminalPresentationAction(result.presentation);
+  if (result.terminal && presentationAction) {
     result.host_action = Object.freeze({
       mode: "transmit_presentation_verbatim_and_stop",
-      source: "presentation.markdown",
-      text: result.presentation.markdown,
+      ...presentationAction,
       allow_surrounding_text: false,
       may_request_run_or_evidence: false,
     });
@@ -107,12 +135,15 @@ export function createSkillDispatchService(dependencies = {}) {
   const renderInputRecovery = dependencies.renderSkillDispatchInputRecovery ?? renderSkillDispatchInputRecovery;
   const renderRecovery = dependencies.renderSkillDispatchRecovery ?? renderSkillDispatchRecovery;
   const evaluateGate = dependencies.evaluateGateCheck ?? evaluateGateCheck;
+  const validateControlReadBoundary = dependencies.validateControlReadBoundary;
   const env = dependencies.env ?? process.env;
 
   return function executeSkillDispatch(rawInput) {
     const started = now();
     const timing = emptySkillDispatchTiming();
-    const runtime = runtimeEvidence(rawInput.expectedVersion, env);
+    const runtime = dependencies.runtimeEvidence
+      ? trustedRuntimeEvidence(rawInput.expectedVersion, dependencies.runtimeEvidence)
+      : runtimeEvidence(rawInput.expectedVersion, env);
     let input;
     try {
       input = normalizeSkillDispatchInput(rawInput, buildSkillDispatchRegistry(rawInput.skillSet));
@@ -132,7 +163,6 @@ export function createSkillDispatchService(dependencies = {}) {
       result.diagnostics = [{
         code: "dispatch_input_invalid",
         field,
-        message: error instanceof Error ? error.message : String(error),
         ...(allowedValues.length ? { allowed_values: allowedValues } : {}),
       }];
       return bindHostAction(result);
@@ -162,7 +192,10 @@ export function createSkillDispatchService(dependencies = {}) {
       }
 
       const controlStarted = now();
-      const control = runDispatchStage("control_evaluation_failed", () => evaluateGate(target.governance_target, input.run_id ? { runId: input.run_id } : {}));
+      const control = runDispatchStage("control_evaluation_failed", () => {
+        validateControlReadBoundary?.(target.governance_target);
+        return evaluateGate(target.governance_target, input.run_id ? { runId: input.run_id } : {});
+      });
       timing.control_ms = round(milliseconds(controlStarted, now()));
       if (skill.dispatch_mode === "deterministic_control") {
         const presentation = control.approval_presentation ?? control.status_presentation;

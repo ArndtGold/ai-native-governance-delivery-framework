@@ -1,0 +1,53 @@
+{
+  "name": "@agdf/mcp-server",
+  "version": "0.14.5",
+  "description": "Local read-only MCP adapter for version-matched AGDF skill dispatch.",
+  "type": "module",
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "NOTICE"
+  ],
+  "bin": {
+    "agdf-mcp": "./bin/agdf-mcp.js"
+  },
+  "exports": {
+    ".": "./src/server.js"
+  },
+  "scripts": {
+    "test:contract": "node ./test/contract.test.js",
+    "test:protocol": "node ./test/protocol.test.js",
+    "test:safety": "node ./test/safety.test.js",
+    "test:provenance": "node ./test/provenance.test.js",
+    "test:performance": "node ./test/performance.test.js",
+    "test:package": "node ./test/package.test.js",
+    "test": "npm run test:contract && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "create-agdf": "0.14.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "agdf",
+    "mcp",
+    "governance",
+    "coding-agents"
+  ],
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+    "directory": "agdf-mcp-server"
+  },
+  "homepage": "https://agdf.iself.eu"
+}

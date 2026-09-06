@@ -1,14 +1,23 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
-const packOutput = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-  cwd: packageRoot,
-  encoding: "utf8",
-  stdio: "pipe",
-});
+const npmCache = mkdtempSync(join(tmpdir(), "create-agdf-npm-cache-"));
+let packOutput;
+try {
+  packOutput = execFileSync("npm", ["pack", "--dry-run", "--json"], {
+    cwd: packageRoot,
+    encoding: "utf8",
+    stdio: "pipe",
+    env: { ...process.env, npm_config_cache: npmCache },
+  });
+} finally {
+  rmSync(npmCache, { recursive: true, force: true });
+}
 const reportStart = packOutput.search(/^\[/m);
 assert.notEqual(reportStart, -1, "npm pack must emit a JSON report after prepack output");
 const report = JSON.parse(packOutput.slice(reportStart));

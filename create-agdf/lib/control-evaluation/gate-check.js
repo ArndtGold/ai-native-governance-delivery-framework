@@ -220,11 +220,11 @@ function buildHumanPresentation(targetDir, runState, currentGate, presentationLo
   };
 }
 
-export function evaluateGateCheck(targetDir, selection = {}) {
-  const doctorReport = evaluateDoctor(targetDir, selection);
+export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) {
+  const doctorReport = evaluateDoctor(targetDir, selection, dependencies);
   const runState = readRunState(targetDir, selection);
   const verifiedChange = modeSliceDecision(runState) === "verified_change"
-    ? evaluateVerifiedChange(targetDir, runState)
+    ? evaluateVerifiedChange(targetDir, runState, dependencies)
     : null;
   const transitionDecision = transitionDecisionForRunState(runState, verifiedChange);
   const deliveryMap = analyzeDeliveryMap(runState, {

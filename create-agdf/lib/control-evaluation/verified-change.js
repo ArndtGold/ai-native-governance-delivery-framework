@@ -1,5 +1,4 @@
 import { existsSync, readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import { isAbsolute, posix, relative, resolve } from "node:path";
 import { cleanStatusCell, isPlaceholderValue } from "./shared.js";
 
@@ -23,25 +22,6 @@ export function isSafeRepoRelativePath(value) {
   return normalized !== "." && normalized !== ".." && !normalized.startsWith("../") && normalized === value;
 }
 
-export function gitPathList(targetDir, args) {
-  try {
-    return execFileSync("git", args, { cwd: targetDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
-      .split("\n")
-      .map((item) => item.trim())
-      .filter(Boolean);
-  } catch {
-    return null;
-  }
-}
-
-export function gitValue(targetDir, args) {
-  try {
-    return execFileSync("git", args, { cwd: targetDir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-  } catch {
-    return null;
-  }
-}
-
 export function readVerifiedChangeRecord(targetDir, runState) {
   const artefact = runState.artefacts.get("Verified Change");
   if (!artefact?.path || isPlaceholderValue(artefact.path)) return { status: "missing", path: "", content: "" };
@@ -54,7 +34,9 @@ export function readVerifiedChangeRecord(targetDir, runState) {
   return { status: "present", path: artefact.path, content: readFileSync(absolutePath, "utf8") };
 }
 
-export function evaluateVerifiedChange(targetDir, runState) {
+export function evaluateVerifiedChange(targetDir, runState, dependencies = {}) {
+  const gitPathList = dependencies.gitPathList ?? (() => null);
+  const gitValue = dependencies.gitValue ?? (() => null);
   const record = readVerifiedChangeRecord(targetDir, runState);
   const findings = [];
   const add = (code, message, nextStep, severity = "revise") => findings.push({

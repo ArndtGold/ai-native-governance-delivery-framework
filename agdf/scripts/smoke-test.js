@@ -26,11 +26,13 @@ if (packageJson.dependencies?.["create-agdf"] !== packageJson.version) {
 }
 
 const tempDir = mkdtempSync(join(tmpdir(), "agdf-cli-"));
+const npmEnv = { ...process.env, npm_config_cache: join(tempDir, "npm-cache") };
 
 try {
   execFileSync(npmCommand, [...npmPrefixArgs, "pack", "--silent", createAgdfPackageRoot], {
     cwd: tempDir,
     stdio: "pipe",
+    env: npmEnv,
   });
 
   const createAgdfTarball = join(tempDir, `create-agdf-${packageJson.version}.tgz`);
@@ -41,6 +43,7 @@ try {
   execFileSync(npmCommand, [...npmPrefixArgs, "install", "--silent", createAgdfTarball], {
     cwd: tempDir,
     stdio: "pipe",
+    env: npmEnv,
   });
 
   const installedAgdfRoot = join(tempDir, "node_modules", "@agdf", "cli");

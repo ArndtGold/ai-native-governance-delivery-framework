@@ -11,8 +11,9 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { join, resolve, win32 as pathWin32 } from "node:path";
+import { join, resolve } from "node:path";
 import process from "node:process";
+import { npmExecutable } from "./npm-invocation.js";
 
 const LOCAL_PACKAGE_OWNER = "create-agdf";
 const LOCAL_PACKAGE_KIND = "opencode_local_development_package";
@@ -51,11 +52,8 @@ function parsePackResult(output) {
 }
 
 export function localNpmExecutable(platform = process.platform, execPath = process.execPath) {
-  if (platform !== "win32") return { executable: "npm", prefix: [] };
-  return {
-    executable: execPath,
-    prefix: [pathWin32.join(pathWin32.dirname(execPath), "node_modules", "npm", "bin", "npm-cli.js")],
-  };
+  const invocation = npmExecutable({ platform, execPath, env: {} });
+  return { executable: invocation.executable, prefix: [...invocation.prefix] };
 }
 
 function digestPackedFiles(packageRoot, files) {
@@ -152,6 +150,7 @@ export function prepareLocalOpenCodePackage({
   const localRoot = resolve(dataRoot, "packages", "local");
   mkdirSync(localRoot, { recursive: true });
   const stageRoot = mkdtempSync(join(localRoot, ".stage-"));
+  const npmCacheRoot = mkdtempSync(join(localRoot, ".npm-cache-"));
   try {
     const npm = localNpmExecutable();
     const output = exec(npm.executable, [
@@ -165,6 +164,7 @@ export function prepareLocalOpenCodePackage({
       cwd: resolve(packageRoot),
       encoding: "utf8",
       stdio: "pipe",
+      env: { ...process.env, npm_config_cache: npmCacheRoot },
     });
     const { filename, files } = parsePackResult(output);
     const stagedTarball = join(stageRoot, filename);
@@ -192,6 +192,8 @@ export function prepareLocalOpenCodePackage({
   } catch (error) {
     if (existsSync(stageRoot)) rmSync(stageRoot, { recursive: true, force: true });
     throw error;
+  } finally {
+    rmSync(npmCacheRoot, { recursive: true, force: true });
   }
 }
 

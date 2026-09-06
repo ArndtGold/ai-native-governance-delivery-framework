@@ -9,6 +9,7 @@ import { inspectCodexRepositoryStatus } from "../host-adapters/codex/plugin.js";
 import { inspectOpenCodeInstallation, inspectOpenCodeRepositoryStatus } from "../host-adapters/opencode/status.js";
 import { runtimeCheckStatus } from "../runtime-check-consent/service.js";
 import { createOperationStatus } from "./result.js";
+import { cliGitObservation } from "../control-evaluation/git-observation.js";
 
 const SUPPORTED_SURFACES = Object.freeze(["codex", "claude", "copilot", "opencode"]);
 
@@ -22,8 +23,8 @@ function deliveryStatus(targetDir, selection, dependencies) {
     return { status: "not_configured", run_id: null, current_gate: null, evidence: [] };
   }
   try {
-    const doctor = dependencies.evaluateDoctor(targetDir, selection);
-    const gate = dependencies.evaluateGateCheck(targetDir, selection);
+    const doctor = dependencies.evaluateDoctor(targetDir, selection, cliGitObservation);
+    const gate = dependencies.evaluateGateCheck(targetDir, selection, cliGitObservation);
     return {
       status: gate.status === "blocked" || doctor.status === "block" ? "blocked" : gate.status === "complete" ? "complete" : "open",
       run_id: selection.runId || null,

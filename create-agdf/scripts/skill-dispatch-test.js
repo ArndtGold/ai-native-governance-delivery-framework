@@ -69,7 +69,16 @@ assert.deepEqual(unresolvedResult.host_action, {
 });
 assert.equal(gateCalls, 0, "unresolved dispatch must not evaluate repository control");
 
-const approvalPresentation = { schema_version: "1", markdown: "approval", authorizes: false };
+const approvalPresentation = {
+  schema_version: "1",
+  sequence: ["run_status_card", "gate_transition_card", "approval_interaction"],
+  blocks: {
+    run_status_card: { markdown: "approval status" },
+    gate_transition_card: { markdown: "approval transition" },
+  },
+  approval_interaction: { exact_text_fallback: "approval fallback" },
+  authorizes: false,
+};
 const gateReport = {
   status: "open",
   current_gate: "QA",
@@ -93,9 +102,36 @@ assert.equal(controlResult.terminal, true);
 assert.equal(controlResult.control, gateReport);
 assert.equal(controlResult.presentation, approvalPresentation);
 assert.equal(controlResult.host_action.mode, "transmit_presentation_verbatim_and_stop");
+assert.equal(controlResult.host_action.source, "presentation.sequence");
+assert.equal(controlResult.host_action.text, "approval status\n\napproval transition\n\napproval fallback");
 assert.equal(controlResult.runtime.machine_validation, "owned_version_matched");
 assert.equal(evaluatedRunIds.at(-1), "delivery-run");
 assert.ok(controlResult.timing.total_ms < 2000, "deterministic dispatch must remain below two seconds");
+
+const immutableRuntimeEvidence = Object.freeze({
+  machine_validation: "local_exact_version_digest",
+  plugin_root: "/owned/create-agdf",
+  runtime_digest: "a".repeat(64),
+  provenance_status: "matched",
+});
+const trustedRuntimeDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => unresolved,
+  renderTaskTargetOrientation: () => orientation,
+  runtimeEvidence: immutableRuntimeEvidence,
+  env: {
+    AGDF_MACHINE_VALIDATION: "untrusted",
+    AGDF_DISPATCH_PLUGIN_ROOT: "/untrusted",
+    AGDF_DISPATCH_RUNTIME_DIGEST: "secret",
+  },
+});
+const trustedRuntimeResult = trustedRuntimeDispatch({ ...base, skillId: "gate-check" });
+assert.deepEqual(trustedRuntimeResult.runtime, {
+  machine_validation: "local_exact_version_digest",
+  expected_version: "1.2.3",
+  plugin_root: "/owned/create-agdf",
+  runtime_digest: "a".repeat(64),
+  provenance_status: "matched",
+});
 
 const missingPresentation = createSkillDispatchService({
   resolveTaskTarget: () => resolved,
@@ -130,6 +166,7 @@ for (const runId of ["delivery_run", "delivery.run", "delivery-run"]) {
 const invalid = resolvedDispatch({ ...base, skillId: "unknown" });
 assert.equal(invalid.outcome, "invalid_input");
 assert.equal(invalid.diagnostics[0].field, "skill_id");
+assert.equal(Object.hasOwn(invalid.diagnostics[0], "message"), false);
 const unpaired = resolvedDispatch({ ...base, skillId: "gate-check", targetSource: "explicit_target" });
 assert.equal(unpaired.outcome, "invalid_input");
 assert.equal(unpaired.diagnostics[0].field, "primary_target");

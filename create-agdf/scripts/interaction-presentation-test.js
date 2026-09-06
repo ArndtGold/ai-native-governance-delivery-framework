@@ -223,8 +223,130 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Qualitätssicherung" } });
   assert.match(germanQaApproval.markdown, /das QA-Gate durchführen/);
+
+  const germanOrCloseout = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "OR",
+    allowed_now: ["produce OR or delivery closeout", "prepare commit, push or PR handoff when requested"],
+    forbidden_now: ["commit, push, open PR or release automatically"],
+    blocking_condition: "none",
+    missing_approval: "none",
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+    next_step: "Produce delivery closeout or requested handoff; do not perform VCS actions automatically.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Orchestrierungsbericht" } });
+  assert.match(germanOrCloseout.markdown, /OR oder den Lieferabschluss erstellen/);
+  assert.match(germanOrCloseout.markdown, /Commit-, Push- oder Pull-Request-Handoff/);
+  assert.match(germanOrCloseout.markdown, /automatisch committen/);
+  assert.match(germanOrCloseout.markdown, /Versionskontrollaktionen nicht automatisch ausführen/);
+  assert.doesNotMatch(germanOrCloseout.markdown, /produce OR|prepare commit|commit, push|Produce delivery/);
   assert.match(germanQaApproval.markdown, /Die exakte Freigabe Approval: QA anfordern/);
   assert.doesNotMatch(germanQaApproval.markdown, /run QA gate|Request UAT when|Request exact approval/);
+
+  const germanPrdApproval = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "PRD",
+    allowed_now: ["draft or refine PRD", "define scope", "define acceptance criteria", "define non-goals", "request exact PRD approval"],
+    forbidden_now: ["create SD", "create TP", "run Brownfield Analysis as implementation preparation", "implement code", "claim QA or release readiness"],
+    blocking_condition: "none",
+    missing_approval: "Approval: PRD",
+    next_gate_after_approval: "SD",
+    allowed_after_approval: "Draft Solution Design; implementation remains forbidden.",
+    next_step: "record evidence",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Produktanforderungen" } });
+  assert.match(germanPrdApproval.markdown, /PRD entwerfen oder überarbeiten/);
+  assert.match(germanPrdApproval.markdown, /Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt/);
+  assert.doesNotMatch(germanPrdApproval.markdown, /draft or refine PRD|create SD|Draft Solution Design/);
+
+  const germanSdApproval = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "SD",
+    allowed_now: ["draft or refine Solution Design", "define architecture", "define ownership", "request exact SD approval"],
+    forbidden_now: ["create TP", "implement code", "claim QA or release readiness"],
+    blocking_condition: "none",
+    missing_approval: "Approval: SD",
+    next_gate_after_approval: "TP",
+    allowed_after_approval: "Draft Task/Test Plan; implementation remains forbidden.",
+    next_step: "request exact SD approval",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Lösungsdesign" } });
+  assert.match(germanSdApproval.markdown, /das Lösungsdesign entwerfen oder überarbeiten/);
+  assert.match(germanSdApproval.markdown, /Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt/);
+  assert.doesNotMatch(germanSdApproval.markdown, /draft or refine Solution Design|create TP|Draft Task\/Test Plan/);
+
+  const germanTpApproval = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "TP",
+    allowed_now: ["draft or refine Task/Test Plan", "define task IDs", "define test evidence", "request exact TP approval"],
+    forbidden_now: ["implement code", "claim QA or release readiness"],
+    blocking_condition: "none",
+    missing_approval: "Approval: TP",
+    next_gate_after_approval: "Brownfield Analysis",
+    allowed_after_approval: "Run implementation-prep Brownfield Analysis before CD+Tests; no further user approval is required at this internal step.",
+    next_step: "request exact TP approval",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Aufgaben- und Testplan" } });
+  assert.match(germanTpApproval.markdown, /den Aufgaben- und Testplan entwerfen oder überarbeiten/);
+  assert.match(germanTpApproval.markdown, /Aufgaben-IDs festlegen/);
+  assert.match(germanTpApproval.markdown, /Die Brownfield-Analyse zur Implementierungsvorbereitung vor CD\+Tests durchführen/);
+  assert.doesNotMatch(germanTpApproval.markdown, /draft or refine Task\/Test Plan|define task IDs|Run implementation-prep Brownfield Analysis/);
+
+  const germanBrownfield = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "de", status: "open", current_gate: "Brownfield Analysis",
+    allowed_now: ["run Brownfield Analysis for the approved TP scope", "verify existing owners, reuse paths and regression risks"],
+    forbidden_now: ["implement before Brownfield evidence supports the approved TP path", "claim QA or release readiness"],
+    blocking_condition: "none", missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
+    next_step: "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Implementierungsvorbereitung" } });
+  assert.match(germanBrownfield.markdown, /die Brownfield-Analyse für den freigegebenen TP-Umfang durchführen/);
+  assert.match(germanBrownfield.markdown, /bestehende Owner, Wiederverwendungspfade und Regressionsrisiken prüfen/);
+  assert.doesNotMatch(germanBrownfield.markdown, /run Brownfield Analysis|verify existing owners|implement before Brownfield/);
+
+  const germanCdTests = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "de", status: "open", current_gate: "CD+Tests",
+    allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
+    forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
+    missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
+    next_step: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Implementierung und Tests" } });
+  assert.match(germanCdTests.markdown, /Den freigegebenen TP-Umfang implementieren, seine Tests ausführen/);
+  assert.doesNotMatch(germanCdTests.markdown, /Implement the approved TP scope/);
+
+  const germanCr = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "de", status: "open", current_gate: "CR",
+    allowed_now: ["run mandatory code review", "record correctness, regression, security and maintainability findings", "fix blocking review findings"],
+    forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
+    missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
+    next_step: "Run Code Review for the implemented TP scope and resolve blocking findings before QA.",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Code Review" } });
+  assert.match(germanCr.markdown, /das verpflichtende Code Review durchführen/);
+  assert.match(germanCr.markdown, /Befunde zu Korrektheit, Regression, Sicherheit und Wartbarkeit erfassen/);
+  assert.doesNotMatch(germanCr.markdown, /run mandatory code review|record correctness|Run Code Review/);
+
+  const germanQaNext = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "de", status: "open", current_gate: "QA",
+    allowed_now: ["run QA gate", "persist or refine the QA report", "request exact QA approval"],
+    forbidden_now: ["request UAT approval", "release", "claim delivery readiness before QA approval and report evidence"],
+    blocking_condition: "none", missing_approval: "Approval: QA", next_gate_after_approval: "UAT",
+    allowed_after_approval: "Request UAT when QA has passed; release remains gated.",
+    next_step: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA",
+    quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
+  }, { registry, humanPresentation: { gateTitle: "Qualitätssicherung" } });
+  assert.match(germanQaNext.markdown, /Das QA-Gate durchführen, den QA-Bericht dauerhaft festhalten/);
+  assert.doesNotMatch(germanQaNext.markdown, /Run the QA gate, persist the QA report/);
 
   const germanUatApproval = renderOperationalStatusCard({
     run_id: "status-run",
@@ -414,6 +536,7 @@ for (const locale of ["en", "de"]) {
     const noAction = registry.locales[locale].primary.narration.noAction;
     assert.equal(snapshot.gate_transition_card.next_gate, approvalTransitionForGate(gate).next_gate_after_approval);
     assert.ok(snapshot.gate_transition_card.next_transition.includes(noAction), `${locale} ${gate} uses no-action narration`);
+    assert.match(snapshot.gate_transition_card.next_transition, /\. (?:No user|Keine Nutzer)/, `${locale} ${gate} starts the second transition sentence with a capital letter`);
     assert.equal(snapshot.gate_transition_card.next_transition.includes(registry.locales[locale].interaction.decisionFollows), false);
     assert.deepEqual(validateApprovalOrientationSnapshot(snapshot, { registry }), { valid: true, errors: [] });
   }

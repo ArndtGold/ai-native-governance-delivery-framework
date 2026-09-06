@@ -548,8 +548,9 @@ try {
   changedProjection.rollback();
 
   const packageCalls = [];
+  const localPackageDataRoot = join(fixtureRoot, "package-data");
   const localPackage = prepareLocalOpenCodePackage({
-    dataRoot: join(fixtureRoot, "package-data"),
+    dataRoot: localPackageDataRoot,
     packageRoot,
     expectedVersion: pluginDefinition.version,
     exec: packExec("same package\n", packageCalls),
@@ -558,6 +559,8 @@ try {
   assert.equal(localPackage.version, pluginDefinition.version);
   assert.match(localPackage.digest, /^[a-f0-9]{64}$/);
   assert.match(localPackage.archiveDigest, /^[a-f0-9]{64}$/);
+  assert.ok(packageCalls[0].options.env.npm_config_cache.startsWith(join(localPackageDataRoot, "packages", "local")));
+  assert.equal(existsSync(packageCalls[0].options.env.npm_config_cache), false, "isolated npm cache must be removed");
   assert.equal(validateLocalOpenCodePackageSource(localPackage).specifier, localPackage.specifier);
   assert.throws(() => validateLocalOpenCodePackageSource({ ...localPackage, root: dirname(localPackage.root) }), /outside its owned data root/);
   assert.equal(resolveOpenCodeInstallPackageSource(localPackage).specifier, localPackage.specifier);

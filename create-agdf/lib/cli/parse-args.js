@@ -51,6 +51,7 @@ export function parseArgs(argv, dependencies = {}) {
   let shared = false;
   let runtimeChecksDecision;
   let runtimeChecksAction;
+  let mcpAction;
   let targetSource;
   let primaryTarget;
   let workingDirectory = cwd;
@@ -115,7 +116,7 @@ export function parseArgs(argv, dependencies = {}) {
         surface = next;
         surfaceExplicit = true;
       } else if (arg === "--scope") {
-        if (!["repository", "global"].includes(next)) throw new CliUsageError("Unsupported scope. Use repository or global.");
+        if (!["repository", "global", "project", "user"].includes(next)) throw new CliUsageError("Unsupported scope. Use repository, global, project or user.");
         scope = next;
       } else if (arg === "--fixture") fixture = next;
       else if (arg === "--model") model = next;
@@ -166,6 +167,11 @@ export function parseArgs(argv, dependencies = {}) {
       runtimeChecksAction = arg;
       continue;
     }
+    if (!arg.startsWith("-") && target === "mcp" && !mcpAction) {
+      if (!["status", "enable", "disable"].includes(arg)) throw new CliUsageError("mcp action must be status, enable or disable.");
+      mcpAction = arg;
+      continue;
+    }
     throw new CliUsageError(`Unknown argument: ${arg}`);
   }
 
@@ -200,6 +206,7 @@ export function parseArgs(argv, dependencies = {}) {
       shared,
       runtimeChecksDecision,
       runtimeChecksAction: runtimeChecksAction ?? "status",
+      mcpAction,
       generatorModel,
       maxGeneratedCandidates,
       generationTimeoutMs,

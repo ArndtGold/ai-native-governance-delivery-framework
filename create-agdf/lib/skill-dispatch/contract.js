@@ -23,6 +23,12 @@ function deepFreeze(value) {
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
   description: "Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. For a terminal result, transmit host_action.text verbatim and stop. For skill_continuation, use only the returned target and control.",
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
   inputSchema: {
     type: "object", additionalProperties: false,
     required: ["skill_id", "presentation_language", "working_directory"],
@@ -38,6 +44,47 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Supply it only when the request explicitly selects that run." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
+  },
+  outputSchema: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "schema_version", "contract_version", "outcome", "terminal", "authorizes", "skill",
+      "runtime", "target", "control", "presentation", "continuation", "recovery",
+      "host_action", "timing", "diagnostics",
+    ],
+    properties: {
+      schema_version: { type: "string", const: "1" },
+      contract_version: { type: "integer", const: 1 },
+      outcome: {
+        type: "string",
+        enum: ["invalid_input", "target_unresolved", "control_result", "skill_continuation", "evaluator_error"],
+      },
+      terminal: { type: "boolean" },
+      authorizes: { type: "boolean", const: false },
+      skill: { anyOf: [{ type: "object" }, { type: "null" }] },
+      runtime: { type: "object" },
+      target: { anyOf: [{ type: "object" }, { type: "null" }] },
+      control: { anyOf: [{ type: "object" }, { type: "null" }] },
+      presentation: { anyOf: [{ type: "object" }, { type: "null" }] },
+      continuation: { anyOf: [{ type: "object" }, { type: "null" }] },
+      recovery: { anyOf: [{ type: "object" }, { type: "null" }] },
+      host_action: { anyOf: [{ type: "object" }, { type: "null" }] },
+      timing: {
+        type: "object",
+        additionalProperties: false,
+        required: ["wrapper_ms", "input_ms", "target_ms", "control_ms", "render_ms", "total_ms"],
+        properties: {
+          wrapper_ms: { type: "number", minimum: 0 },
+          input_ms: { type: "number", minimum: 0 },
+          target_ms: { type: "number", minimum: 0 },
+          control_ms: { type: "number", minimum: 0 },
+          render_ms: { type: "number", minimum: 0 },
+          total_ms: { type: "number", minimum: 0 },
+        },
+      },
+      diagnostics: { type: "array", items: { type: "object" } },
+    },
   },
 });
 
@@ -132,6 +179,37 @@ export function normalizeSkillDispatchInput(input, registry) {
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
   });
+}
+
+export function parseSkillDispatchFunctionArguments(argumentsValue, trustedContext) {
+  if (!argumentsValue || typeof argumentsValue !== "object" || Array.isArray(argumentsValue)) {
+    throw new SkillDispatchInputError("arguments", "arguments must be an object");
+  }
+  const schema = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema;
+  const allowed = new Set(Object.keys(schema.properties));
+  const unknown = Object.keys(argumentsValue).find((key) => !allowed.has(key));
+  if (unknown) throw new SkillDispatchInputError(unknown, "unsupported argument");
+  const missing = schema.required.find((key) => !Object.hasOwn(argumentsValue, key));
+  if (missing) throw new SkillDispatchInputError(missing, "required argument is missing");
+  if (!trustedContext || typeof trustedContext !== "object") {
+    throw new SkillDispatchInputError("trusted_context", "trusted context is required");
+  }
+  if (Boolean(argumentsValue.target_source) !== Boolean(argumentsValue.primary_target)) {
+    throw new SkillDispatchInputError("primary_target", "target_source and primary_target must be supplied together");
+  }
+  const rawInput = {
+    skillId: argumentsValue.skill_id,
+    presentationLanguage: argumentsValue.presentation_language,
+    workingDirectory: argumentsValue.working_directory,
+    targetSource: argumentsValue.target_source,
+    primaryTarget: argumentsValue.primary_target,
+    runId: argumentsValue.run_id,
+    surface: trustedContext.surface,
+    expectedVersion: trustedContext.expectedVersion,
+    skillSet: trustedContext.skillSet,
+    interactionLocales: trustedContext.interactionLocales,
+  };
+  return deepFreeze(rawInput);
 }
 
 export function emptySkillDispatchTiming() {

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "capability_id": "agdf-mcp-dispatch",
+  "release_version": "0.14.5",
+  "tool": {
+    "name": "agdf_dispatch",
+    "semantic_owner": "create-agdf/lib/skill-dispatch/contract.js",
+    "dispatcher_owner": "create-agdf/lib/skill-dispatch/service.js",
+    "authorizes": false,
+    "read_only": true,
+    "offline": true
+  },
+  "package": {
+    "name": "@agdf/mcp-server",
+    "node": ">=20",
+    "sdk_server": "2.0.0",
+    "sdk_client_role": "development_only"
+  },
+  "transport": {
+    "kind": "stdio",
+    "primary_protocol": "2026-07-28",
+    "compatibility_protocols": [
+      "2025-11-25"
+    ],
+    "remote_transport": false
+  },
+  "lifecycle": {
+    "owner": "create-agdf",
+    "default_scope": "project",
+    "broader_scope_requires_explicit_choice": true,
+    "opencode_config_variants": {
+      "1": "mcp.agdf with enabled true",
+      "2": "mcp.servers.agdf with disabled false"
+    },
+    "fallback": "version-matched AGDF CLI skill-dispatch"
+  },
+  "host_support": {
+    "codex": "unverified",
+    "claude": "unverified",
+    "opencode": "unverified",
+    "copilot": "unverified"
+  },
+  "claims": {
+    "operating_system_sandbox": false,
+    "cross_host_support": false,
+    "publication_implies_support": false
+  },
+  "distribution": {
+    "runtime_plugin": "included",
+    "public_skills_only_candidate": "excluded"
+  }
+}

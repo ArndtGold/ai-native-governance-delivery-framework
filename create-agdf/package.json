@@ -20,6 +20,7 @@
   "exports": {
     ".": "./opencode-plugin.js",
     "./cli": "./bin/create-agdf.js",
+    "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
     "./opencode-plugin": "./opencode-plugin.js"
   },
   "bin": {
@@ -64,6 +65,8 @@
     "test:canonical-init": "node ./scripts/canonical-init-test.js",
     "test:task-target-resolution": "node ./scripts/task-target-resolution-test.js",
     "test:skill-dispatch": "node ./scripts/skill-dispatch-function-contract-test.js && node ./scripts/skill-dispatch-test.js && node ./scripts/skill-dispatch-binding-test.js",
+    "test:mcp-lifecycle": "node ./scripts/mcp-lifecycle-test.js",
+    "test:mcp-server": "npm --prefix ../agdf-mcp-server test",
     "test:verified-change": "node ./scripts/verified-change-test.js",
     "test:runtime-integrity-layout": "node ./scripts/runtime-integrity-layout-test.js",
     "test:runtime-integrity-negative": "node ./scripts/runtime-integrity-negative-test.js",
@@ -78,7 +81,7 @@
     "test:proportionality": "node ./scripts/proportionality-benchmark-test.js",
     "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
     "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
-    "smoke-test": "npm run release:prepare && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-state && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+    "smoke-test": "npm run release:prepare && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:mcp-lifecycle && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-state && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
     "prepack": "npm run release:prepare",
     "test:copilot-installer": "node ./scripts/copilot-installer-test.js"
   },

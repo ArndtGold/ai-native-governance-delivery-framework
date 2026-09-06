@@ -1,18 +1,20 @@
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { aggregate, resolveRuns, verifyLegacyProjection } from '../control-state/index.js';
+import { aggregate } from '../control-state/aggregate.js';
+import { verifyLegacyProjection } from '../control-state/legacy-projection-reader.js';
+import { resolveRuns } from '../control-state/run-state-resolver.js';
 import { doctorRequiredFiles } from './required-files.js';
 import { analyzeDeliveryMap } from './delivery-map.js';
 import { evaluateVerifiedChange } from './verified-change.js';
 import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from './run-state.js';
 import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseBacklogSection, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from './shared.js';
 
-export function evaluateDoctor(targetDir, selection = {}) {
+export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
   if (selection.allActive) {
     const selected = resolveRuns(targetDir, { allActive: true });
     const runs = selected.runs.map((run) => ({
       run_id: run.run_id,
-      report: evaluateDoctor(targetDir, { runId: run.run_id }),
+      report: evaluateDoctor(targetDir, { runId: run.run_id }, dependencies),
     }));
     const status = selected.findings.length
       ? "block"
@@ -224,7 +226,7 @@ export function evaluateDoctor(targetDir, selection = {}) {
 
     const runState = selectedRunState;
     if (modeSliceDecision(runState) === "verified_change") {
-      const verifiedChange = evaluateVerifiedChange(targetDir, runState);
+      const verifiedChange = evaluateVerifiedChange(targetDir, runState, dependencies);
       for (const finding of verifiedChange.findings) {
         addFinding(findings, finding.severity, finding.code, finding.message, finding.path, finding.next_step);
       }

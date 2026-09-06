@@ -43,6 +43,7 @@ import { renderUsage, resolveCommand, validateCommandOptions } from "./command-r
 import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
+import { printMcpLifecycleResult, runMcpLifecycle } from "../mcp-lifecycle/service.js";
 
 function createHandlers({
   io,
@@ -60,6 +61,7 @@ function createHandlers({
   evaluateOpenCodeRepository = evaluateOpenCodeStatus,
   installOpenCodePackage = installOpenCodeGlobalPlugin,
   installOpenCodeSurface = installOpenCodeGlobalSurface,
+  mcpLifecycle = runMcpLifecycle,
 }) {
   const installerAdapters = {
     ...(exec ? { exec } : {}),
@@ -162,6 +164,18 @@ function createHandlers({
         `Next action: ${report.next_action.text}`,
       ].join("\n"));
       return report.effective === "enabled" || report.effective === "manual" ? 0 : 1;
+    }],
+    ["mcp", (options) => {
+      const report = mcpLifecycle({
+        action: options.mcpAction,
+        surface: options.surface,
+        scope: options.scope ?? "project",
+        target: options.dir,
+        env,
+        exec,
+      });
+      printMcpLifecycleResult(report, { json: options.json, io });
+      return ["failed", "manual_compatible", "degraded"].includes(report.result) ? 1 : 0;
     }],
     ["disable", (options) => runDisable(options, { io, exec })],
     ["uninstall", (options) => runUninstall(options, { io, env, exec })],
@@ -731,6 +745,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     evaluateOpenCodeRepository: adapters.evaluateOpenCodeStatus,
     installOpenCodePackage: adapters.installOpenCodeGlobalPlugin,
     installOpenCodeSurface: adapters.installOpenCodeGlobalSurface,
+    mcpLifecycle: adapters.mcpLifecycle,
   }).get(command.handler);
   if (!handler) throw new Error(`No implementation is registered for ${command.name}.`);
   return await handler(options);

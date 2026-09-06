@@ -8,13 +8,15 @@ Use one version and one release tag for the whole release.
 A release includes:
 
 - `create-agdf`
+- `@agdf/mcp-server`
 - `@agdf/cli`
 - AGDF plugin manifests
 - website package metadata
 - generated package assets produced during package build
 
-The `@agdf/cli` package depends on the matching `create-agdf` version and
-delegates command execution through the shared `create-agdf/cli` export.
+The `@agdf/mcp-server` and `@agdf/cli` packages both depend on the matching
+`create-agdf` version. The server keeps its Node.js 20 MCP SDK closure separate,
+while the CLI delegates command execution through the shared `create-agdf/cli` export.
 
 ## Prepare a version
 
@@ -30,7 +32,8 @@ historical compatibility evidence. A same-version catalogue repair remains possi
 tag. Fetch the complete tag history before running the command; do not create a tag only to bypass
 this check.
 
-The script checks that `create-agdf@<version>` and `@agdf/cli@<version>` are not already published,
+The script checks that `create-agdf@<version>`, `@agdf/mcp-server@<version>` and
+`@agdf/cli@<version>` are not already published,
 then updates the coupled package, plugin, site and OpenAI submission-source versions together with the
 exact `plugin/meta/distribution-profile-history.json` release record. Do not edit these release
 surfaces individually.
@@ -52,6 +55,7 @@ Run the validation printed by the script before tagging:
 
 ```bash
 npm --prefix create-agdf run smoke-test
+npm --prefix agdf-mcp-server test
 npm --prefix agdf run smoke-test
 node plugin/scripts/check-runtime-integrity.mjs
 npm --prefix pages run build
@@ -75,14 +79,14 @@ git tag agdf-v<version>
 git push origin agdf-v<version>
 ```
 
-The `.github/workflows/publish-agdf.yml` workflow validates both packages, then
-publishes `create-agdf` first and `@agdf/cli` second in the same workflow run.
-This avoids race conditions between package publication and wrapper validation.
+The `.github/workflows/publish-agdf.yml` workflow validates all three packages, then publishes
+and waits for them in exact `create-agdf` -> `@agdf/mcp-server` -> `@agdf/cli` order in the same
+workflow run. This avoids registry visibility races before dependent-package validation.
 
-The repository secret `NPM_TOKEN` must have publish rights for `create-agdf` and
-for the `@agdf` npm organization.
+The repository secret `NPM_TOKEN` must have publish rights for `create-agdf`,
+`@agdf/mcp-server` and `@agdf/cli`.
 
-The publish workflow reports release readiness only after it verifies both exact
+The publish workflow reports release readiness only after it verifies all three exact
 package versions and that `@agdf/cli@latest` resolves to the same release version.
 It then runs a disposable clean-client bootstrap smoke test using the documented
 command shape. These checks are maintainer/CI evidence; they do not add flags or

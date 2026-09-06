@@ -25,6 +25,8 @@ jobs:
         run: |
           TAG_NAME="${GITHUB_REF_NAME}"
           CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./create-agdf/package.json', 'utf8')).version")"
+          MCP_SERVER_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf-mcp-server/package.json', 'utf8')).version")"
+          MCP_CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf-mcp-server/package.json', 'utf8')).dependencies['create-agdf']")"
           AGDF_CLI_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version")"
           AGDF_CLI_CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).dependencies['create-agdf']")"
           EXPECTED_TAG="agdf-v${CREATE_AGDF_VERSION}"
@@ -36,6 +38,16 @@ jobs:
 
           if [ "${AGDF_CLI_VERSION}" != "${CREATE_AGDF_VERSION}" ]; then
             echo "@agdf/cli version ${AGDF_CLI_VERSION} does not match create-agdf version ${CREATE_AGDF_VERSION}" >&2
+            exit 1
+          fi
+
+          if [ "${MCP_SERVER_VERSION}" != "${CREATE_AGDF_VERSION}" ]; then
+            echo "@agdf/mcp-server version ${MCP_SERVER_VERSION} does not match create-agdf version ${CREATE_AGDF_VERSION}" >&2
+            exit 1
+          fi
+
+          if [ "${MCP_CREATE_AGDF_VERSION}" != "${CREATE_AGDF_VERSION}" ]; then
+            echo "@agdf/mcp-server depends on create-agdf@${MCP_CREATE_AGDF_VERSION}, expected ${CREATE_AGDF_VERSION}" >&2
             exit 1
           fi
 
@@ -56,8 +68,15 @@ jobs:
       - name: Verify versioned AGDF skill evaluations
         run: npm --prefix create-agdf run eval:skills
 
+      - name: Install MCP validation dependencies from checkout
+        working-directory: agdf-mcp-server
+        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
+
       - name: Run create-agdf smoke test
         run: npm --prefix create-agdf run smoke-test
+
+      - name: Run @agdf/mcp-server tests
+        run: npm --prefix agdf-mcp-server test
 
       - name: Run @agdf/cli smoke test
         run: npm --prefix agdf run smoke-test
@@ -68,6 +87,9 @@ jobs:
       - name: Verify @agdf/cli package contents
         working-directory: agdf
         run: npm pack --dry-run
+
+      - name: Verify @agdf/mcp-server package contents
+        run: npm --prefix agdf-mcp-server run test:package
 
   publish:
     runs-on: ubuntu-latest
@@ -141,6 +163,46 @@ jobs:
           }
 
           wait_for_npm_package "create-agdf"
+
+      - name: Install and verify @agdf/mcp-server against published create-agdf
+        working-directory: agdf-mcp-server
+        run: |
+          npm install --package-lock=false --ignore-scripts --no-audit --no-fund
+          npm test
+
+      - name: Publish @agdf/mcp-server to npm
+        working-directory: agdf-mcp-server
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public
+
+      - name: Wait for @agdf/mcp-server readiness
+        shell: bash
+        run: |
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf-mcp-server/package.json', 'utf8')).version")"
+          MAX_ATTEMPTS=20
+          SLEEP_SECONDS=15
+          NPM_ERROR_LOG="$(mktemp)"
+          trap 'rm -f "${NPM_ERROR_LOG}"' EXIT
+          LAST_ERROR=""
+          for ATTEMPT in $(seq 1 "${MAX_ATTEMPTS}"); do
+            if RESULT="$(npm view "@agdf/mcp-server@${VERSION}" version --json 2>"${NPM_ERROR_LOG}")"; then
+              RESOLVED_VERSION="$(node -e "const value = JSON.parse(process.argv[1]); process.stdout.write(String(value));" "${RESULT}")"
+              if [ "${RESOLVED_VERSION}" = "${VERSION}" ]; then
+                echo "@agdf/mcp-server@${VERSION} is resolvable on npm."
+                LAST_ERROR=""
+                break
+              fi
+              LAST_ERROR="resolved ${RESOLVED_VERSION}, expected ${VERSION}"
+            else
+              LAST_ERROR="$(cat "${NPM_ERROR_LOG}")"
+            fi
+            if [ "${ATTEMPT}" -lt "${MAX_ATTEMPTS}" ]; then sleep "${SLEEP_SECONDS}"; fi
+          done
+          if [ -n "${LAST_ERROR}" ]; then
+            echo "Timed out waiting for @agdf/mcp-server@${VERSION} after ${MAX_ATTEMPTS} attempts. Last error: ${LAST_ERROR}" >&2
+            exit 1
+          fi
 
       - name: Publish @agdf/cli to npm
         working-directory: agdf

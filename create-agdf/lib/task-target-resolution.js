@@ -1,6 +1,6 @@
 import { existsSync, realpathSync, statSync } from "node:fs";
 import { dirname, isAbsolute, relative, sep } from "node:path";
-import { resolveRepositoryContext } from "./repository-context.js";
+import { resolveRepositoryContextByMarker } from "./repository-context-reader.js";
 
 export const TASK_TARGET_SOURCES = Object.freeze(["explicit_target", "continued_target", "current_repository"]);
 
@@ -59,15 +59,15 @@ function unresolved(reasonCode, { workingDirectory, evidenceSources = [], target
   });
 }
 
-function repositoryRoot(target, runGit) {
+function repositoryRoot(target, resolveRepositoryContext) {
   const start = statSync(target).isDirectory() ? target : dirname(target);
-  const context = resolveRepositoryContext(start, { runGit });
+  const context = resolveRepositoryContext(start);
   const root = context.context_state === "repository_bound" ? context.repository_root : null;
   return root && isInside(root, target) ? root : null;
 }
 
 export function resolveTaskTarget(input = {}, dependencies = {}) {
-  const runGit = dependencies.runGit;
+  const resolveRepositoryContext = dependencies.resolveRepositoryContext ?? resolveRepositoryContextByMarker;
   const rawWorkingDirectory = String(input.workingDirectory ?? "").trim();
   const workingDirectory = isAbsolute(rawWorkingDirectory) && existsSync(rawWorkingDirectory)
     ? canonicalDirectory(rawWorkingDirectory)
@@ -155,7 +155,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
       nextAction: "Make the named target readable and retry target-check.",
     });
   }
-  const governanceTarget = repositoryRoot(primaryTarget, runGit);
+  const governanceTarget = repositoryRoot(primaryTarget, resolveRepositoryContext);
   if (!governanceTarget) {
     return unresolved("target_content_mismatch", {
       workingDirectory,
@@ -173,7 +173,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
     });
   }
   if (targetSource === "current_repository") {
-    const workingContext = resolveRepositoryContext(workingDirectory, { runGit });
+    const workingContext = resolveRepositoryContext(workingDirectory);
     if (workingContext.context_state !== "repository_bound" || workingContext.repository_root !== governanceTarget) {
       return unresolved("target_content_mismatch", {
         workingDirectory,

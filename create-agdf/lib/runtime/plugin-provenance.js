@@ -43,6 +43,55 @@ export function digestDirectory(root) {
   return hash.digest("hex");
 }
 
+export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
+  "package.json",
+  "lib/mcp-dispatch-runtime.js",
+  "lib/control-read-boundary.js",
+  "lib/skill-dispatch",
+  "lib/control-evaluation",
+  "lib/control-state",
+  "lib/cli/runtime-context.js",
+  "lib/runtime/plugin-provenance.js",
+  "lib/task-target-resolution.js",
+  "lib/repository-context-reader.js",
+  "lib/interaction-presentation.js",
+  "generated/plugins/agdf/meta/agdf-plugin.definition.json",
+  "generated/plugins/agdf/meta/agdf-interaction-locales.json",
+]);
+
+export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
+  "node_modules/@modelcontextprotocol/server",
+  "node_modules/@modelcontextprotocol/core",
+  "node_modules/zod",
+]);
+
+function digestSelectedEntries(root, entries) {
+  const files = [];
+  function visit(path) {
+    const stats = statSync(path);
+    if (stats.isDirectory()) {
+      for (const name of readdirSync(path).sort()) visit(join(path, name));
+    } else if (stats.isFile()) files.push(path);
+  }
+  for (const entry of entries) visit(join(root, entry));
+  const hash = createHash("sha256");
+  for (const path of files.sort()) {
+    hash.update(relative(root, path).replaceAll("\\", "/"));
+    hash.update("\0");
+    hash.update(readFileSync(path));
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+export function digestMcpDispatcherPackage(root) {
+  return digestSelectedEntries(root, MCP_DISPATCHER_RUNTIME_ENTRIES);
+}
+
+export function digestMcpSdkRuntime(root) {
+  return digestSelectedEntries(root, MCP_SDK_RUNTIME_ENTRIES);
+}
+
 export function digestFile(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }

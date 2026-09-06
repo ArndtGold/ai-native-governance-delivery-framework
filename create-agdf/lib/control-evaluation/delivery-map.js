@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { aggregate, resolveRuns } from '../control-state/index.js';
+import { aggregate } from '../control-state/aggregate.js';
+import { resolveRuns } from '../control-state/run-state-resolver.js';
 import { resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js';
 import { gateApprovalStatus, readRunState, resolvedArtefactFile } from './run-state.js';

@@ -77,6 +77,8 @@ npx --yes @agdf/cli@latest copilot
 npx --yes @agdf/cli@latest opencode
 npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
+npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
+npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
 npx --yes @agdf/cli@latest status --surface codex
 npx --yes @agdf/cli@latest disable --surface codex --scope repository
 npx --yes @agdf/cli@latest disable --surface copilot --scope repository
@@ -85,6 +87,36 @@ npx --yes @agdf/cli@latest uninstall --surface codex --scope global
 npx --yes @agdf/cli@latest init
 npx --yes @agdf/cli@latest config --language en
 ```
+
+### Optional local MCP dispatcher
+
+AGDF can register one local STDIO tool, `agdf_dispatch`, for Codex, Claude Code or OpenCode.
+It projects the existing canonical skill-dispatch contract and returns the same target, gate,
+presentation and continuation results. Tool permission and successful execution never grant an
+AGDF approval. The process is offline while serving and exposes no generic shell, filesystem or
+network operation, but it inherits the operating-system permissions of the host user.
+
+The existing CLI remains on Node.js 18. MCP enablement requires the actual registered executable
+to be Node.js 20 or later and installs the exact matching `@agdf/mcp-server` package only after the
+explicit `enable` command:
+
+```bash
+npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
+npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absolute/path/to/repository
+```
+
+Project scope is the default. Add `--scope user` only after choosing the broader effect explicitly.
+After enablement, restart the host and verify tool discovery in a fresh session. OpenCode exposes
+the qualified name `agdf_agdf_dispatch`; the server-level name is `agdf_dispatch`. Its adapter reads
+the installed major version and writes the flat OpenCode 1.x or nested OpenCode 2.x MCP shape. `status` is
+read-only, and `disable` removes only the owned registration plus an unreferenced owned runtime.
+Foreign entries fail closed. Node.js 18 returns `manual_compatible` and names the existing
+version-matched CLI dispatch path without running it automatically.
+
+Host support is evidence-based and recorded independently. Configuration or protocol negotiation
+alone does not establish support. GitHub Copilot is excluded from the first MCP lifecycle and stays
+unverified. The public OpenAI Skills-only candidate contains no MCP metadata or runtime.
 
 Repeated operational validation and bounded planning use the installed, version-pinned local command:
 
@@ -420,7 +452,8 @@ The repository is licensed under [Apache-2.0](../LICENSE). No separate public `C
 
 ## Publishing
 
-The repository publishes this package and the primary user-facing `@agdf/cli` wrapper as one coupled AGDF release.
+The repository publishes this package, `@agdf/mcp-server` and the primary user-facing `@agdf/cli`
+wrapper as one coupled AGDF release.
 See the root `RELEASE.md` for the sequenced `agdf-v<version>` workflow and npm token requirements.
 
 ## Trademark Notice

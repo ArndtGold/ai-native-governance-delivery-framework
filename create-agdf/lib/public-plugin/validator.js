@@ -86,7 +86,10 @@ export function validateCandidate(root) {
     if (url.protocol !== "https:") throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: ${field} must use HTTPS`);
   }
   const files = listCandidateFiles(root);
-  for (const forbidden of [".app.json", ".mcp.json", ".agdf/control/", "node_modules/", ".git/"]) {
+  for (const forbidden of [
+    ".app.json", ".mcp.json", ".agdf/control/", "node_modules/", ".git/",
+    "meta/agdf-mcp-capability.json", "agdf-mcp-server/", "bin/agdf-mcp.js",
+  ]) {
     if (files.some((file) => file === forbidden || file.startsWith(forbidden))) throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: forbidden candidate content ${forbidden}`);
   }
   return { manifest, files };

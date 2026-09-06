@@ -43,7 +43,7 @@ const probe = createRuntimeProbe({
     calls++;
     assert.equal(exe, process.execPath);
     assert.equal(opts.env.ELECTRON_RUN_AS_NODE, "1");
-    assert.equal(opts.timeout, 1000);
+    assert.equal(opts.timeout, 5000);
     assert.equal(opts.maxBuffer, 4096);
     assert.equal(opts.shell, false);
     return { status: 0, stdout: 'AGDF_RUNTIME_OK:22', stderr: "nonfatal OS diagnostic" };
@@ -187,11 +187,18 @@ try {
           ...(run ? { "--run": run } : {}) };
         const call = buildDispatchInvocation(supplied, values);
         const response = spawnSync(call.executable, call.args, {
-          encoding: "utf8", timeout: 2000, maxBuffer: 1024 * 1024,
+          encoding: "utf8", timeout: 5000, maxBuffer: 1024 * 1024,
           env: { ...process.env, ...call.environment, AGDF_RUN: "" },
         });
         assert.ifError(response.error);
         assert.ok([0, 2].includes(response.status), response.stderr);
+        assert.ok(response.stdout.trim(), JSON.stringify({
+          executable: call.executable,
+          args: call.args,
+          status: response.status,
+          signal: response.signal,
+          stderr: response.stderr,
+        }));
         const result = JSON.parse(response.stdout);
         assert.equal(result.contract_version, 1);
         assert.equal(result.authorizes, false);

@@ -1,11 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmdirSync, unlinkSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
-import {
-  discoverRuns,
-  renderRunState,
-  runPath,
-} from "./run-state-repository.js";
+import { renderRunState } from "./run-state-repository.js";
+import { runPath } from "./run-state-reader.js";
 import {
   parseRunState,
   RUN_ID_PATTERN,
@@ -68,28 +65,4 @@ export function renderLegacyProjection(path, root = process.cwd()) {
 export function writeLegacyProjection(path, canonical) {
   atomicWrite(path, renderLegacyProjection(canonical, resolve(dirname(path), "../..")));
 }
-export function verifyLegacyProjection(root) {
-  const path = join(root, ".agdf", "control", "AGDF_RUN.md");
-  if (!existsSync(path)) return { status: "absent" };
-  const p = readFileSync(path, "utf8"),
-    source = p.match(/canonical_source:\s*(.*?)\s*-->/)?.[1],
-    runId = p.match(/<!-- run_id:\s*(.*?)\s*-->/)?.[1],
-    digest = p.match(/sha256:\s*([0-9a-f]{64})/)?.[1],
-    projectedStart = p.indexOf("# AGDF Run State"),
-    projected = projectedStart >= 0 ? p.slice(projectedStart) : undefined;
-  if (!source || !runId || !digest || projected === undefined)
-    return { status: discoverRuns(root).length ? "mixed_authority" : "legacy" };
-  const target = resolve(root, source.replaceAll("\\", "/")),
-    rel = relative(resolve(root), target),
-    expected = relative(resolve(root), resolve(runPath(root, runId)));
-  if (rel.startsWith("..") || !rel || rel !== expected || !existsSync(target))
-    return { status: "projection_source_invalid" };
-  const canonical = readFileSync(target, "utf8"),
-    canonicalDigest = createHash("sha256").update(canonical).digest("hex");
-  return {
-    status:
-      canonicalDigest === digest && projected === canonical
-        ? "valid"
-        : "legacy_projection_drift",
-  };
-}
+export { verifyLegacyProjection } from "./legacy-projection-reader.js";

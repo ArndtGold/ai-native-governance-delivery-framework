@@ -13,14 +13,24 @@ import { renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../int
 import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
+import { cliGitObservation } from "../control-evaluation/git-observation.js";
+import { resolveRepositoryContext } from "../repository-context.js";
 
-const deliveryMapDependencies = Object.freeze({ evaluateDoctor, buildStatusCard, postApprovalTransition });
+const evaluateDoctorWithCliGit = (target, selection) => evaluateDoctor(target, selection, cliGitObservation);
+const evaluateGateWithCliGit = (target, selection) => evaluateGateCheck(target, selection, cliGitObservation);
+const resolveTaskTargetWithCliGit = (input) => resolveTaskTarget(input, {
+  resolveRepositoryContext: (directory) => resolveRepositoryContext(directory),
+});
+const deliveryMapDependencies = Object.freeze({ evaluateDoctor: evaluateDoctorWithCliGit, buildStatusCard, postApprovalTransition });
 
 export function createValidationHandlers(io = console) {
-  const executeSkillDispatch = createSkillDispatchService();
+  const executeSkillDispatch = createSkillDispatchService({
+    evaluateGateCheck: evaluateGateWithCliGit,
+    resolveTaskTarget: resolveTaskTargetWithCliGit,
+  });
   return new Map([
     ["target-check", (options) => {
-      const report = resolveTaskTarget({
+      const report = resolveTaskTargetWithCliGit({
         targetSource: options.targetSource,
         primaryTarget: options.primaryTarget,
         workingDirectory: options.workingDirectory,
@@ -57,14 +67,14 @@ export function createValidationHandlers(io = console) {
       return ["control_result", "skill_continuation"].includes(result.outcome) ? 0 : 2;
     }],
     ["doctor", (options) => {
-      const report = evaluateDoctor(options.dir, options);
+      const report = evaluateDoctorWithCliGit(options.dir, options);
       printDoctorReport(report, options.json, io);
       return report.status === "block" ? 2 : 0;
     }],
     ["gate-check", (options) => {
-      const report = evaluateGateCheck(options.dir, options);
+      const report = evaluateGateWithCliGit(options.dir, options);
       if (options.approvalEnvelope) {
-        const output = printApprovalEnvelope(report, { io, reEvaluate: () => evaluateGateCheck(options.dir, options) });
+        const output = printApprovalEnvelope(report, { io, reEvaluate: () => evaluateGateWithCliGit(options.dir, options) });
         return output.status === "blocked" ? 2 : 0;
       }
       const presentationRendered = printGateCheckReport(report, options.json, options.statusCard, io);

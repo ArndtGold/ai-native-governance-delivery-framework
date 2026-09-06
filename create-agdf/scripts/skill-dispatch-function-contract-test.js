@@ -6,6 +6,7 @@ import { resolveCommand, skillDispatchArgumentGrammar as registryArgumentGrammar
 import {
   SKILL_DISPATCH_FUNCTION_DEFINITION,
   SKILL_DISPATCH_SURFACES,
+  parseSkillDispatchFunctionArguments,
   renderSkillDispatchSemanticProjection,
   skillDispatchArgumentGrammar,
   skillDispatchCommandGrammar,
@@ -18,8 +19,14 @@ const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta"
 const definition = SKILL_DISPATCH_FUNCTION_DEFINITION;
 const schema = definition.inputSchema;
 
-assert.deepEqual(Object.keys(definition), ["name", "description", "inputSchema"]);
+assert.deepEqual(Object.keys(definition), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
 assert.equal(definition.name, "agdf_dispatch");
+assert.deepEqual(definition.annotations, {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false,
+});
 for (const requiredMeaning of [
   "version-matched AGDF preflight",
   "never grants approval or delivery authority",
@@ -34,6 +41,16 @@ assert.deepEqual(Object.keys(schema.properties), [
   "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id",
 ]);
 assert.equal(schema.additionalProperties, false);
+assert.equal(definition.outputSchema.additionalProperties, false);
+assert.deepEqual(definition.outputSchema.required, [
+  "schema_version", "contract_version", "outcome", "terminal", "authorizes", "skill",
+  "runtime", "target", "control", "presentation", "continuation", "recovery",
+  "host_action", "timing", "diagnostics",
+]);
+assert.equal(definition.outputSchema.properties.authorizes.const, false);
+assert.deepEqual(definition.outputSchema.properties.outcome.enum, [
+  "invalid_input", "target_unresolved", "control_result", "skill_continuation", "evaluator_error",
+]);
 assert.deepEqual(schema.dependentRequired, {
   target_source: ["primary_target"],
   primary_target: ["target_source"],
@@ -50,6 +67,84 @@ assert.match(meanings.continued_target, /same confirmed target/u);
 assert.match(meanings.current_repository, /exactly one matching repository context is active/u);
 assert.equal(new Set(Object.values(meanings)).size, TASK_TARGET_SOURCES.length);
 assert.deepEqual(SKILL_DISPATCH_SURFACES, ["codex", "claude", "copilot", "opencode"]);
+
+const parsed = parseSkillDispatchFunctionArguments({
+  skill_id: "gate-check",
+  presentation_language: "de",
+  working_directory: "/tmp/agdf",
+  target_source: "continued_target",
+  primary_target: "/tmp/agdf",
+  run_id: "delivery-run",
+}, {
+  surface: "codex",
+  expectedVersion: pluginDefinition.version,
+  skillSet: pluginDefinition.skillSet,
+  interactionLocales: {},
+});
+assert.deepEqual(parsed, {
+  skillId: "gate-check",
+  presentationLanguage: "de",
+  workingDirectory: "/tmp/agdf",
+  targetSource: "continued_target",
+  primaryTarget: "/tmp/agdf",
+  runId: "delivery-run",
+  surface: "codex",
+  expectedVersion: pluginDefinition.version,
+  skillSet: pluginDefinition.skillSet,
+  interactionLocales: {},
+});
+assert.equal(Object.isFrozen(parsed), true);
+const semanticInvalid = parseSkillDispatchFunctionArguments({
+  skill_id: "not-a-real-agdf-skill",
+  presentation_language: "de",
+  working_directory: "/tmp/agdf",
+}, {
+  surface: "codex",
+  expectedVersion: pluginDefinition.version,
+  skillSet: pluginDefinition.skillSet,
+  interactionLocales: {},
+});
+assert.equal(semanticInvalid.skillId, "not-a-real-agdf-skill", "wire parsing leaves semantic validation to the dispatcher service");
+assert.throws(
+  () => parseSkillDispatchFunctionArguments({
+    skill_id: "gate-check",
+    presentation_language: "de",
+    working_directory: "/tmp/agdf",
+    executable: "/bin/sh",
+  }, {
+    surface: "codex",
+    expectedVersion: pluginDefinition.version,
+    skillSet: pluginDefinition.skillSet,
+    interactionLocales: {},
+  }),
+  (error) => error.field === "executable",
+);
+assert.throws(
+  () => parseSkillDispatchFunctionArguments({
+    skill_id: "gate-check",
+    presentation_language: "de",
+  }, {
+    surface: "codex",
+    expectedVersion: pluginDefinition.version,
+    skillSet: pluginDefinition.skillSet,
+    interactionLocales: {},
+  }),
+  (error) => error.field === "working_directory",
+);
+assert.throws(
+  () => parseSkillDispatchFunctionArguments({
+    skill_id: "gate-check",
+    presentation_language: "de",
+    working_directory: "/tmp/agdf",
+    target_source: "explicit_target",
+  }, {
+    surface: "codex",
+    expectedVersion: pluginDefinition.version,
+    skillSet: pluginDefinition.skillSet,
+    interactionLocales: {},
+  }),
+  (error) => error.field === "primary_target",
+);
 
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);

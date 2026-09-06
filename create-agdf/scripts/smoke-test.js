@@ -228,11 +228,13 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const publishWorkflow = readFileSync(publishWorkflowPath, "utf8");
   for (const requiredSnippet of [
     "Wait for create-agdf readiness",
+    "Wait for @agdf/mcp-server readiness",
     "Wait for @agdf/cli readiness",
     "MAX_ATTEMPTS=20",
     "SLEEP_SECONDS=15",
     "NPM_ERROR_LOG=\"$(mktemp)\"",
     "wait_for_npm_package \"create-agdf\"",
+    "npm view \"@agdf/mcp-server@${VERSION}\" version --json",
     "wait_for_npm_package \"@agdf/cli\"",
     "npm view \"${PACKAGE}@${VERSION}\" version --json",
     "Timed out waiting for ${PACKAGE}@${VERSION} after ${MAX_ATTEMPTS} attempts",
@@ -245,9 +247,11 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
     }
   }
   if (!(publishWorkflow.indexOf("Publish create-agdf to npm") < publishWorkflow.indexOf("Wait for create-agdf readiness")
-    && publishWorkflow.indexOf("Wait for create-agdf readiness") < publishWorkflow.indexOf("Publish @agdf/cli to npm")
+    && publishWorkflow.indexOf("Wait for create-agdf readiness") < publishWorkflow.indexOf("Publish @agdf/mcp-server to npm")
+    && publishWorkflow.indexOf("Publish @agdf/mcp-server to npm") < publishWorkflow.indexOf("Wait for @agdf/mcp-server readiness")
+    && publishWorkflow.indexOf("Wait for @agdf/mcp-server readiness") < publishWorkflow.indexOf("Publish @agdf/cli to npm")
     && publishWorkflow.indexOf("Publish @agdf/cli to npm") < publishWorkflow.indexOf("Wait for @agdf/cli readiness"))) {
-    throw new Error("Publish workflow must wait for create-agdf readiness before publishing @agdf/cli, then wait for @agdf/cli readiness.");
+    throw new Error("Publish workflow must publish and verify create-agdf, @agdf/mcp-server and @agdf/cli in exact dependency order.");
   }
   if (publishWorkflow.indexOf("Wait for @agdf/cli readiness") > publishWorkflow.indexOf("Run clean public bootstrap smoke test")) {
     throw new Error("Clean public bootstrap smoke test must run after @agdf/cli readiness.");
@@ -264,7 +268,10 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const publishJob = publishWorkflow.slice(publishJobIndex);
   if (!(validateJob.indexOf("Verify runtime-free source and plugin metadata") < validateJob.indexOf("Prepare and verify release assets")
     && validateJob.indexOf("Prepare and verify release assets") < validateJob.indexOf("Verify built plugin integrity")
-    && validateJob.indexOf("Verify built plugin integrity") < validateJob.indexOf("Run create-agdf smoke test")
+    && validateJob.indexOf("Verify built plugin integrity") < validateJob.indexOf("Install MCP validation dependencies from checkout")
+    && validateJob.indexOf("Install MCP validation dependencies from checkout") < validateJob.indexOf("Run create-agdf smoke test")
+    && validateJob.indexOf("Run create-agdf smoke test") < validateJob.indexOf("Run @agdf/mcp-server tests")
+    && validateJob.indexOf("Run @agdf/mcp-server tests") < validateJob.indexOf("Verify @agdf/mcp-server package contents")
     && validateJob.indexOf("Run create-agdf smoke test") < validateJob.indexOf("Verify create-agdf package contents"))) {
     throw new Error("Publish validation must verify runtime-free source, prepare release assets and verify installed/package layouts before publication eligibility.");
   }

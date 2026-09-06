@@ -26,6 +26,45 @@ repository-local commands inside the target Git repository, not inside this AGDF
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
+### Optional local MCP dispatcher
+
+The optional MCP path registers one local STDIO server for Codex, Claude Code or OpenCode. It exposes
+exactly `agdf_dispatch`, backed by the same canonical semantic definition and dispatcher as the CLI.
+The tool is read-only, offline while serving and non-authorizing. Host permission, registration and
+successful execution never count as `Approval: <GateName>`. The process inherits the launching
+host user's operating-system identity and filesystem permissions; AGDF does not claim an operating-
+system sandbox.
+
+The MCP process requires Node.js 20 or later. The existing CLI retains its Node.js 18 baseline.
+Use an absolute repository path and inspect the project scope before enabling it:
+
+```bash
+npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
+npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absolute/path/to/repository
+```
+
+Replace `codex` with `claude` or `opencode` for another delivered adapter. Project scope is the
+default. Choose `--scope user` explicitly when the broader registration is intended. `status` never
+downloads a package or edits configuration. `enable` acquires the exact matching
+`@agdf/mcp-server@<AGDF version>`, verifies the server, dispatcher and SDK runtime digests, then registers the
+exact Node executable and versioned entrypoint. `disable` removes only an owned registration and
+removes its owned runtime only when no managed reference remains. Foreign or malformed entries fail
+closed and preserve existing settings.
+
+The project configuration owners are `.codex/config.toml` for Codex, native `claude mcp` local scope
+for Claude Code and the version-matched MCP section in `opencode.json` for OpenCode. OpenCode 1.x
+uses `mcp.agdf`; OpenCode 2.x uses `mcp.servers.agdf` and `disabled: false`. The lifecycle reads the
+installed OpenCode version before choosing either form and leaves other servers and permissions
+unchanged. The OpenCode host-visible qualified tool name is `agdf_agdf_dispatch`; the server-level name remains `agdf_dispatch`. A Node.js 18
+attempt returns `manual_compatible` with the version-matched CLI dispatch path and performs no MCP
+package acquisition or host mutation. No failure silently invokes that fallback.
+
+Restart the selected host after enablement and verify discovery in a fresh session. Support is
+qualified independently per exact host, OS, Node, AGDF, SDK and negotiated protocol tuple. Config
+read-back or protocol tests alone do not establish support. GitHub Copilot is excluded from the
+first lifecycle and remains unverified. The public OpenAI Skills-only candidate remains MCP-free.
+
 ### Automatic runtime checks and installation consent
 
 The `codex`, `claude`, `copilot` and `opencode` installers distinguish plugin installation from permission to run

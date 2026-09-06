@@ -71,7 +71,7 @@ export function runReleaseBumpCommand({
 } = {}) {
   recover({ repoRoot });
   const { nextVersion, acceptedContractDigest } = parseArguments(args);
-  for (const packageName of ["create-agdf", "@agdf/cli"]) {
+  for (const packageName of ["create-agdf", "@agdf/mcp-server", "@agdf/cli"]) {
     checkNpmVersion({ packageName, version: nextVersion, repoRoot });
     output(`ok: ${packageName}@${nextVersion} is not published`);
   }
@@ -80,6 +80,7 @@ export function runReleaseBumpCommand({
   output("Next validation:");
   output("  npm --prefix create-agdf run release:prepare");
   output("  npm --prefix create-agdf run smoke-test");
+  output("  npm --prefix agdf-mcp-server test");
   output("  npm --prefix agdf run smoke-test");
   output("  node plugin/scripts/check-runtime-integrity.mjs");
   output("  npm --prefix pages run build");

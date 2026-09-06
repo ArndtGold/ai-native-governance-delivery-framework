@@ -701,7 +701,7 @@ ${approvals}
   {
     const narration = buildTransitionNarration("UR", localeRegistry, "en");
     assert.ok(narration.includes("Brownfield Review"), "BT-05: UR narration mentions Brownfield Review");
-    assert.ok(narration.includes("no user action"), "BT-05: UR narration says no user action");
+    assert.ok(narration.includes(localeRegistry.locales.en.primary.narration.noAction), "BT-05: UR narration uses canonical no-action text");
     const transition = postApprovalTransition("Approval: UR");
     assert.equal(transition.internal_next_step, "Brownfield Review and proportional routing");
     assert.equal(transition.user_action_required, "no");

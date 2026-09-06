@@ -6,6 +6,7 @@ import { SKILL_DISPATCH_SURFACES, skillDispatchArgumentGrammar } from "./contrac
 
 const SURFACES = new Set(SKILL_DISPATCH_SURFACES);
 const PROBE = 'process.stdout.write("AGDF_RUNTIME_OK:"+process.versions.node)';
+const RUNTIME_PROBE_TIMEOUT_MS = 5_000;
 const text = (value) => typeof value === "string" && value.length > 0 && value.length <= 4096 && !/[\r\n\0]/u.test(value);
 const absolute = (value) => text(value) && isAbsolute(value);
 
@@ -41,7 +42,7 @@ export function createRuntimeProbe({ spawn = spawnSync, stat = statSync } = {}) 
     const child = spawn(executable, ["-e", PROBE], {
       cwd: dirname(executable), env: { ...process.env, ...environment },
       encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], shell: false,
-      timeout: 1000, maxBuffer: 4096, windowsHide: true,
+      timeout: RUNTIME_PROBE_TIMEOUT_MS, maxBuffer: 4096, windowsHide: true,
     });
     // Electron may emit OS diagnostics on stderr despite a successful exact probe.
     // Nonzero exit, signal, timeout, output overflow and unexpected stdout still fail.

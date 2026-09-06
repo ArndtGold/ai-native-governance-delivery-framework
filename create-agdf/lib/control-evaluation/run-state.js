@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import process from "node:process";
-import { parseControlState, resolveRuns } from "../control-state/index.js";
+import { parseControlState } from "../control-state/run-state-parser.js";
+import { resolveRuns } from "../control-state/run-state-resolver.js";
 import { validateRunIdentity } from "../control-state/run-identity.js";
 import { buildRunCandidates } from "../interaction-presentation.js";
 import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./shared.js";
@@ -220,4 +221,3 @@ export function modeSliceDecision(runState) {
   if (!decision || isPlaceholderValue(decision) || !filled(scopeReason) || !filled(evidence)) return "undecided";
   return decision;
 }
-

@@ -1,8 +1,9 @@
 # UR: Cross-Host AGDF Dispatch Through MCP
 
-Status: draft
+Status: approved
 Gate: UR
-Gate approval: open
+Gate approval: Exact `Approval: UR` accepted on 2026-09-06 after same-target, same-run, same-gate and revision `B2B7A53C-8A4B-44C5-8E97-D996B17F4C26` revalidation.
+Revision: 1
 Date: 2026-09-05
 Owner: Arndt Gold
 
@@ -129,6 +130,5 @@ Decision.
 No MCP server implementation, host registration, permission change, installation or public-plugin
 change is authorized by this draft.
 
-Exact approval required:
-
-`Approval: UR`
+UR Revision 1 was approved through the exact gate value `Approval: UR` on 2026-09-06. This approval
+permits Brownfield Review and proportional routing. It does not authorize implementation.

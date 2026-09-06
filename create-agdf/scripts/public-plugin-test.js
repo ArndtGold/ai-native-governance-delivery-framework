@@ -110,6 +110,7 @@ assert.equal(manifest.interface.defaultPrompt.length, 3);
 assert.equal(manifest.interface.supportURL, undefined);
 assert.equal(manifest.hooks, undefined);
 assert.equal(files.some((path) => path.endsWith(".mcp.json") || path.endsWith(".app.json")), false);
+assert.equal(files.includes("meta/agdf-mcp-capability.json"), false);
 assert.equal(files.some((path) => path.startsWith(".agdf/control/")), false);
 assert.equal(files.includes("submission/openai/readiness.json"), true);
 assert.equal(files.includes("submission/openai/readiness.md"), true);
@@ -183,6 +184,9 @@ negativeFixture("prompt-count", (root) => {
   value.interface.defaultPrompt.pop();
   writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 }, /AGDF_PUBLIC_PLUGIN_LISTING_LIMIT_EXCEEDED/);
+negativeFixture("mcp-capability", (root) => {
+  writeFileSync(join(root, "meta", "agdf-mcp-capability.json"), "{}\n");
+}, /AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID/);
 function symlinkCreationAvailable() {
   const probeRoot = mkdtempSync(join(tmpdir(), "agdf-public-symlink-probe-"));
   try {

@@ -31,6 +31,25 @@ npx --yes @agdf/cli@latest opencode
 ```
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
+
+Optional kann AGDF für Codex, Claude Code und OpenCode einen lokalen MCP-Server registrieren. Er
+stellt genau das Werkzeug `agdf_dispatch` bereit und verwendet dieselbe kanonische
+Funktionsbeschreibung und Gate-Auswertung wie die CLI. Der Server läuft lokal über STDIO, arbeitet
+offline und ist nicht freigebend. Eine Werkzeugberechtigung oder ein erfolgreicher Aufruf ist keine
+AGDF-Freigabe. Der Prozess übernimmt die Betriebssystemrechte des startenden Hosts und beansprucht
+keine Sandbox.
+
+```bash
+npx --yes @agdf/cli@latest mcp status --surface codex --dir /absoluter/pfad/zum/repository --json
+npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absoluter/pfad/zum/repository
+npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absoluter/pfad/zum/repository
+```
+
+Der Repository-Bereich ist der Standard. `--scope user` muss bewusst gewählt werden. MCP benötigt
+Node.js 20 oder neuer, während die bestehende CLI weiterhin Node.js 18 unterstützt. Nach der
+Aktivierung muss der Host neu gestartet und die Erkennung in einer frischen Sitzung geprüft werden.
+Host-Unterstützung bleibt bis zu direkter Registrierung, Erkennung, Aufruf, kontrolliertem Fehler
+und Entfernung je Host `unverified`. GitHub Copilot gehört nicht zur ersten MCP-Auslieferung.
 Für GitHub Copilot ist die persönliche Deaktivierung pro Repository der sichere Standard:
 
 ```bash
@@ -55,8 +74,8 @@ AGDF ist ein unabhängiges Projekt und kein verbindlicher Standard. Die installi
 
 Das Repository erzeugt einen deterministischen **Skills-only**-Kandidaten für das gemeinsame
 OpenAI-Plugin-Verzeichnis. Der Verzeichnisname ist **AGDF**; die vollständige Produktidentität bleibt
-**AI Governance & Delivery Framework (AGDF)**. Die erste Fassung betreibt keinen AGDF-MCP-Server,
-kein AGDF-Konto, keine Telemetrie und keinen gehosteten AGDF-Dienst.
+**AI Governance & Delivery Framework (AGDF)**. Dieser öffentliche Kandidat enthält weder den
+optionalen lokalen AGDF-MCP-Server noch ein AGDF-Konto, Telemetrie oder einen gehosteten AGDF-Dienst.
 
 Der erzeugte Kandidat, seine Prüfsumme und sein Readiness-Bericht belegen ausschließlich Repository-
 und Bundle-Zustand. Sie belegen weder ChatGPT-/Codex-Verhalten noch verifizierte Entwickleridentität,

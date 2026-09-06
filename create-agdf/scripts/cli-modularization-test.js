@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
-  "status", "runtime-checks", "disable", "uninstall",
+  "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
   "delivery-map", "delivery-path-search", "run-create", "run-migrate",
   "run-render-legacy",
@@ -76,6 +76,7 @@ assert.deepEqual(parsed.options, {
   shared: false,
   runtimeChecksDecision: undefined,
   runtimeChecksAction: "status",
+  mcpAction: undefined,
   generatorModel: "g",
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
@@ -94,6 +95,10 @@ assert.equal(alias.options.target, "config");
 assert.deepEqual(alias.options.language, { language: "de" });
 assert.equal(parseArgs(["status", "--verbose"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.verbose, true);
 assert.equal(parseArgs(["runtime-checks", "enable", "--surface", "claude"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksAction, "enable");
+const mcpArgs = parseArgs(["mcp", "enable", "--surface", "codex", "--scope", "project", "--dir", "/tmp/repo"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(mcpArgs.options.mcpAction, "enable");
+assert.equal(mcpArgs.options.scope, "project");
+assert.doesNotThrow(() => validateCommandOptions(mcpArgs.options));
 assert.equal(parseArgs(["claude", "--runtime-checks", "manual"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksDecision, "manual");
 assert.equal(parseArgs(["gate-check", "--approval-envelope"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.approvalEnvelope, true);
 const targetCheck = parseArgs([
@@ -169,6 +174,9 @@ assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "code
 assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", confirm: true }));
 assert.doesNotThrow(() => validateCommandOptions({ target: "runtime-checks", surface: "claude" }));
 assert.throws(() => validateCommandOptions({ target: "runtime-checks", surface: "generic" }), /requires --surface/);
+assert.throws(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "codex", surfaceExplicit: true }), /explicit --dir/);
+assert.throws(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "copilot", surfaceExplicit: true, dirExplicit: true }), /codex, claude or opencode/);
+assert.throws(() => validateCommandOptions({ target: "codex", scope: "project" }), /only by mcp/);
 for (const command of ["codex-repo", "opencode-repo"]) {
   assert.throws(() => validateCommandOptions({ target: command, dirExplicit: false }), /requires an explicit --dir/);
   assert.doesNotThrow(() => validateCommandOptions({ target: command, dirExplicit: true }));

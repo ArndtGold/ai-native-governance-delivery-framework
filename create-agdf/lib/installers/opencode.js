@@ -8,6 +8,7 @@ import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
 import { resolveLocalValidator } from "../runtime/local-validator.js";
 import { digestDirectory } from "../runtime/plugin-provenance.js";
 import { validateLocalOpenCodePackageSource } from "./local-development.js";
+import { npmInvocation } from "./npm-invocation.js";
 
 function runtimeContractModuleNames(definition) {
   const modules = definition?.runtimeContract?.modules;
@@ -39,12 +40,9 @@ const requestActivationGuardStart = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START --
 const requestActivationGuardEnd = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->";
 const openCodeRouterFileName = "agdf-agent-router.md";
 export const openCodePluginEntrypoint = `./node_modules/${pluginDefinition.opencode.npmPackage}/opencode-plugin.js`;
-const testNpmCliPath = process.env.NODE_ENV === "test" ? process.env.AGDF_TEST_NPM_CLI_PATH || "" : "";
-const npmCommand = testNpmCliPath ? process.execPath : process.platform === "win32" ? process.execPath : "npm";
-const npmPrefixArgs = testNpmCliPath ? [testNpmCliPath] : process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
-
 export function openCodeNpmInvocation(args) {
-  return { executable: npmCommand, args: [...npmPrefixArgs, ...args] };
+  const invocation = npmInvocation(args);
+  return { executable: invocation.executable, args: [...invocation.args] };
 }
 
 function openCodeLifecycleError(phase, message, evidence = {}) {
@@ -152,9 +150,10 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
       stdio: "pipe",
     });
   } catch (error) {
+    const failedInvocation = openCodeNpmInvocation(["install"]);
     throw openCodeLifecycleError("plugin_operation", `Failed to install ${pluginDefinition.opencode.npmPackage} into the OpenCode config directory: ${(error.stderr || error.message).toString().trim()}`, {
-      executable: npmCommand,
-      args: [...npmPrefixArgs, "install"],
+      executable: failedInvocation.executable,
+      args: failedInvocation.args,
     });
   }
   try {

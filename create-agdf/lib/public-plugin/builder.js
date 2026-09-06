@@ -33,6 +33,7 @@ export function buildPublicPluginCandidate({ repoRoot, outputRoot }) {
 
     write(join(temporaryRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(definition, { publicCandidate: true }));
     for (const directory of ["skills", "meta", "assets"]) cpSync(join(pluginRoot, directory), join(temporaryRoot, directory), { recursive: true });
+    rmSync(join(temporaryRoot, "meta", "agdf-mcp-capability.json"), { force: true });
     cpSync(join(pluginRoot, "submission", "openai"), join(temporaryRoot, "submission", "openai"), { recursive: true });
     const listing = {
       schemaVersion: 1,

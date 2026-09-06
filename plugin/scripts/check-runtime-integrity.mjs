@@ -122,6 +122,9 @@ const requestActivationContractPath = join(contractsDir, "request-activation.md"
 const commandRegistryPath = sourceMode
   ? join(repoRoot, "create-agdf", "lib", "cli", "command-registry.js")
   : join(pluginRoot, "runtime", "create-agdf", "lib", "cli", "command-registry.js");
+const skillDispatchFunctionContractPath = sourceMode
+  ? join(repoRoot, "create-agdf", "lib", "skill-dispatch", "contract.js")
+  : join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "contract.js");
 const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const brownfieldSkillPath = join(pluginRoot, "skills", "brownfield-analysis", "SKILL.md");
@@ -196,6 +199,13 @@ const germanRuntimePatterns = [
 ];
 
 const failures = [];
+let canonicalSkillDispatchProjection = "";
+try {
+  const functionContract = await import(pathToFileURL(skillDispatchFunctionContractPath).href);
+  canonicalSkillDispatchProjection = functionContract.renderSkillDispatchSemanticProjection();
+} catch {
+  failures.push("skill dispatch semantic function owner must be present and loadable");
+}
 const skillSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const requestActivationMarkers = Object.freeze({
   guardStart: "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->",
@@ -604,6 +614,7 @@ for (const modulePath of runtimeContractModulePaths) {
 }
 assertFile(requestActivationContractPath, "request activation contract");
 assertFile(commandRegistryPath, "commandRegistry operation owner");
+assertFile(skillDispatchFunctionContractPath, "skill dispatch semantic function owner");
 assertFile(interactionLocalesPath, "interaction locale registry");
 if (sourceMode) {
   if (isDirectory(join(pluginRoot, "runtime"))) failures.push("source plugin must not contain generated runtime");
@@ -1836,6 +1847,15 @@ for (const skill of expectedSkills) {
   }
   if (skillGuard && skillMd.indexOf(requestActivationMarkers.guardEnd) > skillMd.indexOf("## Executable Dispatch")) {
     failures.push(`${skill} request activation guard must precede executable dispatch`);
+  }
+  if (canonicalSkillDispatchProjection) {
+    if (countOccurrences(skillMd, canonicalSkillDispatchProjection) !== 1) {
+      failures.push(`${skill} must contain exactly one byte-identical projection of the canonical skill dispatch semantics`);
+    }
+    if (skillMd.includes(canonicalSkillDispatchProjection)
+        && skillMd.indexOf(canonicalSkillDispatchProjection) < skillMd.indexOf("## Executable Dispatch")) {
+      failures.push(`${skill} skill dispatch semantics must remain inside the executable dispatch boundary`);
+    }
   }
   if (skillDefinition && activationDiscoverySuffix) {
     const expectedDescription = `description: ${JSON.stringify(expectedSkillDescription(skillDefinition, activationDiscoverySuffix))}`;

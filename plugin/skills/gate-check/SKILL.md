@@ -52,9 +52,9 @@ No other catalog operation is handled by this skill.
 
 Use only binding schema 2: `executable`, child-only `environment` and immutable `argv_prefix`.
 Extend the prefix using its code-derived `arguments`, quoting shell values as data:
-`--skill gate-check`, current `--language`, and absolute `--working-directory`. Add target evidence
-only as the paired `--target-source` and `--primary-target` fields, and add `--run` only for an
-explicit run. For `skill.gate-check` this is the first operational call. For `delivery.start` it
+`--skill gate-check`, current `--language`, and absolute `--working-directory`.
+`target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
+Add `--run` only for an explicit run. For `skill.gate-check` this is the first operational call. For `delivery.start` it
 follows only `candidate_present` or completed authorized setup. Do not discover, install, or construct
 another runtime or repair a failed environment. Old/invalid binding stops as `dispatcher_unavailable`.
 

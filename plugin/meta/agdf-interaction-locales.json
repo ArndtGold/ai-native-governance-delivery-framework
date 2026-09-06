@@ -142,6 +142,7 @@
         "yes": "yes",
         "none": "none",
         "reason": "Reason",
+        "allowedValues": "Allowed values",
         "nextAction": "Next action",
         "reasonCodes": {
           "explicit_target": "Explicit current-turn target",
@@ -149,13 +150,15 @@
           "multiple_plausible_targets": "Multiple plausible work targets",
           "target_content_mismatch": "Requested change mismatches target",
           "target_unavailable": "Named target is unavailable",
-          "no_reliable_target": "No reliable work target"
+          "no_reliable_target": "No reliable work target",
+          "target_source_invalid": "Invalid target source"
         },
         "nextActions": {
           "multiple_plausible_targets": "Select one primary target.",
           "target_content_mismatch": "Clarify target or change.",
           "target_unavailable": "Make the target available.",
-          "no_reliable_target": "Name one primary target."
+          "no_reliable_target": "Name one primary target.",
+          "target_source_invalid": "Use one allowed target_source value."
         }
       },
       "internalStateLabels": {
@@ -242,6 +245,18 @@
           "label": "Why?",
           "fulfilledPrefix": "Fulfilled:",
           "protectsPrefix": "Protects against:"
+        }
+      },
+      "skillDispatch": {
+        "invalidInputDescription": "Invalid dispatcher input for {field}. Correct it and retry once.",
+        "allowedValuesDescription": "Invalid value for {field}. Allowed: {allowed_values}. Correct it and retry once.",
+        "recoveries": {
+          "target_evaluation_failed": "Repair task-target evaluation and retry once.",
+          "target_presentation_failed": "Repair task-target presentation and retry once.",
+          "control_evaluation_failed": "Repair gate evaluation and retry once.",
+          "control_presentation_failed": "Repair gate presentation and retry once.",
+          "internal_failure": "Repair the dispatcher and retry once.",
+          "output_too_large": "Repair the dispatcher output bound and retry once."
         }
       },
       "artefacts": {
@@ -468,6 +483,7 @@
         "yes": "ja",
         "none": "keines",
         "reason": "Grund",
+        "allowedValues": "Erlaubte Werte",
         "nextAction": "Nächste Aktion",
         "reasonCodes": {
           "explicit_target": "Explizites Ziel im aktuellen Turn",
@@ -475,13 +491,15 @@
           "multiple_plausible_targets": "Mehrere plausible Arbeitsziele",
           "target_content_mismatch": "Änderung passt nicht zum Zielinhalt",
           "target_unavailable": "Benanntes Ziel ist nicht verfügbar",
-          "no_reliable_target": "Kein belastbares Arbeitsziel"
+          "no_reliable_target": "Kein belastbares Arbeitsziel",
+          "target_source_invalid": "Ungültige Zielquelle"
         },
         "nextActions": {
           "multiple_plausible_targets": "Ein primäres Ziel auswählen.",
           "target_content_mismatch": "Ziel oder Änderung klären.",
           "target_unavailable": "Ziel verfügbar machen.",
-          "no_reliable_target": "Ein primäres Ziel benennen."
+          "no_reliable_target": "Ein primäres Ziel benennen.",
+          "target_source_invalid": "Einen erlaubten Wert für target_source verwenden."
         }
       },
       "internalStateLabels": {
@@ -568,6 +586,18 @@
           "label": "Warum?",
           "fulfilledPrefix": "Erfüllt:",
           "protectsPrefix": "Schützt vor:"
+        }
+      },
+      "skillDispatch": {
+        "invalidInputDescription": "Ungültige Dispatcher-Eingabe für {field}. Korrigieren und einmal erneut versuchen.",
+        "allowedValuesDescription": "Ungültiger Wert für {field}. Erlaubt: {allowed_values}. Korrigieren und einmal erneut versuchen.",
+        "recoveries": {
+          "target_evaluation_failed": "Arbeitszielauswertung reparieren und einmal erneut versuchen.",
+          "target_presentation_failed": "Arbeitszieldarstellung reparieren und einmal erneut versuchen.",
+          "control_evaluation_failed": "Gate-Auswertung reparieren und einmal erneut versuchen.",
+          "control_presentation_failed": "Gate-Darstellung reparieren und einmal erneut versuchen.",
+          "internal_failure": "Dispatcher reparieren und einmal erneut versuchen.",
+          "output_too_large": "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen."
         }
       },
       "artefacts": {

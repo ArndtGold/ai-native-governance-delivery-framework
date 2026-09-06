@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createDispatchBinding, createRuntimeProbe, runtimeEnvironment, validateDispatchBinding } from "../lib/skill-dispatch/binding.js";
 import { skillDispatchArgumentGrammar } from "../lib/cli/command-registry.js";
+import { TASK_TARGET_SOURCES } from "../lib/task-target-resolution.js";
 import { AGDFPlugin } from "../opencode-plugin.js";
 import { createRun, renderRunState } from "../lib/control-state/index.js";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
@@ -77,6 +78,8 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
   const binding = createDispatchBinding({ ...options, surface });
   assert.equal(binding.schema_version, "2");
   assert.equal(binding.arguments, skillDispatchArgumentGrammar());
+  assert.match(binding.arguments, new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
+  assert.doesNotMatch(binding.arguments, /<source>/u);
   assert.equal(binding.authorizes, false);
   assert.equal(binding.environment.ELECTRON_RUN_AS_NODE, undefined);
   validateDispatchBinding(binding);
@@ -97,7 +100,7 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
   assert.throws(() => buildDispatchInvocation(binding, { ...args, "--cwd": process.cwd() }), /invalid_dispatch_argument/);
   assert.throws(() => buildDispatchInvocation(binding, { ...args, "--primary-target": process.cwd() }), /paired_target/);
   assert.throws(() => buildDispatchInvocation(binding, { ...args, "--skill": "--help" }), /invalid_dispatch_argument/);
-  for (const source of ["explicit_target", "continued_target", "current_repository"]) {
+  for (const source of TASK_TARGET_SOURCES) {
     const selected = buildDispatchInvocation(binding, { ...args, "--target-source": source, "--primary-target": process.cwd() });
     assert.equal(selected.args.at(-1), process.cwd());
     assert.equal(selected.args.at(-3), source);

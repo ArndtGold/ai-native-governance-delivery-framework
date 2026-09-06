@@ -50,9 +50,9 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 ## Executable Dispatch
 
 Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
-Follow binding.arguments exactly with `--skill delivery-closeout`, language and working directory. Carry
-established explicit/continued/current-repository target evidence as both target fields; otherwise
-omit both. Cwd or skill invocation alone is not target authority. Quote shell values as data.
+Follow binding.arguments exactly with `--skill delivery-closeout`, language and working directory.
+`target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
+Quote shell values as data.
 On `terminal: true`, transmit host_action.text verbatim and stop; on skill_continuation use only its
 target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
 or help retries. Dispatch never authorizes.

@@ -1,11 +1,57 @@
 # Task Plan Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 10
+Revision: 13
 Status: revise
 Date: 2026-09-05
 Plan: TP Revision 2
 Review mode: direct review by the implementing agent, not independent-agent or loaded-host evidence.
-Evidence: CD_TESTS.md Revision 10 and HOST_EVIDENCE.md Revision 10.
+Evidence: CD_TESTS.md Revision 13 and HOST_EVIDENCE.md Revision 13.
+
+
+## Semantic Function Coverage
+
+| task_id | status | AC coverage | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|---|
+| TP-05 | fully_done | compact executable guidance retains precise target semantics | one canonical projection in every skill, checked byte-for-byte | model adherence remains under TP-16 | none in repository scope |
+| TP-11 | fully_done | public argument grammar has one semantic owner | `SKILL_DISPATCH_FUNCTION_DEFINITION`, derived command/binding grammar and compatibility re-export | none | none |
+| TP-13 | fully_done | all generated host profiles receive the same meaning | source and installed Runtime Integrity plus four generated surfaces | fresh loaded-host behavior | no repository gap |
+| TP-15 | fully_done | package and footprint budgets retained | 91 files, 696479/696486 Copilot bytes, 437 package files and byte-identical builds | installation separate | none |
+| TP-16 | partially_done | mandatory reviews and QA refreshed | CD/TP/Clean/Code/QA/OR current revisions | corrected fresh installed-host observation | prevents QA pass |
+
+Overall coverage remains 12/16 fully done and four external-evidence tasks partial.
+
+
+## Typed Failure Coverage
+
+| task_id | status | AC coverage | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|---|
+| TP-01 | fully_done | strict shared target-source validation done | one validator, typed target-check error and dispatcher allowed values | none | none |
+| TP-02 | fully_done | bounded terminal failure semantics done | five stable runtime failure codes, no raw downstream error text and one-action recovery | none | none |
+| TP-03 | fully_done | JSON failure and exit behavior done | exact target-check and skill-dispatch exit-2 replays | none | none |
+| TP-06 | fully_done | localized visible recovery done | German/English locale entries, allowed-values row and fail-closed registry fallback | visible host fidelity remains under TP-16 | no repository gap |
+| TP-08 | fully_done | focused and affected regression done | target, dispatch, binding, interaction, CLI, package, integrity and source-smoke suites pass | native host evidence separate | none |
+| TP-14 | partially_done | repository failure paths done | 40 adapter cases and typed evaluator/renderer negative fixtures | native OS and model-owned attempts | existing evidence gap remains |
+| TP-15 | fully_done | coherent generated and package output done | 437-file package, byte-identical builds and Runtime Integrity | installation separate | none in repository scope |
+| TP-16 | partially_done | reviews and QA refreshed | CD/TP/Clean/Code/QA/OR revisions updated | corrected fresh installed-host observation | prevents QA pass |
+
+Overall coverage remains 12/16 fully done and four external-evidence tasks partial.
+
+
+## Target-source Recovery Coverage
+
+| task_id | status | AC coverage | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|---|
+| TP-01 | fully_done | input contract and derived values done | one exported target-source list, strict error metadata and negative alias test | none | none |
+| TP-02 | fully_done | bounded localized invalid-input outcome done | existing locale renderer, exact terminal host action and no raw invalid-value echo | none | none |
+| TP-03 | fully_done | public invocation grammar done | usage and binding grammar expose all three canonical values | none | none |
+| TP-06 | fully_done | locale and fail-closed behavior done | reviewed English/German registry entries and invalid-registry recovery boundary | fresh host fidelity remains under TP-16 | no repository gap |
+| TP-11 | fully_done | canonical invocation grammar done | binding grammar derives from the target owner; `<source>` regression rejected | none | none |
+| TP-14 | partially_done | repository argument and terminal recovery paths done | exact failing call, 40 adapter cases and injection-safe visible recovery | native OS and model-owned first attempt | existing evidence gap remains |
+| TP-15 | fully_done | coherent generated/package regression done | 437-file package contents, both Runtime Integrity modes and serial smoke stages | installation separate | none in repository scope |
+| TP-16 | partially_done | reviews and QA refreshed | CD/TP/Clean/Code/QA/OR revisions updated | corrected fresh installed-host observation | prevents QA pass |
+
+The correction changes no overall task count. Coverage remains 12/16 fully done and four external
+evidence tasks partial.
 
 
 ## Codex Follow-up Coverage
@@ -48,7 +94,7 @@ The remaining historical task rows retain their evidence boundaries. Overall cov
 - partially_done: 4/16.
 - not_done: 0/16.
 - evidence_confidence: high for direct code/process and deterministic tests, insufficient for fresh host behavior.
-- out_of_scope_changes: none. The pre-existing unrelated image is preserved. No other run was mutated.
+- out_of_scope_changes: none. No other run, installed profile, hook, permission or release state was mutated.
 - required_next_step: obtain bounded lifecycle authorization for coherent installation/restart and fresh host testing.
 
 ## UX Intent Fidelity

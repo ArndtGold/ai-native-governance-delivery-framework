@@ -29,6 +29,18 @@ try {
   assert.equal(noTarget.governance_target, "");
   assert.equal(noTarget.working_directory, realpathSync(chat));
 
+  const invalidTargetSource = resolveTaskTarget({
+    ...base,
+    targetSource: "user",
+    primaryTarget: repo,
+  });
+  assert.equal(invalidTargetSource.reason_code, "target_source_invalid");
+  assert.deepEqual(invalidTargetSource.input_error, {
+    field: "target_source",
+    allowed_values: ["explicit_target", "continued_target", "current_repository"],
+  });
+  assert.equal(JSON.stringify(invalidTargetSource).includes("\"user\""), false);
+
   const missingContext = resolveTaskTarget({
     workingDirectory: join(root, "missing-context"),
     targetSource: "explicit_target",
@@ -112,6 +124,20 @@ try {
   const germanPresentation = JSON.parse(germanOutput[0]).task_target_orientation.markdown;
   assert.match(germanPresentation, /Ein primäres Ziel benennen\./);
   assert.doesNotMatch(germanPresentation, /Name exactly one/);
+
+  const invalidSourceOutput = [];
+  const invalidSourceExit = await runValidatorCli([
+    "target-check", "--json", "--language", "de", "--working-directory", chat,
+    "--target-source", "user", "--primary-target", repo,
+  ], { io: { log(value) { invalidSourceOutput.push(value); }, error(value) { invalidSourceOutput.push(value); } } });
+  assert.equal(invalidSourceExit, 2);
+  const invalidSourceReport = JSON.parse(invalidSourceOutput[0]);
+  assert.equal(invalidSourceReport.reason_code, "target_source_invalid");
+  assert.deepEqual(invalidSourceReport.input_error.allowed_values, ["explicit_target", "continued_target", "current_repository"]);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /Ungültige Zielquelle/);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /explicit_target, continued_target, current_repository/);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /Einen erlaubten Wert für target_source verwenden\./);
+  assert.doesNotMatch(invalidSourceReport.task_target_orientation.markdown, /Kein belastbares Arbeitsziel/);
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

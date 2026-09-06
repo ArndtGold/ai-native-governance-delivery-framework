@@ -96,6 +96,23 @@
 
 ### CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY
 
+- semantic_function_owner_2026_09_05: `create-agdf/lib/skill-dispatch/contract.js` is the canonical
+  model-facing definition of `agdf_dispatch`. It owns purpose, non-authorizing behavior, terminal
+  transfer, input schema and the distinct meanings of `explicit_target`, `continued_target` and
+  `current_repository`; the value set still derives from CG-TASK-TARGET-AUTHORITY. CLI/binding
+  grammar and all ten skill instructions are projections, and Runtime Integrity rejects projection
+  drift in source or installed layouts. Binding schema 2, dispatcher protocol 1, target precedence,
+  locale ownership, hooks and permissions are unchanged. Repository and generated evidence passes;
+  fresh loaded-host use remains open. Evidence: cross-surface-executable-skill-dispatcher/CD_TESTS.md
+  Revision 13, CODE_REVIEW.md Revision 13 and HOST_EVIDENCE.md CSED-HOST-12.
+- target_source_contract_correction_2026_09_05: The task-target resolver exports the canonical
+  `explicit_target`, `continued_target` and `current_repository` values. Dispatcher validation,
+  direct target-check, CLI/binding grammar and machine diagnostics derive from that owner. Invalid
+  source input is distinct from missing target evidence and exposes only the canonical allowed
+  values. Dispatcher evaluation and presentation failures carry stable stage codes and use the
+  existing locale renderer for actionable recovery; unsupported aliases and raw exception text are
+  not exposed. Evidence: cross-surface-executable-skill-dispatcher/CD_TESTS.md Revision 12 and
+  CODE_REVIEW.md Revision 12.
 - codex_native_surface_correction_2026_09_05: Codex supplies native PLUGIN_ROOT together with Claude compatibility aliases. The existing SessionStart producer must honor explicit AGDF_SURFACE, then Copilot-specific evidence, then native PLUGIN_ROOT before CLAUDE_PLUGIN_ROOT. Tests must exercise native environment shapes without forcing the expected surface. Loaded-profile identity, repository replay and current installed root remain separate evidence. Evidence: cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md CSED-HOST-09 and CODE_REVIEW.md Revision 10.
 
 

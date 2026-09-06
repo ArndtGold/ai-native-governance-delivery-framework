@@ -1,4 +1,5 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
+import { TASK_TARGET_SOURCES } from "./task-target-resolution.js";
 
 const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
@@ -83,7 +84,7 @@ export function validateLocaleRegistry(registry) {
     for (const [key, value] of visibleStrings(pack)) {
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || ["interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -111,6 +112,50 @@ export function resolvePresentationLocale(registry, requestedLocale) {
 
 export function localePack(registry, requestedLocale) {
   return registry.locales[resolvePresentationLocale(registry, requestedLocale)];
+}
+
+export function renderSkillDispatchInputRecovery({ field, allowedValues = [] } = {}, {
+  registry,
+  requestedLocale,
+} = {}) {
+  if (typeof field !== "string" || !/^[a-z_]{1,64}$/u.test(field)) return null;
+  if (!Array.isArray(allowedValues) || allowedValues.some((value) => typeof value !== "string" || !/^[a-z_]{1,64}$/u.test(value))) return null;
+  let pack;
+  try {
+    pack = localePack(registry, requestedLocale)?.skillDispatch;
+  } catch {
+    return null;
+  }
+  const template = allowedValues.length ? pack?.allowedValuesDescription : pack?.invalidInputDescription;
+  if (typeof template !== "string" || !template.includes("{field}")) return null;
+  if (allowedValues.length && !template.includes("{allowed_values}")) return null;
+  return template
+    .replaceAll("{field}", field)
+    .replaceAll("{allowed_values}", allowedValues.join(", "));
+}
+
+const SKILL_DISPATCH_RECOVERY_CODES = new Set([
+  "target_evaluation_failed",
+  "target_presentation_failed",
+  "control_evaluation_failed",
+  "control_presentation_failed",
+  "internal_failure",
+  "output_too_large",
+]);
+
+export function renderSkillDispatchRecovery({ code } = {}, {
+  registry,
+  requestedLocale,
+} = {}) {
+  if (!SKILL_DISPATCH_RECOVERY_CODES.has(code)) return null;
+  let pack;
+  try {
+    pack = localePack(registry, requestedLocale)?.skillDispatch?.recoveries;
+  } catch {
+    return null;
+  }
+  const action = pack?.[code];
+  return typeof action === "string" && action.trim() ? action : null;
 }
 
 export function gateTitle(registry, requestedLocale, gate) {
@@ -513,6 +558,7 @@ export function renderTaskTargetOrientation(resolution, {
     "target_content_mismatch",
     "target_unavailable",
     "no_reliable_target",
+    "target_source_invalid",
   ]);
 
   if (!["resolved", "unresolved"].includes(resolutionState)) return null;
@@ -522,6 +568,16 @@ export function renderTaskTargetOrientation(resolution, {
   } else if (!unresolvedReasons.has(reasonCode) || primaryTarget || governanceTarget || !nextAction || targetChanged) {
     return null;
   }
+
+  const inputError = resolution.input_error;
+  const allowedValues = reasonCode === "target_source_invalid"
+    && plainObject(inputError)
+    && inputError.field === "target_source"
+    && Array.isArray(inputError.allowed_values)
+    && JSON.stringify(inputError.allowed_values) === JSON.stringify(TASK_TARGET_SOURCES)
+    ? TASK_TARGET_SOURCES
+    : null;
+  if (reasonCode === "target_source_invalid" && !allowedValues) return null;
 
   let locale;
   try {
@@ -554,6 +610,7 @@ export function renderTaskTargetOrientation(resolution, {
         [labels.reason, reason],
         [labels.evidenceSources, evidenceSources.join("; ") || labels.none],
         [labels.workingDirectory, workingDirectory],
+        ...(allowedValues ? [[labels.allowedValues, allowedValues.join(", ")]] : []),
         [labels.nextAction, localizedNextAction],
       ];
 

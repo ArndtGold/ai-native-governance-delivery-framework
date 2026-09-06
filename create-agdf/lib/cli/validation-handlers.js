@@ -9,7 +9,7 @@ import { evaluateDeliveryMap, printDeliveryMapReport } from "../control-evaluati
 import { evaluateDoctor, printDoctorReport } from "../control-evaluation/doctor.js";
 import { executeDeliveryPathSearch } from "./delivery-path-search-command.js";
 import { resolveTaskTarget } from "../task-target-resolution.js";
-import { renderTaskTargetOrientation } from "../interaction-presentation.js";
+import { renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
@@ -48,7 +48,12 @@ export function createValidationHandlers(io = console) {
         runId: options.runId,
         expectedVersion: pluginDefinition.version,
       });
-      io.log(serializeSkillDispatchResult(result));
+      io.log(serializeSkillDispatchResult(result, {
+        outputTooLargeRecovery: renderSkillDispatchRecovery(
+          { code: "output_too_large" },
+          { registry: interactionLocales, requestedLocale: options.language?.chat_language },
+        ),
+      }));
       return ["control_result", "skill_continuation"].includes(result.outcome) ? 0 : 2;
     }],
     ["doctor", (options) => {

@@ -1,3 +1,9 @@
+import { TASK_TARGET_SOURCES } from "../task-target-resolution.js";
+import { skillDispatchArgumentGrammar, skillDispatchCommandGrammar } from "../skill-dispatch/contract.js";
+export { skillDispatchArgumentGrammar };
+
+const TASK_TARGET_SOURCE_GRAMMAR = `<${TASK_TARGET_SOURCES.join("|")}>`;
+
 function command(name, usages) {
   return Object.freeze({
     name,
@@ -23,8 +29,8 @@ export const commandRegistry = Object.freeze([
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
-  command("target-check", { local: [" --json [--language <tag>] [--working-directory <absolute-path>] [--target-source <source> --primary-target <absolute-path>]"] }),
-  command("skill-dispatch", { local: [" --json --skill <skill-id> --surface <surface> --language <tag> --working-directory <absolute-path> [--target-source <source> --primary-target <absolute-path>] [--run <run_id>]"] }),
+  command("target-check", { local: [` --json [--language <tag>] [--working-directory <absolute-path>] [--target-source ${TASK_TARGET_SOURCE_GRAMMAR} --primary-target <absolute-path>]`] }),
+  command("skill-dispatch", { local: [` ${skillDispatchCommandGrammar()}`] }),
   command("doctor", { local: [""], scaffold: [""], legacy: [" --json"] }),
   command("gate-check", { local: [" --approval-envelope", " --json"], scaffold: [""], legacy: [" --json"] }),
   command("delivery-map", { local: [" --json"], scaffold: [""] }),
@@ -41,12 +47,6 @@ const commandByName = new Map(commandRegistry.map((entry) => [entry.name, entry]
 
 export function resolveCommand(name) {
   return commandByName.get(name) ?? null;
-}
-
-// Binding guidance is a projection of the public grammar, not a second flag inventory.
-export function skillDispatchArgumentGrammar() {
-  return resolveCommand("skill-dispatch").usages.local[0]
-    .replace(" --json", "").replace(" --surface <surface>", "").trim();
 }
 
 export function supportedCommandNames() {
@@ -156,7 +156,7 @@ Options:
   --approval-envelope
                  Print the deterministic ready-gate cards and exact-text request
   --run <run_id> Select one canonical run
-  --target-source <explicit_target|continued_target|current_repository>
+  --target-source ${TASK_TARGET_SOURCE_GRAMMAR}
                  Classify the semantic source for target-check
   --primary-target <absolute-path>
                  Supply exactly one target for target-check; cwd is never implied

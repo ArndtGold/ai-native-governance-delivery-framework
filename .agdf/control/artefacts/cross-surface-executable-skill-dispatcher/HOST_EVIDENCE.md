@@ -1,8 +1,68 @@
 # Loaded-host Evidence: Cross-surface Executable Skill Dispatcher
 
-Revision: 10
+Revision: 13
 Date: 2026-09-05
 Status: partial
+
+
+## Repository Semantic-contract Follow-up CSED-HOST-12
+
+- source: user review of the target-source function arguments on 2026-09-05.
+- observed gap: the binding grammar named the three enum values, but their distinct evidence and
+  authority meanings were not stated precisely at the model function boundary.
+- repository correction: `skill-dispatch/contract.js` now owns one `agdf_dispatch` function
+  definition with purpose, authority, terminal behavior and closed input schema. CLI/binding grammar
+  and all ten skill descriptions use projections from that owner.
+- repository evidence: semantic contract test, 40 adapter cases, source and installed Runtime
+  Integrity, four generated skill surfaces, unchanged instruction limits, 91-file/696479-byte
+  Copilot payload, 437-file package and 83/83 deterministic replays.
+- evidence boundary: no installed profile changed and no fresh Codex, Claude Code, Copilot or
+  OpenCode model invocation observed these descriptions.
+- required_next_step: include semantic target-source selection in the separately authorized fresh
+  host matrix under CSED-QA-01.
+
+
+## Repository Failure-classification Follow-up CSED-HOST-11
+
+- source: repository analysis requested after CSED-HOST-10 on 2026-09-05.
+- observed repository defect: direct target-check treated an invalid supplied target source as if no
+  reliable target had been supplied. The dispatcher also collapsed target evaluation, target
+  presentation, gate evaluation and gate presentation failures into one English recovery.
+- repository correction: target-check now emits `target_source_invalid` with a canonical typed
+  `input_error`; its German orientation exposes the allowed values. Dispatcher runtime stages emit
+  separate stable diagnostic codes and use reviewed German/English recovery entries. Output overflow
+  uses the same locale path. Raw downstream exception messages are suppressed.
+- repository evidence: exact German target-check and skill-dispatch replays, injected failure tests,
+  40 adapter cases, 437-file package validation, Runtime Integrity, 83/83 reviewed deterministic
+  replays and source smoke pass.
+- evidence boundary: no installed profile was changed and no fresh Codex, Claude Code, Copilot or
+  OpenCode session was observed. This is repository and generated-runtime evidence only.
+- required_next_step: include invalid target source and each reachable terminal failure class in the
+  separately authorized refreshed-host matrix under CSED-QA-01.
+
+
+## Codex Target-source Contract Case CSED-HOST-10
+
+- source: current Codex task and user-requested `agdf:gate-check` retry on 2026-09-05.
+- loaded contract: AGDF 0.14.5 exposed `--target-source <source>` in the schema-2 dispatcher
+  binding while the validator accepted only `explicit_target`, `continued_target` and
+  `current_repository`.
+- observed model action: Codex supplied `--target-source user` for an explicitly named repository.
+- observed runtime result: `invalid_input`, terminal and non-authorizing. The diagnostic identified
+  `target_source`, but `host_action.text` contained only the general English sentence
+  `Correct the named dispatch input field and retry once.`
+- root cause: the host-facing grammar omitted the canonical enum and the invalid-input recovery
+  discarded allowed-value metadata before presentation. The word `user` was not a supported
+  semantic authority class and must not become an alias.
+- repository correction: the target resolver now exports the canonical values; contract,
+  CLI/binding grammar and diagnostics derive from them; the existing locale owner renders
+  actionable English/German recovery without echoing the raw invalid value.
+- correction evidence: exact source replay exits 2 with the three machine-readable allowed values
+  and the German terminal recovery. Forty adapter cases and the serial repository regression pass.
+- evidence boundary: this records the old loaded invocation and the corrected repository replay.
+  It does not prove a refreshed installation or fresh-task model behavior.
+- required_next_step: include this case in the separately authorized coherent installation and
+  fresh Codex retest under CSED-QA-01.
 
 
 ## Codex Fresh-task Case CSED-HOST-09

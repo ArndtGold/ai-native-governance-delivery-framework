@@ -2,9 +2,9 @@ import { spawnSync } from "node:child_process";
 import { statSync } from "node:fs";
 import { dirname, isAbsolute } from "node:path";
 import process from "node:process";
-import { skillDispatchArgumentGrammar } from "../cli/command-registry.js";
+import { SKILL_DISPATCH_SURFACES, skillDispatchArgumentGrammar } from "./contract.js";
 
-const SURFACES = new Set(["codex", "claude", "copilot", "opencode"]);
+const SURFACES = new Set(SKILL_DISPATCH_SURFACES);
 const PROBE = 'process.stdout.write("AGDF_RUNTIME_OK:"+process.versions.node)';
 const text = (value) => typeof value === "string" && value.length > 0 && value.length <= 4096 && !/[\r\n\0]/u.test(value);
 const absolute = (value) => text(value) && isAbsolute(value);

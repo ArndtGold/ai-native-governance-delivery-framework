@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "../lib/skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../lib/skill-dispatch/service.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
-import { pluginDefinition } from "../lib/cli/runtime-context.js";
+import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context.js";
 
 const skillSet = [
   { slug: "gate-check", dispatch: { mode: "deterministic_control", deterministicCommand: "gate-check", requiresControlSnapshot: true } },
@@ -20,7 +20,7 @@ for (const [skillId, entry] of completeRegistry) {
 }
 const base = {
   skillSet,
-  interactionLocales: {},
+  interactionLocales,
   surface: "copilot",
   presentationLanguage: "de",
   workingDirectory: "/tmp/agdf-chat",
@@ -104,7 +104,8 @@ const missingPresentation = createSkillDispatchService({
   env: {},
 })({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
 assert.equal(missingPresentation.outcome, "evaluator_error");
-assert.match(missingPresentation.diagnostics[0].message, /deterministic_control_presentation_unavailable/);
+assert.equal(missingPresentation.diagnostics[0].code, "dispatch_control_presentation_failed");
+assert.equal(missingPresentation.recovery.action, "Gate-Darstellung reparieren und einmal erneut versuchen.");
 
 const continuation = resolvedDispatch({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run" });
 assert.equal(continuation.outcome, "skill_continuation");
@@ -132,6 +133,33 @@ assert.equal(invalid.diagnostics[0].field, "skill_id");
 const unpaired = resolvedDispatch({ ...base, skillId: "gate-check", targetSource: "explicit_target" });
 assert.equal(unpaired.outcome, "invalid_input");
 assert.equal(unpaired.diagnostics[0].field, "primary_target");
+
+const invalidTargetSource = resolvedDispatch({
+  ...base,
+  skillId: "gate-check",
+  targetSource: "user",
+  primaryTarget: "/tmp/agdf-repo",
+});
+assert.equal(invalidTargetSource.outcome, "invalid_input");
+assert.deepEqual(invalidTargetSource.diagnostics[0].allowed_values, ["explicit_target", "continued_target", "current_repository"]);
+assert.equal(
+  invalidTargetSource.host_action.text,
+  "Ungültiger Wert für target_source. Erlaubt: explicit_target, continued_target, current_repository. Korrigieren und einmal erneut versuchen.",
+);
+assert.equal(invalidTargetSource.host_action.text, invalidTargetSource.recovery.action);
+assert.doesNotMatch(invalidTargetSource.host_action.text, /\buser\b/u);
+
+const invalidTargetSourceEnglish = resolvedDispatch({
+  ...base,
+  skillId: "gate-check",
+  presentationLanguage: "en",
+  targetSource: "user",
+  primaryTarget: "/tmp/agdf-repo",
+});
+assert.equal(
+  invalidTargetSourceEnglish.host_action.text,
+  "Invalid value for target_source. Allowed: explicit_target, continued_target, current_repository. Correct it and retry once.",
+);
 
 for (const [override, field] of [
   [{ surface: "generic" }, "surface"],
@@ -170,8 +198,13 @@ const cliExit = await runValidatorCli(
 assert.equal(cliExit, 1);
 assert.deepEqual(cliErrors, ["skill-dispatch requires --working-directory"]);
 
-const oversized = serializeSkillDispatchResult({ ...controlResult, control: { body: "x".repeat(1024 * 1024) } });
-assert.equal(JSON.parse(oversized).diagnostics[0].code, "dispatch_output_too_large");
+const oversized = serializeSkillDispatchResult(
+  { ...controlResult, control: { body: "x".repeat(1024 * 1024) } },
+  { outputTooLargeRecovery: "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen." },
+);
+const oversizedResult = JSON.parse(oversized);
+assert.equal(oversizedResult.diagnostics[0].code, "dispatch_output_too_large");
+assert.equal(oversizedResult.host_action.text, "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen.");
 
 const evaluatorFailure = createSkillDispatchService({
   resolveTaskTarget: () => resolved,
@@ -182,6 +215,42 @@ const evaluatorFailure = createSkillDispatchService({
 assert.equal(evaluatorFailure.outcome, "evaluator_error");
 assert.equal(evaluatorFailure.terminal, true);
 assert.equal(evaluatorFailure.host_action.mode, "transmit_recovery_verbatim_and_stop");
-assert.equal(evaluatorFailure.host_action.text, "Repair the existing evaluator or renderer and retry once.");
+assert.equal(evaluatorFailure.diagnostics[0].code, "dispatch_control_evaluation_failed");
+assert.equal(evaluatorFailure.host_action.text, "Gate-Auswertung reparieren und einmal erneut versuchen.");
+
+const targetEvaluationFailure = createSkillDispatchService({
+  resolveTaskTarget: () => { throw new Error("sensitive target detail"); },
+  env: {},
+})({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
+assert.equal(targetEvaluationFailure.diagnostics[0].code, "dispatch_target_evaluation_failed");
+assert.equal(targetEvaluationFailure.host_action.text, "Arbeitszielauswertung reparieren und einmal erneut versuchen.");
+assert.doesNotMatch(JSON.stringify(targetEvaluationFailure), /sensitive target detail/);
+
+const targetPresentationFailure = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => null,
+  env: {},
+})({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
+assert.equal(targetPresentationFailure.diagnostics[0].code, "dispatch_target_presentation_failed");
+assert.equal(targetPresentationFailure.host_action.text, "Arbeitszieldarstellung reparieren und einmal erneut versuchen.");
+
+const internalFailure = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => null,
+  env: {},
+})({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
+assert.equal(internalFailure.diagnostics[0].code, "dispatch_internal_failure");
+assert.equal(internalFailure.host_action.text, "Dispatcher reparieren und einmal erneut versuchen.");
+
+const recoveryRendererFailure = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => { throw new Error("broken evaluator"); },
+  renderSkillDispatchRecovery: () => { throw new Error("broken recovery renderer"); },
+  env: {},
+})({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
+assert.equal(recoveryRendererFailure.diagnostics[0].code, "dispatch_control_evaluation_failed");
+assert.equal(recoveryRendererFailure.host_action.text, "Repair the installed locale registry and retry once.");
 
 console.log("skill dispatch tests passed");

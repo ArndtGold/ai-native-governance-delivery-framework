@@ -1,10 +1,80 @@
 # Code Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 10
+Revision: 13
 Decision: pass
 Date: 2026-09-05
 Review mode: direct review by the implementing agent, not independent-agent evidence.
 Baseline: 4d38db394d05bf2afb5280dc3af92dfee042a2bb.
+
+
+## Semantic Function-owner Review
+
+- decision: pass for the semantic contract, projections, CLI/binding integration and tests.
+- correctness: the function definition exposes exact per-value target-source meanings, paired
+  optional target fields, non-authorizing cwd semantics, terminal transfer and bounded continuation.
+  Value order derives from the target resolver and run syntax derives from `RUN_ID_PATTERN`.
+- regression: schema-2 binding shape and protocol remain unchanged. All canonical argument values,
+  context-only invocation, unresolved target behavior and 40 adapter cases pass.
+- security: descriptions grant no target, approval or delivery authority. Unknown values remain
+  invalid; no raw prompt, shell command or rejected value enters the semantic owner.
+- maintainability: command registry, binding and all skills consume one owner. Runtime Integrity
+  rejects semantic projection drift in source and installed profiles.
+- footprint: no ceiling changed; Copilot measures 91 files and 696479 bytes, seven bytes below the
+  existing maximum. Selected-skill and SessionStart budgets pass.
+- review limitation: direct implementing-agent review and generated fixtures do not prove model
+  adherence in a fresh loaded host.
+- required_next_step: QA consumes resolved CSED-DISPATCH-14 and retains CSED-QA-01.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-DISPATCH-14 | implementation_gap | CD+Tests | resolved | canonical function definition, derived grammar, exact ten-skill projections and integrity tests | Verify a refreshed installed host under CSED-QA-01. |
+
+
+## Typed Failure Review
+
+- decision: pass for the affected target, dispatcher, presentation, locale, contract and test diff.
+- correctness: context-only target-check remains valid. Invalid target sources receive a distinct
+  machine reason and canonical allowed values. Dispatcher failures identify the actual failed stage
+  and choose the matching requested-locale recovery.
+- regression: resolved and unresolved target flows, deterministic control and judgement
+  continuation remain unchanged. Focused tests, 40 adapter cases, packaging, Runtime Integrity,
+  83/83 reviewed replay compatibility and source smoke pass.
+- security: rejected target values and downstream exception messages do not enter visible terminal
+  output. The allowed-values row renders only the exact canonical source list. Recovery codes are
+  closed code-owned identifiers.
+- maintainability: target-source validation and locale rendering each retain one owner. Failure
+  classification follows the existing service sequence and does not parse error text.
+- review limitation: this is direct review by the implementing agent. Repository and generated
+  evidence do not prove a refreshed host loaded the correction.
+- required_next_step: QA consumes both resolved implementation findings and retains CSED-QA-01.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-CODEX-12 | implementation_gap | CD+Tests | resolved | target-check `target_source_invalid`, typed `input_error`, localized exact replay | Verify a refreshed installed host under CSED-QA-01. |
+| CSED-DISPATCH-13 | implementation_gap | CD+Tests | resolved | stable stage codes, localized recovery, output-bound localization and raw-error suppression | Verify terminal fidelity in the fresh host matrix. |
+
+
+## Target-source Recovery Review
+
+- decision: pass for the bounded eight-file correction.
+- reviewed scope: task-target resolution values, dispatcher contract/service, CLI registry,
+  interaction renderer, locale registry and focused dispatcher/binding tests.
+- correctness: all consumers derive the same three values; invalid input remains terminal and
+  non-authorizing; German and English recovery use reviewed locale entries.
+- regression: `<source>` is rejected by the binding test, all canonical values still execute, and
+  the complete serial suite plus source/generated Runtime Integrity pass.
+- security: visible recovery does not interpolate the invalid raw value. Field and allowed-value
+  tokens are bounded code-owned identifiers, so control characters or shell text cannot enter the
+  terminal instruction through `target_source`.
+- maintainability: no alias table, host-specific recovery, second grammar or duplicate locale
+  renderer was added.
+- missing_evidence: corrected installed profile and fresh-host execution remain under CSED-QA-01.
+- required_next_step: QA consumes the resolved implementation finding and retains the external
+  evidence obligation.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-CODEX-11 | implementation_gap | CD+Tests | resolved | Canonical target-source owner, explicit binding grammar, localized recovery and exact failing-call regression | Verify the corrected installed host under CSED-QA-01. |
 
 
 ## Codex Follow-up Review

@@ -74,17 +74,19 @@ Use one normalized result:
 
 - `resolution_state`: `resolved | unresolved`
 - `reason_code`: `explicit_target | continued_target | multiple_plausible_targets |
-  target_content_mismatch | target_unavailable | no_reliable_target`
+  target_content_mismatch | target_unavailable | no_reliable_target | target_source_invalid`
 - `primary_target`: exactly one requested work object when resolved, otherwise empty
 - `evidence_sources`: zero or more mentioned or inspected sources that do not gain mutation authority
 - `working_directory`: execution context only, never target authority by itself
 - `governance_target`: the repository whose control state applies to the primary target, otherwise empty
 - `target_changed`: whether an explicit new target replaced the previously confirmed target
 - `next_action`: required clarification, supply or retry action when unresolved
+- `input_error`: present only for invalid target-selection input; contains the canonical `field` and
+  `allowed_values` without echoing the rejected value
 
 A resolved result requires a non-empty `primary_target` and a reason code of `explicit_target` or
 `continued_target`. An unresolved result requires an empty `primary_target`, an empty
-`governance_target`, one of the four unresolved reason codes and a non-empty `next_action`.
+`governance_target`, one of the five unresolved reason codes and a non-empty `next_action`.
 Contradictory or incomplete results fail closed.
 
 ## Target Authority Precedence

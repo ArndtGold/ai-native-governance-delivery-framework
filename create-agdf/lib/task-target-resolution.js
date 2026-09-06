@@ -2,7 +2,31 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { dirname, isAbsolute, relative, sep } from "node:path";
 import { resolveRepositoryContext } from "./repository-context.js";
 
-const TARGET_SOURCES = new Set(["explicit_target", "continued_target", "current_repository"]);
+export const TASK_TARGET_SOURCES = Object.freeze(["explicit_target", "continued_target", "current_repository"]);
+
+const TARGET_SOURCES = new Set(TASK_TARGET_SOURCES);
+
+export class TaskTargetInputError extends Error {
+  constructor(field, message, { allowedValues = [] } = {}) {
+    super(message);
+    this.name = "TaskTargetInputError";
+    this.field = field;
+    this.allowedValues = Object.freeze([...allowedValues]);
+  }
+}
+
+export function normalizeTaskTargetSource(value, { allowEmpty = true } = {}) {
+  const targetSource = String(value ?? "").trim();
+  if (!targetSource && allowEmpty) return "";
+  if (!TARGET_SOURCES.has(targetSource)) {
+    throw new TaskTargetInputError(
+      "target_source",
+      `target_source must be one of: ${TASK_TARGET_SOURCES.join(", ")}`,
+      { allowedValues: TASK_TARGET_SOURCES },
+    );
+  }
+  return targetSource;
+}
 
 function canonicalPath(path) {
   try { return realpathSync(path); } catch { return null; }
@@ -18,7 +42,7 @@ function isInside(root, candidate) {
   return path === "" || (path !== ".." && !path.startsWith(`..${sep}`) && !isAbsolute(path));
 }
 
-function unresolved(reasonCode, { workingDirectory, evidenceSources = [], targetSource = "", nextAction }) {
+function unresolved(reasonCode, { workingDirectory, evidenceSources = [], targetSource = "", nextAction, inputError = null }) {
   return Object.freeze({
     schema_version: "1",
     resolution_state: "unresolved",
@@ -31,6 +55,7 @@ function unresolved(reasonCode, { workingDirectory, evidenceSources = [], target
     target_changed: false,
     next_action: nextAction,
     authorizes: false,
+    ...(inputError ? { input_error: Object.freeze(inputError) } : {}),
   });
 }
 
@@ -54,8 +79,23 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
     ? [...new Set(input.candidates.map((item) => String(item ?? "").trim()).filter(Boolean))]
     : [];
   const targetSource = String(input.targetSource ?? "").trim();
-  const normalizedTargetSource = TARGET_SOURCES.has(targetSource) ? targetSource : "";
   const rawTarget = String(input.primaryTarget ?? "").trim();
+
+  let normalizedTargetSource;
+  try {
+    normalizedTargetSource = normalizeTaskTargetSource(targetSource);
+  } catch (error) {
+    if (!(error instanceof TaskTargetInputError)) throw error;
+    return unresolved("target_source_invalid", {
+      workingDirectory: workingDirectory || rawWorkingDirectory || "unavailable",
+      evidenceSources,
+      nextAction: "Use one allowed target_source value and retry target-check.",
+      inputError: {
+        field: error.field,
+        allowed_values: error.allowedValues,
+      },
+    });
+  }
 
   if (!workingDirectory) {
     return unresolved("target_content_mismatch", {
@@ -73,7 +113,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
       nextAction: "Select exactly one primary task target.",
     });
   }
-  if (!TARGET_SOURCES.has(targetSource) || !rawTarget) {
+  if (!normalizedTargetSource || !rawTarget) {
     return unresolved("no_reliable_target", {
       workingDirectory,
       evidenceSources,

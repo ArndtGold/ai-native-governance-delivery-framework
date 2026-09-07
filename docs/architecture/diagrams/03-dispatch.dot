@@ -1,31 +1,44 @@
 digraph dispatch {
-  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.5, ranksep=0.48, fontname="Helvetica", label="03  /  EIN BENANNTER SKILL-AUFRUF", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
-  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=16, margin="0.22,0.13", penwidth=1.3];
-  edge [color="#52667A", arrowsize=0.8, fontname="Helvetica", fontsize=12, fontcolor="#354D61"];
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.48, fontname="Helvetica", label="03  /  ZWEI WEGE ZUM GEMEINSAMEN DISPATCHER", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.19,0.12", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
+
   request [label="Aktueller Nutzerwunsch", fillcolor="#F3F6F8", color="#97A6B3"];
   activation [label="Agent bewertet Anwendbarkeit\nnach Request-Activation-Vertrag", fillcolor="#FFF2CF", color="#BF9840"];
-  abstain [label="Normale Hilfe oder Klärung\nKein AGDF-Dispatch", fillcolor="#F3F6F8", color="#97A6B3"];
-  binding [label="Vorhandene geprüfte Bindung\nProgramm · Validator · Version · Host"];
-  input [label="Dispatcher prüft die Eingabe\nund löst das Ziel auf"];
-  evaluation [label="Gemeinsame Gate-Auswertung\nfür das gebundene Ziel und den Run"];
-  result [label="Art des Skills?", shape=diamond, style=filled, fontsize=14, margin=0.13];
-  control [label="Deterministischer Kontroll-Skill\nDarstellung unverändert übertragen\nund diesen Aufruf beenden", fillcolor="#E5F0FC", color="#5284AD"];
-  continuation [label="Fortzusetzender Skill\nBenannten Skill am Ziel ausführen\nKontrollsnapshot und Skill-Regeln beachten", fillcolor="#E5F0FC", color="#5284AD"];
-  recovery [label="Anhalten und Recovery zeigen\nUngültige Eingabe, ungeklärtes Ziel\noder Evaluatorfehler", fillcolor="#FCE8E4", color="#B5675A"];
-  note [label="Alle Dispatcher-Ergebnisse: authorizes = false\nDie Fortsetzung erteilt keine Gate-Freigabe.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=14];
+  normal [label="Normale Hilfe oder Klärung\nkein AGDF-Dispatch", fillcolor="#F3F6F8", color="#97A6B3"];
+  route [label="Verfügbarer Aufrufweg?", shape=diamond, style=filled, fontsize=13, margin=0.12];
+  skill [label="Skill-Weg\ngeprüfte Runtime-Bindung"];
+  list [label="MCP-Weg\ntools/list zeigt agdf_dispatch"];
+  call [label="tools/call\nSkill + expliziter Zielkontext"];
+  contract [label="Ein kanonischer Tool-Vertrag\nBeschreibung · Eingabe · Ausgabe", fillcolor="#FFF2CF", color="#BF9840"];
+  dispatcher [label="Ein Skill-Dispatcher\nprüft Eingabe und bindet Ziel"];
+  evaluation [label="Gemeinsame Ziel- und Gate-Auswertung"];
+  outcome [label="Ergebnistyp?", shape=diamond, style=filled, fontsize=13, margin=0.12];
+  terminal [label="Terminales Kontrollergebnis\nunverändert zeigen und Aufruf beenden", fillcolor="#E5F0FC", color="#5284AD"];
+  continuation [label="Begrenzter Fortsetzungsauftrag\nein Skill + ein Ziel", fillcolor="#E5F0FC", color="#5284AD"];
+  recovery [label="Sicher anhalten\nEingabe, Ziel oder Auswertung ungültig", fillcolor="#FCE8E4", color="#B5675A"];
+  note [label="Alle Ergebnisse: authorizes = false\nMCP-Registrierung und Tool-Berechtigung sind keine Gate-Freigabe.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
+
   request -> activation;
-  activation -> abstain [label="nicht anwendbar / unklar"];
-  activation -> binding [label="anwendbar"];
-  binding -> input [label="gebundener Aufruf"];
-  input -> evaluation [label="Ziel aufgelöst"];
-  input -> recovery [label="Fehler / Ziel offen"];
+  activation -> normal [label="nicht anwendbar / unklar"];
+  activation -> route [label="anwendbar"];
+  route -> skill [label="Skill"];
+  route -> list [label="MCP"];
+  list -> call;
+  skill -> contract;
+  call -> contract;
+  contract -> dispatcher;
+  dispatcher -> recovery [label="Fehler / Ziel offen"];
+  dispatcher -> evaluation [label="Ziel aufgelöst"];
   evaluation -> recovery [label="Auswertungsfehler"];
-  evaluation -> result;
-  result -> control [label="Kontrollergebnis"];
-  result -> continuation [label="Fortsetzung"];
-  control -> note [style=invis];
+  evaluation -> outcome;
+  outcome -> terminal [label="Kontrolle"];
+  outcome -> continuation [label="Fortsetzung"];
+  terminal -> note [style=invis];
   continuation -> note [style=invis];
-  {rank=same; activation; abstain;}
+
+  {rank=same; activation; normal;}
+  {rank=same; skill; list;}
   {rank=same; evaluation; recovery;}
-  {rank=same; control; continuation;}
+  {rank=same; terminal; continuation;}
 }

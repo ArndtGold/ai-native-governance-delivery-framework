@@ -1,29 +1,40 @@
 digraph context {
-  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.65, ranksep=0.7, fontname="Helvetica", label="01  /  WO AGDF SITZT", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
-  node [shape=box, style="rounded,filled", color="#97A6B3", fillcolor="#F3F6F8", fontname="Helvetica", fontsize=17, margin="0.22,0.16", penwidth=1.3];
-  edge [color="#52667A", arrowsize=0.8, fontname="Helvetica", fontsize=13, fontcolor="#354D61"];
-  human [label="Mensch\nZiel, Scope, Freigaben"];
-  host [label="Agent im Host\nCodex · Claude · Copilot · OpenCode", fillcolor="#EEE9FF", color="#8270AE"];
+  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.55, ranksep=0.65, fontname="Helvetica", label="01  /  WO AGDF SITZT", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#97A6B3", fillcolor="#F3F6F8", fontname="Helvetica", fontsize=16, margin="0.20,0.14", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.8, fontname="Helvetica", fontsize=12, fontcolor="#354D61"];
+
+  human [label="Mensch\nZiel · Scope · Freigaben"];
+  host [label="Coding-Agent im Host\nCodex · Claude Code · OpenCode · Copilot", fillcolor="#EEE9FF", color="#8270AE"];
+
   subgraph cluster_agdf {
-    label="AGDF  /  logische Systemgrenze"; labelloc=b; fontsize=15; color="#2D8B7B"; style=rounded; margin=22;
-    skills [label="Verträge und Skills\nAnweisungen für den Agenten", fillcolor="#FFF2CF", color="#BF9840"];
-    checks [label="Lokale AGDF-Prüfungen\nZiel · Run · Gate · Darstellung", fillcolor="#DDF4EE", color="#2D8B7B"];
-    adapter [label="Host-Anbindung\nInstallation und Laufzeitaufrufe", fillcolor="#EEE9FF", color="#8270AE"];
-    skills -> checks [style=invis];
-    checks -> adapter [style=invis];
+    label="AGDF  /  lokale logische Systemgrenze"; labelloc=b; fontsize=15; color="#2D8B7B"; style=rounded; margin=22;
+    guidance [label="Plugin und Skills\nAnweisungsweg", fillcolor="#FFF2CF", color="#BF9840"];
+    mcp [label="Lokaler MCP-Server\nagdf_dispatch über stdio", fillcolor="#DDF4EE", color="#2D8B7B"];
+    dispatch [label="Gemeinsamer Dispatcher\nZiel · Run · Gate"];
+    lifecycle [label="MCP-Lebenszyklus\nstatus · enable · disable"];
   }
+
+  config [label="Native Host-Konfiguration\nProjekt oder Benutzer", fillcolor="#EEE9FF", color="#8270AE"];
+  runtime [label="Gemeinsame lokale MCP-Laufzeit\nexakte Version + Referenzen", fillcolor="#E5F0FC", color="#5284AD"];
   tools [label="Host-Werkzeuge\nDateien · Prozesse · Git · Tests", fillcolor="#EEE9FF", color="#8270AE"];
   code [label="Zielprojekt\nCode und Arbeitsergebnisse", fillcolor="#E5F0FC", color="#5284AD"];
   state [label="Projekt-Kontrollzustand\n.agdf/control/", fillcolor="#E5F0FC", color="#5284AD"];
+
   human -> host [label="beauftragt / entscheidet"];
-  host -> skills [label="liest"];
-  host -> checks [label="ruft auf"];
-  adapter -> host [label="bindet an", constraint=false];
+  host -> guidance [label="liest"];
+  host -> mcp [label="tools/list · tools/call"];
+  guidance -> dispatch [label="Skill-Aufruf"];
+  mcp -> dispatch [label="kanonischer Vertrag"];
+  dispatch -> state [label="liest und prüft"];
   host -> tools [label="führt Arbeit aus"];
   tools -> code [label="liest / ändert"];
-  tools -> state [label="pflegt Run und Artefakte"];
-  checks -> state [label="liest und validiert"];
-  {rank=same; host; skills;}
-  {rank=same; tools; checks;}
-  {rank=same; code; state; adapter;}
+  tools -> state [label="pflegt Artefakte"];
+  lifecycle -> config [label="registriert reversibel"];
+  lifecycle -> runtime [label="bereitet vor / zählt Referenzen"];
+  host -> config [label="lädt nach Neustart"];
+  mcp -> runtime [label="läuft aus"];
+
+  {rank=same; host; guidance; mcp;}
+  {rank=same; tools; dispatch; lifecycle;}
+  {rank=same; code; state; config; runtime;}
 }

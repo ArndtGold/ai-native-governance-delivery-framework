@@ -1,161 +1,394 @@
 # Technische Architektur von AGDF
 
-AGDF verbindet Arbeitsanweisungen für Agenten mit lokal ausführbaren Prüfungen und dauerhaftem Kontrollzustand im Projekt. Der Agent arbeitet im jeweiligen Host. AGDF strukturiert seine Arbeit, prüft Voraussetzungen und macht sichtbar, welche Schritte durch Scope, Nachweise und Freigaben gedeckt sind.
+AGDF verbindet Anweisungen für Coding-Agenten, lokal ausführbare Prüfungen und einen dauerhaften
+Kontrollzustand im Projekt. Der Agent arbeitet weiterhin in Codex, Claude Code, OpenCode oder GitHub
+Copilot. AGDF liefert ihm einen gemeinsamen Governance-Pfad und kann diesen Pfad zusätzlich über
+einen lokalen MCP-Server als Werkzeug bereitstellen.
 
-Diese Dokumentation erklärt die vorhandene Implementierung. Sie richtet sich an Entwickler und Maintainer, die verstehen wollen, wo eine Entscheidung entsteht, welcher Baustein dafür zuständig ist und was eine Prüfung tatsächlich nachweist.
+Diese Dokumentation erklärt die vorhandene Implementierung für Einsteiger und Maintainer. Sie
+beantwortet vier Fragen:
 
-**Stand: 5. September 2026.** Betrachtet wird das Arbeitsverzeichnis mit der kanonischen Paketversion **0.14.5**, auf Basis von Commit `4ae59725fc583b5816334af47b08e446f51739b6` und den lokalen Änderungen an Host-Adaptern und Kompatibilitätsnachweisen. Diese Änderungen befinden sich im [Run zur Host-Kompatibilität](../../.agdf/control/runs/agdf-host-adapter-compatibility/RUN_STATE.md) bei QA mit Agentenentscheidung `pass`. Die menschlichen QA- und UAT-Freigaben stehen aus. Der beschriebene Quellstand ist deshalb keine Aussage über eine veröffentlichte oder aktuell in einem Host geladene Installation.
+1. Welche Teile laufen im Coding-Agenten und welche gehören zu AGDF?
+2. Wie gelangt ein Nutzerwunsch über einen Skill oder MCP zum gleichen Dispatcher?
+3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?
+4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?
 
-Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Zuständigkeiten sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im [Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) nachvollziehbar. Bei Widersprüchen haben diese Quellen und ihre jeweiligen Implementierungsverantwortlichen Vorrang vor dieser erklärenden Darstellung.
+**Stand: 7. September 2026.** Beschrieben ist die kanonische Paketversion **0.14.5** auf Basis des
+Implementierungscommits `c95874957ac78bbccd8b7b31a90b71dbe50ce677` und des Runs
+[`agdf-cross-host-mcp-integration`](../../.agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md).
+Die Dokumentationsrevision ist für die QA-Entscheidung vorbereitet. Dieser Stand ist keine Aussage
+über eine veröffentlichte Paketversion oder eine aktuell in einem Host geladene Installation.
+
+Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Die
+verbindliche technische Ausgestaltung des MCP-Lebenszyklus steht im
+[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md). Zuständigkeiten
+sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im
+[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Architekturübersicht
+erklärt die Zusammenhänge. Sie erzeugt keine eigenen Regeln.
+
+## Der kürzeste Einstieg
+
+Für das Verständnis helfen fünf Begriffe:
+
+| Begriff | Einfache Bedeutung |
+|---|---|
+| **Host** | Das Programm, in dem der Coding-Agent läuft, zum Beispiel Codex oder Claude Code. Der Host besitzt Modellzugriff, Werkzeuge, Berechtigungen und Sitzungen. |
+| **Plugin oder Skills** | Anweisungen und Host-Integration, die dem Agenten sagen, wann und wie AGDF anzuwenden ist. |
+| **MCP-Server** | Ein lokaler Prozess, der dem Host das Werkzeug `agdf_dispatch` über den standardisierten MCP-Transport `stdio` anbietet. |
+| **MCP-Lebenszyklus** | Die AGDF-Befehle `mcp status`, `mcp enable` und `mcp disable`. Sie lesen oder ändern ausschließlich die native MCP-Konfiguration des ausgewählten Hosts. |
+| **Kontrollzustand** | Der ausgewählte Run mit Scope, Artefakten, Nachweisen und Freigaben unter `.agdf/control/`. |
+
+Plugin und MCP erfüllen verschiedene Aufgaben. Das Plugin bringt Anweisungen und hostabhängige
+Integration mit. MCP stellt einen ausführbaren, typisierten Werkzeugaufruf bereit. Beide Wege können
+denselben Dispatcher erreichen. Weder Installation noch Registrierung erteilen eine AGDF-Freigabe.
+
+```text
+Nutzer -> Coding-Agent -> Skill oder agdf_dispatch -> Dispatcher -> Ziel- und Gate-Prüfung
+
+Separat:
+@agdf/cli -> mcp status | enable | disable -> Host-Konfiguration -> lokale MCP-Laufzeit
+```
 
 ## Leseweg
 
-- [Systemkontext](#1-systemkontext): Wo AGDF sitzt und wer tatsächlich handelt.
-- [Bausteine](#2-bausteine-und-verantwortlichkeiten): Gemeinsamer Kern, Host-Anbindung und Projektzustand.
-- [Laufzeit](#3-vom-nutzerwunsch-zum-skill): Wie ein Aufruf zu einem Ziel und einem Kontrollergebnis gelangt.
-- [Entscheidungsbefugnis](#4-regel-prüfung-und-durchsetzung): Welche Aussagen Anweisungen, Prüfungen und Berechtigungen tragen.
-- [Verteilung](#5-vom-quellstand-zur-geladenen-installation): Warum gleiche Versionsnummern allein nicht genügen.
-- [Qualität](#6-kompatibilität-und-nachweise): Welche Unterstützung tatsächlich nachgewiesen ist.
-- [Entscheidungen und Pflege](#7-architekturentscheidungen-grenzen-und-pflege): Begründungen, Grenzen und Quellen für Änderungen.
+- [Systemkontext](#1-systemkontext): Wo AGDF sitzt und wer handelt.
+- [Bausteine](#2-bausteine-und-verantwortlichkeiten): Welche Quelle welche Bedeutung besitzt.
+- [Aufrufwege](#3-zwei-wege-zum-gemeinsamen-dispatcher): Wie Skill und MCP zusammenlaufen.
+- [MCP-Lebenszyklus](#4-der-mcp-lebenszyklus): Wie Registrierung, Laufzeit und Entfernung funktionieren.
+- [Entscheidungsbefugnis](#5-regel-prüfung-und-durchsetzung): Was eine technische Aktion nicht autorisiert.
+- [Verteilung](#6-vom-quellstand-zur-geladenen-sitzung): Warum Quelle, Paket und Host getrennt geprüft werden.
+- [Nachweise](#7-protokoll-host-und-abnahmenachweise): Welche Evidenz eine Unterstützungszusage trägt.
+- [Codeorientierung](#8-orientierung-im-quellcode): Wo Einsteiger die maßgeblichen Module finden.
+- [Entscheidungen und Pflege](#9-architekturentscheidungen-grenzen-und-pflege): Welche Gründe die Struktur bestimmen.
 
 ## 1. Systemkontext
 
-![Systemkontext: Der Mensch beauftragt den Agenten im Host. Dieser nutzt AGDF und arbeitet über Host-Werkzeuge am Projekt. AGDF-Prüfungen lesen dessen Kontrollzustand.](diagrams/01-context.svg)
+![Systemkontext: Der Mensch beauftragt den Agenten. Skills und MCP verbinden den Host mit dem gemeinsamen AGDF-Dispatcher. Der MCP-Lebenszyklus verwaltet davon getrennt die native Registrierung und Laufzeit.](diagrams/01-context.svg)
 
-*Abbildung 1: Logische Systemgrenze. Die Pfeile zeigen Aufrufe und Datenbeziehungen, keine eigenständigen Netzwerkdienste. [Diagrammquelle](diagrams/01-context.dot).*
+*Abbildung 1: Logische Systemgrenze. Die Pfeile zeigen Aufrufe und Datenbeziehungen. Der MCP-Server
+ist ein lokaler `stdio`-Prozess und kein entfernter AGDF-Dienst.
+[Diagrammquelle](diagrams/01-context.dot).*
 
-Der **Mensch** bestimmt Ziel und Scope und erteilt die erforderlichen Freigaben. Der **Host** stellt Modellzugriff, Werkzeuge, Berechtigungen, Plugin-Erkennung und Sitzung bereit. AGDF liefert Skills, Verträge, Prüflogik und die Anbindung an diese Host-Funktionen.
+Der **Mensch** bestimmt Ziel und Scope und erteilt die erforderlichen Freigaben. Der **Host** führt
+den Coding-Agenten aus. Er entscheidet, welche Werkzeuge sichtbar sind, welche Prozesse gestartet
+werden dürfen und welche Sitzung neu geladen werden muss.
 
-Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`. Ein Run beschreibt einen abgegrenzten Arbeitsumfang. Seine kanonischen Angaben liegen unter `runs/<run_id>/RUN_STATE.md`, zugehörige Artefakte unter `artefacts/<run_id>/`. Ein Backlog oder eine Statuskarte hilft bei der Orientierung, ersetzt aber nicht den ausgewählten Run und seine Nachweise.
+AGDF hat zwei Verbindungen zum Host:
 
-Git, Tests und CI können Ergebnisse belegen und Änderungen ausliefern. Ihr erfolgreicher Abschluss erteilt für sich genommen keine AGDF-Freigabe. Ebenso besitzt AGDF keine allgemeine Kontrolle über jeden Dateizugriff oder jeden Prozess des Hosts.
+1. **Anweisungsweg:** Plugin und Skills erklären dem Agenten Aktivierung, Arbeitsweise und Grenzen.
+2. **Werkzeugweg:** Der lokale MCP-Server stellt genau ein Werkzeug namens `agdf_dispatch` bereit.
 
-**Quellen:** [Plugin-Definition](../../plugin/meta/agdf-plugin.definition.json), [Control State](../../create-agdf/lib/control-state/), [CLI-Komposition](../../create-agdf/lib/cli/application.js).
+Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`.
+Ein Run beschreibt genau einen abgegrenzten Arbeitsumfang. Sein kanonischer Zustand liegt unter
+`runs/<run_id>/RUN_STATE.md`, zugehörige Artefakte unter `artefacts/<run_id>/`.
+
+Der MCP-Lebenszyklus steht neben diesen Aufrufwegen. Er registriert den Server in der nativen
+Host-Konfiguration und verwaltet die lokale Laufzeit. Er entscheidet nicht, ob eine Nutzeranfrage
+AGDF aktiviert, welches Projekt das Governance-Ziel ist oder ob ein Gate freigegeben wurde.
+
+Git, Tests und CI können Ergebnisse belegen und Änderungen ausliefern. Ihr erfolgreicher Abschluss
+erteilt keine AGDF-Freigabe. Ebenso besitzt AGDF keine allgemeine Kontrolle über jeden Dateizugriff,
+jeden Unteragenten oder jeden Prozess des Hosts.
 
 ## 2. Bausteine und Verantwortlichkeiten
 
-![Bausteine: Verträge und Skill-Definitionen werden in Host-Payloads übertragen. Dispatcher, Zielauflösung, Kontrollprüfung und Darstellung bilden gemeinsame Funktionen. Installation und automatische Checks verwenden Host-Adapter.](diagrams/02-components.svg)
+![Bausteine: Skill-Bindung und MCP-Server führen zum gemeinsamen semantischen Vertrag und Dispatcher. Der getrennte MCP-Lebenszyklus verwendet Profil, Service, Host-Adapter und gemeinsame Laufzeit.](diagrams/02-components.svg)
 
-*Abbildung 2: Verantwortungsbereiche im Repository. „Kern“ bezeichnet hier gemeinsame Funktionen, kein zusätzliches Paket. [Diagrammquelle](diagrams/02-components.dot).*
+*Abbildung 2: Die Architektur hat gemeinsame semantische Eigentümer und dünne Host-Adapter.
+[Diagrammquelle](diagrams/02-components.dot).*
 
 | Bereich | Aufgabe | Maßgebliche Quelle |
 |---|---|---|
 | Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugin/meta/contracts/`](../../plugin/meta/contracts/), [`plugin/skills/`](../../plugin/skills/) |
-| Gemeinsame Definition und Erzeugung | Übertragen Skill-Identität, Routing und Inhalte in die jeweiligen Host-Formate. | [`agdf-plugin.definition.json`](../../plugin/meta/agdf-plugin.definition.json), [`sync-package-assets.js`](../../create-agdf/scripts/sync-package-assets.js) |
-| Zielauflösung und Dispatch | Binden einen benannten Skill an das richtige Projekt und liefern Kontrollergebnis oder Fortsetzungsauftrag. | [`task-target-resolution.js`](../../create-agdf/lib/task-target-resolution.js), [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js) |
-| Kontrollzustand und Prüfung | Lesen und validieren Run-Identität, Artefakte, Freigaben und Voraussetzungen. | [`control-state/`](../../create-agdf/lib/control-state/), [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
-| Darstellung | Erzeugen lokalisierte Status-, Ziel- und Freigabedarstellungen aus den Prüfergebnissen. | [`interaction-presentation.js`](../../create-agdf/lib/interaction-presentation.js) |
-| Installation und Lebenszyklus | Koordinieren Vorbereitung, native Aufrufe, Status, Migration und Wiederherstellung. | [`installers/`](../../create-agdf/lib/installers/), [`lifecycle/`](../../create-agdf/lib/lifecycle/) |
-| Host-Adapter | Kapseln konkrete Plugin-Befehle, Versionsprojektionen und hostabhängige Berechtigungsmechanismen. | [`host-adapters/`](../../create-agdf/lib/host-adapters/) |
-| Laufzeit und Einwilligung | Prüfen die verwendete Laufzeit und verwalten die begrenzte Einwilligung zu automatischen Checks. | [`runtime/`](../../create-agdf/lib/runtime/), [`runtime-check-consent/`](../../create-agdf/lib/runtime-check-consent/) |
+| Tool-Semantik | Besitzt Name, Beschreibung, Eingabe- und Ausgabeschema sowie Annotationen von `agdf_dispatch`. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) |
+| Dispatch | Prüft Eingaben, bindet das Ziel und liefert ein terminales Kontrollergebnis oder einen begrenzten Fortsetzungsauftrag. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js) |
+| MCP-Server | Übersetzt MCP `tools/list` und `tools/call` in den vorhandenen Dispatch-Aufruf. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |
+| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |
+| MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) |
+| MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) |
+| Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../create-agdf/lib/mcp-lifecycle/package.js) |
+| Kontrollzustand und Prüfung | Lesen und validieren Run, Artefakte, Freigaben und Voraussetzungen. | [`control-state/`](../../create-agdf/lib/control-state/), [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
+| Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../create-agdf/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../create-agdf/lib/mcp-lifecycle/presentation.js) |
+| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Sie bleibt vom MCP-Lebenszyklus getrennt. | [`installers/`](../../create-agdf/lib/installers/), [`host-adapters/`](../../create-agdf/lib/host-adapters/) |
 
-Die Trennung ist vorhanden, aber nicht jede Host-Besonderheit liegt bereits physisch unter `host-adapters/`. Beispielsweise bleiben OpenCode-Installation, Copilot-Transport, Skill-Erkennung und Claude-Cache-Recovery spezialisierte Module unter `installers/`. Der bisherige Plugin-Installer dient für Codex, Claude und Copilot als Fassade zu den ausgelagerten Adaptern. Das Diagramm beschreibt diese tatsächliche Verteilung und behauptet keine abgeschlossene Vereinheitlichung aller Pfade.
+Die wichtigste Eigentumsregel lautet: **Die vollständige Bedeutung von `agdf_dispatch` existiert nur
+einmal.** Das Fähigkeitsprofil und die Host-Adapter dürfen den Tool-Namen referenzieren. Sie dürfen
+Beschreibung oder Schemas nicht kopieren. Dadurch können ein besser formulierter Tool-Vertrag und
+eine strengere Eingabeprüfung nicht unbemerkt zwischen Hosts auseinanderlaufen.
 
-Für die Wartung folgt daraus eine praktische Orientierung: Eine Änderung am erlaubten nächsten Schritt gehört zum gemeinsamen Kontrollmodell. Eine andere native Installationssyntax gehört zur Host-Anbindung. Eine schönere Statuskarte darf keine zusätzliche Gate-Logik erhalten.
+Die zweite wichtige Regel lautet: **Ein Adapter besitzt nur die Besonderheiten seines Hosts.** Er
+kennt Konfigurationsorte, Prioritäten und native Scopes. Paketbeschaffung, Dispatcher-Semantik,
+Gate-Auswertung und gemeinsame Ergebnisdarstellung bleiben außerhalb des Adapters.
 
-## 3. Vom Nutzerwunsch zum Skill
+## 3. Zwei Wege zum gemeinsamen Dispatcher
 
-![Aufruffluss: Der Agent bewertet die Anwendbarkeit nach dem Aktivierungsvertrag. Nach positiver Aktivierung folgen ein vorhandenes Laufzeit-Binding, Eingabeprüfung, Zielauflösung und Gate-Auswertung. Das Ergebnis ist ein sichtbarer Halt oder die Fortsetzung eines benannten Skills.](diagrams/03-dispatch.svg)
+![Aufruffluss: Eine aktivierte Nutzeranfrage kann über Skill-Bindung oder MCP-Werkzeugaufruf denselben semantischen Vertrag und Dispatcher erreichen. Zielauflösung und Gate-Auswertung bleiben gemeinsam.](diagrams/03-dispatch.svg)
 
-*Abbildung 3: Vereinfachter direkter Skill-Aufruf bei bereits vorhandenem Laufzeit-Binding. Die semantische Aktivierung durch den Agenten ist getrennt von der ausführbaren Prüfung dargestellt. [Diagrammquelle](diagrams/03-dispatch.dot).*
+*Abbildung 3: Zwei Einstiegspunkte, ein semantischer Vertrag und ein Dispatcher.
+[Diagrammquelle](diagrams/03-dispatch.dot).*
 
-Zuerst beurteilt der Agent anhand des [Aktivierungsvertrags](../../plugin/meta/contracts/request-activation.md), welchen Effekt der aktuelle Wunsch hat. Eine Erklärung über AGDF aktiviert noch keinen Delivery-Prozess. Ein Änderungsauftrag, eine ausdrücklich benannte AGDF-Operation oder die Fortsetzung eines gebundenen Runs können die entsprechende Operation aktivieren. Diese Entscheidung gilt für die Anfrage und wird nicht als dauerhafte Prompt-Klassifikation gespeichert.
+### 3.1 Agentennativer Skill-Weg
 
-Nach positiver Aktivierung wird das Arbeitsziel gebunden. **Zielprojekt, aktuelle Arbeitsumgebung und bloße Belegquelle sind verschiedene Rollen.** Eine referenzierte Datei in einem anderen Repository macht dieses Repository nicht automatisch zum Änderungsziel. Bei mehreren plausiblen Zielen endet die Auflösung mit einem Klärungsbedarf.
+Der Agent beurteilt anhand des
+[Aktivierungsvertrags](../../plugin/meta/contracts/request-activation.md), ob der Nutzer gerade eine
+AGDF-relevante Umsetzung beauftragt. Eine Erklärung oder reine Diagnose aktiviert keinen
+Delivery-Prozess. Bei positiver Aktivierung verwendet der Agent eine geprüfte Skill-Bindung mit
+Programm, Validatorpfad, Host und erwarteter Version.
 
-Für den ausführbaren Skill-Aufruf wird ein geprüfter Aufrufkontext verwendet: Programm, Validatorpfad, erlaubte Argumentform, Host und erwartete Version. [`binding.js`](../../create-agdf/lib/skill-dispatch/binding.js) prüft diese Bindung und die ausführbare Laufzeit. Bei fehlender Bindung ist ein frei erfundener Ersatzpfad keine dokumentierte Recovery.
+### 3.2 MCP-Werkzeugweg
 
-Der [`Skill-Dispatcher`](../../create-agdf/lib/skill-dispatch/service.js) prüft die Eingabe, löst das Ziel auf und ruft die gemeinsame Gate-Auswertung auf. Bei einem deterministischen Kontroll-Skill liefert er eine abschließende Darstellung. Bei einem fortzusetzenden Skill liefert er dessen Identität, das gebundene Ziel und gegebenenfalls einen Kontrollsnapshot. Die Fortsetzung ist ein Auftrag an den Agenten, den benannten Skill unter dessen Regeln auszuführen. Der Dispatcher implementiert nicht selbst sämtliche Review- oder QA-Arbeit.
+Ein MCP-fähiger Host startet den lokalen Server und fragt mit `tools/list` nach verfügbaren
+Werkzeugen. AGDF liefert genau `agdf_dispatch`. Ein anschließendes `tools/call` enthält den
+Skill-Namen sowie expliziten Ziel- und Laufkontext. OpenCode zeigt das Werkzeug wegen seiner
+Host-Namensbildung als `agdf_agdf_dispatch`; auf Serverebene bleibt der Name `agdf_dispatch`.
 
-Unaufgelöste Ziele, fehlerhafte Eingaben oder Evaluatorfehler liefern einen abschließenden Fehler- beziehungsweise Recovery-Pfad. Das Ergebnis trägt `authorizes: false`. Die nachfolgende Host-Interaktion muss diese Grenze einhalten.
+Der Server enthält keine zweite fachliche Funktion. Er importiert den kanonischen Vertrag und ruft
+den vorhandenen Dispatcher auf. Damit erhalten Skill- und MCP-Weg dieselbe Zielauflösung, dieselbe
+Gate-Auswertung und dieselben terminalen Fehlergrenzen.
 
-**Beispiel:** „Prüfe den Task Plan von Projekt B“ aus einem Arbeitsverzeichnis von Projekt A verlangt eine Bindung an B. Eine Freigabe aus A und der dortige Run-Zustand liefern keine Entscheidungsgrundlage für B.
+### 3.3 Gemeinsame Grenzen
 
-## 4. Regel, Prüfung und Durchsetzung
+**Zielprojekt, Arbeitsverzeichnis und Belegquelle sind verschiedene Rollen.** Ein referenziertes
+Repository wird nicht automatisch zum Governance-Ziel. Der Aufruf muss ein belastbares Ziel aus
+`explicit_target`, `continued_target` oder `current_repository` tragen.
+
+Jedes Dispatcher-Ergebnis trägt `authorizes: false`. Ein Ergebnis kann zeigen, was erlaubt oder
+blockiert ist. Es kann keine menschliche Freigabe erzeugen. Ein terminales Ergebnis wird vom Host
+unverändert dargestellt und beendet diesen Dispatch-Aufruf. Ein Fortsetzungsauftrag bindet genau
+einen Skill und ein Ziel, er erteilt aber ebenfalls keine Gate-Freigabe.
+
+## 4. Der MCP-Lebenszyklus
+
+![MCP-Lebenszyklus: Status liest nur. Enable prüft Profil, Host und Quellen, bereitet eine gemeinsame Laufzeit vor und registriert den Server. Eine frische Sitzung liefert getrennte Discovery- und Call-Evidenz. Disable entfernt nur AGDF-eigenen Zustand.](diagrams/06-mcp-lifecycle.svg)
+
+*Abbildung 4: Reversibler Lebenszyklus mit explizitem Scope und referenzgezählter Laufzeit.
+[Diagrammquelle](diagrams/06-mcp-lifecycle.dot).*
+
+Der öffentliche Einstieg ist für alle vier Hosts gleich:
+
+```bash
+npx --yes @agdf/cli@latest mcp status  --surface <codex|claude|opencode|copilot> --dir <projekt>
+npx --yes @agdf/cli@latest mcp enable  --surface <codex|claude|opencode|copilot> --dir <projekt>
+npx --yes @agdf/cli@latest mcp disable --surface <codex|claude|opencode|copilot> --dir <projekt>
+```
+
+Der Projektbereich ist Standard. Der Benutzerbereich muss mit `--scope user` ausdrücklich gewählt
+werden. Das angegebene `--dir` ist das technische Lifecycle-Ziel. Es ersetzt keine semantische
+Zielauflösung eines späteren Dispatch-Aufrufs.
+
+### 4.1 `status` liest nur
+
+`status` validiert das Profil, prüft den Host, liest alle relevanten nativen Quellen und untersucht
+eine vorhandene AGDF-Laufzeit. Der Befehl erstellt kein Verzeichnis, installiert kein Paket, startet
+keinen Login und ändert keine Konfiguration. Er unterscheidet unter anderem:
+
+- keine Registrierung
+- passende AGDF-Registrierung
+- fremde Registrierung
+- veraltete AGDF-eigene Registrierung
+- Konflikt durch eine Quelle mit höherer Priorität
+- ungültige Konfiguration
+
+### 4.2 `enable` registriert kontrolliert
+
+`enable` prüft zuerst Profil, Host, Scope und Quellenpriorität. Bei einer fremden Registrierung oder
+einem Konflikt endet der Vorgang vor der ersten Änderung. Danach bereitet der Service eine exakte
+Laufzeit vor, schreibt nur den ausgewählten nativen Konfigurationseintrag und liest ihn wieder ein.
+Schlägt ein Schritt fehl, stellt die Transaktion den vorherigen Zustand wieder her.
+
+Die vier Adapter verwenden ihre jeweiligen nativen Quellen:
+
+| Host | Projekt | Benutzer | Besonderheit |
+|---|---|---|---|
+| Codex | `.codex/config.toml` | `$CODEX_HOME/config.toml` | Projekt- und Benutzerquelle werden getrennt geprüft. |
+| Claude Code | nativer Scope `local` | nativer Scope `user` | Registrierung erfolgt über die native Claude-MCP-Schnittstelle. |
+| OpenCode | `opencode.json` | `$OPENCODE_CONFIG_DIR/opencode.json` | 1.x verwendet `mcp.agdf`, 2.x `mcp.servers.agdf`. |
+| GitHub Copilot | `.github/mcp.json` | `~/.copilot/mcp-config.json` | Eine Projektdatei `.mcp.json` besitzt höhere Priorität und kann die verwaltete Quelle blockieren. |
+
+Eine erfolgreiche Registrierung bedeutet zunächst `configured_pending_restart` oder
+`configured_unverified`. Erst eine frische Host-Sitzung kann zeigen, ob der Server entdeckt und das
+Werkzeug tatsächlich aufgerufen wird.
+
+### 4.3 Eine Laufzeit kann mehrere Registrierungen tragen
+
+Alle Host-Registrierungen desselben Projektbereichs und derselben AGDF-Version verweisen auf eine
+gemeinsame Laufzeit:
+
+```text
+<AGDF_DATA_ROOT>/mcp/project/<ziel-digest>/<agdf-version>/
+<AGDF_DATA_ROOT>/mcp/user/<agdf-version>/
+```
+
+Die Laufzeit speichert ihre genaue Herkunft und eine sortierte Referenzmenge. Eine Referenz besteht
+aus Host, nativem Scope und ausgewählter Konfigurationsquelle. Dadurch kann beispielsweise Codex
+deaktiviert werden, während OpenCode dieselbe Laufzeit weiterhin verwendet.
+
+Ältere hostspezifische Laufzeitpfade werden erkannt. `enable` kann eine exakt AGDF-eigene
+Registrierung auf den gemeinsamen Pfad migrieren. Fremde oder nicht verifizierbare Laufzeiten werden
+nicht übernommen.
+
+### 4.4 `disable` entfernt nur AGDF-eigenen Zustand
+
+`disable` entfernt ausschließlich die passende AGDF-eigene Registrierung aus der ausgewählten
+Quelle. Andere MCP-Server und andere Host-Einstellungen bleiben erhalten. Anschließend entfernt der
+Service die zugehörige Referenz. Die gemeinsame Laufzeit wird erst gelöscht, wenn keine weitere
+Registrierung mehr auf sie verweist.
+
+## 5. Regel, Prüfung und Durchsetzung
 
 | Ebene | Was sie leistet | Was daraus nicht folgt |
 |---|---|---|
 | Anweisung | Ein Vertrag oder Skill sagt dem Agenten, wie er handeln soll. | Dass der Host jede Abweichung technisch verhindert. |
-| Maschinenprüfung | Ein aufgerufener Validator prüft konkrete Eingaben und liefert ein reproduzierbares Kontrollergebnis. | Dass der Aufruf in jeder Sitzung tatsächlich stattgefunden hat. |
-| Menschliche Freigabe | Eine bewusste Antwort wird gegen erwarteten Run, Gate, Revision und bereites Artefakt geprüft. | Eine allgemeine Werkzeug- oder Dateizugriffsberechtigung. |
-| Technische Durchsetzung | Ein konkreter Host-Mechanismus kann eine bestimmte Aktion auf seinem erfassten Ausführungspfad stoppen. | Eine vollständige Sperre aller Werkzeuge, Unteragenten oder externen Prozesse. |
+| MCP-Registrierung | Eine native Host-Konfiguration verweist auf den AGDF-Server. | Dass der Host die Konfiguration geladen oder das Werkzeug aufgerufen hat. |
+| Werkzeugberechtigung | Der Host oder Nutzer erlaubt einen Prozess oder Tool-Aufruf. | Dass AGDF aktiviert oder ein Gate freigegeben wurde. |
+| Maschinenprüfung | Ein Validator prüft konkrete Eingaben und liefert ein reproduzierbares Ergebnis. | Dass der Aufruf in jeder Sitzung stattgefunden hat. |
+| Menschliche Freigabe | Eine bewusste Antwort wird gegen Run, Gate, Revision und Artefakt geprüft. | Eine allgemeine Werkzeug- oder Dateizugriffsberechtigung. |
+| Technische Durchsetzung | Ein Host-Mechanismus kann eine Aktion auf seinem erfassten Pfad stoppen. | Eine vollständige Sperre aller Werkzeuge, Unteragenten oder externen Prozesse. |
 
-Die [Freigabeprüfung](../../create-agdf/lib/control-state/gate-approval-validator.js) verlangt unter anderem bewusste Nutzereingabe, die erwartete Formel `Approval: <Gate>` und unveränderte Run-, Gate- und Revisionsidentität. Die [Darstellung](../../create-agdf/lib/interaction-presentation.js) zeigt diesen Entscheidungsstand. Sie erfindet keine eigene Übergangsregel.
+Die [Freigabeprüfung](../../create-agdf/lib/control-state/gate-approval-validator.js) verlangt eine
+bewusste Nutzereingabe mit `Approval: <Gate>` sowie unveränderte Run-, Gate- und Revisionsidentität.
+Plugin-Installation, MCP-Registrierung, `tools/list`, `tools/call`, Prozessberechtigung und ein
+erfolgreicher Test sind dafür keine Ersatzsignale.
 
-Automatische Laufzeitprüfungen haben eine separate Einwilligung. Der [Coordinator](../../create-agdf/lib/runtime-check-consent/coordinator.js) unterscheidet Aktivieren, manuelle Prüfung und Abbruch. Die Einwilligung und ihre Identitätsbindung werden gemeinsam verwaltet, die native Umsetzung hängt vom Host ab. Eine gespeicherte Einwilligung beweist weder wirksames Hook-Vertrauen noch einen erfolgten Check.
+Das gemeinsame MCP-Ergebnis macht diese Grenze maschinenlesbar. Es enthält immer
+`authorizes: false` und unterscheidet Fähigkeit, Registrierung, Discovery und Endergebnis. Stabile
+Codes besitzen die Bedeutung. Englische und deutsche Texte werden daraus abgeleitet und dürfen
+keine zusätzlichen Zustände erfinden.
 
-Der [erzeugte Session-Check](../../create-agdf/scripts/sync-plugin-runtime.js) dient einem begrenzten lokalen Einstieg ohne freie Argumente. Session-Kontext, automatische Prüfung, Aktivierung einer Nutzeranfrage und Gate-Freigabe sind getrennte Vorgänge. Das hilft etwa bei der Diagnose: „Plugin vorhanden“, „Prüfung erlaubt“, „Prüfung beobachtet“ und „Arbeit freigegeben“ können unterschiedliche Zustände haben.
+## 6. Vom Quellstand zur geladenen Sitzung
 
-## 5. Vom Quellstand zur geladenen Installation
+![Verteilung: Kanonische Quellen werden getrennt zu Plugin-Payload und MCP-Paket. Plugin-Installation und MCP-Registrierung sind unabhängige Hostzustände. Erst eine frische Sitzung kann geladenes Verhalten zeigen.](diagrams/04-distribution.svg)
 
-![Verteilung: Kanonische Quellen werden zu einem erzeugten Payload und Paket. Host-Installation und Cache führen erst nach Laden oder Neustart zu einer Sitzung. Laufzeitidentität und Verhalten müssen dort gesondert beobachtet werden.](diagrams/04-distribution.svg)
+*Abbildung 5: Quelle, Paket, Installation, Registrierung und geladene Sitzung benötigen eigene
+Nachweise. [Diagrammquelle](diagrams/04-distribution.dot).*
 
-*Abbildung 4: Jeder Übergang hat eigene Nachweise. Der Build bildet keinen automatischen Nachweis für die später geladene Sitzung. [Diagrammquelle](diagrams/04-distribution.dot).*
+[`sync-package-assets.js`](../../create-agdf/scripts/sync-package-assets.js) und
+[`sync-plugin-runtime.js`](../../create-agdf/scripts/sync-plugin-runtime.js) erzeugen verteilbare
+Inhalte aus den Repository-Quellen. Generierte Dateien sind abgeleitete Build-Ergebnisse und werden
+nicht als eigenständige semantische Eigentümer gepflegt.
 
-[`sync-package-assets.js`](../../create-agdf/scripts/sync-package-assets.js) und [`sync-plugin-runtime.js`](../../create-agdf/scripts/sync-plugin-runtime.js) erzeugen die verteilbaren Inhalte aus den Repository-Quellen. Generierte Laufzeitdateien sind abgeleitete Build-Ergebnisse. Änderungen werden an ihren Quellen vorgenommen.
+Aus den Quellen entstehen zwei getrennte Lieferpfade:
 
-Die [Distributionsprofile](../../create-agdf/lib/runtime/plugin-provenance.js) unterscheiden unter anderem ein Runtime-Plugin, das Copilot-Payload, OpenCodes konfigurationslokales Paket und portable Skills. Nicht jedes Profil enthält einen lokalen Validator. [`local-validator.js`](../../create-agdf/lib/runtime/local-validator.js) prüft passend zum Profil Version, verfügbare Einstiegspunkte und gegebenenfalls Digest und Herkunft. Sein lokaler Auflösungspfad weist ausdrücklich keinen Registry-Zugriff aus.
+1. **Plugin-Pfad:** Skills, Verträge, Hooks und Host-Metadaten werden erzeugt, paketiert und durch
+   den jeweiligen Plugin-Installer installiert.
+2. **MCP-Pfad:** Das Paket `@agdf/mcp-server` und die passende `create-agdf`-Laufzeit werden
+   vorbereitet. Der Lifecycle-Service registriert den Einstieg anschließend in einer nativen
+   Host-Konfiguration.
 
-Beim Installieren werden die Unterschiede konkret:
+Ein Plugin darf auf `mcp status` oder `mcp enable` hinweisen. Es aktiviert MCP nicht automatisch.
+Der öffentliche OpenAI-Kandidat bleibt ein Skills-only-Payload ohne MCP-Laufzeit und
+Lifecycle-Metadaten.
 
-| Host | Mechanismus im betrachteten Quellstand | Zweck |
+Eine gleiche Versionsnummer belegt keine inhaltliche Gleichheit. AGDF unterscheidet deshalb Quelle,
+erzeugtes Payload, Paket, installierten Root, native Registrierung, geladene Sitzung und beobachtetes
+Verhalten. Nach Installation oder Registrierung ist ein vollständiger Host-Neustart mit einer neuen
+Sitzung erforderlich. Eine wiederhergestellte alte Sitzung kann weiterhin veraltete Inhalte halten.
+
+## 7. Protokoll-, Host- und Abnahmenachweise
+
+![Nachweismodell: Repositorytests, kontrollierte MCP-Protokolltests und direkte Hostbeobachtungen sind getrennte Spuren. Erst ein vollständiges exaktes Host-Tupel darf eine Unterstützungszusage tragen. UAT bewertet den sichtbaren Weg, ersetzt aber keine technische Evidenz.](diagrams/05-evidence.svg)
+
+*Abbildung 6: Keine Evidenzspur darf eine andere stillschweigend ersetzen.
+[Diagrammquelle](diagrams/05-evidence.dot).*
+
+AGDF trennt drei technische Evidenzspuren:
+
+| Spur | Belegt | Belegt nicht |
 |---|---|---|
-| Codex | [Lokale Versionskennung mit Inhaltsdigest](../../create-agdf/lib/host-adapters/codex/identity.js) | Unterschiedliche lokale Inhalte erhalten unterscheidbare Installationsidentitäten. |
-| Claude Code | [Erneute Installation bei Inhaltsänderungen](../../create-agdf/lib/host-adapters/claude/plugin.js) | Auch bei gleicher öffentlicher Versionsnummer wird der Inhalt erneuert. |
-| GitHub Copilot | [Git-Transport](../../create-agdf/lib/installers/copilot-marketplace-transport.js) und [Skill-Erkennung](../../create-agdf/lib/installers/copilot-skill-discovery.js) | Der Adapter prüft mehr als einen sichtbaren Plugin-Eintrag. |
-| OpenCode | [Konfigurationslokale Installation](../../create-agdf/lib/installers/opencode.js) und [Repository-Aktivierung](../../create-agdf/lib/installers/opencode-activation.js) | Globale Verfügbarkeit und Aktivierung für ein konkretes Projekt bleiben unterscheidbar. |
+| Repository- und Fixture-Tests | Verträge, Parser, Transaktionen, Rollback, Paketinhalt und erwartete Fehlerfälle. | Dass ein realer Host die Registrierung geladen hat. |
+| Kontrollierte MCP-Protokolltests | Dass der Produktionsserver die geprüften MCP-Protokollgenerationen verhandelt und `tools/list` sowie `tools/call` verarbeitet. | Dass Codex, Claude, OpenCode oder Copilot genau dieses Protokoll verwendet haben. |
+| Direkte Host-Evidenz | Verhalten eines benannten Hosts mit genauer Version, Variante, Betriebssystem, Scope, Quelle und Laufzeit. | Verhalten anderer Versionen, Varianten oder Betriebssysteme. |
 
-Diese Mechanismen sind Antworten der aktuellen AGDF-Implementierung auf die jeweiligen Integrationspfade. Sie sind keine zeitlose Zusage über jedes Host-Produkt und jede Version.
+Eine Host-Qualifikation benötigt ein vollständiges Tupel aus Host und Version, Client- und
+Sitzungsvariante, Betriebssystem und Architektur, Scope und Konfigurationsquelle, Node-, Server-,
+Dispatcher- und SDK-Version, Einstiegspunkt sowie Discovery-, Dispatch-, Fehler- und
+Cleanup-Nachweis. Fehlt ein Pflichtfeld, bleibt die Fähigkeit `unverified`.
 
-Eine erfolgreiche Wiederherstellung muss außerdem angeben, was wiederhergestellt wurde: Dateien, Registrierung, Einstellungen oder tatsächlich geladene Sitzung. Die [Marketplace-Vorbereitung](../../create-agdf/lib/installers/local-marketplace.js) und die Host-Installer behandeln eigene Zustände und Recovery. Daraus lässt sich kein allgemeiner atomarer Rollback über Host, Dateisystem und laufende Sitzung ableiten.
+Der [direkte Nachweis dieses Runs](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md)
+enthält vier begrenzte macOS-Beobachtungen:
 
-## 6. Kompatibilität und Nachweise
+| Host | Direkt beobachtet | Offene Grenze |
+|---|---|---|
+| Codex CLI 0.145.0 | Registrierung, native Rücklesung, frische Sitzung, ein Dispatch sowie Entfernung. | Kein kontrollierter direkter Fehler- und Recovery-Pfad. |
+| OpenCode 1.18.3 | Registrierung, native Liste, ein Dispatch, unveränderte Berechtigungen sowie Entfernung. | Kein kontrollierter direkter Fehlerpfad und keine 2.x-Beobachtung. |
+| Claude Code 2.1.193 | Registrierung, native Rücklesung und Entfernung. | Authentifizierung scheiterte vor Discovery und Aufruf. |
+| GitHub Copilot Desktop 1.1.15 | Projektdatei, Lifecycle-Status und Entfernung. | Kein aufrufbarer CLI- oder automatisierbarer frischer Desktop-Client. |
 
-![Nachweismodell: Fünf unabhängige Kompatibilitätsergebnisse werden mit Umgebung und Beobachtung verknüpft. Repository-Tests und echte Host-Beobachtungen bleiben getrennt. Aussagen zu Skills, automatischen Checks, Governance und Durchsetzung benötigen jeweils passende Belege.](diagrams/05-evidence.svg)
+Alle vier exakten Tupel bleiben deshalb `unverified`. Die erfolgreichen Teilbeobachtungen werden
+nicht zu einer allgemeinen Cross-Host-Unterstützungszusage hochgestuft.
 
-*Abbildung 5: Fähigkeiten werden einzeln belegt. Die Verbindung zwischen den Kästen ist keine automatische Höherstufung. [Diagrammquelle](diagrams/05-evidence.dot).*
+Die menschliche UAT bewertet, ob Status, Aktivierung, Neustart-Hinweis, Recovery und Deaktivierung
+verständlich und erwartbar sind. Sie ersetzt weder einen fehlenden Host-Aufruf noch ein fehlendes
+Fehler- oder Cleanup-Signal.
 
-Für alle vier Hosts fragt die gemeinsame Kompatibilitätsprüfung nach denselben fünf Ergebnissen:
+## 8. Orientierung im Quellcode
 
-1. **Installiert:** Der jeweilige Installationspfad wurde erfolgreich durchlaufen und geprüft.
-2. **Entdeckt:** Die vorgesehenen Skills sind für den geprüften Pfad erkennbar.
-3. **Aufrufbar:** Ein gebundener Aufruf erreicht das erwartete Ergebnis.
-4. **Aktualisiert:** Der erwartete neue Inhalt wird wirksam, auch bei problematischen Versionskonstellationen.
-5. **Wiederherstellbar:** Ein definierter Fehler führt zur vorgesehenen Recovery oder zu einem klaren manuellen Übergabepunkt.
+Wer den MCP-Pfad erstmals untersucht, kann in dieser Reihenfolge lesen:
 
-Der [datierte Kompatibilitätsbericht](../compatibility/HOST_COMPATIBILITY.md) enthält für den betrachteten Stand **56 deterministische Szenarien ohne unerwarteten Fehler**. Diese Szenarien verwenden isolierte Produktions-Fixtures. Ein erwarteter Fehlerfall kann einen Test bestehen, während die darin beobachtete Fähigkeit gerade fehlgeschlagen ist.
+1. [`plugin/meta/agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json) zeigt den
+   öffentlichen Fähigkeits- und Lifecycle-Vertrag.
+2. [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) besitzt die
+   vollständige Semantik von `agdf_dispatch`.
+3. [`agdf-mcp-server/`](../../agdf-mcp-server/) stellt diese Semantik über MCP und `stdio` bereit.
+4. [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) orchestriert
+   `status`, `enable` und `disable`.
+5. [`mcp-lifecycle/adapter-contract.js`](../../create-agdf/lib/mcp-lifecycle/adapter-contract.js)
+   definiert die gemeinsame Adaptergrenze.
+6. [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) enthält nur die
+   hostabhängigen Konfigurations- und Probewege.
+7. [`mcp-lifecycle/result.js`](../../create-agdf/lib/mcp-lifecycle/result.js) und
+   [`presentation.js`](../../create-agdf/lib/mcp-lifecycle/presentation.js) erzeugen das gemeinsame
+   Ergebnis und seine menschliche Darstellung.
+8. [`mcp-lifecycle/evidence.js`](../../create-agdf/lib/mcp-lifecycle/evidence.js) prüft, ob eine
+   Host-Qualifikation vollständig genug für die behauptete Fähigkeit ist.
 
-Der Bericht weist die nativen Kombinationen aus Host, Version und Betriebssystem weiterhin als **nicht nachgewiesen** aus. Seine vier Zusagen bleiben getrennt: verfügbare Skills, automatische Checks, beobachtete Governance und technische Durchsetzung. Eine einzelne Fähigkeit schließt die übrigen nicht ein. Für Durchsetzung gehört auch der konkret erfasste Haupt- oder Unteragentenpfad zum Nachweis.
+Für Plugin-Installation und Host-Payloads bleiben [`installers/`](../../create-agdf/lib/installers/)
+und [`host-adapters/`](../../create-agdf/lib/host-adapters/) zuständig. Diese Module sind keine
+zweite MCP-Lifecycle-Implementierung.
 
-**Quellen:** [Gemeinsame Szenarien](../../create-agdf/scripts/host-compatibility-test.js), [Auswertung und Projektion](../../scripts/host-compatibility/), [Beobachtungsmanifest](../../evals/host-compatibility/manifest.json), [genaue Beobachtungen und Identitäten](../compatibility/evidence/snapshot.json).
-
-## 7. Architekturentscheidungen, Grenzen und Pflege
-
-Die folgenden Entscheidungen sind aus den vorhandenen Quellen zusammengefasst. Diese Tabelle führt keine neuen Architekturentscheidungen ein.
+## 9. Architekturentscheidungen, Grenzen und Pflege
 
 | Entscheidung | Nutzen | Grenze oder Folgekosten |
 |---|---|---|
-| Gemeinsame Kontrolllogik mit Host-Anbindung | Gate- und Zielregeln müssen nicht für jeden Host neu implementiert werden. | Native Aufrufe, Startbedingungen und Berechtigungen benötigen eigene Wartung und Tests. |
-| Kanonischer Zustand im Repository | Run, Scope und Artefakte bleiben sichtbar und prüfbar. | Dateien sind keine manipulationssichere Datenbank. Mehrere Runs und widersprüchliche Zustände müssen ausdrücklich aufgelöst werden. |
-| Erzeugte Host-Payloads aus gemeinsamen Quellen | Routing und Inhalte erhalten klare Verantwortliche. | Quelle, Paket, Cache und Sitzung können auseinanderlaufen. |
-| Lokal gebundene Prüfung mit Version und Herkunft | Der geprüfte Validator und seine Grenzen lassen sich benennen. | Fehlende oder unpassende Laufzeit benötigt Reparatur statt eines stillen Ersatzes. |
-| Statusdarstellung als abgeleitetes Ergebnis | Nutzer und Maschine beziehen sich auf dasselbe Kontrollmodell. | Die korrekte Übertragung durch den Host bleibt gesondert zu prüfen. |
-| Fähigkeiten mit konkreten Belegen ausweisen | Ein erfolgreicher Teilnachweis wird nicht zur pauschalen Unterstützungszusage. | Reale Host- und Betriebssystembeobachtungen verursachen zusätzlichen Prüfaufwand. |
+| Ein semantischer Owner für `agdf_dispatch` | Skill- und MCP-Weg können bei Beschreibung und Schemas nicht auseinanderlaufen. | Änderungen am Vertrag benötigen Konformitätsprüfungen für alle Projektionen. |
+| Ein Lifecycle-Service mit geschlossenem Adapterregister | Gemeinsame Zustände, Transaktionen und Recovery werden nur einmal implementiert. | Jede native Host-Schemaänderung benötigt einen gezielten Adaptertest. |
+| Native Host-Konfiguration statt AGDF-eigenem Universalformat | Der Host bleibt Eigentümer von Discovery, Trust und Berechtigungen. | Quellenprioritäten und Varianten müssen pro Host gepflegt werden. |
+| Eine gemeinsame exakte Laufzeit je Scope-Root | Mehrere Hosts duplizieren den Server nicht und können Referenzen sicher teilen. | Migration und referenzgezählte Entfernung benötigen strenge Herkunftsprüfung. |
+| Plugin- und MCP-Lebenszyklus bleiben getrennt | Installation erzeugt keine überraschende ausführbare Registrierung. | Der Nutzer muss MCP bewusst aktivieren und den Host neu starten. |
+| Stabile Codes mit abgeleiteter Darstellung | Maschinen- und Menschenausgabe behalten dieselbe Bedeutung. | Neue Zustände benötigen Profil-, Ergebnis- und Locale-Änderungen gemeinsam. |
+| Protokoll- und Host-Evidenz bleiben getrennt | Ein Server-Test wird nicht als reale Host-Unterstützung ausgegeben. | Direkte Qualifikation verursacht Prüfaufwand pro exaktem Host-Tupel. |
+| Jede Ausgabe bleibt nicht autorisierend | Technische Integration kann keine Governance-Freigabe vortäuschen. | Menschliche Gate-Entscheidungen bleiben ein eigener bewusster Schritt. |
 
-Weiterführende Entscheidungen und offene Lieferstände stehen im [Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) und [Master Backlog](../../.agdf/control/MASTER_BACKLOG.md). Bedienungsabläufe erklärt das [Handbuch](../handbook/de/README.md), Installationsschritte die [Installationsanleitung](../../INSTALL.md), Befehle die [CLI-Dokumentation](../../create-agdf/README.md).
+Weiterführende Entscheidungen und offene Lieferstände stehen im
+[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) und
+[Master Backlog](../../.agdf/control/MASTER_BACKLOG.md). Bedienungsabläufe erklärt das
+[Handbuch](../handbook/de/README.md), Installationsschritte die
+[Installationsanleitung](../../INSTALL.md), Befehle die
+[CLI-Dokumentation](../../create-agdf/README.md).
 
-Für die Pflege dieser Architekturübersicht sind vor allem geänderte Zuständigkeiten, Aufrufreihenfolgen, Persistenzorte, Distributionsprofile und Nachweisgrenzen relevant. Dann sollten das zugehörige Diagramm, seine Quellen und die Standangabe gemeinsam überprüft werden. Aktuelle Testzahlen und Host-Beobachtungen bleiben im verlinkten Kompatibilitätsbericht maßgeblich.
+Diese Übersicht muss aktualisiert werden, wenn sich Zuständigkeiten, Aufrufreihenfolgen,
+Persistenzorte, Host-Quellen, Distributionsprofile, Ergebniszustände oder Nachweisgrenzen ändern.
+Dabei sind Text, DOT-Quelle und gerendertes SVG gemeinsam zu prüfen. Aktuelle Testzahlen und
+Host-Beobachtungen bleiben in den verlinkten Run-Artefakten maßgeblich.
 
-Die Gliederung orientiert sich in reduziertem Umfang an [arc42](https://arc42.org/overview/) mit Kontext, Bausteinen, Laufzeit, Verteilung, Entscheidungen und Qualität. Die Diagramme verwenden die Idee mehrerer Betrachtungsebenen aus [C4](https://c4model.com/diagrams), ohne AGDF-Module als getrennte Dienste oder formale C4-Container darzustellen.
+Die Gliederung orientiert sich in reduziertem Umfang an [arc42](https://arc42.org/overview/) mit
+Kontext, Bausteinen, Laufzeit, Verteilung, Entscheidungen und Qualität. Die Diagramme verwenden die
+Idee mehrerer Betrachtungsebenen aus [C4](https://c4model.com/diagrams), ohne AGDF-Module als
+getrennte Remote-Dienste oder formale C4-Container darzustellen.
 
 ### Diagramme bearbeiten
 
-Die Abbildungen liegen als skalierbare SVG-Dateien vor. Ihre bearbeitbaren Graphviz-DOT-Quellen liegen jeweils daneben. Alle Aussagen sind zusätzlich im Fließtext beschrieben. Farben unterstützen die Orientierung: Violett steht für den Host, Gelb für Anweisungen, Grün für gemeinsame Prüfungen und Blau für Zustand oder Belege.
+Die Abbildungen liegen als SVG-Dateien vor. Ihre Graphviz-DOT-Quellen liegen jeweils daneben. Alle
+wesentlichen Aussagen stehen zusätzlich im Text. Farben unterstützen die Orientierung: Violett
+steht für den Host, Gelb für Anweisungen oder Verträge, Grün für gemeinsame AGDF-Funktionen und Blau
+für Zustand oder Nachweise.
 
-Nach einer Änderung an einer DOT-Datei lässt sich die zugehörige Grafik mit Graphviz neu erzeugen, beispielsweise vom Repository-Wurzelverzeichnis aus:
+Nach einer Änderung lässt sich eine Grafik beispielsweise so neu erzeugen:
 
 ```bash
-dot -Tsvg docs/architecture/diagrams/01-context.dot -o docs/architecture/diagrams/01-context.svg
+dot -Tsvg docs/architecture/diagrams/06-mcp-lifecycle.dot \
+  -o docs/architecture/diagrams/06-mcp-lifecycle.svg
 ```
 
-Vor Übernahme einer Änderung sind die Links, die Lesbarkeit der gerenderten Grafik und die Übereinstimmung mit den referenzierten Quellen zu prüfen. Eine neue Grafik ist selbst kein Nachweis für Host-Verhalten oder eine Gate-Freigabe.
+Vor Übernahme sind Links, SVG-Erzeugung, Lesbarkeit und Übereinstimmung mit den maßgeblichen Quellen
+zu prüfen. Eine Grafik ist selbst kein Nachweis für Host-Verhalten oder eine Gate-Freigabe.

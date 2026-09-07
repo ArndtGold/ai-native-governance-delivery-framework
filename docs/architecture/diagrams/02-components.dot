@@ -1,33 +1,47 @@
 digraph components {
-  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.65, fontname="Helvetica", label="02  /  EIN KERN, MEHRERE HOST-PFADE", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
-  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=16, margin="0.20,0.15", penwidth=1.3];
-  edge [color="#52667A", arrowsize=0.8, fontname="Helvetica", fontsize=12, fontcolor="#354D61"];
-  source [label="Gemeinsame Quellen\nVerträge · Skills · Plugin-Definition", fillcolor="#FFF2CF", color="#BF9840"];
-  build [label="Erzeugung\nHost-Payloads und lokale Runtime"];
-  host [label="Host\nSkill-Nutzung und Werkzeuge", fillcolor="#EEE9FF", color="#8270AE"];
-  entry [label="CLI / Runtime-Einstieg"];
-  subgraph cluster_core {
-    label="Gemeinsame Funktionen"; fontsize=15; color="#2D8B7B"; style=rounded; margin=18;
-    dispatch [label="Skill-Dispatcher\nEingabe und Zielbindung"];
-    target [label="Zielauflösung\nProjekt und Governance-Ziel"];
-    gate [label="Kontrollprüfung\nRun · Artefakte · Gate"];
-    render [label="Darstellung\nKontrollergebnis sichtbar machen"];
-    dispatch -> target;
-    target -> gate;
-    gate -> render;
-  }
-  lifecycle [label="Installation / Lebenszyklus\nVorbereitung · Status · Recovery"];
-  consent [label="Einwilligung\nIdentität · Zustand · Widerruf"];
-  native [label="Native Host-Mechanismen\nCodex · Claude · Copilot · OpenCode\nhost-adapters/ und spezialisierte installers/", fillcolor="#EEE9FF", color="#8270AE"];
-  state [label="Kanonischer Projektzustand\ncontrol-state/ liest .agdf/control/", fillcolor="#E5F0FC", color="#5284AD"];
-  source -> build [label="abgeleitete Inhalte"];
-  build -> host [label="liefert Skills und Einstiegspunkte"];
-  host -> entry [label="gebundener Aufruf"];
-  entry -> dispatch;
-  entry -> lifecycle;
-  entry -> consent;
-  lifecycle -> native;
-  consent -> native;
+  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.38, ranksep=0.58, fontname="Helvetica", label="02  /  EIN VERTRAG, ZWEI EINSTIEGE, VIER ADAPTER", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.18,0.12", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
+
+  skills [label="Verträge und Skills\nAnweisungsweg", fillcolor="#FFF2CF", color="#BF9840"];
+  binding [label="Geprüfte Skill-Bindung"];
+  host [label="Coding-Agent im Host", fillcolor="#EEE9FF", color="#8270AE"];
+  server [label="MCP-Server\ntools/list · tools/call"];
+  contract [label="Kanonischer Tool-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
+  dispatch [label="Skill-Dispatcher\nEingabe · Zielbindung"];
+  target [label="Zielauflösung"];
+  gate [label="Gate-Auswertung"];
+  state [label=".agdf/control/\nRun · Artefakte · Freigaben", fillcolor="#E5F0FC", color="#5284AD"];
+
+  profile [label="MCP-Profil v2\nHosts · Scopes · Zustände", fillcolor="#FFF2CF", color="#BF9840"];
+  service [label="Lifecycle-Service\nstatus · enable · disable"];
+  registry [label="Geschlossenes Adapterregister"];
+  adapters [label="Dünne Host-Adapter\nCodex · Claude · OpenCode · Copilot", fillcolor="#EEE9FF", color="#8270AE"];
+  config [label="Native Host-Quellen\nmit eigener Priorität", fillcolor="#EEE9FF", color="#8270AE"];
+  runtime [label="Gemeinsame exakte Laufzeit\nmit Referenzzählung", fillcolor="#E5F0FC", color="#5284AD"];
+  result [label="Ergebnisvertrag v2\nstabile Codes · authorizes=false"];
+
+  host -> binding [label="Skill"];
+  host -> server [label="MCP"];
+  skills -> binding;
+  binding -> contract;
+  server -> contract;
+  contract -> dispatch;
+  dispatch -> target;
+  target -> gate;
   gate -> state [label="prüft"];
-  {rank=same; dispatch; lifecycle; consent;}
+
+  profile -> service [label="validiert"];
+  service -> registry;
+  registry -> adapters;
+  adapters -> config [label="liest / ändert"];
+  service -> runtime [label="verwaltet"];
+  service -> result [label="erzeugt"];
+  server -> runtime [label="läuft aus exakter Laufzeit"];
+
+  {rank=same; skills; host; profile;}
+  {rank=same; binding; server; service;}
+  {rank=same; contract; registry; runtime;}
+  {rank=same; dispatch; adapters; result;}
+  {rank=same; target; config;}
 }

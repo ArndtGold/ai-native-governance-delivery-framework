@@ -1,0 +1,53 @@
+digraph lifecycle {
+  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.42, ranksep=0.52, fontname="Helvetica", label="06  /  DER REVERSIBLE MCP-LEBENSZYKLUS", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=13, margin="0.18,0.11", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.72, fontname="Helvetica", fontsize=10, fontcolor="#354D61"];
+
+  command [label="@agdf/cli mcp\nstatus | enable | disable"];
+  scope [label="Explizites Ziel + Scope\nProjekt ist Standard", fillcolor="#FFF2CF", color="#BF9840"];
+  action [label="Aktion?", shape=diamond, style=filled, fontsize=12, margin=0.11];
+
+  inspect [label="Profil, Host, Quellen\nund Laufzeit nur lesen"];
+  status [label="Ergebnis v2\nkeine Änderung · authorizes=false", fillcolor="#E5F0FC", color="#5284AD"];
+
+  preflight [label="Profil und Host prüfen\nKonflikte vor Mutation stoppen"];
+  prepare [label="Exakte gemeinsame Laufzeit\nvorbereiten und verifizieren", fillcolor="#E5F0FC", color="#5284AD"];
+  register [label="Ausgewählte native Quelle\ntransaktional registrieren", fillcolor="#EEE9FF", color="#8270AE"];
+  readback [label="Registrierung und Referenz\nexakt zurücklesen"];
+  restart [label="Host neu starten\nfrische Sitzung", fillcolor="#EEE9FF", color="#8270AE"];
+  discovery [label="Discovery und Tool-Aufruf\nseparat beobachten", fillcolor="#E5F0FC", color="#5284AD"];
+
+  ownership [label="Exakt AGDF-eigene\nRegistrierung?", shape=diamond, style=filled, fontsize=12, margin=0.11];
+  stop [label="Sicher stoppen\nfremden Zustand erhalten", fillcolor="#FCE8E4", color="#B5675A"];
+  remove [label="Nur ausgewählten Eintrag\nund seine Referenz entfernen", fillcolor="#EEE9FF", color="#8270AE"];
+  refs [label="Weitere Referenzen?", shape=diamond, style=filled, fontsize=12, margin=0.11];
+  keep [label="Gemeinsame Laufzeit behalten", fillcolor="#E5F0FC", color="#5284AD"];
+  retire [label="Referenzfreie Laufzeit entfernen", fillcolor="#E5F0FC", color="#5284AD"];
+  rollback [label="Fehler nach Mutation\nvorherigen Zustand wiederherstellen", fillcolor="#FCE8E4", color="#B5675A"];
+
+  command -> scope;
+  scope -> action;
+  action -> inspect [label="status"];
+  inspect -> status;
+  action -> preflight [label="enable"];
+  preflight -> prepare;
+  prepare -> register;
+  register -> readback;
+  readback -> restart;
+  restart -> discovery;
+  register -> rollback [label="Fehler", style=dashed];
+  readback -> rollback [label="Fehler", style=dashed];
+  action -> ownership [label="disable"];
+  ownership -> stop [label="nein"];
+  ownership -> remove [label="ja"];
+  remove -> refs;
+  refs -> keep [label="ja"];
+  refs -> retire [label="nein"];
+  remove -> rollback [label="Fehler", style=dashed];
+
+  {rank=same; inspect; preflight; ownership;}
+  {rank=same; status; prepare; stop;}
+  {rank=same; register; remove;}
+  {rank=same; readback; refs;}
+  {rank=same; discovery; keep; retire;}
+}

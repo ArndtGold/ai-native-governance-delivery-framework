@@ -16,9 +16,11 @@ das Arbeitsmodell, die Gates, die wichtigsten Artefakte und die offenen Fragen.
 ## Technische Architektur
 
 Die [Technische Architektur von AGDF](architecture/README.md) beschreibt die vorhandene Implementierung
-mit fünf Diagrammen: Systemkontext, Bausteine, Skill-Aufruf, Verteilung und Kompatibilitätsnachweise.
-Sie erklärt die Grenze zwischen Agentenanweisung, maschineller Prüfung und technischer Durchsetzung
-und verlinkt die jeweils maßgeblichen Verträge und Quellmodule.
+mit sechs Diagrammen. Sie führt vom Systemkontext über die Bausteine und die beiden Aufrufwege durch
+den reversiblen MCP-Lebenszyklus bis zu Verteilung und Nachweisen. Ein Einsteiger erfährt dort, wie
+Plugin, Skills, MCP-Server, gemeinsame Laufzeit, Host-Adapter und Kontrollzustand zusammenwirken. Die
+Dokumentation erklärt außerdem, warum Registrierung, Tool-Berechtigung, maschinelle Prüfung und
+menschliche Gate-Freigabe getrennte Aussagen bleiben.
 
 ## Kernaussage in fünf Sätzen
 

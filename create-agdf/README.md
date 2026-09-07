@@ -79,6 +79,7 @@ npx --yes @agdf/cli@latest opencode-status
 npx --yes @agdf/cli@latest opencode-repo
 npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
 npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp enable --surface copilot --dir /absolute/path/to/repository
 npx --yes @agdf/cli@latest status --surface codex
 npx --yes @agdf/cli@latest disable --surface codex --scope repository
 npx --yes @agdf/cli@latest disable --surface copilot --scope repository
@@ -90,7 +91,7 @@ npx --yes @agdf/cli@latest config --language en
 
 ### Optional local MCP dispatcher
 
-AGDF can register one local STDIO tool, `agdf_dispatch`, for Codex, Claude Code or OpenCode.
+AGDF can register one local STDIO tool, `agdf_dispatch`, for Codex, Claude Code, GitHub Copilot or OpenCode.
 It projects the existing canonical skill-dispatch contract and returns the same target, gate,
 presentation and continuation results. Tool permission and successful execution never grant an
 AGDF approval. The process is offline while serving and exposes no generic shell, filesystem or
@@ -111,12 +112,33 @@ After enablement, restart the host and verify tool discovery in a fresh session.
 the qualified name `agdf_agdf_dispatch`; the server-level name is `agdf_dispatch`. Its adapter reads
 the installed major version and writes the flat OpenCode 1.x or nested OpenCode 2.x MCP shape. `status` is
 read-only, and `disable` removes only the owned registration plus an unreferenced owned runtime.
-Foreign entries fail closed. Node.js 18 returns `manual_compatible` and names the existing
-version-matched CLI dispatch path without running it automatically.
+Foreign entries fail closed. Node.js 18 returns `capability: manual_compatible` and names the
+version-matched CLI dispatch path without running it automatically. One runtime is shared by all
+registrations in the selected project or user scope and is removed only after its last owned
+reference is gone.
+
+The adapters keep native configuration ownership and precedence visible:
+
+- Codex uses project `.codex/config.toml` or user `$CODEX_HOME/config.toml`.
+- Claude Code maps AGDF project scope to native `local` and user scope to native `user`.
+- OpenCode uses project `opencode.json` or user `$OPENCODE_CONFIG_DIR/opencode.json`.
+- The GitHub Copilot CLI contract manages project `.github/mcp.json` or user `~/.copilot/mcp-config.json` and treats
+  a project `.mcp.json` entry as higher priority. A higher-priority entry blocks mutation until the
+  conflict is resolved. Copilot Desktop, IDE integrations and cloud agents are separate client
+  variants and require their own direct evidence.
+
+Machine-readable lifecycle output separates capability, selected registration, effective source,
+discovery and final result. A matched configuration is not reported as discovered. Plugin install,
+MCP registration, tool permission and a successful tool call do not activate MCP automatically and
+do not grant AGDF gate approval.
 
 Host support is evidence-based and recorded independently. Configuration or protocol negotiation
-alone does not establish support. GitHub Copilot is excluded from the first MCP lifecycle and stays
-unverified. The public OpenAI Skills-only candidate contains no MCP metadata or runtime.
+alone does not establish support. Every tuple remains `unverified` until the exact host client,
+client variant, operating system, architecture, scope, configuration source, Node runtime, server,
+dispatcher, SDK and entrypoint identity have direct discovery, bounded dispatch, failure and
+cleanup evidence. Controlled 2025-11-25 and 2026-07-28 protocol tests remain a separate server lane;
+they do not fill a host tuple when the host does not expose its negotiated protocol. The public
+OpenAI Skills-only candidate contains no MCP metadata or runtime.
 
 Repeated operational validation and bounded planning use the installed, version-pinned local command:
 

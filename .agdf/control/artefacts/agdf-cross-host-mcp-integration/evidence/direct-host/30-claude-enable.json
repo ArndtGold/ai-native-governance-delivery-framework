@@ -1,0 +1,117 @@
+{
+  "schema_version": 2,
+  "contract_version": 2,
+  "operation": "mcp.enable",
+  "result": "configured_pending_restart",
+  "capability": "unverified",
+  "surface": "claude",
+  "scope": "project",
+  "effective_scope": "project",
+  "native_scope": "local",
+  "scope_effect": "project",
+  "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "authorizes": false,
+  "host": {
+    "status": "detected",
+    "version": "2.1.193",
+    "client_variant": "cli",
+    "config_variant": "native_cli"
+  },
+  "permission_effect": {
+    "code": "inherited_host_user",
+    "parameters": {}
+  },
+  "runtime": {
+    "node_executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "node_version": "22.22.3",
+    "package_status": "matched",
+    "version": "0.14.5",
+    "digest": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2",
+    "entrypoint": "/private/tmp/agdf-cross-host-mcp-direct/mcp/project/3665ef7b1c074125590fb0fd4ab3fa6b484186d3d3c4cf08bbafa4bbdcc68c4b/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "marker_schema_version": 2
+  },
+  "registration": {
+    "status": "matched",
+    "selected_status": "matched",
+    "effective_status": "matched",
+    "selected_source": "local",
+    "effective_source": "local",
+    "sources": [
+      {
+        "source": "local",
+        "path": "claude:local:agdf",
+        "priority": 10,
+        "selected": true,
+        "status": "matched"
+      },
+      {
+        "source": "shared_project",
+        "path": "claude:project:agdf",
+        "priority": 20,
+        "selected": false,
+        "status": "absent"
+      },
+      {
+        "source": "user",
+        "path": "claude:user:agdf",
+        "priority": 30,
+        "selected": false,
+        "status": "absent"
+      }
+    ],
+    "native_scope": "local",
+    "path": "claude:local:agdf",
+    "identity": null,
+    "observed": {
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "args": [
+        "/private/tmp/agdf-cross-host-mcp-direct/mcp/project/3665ef7b1c074125590fb0fd4ab3fa6b484186d3d3c4cf08bbafa4bbdcc68c4b/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+        "--surface",
+        "claude"
+      ]
+    },
+    "checked_sources": [
+      {
+        "source": "local",
+        "path": "claude:local:agdf",
+        "priority": 10,
+        "selected": true,
+        "status": "matched"
+      },
+      {
+        "source": "shared_project",
+        "path": "claude:project:agdf",
+        "priority": 20,
+        "selected": false,
+        "status": "absent"
+      },
+      {
+        "source": "user",
+        "path": "claude:user:agdf",
+        "priority": 30,
+        "selected": false,
+        "status": "absent"
+      }
+    ]
+  },
+  "discovery": {
+    "source": "configuration",
+    "evidence_ref": null,
+    "status": "pending_restart"
+  },
+  "changes": [
+    {
+      "kind": "host_registration",
+      "path": "claude:local:agdf"
+    }
+  ],
+  "fallback": {
+    "code": "use_compatible_path",
+    "parameters": {}
+  },
+  "next_action": {
+    "code": "restart_host",
+    "parameters": {}
+  },
+  "diagnostics": []
+}

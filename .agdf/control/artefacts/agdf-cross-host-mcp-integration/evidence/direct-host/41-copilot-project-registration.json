@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "agdf": {
+      "type": "local",
+      "command": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+      "args": [
+        "/private/tmp/agdf-cross-host-mcp-direct/mcp/project/3665ef7b1c074125590fb0fd4ab3fa6b484186d3d3c4cf08bbafa4bbdcc68c4b/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+        "--surface",
+        "copilot"
+      ],
+      "env": {
+        "AGDF_MCP_OWNER": "create-agdf:mcp-runtime",
+        "AGDF_MCP_VERSION": "0.14.5",
+        "AGDF_MCP_DIGEST": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2"
+      },
+      "tools": [
+        "agdf_dispatch"
+      ]
+    }
+  }
+}

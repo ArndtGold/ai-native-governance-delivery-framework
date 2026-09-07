@@ -41,7 +41,7 @@ function readOwnedRuntimeMarker(dispatcherDigest) {
     const sdkCoreManifest = JSON.parse(readFileSync(join(sdkCoreRoot, "package.json"), "utf8"));
     const serverDigest = digestDirectory(serverRoot);
     const sdkDigest = digestMcpSdkRuntime(root);
-    if (marker.schema_version !== 1
+    if (![1, 2].includes(marker.schema_version)
         || marker.owner !== MCP_RUNTIME_OWNER
         || marker.version !== pluginDefinition.version
         || serverManifest.name !== "@agdf/mcp-server"

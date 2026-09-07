@@ -1,0 +1,113 @@
+{
+  "schema_version": 2,
+  "contract_version": 2,
+  "operation": "mcp.disable",
+  "result": "disabled",
+  "capability": "unverified",
+  "surface": "copilot",
+  "scope": "project",
+  "effective_scope": null,
+  "native_scope": "project",
+  "scope_effect": "project",
+  "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "authorizes": false,
+  "host": {
+    "status": "unverified",
+    "version": null,
+    "client_variant": "unobserved_client",
+    "config_variant": "json"
+  },
+  "permission_effect": {
+    "code": "inherited_host_user",
+    "parameters": {}
+  },
+  "runtime": {
+    "node_executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "node_version": "22.22.3",
+    "package_status": "matched",
+    "version": "0.14.5",
+    "digest": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2",
+    "entrypoint": "/private/tmp/agdf-cross-host-mcp-direct/mcp/project/3665ef7b1c074125590fb0fd4ab3fa6b484186d3d3c4cf08bbafa4bbdcc68c4b/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js",
+    "marker_schema_version": 2
+  },
+  "registration": {
+    "status": "absent",
+    "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.github/mcp.json",
+    "identity": null,
+    "selected_status": "absent",
+    "effective_status": "absent",
+    "selected_source": "project",
+    "effective_source": "project",
+    "sources": [
+      {
+        "source": "project_override",
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.mcp.json",
+        "priority": 0,
+        "selected": false,
+        "status": "absent"
+      },
+      {
+        "source": "project",
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.github/mcp.json",
+        "priority": 10,
+        "selected": true,
+        "status": "absent"
+      },
+      {
+        "source": "user",
+        "path": "/Users/arndtgold/.copilot/mcp-config.json",
+        "priority": 20,
+        "selected": false,
+        "status": "absent"
+      }
+    ],
+    "native_scope": "project",
+    "native_readback": {
+      "status": "unavailable",
+      "entry_present": false
+    },
+    "checked_sources": [
+      {
+        "source": "project_override",
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.mcp.json",
+        "priority": 0,
+        "selected": false,
+        "status": "absent"
+      },
+      {
+        "source": "project",
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.github/mcp.json",
+        "priority": 10,
+        "selected": true,
+        "status": "absent"
+      },
+      {
+        "source": "user",
+        "path": "/Users/arndtgold/.copilot/mcp-config.json",
+        "priority": 20,
+        "selected": false,
+        "status": "absent"
+      }
+    ]
+  },
+  "discovery": {
+    "source": "none",
+    "evidence_ref": null,
+    "status": "not_checked"
+  },
+  "changes": [
+    {
+      "kind": "host_registration_remove",
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.github/mcp.json"
+    }
+  ],
+  "fallback": {
+    "code": "use_compatible_path",
+    "parameters": {}
+  },
+  "next_action": {
+    "code": "none",
+    "parameters": {}
+  },
+  "diagnostics": []
+}

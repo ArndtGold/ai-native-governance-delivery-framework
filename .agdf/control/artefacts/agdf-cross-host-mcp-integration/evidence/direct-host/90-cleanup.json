@@ -1,0 +1,64 @@
+{
+  "captured_at": "2026-09-06T21:11:08.587Z",
+  "project_files": [
+    {
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.codex/config.toml",
+      "status": "absent"
+    },
+    {
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/opencode.json",
+      "status": "absent"
+    },
+    {
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.mcp.json",
+      "status": "absent"
+    },
+    {
+      "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/.github/mcp.json",
+      "status": "absent"
+    }
+  ],
+  "user_files": [
+    {
+      "path": "/Users/arndtgold/.codex/config.toml",
+      "status": "present",
+      "bytes": 5982,
+      "sha256": "a17c016afd7f3942d5084253bfc276ab8a7b08048cf3102f93fa88b9fdf8880c"
+    },
+    {
+      "path": "/Users/arndtgold/.config/opencode/opencode.json",
+      "status": "present",
+      "bytes": 292,
+      "sha256": "f4d875e31036279120f68d7a879c5f3210e0b1d8e31b9434247f961df97120de"
+    },
+    {
+      "path": "/Users/arndtgold/.copilot/mcp-config.json",
+      "status": "absent"
+    }
+  ],
+  "native": {
+    "codex": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: No MCP server named 'agdf' found.",
+      "code": null
+    },
+    "opencode": {
+      "exit_code": 0,
+      "stdout": "┌  MCP Servers\n│\n▲  No MCP servers configured\n│\n└  Add servers with: opencode mcp add",
+      "stderr": ""
+    },
+    "claude": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "No MCP server named \"agdf\". Run `claude mcp add` to add one.",
+      "code": null
+    }
+  },
+  "temporary_runtime_present": [
+    "mcp",
+    "mcp/project",
+    "mcp/project/3665ef7b1c074125590fb0fd4ab3fa6b484186d3d3c4cf08bbafa4bbdcc68c4b"
+  ],
+  "matches_baseline": true
+}

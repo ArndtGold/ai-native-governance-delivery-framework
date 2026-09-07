@@ -24,7 +24,7 @@ export const commandRegistry = Object.freeze([
   command("opencode-status", { preferred: [""], scaffold: [""] }),
   command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
   command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
-  command("mcp", { preferred: [" <status|enable|disable> --surface <codex|claude|opencode> [--scope <project|user>] --dir <absolute-target> [--json]"] }),
+  command("mcp", { preferred: [" <status|enable|disable> --surface <codex|claude|copilot|opencode> [--scope <project|user>] --dir <absolute-target> [--json]"] }),
   command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>]"] }),
   command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
@@ -113,8 +113,8 @@ export function validateCommandOptions(options) {
   }
   if (options.target === "mcp") {
     if (!["status", "enable", "disable"].includes(options.mcpAction)) throw new Error("mcp requires status, enable or disable");
-    if (!["codex", "claude", "opencode"].includes(options.surface) || !options.surfaceExplicit) {
-      throw new Error("mcp requires --surface codex, claude or opencode");
+    if (!["codex", "claude", "copilot", "opencode"].includes(options.surface) || !options.surfaceExplicit) {
+      throw new Error("mcp requires --surface codex, claude, copilot or opencode");
     }
     if (!options.dirExplicit) throw new Error("mcp requires an explicit --dir target");
     if (options.scope && !["project", "user"].includes(options.scope)) throw new Error("mcp --scope must be project or user");

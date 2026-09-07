@@ -174,8 +174,9 @@ function createHandlers({
         env,
         exec,
       });
-      printMcpLifecycleResult(report, { json: options.json, io });
-      return ["failed", "manual_compatible", "degraded"].includes(report.result) ? 1 : 0;
+      printMcpLifecycleResult(report, { json: options.json, io, language: options.language });
+      return ["failed", "degraded"].includes(report.result)
+        || ["manual_compatible", "unavailable", "unsupported"].includes(report.capability) ? 1 : 0;
     }],
     ["disable", (options) => runDisable(options, { io, exec })],
     ["uninstall", (options) => runUninstall(options, { io, env, exec })],

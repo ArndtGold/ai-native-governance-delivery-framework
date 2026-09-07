@@ -44,8 +44,8 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
       blocking_reason: "none",
       missing_approval: "Approval: UR",
       allowed: ["clarify user need", "formulate and persist UR", "record evidence", "request exact UR approval"],
-      forbidden: ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"],
-      next_allowed_action: "Clarify the user requirement, persist the UR, and request exact approval: Approval: UR",
+      forbidden: ["create later-gate artefacts beyond the current allowed gate", "run Brownfield Analysis as implementation preparation", "implement code", "claim QA or release readiness"],
+      next_allowed_action: "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
     };
   }
 

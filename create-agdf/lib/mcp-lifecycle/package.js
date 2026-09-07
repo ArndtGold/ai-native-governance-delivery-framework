@@ -23,18 +23,26 @@ import { renameSyncWithRetry } from "../fs-swap.js";
 const OWNER = "create-agdf:mcp-runtime";
 const MARKER = ".agdf-mcp-owned.json";
 
-export function mcpRuntimeDataRoot({ dataRoot, scope, target, surface } = {}) {
-  if (!dataRoot || !["project", "user"].includes(scope)
-      || !["codex", "claude", "opencode"].includes(surface)) {
+export function mcpRuntimeDataRoot({ dataRoot, scope, target } = {}) {
+  if (!dataRoot || !["project", "user"].includes(scope)) {
     throw new Error("AGDF_MCP_RUNTIME_PATH_INVALID");
   }
   const base = join(resolve(dataRoot), "mcp", scope);
-  if (scope === "user") return join(base, surface);
+  if (scope === "user") return base;
   if (!target) throw new Error("AGDF_MCP_RUNTIME_PATH_INVALID");
   let canonicalTarget;
   try { canonicalTarget = realpathSync(resolve(target)); } catch { throw new Error("AGDF_MCP_RUNTIME_PATH_INVALID"); }
   const targetDigest = createHash("sha256").update(canonicalTarget).digest("hex");
-  return join(base, targetDigest, surface);
+  return join(base, targetDigest);
+}
+
+export function mcpLegacyRuntimeDataRoot({ dataRoot, scope, target, surface } = {}) {
+  if (!dataRoot || !["project", "user"].includes(scope)
+      || !["codex", "claude", "opencode", "copilot"].includes(surface)) {
+    throw new Error("AGDF_MCP_RUNTIME_PATH_INVALID");
+  }
+  const shared = mcpRuntimeDataRoot({ dataRoot, scope, target });
+  return join(shared, surface);
 }
 
 function readJson(path, code) {
@@ -83,7 +91,7 @@ export function inspectMcpServerPackage({ dataRoot, expectedVersion } = {}) {
     const serverDigest = digestDirectory(packageRoot);
     const dispatcherDigest = digestMcpDispatcherPackage(dispatcherRoot);
     const sdkDigest = digestMcpSdkRuntime(root);
-    const valid = marker.schema_version === 1
+    const valid = [1, 2].includes(marker.schema_version)
       && typeof marker.node_executable === "string"
       && isAbsolute(marker.node_executable)
       && manifest.name === "@agdf/mcp-server"
@@ -118,6 +126,7 @@ export function inspectMcpServerPackage({ dataRoot, expectedVersion } = {}) {
       sdkDigest,
       nodeExecutable: typeof marker.node_executable === "string" ? marker.node_executable : null,
       references: Object.freeze(Array.isArray(marker.references) ? marker.references : []),
+      markerSchemaVersion: marker.schema_version,
     });
   } catch {
     return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
@@ -131,8 +140,13 @@ export function prepareMcpServerPackage({
   nodeVersion = process.versions.node,
   exec = execFileSync,
   npmOptions = {},
+  packageSpec = `@agdf/mcp-server@${expectedVersion}`,
+  dispatcherPackageSpec = null,
 } = {}) {
-  if (!dataRoot || !expectedVersion) throw new Error("AGDF_MCP_PACKAGE_INPUT_INVALID");
+  if (!dataRoot || !expectedVersion || typeof packageSpec !== "string" || !packageSpec.trim()
+      || (dispatcherPackageSpec !== null && (typeof dispatcherPackageSpec !== "string" || !dispatcherPackageSpec.trim()))) {
+    throw new Error("AGDF_MCP_PACKAGE_INPUT_INVALID");
+  }
   if (nodeMajor(nodeVersion) < 20) throw new Error("AGDF_MCP_NODE_UNSUPPORTED");
   const existing = inspectMcpServerPackage({ dataRoot, expectedVersion });
   if (existing.status === "matched") {
@@ -149,9 +163,11 @@ export function prepareMcpServerPackage({
     writeFileSync(join(stage, "package.json"), `${JSON.stringify({ private: true }, null, 2)}\n`, "utf8");
     const invocation = npmInvocation([
       "install", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev", "--save-exact",
-      `@agdf/mcp-server@${expectedVersion}`,
+      packageSpec,
+      ...(dispatcherPackageSpec ? [dispatcherPackageSpec] : []),
     ], { execPath, ...npmOptions });
-    exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" });
+    try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
+    catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
     const packageRoot = join(stage, "node_modules", "@agdf", "mcp-server");
     const dispatcherRoot = join(stage, "node_modules", "create-agdf");
     const sdkServerRoot = join(stage, "node_modules", "@modelcontextprotocol", "server");
@@ -185,7 +201,7 @@ export function prepareMcpServerPackage({
     const dispatcherDigest = digestMcpDispatcherPackage(dispatcherRoot);
     const sdkDigest = digestMcpSdkRuntime(stage);
     writeFileSync(join(stage, MARKER), `${JSON.stringify({
-      schema_version: 1,
+      schema_version: 2,
       owner: OWNER,
       version: expectedVersion,
       server_digest: serverDigest,
@@ -264,7 +280,7 @@ export function createMcpRuntimeRetirementTransaction(runtime) {
     },
     commit() {
       if (!applied) return;
-      try { rmSync(retiredRoot, { recursive: true, force: true }); } catch {}
+      rmSync(retiredRoot, { recursive: true, force: true });
       applied = false;
     },
     rollback() {

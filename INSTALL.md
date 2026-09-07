@@ -28,7 +28,7 @@ The OpenCode global layer only makes AGDF discoverable. It does **not** activate
 
 ### Optional local MCP dispatcher
 
-The optional MCP path registers one local STDIO server for Codex, Claude Code or OpenCode. It exposes
+The optional MCP path registers one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode. It exposes
 exactly `agdf_dispatch`, backed by the same canonical semantic definition and dispatcher as the CLI.
 The tool is read-only, offline while serving and non-authorizing. Host permission, registration and
 successful execution never count as `Approval: <GateName>`. The process inherits the launching
@@ -42,9 +42,10 @@ Use an absolute repository path and inspect the project scope before enabling it
 npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
 npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
 npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp enable --surface copilot --dir /absolute/path/to/repository
 ```
 
-Replace `codex` with `claude` or `opencode` for another delivered adapter. Project scope is the
+Replace `codex` with `claude`, `copilot` or `opencode` for another delivered adapter. Project scope is the
 default. Choose `--scope user` explicitly when the broader registration is intended. `status` never
 downloads a package or edits configuration. `enable` acquires the exact matching
 `@agdf/mcp-server@<AGDF version>`, verifies the server, dispatcher and SDK runtime digests, then registers the
@@ -53,17 +54,24 @@ removes its owned runtime only when no managed reference remains. Foreign or mal
 closed and preserve existing settings.
 
 The project configuration owners are `.codex/config.toml` for Codex, native `claude mcp` local scope
-for Claude Code and the version-matched MCP section in `opencode.json` for OpenCode. OpenCode 1.x
+for Claude Code, `.github/mcp.json` for the GitHub Copilot CLI contract and the version-matched MCP section in
+`opencode.json` for OpenCode. A Copilot `.mcp.json` entry has higher priority and blocks mutation of
+the managed project source until the conflict is resolved. OpenCode 1.x
 uses `mcp.agdf`; OpenCode 2.x uses `mcp.servers.agdf` and `disabled: false`. The lifecycle reads the
 installed OpenCode version before choosing either form and leaves other servers and permissions
 unchanged. The OpenCode host-visible qualified tool name is `agdf_agdf_dispatch`; the server-level name remains `agdf_dispatch`. A Node.js 18
-attempt returns `manual_compatible` with the version-matched CLI dispatch path and performs no MCP
+attempt returns `capability: manual_compatible` with the version-matched CLI dispatch path and performs no MCP
 package acquisition or host mutation. No failure silently invokes that fallback.
 
 Restart the selected host after enablement and verify discovery in a fresh session. Support is
-qualified independently per exact host, OS, Node, AGDF, SDK and negotiated protocol tuple. Config
-read-back or protocol tests alone do not establish support. GitHub Copilot is excluded from the
-first lifecycle and remains unverified. The public OpenAI Skills-only candidate remains MCP-free.
+qualified independently per exact host client, client variant, OS, architecture, scope,
+configuration source, Node executable, AGDF server, dispatcher, SDK and entrypoint identity. Config
+read-back or controlled protocol tests alone do not establish host support. The server's
+2025-11-25 and 2026-07-28 protocol lanes are verified separately and are never copied into a host
+qualification record when the host does not expose its negotiated lane. Copilot CLI, Copilot
+Desktop, IDE integrations and cloud agents remain separate client variants. Each tuple stays
+unverified until direct discovery, bounded dispatch, failure and cleanup evidence is complete. The
+public OpenAI Skills-only candidate remains MCP-free. Plugin installation never enables MCP.
 
 ### Automatic runtime checks and installation consent
 

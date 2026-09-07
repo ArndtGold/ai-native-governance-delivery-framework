@@ -32,7 +32,7 @@ npx --yes @agdf/cli@latest opencode
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
 
-Optional kann AGDF für Codex, Claude Code und OpenCode einen lokalen MCP-Server registrieren. Er
+Optional kann AGDF für Codex, Claude Code, GitHub Copilot und OpenCode einen lokalen MCP-Server registrieren. Er
 stellt genau das Werkzeug `agdf_dispatch` bereit und verwendet dieselbe kanonische
 Funktionsbeschreibung und Gate-Auswertung wie die CLI. Der Server läuft lokal über STDIO, arbeitet
 offline und ist nicht freigebend. Eine Werkzeugberechtigung oder ein erfolgreicher Aufruf ist keine
@@ -49,7 +49,12 @@ Der Repository-Bereich ist der Standard. `--scope user` muss bewusst gewählt we
 Node.js 20 oder neuer, während die bestehende CLI weiterhin Node.js 18 unterstützt. Nach der
 Aktivierung muss der Host neu gestartet und die Erkennung in einer frischen Sitzung geprüft werden.
 Host-Unterstützung bleibt bis zu direkter Registrierung, Erkennung, Aufruf, kontrolliertem Fehler
-und Entfernung je Host `unverified`. GitHub Copilot gehört nicht zur ersten MCP-Auslieferung.
+und Entfernung je Host und Betriebssystem-Tupel `unverified`. Die vier Adapter teilen eine
+versionsgleiche Laufzeit pro Bereich. Plugin-Installation aktiviert MCP nicht automatisch.
+Der GitHub-Copilot-Adapter folgt den Projekt- und Benutzerdateien des Copilot-CLI-Vertrags. Copilot
+Desktop, IDE-Integrationen und Cloud Agents sind getrennte Clientvarianten und benötigen jeweils
+eigene direkte Evidenz. Kontrollierte Protokolltests belegen die MCP-Kompatibilität des Servers,
+qualifizieren aber keinen Host.
 Für GitHub Copilot ist die persönliche Deaktivierung pro Repository der sichere Standard:
 
 ```bash

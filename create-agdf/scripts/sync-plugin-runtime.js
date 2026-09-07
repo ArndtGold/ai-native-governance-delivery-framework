@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { chmodSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -93,30 +93,48 @@ function digestDirectory(root) {
   return hash.digest("hex");
 }
 
-function copyRuntimeText(source, destination) {
+function copyRuntimeText(source, destination, expectedFiles, expectedRoot) {
   const stats = statSync(source);
   if (stats.isDirectory()) {
     mkdirSync(destination, { recursive: true });
     for (const entry of readdirSync(source)) {
-      copyRuntimeText(join(source, entry), join(destination, entry));
+      copyRuntimeText(join(source, entry), join(destination, entry), expectedFiles, expectedRoot);
     }
     return;
   }
   mkdirSync(dirname(destination), { recursive: true });
   writeFileSync(destination, readFileSync(source, "utf8").replaceAll("\r\n", "\n"), "utf8");
   chmodSync(destination, stats.mode);
+  expectedFiles.add(relative(expectedRoot, destination).replaceAll("\\", "/"));
+}
+
+function pruneRuntimeOutput(root, expectedFiles) {
+  function visit(directory) {
+    for (const name of readdirSync(directory)) {
+      const path = join(directory, name);
+      const stats = lstatSync(path);
+      if (stats.isDirectory()) {
+        visit(path);
+        if (readdirSync(path).length === 0) rmSync(path, { recursive: true, force: true });
+        continue;
+      }
+      const relativePath = relative(root, path).replaceAll("\\", "/");
+      if (stats.isSymbolicLink() || !expectedFiles.has(relativePath)) rmSync(path, { force: true });
+    }
+  }
+  visit(root);
 }
 
 export function syncPluginRuntime({ outputRoot } = {}) {
   outputRoot = safeOutputRoot(outputRoot);
   const bundledPackageRoot = join(outputRoot, "create-agdf");
+  const expectedPackageFiles = new Set();
   const packageManifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8"));
   const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
   const activationKernel = requestActivationKernel();
   if (packageManifest.version !== pluginDefinition.version) {
     throw new Error(`Refusing runtime sync with version skew: create-agdf ${packageManifest.version}, plugin ${pluginDefinition.version}`);
   }
-  rmSync(outputRoot, { recursive: true, force: true });
   mkdirSync(bundledPackageRoot, { recursive: true });
   const runtimeEntries = [
     "bin/agdf-validator.js",
@@ -149,7 +167,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
   for (const entry of runtimeEntries) {
     const source = join(packageRoot, entry);
     const destination = join(bundledPackageRoot, entry);
-    copyRuntimeText(source, destination);
+    copyRuntimeText(source, destination, expectedPackageFiles, bundledPackageRoot);
   }
   const runtimePackageManifest = {
     name: "@agdf/local-validator-runtime",
@@ -158,6 +176,8 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     type: "module",
   };
   writeFileSync(join(bundledPackageRoot, "package.json"), `${JSON.stringify(runtimePackageManifest, null, 2)}\n`, "utf8");
+  expectedPackageFiles.add("package.json");
+  pruneRuntimeOutput(bundledPackageRoot, expectedPackageFiles);
   const manifest = {
     schema_version: "1",
     generated: true,
@@ -321,6 +341,13 @@ if (process.argv.length !== 2) {
   process.exitCode = 0;
 }
 `, "utf8");
+  const expectedOutputFiles = new Set([
+    ...[...expectedPackageFiles].map((path) => `create-agdf/${path}`),
+    "runtime-manifest.json",
+    "agdf-local.js",
+    "agdf-session-check.js",
+  ]);
+  pruneRuntimeOutput(outputRoot, expectedOutputFiles);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) syncPluginRuntime();

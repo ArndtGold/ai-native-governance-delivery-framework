@@ -1,7 +1,12 @@
 {
   "schemaVersion": 1,
   "fallbackLocale": "en",
-  "optionOrder": ["approve", "revise", "decline", "cancel"],
+  "optionOrder": [
+    "approve",
+    "revise",
+    "decline",
+    "cancel"
+  ],
   "lengthBudgets": {
     "label": 40,
     "description": 160,
@@ -34,10 +39,10 @@
         "forbidden": "Forbidden now",
         "artefacts": "Artefacts",
         "breadcrumb": "Path",
-        "breadcrumbFulfilled": "\u2713",
-        "breadcrumbCurrent": "\u25cf",
-        "breadcrumbOpen": "\u25cb",
-        "breadcrumbSeparator": " \u00b7 "
+        "breadcrumbFulfilled": "✓",
+        "breadcrumbCurrent": "●",
+        "breadcrumbOpen": "○",
+        "breadcrumbSeparator": " · "
       },
       "controlSetup": {
         "title": "AGDF control setup",
@@ -124,6 +129,15 @@
         "repairRuntimePackagingBaseline": "Repair the separately owned runtime-packaging baseline, rerun complete smoke and refresh QA.",
         "fillUrControlState": "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.",
         "afterUrApproval": "Run Brownfield Review and proportional routing as one internal operation; no user action is required now.",
+        "runBrownfieldReviewAfterG00": "run Brownfield Review after G-00",
+        "identifyBrownfieldOwnersQuestions": "identify existing workstream, owners, SoT, reuse risks and open PRD/SD questions",
+        "markBrownfieldReviewDoneOrNotApplicable": "mark Brownfield Review as done or not_applicable in the selected RUN_STATE.md",
+        "forbidPrdBeforeBrownfieldResolved": "create PRD before Brownfield Review is resolved",
+        "nextBrownfieldReviewBeforePrd": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
+        "nextStructuredPrdBeforeSdTp": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "nextStructuredSlicePrdBeforeApproval": "Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved.",
+        "nextSdBeforeTp": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
+        "nextTpBeforeImplementation": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
         "regenerateLegacyProjection": "Regenerate the explicit legacy projection or remove it after legacy consumers are retired.",
         "requestQaApproval": "Request exact approval: Approval: QA.",
         "afterQaApproval": "Request UAT when QA has passed; release remains gated.",
@@ -360,12 +374,25 @@
           "gateSatisfied": "{gate} approved",
           "noAction": "No user action required now",
           "gates": {
-            "UR": { "agentNext": "Agent runs Brownfield Review next" },
-            "PRD": { "agentNext": "Agent drafts the Solution Design next" },
-            "SD": { "agentNext": "Agent drafts the Task and Test Plan next" },
-            "TP": { "agentNext": "Agent runs pre-implementation Brownfield Analysis next" },
-            "QA": { "agentNext": "Agent prepares the user-acceptance decision", "userAction": "user acceptance decision next" },
-            "UAT": { "agentNext": "Agent prepares the delivery report" }
+            "UR": {
+              "agentNext": "Agent runs Brownfield Review next"
+            },
+            "PRD": {
+              "agentNext": "Agent drafts the Solution Design next"
+            },
+            "SD": {
+              "agentNext": "Agent drafts the Task and Test Plan next"
+            },
+            "TP": {
+              "agentNext": "Agent runs pre-implementation Brownfield Analysis next"
+            },
+            "QA": {
+              "agentNext": "Agent prepares the user-acceptance decision",
+              "userAction": "user acceptance decision next"
+            },
+            "UAT": {
+              "agentNext": "Agent prepares the delivery report"
+            }
           }
         }
       },
@@ -382,6 +409,99 @@
         "CD+Tests": "Implementation and tests produce evidence — not just code.",
         "CR": "Code review is mandatory before QA decides.",
         "OR": "The delivery report makes the run auditable — not just claimed."
+      },
+      "mcpLifecycle": {
+        "title": "AGDF MCP lifecycle",
+        "labels": {
+          "operation": "Operation",
+          "result": "Result",
+          "capability": "Capability",
+          "surface": "Surface",
+          "scope": "Scope",
+          "scopeEffect": "Scope effect",
+          "target": "Target",
+          "authorizes": "Authorizes",
+          "runtime": "Runtime",
+          "registration": "Registration",
+        "discovery": "Discovery",
+        "permissionEffect": "Process access",
+        "diagnostics": "Diagnostics",
+        "nextAction": "Next action",
+          "fallback": "Compatible path"
+        },
+        "capabilities": {
+          "supported": "supported",
+          "manual_compatible": "compatible path available",
+          "unavailable": "host unavailable",
+          "unsupported": "host version unsupported",
+          "unverified": "not directly qualified"
+        },
+        "registrations": {
+          "absent": "absent",
+          "matched": "matched",
+          "foreign": "foreign entry",
+          "owned_mismatch": "owned entry differs",
+          "precedence_conflict": "higher-priority conflict",
+          "invalid": "invalid configuration"
+        },
+        "discoveries": {
+          "not_checked": "not checked",
+          "pending_restart": "restart pending",
+          "discovered": "discovered",
+          "not_discovered": "not discovered",
+          "unavailable": "unavailable"
+        },
+        "results": {
+          "not_configured": "not configured",
+          "configured_pending_restart": "configured; restart pending",
+          "configured_unverified": "configured; discovery unverified",
+          "discovered_ready": "discovered and ready",
+          "unchanged": "unchanged",
+          "disabled": "disabled",
+          "degraded": "degraded",
+          "failed": "failed"
+        },
+        "scopeEffects": {
+          "project": "selected project only",
+          "user": "current user across projects"
+        },
+      "permissionEffects": {
+        "inherited_host_user": "The MCP process inherits the host user permissions."
+      },
+      "diagnostics": {
+        "none": "none",
+        "registration_inspection_failed": "The selected registration could not be inspected.",
+        "rollback_incomplete": "Rollback did not restore every applied lifecycle phase.",
+        "agdf_mcp_registration_foreign": "The selected registration is not owned by AGDF.",
+        "agdf_mcp_registration_precedence_conflict": "A higher-priority registration conflicts with the selected source.",
+        "agdf_mcp_registration_verification_failed": "Registration read-back did not match the intended state.",
+        "agdf_mcp_disable_verification_failed": "Registration removal could not be verified.",
+        "agdf_mcp_package_acquisition_failed": "The exact MCP server package could not be acquired.",
+        "agdf_mcp_runtime_unowned": "The runtime location contains content that AGDF cannot verify as owned.",
+        "agdf_mcp_server_manifest_invalid": "The MCP server package manifest is invalid.",
+        "agdf_mcp_dispatcher_manifest_invalid": "The dispatcher package manifest is invalid.",
+        "agdf_mcp_sdk_manifest_invalid": "The MCP SDK package manifest is invalid.",
+        "agdf_mcp_server_version_mismatch": "The acquired MCP runtime does not match the required versions.",
+        "agdf_mcp_server_entrypoint_invalid": "The MCP server entrypoint is missing or invalid.",
+        "agdf_mcp_server_verification_failed": "The installed MCP runtime failed exact verification.",
+        "agdf_mcp_claude_update_rollback_failed": "Claude Code could not restore the previous registration during update.",
+        "enable_failed": "MCP enablement failed.",
+        "disable_failed": "MCP disablement failed."
+      },
+        "actions": {
+          "use_node_20": "Use Node.js 20 or later and retry.",
+          "install_host": "Install a supported host and retry.",
+          "resolve_registration": "Resolve the selected registration and retry.",
+          "enable_scope": "Run MCP enable explicitly for this scope.",
+          "restart_host": "Restart the host and verify discovery in a fresh session.",
+          "version_matched_cli_dispatch": "Use the version-matched AGDF CLI skill-dispatch path.",
+          "resolve_failure": "Resolve the reported lifecycle failure and retry.",
+        "resolve_precedence": "Resolve the higher-priority registration and retry.",
+        "disable_effective_scope": "Disable the remaining effective MCP registration explicitly in its scope.",
+        "inspect_effective_scope": "Inspect the remaining effective user registration with --scope user.",
+        "retry": "Retry the same explicit lifecycle action.",
+          "none": "No further lifecycle action is required."
+        }
       }
     },
     "de": {
@@ -410,10 +530,10 @@
         "forbidden": "Aktuell verboten",
         "artefacts": "Artefakte",
         "breadcrumb": "Pfad",
-        "breadcrumbFulfilled": "\u2713",
-        "breadcrumbCurrent": "\u25cf",
-        "breadcrumbOpen": "\u25cb",
-        "breadcrumbSeparator": " \u00b7 "
+        "breadcrumbFulfilled": "✓",
+        "breadcrumbCurrent": "●",
+        "breadcrumbOpen": "○",
+        "breadcrumbSeparator": " · "
       },
       "controlSetup": {
         "title": "AGDF-Kontrollstatus einrichten",
@@ -500,6 +620,15 @@
         "repairRuntimePackagingBaseline": "Die separat verwaltete Runtime-Packaging-Baseline reparieren, den vollständigen Smoke-Test erneut ausführen und QA aktualisieren.",
         "fillUrControlState": "Den aktuellen UR-Kontrollstatus vervollständigen, den UR-Entwurf dauerhaft festhalten und die exakte Freigabe Approval: UR anfordern.",
         "afterUrApproval": "Brownfield Review und die angemessene Routenwahl als einen internen Vorgang durchführen; jetzt ist keine Nutzeraktion erforderlich.",
+        "runBrownfieldReviewAfterG00": "Brownfield Review nach G-00 durchführen",
+        "identifyBrownfieldOwnersQuestions": "bestehenden Arbeitsstrang, Owner, SoT, Wiederverwendungsrisiken und offene PRD-/SD-Fragen ermitteln",
+        "markBrownfieldReviewDoneOrNotApplicable": "Brownfield Review im ausgewählten RUN_STATE.md als erledigt oder nicht zutreffend markieren",
+        "forbidPrdBeforeBrownfieldResolved": "PRD erstellen, bevor Brownfield Review geklärt ist",
+        "nextBrownfieldReviewBeforePrd": "Brownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.",
+        "nextStructuredPrdBeforeSdTp": "PRD entwerfen oder überarbeiten. Erst implementieren, nachdem PRD, SD und TP freigegeben sind.",
+        "nextStructuredSlicePrdBeforeApproval": "Den kleinsten durch Brownfield Review begründeten PRD-Umfang entwerfen oder überarbeiten. Erst nach Freigabe der erforderlichen Artefakte implementieren.",
+        "nextSdBeforeTp": "Das Lösungsdesign entwerfen oder überarbeiten. Erst implementieren, nachdem SD und TP freigegeben sind.",
+        "nextTpBeforeImplementation": "Den Aufgaben- und Testplan entwerfen oder überarbeiten. Erst nach TP-Freigabe implementieren.",
         "regenerateLegacyProjection": "Die explizite Legacy-Projektion neu erzeugen oder entfernen, nachdem die Legacy-Consumer außer Betrieb genommen wurden.",
         "requestQaApproval": "Die exakte Freigabe Approval: QA anfordern.",
         "afterQaApproval": "UAT anfordern, nachdem QA bestanden wurde; die Veröffentlichung bleibt gesperrt.",
@@ -736,12 +865,25 @@
           "gateSatisfied": "{gate} genehmigt",
           "noAction": "Keine Nutzeraktion erforderlich",
           "gates": {
-            "UR": { "agentNext": "Agent führt Brownfield Review als Nächstes durch" },
-            "PRD": { "agentNext": "Agent entwirft als Nächstes das Lösungsdesign" },
-            "SD": { "agentNext": "Agent entwirft als Nächstes den Aufgaben- und Testplan" },
-            "TP": { "agentNext": "Agent führt Brownfield-Analyse vor Implementierung durch" },
-            "QA": { "agentNext": "Agent bereitet die Nutzerabnahme vor", "userAction": "Nutzerabnahme als Nächstes" },
-            "UAT": { "agentNext": "Agent bereitet den Lieferbericht vor" }
+            "UR": {
+              "agentNext": "Agent führt Brownfield Review als Nächstes durch"
+            },
+            "PRD": {
+              "agentNext": "Agent entwirft als Nächstes das Lösungsdesign"
+            },
+            "SD": {
+              "agentNext": "Agent entwirft als Nächstes den Aufgaben- und Testplan"
+            },
+            "TP": {
+              "agentNext": "Agent führt Brownfield-Analyse vor Implementierung durch"
+            },
+            "QA": {
+              "agentNext": "Agent bereitet die Nutzerabnahme vor",
+              "userAction": "Nutzerabnahme als Nächstes"
+            },
+            "UAT": {
+              "agentNext": "Agent bereitet den Lieferbericht vor"
+            }
           }
         }
       },
@@ -758,6 +900,99 @@
         "CD+Tests": "Implementierung und Tests liefern Nachweise — nicht nur Code.",
         "CR": "Code-Review ist verpflichtend, bevor QA entscheidet.",
         "OR": "Der Lieferbericht macht den Lauf auditierbar — nicht nur behauptet."
+      },
+      "mcpLifecycle": {
+        "title": "AGDF MCP-Lebenszyklus",
+        "labels": {
+          "operation": "Vorgang",
+          "result": "Ergebnis",
+          "capability": "Fähigkeit",
+          "surface": "Host",
+          "scope": "Bereich",
+          "scopeEffect": "Bereichswirkung",
+          "target": "Ziel",
+          "authorizes": "Autorisiert",
+          "runtime": "Laufzeit",
+          "registration": "Registrierung",
+        "discovery": "Erkennung",
+        "permissionEffect": "Prozesszugriff",
+        "diagnostics": "Diagnosen",
+        "nextAction": "Nächste Aktion",
+          "fallback": "Kompatibler Pfad"
+        },
+        "capabilities": {
+          "supported": "unterstützt",
+          "manual_compatible": "kompatibler Pfad verfügbar",
+          "unavailable": "Host nicht verfügbar",
+          "unsupported": "Hostversion nicht unterstützt",
+          "unverified": "nicht direkt qualifiziert"
+        },
+        "registrations": {
+          "absent": "nicht vorhanden",
+          "matched": "stimmt überein",
+          "foreign": "fremder Eintrag",
+          "owned_mismatch": "eigener Eintrag weicht ab",
+          "precedence_conflict": "Konflikt mit höherer Priorität",
+          "invalid": "ungültige Konfiguration"
+        },
+        "discoveries": {
+          "not_checked": "nicht geprüft",
+          "pending_restart": "Neustart ausstehend",
+          "discovered": "erkannt",
+          "not_discovered": "nicht erkannt",
+          "unavailable": "nicht verfügbar"
+        },
+        "results": {
+          "not_configured": "nicht konfiguriert",
+          "configured_pending_restart": "konfiguriert; Neustart ausstehend",
+          "configured_unverified": "konfiguriert; Erkennung ungeprüft",
+          "discovered_ready": "erkannt und bereit",
+          "unchanged": "unverändert",
+          "disabled": "deaktiviert",
+          "degraded": "beeinträchtigt",
+          "failed": "fehlgeschlagen"
+        },
+        "scopeEffects": {
+          "project": "nur das ausgewählte Projekt",
+          "user": "Benutzer über Projekte hinweg"
+        },
+      "permissionEffects": {
+        "inherited_host_user": "Der MCP-Prozess erbt die Rechte des Host-Benutzers."
+      },
+      "diagnostics": {
+        "none": "keine",
+        "registration_inspection_failed": "Die ausgewählte Registrierung konnte nicht geprüft werden.",
+        "rollback_incomplete": "Das Rollback hat nicht alle angewendeten Lebenszyklusphasen wiederhergestellt.",
+        "agdf_mcp_registration_foreign": "Die ausgewählte Registrierung gehört nicht AGDF.",
+        "agdf_mcp_registration_precedence_conflict": "Eine Registrierung mit höherer Priorität widerspricht der ausgewählten Quelle.",
+        "agdf_mcp_registration_verification_failed": "Das Auslesen der Registrierung entspricht nicht dem beabsichtigten Zustand.",
+        "agdf_mcp_disable_verification_failed": "Das Entfernen der Registrierung konnte nicht bestätigt werden.",
+        "agdf_mcp_package_acquisition_failed": "Das genaue MCP-Server-Paket konnte nicht bezogen werden.",
+        "agdf_mcp_runtime_unowned": "Der Laufzeitpfad enthält Inhalte, die AGDF nicht als eigenen Bestand bestätigen kann.",
+        "agdf_mcp_server_manifest_invalid": "Das Paketmanifest des MCP-Servers ist ungültig.",
+        "agdf_mcp_dispatcher_manifest_invalid": "Das Paketmanifest des Dispatchers ist ungültig.",
+        "agdf_mcp_sdk_manifest_invalid": "Das Paketmanifest des MCP-SDK ist ungültig.",
+        "agdf_mcp_server_version_mismatch": "Die bezogene MCP-Laufzeit entspricht nicht den erforderlichen Versionen.",
+        "agdf_mcp_server_entrypoint_invalid": "Der Einstiegspunkt des MCP-Servers fehlt oder ist ungültig.",
+        "agdf_mcp_server_verification_failed": "Die installierte MCP-Laufzeit hat die genaue Prüfung nicht bestanden.",
+        "agdf_mcp_claude_update_rollback_failed": "Claude Code konnte beim Aktualisieren die vorherige Registrierung nicht wiederherstellen.",
+        "enable_failed": "Die MCP-Aktivierung ist fehlgeschlagen.",
+        "disable_failed": "Die MCP-Deaktivierung ist fehlgeschlagen."
+      },
+        "actions": {
+          "use_node_20": "Node.js 20 oder neuer verwenden und erneut versuchen.",
+          "install_host": "Einen unterstützten Host installieren und erneut versuchen.",
+          "resolve_registration": "Die ausgewählte Registrierung klären und erneut versuchen.",
+          "enable_scope": "MCP für diesen Bereich ausdrücklich aktivieren.",
+          "restart_host": "Den Host neu starten und die Erkennung in einer neuen Sitzung prüfen.",
+          "version_matched_cli_dispatch": "Den versionsgleichen AGDF-CLI-Skill-Dispatch-Pfad verwenden.",
+          "resolve_failure": "Den gemeldeten Lebenszyklusfehler beheben und erneut versuchen.",
+        "resolve_precedence": "Die Registrierung mit höherer Priorität klären und erneut versuchen.",
+        "disable_effective_scope": "Die verbleibende wirksame MCP-Registrierung ausdrücklich in ihrem Bereich deaktivieren.",
+        "inspect_effective_scope": "Die verbleibende wirksame Benutzerregistrierung mit --scope user prüfen.",
+        "retry": "Dieselbe ausdrückliche Lebenszyklusaktion erneut versuchen.",
+          "none": "Keine weitere Lebenszyklusaktion erforderlich."
+        }
       }
     }
   }

@@ -175,7 +175,8 @@ assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface:
 assert.doesNotThrow(() => validateCommandOptions({ target: "runtime-checks", surface: "claude" }));
 assert.throws(() => validateCommandOptions({ target: "runtime-checks", surface: "generic" }), /requires --surface/);
 assert.throws(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "codex", surfaceExplicit: true }), /explicit --dir/);
-assert.throws(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "copilot", surfaceExplicit: true, dirExplicit: true }), /codex, claude or opencode/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "copilot", surfaceExplicit: true, dirExplicit: true }));
+assert.match(usage, /mcp <status\|enable\|disable> --surface <codex\|claude\|copilot\|opencode>/);
 assert.throws(() => validateCommandOptions({ target: "codex", scope: "project" }), /only by mcp/);
 for (const command of ["codex-repo", "opencode-repo"]) {
   assert.throws(() => validateCommandOptions({ target: command, dirExplicit: false }), /requires an explicit --dir/);

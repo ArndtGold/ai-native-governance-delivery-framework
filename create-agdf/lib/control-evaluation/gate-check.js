@@ -261,7 +261,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
       "obtain explicit authority to initialize or link durable control",
       "initialize and persist durable control before requesting a gate approval",
     ];
-    forbidden = ["create PRD", "create SD", "create TP", "run Brownfield Analysis", "implement code", "claim QA or release readiness"];
+    forbidden = ["create PRD", "create SD", "create TP", "run Brownfield Analysis as implementation preparation", "implement code", "claim QA or release readiness"];
     nextAllowedAction = "Draft the minimal UR, obtain explicit setup or link authority, then initialize and persist durable control before requesting any gate approval.";
   } else if (doctorBlocker?.code === "AGDF_ACTIVE_RUN_MISSING") {
     status = "blocked";

@@ -127,6 +127,27 @@ function mapGeneratedDirectory(root, metadata) {
   }
 }
 
+function removeUnexpectedCopilotPayloadFiles() {
+  const expectedFiles = new Set(copilotMappings.map(({ destination }) => destination));
+  function visit(directory) {
+    for (const entry of readdirSync(directory)) {
+      const path = join(directory, entry);
+      const stats = lstatSync(path);
+      if (stats.isDirectory()) {
+        visit(path);
+        if (readdirSync(path).length === 0) removeGeneratedPath(path, "empty generated Copilot directory");
+        continue;
+      }
+      const destination = copilotDestination(path);
+      if (stats.isSymbolicLink() || (destination !== ".agdf-payload-inventory.json" && !expectedFiles.has(destination))) {
+        removeGeneratedPath(path, "unexpected generated Copilot payload entry");
+      }
+    }
+  }
+  prepareGeneratedDirectory(generatedCopilotPluginRoot, "generated Copilot profile");
+  visit(generatedCopilotPluginRoot);
+}
+
 function syncDirectory(sourceRoot, targetRoot) {
   prepareGeneratedDirectory(targetRoot, "exact generated directory");
   const sourceEntries = new Set(readdirSync(sourceRoot));
@@ -555,8 +576,6 @@ export function syncPackageAssets({
     join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"),
     join(generatedRoot, ".github", "skills"),
   ]) removeGeneratedPath(obsoletePath, "obsolete generated projection");
-  removeGeneratedPath(generatedCopilotPluginRoot, "generated Copilot profile");
-
   syncOpenCodeRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
@@ -581,6 +600,7 @@ export function syncPackageAssets({
     rule: "generated_exact_runtime",
     requirement: "offline exact-version validator and session check",
   });
+  removeUnexpectedCopilotPayloadFiles();
   const copilotBaseline = JSON.parse(read(copilotBaselinePath));
   buildCopilotPayloadInventory({
     profileRoot: generatedCopilotPluginRoot,

@@ -33,6 +33,7 @@ import {
 } from "../lib/interaction-presentation.js";
 import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
+import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { runSelectionRecovery } from "../lib/control-evaluation/shared.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
@@ -208,6 +209,65 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   assert.equal(renderOperationalStatusCard(unregisteredGermanCard, { registry, humanPresentation: {} }), null, "non-fallback locales fail closed instead of mixing unregistered text");
   assert.ok(validateOperationalStatusCardPreconditions(unregisteredGermanCard, { registry, humanPresentation: {} }).errors.includes("allowed_now_unlocalized"));
 
+  const urTransition = transitionDecisionForRunState({
+    approvals: new Map(),
+    artefacts: new Map(),
+  });
+  assert.equal(
+    urTransition.next_allowed_action,
+    sourceRegistry.locales.en.operationalValues.fillUrControlState,
+    "UR gate policy uses the canonical localized next action",
+  );
+  assert.ok(
+    urTransition.forbidden.includes(sourceRegistry.locales.en.operationalValues.forbidLaterGateArtefacts),
+    "UR gate policy uses the canonical localized later-gate prohibition",
+  );
+  assert.ok(
+    urTransition.forbidden.includes(sourceRegistry.locales.en.operationalValues.forbidBrownfieldAnalysisBeforeTp),
+    "UR gate policy uses the canonical localized Brownfield prohibition",
+  );
+  const germanUrApproval = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: urTransition.status,
+    current_gate: urTransition.current_gate,
+    allowed_now: urTransition.allowed,
+    forbidden_now: urTransition.forbidden,
+    blocking_condition: urTransition.blocking_reason,
+    missing_approval: urTransition.missing_approval,
+    next_gate_after_approval: "Brownfield Review",
+    allowed_after_approval: "Run Brownfield Review and proportional routing as one internal operation; no user action is required now.",
+    next_step: urTransition.next_allowed_action,
+    quality_outlook: "Keep the presentation contract, evidence and gate authority aligned.",
+  }, { registry: sourceRegistry, humanPresentation: { gateTitle: "Nutzeranforderungen" } });
+  assert.ok(germanUrApproval, "standard German UR gate status renders completely");
+  assert.match(germanUrApproval.markdown, /Den aktuellen UR-Kontrollstatus vervollständigen/);
+  assert.match(germanUrApproval.markdown, /die Brownfield-Analyse als Implementierungsvorbereitung durchführen/);
+  assert.doesNotMatch(germanUrApproval.markdown, /run Brownfield Analysis|Fill the current UR/);
+
+  const brownfieldTransition = transitionDecisionForRunState({
+    approvals: new Map([["UR", { status: "approved" }]]),
+    artefacts: new Map([["UR", { path: ".agdf/control/artefacts/run/UR.md", status: "approved" }]]),
+  });
+  const germanBrownfieldReview = renderOperationalStatusCard({
+    run_id: "status-run",
+    presentation_language: "de",
+    status: brownfieldTransition.status,
+    current_gate: brownfieldTransition.current_gate,
+    allowed_now: brownfieldTransition.allowed,
+    forbidden_now: brownfieldTransition.forbidden,
+    blocking_condition: brownfieldTransition.blocking_reason,
+    missing_approval: brownfieldTransition.missing_approval,
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+    next_step: brownfieldTransition.next_allowed_action,
+    quality_outlook: "Keep the presentation contract, evidence and gate authority aligned.",
+  }, { registry: sourceRegistry, humanPresentation: { gateTitle: "Brownfield-Prüfung" } });
+  assert.ok(germanBrownfieldReview, "standard German Brownfield Review status renders completely");
+  assert.match(germanBrownfieldReview.markdown, /bestehenden Arbeitsstrang, Owner, SoT/);
+  assert.match(germanBrownfieldReview.markdown, /Brownfield Review nach G-00 vor dem PRD-Entwurf durchführen/);
+  assert.doesNotMatch(germanBrownfieldReview.markdown, /identify existing workstream|Run Brownfield Review after G-00/);
+
   const germanQaApproval = renderOperationalStatusCard({
     run_id: "status-run",
     presentation_language: "de",
@@ -246,6 +306,18 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   assert.match(germanQaApproval.markdown, /Die exakte Freigabe Approval: QA anfordern/);
   assert.doesNotMatch(germanQaApproval.markdown, /run QA gate|Request UAT when|Request exact approval/);
 
+  const prdTransition = transitionDecisionForRunState({
+    approvals: new Map([["UR", { status: "approved" }]]),
+    artefacts: new Map([
+      ["UR", { path: ".agdf/control/artefacts/run/UR.md", status: "approved" }],
+      ["Brownfield Review", { path: ".agdf/control/artefacts/run/BROWNFIELD_REVIEW.md", status: "done" }],
+    ]),
+    mode_slice_decision: {
+      decision: "structured_delivery",
+      scope_reason: "External contract depth is evidenced.",
+      evidence: ".agdf/control/artefacts/run/BROWNFIELD_REVIEW.md",
+    },
+  });
   const germanPrdApproval = renderOperationalStatusCard({
     run_id: "status-run",
     presentation_language: "de",
@@ -257,12 +329,13 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     missing_approval: "Approval: PRD",
     next_gate_after_approval: "SD",
     allowed_after_approval: "Draft Solution Design; implementation remains forbidden.",
-    next_step: "record evidence",
+    next_step: prdTransition.next_allowed_action,
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Produktanforderungen" } });
   assert.match(germanPrdApproval.markdown, /PRD entwerfen oder überarbeiten/);
+  assert.match(germanPrdApproval.markdown, /Erst implementieren, nachdem PRD, SD und TP freigegeben sind/);
   assert.match(germanPrdApproval.markdown, /Das Lösungsdesign entwerfen; die Implementierung bleibt gesperrt/);
-  assert.doesNotMatch(germanPrdApproval.markdown, /draft or refine PRD|create SD|Draft Solution Design/);
+  assert.doesNotMatch(germanPrdApproval.markdown, /Draft or refine the PRD|draft or refine PRD|create SD|Draft Solution Design/);
 
   const germanSdApproval = renderOperationalStatusCard({
     run_id: "status-run",
@@ -275,10 +348,11 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     missing_approval: "Approval: SD",
     next_gate_after_approval: "TP",
     allowed_after_approval: "Draft Task/Test Plan; implementation remains forbidden.",
-    next_step: "request exact SD approval",
+    next_step: "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Lösungsdesign" } });
   assert.match(germanSdApproval.markdown, /das Lösungsdesign entwerfen oder überarbeiten/);
+  assert.match(germanSdApproval.markdown, /Erst implementieren, nachdem SD und TP freigegeben sind/);
   assert.match(germanSdApproval.markdown, /Den Aufgaben- und Testplan entwerfen; die Implementierung bleibt gesperrt/);
   assert.doesNotMatch(germanSdApproval.markdown, /draft or refine Solution Design|create TP|Draft Task\/Test Plan/);
 
@@ -293,10 +367,11 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     missing_approval: "Approval: TP",
     next_gate_after_approval: "Brownfield Analysis",
     allowed_after_approval: "Run implementation-prep Brownfield Analysis before CD+Tests; no further user approval is required at this internal step.",
-    next_step: "request exact TP approval",
+    next_step: "Draft or refine the Task\/Test Plan; do not implement before TP is approved.",
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Aufgaben- und Testplan" } });
   assert.match(germanTpApproval.markdown, /den Aufgaben- und Testplan entwerfen oder überarbeiten/);
+  assert.match(germanTpApproval.markdown, /Erst nach TP-Freigabe implementieren/);
   assert.match(germanTpApproval.markdown, /Aufgaben-IDs festlegen/);
   assert.match(germanTpApproval.markdown, /Die Brownfield-Analyse zur Implementierungsvorbereitung vor CD\+Tests durchführen/);
   assert.doesNotMatch(germanTpApproval.markdown, /draft or refine Task\/Test Plan|define task IDs|Run implementation-prep Brownfield Analysis/);

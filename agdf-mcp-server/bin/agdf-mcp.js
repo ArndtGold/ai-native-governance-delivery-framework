@@ -9,7 +9,7 @@ if (!Number.isInteger(major) || major < 20) {
   const args = process.argv.slice(2);
   const valid = args.length === 2
     && args[0] === "--surface"
-    && ["codex", "claude", "opencode"].includes(args[1]);
+    && ["codex", "claude", "copilot", "opencode"].includes(args[1]);
   if (!valid) {
     process.stderr.write("AGDF_MCP_ARGUMENTS_INVALID\n");
     process.exitCode = 1;

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "capability_id": "agdf-mcp-dispatch",
   "release_version": "0.14.5",
   "tool": {
@@ -28,11 +28,115 @@
     "owner": "create-agdf",
     "default_scope": "project",
     "broader_scope_requires_explicit_choice": true,
-    "opencode_config_variants": {
-      "1": "mcp.agdf with enabled true",
-      "2": "mcp.servers.agdf with disabled false"
+    "result_contract_version": 2,
+    "states": {
+      "capability": [
+        "supported",
+        "manual_compatible",
+        "unavailable",
+        "unsupported",
+        "unverified"
+      ],
+      "registration": [
+        "absent",
+        "matched",
+        "foreign",
+        "owned_mismatch",
+        "precedence_conflict",
+        "invalid"
+      ],
+      "discovery": [
+        "not_checked",
+        "pending_restart",
+        "discovered",
+        "not_discovered",
+        "unavailable"
+      ],
+      "result": [
+        "not_configured",
+        "configured_pending_restart",
+        "configured_unverified",
+        "discovered_ready",
+        "unchanged",
+        "disabled",
+        "degraded",
+        "failed"
+      ]
     },
+    "adapters": {
+      "codex": {
+        "surface": "codex",
+        "default_scope": "project",
+        "native_scopes": {
+          "project": "project",
+          "user": "user"
+        },
+        "project_source": ".codex/config.toml",
+        "user_source": "$CODEX_HOME/config.toml"
+      },
+      "claude": {
+        "surface": "claude",
+        "default_scope": "project",
+        "native_scopes": {
+          "project": "local",
+          "user": "user"
+        },
+        "project_source": "claude mcp local",
+        "user_source": "claude mcp user"
+      },
+      "opencode": {
+        "surface": "opencode",
+        "default_scope": "project",
+        "native_scopes": {
+          "project": "project",
+          "user": "user"
+        },
+        "project_source": "opencode.json",
+        "user_source": "$OPENCODE_CONFIG_DIR/opencode.json",
+        "config_variants": {
+          "1": "mcp.agdf",
+          "2": "mcp.servers.agdf"
+        }
+      },
+      "copilot": {
+        "surface": "copilot",
+        "default_scope": "project",
+        "native_scopes": {
+          "project": "project",
+          "user": "user"
+        },
+        "project_source": ".github/mcp.json",
+        "user_source": "~/.copilot/mcp-config.json",
+        "higher_priority_project_source": ".mcp.json"
+      }
+    },
+    "shared_runtime": true,
     "fallback": "version-matched AGDF CLI skill-dispatch"
+  },
+  "qualification": {
+    "tuple": [
+      "surface",
+      "capability",
+      "host_version",
+      "client_variant",
+      "session_variant",
+      "configuration_variant",
+      "os",
+      "arch",
+      "requested_scope",
+      "native_scope",
+      "configuration_source",
+      "node_version",
+      "server_version",
+      "dispatcher_version",
+      "sdk_version",
+      "entrypoint_identity",
+      "discovery_evidence_ref",
+      "dispatch_evidence_ref",
+      "failure_evidence_ref",
+      "cleanup_evidence_ref"
+    ],
+    "records": []
   },
   "host_support": {
     "codex": "unverified",
@@ -43,7 +147,9 @@
   "claims": {
     "operating_system_sandbox": false,
     "cross_host_support": false,
-    "publication_implies_support": false
+    "publication_implies_support": false,
+    "plugin_install_activates_mcp": false,
+    "mcp_registration_authorizes_governance": false
   },
   "distribution": {
     "runtime_plugin": "included",

@@ -27,6 +27,7 @@ assert.equal(lock.packages[""].version, manifest.version);
 assert.equal(lock.packages[""].dependencies["create-agdf"], manifest.version);
 assert.equal(statSync(new URL("bin/agdf-mcp.js", root)).mode & 0o111, 0o111);
 assert.equal(capability.release_version, manifest.version);
+assert.equal(capability.schema_version, 2);
 assert.equal(capability.tool.name, "agdf_dispatch");
 assert.equal(capability.tool.semantic_owner, "create-agdf/lib/skill-dispatch/contract.js");
 assert.equal(capability.tool.authorizes, false);
@@ -35,6 +36,9 @@ assert.equal(capability.transport.kind, "stdio");
 assert.deepEqual(capability.transport.compatibility_protocols, ["2025-11-25"]);
 assert.equal(capability.distribution.public_skills_only_candidate, "excluded");
 assert.deepEqual(new Set(Object.values(capability.host_support)), new Set(["unverified"]));
+assert.equal(capability.lifecycle.result_contract_version, 2);
+assert.deepEqual(Object.keys(capability.lifecycle.adapters).sort(), ["claude", "codex", "copilot", "opencode"]);
+assert.match(readFileSync(new URL("bin/agdf-mcp.js", root), "utf8"), /"copilot"/);
 
 const npmCache = mkdtempSync(join(tmpdir(), "agdf-mcp-npm-cache-"));
 let packed;

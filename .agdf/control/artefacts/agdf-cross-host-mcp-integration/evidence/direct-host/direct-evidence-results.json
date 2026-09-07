@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "run_id": "agdf-cross-host-mcp-integration",
+  "captured_at": "2026-09-06T21:11:45.394Z",
+  "authorizes": false,
+  "records": [
+    {
+      "schema_version": 1,
+      "surface": "codex",
+      "result": "unverified",
+      "authorizes": false,
+      "raw_log_sha256": [
+        "dc0028535a0d48832bfcf2f73d4e0d977091087179385c57e01d21d0199a0c3b",
+        "d2f10ebce0a0835a1035a110a6b2f850e1ef294c7330f4e4a588a54df695d11c",
+        "be728a4daa5095e50be89a528dbe40afc756346650d6cb39fe18fd23821a0029",
+        "bb027acebc0c84c77a7502f1475aaafda07de48cf9d1309be215e94d75fb803b",
+        "81bb8fcb1239a2ce1084ac2e85aeec9e4b29731ecac6751255fced2bef6cfaa1",
+        "973cb9db93681018816eb1cdab3f1ebbf1159dfc16d36b7234371b0169ac0804"
+      ],
+      "gaps": [
+        "No independent direct failure-path dispatch was executed, so the exact qualification tuple is incomplete."
+      ],
+      "registration_status": "matched",
+      "discovery_status": "discovered",
+      "discovery_source": "direct_host",
+      "tool_name": "agdf_dispatch",
+      "dispatch_status": "passed",
+      "cleanup_status": "restored",
+      "observations": {
+        "host_version": "0.145.0",
+        "client_variant": "cli",
+        "session_variant": "fresh ephemeral exec session with gpt-5.6-sol",
+        "configuration_variant": "project TOML",
+        "os": "darwin",
+        "arch": "x64",
+        "node_version": "22.22.3",
+        "server_version": "0.14.5",
+        "server_digest": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2",
+        "host_tool_name": "agdf_dispatch",
+        "call_count": 1,
+        "terminal_control_result": true,
+        "current_gate": "CD+Tests"
+      }
+    },
+    {
+      "schema_version": 1,
+      "surface": "opencode",
+      "result": "unverified",
+      "authorizes": false,
+      "raw_log_sha256": [
+        "286ed77d3e7b3ee9cb78de44ff4f0f59a6e0ebdbdd0f183fc77e904d0be1c47e",
+        "18ad99464e8d37b30cfbccfd49e589e67256ff5775dcb930ee59602f80a09b15",
+        "f9831e661eff6a38e14344c2bdb12c2d4d799427684e20c6987dbf9c2d2d7e45",
+        "47654c26adbf39bb642b01c3de0108a7d9a4bce456a0f454db29f1be50cd4593",
+        "0876117e63605d9cc24a3fbb210d206cc68e73fc3501823fae24147bf80622fa",
+        "973cb9db93681018816eb1cdab3f1ebbf1159dfc16d36b7234371b0169ac0804"
+      ],
+      "gaps": [
+        "No independent direct failure-path dispatch was executed, so the exact qualification tuple is incomplete."
+      ],
+      "registration_status": "matched",
+      "discovery_status": "discovered",
+      "discovery_source": "direct_host",
+      "tool_name": "agdf_dispatch",
+      "dispatch_status": "passed",
+      "cleanup_status": "restored",
+      "observations": {
+        "host_version": "1.18.3",
+        "client_variant": "cli",
+        "session_variant": "fresh opencode run with JSON event output",
+        "configuration_variant": "flat_v1 project JSON",
+        "os": "darwin",
+        "arch": "x64",
+        "node_version": "22.22.3",
+        "server_version": "0.14.5",
+        "server_digest": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2",
+        "host_tool_name": "agdf_agdf_dispatch",
+        "call_count": 1,
+        "terminal_control_result": true,
+        "current_gate": "CD+Tests",
+        "unrelated_permission_change": false
+      }
+    },
+    {
+      "schema_version": 1,
+      "surface": "claude",
+      "result": "unverified",
+      "authorizes": false,
+      "raw_log_sha256": [
+        "fc9e649070e5ca6c4025f6364bb47346cea3e467dc06da0d9fc2f717b10c0ebc",
+        "8c24937c33a8a0b0f4679bd8e95c0933108998890104b7f4ff760e589726712c",
+        "ffa4bfff0e1961b5ec8839a28c3105264b491409397b86ffb2981a4531487b15",
+        "22fe0444e286dfaa4890e1663a8a957d652a8962cd7d17daf5b07cf0d1d3fee3",
+        "f2ea0d2cb4f278409cb5fac8e53ba72977e4b8fc3105f3803658d104821377bd",
+        "973cb9db93681018816eb1cdab3f1ebbf1159dfc16d36b7234371b0169ac0804"
+      ],
+      "gaps": [
+        "The fresh Claude Code session stopped at authentication_failed before discovery or dispatch.",
+        "No independent direct failure-path dispatch was executed."
+      ],
+      "registration_status": "matched",
+      "discovery_status": "not_observed",
+      "discovery_source": "none",
+      "tool_name": "agdf_dispatch",
+      "dispatch_status": "not_executed",
+      "cleanup_status": "restored",
+      "observations": {
+        "host_version": "2.1.193",
+        "client_variant": "cli",
+        "session_variant": "fresh print JSON session with claude-opus-4-8[1m]",
+        "configuration_variant": "native CLI local scope",
+        "os": "darwin",
+        "arch": "x64",
+        "node_version": "22.22.3",
+        "server_version": "0.14.5",
+        "server_digest": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2",
+        "initial_mcp_status": "pending",
+        "authentication_status": "failed"
+      }
+    },
+    {
+      "schema_version": 1,
+      "surface": "copilot",
+      "result": "unverified",
+      "authorizes": false,
+      "raw_log_sha256": [
+        "cedae7e4746dce6955a1fdc9ff34166116f88b615b148067d7bfe1776a54a645",
+        "4854cfeedd92c371606357b497aeb05555070e716208ec6673d8a1b674f22db9",
+        "115819598c4adb4bc904d307a05d324b11cba55a0bc5f7471b2e3efbbff34b6a",
+        "e845e27b8b72e5ad149943fb1f507ccf3c30173e809578bde96c6b501b7994c6",
+        "91d73a9e37e43ab94bfc413dd80de17f1047f75de75077857c9abdd73d0dce0f",
+        "973cb9db93681018816eb1cdab3f1ebbf1159dfc16d36b7234371b0169ac0804",
+        "e4f119e50dc5ff2c070ee26b1629f2a03c7341bcd3712eb7b37fbe65b20d1e70"
+      ],
+      "gaps": [
+        "No callable Copilot CLI or automated fresh GitHub Copilot Desktop MCP session interface was available.",
+        "Registration discovery, canonical tool discovery and dispatch were not observed in a fresh client session."
+      ],
+      "registration_status": "matched",
+      "discovery_status": "not_observed",
+      "discovery_source": "none",
+      "tool_name": "agdf_dispatch",
+      "dispatch_status": "not_executed",
+      "cleanup_status": "restored",
+      "observations": {
+        "host_version": "1.1.15",
+        "client_variant": "GitHub Copilot Desktop application present; no CLI",
+        "session_variant": "unavailable",
+        "configuration_variant": "project .github/mcp.json",
+        "os": "darwin",
+        "arch": "x64",
+        "node_version": "22.22.3",
+        "server_version": "0.14.5",
+        "server_digest": "97c2222a6651262486c31fd0acf5532d4a1ea9e8728ee735aa71b0ae72b26cd2",
+        "native_readback": "unavailable"
+      }
+    }
+  ]
+}

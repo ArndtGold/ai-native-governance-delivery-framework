@@ -18,6 +18,8 @@ const staleGeneratedPaths = [
   join(packageRoot, "generated", ".agdf", "control", "stale-owned-control.txt"),
   join(generatedOpenCodeRoot, "contracts", "stale-owned-contract.md"),
   join(generatedOpenCodeRoot, "skills", "agdf-gate-check", "stale-owned-skill.txt"),
+  join(generatedCopilotPluginRoot, "runtime stale", "stale-owned-runtime.txt"),
+  join(generatedCopilotPluginRoot, "plugin stale.json"),
 ];
 
 function digestDirectory(root) {

@@ -1,11 +1,17 @@
 # UAT Report: Common AGDF MCP Lifecycle Across Coding-Agent Hosts
 
-Status: ready for acceptance  
-Decision: pending  
+Status: revision requested
+Decision: revise
 Date: 2026-09-07  
 Run: `agdf-cross-host-mcp-integration`  
 Revision: 1  
 Based on: approved QA Report Revision 1
+
+Revision request: On 2026-09-07 the user required the architecture documentation to explain the
+complete implementation at a level suitable for a first-time reader and to update every affected
+diagram. This request supersedes the readiness of UAT Report Revision 1. The revised documentation
+must pass refreshed reviews and receive a new exact QA approval before a later UAT revision can be
+prepared.
 
 ## Acceptance Scope
 
@@ -61,7 +67,8 @@ Publication, commit, push and release are outside this acceptance decision.
 
 ## Required Decision
 
-Review this bounded acceptance scope and provide exact `Approval: UAT`, request revision or decline.
+No UAT decision is currently requested. Review QA Report Revision 2 first. A later UAT report may be
+prepared only after exact `Approval: QA` for the refreshed revision.
 
 ## Context Graph
 

@@ -13,7 +13,7 @@ beantwortet vier Fragen:
 3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?
 4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?
 
-**Stand: 7. September 2026.** Beschrieben ist die kanonische Paketversion **0.14.5** auf Basis des
+**Stand: 6. September 2026.** Beschrieben ist die kanonische Paketversion **0.14.5** auf Basis des
 Implementierungscommits `c95874957ac78bbccd8b7b31a90b71dbe50ce677` und des Runs
 [`agdf-cross-host-mcp-integration`](../../.agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md).
 Die Dokumentationsrevision ist für die QA-Entscheidung vorbereitet. Dieser Stand ist keine Aussage

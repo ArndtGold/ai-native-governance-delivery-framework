@@ -3,8 +3,10 @@
 Status: pass  
 Date: 2026-09-07  
 Run: `agdf-cross-host-mcp-integration`  
+Revision: 2
 Reference: approved TP Revision 1  
-Review scope: final implementation diff, deterministic suites, direct project-scope host evidence and cleanup
+Review scope: committed implementation, post-commit entry-level architecture revision, deterministic suites,
+direct project-scope host evidence and cleanup
 
 ## TP Coverage
 
@@ -25,22 +27,22 @@ Review scope: final implementation diff, deterministic suites, direct project-sc
 | CHMCP-TP-13 | fully_done | Installer and public-profile tests prove plugin install never registers or qualifies MCP; Copilot remains a Skills-only public plugin payload. | none | none |
 | CHMCP-TP-14 | fully_done | Exact qualification and direct-evidence validators reject incomplete, cross-host, cross-OS, cross-package and failed-path tuples; all four current direct records remain `unverified`. | none | none |
 | CHMCP-TP-15 | fully_done | MCP semantic contract, dual protocol, safety, provenance, performance, package and shutdown suites pass without a server semantic or transport change. | none | none |
-| CHMCP-TP-16 | fully_done | Root, install and package documentation plus `CG-MCP-DISPATCH-ADAPTER` describe the four-host journey, native sources, boundaries, cleanup and exact evidence limits. | none | none |
-| CHMCP-TP-17 | fully_done | `CD_TESTS.md`, generated release assets, focused suites, final serial smoke, 83/83 evals, 467-file package and diff validation cover the stabilized implementation. | none | none |
+| CHMCP-TP-16 | fully_done | Root, install and package documentation, `docs/architecture/README.md`, six rendered diagrams and `CG-MCP-DISPATCH-ADAPTER` explain the four-host journey, semantic owner, Skill/MCP paths, native sources, shared runtime, rollback, cleanup, authority boundary and exact evidence limits. All 55 local architecture links resolve and every diagram was visually inspected. | none | none |
+| CHMCP-TP-17 | fully_done | `CD_TESTS.md`, generated release assets, focused suites, final serial smoke, 83/83 evals, 467-file package, refreshed 56/56 compatibility record, community-health checks and diff validation cover the stabilized implementation and documentation revision. | none | none |
 | CHMCP-TP-18 | fully_done | Retained OpenCode baseline, enable, native list, fresh one-call dispatch, status, disable, permission observation and cleanup hashes form the required bounded direct record. | Failure-path qualification evidence remains missing and the native-tool draft stays open. | none; no support or retirement claim is made |
 | CHMCP-TP-19 | fully_done | Retained Claude baseline, local registration, native get, fresh authentication stop, disable and cleanup hashes form the required bounded direct record. | Authentication prevented discovery and dispatch. | none; gap remains explicit and unverified |
 | CHMCP-TP-20 | fully_done | Retained Codex baseline, native registration/read-back, fresh CLI 0.145.0 `gpt-5.6-sol` dispatch, status, disable and cleanup hashes form the required bounded record. | Failure-path qualification evidence remains missing. | none; no support claim is made |
 | CHMCP-TP-21 | fully_done | Retained Copilot Desktop 1.1.15 baseline, project registration, client-unavailable record, status, disable and cleanup hashes form the required bounded record. | Native discovery, trust/policy and call evidence are absent. | none; no Copilot client claim is made |
-| CHMCP-TP-22 | fully_done | This review, `CLEAN_IMPLEMENTATION_REVIEW.md`, `CODE_REVIEW.md` and `QA_REPORT.md` review the final source and evidence after all in-scope corrections and the final serial smoke pass. | none | none |
+| CHMCP-TP-22 | fully_done | Revision 2 of this review plus the refreshed clean, code and QA reports review the committed source and post-commit documentation after exact link, SVG, package, compatibility and community-health checks. | none | none |
 
 ## Summary
 
 - fully_done: 22
 - partially_done: 0
 - not_done: 0
-- out_of_scope_changes: none identified
+- out_of_scope_changes: none identified; the architecture guide is an explanatory projection of the already approved TP-16 documentation and SD ownership model, with no new product or runtime semantics
 - risks: Exact host qualification remains unavailable for all four tuples; this limits support and release claims but does not leave an approved TP obligation incomplete because TP-18 through TP-21 explicitly accept bounded unavailable or blocked records.
-- required_next_step: Supply this TP coverage to `qa-gate` together with the clean review, code review, Brownfield Analysis, CD+Tests and direct evidence.
+- required_next_step: Supply this refreshed TP coverage to `qa-gate` together with the clean review, code review, Brownfield Analysis, CD+Tests and direct evidence.
 
 ## UX Intent Fidelity
 

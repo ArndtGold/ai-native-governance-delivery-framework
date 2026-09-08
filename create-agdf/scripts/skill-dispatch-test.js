@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "../lib/skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../lib/skill-dispatch/service.js";
+import {
+  INVALID_PRESENTATION_LANGUAGE_CASES,
+  VALID_PRESENTATION_LANGUAGE_CASES,
+} from "./fixtures/skill-dispatch-language.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
 import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context.js";
 
@@ -87,13 +91,29 @@ const gateReport = {
   next_allowed_action: "Run QA",
   doctor_status: "pass",
   status_card: { run_id: "delivery-run" },
+  candidate_runs: [{
+    run_id: "candidate-run",
+    display_title: "Candidate run",
+    objective: "Evaluate one candidate.",
+    current_gate: "QA",
+    decision: "revise",
+    next_allowed_action: "Repair QA evidence",
+    revision_id: "candidate-revision",
+    ignored_internal_detail: "must not cross the snapshot boundary",
+  }],
   approval_presentation: approvalPresentation,
 };
 const evaluatedRunIds = [];
+const evaluatedPresentationLanguages = [];
 const resolvedDispatch = createSkillDispatchService({
   resolveTaskTarget: () => resolved,
   renderTaskTargetOrientation: () => orientation,
-  evaluateGateCheck: (_target, options) => { gateCalls += 1; evaluatedRunIds.push(options.runId); return gateReport; },
+  evaluateGateCheck: (_target, options) => {
+    gateCalls += 1;
+    evaluatedRunIds.push(options.runId);
+    evaluatedPresentationLanguages.push(options.presentationLanguage);
+    return gateReport;
+  },
   env: { AGDF_MACHINE_VALIDATION: "owned_version_matched" },
 });
 const controlResult = resolvedDispatch({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run" });
@@ -106,6 +126,7 @@ assert.equal(controlResult.host_action.source, "presentation.sequence");
 assert.equal(controlResult.host_action.text, "approval status\n\napproval transition\n\napproval fallback");
 assert.equal(controlResult.runtime.machine_validation, "owned_version_matched");
 assert.equal(evaluatedRunIds.at(-1), "delivery-run");
+assert.equal(evaluatedPresentationLanguages.at(-1), "de");
 assert.ok(controlResult.timing.total_ms < 2000, "deterministic dispatch must remain below two seconds");
 
 const immutableRuntimeEvidence = Object.freeze({
@@ -150,6 +171,17 @@ assert.equal(continuation.authorizes, false);
 assert.equal(continuation.continuation.skill_id, "qa-gate");
 assert.equal(continuation.continuation.governance_target, "/tmp/agdf-repo");
 assert.equal(continuation.control.current_gate, "QA");
+assert.deepEqual(continuation.control.candidate_runs, [{
+  run_id: "candidate-run",
+  display_title: "Candidate run",
+  objective: "Evaluate one candidate.",
+  current_gate: "QA",
+  decision: "revise",
+  next_allowed_action: "Repair QA evidence",
+  revision_id: "candidate-revision",
+}]);
+assert.equal(Object.isFrozen(continuation.control.candidate_runs), true);
+assert.equal(Object.isFrozen(continuation.control.candidate_runs[0]), true);
 assert.equal(Object.isFrozen(continuation.continuation), true);
 assert.deepEqual(continuation.host_action, {
   mode: "continue_named_skill",
@@ -197,6 +229,70 @@ assert.equal(
   invalidTargetSourceEnglish.host_action.text,
   "Invalid value for target_source. Allowed: explicit_target, continued_target, current_repository. Correct it and retry once.",
 );
+
+const unsupportedLanguage = resolvedDispatch({
+  ...base,
+  skillId: "qa-gate",
+  presentationLanguage: "fr-FR",
+});
+assert.equal(unsupportedLanguage.outcome, "skill_continuation");
+assert.equal(unsupportedLanguage.terminal, false);
+assert.equal(unsupportedLanguage.continuation.presentation_language, "en");
+assert.equal(evaluatedPresentationLanguages.at(-1), "en");
+assert.deepEqual(unsupportedLanguage.diagnostics, []);
+
+let invalidLanguageTargetCalls = 0;
+let invalidLanguageGateCalls = 0;
+const strictLanguageDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => { invalidLanguageTargetCalls += 1; return unresolved; },
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => { invalidLanguageGateCalls += 1; return gateReport; },
+  env: {},
+});
+for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
+  const result = strictLanguageDispatch({
+    ...base,
+    skillId: "gate-check",
+    presentationLanguage: row.omit ? undefined : row.value,
+  });
+  assert.equal(result.outcome, "invalid_input", row.id);
+  assert.equal(result.terminal, true, row.id);
+  assert.equal(result.target, null, row.id);
+  assert.equal(result.control, null, row.id);
+  assert.deepEqual(result.diagnostics, [{ code: "dispatch_input_invalid", field: "presentation_language" }], row.id);
+  assert.equal(result.host_action.text, "Provide one well-formed BCP 47 presentation_language tag and retry once.", row.id);
+}
+assert.equal(invalidLanguageTargetCalls, 0, "invalid language must stop before target evaluation");
+assert.equal(invalidLanguageGateCalls, 0, "invalid language must stop before gate evaluation");
+
+let regionalRequestedLocale = "";
+const regionalLanguageDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => unresolved,
+  renderTaskTargetOrientation: (_target, { requestedLocale }) => {
+    regionalRequestedLocale = requestedLocale;
+    return { ...orientation, presentation_language: requestedLocale };
+  },
+  env: {},
+})({ ...base, skillId: "qa-gate", presentationLanguage: "de-DE" });
+assert.equal(regionalLanguageDispatch.outcome, "target_unresolved");
+assert.equal(regionalRequestedLocale, "de");
+assert.equal(regionalLanguageDispatch.presentation.presentation_language, "de");
+
+for (const row of VALID_PRESENTATION_LANGUAGE_CASES) {
+  let requestedLocale = "";
+  const result = createSkillDispatchService({
+    resolveTaskTarget: () => unresolved,
+    renderTaskTargetOrientation: (_target, options) => {
+      requestedLocale = options.requestedLocale;
+      return { ...orientation, presentation_language: requestedLocale };
+    },
+    evaluateGateCheck: () => { throw new Error("unresolved target must stop before gate evaluation"); },
+    env: {},
+  })({ ...base, skillId: "qa-gate", presentationLanguage: row.value });
+  assert.equal(result.outcome, "target_unresolved", row.id);
+  assert.equal(requestedLocale, row.expectedLocale, row.id);
+  assert.equal(result.presentation.presentation_language, row.expectedLocale, row.id);
+}
 
 for (const [override, field] of [
   [{ surface: "generic" }, "surface"],

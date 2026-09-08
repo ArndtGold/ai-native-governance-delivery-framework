@@ -1,7 +1,7 @@
 # Direct Host Evidence: Common AGDF MCP Lifecycle
 
 Status: complete with bounded gaps  
-Date: 2026-09-06  
+Date: 2026-09-08
 Run: `agdf-cross-host-mcp-integration`  
 Scope: authorized project-scope registration, fresh-session observation and complete removal  
 Authority effect: none
@@ -42,6 +42,35 @@ usable fresh-host lane.
 | OpenCode | CLI `1.18.3`, fresh JSON event session | Project `opencode.json`, `flat_v1`, matched; native list captured | One host tool call named `agdf_agdf_dispatch` invoked canonical server tool `agdf_dispatch`. It returned the same terminal result. No unrelated permission change was made. | Registration and temporary runtime removed; baseline restored | `unverified`: direct failure-path evidence was not executed |
 | Claude Code | CLI `2.1.193`, fresh session reported `claude-opus-4-8[1m]` | Native local registration matched and native get captured | Initialization reported the AGDF MCP server as pending, then the session stopped with `authentication_failed` and `Not logged in`. No tool call occurred. | Registration and temporary runtime removed; baseline restored | `unverified`: authentication blocked discovery and dispatch |
 | GitHub Copilot | Desktop application version `1.1.15`; no callable Copilot CLI | Project `.github/mcp.json` matched by independent file inspection | No automated fresh Desktop MCP session interface was available. Discovery, trust/policy and dispatch were not observed. | Registration and temporary runtime removed; baseline restored | `unverified`: direct client evidence is incomplete |
+
+## Language-selection follow-up
+
+The approved Revision 2 language contract was exercised on 2026-09-08 with another exact local
+`0.14.5` package build, runtime digest
+`22d784d9bef670ef4ba56cbd3404dc2b2cf95c40f8514a6fdcf99fdf9d9e3dce`. Each request used a new
+client process. The controlled set covered an explicit German response, an explicit English
+response, a German-dominant request, a request with no dominant language and an explicit valid but
+unsupported `fr-FR` response language.
+
+| Surface | Direct result | Observed language behavior | Host boundary |
+|---|---|---|---|
+| Codex CLI `0.145.0` | pass in five fresh ephemeral `gpt-5.6-sol` sessions | submitted `de`, `en`, `de`, `en` and `fr-FR`; resolved complete packs were `de`, `en`, `de`, `en` and `en`; every result was `authorizes: false` | An initial run with the configured `gpt-6-astra` failed before MCP because this CLI version requires a newer client. The retained matrix uses the already evidenced compatible model. |
+| OpenCode CLI `1.18.3` | pass after controlled retry, with retained host variance | successful observations submitted `de-DE`, `en`, `de-DE`, `en` and `fr-FR`; resolved packs were `de`, `en`, `de`, `en` and `en`; every successful result was `authorizes: false` | Two initial fresh sessions did not expose the connected tool. Another supplied the OpenCode Skill name as `skill_id` and failed closed. The first mixed request selected `de-DE`; its retry selected `en` after native MCP preflight and explicit no-dominant-language wording. That retry omitted the requested run and used `current_repository`, so language selection passed while full argument fidelity did not. |
+| Claude Code CLI `2.1.193` | unverified | no language call | Native project registration verification failed and left no registration; prior fresh-session evidence is also blocked by missing authentication. |
+| GitHub Copilot Desktop `1.1.15` | unverified | no language call | No callable local Copilot MCP client was available for this follow-up. No temporary registration was created. |
+
+These observations show that the canonical tool description can guide Codex and OpenCode, while an
+LLM host can still omit or alter unrelated arguments and a fresh OpenCode process can transiently
+miss a natively connected MCP server. The server cannot infer the user's language or repair a host's
+argument selection because it does not receive the conversation. Strict schema and service checks
+therefore remain the enforcement boundary, and loaded-host selection remains qualified separately.
+
+The raw follow-up evidence is under `evidence/language-host/`. `language-host-results.json` separates
+language selection, dispatch success and full context fidelity. `manifest.json` records SHA-256 and
+byte length for all 25 retained files. The project `.codex/config.toml` and `opencode.json` were
+removed through the lifecycle service. Native Codex and Claude lookups report no `agdf` server,
+OpenCode reports no configured MCP server, and the isolated runtime root was removed after its last
+reference.
 
 ## Separated evidence layers
 

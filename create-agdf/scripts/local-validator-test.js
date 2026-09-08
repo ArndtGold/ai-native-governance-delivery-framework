@@ -3,9 +3,39 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, wr
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { digestDirectory, resolveLocalValidator, runLocalValidator } from "../lib/runtime/local-validator.js";
+import { digestDirectory, resolveLocalValidator, resolvePluginHostEnvironment, runLocalValidator } from "../lib/runtime/local-validator.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
+
+const nativeCodexRoot = "/native/codex/plugin";
+const compatibilityClaudeRoot = "/compatibility/claude/plugin";
+assert.deepEqual(resolvePluginHostEnvironment({
+  AGDF_SURFACE: "codex",
+  PLUGIN_ROOT: nativeCodexRoot,
+  CLAUDE_PLUGIN_ROOT: compatibilityClaudeRoot,
+}), { surface: "codex", expectedPluginRoot: nativeCodexRoot });
+assert.deepEqual(resolvePluginHostEnvironment({
+  PLUGIN_ROOT: nativeCodexRoot,
+  CLAUDE_PLUGIN_ROOT: compatibilityClaudeRoot,
+}), { surface: "codex", expectedPluginRoot: nativeCodexRoot });
+assert.deepEqual(resolvePluginHostEnvironment({
+  AGDF_SURFACE: "claude",
+  PLUGIN_ROOT: nativeCodexRoot,
+  CLAUDE_PLUGIN_ROOT: compatibilityClaudeRoot,
+}), { surface: "claude", expectedPluginRoot: compatibilityClaudeRoot });
+assert.deepEqual(resolvePluginHostEnvironment({ CLAUDE_PLUGIN_ROOT: compatibilityClaudeRoot }), {
+  surface: "claude", expectedPluginRoot: compatibilityClaudeRoot,
+});
+assert.deepEqual(resolvePluginHostEnvironment({
+  PLUGIN_ROOT: nativeCodexRoot,
+  COPILOT_PLUGIN_DATA: "/copilot/data",
+}), { surface: "copilot", expectedPluginRoot: nativeCodexRoot });
+assert.deepEqual(resolvePluginHostEnvironment({ AGDF_SURFACE: "opencode" }), {
+  surface: "opencode", expectedPluginRoot: undefined,
+});
+assert.deepEqual(resolvePluginHostEnvironment({}, { defaultSurface: "plugin" }), {
+  surface: "plugin", expectedPluginRoot: undefined,
+});
 
 const root = mkdtempSync(join(tmpdir(), "agdf-local-validator-"));
 try {

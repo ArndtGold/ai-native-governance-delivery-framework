@@ -3,6 +3,10 @@ import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { SKILL_DISPATCH_FUNCTION_DEFINITION, createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
 import { buildAgdfServer } from "../src/server.js";
+import {
+  INVALID_PRESENTATION_LANGUAGE_CASES,
+  argumentsForLanguageCase,
+} from "../../create-agdf/scripts/fixtures/skill-dispatch-language.js";
 import { unresolvedArguments } from "./helpers.js";
 import { createTestRuntime } from "./runtime-fixture.js";
 
@@ -46,6 +50,15 @@ const invalid = await client.callTool({
 });
 assert.equal(invalid.isError, true);
 assert.equal(calls, 1, "schema-invalid arguments must not reach the dispatcher executor");
+
+for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
+  const languageInvalid = await client.callTool({
+    name: "agdf_dispatch",
+    arguments: argumentsForLanguageCase(unresolvedArguments, row),
+  });
+  assert.equal(languageInvalid.isError, true, row.id);
+}
+assert.equal(calls, 1, "invalid presentation language must not reach the dispatcher executor");
 
 await assert.rejects(client.callTool({ name: "unknown_tool", arguments: {} }));
 assert.equal(calls, 1, "unknown tools must not reach the dispatcher executor");

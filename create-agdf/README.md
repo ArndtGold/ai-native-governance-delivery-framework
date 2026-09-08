@@ -147,7 +147,7 @@ agdf doctor
 agdf gate-check --status-card
 agdf gate-check --approval-envelope
 agdf gate-check --json
-agdf skill-dispatch --json --skill gate-check --surface codex --language en --working-directory /absolute/context
+agdf skill-dispatch --json --skill gate-check --surface codex --language de --working-directory /absolute/context
 agdf delivery-map --json
 agdf delivery-path-search --surface codex --json
 agdf delivery-path-search --surface claude --json
@@ -156,9 +156,27 @@ agdf delivery-path-search --surface claude --json
 Installed AGDF sessions supply the exact version-matched `skill-dispatch` binding to canonical
 skills. It resolves the target first and returns either a terminal canonical result or one bounded
 continuation packet. The result's `host_action.text` carries the exact terminal presentation or
-recovery text for byte-for-byte output, without added choices or run/evidence questions. It never
-grants approval. Pass an explicit target pair only when the conversation has actually selected one;
-do not substitute the working directory.
+recovery text. For `terminal: true`, the entire assistant response must equal that text: no added
+question, explanation, heading, citation, translation, choice or later tool call. It never grants
+approval. Pass an explicit target pair only when the conversation has actually selected one; do not
+substitute the working directory.
+
+When a resolved target contains several active runs, the gate evaluator returns one complete
+canonical `candidate_runs` inventory. A QA continuation retains this inventory in
+`control.candidate_runs`, including each run's identifier, objective, normalized current gate,
+decision and revision. The QA skill filters these returned records by `current_gate: QA`; it does
+not reconstruct the inventory by scanning run files itself.
+
+For `skill-dispatch`, `--language` is required and carries one well-formed BCP 47 tag selected from
+the latest natural-language request. An explicit response-language instruction wins; otherwise the
+host supplies the dominant request language and uses `en` when the request is mixed or ambiguous.
+The registry currently contains complete `de` and `en` packs. Regional variants such as `de-DE`
+and `en-US` resolve to their complete primary-language pack. A valid unsupported tag uses the
+complete English pack. Missing, wrong-type, padded, list, underscore, POSIX-suffixed and malformed
+values stop before target or gate evaluation and are never repaired or inferred from the host or
+runtime. This differs from detected CLI system locale input and from `config --language`, which
+persists the project preference after a governance target is available. A target-unresolved result
+cannot read project configuration safely because no project has been selected yet.
 
 Canonical run lifecycle:
 
@@ -259,6 +277,13 @@ retries once; it does not enumerate or broadly clear the host cache.
 Successful installation verifies the installed version but not an already loaded session. Fully
 restart the host and start a fresh session or task. Restoring the previous session can retain stale
 AGDF skills and must not be treated as current loaded-session evidence.
+
+When a host exposes both plugin-root variables, runtime validation follows the active surface.
+Codex prefers `PLUGIN_ROOT` and falls back to `CLAUDE_PLUGIN_ROOT`; Claude Code uses the reverse
+order. Copilot accepts only `PLUGIN_ROOT`, and OpenCode has no plugin-root binding. Windows hooks
+select the fallback with an explicit PowerShell `if` expression. They never concatenate both root
+values. The generated runtime and SessionStart hook use the same resolver, so a compatibility
+variable cannot override the native root of the active host.
 
 Copilot staging uses the independent path `<AGDF data directory>/marketplaces/agdf-copilot`. This
 prevents Copilot updates and rollbacks from replacing the shared Codex and Claude payload while the

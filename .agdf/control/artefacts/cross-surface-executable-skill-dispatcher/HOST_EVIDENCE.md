@@ -1,8 +1,57 @@
 # Loaded-host Evidence: Cross-surface Executable Skill Dispatcher
 
-Revision: 13
-Date: 2026-09-05
+Revision: 15
+Date: 2026-09-08
 Status: partial
+
+
+## Installed Codex Plugin-root Replay CSED-HOST-14
+
+- source: authorized local Codex installation and direct installed-runtime replay on 2026-09-08.
+- observed prior failure: cache `0.14.5+codex.local-e464297ddcc5` returned
+  `plugin_root_mismatch` when `PLUGIN_ROOT` named its actual Codex root and
+  `CLAUDE_PLUGIN_ROOT` named a different stale path.
+- installed identity: `codex plugin list` reports `agdf@agdf` installed and enabled as
+  `0.14.5+codex.local-880e88555405`.
+- integrity: installed-mode Runtime Integrity passes for ten skills and 16 control files. The hook
+  manifests in repository source, marketplace stage and Codex cache are byte-identical.
+- corrected replay: with `AGDF_SURFACE=codex`, the actual installed cache as `PLUGIN_ROOT` and
+  `/tmp/agdf-stale-claude-root` as `CLAUDE_PLUGIN_ROOT`, `runtime/agdf-local.js --version --json`
+  exits 0 and returns `{"name":"create-agdf","version":"0.14.5"}`.
+- evidence boundary: this directly proves the installed validator root selection. It does not prove
+  a SessionStart execution in a fresh Codex task. The Windows hook has exact repository and installed
+  string evidence but no native Windows process observation.
+- required_next_step: restart Codex into a new task to observe the loaded profile, and retain native
+  Windows execution in the wider CSED-QA-01 matrix.
+
+## Installed Codex Candidate And Terminal Replay CSED-HOST-13
+
+- source: user-supplied Codex transcript followed by an authorized local Codex installation and
+  direct replay on 2026-09-08.
+- observed loaded-host gaps: after target selection the old task listed 11 QA runs and omitted
+  `agdf-staged-proportionality-observation` and `cross-surface-plugin-opt-out`. Its earlier terminal
+  target card was followed by a model-written question and explanation.
+- repository correction: the judgement continuation now carries the evaluator's full immutable
+  `candidate_runs` projection to `qa-gate`. The canonical function owner requires one complete
+  response consisting only of `host_action.text`; the QA projection forbids rescanning, invention
+  and omission.
+- installed identity: `codex plugin list` reports `agdf@agdf` installed and enabled as
+  `0.14.5+codex.local-e464297ddcc5`. Direct dispatch reports `owned_version_matched`, provenance
+  `matched` and runtime digest
+  `03480dc404d69ff90b37e9fa8bbe27da2e82249ef46c95bef385e00336cb96cd`.
+- installed candidate replay: explicit target plus unresolved run selection returns 23 canonical
+  candidates, exactly 13 with normalized `current_gate: QA`. Both omitted IDs are present. Every QA
+  candidate includes `run_id`, `objective`, `decision` and `revision_id`. Raw output:
+  `/private/tmp/agdf-codex-installed-qa-candidates-2026-09-08.json`; the selected run carries current
+  revision ID `1174D63E-9B4E-4578-909F-D8ADDBFF5C33`.
+- installed terminal replay: missing target returns the exact German AGDF task-target card in
+  `host_action.text`, `mode: transmit_presentation_verbatim_and_stop`,
+  `allow_surrounding_text: false`, `may_request_run_or_evidence: false`, and no diagnostics.
+- evidence boundary: this is direct installed-runtime evidence, not a fresh loaded-model result.
+  The current Codex task retains the preceding cache, so a new task must verify visible whole-turn
+  fidelity and complete candidate use. Other host and native-OS evidence remains open.
+- installed integrity: the installed-mode Runtime Integrity check passes for ten skills and 16
+  control files; source/installed contract, service and `qa-gate` skill files are byte-identical.
 
 
 ## Repository Semantic-contract Follow-up CSED-HOST-12

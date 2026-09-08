@@ -454,8 +454,8 @@ function runNegativeFixtures(valid) {
   expectSingleFailure("fingerprint drift", "activationKernel", [{ id: "fingerprint", content: fingerprintDrift }], "AGDF_INSTRUCTION_FOOTPRINT_CANONICAL_FINGERPRINT_INVALID", { canonicalKernel: fingerprintDrift });
 
   const gateDispatchDrift = valid.surfaces.selectedGateCheckSkill[0].content.replace(
-    "transmit `host_action.text` verbatim and stop",
-    "summarize `host_action.text` and stop",
+    "the entire assistant response must consist only of host_action.text, copied verbatim",
+    "the assistant may summarize host_action.text",
   );
   expectSingleFailure(
     "terminal dispatch drift",

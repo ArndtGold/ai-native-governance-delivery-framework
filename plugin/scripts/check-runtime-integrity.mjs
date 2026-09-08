@@ -125,6 +125,9 @@ const commandRegistryPath = sourceMode
 const skillDispatchFunctionContractPath = sourceMode
   ? join(repoRoot, "create-agdf", "lib", "skill-dispatch", "contract.js")
   : join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "contract.js");
+const runtimeCheckContractPath = sourceMode
+  ? join(repoRoot, "create-agdf", "lib", "runtime-check-consent", "contract.js")
+  : join(pluginRoot, "runtime", "create-agdf", "lib", "runtime-check-consent", "contract.js");
 const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
 const brownfieldSkillPath = join(pluginRoot, "skills", "brownfield-analysis", "SKILL.md");
@@ -200,11 +203,21 @@ const germanRuntimePatterns = [
 
 const failures = [];
 let canonicalSkillDispatchProjection = "";
+let canonicalSkillDispatchTerminalProjection = "";
+let canonicalSkillDispatchQaCandidatesProjection = "";
+let fixedRuntimeCheckCommand;
 try {
   const functionContract = await import(pathToFileURL(skillDispatchFunctionContractPath).href);
   canonicalSkillDispatchProjection = functionContract.renderSkillDispatchSemanticProjection();
+  canonicalSkillDispatchTerminalProjection = functionContract.renderSkillDispatchTerminalProjection();
+  canonicalSkillDispatchQaCandidatesProjection = functionContract.renderSkillDispatchQaCandidatesProjection();
 } catch {
   failures.push("skill dispatch semantic function owner must be present and loadable");
+}
+try {
+  ({ fixedRuntimeCheckCommand } = await import(pathToFileURL(runtimeCheckContractPath).href));
+} catch {
+  failures.push("automatic runtime-check command owner must be present and loadable");
 }
 const skillSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const requestActivationMarkers = Object.freeze({
@@ -860,9 +873,10 @@ if (!runtimeContract.includes("`attempted_not_applied`") || !runtimeContract.inc
   failures.push("Runtime Contract must define visible fallback attempt outcomes");
 }
 if (!runtimeContract.includes("### Interaction Locale Contract")
-  || !runtimeContract.includes("an unsupported requested locale must fail to English as a complete unit")
+  || !runtimeContract.includes("a valid unsupported requested locale must resolve to English as a complete unit")
+  || !runtimeContract.includes("invalid external dispatch input fails before presentation")
   || !runtimeContract.includes("an incomplete or invalid registry fails closed")) {
-  failures.push("Runtime Contract must define deterministic chat-locale resolution with English fallback");
+  failures.push("Runtime Contract must distinguish valid unsupported, missing or invalid dispatch, and invalid registry locale handling");
 }
 
 const taskTargetContractProse = normalizeProse(taskTargetContract);
@@ -1501,6 +1515,16 @@ if (hooksConfig) {
   const sessionStartCommandText = sessionStartCommands.map((hook) => String(hook?.command ?? "")).join("\n");
   if (!sessionStartCommandText.includes("PLUGIN_ROOT")) failures.push("Codex plugin SessionStart hook command must use PLUGIN_ROOT");
   if (!sessionStartCommands.every((hook) => String(hook?.commandWindows ?? "").includes("agdf-session-check.js"))) failures.push("Codex plugin SessionStart hooks must define a native Windows command");
+  if (fixedRuntimeCheckCommand) {
+    const expectedCommand = fixedRuntimeCheckCommand("codex", pluginRoot, "darwin");
+    const expectedWindowsCommand = fixedRuntimeCheckCommand("codex", pluginRoot, "win32");
+    if (!sessionStartCommands.every((hook) => hook?.command === expectedCommand)) {
+      failures.push("Codex plugin SessionStart command must equal the canonical host-adapter projection");
+    }
+    if (!sessionStartCommands.every((hook) => hook?.commandWindows === expectedWindowsCommand)) {
+      failures.push("Codex plugin Windows SessionStart command must equal the canonical host-adapter projection");
+    }
+  }
   if (sessionStartCommandText.includes("/plugins/cache/*/")) failures.push("Codex plugin SessionStart hook command must not use cache wildcards");
 }
 
@@ -1857,6 +1881,21 @@ for (const skill of expectedSkills) {
       failures.push(`${skill} skill dispatch semantics must remain inside the executable dispatch boundary`);
     }
   }
+  if (canonicalSkillDispatchTerminalProjection) {
+    if (countOccurrences(skillMd, canonicalSkillDispatchTerminalProjection) !== 1) {
+      failures.push(`${skill} must contain exactly one byte-identical projection of the canonical terminal-response semantics`);
+    }
+    if (skillMd.includes(canonicalSkillDispatchTerminalProjection)
+        && skillMd.indexOf(canonicalSkillDispatchTerminalProjection) < skillMd.indexOf("## Executable Dispatch")) {
+      failures.push(`${skill} terminal-response semantics must remain inside the executable dispatch boundary`);
+    }
+  }
+  if (canonicalSkillDispatchQaCandidatesProjection) {
+    const expectedCount = skill === "qa-gate" ? 1 : 0;
+    if (countOccurrences(skillMd, canonicalSkillDispatchQaCandidatesProjection) !== expectedCount) {
+      failures.push(`${skill} must contain ${expectedCount} byte-identical projection of the canonical QA candidate semantics`);
+    }
+  }
   if (skillDefinition && activationDiscoverySuffix) {
     const expectedDescription = `description: ${JSON.stringify(expectedSkillDescription(skillDefinition, activationDiscoverySuffix))}`;
     if ((skillMd.match(/^description:.*$/gm) ?? []).length !== 1 || !skillMd.includes(expectedDescription)) {
@@ -1902,6 +1941,8 @@ for (const skill of expectedSkills) {
   } else if (skill === "qa-gate") {
     for (const required of [
       "## Resolved Target Run And Evidence Discovery",
+      canonicalSkillDispatchQaCandidatesProjection,
+      "Otherwise use the returned canonical candidate inventory",
       "Select exactly one run whose objective matches the request",
       "request\n   one run selection and stop before a QA decision",
       "Do not ask the user to paste or relink repository files that the skill can read itself",

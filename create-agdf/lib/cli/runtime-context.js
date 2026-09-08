@@ -28,6 +28,15 @@ export function configuredLanguage(value) {
   return normalized;
 }
 
+export function canonicalizeDetectedSystemLocale(value) {
+  if (typeof value !== "string") return "";
+  const candidate = value.trim().split(":", 1)[0];
+  if (!candidate || /^(?:C|POSIX)(?:\.|$)/iu.test(candidate)) return "";
+  const withoutModifier = candidate.split("@", 1)[0];
+  const withoutEncoding = withoutModifier.split(".", 1)[0];
+  return canonicalizeLanguageTag(withoutEncoding.replaceAll("_", "-"));
+}
+
 export function detectSystemLocale(env = process.env) {
   const envLocale = env.LC_ALL || env.LC_MESSAGES || env.LANG || env.LANGUAGE || "";
   if (envLocale) return envLocale;
@@ -51,7 +60,8 @@ export function resolveLanguagePreference(explicitLanguage, env = process.env) {
   }
 
   const detectedLocale = detectSystemLocale(env);
-  const detected = configuredLanguage(detectedLocale) || interactionLocales.fallbackLocale;
+  const detectedTag = canonicalizeDetectedSystemLocale(detectedLocale);
+  const detected = configuredLanguage(detectedTag) || "en";
   return {
     artifact_language: detected,
     chat_language: detected,

@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, resolveHumanRunTitle, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -293,7 +293,9 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   }
 
   const postApproval = postApprovalTransition(missingApproval);
-  const presentationLocale = resolveConfiguredChatLanguage(targetDir);
+  const presentationLocale = selection.presentationLanguage
+    ? resolvePresentationLocale(interactionLocales, selection.presentationLanguage)
+    : resolveConfiguredChatLanguage(targetDir);
   const statusCard = buildStatusCard({
     status,
     currentGate,

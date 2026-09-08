@@ -2,27 +2,39 @@
 
 Status: approved
 Gate: SD
-Gate approval: Exact `Approval: SD` accepted on 2026-09-06 after same-target, same-run,
-same-gate and run revision `2CEBCE1F-ED4D-4FFF-827E-65B90C0F22DB` revalidation.
-Revision: 1
-Date: 2026-09-06
+Gate approval: Exact `Approval: SD` for Revision 2 was accepted on 2026-09-08 after
+same-target, same-run, same-gate and run revision
+`2E1B7AA5-DE70-4E48-81FA-D4BE87535168` revalidation.
+Previous approval: Exact `Approval: SD` for Revision 1 was accepted on 2026-09-06 after
+same-target, same-run, same-gate and run revision
+`2CEBCE1F-ED4D-4FFF-827E-65B90C0F22DB` revalidation. That approval remains historical and does
+not cover PRD Revision 2.
+Revision: 2
+Date: 2026-09-08
 Owner: Arndt Gold / Codex
 Run: agdf-cross-host-mcp-integration
-Based on: approved PRD Revision 1, approved UR Revision 1, passed Brownfield Review and ready UX Intent Definition
+Based on: approved PRD Revision 2, approved UR Revision 1, passed Brownfield Review, ready UX Intent Definition and language-contract review findings CHMCP-CR-07 through CHMCP-CR-12
 Delivery depth: Structured Delivery
 
 ## 1. Solution Overview
 
 Extend the existing AGDF MCP lifecycle into one project-first integration layer for GitHub Copilot,
 Codex, Claude Code and OpenCode. The solution keeps the existing `@agdf/mcp-server` process and the
-canonical `agdf_dispatch` semantic contract unchanged. It adds one versioned lifecycle result
-contract, one declarative capability profile and four thin host adapters behind the existing
-lifecycle service.
+canonical `agdf_dispatch` tool identity, authority boundary and schema shape stable. Revision 2
+corrects the existing `presentation_language` meaning and validation without adding a tool or
+protocol version. It retains one versioned lifecycle result contract, one declarative capability
+profile and four thin host adapters behind the existing lifecycle service.
 
 The lifecycle owns inspection, explicit registration, exact read-back, reference accounting,
 rollback and removal. Each adapter owns only its native host configuration, precedence and probe
 rules. Plugin installation stays a separate lifecycle. A plugin can recommend `mcp status` or
 `mcp enable`, but it cannot configure MCP or claim discovery.
+
+For presentation language, the design creates three explicit stages. The host selects one language
+tag from the latest natural-language user request. The dispatch boundary strictly validates that
+external tag before activation, target or gate work. The presentation layer then resolves a valid
+tag to an exact or primary-language pack and otherwise to the complete English pack. POSIX-style
+system locale cleanup remains a separate CLI-only input path and cannot repair MCP input.
 
 ```mermaid
 flowchart LR
@@ -52,7 +64,10 @@ gate, approval or durable-state authority.
 
 | Concern | Canonical owner | Design consequence |
 |---|---|---|
-| Tool name, description, input schema, output schema and annotations | `create-agdf/lib/skill-dispatch/contract.js` | Adapters and manifests identify the tool but never copy its semantic description or schemas. |
+| Tool name, description, input schema, output schema, annotations and `presentation_language` selection meaning | `create-agdf/lib/skill-dispatch/contract.js` | Adapters and generated Skills consume its exact semantic description and schemas. They never maintain their own language precedence or supported-pack list. |
+| Strict external language-tag validation and pack resolution mechanics | `create-agdf/lib/interaction-presentation.js` | One strict parser accepts exactly one BCP 47 tag for dispatch. Pack lookup uses exact tag, then primary language, then the enforced English fallback. |
+| Complete installed locale packs and fallback declaration | `plugin/meta/agdf-interaction-locales.json` | The registry is the only installed-pack inventory. Validation requires canonical unique keys, structurally complete packs and exact fallback `en`. |
+| Trusted system-locale adaptation | `create-agdf/lib/cli/runtime-context.js` | Only detected operating-system locale values may use POSIX cleanup before strict canonicalization. Explicit CLI and MCP values use the strict path. |
 | Dispatch behavior | `create-agdf/lib/skill-dispatch/service.js` through the existing narrow MCP runtime export | The lifecycle does not create another dispatcher or shell wrapper. |
 | MCP serving, protocol generations, worker and process boundary | `agdf-mcp-server/` | This run does not change the server protocol or tool count. |
 | Request applicability and AGDF activation | Existing request-activation contract and dispatcher | MCP registration and discovery cannot activate AGDF. |
@@ -379,9 +394,12 @@ It owns result labels, scope effects, permission effects, diagnostics, fallback 
 templates. Adapter output contains only registered codes and bounded parameters.
 
 The renderer validates every result before presentation. JSON and human output are produced from
-the same normalized object. Tests assert that every reachable code exists in each required locale
-and that no English fallback appears in German output. This prevents the earlier
-`next_step_unlocalized` class of failure from recurring in the lifecycle.
+the same normalized object. A supported request uses exactly one complete selected pack. A valid
+unsupported request uses exactly one complete English pack. No field-by-field language fallback is
+allowed. Tests assert that every reachable code exists in every registered pack, that no English
+fallback appears in supported German output and that unsupported input contains no German
+human-facing text. This prevents both the earlier `next_step_unlocalized` class and mixed-card
+output from recurring.
 
 ### AD-14: Keep Permission And Approval Boundaries Explicit
 
@@ -400,10 +418,104 @@ skill-dispatch path through registered fallback code `version_matched_cli_dispat
 does not execute it, search caches, use PATH to select another Node runtime, start `npx` inside a
 host or silently change scope.
 
+### AD-16: Separate Strict Dispatch Tags From Detected System Locales
+
+`create-agdf/lib/interaction-presentation.js` exports one strict
+`canonicalizeLanguageTag(value)` for public and programmatic request values. It accepts only a
+string whose original bytes contain one tag matching the bounded AGDF BCP 47 lexical grammar. It
+does not coerce types, trim whitespace, replace underscores, remove dot suffixes, remove modifiers
+or select one value from a list. It then uses `Intl.getCanonicalLocales` to reject structurally
+invalid tags and returns the canonical lower-case representation.
+
+The function schema imports the same lexical pattern for its `pattern` constraint. Missing,
+wrong-type and lexically malformed MCP arguments are therefore rejected by SDK v2 before the tool
+handler. `normalizeSkillDispatchInput` applies the strict parser again because CLI, tests and
+embedded callers can invoke the service without MCP schema validation. A failure returns
+`invalid_input` with diagnostic `dispatch_input_invalid`, field
+`presentation_language` and a fixed English input-recovery line. It contains no target, control or
+governance presentation. Request activation, target resolution and gate evaluation are not called.
+
+`create-agdf/lib/cli/runtime-context.js` owns a separate
+`canonicalizeDetectedSystemLocale(value)`. It may convert trusted detected values such as
+`de_DE.UTF-8` before passing the result into the strict parser. Only
+`detectSystemLocale` output uses this adapter. Explicit `--language`, function arguments,
+configuration values and host-supplied MCP input never use it.
+
+### AD-17: Make Complete English Fallback A Registry Invariant
+
+`validateLocaleRegistry` validates language metadata before any pack can be resolved:
+
+1. `schemaVersion` remains `1` and `fallbackLocale` is exactly `en`;
+2. a complete `locales.en` pack exists and supplies the baseline key set;
+3. every locale key is one strict canonical lower-case tag;
+4. two raw keys cannot normalize to the same canonical tag;
+5. every registered pack contains exactly the complete English baseline key set and satisfies the
+   existing value and length constraints.
+
+`resolvePresentationLocale` accepts a previously validated strict tag and selects in order: an
+exact complete registry pack, the complete primary-language pack, then the constant `en` pack.
+The last step does not read a mutable fallback choice after registry validation. Generic internal
+rendering that has no request-specific locale must ask for the explicit constant `en`; it is not
+the behavior of a missing public `presentation_language` argument.
+
+`localePack` returns one whole pack for the resolved locale. Renderers may not fall back per field.
+Any missing selected-pack key invalidates the registry or presentation instead of creating a hybrid
+card. Stable JSON keys, identifiers, enum values and diagnostic codes remain unchanged.
+
+### AD-18: Keep Language Meaning In The Semantic Function Description
+
+`create-agdf/lib/skill-dispatch/contract.js` replaces the hardcoded `de or en` text with this
+semantic contract:
+
+> Required presentation language for the latest natural-language user request as one well-formed
+> BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use
+> the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders
+> through the complete English pack. Missing or invalid input fails before governance evaluation.
+
+The description deliberately does not enumerate installed packs. The validated registry is their
+only inventory. If a later model-facing projection names installed packs, it must derive them from
+the registry. `renderSkillDispatchLanguageProjection`, the executable binding grammar, generated
+Skills and MCP `tools/list` continue to consume the exact function-owned description.
+
+The server does not inspect conversation text. It validates only the supplied tag. Whether Copilot,
+Codex, Claude Code or OpenCode followed the explicit-instruction, dominant-language and
+mixed-or-ambiguous precedence is a loaded-host evidence question. Repository and controlled MCP
+tests prove the contract and submitted value, not host classification accuracy.
+
+### AD-19: Use One Shared Language Matrix Across Both MCP Protocols
+
+One table-driven fixture owner supplies the contract, service, presentation and production MCP
+tests. It contains:
+
+| class | representative values | expected boundary |
+|---|---|---|
+| missing | absent property | MCP schema error; handler is not entered |
+| wrong type or empty | `null`, `0`, `""` | MCP schema error or direct-service `invalid_input`; no target/control |
+| malformed | `" de "`, `de_DE`, `de-DE.UTF-8`, `de-DE.!!!`, `de,en`, `de--DE` | strict rejection; no coercion, rendering, target or control |
+| supported | `de`, `en` | complete matching pack |
+| supported regional | `de-DE`, `en-US` | complete primary-language pack |
+| valid unsupported | `fr-FR`, `es` while no matching pack is registered | complete English pack |
+| registry mutation | fallback `de`, missing `en`, alias key `DE`, incomplete pack | registry validation failure before presentation |
+
+`agdf-mcp-server/test/protocol.test.js` runs the applicable rows unchanged against
+`2025-11-25` and `2026-07-28`. It asserts SDK error behavior for schema failures, exact
+`structuredContent` for successful dispatch, `authorizes: false`, whole-pack language
+consistency and empty STDERR. A service test injects target and gate spies and proves zero calls for
+every invalid row. Registry and presentation tests prove exact/primary/English resolution and reject
+all invalid mutations. Function-contract and generated-projection tests prove the exact semantic
+description reaches every host binding.
+
 ## 4. Integration Points And Planned Source Changes
 
 | Area | Planned change |
 |---|---|
+| `create-agdf/lib/skill-dispatch/contract.js` | Keep the function as semantic owner; add the shared strict tag pattern, replace the hardcoded locale list with the approved selection/failure/fallback description and preserve required input. |
+| `create-agdf/lib/interaction-presentation.js` | Make public tag canonicalization strict, enforce exact English registry fallback and canonical complete packs, and resolve only exact pack, primary pack or complete English pack. |
+| `create-agdf/lib/cli/runtime-context.js` | Isolate permissive POSIX system-locale adaptation from explicit CLI and MCP request validation. |
+| `create-agdf/lib/skill-dispatch/service.js` | Preserve pre-target `invalid_input`; return a fixed English input error with no governance presentation when direct callers bypass MCP schema validation. |
+| `plugin/meta/agdf-interaction-locales.json` | Remain the sole complete installed-pack inventory and declare the validator-enforced exact `en` fallback. |
+| `plugin/meta/contracts/interaction.md` | Separate missing public dispatch input, invalid input, valid unsupported fallback and non-dispatch internal default behavior. |
+| `agdf-mcp-server/test/protocol.test.js` | Run the shared language matrix on both supported protocol versions and assert schema-error versus successful whole-pack behavior. |
 | `plugin/meta/agdf-mcp-capability.json` | Upgrade to profile schema v2 with four surfaces, lifecycle vocabulary, adapter variants and immutable evidence references. |
 | generation and runtime-integrity owners | Generate, package and validate the internal capability profile; continue excluding it from the public skills-only candidate. |
 | `create-agdf/lib/cli/runtime-context.js` | Load and expose the validated generated capability profile. |
@@ -422,8 +534,10 @@ host or silently change scope.
 | direct-host evidence artefacts | Record four independent host matrices and separate protocol, package, OS and UAT evidence. |
 | Context Graph `CG-MCP-DISPATCH-ADAPTER` | Update only after implementation and direct evidence establish the final lifecycle and support boundaries. |
 
-No change is planned for MCP transport, protocol generations, tool count, semantic schema,
-dispatcher behavior, target resolution, gate evaluation or approval persistence.
+No change is planned for MCP transport, protocol generations, tool count, property names, required
+input set, output schema, dispatcher authority, target resolution, gate evaluation or approval
+persistence. The `presentation_language` schema constraint, description, validation and pack
+resolution change as approved in PRD Revision 2.
 
 ## 5. Constraints And Compatibility
 
@@ -454,6 +568,9 @@ dispatcher behavior, target resolution, gate evaluation or approval persistence.
   derives from `SKILL_DISPATCH_FUNCTION_DEFINITION` with no adapter copy.
 - Cover every English and German result, diagnostic, fallback and next-action code.
 - Prove JSON and human output communicate the same normalized result and remain non-authorizing.
+- Prove that the semantic function description contains the approved current-request precedence,
+  names no independent installed-pack list and reaches every generated binding byte-for-byte.
+- Reject every non-English fallback, non-canonical or duplicate locale key and incomplete pack.
 
 ### 6.2 Adapter Conformance
 
@@ -496,9 +613,10 @@ permissions.
 ### 6.5 Separate Protocol And Package Lanes
 
 Retain the existing controlled child-process tests that negotiate MCP `2026-07-28` and
-`2025-11-25`. Retain exact SDK v2 dependency, Node boundary, package inventory, provenance,
-read-only application graph, worker timeout and shutdown evidence. These lanes prove the server and
-package only and do not qualify a host.
+`2025-11-25`. Apply the AD-19 language matrix to both negotiations instead of proving only one
+normal unresolved call. Retain exact SDK v2 dependency, Node boundary, package inventory,
+provenance, read-only application graph, worker timeout and shutdown evidence. These lanes prove
+the server and package only and do not qualify a host.
 
 ### 6.6 Direct Four-Host Evidence
 
@@ -529,6 +647,22 @@ execution or remain unverified. Human UAT starts only after applicable determini
 lanes pass and evaluates the visible status, enable, restart/trust, recovery and disable journey. It
 does not replace machine evidence.
 
+### 6.8 Presentation-Language Boundary
+
+- Contract tests assert the required property, shared strict lexical pattern and exact semantic
+  description.
+- Direct-service tests inject target and gate spies and assert zero calls for all missing or invalid
+  values.
+- Registry tests enforce `fallbackLocale === "en"`, a complete English baseline, canonical unique
+  keys and exact pack completeness.
+- Presentation tests assert complete German for `de` and `de-DE`, complete English for `en`,
+  `en-US`, `fr-FR` and `es`, and no hybrid field-level fallback.
+- Production STDIO tests run missing, wrong-type, empty, malformed, supported, regional and valid
+  unsupported rows against both supported MCP protocol versions.
+- Generated Skill and binding tests compare the language projection with the function-owned
+  description. Loaded-host evidence separately records the submitted tag where observable and does
+  not claim that the server detected conversation language.
+
 ## 7. Acceptance Traceability
 
 | Criterion | Design and required evidence |
@@ -553,6 +687,10 @@ does not replace machine evidence.
 | CHMCP-AC-18 | AD-11 and separate protocol, package, lifecycle, host, OS and UAT reports |
 | CHMCP-AC-19 | AD-10, AD-11 and direct OpenCode permission/prompt evidence |
 | CHMCP-AC-20 | AD-03, AD-13 and complete English/German contract snapshots |
+| CHMCP-AC-21 | AD-16 through AD-19 and supported/regional service, presentation and dual-protocol MCP rows |
+| CHMCP-AC-22 | AD-17, AD-19 and complete unsupported-to-English snapshots plus non-English fallback mutation rejection |
+| CHMCP-AC-23 | AD-16, AD-19 and schema/service negative rows with zero target and gate calls |
+| CHMCP-AC-24 | AD-18, semantic-owner/generated-projection tests and separate loaded-host argument evidence |
 
 ## 8. Risks And Open Questions
 
@@ -564,6 +702,10 @@ does not replace machine evidence.
 | Result v2 drifts from existing three-host behavior. | One common constructor, closed vocabulary and adapter conformance suite. | Map every previous lifecycle scenario and every PRD criterion. |
 | Host probe output changes. | Closed parser, unknown-schema failure and config evidence retained separately. | Positive and unknown-version/output fixtures for every native command. |
 | Human text diverges from JSON or locales. | Code-based presentation and locale completeness validation. | Exhaustive English/German snapshots and no free-form adapter text. |
+| Permissive POSIX cleanup accepts malformed MCP input. | Separate strict external canonicalization from detected system-locale adaptation. | Prove every malformed AD-19 row stops before target and gate on all direct and protocol paths. |
+| Registry fallback changes from English or a pack becomes partial. | Exact `en` invariant and complete English baseline in registry validation. | Mutation tests for fallback, missing baseline, canonical alias and incomplete pack. |
+| Function wording and installed pack metadata drift. | Function contract owns meaning; registry owns installed packs; the description enumerates none. | Exact projection tests across MCP metadata, binding grammar and generated Skills. |
+| A valid host-supplied tag does not match the current conversation. | The server makes no unverifiable detection claim and records only the supplied/resolved tag. | Keep loaded-host argument selection as separate direct evidence and fail support claims closed. |
 | Registration is mistaken for current discovery. | Independent registration/discovery fields and direct-evidence source. | Assert matched config never yields `discovered_ready` alone. |
 | Plugin installation creates a second MCP lifecycle. | No bundled MCP manifest and no installer lifecycle call. | Cross-host installer state-diff tests. |
 | Direct host tests leave user or repository state behind. | Exact baseline snapshots, reversible operations and independent cleanup. | Host-by-host cleanup proof is mandatory and blocks qualification when incomplete. |
@@ -584,14 +726,15 @@ the delivered paths:
 > treat plugin installation as MCP discovery. Host and operating-system support claims require
 > separate exact direct evidence.
 
-Context Graph reconciliation remains an open warning until implementation, evidence and reviews
-confirm the final design.
+The Context Graph already records the reopened language-contract gap. It must be revised again only
+after implementation, evidence and reviews confirm the delivered correction.
 
 ## 10. Next Step
 
-Solution Design Revision 1 is approved through exact `Approval: SD`. Review Task Plan Revision 1
+Solution Design Revision 2 is approved through exact `Approval: SD`. Review Task Plan Revision 2
 and provide exact `Approval: TP`, request revision or decline. Implementation, host registration,
-permission changes, direct test mutations, publication and release remain blocked until TP approval.
+permission changes, direct test mutations, publication and release remain blocked until the revised
+TP is approved and the required pre-implementation Brownfield Analysis passes.
 
 ## Sources
 

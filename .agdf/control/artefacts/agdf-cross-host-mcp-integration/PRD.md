@@ -2,11 +2,15 @@
 
 Status: approved
 Gate: PRD
-Gate approval: Exact `Approval: PRD` accepted on 2026-09-06 after same-target, same-run,
-same-gate and run revision `575EE4E5-9B6E-43F0-AFAC-B264D22B27FF` revalidation.
-Based on: approved UR Revision 1, passed Brownfield Review and ready UX Intent Definition
-Revision: 1
-Date: 2026-09-06
+Gate approval: Exact `Approval: PRD` accepted on 2026-09-08 after same-target, same-run, same-gate
+and run revision `61989C89-12F3-48B9-BAA2-ECEFED642710` revalidation.
+Previous approval: Revision 1 was approved on 2026-09-06 and remains historical. The
+user-requested language-contract correction and direct malformed-input evidence supersede it for
+future implementation authority.
+Based on: approved UR Revision 1, passed Brownfield Review, ready UX Intent Definition and the
+2026-09-08 language-contract weakness review
+Revision: 2
+Date: 2026-09-08
 Owner: Arndt Gold
 
 ## 1. Product Scope
@@ -49,6 +53,17 @@ requested scope must return a non-mutating result and must not choose a broader 
   for another host, client variant, version or operating system.
 - The existing version-matched CLI and instruction path remains the named compatible path when MCP
   is unavailable, unsupported, unverified or deliberately disabled.
+- Every dispatch carries one explicit presentation-language value. The host selects it from the
+  latest natural-language user request: an explicit response-language instruction wins; otherwise
+  the request's dominant language wins; mixed or ambiguous language resolves to English. Host UI,
+  operating-system locale, repository content and prior assistant output do not override that order.
+- Missing, invalid, unsupported and mixed language are distinct product states. A missing property
+  or an invalid value stops before target or gate evaluation. A valid but unsupported language tag
+  and an ambiguous mixed-language request both render through one complete English locale pack.
+- The semantic function contract owns the meaning and selection rules for
+  `presentation_language`. The locale registry owns the set of complete installed language packs.
+  The function description and validators consume that registry metadata; no adapter or generated
+  Skill maintains an independent supported-language list.
 
 ## 2. UX Intent And Success
 
@@ -224,6 +239,36 @@ for bounded dispatch while unrelated shell and edit permissions keep their prior
 evidence can support retirement of `opencode-native-dispatch-tool`; this run does not pre-approve or
 silently close the separate draft.
 
+### CHMCP-19: Deterministic presentation-language contract
+
+`presentation_language` is required for every `agdf_dispatch` request and contains one well-formed
+BCP 47 language tag. Missing means the property is absent. Invalid means the value is not a non-empty
+string containing exactly one well-formed tag; whitespace-padded values, locale lists, underscore
+forms, POSIX encoding or modifier suffixes such as `.UTF-8` or `@euro`, and malformed subtags are
+invalid. Missing and invalid input fail before request activation, target resolution or gate
+evaluation and produce no governance card.
+
+A valid tag uses an exact complete registry pack when present, otherwise its primary language pack
+when present. A valid tag with no complete matching pack uses the complete English pack. One resolved
+pack renders the entire human-facing response, including target orientation, status, approval,
+recovery and continuation text. Stable machine keys, identifiers and diagnostic codes remain
+language-independent.
+
+The host chooses the tag from the latest natural-language user request. An explicit instruction for
+the response language has precedence over detected language. Without such an instruction, the
+dominant language of that request is used. If the request is mixed without a clear dominant language,
+ambiguous or cannot be classified reliably, the host supplies `en`. The MCP server can validate and
+resolve the supplied tag but cannot prove that the host classified the conversation correctly.
+
+### CHMCP-20: Semantic owner and locale-registry invariant
+
+`create-agdf/lib/skill-dispatch/contract.js` remains the semantic owner for the property name,
+meaning, selection precedence, required input and failure/fallback behavior. The validated locale
+registry is the only owner of complete installed locale packs. It must contain a complete `en` pack,
+must declare `en` as its immutable fallback and must reject incomplete packs, duplicate canonical
+tags and any other fallback. Model-facing descriptions and generated host bindings derive supported
+pack facts from this registry rather than hardcoding `de`, `en` or a second list.
+
 ## 6. Acceptance Criteria
 
 | criterion_id | working_mode | source_state and trigger/action | expected effective state and visible feedback | blocker/failure and recovery/next action | observable success and required evidence |
@@ -248,11 +293,16 @@ silently close the separate draft.
 | CHMCP-AC-18 | all | Run the controlled protocol, package, lifecycle and host suites. | Dual-protocol negotiation, SDK v2 package integrity, lifecycle behavior and direct host results remain separate and all applicable lanes pass. | Passing one lane cannot fill another lane's missing evidence. | Controlled client logs, package tests, lifecycle tests, direct host reports and QA mapping. |
 | CHMCP-AC-19 | `discovered_ready` | Observe OpenCode MCP invocation with its existing general shell and edit permission settings captured. | Bounded MCP dispatch uses the MCP tool path; unrelated permission settings are unchanged; repeated shell-prompt behavior is reported factually. | Incomplete evidence leaves `opencode-native-dispatch-tool` open; no retirement claim is made. | Direct OpenCode session evidence and exact before/after permission state. |
 | CHMCP-AC-20 | all | Render human-readable and JSON lifecycle results for common and host-specific states. | Both forms communicate the same effective result, one next action and exact non-authorizing boundary. | Unknown or misleading state combinations fail contract validation. | Snapshot/contract tests for all stable states and German/English presentation where applicable. |
+| CHMCP-AC-21 | all | Call both supported MCP protocol versions with exact supported tags and regional variants such as `de`, `en`, `de-DE` and `en-US`. | Exact packs or their supported primary-language packs render the complete response; the resolved tag reaches target, gate, recovery and continuation paths. | A partial translation, different path locale or independently hardcoded host behavior fails the matrix. | Dual-protocol MCP tests and service/renderer tests assert every path and both complete packs. |
+| CHMCP-AC-22 | all | Call both supported MCP protocol versions with a well-formed but unsupported tag such as `fr-FR`. | The complete English pack renders every human-facing field while stable machine keys and codes remain unchanged. | Any mixed-language card, mutable non-English fallback or terminal locale is a contract failure. | Dual-protocol snapshots plus a registry mutation test that attempts to set a non-English fallback. |
+| CHMCP-AC-23 | all | Omit `presentation_language` or supply null, empty, whitespace-padded, list, underscore, POSIX-suffixed or malformed values such as `de-DE.!!!`. | Input fails before request activation, target resolution and gate evaluation; no governance card or authorizing output is produced. | Coercion, suffix stripping, partial parsing or fallback rendering for invalid input fails the contract. | Schema, strict-validator, service and dual-protocol negative tests assert the same boundary and stable error class. |
+| CHMCP-AC-24 | all | Derive the request language for an explicit response-language instruction, one dominant language, a mixed request without a clear dominant language and an ambiguous request. | Explicit instruction wins; otherwise the dominant language is supplied; mixed or ambiguous input supplies `en`. The function description and every generated binding communicate this precedence from the semantic owner. | UI/system locale inference prior messages or an adapter-specific language list must not alter the choice. | Semantic-owner and generated-projection tests plus fresh-host observations where the host exposes the submitted arguments. |
 
 ## 7. Non-Goals
 
-- Changing the MCP protocol server, tool count, dispatcher semantics, request activation, target
-  resolution, gate evaluation, presentation rules or `.agdf/control/` authority.
+- Changing the MCP protocol server, tool count, dispatcher authority, request activation, target
+  resolution, gate evaluation or `.agdf/control/` authority beyond the presentation-language
+  contract defined by CHMCP-19 and CHMCP-20.
 - Adding mutable, implementation, approval, Git, release or arbitrary shell/file/network MCP tools.
 - Automatically enabling MCP during host plugin installation or adding plugin-bundled MCP manifests.
 - Replacing native host configuration with one AGDF-owned cross-host file.
@@ -299,6 +349,12 @@ silently close the separate draft.
 - Shared runtime-reference tests for several hosts and scopes.
 - CLI grammar, text/JSON parity, diagnostic stability and exact non-authorizing assertions.
 - Semantic-owner tests that prevent adapter or manifest schema drift.
+- A shared missing, invalid, supported, regional, unsupported and mixed-language matrix across the
+  strict validator, locale registry, service and both supported MCP protocol versions.
+- Registry mutation tests proving that only complete canonical packs are accepted and `en` remains
+  the complete immutable fallback.
+- Generated-projection tests proving that the model-facing function and host bindings share the
+  semantic selection rule and derive installed pack facts from the registry.
 - Installer tests proving plugin installation does not silently activate MCP.
 - Release preparation, package contents, public-plugin boundary and complete regression suites.
 
@@ -340,6 +396,12 @@ MCP clients cannot substitute for loaded-host facts.
   prevent both early deletion and stale package residue.
 - Human-readable state vocabulary can drift from JSON. The same common state owner and contract
   tests must cover both outputs and supported languages.
+- A host model can supply a valid tag that does not match the current request. The server cannot
+  independently observe the conversation, so fresh-host evidence must distinguish server contract
+  correctness from host argument-selection behavior.
+- BCP 47 validation and system-locale parsing have different trust boundaries. Solution Design must
+  keep strict external request validation separate from any permissive internal environment-locale
+  detection and must not share suffix-stripping behavior between them.
 - Host plugin specifications support bundled MCP on some hosts, but adding that path would duplicate
   explicit lifecycle activation and is excluded from this run.
 
@@ -348,10 +410,12 @@ composition and module boundaries are Solution Design decisions constrained by t
 
 ## 12. Next Step
 
-PRD Revision 1 was approved through exact `Approval: PRD` on 2026-09-06 after same-target,
-same-run, same-gate and run revision `575EE4E5-9B6E-43F0-AFAC-B264D22B27FF` revalidation.
-The next allowed action is Solution Design drafting. This approval does not permit implementation, host
-registration, installation changes, direct test mutations, publication or release.
+PRD Revision 2 was approved through exact `Approval: PRD` on 2026-09-08 after same-target,
+same-run, same-gate and run revision `61989C89-12F3-48B9-BAA2-ECEFED642710` revalidation. The
+next allowed action is Solution Design Revision 2 covering the strict external validator,
+English-fallback registry invariant, semantic-description projection and one dual-protocol test
+matrix. PRD approval does not permit implementation, host registration, installation changes,
+direct test mutations, publication or release.
 
 ## Sources
 

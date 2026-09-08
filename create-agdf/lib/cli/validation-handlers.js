@@ -72,9 +72,12 @@ export function createValidationHandlers(io = console) {
       return report.status === "block" ? 2 : 0;
     }],
     ["gate-check", (options) => {
-      const report = evaluateGateWithCliGit(options.dir, options);
+      const selection = options.languageExplicit
+        ? { ...options, presentationLanguage: options.language?.chat_language }
+        : options;
+      const report = evaluateGateWithCliGit(options.dir, selection);
       if (options.approvalEnvelope) {
-        const output = printApprovalEnvelope(report, { io, reEvaluate: () => evaluateGateWithCliGit(options.dir, options) });
+        const output = printApprovalEnvelope(report, { io, reEvaluate: () => evaluateGateWithCliGit(options.dir, selection) });
         return output.status === "blocked" ? 2 : 0;
       }
       const presentationRendered = printGateCheckReport(report, options.json, options.statusCard, io);

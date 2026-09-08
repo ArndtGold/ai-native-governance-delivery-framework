@@ -1,11 +1,57 @@
 # Code Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 13
+Revision: 15
 Decision: pass
-Date: 2026-09-05
+Date: 2026-09-08
 Review mode: direct review by the implementing agent, not independent-agent evidence.
 Baseline: 4d38db394d05bf2afb5280dc3af92dfee042a2bb.
 
+
+## Host-native Plugin-root Review
+
+- decision: pass for the bounded host command, environment resolver, generator, hook-integrity,
+  tests, payload baseline and documentation diff.
+- correctness: Codex and Claude select their native root before the compatibility root. Windows
+  selects exactly one non-empty value with `if/else`; it never adds root strings. Copilot does not
+  inherit the Claude fallback and OpenCode remains rootless.
+- regression: focused suites and the complete serial smoke pass. The installed Codex runtime
+  returns version `0.14.5` with a valid Codex root and deliberately invalid Claude root.
+- security: environment values remain process data passed to Node without shell construction in the
+  validator. Hook paths remain quoted; Runtime Integrity rejects a changed command projection.
+- maintainability: the generator imports the shared resolver instead of duplicating root precedence.
+  Host-specific command syntax remains in the existing adapter layer.
+- review limitation: this is direct review by the implementing agent. Windows behavior is proven as
+  a generated string contract, not by execution on Windows.
+- required_next_step: QA consumes the resolved implementation findings and retains the native-host
+  evidence obligation.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-DISPATCH-17 | implementation_gap | CD+Tests | resolved | shared surface resolver plus corrected installed Codex replay | Verify loaded behavior in a fresh Codex task. |
+| CSED-DISPATCH-18 | implementation_gap | CD+Tests | resolved | conditional Windows command and exact Runtime Integrity assertion | Execute the command on a native Windows host under CSED-QA-01. |
+
+## QA Candidate And Terminal-response Review
+
+- decision: pass for the bounded evaluator projection, dispatcher snapshot, function contract,
+  skill projections, validation and regression diff.
+- correctness: `qa-gate` receives the complete canonical active-run inventory only when selection
+  is unresolved. Gates are normalized before comparison, candidate objects are frozen and bounded,
+  and other judgement skills do not gain the QA-only payload.
+- regression: source and installed dispatch return 23 candidates and exactly 13 QA entries. Both
+  user-observed omissions are restored. Exact target-unresolved replay still returns one canonical
+  German card and a terminal host action.
+- security: candidate values are data, not instructions. The contract forbids rescanning, invention
+  and omission; terminal output cannot add links, questions, explanations or later calls.
+- maintainability: the gate evaluator, interaction projection, dispatcher transport and function
+  semantics each retain one distinct owner. Runtime Integrity prevents source/installed skill drift.
+- review limitation: this is direct review by the implementing agent. The updated installation is
+  observable, but the active task cannot reload it and therefore does not prove model adherence.
+- required_next_step: QA consumes the resolved findings and retains `CSED-QA-01`.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CSED-DISPATCH-15 | implementation_gap | CD+Tests | resolved | canonical immutable candidate transport, normalized gate data and exact 13-run source/installed replay | Verify use in a fresh Codex task. |
+| CSED-DISPATCH-16 | implementation_gap | CD+Tests | resolved | function-owned whole-response terminal rule plus exact projections in all ten skills | Verify terminal fidelity in a fresh Codex task. |
 
 ## Semantic Function-owner Review
 

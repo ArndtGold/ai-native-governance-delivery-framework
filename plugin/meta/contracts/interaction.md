@@ -7,7 +7,7 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 - `mode`: `quick_task | verified_change | structured_delivery | unknown`
 - `run_id`: the exactly selected canonical run
-- `presentation_language`: the resolved complete locale-pack tag; absent or unsupported requested locale tags resolve to the registry's deterministic `en` fallback, while an incomplete or invalid registry fails closed
+- `presentation_language`: the resolved complete locale-pack tag; a valid unsupported requested tag resolves to the registry's deterministic `en` pack, while a missing or invalid dispatch value fails before this card exists and an incomplete or invalid registry fails closed
 - `status`: `open | blocked | pass | warn | revise | block | in_progress`
 - `current_gate`: current user gate or internal step
 - `mode_slice_decision`: `undecided | quick_task | verified_change | structured_slice | structured_delivery | block`
@@ -206,8 +206,10 @@ Use this compact composition:
 
 Resolve all AGDF-owned explanatory text through the canonical Interaction
 Locale Registry. `en` and `de` are initial reviewed packs, not a closed locale
-list. English is the deterministic fallback for absent or unsupported requested locale tags; an
-incomplete or invalid registry fails closed. Gate identifiers, `run_id`, canonical paths and exact
+list. A valid unsupported requested locale uses the complete English pack. Missing or invalid
+external dispatch input fails before governance evaluation; internal rendering without a
+request-specific language supplies explicit `en`. An incomplete or invalid registry fails closed.
+Gate identifiers, `run_id`, canonical paths and exact
 approval values are never translated. The visible gate title is localized;
 for example, the German title may be `Lösungsdesign` while the authorization
 value remains `Approval: SD`. Meaning, ordering and authority boundaries are
@@ -421,7 +423,8 @@ ordered-list syntax are invalid. The escalation list contains 1–3 valid, disti
 The renderer rejects the complete input on any violation; it never coerces, truncates, sanitizes or
 partially retains invalid values.
 
-An unsupported requested locale resolves through the complete deterministic English fallback pack.
+A valid unsupported requested locale resolves through the complete deterministic English fallback pack.
+A missing or invalid external dispatch locale never reaches classification or presentation.
 A present incomplete or otherwise invalid registry is an invalid presentation source, not an
 unsupported locale: the renderer returns `null`. Missing, unknown or contradictory classification
 input likewise returns `null`, and the agent fails closed to the existing ceremony — never
@@ -439,7 +442,8 @@ fallback and human CLI output use the configured project chat language from
 
 - resolve an exact complete pack, then its language subtag, then deterministic English fallback;
 - `en` and `de` are the initial complete packs; additional reviewed complete packs are supported without changing runtime logic;
-- an unsupported requested locale must fail to English as a complete unit; an incomplete or invalid
+- a valid unsupported requested locale must resolve to English as a complete unit; missing or
+  invalid external dispatch input fails before presentation; an incomplete or invalid
   registry is not an unsupported locale and must fail closed without presentation;
 - one interaction must not mix presentation languages, including labels and descriptions;
 - durable artefacts, runtime rules, task identifiers and machine-facing approval values remain English;

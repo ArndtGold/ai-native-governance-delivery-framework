@@ -1,12 +1,84 @@
 # CD+Tests: Cross-surface Executable Skill Dispatcher
 
-Revision: 13
+Revision: 15
 Status: done
 Decision: revise
-Date: 2026-09-05
+Date: 2026-09-08
 Run: `cross-surface-executable-skill-dispatcher`
 Based on: approved SD2, TP2 and Brownfield Analysis Revision 5 (`pass`).
 Baseline: `4d38db394d05bf2afb5280dc3af92dfee042a2bb`. Earlier CD revisions are historical Git evidence.
+
+
+## Host-native Plugin-root Correction, 2026-09-08
+
+Bounded scope: approved TP-04/08/13/14/15/16 and the current QA revision path.
+
+- `CSED-DISPATCH-17` reproduced an installed Codex failure when both root variables were present:
+  the generated validator selected `CLAUDE_PLUGIN_ROOT` before Codex's native `PLUGIN_ROOT` and
+  returned `plugin_root_mismatch` for an otherwise valid installed runtime.
+- `CSED-DISPATCH-18` identified a separate Windows hook defect. The generated PowerShell command
+  added both environment-variable strings. When both were set, the result was not a valid plugin
+  path.
+- `host-adapters/session-command.js` now renders surface-specific commands. Codex prefers
+  `PLUGIN_ROOT`, Claude Code prefers `CLAUDE_PLUGIN_ROOT`, and each uses the other variable only as
+  a compatibility fallback. Windows uses an explicit PowerShell `if` expression.
+- `local-validator.js` now owns the same surface-to-root resolution for generated `agdf-local.js`
+  and `agdf-session-check.js`. Copilot uses only `PLUGIN_ROOT`; OpenCode has no plugin-root binding.
+- Runtime Integrity derives the expected POSIX and Windows Codex hook commands from the canonical
+  command owner. It rejects manifest drift and prevents root concatenation from returning silently.
+- Unit and consent tests cover explicit and inferred Codex/Claude environments, Copilot, OpenCode,
+  POSIX commands and both Windows command strings. Local-validator, runtime-check-consent and
+  runtime-integrity-layout tests pass.
+- The complete serial `npm --prefix create-agdf run smoke-test` passes, including 40 adapter cases,
+  MCP suites, installer profiles, negative Runtime Integrity tests, 83/83 skill replays and package
+  build checks. The reviewed Copilot payload remains at 95 files and grows by 1120 bytes to 761444
+  bytes without adding a runtime file.
+- The authorized Codex update installed `0.14.5+codex.local-880e88555405`. `codex plugin list`
+  reports it enabled, installed Runtime Integrity passes, and source, marketplace and cache hook
+  manifests are byte-identical.
+- The exact installed replay now succeeds with the native Codex root plus a deliberately stale
+  Claude root and returns `create-agdf` version `0.14.5`. Before the correction this case returned
+  `plugin_root_mismatch`.
+- The architecture and maintainer documentation explain the root priority and Windows boundary.
+  Native Windows execution and a fresh loaded Codex model task remain separate evidence under
+  `CSED-QA-01`; no claim is inferred from static command tests.
+
+## Canonical QA Candidate And Terminal-response Correction, 2026-09-08
+
+Bounded scope: approved TP-05/08/11/13/14/15/16 and the current QA revision path.
+
+- The user-supplied Codex trace exposed two separate defects after target confirmation. Codex
+  presented only 11 of 13 active QA runs, omitting `agdf-staged-proportionality-observation` and
+  `cross-surface-plugin-opt-out`. In the preceding terminal target result it also appended a German
+  question and explanation after the canonical English card.
+- Root cause 1 was data loss at the dispatcher boundary. Gate evaluation already returned the full
+  candidate inventory, but the judgement continuation reduced control to a small snapshot without
+  `candidate_runs`. The model then rescanned files and reconstructed an incomplete list.
+- `interaction-presentation.js` now projects bounded objective, normalized gate and decision values.
+  `skill-dispatch/service.js` freezes and transports the complete canonical candidate inventory only
+  for `qa-gate` while preserving the closed continuation shape for other judgement skills.
+- Root cause 2 was an underspecified terminal instruction. `skill-dispatch/contract.js` now owns the
+  exact whole-response rule. Every skill receives a byte-checked projection: the assistant response
+  consists only of `host_action.text`, with no question, explanation, heading, citation, link,
+  translation, reformatting or later tool call.
+- The same canonical contract tells `qa-gate` to filter `control.candidate_runs` by normalized
+  `current_gate: QA` and forbids a second run-file scan, invented candidates or omissions. Runtime
+  Integrity rejects missing, duplicated or changed projections in source and installed layouts.
+- Direct source and installed-runtime dispatch each return 23 candidates and exactly 13 QA runs.
+  Both previously omitted run IDs are present, and every QA candidate contains `run_id`, `objective`,
+  normalized `current_gate`, `decision` and `revision_id`.
+- A complete serial `npm --prefix create-agdf run smoke-test` passed before the final 705-byte
+  function-description refinement. After that refinement the directly affected dispatch,
+  instruction-footprint, public-plugin, Runtime Integrity and 83/83 skill-eval suites passed again.
+  `git diff --check` is part of the final evidence refresh below.
+- The authorized local Codex installation completed as
+  `0.14.5+codex.local-e464297ddcc5`. `codex plugin list` reports `agdf@agdf` installed and enabled.
+  Direct installed replay reports `owned_version_matched`, provenance `matched`, runtime digest
+  `03480dc404d69ff90b37e9fa8bbe27da2e82249ef46c95bef385e00336cb96cd`, the complete candidate
+  inventory and exact German terminal `host_action.text` with `allow_surrounding_text: false`.
+- Evidence boundary: installation and installed-runtime behavior are observed directly. The current
+  Codex task loaded the prior profile, so only a new task can prove model adherence. Native
+  Windows/Linux and the complete four-host matrix also remain open under `CSED-QA-01`.
 
 
 ## Semantic Dispatch Function Owner, 2026-09-05

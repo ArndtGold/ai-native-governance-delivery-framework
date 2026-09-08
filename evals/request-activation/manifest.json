@@ -9,9 +9,12 @@
       "plugin/meta/contracts/request-activation.md",
       "plugin/meta/agdf-plugin.definition.json"
     ],
-    "value": "sha256:c98779792c46852298b0a14563b06a8e2a7ee55e13817567a551e7db174bb088"
+    "value": "sha256:5bfc830fd7b349cfaf927ffb077d3b4652e8046f58873d294fbbb0cd13b4d065"
   },
-  "required_locales": ["de", "en"],
+  "required_locales": [
+    "de",
+    "en"
+  ],
   "required_case_families": [
     "ordinary_assessment",
     "agdf_as_topic",
@@ -31,21 +34,78 @@
     "active_run_continuation"
   ],
   "required_pairs": [
-    { "id": "assessment-repair-de", "sides": ["assessment", "repair"] },
-    { "id": "advice-delivery-de", "sides": ["advice", "delivery"] },
-    { "id": "quoted-current-de", "sides": ["quoted", "current"] },
-    { "id": "artefact-de", "sides": ["advisory", "binding"] },
-    { "id": "negated-current-en", "sides": ["negated", "current"] },
-    { "id": "example-current-en", "sides": ["example", "current"] },
-    { "id": "code-current-en", "sides": ["code", "current"] },
-    { "id": "explicit-operation-de", "sides": ["negative", "operation"] },
-    { "id": "continuation-en", "sides": ["unrelated", "continue"] }
+    {
+      "id": "assessment-repair-de",
+      "sides": [
+        "assessment",
+        "repair"
+      ]
+    },
+    {
+      "id": "advice-delivery-de",
+      "sides": [
+        "advice",
+        "delivery"
+      ]
+    },
+    {
+      "id": "quoted-current-de",
+      "sides": [
+        "quoted",
+        "current"
+      ]
+    },
+    {
+      "id": "artefact-de",
+      "sides": [
+        "advisory",
+        "binding"
+      ]
+    },
+    {
+      "id": "negated-current-en",
+      "sides": [
+        "negated",
+        "current"
+      ]
+    },
+    {
+      "id": "example-current-en",
+      "sides": [
+        "example",
+        "current"
+      ]
+    },
+    {
+      "id": "code-current-en",
+      "sides": [
+        "code",
+        "current"
+      ]
+    },
+    {
+      "id": "explicit-operation-de",
+      "sides": [
+        "negative",
+        "operation"
+      ]
+    },
+    {
+      "id": "continuation-en",
+      "sides": [
+        "unrelated",
+        "continue"
+      ]
+    }
   ],
   "composed_profile": {
     "schema_version": 1,
     "evidence_plane": "source_composed",
     "loaded_profile": false,
-    "evaluator_surfaces": ["codex", "claude"],
+    "evaluator_surfaces": [
+      "codex",
+      "claude"
+    ],
     "profiles": {
       "codex": {
         "eager_kind": "session_start",
@@ -74,10 +134,34 @@
       }
     },
     "required_pairs": [
-      { "id": "assessment-repair-de", "coverage": ["negative", "mixed"] },
-      { "id": "advice-delivery-de", "coverage": ["negative", "positive"] },
-      { "id": "explicit-operation-de", "coverage": ["negative", "explicit_operation"] },
-      { "id": "continuation-en", "coverage": ["negative", "continuation"] }
+      {
+        "id": "assessment-repair-de",
+        "coverage": [
+          "negative",
+          "mixed"
+        ]
+      },
+      {
+        "id": "advice-delivery-de",
+        "coverage": [
+          "negative",
+          "positive"
+        ]
+      },
+      {
+        "id": "explicit-operation-de",
+        "coverage": [
+          "negative",
+          "explicit_operation"
+        ]
+      },
+      {
+        "id": "continuation-en",
+        "coverage": [
+          "negative",
+          "continuation"
+        ]
+      }
     ]
   },
   "callback_vocabulary": [

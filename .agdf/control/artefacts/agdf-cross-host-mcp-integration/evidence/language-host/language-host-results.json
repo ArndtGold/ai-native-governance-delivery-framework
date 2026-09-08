@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-08",
+  "run_id": "agdf-cross-host-mcp-integration",
+  "authority_effect": "none",
+  "environment": {
+    "os": "Darwin 24.6.0",
+    "architecture": "x86_64",
+    "node": "22.22.3"
+  },
+  "runtime": {
+    "agdf_version": "0.14.5",
+    "digest": "22d784d9bef670ef4ba56cbd3404dc2b2cf95c40f8514a6fdcf99fdf9d9e3dce",
+    "acquisition": "exact local tarballs in isolated temporary runtime"
+  },
+  "evidence_boundary": "Loaded-host argument selection is separate from the dual-protocol contract suite and does not qualify a release.",
+  "controlled_cases": {
+    "explicit-de": {
+      "class": "explicit_response_language",
+      "accepted_submitted": [
+        "de",
+        "de-DE"
+      ],
+      "expected_resolved": "de"
+    },
+    "explicit-en": {
+      "class": "explicit_response_language",
+      "accepted_submitted": [
+        "en"
+      ],
+      "expected_resolved": "en"
+    },
+    "dominant-de": {
+      "class": "dominant_request_language",
+      "accepted_submitted": [
+        "de",
+        "de-DE"
+      ],
+      "expected_resolved": "de"
+    },
+    "mixed-ambiguous": {
+      "class": "mixed_or_ambiguous",
+      "accepted_submitted": [
+        "en"
+      ],
+      "expected_resolved": "en"
+    },
+    "unsupported-fr-fr": {
+      "class": "valid_unsupported_response_language",
+      "accepted_submitted": [
+        "fr-FR"
+      ],
+      "expected_resolved": "en"
+    }
+  },
+  "hosts": {
+    "codex": {
+      "client": "codex-cli 0.145.0",
+      "session": "one fresh ephemeral gpt-5.6-sol process per case",
+      "result": "language_matrix_pass",
+      "cases": {
+        "explicit-de": {
+          "evidence_ref": "codex-explicit-de.jsonl",
+          "tool_observed": true,
+          "submitted_arguments": {
+            "presentation_language": "de",
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cross-host-mcp-integration",
+            "skill_id": "gate-check",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "outcome": "control_result",
+          "resolved_presentation_language": "de",
+          "authorizes": false,
+          "language_selection_pass": true,
+          "dispatch_pass": true,
+          "context_fidelity_pass": true
+        },
+        "explicit-en": {
+          "evidence_ref": "codex-explicit-en.jsonl",
+          "tool_observed": true,
+          "submitted_arguments": {
+            "presentation_language": "en",
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cross-host-mcp-integration",
+            "skill_id": "gate-check",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "outcome": "control_result",
+          "resolved_presentation_language": "en",
+          "authorizes": false,
+          "language_selection_pass": true,
+          "dispatch_pass": true,
+          "context_fidelity_pass": true
+        },
+        "dominant-de": {
+          "evidence_ref": "codex-dominant-de.jsonl",
+          "tool_observed": true,
+          "submitted_arguments": {
+            "presentation_language": "de",
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cross-host-mcp-integration",
+            "skill_id": "gate-check",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "outcome": "control_result",
+          "resolved_presentation_language": "de",
+          "authorizes": false,
+          "language_selection_pass": true,
+          "dispatch_pass": true,
+          "context_fidelity_pass": true
+        },
+        "mixed-ambiguous": {
+          "evidence_ref": "codex-mixed-ambiguous.jsonl",
+          "tool_observed": true,
+          "submitted_arguments": {
+            "presentation_language": "en",
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cross-host-mcp-integration",
+            "skill_id": "gate-check",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "outcome": "control_result",
+          "resolved_presentation_language": "en",
+          "authorizes": false,
+          "language_selection_pass": true,
+          "dispatch_pass": true,
+          "context_fidelity_pass": true
+        },
+        "unsupported-fr-fr": {
+          "evidence_ref": "codex-unsupported-fr-fr.jsonl",
+          "tool_observed": true,
+          "submitted_arguments": {
+            "presentation_language": "fr-FR",
+            "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+            "run_id": "agdf-cross-host-mcp-integration",
+            "skill_id": "gate-check",
+            "target_source": "explicit_target",
+            "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+          },
+          "outcome": "control_result",
+          "resolved_presentation_language": "en",
+          "authorizes": false,
+          "language_selection_pass": true,
+          "dispatch_pass": true,
+          "context_fidelity_pass": true
+        }
+      },
+      "cleanup": {
+        "lifecycle_ref": "codex-post-disable-status.json",
+        "native_ref": "codex-native-post-disable.txt",
+        "project_config_absent": true,
+        "runtime_removed_after_last_reference": true
+      }
+    },
+    "opencode": {
+      "client": "OpenCode CLI 1.18.3",
+      "session": "one fresh JSON-event process per observation",
+      "result": "language_matrix_pass_after_controlled_retry_with_host_variance",
+      "cases": {
+        "explicit-de": [
+          {
+            "evidence_ref": "opencode-explicit-de.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "gate-check",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "explicit_target",
+              "run_id": "agdf-cross-host-mcp-integration",
+              "presentation_language": "de-DE",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+            },
+            "outcome": "control_result",
+            "resolved_presentation_language": "de",
+            "authorizes": false,
+            "language_selection_pass": true,
+            "dispatch_pass": true,
+            "context_fidelity_pass": true
+          }
+        ],
+        "explicit-en": [
+          {
+            "evidence_ref": "opencode-explicit-en-attempt1.jsonl",
+            "tool_observed": false,
+            "host_tool_name": null,
+            "submitted_arguments": null,
+            "outcome": null,
+            "resolved_presentation_language": null,
+            "authorizes": null,
+            "language_selection_pass": false,
+            "dispatch_pass": false,
+            "context_fidelity_pass": false
+          },
+          {
+            "evidence_ref": "opencode-explicit-en.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "gate-check",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "explicit_target",
+              "run_id": "agdf-cross-host-mcp-integration",
+              "presentation_language": "en"
+            },
+            "outcome": "control_result",
+            "resolved_presentation_language": "en",
+            "authorizes": false,
+            "language_selection_pass": true,
+            "dispatch_pass": true,
+            "context_fidelity_pass": true
+          }
+        ],
+        "dominant-de": [
+          {
+            "evidence_ref": "opencode-dominant-de-attempt1.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "agdf-global-gate-check",
+              "presentation_language": "de",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "explicit_target",
+              "run_id": "agdf-cross-host-mcp-integration"
+            },
+            "outcome": "invalid_input",
+            "resolved_presentation_language": null,
+            "authorizes": false,
+            "language_selection_pass": false,
+            "dispatch_pass": false,
+            "context_fidelity_pass": false
+          },
+          {
+            "evidence_ref": "opencode-dominant-de.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "gate-check",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "explicit_target",
+              "run_id": "agdf-cross-host-mcp-integration",
+              "presentation_language": "de-DE",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+            },
+            "outcome": "control_result",
+            "resolved_presentation_language": "de",
+            "authorizes": false,
+            "language_selection_pass": true,
+            "dispatch_pass": true,
+            "context_fidelity_pass": true
+          }
+        ],
+        "mixed-ambiguous": [
+          {
+            "evidence_ref": "opencode-mixed-ambiguous-attempt1.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "gate-check",
+              "presentation_language": "de-DE",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "current_repository"
+            },
+            "outcome": "control_result",
+            "resolved_presentation_language": "de",
+            "authorizes": false,
+            "language_selection_pass": false,
+            "dispatch_pass": true,
+            "context_fidelity_pass": false
+          },
+          {
+            "evidence_ref": "opencode-mixed-ambiguous.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "gate-check",
+              "presentation_language": "en",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "current_repository"
+            },
+            "outcome": "control_result",
+            "resolved_presentation_language": "en",
+            "authorizes": false,
+            "language_selection_pass": true,
+            "dispatch_pass": true,
+            "context_fidelity_pass": false
+          }
+        ],
+        "unsupported-fr-fr": [
+          {
+            "evidence_ref": "opencode-unsupported-fr-fr-attempt1.jsonl",
+            "tool_observed": false,
+            "host_tool_name": null,
+            "submitted_arguments": null,
+            "outcome": null,
+            "resolved_presentation_language": null,
+            "authorizes": null,
+            "language_selection_pass": false,
+            "dispatch_pass": false,
+            "context_fidelity_pass": false
+          },
+          {
+            "evidence_ref": "opencode-unsupported-fr-fr.jsonl",
+            "tool_observed": true,
+            "host_tool_name": "agdf_agdf_dispatch",
+            "submitted_arguments": {
+              "skill_id": "gate-check",
+              "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+              "target_source": "explicit_target",
+              "run_id": "agdf-cross-host-mcp-integration",
+              "presentation_language": "fr-FR",
+              "working_directory": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework"
+            },
+            "outcome": "control_result",
+            "resolved_presentation_language": "en",
+            "authorizes": false,
+            "language_selection_pass": true,
+            "dispatch_pass": true,
+            "context_fidelity_pass": true
+          }
+        ]
+      },
+      "variance": [
+        "Two initial sessions did not expose the connected MCP tool; native preflight was connected before each successful retry.",
+        "The first dominant-language attempt supplied the OpenCode Skill name as skill_id and failed closed.",
+        "The first mixed-language attempt selected de-DE; the retry selected en after the request stated that neither language dominated.",
+        "The successful mixed-language retry omitted the requested run_id and used current_repository; language evidence passed, full argument fidelity did not."
+      ],
+      "cleanup": {
+        "lifecycle_ref": "opencode-post-disable-status.json",
+        "native_ref": "opencode-native-post-disable.txt",
+        "project_config_absent": true,
+        "runtime_removed_after_last_reference": true
+      }
+    },
+    "claude": {
+      "client": "Claude Code CLI 2.1.193",
+      "result": "unverified",
+      "limitation": "Native project registration verification failed and no registration remained; the earlier authenticated-host lane is also blocked by missing login.",
+      "cleanup": {
+        "lifecycle_ref": "claude-post-attempt-status.json",
+        "native_ref": "claude-native-post-attempt.txt",
+        "registration_absent": true
+      }
+    },
+    "copilot": {
+      "client": "GitHub Copilot Desktop 1.1.15 from the prior direct-host record",
+      "result": "unverified",
+      "limitation": "No callable local Copilot MCP client was available for this language-selection follow-up; no temporary registration was created."
+    }
+  },
+  "protocol_evidence": {
+    "status": "separate",
+    "refs": [
+      "agdf-mcp-server/test/contract.test.js",
+      "agdf-mcp-server/test/protocol.test.js"
+    ],
+    "versions": [
+      "2025-11-25",
+      "2026-07-28"
+    ]
+  }
+}

@@ -1,5 +1,11 @@
-export function environmentSessionCommand(platform) {
-  return platform === "win32"
-      ? "node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\""
-      : "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/runtime/agdf-session-check.js\"";
+export function environmentSessionCommand(surface, platform) {
+  const [primary, fallback] = surface === "claude"
+    ? ["CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT"]
+    : ["PLUGIN_ROOT", "CLAUDE_PLUGIN_ROOT"];
+  if (platform === "win32") {
+    const primaryValue = `[Environment]::GetEnvironmentVariable('${primary}')`;
+    const fallbackValue = `[Environment]::GetEnvironmentVariable('${fallback}')`;
+    return `node \"$(if (${primaryValue}) { ${primaryValue} } else { ${fallbackValue} })\\runtime\\agdf-session-check.js\"`;
+  }
+  return `node \"\${${primary}:-\${${fallback}}}/runtime/agdf-session-check.js\"`;
 }

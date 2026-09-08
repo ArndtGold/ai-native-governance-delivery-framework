@@ -10,7 +10,9 @@ import {
   buildRunCandidates,
   executeNativeApprovalAttempt,
   evaluateNativeApprovalCapability,
+  PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
   canonicalizeLanguageTag,
+  matchPresentationLocale,
   formatArtefactRefs,
   gateOptions,
   gateTitle,
@@ -31,6 +33,16 @@ import {
   validateApprovalOrientationPreconditions,
   validateOperationalStatusCardPreconditions,
 } from "../lib/interaction-presentation.js";
+import {
+  INVALID_PRESENTATION_LANGUAGE_CASES,
+  REGISTRY_MUTATION_CASES,
+  VALID_PRESENTATION_LANGUAGE_CASES,
+} from "./fixtures/skill-dispatch-language.js";
+import {
+  canonicalizeDetectedSystemLocale,
+  configuredLanguage,
+  resolveLanguagePreference,
+} from "../lib/cli/runtime-context.js";
 import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
@@ -54,10 +66,25 @@ for (const [command, key] of [["gate-check", "selectIntendedRun"], ["doctor", "s
   assert.doesNotMatch(rendered.markdown, /Pass --run/);
   assert.equal(renderOperationalStatusCard({ ...card, next_step: "Unreviewed new recovery text" }, { registry: sourceRegistry, humanPresentation: {} }), null, "unknown English recovery must still fail closed in German");
 }
-assert.equal(canonicalizeLanguageTag("de_DE.UTF-8"), "de-de");
+assert.equal(PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE, "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$");
+for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
+  assert.equal(canonicalizeLanguageTag(row.omit ? undefined : row.value), "", `${row.id} must fail strict canonicalization`);
+}
+assert.equal(canonicalizeLanguageTag("DE-de"), "de-de");
+assert.equal(canonicalizeDetectedSystemLocale("de_DE.UTF-8"), "de-de");
+assert.equal(canonicalizeDetectedSystemLocale("C.UTF-8"), "");
+assert.equal(configuredLanguage("de_DE.UTF-8"), "", "explicit input must not use POSIX cleanup");
+assert.equal(resolveLanguagePreference(undefined, { LANG: "de_DE.UTF-8" }).chat_language, "de");
+for (const row of VALID_PRESENTATION_LANGUAGE_CASES) {
+  assert.equal(resolvePresentationLocale(registry, row.value), row.expectedLocale, row.id);
+}
+assert.equal(matchPresentationLocale(registry, "de-AT"), "de");
+assert.equal(matchPresentationLocale(registry, "en-US"), "en");
+assert.equal(matchPresentationLocale(registry, "fr-FR"), "");
+assert.equal(matchPresentationLocale(registry, ""), "");
 assert.equal(resolvePresentationLocale(registry, "de-AT"), "de");
 assert.equal(resolvePresentationLocale(registry, "fr-FR"), "en");
-assert.equal(resolvePresentationLocale(registry, ""), "en");
+assert.throws(() => resolvePresentationLocale(registry, ""), /Invalid AGDF presentation language tag/u);
 
 const controlSetup = renderControlSetupOrientation({ target: "/repo/target" }, { registry: sourceRegistry, requestedLocale: "de" });
 assert.equal(controlSetup.semantic_block, "control_setup");
@@ -191,6 +218,29 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   assert.match(germanPresentation.markdown, /Die separat verwaltete Runtime-Packaging-Baseline reparieren/);
   assert.match(germanPresentation.markdown, /Ladeverhalten einer frischen Session/);
   assert.doesNotMatch(germanPresentation.markdown, /complete the current|revise the implementation|Repair the separately|Preserve the distinction/);
+
+  const copilotLanguagePresentation = renderOperationalStatusCard({
+    run_id: "agdf-copilot-plugin-integration",
+    presentation_language: "de",
+    status: "open",
+    current_gate: "QA",
+    allowed_now: ["rerun QA with refreshed evidence"],
+    forbidden_now: ["request QA approval"],
+    blocking_condition: "qa_revise_required",
+    missing_approval: "none",
+    next_gate_after_approval: "none",
+    allowed_after_approval: "none",
+    next_step: sourceRegistry.locales.en.operationalValues.retestCopilotUnresolvedEarlyReturn,
+    quality_outlook: sourceRegistry.locales.en.operationalValues.proveCopilotUnresolvedEarlyReturn,
+  }, {
+    registry,
+    revisionId: "copilot-language-revision",
+    humanPresentation: { runTitle: "Copilot Plugin Integration", gateTitle: "Qualitätssicherung", artefactRefs: refs },
+  });
+  assert.ok(copilotLanguagePresentation, "German Copilot language-correction status must render completely");
+  assert.match(copilotLanguagePresentation.markdown, /Copilot neu starten.*neuen deutschen GeneralChat ohne Repository/s);
+  assert.match(copilotLanguagePresentation.markdown, /Sprache aus der aktuellen Unterhaltung ableitet/);
+  assert.doesNotMatch(copilotLanguagePresentation.markdown, /Fully restart|loaded host derives language/);
 
   const unregisteredGermanCard = {
     run_id: "status-run",
@@ -444,13 +494,17 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
 
 const candidates = buildRunCandidates([
   { run_id: "closed", valid: true, meta: { lifecycle: "completed" } },
-  { run_id: "beta-run", valid: true, meta: { lifecycle: "active", current_gate: "TP", revision_id: "b" }, control_state: { next_allowed_action: "Plan tests" }, ur_heading: "# Human beta title" },
-  { run_id: "alpha-run", valid: true, meta: { lifecycle: "active", current_gate: "UR", revision_id: "a" }, control_state: { next_allowed_action: "Draft UR" }, current_artefact_heading: "# Human alpha title" },
+  { run_id: "beta-run", valid: true, content: "## Objective\n\nShip beta safely.\n", meta: { lifecycle: "active", current_gate: "`TP`", decision: "`revise`", revision_id: "b" }, control_state: { next_allowed_action: "Plan tests" }, ur_heading: "# Human beta title" },
+  { run_id: "alpha-run", valid: true, content: "## Objective\n\nShip alpha.\nWith deterministic evidence.\n", meta: { lifecycle: "active", current_gate: "`UR`", decision: "`in_progress`", revision_id: "a" }, control_state: { next_allowed_action: "Draft UR" }, current_artefact_heading: "# Human alpha title" },
 ]);
 assert.deepEqual(candidates.map((candidate) => candidate.run_id), ["alpha-run", "beta-run"]);
 assert.equal(candidates[0].display_title, "Human alpha title");
 assert.equal(candidates[1].display_title, "Human beta title");
 assert.equal(candidates[0].current_gate, "UR");
+assert.equal(candidates[0].objective, "Ship alpha. With deterministic evidence.");
+assert.equal(candidates[0].decision, "in_progress");
+assert.equal(candidates[1].current_gate, "TP");
+assert.equal(candidates[1].decision, "revise");
 assert.equal(normalizeReconciliationText("Human Alpha_Title"), "human alpha title");
 const reconciliation = reconcileRunScope({ scopeKey: "Human beta title", runs: [
   { run_id: "beta-run", valid: true, meta: { lifecycle: "active", current_gate: "TP" }, ur_heading: "# Human beta title" },
@@ -828,9 +882,13 @@ additional.locales.es.statusCard.title = "Tarjeta de estado AGDF";
 assert.deepEqual(validateLocaleRegistry(additional), { valid: true, errors: [] });
 assert.equal(resolvePresentationLocale(additional, "es-MX"), "es");
 
-const incomplete = structuredClone(registry);
-delete incomplete.locales.de.interaction.declineDescription;
-assert.equal(validateLocaleRegistry(incomplete).valid, false);
+for (const row of REGISTRY_MUTATION_CASES) {
+  const mutated = structuredClone(registry);
+  row.mutate(mutated);
+  const validation = validateLocaleRegistry(mutated);
+  assert.equal(validation.valid, false, row.id);
+  for (const error of row.expectedErrors) assert.ok(validation.errors.includes(error), `${row.id}:${error}`);
+}
 const missingActionTitle = structuredClone(registry);
 delete missingActionTitle.locales.de.gateActionTitles.TP;
 assert.equal(validateLocaleRegistry(missingActionTitle).valid, false);
@@ -868,7 +926,7 @@ assert.equal(validateLocaleRegistry(longLocale).valid, false);
   );
   assert.deepEqual(
     [...validateOperationalStatusCardPreconditions({ run_id: "status-run", current_gate: "QA" }, { registry, humanPresentation: null }).errors],
-    ["human_presentation_missing"],
+    ["human_presentation_missing", "locale_unresolved"],
   );
   const healthy = validateOperationalStatusCardPreconditions({ run_id: "status-run", current_gate: "QA", presentation_language: "de" }, { registry, humanPresentation: {} });
   assert.deepEqual([...healthy.errors], []);

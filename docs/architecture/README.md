@@ -13,8 +13,8 @@ beantwortet vier Fragen:
 3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?
 4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?
 
-**Stand: 6. September 2026.** Beschrieben ist die kanonische Paketversion **0.14.5** auf Basis des
-Implementierungscommits `c95874957ac78bbccd8b7b31a90b71dbe50ce677` und des Runs
+**Stand: 8. September 2026.** Beschrieben ist die kanonische Paketversion **0.14.5** auf Basis des
+Repository-Ausgangsstands `599b23b35990e4678dbf6830c71476a3c0e7e782` und des Runs
 [`agdf-cross-host-mcp-integration`](../../.agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md).
 Die Dokumentationsrevision ist für die QA-Entscheidung vorbereitet. Dieser Stand ist keine Aussage
 über eine veröffentlichte Paketversion oder eine aktuell in einem Host geladene Installation.
@@ -116,6 +116,37 @@ einmal.** Das Fähigkeitsprofil und die Host-Adapter dürfen den Tool-Namen refe
 Beschreibung oder Schemas nicht kopieren. Dadurch können ein besser formulierter Tool-Vertrag und
 eine strengere Eingabeprüfung nicht unbemerkt zwischen Hosts auseinanderlaufen.
 
+### Sprache vor der Zielbindung
+
+Ein zieloffener Aufruf kann die Projektkonfiguration noch nicht verwenden. AGDF weiß an dieser Stelle
+absichtlich noch nicht, welches Repository maßgeblich ist. Der Host übergibt deshalb mit
+`presentation_language` beziehungsweise `--language` die Sprache des aktuellen Gesprächs an den
+Dispatcher. Eine ausdrückliche gewünschte Antwortsprache hat Vorrang. Fehlt eine solche Anweisung,
+verwendet der Host die dominante Sprache der aktuellen Anfrage. Bei gemischter oder nicht eindeutig
+bestimmbarer Sprache übergibt er `en`. Frühere Nachrichten, Host-Oberfläche und Betriebssystem
+entscheiden diesen Wert nicht.
+
+Die mitgelieferte Locale-Registry enthält derzeit vollständige Pakete für `de` und `en`. Regionale
+Varianten wie `de-DE` oder `en-US` werden auf ihr jeweiliges Paket aufgelöst. Eine nicht unterstützte Sprache verwendet das
+vollständige englische Locale-Paket, damit AGDF eine nutzbare Karte ausgeben kann. Fehlt der
+Sprachwert oder ist die Eingabe formal ungültig, endet der Dispatch vor Zielauflösung und
+Gate-Auswertung. Werte wie `" de "`, `de_DE`, `de-DE.UTF-8`, `de,en` oder `de-DE.!!!` werden nicht
+repariert. Eine fehlende Sprache wird nicht aus Host, Runtime oder Betriebssystem abgeleitet. Nur
+die CLI darf einen von ihr selbst erkannten Systemwert wie `de_DE.UTF-8` über einen getrennten
+Adapter in einen gültigen Tag umwandeln.
+
+Die Bedeutung dieses Parameters gehört zur semantischen Funktionsbeschreibung in
+[`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js). Alle ausführbaren
+Skills projizieren dieselbe Beschreibung. Der Renderer erzeugt anschließend die vollständige Karte
+aus genau einem Locale-Paket. Der Dispatcher reicht das normalisierte Locale auch an die
+Gate-Auswertung und eine folgende Skill-Ausführung weiter. Der Host gibt die Karte unverändert aus. Eine freie Übersetzung durch
+das Modell wäre kein gleichwertiger Ersatz, weil sie Felder auslassen, umbenennen oder inhaltlich
+verändern könnte.
+
+Erst nach erfolgreicher Zielbindung darf die Projektpräferenz aus `.agdf/control/config.json` für
+weitere Interaktionen maßgeblich werden. Damit bleiben Gesprächssprache, Projektkonfiguration und
+englische maschinenlesbare Kennungen voneinander unterscheidbar.
+
 Die zweite wichtige Regel lautet: **Ein Adapter besitzt nur die Besonderheiten seines Hosts.** Er
 kennt Konfigurationsorte, Prioritäten und native Scopes. Paketbeschaffung, Dispatcher-Semantik,
 Gate-Auswertung und gemeinsame Ergebnisdarstellung bleiben außerhalb des Adapters.
@@ -154,8 +185,17 @@ Repository wird nicht automatisch zum Governance-Ziel. Der Aufruf muss ein belas
 
 Jedes Dispatcher-Ergebnis trägt `authorizes: false`. Ein Ergebnis kann zeigen, was erlaubt oder
 blockiert ist. Es kann keine menschliche Freigabe erzeugen. Ein terminales Ergebnis wird vom Host
-unverändert dargestellt und beendet diesen Dispatch-Aufruf. Ein Fortsetzungsauftrag bindet genau
-einen Skill und ein Ziel, er erteilt aber ebenfalls keine Gate-Freigabe.
+als gesamte Antwort unverändert dargestellt und beendet diesen Dispatch-Aufruf. Der Host darf davor
+oder danach keine Frage, Erklärung, Übersetzung oder weitere Aktion ergänzen. Ein
+Fortsetzungsauftrag bindet genau einen Skill und ein Ziel, er erteilt aber ebenfalls keine
+Gate-Freigabe.
+
+Wenn das Zielprojekt feststeht, aber mehrere aktive Runs möglich sind, ermittelt der
+Gate-Evaluator einmal die vollständige kanonische Kandidatenliste. Der Dispatcher übergibt diese
+Liste bei einem QA-Fortsetzungsauftrag als `control.candidate_runs`. Jeder Eintrag enthält Run-ID,
+Ziel, aktuelles Gate, Entscheidung und Revision. Der QA-Skill filtert diese Daten nach dem Gate
+`QA`. Er durchsucht die Run-Dateien nicht erneut. So kann er weder einen gültigen QA-Run auslassen
+noch aus einer unvollständigen eigenen Suche eine scheinbar vollständige Liste ableiten.
 
 ## 4. Der MCP-Lebenszyklus
 
@@ -283,6 +323,29 @@ Eine gleiche Versionsnummer belegt keine inhaltliche Gleichheit. AGDF unterschei
 erzeugtes Payload, Paket, installierten Root, native Registrierung, geladene Sitzung und beobachtetes
 Verhalten. Nach Installation oder Registrierung ist ein vollständiger Host-Neustart mit einer neuen
 Sitzung erforderlich. Eine wiederhergestellte alte Sitzung kann weiterhin veraltete Inhalte halten.
+
+### 6.1 Wie der Plugin-Root gewählt wird
+
+Codex und Claude Code können dem gestarteten Plugin-Prozess beide bekannten Root-Variablen
+mitgeben. AGDF darf daraus keinen gemeinsamen Pfad zusammensetzen. Der aktive Host bestimmt die
+Reihenfolge:
+
+| Oberfläche | Erste Wahl | Kompatibilitäts-Fallback |
+|---|---|---|
+| Codex | `PLUGIN_ROOT` | `CLAUDE_PLUGIN_ROOT` |
+| Claude Code | `CLAUDE_PLUGIN_ROOT` | `PLUGIN_ROOT` |
+| GitHub Copilot | `PLUGIN_ROOT` | keiner |
+| OpenCode | kein Plugin-Root | keiner |
+
+Diese Regel gilt sowohl für den SessionStart-Hook als auch für die lokale Validierung. Unter POSIX
+verwendet der Hook die übliche Shell-Fallback-Syntax. Unter Windows verwendet er eine ausdrückliche
+PowerShell-Bedingung: Ist die erste Variable gesetzt, wird nur ihr Wert verwendet, andernfalls nur
+der Fallback. Eine Addition der beiden Zeichenketten wäre falsch, weil daraus bei zwei gesetzten
+Variablen ein nicht vorhandener Pfad entsteht.
+
+Die Integritätsprüfung vergleicht beide Hook-Kommandos mit dem kanonischen, hostabhängigen
+Kommandoerzeuger. Ein statischer Windows-Test belegt die erzeugte Befehlszeile. Eine Aussage über
+die Ausführung in einem realen Windows-Host benötigt weiterhin einen getrennten direkten Nachweis.
 
 ## 7. Protokoll-, Host- und Abnahmenachweise
 

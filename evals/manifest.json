@@ -1,20 +1,31 @@
 {
   "schema_version": 1,
   "corpus_version": "1.9.0",
-  "required_case_classes": ["normal", "boundary", "adversarial"],
+  "required_case_classes": [
+    "normal",
+    "boundary",
+    "adversarial"
+  ],
   "source_fingerprints": {
-    "delivery-path-search": "f227e253aaa0b13346d1f948a2ab73e63adfaff1a5d119d58b2b91dd4938db5e",
-    "brownfield-analysis": "0b5a579b42e9a1ca8cb0ca2fdbd9cd960dc98cdcd09b1be92419b01a7e99273d",
-    "ux-intent-definition": "425cea0fbac6218307fbcefa0c3888dac5c691cc929d710ba4f16050a57230a9",
-    "clean-implementation-review": "a0c6e4313bfe43fb3d7b8a2129d0d89e444eb282ad6440831083741f03cb6d1e",
-    "code-review": "48aff239ccd6ac3458116138a45aae8ef9f9b050d90bb4a1af1c3ea7514dc855",
-    "delivery-closeout": "5df35e79d58281715355a821f961768b44ee071a905932e553c8229031b6ce0e",
-    "gate-check": "c4f9ba8b0f97af9d1cc8c9135fbc1575384df5c0b2149a1341bd2c5fb81a19f1",
-    "qa-gate": "ac810d6a6433165a391512fa802f7e8fbac00bf21fed2eb6d7784d1ecab1284a",
-    "release-or": "1664d39cbdf3e96ce56f70521993a8b969d21aac38cfa2ab4d1e61d9329a28d7",
-    "task-plan-review": "d6248f25ecef6743cbe1235b3fcba0ff1a77ec98eda0bf7c691e3d5e343c424b"
+    "delivery-path-search": "f96a207aab5cd3bc61a7aedbc29f3a4c4ec55b7091c834ff8dfbab51536df60e",
+    "brownfield-analysis": "0402a3540caf77cdc89cdc0fe86e7bb3b14a9b37a0e4d9149b2cb5956466a2d0",
+    "ux-intent-definition": "cc129002a5889c5c5e80c59cd813dfdcbeb24036f7e58e479e8eda42c06c612c",
+    "clean-implementation-review": "a362c514bff4fe72226f1b3d54b0fbed3ce6b20c2f2e811f09a5389db8b41bc3",
+    "code-review": "44257c1a37e30ec56bc2be0525bdebe43e85ed3a70ae4856c10c4c534fe3e504",
+    "delivery-closeout": "eaf4a2997ca32868d317bc1bd74aac53ae10c6981eff3264a751e97d3a776122",
+    "gate-check": "42016cf7b5b3fb1cc7e6c206e59c6b2bf9c4cb28799e67439f429be85f0d0e0e",
+    "qa-gate": "1ae8cf26723d7d7af9d3a62646438ac32b35d7b4059c38e959d4956258e83ee8",
+    "release-or": "944a632e7915297706aa8beb0016c417b2d9fdde7a0e2a497c4ffdf571be28d6",
+    "task-plan-review": "66581f7f2d16b43303b826dea9b63c70ae431206efa8a478225aade09d7ecf75"
   },
-  "thresholds": { "coverage": 1, "routing": 1, "gate": 1, "actions": 1, "mutation": 1, "artefact_quality": 1 },
+  "thresholds": {
+    "coverage": 1,
+    "routing": 1,
+    "gate": 1,
+    "actions": 1,
+    "mutation": 1,
+    "artefact_quality": 1
+  },
   "request_activation": {
     "manifest": "request-activation/manifest.json",
     "schema": "request-activation/schema.json"

@@ -1,0 +1,90 @@
+{
+  "schema_version": 2,
+  "contract_version": 2,
+  "operation": "mcp.status",
+  "result": "not_configured",
+  "capability": "unverified",
+  "surface": "opencode",
+  "scope": "project",
+  "effective_scope": null,
+  "native_scope": "project",
+  "scope_effect": "project",
+  "target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "authorizes": false,
+  "host": {
+    "status": "detected",
+    "version": "1.18.3",
+    "client_variant": "cli",
+    "config_variant": "flat_v1"
+  },
+  "permission_effect": {
+    "code": "inherited_host_user",
+    "parameters": {}
+  },
+  "runtime": {
+    "node_executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "node_version": "22.22.3",
+    "package_status": "absent",
+    "version": "0.14.5",
+    "digest": null,
+    "entrypoint": null,
+    "marker_schema_version": null
+  },
+  "registration": {
+    "status": "absent",
+    "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/opencode.json",
+    "identity": null,
+    "selected_status": "absent",
+    "effective_status": "absent",
+    "selected_source": "project",
+    "effective_source": "project",
+    "sources": [
+      {
+        "source": "project",
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/opencode.json",
+        "priority": 10,
+        "selected": true,
+        "status": "absent"
+      },
+      {
+        "source": "user",
+        "path": "/Users/arndtgold/.config/opencode/opencode.json",
+        "priority": 20,
+        "selected": false,
+        "status": "absent"
+      }
+    ],
+    "native_scope": "project",
+    "checked_sources": [
+      {
+        "source": "project",
+        "path": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/opencode.json",
+        "priority": 10,
+        "selected": true,
+        "status": "absent"
+      },
+      {
+        "source": "user",
+        "path": "/Users/arndtgold/.config/opencode/opencode.json",
+        "priority": 20,
+        "selected": false,
+        "status": "absent"
+      }
+    ]
+  },
+  "discovery": {
+    "source": "none",
+    "evidence_ref": null,
+    "status": "not_checked"
+  },
+  "changes": [],
+  "fallback": {
+    "code": "version_matched_cli_dispatch",
+    "parameters": {}
+  },
+  "next_action": {
+    "code": "enable_scope",
+    "parameters": {}
+  },
+  "diagnostics": []
+}

@@ -1,11 +1,41 @@
 # Task Plan Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 13
+Revision: 15
 Status: revise
-Date: 2026-09-05
+Date: 2026-09-08
 Plan: TP Revision 2
 Review mode: direct review by the implementing agent, not independent-agent or loaded-host evidence.
-Evidence: CD_TESTS.md Revision 13 and HOST_EVIDENCE.md Revision 13.
+Evidence: CD_TESTS.md Revision 15 and HOST_EVIDENCE.md Revision 15.
+
+
+## Host-native Plugin-root Coverage
+
+| task_id | status | AC coverage | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|---|
+| TP-04 | fully_done | host-specific SessionStart projection uses the native root first | canonical Codex and Claude POSIX/Windows commands plus exact hook integrity | loaded-host behavior remains under TP-16 | none in repository scope |
+| TP-08 | fully_done | affected and complete repository regression done | focused suites and complete serial smoke pass | native host evidence separate | none in repository scope |
+| TP-13 | fully_done | source, generated and installed Codex profile are coherent | installed cache `880e88555405`, Runtime Integrity and byte-identical hooks | fresh loaded-host task | no repository gap |
+| TP-14 | partially_done | cross-platform command contract is covered | POSIX execution, Windows command fixtures and no-concatenation invariant | native Windows execution and wider host matrix | existing evidence gap remains |
+| TP-15 | fully_done | generated and packaged state is coherent | release projection, 95-file payload, complete smoke and installed replay | none in repository scope | none |
+| TP-16 | partially_done | reviews, installed runtime and QA refreshed | CD/TP/Clean/Code/QA/Host revisions current | fresh loaded Codex model and native Windows evidence | prevents QA pass |
+
+Coverage remains 12/16 fully done and four external-evidence tasks partial. The two implementation
+findings are resolved. The remaining gap concerns direct host evidence, not repository behavior.
+
+## QA Candidate And Terminal-response Coverage
+
+| task_id | status | AC coverage | evidence | missing_evidence | QA impact |
+|---|---|---|---|---|---|
+| TP-05 | fully_done | judgement continuation carries one bounded canonical QA inventory | immutable `candidate_runs`; exact function and QA-skill projections | model adherence remains under TP-16 | none in repository scope |
+| TP-08 | fully_done | affected and complete repository regression done | complete serial smoke plus final affected suites | native host evidence separate | none in repository scope |
+| TP-11 | fully_done | semantic output contract has one owner | whole-response terminal rule and QA-candidate rule in function schema | none | none |
+| TP-13 | fully_done | source, generated and installed Codex profile are coherent | Runtime Integrity and installed cache `e464297ddcc5` | fresh loaded-host task | no repository gap |
+| TP-14 | partially_done | deterministic candidate and terminal paths pass | 23 candidates, exactly 13 QA, both omitted IDs restored, exact terminal replay | model-owned fresh attempt and native OS matrix | existing evidence gap remains |
+| TP-15 | fully_done | generated and installed package state is coherent | public payload, footprints, integrity and installed plugin listing pass | other hosts separate | none in repository scope |
+| TP-16 | partially_done | reviews, installed runtime and QA refreshed | CD/TP/Clean/Code/QA/Host revisions current | fresh loaded-host observation | prevents QA pass |
+
+The correction does not change the overall plan count. Coverage remains 12/16 fully done and four
+external-evidence tasks partial. Installation is now observed; loaded-model behavior remains open.
 
 
 ## Semantic Function Coverage
@@ -95,7 +125,8 @@ The remaining historical task rows retain their evidence boundaries. Overall cov
 - not_done: 0/16.
 - evidence_confidence: high for direct code/process and deterministic tests, insufficient for fresh host behavior.
 - out_of_scope_changes: none. No other run, installed profile, hook, permission or release state was mutated.
-- required_next_step: obtain bounded lifecycle authorization for coherent installation/restart and fresh host testing.
+- required_next_step: open a new Codex task after the completed installation, rerun the two reported
+  QA paths and then continue the separately authorized four-host and native-OS evidence matrix.
 
 ## UX Intent Fidelity
 
@@ -112,6 +143,6 @@ The remaining historical task rows retain their evidence boundaries. Overall cov
 
 | finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
 |---|---|---|---|---|---|
-| CSED-TP-EVIDENCE-01 | evidence_gap | evidence_obligation | open | TP-09/10/14/16 and the UX matrix lack current native-OS and loaded-host observations | Obtain bounded lifecycle authorization, then record the required matrix. |
+| CSED-TP-EVIDENCE-01 | evidence_gap | evidence_obligation | open | TP-09/10/14/16 and the UX matrix lack current native-OS and fresh loaded-host observations; installed Codex runtime is current | Start a new Codex task and record the corrected two-path result, then complete the remaining matrix. |
 
 No missing product, design or plan decision was invented to cover the evidence gap.

@@ -174,7 +174,7 @@ function createHandlers({
         env,
         exec,
       });
-      printMcpLifecycleResult(report, { json: options.json, io, language: options.language });
+      printMcpLifecycleResult(report, { json: options.json, io, language: options.language?.chat_language ?? "en" });
       return ["failed", "degraded"].includes(report.result)
         || ["manual_compatible", "unavailable", "unsupported"].includes(report.capability) ? 1 : 0;
     }],

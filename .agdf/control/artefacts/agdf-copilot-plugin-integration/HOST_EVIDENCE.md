@@ -1,8 +1,27 @@
 # Copilot Host Evidence
 
-Date: 2026-09-03
+Date: 2026-09-07
 Run: `agdf-copilot-plugin-integration`
 Package version: `0.14.5`
+
+## 2026-09-07 QA-Gate Conversation-Language Revision
+
+| Observation | Result | Boundary |
+|---|---|---|
+| User-provided Copilot observation | A German Copilot conversation invoked `agdf-qa-gate`, but the first canonical Task Target Orientation was English. After the user asked for German, the model produced its own translated table, omitted `Working directory` and renamed fields. | Direct loaded-host negative evidence retained as `evidence/2026-09-07-copilot-qa-gate-language.png`, SHA-256 `0c646513fc3dcdd21973c02db98e507e30d908bb71ffbd0924c99290be9b5542`. The second table is model-generated translation, not canonical AGDF output. |
+| Root cause | The earlier explicit conversation-language correction existed in `gate-check`, while `qa-gate` and eight other executable skills still said only `language`. The model-facing `presentation_language` property described a generic host language tag and the binding grammar exposed only `<tag>`. | Cross-skill instruction and semantic-function-description gap. The locale renderer itself returned the requested pack correctly. |
+| Canonical correction | `SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.description` now owns current-conversation language selection. The common binding grammar exposes `<current-conversation-language-tag>`, and all ten executable skills project the exact same description. Supported regional variants normalize to `de` or `en`; an unsupported well-formed tag selects the complete English pack; a missing or malformed value stops before dispatch. | One semantic owner in `create-agdf/lib/skill-dispatch/contract.js` and one existing locale resolver; no Copilot-only locale detector or second renderer. |
+| Regression | The German repo-less `qa-gate` eval requires literal `--language de`, German target orientation and German recovery, and forbids English. Function-contract tests require every executable skill to contain the canonical projection exactly once. Focused service tests prove normalized language propagation into gate evaluation and skill continuation. | Deterministic replay and source/generated binding evidence; 83/83 skill evals and the uninterrupted full smoke pass. |
+| Selected-run status projection | The refreshed German gate check for `agdf-copilot-plugin-integration` initially exposed `next_step_unlocalized` and `quality_outlook_unlocalized` because the revised Run State used new free text. The existing locale registry now owns the exact English/German recovery and quality values, and the Run State consumes those canonical values. | Direct generated gate check now has empty presentation diagnostics and renders the complete German QA-revise status card. A regression fixture rejects English leakage. |
+| Generated and installed runtime | The generated, staged and installed `agdf-qa-gate` files have identical SHA-256 `2720954329d5b3eb73d2ea00cd3a00d0e339af7613797da4b4b1cbb66806e81c`; their runtime entry points share SHA-256 `726f6c9cab23021ac78aeda3944a647b5164e652ec4506ab035da338884bb5d9`; their locale registries share SHA-256 `c581582d2b315fb1b46b8ecb7976e3d3e2179a12d6c930c7e1f0ee420b8ff63d`. Direct installed `de-DE` returns the complete German target card. Direct installed `fr-FR` returns the complete English target and selected-run cards. Direct installed `de` returns the complete German selected-run card. All presentation diagnostics are empty. | Installed-root and direct executable evidence. It does not prove a newly loaded Copilot model chose `de`. |
+| Missing language | Omitting `--language` returns exit 1 with `skill-dispatch requires --language`; the MCP function schema also keeps `presentation_language` required. | No target or gate evaluation starts without an explicit conversation-language value. |
+| Malformed language | Passing `--language '!!!'` to the installed runtime returns exit 1 with `Invalid language tag. Use a BCP 47 tag such as de, en or fr-CA.` | Malformed tags stop in CLI input validation before target resolution or gate evaluation; only well-formed unsupported tags receive the English fallback. |
+| Refreshed installation | The final `npm run install:copilot` after the complete language correction reports AGDF 0.14.5 verified and Ready. Copilot must be fully restarted and a new session started because restored sessions may retain stale skills. | Persistent host state and exact installed bytes verified; fresh loaded-host observation pending. |
+
+The implementation defects are corrected in the canonical function description, every executable
+skill, locale-backed status projection, generated Copilot payload and installed root. QA remains `revise` until a fully restarted
+Copilot session invokes `agdf-qa-gate` in German and emits the canonical German card immediately,
+without a user-requested translation or reconstructed table.
 
 ## 2026-09-03 Repo-less Early-Return Revision
 

@@ -44,10 +44,11 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
 Follow binding.arguments exactly with `--skill delivery-path-search`, language and working directory.
+For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
-On `terminal: true`, transmit host_action.text verbatim and stop; on skill_continuation use only its
-target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
+On skill_continuation use only its target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
 or help retries. Dispatch never authorizes.
 
 ## Trigger

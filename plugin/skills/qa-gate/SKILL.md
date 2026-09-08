@@ -53,11 +53,13 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
 Follow binding.arguments exactly with `--skill qa-gate`, language and working directory.
+For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
-On `terminal: true`, transmit host_action.text verbatim and stop; on skill_continuation use only its
-target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
+On skill_continuation use only its target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
 or help retries. Dispatch never authorizes.
+For a qa-gate skill_continuation, control.candidate_runs is the complete canonical active-run inventory when run selection is unresolved, otherwise an empty array. Use its run_id, objective, normalized current_gate, decision and revision_id fields as data; filter by current_gate: QA and do not rescan run files, invent candidates or omit returned QA candidates.
 
 QA-specific `decision` is exactly `pass | revise | block`.
 `pass` is allowed only when TP coverage, Brownfield fit, solution integrity, and relevant documentation/Context Graph impact are sufficiently evidenced.
@@ -78,9 +80,10 @@ After the Direct Skill Invocation Preflight resolves one governance target, disc
 that target instead of asking the user to reconstruct repository evidence:
 
 1. Prefer an explicit run identifier only when it belongs to the resolved governance target and
-   matches the requested QA scope. Otherwise inspect the durable active-run inventory.
+   matches the requested QA scope. Otherwise use the returned canonical candidate inventory.
 2. Select exactly one run whose objective matches the request and whose canonical gate state permits
-   QA. Validate that state through gate-check or the equivalent agent-native control inspection.
+   QA. Validate the selected state through gate-check or the equivalent agent-native control
+   inspection.
 3. If no eligible run exists, report the current earlier gate or internal step and stop before a QA
    decision. If several runs remain plausible, list only their identifiers and objectives, request
    one run selection and stop before a QA decision. Run clarification is a pre-decision outcome, not

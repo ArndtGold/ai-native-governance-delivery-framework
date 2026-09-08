@@ -2,7 +2,7 @@ import process from "node:process";
 import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
-import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
+import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
 
 const defaultNow = () => process.hrtime.bigint();
 const milliseconds = (start, end) => Number(end - start) / 1_000_000;
@@ -115,7 +115,21 @@ function bindHostAction(result) {
   return result;
 }
 
-function controlSnapshot(report) {
+function candidateRunsSnapshot(report) {
+  return Object.freeze((Array.isArray(report?.candidate_runs) ? report.candidate_runs : [])
+    .filter((candidate) => typeof candidate?.run_id === "string" && candidate.run_id)
+    .map((candidate) => Object.freeze({
+      run_id: candidate.run_id,
+      display_title: String(candidate.display_title ?? ""),
+      objective: String(candidate.objective ?? ""),
+      current_gate: String(candidate.current_gate ?? ""),
+      decision: String(candidate.decision ?? ""),
+      next_allowed_action: String(candidate.next_allowed_action ?? ""),
+      revision_id: String(candidate.revision_id ?? ""),
+    })));
+}
+
+function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
   return Object.freeze({
     status: report.status,
     current_gate: report.current_gate,
@@ -125,6 +139,7 @@ function controlSnapshot(report) {
     run_id: report.status_card?.run_id ?? null,
     revision_id: report.approval_presentation?.revision_id ?? null,
     doctor_status: report.doctor_status,
+    ...(includeCandidateRuns ? { candidate_runs: candidateRunsSnapshot(report) } : {}),
   });
 }
 
@@ -155,10 +170,12 @@ export function createSkillDispatchService(dependencies = {}) {
       const inputError = error instanceof SkillDispatchInputError || error instanceof TaskTargetInputError ? error : null;
       const field = inputError?.field ?? "skill_registry";
       const allowedValues = inputError?.allowedValues ?? [];
-      const action = renderInputRecovery(
-        { field, allowedValues },
-        { registry: rawInput.interactionLocales, requestedLocale: rawInput.presentationLanguage },
-      ) ?? "Repair the installed locale registry and retry once.";
+      const action = field === "presentation_language"
+        ? SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY
+        : renderInputRecovery(
+          { field, allowedValues },
+          { registry: rawInput.interactionLocales, requestedLocale: rawInput.presentationLanguage },
+        ) ?? "Repair the installed locale registry and retry once.";
       result.recovery = { action };
       result.diagnostics = [{
         code: "dispatch_input_invalid",
@@ -194,7 +211,10 @@ export function createSkillDispatchService(dependencies = {}) {
       const controlStarted = now();
       const control = runDispatchStage("control_evaluation_failed", () => {
         validateControlReadBoundary?.(target.governance_target);
-        return evaluateGate(target.governance_target, input.run_id ? { runId: input.run_id } : {});
+        return evaluateGate(target.governance_target, {
+          ...(input.run_id ? { runId: input.run_id } : {}),
+          presentationLanguage: input.presentation_language,
+        });
       });
       timing.control_ms = round(milliseconds(controlStarted, now()));
       if (skill.dispatch_mode === "deterministic_control") {
@@ -211,11 +231,19 @@ export function createSkillDispatchService(dependencies = {}) {
         return bindHostAction(result);
       }
 
-      const snapshot = skill.requires_control_snapshot ? controlSnapshot(control) : null;
+      const snapshot = skill.requires_control_snapshot
+        ? controlSnapshot(control, { includeCandidateRuns: skill.skill_id === "qa-gate" })
+        : null;
       const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
       result.target = target;
       result.control = snapshot;
-      result.continuation = Object.freeze({ instruction: "Execute the named skill using only this target and control snapshot.", skill_id: skill.skill_id, governance_target: target.governance_target, run_id: snapshot?.run_id ?? input.run_id });
+      result.continuation = Object.freeze({
+        instruction: "Execute the named skill using only this target, presentation language and control snapshot.",
+        skill_id: skill.skill_id,
+        presentation_language: input.presentation_language,
+        governance_target: target.governance_target,
+        run_id: snapshot?.run_id ?? input.run_id,
+      });
       timing.total_ms = round(milliseconds(started, now()));
       timing.wrapper_ms = round(wrapperMilliseconds(now, env));
       return bindHostAction(result);

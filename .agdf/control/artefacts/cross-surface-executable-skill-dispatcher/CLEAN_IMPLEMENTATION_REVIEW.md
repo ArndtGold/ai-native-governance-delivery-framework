@@ -1,7 +1,51 @@
 # Clean Implementation Review: Cross-surface Executable Skill Dispatcher
 
-Revision: 13
-Date: 2026-09-05
+Revision: 15
+Date: 2026-09-08
+
+
+## Host-native Plugin-root Integrity
+
+- decision: pass.
+- primary_solution: the existing host command owner now defines root priority once, and the shared
+  local-validator resolver applies the same surface rule to both generated runtime entrypoints.
+- evidence: installed failure reproduction before the correction, focused tests, full serial smoke,
+  exact source/marketplace/cache hook equality, installed Runtime Integrity and corrected installed
+  Codex replay with a deliberately stale Claude root.
+- fallbacks_retained: one bounded compatibility fallback per Codex or Claude surface. It is used only
+  when the native variable is absent; Copilot and OpenCode do not gain that fallback.
+- workaround_or_shim_risk: low. The fallback reflects existing cross-host payload compatibility and
+  no longer overrides a present native root.
+- parallel_structure_risk: none. Host command rendering owns hook syntax; the validator owns runtime
+  environment interpretation; Runtime Integrity compares the projection to the command owner.
+- brownfield_fit: pass under approved SD2/TP2. No new hook, environment variable, permission,
+  installer or MCP lifecycle path was introduced.
+- missing_evidence: static Windows command proof is not native Windows execution. The current task
+  also cannot reload the newly installed skill profile.
+- required_next_step: retain those direct-host obligations in QA.
+
+## QA Candidate And Terminal-response Integrity
+
+- decision: pass.
+- primary_solution: the existing gate evaluator remains the sole run-inventory owner. The existing
+  dispatcher continuation transports one immutable bounded projection to `qa-gate`; no second
+  scanner, run selector or policy owner was added.
+- semantic_owner: the existing `agdf_dispatch` function contract owns both whole-response terminal
+  transfer and complete QA-candidate use. Skill text is an integrity-checked projection.
+- evidence: actual source diff, 23-candidate source and installed replays, exactly 13 normalized QA
+  candidates, both previously omitted IDs, exact German terminal replay, complete serial smoke and
+  final affected regression suites.
+- fallbacks_retained: none for candidate reconstruction or terminal prose. Missing target remains
+  terminal; ambiguous run remains a bounded continuation that asks for one canonical run selection.
+- workaround_or_shim_risk: low. No host-specific list, prompt parser, filename heuristic, permissive
+  fallback or duplicate renderer was introduced.
+- parallel_structure_risk: none. Evaluation owns candidates, interaction presentation owns bounded
+  labels, the dispatcher owns transport, and `qa-gate` owns final quality judgement.
+- brownfield_fit: pass under approved SD2/TP2. Target precedence, gate authority, locale registry,
+  binding schema, dispatcher protocol, hooks and permissions remain unchanged.
+- missing_evidence: the refreshed installed runtime is proven, but a fresh Codex model turn and the
+  wider host/native-OS matrix remain under `CSED-QA-01`.
+- required_next_step: retain the loaded-host evidence obligation in QA.
 
 
 ## Semantic Function-owner Integrity

@@ -28,14 +28,16 @@ export const INSTRUCTION_FOOTPRINT_SURFACE_IDS = Object.freeze([
 // or terminal-dispatch wording into a second semantic owner. Object-key order is intentionally
 // irrelevant to the schema digest. A semantic change requires an explicitly reviewed validator
 // update, not a silent limit increase, condition weakening or dispatch rewrite.
-const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "174a388cb77d07f54d07530918cf2e6ac918bc3c9f81224d8dcdd3a2f34cf6d6";
-const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "ace1a7c9985b2d765f016465b1d53ad814c2cb6db9a02046ba36491458932c41";
+const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "6f47e205a8ec606515e1de9618b71e2e0dbb0fd0fa15ae5d13eebe64b08546c4";
+const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "91091acf83e618b016bbc18d1eb25a883fdbb84a24d3acd55e36ee19bbecef48";
 const AUTHORIZED_OPENCODE_EAGER_FINGERPRINTS = Object.freeze({
   canonical: "07dbbf9d0cb2af2ada57a795ee37423997531c9dfe8af38f0693af764d1c409c",
   global: "141fc97184e7cbd551f09078aba8dfceed5856f0367cfff254d0151a561ee798",
 });
-const TERMINAL_DISPATCH_ANCHOR = "`gate-check` has deterministic-control dispatch.";
-const GLOBAL_TERMINAL_DISPATCH_ANCHOR = "`agdf-global-gate-check` has deterministic-control dispatch.";
+const TERMINAL_DISPATCH_ANCHOR = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim.";
+const GLOBAL_TERMINAL_DISPATCH_ANCHOR = TERMINAL_DISPATCH_ANCHOR;
+const TERMINAL_DISPATCH_SKILL_IDENTITY = "`gate-check` has deterministic-control dispatch.";
+const GLOBAL_TERMINAL_DISPATCH_SKILL_IDENTITY = "`agdf-global-gate-check` has deterministic-control dispatch.";
 
 const DYNAMIC_VALUE_KEYS = Object.freeze(["executable", "validator", "workingDirectory"]);
 const EXPECTED_DYNAMIC_TOKENS = Object.freeze({
@@ -730,7 +732,7 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
         ? content.slice(terminalDispatchStart, fallbackStart).trimEnd()
         : "";
       const canonicalTerminalDispatch = variant === "global"
-        ? terminalDispatch.replace(GLOBAL_TERMINAL_DISPATCH_ANCHOR, TERMINAL_DISPATCH_ANCHOR)
+        ? terminalDispatch.replace(GLOBAL_TERMINAL_DISPATCH_SKILL_IDENTITY, TERMINAL_DISPATCH_SKILL_IDENTITY)
         : terminalDispatch;
       const terminalDispatchFingerprint = createHash("sha256")
         .update(canonicalTerminalDispatch, "utf8")

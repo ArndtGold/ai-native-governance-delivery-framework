@@ -1,5 +1,10 @@
 import { isAbsolute } from "node:path";
 import { RUN_ID_PATTERN } from "../control-state/run-identity.js";
+import {
+  PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
+  canonicalizeLanguageTag,
+  resolvePresentationLocale,
+} from "../interaction-presentation.js";
 import { normalizeTaskTargetSource, TASK_TARGET_SOURCES } from "../task-target-resolution.js";
 
 export const SKILL_DISPATCH_SURFACES = Object.freeze(["codex", "claude", "copilot", "opencode"]);
@@ -20,9 +25,14 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
+export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION = "Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.";
+export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY = "Provide one well-formed BCP 47 presentation_language tag and retry once.";
+export const SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.";
+export const SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION = "For a qa-gate skill_continuation, control.candidate_runs is the complete canonical active-run inventory when run selection is unresolved, otherwise an empty array. Use its run_id, objective, normalized current_gate, decision and revision_id fields as data; filter by current_gate: QA and do not rescan run files, invent candidates or omit returned QA candidates.";
+
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
-  description: "Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. For a terminal result, transmit host_action.text verbatim and stop. For skill_continuation, use only the returned target and control.",
+  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, use only the returned target and control.`,
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
@@ -34,7 +44,11 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
     required: ["skill_id", "presentation_language", "working_directory"],
     properties: {
       skill_id: { type: "string", minLength: 1, maxLength: 240, description: "Canonical AGDF skill slug from the active route." },
-      presentation_language: { type: "string", minLength: 1, maxLength: 64, description: "Host language tag for localized presentation." },
+      presentation_language: {
+        type: "string", minLength: 1, maxLength: 64,
+        pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
+        description: SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION,
+      },
       working_directory: { type: "string", minLength: 1, maxLength: 4096, description: "Absolute execution-context path. It never selects or authorizes a target." },
       target_source: {
         type: "string", oneOf: targetSourceChoices,
@@ -65,7 +79,10 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       skill: { anyOf: [{ type: "object" }, { type: "null" }] },
       runtime: { type: "object" },
       target: { anyOf: [{ type: "object" }, { type: "null" }] },
-      control: { anyOf: [{ type: "object" }, { type: "null" }] },
+      control: {
+        anyOf: [{ type: "object" }, { type: "null" }],
+        description: SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION,
+      },
       presentation: { anyOf: [{ type: "object" }, { type: "null" }] },
       continuation: { anyOf: [{ type: "object" }, { type: "null" }] },
       recovery: { anyOf: [{ type: "object" }, { type: "null" }] },
@@ -91,7 +108,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
 export function skillDispatchArgumentGrammar() {
   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
     .map((choice) => choice.const).join("|");
-  return `--skill <skill-id> --language <tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>]`;
+  return `--skill <skill-id> --language <current-conversation-language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>]`;
 }
 
 export function skillDispatchCommandGrammar() {
@@ -101,6 +118,19 @@ export function skillDispatchCommandGrammar() {
 
 export function renderSkillDispatchSemanticProjection() {
   return "`target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.";
+}
+
+export function renderSkillDispatchLanguageProjection() {
+  const description = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.description;
+  return `For \`--language\`: ${description}`;
+}
+
+export function renderSkillDispatchTerminalProjection() {
+  return SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION;
+}
+
+export function renderSkillDispatchQaCandidatesProjection() {
+  return SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION;
 }
 
 export const SKILL_DISPATCH_SCHEMA_VERSION = "1";
@@ -157,7 +187,17 @@ export function normalizeSkillDispatchInput(input, registry) {
   if (!skill) throw new SkillDispatchInputError("skill_id", `Unknown AGDF skill: ${skillId}`);
   const surface = requireText(input.surface, "surface");
   if (!SURFACES.has(surface)) throw new SkillDispatchInputError("surface", `Unsupported surface: ${surface}`);
-  const presentationLanguage = requireText(input.presentationLanguage, "presentation_language", 64);
+  let requestedPresentationLanguage;
+  try {
+    requestedPresentationLanguage = requireText(input.presentationLanguage, "presentation_language", 64);
+  } catch {
+    throw new SkillDispatchInputError("presentation_language", "presentation_language is required");
+  }
+  const canonicalPresentationLanguage = canonicalizeLanguageTag(requestedPresentationLanguage);
+  if (!canonicalPresentationLanguage) {
+    throw new SkillDispatchInputError("presentation_language", "presentation_language is invalid");
+  }
+  const presentationLanguage = resolvePresentationLocale(input.interactionLocales, canonicalPresentationLanguage);
   const workingDirectory = requireText(input.workingDirectory, "working_directory", 4096);
   if (!isAbsolute(workingDirectory)) throw new SkillDispatchInputError("working_directory", "working_directory must be absolute");
   const rawTargetSource = input.targetSource || null;

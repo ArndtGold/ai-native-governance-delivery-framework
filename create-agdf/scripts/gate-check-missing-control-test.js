@@ -8,6 +8,7 @@ import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context
 import { createSkillDispatchService } from "../lib/skill-dispatch/service.js";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
+import { runCli } from "../lib/cli/application.js";
 
 const canonicalLocales = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
 for (const key of Object.keys(interactionLocales)) delete interactionLocales[key];
@@ -81,7 +82,7 @@ try {
   });
   const dispatchInput = {
     skillSet: pluginDefinition.skillSet,
-    interactionLocales: {},
+    interactionLocales,
     skillId: "gate-check",
     surface: "codex",
     presentationLanguage: "en",
@@ -121,7 +122,7 @@ try {
   assert.equal(controlCalls, 0);
 
   const configured = root("configured");
-  initializeCanonicalControl(configured, generatedFilesForTarget("init", configured, false, "en"));
+  initializeCanonicalControl(configured, generatedFilesForTarget("init", configured, false, "de"));
   const emptyRunStoreReport = evaluateGateCheck(configured);
   assert.equal(emptyRunStoreReport.status, "blocked");
   assert.equal(emptyRunStoreReport.current_gate, "UR");
@@ -135,6 +136,20 @@ try {
   assert.notEqual(configuredReport.blocking_reason, "AGDF_CONTROL_FILE_MISSING");
   assert.notEqual(configuredReport.interaction_kind, "control_setup");
   assert.notEqual(configuredReport.status_presentation?.semantic_block, "control_setup");
+
+  const cliOut = [];
+  const cliErr = [];
+  const cliStatus = await runCli([
+    "gate-check", "--json", "--language", "en", "--run", "configured-run",
+  ], {
+    parser: { cwd: configured },
+    io: { log: (value = "") => cliOut.push(String(value)), error: (value = "") => cliErr.push(String(value)) },
+  });
+  assert.equal(cliStatus, 2, "the fresh run remains blocked independently of presentation language");
+  assert.deepEqual(cliErr, []);
+  const cliReport = JSON.parse(cliOut[0]);
+  assert.equal(cliReport.status_card.presentation_language, "en", "explicit CLI language must override project configuration in gate evaluation");
+  assert.match(cliReport.status_presentation.markdown, /AGDF status-card/);
 
   console.log("Gate-check missing-control tests passed.");
 } finally {

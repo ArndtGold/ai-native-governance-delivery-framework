@@ -5,9 +5,15 @@ import { fileURLToPath } from "node:url";
 import { resolveCommand, skillDispatchArgumentGrammar as registryArgumentGrammar } from "../lib/cli/command-registry.js";
 import {
   SKILL_DISPATCH_FUNCTION_DEFINITION,
+  SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION,
+  SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION,
   SKILL_DISPATCH_SURFACES,
+  SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION,
   parseSkillDispatchFunctionArguments,
+  renderSkillDispatchLanguageProjection,
+  renderSkillDispatchQaCandidatesProjection,
   renderSkillDispatchSemanticProjection,
+  renderSkillDispatchTerminalProjection,
   skillDispatchArgumentGrammar,
   skillDispatchCommandGrammar,
 } from "../lib/skill-dispatch/contract.js";
@@ -30,9 +36,13 @@ assert.deepEqual(definition.annotations, {
 for (const requiredMeaning of [
   "version-matched AGDF preflight",
   "never grants approval or delivery authority",
-  "transmit host_action.text verbatim and stop",
+  "entire assistant response must consist only of host_action.text",
+  "Add no question, explanation, heading, citation, link or other surrounding text",
   "use only the returned target and control",
 ]) assert.match(definition.description, new RegExp(requiredMeaning.replaceAll(".", "\\."), "u"));
+assert.equal(renderSkillDispatchTerminalProjection(), SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION);
+assert.equal(definition.outputSchema.properties.control.description, SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION);
+assert.equal(renderSkillDispatchQaCandidatesProjection(), SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION);
 
 assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
@@ -56,6 +66,14 @@ assert.deepEqual(schema.dependentRequired, {
   primary_target: ["target_source"],
 });
 assert.match(schema.properties.working_directory.description, /never selects or authorizes a target/u);
+assert.equal(schema.properties.presentation_language.description, SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION);
+assert.equal(schema.properties.presentation_language.pattern, "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$");
+assert.match(schema.properties.presentation_language.description, /latest natural-language user request/u);
+assert.match(schema.properties.presentation_language.description, /explicitly asks for a response language/u);
+assert.match(schema.properties.presentation_language.description, /dominant request language/u);
+assert.match(schema.properties.presentation_language.description, /mixed or ambiguous/u);
+assert.match(schema.properties.presentation_language.description, /valid unsupported tag/u);
+assert.match(schema.properties.presentation_language.description, /Missing or invalid input fails before governance evaluation/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
 assert.match(schema.properties.run_id.description, /only when the request explicitly selects that run/u);
 
@@ -148,17 +166,30 @@ assert.throws(
 
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
+assert.match(skillDispatchArgumentGrammar(), /--language <current-conversation-language-tag>/u);
 assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
 
+const languageProjection = renderSkillDispatchLanguageProjection();
 const projection = renderSkillDispatchSemanticProjection();
+const terminalProjection = renderSkillDispatchTerminalProjection();
+const qaCandidatesProjection = renderSkillDispatchQaCandidatesProjection();
 for (const source of TASK_TARGET_SOURCES) assert.ok(projection.includes(`\`${source}\``));
 for (const skill of pluginDefinition.skillSet) {
   const skillPath = join(repoRoot, "plugin", "skills", skill.slug, "SKILL.md");
   const content = readFileSync(skillPath, "utf8");
+  const languageStart = content.indexOf(languageProjection);
+  assert.ok(languageStart >= 0, `${skill.slug} must contain the canonical presentation-language projection`);
+  assert.equal(content.split(languageProjection).length - 1, 1);
+  assert.ok(languageStart > content.indexOf("## Executable Dispatch"));
   const start = content.indexOf(projection);
   assert.ok(start >= 0, `${skill.slug} must contain the canonical semantic projection`);
   assert.equal(content.split(projection).length - 1, 1);
   assert.ok(start > content.indexOf("## Executable Dispatch"));
+  const terminalStart = content.indexOf(terminalProjection);
+  assert.ok(terminalStart >= 0, `${skill.slug} must contain the canonical terminal-response projection`);
+  assert.equal(content.split(terminalProjection).length - 1, 1);
+  assert.ok(terminalStart > content.indexOf("## Executable Dispatch"));
+  assert.equal(content.split(qaCandidatesProjection).length - 1, skill.slug === "qa-gate" ? 1 : 0);
 }
 
 console.log("Skill dispatch semantic function contract tests passed");

@@ -1335,8 +1335,9 @@ run("config", [
     if (!content.includes("This compact bootstrap owns no")
       || !content.includes("`skill.gate-check` is a direct-skill route. Invoke dispatcher v1 as the first operational call")
       || !content.includes("`delivery.start` is a delivery-intake route, not a direct-skill route")
-      || !content.includes("On `terminal: true`, execute the returned")
-      || !content.includes("transmit `host_action.text` verbatim and stop")
+      || !content.includes("For a result with `terminal: true`")
+      || !content.includes("the entire assistant response must consist only of host_action.text, copied verbatim")
+      || !content.includes("Add no question, explanation, heading, citation, link or other surrounding text")
       || !content.includes("Only trusted runtime evidence explicitly declaring this invocation `instruction_only`")
       || (content.match(/interaction\.md/g) ?? []).length !== 1
       || content.includes("Consume the canonical `approval_presentation` verbatim")

@@ -78,6 +78,7 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
   const binding = createDispatchBinding({ ...options, surface });
   assert.equal(binding.schema_version, "2");
   assert.equal(binding.arguments, skillDispatchArgumentGrammar());
+  assert.match(binding.arguments, /--language <current-conversation-language-tag>/u);
   assert.match(binding.arguments, new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
   assert.doesNotMatch(binding.arguments, /<source>/u);
   assert.equal(binding.authorizes, false);
@@ -149,7 +150,7 @@ try {
   const qaArtifacts = join(active, ".agdf/control/artefacts/qa-input");
   mkdirSync(qaArtifacts, { recursive: true });
   for (const [, name] of artifacts) writeFileSync(join(qaArtifacts, `${name}.md`), `# ${name}\nSynthetic transport fixture, not delivery evidence.\n`);
-  const qaBody = `## Objective\n\nSynthetic QA-input transport.\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n${["UR", "PRD", "SD", "TP"].map((gate) => `| ${gate} | approved | Approval: ${gate} |`).join("\n")}\n| QA | missing | |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n${artifacts.map(([type, name, status]) => `| ${type} | .agdf/control/artefacts/qa-input/${name}.md | ${status} | fixture |`).join("\n")}\n\n## Mode/Slice Decision\n\n- decision: structured_delivery\n- required_next_gate: PRD\n- scope_reason: transport fixture\n- evidence: fixture\n\n## Closeout\n\n- next_allowed_action: Run QA.\n- quality_outlook: Not a QA decision.\n`;
+  const qaBody = `## Objective\n\nSynthetic QA-input transport.\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n${["UR", "PRD", "SD", "TP"].map((gate) => `| ${gate} | approved | Approval: ${gate} |`).join("\n")}\n| QA | missing | |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n${artifacts.map(([type, name, status]) => `| ${type} | .agdf/control/artefacts/qa-input/${name}.md | ${status} | fixture |`).join("\n")}\n\n## Mode/Slice Decision\n\n- decision: structured_delivery\n- required_next_gate: PRD\n- scope_reason: transport fixture\n- evidence: fixture\n\n## Closeout\n\n- next_allowed_action: Run the QA gate, persist the QA report, and request exact approval: Approval: QA\n- quality_outlook: No additional quality follow-up identified from the current control state.\n`;
   writeFileSync(qaPath, renderRunState("qa-input", qaBody, { current_gate: "QA" }));
   const contextOnly = join(temp, "context only");
   mkdirSync(contextOnly);
@@ -182,7 +183,7 @@ try {
     assert.equal(supplied.expected_version, packageVersion);
     for (const skill of ["gate-check", "qa-gate"]) {
       const invoke = (target, run) => {
-        const values = { "--skill": skill, "--language": "de", "--working-directory": contextOnly,
+        const values = { "--skill": skill, "--language": "en", "--working-directory": contextOnly,
           ...(target ? { "--target-source": "continued_target", "--primary-target": target } : {}),
           ...(run ? { "--run": run } : {}) };
         const call = buildDispatchInvocation(supplied, values);
@@ -220,6 +221,7 @@ try {
       assert.equal(early.control.current_gate, "UR", "qa-gate does not skip an earlier gate");
       assert.equal(early.target.primary_target, active);
       const qaInput = invoke(active, "qa-input");
+      assert.ok(qaInput.control, JSON.stringify({ surface, skill, qaInput }));
       assert.equal(qaInput.control.current_gate, "QA", JSON.stringify(qaInput));
       if (skill === "qa-gate") {
         assert.equal(qaInput.outcome, "skill_continuation");
@@ -233,15 +235,20 @@ try {
       initializeCanonicalControl(ambiguousRoot, generatedFilesForTarget("init", ambiguousRoot, false, {
         artifact_language: "de", chat_language: "de", runtime_language: "en",
       }));
-      createRun(ambiguousRoot, "one");
-      createRun(ambiguousRoot, "two");
+      createRun(ambiguousRoot, "one", "## Objective\n\nDeliver objective one.\n");
+      createRun(ambiguousRoot, "two", "## Objective\n\nDeliver objective two.\n");
       const ambiguous = invoke(ambiguousRoot);
       assert.equal(ambiguous.outcome, skill === "gate-check" ? "control_result" : "skill_continuation", JSON.stringify(ambiguous));
       assert.equal(ambiguous.control.blocking_reason, "AGDF_ACTIVE_RUN_AMBIGUOUS");
       if (skill === "gate-check") {
-        assert.equal(ambiguous.presentation.presentation_language, "de");
-        assert.match(ambiguous.host_action.text, /Den gewünschten Run/);
-        assert.doesNotMatch(ambiguous.host_action.text, /Repair the existing|Pass --run/);
+        assert.equal(ambiguous.presentation.presentation_language, "en");
+        assert.match(ambiguous.host_action.text, /Pass --run/);
+        assert.doesNotMatch(ambiguous.host_action.text, /Repair the existing/);
+      } else if (skill === "qa-gate") {
+        assert.deepEqual(ambiguous.control.candidate_runs.map(({ run_id, objective, current_gate, decision }) => ({ run_id, objective, current_gate, decision })), [
+          { run_id: "one", objective: "Deliver objective one.", current_gate: "UR", decision: "in_progress" },
+          { run_id: "two", objective: "Deliver objective two.", current_gate: "UR", decision: "in_progress" },
+        ]);
       }
       assert.ok(!["one", "two"].includes(ambiguous.control.run_id ?? ambiguous.control.status_card?.run_id), "transport must not choose a run");
     }

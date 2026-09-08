@@ -93,6 +93,10 @@ assert.deepEqual(parsed.options, {
 const alias = parseArgs(["--target", "config", "--lang", "de"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(alias.options.target, "config");
 assert.deepEqual(alias.options.language, { language: "de" });
+assert.deepEqual(
+  parseArgs(["config", "--language", "fr-CA"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.language,
+  { language: "fr-ca" },
+);
 assert.equal(parseArgs(["status", "--verbose"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.verbose, true);
 assert.equal(parseArgs(["runtime-checks", "enable", "--surface", "claude"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksAction, "enable");
 const mcpArgs = parseArgs(["mcp", "enable", "--surface", "codex", "--scope", "project", "--dir", "/tmp/repo"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
@@ -134,6 +138,8 @@ for (const fixture of [
   [["missing-command"], "Please choose one target"],
   [["copilot-plugin"], "Please choose one target"],
   [["both"], "Please choose one target"],
+  [["config", "--language", "de_DE.UTF-8"], "Invalid language tag"],
+  [["config", "--language", " de "], "Invalid language tag"],
 ]) {
   assert.throws(() => parseArgs(fixture[0], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }), (error) => {
     assert.ok(error instanceof CliUsageError);

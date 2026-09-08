@@ -56,11 +56,13 @@ function visibleStrings(value, prefix = "") {
   return entries;
 }
 
+export const PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE = "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$";
+const PRESENTATION_LANGUAGE_TAG_PATTERN = new RegExp(PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE, "u");
+
 export function canonicalizeLanguageTag(value) {
-  const raw = String(value ?? "").trim().replaceAll("_", "-").replace(/\.(.+)$/, "");
-  if (!raw || !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/.test(raw)) return "";
+  if (typeof value !== "string" || !PRESENTATION_LANGUAGE_TAG_PATTERN.test(value)) return "";
   try {
-    return Intl.getCanonicalLocales(raw)[0]?.toLowerCase() ?? "";
+    return Intl.getCanonicalLocales(value)[0]?.toLowerCase() ?? "";
   } catch {
     return "";
   }
@@ -69,13 +71,16 @@ export function canonicalizeLanguageTag(value) {
 export function validateLocaleRegistry(registry) {
   const errors = [];
   if (!plainObject(registry) || registry.schemaVersion !== 1) errors.push("schema_version");
-  const fallback = canonicalizeLanguageTag(registry?.fallbackLocale);
   const locales = registry?.locales;
-  if (!fallback || !plainObject(locales) || !plainObject(locales[fallback])) errors.push("fallback_locale");
-  const baseline = plainObject(locales?.[fallback]) ? flattenKeys(locales[fallback]) : [];
+  if (registry?.fallbackLocale !== "en" || !plainObject(locales) || !plainObject(locales.en)) errors.push("fallback_locale");
+  const baseline = plainObject(locales?.en) ? flattenKeys(locales.en) : [];
   const budgets = registry?.lengthBudgets ?? {};
+  const canonicalLocales = new Set();
   for (const [locale, pack] of Object.entries(locales ?? {})) {
-    if (!canonicalizeLanguageTag(locale) || !plainObject(pack)) {
+    const canonicalLocale = canonicalizeLanguageTag(locale);
+    if (canonicalLocale && canonicalLocales.has(canonicalLocale)) errors.push(`duplicate_locale:${locale}`);
+    if (canonicalLocale) canonicalLocales.add(canonicalLocale);
+    if (!canonicalLocale || canonicalLocale !== locale || !plainObject(pack)) {
       errors.push(`invalid_locale:${locale}`);
       continue;
     }
@@ -102,12 +107,21 @@ export function validateLocaleRegistry(registry) {
 export function resolvePresentationLocale(registry, requestedLocale) {
   const validation = validateLocaleRegistry(registry);
   if (!validation.valid) throw new Error(`Invalid AGDF interaction locale registry: ${validation.errors.join(",")}`);
-  const fallback = canonicalizeLanguageTag(registry.fallbackLocale);
+  const requested = canonicalizeLanguageTag(requestedLocale);
+  if (!requested) throw new Error("Invalid AGDF presentation language tag");
+  return matchPresentationLocale(registry, requested, { validated: true }) || "en";
+}
+
+export function matchPresentationLocale(registry, requestedLocale, { validated = false } = {}) {
+  if (!validated) {
+    const validation = validateLocaleRegistry(registry);
+    if (!validation.valid) throw new Error(`Invalid AGDF interaction locale registry: ${validation.errors.join(",")}`);
+  }
   const requested = canonicalizeLanguageTag(requestedLocale);
   if (requested && registry.locales[requested]) return requested;
   const language = requested.split("-")[0];
   if (language && registry.locales[language]) return language;
-  return fallback;
+  return "";
 }
 
 export function localePack(registry, requestedLocale) {
@@ -196,21 +210,34 @@ function displaySafeTitle(value, fallback) {
   return (title || fallback).slice(0, 100);
 }
 
+function displaySafeObjective(value, fallback) {
+  const objective = String(value ?? "")
+    .split(/\r?\n/u)
+    .map(stripMarkdown)
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return (objective || fallback).slice(0, 500);
+}
+
 export function buildRunCandidates(runs) {
   return [...(runs ?? [])]
     .filter((run) => run?.valid && run?.meta?.lifecycle === "active" && typeof run.run_id === "string")
     .map((run) => {
-      const currentGate = run.control_state?.current_gate || run.meta?.current_gate || "unknown";
+      const currentGate = stripMarkdown(run.control_state?.current_gate || run.meta?.current_gate || "unknown") || "unknown";
       const title = resolveHumanRunTitle({
         currentArtefactHeading: run.current_artefact_heading,
         urHeading: run.ur_heading,
-        runContent: "",
+        runContent: run.content,
         runId: run.run_id,
       });
       return {
         run_id: run.run_id,
         display_title: displaySafeTitle(title, normalizedRunTitle(run.run_id)),
+        objective: displaySafeObjective(section(String(run.content ?? ""), "Objective"), normalizedRunTitle(run.run_id)),
         current_gate: currentGate,
+        decision: String(run.meta?.decision || "unknown").replaceAll("`", "").trim() || "unknown",
         next_allowed_action: String(run.control_state?.next_allowed_action ?? "").trim(),
         revision_id: String(run.meta?.revision_id ?? "").trim(),
       };

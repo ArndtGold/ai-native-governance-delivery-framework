@@ -26,6 +26,23 @@ function canonicalPath(path) {
 
 export { digestDirectory };
 
+const PLUGIN_HOST_SURFACES = new Set(["codex", "claude", "copilot", "opencode", "plugin"]);
+
+export function resolvePluginHostEnvironment(env = process.env, { defaultSurface = "plugin" } = {}) {
+  const fallbackSurface = PLUGIN_HOST_SURFACES.has(defaultSurface) ? defaultSurface : "plugin";
+  const requestedSurface = env.AGDF_SURFACE
+    || (env.COPILOT_PLUGIN_DATA ? "copilot"
+      : env.PLUGIN_ROOT ? "codex"
+        : env.CLAUDE_PLUGIN_ROOT ? "claude" : fallbackSurface);
+  const surface = PLUGIN_HOST_SURFACES.has(requestedSurface) ? requestedSurface : fallbackSurface;
+  const expectedPluginRoot = surface === "claude"
+    ? env.CLAUDE_PLUGIN_ROOT || env.PLUGIN_ROOT || undefined
+    : ["codex", "copilot", "plugin"].includes(surface)
+      ? env.PLUGIN_ROOT || (surface === "codex" ? env.CLAUDE_PLUGIN_ROOT : undefined) || undefined
+      : undefined;
+  return Object.freeze({ surface, expectedPluginRoot });
+}
+
 function envelope(machineValidation, options, evidence = {}) {
   return {
     schema_version: "1",

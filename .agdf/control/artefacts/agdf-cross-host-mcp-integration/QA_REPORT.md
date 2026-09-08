@@ -1,63 +1,116 @@
 # QA Report: Common AGDF MCP Lifecycle Across Coding-Agent Hosts
 
-Status: ready for approval
-Decision owner: `qa-gate`  
-Date: 2026-09-07  
-Run: `agdf-cross-host-mcp-integration`  
-Revision: 2
+Status: pass
+Decision owner: `qa-gate`
+Date: 2026-09-08
+Run: `agdf-cross-host-mcp-integration`
+Revision: 6
 
-Previous approval: Exact `Approval: QA` for Revision 1 was accepted on 2026-09-07 after same-target,
-same-run, same-gate and run revision `084A94EE-FB7B-433F-968C-CEF41C75AEF6` revalidation. The user's
-subsequent UAT revision request added the entry-level architecture documentation and refreshed its
-dependent evidence. The previous approval remains historical and does not approve Revision 2.
+Previous approval: Exact `Approval: QA` approved historical Revision 1 on 2026-09-07. Later
+architecture and language-contract revisions superseded that approval.
 
-## Quality Readiness
+Current approval: Exact `Approval: QA` for Revision 6 was accepted on 2026-09-08 after revalidating
+target, run `agdf-cross-host-mcp-integration`, gate `QA` and run revision
+`910C5F55-6AA0-4FE4-BD70-D3C8A8174DCA`.
+
+## Quality readiness
 
 | Dimension | Owner | Status | Decisive evidence |
 |---|---|---|---|
-| Plan coverage | `task-plan-review` | pass | Revision 2 confirms 22/22 approved TP tasks `fully_done`; TP-16 now includes the complete entry-level architecture projection and six verified diagrams. |
-| Solution integrity | `clean-implementation-review` | pass | The documentation derives from the existing semantic, lifecycle, package, adapter, locale and evidence owners without becoming a second normative source. |
-| Code quality | `code-review` | pass | The implementation review remains valid, the CLI example was corrected, and generated Copilot state was reconciled before fresh compatibility evidence was recorded. |
-| QA decision | `qa-gate` | pass | Required reviews, Brownfield fit, acceptance coverage, direct bounded evidence, beginner-level architecture documentation, Context Graph reconciliation and all applicable checks are complete. |
+| Requirements | PRD Revision 2 | pass | Approved contract defines four language states, current-request precedence, strict public tag input, complete English fallback and ownership boundaries. |
+| Solution fit | Brownfield Analysis Revision 2 | pass | Existing semantic, registry, presentation, CLI and MCP owners support the correction without a parallel source of truth. |
+| Plan coverage | Task Plan Review Revision 5 | pass | CHMCP-TP-01 through CHMCP-TP-30 are `fully_done`; C21 through C26 map to direct evidence. |
+| Solution integrity | Clean Implementation Review Revision 6 | pass | One primary path, deliberate whole-pack fallback, isolated system-locale adapter and no host-specific detector or language list. |
+| Code quality | Code Review Revision 6 | pass | CR-07 through CR-13 are resolved; no correctness, regression, security or maintainability finding is open. |
+| Test evidence | CD+Tests Revision 6 | pass | Final full serial smoke, separate dual-protocol reports, strict registry/service matrix and hashed direct host evidence. |
 
-## QA Gate
+## QA gate
 
 - decision: `pass`
-- evidence: Approved TP Revision 1; passing pre-implementation Brownfield Analysis; Task Plan Review Revision 2 with 22/22 tasks `fully_done`; passing Clean Implementation Review and Code Review Revision 2; complete CHMCP-C01 through C20 mapping in `CD_TESTS.md`; implementation commit `c95874957ac78bbccd8b7b31a90b71dbe50ce677`; final serial `npm --prefix create-agdf run smoke-test` exit 0; MCP cold tools/list p95 545.143 ms and warm dispatch p95 314.568 ms; 83/83 deterministic skill evals; 467-file release package; four hashed direct project-scope host records; exact cleanup and baseline restoration; four machine-validated `unverified` qualification outcomes; architecture guide with six visually inspected DOT/SVG diagrams, 55 resolving local links and exact CLI examples; serial `release:prepare` pass; byte-identical package build pass; refreshed host compatibility record with 56/56 scenarios; compatibility and community-health checks pass.
-- missing_evidence: The public `@agdf/mcp-server@0.14.5` package is unpublished. Codex and OpenCode lack direct failure-path qualification evidence. Claude lacks authenticated discovery/call evidence. Copilot lacks a callable CLI or observable fresh Desktop MCP session. Windows, Linux, OpenCode 2.x and other client tuples are unobserved.
-- risks: No exact host tuple is release-qualified. A later host configuration or policy change can make a currently compatible path unavailable. Generated Copilot conflict siblings can recur when external filesystem synchronization overlaps generation. The canonical in-place pruning and serial evidence workflow contain this risk, and exact tuple qualification continues to fail closed.
-- required_next_step: Review QA Report Revision 2 and provide exact `Approval: QA` or request another revision. Do not request UAT approval until this QA revision is approved.
+- evidence: Missing and invalid language values fail before activation, target and gate work. Exact
+  and regional supported tags render one complete matching pack. Valid unsupported `fr-FR` renders
+  one complete English pack. Invalid registry metadata fails closed. The exact function-owned
+  precedence projects to every generated binding. Production MCP protocol versions `2025-11-25`
+  and `2026-07-28` pass the same matrix separately with empty STDERR and non-authorizing results.
+- TP coverage: 30 of 30 tasks fulfilled; six of six Revision 2 acceptance checks pass within their
+  approved evidence boundaries.
+- Brownfield fit: pass; existing owners were extended and no migration or competing validator was
+  introduced.
+- solution integrity: pass; strict boundary and complete-pack resolution are the primary path.
+- required_next_step: Review UAT Report Revision 4 and provide exact `Approval: UAT`, request
+  revision or decline. Release remains gated.
 - impact_codes: none
 
-The missing direct and publication evidence limits later support, release and UAT claims. It does not
-invalidate the QA decision because the approved TP explicitly requires honest bounded unavailable or
-blocked records for the direct lanes and excludes publication. The post-commit documentation adds no
-product or runtime semantics. No normalized finding remains open.
+## Language decision evidence
 
-## Documentation Evidence
+| State | QA result | Evidence |
+|---|---|---|
+| missing | pass | Required schema and service validation stop with no governance card and zero downstream callbacks. |
+| invalid | pass | Wrong type, empty, padded, underscore, POSIX suffix, list and malformed tags fail without coercion or repair. |
+| supported or regional | pass | Exact or primary registry pack renders all fields; Codex and OpenCode direct German/English cases agree. |
+| valid unsupported | pass | `fr-FR` is retained as host input and resolves to the complete English pack in protocol, Codex and OpenCode evidence. |
+| mixed or ambiguous | pass with bounded host evidence | Codex supplied `en` directly. OpenCode supplied `en` on controlled retry; the first attempt supplied `de-DE` and remains recorded. |
 
-- `docs/architecture/README.md` now starts with a five-term entry model and one short end-to-end flow.
-- The guide distinguishes Skill invocation, MCP invocation and the separate MCP lifecycle.
-- Component ownership, canonical tool semantics, four native adapters, shared runtime references,
-  rollback, source precedence, distribution and non-authorizing boundaries are explained in order.
-- Five existing DOT/SVG diagrams were revised and `06-mcp-lifecycle.dot/.svg` was added.
-- Six Graphviz renders, SVG XML validation and visual inspection passed.
-- The architecture audit resolved 55 local links across 45 unique targets with zero missing targets.
-- `npm run test:community-health`, `npm run compatibility:check` and
-  `npm run check:community-health` pass.
+The MCP server does not receive conversation text. It can enforce tag validity and pack resolution,
+but it cannot prove whether a model selected the tag that the user's request implied. That selection
+is therefore direct host evidence rather than deterministic server evidence.
+
+## Verification
+
+The final serial `npm --prefix create-agdf run smoke-test` passed on Node.js `v22.22.3`, Darwin x64.
+The run included release preparation, generated profiles, lifecycle and installer suites, both MCP
+protocol versions, runtime integrity, package build and contents, 83/83 deterministic Skill evals and
+plugin-only Copilot routing. The final run also proves that explicit CLI language overrides the
+project setting while an omitted parameter preserves it. MCP performance passed at cold p95
+`529.683 ms` and warm p95 `295.288 ms`. `git diff --check` passed.
+
+## Direct host qualification boundary
+
+- Codex CLI `0.145.0` passed five fresh-session language cases with exact target/run arguments.
+- OpenCode CLI `1.18.3` passed the five language selections after controlled retries. First-attempt
+  missing-tool, wrong-skill and mixed-language variance remains visible. The successful mixed retry
+  did not preserve the requested run argument, so complete argument fidelity is still unverified.
+- Claude Code CLI `2.1.193` remains unverified because registration/read-back and authentication did
+  not yield a callable language lane.
+- GitHub Copilot Desktop `1.1.15` remains unverified because no callable local MCP client was
+  available.
+
+These limits prevent a claim of four-host release qualification. They do not block QA of the strict
+shared contract because the approved TP explicitly separates production protocol evidence from
+loaded-host observations and requires unavailable clients to remain explicit.
+
+## Cleanup
+
+All temporary project registrations and the isolated runtime were removed. Native Codex and Claude
+lookups report no AGDF server, OpenCode reports no configured MCP server, `.codex/config.toml` and
+`opencode.json` are absent, and the isolated runtime root no longer exists. The cleanup evidence is
+hashed with the direct language observations.
+
+## Normalized findings
+
+| finding_id | gap_type | status | Evidence |
+|---|---|---|---|
+| CHMCP-QA-01 | requirements_gap | resolved | Approved PRD Revision 2 defines all four states and precedence. |
+| CHMCP-QA-02 | design_gap | resolved | Approved SD Revision 2 separates host choice, validation, resolution and detected locale. |
+| CHMCP-QA-03 | design_gap | resolved | Complete English fallback and registry/function ownership are invariant. |
+| CHMCP-QA-04 | implementation_gap | resolved | Malformed values fail before governance work on service and both protocols. |
+| CHMCP-QA-05 | evidence_gap | resolved | One shared table drives service, registry, renderer and separate production protocol reports. |
+
+No revise-level or block-level finding remains open.
 
 ## Context Graph
 
-- Situation: The common four-host lifecycle is implemented and tested. Its public architecture guide now explains the same owners, flows and evidence limits for a first-time reader. Exact host qualification remains deliberately unverified until every tuple has complete direct evidence.
 - context_graph_impact: `update_existing_node`
 - context_graph_refs: `CG-MCP-DISPATCH-ADAPTER`
 - context_graph_reconciliation: `resolved`
 - context_graph_required_action: `none`
 - context_graph_gate_effect: `none`
-- context_graph_evidence: `.agdf/control/CONTEXT_GRAPH.md` links the implementation, entry-level architecture guide, refreshed deterministic compatibility record, direct outcomes, non-authorizing boundary, qualification limits and future release conditions.
+- context_graph_evidence: Final strict input, English registry invariant, dual-protocol evidence,
+  direct host variance and cleanup proof are recorded.
 
-## Knowledge Persistence
+## Knowledge persistence
 
 - memory_target: `context_graph`
-- memory_reason: The common lifecycle ownership, adapter boundary, two invocation paths, evidence separation and exact qualification conditions are reusable cross-run architecture facts.
+- memory_reason: Semantic language selection, strict transport validation, whole-pack resolution and
+  loaded-host evidence are separate reusable MCP boundaries.
 - memory_refs: `CG-MCP-DISPATCH-ADAPTER`

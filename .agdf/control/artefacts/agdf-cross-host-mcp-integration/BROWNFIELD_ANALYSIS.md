@@ -6,159 +6,116 @@
 - required_next_gate: `none`
 - artefact: `.agdf/control/artefacts/agdf-cross-host-mcp-integration/BROWNFIELD_ANALYSIS.md`
 - run: `agdf-cross-host-mcp-integration`
-- revision: 1
-- based_on: approved TP Revision 1, SD Revision 1 and PRD Revision 1
-- source_baseline: `d9d7be70945d4ead16de6fb12830afb7e2c3325d`
-- scope: Verify the approved four-host lifecycle, shared-runtime migration, Copilot adapter,
-  presentation contract and evidence plan against the actual existing server, lifecycle, package,
-  installer, generation and test owners before implementation.
-- evidence: Direct repository inspection of the current diff, MCP lifecycle service, host-config
-  facade, runtime package/ref transactions, CLI registry/application, capability metadata,
-  localization registry, release generation, public-plugin exclusion, MCP server/package suites,
-  historical direct-host records and official host configuration contracts.
-- transparency: The implementation path passes because every existing concern has one reusable
-  owner and the new work is limited to an adapter leaf, a closed common contract and approved
-  refactors inside the existing lifecycle. No second server, dispatcher, installer, target resolver,
-  gate evaluator, renderer or approval path is required.
-- missing_evidence: Direct fresh-session evidence for the new lifecycle on Copilot, Codex, Claude
-  Code and OpenCode remains intentionally absent before implementation. OpenCode 2.x, Windows and
-  Linux remain unqualified unless directly observed later.
+- revision: 2
+- date: 2026-09-08
+- based_on: approved TP Revision 2, SD Revision 2 and PRD Revision 2
+- source_baseline: `599b23b35990e4678dbf6830c71476a3c0e7e782` plus the current inventoried worktree
+- scope: Verify the approved strict presentation-language boundary, immutable complete English
+  fallback, separate detected-system-locale adaptation, shared dual-protocol matrix and loaded-host
+  evidence boundary against the existing implementation before product edits.
+- evidence: Direct inspection of `skill-dispatch/contract.js`, `skill-dispatch/service.js`,
+  `interaction-presentation.js`, `cli/runtime-context.js`, the interaction locale registry,
+  generated projections, MCP server registration, both production protocol lanes and existing tests.
+- transparency: The correction can extend existing owners. It needs no second semantic contract,
+  locale registry, dispatcher service, MCP tool, renderer or host adapter.
+- missing_evidence: Loaded-host argument visibility remains client-dependent and must stay separate
+  from deterministic and protocol evidence. This does not block the repository correction.
 
 ## 1. Current Coverage And Reuse
 
 | Approved area | Current coverage | Reuse strategy | Existing owner and consequence |
 |---|---|---|---|
-| MCP tool semantics and server | `fully_done` | `reuse` | `skill-dispatch/contract.js`, dispatcher service and `agdf-mcp-server/` remain unchanged. Lifecycle work may identify but not redefine the tool. |
-| Lifecycle orchestration | `partially_done` | `refactor` | `mcp-lifecycle/service.js` already owns status/enable/disable and rollback composition. Extend it through a registry instead of adding services. |
-| Host configuration | `partially_done` | `refactor` and `extend` | `host-config.js` contains working Codex, Claude and OpenCode leaves. Split them behind one facade and add only the Copilot leaf. |
-| Runtime acquisition and ownership | `partially_done` | `refactor` | `package.js` already verifies exact package/digests, stages atomically and tracks refs. Change the root/reference identity without another package owner. |
-| Capability metadata | `partially_done` | `extend` | `agdf-mcp-capability.json` has exact package/protocol facts but is not a runtime contract. Upgrade and validate it through generation/runtime context. |
-| Lifecycle result and text | `partially_done` | `refactor` | `service.js` currently mixes state construction and free-form English text. Add one result validator and one locale-backed presentation owner. |
-| CLI command | `partially_done` | `extend` | Existing registry/parser/application already route three hosts. Add Copilot to the same grammar and handler. |
-| Plugin separation | `fully_done` | `preserve` | Host installers and public plugin already exclude MCP auto-activation. Add regression assertions and canonical next-action projection only. |
-| Host evidence | `partially_done` historical baseline | `extend` | Prior server-run records prove earlier Codex/OpenCode/Claude behavior only. New lifecycle needs fresh independent records for all four hosts. |
-| Context Graph | `partially_done` | `update` | Existing `CG-MCP-DISPATCH-ADAPTER` owns the server boundary. Update it after final source and evidence exist. |
+| Language meaning | `partially_done` | `extend` | `skill-dispatch/contract.js` already owns the required property and all generated projections. Replace its hardcoded installed-language list with the approved semantic precedence. |
+| Strict public tag validation | `partially_done` | `refactor` | `interaction-presentation.js` owns `canonicalizeLanguageTag`, but currently trims, replaces underscores and strips suffixes. Make that function strict and export its lexical source to the schema. |
+| Invalid-input short circuit | `partially_done` | `extend` | `skill-dispatch/service.js` already normalizes before target evaluation and returns `dispatch_input_invalid`. Preserve this order and prove zero activation, target and gate calls. |
+| Locale registry | `partially_done` | `strengthen` | `validateLocaleRegistry` already checks pack parity, keys and budgets, but derives its baseline and fallback from mutable metadata. Require exact `en` and canonical unique keys. |
+| Locale resolution | `partially_done` | `strengthen` | `resolvePresentationLocale` already performs exact, primary and fallback lookup. Make the final choice the constant complete English pack. |
+| Detected system locale | `partially_done` | `split input paths` | `runtime-context.js` currently sends explicit and detected values through the same permissive helper. Add one POSIX adapter used only after `detectSystemLocale`. |
+| Protocol validation | `partially_done` | `extend` | `agdf-mcp-server/test/protocol.test.js` already runs both `2025-11-25` and `2026-07-28`, but only one successful German call. Apply the full shared matrix to each lane. |
+| Loaded-host selection | `partially_done` | `observe separately` | Existing host evidence covers registration and bounded dispatch. Language-selection correctness requires fresh host evidence only where submitted arguments are observable. |
 
-- current_coverage: The server and three-host lifecycle are implemented. The common profile/result
-  contract, shared cross-host runtime root, all-source effective inspection and Copilot adapter are
-  not yet implemented.
-- reuse_strategy: Reuse the semantic, server, package provenance, CLI, installer, locale, atomic
-  swap and test owners. Refactor the monolithic host-config and result text only where required by
-  the approved common contract. Add one Copilot adapter leaf and one profile/result validator.
-- required_next_step: Begin CD+Tests with TP-02 negative controls, then implement TP-03 through
-  TP-17 before any real host mutation.
+- current_coverage: Core behavior exists, but the public canonicalizer is too permissive, fallback
+  metadata is mutable, function text duplicates installed-language facts and protocol tests omit
+  negative and unsupported-language rows.
+- reuse_strategy: Refactor the existing canonicalizer and runtime-context call sites, strengthen the
+  existing registry validator/resolver, extend the existing semantic description and drive all
+  affected tests from one shared fixture module.
+- required_next_step: Capture pre-change controls, then implement CHMCP-TP-25 through
+  CHMCP-TP-30 in dependency order.
 
 ## 2. Dependency And Data Flow
 
-The clean dependency direction is:
+The retained dependency direction is:
 
 ```text
-CLI -> lifecycle service -> validated profile/result owners
-                         -> closed adapter registry -> one host leaf
-                         -> existing package/provenance transaction
-host registration -> existing exact MCP server -> canonical dispatch contract
+host-selected tag -> MCP schema -> strict canonicalizer -> dispatch service
+                                                    -> target and gate evaluation
+validated locale registry -> exact pack -> primary pack -> constant complete en pack
+detected system locale -> CLI-only POSIX adapter -> strict canonicalizer
 ```
 
-Adapters return facts and transactions. They do not import CLI presentation, package acquisition,
-semantic dispatch or another adapter. The lifecycle service never imports host installers. The
-server package remains independent of all lifecycle mutation modules.
+`contract.js` imports the lexical constraint from `interaction-presentation.js`. Generated Skills
+and MCP `tools/list` import the function definition. They do not own copies. The service receives a
+validated tag and asks the presentation owner for the resolved pack. The server does not inspect
+conversation text.
 
-No application database or `.agdf/control/` schema migration is required. The only persistent-data
-change is the owned runtime directory layout and its marker references. Exact legacy paths are
-derived from the registered entrypoint and verified marker. Arbitrary data-root scanning is not
-needed and is prohibited.
+No persistent control schema, host registration format, protocol version or MCP result schema
+changes. Existing direct callers remain protected because service normalization repeats validation
+after the MCP schema boundary.
 
 ## 3. Parallel-Structure And Drift Check
 
 | Risk | Assessment | Required control |
 |---|---|---|
-| second semantic function or schema | clear | Import and test the existing semantic owner only. Capability metadata stores owner identity, not copied schemas. |
-| second lifecycle or installer | clear | Keep `service.js` as orchestrator and plugin installers separate. |
-| second renderer | controlled | Move lifecycle text to the existing locale registry through one MCP presentation module; remove free-form adapter text. |
-| second runtime/provenance model | controlled | Refactor current `package.js` marker and refs. Do not create a new store or accept unowned packages. |
-| host-symmetry fiction | controlled | Common contract holds shared states while each leaf reports native scope, source, precedence and version variant. |
-| static support replacing live state | controlled | Profile qualification is immutable evidence only; current discovery remains host-observed. |
-| plugin install implying MCP | clear | Existing separation is preserved and asserted. |
-| gate authorization through MCP | clear | Existing semantic result and every lifecycle envelope remain `authorizes: false`. |
+| second language validator | clear | Export one lexical pattern and strict canonicalizer from `interaction-presentation.js`; schema and service consume them. |
+| second semantic description | clear | Keep the complete host-selection meaning only in `SKILL_DISPATCH_FUNCTION_DEFINITION`. |
+| second installed-pack inventory | clear | Do not list installed locales in model-facing text; validated registry keys remain the inventory. |
+| second fallback owner | controlled | Require `fallbackLocale === "en"` and return constant `en` after exact and primary lookup. |
+| mixed pack rendering | controlled | Exact pack-key parity and whole-pack resolution remain mandatory before rendering. |
+| CLI repair leaking into MCP | controlled | Use a named detected-system-locale adapter only in the detected branch. |
+| repository proof replacing host behavior | controlled | Retain separate protocol and loaded-host evidence records. |
 
-SoT drift is absent: PRD, SD and TP consistently retain the semantic and governance owners. Runtime
-drift is present and planned: existing roots are surface-specific and references include incidental
-target for user scope. The approved shared root/reference migration corrects this within the current
-package owner. Presentation drift is present and planned: the existing lifecycle emits free-form
-English next actions, while the planning-time gate localization correction shows why a closed
-code-to-locale path is required.
+Product-semantics drift is resolved by approved PRD and SD Revision 2. Runtime drift remains open
+only in the current permissive implementation and is the exact approved correction. No blocking
+ownership conflict or hidden migration is present.
 
-## 4. Change Impact By Dimension
+## 4. Change Impact
 
-| Dimension | Impact and evidence | Implementation control |
+| Dimension | Impact | Control |
 |---|---|---|
-| business rules | Project-first explicit activation, no scope widening and separate plugin/MCP state are approved product rules. | Enforce before package/config mutation and cover all branches. |
-| dependency impact | `create-agdf` gains only local lifecycle modules and generated profile data. The server dependency graph does not change. | Static import and package-inventory tests. |
-| integration | Four native config contracts differ in path, scope, precedence, trust and CLI behavior. | Closed adapter contract plus per-host conformance and direct records. |
-| data flow | Target/profile/probe facts flow into desired registration; selected/effective sources and runtime refs flow back into one result. | Immutable inputs, normalized result and no adapter text. |
-| error handling | Existing lifecycle catches broadly and loses rollback-failure detail. | Stable diagnostic mapping, explicit reverse rollback verification and blocking `rollback_incomplete`. |
-| test impact | Current lifecycle test is monolithic but has valuable package and adapter fixtures. | Retain it as integration coverage and add focused profile/result/adapter cases without duplicating policy. |
-| data/schema | Capability and lifecycle envelope move to schema v2; runtime marker/reference identity changes. | Closed validation, explicit migration and no dual execution path. |
-| security and authority | Local process inherits host access; config mutation and trust remain sensitive. | Exact owned paths, no permission widening, no arbitrary shell, `authorizes: false`. |
-| upgrade and rollback | Several hosts may share one runtime; a failed migration could delete an active package. | Add new ref before removing old, zero-ref retirement and phase fault injection. |
-| observability | Current text hides selected versus effective source and current versus qualified discovery. | Structured fields, stable codes and separate direct evidence. |
-| performance | Status adds bounded source/probe inspection. Package install remains enable-only. | Command spies and performance regression; no recursive configuration scan. |
-| UX and contract | Users need exact state, source, next action and cleanup outcome in German/English. | One normalized result and locale-complete renderer. |
+| interface | `presentation_language` remains required but gains an enforceable pattern and exact semantics. | Contract, schema and both MCP protocol tests. |
+| compatibility | Previously repaired values such as `de_DE` and `de-DE.UTF-8` become invalid on explicit paths. | Preserve only detected-system-locale adaptation and document the deliberate boundary. |
+| errors | MCP schema failures and direct-service `invalid_input` differ by layer. | Shared classification matrix with layer-specific expected envelope. |
+| side effects | Invalid input must stop before activation, target and gate work. | Injected spies assert zero calls. |
+| data/schema | Locale registry structure stays version 1; validation becomes stricter. | Mutation tests for fallback, English baseline, canonical keys and pack parity. |
+| security/authority | No authorization semantics change. | Assert `authorizes: false` on every successful and semantic-error result. |
+| observability | Host selection cannot be inferred from rendered English alone. | Record submitted arguments only where the loaded host exposes them. |
+| release assets | Generated bindings consume changed function text and schema. | Run release preparation, projection parity and package inventory checks. |
 
-## 5. Host-Specific Findings
+## 5. Test And Evidence Impact
 
-| Host | Existing fact | Minimal clean implementation |
-|---|---|---|
-| Codex | Working exact TOML section owner and cleanup markers exist; no executable probe or all-source effective model exists. | Move existing code into a leaf, add probe and selected/effective inspection, preserve raw rollback. |
-| Claude Code | Native add/get/remove transaction exists and requested project already maps to local. | Move it into a leaf and make scope masking and rollback facts explicit. |
-| OpenCode | 1.x/2.x variants, created-shell cleanup and permission-preserving JSON merge exist. | Move into a leaf and add precedence/custom-inline conflict inspection without changing permissions. |
-| Copilot | No lifecycle adapter exists. Official local/user schema and precedence are documented; project and user removal semantics differ in the native CLI. | Use one atomic JSON transaction for `.github/mcp.json` and user config, inspect `.mcp.json` first and use native JSON only as supplemental read-back. |
+One shared fixture module may be added under the existing skill-dispatch test boundary. It owns only
+representative inputs and expected classes, not production decisions. Contract, service,
+interaction-presentation and MCP protocol tests consume the same rows. Production code continues to
+own validation and resolution.
 
-## 6. Regression And Evidence Impact
+The pre-change controls are already directly reproducible: `de-DE.!!!` resolves to German because
+the canonicalizer strips the suffix, and a registry with `fallbackLocale: de` validates because the
+baseline is derived from mutable fallback metadata. These are the two primary negative controls.
 
-Required deterministic evidence is profile/result contract validation, four adapter conformance,
-selected/effective precedence, shared runtime/ref migration, fault injection, plugin separation,
-locale parity, public payload exclusion, server/package/protocol no-change and aggregate smoke.
+Both MCP protocol versions must report independently. Loaded-host evidence may record a precise gap
+when the client hides submitted arguments or cannot run. Neither evidence lane substitutes for the
+other.
 
-Real host configuration is excluded from deterministic implementation. After the final source diff
-passes, each authorized project-scope host lane must start from a captured baseline and end with
-independent cleanup. A host or authentication gap remains unverified for that tuple and cannot be
-replaced by fixtures, historic records or controlled MCP clients.
-
-## 7. Risks
-
-| Risk | Impact | Required response |
-|---|---|---|
-| Copilot precedence or native JSON differs from documentation | revise | Fail closed, retain file evidence separately and do not qualify the host. |
-| Adapter split changes working three-host behavior | block | Preserve facade signatures and run old integration cases beside new conformance cases. |
-| Shared runtime migration drops a live ref | block | Verify exact old/new refs with multi-host and failure matrices before direct testing. |
-| Result schema mixes current and historical evidence | revise | Keep registration, discovery and qualification independently sourced. |
-| Localization returns free-form fallback | revise | Require locale completeness and fail closed on an unknown code. |
-| Direct host cleanup is incomplete | block | Stop the next host lane, restore from captured baseline and report the residue. |
-
-## 8. Context Graph Impact
+## 6. Context Graph Impact
 
 - context_graph_impact: `update_existing_node`
-- context_graph_refs: `CG-MCP-DISPATCH-ADAPTER`; `CG-REQUEST-ACTIVATION-AUTHORITY`;
-  `CG-EXECUTABLE-SKILL-DISPATCH-AUTHORITY`; `CG-TASK-TARGET-AUTHORITY`;
-  `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-PUBLIC-PLUGIN-DISTRIBUTION`
-- context_graph_reconciliation: `design_resolved_implementation_pending`
-- required_action: Update the existing node during TP-16 only after delivered owners, native paths
-  and exact evidence limits are known.
+- context_graph_refs: `CG-MCP-DISPATCH-ADAPTER`
+- context_graph_required_action: After implementation, replace current weakness evidence with the
+  delivered strict boundary, immutable English fallback and separated evidence results.
+- no_new_node_reason: The existing MCP dispatch adapter node already owns this contract.
 
-## 9. Decision And Minimal Clean Path
+## 7. Decision
 
-Decision: `pass`.
-
-1. Add negative controls for profile, result, adapter and runtime migration.
-2. Implement profile/result owners and locale projection.
-3. Split current adapter leaves behind the existing facade.
-4. Migrate current package/reference ownership to shared roots.
-5. Compose the existing lifecycle and CLI over the closed registry.
-6. Add the Copilot leaf and retain native host differences.
-7. Prove plugin separation plus server/package/protocol non-regression.
-8. Stabilize deterministic evidence before any real host mutation.
-9. Execute one direct host lane at a time and prove cleanup.
-10. Run the mandatory reviews and QA.
-
-No blocking drift or parallel owner remains. CD+Tests may begin within approved TP Revision 1.
+The analysis passes. Existing owners are understood, the correction is bounded, the reuse path is
+clear and no second source of truth is required. CD+Tests may begin for approved TP Revision 2.

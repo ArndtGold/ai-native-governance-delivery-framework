@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: cross-surface-executable-skill-dispatcher
 - lifecycle: active
-- revision: 27
-- revision_id: 02c6efff-c41b-4a12-bce8-2c4b6ec16665
+- revision: 29
+- revision_id: F83C9B73-9ACE-46E5-8EB6-205E71DD1BA9
 - started_at: 2026-09-04
 - mode: `structured_delivery`
 - current_gate: QA
@@ -18,6 +18,44 @@
 Einen versionsgleichen ausführbaren AGDF-Skill-Dispatcher bereitstellen, der auf Copilot, Codex,
 Claude Code und OpenCode die gemeinsame Preflight-Logik deterministisch ausführt und dem Modell nur
 einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
+
+## Host-native Plugin-root Follow-up, 2026-09-08
+
+- target: das bestätigte AGDF-Repository und derselbe aktive Dispatcher-Run.
+- observed_gaps: Die installierte Codex-Laufzeit bevorzugte eine vorhandene Claude-Kompatibilitäts-
+  variable vor der nativen Codex-Root. Der Windows-Hook addierte beide Root-Zeichenketten.
+- corrected: Hostadapter erzeugen eine surface-spezifische Priorität. Der gemeinsame Runtime-
+  Resolver verwendet dieselbe Regel, und Runtime Integrity prüft beide Codex-Hook-Befehle gegen den
+  kanonischen Command Owner.
+- evidence: CD+Tests, TP/Clean/Code Review und HOST_EVIDENCE Revision 15, QA Revision 17 und OR 7.
+  Der vollständige Smoke-Test besteht. Die aktualisierte Installation
+  `0.14.5+codex.local-880e88555405` besteht Runtime Integrity und den zuvor fehlschlagenden Replay mit
+  absichtlich veralteter Claude-Root.
+- boundary: Die PowerShell-Zeile ist statisch und im installierten Payload geprüft, aber nicht auf
+  einem nativen Windows-Host ausgeführt. Der aktuelle Task kann die neue Skillfassung nicht laden.
+- authority: Die Codex-Aktualisierung war separat autorisiert. QA bleibt revise; kein UAT-, Commit-,
+  Push-, PR- oder Release-Recht entsteht daraus.
+
+## Canonical QA Candidate And Terminal-response Follow-up, 2026-09-08
+
+- target: das bestätigte AGDF-Repository und derselbe aktive Dispatcher-Run.
+- observed_gap: Der alte geladene Codex-Task rekonstruierte nach der Zielbestätigung nur 11 von 13
+  aktiven QA-Runs und ergänzte einen terminalen Ausgang um eigene Frage und Erklärung.
+- root_cause: Der Dispatcher entfernte `candidate_runs` aus dem Judgement-Snapshot. Zusätzlich
+  beschrieb der Funktionsvertrag die terminale Übertragung nicht als vollständige alleinige
+  Assistant-Antwort.
+- corrected: `qa-gate` erhält die vollständige unveränderliche Kandidatenprojektion des Evaluators.
+  Der kanonische Funktionsvertrag und alle zehn Skillprojektionen verbieten Zweitscan, Auslassung,
+  Begleittext, Übersetzung, Umformatierung und spätere Toolaufrufe.
+- evidence: CD+Tests, TP/Clean/Code Review und HOST_EVIDENCE Revision 14, QA Revision 16 und OR 6.
+  Source und installierte Laufzeit liefern 23 Kandidaten, exakt 13 QA-Runs und beide zuvor
+  ausgelassenen IDs. Der installierte terminale Replay liefert exakt die deutsche Karte.
+- installed_state: `agdf@agdf` ist als `0.14.5+codex.local-e464297ddcc5` installiert und aktiviert;
+  Runtime-Validierung ist `owned_version_matched`, Provenienz `matched`.
+- boundary: Der aktuelle Task hat die vorherige Skillfassung geladen. Ein neuer Codex-Task muss die
+  sichtbare Modelltreue belegen. Native Windows/Linux und die übrige Hostmatrix bleiben offen.
+- authority: Die Installation war separat autorisiert. Keine QA-Freigabe, UAT-, Commit-, Push-,
+  PR- oder Release-Autorität entsteht daraus.
 
 ## Semantic Function-owner Follow-up, 2026-09-05
 
@@ -79,11 +117,11 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 | Question | Answer |
 |---|---|
-| What is known? | Die freigegebene Transportkorrektur, die semantische Funktionsdefinition sowie die Target-source- und typisierte Failure-Recovery-Korrektur sind implementiert. 40 Adapterfälle, 83 geprüfte Offline-Replays, Integrität, Pakete, serielle Regression und isolierter Rollback bestehen. CSED-RUNTIME-01 belegt die echte Electron-Prozesskette. |
+| What is known? | Die freigegebene Transportkorrektur, die semantische Funktionsdefinition sowie die Target-source-, Failure-Recovery-, QA-Kandidaten-, Terminalantwort- und Plugin-root-Korrektur sind implementiert. Source und installierte Codex-Laufzeit verwenden die native Root vor der Kompatibilitätsvariable. 40 Adapterfälle, 83 geprüfte Offline-Replays, Integrität, Pakete, serielle Regression und isolierter Rollback bestehen. |
 | What is approved? | UR und PRD Revision 1, SD Revision 2 und TP Revision 2 durch die jeweiligen exakten Freigaben. |
-| What is missing? | Frische Host-, native Windows/Linux- und sichtbare Latenznachweise. QA Revision 15 entscheidet revise. |
-| What is the next allowed action? | Separate Autorisierung für kohärente Installation, Neustart und frische Hostprüfung einholen. |
-| What is explicitly forbidden right now? | Unbelegter QA-Pass, UAT, Installation/Neustart ohne eigene Autorisierung, externe Modellläufe, Commit, Push, PR und Release. |
+| What is missing? | Frischer geladener Codex-Modellnachweis sowie übrige Host-, native Windows/Linux- und sichtbare Latenznachweise. QA Revision 17 entscheidet revise. |
+| What is the next allowed action? | Neuen Codex-Task öffnen und beide gemeldeten QA-Pfade gegen die aktualisierte Installation beobachten. |
+| What is explicitly forbidden right now? | Unbelegter QA-Pass, UAT, weitere Hostinstallation ohne eigene Autorisierung, externe Modellläufe, Commit, Push, PR und Release. |
 
 ## Source And Scope State
 
@@ -98,18 +136,18 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 - evidence_sources: prior host observations; current user target-source critique; semantic function contract, skill projections, tests and existing target/runtime owners
 - working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`
 - scope_stability: approved cross-surface outcome unchanged; CSED-BA-08 resolved by approved SD2; TP2 maps the bounded correction without new product or authority scope
-- excluded_mutation_targets: other runs including opencode-native-dispatch-tool and agdf-request-activation-boundary; iself.eu; installed caches and host settings; Windows fixture; unrelated image asset; historical approvals
+- excluded_mutation_targets: other runs including opencode-native-dispatch-tool and agdf-request-activation-boundary; iself.eu; non-Codex host settings and installations; Windows fixture; unrelated image asset; historical approvals
 
 ## Run Status Card
 
 | Run status | Value |
 |---|---|
-| Status | TP2 und semantischer Function Owner implementiert, Repository-Regression grün, QA Revision 15 revise |
+| Status | TP2 einschließlich Plugin-root-, QA-Kandidaten- und Terminalantwortkorrektur implementiert, Codex aktualisiert, QA Revision 17 revise |
 | Current gate | QA |
-| Allowed now | Offene Evidenzpflicht bearbeiten, Lifecycle-Autorisierung einholen |
-| Blocked by | Frische Host- und native Betriebssystemnachweise fehlen |
+| Allowed now | Neuen Codex-Task gegen die bereits aktualisierte Installation prüfen und offene Evidenzpflicht bearbeiten |
+| Blocked by | Frischer geladener Modellnachweis sowie übrige Host- und native Betriebssystemnachweise fehlen |
 | Missing approval | none |
-| Next step | Getrennte Lifecycle-Autorisierung für kohärente Installation und frische Hostprüfung einholen |
+| Next step | Im neuen Codex-Task Target-Stop und vollständige 13-Run-QA-Auswahl sichtbar prüfen |
 | Quality outlook | Kein Host-Pass aus lokalen Prozess- oder Replay-Tests ableiten |
 
 ## Approvals
@@ -120,7 +158,7 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | PRD | approved | Exaktes `Approval: PRD` nach Revalidierung von Ziel, Run, Gate und Revision 3. |
 | SD | approved | Exaktes Approval: SD für SD Revision 2 nach Revalidierung von Ziel, Run und Gate SD bei Revision 18 / 3CA1DBAC-196A-4268-A103-F8B79045B18F. Frühere SD1-Freigabe bleibt historische Evidenz. |
 | TP | approved | Exaktes Approval: TP für TP Revision 2 nach Revalidierung von Ziel, Run, Gate und Revision 19 / 38F9EC31-0A51-42DA-B60E-1EE409BCAB5D. |
-| QA | blocked | Revision 15 entscheidet revise. CSED-QA-01 ist offen; CSED-QA-07, CSED-CODEX-11/12 und CSED-DISPATCH-13/14 sind repository-seitig gelöst. Kein Approval: QA angefordert. |
+| QA | blocked | Revision 17 entscheidet revise. CSED-QA-01 ist offen; CSED-DISPATCH-15 bis 18 sowie frühere Implementierungsbefunde sind repository- und installationsseitig gelöst. Kein Approval: QA angefordert. |
 | UAT | blocked | QA fehlt. |
 
 ## Artefacts
@@ -134,14 +172,14 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | SD | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/SD.md` | approved | Revision 2 wurde exakt freigegeben und definiert gemeinsamen Laufzeit-, Environment- und Argumenttransport ohne neue Ziel- oder Gateautorität. |
 | TP | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP.md` | approved | Revision 2 exakt freigegeben; TP-11 bis TP-16 korrigieren Binding/Transport, TP-01 bis TP-10 bleiben Foundation und Regression. |
 | Brownfield Analysis | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/BROWNFIELD_ANALYSIS.md` | done | Revision 5, pass für die begrenzte Codex- und Locale-Korrektur im freigegebenen TP2-Scope. |
-| CD+Tests | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CD_TESTS.md` | done | Revision 13 ergänzt den semantischen Function Owner, geprüfte Skillprojektionen und unveränderte Budgets. |
-| Loaded-host Evidence | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md` | partial | Revision 13 ergänzt CSED-HOST-12 als Repository-only Semantikkorrektur; korrigierte Installation bleibt offen. |
-| TP Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP_REVIEW.md` | revise | Revision 13: 12/16 vollständig, TP-09/10/14/16 wegen externer Evidenz teilweise. |
-| Clean Implementation Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 13, ein semantischer Function Owner ohne Alias, Shim oder parallele Policy. |
-| CR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CODE_REVIEW.md` | done | Revision 13, direkte Prüfung des semantischen Owners und der Projektionen besteht. Keine unabhängige Agentenprüfung behauptet. |
-| QA | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md` | revise | Revision 15: CSED-DISPATCH-14 repository-seitig gelöst, CSED-QA-01 für native und frische Hostevidenz bleibt offen. |
+| CD+Tests | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CD_TESTS.md` | done | Revision 15 ergänzt die native Root-Priorität, den bedingten Windows-Fallback, installierten Codex-Replay und grüne Regression. |
+| Loaded-host Evidence | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/HOST_EVIDENCE.md` | partial | Revision 15 belegt die aktualisierte Codex-Installation und direkte Root-Auflösung, aber noch keinen frisch geladenen Modellturn oder native Windows-Ausführung. |
+| TP Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP_REVIEW.md` | revise | Revision 15: 12/16 vollständig, TP-09/10/14/16 wegen externer Evidenz teilweise. |
+| Clean Implementation Review | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 15, Root-Auflösung und Hook-Command behalten eindeutige Owner ohne Parallelpfad. |
+| CR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/CODE_REVIEW.md` | done | Revision 15, direkte Prüfung der Plugin-root-Korrektur besteht. Keine unabhängige Agentenprüfung behauptet. |
+| QA | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md` | revise | Revision 17: CSED-DISPATCH-17/18 gelöst, CSED-QA-01 für frische Modell- und native Hostevidenz bleibt offen. |
 | UAT |  | missing | QA pass fehlt. |
-| OR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/OR.md` | done | Revision 5, OR-full mit offenem QA-Evidenzbedarf, kein Release-Closeout. |
+| OR | `.agdf/control/artefacts/cross-surface-executable-skill-dispatcher/OR.md` | done | Revision 7, OR-full mit aktualisierter Codex-Installation und weiterhin offenem Modell-/Hostnachweis, kein Release-Closeout. |
 
 ## Mode/Slice Decision
 
@@ -165,27 +203,28 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 | TP | derived_from | SD | Revision 2 bildet SD2 auf TP-11 bis TP-16 ab und erhält TP-01 bis TP-10 als Foundation- und Regressionspflichten. |
 | TP | approved_by | `Approval: TP` | TP2 wurde nach Revalidierung von Ziel, Run, Gate und Revision 19 exakt freigegeben. TP1 bleibt historische Evidenz. |
 | Brownfield Analysis | validates | TP | Revision 4 bestätigt den bestehenden Owner-Pfad nach TP2-Freigabe. |
-| CD+Tests | implements_and_tests | TP | Revision 13 belegt TP2-Implementierung, semantischen Function Owner, geteilte Zielquellenvalidierung und grüne serielle Repository-Regression. |
-| Loaded-host Evidence | validates | TP-09 | Revision 13 trennt historische Hostbeobachtungen und Repositorykorrekturen von der offenen frischen Hostmatrix. |
-| TP Review | verifies | TP | Revision 13: 12/16 vollständig, vier Aufgaben teilweise wegen externer Evidenz. |
-| Clean Implementation Review | reviews | CD+Tests | Revision 13 besteht für Transport, Function Owner, Target-source- und typisierte Recovery-Korrektur. |
-| Code Review | reviews | CD+Tests | Revision 13 besteht für den tatsächlich geprüften Korrekturdiff. |
-| QA_REPORT | tests | TP | Revision 15 entscheidet revise, aktuelle Code-/Clean-Reviews bestehen, externe Evidenz fehlt. |
-| OR | summarizes | QA_REPORT | Revision 5 erhält QA revise und die getrennte Lifecycle-Grenze. |
+| CD+Tests | implements_and_tests | TP | Revision 15 belegt TP2-Implementierung, native Root-Priorität, bedingten Windows-Fallback und grüne Regression. |
+| Loaded-host Evidence | validates | TP-09 | Revision 15 trennt installierte Codex-Root-Auflösung von der weiterhin offenen frischen Modell- und Hostmatrix. |
+| TP Review | verifies | TP | Revision 15: 12/16 vollständig, vier Aufgaben teilweise wegen externer Evidenz. |
+| Clean Implementation Review | reviews | CD+Tests | Revision 15 besteht für die gemeinsame Root-Auflösung und den kanonischen Command Owner. |
+| Code Review | reviews | CD+Tests | Revision 15 besteht für den tatsächlich geprüften Plugin-root-Korrekturdiff. |
+| QA_REPORT | tests | TP | Revision 17 entscheidet revise, aktuelle Code-/Clean-Reviews bestehen, frische Modellevidenz fehlt. |
+| OR | summarizes | QA_REPORT | Revision 7 erhält QA revise, belegt die aktualisierte Codex-Laufzeit und trennt sie von frischer Modellevidenz. |
 | Loaded-host Evidence | motivates | SD | CSED-HOST-08 und Brownfield Revision 2 begründen die neue Transportentscheidung in SD2; frühere SD1/TP1-Freigaben werden nicht übertragen. |
 
 ## Evidence
 
 Die bisherigen datierten Zeilen dokumentieren die Historie. Der aktuelle Repository-Nachweis ist
-CD_TESTS.md Revision 13 mit TP-, Clean- und Code Review Revision 13 sowie QA Revision 15.
-HOST_EVIDENCE.md Revision 13 bleibt der aktuelle Hostnachweis und belegt keine installierte Fassung
-der Target-source-Korrektur.
+CD_TESTS.md Revision 15 mit TP-, Clean- und Code Review Revision 15 sowie QA Revision 17.
+HOST_EVIDENCE.md Revision 15 belegt die aktualisierte Codex-Installation und direkte Laufzeit. Es
+belegt noch keinen frisch geladenen Modellturn.
 
 | Evidence | Source | Covers | Strength |
 |---|---|---|---|
 | Copilot loaded-host observation | Nutzerbericht 2026-09-04 | Drei Minuten bis zur korrekten Task-Target-Karte mit GPT-5.6 Sol | direct user-attested |
 | Prior QA invocation trace | Copilot `/agdf-qa-gate` transcript | Modell sucht Verträge und CLI-Einstieg vor der Target-Karte | direct user-supplied |
 | Current skill contract | `plugin/skills/gate-check/SKILL.md`; `plugin/meta/contracts/task-target-resolution.md` | Modellgetriebene Preflight- und Ausführungsreihenfolge | direct |
+| Current Codex installed-runtime replay | `agdf@agdf` 0.14.5+codex.local-880e88555405; `HOST_EVIDENCE.md` CSED-HOST-14 | `owned_version_matched`, provenance matched, native Codex root retained in the presence of a stale Claude root, installed Runtime Integrity pass | direct installed-runtime replay, not loaded-model or native Windows evidence |
 | Existing executable runtime | generated and installed `runtime/agdf-local.js` | Versionsgleicher CLI-Einstieg vorhanden, Skill-Dispatch fehlt | direct |
 | Brownfield owner inspection | `local-validator.js`; `validator-application.js`; `command-registry.js`; manifests; generator and package tests | Wiederverwendung, Hostgrenzen, Public Contract und Release-Tiefe | direct |
 | UX Intent Definition | `UX_INTENT_DEFINITION.md` | Arbeitsmodi, sichtbare Zustände, Authority, Recovery, Timing und Hostklassifikation | direct |
@@ -229,8 +268,8 @@ der Target-source-Korrektur.
 
 ## Missing Evidence
 
-- Getrennte Lifecycle-Autorisierung für kohärente Installation und Neustart.
-- Frische Codex-, Claude-Code-, Copilot- und OpenCode-Referenzfälle einschließlich Ordinary Chat und inaktivem OpenCode.
+- Frischer Codex-Task gegen die bereits aktualisierte Installation für Target-Stop und vollständige QA-Kandidatenwahl.
+- Frische Claude-Code-, Copilot- und OpenCode-Referenzfälle einschließlich Ordinary Chat und inaktivem OpenCode.
 - Native Windows/Linux-Prozessnachweise, erste sichtbare Ausgabe und Modelltreue.
 - Die vorhandenen Offline-Replays und CSED-RUNTIME-01 ersetzen diese Evidenz nicht.
 
@@ -260,4 +299,4 @@ der Target-source-Korrektur.
 
 - next_allowed_action: record evidence
 - quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.
-- lifecycle_authorization_required: Obtain separate authorization for coherent installation/restart and fresh host verification. Until then, do not change installed profiles or run external model evaluations.
+- lifecycle_authorization_required: Codex installation was separately authorized and completed. Any other host installation or external model evaluation still requires its own authorization.

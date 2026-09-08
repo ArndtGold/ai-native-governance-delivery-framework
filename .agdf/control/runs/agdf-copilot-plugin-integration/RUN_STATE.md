@@ -5,8 +5,8 @@
 - control_state_version: 2
 - run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 37
-- revision_id: 80043768-ee06-46c1-a2b4-ddbbf4e9df68
+- revision: 40
+- revision_id: 0F76B326-6783-4469-A9E2-38BA35209C31
 - started_at: 2026-08-28
 - mode: `structured_delivery`
 - current_gate: `QA`
@@ -22,10 +22,10 @@ repository-owned governance, exact approval authority and honest host-evidence b
 
 | Question | Answer |
 |---|---|
-| What is known? | The permanent normal installer now succeeds using canonical Git transport. Generated, staged and installed 0.14.5 match; all ten skills are found globally and in a fresh SDK session. |
+| What is known? | The latest loaded Copilot `qa-gate` observation still rendered English in a German conversation and a later model translation altered the canonical card. The common function description, binding grammar and all ten executable skills now carry the same current-conversation language rule. Supported regional variants normalize to `de` or `en`; unsupported tags render through the complete English pack; a missing value remains invalid before dispatch. The resolved language reaches target rendering, gate evaluation and skill continuation. One uninterrupted final smoke passes with 83/83 evals and 467 package files. Generated, staged and installed `qa-gate`, runtime and locale bytes match; refreshed AGDF 0.14.5 directly renders complete English and German target and selected-run cards without diagnostics. |
 | What is approved? | UR revision 2, PRD revision 3, SD revision 4 and TP revision 4 are approved. Earlier QA approvals are historical only. |
-| What is missing? | Visual discovery after fully restarting Desktop, followed by the existing German repo-less and repository-bound model observations. |
-| What is the next allowed action? | Fully quit and reopen GitHub Copilot, start a fresh session and verify the ten AGDF skills. |
+| What is missing? | A fully restarted Copilot session proving that `qa-gate` selects `de` from the German conversation before dispatch; repository-bound and optional consented SessionStart observations remain separate. |
+| What is the next allowed action? | Fully quit and reopen GitHub Copilot, start a new German repo-less session and invoke `agdf-qa-gate`. |
 | What is explicitly forbidden right now? | QA pass or approval request, UAT approval, publication, release and automatic VCS actions. |
 
 ## Source And Scope State
@@ -34,7 +34,7 @@ repository-owned governance, exact approval authority and honest host-evidence b
 - multi_scope_state: `clear`
 - active_scope_evidence: Approved UR revision 2 plus completed Brownfield Review and UX Intent Definition revision 2 define the plugin-only Copilot scope.
 - competing_scope_lines: Existing Codex, Claude, OpenCode, public-distribution and installation-consent runs remain independent; no existing Copilot plugin delivery run was found.
-- branch_workspace_evidence: Branch `main` at baseline `d473b710dad8ff3fc7f80878f029f887a40b51af`; pre-existing changes beneath `.agdf/control/artefacts/agdf-product-maturity-roadmap/` are unrelated and excluded.
+- branch_workspace_evidence: Branch `main` at committed documentation baseline `599b23b`; the current diff contains the cross-skill conversation-language correction, its deterministic evidence, installed-state evidence and this run revision. The pre-existing untracked host-compatibility observation belongs to the separate MCP lifecycle run.
 - branch_workspace_scope_effect: `supports`
 
 ## Run Status Card
@@ -43,13 +43,13 @@ This is a compact projection of the control state. It does not replace gate-chec
 
 | Run status | Value |
 |---|---|
-| Status | Permanent installer correction is installed; ten skills pass native discovery; visual Desktop verification remains open |
+| Status | Common conversation-language correction is installed; fresh loaded Copilot verification remains open |
 | Current gate | QA |
-| Allowed now | Fully restart Copilot and verify skill visibility in a fresh session; continue the existing German task-target observations afterward. |
+| Allowed now | Fully restart Copilot and invoke `agdf-qa-gate` in a new German repo-less session; continue repository-bound evidence afterward. |
 | Blocked by | Host-evidence obligations CPI-TPR12-02 and CPI-TPR11-01. |
 | Missing approval | none |
-| Next step | Fully restart Copilot and verify skill visibility in a fresh session; then continue the German target-routing retest. |
-| Quality outlook | Prove both repo-less suppression and repository-bound gate selection in the installed Copilot host. |
+| Next step | Fully restart Copilot and verify that the first `qa-gate` target card is complete and German without translation. |
+| Quality outlook | Prove current-conversation language selection and preserve verbatim canonical-card transfer in the installed Copilot host. |
 
 ## Approvals
 
@@ -61,8 +61,8 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | PRD | `approved` | Exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
 | SD | `approved` | Exact `Approval: SD` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation. |
 | TP | `approved` | Exact `Approval: TP` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation. |
-| QA | `revise` | Revision 13 consumes the permanent installer correction and open desktop/target-routing host evidence; no approval is requested. |
-| UAT | `revise` | Target and concise-output behavior pass, but the third session remains English; final locale-corrected installed behavior is not yet observed. |
+| QA | `revise` | Revision 16 consumes the complete missing, unsupported and regional language correction and retains the fresh loaded-host evidence obligation; no approval is requested. |
+| UAT | `revise` | Target and concise-output behavior pass, but the latest `qa-gate` session remains English; corrected installed behavior is not yet observed after restart. |
 
 ## Artefacts
 
@@ -75,11 +75,11 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | SD | `.agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md` | `approved` | Revision 4 adds ordered target binding, physical host-context classification, fail-closed activation and honest instruction-only enforcement. |
 | TP | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md` | `approved` | Revision 4 adds six target-binding tasks, six deterministic suites and separate repo-less and repository-bound host observations. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_ANALYSIS.md` | `done` | Revision 4 passes with one CLI resolver, existing validator dispatch, presentation owner and SessionStart generator. |
-| CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | Final smoke, installed 0.14.5, target matrix and byte identity are recorded; fresh-session evidence remains separate. |
-| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `revise` | Revision 12 records final installer correction coverage and current 15/19 overall coverage with visible host obligations. |
-| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 11 passes for the canonical transport and discovery correction. |
-| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 11 passes after transactional recovery and discovery review. |
-| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `revise` | Revision 13 retains desktop discovery and existing German task-target evidence obligations. |
+| CD+Tests | `.agdf/control/artefacts/agdf-copilot-plugin-integration/HOST_EVIDENCE.md` | `done` | User screenshot, complete language contract, final aggregate, refreshed installed 0.14.5 and exact Skill/runtime/locale identity are recorded; fresh-session evidence remains separate. |
+| TP Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/TASK_PLAN_REVIEW.md` | `revise` | Revision 15 records current 15/19 overall coverage, the complete English/German edge matrix and the open loaded `qa-gate` language obligation. |
+| Clean Review | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CLEAN_IMPLEMENTATION_REVIEW.md` | `done` | Revision 14 passes for one common function-owned language rule and one existing locale owner with a bounded complete-English fallback. |
+| CR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/CODE_REVIEW.md` | `done` | Revision 14 passes after language normalization, fallback, propagation and installed-runtime regression review. |
+| QA | `.agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md` | `revise` | Revision 16 retains the fresh loaded German `qa-gate` and repository-bound evidence obligations. |
 | OR | `.agdf/control/artefacts/agdf-copilot-plugin-integration/OR.md` | `done` | Current installer correction is installed; QA revise and next desktop observation remain explicit. |
 
 ## Mode / Slice Decision
@@ -151,6 +151,11 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Clean Implementation Review revision 10 | `reviews` | CD+Tests revision 7 | pass; existing conversation evidence drives the canonical locale path without a runtime shim |
 | Code Review revision 10 | `reviews` | CD+Tests revision 7 | pass; no open code finding after literal German locale and same-language question correction |
 | QA Report revision 12 | `revises` | QA Report revision 11 | third host locale defect is resolved in installed bytes; fourth restarted observation remains open |
+| Loaded `qa-gate` language observation | `reveals` | QA Report revision 13 | the earlier locale precision was `gate-check`-specific; `qa-gate` still selected English and later model translation altered the canonical card |
+| Task Plan Review revision 15 | `tests` | TP revision 4 | revise; complete language implementation and selected-run localization are verified, while fresh loaded-host proof remains open |
+| Clean Implementation Review revision 14 | `reviews` | current correction | pass; one semantic function parameter and the existing locale resolver own normalization and bounded English fallback without a host-specific shim |
+| Code Review revision 14 | `reviews` | current correction | pass; common binding, ten skill projections, language propagation and selected-run localization are locked by focused and aggregate tests |
+| QA Report revision 16 | `revises` | QA Report revision 15 | source, generated, installed and selected-run language evidence pass; restarted Copilot proof remains open |
 | QA Report revision 2 | `approved_by` | `Approval: QA` | exact approval accepted on 2026-08-30 after same-run, same-gate and revision revalidation |
 | Task Plan Review revision 3 | `tests` | TP revision 3 | pass; 13/13 tasks fully done |
 | Clean Implementation Review revision 3 | `reviews` | CD+Tests revision 3 | pass; one generated profile and bounded compatibility migration |
@@ -200,12 +205,13 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Repo-less Copilot GeneralChat UAT | Copilot session `4ef44ec1-0225-4756-98d4-12813789457b`, 2026-09-03 | command discovery passed, repository detection was absent, internal chat cwd was misclassified and an unrelated UR was invented | `direct` |
 | Fresh unresolved early-return UAT | User-provided restarted Copilot GeneralChat, 2026-09-03 | `target_unresolved` classification passed; a conditional prior-UR, `BLOCKED` and `Approval: UR` branch incorrectly followed | `direct` |
 | Final context-only target build | complete smoke, 70/70 evals and refreshed installed 0.14.5 profile, 2026-09-03 | no-target invocation, literal German conversation locale and same-language concise follow-up are implemented; profile contains 82 files and 604901 bytes; fourth loaded-session behavior remains unverified | `direct` |
+| Cross-skill language correction | user screenshot, function/binding/projection and selected-run presentation tests, 83/83 evals, package and installed-root verification, 2026-09-07 | `presentation_language` now means current conversation language across all ten skills; installed `qa-gate --language de` renders the complete German target card and installed gate-check renders the complete German selected-run status without diagnostics | direct loaded-host negative plus deterministic and installed-root positive evidence; refreshed loaded-host result pending |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
-| Final German context-only repo-less and repository-bound Copilot evidence | `warn` | Restart Copilot, verify one `no_reliable_target` card and one short question, then run the repository-bound path separately. |
+| Final German context-only repo-less and repository-bound Copilot evidence | `warn` | Restart Copilot, verify the complete German `qa-gate` `no_reliable_target` card immediately, then run the repository-bound path separately. |
 | Direct Linux and native-Windows lifecycle behavior | `warn` | Require separately authorized host evidence before cross-platform parity claims. |
 | Gate-safe native Copilot input transport | `warn` | Keep exact-text approval as the baseline until a later adapter preflight proves exact values and deliberate waiting. |
 
@@ -219,6 +225,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 | Repository or package evidence is overstated as loaded app behavior. | `warn` | Maintain separate source, bundle, installed-root, fresh-session and human-UAT evidence. |
 | Native input or hook support drifts across the Copilot app, CLI and cloud agent. | `warn` | Start with the supported common subset and gate stronger claims on direct capability evidence. |
 | A host working directory is mistaken for task-target or governance authority. | `warn` | Require the code-owned target preflight before doctor, run selection or gate evaluation and expose `instruction_only` honestly. |
+| A host infers presentation language from English skill, runtime or UI text instead of the current conversation. | `warn` | Keep current-conversation meaning in the semantic function description and binding grammar, project it into every executable skill and require fresh loaded-host evidence. |
 
 ## Context Graph Impact
 
@@ -238,12 +245,12 @@ Valid approval format for new runs: `Approval: <GateName>`.
 ## Closeout
 
 - delivered: Previous Copilot-only payload and lifecycle implementation remains historical evidence; SD revision 4 and TP revision 4 are approved for the target-binding correction.
-- not_delivered: Second fresh repo-less and repository-bound Copilot evidence, QA pass/approval, UAT approval, public Marketplace publication, cross-platform parity, VCS and release.
-- verification_performed: Final complete smoke, 70/70 deterministic skill evals, focused target and SessionStart matrices, two fresh repo-less Copilot observations, exact German no-target validator output and refreshed installed 0.14.5 profile.
-- unverified: Final loaded German context-only repo-less behavior, repository-bound Copilot behavior and native Linux/Windows parity.
-- next_allowed_action: Fully restart Copilot, start a new repo-less GeneralChat and invoke `/agdf-gate-check`; capture the repository-bound path separately afterward.
-- quality_outlook: Prove that the refreshed installed skill terminates unresolved responses before prior-UR, gate and approval branches.
+- not_delivered: Refreshed loaded German `qa-gate` and repository-bound Copilot evidence, QA pass/approval, UAT approval, public Marketplace publication, cross-platform parity, VCS and release.
+- verification_performed: User-provided loaded-host negative evidence, function/binding/projection and selected-run presentation tests, 83/83 deterministic skill evals, package/runtime/installer suites, exact generated-staged-installed `qa-gate` and locale identity, German installed target/status output and refreshed Copilot 0.14.5 installation.
+- unverified: Corrected loaded German `qa-gate` behavior after full restart, repository-bound Copilot behavior and native Linux/Windows parity.
+- next_allowed_action: Fully restart Copilot, start a new repo-less German GeneralChat and invoke `agdf-qa-gate`; capture the repository-bound path separately afterward.
+- quality_outlook: Prove that the loaded host derives language from the current conversation and transmits the canonical card verbatim.
 
 ## 2026-09-05 Installer Correction Closeout
 
-The final normal installation is successful. See [OR](../../artefacts/agdf-copilot-plugin-integration/OR.md) and the dated HOST_EVIDENCE addendum. Canonical Git source replaces the temporary recovery registration; installation and fresh SDK discovery are verified. Current QA is Revision 13 revise. Previous QA approvals remain historical. The next action is a full Desktop restart and fresh-session skill visibility observation.
+The final normal installation is successful. See [OR](../../artefacts/agdf-copilot-plugin-integration/OR.md) and the dated HOST_EVIDENCE addendum. Canonical Git source replaces the temporary recovery registration; installation and fresh SDK discovery are verified. Current QA is Revision 15 revise. Previous QA approvals remain historical. The next action is a full Desktop restart and fresh-session skill visibility observation.

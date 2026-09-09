@@ -10,6 +10,13 @@ with explicit host and operating-system gaps. Available skills, automatic checks
 and technical enforcement are separate claims. Use local status and a fresh host session to verify
 your own installation.
 
+> [!IMPORTANT]
+> **MCP development status:** AGDF 0.14.5 does not include MCP support. The guided MCP setup,
+> `mcp` commands, `--with-mcp` and `--mcp-scope` documented below describe unreleased work for the
+> next AGDF version. Until that version is published, examples containing those commands are
+> development previews and do not describe the behavior of `@agdf/cli@latest`. The ordinary plugin
+> installation commands remain valid for the version resolved by npm.
+
 ## Choose your installation path
 
 Before running a command, install Node.js 18 or later with npm and the selected agent runtime. Run
@@ -26,7 +33,59 @@ repository-local commands inside the target Git repository, not inside this AGDF
 
 The OpenCode global layer only makes AGDF discoverable. It does **not** activate governance for every repository; use `opencode-repo` in each repository that should own valid durable control state.
 
-### Optional local MCP dispatcher
+### Guided plugin and MCP setup (unreleased development preview)
+
+The next AGDF version will make the `codex`, `claude`, `copilot` and `opencode` commands use one
+guided setup flow. In an interactive
+terminal the installer first shows the detected plugin state, the read-only MCP state, the proposed
+target, scope, local execution, possible package acquisition and the matching safe removal command.
+It then offers three choices:
+
+1. **Complete setup (recommended):** install or update the plugin, verify it, then enable AGDF MCP
+   for the displayed target and scope.
+2. **Plugin only:** install or update the plugin and leave every MCP registration unchanged.
+3. **Cancel:** stop before plugin, consent or MCP mutation.
+
+Recommended is a label, not a selected value. Empty input, an unsupported answer and end of input
+never count as consent. The automatic-runtime-check question remains a second, separate decision.
+Choosing complete setup does not answer that permission question, and neither decision grants an
+AGDF gate approval.
+
+For scripts and CI the behavior is explicit and stable. A command without a setup option is always
+plugin-only. Complete setup requires `--with-mcp` and an absolute `--dir` entered by the user:
+
+```bash
+# Existing automation remains plugin-only.
+npx --yes @agdf/cli@latest codex --plugin-only
+
+# Install the plugin and register MCP for one project.
+npx --yes @agdf/cli@latest codex --with-mcp --dir /absolute/path/to/repository
+
+# Use the broader user MCP scope deliberately. The target is still explicit.
+npx --yes @agdf/cli@latest claude --with-mcp --scope user --dir /absolute/path/to/repository
+```
+
+`--with-mcp` and `--plugin-only` cannot be combined. Project scope is the complete-setup default.
+User scope must be written explicitly. A plugin failure stops before MCP package acquisition or
+registration. If MCP later fails, the verified plugin remains installed and the result is `partial`
+with one MCP recovery action. A matching registration still needs a full host restart and a fresh
+session before discovery can be claimed.
+
+OpenCode retains one compatibility rule. Without `--with-mcp`,
+`opencode --dir /path/to/config` still treats `--dir` as the OpenCode configuration directory.
+With `--with-mcp`, `--dir` is the absolute MCP target project. The plugin configuration then comes
+from `OPENCODE_CONFIG_DIR` or the normal OpenCode default:
+
+```bash
+npx --yes @agdf/cli@latest opencode --dir /absolute/path/to/opencode-config --plugin-only
+npx --yes @agdf/cli@latest opencode --with-mcp --dir /absolute/path/to/repository
+```
+
+An installation started only through a host or marketplace UI has no callback into this CLI
+transaction. It remains plugin-only. Run the explicit `--with-mcp` command later when complete
+setup is intended.
+
+### Optional local MCP dispatcher (unreleased development preview)
 
 The optional MCP path registers one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode. It exposes
 exactly `agdf_dispatch`, backed by the same canonical semantic definition and dispatcher as the CLI.
@@ -71,7 +130,9 @@ read-back or controlled protocol tests alone do not establish host support. The 
 qualification record when the host does not expose its negotiated lane. Copilot CLI, Copilot
 Desktop, IDE integrations and cloud agents remain separate client variants. Each tuple stays
 unverified until direct discovery, bounded dispatch, failure and cleanup evidence is complete. The
-public OpenAI Skills-only candidate remains MCP-free. Plugin installation never enables MCP.
+public OpenAI Skills-only candidate remains MCP-free. A host or marketplace plugin installation
+never enables MCP. Only the explicit complete CLI setup or the separate `mcp enable` command can do
+so.
 
 ### Automatic runtime checks and installation consent
 
@@ -179,6 +240,7 @@ installation health, repository activation and delivery state separately:
 
 ```bash
 npx --yes @agdf/cli@latest status --surface codex
+npx --yes @agdf/cli@latest status --surface codex --dir /absolute/path/to/repository --scope project
 npx --yes @agdf/cli@latest status --surface claude
 npx --yes @agdf/cli@latest status --surface copilot
 npx --yes @agdf/cli@latest status --surface opencode
@@ -186,11 +248,14 @@ npx --yes @agdf/cli@latest status --surface opencode
 
 A healthy installation and blocked delivery are valid at the same time. `status` is read-only: it
 does not initialize control state, silently select an ambiguous run or change host configuration.
+With an explicit host and target it also reports MCP state. Without that target MCP remains
+`not_checked`.
 
 Prefer repository-local opt-out when AGDF should remain globally available:
 
 ```bash
 npx --yes @agdf/cli@latest disable --surface codex --scope repository
+npx --yes @agdf/cli@latest disable --surface codex --scope repository --dir /absolute/path/to/repository --with-mcp
 npx --yes @agdf/cli@latest disable --surface copilot --scope repository
 npx --yes @agdf/cli@latest disable --surface copilot --scope repository --shared
 ```
@@ -226,11 +291,18 @@ non-mutating preview:
 ```bash
 npx --yes @agdf/cli@latest uninstall --surface codex --scope global
 npx --yes @agdf/cli@latest uninstall --surface codex --scope global --confirm
+npx --yes @agdf/cli@latest uninstall --surface codex --scope global --with-mcp --mcp-scope project --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest uninstall --surface codex --scope global --with-mcp --mcp-scope project --dir /absolute/path/to/repository --confirm
 ```
 
 The same shape applies to `claude`, `copilot` and `opencode`. AGDF invokes supported native removal and removes
 only exact known entries or marker-proven generated state. Repository files, `.agdf/control`,
 user-authored files and ambiguous configuration are retained. Review the preview before confirmation.
+For a coupled repository disable, AGDF disables the owned project MCP registration first and then
+applies the supported plugin repository opt-out. For a coupled global uninstall, the first command
+is still a preview; `--confirm` revalidates ownership before disabling MCP and removing the plugin.
+If the second operation fails, the output reports `partial` and never silently recreates the first
+state. Shared MCP runtimes remain until their final managed reference is removed.
 
 ## Optional advanced planning and runtime reference
 

@@ -126,5 +126,6 @@ export function printGeneralStatus(report, { json = false, io = console } = {}) 
   io.log(`Delivery: ${report.delivery.status}${report.delivery.current_gate ? ` (${report.delivery.current_gate})` : ""}`);
   io.log(`Automatic runtime checks: requested=${report.runtime_checks.requested}; effective=${report.runtime_checks.effective}; reason=${report.runtime_checks.reason}`);
   if (report.runtime_checks.verification) io.log(`Automatic-check verification: ${report.runtime_checks.verification}`);
+  io.log(`MCP: ${report.mcp?.result ?? report.mcp?.status ?? "not_checked"}`);
   io.log(`Next action: ${report.next_action.text}`);
 }

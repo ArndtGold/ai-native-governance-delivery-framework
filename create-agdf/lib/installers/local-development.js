@@ -51,6 +51,35 @@ function parsePackResult(output) {
   return { filename, files: result.files };
 }
 
+function packLocalPackage({ packageRoot, destinationRoot, npmCacheRoot, exec }) {
+  const npm = localNpmExecutable();
+  const output = exec(npm.executable, [
+    ...npm.prefix,
+    "pack",
+    "--ignore-scripts",
+    "--json",
+    "--pack-destination",
+    destinationRoot,
+  ], {
+    cwd: resolve(packageRoot),
+    encoding: "utf8",
+    stdio: "pipe",
+    env: { ...process.env, npm_config_cache: npmCacheRoot },
+  });
+  const { filename, files } = parsePackResult(output);
+  const tarball = join(destinationRoot, filename);
+  if (!existsSync(tarball) || !statSync(tarball).isFile() || lstatSync(tarball).isSymbolicLink()) {
+    throw new Error("AGDF local package tarball was not created safely.");
+  }
+  return Object.freeze({
+    packageRoot: resolve(packageRoot),
+    filename,
+    tarball,
+    sourceDigest: digestPackedFiles(packageRoot, files),
+    archiveDigest: sha256File(tarball),
+  });
+}
+
 export function localNpmExecutable(platform = process.platform, execPath = process.execPath) {
   const invocation = npmExecutable({ platform, execPath, env: {} });
   return { executable: invocation.executable, prefix: [...invocation.prefix] };
@@ -194,6 +223,65 @@ export function prepareLocalOpenCodePackage({
     throw error;
   } finally {
     rmSync(npmCacheRoot, { recursive: true, force: true });
+  }
+}
+
+export function prepareLocalMcpPackageSources({
+  dataRoot,
+  dispatcherPackageRoot,
+  mcpServerPackageRoot,
+  expectedVersion,
+  exec = execFileSync,
+} = {}) {
+  if (!dataRoot || !dispatcherPackageRoot || !mcpServerPackageRoot || !expectedVersion) {
+    throw new Error("AGDF local MCP package preparation requires dataRoot, both package roots and expectedVersion.");
+  }
+  const dispatcherManifest = readJson(join(resolve(dispatcherPackageRoot), "package.json"), "AGDF local dispatcher package manifest");
+  const serverManifest = readJson(join(resolve(mcpServerPackageRoot), "package.json"), "AGDF local MCP server package manifest");
+  if (dispatcherManifest.name !== "create-agdf"
+      || dispatcherManifest.version !== expectedVersion
+      || serverManifest.name !== "@agdf/mcp-server"
+      || serverManifest.version !== expectedVersion
+      || serverManifest.dependencies?.["create-agdf"] !== expectedVersion) {
+    throw new Error("AGDF local MCP package versions are inconsistent.");
+  }
+
+  const packageDataRoot = resolve(dataRoot, "packages");
+  mkdirSync(packageDataRoot, { recursive: true });
+  const bundleRoot = mkdtempSync(join(packageDataRoot, ".mcp-local-"));
+  const npmCacheRoot = join(bundleRoot, ".npm-cache");
+  mkdirSync(npmCacheRoot, { recursive: true });
+  try {
+    const dispatcher = packLocalPackage({
+      packageRoot: dispatcherPackageRoot,
+      destinationRoot: bundleRoot,
+      npmCacheRoot,
+      exec,
+    });
+    const server = packLocalPackage({
+      packageRoot: mcpServerPackageRoot,
+      destinationRoot: bundleRoot,
+      npmCacheRoot,
+      exec,
+    });
+    let cleaned = false;
+    return Object.freeze({
+      kind: "local_mcp_checkout",
+      root: bundleRoot,
+      expectedVersion,
+      packageSpec: server.tarball,
+      dispatcherPackageSpec: dispatcher.tarball,
+      server,
+      dispatcher,
+      cleanup() {
+        if (cleaned) return;
+        rmSync(bundleRoot, { recursive: true, force: true });
+        cleaned = true;
+      },
+    });
+  } catch (error) {
+    rmSync(bundleRoot, { recursive: true, force: true });
+    throw error;
   }
 }
 

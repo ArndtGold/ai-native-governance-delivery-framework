@@ -20,11 +20,16 @@ function requiredValue(args, index, option) {
 
 export function parseArgs(argv, dependencies = {}) {
   const cwd = dependencies.cwd ?? process.cwd();
+  const workingDirectorySource = dependencies.cwdSource ?? "process_cwd";
+  if (!new Set(["npm_init_cwd", "process_cwd"]).has(workingDirectorySource)) {
+    throw new CliUsageError("Invalid invocation directory source.");
+  }
   const languagePreference = dependencies.resolveLanguagePreference ?? resolveLanguagePreference;
   const normalizeLanguage = dependencies.configuredLanguage ?? configuredLanguage;
   const args = [...argv];
   let target;
   let dir = ".";
+  let dirInput = ".";
   let force = false;
   let json = false;
   let verbose = false;
@@ -52,6 +57,8 @@ export function parseArgs(argv, dependencies = {}) {
   let runtimeChecksDecision;
   let runtimeChecksAction;
   let mcpAction;
+  let mcpScope;
+  let setupRequest;
   let targetSource;
   let primaryTarget;
   let workingDirectory = cwd;
@@ -75,6 +82,16 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--confirm") { confirm = true; continue; }
     if (arg === "--shared") { shared = true; continue; }
     if (arg === "--target-changed") { targetChanged = true; continue; }
+    if (arg === "--with-mcp") {
+      if (setupRequest === "plugin_only") throw new CliUsageError("--with-mcp and --plugin-only cannot be combined.");
+      setupRequest = "full";
+      continue;
+    }
+    if (arg === "--plugin-only") {
+      if (setupRequest === "full") throw new CliUsageError("--with-mcp and --plugin-only cannot be combined.");
+      setupRequest = "plugin_only";
+      continue;
+    }
 
     if (arg === "--runtime-checks") {
       const next = requiredValue(args, i, arg);
@@ -107,7 +124,7 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
-    if (["--surface", "--scope", "--fixture", "--model", "--generator-model", "--max-generated-candidates", "--generation-timeout-ms", "--generation-cost-units"].includes(arg)) {
+    if (["--surface", "--scope", "--mcp-scope", "--fixture", "--model", "--generator-model", "--max-generated-candidates", "--generation-timeout-ms", "--generation-cost-units"].includes(arg)) {
       const next = requiredValue(args, i, arg);
       if (arg === "--surface") {
         if (!["codex", "claude", "copilot", "opencode", "generic"].includes(next)) {
@@ -118,6 +135,9 @@ export function parseArgs(argv, dependencies = {}) {
       } else if (arg === "--scope") {
         if (!["repository", "global", "project", "user"].includes(next)) throw new CliUsageError("Unsupported scope. Use repository, global, project or user.");
         scope = next;
+      } else if (arg === "--mcp-scope") {
+        if (!["project", "user"].includes(next)) throw new CliUsageError("Unsupported MCP scope. Use project or user.");
+        mcpScope = next;
       } else if (arg === "--fixture") fixture = next;
       else if (arg === "--model") model = next;
       else if (arg === "--generator-model") generatorModel = next;
@@ -146,7 +166,8 @@ export function parseArgs(argv, dependencies = {}) {
     }
 
     if (arg === "--dir") {
-      dir = requiredValue(args, i, arg);
+      dirInput = requiredValue(args, i, arg);
+      dir = dirInput;
       dirExplicit = true;
       i += 1;
       continue;
@@ -184,6 +205,8 @@ export function parseArgs(argv, dependencies = {}) {
     options: {
       target,
       dir: resolve(cwd, dir),
+      dirInput,
+      dirInputAbsolute: dirExplicit && isAbsolute(dirInput),
       force,
       json,
       verbose,
@@ -207,6 +230,8 @@ export function parseArgs(argv, dependencies = {}) {
       runtimeChecksDecision,
       runtimeChecksAction: runtimeChecksAction ?? "status",
       mcpAction,
+      mcpScope,
+      setupRequest,
       generatorModel,
       maxGeneratedCandidates,
       generationTimeoutMs,
@@ -214,6 +239,7 @@ export function parseArgs(argv, dependencies = {}) {
       targetSource,
       primaryTarget,
       workingDirectory: isAbsolute(workingDirectory) ? workingDirectory : resolve(cwd, workingDirectory),
+      workingDirectorySource,
       workingDirectoryExplicit,
       targetChanged,
       targetCandidates,

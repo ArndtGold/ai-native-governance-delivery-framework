@@ -34,6 +34,34 @@ import {
   planCopilotRepositoryDisable,
   repositoryCopilotSettingsPath,
 } from "../lib/installers/copilot-settings.js";
+import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
+
+function mcpLifecycleFixture({ action, surface, scope, target, result = action === "disable" ? "disabled" : "not_configured", registration } = {}) {
+  const registrationStatus = registration ?? (result === "disabled" || result === "not_configured" ? "absent" : "matched");
+  return createMcpLifecycleResult({
+    action,
+    result,
+    surface,
+    scope,
+    scopeEffect: scope,
+    target,
+    capability: "unverified",
+    runtime: { package_status: "absent", version: pluginDefinition.version },
+    registration: {
+      status: registrationStatus,
+      selected_status: registrationStatus,
+      effective_status: registrationStatus,
+      selected_source: scope,
+      effective_source: scope,
+      native_scope: scope,
+      sources: [],
+    },
+    discovery: { status: "not_checked", source: "none", evidence_ref: null },
+    nextAction: { code: result === "not_configured" ? "enable_scope"
+      : result === "configured_unverified" ? "restart_host"
+        : result === "degraded" ? "resolve_registration" : "none" },
+  });
+}
 
 const success = createLifecycleResult({
   operation: "install", result: "success", surface: "codex", scope: "global",
@@ -272,6 +300,102 @@ assert.equal(verifyRepositoryDisabled(root).status, "healthy");
 assert.ok(disablePlan.retained.some((value) => value.includes(".agdf")));
 assert.throws(() => planRepositoryDisable(root, "claude"), /not supported safely/);
 
+const coupledDisableRoot = mkdtempSync(join(tmpdir(), "agdf-coupled-disable-"));
+mkdirSync(join(coupledDisableRoot, ".agents", "plugins"), { recursive: true });
+mkdirSync(join(coupledDisableRoot, ".codex"), { recursive: true });
+writeFileSync(join(coupledDisableRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
+writeFileSync(join(coupledDisableRoot, ".codex", "config.toml"), "[plugins.\"agdf@agdf-repo\"]\nenabled = true\n");
+const coupledDisableOutput = [];
+const coupledDisableCalls = [];
+assert.equal(await runCli([
+  "disable", "--surface", "codex", "--scope", "repository", "--dir", coupledDisableRoot, "--with-mcp", "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledDisableOutput.push(value); }, error(message) { throw new Error(message); } },
+  mcpLifecycle(input) {
+    coupledDisableCalls.push(input.action);
+    return mcpLifecycleFixture(input);
+  },
+}), 0);
+assert.deepEqual(coupledDisableCalls, ["status", "disable"]);
+const coupledDisableReport = JSON.parse(coupledDisableOutput[0]);
+assert.equal(coupledDisableReport.operation, "coupled_disable");
+assert.equal(coupledDisableReport.result, "success");
+assert.equal(coupledDisableReport.authorizes, false);
+assert.equal(coupledDisableReport.mcp.result, "disabled");
+assert.equal(coupledDisableReport.plugin.result, "success");
+assert.match(readFileSync(join(coupledDisableRoot, ".codex", "config.toml"), "utf8"), /enabled = false/);
+
+const coupledPartialOutput = [];
+assert.equal(await runCli([
+  "disable", "--surface", "claude", "--scope", "repository", "--dir", coupledDisableRoot, "--with-mcp", "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledPartialOutput.push(value); }, error(message) { throw new Error(message); } },
+  mcpLifecycle: (input) => mcpLifecycleFixture(input),
+}), 1);
+const coupledPartialReport = JSON.parse(coupledPartialOutput[0]);
+assert.equal(coupledPartialReport.result, "partial");
+assert.equal(coupledPartialReport.mcp.result, "disabled");
+assert.equal(coupledPartialReport.plugin.result, "failed");
+
+const coupledForeignRoot = mkdtempSync(join(tmpdir(), "agdf-coupled-foreign-"));
+mkdirSync(join(coupledForeignRoot, ".agents", "plugins"), { recursive: true });
+mkdirSync(join(coupledForeignRoot, ".codex"), { recursive: true });
+writeFileSync(join(coupledForeignRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
+writeFileSync(join(coupledForeignRoot, ".codex", "config.toml"), "[plugins.\"agdf@agdf-repo\"]\nenabled = true\n");
+const coupledForeignBefore = readFileSync(join(coupledForeignRoot, ".codex", "config.toml"), "utf8");
+const coupledForeignOutput = [];
+assert.equal(await runCli([
+  "disable", "--surface", "codex", "--scope", "repository", "--dir", coupledForeignRoot, "--with-mcp", "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledForeignOutput.push(value); }, error(message) { throw new Error(message); } },
+  mcpLifecycle: (input) => mcpLifecycleFixture({ ...input, result: "degraded", registration: "foreign" }),
+}), 1);
+assert.equal(JSON.parse(coupledForeignOutput[0]).plugin.status, "not_run");
+assert.equal(readFileSync(join(coupledForeignRoot, ".codex", "config.toml"), "utf8"), coupledForeignBefore);
+
+const coupledOwnedMismatchRoot = mkdtempSync(join(tmpdir(), "agdf-coupled-owned-mismatch-"));
+mkdirSync(join(coupledOwnedMismatchRoot, ".agents", "plugins"), { recursive: true });
+mkdirSync(join(coupledOwnedMismatchRoot, ".codex"), { recursive: true });
+writeFileSync(join(coupledOwnedMismatchRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
+writeFileSync(join(coupledOwnedMismatchRoot, ".codex", "config.toml"), "[plugins.\"agdf@agdf-repo\"]\nenabled = true\n");
+const coupledOwnedMismatchCalls = [];
+assert.equal(await runCli([
+  "disable", "--surface", "codex", "--scope", "repository", "--dir", coupledOwnedMismatchRoot, "--with-mcp", "--json",
+], {
+  parser: { cwd: root },
+  io: { log() {}, error(message) { throw new Error(message); } },
+  mcpLifecycle(input) {
+    coupledOwnedMismatchCalls.push(input.action);
+    return input.action === "status"
+      ? mcpLifecycleFixture({ ...input, result: "degraded", registration: "owned_mismatch" })
+      : mcpLifecycleFixture(input);
+  },
+}), 0);
+assert.deepEqual(coupledOwnedMismatchCalls, ["status", "disable"]);
+assert.match(readFileSync(join(coupledOwnedMismatchRoot, ".codex", "config.toml"), "utf8"), /enabled = false/);
+
+const coupledEffectiveMcpRoot = mkdtempSync(join(tmpdir(), "agdf-coupled-effective-mcp-"));
+mkdirSync(join(coupledEffectiveMcpRoot, ".agents", "plugins"), { recursive: true });
+mkdirSync(join(coupledEffectiveMcpRoot, ".codex"), { recursive: true });
+writeFileSync(join(coupledEffectiveMcpRoot, ".agents", "plugins", "marketplace.json"), "{}\n");
+writeFileSync(join(coupledEffectiveMcpRoot, ".codex", "config.toml"), "[plugins.\"agdf@agdf-repo\"]\nenabled = true\n");
+const coupledEffectiveMcpBefore = readFileSync(join(coupledEffectiveMcpRoot, ".codex", "config.toml"), "utf8");
+const coupledEffectiveMcpOutput = [];
+assert.equal(await runCli([
+  "disable", "--surface", "codex", "--scope", "repository", "--dir", coupledEffectiveMcpRoot, "--with-mcp", "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledEffectiveMcpOutput.push(value); }, error(message) { throw new Error(message); } },
+  mcpLifecycle: (input) => mcpLifecycleFixture({ ...input, result: "configured_unverified", registration: "matched" }),
+}), 1);
+const coupledEffectiveMcpReport = JSON.parse(coupledEffectiveMcpOutput[0]);
+assert.equal(coupledEffectiveMcpReport.plugin.status, "not_run");
+assert.equal(coupledEffectiveMcpReport.next_action.code, "retry_mcp_disable");
+assert.equal(readFileSync(join(coupledEffectiveMcpRoot, ".codex", "config.toml"), "utf8"), coupledEffectiveMcpBefore);
+
 const ignoredExec = (executable, args, options) => {
   assert.equal(executable, "git");
   assert.deepEqual(args, ["check-ignore", "--quiet", "--", ".github/copilot/settings.local.json"]);
@@ -477,6 +601,63 @@ const uninstallPreviewReport = JSON.parse(uninstallPreviewOutput[0]);
 assert.equal(uninstallPreviewReport.operation_status.operation_id, "lifecycle.plugin.uninstall");
 assert.equal(uninstallPreviewReport.operation_status.outcome, "preview");
 assert.equal(uninstallPreviewReport.operation_status.target, null);
+
+const coupledUninstallPreviewOutput = [];
+const coupledUninstallTarget = mkdtempSync(join(tmpdir(), "agdf-coupled-uninstall-"));
+const coupledUninstallCalls = [];
+assert.equal(await runCli([
+  "uninstall", "--surface", "codex", "--scope", "global", "--with-mcp",
+  "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledUninstallPreviewOutput.push(value); }, error(message) { throw new Error(message); } },
+  mcpLifecycle(input) {
+    coupledUninstallCalls.push(input.action);
+    return mcpLifecycleFixture(input);
+  },
+}), 0);
+const coupledUninstallPreviewReport = JSON.parse(coupledUninstallPreviewOutput[0]);
+assert.equal(coupledUninstallPreviewReport.operation, "coupled_uninstall");
+assert.equal(coupledUninstallPreviewReport.result, "preview");
+assert.equal(coupledUninstallPreviewReport.plugin.result, "preview");
+assert.deepEqual(coupledUninstallCalls, ["status"]);
+
+const coupledUninstallApplyOutput = [];
+const coupledUninstallApplyCalls = [];
+assert.equal(await runCli([
+  "uninstall", "--surface", "codex", "--scope", "global", "--with-mcp",
+  "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--confirm", "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledUninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
+  exec() { return ""; },
+  mcpLifecycle(input) {
+    coupledUninstallApplyCalls.push(input.action);
+    return mcpLifecycleFixture(input);
+  },
+}), 0);
+const coupledUninstallApplyReport = JSON.parse(coupledUninstallApplyOutput[0]);
+assert.equal(coupledUninstallApplyReport.result, "success");
+assert.equal(coupledUninstallApplyReport.plugin.result, "success");
+assert.equal(coupledUninstallApplyReport.mcp.result, "disabled");
+assert.equal(coupledUninstallApplyReport.authorizes, false);
+assert.deepEqual(coupledUninstallApplyCalls, ["status", "status", "disable"]);
+
+const coupledUninstallEffectiveOutput = [];
+let coupledUninstallEffectivePluginCalls = 0;
+assert.equal(await runCli([
+  "uninstall", "--surface", "codex", "--scope", "global", "--with-mcp",
+  "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--confirm", "--json",
+], {
+  parser: { cwd: root },
+  io: { log(value) { coupledUninstallEffectiveOutput.push(value); }, error(message) { throw new Error(message); } },
+  exec() { coupledUninstallEffectivePluginCalls += 1; return ""; },
+  mcpLifecycle: (input) => mcpLifecycleFixture({ ...input, result: "configured_unverified", registration: "matched" }),
+}), 1);
+const coupledUninstallEffectiveReport = JSON.parse(coupledUninstallEffectiveOutput[0]);
+assert.equal(coupledUninstallEffectiveReport.plugin.status, "not_run");
+assert.equal(coupledUninstallEffectiveReport.next_action.code, "retry_mcp_disable");
+assert.equal(coupledUninstallEffectivePluginCalls, 0);
 
 const uninstallApplyOutput = [];
 assert.equal(await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"], {
@@ -753,12 +934,18 @@ assert.equal(await runCli(["status", "--surface", "codex", "--json"], {
 assert.equal(handlerCalls[0].targetDir, null, "parser cwd must not become status target authority");
 assert.equal(JSON.parse(handlerOutput[0]).repository.status, "unresolved");
 
-assert.equal(await runCli(["status", "--surface", "codex", "--dir", blockedRoot, "--json"], {
+const explicitStatusOutput = [];
+const explicitStatusMcpCalls = [];
+assert.equal(await runCli(["status", "--surface", "codex", "--dir", blockedRoot, "--scope", "project", "--json"], {
   parser: { cwd: statusRoot },
-  io: { log() {}, error(message) { throw new Error(message); } },
+  io: { log(value) { explicitStatusOutput.push(value); }, error(message) { throw new Error(message); } },
   evaluateStatusOverview(options) { handlerCalls.push(options); return { ...statusResult, operation_status: { ...statusResult.operation_status, target_scope: "repository", target: options.targetDir } }; },
+  mcpLifecycle(input) { explicitStatusMcpCalls.push(input); return mcpLifecycleFixture(input); },
 }), 0);
 assert.equal(handlerCalls[1].targetDir, blockedRoot);
+assert.equal(explicitStatusMcpCalls.length, 1);
+assert.equal(explicitStatusMcpCalls[0].action, "status");
+assert.equal(JSON.parse(explicitStatusOutput[0]).mcp.result, "not_configured");
 
 const openCodeStatusConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-cli-config-"));
 const decoyOpenCodeCwd = mkdtempSync(join(tmpdir(), "agdf-opencode-cli-decoy-"));
@@ -888,10 +1075,13 @@ assert.deepEqual(openCodeInstallCalls, [
   ["global_status", openCodeStatusConfig],
 ]);
 const openCodeInstallReport = JSON.parse(openCodeInstallOutput[0]);
-assert.equal(openCodeInstallReport.operation_status.operation_id, "lifecycle.plugin.install.opencode");
-assert.equal(openCodeInstallReport.operation_status.target_scope, "global");
-assert.equal(openCodeInstallReport.operation_status.target, null);
-assert.equal(openCodeInstallReport.operation_status.authorizes, false);
+assert.equal(openCodeInstallReport.operation, "install_setup");
+assert.equal(openCodeInstallReport.setup_request, "plugin_only");
+assert.equal(openCodeInstallReport.plugin.operation_status.operation_id, "lifecycle.plugin.install.opencode");
+assert.equal(openCodeInstallReport.plugin.operation_status.target_scope, "global");
+assert.equal(openCodeInstallReport.plugin.operation_status.target, null);
+assert.equal(openCodeInstallReport.plugin.operation_status.authorizes, false);
+assert.equal(openCodeInstallReport.authorizes, false);
 
 const cancelledInstallOutput = [];
 assert.equal(await runCli(["opencode", "--json", "--runtime-checks", "cancel"], {
@@ -900,8 +1090,9 @@ assert.equal(await runCli(["opencode", "--json", "--runtime-checks", "cancel"], 
   installOpenCodeGlobalPlugin() { throw new Error("cancel must stop before plugin installation"); },
 }), 0);
 const cancelledInstallReport = JSON.parse(cancelledInstallOutput[0]);
-assert.equal(cancelledInstallReport.operation_status.operation_id, "lifecycle.plugin.install.opencode");
-assert.equal(cancelledInstallReport.operation_status.outcome, "preview");
+assert.equal(cancelledInstallReport.operation, "install_setup");
+assert.equal(cancelledInstallReport.result, "cancelled");
+assert.equal(cancelledInstallReport.authorizes, false);
 
 const failedInstallOutput = [];
 assert.equal(await runCli(["opencode", "--json", "--runtime-checks", "manual"], {
@@ -911,8 +1102,8 @@ assert.equal(await runCli(["opencode", "--json", "--runtime-checks", "manual"], 
 }), 1);
 const failedInstallReport = JSON.parse(failedInstallOutput[0]);
 assert.equal(failedInstallReport.result, "failed");
-assert.equal(failedInstallReport.operation_status.outcome, "failed");
-assert.equal(failedInstallReport.operation_status.operation_id, "lifecycle.plugin.install.opencode");
+assert.equal(failedInstallReport.plugin.operation_status.outcome, "failed");
+assert.equal(failedInstallReport.plugin.operation_status.operation_id, "lifecycle.plugin.install.opencode");
 
 const runtimeChecksOutput = [];
 assert.equal(await runCli(["runtime-checks", "status", "--surface", "codex", "--json"], {

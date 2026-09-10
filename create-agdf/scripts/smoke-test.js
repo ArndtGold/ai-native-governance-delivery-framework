@@ -301,6 +301,7 @@ if (args.join(" ") === "plugin list") {
     const output = runCliWithPath(["codex", "--verbose"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: dataRoot });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
     const expectedCalls = [
+      "plugin list",
       "plugin marketplace list --json",
       `plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --json`,
       "plugin add agdf@agdf --json",
@@ -309,7 +310,7 @@ if (args.join(" ") === "plugin list") {
     if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
       throw new Error(`Codex global bootstrap command order changed: ${calls.join(" | ")}`);
     }
-    if (!output.includes(`Version: ${pluginDefinition.version} (verified)`) || !output.includes("Installation: healthy") || !output.includes("Verification: healthy")) {
+    if (!output.includes(`AGDF version: ${pluginDefinition.version}`) || !output.includes("Plugin state: healthy")) {
       throw new Error("Codex global bootstrap must report verified plugin version.");
     }
   } finally {
@@ -333,12 +334,14 @@ if (args.join(" ") === "plugin list") {
 `);
     let failed = false;
     try {
-      runCliWithPath(["codex"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
+      runCliWithPath(["codex", "--json"], binDir, { FAKE_CODEX_LOG: logPath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     } catch (error) {
       failed = true;
-      const stderr = error.stderr.toString();
-      if (!stderr.includes(`expected ${pluginDefinition.version}`) || !stderr.includes("observed 0.0.0") || !stderr.includes("@agdf/cli@latest codex")) {
-        throw new Error(`Codex mismatch error must be actionable, got: ${stderr}`);
+      const report = JSON.parse(error.stdout.toString());
+      const evidence = JSON.stringify(report.plugin);
+      if (!evidence.includes(`expected ${pluginDefinition.version}`) || !evidence.includes("observed 0.0.0")
+          || report.next_action.code !== "retry_plugin") {
+        throw new Error(`Codex mismatch error must be actionable, got: ${error.stdout.toString()}`);
       }
     }
     if (!failed) throw new Error("Codex global bootstrap must fail when the installed plugin version mismatches.");
@@ -375,7 +378,7 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
     if (calls.some((call) => call === "plugin add arndtgold/ai-native-governance-delivery-framework")) {
       throw new Error("Claude bootstrap must not call unsupported plugin add.");
     }
-    if (!output.includes(`Version: ${pluginDefinition.version} (verified)`) || !output.includes("Installation: healthy") || !output.includes("Verification: healthy")) {
+    if (!output.includes(`AGDF version: ${pluginDefinition.version}`) || !output.includes("Plugin state: healthy")) {
       throw new Error("Claude install must report verified plugin version when exposed.");
     }
   } finally {
@@ -437,8 +440,16 @@ if (args.join(" ") === "plugin install agdf@agdf") {
   fs.writeFileSync(process.env.FAKE_CLAUDE_STATE, "installed");
 }
 `);
-    const output = runCliWithPath(["claude", "--verbose"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
-    if (!output.includes(`Version: unknown; expected ${pluginDefinition.version} (unknown)`) || !output.includes("Installation: degraded") || !output.includes("Verification: degraded")) {
+    let output = "";
+    let failed = false;
+    try {
+      runCliWithPath(["claude", "--verbose"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
+    } catch (error) {
+      failed = true;
+      output = error.stdout.toString();
+    }
+    if (!failed) throw new Error("Claude bootstrap must fail when list output does not expose a verifiable version.");
+    if (!output.includes(`AGDF version: expected ${pluginDefinition.version}`) || !output.includes("Plugin state: degraded")) {
       throw new Error("Claude bootstrap must report verification limitation when list output has no version.");
     }
   } finally {
@@ -501,12 +512,12 @@ try {
     || status.package.version_status !== "current") {
     throw new Error("opencode-status must report matching installed and expected package versions as current.");
   }
-  if (!installOutput.includes(`Version: ${pluginDefinition.version} (verified; transition installed)`)
-    || !installOutput.includes("Verification: healthy")
+  if (!installOutput.includes(`AGDF version: ${pluginDefinition.version} (installed)`)
+    || !installOutput.includes("Plugin state: healthy")
     || !installOutput.includes("OpenCode host / plugin SDK:")
     || !installOutput.includes("Plugin SDK alignment: aligned (target 1.18.3; installed 1.18.3)")
     || !installOutput.includes("Experimental hook declarations: declared_supported")
-    || !installOutput.includes("Installation scope: global")
+    || !installOutput.includes("Setup choice: plugin only")
     || !installOutput.includes("Restart required: yes")) {
     throw new Error("opencode install must report the shared verified global lifecycle Success Card.");
   }
@@ -664,15 +675,18 @@ try {
     } catch (error) {
       humanOutput = error.stdout.toString();
     }
-    if (report?.result !== "partial"
-      || report.verification?.status !== "degraded"
-      || !report.verification?.evidence?.includes("sdk_alignment=unavailable;target=1.18.3;installed=1.17.11")
-      || report.next_action?.kind !== "recovery"
-      || !report.next_action?.text?.includes("@opencode-ai/plugin")
-      || !report.next_action?.text?.includes("observed SDK: 1.17.11")
-      || !humanOutput.includes("AGDF installation partially completed")
+    if (report?.result !== "failed"
+      || report.plugin?.result !== "partial"
+      || report.plugin?.verification?.status !== "degraded"
+      || !report.plugin?.verification?.evidence?.includes("sdk_alignment=unavailable;target=1.18.3;installed=1.17.11")
+      || report.plugin?.next_action?.kind !== "recovery"
+      || !report.plugin?.next_action?.text?.includes("@opencode-ai/plugin")
+      || !report.plugin?.next_action?.text?.includes("observed SDK: 1.17.11")
+      || report.next_action?.code !== "retry_plugin"
+      || !humanOutput.includes("Result: failed")
+      || !humanOutput.includes("Plugin state: degraded")
       || !humanOutput.includes("Plugin SDK alignment: unavailable (target 1.18.3; installed 1.17.11)")
-      || !humanOutput.includes("Next action: Retry the OpenCode installation")) {
+      || !humanOutput.includes("Next action: Resolve the plugin failure")) {
       throw new Error("unavailable exact SDK alignment must return one observable partial lifecycle recovery result.");
     }
   } finally {
@@ -775,9 +789,14 @@ for (const explicitQuestionDecision of ["allow", "deny"]) {
   writeFileSync(instructionsPath, "# User AGDF instructions\n<!-- AGDF-GLOBAL-INSTRUCTIONS -->\n", "utf8");
   let rejected = false;
   try {
-    runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+    runOpenCodeCli(["opencode", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
   } catch (error) {
-    rejected = String(error.stderr || error.stdout || error.message).includes("Refusing to overwrite unowned global OpenCode file");
+    const report = JSON.parse(String(error.stdout || "{}"));
+    rejected = report.result === "failed"
+      && report.setup_request === "plugin_only"
+      && report.failure?.phase === "plugin_operation"
+      && report.failure?.code === "plugin_operation_failed"
+      && report.plugin?.failure?.phase === "ownership_preflight";
   }
   if (!rejected || readFileSync(configPath, "utf8") !== originalConfig || existsSync(join(tempDir, "node_modules"))) {
     throw new Error("opencode global install must preflight collisions before mutating config or installing the package.");
@@ -794,9 +813,14 @@ for (const explicitQuestionDecision of ["allow", "deny"]) {
   writeFileSync(validatorPackagePath, JSON.stringify({ name: "user-owned-package", type: "commonjs" }, null, 2) + "\n", "utf8");
   let rejected = false;
   try {
-    runOpenCodeCli(["opencode", "--dir", tempDir], { encoding: "utf8", stdio: "pipe" });
+    runOpenCodeCli(["opencode", "--dir", tempDir, "--json"], { encoding: "utf8", stdio: "pipe" });
   } catch (error) {
-    rejected = String(error.stderr || error.stdout || error.message).includes("Refusing to overwrite unowned global OpenCode validator package");
+    const report = JSON.parse(String(error.stdout || "{}"));
+    rejected = report.result === "failed"
+      && report.setup_request === "plugin_only"
+      && report.failure?.phase === "plugin_operation"
+      && report.failure?.code === "plugin_operation_failed"
+      && report.plugin?.failure?.phase === "ownership_preflight";
   }
   if (!rejected || readFileSync(join(tempDir, "opencode.json"), "utf8") !== originalConfig || existsSync(join(tempDir, "node_modules"))) {
     throw new Error("opencode global install must preflight an unowned validator package before config or package mutation.");
@@ -871,13 +895,13 @@ function runOpenCodeWithPreinstalledVersion(version, includeVersion = true) {
   const unchanged = runOpenCodeCli(["opencode", "--dir", updated.tempDir, "--verbose"], { encoding: "utf8", stdio: "pipe" });
   const unknown = runOpenCodeWithPreinstalledVersion("", false);
   try {
-    if (!updated.output.includes(`Version: 0.0.1 -> ${pluginDefinition.version} (verified)`)) {
+    if (!updated.output.includes(`AGDF version: 0.0.1 -> ${pluginDefinition.version}`)) {
       throw new Error("opencode update must report an observable previous-to-installed version transition.");
     }
-    if (!unchanged.includes(`Version: ${pluginDefinition.version} (verified; transition unchanged)`)) {
+    if (!unchanged.includes(`AGDF version: ${pluginDefinition.version} (unchanged)`)) {
       throw new Error("opencode repeat install must report an unchanged version transition.");
     }
-    if (!unknown.output.includes("transition unknown")) {
+    if (!unknown.output.includes(`AGDF version: ${pluginDefinition.version} (transition unknown)`)) {
       throw new Error("opencode must not invent a transition when the previous package version is unreadable.");
     }
   } finally {

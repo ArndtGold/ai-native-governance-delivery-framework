@@ -1,0 +1,563 @@
+{
+  "run_id": "agdf-host-adapter-compatibility",
+  "recorded_at": "2026-09-09T08:34:24.204158+00:00",
+  "purpose": "Refresh deterministic compatibility evidence within approved TP Revision 1; no product implementation or native-host certification.",
+  "baseline_commit": "5397df666b6e6384a13ba84325c78e70e639627c",
+  "baseline_worktree": [
+    " M .agdf/control/CONTEXT_GRAPH.md",
+    " M .agdf/control/MASTER_BACKLOG.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/BROWNFIELD_ANALYSIS.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/BROWNFIELD_REVIEW.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/PRD.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/SD.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/TP.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/UR.md",
+    "A  .agdf/control/artefacts/agdf-guided-mcp-activation/UX_INTENT_DEFINITION.md",
+    "A  .agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md",
+    " M INSTALL.md",
+    " M agdf-mcp-server/README.md",
+    " M create-agdf/README.md",
+    " M create-agdf/lib/cli/application.js",
+    " M create-agdf/lib/cli/command-registry.js",
+    " M create-agdf/lib/cli/parse-args.js",
+    "AM create-agdf/lib/install-setup/contract.js",
+    "A  create-agdf/lib/install-setup/interaction.js",
+    "AM create-agdf/lib/install-setup/presentation.js",
+    "AM create-agdf/lib/install-setup/service.js",
+    " M create-agdf/lib/interaction-presentation.js",
+    " M create-agdf/lib/lifecycle/presentation.js",
+    " M create-agdf/package.json",
+    " M create-agdf/scripts/cli-modularization-test.js",
+    " M create-agdf/scripts/install-local-plugin.js",
+    "AM create-agdf/scripts/install-setup-contract-test.js",
+    "AM create-agdf/scripts/install-setup-interaction-test.js",
+    "AM create-agdf/scripts/install-setup-service-test.js",
+    " M create-agdf/scripts/lifecycle-test.js",
+    " M create-agdf/scripts/local-development-install-test.js",
+    " M create-agdf/scripts/smoke-test.js",
+    " M docs/architecture/README.md",
+    " M plugin/meta/agdf-interaction-locales.json",
+    " M plugin/meta/copilot-payload-baseline.json"
+  ],
+  "previous_comparison": {
+    "source_fingerprint": "af6a4d8a0ccfb0cdd3bcd1b4ee6c5c5b6da0ab67888992414b29f90f9ea9cbb4",
+    "observation_source": {
+      "path": "evals/host-compatibility/observations/0e7808ffcb3af5c49d8f31c97faccd41f3d180d17ca07d6c0d769e673aea4cd7.json",
+      "sha256": "0e7808ffcb3af5c49d8f31c97faccd41f3d180d17ca07d6c0d769e673aea4cd7"
+    },
+    "pre_refresh_check": {
+      "status": "fail",
+      "diagnostic": "source_snapshot_changed"
+    }
+  },
+  "current_comparison": {
+    "source_fingerprint": "dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734",
+    "source_files": 110,
+    "payloads": {
+      "codex": {
+        "canonical_version": "0.14.5",
+        "source_digest": "65bee15351d3ae2dbf0af570c2dfa8a2a9ee53948bc8d6a94c3a909d9f4ce26f",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      },
+      "claude": {
+        "canonical_version": "0.14.5",
+        "source_digest": "65bee15351d3ae2dbf0af570c2dfa8a2a9ee53948bc8d6a94c3a909d9f4ce26f",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      },
+      "copilot": {
+        "canonical_version": "0.14.5",
+        "source_digest": "b726ec24f4b3cb94ce60240cb5622bf8f6a8e23c62382a0f61db59c34528bba9",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      },
+      "opencode": {
+        "canonical_version": "0.14.5",
+        "source_digest": "65bee15351d3ae2dbf0af570c2dfa8a2a9ee53948bc8d6a94c3a909d9f4ce26f",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      }
+    },
+    "observation_source": {
+      "path": "evals/host-compatibility/observations/1013ff59c514d0b7f07d0cb711cd3565ef9095eab0ae561c15e5e9913a9afa1c.json",
+      "sha256": "1013ff59c514d0b7f07d0cb711cd3565ef9095eab0ae561c15e5e9913a9afa1c"
+    },
+    "observations": 56,
+    "unexpected_failures": 0,
+    "expected_negative_cases": 24,
+    "native_observations": 0,
+    "historical_records": 36,
+    "historical_records_unchanged": true
+  },
+  "source_delta": {
+    "old_fingerprint": "af6a4d8a0ccfb0cdd3bcd1b4ee6c5c5b6da0ab67888992414b29f90f9ea9cbb4",
+    "new_fingerprint": "dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734",
+    "old_file_count": 110,
+    "new_file_count": 110,
+    "changed_files": [
+      "create-agdf/lib/cli/command-registry.js",
+      "create-agdf/lib/cli/parse-args.js",
+      "create-agdf/lib/cli/runtime-context.js",
+      "create-agdf/lib/cli/validation-handlers.js",
+      "create-agdf/lib/control-evaluation/gate-check.js",
+      "create-agdf/lib/host-adapters/claude/session-command.js",
+      "create-agdf/lib/host-adapters/codex/session-command.js",
+      "create-agdf/lib/host-adapters/session-command.js",
+      "create-agdf/lib/interaction-presentation.js",
+      "create-agdf/lib/runtime/local-validator.js",
+      "create-agdf/lib/skill-dispatch/contract.js",
+      "create-agdf/lib/skill-dispatch/service.js",
+      "create-agdf/package.json",
+      "create-agdf/scripts/sync-plugin-runtime.js",
+      "plugin/meta/agdf-plugin.definition.json",
+      "plugin/meta/copilot-payload-baseline.json"
+    ],
+    "payloads": {
+      "codex": {
+        "canonical_version": "0.14.5",
+        "source_digest": "65bee15351d3ae2dbf0af570c2dfa8a2a9ee53948bc8d6a94c3a909d9f4ce26f",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      },
+      "claude": {
+        "canonical_version": "0.14.5",
+        "source_digest": "65bee15351d3ae2dbf0af570c2dfa8a2a9ee53948bc8d6a94c3a909d9f4ce26f",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      },
+      "copilot": {
+        "canonical_version": "0.14.5",
+        "source_digest": "b726ec24f4b3cb94ce60240cb5622bf8f6a8e23c62382a0f61db59c34528bba9",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      },
+      "opencode": {
+        "canonical_version": "0.14.5",
+        "source_digest": "65bee15351d3ae2dbf0af570c2dfa8a2a9ee53948bc8d6a94c3a909d9f4ce26f",
+        "runtime_digest": "fe9a43daa2fa1af5de810af929674c26c67090cc717e61c99d88c3ee65bbb4e5"
+      }
+    }
+  },
+  "preparation": {
+    "command": [
+      "npm",
+      "--prefix",
+      "create-agdf",
+      "run",
+      "release:prepare"
+    ],
+    "exit_code": 0,
+    "output_sha256": "796d521847f0bee7856d565f908d1317cc949b8f4aff5ad5fce2dc212886ac8b",
+    "result_excerpt": "\n> create-agdf@0.14.5 release:prepare\n> npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin\n\n\n> create-agdf@0.14.5 sync-package-assets\n> node ./scripts/sync-package-assets.js\n\n\n> create-agdf@0.14.5 test:distribution-profile-history\n> node ./scripts/distribution-profile-history-test.js\n\nDistribution profile history passed (8 exact releases, malformed and closed-policy matrices)\n\n> create-agdf@0.14.5 test:release-bump\n> node ./scripts/release-bump-test.js\n\nRelease bump passed (16 transactional files; repair, forward, review, rollback and recovery)\n\n> create-agdf@0.14.5 test:release-version-coherence\n> node ./scripts/release-version-coherence-test.js\n\nRelease version coherence passed (39 surfaces at 0.14.5; 8 profile snapshots)\n\n> create-agdf@0.14.5 test:public-plugin\n> node ./scripts/public-plugin-test.js\n\nPublic plugin tests passed (46 inventoried candidate files; digest f57bbf3fe9b8a7a648f72bc2eb7e81076ff934d10385c27556cf5357a5113cdc)\n"
+  },
+  "checks": [
+    {
+      "name": "compatibility-record",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/host-compatibility/run.mjs",
+        "record"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 32.193,
+      "output_sha256": "aa0b605c0cf99948f127fbf410ea322dcefa08da8551910d980919b822b0cec6",
+      "result_excerpt": "{\n  \"status\": \"pass\",\n  \"scenarios\": {\n    \"evaluated\": 56,\n    \"failed\": 0\n  },\n  \"source_fingerprint\": \"dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734\"\n}\n"
+    },
+    {
+      "name": "compatibility-check",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/host-compatibility/run.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.027,
+      "output_sha256": "aa0b605c0cf99948f127fbf410ea322dcefa08da8551910d980919b822b0cec6",
+      "result_excerpt": "{\n  \"status\": \"pass\",\n  \"scenarios\": {\n    \"evaluated\": 56,\n    \"failed\": 0\n  },\n  \"source_fingerprint\": \"dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734\"\n}\n"
+    },
+    {
+      "name": "compatibility-evidence-tests",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/host-compatibility/test.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.918,
+      "output_sha256": "f9fc48248c81fd52518886e7e8f5789d5c58b70227a13e9d25093ff2c38e61d5",
+      "result_excerpt": "Host compatibility evidence tests passed (64 named checks, recording failure and isolation controls).\n"
+    },
+    {
+      "name": "skill-dispatch-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/skill-dispatch-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.411,
+      "output_sha256": "85882d96ccf51648f45226356e544687f54925592fa94bb96b1051607325f06f",
+      "result_excerpt": "skill dispatch tests passed\n"
+    },
+    {
+      "name": "skill-dispatch-binding-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/skill-dispatch-binding-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 33.681,
+      "output_sha256": "fccb8d88150c2fd9edcc1c518aa71823bcdf92bf431b201fc025a03474664eec",
+      "result_excerpt": "40 adapter-to-dispatch cases passed (generated SessionStart and source-composed OpenCode, not loaded-host evidence)\nSkill dispatch binding tests passed\n"
+    },
+    {
+      "name": "task-target-resolution-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/task-target-resolution-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.682,
+      "output_sha256": "992a34fb143a28e9caf9a66e769793fed09cce62c5b106793f571672e49f3732",
+      "result_excerpt": "task target resolution tests passed\n"
+    },
+    {
+      "name": "local-validator-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/local-validator-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.593,
+      "output_sha256": "82085b005cfadd85ce303e25c8732c54aee497cf05c0db47328c15f24b385ece",
+      "result_excerpt": "Local validator tests passed\n"
+    },
+    {
+      "name": "local-marketplace-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/local-marketplace-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 16.817,
+      "output_sha256": "4d222fe5968a769dfb8911cccad31bb4219c0b345ff77bfe7204756a88ff9fc1",
+      "result_excerpt": "Local marketplace tests passed\n"
+    },
+    {
+      "name": "claude-cache-recovery-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/claude-cache-recovery-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.252,
+      "output_sha256": "f8df4331879e3c57c03ec61632d2026f9e6dda396a5f7c9a3b1aad42bcd0e4de",
+      "result_excerpt": "Claude cache recovery tests passed\n"
+    },
+    {
+      "name": "copilot-installer-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/copilot-installer-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 12.739,
+      "output_sha256": "adbb38165d5f7b3292ef00a9c4fb04fab7768be996d90b8c403428551f729921",
+      "result_excerpt": "Copilot installer tests passed (native Git checkout, same-version updates, migration, rollback, discovery and isolation)\n"
+    },
+    {
+      "name": "runtime-check-consent-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/runtime-check-consent-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.545,
+      "output_sha256": "d0fc971bed44719e6fb6150ba90ce7a73f3b3cb74c0b4f8cbf030ffe8994e3c2",
+      "result_excerpt": "Codex hook observation tests passed.\nRuntime-check consent tests passed\n"
+    },
+    {
+      "name": "codex-hook-observation-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/codex-hook-observation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.455,
+      "output_sha256": "720b0cc6098d871705c799178d90636d055b5ab833a4d5bb20bc8b54ff54bd90",
+      "result_excerpt": "Codex hook observation tests passed.\n"
+    },
+    {
+      "name": "lifecycle-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/lifecycle-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.231,
+      "output_sha256": "133e9ba5ffce3f21752d897f6419d2cb866352ee16d3aa5fd653d49af70dfd42",
+      "result_excerpt": "lifecycle tests passed\n"
+    },
+    {
+      "name": "copilot-repository-retention-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/copilot-repository-retention-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.361,
+      "output_sha256": "7a1549d8b34892f62a1f92ed266bfef583b66e7abed50d68ff08472622aa6005",
+      "result_excerpt": "Copilot repository retention tests passed (install, update, status, disable, uninstall and failure)\n"
+    },
+    {
+      "name": "opencode-hardening-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/opencode-hardening-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.089,
+      "output_sha256": "6f13dfa1b7ac9d30e14d656f8368eea18fce07c7acdc4a25ef717490ea01fb87",
+      "result_excerpt": "OpenCode hardening tests passed.\n"
+    },
+    {
+      "name": "cli-modularization-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/cli-modularization-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.863,
+      "output_sha256": "d352854f752de9931b8f24cdfe9efba40a61bbf8933b576a56e648a181ee284a",
+      "result_excerpt": "cli modularization tests passed\n"
+    },
+    {
+      "name": "interaction-presentation-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/interaction-presentation-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.388,
+      "output_sha256": "1c3e1a98c51a6b00d8e61d2f15e3eb8a00b5f0a0c09b6cd252745c43f0f356e7",
+      "result_excerpt": "interaction presentation tests passed\ngate rationale and why tests passed\nscope classification card tests passed\ntask target orientation tests passed\n"
+    },
+    {
+      "name": "runtime-integrity-layout-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/runtime-integrity-layout-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.329,
+      "output_sha256": "84bca9030b6851241c59fa34e9bb21c6757f9b465678ecf0efa5e34d526b5b18",
+      "result_excerpt": "Runtime integrity layout tests passed\n"
+    },
+    {
+      "name": "runtime-integrity-negative-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/runtime-integrity-negative-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 100.75,
+      "output_sha256": "fc3a0db4c0c835400b36622bba138c44f24cecca8dc07fd2e76bc6b4eef8a37f",
+      "result_excerpt": "Runtime integrity negative tests passed\n"
+    },
+    {
+      "name": "package-build-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/package-build-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.593,
+      "output_sha256": "5f22a908a8b5d72c0be70743cff8d9ecdf4fffe352cd11b5e94456a97f938e5e",
+      "result_excerpt": "Package build tests passed (all generated profiles byte-identical across complete builds; source untouched)\n"
+    },
+    {
+      "name": "package-contents-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/package-contents-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.845,
+      "output_sha256": "9b06fd5f51e8331bb7f618027ae219591d3b44d4cd8be66d2429a16d6b8b1cfe",
+      "result_excerpt": "Package contents tests passed (471 files; complete release-built plugin present)\n"
+    },
+    {
+      "name": "copilot-profile-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/copilot-profile-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.886,
+      "output_sha256": "e94dd11c5922a481583b7f930f32a2dccee4da9c29b8839afd462cc441d10b41",
+      "result_excerpt": "Copilot profile tests passed (inventory, drift, exclusions and growth fail closed)\n"
+    },
+    {
+      "name": "local-development-install-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/local-development-install-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": null,
+      "output_sha256": "8aa627e1df6603b04f7de04f7856c5cafbf58c8e0f3b866348233eb213ddc1ee",
+      "result_excerpt": "Local development install tests passed\n",
+      "initial_attempt": {
+        "name": "local-development-install-test",
+        "command": [
+          "/usr/local/Cellar/node@22/22.22.3/bin/node",
+          "create-agdf/scripts/local-development-install-test.js"
+        ],
+        "exit_code": 1,
+        "elapsed_seconds": 46.902,
+        "output_sha256": "af6a6d722773db041614f90735d30dbd5c0666a667c252cee92397cc8c5c9946",
+        "result_excerpt": "node:internal/modules/run_main:123\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '0.14.5+codex.local-0a24b310a5e5'\n- '0.14.5+codex.local-65bee15351d3'\n                      ^\n\n    at runCli (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/local-development-install-test.js:648:14)\n    at installLocalPlugin (file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/install-local-plugin.js:67:18)\n    at async file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/local-development-install-test.js:637:29 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: '0.14.5+codex.local-0a24b310a5e5',\n  expected: '0.14.5+codex.local-65bee15351d3',\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v22.22.3\n"
+      },
+      "rerun": {
+        "command": [
+          "/usr/local/Cellar/node@22/22.22.3/bin/node",
+          "create-agdf/scripts/local-development-install-test.js"
+        ],
+        "exit_code": 0,
+        "source_or_test_edits": false,
+        "generated_files_before_after_equal": true,
+        "reason": "One initial content-identity assertion mismatch. Complete isolated-fixture suite passed without intervening source/test edits. Initial failure retained; its exact cause was not established."
+      },
+      "elapsed_seconds_note": "Rerun duration was not captured; initial attempt timing is retained separately."
+    },
+    {
+      "name": "agent-skills-conformance-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/agent-skills-conformance-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.37,
+      "output_sha256": "27eb506212971b5a4637c04db5d17f311bd7ebce04f98124818e57054ebd81b4",
+      "result_excerpt": "Agent Skills conformance tests passed (source, policy, metadata, resources, symlinks and 4 generated surfaces)\n"
+    },
+    {
+      "name": "smoke-test",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/smoke-test.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 128.172,
+      "output_sha256": "a14f78f7f13856496ddf822440ec6300b2a804f0355ca472fbd770c7f90c579e",
+      "result_excerpt": "create-agdf smoke test passed\n"
+    },
+    {
+      "name": "test-routing",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/test-routing.js"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.239,
+      "output_sha256": "8a0ac9e33b1932ca0f2c1fb05aa458799be813f2441c187233c592a6472cd7ea",
+      "result_excerpt": "AGDF routing render test passed for plugin-only Copilot skills\n"
+    },
+    {
+      "name": "source-runtime-integrity",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "plugin/scripts/check-runtime-integrity.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.015,
+      "output_sha256": "75f72c7bdd314b024a7c039e369094713f8174268b18c7b343d1e9caa15d941f",
+      "result_excerpt": "[agdf-runtime-integrity] ok (mode=source; 10 skills and 16 control files checked)\n"
+    },
+    {
+      "name": "community-health-tests",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/community-health-test.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.055,
+      "output_sha256": "093cdaf11674b48edcfc9b346dc590ea66163904f1b0115a135bbd0b33600b98",
+      "result_excerpt": "community-health-test: pass (reviewed baseline + 29 negative contracts)\n"
+    },
+    {
+      "name": "community-health-check",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/check-community-health.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.924,
+      "output_sha256": "541da2ee949be4148b66ca2567656ea31228e6cec8181bd03b35dd8d66b5466b",
+      "result_excerpt": "community-health: pass (39 required files, 4 issue forms)\n"
+    },
+    {
+      "name": "compatibility-final-check",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "scripts/host-compatibility/run.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.766,
+      "output_sha256": "aa0b605c0cf99948f127fbf410ea322dcefa08da8551910d980919b822b0cec6",
+      "result_excerpt": "{\n  \"status\": \"pass\",\n  \"scenarios\": {\n    \"evaluated\": 56,\n    \"failed\": 0\n  },\n  \"source_fingerprint\": \"dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734\"\n}\n",
+      "after_local_install_rerun": true
+    }
+  ],
+  "final_source_check": {
+    "status": "pass",
+    "scenarios": {
+      "evaluated": 56,
+      "failed": 0
+    },
+    "source_fingerprint": "dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734"
+  },
+  "review_scope": "Current 16-file participating-source delta from the preceding comparison, refreshed generated report/facts/snapshot and all 56 observations; related implementation changes retain their own run authority. No compatibility runner, evaluator or assertion was changed.",
+  "preserved_boundaries": [
+    "No native installed-root or fresh-session evidence",
+    "No native Windows evidence",
+    "No GitHub-hosted Ubuntu rerun observation",
+    "No human UAT",
+    "No acceptance of the earlier QA approval rejected against stale evidence",
+    "No commit, push, host installation, release or publication"
+  ],
+  "final_control": {
+    "run_id": "agdf-host-adapter-compatibility",
+    "run_revision": 9,
+    "revision_id": "f13a6fb9-e77b-4e5c-b55c-a88fe8280820",
+    "current_gate": "QA",
+    "missing_approval": "Approval: QA",
+    "blocking_reason": "none",
+    "doctor_status": "pass",
+    "doctor_summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "checked_at": "2026-09-09T08:35:34.798Z"
+  },
+  "final_artifact_checks": {
+    "task_coverage": "12/12 fully_done",
+    "ux_criteria": "12/12 fulfilled",
+    "native_inventory": "12 unverified rows",
+    "report_links": "all exist",
+    "observation_hash": "matched",
+    "git_diff_check": "pass"
+  }
+}

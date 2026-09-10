@@ -1,4 +1,4 @@
-import { join } from "node:path";
+import { isAbsolute, join } from "node:path";
 import { emitKeypressEvents } from "node:readline";
 import { createInterface } from "node:readline/promises";
 import process from "node:process";
@@ -44,6 +44,15 @@ import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
 import { printMcpLifecycleResult, runMcpLifecycle } from "../mcp-lifecycle/service.js";
+import { promptInstallScope, promptInstallSetup } from "../install-setup/interaction.js";
+import {
+  printInstallSetupResult,
+  renderInstallProgress,
+  renderRuntimeCheckConsentDetails,
+  renderRuntimeCheckConsentDisclosure,
+  runtimeCheckInteractionCopy,
+} from "../install-setup/presentation.js";
+import { runInstallSetup } from "../install-setup/service.js";
 
 function createHandlers({
   io,
@@ -53,7 +62,10 @@ function createHandlers({
   prepare,
   openCodePackageSource,
   copilotSettingsPath,
+  askInstallSetupDecision,
+  askInstallSetupScope,
   askRuntimeCheckDecision,
+  inspectPluginInstallation,
   interactive,
   observeCodexHookTrust = observeCodexHooks,
   evaluateStatus = evaluateStatusOverview,
@@ -76,6 +88,23 @@ function createHandlers({
     const observation = await observeCodexHookTrust({ cwd, env });
     return projectCodexHookObservation(state, observation);
   };
+  const guidedInstall = (options) => runGuidedInstall(options, {
+    io,
+    env,
+    interactive,
+    installerAdapters,
+    openCodePackageSource,
+    askInstallSetupDecision,
+    askInstallSetupScope,
+    askRuntimeCheckDecision,
+    observeRuntimeChecks,
+    evaluateOpenCodeGlobal,
+    installOpenCodePackage,
+    installOpenCodeSurface,
+    mcpLifecycle,
+    exec,
+    inspectPluginInstallation,
+  });
   return new Map([
     ...createValidationHandlers(io),
     ["codex-repo", scaffoldHandler],
@@ -128,7 +157,18 @@ function createHandlers({
         dataRoot: env.AGDF_DATA_DIR,
       }, { exec });
       const runtimeChecks = await observeRuntimeChecks(report.installation.surface, report.runtime_checks, options.dir);
-      report = { ...report, runtime_checks: runtimeChecks };
+      let mcp = { status: "not_checked", authorizes: false };
+      if (options.dirExplicit && ["codex", "claude", "copilot", "opencode"].includes(options.surface)) {
+        mcp = mcpLifecycle({
+          action: "status",
+          surface: options.surface,
+          scope: options.scope ?? "project",
+          target: options.dir,
+          env,
+          exec,
+        });
+      }
+      report = { ...report, runtime_checks: runtimeChecks, mcp };
       printGeneralStatus(report, { json: options.json, io });
       return report.installation.status === "healthy" ? 0 : 1;
     }],
@@ -178,179 +218,205 @@ function createHandlers({
       return ["failed", "degraded"].includes(report.result)
         || ["manual_compatible", "unavailable", "unsupported"].includes(report.capability) ? 1 : 0;
     }],
-    ["disable", (options) => runDisable(options, { io, exec })],
-    ["uninstall", (options) => runUninstall(options, { io, env, exec })],
-    ["codex", async (options) => {
-      try {
-        const consent = await installConsentDecision("codex", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
-        if (consent.decision === "cancel") return printCancelledConsent("codex", options, io);
-        printInstallProgress("codex", options, io, interactive);
-        const installed = installCodexGlobalPlugin(installerAdapters);
-        const finalizedConsent = finalizeInstallConsent(consent, { surface: "codex", installed, dataRoot: installerAdapters.dataRoot });
-        finalizedConsent.state = await observeRuntimeChecks("codex", finalizedConsent.state, options.dir);
-        printLifecycleResult(installResult(installed, {
-          restartRequired: true,
-          nextAction: installNextAction("codex", finalizedConsent.state, globalInstallRestartAction(options.target).text),
-          runtimeChecks: finalizedConsent.state,
-          consentFailure: finalizedConsent.failure,
-        }), { json: options.json, compact: !options.verbose, io });
-        printVerboseHostOutput(installed, options, io);
-        return 0;
-      } catch (error) {
-        printInstallFailure(options.target, error, options, io);
-        return 1;
-      }
-    }],
-    ["claude", async (options) => {
-      try {
-        const consent = await installConsentDecision("claude", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
-        if (consent.decision === "cancel") return printCancelledConsent("claude", options, io);
-        printInstallProgress("claude", options, io, interactive);
-        const installed = installClaudeGlobalPlugin(installerAdapters);
-        const finalizedConsent = finalizeInstallConsent(consent, { surface: "claude", installed, dataRoot: installerAdapters.dataRoot });
-        printLifecycleResult(installResult(installed, {
-          restartRequired: true,
-          nextAction: globalInstallRestartAction(options.target).text,
-          runtimeChecks: finalizedConsent.state,
-          consentFailure: finalizedConsent.failure,
-        }), { json: options.json, compact: !options.verbose, io });
-        printVerboseHostOutput(installed, options, io);
-        return 0;
-      } catch (error) {
-        printInstallFailure(options.target, error, options, io);
-        return 1;
-      }
-    }],
-    ["copilot", async (options) => {
-      const surface = "copilot";
-      try {
-        const consent = await installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
-        if (consent.decision === "cancel") return printCancelledConsent(surface, options, io);
-        printInstallProgress(surface, options, io, interactive);
-        const installed = installCopilotGlobalPlugin({
-          ...installerAdapters,
-        });
-        const finalizedConsent = finalizeInstallConsent(consent, { surface, installed, dataRoot: installerAdapters.dataRoot });
-        if (installed.declarativeConfigured) {
-          printLifecycleResult(createLifecycleResult({
-            operation: "install", result: "partial", surface, scope: "global",
-            version: { expected: installed.expectedVersion, installed: null, status: "unknown" },
-            verification: { status: "configured_pending_restart", evidence: installed.evidence },
-            installation: { status: "configured_pending_restart" },
-            activation: { status: "pending_restart" },
-            runtime_checks: finalizedConsent.state,
-            restart: { required: true, reason: "host_reload" },
-            next_action: { kind: "restart", text: "Restart GitHub Copilot. Then verify AGDF in Plugins and the agdf- skills in a fresh session." },
-          }), { json: options.json, compact: !options.verbose, io });
-          return 0;
-        }
-        if (installed.manualHandoff) {
-          printLifecycleResult(createLifecycleResult({
-            operation: "install", result: "partial", surface, scope: "global",
-            version: { expected: installed.expectedVersion, installed: null, status: "unknown" },
-            verification: { status: "unavailable", evidence: installed.evidence },
-            installation: { status: "not_verified" },
-            activation: { status: "not_verified" },
-            runtime_checks: finalizedConsent.state,
-            restart: { required: false, reason: "none" },
-            next_action: { kind: "manual_install", text: "Install the Copilot CLI, then rerun the AGDF Copilot installer. The prepared package is retained." },
-            failure: { phase: "executable", message: "Copilot CLI was not available; no plugin installation was performed." },
-          }), { json: options.json, compact: !options.verbose, io });
-          return 1;
-        }
-        printLifecycleResult(installResult(installed, {
-          restartRequired: true,
-          nextAction: installNextAction(surface, finalizedConsent.state, globalInstallRestartAction(surface).text),
-          runtimeChecks: finalizedConsent.state,
-          consentFailure: finalizedConsent.failure,
-        }), { json: options.json, compact: !options.verbose, io });
-        printVerboseHostOutput(installed, options, io);
-        return installed.verificationStatus === "healthy" ? 0 : 1;
-      } catch (error) {
-        printInstallFailure(surface, error, options, io, "copilot");
-        return 1;
-      }
-    }],
-    ["opencode", async (options) => {
-      const configDir = options.dirExplicit ? options.dir : defaultOpenCodeConfigDir();
-      try {
-        const consent = await installConsentDecision("opencode", options, { io, askRuntimeCheckDecision, interactive, dataRoot: installerAdapters.dataRoot });
-        if (consent.decision === "cancel") return printCancelledConsent("opencode", options, io);
-        printInstallProgress("opencode", options, io, interactive);
-        const result = runLifecyclePhase("plugin_operation", () => installOpenCodePackage(configDir, { packageSource: openCodePackageSource }));
-        runLifecyclePhase("global_surface", () => installOpenCodeSurface(configDir));
-        const globalReport = runLifecyclePhase("verification", () => evaluateOpenCodeGlobal(configDir));
-        const report = {
-          ...globalReport,
-          package: {
-            ...globalReport.package,
-            transition: result.transition,
-          },
-        };
-        const alignmentHealthy = ["already_matching", "aligned"].includes(result.sdk_alignment.status);
-        const verificationHealthy = report.status === "configured"
-          && report.package.version_status === "current"
-          && report.global_native_surface.complete
-          && report.experimental_hooks.aggregate === "declared_supported"
-          && report.host_sdk_version.status === "matching"
-          && alignmentHealthy;
-        const nextAction = verificationHealthy
-          ? globalInstallRestartAction(options.target)
-          : {
-              kind: "recovery",
-              text: `Retry the OpenCode installation to align @opencode-ai/plugin to ${result.sdk_alignment.target_version || "the exact host version"}; observed SDK: ${result.sdk_alignment.installed_version || "unknown"}.`,
-            };
-        const finalizedConsent = finalizeInstallConsent(consent, {
-              surface: "opencode",
-              installed: {
-                pluginRoot: result.installed_package.root,
-                digest: result.installed_package.digest,
-                sourceDigest: result.package_source.digest || result.installed_package.digest,
-              },
-              dataRoot: installerAdapters.dataRoot,
-            });
-        printLifecycleResult(createLifecycleResult({
-          operation: result.transition.status === "updated" ? "update" : "install",
-          result: verificationHealthy && !finalizedConsent.failure ? "success" : "partial",
-          surface: options.target,
-          scope: "global",
-          version: {
-            expected: report.package.expected_version,
-            installed: report.package.installed_version,
-            previous: result.transition.previous_version,
-            status: report.package.version_status === "current" ? "verified" : "unknown",
-            transition: result.transition.status,
-          },
-          verification: {
-            status: verificationHealthy ? "healthy" : "degraded",
-            evidence: [
-              report.global_config.path,
-              report.global_native_surface.path,
-              `opencode_host=${report.host.installed_version || "unknown"}`,
-              `plugin_sdk=${report.plugin_sdk.installed_version || "unknown"}`,
-              `experimental_hooks=${report.experimental_hooks.aggregate}`,
-              `host_sdk_version=${report.host_sdk_version.status};policy=${report.host_sdk_version.policy}`,
-              `sdk_alignment=${result.sdk_alignment.status};target=${result.sdk_alignment.target_version || "unknown"};installed=${result.sdk_alignment.installed_version || "unknown"}`,
-              `package_source=${result.package_source.kind}${result.package_source.digest ? `;digest=${result.package_source.digest}` : ""}`,
-            ],
-          },
-          restart: { required: true, reason: "host_reload" },
-          runtime_checks: finalizedConsent.state,
-          next_action: nextAction,
-          failure: finalizedConsent.failure,
-        }), { json: options.json, compact: !options.verbose, io });
-        if (options.verbose && !options.json) {
-          io.log(`OpenCode host / plugin SDK: ${report.host.installed_version || "unknown"} / ${report.plugin_sdk.installed_version || "unknown"} (${report.host_sdk_version.status}; ${report.host_sdk_version.policy})`);
-          io.log(`Plugin SDK alignment: ${result.sdk_alignment.status} (target ${result.sdk_alignment.target_version || "unknown"}; installed ${result.sdk_alignment.installed_version || "unknown"})`);
-          io.log(`Experimental hook declarations: ${report.experimental_hooks.aggregate} (SDK declaration evidence; live invocation not observed)`);
-        }
-        return verificationHealthy ? 0 : 1;
-      } catch (error) {
-        printInstallFailure(options.target, error, options, io);
-        return 1;
-      }
-    }],
+    ["disable", (options) => options.setupRequest === "full"
+      ? runCoupledDisable(options, { io, env, exec, mcpLifecycle })
+      : runDisable(options, { io, exec })],
+    ["uninstall", (options) => options.setupRequest === "full"
+      ? runCoupledUninstall(options, { io, env, exec, mcpLifecycle })
+      : runUninstall(options, { io, env, exec })],
+    ["codex", guidedInstall],
+    ["claude", guidedInstall],
+    ["copilot", guidedInstall],
+    ["opencode", guidedInstall],
   ]);
+}
+
+function pluginInstallFailure(surface, error) {
+  return lifecycleFailure({
+    operation: "install",
+    surface,
+    scope: "global",
+    phase: error.phase || "plugin_operation",
+    message: error.message,
+    evidence: [error.evidence ?? {}],
+    nextAction: `Resolve the ${error.phase || "plugin operation"} failure and retry the same installation command.`,
+  });
+}
+
+function copilotInstallReport(installed, runtimeChecks) {
+  if (installed.declarativeConfigured) {
+    return createLifecycleResult({
+      operation: "install", result: "partial", surface: "copilot", scope: "global",
+      version: { expected: installed.expectedVersion, installed: null, status: "unknown" },
+      verification: { status: "configured_pending_restart", evidence: installed.evidence },
+      installation: { status: "configured_pending_restart" },
+      activation: { status: "pending_restart" },
+      runtime_checks: runtimeChecks,
+      restart: { required: true, reason: "host_reload" },
+      next_action: { kind: "restart", text: "Restart GitHub Copilot. Then verify AGDF in Plugins and the agdf- skills in a fresh session." },
+    });
+  }
+  if (installed.manualHandoff) {
+    return createLifecycleResult({
+      operation: "install", result: "partial", surface: "copilot", scope: "global",
+      version: { expected: installed.expectedVersion, installed: null, status: "unknown" },
+      verification: { status: "unavailable", evidence: installed.evidence },
+      installation: { status: "not_verified" },
+      activation: { status: "not_verified" },
+      runtime_checks: runtimeChecks,
+      restart: { required: false, reason: "none" },
+      next_action: { kind: "manual_install", text: "Install the Copilot CLI, then retry the AGDF Copilot installer. The prepared package is retained." },
+      failure: { phase: "executable", message: "Copilot CLI was not available; no plugin installation was performed." },
+    });
+  }
+  return installResult(installed, {
+    restartRequired: true,
+    nextAction: globalInstallRestartAction("copilot").text,
+    runtimeChecks,
+    consentFailure: null,
+  });
+}
+
+function installOpenCodePluginPayload(configDir, consent, {
+  openCodePackageSource,
+  installOpenCodePackage,
+  installOpenCodeSurface,
+  evaluateOpenCodeGlobal,
+}) {
+  const installedPackage = runLifecyclePhase("plugin_operation", () => installOpenCodePackage(configDir, { packageSource: openCodePackageSource }));
+  runLifecyclePhase("global_surface", () => installOpenCodeSurface(configDir));
+  const globalReport = runLifecyclePhase("verification", () => evaluateOpenCodeGlobal(configDir));
+  const report = {
+    ...globalReport,
+    package: { ...globalReport.package, transition: installedPackage.transition },
+  };
+  const alignmentHealthy = ["already_matching", "aligned"].includes(installedPackage.sdk_alignment.status);
+  const verificationHealthy = report.status === "configured"
+    && report.package.version_status === "current"
+    && report.global_native_surface.complete
+    && report.experimental_hooks.aggregate === "declared_supported"
+    && report.host_sdk_version.status === "matching"
+    && alignmentHealthy;
+  const nextAction = verificationHealthy
+    ? globalInstallRestartAction("opencode")
+    : {
+        kind: "recovery",
+        text: `Retry the OpenCode installation to align @opencode-ai/plugin to ${installedPackage.sdk_alignment.target_version || "the exact host version"}; observed SDK: ${installedPackage.sdk_alignment.installed_version || "unknown"}.`,
+      };
+  const lifecycleReport = createLifecycleResult({
+    operation: installedPackage.transition.status === "updated" ? "update" : "install",
+    result: verificationHealthy ? "success" : "partial",
+    surface: "opencode",
+    scope: "global",
+    version: {
+      expected: report.package.expected_version,
+      installed: report.package.installed_version,
+      previous: installedPackage.transition.previous_version,
+      status: report.package.version_status === "current" ? "verified" : "unknown",
+      transition: installedPackage.transition.status,
+    },
+    verification: {
+      status: verificationHealthy ? "healthy" : "degraded",
+      evidence: [
+        report.global_config.path,
+        report.global_native_surface.path,
+        `opencode_host=${report.host.installed_version || "unknown"}`,
+        `plugin_sdk=${report.plugin_sdk.installed_version || "unknown"}`,
+        `experimental_hooks=${report.experimental_hooks.aggregate}`,
+        `host_sdk_version=${report.host_sdk_version.status};policy=${report.host_sdk_version.policy}`,
+        `sdk_alignment=${installedPackage.sdk_alignment.status};target=${installedPackage.sdk_alignment.target_version || "unknown"};installed=${installedPackage.sdk_alignment.installed_version || "unknown"}`,
+        `package_source=${installedPackage.package_source.kind}${installedPackage.package_source.digest ? `;digest=${installedPackage.package_source.digest}` : ""}`,
+      ],
+    },
+    restart: { required: true, reason: "host_reload" },
+    runtime_checks: consent.state,
+    next_action: nextAction,
+  });
+  return {
+    report: lifecycleReport,
+    installed: {
+      pluginRoot: installedPackage.installed_package.root,
+      digest: installedPackage.installed_package.digest,
+      sourceDigest: installedPackage.package_source.digest || installedPackage.installed_package.digest,
+    },
+    native: installedPackage,
+    openCodeReport: report,
+  };
+}
+
+function installPluginPayload(surface, options, consent, pluginConfiguration, dependencies) {
+  printInstallProgress(surface, options, dependencies.io, dependencies.interactive);
+  if (surface === "opencode") {
+    return installOpenCodePluginPayload(pluginConfiguration, consent, dependencies);
+  }
+  const installed = surface === "codex"
+    ? installCodexGlobalPlugin(dependencies.installerAdapters)
+    : surface === "claude"
+      ? installClaudeGlobalPlugin(dependencies.installerAdapters)
+      : installCopilotGlobalPlugin(dependencies.installerAdapters);
+  const report = surface === "copilot"
+    ? copilotInstallReport(installed, consent.state)
+    : installResult(installed, {
+        restartRequired: true,
+        nextAction: globalInstallRestartAction(surface).text,
+        runtimeChecks: consent.state,
+        consentFailure: null,
+      });
+  return { report, installed };
+}
+
+function printOpenCodeVerbose(payload, options, io) {
+  if (!options.verbose || options.json || !payload?.openCodeReport) return;
+  const report = payload.openCodeReport;
+  const installed = payload.native;
+  io.log(`OpenCode host / plugin SDK: ${report.host.installed_version || "unknown"} / ${report.plugin_sdk.installed_version || "unknown"} (${report.host_sdk_version.status}; ${report.host_sdk_version.policy})`);
+  io.log(`Plugin SDK alignment: ${installed.sdk_alignment.status} (target ${installed.sdk_alignment.target_version || "unknown"}; installed ${installed.sdk_alignment.installed_version || "unknown"})`);
+  io.log(`Experimental hook declarations: ${report.experimental_hooks.aggregate} (SDK declaration evidence; live invocation not observed)`);
+}
+
+async function runGuidedInstall(options, dependencies) {
+  const language = options.language?.chat_language ?? "en";
+  try {
+    const outcome = await runInstallSetup({ options, interactive: dependencies.interactive, env: dependencies.env }, {
+      exec: dependencies.exec,
+      inspectPlugin: dependencies.inspectPluginInstallation,
+      mcpLifecycle: dependencies.mcpLifecycle,
+      chooseSetup: dependencies.askInstallSetupDecision
+        ? (preflight) => dependencies.askInstallSetupDecision(preflight)
+        : (preflight) => promptInstallSetup(preflight, { language }),
+      chooseScope: dependencies.askInstallSetupScope
+        ? (preflight) => dependencies.askInstallSetupScope(preflight)
+        : (preflight) => promptInstallScope(preflight, { language }),
+      prepareRuntimeChecks: (surface, currentOptions) => installConsentDecision(surface, currentOptions, {
+        io: dependencies.io,
+        askRuntimeCheckDecision: dependencies.askRuntimeCheckDecision,
+        interactive: dependencies.interactive,
+        dataRoot: dependencies.installerAdapters.dataRoot,
+        language,
+      }),
+      installPlugin: ({ surface, options: currentOptions, plugin_configuration: pluginConfiguration, consent }) =>
+        installPluginPayload(surface, currentOptions, consent, pluginConfiguration, dependencies),
+      createPluginFailure: (error) => pluginInstallFailure(options.target, error),
+      finalizeRuntimeChecks: async (consent, payload) => {
+        const finalized = finalizeInstallConsent(consent, {
+          surface: options.target,
+          installed: payload.installed,
+          dataRoot: dependencies.installerAdapters.dataRoot,
+        });
+        if (options.target === "codex") {
+          finalized.state = await dependencies.observeRuntimeChecks("codex", finalized.state, options.dir);
+        }
+        return finalized;
+      },
+    });
+    printInstallSetupResult(outcome.report, { json: options.json, io: dependencies.io, language });
+    printVerboseHostOutput(outcome.plugin_payload?.installed ?? {}, options, dependencies.io);
+    printOpenCodeVerbose(outcome.plugin_payload, options, dependencies.io);
+    return ["failed", "partial"].includes(outcome.report.result) ? 1 : 0;
+  } catch (error) {
+    dependencies.io.error(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
 }
 
 function runLifecyclePhase(phase, operation) {
@@ -438,47 +504,24 @@ function finalizeInstallConsent(consent, input) {
   }
 }
 
-async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot }) {
+async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot, language = "en" }) {
   if (options.runtimeChecksDecision !== undefined) return prepareInstallConsent(surface, options);
   if (!interactive || options.json || typeof askRuntimeCheckDecision !== "function") {
     return prepareInstallConsent(surface, options);
   }
   const retained = retainCurrentInstallConsent(surface, dataRoot);
   const disclosure = prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "manual" }).disclosure;
-  printInstallConsentDisclosure(disclosure, retained, io);
-  const answer = await askRuntimeCheckDecision(disclosure);
+  printInstallConsentDisclosure(disclosure, retained, io, language);
+  const answer = await askRuntimeCheckDecision(disclosure, { language });
   return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: answer });
 }
 
-function printInstallConsentDisclosure(disclosure, retained, io) {
-  const host = installSurfaceLabel(disclosure.surface);
-  io.log("");
-  io.log(`AGDF ${pluginDefinition.version} for ${host}`);
-  io.log(`Applies to this ${host} installation for your user account.`);
-  io.log("");
-  io.log(`Let AGDF check your project status automatically ${disclosure.when}?`);
-  if (retained) {
-    io.log(retained.decision === "enable"
-      ? "Your previous choice: automatic checks requested"
-      : "Your previous choice: manual checks");
-    if (retained.decision === "enable") io.log(`${host} permission: checked after installation`);
-  }
-  io.log("");
-  io.log("Safe by design");
-  io.log("  Reads only AGDF runtime information and .agdf/control in this project");
-  io.log("  Changes no project files and uses no network");
-  io.log("  Never approves AGDF work");
-  io.log("");
-  io.log(`AGDF saves your choice. ${host} remains in control of permission.`);
-  io.log("You choose again for every install or update and whenever the check changes.");
-  io.log(`Turn it off anytime: ${disclosure.revocation}`);
-  io.log("");
-  io.log("Choose");
-  io.log("  [1] Yes, check automatically");
-  io.log("  [2] No automatic checks");
-  io.log("      AGDF still works. Checks run when you request them.");
-  io.log("  [D] Show technical details");
-  io.log("  [Esc] Cancel installation");
+function printInstallConsentDisclosure(disclosure, retained, io, language = "en") {
+  for (const line of renderRuntimeCheckConsentDisclosure(disclosure, {
+    retained,
+    version: pluginDefinition.version,
+    language,
+  })) io.log(line);
 }
 
 function installSurfaceLabel(surface) {
@@ -491,22 +534,11 @@ function installSurfaceLabel(surface) {
 function printInstallProgress(surface, options, io, interactive) {
   if (!interactive || options.json) return;
   io.log("");
-  io.log(`Setting up AGDF ${pluginDefinition.version} for ${installSurfaceLabel(surface)}...`);
+  io.log(renderInstallProgress(surface, pluginDefinition.version, { language: options.language?.chat_language ?? "en" }));
 }
 
-function installConsentTechnicalDetails(disclosure) {
-  return [
-    "",
-    "Technical details",
-    `  Applies to: ${disclosure.installation_scope}`,
-    `  Runs: ${disclosure.runs} ${disclosure.when}`,
-    `  Reads: ${disclosure.reads}`,
-    `  Saves: ${disclosure.writes}`,
-    `  Permission control: ${disclosure.permission_owner}`,
-    `  Command: ${disclosure.executable}`,
-    `  Renewal: ${disclosure.renewal}`,
-    "",
-  ];
+function installConsentTechnicalDetails(disclosure, language = "en") {
+  return renderRuntimeCheckConsentDetails(disclosure, { language });
 }
 
 function printCancelledConsent(surface, options, io) {
@@ -544,7 +576,171 @@ function printInstallFailure(surface, error, options, io, command = surface) {
   }
 }
 
-function runDisable(options, { io, exec }) {
+function createCoupledLifecycleResult({ operation, result, surface, target, mcpScope, plugin, mcp, nextAction }) {
+  if (!new Set(["coupled_disable", "coupled_uninstall"]).has(operation)
+      || !new Set(["success", "partial", "failed", "preview"]).has(result)
+      || !["codex", "claude", "copilot", "opencode"].includes(surface)
+      || !["project", "user"].includes(mcpScope)
+      || typeof target !== "string" || !isAbsolute(target)
+      || !plugin || !mcp || typeof nextAction?.code !== "string" || typeof nextAction?.text !== "string") {
+    throw new Error("AGDF_COUPLED_LIFECYCLE_RESULT_INVALID");
+  }
+  return Object.freeze({
+    schema_version: 1,
+    contract_version: 1,
+    operation,
+    result,
+    surface,
+    target,
+    plugin_scope: operation === "coupled_disable" ? "repository" : "global",
+    mcp_scope: mcpScope,
+    plugin,
+    mcp,
+    next_action: Object.freeze({ code: nextAction.code, text: nextAction.text }),
+    authorizes: false,
+  });
+}
+
+function printCoupledLifecycleResult(report, { json, io }) {
+  if (json) {
+    io.log(JSON.stringify(report, null, 2));
+    return;
+  }
+  io.log(report.operation === "coupled_disable" ? "AGDF plugin and MCP disable" : "AGDF plugin and MCP uninstall");
+  io.log(`Result: ${report.result}`);
+  io.log(`Surface: ${report.surface}`);
+  io.log(`Target: ${report.target}`);
+  io.log(`MCP scope: ${report.mcp_scope}`);
+  io.log(`MCP: ${report.mcp.result ?? report.mcp.status}`);
+  io.log(`Plugin: ${report.plugin.result ?? report.plugin.status}`);
+  io.log(`Authorizes: ${report.authorizes}`);
+  io.log(`Next action: ${report.next_action.text}`);
+}
+
+function inspectCoupledMcp(options, { env, exec, mcpLifecycle }, scope) {
+  return mcpLifecycle({ action: "status", surface: options.surface, scope, target: options.dir, env, exec });
+}
+
+function mcpPreflightBlocked(report) {
+  return report.result === "failed"
+    || ["foreign", "precedence_conflict", "invalid"].includes(report.registration?.status);
+}
+
+function mcpDisableSucceeded(report) {
+  return ["disabled", "unchanged"].includes(report.result);
+}
+
+function coupledPreflightFailure(operation, options, scope, mcp) {
+  return createCoupledLifecycleResult({
+    operation,
+    result: "failed",
+    surface: options.surface,
+    target: options.dir,
+    mcpScope: scope,
+    plugin: { status: "not_run" },
+    mcp,
+    nextAction: {
+      code: "resolve_mcp_registration",
+      text: "Resolve the reported MCP ownership or precedence conflict before retrying.",
+    },
+  });
+}
+
+function runCoupledDisable(options, dependencies) {
+  const scope = "project";
+  try {
+    const before = inspectCoupledMcp(options, dependencies, scope);
+    if (mcpPreflightBlocked(before)) {
+      const report = coupledPreflightFailure("coupled_disable", options, scope, before);
+      printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+      return 1;
+    }
+    const mcp = dependencies.mcpLifecycle({
+      action: "disable", surface: options.surface, scope, target: options.dir,
+      env: dependencies.env, exec: dependencies.exec,
+    });
+    if (!mcpDisableSucceeded(mcp)) {
+      const report = createCoupledLifecycleResult({
+        operation: "coupled_disable", result: "failed", surface: options.surface, target: options.dir,
+        mcpScope: scope, plugin: { status: "not_run" }, mcp,
+        nextAction: { code: "retry_mcp_disable", text: "Resolve the MCP disable failure before changing the repository plugin state." },
+      });
+      printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+      return 1;
+    }
+    const plugin = executeDisable(options, dependencies);
+    const result = plugin.code === 0 ? "success" : "partial";
+    const report = createCoupledLifecycleResult({
+      operation: "coupled_disable", result, surface: options.surface, target: options.dir,
+      mcpScope: scope, plugin: plugin.report, mcp,
+      nextAction: result === "success"
+        ? { code: "restart_host", text: "Restart the host and verify that the repository plugin and project MCP registration are disabled." }
+        : { code: "retry_plugin_disable", text: "MCP is disabled. Resolve the repository plugin disable failure without re-enabling MCP." },
+    });
+    printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+    return result === "success" ? 0 : 1;
+  } catch (error) {
+    dependencies.io.error(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
+}
+
+function runCoupledUninstall(options, dependencies) {
+  const scope = options.mcpScope;
+  try {
+    const before = inspectCoupledMcp(options, dependencies, scope);
+    if (mcpPreflightBlocked(before)) {
+      const report = coupledPreflightFailure("coupled_uninstall", options, scope, before);
+      printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+      return 1;
+    }
+    if (!options.confirm) {
+      const plugin = executeUninstall(options, dependencies);
+      const report = createCoupledLifecycleResult({
+        operation: "coupled_uninstall", result: "preview", surface: options.surface, target: options.dir,
+        mcpScope: scope, plugin: plugin.report, mcp: before,
+        nextAction: { code: "confirm", text: "Review both plans, then rerun the same command with --confirm. Both owners revalidate before mutation." },
+      });
+      printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+      return 0;
+    }
+    const revalidated = inspectCoupledMcp(options, dependencies, scope);
+    if (mcpPreflightBlocked(revalidated)) {
+      const report = coupledPreflightFailure("coupled_uninstall", options, scope, revalidated);
+      printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+      return 1;
+    }
+    const mcp = dependencies.mcpLifecycle({
+      action: "disable", surface: options.surface, scope, target: options.dir,
+      env: dependencies.env, exec: dependencies.exec,
+    });
+    if (!mcpDisableSucceeded(mcp)) {
+      const report = createCoupledLifecycleResult({
+        operation: "coupled_uninstall", result: "failed", surface: options.surface, target: options.dir,
+        mcpScope: scope, plugin: { status: "not_run" }, mcp,
+        nextAction: { code: "retry_mcp_disable", text: "Resolve the MCP disable failure before uninstalling the plugin." },
+      });
+      printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+      return 1;
+    }
+    const plugin = executeUninstall(options, dependencies);
+    const result = plugin.code === 0 ? "success" : "partial";
+    const report = createCoupledLifecycleResult({
+      operation: "coupled_uninstall", result, surface: options.surface, target: options.dir,
+      mcpScope: scope, plugin: plugin.report, mcp,
+      nextAction: result === "success"
+        ? { code: "restart_host", text: "Restart the host and verify that AGDF plugin and selected MCP registration are absent." }
+        : { code: "retry_plugin_uninstall", text: "MCP is disabled. Resolve the plugin uninstall failure without recreating the MCP registration." },
+    });
+    printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
+    return result === "success" ? 0 : 1;
+  } catch (error) {
+    dependencies.io.error(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
+}
+
+function executeDisable(options, { exec }) {
   try {
     const plan = planRepositoryDisable(options.dir, options.surface, { shared: options.shared, exec });
     const applied = applyLifecyclePlan(plan, exec ? { exec } : {});
@@ -572,8 +768,7 @@ function runDisable(options, { io, exec }) {
         ? { phase: "repository_configuration", message: applied.error.message }
         : result === "failed" ? { phase: "verification", message: "Repository disable postcondition was not observed." } : null,
     });
-    printLifecycleResult(report, { json: options.json, io });
-    return result === "success" ? 0 : 1;
+    return { report, code: result === "success" ? 0 : 1 };
   } catch (error) {
     const report = lifecycleFailure({
       operation: "disable",
@@ -585,16 +780,18 @@ function runDisable(options, { io, exec }) {
       evidence: [error.message],
       nextAction: "Resolve the reported repository configuration or ignore precondition, then retry disable without changing unrelated files.",
     });
-    if (options.json) printLifecycleResult(report, { json: true, io });
-    else {
-      io.error(error.message);
-      printLifecycleResult(report, { io });
-    }
-    return 1;
+    return { report, code: 1, error };
   }
 }
 
-function runUninstall(options, { io, env, exec }) {
+function runDisable(options, { io, exec }) {
+  const outcome = executeDisable(options, { exec });
+  if (outcome.error && !options.json) io.error(outcome.error.message);
+  printLifecycleResult(outcome.report, { json: options.json, io });
+  return outcome.code;
+}
+
+function executeUninstall(options, { env, exec }) {
   try {
     const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
     const plan = planGlobalUninstall(options.surface, { configDir });
@@ -606,8 +803,7 @@ function runUninstall(options, { io, env, exec }) {
         next_action: { kind: "confirm", text: `Review this preview, then rerun with --surface ${options.surface} --scope global --confirm; ownership is revalidated before apply.` },
         changes: plan.mutations, retained: plan.retained,
       });
-      printLifecycleResult(preview, { json: options.json, io });
-      return 0;
+      return { report: preview, code: 0 };
     }
     const applied = applyLifecyclePlan(plan, exec ? { exec } : {});
     const verified = applied.status === "success"
@@ -626,8 +822,7 @@ function runUninstall(options, { io, env, exec }) {
         ? { phase: "plugin_operation", message: applied.error.message }
         : result === "failed" ? { phase: "verification", message: "Global uninstall postcondition was not observed." } : null,
     });
-    printLifecycleResult(report, { json: options.json, io });
-    return result === "success" ? 0 : 1;
+    return { report, code: result === "success" ? 0 : 1 };
   } catch (error) {
     const report = lifecycleFailure({
       operation: "uninstall",
@@ -638,13 +833,15 @@ function runUninstall(options, { io, env, exec }) {
       evidence: [error.evidence ?? error.message],
       nextAction: "Resolve the reported global uninstall precondition, then rerun the uninstall preview before applying changes.",
     });
-    if (options.json) printLifecycleResult(report, { json: true, io });
-    else {
-      io.error(error.message);
-      printLifecycleResult(report, { io });
-    }
-    return 1;
+    return { report, code: 1, error };
   }
+}
+
+function runUninstall(options, { io, env, exec }) {
+  const outcome = executeUninstall(options, { env, exec });
+  if (outcome.error && !options.json) io.error(outcome.error.message);
+  printLifecycleResult(outcome.report, { json: options.json, io });
+  return outcome.code;
 }
 
 function runScaffold(options, io) {
@@ -739,6 +936,9 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     openCodePackageSource: adapters.openCodePackageSource,
     copilotSettingsPath: adapters.copilotSettingsPath,
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
+    askInstallSetupDecision: adapters.askInstallSetupDecision,
+    askInstallSetupScope: adapters.askInstallSetupScope,
+    inspectPluginInstallation: adapters.inspectPluginInstallation,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,
     evaluateStatus: adapters.evaluateStatusOverview,
@@ -754,32 +954,34 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
 
 export const main = runCli;
 
-async function defaultAskRuntimeCheckDecision(disclosure) {
+async function defaultAskRuntimeCheckDecision(disclosure, { language = "en" } = {}) {
   if (process.stdin.isTTY && typeof process.stdin.setRawMode === "function") {
-    return askRuntimeCheckDecisionByKey(process.stdin, process.stdout, disclosure);
+    return askRuntimeCheckDecisionByKey(process.stdin, process.stdout, disclosure, { language });
   }
+  const copy = runtimeCheckInteractionCopy({ language });
   const prompt = createInterface({ input: process.stdin, output: process.stdout });
   try {
     while (true) {
-      const answer = (await prompt.question("Choice (1/2/D/cancel): ")).trim().toLowerCase();
+      const answer = (await prompt.question(copy.linePrompt)).trim().toLowerCase();
       if (["1", "e", "enable"].includes(answer)) return "enable";
       if (["2", "m", "manual"].includes(answer)) return "manual";
       if (["d", "details"].includes(answer)) {
-        for (const line of installConsentTechnicalDetails(disclosure)) process.stdout.write(`${line}\n`);
+        for (const line of installConsentTechnicalDetails(disclosure, language)) process.stdout.write(`${line}\n`);
         continue;
       }
-      if (["c", "cancel"].includes(answer)) return "cancel";
-      process.stdout.write("Press 1, 2 or D, or type cancel.\n");
+      if (["c", "cancel", "abbrechen"].includes(answer)) return "cancel";
+      process.stdout.write(`${copy.lineInvalid}\n`);
     }
   } finally {
     prompt.close();
   }
 }
 
-export async function askRuntimeCheckDecisionByKey(input, output, disclosure) {
+export async function askRuntimeCheckDecisionByKey(input, output, disclosure, { language = "en" } = {}) {
+  const copy = runtimeCheckInteractionCopy({ language });
   const wasRaw = Boolean(input.isRaw);
   emitKeypressEvents(input);
-  output.write("Choice: ");
+  output.write(copy.keyPrompt);
   if (!wasRaw) input.setRawMode(true);
   input.resume();
 
@@ -788,7 +990,7 @@ export async function askRuntimeCheckDecisionByKey(input, output, disclosure) {
       input.off("keypress", onKeypress);
       if (!wasRaw) input.setRawMode(false);
       input.pause();
-      output.write(`${decision}\n`);
+      output.write(`${copy.decisionEcho[decision]}\n`);
       resolve(decision);
     };
     const onKeypress = (character, key = {}) => {
@@ -798,10 +1000,10 @@ export async function askRuntimeCheckDecisionByKey(input, output, disclosure) {
       if (["2", "m"].includes(choice)) return finish("manual");
       if (choice === "c") return finish("cancel");
       if (choice === "d" && disclosure) {
-        output.write(`details\n${installConsentTechnicalDetails(disclosure).join("\n")}Choice: `);
+        output.write(`${copy.detailsEcho}\n${installConsentTechnicalDetails(disclosure, language).join("\n")}${copy.keyPrompt}`);
         return;
       }
-      output.write("\nPress 1, 2, D or Esc.\nChoice: ");
+      output.write(`\n${copy.keyInvalid}\n${copy.keyPrompt}`);
     };
     input.on("keypress", onKeypress);
   });

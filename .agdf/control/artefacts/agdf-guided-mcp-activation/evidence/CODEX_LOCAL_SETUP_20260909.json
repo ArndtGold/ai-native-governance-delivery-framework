@@ -1,0 +1,45 @@
+{
+  "schema_version": "1",
+  "run_id": "agdf-guided-mcp-activation",
+  "observed_on": "2026-09-09",
+  "evidence_source": "user_provided_direct_host_output",
+  "surface": "codex",
+  "setup_result": {
+    "agdf_version": "0.14.5+codex.local-af9fba5dfc8c",
+    "result": "success",
+    "setup_choice": "complete_setup",
+    "effective_state": "configured_restart_pending",
+    "plugin_state": "healthy",
+    "automatic_checks": "host_permission_pending",
+    "mcp_state": "configured_restart_pending",
+    "host_discovery": "pending_restart",
+    "restart_required": true,
+    "failure": "none",
+    "authorizes": false
+  },
+  "mcp_binding": {
+    "scope": "project",
+    "reported_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf"
+  },
+  "findings": [
+    {
+      "finding_id": "GMA-UAT-03",
+      "gap_type": "requirements_gap",
+      "routing_target": "PRD",
+      "gap_status": "open",
+      "observation": "The interactive complete-setup journey did not offer an explicit project-versus-user scope decision."
+    },
+    {
+      "finding_id": "GMA-UAT-04",
+      "gap_type": "implementation_gap",
+      "routing_target": "CD+Tests",
+      "gap_status": "open",
+      "observation": "The local npm-prefix wrapper reported its create-agdf execution directory as the MCP project target instead of the original repository root."
+    }
+  ],
+  "evidence_limits": [
+    "No fresh-session MCP discovery was observed.",
+    "The exact Codex client and operating-system tuple was not captured in the supplied output.",
+    "This evidence does not establish support for any other host, version, scope or platform."
+  ]
+}

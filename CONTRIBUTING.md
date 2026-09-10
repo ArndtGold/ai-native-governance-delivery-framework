@@ -58,6 +58,23 @@ package content, then requires an app restart. The npm
 fallback requires Node.js 22 or later. OpenCode installs a marker-owned
 local package built from this checkout instead of resolving the public npm package.
 
+On an interactive terminal, each local install command first shows the plugin state, the target
+proposed from npm's invocation directory and read-only MCP status for project and user scope. It
+then asks whether AGDF should set up the local MCP server. The choices are **Complete setup**,
+**Plugin only** and **Cancel**; none is preselected. Complete setup opens a separate **Project**,
+**User** or **Back** choice with no default. Back returns without mutation, and only the selected
+available scope is registered. The command installs and verifies the plugin, then packs
+`create-agdf` and `@agdf/mcp-server` from this checkout and registers that exact local runtime. It
+does not resolve either AGDF package from the npm registry. Plugin only,
+non-interactive installation without `--with-mcp`, and cancel do not prepare or register MCP.
+Use `--with-mcp --dir /absolute/path/to/repository` only when a non-interactive local test should
+perform the complete setup explicitly.
+
+The local wrapper treats a present `INIT_CWD` as authoritative only when it is an absolute existing
+directory. It resolves the real path before `release:prepare`. If `INIT_CWD` is absent, the process
+working directory is validated the same way. Invalid invocation context stops with
+`AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before generated files or host configuration can change.
+
 Do not register the repository root or `plugin/` directly as a Codex or Claude marketplace. The
 commands above build one complete runtime-bearing plugin, stage it in the AGDF-owned durable
 marketplace and attach installation provenance before invoking the host CLI.

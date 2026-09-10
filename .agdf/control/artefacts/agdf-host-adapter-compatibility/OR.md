@@ -1,34 +1,48 @@
 # Orchestration Report
 
 Run: agdf-host-adapter-compatibility
-Revision: 2
-Date: 2026-09-05
+Revision: 4
+Date: 2026-09-09
 
 ## OR
 
-- gate: QA, awaiting exact user approval
-- report_mode: OR-full for the approved implementation and review scope
+- gate: UAT, awaiting human review and exact UAT approval
+- report_mode: OR-full for the approved deterministic evidence refresh
 - artefact: .agdf/control/artefacts/agdf-host-adapter-compatibility/OR.md
-- status: pass, from qa-gate; user QA/UAT approval remains missing
-- delivered: Private native host ownership, preserved shared policies/facades, one common compatibility
-  suite and evidence evaluator, dated generated comparison, explicit capability/native gaps, package
-  closure checks and existing installation/handbook/site/community-health integration.
-- intentionally_not_delivered: Live host provisioning/restart, native support certification,
-  new enforcement/permission mechanisms, public CLI/schema changes, host protocol redesign,
-  unrelated run closeout, human UAT, commit/push/PR, package release or site publication.
+- status: QA Report Revision 3 pass and exact user QA approval accepted; UAT remains pending
+- delivered: Fresh source-bound compatibility comparison and immutable 56-scenario observations;
+  64 evidence checks, 30 current verification groups and release preparation pass; Code/Clean/TP
+  reviews and QA Report Revision 3 refreshed; all twelve tasks remain fulfilled. Exact QA approval
+  is recorded with its revision/content identity; UAT_PREPARATION.md supplies five pending human checks.
+- intentionally_not_delivered: Other run implementations or closeout, native-host certification,
+  fresh sessions, native Windows, human UAT, host lifecycle mutation, commit, push, PR, publication or release.
 - evidence: CD_TESTS.md; CODE_REVIEW.md; CLEAN_IMPLEMENTATION_REVIEW.md; TASK_PLAN_REVIEW.md;
-  QA_REPORT.md; evidence/FINAL_VERIFICATION.json; docs/compatibility/HOST_COMPATIBILITY.md.
-- missing_evidence: Current native installed/fresh-host and human-UAT proof; explicitly unverified
-  in the report. QA and UAT user approvals are absent.
-- risks: Host/version/OS drift and evidence staleness. Exact report checks must pass after source changes.
-  No universal technical enforcement follows from skills, trust or deterministic fixture results.
-- retained_fallbacks: Existing native migration, bounded cache retry, packaged CLI/manual handoff,
-  restoration and unknown-surface compatibility behavior. Clean Review records rationale and exit:
-  replacement needs a separately approved change with matching native and recovery evidence.
-- required_next_step: Request exact Approval: QA for this selected run/revision.
-- quality_outlook: The approved deterministic comparison/refactor slice passes QA with 12/12 tasks
-  covered; fresh host and human acceptance remain distinct future evidence obligations.
-- delivery_closeout_next: no; operative Git handoff is not yet allowed by missing QA/UAT approvals.
+  QA_REPORT.md; evidence/COMPATIBILITY_REFRESH_20260909.json; evidence/QA_APPROVAL_20260909.json;
+  UAT_PREPARATION.md; docs/compatibility/HOST_COMPATIBILITY.md.
+- missing_evidence: Native installed/fresh-host, native Windows, GitHub-hosted Ubuntu rerun and human UAT
+  remain explicitly unverified within the approved comparison scope. Exact UAT approval is absent.
+- risks: Later source/payload changes invalidate the dated comparison. One initial local-install
+  content-ID assertion mismatch did not reproduce in the complete rerun without source/test edits;
+  the original failure is retained and its exact cause remains unestablished. No native proof is inferred.
+- retained_fallbacks: Existing Codex registration restoration, Claude bounded cache retry, Copilot
+  manual handoff/prior-state restoration, OpenCode retry and unknown-surface facade behavior remain
+  unchanged. Replacement requires a separately approved change with matching native/recovery proof.
+- required_next_step: Human reviews UAT_PREPARATION.md and the supplied report, then decides on Approval: UAT.
+- quality_outlook: Stale compatibility evidence has been replaced by fresh executed observations;
+  all final required results pass for the current recorded snapshot.
+- delivery_closeout_next: no; exact UAT approval remains a separate prerequisite.
+
+## Scope and historical evidence
+
+The prior accepted raw observation file and all 36 historical observations remain intact. The
+comparison recorder, evaluator and assertions were reused without changes. The current 16-file
+participating dependency delta was reviewed within compatibility scope. Separately owned guided
+installation and dispatcher changes are regression inputs and retain their own delivery authority.
+
+The original private host-owner refactor and CI prerequisite correction remain recorded in
+FINAL_VERIFICATION.json, VERIFICATION_HISTORY.json and CI_CHECK_ORDER.json. Their local clean-clone
+proof remains historical; no new GitHub-hosted result is claimed. QA Revision 2 and the earlier
+rejected Approval: QA are not silently promoted to approval of the newly evidenced Revision 3.
 
 ## Knowledge and Context Graph
 
@@ -37,51 +51,23 @@ Date: 2026-09-05
 - context_graph_reconciliation: resolved
 - context_graph_required_action: link
 - context_graph_gate_effect: none
-- context_graph_evidence: Updated existing owner/evidence links in CONTEXT_GRAPH.md and SOT_REGISTRY.md;
-  approved SD/TP identify protected dispatch/interaction owners.
+- context_graph_evidence: Existing Context Graph/SoT links still reference the same refreshed
+  CD_TESTS.md and QA_REPORT.md and canonical owners. Evidence refresh requires no new node.
 - memory_target: scope_artifact
-- memory_reason: Preserve exact run evidence and review outcomes, with reusable owner links in existing project control.
-- memory_refs: This artefact directory; CONTEXT_GRAPH.md; SOT_REGISTRY.md
+- memory_reason: Retain current identities, executed results, original failure and native limits in this run.
+- memory_refs: evidence/COMPATIBILITY_REFRESH_20260909.json; this report.
 
 ## Evaluated coordination
 
-The installed version-matched Delivery Map evaluated the following objects for this run. No parent
-relationship was inferred and no other run was modified.
+The selected canonical control evaluation reports parent_reconciliation.outcome: not_applicable.
+No relationship was inferred and no parent was changed. Programme aggregation is not applicable.
+Final evaluated objects and selected-run control readback are retained in the refresh evidence.
 
-```json
-{
-  "parent_reconciliation": {
-    "outcome": "not_applicable",
-    "target_run_id": "",
-    "disposition": "not_applicable",
-    "evidence": "",
-    "missing_evidence": "none",
-    "next_action": "none"
-  },
-  "programme_aggregation": {
-    "applicable": false,
-    "startable": false,
-    "final_ready": false,
-    "acceptance_ref": "",
-    "evidence": [],
-    "missing_evidence": [],
-    "next_action": "none"
-  }
-}
-```
+## QA approval and UAT preparation
 
-Next permissible step: exact Approval: QA, then the canonical UAT step.
+Exact `Approval: QA` accepted on 2026-09-09T08:46:43.047Z for QA Report Revision 3 after same-run/gate/revision revalidation of revision 9 (f13a6fb9-e77b-4e5c-b55c-a88fe8280820). QA SHA-256 ffec24638b226d873563f3fb19d95e9103674e8bf273dbab1989286c09c26768; source fingerprint dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734. See evidence/QA_APPROVAL_20260909.json.
 
-## CI correction handoff
+The approved QA Report remains unchanged. UAT_PREPARATION.md records only pending human checks,
+not a completed human review. Native capability gaps retain their existing evidence status.
 
-The existing guardrails workflow now prepares release assets before source runtime integrity and
-community-health compatibility validation. Its prior order failed in an initially ungenerated
-clone. The corrected sequence and CLI smoke pass there, and two order reversals fail as expected.
-Focused Code/Clean/TP reviews and QA Report Revision 2 pass for this repository correction.
-Evidence: `evidence/CI_CHECK_ORDER.json`. No source or observation was refreshed to conceal drift.
-An actual GitHub-hosted Ubuntu rerun remains unobserved. No agent commit, push, installation or
-release occurred. QA/UAT user approvals remain separate and missing.
-
-## Final control validation
-
-The installed version-matched AGDF 0.14.5 validator confirms QA as the current gate with zero selected-run findings. All-active findings are identical to the prior baseline: 55 warnings, one unrelated revise finding and no blockers. The read-only compatibility check and diff check pass after report/control updates. Evidence: evidence/CONTROL_VALIDATION.json; evidence/FINAL_VERIFICATION.json. These compact records replace redundant full CLI exports and console logs after user-authorized cleanup.
+Next permissible step: human UAT of the supplied report and its relevant workflow, followed by the exact UAT decision.

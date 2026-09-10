@@ -14,6 +14,282 @@
   },
   "locales": {
     "en": {
+      "installSetup": {
+        "title": "AGDF installation setup",
+        "choicePrompt": "Set up the local MCP server? (1-3): ",
+        "invalidChoice": "Choose exactly 1, 2 or 3.",
+        "emptyChoice": "No choice was made. Choose 1, 2 or 3.",
+        "blockedChoice": "Complete setup is unavailable: {reason}",
+        "scopeTitle": "Choose the MCP registration scope",
+        "scopeChoicePrompt": "Choose MCP scope (1-3): ",
+        "invalidScopeChoice": "Choose exactly 1, 2 or 3.",
+        "emptyScopeChoice": "No scope was selected. Choose 1, 2 or 3.",
+        "blockedScopeChoice": "This scope is unavailable: {reason}",
+        "labels": {
+          "surface": "Host",
+          "version": "AGDF version",
+          "plugin": "Plugin state",
+          "mcp": "MCP state",
+          "target": "MCP target",
+          "targetSource": "Target source",
+          "invocationContext": "Invocation and precedence context",
+          "invocationDirectorySource": "Invocation directory source",
+          "scope": "MCP scope",
+          "selectedStatus": "Selected registration",
+          "effectiveSource": "Effective configuration source",
+          "registrationPath": "Native configuration source",
+          "pluginConfiguration": "Plugin configuration",
+          "localExecution": "Local execution",
+          "packageAcquisition": "Package acquisition",
+          "removal": "Safe removal",
+          "authorizes": "Grants governance authority",
+          "result": "Result",
+          "setupRequest": "Setup choice",
+          "effectiveState": "Effective state",
+          "runtimeChecks": "Automatic checks",
+          "discovery": "Host discovery",
+          "restart": "Restart required",
+          "failure": "Failure",
+          "nextAction": "Next action"
+        },
+        "choices": {
+          "full": "Complete setup",
+          "fullDescription": "Install the plugin, prepare the local AGDF MCP server and register it for the shown target and scope.",
+          "plugin_only": "Plugin only",
+          "pluginOnlyDescription": "Install the plugin and leave every MCP registration unchanged.",
+          "cancel": "Cancel",
+          "cancelDescription": "Stop before installation or MCP changes.",
+          "recommended": "recommended"
+        },
+        "scopeChoices": {
+          "project": "Set up for this project",
+          "projectDescription": "Register AGDF for the shown project. This project configuration has native priority over a user default.",
+          "user": "Set up for this user",
+          "userDescription": "Register AGDF once as the host user default. A project configuration can override it.",
+          "back": "Back",
+          "backDescription": "Return to the setup choice without making changes.",
+          "existing": "currently configured"
+        },
+        "values": {
+          "yes": "yes",
+          "no": "no",
+          "none": "none",
+          "required": "required",
+          "not_required": "not required",
+          "expectedVersion": "expected {version}"
+        },
+        "targetSources": {
+          "explicit_dir": "explicit --dir",
+          "interactive_invocation_cwd_proposal": "original invocation directory proposal",
+          "interactive_invocation_cwd_selection": "selected original invocation directory",
+          "none": "none"
+        },
+        "invocationDirectorySources": {
+          "explicit_dir": "explicit --dir",
+          "npm_init_cwd": "original npm invocation directory",
+          "process_cwd": "current process directory",
+          "none": "none"
+        },
+        "pluginStates": {
+          "observed": "observed",
+          "healthy": "healthy",
+          "degraded": "degraded",
+          "not_installed": "not installed",
+          "unavailable": "unavailable",
+          "unknown": "unknown",
+          "not_run": "not run"
+        },
+        "mcpStates": {
+          "not_requested": "not requested",
+          "not_checked": "not checked",
+          "not_configured": "not configured",
+          "configured_pending_restart": "configured, restart pending",
+          "configured_unverified": "configured, discovery unverified",
+          "discovered_ready": "discovered and ready",
+          "unchanged": "unchanged",
+          "disabled": "disabled",
+          "degraded": "degraded",
+          "failed": "failed"
+        },
+        "scopes": {
+          "project": "project",
+          "user": "user"
+        },
+        "registrationStates": {
+          "absent": "absent",
+          "matched": "matched",
+          "foreign": "foreign",
+          "owned_mismatch": "AGDF-owned version mismatch",
+          "precedence_conflict": "higher-priority conflict",
+          "invalid": "invalid"
+        },
+        "effectiveSources": {
+          "none": "none",
+          "unknown": "unknown",
+          "user": "user configuration",
+          "project": "project configuration",
+          "project_override": "project override",
+          "local": "local project configuration",
+          "shared_project": "shared project configuration",
+          "inline": "inline configuration",
+          "custom": "custom configuration"
+        },
+        "versionTransitions": {
+          "installed": "installed",
+          "updated": "updated",
+          "unchanged": "unchanged",
+          "unknown": "transition unknown"
+        },
+        "runtimeCheckStates": {
+          "not_run": "not run",
+          "not_checked": "not checked",
+          "cancelled": "cancelled",
+          "manual": "manual",
+          "decision_required": "host permission pending",
+          "enabled": "enabled",
+          "renewal_required": "review required",
+          "degraded": "degraded",
+          "failed": "failed",
+          "unavailable": "unavailable",
+          "receipt_missing": "choice record missing",
+          "receipt_unowned": "choice record not owned by AGDF",
+          "receipt_invalid": "choice record invalid",
+          "unknown": "unknown"
+        },
+        "setupRequests": {
+          "plugin_only": "plugin only",
+          "full": "complete setup",
+          "cancel": "cancel"
+        },
+        "results": {
+          "success": "success",
+          "partial": "partial",
+          "failed": "failed",
+          "cancelled": "cancelled"
+        },
+        "effectiveStates": {
+          "cancelled": "cancelled before changes",
+          "plugin_ready_mcp_absent": "plugin ready, MCP absent",
+          "plugin_ready_mcp_unchanged": "plugin ready, MCP unchanged",
+          "configured_pending_restart": "configured, restart pending",
+          "configured_unverified": "configured, discovery unverified",
+          "discovered_ready": "discovered and ready",
+          "partial": "partially completed",
+          "degraded_or_foreign": "MCP degraded or foreign",
+          "failed": "failed"
+        },
+        "discoveryStates": {
+          "not_checked": "not checked",
+          "pending_restart": "pending restart",
+          "discovered": "discovered"
+        },
+        "failurePhases": {
+          "input_validation": "input validation",
+          "setup_preflight": "setup preflight",
+          "setup_selection": "setup selection",
+          "runtime_check_permission": "automatic-check choice",
+          "plugin_operation": "plugin operation",
+          "plugin_verification": "plugin verification",
+          "mcp_preflight": "MCP preflight",
+          "mcp_enable": "MCP enable",
+          "mcp_disable": "MCP disable",
+          "plugin_disable": "plugin disable",
+          "plugin_uninstall": "plugin uninstall",
+          "result_validation": "result validation",
+          "presentation": "presentation"
+        },
+        "failureCodes": {
+          "input_invalid": "invalid input",
+          "setup_preflight_failed": "setup preflight failed",
+          "setup_selection_blocked": "setup choice blocked",
+          "runtime_check_permission_failed": "automatic-check choice failed",
+          "plugin_operation_failed": "plugin operation failed",
+          "plugin_verification_failed": "plugin verification failed",
+          "mcp_preflight_failed": "MCP preflight failed",
+          "mcp_enable_failed": "MCP enable failed",
+          "mcp_disable_failed": "MCP disable failed",
+          "plugin_disable_failed": "plugin disable failed",
+          "plugin_uninstall_failed": "plugin uninstall failed",
+          "result_invalid": "invalid setup result",
+          "presentation_failed": "presentation failed"
+        },
+        "actions": {
+          "none": "No further action is required.",
+          "cancelled": "No changes were made. Start setup again when ready.",
+          "restart_host": "Restart the host and start a fresh session.",
+          "verify_host_discovery": "Start a fresh host session and verify AGDF MCP discovery.",
+          "retry_plugin": "Resolve the plugin failure, then rerun the same installation command with --verbose.",
+          "retry_mcp": "Keep the installed plugin, resolve the MCP failure and retry complete setup.",
+          "resolve_mcp_registration": "Resolve the conflicting MCP registration before complete setup.",
+          "review_runtime_checks": "Review the automatic-check state and retry setup.",
+          "choose_plugin_only_or_cancel": "Choose plugin only or cancel; complete setup is blocked."
+        },
+        "blockReasons": {
+          "none": "none",
+          "target_required": "an absolute MCP target is required",
+          "mcp_foreign": "the MCP registration is foreign",
+          "mcp_precedence_conflict": "a higher-priority registration conflicts",
+          "mcp_invalid": "the MCP registration is invalid",
+          "mcp_preflight_failed": "the MCP preflight failed"
+        },
+        "restartReasons": {
+          "plugin_reload": "plugin reload",
+          "mcp_discovery": "MCP discovery"
+        },
+        "runtimeConsent": {
+          "title": "AGDF {version} for {host}",
+          "appliesTo": "Applies to this {host} installation for your user account.",
+          "question": "Let AGDF check your project status automatically at session start?",
+          "previousEnabled": "Your previous choice: automatic checks requested",
+          "previousManual": "Your previous choice: manual checks",
+          "permissionAfterInstall": "{host} permission: checked after installation",
+          "safeTitle": "Safe by design",
+          "reads": "  Reads only AGDF runtime information and .agdf/control in this project",
+          "noProjectChanges": "  Changes no project files and uses no network",
+          "noGovernanceAuthority": "  Never approves AGDF work",
+          "savesChoice": "AGDF saves your choice. {host} remains in control of permission.",
+          "chooseAgain": "You choose again for every install or update and whenever the check changes.",
+          "turnOff": "Turn it off anytime: {revocation}",
+          "chooseTitle": "Choose",
+          "enableChoice": "  [1] Yes, check automatically",
+          "manualChoice": "  [2] No automatic checks",
+          "manualDescription": "      AGDF still works. Checks run when you request them.",
+          "detailsChoice": "  [D] Show technical details",
+          "cancelChoice": "  [Esc] Cancel installation",
+          "progress": "Setting up AGDF {version} for {host}...",
+          "linePrompt": "Choice (1/2/D/cancel): ",
+          "lineInvalid": "Choose 1, 2 or D, or type cancel.",
+          "keyPrompt": "Choice: ",
+          "keyInvalid": "Press 1, 2, D or Esc.",
+          "detailsEcho": "details",
+          "decisionEcho": {
+            "enable": "enable",
+            "manual": "manual",
+            "cancel": "cancel"
+          },
+          "detailsTitle": "Technical details",
+          "detailsInstallationScope": "global user installation",
+          "detailsRuns": "one argument-free local session check at session start",
+          "detailsReads": "AGDF runtime identity and .agdf/control state in the current repository",
+          "detailsWrites": "one AGDF-owned intent receipt and, where supported, one exact host permission rule",
+          "detailsRenewal": "material command, runtime, source, scope or adapter identity change requires renewed consent",
+          "detailsLabels": {
+            "appliesTo": "Applies to",
+            "runs": "Runs",
+            "reads": "Reads",
+            "saves": "Saves",
+            "permissionControl": "Permission control",
+            "command": "Command",
+            "renewal": "Renewal"
+          },
+          "permissionOwners": {
+            "codex": "Codex native hook trust",
+            "claude": "Claude Code user permission settings",
+            "copilot": "GitHub Copilot plugin hook review",
+            "opencode": "OpenCode plugin and explicit permission configuration"
+          }
+        }
+      },
       "statusCard": {
         "title": "AGDF status-card",
         "status": "Status",
@@ -423,10 +699,10 @@
           "authorizes": "Authorizes",
           "runtime": "Runtime",
           "registration": "Registration",
-        "discovery": "Discovery",
-        "permissionEffect": "Process access",
-        "diagnostics": "Diagnostics",
-        "nextAction": "Next action",
+          "discovery": "Discovery",
+          "permissionEffect": "Process access",
+          "diagnostics": "Diagnostics",
+          "nextAction": "Next action",
           "fallback": "Compatible path"
         },
         "capabilities": {
@@ -465,29 +741,29 @@
           "project": "selected project only",
           "user": "current user across projects"
         },
-      "permissionEffects": {
-        "inherited_host_user": "The MCP process inherits the host user permissions."
-      },
-      "diagnostics": {
-        "none": "none",
-        "registration_inspection_failed": "The selected registration could not be inspected.",
-        "rollback_incomplete": "Rollback did not restore every applied lifecycle phase.",
-        "agdf_mcp_registration_foreign": "The selected registration is not owned by AGDF.",
-        "agdf_mcp_registration_precedence_conflict": "A higher-priority registration conflicts with the selected source.",
-        "agdf_mcp_registration_verification_failed": "Registration read-back did not match the intended state.",
-        "agdf_mcp_disable_verification_failed": "Registration removal could not be verified.",
-        "agdf_mcp_package_acquisition_failed": "The exact MCP server package could not be acquired.",
-        "agdf_mcp_runtime_unowned": "The runtime location contains content that AGDF cannot verify as owned.",
-        "agdf_mcp_server_manifest_invalid": "The MCP server package manifest is invalid.",
-        "agdf_mcp_dispatcher_manifest_invalid": "The dispatcher package manifest is invalid.",
-        "agdf_mcp_sdk_manifest_invalid": "The MCP SDK package manifest is invalid.",
-        "agdf_mcp_server_version_mismatch": "The acquired MCP runtime does not match the required versions.",
-        "agdf_mcp_server_entrypoint_invalid": "The MCP server entrypoint is missing or invalid.",
-        "agdf_mcp_server_verification_failed": "The installed MCP runtime failed exact verification.",
-        "agdf_mcp_claude_update_rollback_failed": "Claude Code could not restore the previous registration during update.",
-        "enable_failed": "MCP enablement failed.",
-        "disable_failed": "MCP disablement failed."
-      },
+        "permissionEffects": {
+          "inherited_host_user": "The MCP process inherits the host user permissions."
+        },
+        "diagnostics": {
+          "none": "none",
+          "registration_inspection_failed": "The selected registration could not be inspected.",
+          "rollback_incomplete": "Rollback did not restore every applied lifecycle phase.",
+          "agdf_mcp_registration_foreign": "The selected registration is not owned by AGDF.",
+          "agdf_mcp_registration_precedence_conflict": "A higher-priority registration conflicts with the selected source.",
+          "agdf_mcp_registration_verification_failed": "Registration read-back did not match the intended state.",
+          "agdf_mcp_disable_verification_failed": "Registration removal could not be verified.",
+          "agdf_mcp_package_acquisition_failed": "The exact MCP server package could not be acquired.",
+          "agdf_mcp_runtime_unowned": "The runtime location contains content that AGDF cannot verify as owned.",
+          "agdf_mcp_server_manifest_invalid": "The MCP server package manifest is invalid.",
+          "agdf_mcp_dispatcher_manifest_invalid": "The dispatcher package manifest is invalid.",
+          "agdf_mcp_sdk_manifest_invalid": "The MCP SDK package manifest is invalid.",
+          "agdf_mcp_server_version_mismatch": "The acquired MCP runtime does not match the required versions.",
+          "agdf_mcp_server_entrypoint_invalid": "The MCP server entrypoint is missing or invalid.",
+          "agdf_mcp_server_verification_failed": "The installed MCP runtime failed exact verification.",
+          "agdf_mcp_claude_update_rollback_failed": "Claude Code could not restore the previous registration during update.",
+          "enable_failed": "MCP enablement failed.",
+          "disable_failed": "MCP disablement failed."
+        },
         "actions": {
           "use_node_20": "Use Node.js 20 or later and retry.",
           "install_host": "Install a supported host and retry.",
@@ -496,15 +772,291 @@
           "restart_host": "Restart the host and verify discovery in a fresh session.",
           "version_matched_cli_dispatch": "Use the version-matched AGDF CLI skill-dispatch path.",
           "resolve_failure": "Resolve the reported lifecycle failure and retry.",
-        "resolve_precedence": "Resolve the higher-priority registration and retry.",
-        "disable_effective_scope": "Disable the remaining effective MCP registration explicitly in its scope.",
-        "inspect_effective_scope": "Inspect the remaining effective user registration with --scope user.",
-        "retry": "Retry the same explicit lifecycle action.",
+          "resolve_precedence": "Resolve the higher-priority registration and retry.",
+          "disable_effective_scope": "Disable the remaining effective MCP registration explicitly in its scope.",
+          "inspect_effective_scope": "Inspect the remaining effective user registration with --scope user.",
+          "retry": "Retry the same explicit lifecycle action.",
           "none": "No further lifecycle action is required."
         }
       }
     },
     "de": {
+      "installSetup": {
+        "title": "AGDF-Installation einrichten",
+        "choicePrompt": "Lokalen MCP-Server einrichten? (1-3): ",
+        "invalidChoice": "Wählen Sie genau 1, 2 oder 3.",
+        "emptyChoice": "Keine Auswahl getroffen. Wählen Sie 1, 2 oder 3.",
+        "blockedChoice": "Vollständige Einrichtung nicht verfügbar: {reason}",
+        "scopeTitle": "MCP-Registrierungsbereich auswählen",
+        "scopeChoicePrompt": "MCP-Bereich wählen (1-3): ",
+        "invalidScopeChoice": "Wählen Sie genau 1, 2 oder 3.",
+        "emptyScopeChoice": "Kein Bereich gewählt. 1, 2 oder 3.",
+        "blockedScopeChoice": "Bereich nicht verfügbar: {reason}",
+        "labels": {
+          "surface": "Host",
+          "version": "AGDF-Version",
+          "plugin": "Plugin-Zustand",
+          "mcp": "MCP-Zustand",
+          "target": "MCP-Ziel",
+          "targetSource": "Zielquelle",
+          "invocationContext": "Aufruf- und Prioritätskontext",
+          "invocationDirectorySource": "Quelle des Aufrufverzeichnisses",
+          "scope": "MCP-Bereich",
+          "selectedStatus": "Ausgewählte Registrierung",
+          "effectiveSource": "Wirksame Konfigurationsquelle",
+          "registrationPath": "Native Konfigurationsquelle",
+          "pluginConfiguration": "Plugin-Konfiguration",
+          "localExecution": "Lokale Ausführung",
+          "packageAcquisition": "Paketbezug",
+          "removal": "Sichere Entfernung",
+          "authorizes": "Erteilt Governance-Befugnis",
+          "result": "Ergebnis",
+          "setupRequest": "Setup-Auswahl",
+          "effectiveState": "Wirksamer Zustand",
+          "runtimeChecks": "Automatische Prüfungen",
+          "discovery": "Host-Erkennung",
+          "restart": "Neustart erforderlich",
+          "failure": "Fehler",
+          "nextAction": "Nächste Aktion"
+        },
+        "choices": {
+          "full": "Vollständig einrichten",
+          "fullDescription": "Plugin installieren, den lokalen AGDF-MCP-Server bereitstellen und für das gezeigte Ziel und den Bereich registrieren.",
+          "plugin_only": "Nur Plugin",
+          "pluginOnlyDescription": "Plugin installieren und alle MCP-Registrierungen unverändert lassen.",
+          "cancel": "Abbrechen",
+          "cancelDescription": "Vor Installation oder MCP-Änderungen stoppen.",
+          "recommended": "empfohlen"
+        },
+        "scopeChoices": {
+          "project": "Für dieses Projekt einrichten",
+          "projectDescription": "AGDF für das gezeigte Projekt registrieren. Diese Projektkonfiguration hat native Priorität vor einem Benutzerstandard.",
+          "user": "Benutzerweit einrichten",
+          "userDescription": "AGDF einmal als Benutzerstandard des Hosts registrieren. Eine Projektkonfiguration kann ihn übersteuern.",
+          "back": "Zurück",
+          "backDescription": "Ohne Änderungen zur Setup-Auswahl zurückkehren.",
+          "existing": "derzeit konfiguriert"
+        },
+        "values": {
+          "yes": "ja",
+          "no": "nein",
+          "none": "keine",
+          "required": "erforderlich",
+          "not_required": "nicht erforderlich",
+          "expectedVersion": "erwartet {version}"
+        },
+        "targetSources": {
+          "explicit_dir": "ausdrückliches --dir",
+          "interactive_invocation_cwd_proposal": "Vorschlag aus npm-Aufrufverzeichnis",
+          "interactive_invocation_cwd_selection": "gewähltes npm-Aufrufverzeichnis",
+          "none": "keine"
+        },
+        "invocationDirectorySources": {
+          "explicit_dir": "ausdrückliches --dir",
+          "npm_init_cwd": "ursprüngliches npm-Aufrufverzeichnis",
+          "process_cwd": "aktuelles Prozessverzeichnis",
+          "none": "keine"
+        },
+        "pluginStates": {
+          "observed": "beobachtet",
+          "healthy": "gesund",
+          "degraded": "beeinträchtigt",
+          "not_installed": "nicht installiert",
+          "unavailable": "nicht verfügbar",
+          "unknown": "unbekannt",
+          "not_run": "nicht ausgeführt"
+        },
+        "mcpStates": {
+          "not_requested": "nicht angefordert",
+          "not_checked": "nicht geprüft",
+          "not_configured": "nicht konfiguriert",
+          "configured_pending_restart": "konfiguriert, Neustart ausstehend",
+          "configured_unverified": "konfiguriert, Erkennung ungeprüft",
+          "discovered_ready": "erkannt und bereit",
+          "unchanged": "unverändert",
+          "disabled": "deaktiviert",
+          "degraded": "beeinträchtigt",
+          "failed": "fehlgeschlagen"
+        },
+        "scopes": {
+          "project": "Projekt",
+          "user": "Benutzerkonto"
+        },
+        "registrationStates": {
+          "absent": "nicht vorhanden",
+          "matched": "passend",
+          "foreign": "fremd",
+          "owned_mismatch": "AGDF-eigene Versionsabweichung",
+          "precedence_conflict": "Konflikt mit höherer Priorität",
+          "invalid": "ungültig"
+        },
+        "effectiveSources": {
+          "none": "keine",
+          "unknown": "unbekannt",
+          "user": "Benutzerkonfiguration",
+          "project": "Projektkonfiguration",
+          "project_override": "Projektüberschreibung",
+          "local": "lokale Projektkonfiguration",
+          "shared_project": "gemeinsame Projektkonfiguration",
+          "inline": "Inline-Konfiguration",
+          "custom": "benutzerdefinierte Konfiguration"
+        },
+        "versionTransitions": {
+          "installed": "installiert",
+          "updated": "aktualisiert",
+          "unchanged": "unverändert",
+          "unknown": "Übergang unbekannt"
+        },
+        "runtimeCheckStates": {
+          "not_run": "nicht ausgeführt",
+          "not_checked": "nicht geprüft",
+          "cancelled": "abgebrochen",
+          "manual": "manuell",
+          "decision_required": "Host-Berechtigung ausstehend",
+          "enabled": "aktiviert",
+          "renewal_required": "erneute Prüfung erforderlich",
+          "degraded": "beeinträchtigt",
+          "failed": "fehlgeschlagen",
+          "unavailable": "nicht verfügbar",
+          "receipt_missing": "Auswahlnachweis fehlt",
+          "receipt_unowned": "Auswahlnachweis gehört nicht AGDF",
+          "receipt_invalid": "Auswahlnachweis ist ungültig",
+          "unknown": "unbekannt"
+        },
+        "setupRequests": {
+          "plugin_only": "nur Plugin",
+          "full": "vollständige Einrichtung",
+          "cancel": "abbrechen"
+        },
+        "results": {
+          "success": "erfolgreich",
+          "partial": "teilweise erfolgreich",
+          "failed": "fehlgeschlagen",
+          "cancelled": "abgebrochen"
+        },
+        "effectiveStates": {
+          "cancelled": "vor Änderungen abgebrochen",
+          "plugin_ready_mcp_absent": "Plugin bereit, MCP fehlt",
+          "plugin_ready_mcp_unchanged": "Plugin bereit, MCP unverändert",
+          "configured_pending_restart": "konfiguriert, Neustart ausstehend",
+          "configured_unverified": "konfiguriert, Erkennung ungeprüft",
+          "discovered_ready": "erkannt und bereit",
+          "partial": "teilweise abgeschlossen",
+          "degraded_or_foreign": "MCP beeinträchtigt oder fremd",
+          "failed": "fehlgeschlagen"
+        },
+        "discoveryStates": {
+          "not_checked": "nicht geprüft",
+          "pending_restart": "Neustart ausstehend",
+          "discovered": "erkannt"
+        },
+        "failurePhases": {
+          "input_validation": "Eingabeprüfung",
+          "setup_preflight": "Setup-Vorprüfung",
+          "setup_selection": "Setup-Auswahl",
+          "runtime_check_permission": "Auswahl automatischer Prüfungen",
+          "plugin_operation": "Plugin-Operation",
+          "plugin_verification": "Plugin-Prüfung",
+          "mcp_preflight": "MCP-Vorprüfung",
+          "mcp_enable": "MCP-Aktivierung",
+          "mcp_disable": "MCP-Deaktivierung",
+          "plugin_disable": "Plugin-Deaktivierung",
+          "plugin_uninstall": "Plugin-Deinstallation",
+          "result_validation": "Ergebnisprüfung",
+          "presentation": "Darstellung"
+        },
+        "failureCodes": {
+          "input_invalid": "ungültige Eingabe",
+          "setup_preflight_failed": "Setup-Vorprüfung fehlgeschlagen",
+          "setup_selection_blocked": "Setup-Auswahl gesperrt",
+          "runtime_check_permission_failed": "Prüfauswahl fehlgeschlagen",
+          "plugin_operation_failed": "Plugin-Operation fehlgeschlagen",
+          "plugin_verification_failed": "Plugin-Prüfung fehlgeschlagen",
+          "mcp_preflight_failed": "MCP-Vorprüfung fehlgeschlagen",
+          "mcp_enable_failed": "MCP-Aktivierung fehlgeschlagen",
+          "mcp_disable_failed": "MCP-Deaktivierung fehlgeschlagen",
+          "plugin_disable_failed": "Plugin-Deaktivierung fehlgeschlagen",
+          "plugin_uninstall_failed": "Plugin-Deinstallation fehlgeschlagen",
+          "result_invalid": "ungültiges Setup-Ergebnis",
+          "presentation_failed": "Darstellung fehlgeschlagen"
+        },
+        "actions": {
+          "none": "Keine weitere Aktion erforderlich.",
+          "cancelled": "Keine Änderung wurde vorgenommen. Starten Sie das Setup bei Bedarf erneut.",
+          "restart_host": "Starten Sie den Host neu und öffnen Sie eine neue Sitzung.",
+          "verify_host_discovery": "Öffnen Sie eine neue Host-Sitzung und prüfen Sie die AGDF-MCP-Erkennung.",
+          "retry_plugin": "Beheben Sie den Plugin-Fehler und wiederholen Sie denselben Installationsbefehl mit --verbose.",
+          "retry_mcp": "Behalten Sie das Plugin, beheben Sie den MCP-Fehler und wiederholen Sie das vollständige Setup.",
+          "resolve_mcp_registration": "Klären Sie die kollidierende MCP-Registrierung vor dem vollständigen Setup.",
+          "review_runtime_checks": "Prüfen Sie den Zustand automatischer Prüfungen und wiederholen Sie das Setup.",
+          "choose_plugin_only_or_cancel": "Wählen Sie nur Plugin oder Abbruch; das vollständige Setup ist gesperrt."
+        },
+        "blockReasons": {
+          "none": "keiner",
+          "target_required": "ein absolutes MCP-Ziel ist erforderlich",
+          "mcp_foreign": "die MCP-Registrierung ist fremd",
+          "mcp_precedence_conflict": "eine höherrangige Registrierung kollidiert",
+          "mcp_invalid": "die MCP-Registrierung ist ungültig",
+          "mcp_preflight_failed": "die MCP-Vorprüfung ist fehlgeschlagen"
+        },
+        "restartReasons": {
+          "plugin_reload": "Plugin neu laden",
+          "mcp_discovery": "MCP-Erkennung"
+        },
+        "runtimeConsent": {
+          "title": "AGDF {version} für {host}",
+          "appliesTo": "Gilt für diese {host}-Installation Ihres Benutzerkontos.",
+          "question": "Soll AGDF Ihren Projektstatus bei Sitzungsbeginn automatisch prüfen?",
+          "previousEnabled": "Ihre bisherige Auswahl: automatische Prüfungen angefordert",
+          "previousManual": "Ihre bisherige Auswahl: manuelle Prüfungen",
+          "permissionAfterInstall": "{host}-Berechtigung: wird nach der Installation geprüft",
+          "safeTitle": "Sicheres Verhalten",
+          "reads": "  Liest nur AGDF-Runtime-Informationen und .agdf/control in diesem Projekt",
+          "noProjectChanges": "  Ändert keine Projektdateien und verwendet kein Netzwerk",
+          "noGovernanceAuthority": "  Erteilt niemals eine AGDF-Freigabe",
+          "savesChoice": "AGDF speichert Ihre Auswahl. {host} kontrolliert weiterhin die Berechtigung.",
+          "chooseAgain": "Sie wählen bei jeder Installation, Aktualisierung und Änderung der Prüfung erneut.",
+          "turnOff": "Jederzeit deaktivieren: {revocation}",
+          "chooseTitle": "Auswählen",
+          "enableChoice": "  [1] Ja, automatisch prüfen",
+          "manualChoice": "  [2] Keine automatischen Prüfungen",
+          "manualDescription": "      AGDF funktioniert weiterhin. Prüfungen starten Sie bei Bedarf.",
+          "detailsChoice": "  [D] Technische Details anzeigen",
+          "cancelChoice": "  [Esc] Installation abbrechen",
+          "progress": "AGDF {version} wird für {host} eingerichtet...",
+          "linePrompt": "Auswahl (1/2/D/abbrechen): ",
+          "lineInvalid": "Wählen Sie 1, 2 oder D oder geben Sie abbrechen ein.",
+          "keyPrompt": "Auswahl: ",
+          "keyInvalid": "Drücken Sie 1, 2, D oder Esc.",
+          "detailsEcho": "Details",
+          "decisionEcho": {
+            "enable": "aktivieren",
+            "manual": "manuell",
+            "cancel": "abbrechen"
+          },
+          "detailsTitle": "Technische Details",
+          "detailsInstallationScope": "globale Installation im Benutzerkonto",
+          "detailsRuns": "eine lokale Prüfung ohne Argumente bei Sitzungsbeginn",
+          "detailsReads": "AGDF-Runtime-Identität und .agdf/control im aktuellen Repository",
+          "detailsWrites": "einen AGDF-eigenen Auswahlnachweis und, wenn unterstützt, eine genaue Host-Berechtigungsregel",
+          "detailsRenewal": "Änderungen an Befehl, Runtime, Quelle, Bereich oder Adapter erfordern eine neue Zustimmung",
+          "detailsLabels": {
+            "appliesTo": "Gilt für",
+            "runs": "Ausführung",
+            "reads": "Liest",
+            "saves": "Speichert",
+            "permissionControl": "Berechtigungskontrolle",
+            "command": "Befehl",
+            "renewal": "Neue Zustimmung"
+          },
+          "permissionOwners": {
+            "codex": "native Hook-Vertrauensprüfung von Codex",
+            "claude": "Berechtigungseinstellungen von Claude Code",
+            "copilot": "Hook-Prüfung des GitHub-Copilot-Plugins",
+            "opencode": "OpenCode-Plugin und ausdrückliche Berechtigungskonfiguration"
+          }
+        }
+      },
       "statusCard": {
         "title": "AGDF-Statuskarte",
         "status": "Status",
@@ -914,10 +1466,10 @@
           "authorizes": "Autorisiert",
           "runtime": "Laufzeit",
           "registration": "Registrierung",
-        "discovery": "Erkennung",
-        "permissionEffect": "Prozesszugriff",
-        "diagnostics": "Diagnosen",
-        "nextAction": "Nächste Aktion",
+          "discovery": "Erkennung",
+          "permissionEffect": "Prozesszugriff",
+          "diagnostics": "Diagnosen",
+          "nextAction": "Nächste Aktion",
           "fallback": "Kompatibler Pfad"
         },
         "capabilities": {
@@ -956,29 +1508,29 @@
           "project": "nur das ausgewählte Projekt",
           "user": "Benutzer über Projekte hinweg"
         },
-      "permissionEffects": {
-        "inherited_host_user": "Der MCP-Prozess erbt die Rechte des Host-Benutzers."
-      },
-      "diagnostics": {
-        "none": "keine",
-        "registration_inspection_failed": "Die ausgewählte Registrierung konnte nicht geprüft werden.",
-        "rollback_incomplete": "Das Rollback hat nicht alle angewendeten Lebenszyklusphasen wiederhergestellt.",
-        "agdf_mcp_registration_foreign": "Die ausgewählte Registrierung gehört nicht AGDF.",
-        "agdf_mcp_registration_precedence_conflict": "Eine Registrierung mit höherer Priorität widerspricht der ausgewählten Quelle.",
-        "agdf_mcp_registration_verification_failed": "Das Auslesen der Registrierung entspricht nicht dem beabsichtigten Zustand.",
-        "agdf_mcp_disable_verification_failed": "Das Entfernen der Registrierung konnte nicht bestätigt werden.",
-        "agdf_mcp_package_acquisition_failed": "Das genaue MCP-Server-Paket konnte nicht bezogen werden.",
-        "agdf_mcp_runtime_unowned": "Der Laufzeitpfad enthält Inhalte, die AGDF nicht als eigenen Bestand bestätigen kann.",
-        "agdf_mcp_server_manifest_invalid": "Das Paketmanifest des MCP-Servers ist ungültig.",
-        "agdf_mcp_dispatcher_manifest_invalid": "Das Paketmanifest des Dispatchers ist ungültig.",
-        "agdf_mcp_sdk_manifest_invalid": "Das Paketmanifest des MCP-SDK ist ungültig.",
-        "agdf_mcp_server_version_mismatch": "Die bezogene MCP-Laufzeit entspricht nicht den erforderlichen Versionen.",
-        "agdf_mcp_server_entrypoint_invalid": "Der Einstiegspunkt des MCP-Servers fehlt oder ist ungültig.",
-        "agdf_mcp_server_verification_failed": "Die installierte MCP-Laufzeit hat die genaue Prüfung nicht bestanden.",
-        "agdf_mcp_claude_update_rollback_failed": "Claude Code konnte beim Aktualisieren die vorherige Registrierung nicht wiederherstellen.",
-        "enable_failed": "Die MCP-Aktivierung ist fehlgeschlagen.",
-        "disable_failed": "Die MCP-Deaktivierung ist fehlgeschlagen."
-      },
+        "permissionEffects": {
+          "inherited_host_user": "Der MCP-Prozess erbt die Rechte des Host-Benutzers."
+        },
+        "diagnostics": {
+          "none": "keine",
+          "registration_inspection_failed": "Die ausgewählte Registrierung konnte nicht geprüft werden.",
+          "rollback_incomplete": "Das Rollback hat nicht alle angewendeten Lebenszyklusphasen wiederhergestellt.",
+          "agdf_mcp_registration_foreign": "Die ausgewählte Registrierung gehört nicht AGDF.",
+          "agdf_mcp_registration_precedence_conflict": "Eine Registrierung mit höherer Priorität widerspricht der ausgewählten Quelle.",
+          "agdf_mcp_registration_verification_failed": "Das Auslesen der Registrierung entspricht nicht dem beabsichtigten Zustand.",
+          "agdf_mcp_disable_verification_failed": "Das Entfernen der Registrierung konnte nicht bestätigt werden.",
+          "agdf_mcp_package_acquisition_failed": "Das genaue MCP-Server-Paket konnte nicht bezogen werden.",
+          "agdf_mcp_runtime_unowned": "Der Laufzeitpfad enthält Inhalte, die AGDF nicht als eigenen Bestand bestätigen kann.",
+          "agdf_mcp_server_manifest_invalid": "Das Paketmanifest des MCP-Servers ist ungültig.",
+          "agdf_mcp_dispatcher_manifest_invalid": "Das Paketmanifest des Dispatchers ist ungültig.",
+          "agdf_mcp_sdk_manifest_invalid": "Das Paketmanifest des MCP-SDK ist ungültig.",
+          "agdf_mcp_server_version_mismatch": "Die bezogene MCP-Laufzeit entspricht nicht den erforderlichen Versionen.",
+          "agdf_mcp_server_entrypoint_invalid": "Der Einstiegspunkt des MCP-Servers fehlt oder ist ungültig.",
+          "agdf_mcp_server_verification_failed": "Die installierte MCP-Laufzeit hat die genaue Prüfung nicht bestanden.",
+          "agdf_mcp_claude_update_rollback_failed": "Claude Code konnte beim Aktualisieren die vorherige Registrierung nicht wiederherstellen.",
+          "enable_failed": "Die MCP-Aktivierung ist fehlgeschlagen.",
+          "disable_failed": "Die MCP-Deaktivierung ist fehlgeschlagen."
+        },
         "actions": {
           "use_node_20": "Node.js 20 oder neuer verwenden und erneut versuchen.",
           "install_host": "Einen unterstützten Host installieren und erneut versuchen.",
@@ -987,10 +1539,10 @@
           "restart_host": "Den Host neu starten und die Erkennung in einer neuen Sitzung prüfen.",
           "version_matched_cli_dispatch": "Den versionsgleichen AGDF-CLI-Skill-Dispatch-Pfad verwenden.",
           "resolve_failure": "Den gemeldeten Lebenszyklusfehler beheben und erneut versuchen.",
-        "resolve_precedence": "Die Registrierung mit höherer Priorität klären und erneut versuchen.",
-        "disable_effective_scope": "Die verbleibende wirksame MCP-Registrierung ausdrücklich in ihrem Bereich deaktivieren.",
-        "inspect_effective_scope": "Die verbleibende wirksame Benutzerregistrierung mit --scope user prüfen.",
-        "retry": "Dieselbe ausdrückliche Lebenszyklusaktion erneut versuchen.",
+          "resolve_precedence": "Die Registrierung mit höherer Priorität klären und erneut versuchen.",
+          "disable_effective_scope": "Die verbleibende wirksame MCP-Registrierung ausdrücklich in ihrem Bereich deaktivieren.",
+          "inspect_effective_scope": "Die verbleibende wirksame Benutzerregistrierung mit --scope user prüfen.",
+          "retry": "Dieselbe ausdrückliche Lebenszyklusaktion erneut versuchen.",
           "none": "Keine weitere Lebenszyklusaktion erforderlich."
         }
       }

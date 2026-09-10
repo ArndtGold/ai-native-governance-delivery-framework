@@ -16,17 +16,17 @@ function command(name, usages) {
 }
 
 export const commandRegistry = Object.freeze([
-  command("codex", { preferred: [""], scaffold: [""] }),
+  command("codex", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
   command("codex-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
-  command("claude", { preferred: [""], scaffold: [""] }),
-  command("copilot", { preferred: [""] }),
-  command("opencode", { preferred: [""], scaffold: [""] }),
+  command("claude", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
+  command("copilot", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"] }),
+  command("opencode", { preferred: [" [--with-mcp --dir <absolute-target> [--scope <project|user>] | --plugin-only]"], scaffold: [""] }),
   command("opencode-status", { preferred: [""], scaffold: [""] }),
-  command("status", { preferred: [" [--surface <surface>] [--run <run_id>] [--json]"] }),
+  command("status", { preferred: [" [--surface <surface>] [--dir <absolute-target> [--scope <project|user>]] [--run <run_id>] [--json]"] }),
   command("runtime-checks", { preferred: [" <status|enable|manual> --surface <codex|claude|copilot|opencode> [--json]"] }),
   command("mcp", { preferred: [" <status|enable|disable> --surface <codex|claude|copilot|opencode> [--scope <project|user>] --dir <absolute-target> [--json]"] }),
-  command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>]"] }),
-  command("uninstall", { preferred: [" --surface <surface> --scope global [--confirm]"] }),
+  command("disable", { preferred: [" --surface <surface> [--scope repository] [--shared] [--dir <path>] [--with-mcp]"] }),
+  command("uninstall", { preferred: [" --surface <surface> --scope global [--with-mcp --mcp-scope <project|user> --dir <absolute-target>] [--confirm]"] }),
   command("opencode-repo", { preferred: [" --dir <path>"], scaffold: [" --dir <path>"] }),
   command("init", { preferred: [""], scaffold: [""] }),
   command("config", { scaffold: [" --language de"] }),
@@ -55,8 +55,26 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
-  if (options.target !== "mcp" && ["project", "user"].includes(options.scope)) {
-    throw new Error("project and user scopes are supported only by mcp");
+  const installTargets = ["codex", "claude", "copilot", "opencode"];
+  const installTarget = installTargets.includes(options.target);
+  if (options.target !== "mcp" && options.target !== "status" && !installTarget && ["project", "user"].includes(options.scope)) {
+    throw new Error("project and user scopes are supported only by mcp or a full installation setup");
+  }
+  if (options.setupRequest && !installTarget && !["disable", "uninstall"].includes(options.target)) {
+    throw new Error("--with-mcp and --plugin-only are supported only by installation, disable and uninstall commands");
+  }
+  if (options.setupRequest === "plugin_only" && !installTarget) {
+    throw new Error("--plugin-only is supported only by codex, claude, copilot and opencode installation commands");
+  }
+  if (installTarget && options.scope && (options.setupRequest !== "full" || !["project", "user"].includes(options.scope))) {
+    throw new Error("Installation --scope project or user requires --with-mcp");
+  }
+  if (options.mcpScope && !(options.target === "uninstall" && options.setupRequest === "full")) {
+    throw new Error("--mcp-scope is supported only by uninstall --with-mcp");
+  }
+  if (options.target === "status" && options.scope && (!options.dirExplicit
+      || !["codex", "claude", "copilot", "opencode"].includes(options.surface))) {
+    throw new Error("status --scope requires an explicit --surface and --dir target");
   }
   if (["codex-repo", "opencode-repo"].includes(options.target) && !options.dirExplicit) {
     throw new Error(`${options.target} requires an explicit --dir`);
@@ -104,6 +122,16 @@ export function validateCommandOptions(options) {
   }
   if (options.target === "disable" && options.surface === "copilot" && options.scope !== "repository") {
     throw new Error("Copilot disable requires explicit --scope repository");
+  }
+  if (options.target === "disable" && options.setupRequest === "full" && !options.dirExplicit) {
+    throw new Error("disable --with-mcp requires an explicit --dir target");
+  }
+  if (options.target === "disable" && options.setupRequest === "full" && options.scope !== "repository") {
+    throw new Error("disable --with-mcp requires explicit --scope repository");
+  }
+  if (options.target === "uninstall" && options.setupRequest === "full") {
+    if (!options.mcpScope) throw new Error("uninstall --with-mcp requires --mcp-scope project or user");
+    if (!options.dirExplicit || !options.dirInputAbsolute) throw new Error("uninstall --with-mcp requires an explicit absolute --dir target");
   }
   if (options.runtimeChecksDecision && !["codex", "claude", "copilot", "opencode"].includes(options.target)) {
     throw new Error("--runtime-checks is supported only by codex, claude, copilot and opencode installation commands");
@@ -158,6 +186,8 @@ ${usageLines("legacy", "npx --yes create-agdf@latest ")}
 
 Options:
   --dir <path>   Select an explicit target directory. OpenCode installation uses it as its config directory; MCP requires an absolute repository target.
+  --with-mcp     Install the plugin and explicitly enable AGDF MCP for the selected target.
+  --plugin-only  Install or update only the plugin and leave MCP unchanged.
   --force        Overwrite existing generated files
   --language <tag>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
@@ -187,6 +217,8 @@ Options:
                  Declare the selected coding-agent surface
   --scope <repository|global|project|user>
                  Select the lifecycle mutation scope. MCP defaults to project.
+  --mcp-scope <project|user>
+                 Select the MCP scope for an explicitly coupled global uninstall.
   --confirm      Apply a previously previewed global uninstall plan
   --shared       Apply Copilot repository disable through shared .github/copilot/settings.json
   --runtime-checks <enable|manual|cancel>

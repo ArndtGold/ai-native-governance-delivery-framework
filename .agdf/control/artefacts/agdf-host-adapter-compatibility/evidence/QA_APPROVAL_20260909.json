@@ -1,0 +1,89 @@
+{
+  "schema_version": "1",
+  "recorded_at": "2026-09-09T08:46:43.047Z",
+  "operation": "continuation.current",
+  "target_source": "continued_target",
+  "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "run_id": "agdf-host-adapter-compatibility",
+  "gate": "QA",
+  "response": "Approval: QA",
+  "response_origin": "deliberate_user_input",
+  "validation": {
+    "accepted": true,
+    "reason": "accepted"
+  },
+  "before": {
+    "revision": 9,
+    "revision_id": "f13a6fb9-e77b-4e5c-b55c-a88fe8280820",
+    "current_gate": "QA",
+    "doctor_status": "pass",
+    "doctor_summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    }
+  },
+  "after": {
+    "control_state_version": "2",
+    "run_id": "agdf-host-adapter-compatibility",
+    "lifecycle": "active",
+    "revision": "10",
+    "revision_id": "9492856f-bcaf-40ec-8eb1-d3543a3e396e",
+    "mode": "structured_delivery",
+    "current_gate": "UAT",
+    "decision": "in_progress",
+    "owner": "agent"
+  },
+  "qa_report": {
+    "revision": 3,
+    "sha256": "ffec24638b226d873563f3fb19d95e9103674e8bf273dbab1989286c09c26768"
+  },
+  "compatibility_report_sha256": "a39e73d55c7c373611973d4dce3b4beaeb85114003e79d8b247b3c17e01c4286",
+  "comparison": {
+    "status": "pass",
+    "scenarios": {
+      "evaluated": 56,
+      "failed": 0
+    },
+    "source_fingerprint": "dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734"
+  },
+  "runtime": {
+    "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "wrapper": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-880e88555405/runtime/agdf-local.js",
+    "expected_version": "0.14.5",
+    "resolution": "owned_version_matched"
+  },
+  "human_uat": "pending",
+  "scope": "QA approval and UAT preparation for the approved deterministic compatibility report slice",
+  "control_repair": {
+    "reason": "UAT evaluation required explicit QA_REPORT tests TP relationship",
+    "finding": "AGDF_DELIVERY_RELATIONSHIP_MISSING",
+    "before_revision_id": "9492856f-bcaf-40ec-8eb1-d3543a3e396e",
+    "after": {
+      "control_state_version": "2",
+      "run_id": "agdf-host-adapter-compatibility",
+      "lifecycle": "active",
+      "revision": "11",
+      "revision_id": "cc024643-aacb-431c-a9da-93bbf1ead2b1",
+      "mode": "structured_delivery",
+      "current_gate": "UAT",
+      "decision": "in_progress",
+      "owner": "agent"
+    },
+    "qa_report_unchanged": true
+  },
+  "final_control": {
+    "current_gate": "UAT",
+    "missing_approval": "Approval: UAT",
+    "blocking_reason": "none",
+    "doctor_status": "pass",
+    "doctor_summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    },
+    "revision_id": "cc024643-aacb-431c-a9da-93bbf1ead2b1"
+  }
+}

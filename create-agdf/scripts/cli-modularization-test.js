@@ -17,6 +17,7 @@ import { generatedRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import { persistInstallConsent, runtimeCheckStatus } from "../lib/runtime-check-consent/service.js";
+import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
@@ -54,6 +55,8 @@ assert.equal(parsed.kind, "command");
 assert.deepEqual(parsed.options, {
   target: "delivery-path-search",
   dir: "/tmp/root/workspace",
+  dirInput: "workspace",
+  dirInputAbsolute: false,
   force: false,
   json: false,
   verbose: false,
@@ -77,6 +80,8 @@ assert.deepEqual(parsed.options, {
   runtimeChecksDecision: undefined,
   runtimeChecksAction: "status",
   mcpAction: undefined,
+  mcpScope: undefined,
+  setupRequest: undefined,
   generatorModel: "g",
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
@@ -84,6 +89,7 @@ assert.deepEqual(parsed.options, {
   targetSource: undefined,
   primaryTarget: undefined,
   workingDirectory: "/tmp/root",
+  workingDirectorySource: "process_cwd",
   workingDirectoryExplicit: false,
   targetChanged: false,
   targetCandidates: [],
@@ -104,6 +110,20 @@ assert.equal(mcpArgs.options.mcpAction, "enable");
 assert.equal(mcpArgs.options.scope, "project");
 assert.doesNotThrow(() => validateCommandOptions(mcpArgs.options));
 assert.equal(parseArgs(["claude", "--runtime-checks", "manual"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.runtimeChecksDecision, "manual");
+const fullInstall = parseArgs(["codex", "--with-mcp", "--dir", "/tmp/repo", "--scope", "user"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(fullInstall.options.setupRequest, "full");
+assert.equal(fullInstall.options.dirInput, "/tmp/repo");
+assert.equal(fullInstall.options.dirInputAbsolute, true);
+assert.equal(fullInstall.options.scope, "user");
+assert.doesNotThrow(() => validateCommandOptions(fullInstall.options));
+const pluginOnlyOpenCode = parseArgs(["opencode", "--plugin-only", "--dir", "config"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(pluginOnlyOpenCode.options.setupRequest, "plugin_only");
+assert.equal(pluginOnlyOpenCode.options.dir, "/tmp/root/config");
+assert.equal(pluginOnlyOpenCode.options.dirInputAbsolute, false);
+assert.doesNotThrow(() => validateCommandOptions(pluginOnlyOpenCode.options));
+const coupledUninstall = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--with-mcp", "--mcp-scope", "project", "--dir", "/tmp/repo"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(coupledUninstall.options.mcpScope, "project");
+assert.doesNotThrow(() => validateCommandOptions(coupledUninstall.options));
 assert.equal(parseArgs(["gate-check", "--approval-envelope"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }).options.approvalEnvelope, true);
 const targetCheck = parseArgs([
   "target-check", "--json", "--target-source", "continued_target", "--primary-target", "/tmp/repo",
@@ -140,6 +160,8 @@ for (const fixture of [
   [["both"], "Please choose one target"],
   [["config", "--language", "de_DE.UTF-8"], "Invalid language tag"],
   [["config", "--language", " de "], "Invalid language tag"],
+  [["codex", "--with-mcp", "--plugin-only"], "cannot be combined"],
+  [["codex", "--mcp-scope", "global"], "Unsupported MCP scope"],
 ]) {
   assert.throws(() => parseArgs(fixture[0], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference }), (error) => {
     assert.ok(error instanceof CliUsageError);
@@ -178,12 +200,18 @@ assert.match(usage, /--shared\s+Apply Copilot repository disable/);
 assert.throws(() => validateCommandOptions({ target: "disable", surface: "generic" }), /explicit --surface/);
 assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "codex" }), /--scope global/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", confirm: true }));
+assert.throws(() => validateCommandOptions({ target: "codex", scope: "project" }), /requires --with-mcp/);
+assert.throws(() => validateCommandOptions({ target: "codex", setupRequest: "full", scope: "global" }), /requires --with-mcp/);
+assert.throws(() => validateCommandOptions({ target: "doctor", setupRequest: "full" }), /supported only/);
+assert.throws(() => validateCommandOptions({ target: "disable", surface: "codex", setupRequest: "full" }), /explicit --dir/);
+assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", setupRequest: "full", dirExplicit: true, dirInputAbsolute: true }), /requires --mcp-scope/);
+assert.throws(() => validateCommandOptions({ target: "uninstall", surface: "codex", scope: "global", setupRequest: "full", mcpScope: "project", dirExplicit: true, dirInputAbsolute: false }), /absolute --dir/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "runtime-checks", surface: "claude" }));
 assert.throws(() => validateCommandOptions({ target: "runtime-checks", surface: "generic" }), /requires --surface/);
 assert.throws(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "codex", surfaceExplicit: true }), /explicit --dir/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "mcp", mcpAction: "enable", surface: "copilot", surfaceExplicit: true, dirExplicit: true }));
 assert.match(usage, /mcp <status\|enable\|disable> --surface <codex\|claude\|copilot\|opencode>/);
-assert.throws(() => validateCommandOptions({ target: "codex", scope: "project" }), /only by mcp/);
+assert.throws(() => validateCommandOptions({ target: "codex", scope: "project" }), /requires --with-mcp/);
 for (const command of ["codex-repo", "opencode-repo"]) {
   assert.throws(() => validateCommandOptions({ target: command, dirExplicit: false }), /requires an explicit --dir/);
   assert.doesNotThrow(() => validateCommandOptions({ target: command, dirExplicit: true }));
@@ -210,9 +238,12 @@ for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-se
 assert.match(packageReadme, /BCP 47 language tag/);
 
 const repositoryRoot = join(packageRoot, "..");
+const installationGuide = readFileSync(join(repositoryRoot, "INSTALL.md"), "utf8");
+const mcpReadme = readFileSync(join(repositoryRoot, "agdf-mcp-server", "README.md"), "utf8");
+const architectureReadme = readFileSync(join(repositoryRoot, "docs", "architecture", "README.md"), "utf8");
 for (const [label, content] of [
   ["root README", readFileSync(join(repositoryRoot, "README.md"), "utf8")],
-  ["installation guide", readFileSync(join(repositoryRoot, "INSTALL.md"), "utf8")],
+  ["installation guide", installationGuide],
   ["package README", packageReadme],
 ]) {
   for (const required of [
@@ -226,6 +257,18 @@ for (const [label, content] of [
   ]) assert.ok(content.includes(required), `${label} must document ${required}`);
   assert.ok(content.includes("AGENTS.md"), `${label} must preserve the independent-instructions boundary`);
 }
+
+for (const [label, content] of [
+  ["installation guide", installationGuide],
+  ["package README", packageReadme],
+  ["MCP README", mcpReadme],
+]) {
+  assert.match(content, /AGDF 0\.14\.5 does\s+not include MCP support/, `${label} must keep the 0.14.5 MCP non-support boundary visible`);
+  assert.match(content, /unreleased development|development preview/, `${label} must identify MCP commands as unreleased development behavior`);
+}
+assert.match(architectureReadme, /AGDF 0\.14\.5 besitzt keine MCP-Unterstützung/);
+assert.match(architectureReadme, /unveröffentlichte Entwicklungsstand/);
+assert.doesNotMatch(architectureReadme, /kanonische Paketversion \*\*0\.14\.5\*\*/);
 
 const backlogTemplate = readFileSync(join(packageRoot, "..", "plugin", "control", "templates", "MASTER_BACKLOG.md"), "utf8");
 assert.match(backlogTemplate, /create-agdf\/lib\/control-evaluation\/shared\.js/);
@@ -294,6 +337,25 @@ function installerRecording(outputs) {
 }
 
 const fakeMarketplaceRoot = "/tmp/agdf-test-marketplace";
+const inspectPluginInstallation = () => ({ status: "not_installed", evidence: [] });
+const inspectMcpInstallation = ({ action, surface, scope, target }) => createMcpLifecycleResult({
+  action,
+  result: action === "enable" ? "configured_pending_restart" : "not_configured",
+  surface,
+  scope,
+  scopeEffect: scope,
+  target,
+  capability: "unverified",
+  runtime: { package_status: "absent", version: pluginDefinition.version },
+  registration: {
+    status: action === "enable" ? "matched" : "absent",
+    selected_status: action === "enable" ? "matched" : "absent",
+    effective_status: action === "enable" ? "matched" : "absent",
+    selected_source: "project", effective_source: "project", native_scope: scope, sources: [],
+  },
+  discovery: { status: action === "enable" ? "pending_restart" : "not_checked", source: action === "enable" ? "configuration" : "none", evidence_ref: null },
+  nextAction: { code: action === "enable" ? "restart_host" : "enable_scope" },
+});
 function prepareMarketplace() {
   return { root: fakeMarketplaceRoot, commit() {}, rollback() {} };
 }
@@ -314,31 +376,55 @@ function prepareMarketplace() {
 {
   const quiet = recordingIo();
   const outputs = ['{"marketplaces":[]}', "marketplace added\n", "plugin added\n", `agdf@agdf ${pluginDefinition.version}\n`];
-  assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace }), 0);
+  assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
-  assert.equal(quiet.out[0], "AGDF installed for Codex");
-  assert.equal(quiet.out[1], "Operation: lifecycle.plugin.install.codex (succeeded; global)");
-  assert.equal(quiet.out[2], `Version: ${pluginDefinition.version} (verified)`);
-  assert.match(quiet.out.at(-1), /^Next: Fully restart Codex, then start a fresh session\./);
-  assert.match(quiet.out.at(-1), /Restoring the previous session can retain stale AGDF skills/);
+  assert.match(quiet.out[0], /^AGDF installation setup\n/);
+  assert.match(quiet.out[0], /Effective state: plugin ready, MCP absent/);
+  assert.match(quiet.out[0], /Next action: Restart the host and start a fresh session\./);
   assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
 
   const verbose = recordingIo();
   const verboseOutputs = ['{"marketplaces":[]}', "marketplace added\n", "plugin added\n", `agdf@agdf ${pluginDefinition.version}\n`];
-  assert.equal(await runCli(["codex", "--verbose"], { io: verbose.io, exec() { return verboseOutputs.shift(); }, prepare: prepareMarketplace }), 0);
+  assert.equal(await runCli(["codex", "--verbose"], { io: verbose.io, exec() { return verboseOutputs.shift(); }, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
   assert.equal(verbose.out.includes("Host command output:"), true);
   assert.equal(verbose.out.some((line) => line.includes("marketplace added")), true);
 }
 
 {
+  const output = recordingIo();
+  const hostOutputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+  const mcpCalls = [];
+  assert.equal(await runCli(["codex", "--with-mcp", "--dir", "/tmp", "--scope", "project", "--json"], {
+    io: output.io,
+    exec() { return hostOutputs.shift(); },
+    prepare: prepareMarketplace,
+    inspectPluginInstallation,
+    mcpLifecycle(input) { mcpCalls.push(input); return inspectMcpInstallation(input); },
+  }), 0);
+  assert.deepEqual(mcpCalls.map(({ action, scope }) => [action, scope]), [
+    ["status", "project"],
+    ["status", "user"],
+    ["enable", "project"],
+  ]);
+  assert.equal(mcpCalls[2].target, "/tmp");
+  const report = JSON.parse(output.out[0]);
+  assert.equal(report.operation, "install_setup");
+  assert.equal(report.setup_request, "full");
+  assert.equal(report.effective_state, "configured_pending_restart");
+  assert.equal(report.plugin.result, "success");
+  assert.equal(report.mcp.result, "configured_pending_restart");
+  assert.equal(report.authorizes, false);
+}
+
+{
   const cancelled = installerRecording([]);
-  assert.equal(await runCli(["claude", "--runtime-checks", "cancel", "--json"], { io: cancelled.io.io, exec: cancelled.exec, prepare: prepareMarketplace }), 0);
+  assert.equal(await runCli(["claude", "--runtime-checks", "cancel", "--json"], { io: cancelled.io.io, exec: cancelled.exec, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
   assert.equal(cancelled.calls.length, 0, "cancel must stop before every host mutation");
   const cancelledReport = JSON.parse(cancelled.io.out[0]);
   assert.equal(cancelledReport.runtime_checks.effective, "cancelled");
-  assert.equal(cancelledReport.operation_status.operation_id, "lifecycle.plugin.install.claude");
-  assert.equal(cancelledReport.operation_status.outcome, "preview");
-  assert.equal(cancelledReport.operation_status.authorizes, false);
+  assert.equal(cancelledReport.operation, "install_setup");
+  assert.equal(cancelledReport.result, "cancelled");
+  assert.equal(cancelledReport.authorizes, false);
 }
 
 {
@@ -365,6 +451,9 @@ function prepareMarketplace() {
         exec: cancelled.exec,
         prepare: prepareMarketplace,
         interactive: true,
+        inspectPluginInstallation,
+        mcpLifecycle: inspectMcpInstallation,
+        askInstallSetupDecision: () => "plugin_only",
         askRuntimeCheckDecision(disclosure) {
           prompts += 1;
           assert.equal(disclosure.surface, "codex");
@@ -372,8 +461,9 @@ function prepareMarketplace() {
         },
       }), 0);
       assert.equal(prompts, 1, "every interactive install or update must ask exactly once");
-      assert.equal(cancelled.calls.length, 0, "interactive cancel must stop before every host mutation");
-      assert.equal(cancelled.io.out.includes("AGDF installation cancelled"), true);
+      assert.equal(cancelled.calls.some(({ args }) => args.includes("add") || args.includes("install")), false,
+        "interactive cancel may inspect MCP but must stop before every host mutation");
+      assert.equal(cancelled.io.out.some((line) => line.includes("Result: cancelled")), true);
       if (currentDecision) {
         const expected = currentDecision === "enable"
           ? "Your previous choice: automatic checks requested"
@@ -406,6 +496,9 @@ function prepareMarketplace() {
         exec() { return outputs.shift(); },
         prepare: prepareConsentMarketplace,
         interactive: true,
+        inspectPluginInstallation,
+        mcpLifecycle: inspectMcpInstallation,
+        askInstallSetupDecision: () => "plugin_only",
         askRuntimeCheckDecision() { prompts += 1; return selectedDecision; },
         observeCodexHookTrust: async () => ({ status: "unavailable" }),
       }), 0);
@@ -413,10 +506,31 @@ function prepareMarketplace() {
       assert.equal(selectedIo.out.includes(`Setting up AGDF ${pluginDefinition.version} for Codex...`), true);
       assert.equal(runtimeCheckStatus(dataRoot, "codex").requested, selectedDecision === "enable" ? "enabled" : "manual");
       if (selectedDecision === "enable") {
-        assert.match(selectedIo.out.at(-1), /^Next: Fully restart Codex, then start a fresh session\./);
-        assert.match(selectedIo.out.at(-1), /Inspect the AGDF session hook in Codex \/hooks/);
+        assert.match(selectedIo.out.at(-1), /Next action: Restart the host and start a fresh session\./);
       }
     }
+
+    const germanOutputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+    const germanIo = recordingIo();
+    assert.equal(await runCli(["codex", "--language", "de"], {
+      io: germanIo.io,
+      env: { AGDF_DATA_DIR: dataRoot },
+      exec() { return germanOutputs.shift(); },
+      prepare: prepareConsentMarketplace,
+      interactive: true,
+      inspectPluginInstallation,
+      mcpLifecycle: inspectMcpInstallation,
+      askInstallSetupDecision: () => "plugin_only",
+      askRuntimeCheckDecision: () => "manual",
+      observeCodexHookTrust: async () => ({ status: "unavailable" }),
+    }), 0);
+    const germanJourney = germanIo.out.join("\n");
+    assert.match(germanJourney, /Soll AGDF Ihren Projektstatus bei Sitzungsbeginn automatisch prüfen\?/);
+    assert.match(germanJourney, /Sicheres Verhalten/);
+    assert.match(germanJourney, new RegExp(`AGDF ${pluginDefinition.version} wird für Codex eingerichtet`));
+    assert.match(germanJourney, /Automatische Prüfungen: manuell/);
+    assert.match(germanJourney, /Nächste Aktion: Starten Sie den Host neu/);
+    assert.doesNotMatch(germanJourney, /Safe by design|Setting up AGDF|Automatic checks:|Next action:/);
 
     persistInstallConsent({ surface: "codex", decision: "enable", installed, dataRoot });
     for (const [trustStatus, enabled, verification] of [
@@ -430,12 +544,11 @@ function prepareMarketplace() {
       assert.equal(await runCli(["codex", "--runtime-checks", "enable"], {
         io: installIo.io, env: { AGDF_DATA_DIR: dataRoot },
         exec() { return installOutputs.shift(); }, prepare: prepareConsentMarketplace,
+        inspectPluginInstallation,
         observeCodexHookTrust: async () => observed,
       }), 0);
       if (trustStatus === "trusted" && enabled) {
-        assert.ok(installIo.out.includes("Automatic checks: Hook trusted; fresh-session check pending"));
-        assert.match(installIo.out.at(-1), /already trusted/);
-        assert.doesNotMatch(installIo.out.at(-1), /Approve|review and trust/);
+        assert.match(installIo.out.at(-1), /Automatic checks: host permission pending/);
       }
       const statusIo = recordingIo();
       assert.equal(await runCli(["runtime-checks", "status", "--surface", "codex", "--json"], {
@@ -454,6 +567,7 @@ function prepareMarketplace() {
       exec() { return outputs.shift(); },
       prepare: prepareConsentMarketplace,
       interactive: false,
+      inspectPluginInstallation,
     }), 0);
     assert.equal(JSON.parse(nonInteractive.out.at(-1)).runtime_checks.requested, "manual", "non-interactive install must not silently retain enabled consent");
   } finally {
@@ -461,7 +575,7 @@ function prepareMarketplace() {
   }
 }
 
-async function rawRuntimeCheckChoice(inputBytes, expectedDecision, disclosure) {
+async function rawRuntimeCheckChoice(inputBytes, expectedDecision, disclosure, language = "en") {
   const input = new PassThrough();
   input.isTTY = true;
   input.isRaw = false;
@@ -470,7 +584,7 @@ async function rawRuntimeCheckChoice(inputBytes, expectedDecision, disclosure) {
   const output = new PassThrough();
   let rendered = "";
   output.on("data", (chunk) => { rendered += chunk.toString(); });
-  const decision = askRuntimeCheckDecisionByKey(input, output, disclosure);
+  const decision = askRuntimeCheckDecisionByKey(input, output, disclosure, { language });
   input.write(inputBytes);
   assert.equal(await decision, expectedDecision);
   assert.equal(input.isRaw, false, "raw mode must be restored after the choice");
@@ -498,13 +612,20 @@ const detailsRendered = await rawRuntimeCheckChoice("d\u001b", "cancel", {
 assert.match(detailsRendered, /Technical details/);
 assert.match(detailsRendered, /Command: runtime\/agdf-session-check\.js/);
 assert.match(detailsRendered, /Choice: cancel/);
+const germanDetailsRendered = await rawRuntimeCheckChoice("d\u001b", "cancel", {
+  surface: "codex",
+  executable: "runtime/agdf-session-check.js",
+}, "de");
+assert.match(germanDetailsRendered, /Technische Details/);
+assert.match(germanDetailsRendered, /Befehl: runtime\/agdf-session-check\.js/);
+assert.match(germanDetailsRendered, /Auswahl: abbrechen/);
+assert.doesNotMatch(germanDetailsRendered, /Technical details|Permission control|Choice:|details|cancel/);
 
 {
   const quiet = recordingIo();
   const outputs = ["[]", "", "", "", "", `agdf@agdf ${pluginDefinition.version}\n`];
-  assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace }), 0);
-  assert.match(quiet.out.at(-1), /^Next: Fully restart Claude Code, then start a fresh session\./);
-  assert.match(quiet.out.at(-1), /Restoring the previous session can retain stale AGDF skills/);
+  assert.equal(await runCli(["claude"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
+  assert.match(quiet.out.at(-1), /Next action: Restart the host and start a fresh session\./);
 }
 
 {

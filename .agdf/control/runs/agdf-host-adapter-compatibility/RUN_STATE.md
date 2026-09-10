@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-host-adapter-compatibility
 - lifecycle: active
-- revision: 8
-- revision_id: d139cedf-3a58-4a20-874a-e0380dd169a4
+- revision: 11
+- revision_id: cc024643-aacb-431c-a9da-93bbf1ead2b1
 - mode: structured_delivery
-- current_gate: QA
-- decision: pass
+- current_gate: UAT
+- decision: in_progress
 - owner: agent
 
 ## Objective
@@ -22,10 +22,10 @@ for the exact host environment and execution path.
 
 | Question | Answer |
 |---|---|
-| What is known? | The approved private host-adapter refactor and dated comparison are implemented. Final verification has 31 successful command groups, 56 shared scenarios and 64 evidence checks; all twelve TP tasks and acceptance criteria are covered. |
-| What is approved? | UR, PRD, SD and TP Revision 1 after exact approvals and same-run/gate/revision revalidation on 2026-09-05. |
-| What is missing? | Exact QA and UAT user approvals. Current native host/session evidence remains explicitly unverified within the approved comparison scope. The corrected GitHub-hosted Ubuntu run has not yet been observed. |
-| What is the next allowed action? | Request exact Approval: QA for the ready QA Report Revision 2. |
+| What is known? | The compatibility evidence was refreshed on 2026-09-09: 56 scenarios, 64 evidence checks, release preparation and 30 verification groups pass against the current 110-file source/payload snapshot. QA Report Revision 3 passes with 12/12 tasks covered. |
+| What is approved? | UR, PRD, SD and TP Revision 1, plus QA Report Revision 3 after exact Approval: QA and same-run/gate/revision revalidation on 2026-09-09. |
+| What is missing? | Human UAT of the supplied compatibility report and its relevant workflow. Native host/session and GitHub-hosted Ubuntu evidence remain explicitly unverified within the approved deterministic slice. |
+| What is the next allowed action? | Review UAT_PREPARATION.md and the exact compatibility report, then request Approval: UAT. |
 | What is explicitly forbidden right now? | UAT acceptance and VCS/release/site delivery without the required subsequent approvals; unsupported native capability claims and unrelated scope changes. |
 
 ## Source And Scope State
@@ -39,7 +39,7 @@ for the exact host environment and execution path.
 - active_scope_evidence: The user's 2026-09-05 proposal asks for consistent core/adapter boundaries, five shared compatibility outcomes and support by demonstrated capabilities.
 - competing_scope_lines: The related roadmap, dispatcher, runtime-integrity, consent, Copilot, conformance and OpenCode-native-tool runs remain separate. This UR defines the new consolidation outcome without borrowing their delivery authority.
 - branch_workspace_evidence: Baseline git status contained only the unrelated untracked asset `assets/agdf-von-agentenarbeit-zu-verantwortbarer-auslieferung.png`.
-- branch_workspace_scope_effect: Approved TP Revision 1 was implemented in the named private host, shared facade, package, evidence and documentation owners. Current QA reports refer to this exact source snapshot. The unrelated asset, installed hosts and foreign run authority remain untouched.
+- branch_workspace_scope_effect: The 2026-09-09 operation refreshes compatibility evidence for snapshot dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734; participating source changes from other runs are regression inputs only. No product implementation or foreign run authority is claimed. Existing staged/unstaged guided-installation work is retained.
 
 ## Approvals
 
@@ -49,8 +49,8 @@ for the exact host environment and execution path.
 | PRD | approved | Exact `Approval: PRD` accepted on 2026-09-05 after the version-matched validator confirmed run agdf-host-adapter-compatibility, gate PRD, durable PRD Revision 1 and revision identity 30df3462-9235-4495-a2e5-02a6eb858be9. |
 | SD | approved | Exact `Approval: SD` accepted on 2026-09-05 after the version-matched validator confirmed run agdf-host-adapter-compatibility, gate SD, durable SD Revision 1 and revision identity 7cf5934a-35d0-4d91-a43c-3f5e1bc03e97. |
 | TP | approved | Exact `Approval: TP` accepted on 2026-09-05 after version-matched same-run/gate/revision revalidation of durable TP Revision 1 and revision identity d2803cf5-c221-4243-9ced-71a24f88dcad. |
-| QA | missing | QA Report Revision 2 has agent decision pass and is ready for exact user Approval: QA. |
-| UAT | missing | Not yet allowed. |
+| QA | approved | Exact `Approval: QA` accepted on 2026-09-09T08:46:43.047Z for QA Report Revision 3 after same-run/gate/revision revalidation of revision 9 (f13a6fb9-e77b-4e5c-b55c-a88fe8280820). QA SHA-256 ffec24638b226d873563f3fb19d95e9103674e8bf273dbab1989286c09c26768; source fingerprint dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734. See evidence/QA_APPROVAL_20260909.json. |
+| UAT | missing | Human review is pending. UAT_PREPARATION.md binds the review to QA Report Revision 3 and the current comparison snapshot. |
 
 ## Artefacts
 
@@ -64,10 +64,10 @@ for the exact host environment and execution path.
 | SD | `.agdf/control/artefacts/agdf-host-adapter-compatibility/SD.md` | approved | Revision 1 with private ownership and repository evidence design is approved after exact same-run/gate/revision revalidation. |
 | TP | `.agdf/control/artefacts/agdf-host-adapter-compatibility/TP.md` | approved | Revision 1 maps twelve tasks and concrete tests/evidence to all twelve acceptance criteria, including native proof limits and required reviews. |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-host-adapter-compatibility/BROWNFIELD_ANALYSIS.md` | done | Pre-implementation analysis passed for approved TP Revision 1; existing owners, isolated fixtures and runtime boundary confirmed. |
-| CD+Tests | `.agdf/control/artefacts/agdf-host-adapter-compatibility/CD_TESTS.md` | done | Final implementation and 31 successful command groups, including 56 common scenarios and 64 evidence checks, are recorded with preserved failures and native limits. |
-| CR | `.agdf/control/artefacts/agdf-host-adapter-compatibility/CODE_REVIEW.md` | done | Final diff review passes; four concrete findings resolved. Clean Review and TP Review also pass with 12/12 tasks fully done. |
-| QA | `.agdf/control/artefacts/agdf-host-adapter-compatibility/QA_REPORT.md` | ready | Revision 2: qa-gate decision pass for the approved deterministic/refactor slice; awaiting exact user approval. |
-| OR | `.agdf/control/artefacts/agdf-host-adapter-compatibility/OR.md` | done | OR-full records delivered scope, native evidence gaps, missing QA/UAT approvals and next gate. |
+| CD+Tests | `.agdf/control/artefacts/agdf-host-adapter-compatibility/CD_TESTS.md` | done | Revision 3 records fresh 56-scenario/64-check evidence and 30 verification groups plus release preparation; historical failures and native limits are preserved. |
+| CR | `.agdf/control/artefacts/agdf-host-adapter-compatibility/CODE_REVIEW.md` | done | Revision 3 reviews the evidence refresh and participating source changes within compatibility scope. Prior findings and the new stale-evidence gap are resolved; TP Review remains 12/12 fully_done. |
+| QA | `.agdf/control/artefacts/agdf-host-adapter-compatibility/QA_REPORT.md` | pass | Revision 3: qa-gate pass after source-bound evidence refresh; exact user QA approval recorded separately in Approvals. |
+| OR | `.agdf/control/artefacts/agdf-host-adapter-compatibility/OR.md` | done | OR-full Revision 4 records the evidence refresh, exact QA approval, prepared human UAT and remaining native gaps. |
 
 ## Mode/Slice Decision
 
@@ -99,7 +99,9 @@ for the exact host environment and execution path.
 | CD+Tests | derived_from | TP | Approved Revision 1 implemented and tested; CD_TESTS.md and evidence/FINAL_VERIFICATION.json. |
 | CR | derived_from | CD+Tests | Final diff reviewed; CODE_REVIEW.md, CLEAN_IMPLEMENTATION_REVIEW.md and TASK_PLAN_REVIEW.md. |
 | QA | derived_from | CR | QA_REPORT.md consumes complete TP/UX coverage, Brownfield fit, final tests and resolved findings. |
-| OR | derived_from | QA | OR.md reports qa-gate pass and missing user QA/UAT approvals without delivery authority. |
+| QA_REPORT | tests | TP | QA_REPORT.md Revision 3 and TASK_PLAN_REVIEW.md Revision 3 verify all twelve tasks in approved TP Revision 1; CD_TESTS.md Revision 3 and evidence/COMPATIBILITY_REFRESH_20260909.json contain the executed checks. |
+| QA | approved_by | Approval: QA | QA Report Revision 3; exact user response accepted on 2026-09-09T08:46:43.047Z against run revision 9 (f13a6fb9-e77b-4e5c-b55c-a88fe8280820); evidence/QA_APPROVAL_20260909.json. |
+| OR | derived_from | QA | OR.md reports QA Revision 3 pass, accepted QA approval and pending human UAT. |
 
 ## Evidence
 
@@ -123,6 +125,11 @@ for the exact host environment and execution path.
 
 | CI prerequisite correction | evidence/CI_CHECK_ORDER.json; CD_TESTS.md Revision 2; QA_REPORT.md Revision 2 | User-reported missing payload reproduced, existing build ordered before consumers, five clean-clone checks and two rejected order reversals | Local repository evidence with reused dependencies, not an observed GitHub-hosted run |
 
+| Compatibility evidence refresh | CD_TESTS.md Revision 3; evidence/COMPATIBILITY_REFRESH_20260909.json; QA_REPORT.md Revision 3 | 56 fresh scenarios, 64 evidence checks, release preparation and 30 verification groups, current source/payload identity and unchanged historical evidence | deterministic repository/package evidence; no native-host or UAT claim |
+
+| QA approval revalidation | evidence/QA_APPROVAL_20260909.json | Exact user response, QA Revision 3 content hash, same run/gate/revision and passing current source comparison | deliberate user QA approval, no UAT acceptance |
+| Human UAT preparation | UAT_PREPARATION.md; docs/compatibility/HOST_COMPATIBILITY.md | Five pending checks of report meaning, evidence boundaries and verification/recovery workflow | prepared review only, no human result |
+
 ## Context Graph Impact
 
 - context_graph_impact: link_only
@@ -140,8 +147,8 @@ for the exact host environment and execution path.
 
 ## Closeout
 
-- next_allowed_action: Request exact Approval: QA for QA Report Revision 2, then follow the canonical UAT transition.
-- quality_outlook: The approved implementation, deterministic comparison and clean-checkout CI ordering correction pass qa-gate with all twelve tasks and criteria covered. Native host/session support and human UAT remain separate, unverified evidence obligations.
+- next_allowed_action: Request exact approval: Approval: UAT before delivery handoff.
+- quality_outlook: The current deterministic comparison and affected regressions pass with all twelve tasks covered. Source drift has been resolved for the refreshed snapshot; native host/session support and human UAT remain separate and unverified.
 
 ## Prior Run Pointers
 

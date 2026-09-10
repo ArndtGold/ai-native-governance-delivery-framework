@@ -36,20 +36,23 @@ The OpenCode global layer only makes AGDF discoverable. It does **not** activate
 ### Guided plugin and MCP setup (unreleased development preview)
 
 The next AGDF version will make the `codex`, `claude`, `copilot` and `opencode` commands use one
-guided setup flow. In an interactive
-terminal the installer first shows the detected plugin state, the read-only MCP state, the proposed
-target, scope, local execution, possible package acquisition and the matching safe removal command.
-It then offers three choices:
+guided setup flow. In an interactive terminal the installer first shows the detected plugin state,
+the proposed target from the invocation directory, and read-only MCP status for both project and
+user scope. Each scope shows whether it can be selected, which native registration currently wins,
+where that registration lives and how AGDF can remove its own registration safely. The installer
+then offers three choices:
 
-1. **Complete setup (recommended):** install or update the plugin, verify it, then enable AGDF MCP
-   for the displayed target and scope.
+1. **Complete setup (recommended):** continue to a separate scope choice, then install or update the
+   plugin, verify it, and enable AGDF MCP only for the chosen scope.
 2. **Plugin only:** install or update the plugin and leave every MCP registration unchanged.
 3. **Cancel:** stop before plugin, consent or MCP mutation.
 
-Recommended is a label, not a selected value. Empty input, an unsupported answer and end of input
-never count as consent. The automatic-runtime-check question remains a second, separate decision.
-Choosing complete setup does not answer that permission question, and neither decision grants an
-AGDF gate approval.
+Recommended is a label, not a selected value. After **Complete setup**, the second screen offers
+**Project**, **User** and **Back**. It has no default either. **Back** returns to the first screen
+without changing plugin or MCP state. Empty input and unsupported answers are retried; end of input
+or cancellation stops before mutation. A scope blocked by the host's native configuration priority
+is shown but cannot be selected. The automatic-runtime-check question remains a separate decision.
+None of these choices grants an AGDF gate approval.
 
 For scripts and CI the behavior is explicit and stable. A command without a setup option is always
 plugin-only. Complete setup requires `--with-mcp` and an absolute `--dir` entered by the user:
@@ -61,12 +64,15 @@ npx --yes @agdf/cli@latest codex --plugin-only
 # Install the plugin and register MCP for one project.
 npx --yes @agdf/cli@latest codex --with-mcp --dir /absolute/path/to/repository
 
-# Use the broader user MCP scope deliberately. The target is still explicit.
+# Use the broader user MCP scope deliberately. The invocation target is still explicit.
 npx --yes @agdf/cli@latest claude --with-mcp --scope user --dir /absolute/path/to/repository
 ```
 
-`--with-mcp` and `--plugin-only` cannot be combined. Project scope is the complete-setup default.
-User scope must be written explicitly. A plugin failure stops before MCP package acquisition or
+`--with-mcp` and `--plugin-only` cannot be combined. In non-interactive use, project scope is the
+complete-setup default and user scope must be written explicitly. Interactive use always asks for
+the scope. A project registration can override a user registration according to the host's native
+priority rules; a conflicting higher-priority project source therefore blocks user-scope setup.
+A plugin failure stops before MCP package acquisition or
 registration. If MCP later fails, the verified plugin remains installed and the result is `partial`
 with one MCP recovery action. A matching registration still needs a full host restart and a fresh
 session before discovery can be claimed.
@@ -84,6 +90,13 @@ npx --yes @agdf/cli@latest opencode --with-mcp --dir /absolute/path/to/repositor
 An installation started only through a host or marketplace UI has no callback into this CLI
 transaction. It remains plugin-only. Run the explicit `--with-mcp` command later when complete
 setup is intended.
+
+The local repository wrappers such as `npm run install:codex` use npm's absolute `INIT_CWD` as the
+interactive target proposal. If npm does not provide `INIT_CWD`, they use the process working
+directory. The wrapper resolves the real directory before generating packages. An empty, relative,
+missing or non-directory `INIT_CWD` stops with `AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before
+`release:prepare` or any host change. The result names this invocation source separately from the
+native MCP registration path and effective source.
 
 ### Optional local MCP dispatcher (unreleased development preview)
 

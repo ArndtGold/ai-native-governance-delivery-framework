@@ -1,8 +1,8 @@
 # Code Review
 
 Run: agdf-host-adapter-compatibility
-Revision: 2
-Date: 2026-09-05
+Revision: 3
+Date: 2026-09-09
 
 - decision: pass
 - findings: No meaningful unresolved defect remains in the reviewed final scope.
@@ -12,6 +12,27 @@ Date: 2026-09-05
   directory renames may temporarily leave the comparison unavailable with the prior directory retained;
   checks fail closed and do not accept mixed report bytes. This is not native installation recovery proof.
 - required_next_step: Consume this review with Clean/TP Review in qa-gate.
+
+
+## Evidence refresh scope (2026-09-09)
+
+This review covers the current compatibility evidence under approved TP Revision 1.
+`evidence/COMPATIBILITY_REFRESH_20260909.json` binds 56 fresh scenarios, 64 evidence checks and current regression results to
+source `dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734`. The 16-file dependency delta was inspected, and the generated report retains
+its outcome semantics and native gaps. Separately owned checkout changes remain outside this run's
+implementation authority. Previous implementation/CI reviews below are retained historical evidence.
+
+## Refresh review outcome
+
+- decision: pass
+- findings: No material defect found in the evidence refresh. The generator owns dates and identities;
+  observations bind to current production fixtures and exact payloads. All 56 conformance decisions
+  retain their prior expected meanings and historical observations remain intact.
+- missing_evidence: No independent second reviewer, current native host/session or human-UAT proof.
+- required_next_step: Consume this bounded review and current TP/Clean evidence in qa-gate.
+
+The preceding production implementation review remains historical. This review neither certifies
+unrelated feature additions nor rewrites their findings. No product-code edit was made by this refresh.
 
 ## Reviewed implementation
 

@@ -1,11 +1,46 @@
 # Code Deliverables and Tests
 
 Run: agdf-host-adapter-compatibility
-Revision: 2
-Date: 2026-09-05
+Revision: 3
+Date: 2026-09-09
 
 Status: done
 Approved basis: UR, PRD, SD and TP Revision 1; passing pre-implementation Brownfield Analysis.
+
+
+## Current compatibility evidence refresh (2026-09-09)
+
+The user requested a fresh compatibility record after the current-source check returned
+`source_snapshot_changed`. Approved UR/PRD/SD/TP Revision 1 and the deterministic/report scope
+remain unchanged. This operation changes evidence only. The checkout includes separately owned
+`agdf-guided-mcp-activation` work and later dispatcher/language/root-resolution changes. Those
+changes are regression inputs and receive no implementation approval or run closeout here.
+
+- current_source_fingerprint: `dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734`
+- current_source_files: 110
+- current_observation_source: `evals/host-compatibility/observations/1013ff59c514d0b7f07d0cb711cd3565ef9095eab0ae561c15e5e9913a9afa1c.json`
+- current_validation: release preparation plus 30 successful verification command groups
+- current_shared_scenarios: 56, 14 per host, zero unexpected failures, 24 expected negatives
+- current_evidence_logic: 64 passing checks, including stale input, recording failure and isolation controls
+- current_native_evidence: none; all twelve native host/OS inventory rows remain unverified
+- preserved_history: previous accepted observation file retained; all 36 imported historical records unchanged
+- current_evidence: `evidence/COMPATIBILITY_REFRESH_20260909.json`
+
+The rendered comparison was reviewed directly: only its observation dates and source fingerprint
+changed; all outcome rows, native gaps, capability limits and recovery explanations are preserved.
+The source delta was inspected for its affected owners: CLI option transport, canonical language
+validation/presentation, QA candidate transport, native plugin-root preference and bundle generation.
+The current common scenarios and affected installer, consent, dispatch, runtime and package tests
+verify the bounded compatibility contract. They do not accept the other run's new product scope.
+No assertions were weakened and no digest was patched by hand.
+
+The first local-development-install test attempt reported a Codex content-ID mismatch. Its complete
+rerun passed without source/test edits, and all generated file hashes were identical before and after
+that rerun. The initial failure is retained in the command record. Its exact cause was not established;
+the final current-source check and all effective required test results pass.
+
+Earlier verification sections below are retained historical evidence, not claims of current native
+support. Current command results and identities are exclusively in `evidence/COMPATIBILITY_REFRESH_20260909.json`.
 
 ## Delivered scope
 
@@ -21,7 +56,7 @@ and four capability dimensions. Historical observations retain their original sc
 Installation documentation, German/English troubleshooting and the existing website proof links refer
 to the dated comparison. Community health checks it without recording or host lifecycle effects.
 
-## Final identity and evidence
+## Historical implementation identity and evidence (2026-09-05)
 
 - baseline_commit: 4ae59725fc583b5816334af47b08e446f51739b6
 - source_fingerprint: aa8766489bfe22b032456d8be86c9bc8f9bfc1e03d28c5b67132733e570b084c
@@ -46,7 +81,7 @@ accepted observations are excluded from the source set to avoid self-invalidatio
 attempts remain under evals/host-compatibility/observations; accepted output references its exact raw
 attempt. Check mode compares sources, inputs, reference hashes and rendered bytes without mutation.
 
-## Executed checks
+## Historical executed checks (2026-09-05)
 
 Commands below are actual successful final groups. FINAL_VERIFICATION.json retains invocations,
 exit codes, result excerpts, elapsed time where captured and isolated cache settings.

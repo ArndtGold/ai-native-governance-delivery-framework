@@ -1,8 +1,33 @@
 # Task Plan Review
 
 Run: agdf-host-adapter-compatibility
-Revision: 2
-Date: 2026-09-05
+Revision: 3
+Date: 2026-09-09
+
+
+## Evidence refresh scope (2026-09-09)
+
+This review covers the current compatibility evidence under approved TP Revision 1.
+`evidence/COMPATIBILITY_REFRESH_20260909.json` binds 56 fresh scenarios, 64 evidence checks and current regression results to
+source `dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734`. The 16-file dependency delta was inspected, and the generated report retains
+its outcome semantics and native gaps. Separately owned checkout changes remain outside this run's
+implementation authority. Previous implementation/CI reviews below are retained historical evidence.
+
+## Refresh coverage assessment
+
+T01 retains the approved Brownfield/ownership basis. T02 through T06 are re-evidenced by the fresh
+four-host scenarios and focused adapter/lifecycle/consent checks. T07 consumes current package,
+profile and isolated-runtime checks. T08 retains the unchanged evidence owner and 64 fresh tests.
+T09 consumes the new immutable 56-observation record and final source check. T10 consumes the
+unchanged rendered outcome semantics and fresh community-health checks. T11 consumes the current
+command manifest. T12 consumes refreshed Code/Clean Review, this review and QA Report Revision 3.
+All twelve tasks and HAC-01 through HAC-12 remain fulfilled within the approved slice.
+
+## Normalized Findings
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| HAC-TPR-01 | evidence_gap | evidence_obligation | resolved | The prior comparison failed source_snapshot_changed. Existing release preparation and recorder produced 56 fresh passing scenarios; 64 evidence checks and all current regressions pass. evidence/COMPATIBILITY_REFRESH_20260909.json. | Consume the refreshed evidence in QA. |
 
 ## TP Coverage
 
@@ -14,11 +39,11 @@ Date: 2026-09-05
 | T04 | fully_done | Copilot plugin owner and reused fixture; actual local Git transport/discovery/recovery tests | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
 | T05 | fully_done | Four pure command leaves, native permission/check owners; consent/hook tests and unchanged default wrapper | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
 | T06 | fully_done | Native status/uninstall owners; lifecycle and Copilot retention tests, foreign ownership rules preserved | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
-| T07 | fully_done | Reviewed five-file runtime closure; 91-file Copilot profile, isolated runtime import, 437-file npm package | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
+| T07 | fully_done | Reviewed five-file runtime closure; current Copilot profile, isolated runtime import and npm package checks; evidence/COMPATIBILITY_REFRESH_20260909.json | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
 | T08 | fully_done | contract/evaluate modules and explicit manifest; 64 evidence checks with independent claims/identity/lane | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
-| T09 | fully_done | 56 immutable final observations, 105-file source fingerprint, atomic owned output/check and negative race controls | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
+| T09 | fully_done | 56 immutable final observations, 110-file source fingerprint, atomic owned output/check and negative race controls | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
 | T10 | fully_done | Actual rendered report, INSTALL/DE/EN/site links; community health baseline plus 29 negative contracts and website checks | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
-| T11 | fully_done | CD_TESTS.md; evidence/FINAL_VERIFICATION.json records 31 successful final command groups and native gaps | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
+| T11 | fully_done | CD_TESTS.md; evidence/COMPATIBILITY_REFRESH_20260909.json records the current successful verification groups and native gaps | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
 | T12 | fully_done | CODE_REVIEW.md, CLEAN_IMPLEMENTATION_REVIEW.md, this report, QA_REPORT.md and OR.md; resolved concrete review findings | No missing evidence for approved deterministic/report slice; current native proof remains unverified | sufficient |
 
 ## Summary
@@ -28,7 +53,7 @@ Date: 2026-09-05
 - not_done: 0
 - acceptance_criteria: HAC-01 through HAC-12 done; evidence map in CD_TESTS.md
 - evidence_confidence: high for the approved private-refactor/deterministic-report scope
-- out_of_scope_changes: None. The Copilot file budget, pinned development parser and missing existing
+- out_of_scope_changes: This refresh changes evidence only. Separately owned checkout changes remain outside its delivery authority. Historical implementation adjustments follow. The Copilot file budget, pinned development parser and missing existing
   documentation fixture input are bounded implementation dependencies recorded in CD_TESTS.md.
 - risks: No fresh native session, native Windows or human UAT proof. The approved TP expressly permits
   those inventory rows to stay unverified and forbids upgrading source tests into native claims.

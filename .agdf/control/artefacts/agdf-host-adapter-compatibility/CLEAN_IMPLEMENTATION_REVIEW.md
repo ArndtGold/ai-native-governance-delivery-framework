@@ -1,8 +1,8 @@
 # Clean Implementation Review
 
 Run: agdf-host-adapter-compatibility
-Revision: 2
-Date: 2026-09-05
+Revision: 3
+Date: 2026-09-09
 
 - decision: pass
 - primary_solution: One private native owner per host mechanism, shared policy and transactions in
@@ -33,3 +33,24 @@ This reuses the single release preparation and existing smoke-test owner. No run
 missing-file skip, automatic evidence refresh or additional build path was introduced. The clean
 clone and two order-reversal probes are recorded in `evidence/CI_CHECK_ORDER.json`; an actual
 GitHub-hosted rerun remains unobserved.
+
+
+## Evidence refresh scope (2026-09-09)
+
+This review covers the current compatibility evidence under approved TP Revision 1.
+`evidence/COMPATIBILITY_REFRESH_20260909.json` binds 56 fresh scenarios, 64 evidence checks and current regression results to
+source `dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734`. The 16-file dependency delta was inspected, and the generated report retains
+its outcome semantics and native gaps. Separately owned checkout changes remain outside this run's
+implementation authority. Previous implementation/CI reviews below are retained historical evidence.
+
+## Refresh integrity outcome
+
+- decision: pass
+- primary_solution: Reuse the existing release preparation, common production-fixture runner and
+  atomic source-bound recorder to replace stale evidence with newly executed observations.
+- fallbacks_retained: Existing recovery paths and their documented exit conditions remain unchanged.
+- workaround_or_shim_risk: None introduced. No new reporter, parallel grading, manual digest patch or
+  automatic read-only-check repair was added.
+- parallel_structure_risk: None introduced; canonical control remains separate from derived evidence.
+- brownfield_fit: Existing approved ownership is preserved.
+- required_next_step: Consume refreshed evidence in qa-gate.

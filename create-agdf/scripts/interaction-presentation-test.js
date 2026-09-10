@@ -1045,6 +1045,10 @@ delete missingRationale.locales.de.gateRationale;
 assert.equal(validateLocaleRegistry(missingRationale).valid, false, "missing gateRationale in de causes validation failure");
 assert.ok(validateLocaleRegistry(missingRationale).errors.some((error) => error.startsWith("incomplete_locale")), "incomplete_locale error for missing gateRationale");
 
+const nonStringRuntimeConsent = structuredClone(registry);
+nonStringRuntimeConsent.locales.de.installSetup.runtimeConsent.decisionEcho.manual = false;
+assert.ok(validateLocaleRegistry(nonStringRuntimeConsent).errors.includes("invalid_copy:de:installSetup.runtimeConsent.decisionEcho.manual"));
+
 const missingWhy = structuredClone(registry);
 delete missingWhy.locales.en.interaction.why;
 assert.equal(validateLocaleRegistry(missingWhy).valid, false, "missing interaction.why in en causes validation failure");

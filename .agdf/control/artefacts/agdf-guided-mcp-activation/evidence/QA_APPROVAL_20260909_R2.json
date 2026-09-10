@@ -1,0 +1,51 @@
+{
+  "schema_version": "1",
+  "recorded_at": "2026-09-09T10:25:02Z",
+  "operation": "continuation.current",
+  "target_source": "continued_target",
+  "primary_target": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "run_id": "agdf-guided-mcp-activation",
+  "gate": "QA",
+  "response": "Approval: QA",
+  "response_origin": "deliberate_user_input",
+  "validation": {
+    "accepted": true,
+    "reason": "accepted"
+  },
+  "before": {
+    "revision": 13,
+    "revision_id": "E9427ED5-6E54-4816-AB6A-7345D48F02F2",
+    "current_gate": "QA",
+    "qa_decision": "pass",
+    "doctor_status": "warn",
+    "doctor_summary": {
+      "findings": 5,
+      "block": 0,
+      "revise": 0,
+      "warn": 5
+    }
+  },
+  "after": {
+    "control_state_version": "2",
+    "run_id": "agdf-guided-mcp-activation",
+    "lifecycle": "active",
+    "revision": 14,
+    "revision_id": "0FB74092-9666-4ABD-A9F2-47E3FBA2A25D",
+    "mode": "structured_delivery",
+    "current_gate": "UAT",
+    "decision": "in_progress",
+    "owner": "Arndt Gold"
+  },
+  "qa_report": {
+    "revision": 2,
+    "sha256": "44b20f8d78b9f6a9d5f29d69e06bbcb429551b9a6aa1625c54fd450b1f21717f"
+  },
+  "runtime": {
+    "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+    "wrapper": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-880e88555405/runtime/agdf-local.js",
+    "expected_version": "0.14.5",
+    "resolution": "owned_version_matched"
+  },
+  "human_uat": "pending",
+  "scope": "QA approval for the corrected AGDF 0.14.5 MCP documentation boundary and guided MCP activation implementation"
+}

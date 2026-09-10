@@ -13,15 +13,23 @@ beantwortet vier Fragen:
 3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?
 4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?
 
-**Stand: 8. September 2026.** Beschrieben ist die kanonische Paketversion **0.14.5** auf Basis des
-Repository-Ausgangsstands `599b23b35990e4678dbf6830c71476a3c0e7e782` und des Runs
-[`agdf-cross-host-mcp-integration`](../../.agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md).
-Die Dokumentationsrevision ist für die QA-Entscheidung vorbereitet. Dieser Stand ist keine Aussage
-über eine veröffentlichte Paketversion oder eine aktuell in einem Host geladene Installation.
+**Stand: 9. September 2026.** Beschrieben ist der unveröffentlichte Entwicklungsstand für die
+nächste AGDF-Version auf Basis von **AGDF 0.14.5**, dem Repository-Ausgangsstand
+`5397df666b6e6384a13ba84325c78e70e639627c` und den Runs
+[`agdf-cross-host-mcp-integration`](../../.agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md)
+und [`agdf-guided-mcp-activation`](../../.agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md).
+**AGDF 0.14.5 besitzt keine MCP-Unterstützung.** Der MCP-Server, die MCP-Lifecycle-Befehle und die
+geführte MCP-Aktivierung gehören erst zur derzeit entwickelten Folgeversion. Deren Versionsnummer
+ist in dieser Dokumentation nicht vorweggenommen. Befehle mit `mcp`, `--with-mcp` oder
+`--mcp-scope` sind bis zur Veröffentlichung Zielbild und Entwicklungsbeispiele. Sie beschreiben
+weder AGDF 0.14.5 noch automatisch den aktuell von npm aufgelösten `@latest`-Stand. Dieser
+Entwicklungsstand ist außerdem keine Aussage über eine aktuell in einem Host geladene Installation.
 
 Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Die
 verbindliche technische Ausgestaltung des MCP-Lebenszyklus steht im
-[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md). Zuständigkeiten
+[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md). Seine
+geführte Komposition mit der Plugin-Installation steht im
+[Setup-Solution-Design](../../.agdf/control/artefacts/agdf-guided-mcp-activation/SD.md). Zuständigkeiten
 sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im
 [Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Architekturübersicht
 erklärt die Zusammenhänge. Sie erzeugt keine eigenen Regeln.
@@ -53,7 +61,7 @@ Separat:
 
 - [Systemkontext](#1-systemkontext): Wo AGDF sitzt und wer handelt.
 - [Bausteine](#2-bausteine-und-verantwortlichkeiten): Welche Quelle welche Bedeutung besitzt.
-- [Aufrufwege](#3-zwei-wege-zum-gemeinsamen-dispatcher): Wie Skill und MCP zusammenlaufen.
+- [Aufrufwege und Setup](#3-zwei-wege-zum-gemeinsamen-dispatcher): Wie Skill und MCP zusammenlaufen und wie der geführte CLI-Weg beide Installationszustände verbindet.
 - [MCP-Lebenszyklus](#4-der-mcp-lebenszyklus): Wie Registrierung, Laufzeit und Entfernung funktionieren.
 - [Entscheidungsbefugnis](#5-regel-prüfung-und-durchsetzung): Was eine technische Aktion nicht autorisiert.
 - [Verteilung](#6-vom-quellstand-zur-geladenen-sitzung): Warum Quelle, Paket und Host getrennt geprüft werden.
@@ -110,6 +118,7 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Kontrollzustand und Prüfung | Lesen und validieren Run, Artefakte, Freigaben und Voraussetzungen. | [`control-state/`](../../create-agdf/lib/control-state/), [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
 | Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../create-agdf/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../create-agdf/lib/mcp-lifecycle/presentation.js) |
 | Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Sie bleibt vom MCP-Lebenszyklus getrennt. | [`installers/`](../../create-agdf/lib/installers/), [`host-adapters/`](../../create-agdf/lib/host-adapters/) |
+| Geführte Installation | Liest Plugin- und MCP-Zustand, erfasst eine bewusste Setup-Auswahl und komponiert die getrennten Lebenszyklen in sicherer Reihenfolge. | [`install-setup/`](../../create-agdf/lib/install-setup/), [`cli/application.js`](../../create-agdf/lib/cli/application.js) |
 
 Die wichtigste Eigentumsregel lautet: **Die vollständige Bedeutung von `agdf_dispatch` existiert nur
 einmal.** Das Fähigkeitsprofil und die Host-Adapter dürfen den Tool-Namen referenzieren. Sie dürfen
@@ -197,6 +206,56 @@ Ziel, aktuelles Gate, Entscheidung und Revision. Der QA-Skill filtert diese Date
 `QA`. Er durchsucht die Run-Dateien nicht erneut. So kann er weder einen gültigen QA-Run auslassen
 noch aus einer unvollständigen eigenen Suche eine scheinbar vollständige Liste ableiten.
 
+### 3.4 Geführte Einrichtung verbindet getrennte Lebenszyklen
+
+Die vier globalen Installationsbefehle verwenden denselben Setup-Service. Vor einer Auswahl liest
+er den bestehenden Plugin-Status und ruft MCP für Projekt- und Benutzerbereich ausschließlich mit
+`status` auf. Diese Vorprüfung zeigt Host, AGDF-Version, das aus dem Aufrufverzeichnis vorgeschlagene
+Ziel, beide Scope-Zustände, die jeweils wirksame native Quelle, den Registrierungspfad, den
+OpenCode-Konfigurationspfad, lokalen Paketbezug und die sicheren Entfernungsbefehle. Der
+Setup-Service übernimmt dabei die Prioritätsaussage des Host-Adapters. Eine höher priorisierte
+Projektquelle kann die Auswahl des Benutzerbereichs blockieren.
+
+Im interaktiven Terminal stehen zuerst `full`, `plugin_only` und `cancel` zur Wahl. `full` ist
+sichtbar empfohlen, aber nicht vorgewählt. Erst danach folgt eine getrennte Auswahl zwischen
+`project`, `user` und `back`, ebenfalls ohne Vorgabe. `back` kehrt ohne Mutation zur ersten Auswahl
+zurück. Leere oder ungültige Eingaben werden erneut abgefragt. Ein Abbruch oder Eingabeende erzeugt
+keine Zustimmung und keine Mutation. Ohne interaktives Terminal bleibt der bestehende
+Installationsaufruf plugin-only. Eine nicht interaktive vollständige Einrichtung ist nur mit
+`--with-mcp` und einem eingegebenen absoluten `--dir` möglich; ohne `--scope` verwendet sie den
+Projektbereich.
+
+Die Ausführung besitzt eine feste Reihenfolge:
+
+```text
+Nur lesende Vorprüfung
+-> bewusste Setup-Auswahl
+-> bewusste Scope-Auswahl oder zurück
+-> getrennte Entscheidung über automatische Prüfungen
+-> Plugin installieren und rücklesen
+-> Entscheidung über automatische Prüfungen abschließen
+-> vorhandenen MCP-Lifecycle mit enable aufrufen
+-> gemeinsames nicht autorisierendes Ergebnis darstellen
+```
+
+Ein Plugin-Fehler stoppt vor der MCP-Mutation. Ein Fehler bei automatischen Prüfungen oder MCP
+bewahrt das verifizierte Plugin und erzeugt `partial` mit genau einer Recovery-Aktion. Der
+Setup-Service schreibt selbst weder native Plugin- noch MCP-Konfiguration. Er ruft dafür die
+bestehenden Eigentümer auf und validiert nur den gemeinsamen Ergebnisvertrag.
+
+Bei den lokalen npm-Befehlen liefert `INIT_CWD` das Aufrufverzeichnis, weil npm den Kindprozess im
+Paketverzeichnis starten kann. Der lokale Wrapper akzeptiert diesen Wert nur als nicht leeres,
+absolutes und vorhandenes Verzeichnis und normalisiert ihn über den echten Dateisystempfad. Fehlt
+`INIT_CWD`, gilt dieselbe Prüfung für `process.cwd()`. Ein ungültiger Wert stoppt mit
+`AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` vor `release:prepare`. Der Parser erhält Pfad und Quelle
+als getrennte Werte. Ergebnis und Statuskarte unterscheiden deshalb Aufrufkontext, ausgewählten
+Scope, nativen Registrierungspfad und tatsächlich wirksame Prioritätsquelle.
+
+OpenCode benötigt eine zusätzliche Pfadregel. Beim bisherigen plugin-only-Aufruf bezeichnet
+`opencode --dir` das Konfigurationsverzeichnis. Bei `opencode --with-mcp --dir` bezeichnet es das
+MCP-Zielprojekt. Das Konfigurationsverzeichnis stammt dann aus `OPENCODE_CONFIG_DIR` oder dem
+normalen OpenCode-Standard. Marketplace- und Host-UI-Wege ohne CLI-Callback bleiben plugin-only.
+
 ## 4. Der MCP-Lebenszyklus
 
 ![MCP-Lebenszyklus: Status liest nur. Enable prüft Profil, Host und Quellen, bereitet eine gemeinsame Laufzeit vor und registriert den Server. Eine frische Sitzung liefert getrennte Discovery- und Call-Evidenz. Disable entfernt nur AGDF-eigenen Zustand.](diagrams/06-mcp-lifecycle.svg)
@@ -204,7 +263,8 @@ noch aus einer unvollständigen eigenen Suche eine scheinbar vollständige Liste
 *Abbildung 4: Reversibler Lebenszyklus mit explizitem Scope und referenzgezählter Laufzeit.
 [Diagrammquelle](diagrams/06-mcp-lifecycle.dot).*
 
-Der öffentliche Einstieg ist für alle vier Hosts gleich:
+Der geplante öffentliche Einstieg der nächsten MCP-fähigen AGDF-Version ist für alle vier Hosts
+gleich. Diese Befehle gehören nicht zu AGDF 0.14.5:
 
 ```bash
 npx --yes @agdf/cli@latest mcp status  --surface <codex|claude|opencode|copilot> --dir <projekt>
@@ -315,7 +375,9 @@ Aus den Quellen entstehen zwei getrennte Lieferpfade:
    vorbereitet. Der Lifecycle-Service registriert den Einstieg anschließend in einer nativen
    Host-Konfiguration.
 
-Ein Plugin darf auf `mcp status` oder `mcp enable` hinweisen. Es aktiviert MCP nicht automatisch.
+Ein Plugin darf auf `mcp status` oder `mcp enable` hinweisen. Ein reiner Host- oder
+Marketplace-Installationsweg aktiviert MCP nicht. Der geführte CLI-Weg darf MCP erst nach der
+ausdrücklichen vollständigen Auswahl und einer erfolgreichen Plugin-Prüfung aktivieren.
 Der öffentliche OpenAI-Kandidat bleibt ein Skills-only-Payload ohne MCP-Laufzeit und
 Lifecycle-Metadaten.
 
@@ -380,6 +442,11 @@ enthält vier begrenzte macOS-Beobachtungen:
 Alle vier exakten Tupel bleiben deshalb `unverified`. Die erfolgreichen Teilbeobachtungen werden
 nicht zu einer allgemeinen Cross-Host-Unterstützungszusage hochgestuft.
 
+Für die neue geführte Einrichtung liegen zunächst Repository-, Paket- und Protokolltests vor. Eine
+reale Installation, die sichtbare Auswahl, ein vollständiger Neustart und eine neue Host-Sitzung
+werden im Run `agdf-guided-mcp-activation` getrennt protokolliert. Bis diese direkte Matrix
+ausgeführt ist, bleibt ihre Host-Evidenz `unverified`.
+
 Die menschliche UAT bewertet, ob Status, Aktivierung, Neustart-Hinweis, Recovery und Deaktivierung
 verständlich und erwartbar sind. Sie ersetzt weder einen fehlenden Host-Aufruf noch ein fehlendes
 Fehler- oder Cleanup-Signal.
@@ -409,6 +476,13 @@ Für Plugin-Installation und Host-Payloads bleiben [`installers/`](../../create-
 und [`host-adapters/`](../../create-agdf/lib/host-adapters/) zuständig. Diese Module sind keine
 zweite MCP-Lifecycle-Implementierung.
 
+Der geführte Installationsweg beginnt in [`install-setup/contract.js`](../../create-agdf/lib/install-setup/contract.js).
+[`interaction.js`](../../create-agdf/lib/install-setup/interaction.js) besitzt die bewusste Auswahl,
+[`service.js`](../../create-agdf/lib/install-setup/service.js) die Reihenfolge und
+[`presentation.js`](../../create-agdf/lib/install-setup/presentation.js) die einsprachige Ausgabe.
+[`cli/application.js`](../../create-agdf/lib/cli/application.js) bindet ausschließlich die
+vorhandenen Plugin-, Consent- und MCP-Eigentümer ein.
+
 ## 9. Architekturentscheidungen, Grenzen und Pflege
 
 | Entscheidung | Nutzen | Grenze oder Folgekosten |
@@ -417,7 +491,7 @@ zweite MCP-Lifecycle-Implementierung.
 | Ein Lifecycle-Service mit geschlossenem Adapterregister | Gemeinsame Zustände, Transaktionen und Recovery werden nur einmal implementiert. | Jede native Host-Schemaänderung benötigt einen gezielten Adaptertest. |
 | Native Host-Konfiguration statt AGDF-eigenem Universalformat | Der Host bleibt Eigentümer von Discovery, Trust und Berechtigungen. | Quellenprioritäten und Varianten müssen pro Host gepflegt werden. |
 | Eine gemeinsame exakte Laufzeit je Scope-Root | Mehrere Hosts duplizieren den Server nicht und können Referenzen sicher teilen. | Migration und referenzgezählte Entfernung benötigen strenge Herkunftsprüfung. |
-| Plugin- und MCP-Lebenszyklus bleiben getrennt | Installation erzeugt keine überraschende ausführbare Registrierung. | Der Nutzer muss MCP bewusst aktivieren und den Host neu starten. |
+| Plugin- und MCP-Lebenszyklus bleiben getrennt und werden nur geführt komponiert | Jeder Teilzustand und jede Recovery bleibt wahrheitsgemäß sichtbar. | Vollständiges Setup verlangt eine bewusste Auswahl, ein gebundenes Ziel und anschließend einen Host-Neustart. |
 | Stabile Codes mit abgeleiteter Darstellung | Maschinen- und Menschenausgabe behalten dieselbe Bedeutung. | Neue Zustände benötigen Profil-, Ergebnis- und Locale-Änderungen gemeinsam. |
 | Protokoll- und Host-Evidenz bleiben getrennt | Ein Server-Test wird nicht als reale Host-Unterstützung ausgegeben. | Direkte Qualifikation verursacht Prüfaufwand pro exaktem Host-Tupel. |
 | Jede Ausgabe bleibt nicht autorisierend | Technische Integration kann keine Governance-Freigabe vortäuschen. | Menschliche Gate-Entscheidungen bleiben ein eigener bewusster Schritt. |

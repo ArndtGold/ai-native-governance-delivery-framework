@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -13,6 +13,7 @@ import {
   prepareLocalMarketplace,
 } from "../lib/installers/local-marketplace.js";
 import {
+  prepareLocalMcpPackageSources,
   prepareLocalOpenCodePackage,
   localNpmExecutable,
   validateLocalOpenCodePackageSource,
@@ -23,7 +24,7 @@ import { diagnoseCopilotSkillPrecedence } from "../lib/installers/copilot-preced
 import { configureCopilotDeclarativePlugin, readCopilotSettings, revokeCopilotDeclarativePlugin } from "../lib/installers/copilot-settings.js";
 import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { runCli } from "../lib/cli/application.js";
-import { installLocalPlugin } from "./install-local-plugin.js";
+import { installLocalPlugin, resolveLocalInvocationDirectory } from "./install-local-plugin.js";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
@@ -477,6 +478,7 @@ try {
 
   const codexLifecycleOutput = [];
   assert.equal(await runCli(["codex", "--json"], {
+    inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log(value) { codexLifecycleOutput.push(value); }, error(value) { codexLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: marketplaceDataRoot, builtPluginRoot, codexInstallVersion: localVersion }),
     exec(executable, args) {
@@ -488,12 +490,13 @@ try {
     },
   }), 0);
   const codexLifecycle = JSON.parse(codexLifecycleOutput.at(-1));
-  assert.equal(codexLifecycle.version.expected, localVersion);
+  assert.equal(codexLifecycle.plugin.version.expected, localVersion);
   assert.equal(codexLifecycle.restart.required, true);
-  assert.match(codexLifecycle.verification.evidence.join("\n"), new RegExp(`canonical_version:${pluginDefinition.version}`));
+  assert.match(codexLifecycle.plugin.verification.evidence.join("\n"), new RegExp(`canonical_version:${pluginDefinition.version}`));
 
   const claudeLifecycleOutput = [];
   assert.equal(await runCli(["claude", "--json"], {
+    inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log(value) { claudeLifecycleOutput.push(value); }, error(value) { claudeLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: marketplaceDataRoot, builtPluginRoot, codexInstallVersion: localVersion }),
     exec(executable, args) {
@@ -505,12 +508,13 @@ try {
     },
   }), 0);
   const claudeLifecycle = JSON.parse(claudeLifecycleOutput.at(-1));
-  assert.equal(claudeLifecycle.version.expected, pluginDefinition.version);
+  assert.equal(claudeLifecycle.plugin.version.expected, pluginDefinition.version);
   assert.equal(claudeLifecycle.restart.required, true);
 
   const copilotLifecycleOutput = [];
   let lifecyclePackagedListCalls = 0;
   assert.equal(await runCli(["copilot", "--json"], {
+    inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     copilotSettingsPath: join(fixtureRoot, "copilot-lifecycle-settings.json"),
     io: { log(value) { copilotLifecycleOutput.push(value); }, error(value) { copilotLifecycleOutput.push(value); } },
     prepare: (options) => prepareCopilotMarketplace({ ...options, dataRoot: join(fixtureRoot, "copilot-manual-handoff"), builtPluginRoot: builtCopilotPluginRoot }),
@@ -530,9 +534,9 @@ try {
   }), 0);
   const copilotLifecycle = JSON.parse(copilotLifecycleOutput.at(-1));
   assert.equal(copilotLifecycle.result, "success");
-  assert.equal(copilotLifecycle.installation.status, "healthy");
-  assert.equal(copilotLifecycle.version.installed, pluginDefinition.version);
-  assert.match(copilotLifecycle.verification.evidence.join("\n"), /copilot_cli_npm_package/);
+  assert.equal(copilotLifecycle.plugin.installation.status, "healthy");
+  assert.equal(copilotLifecycle.plugin.version.installed, pluginDefinition.version);
+  assert.match(copilotLifecycle.plugin.verification.evidence.join("\n"), /copilot_cli_npm_package/);
 
   const modifiedPluginRoot = join(fixtureRoot, "modified-plugin");
   cpSync(builtPluginRoot, modifiedPluginRoot, { recursive: true });
@@ -613,6 +617,57 @@ try {
   });
   assert.equal(validateLocalOpenCodePackageSource(realPackedPackage).digest, realPackedPackage.digest);
 
+  const localMcpDataRoot = join(fixtureRoot, "mcp-package-data");
+  const localMcpPackCalls = [];
+  const localMcpPackages = prepareLocalMcpPackageSources({
+    dataRoot: localMcpDataRoot,
+    dispatcherPackageRoot: packageRoot,
+    mcpServerPackageRoot: join(repoRoot, "agdf-mcp-server"),
+    expectedVersion: pluginDefinition.version,
+    exec(executable, args, options) {
+      localMcpPackCalls.push({ executable, args: [...args], options });
+      const server = options.cwd === join(repoRoot, "agdf-mcp-server");
+      const filename = server
+        ? `agdf-mcp-server-${pluginDefinition.version}.tgz`
+        : `create-agdf-${pluginDefinition.version}.tgz`;
+      writeFileSync(join(args[args.indexOf("--pack-destination") + 1], filename), `${server ? "server" : "dispatcher"} package\n`);
+      return `${JSON.stringify([{ filename, files: [{ path: "package.json", mode: 420 }] }])}\n`;
+    },
+  });
+  assert.equal(localMcpPackages.kind, "local_mcp_checkout");
+  assert.equal(isAbsolute(localMcpPackages.packageSpec), true);
+  assert.equal(isAbsolute(localMcpPackages.dispatcherPackageSpec), true);
+  assert.match(localMcpPackages.packageSpec, /agdf-mcp-server-/);
+  assert.match(localMcpPackages.dispatcherPackageSpec, /create-agdf-/);
+  assert.deepEqual(localMcpPackCalls.map(({ options }) => options.cwd), [resolve(packageRoot), join(repoRoot, "agdf-mcp-server")]);
+  const localMcpBundleRoot = localMcpPackages.root;
+  localMcpPackages.cleanup();
+  localMcpPackages.cleanup();
+  assert.equal(existsSync(localMcpBundleRoot), false, "local MCP source tarballs must be removed after runtime acquisition");
+
+  const failedMcpDataRoot = join(fixtureRoot, "failed-mcp-package-data");
+  let failedMcpPackCalls = 0;
+  assert.throws(() => prepareLocalMcpPackageSources({
+    dataRoot: failedMcpDataRoot,
+    dispatcherPackageRoot: packageRoot,
+    mcpServerPackageRoot: join(repoRoot, "agdf-mcp-server"),
+    expectedVersion: pluginDefinition.version,
+    exec(executable, args, options) {
+      failedMcpPackCalls += 1;
+      if (failedMcpPackCalls === 2) throw new Error("server pack failed");
+      const filename = `create-agdf-${pluginDefinition.version}.tgz`;
+      writeFileSync(join(args[args.indexOf("--pack-destination") + 1], filename), "dispatcher package\n");
+      return `${JSON.stringify([{ filename, files: [{ path: "package.json", mode: 420 }] }])}\n`;
+    },
+  }), /server pack failed/);
+  assert.deepEqual(
+    existsSync(join(failedMcpDataRoot, "packages"))
+      ? readdirSync(join(failedMcpDataRoot, "packages")).filter((name) => name.startsWith(".mcp-local-"))
+      : [],
+    [],
+    "failed local MCP package preparation must remove its temporary bundle",
+  );
+
   const packageMarkerPath = localPackage.markerPath;
   const packageMarker = readFileSync(packageMarkerPath, "utf8");
   writeFileSync(packageMarkerPath, "{}\n");
@@ -628,10 +683,40 @@ try {
     prefix: ["C:\\Node\\node_modules\\npm\\bin\\npm-cli.js"],
   });
 
+  const invocationRoot = join(fixtureRoot, "invocation-directory");
+  mkdirSync(invocationRoot);
+  const normalizedInvocationRoot = realpathSync(invocationRoot);
+  assert.deepEqual(resolveLocalInvocationDirectory({ env: { INIT_CWD: invocationRoot }, cwd: "/ignored" }), {
+    directory: normalizedInvocationRoot,
+    source: "npm_init_cwd",
+  });
+  assert.deepEqual(resolveLocalInvocationDirectory({ env: {}, cwd: invocationRoot }), {
+    directory: normalizedInvocationRoot,
+    source: "process_cwd",
+  });
+  const invocationFile = join(fixtureRoot, "invocation-file.txt");
+  writeFileSync(invocationFile, "not a directory\n");
+  for (const invalid of ["", "relative/path", join(fixtureRoot, "missing-invocation-directory"), invocationFile]) {
+    assert.throws(
+      () => resolveLocalInvocationDirectory({ env: { INIT_CWD: invalid }, cwd: invocationRoot }),
+      (error) => error?.code === "AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID",
+    );
+  }
+
+  let preparationCallsAfterInvalidInvocation = 0;
+  await assert.rejects(() => installLocalPlugin("codex", {
+    env: { INIT_CWD: "relative/path" },
+    cwd: invocationRoot,
+    exec() { preparationCallsAfterInvalidInvocation += 1; },
+  }), (error) => error?.code === "AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID");
+  assert.equal(preparationCallsAfterInvalidInvocation, 0, "invalid invocation context must fail before release preparation");
+
   let cliCalls = 0;
   const orchestrationCalls = [];
   let preparationOptions;
   const orchestrationCode = await installLocalPlugin("codex", {
+    env: {},
+    cwd: invocationRoot,
     dataRoot: join(fixtureRoot, "orchestration-data"),
     exec(executable, args, options) {
       orchestrationCalls.push(`${executable} ${args.join(" ")}`);
@@ -641,6 +726,8 @@ try {
     async runCli(args, adapters) {
       cliCalls += 1;
       assert.deepEqual(args, ["codex"]);
+      assert.equal(adapters.parser.cwd, normalizedInvocationRoot);
+      assert.equal(adapters.parser.cwdSource, "process_cwd");
       const transaction = adapters.prepare();
       assert.equal(transaction.codexInstallVersion, localVersion);
       transaction.rollback();
@@ -651,6 +738,71 @@ try {
   assert.equal(cliCalls, 1);
   assert.match(orchestrationCalls[0], /run release:prepare$/);
   assert.equal(preparationOptions.stdio, "pipe", "successful local release preparation must stay out of the consent UI");
+
+  const forwarded = ["--with-mcp", "--dir", fixtureRoot, "--scope", "project"];
+  assert.equal(await installLocalPlugin("codex", forwarded, {
+    dataRoot: join(fixtureRoot, "forwarded-orchestration-data"),
+    exec() { return ""; },
+    async runCli(args, adapters) {
+      assert.deepEqual(args, ["codex", ...forwarded]);
+      assert.equal(typeof adapters.exec, "function");
+      return 0;
+    },
+  }), 0, "the local wrapper must forward setup arguments unchanged");
+
+  let localMcpCleanupCalls = 0;
+  let localMcpPrepareOptions;
+  const serverSpec = join(fixtureRoot, "agdf-mcp-server-local.tgz");
+  const dispatcherSpec = join(fixtureRoot, "create-agdf-local.tgz");
+  assert.equal(await installLocalPlugin("codex", forwarded, {
+    dataRoot: join(fixtureRoot, "local-mcp-orchestration-data"),
+    exec() { return ""; },
+    prepareLocalMcpPackageSources(options) {
+      assert.equal(options.dispatcherPackageRoot, resolve(packageRoot));
+      assert.equal(options.mcpServerPackageRoot, join(repoRoot, "agdf-mcp-server"));
+      assert.equal(options.expectedVersion, pluginDefinition.version);
+      return {
+        packageSpec: serverSpec,
+        dispatcherPackageSpec: dispatcherSpec,
+        cleanup() { localMcpCleanupCalls += 1; },
+      };
+    },
+    prepareMcpServerPackage(options) {
+      localMcpPrepareOptions = options;
+      return { status: "matched" };
+    },
+    runMcpLifecycle(options) {
+      options.prepare({ dataRoot: join(fixtureRoot, "runtime"), expectedVersion: pluginDefinition.version });
+      return { result: "configured_pending_restart" };
+    },
+    async runCli(args, adapters) {
+      assert.deepEqual(args, ["codex", ...forwarded]);
+      adapters.mcpLifecycle({ action: "enable", surface: "codex", scope: "project", target: fixtureRoot });
+      return 0;
+    },
+  }), 0);
+  assert.equal(localMcpPrepareOptions.packageSpec, serverSpec);
+  assert.equal(localMcpPrepareOptions.dispatcherPackageSpec, dispatcherSpec);
+  assert.equal(localMcpCleanupCalls, 1, "local MCP source tarballs must be cleaned after the guided install");
+
+  let unexpectedLocalMcpAcquisition = 0;
+  assert.equal(await installLocalPlugin("codex", ["--plugin-only"], {
+    dataRoot: join(fixtureRoot, "plugin-only-local-mcp-data"),
+    exec() { return ""; },
+    prepareLocalMcpPackageSources() {
+      unexpectedLocalMcpAcquisition += 1;
+      throw new Error("plugin-only must not prepare MCP packages");
+    },
+    runMcpLifecycle() {
+      return { status: "not_checked" };
+    },
+    async runCli(args, adapters) {
+      assert.deepEqual(args, ["codex", "--plugin-only"]);
+      adapters.mcpLifecycle({ action: "status", surface: "codex", scope: "project", target: fixtureRoot });
+      return 0;
+    },
+  }), 0);
+  assert.equal(unexpectedLocalMcpAcquisition, 0, "plugin-only and read-only status must not acquire local MCP packages");
 
   const claudeCode = await installLocalPlugin("claude", {
     dataRoot: join(fixtureRoot, "claude-orchestration-data"),
@@ -709,6 +861,7 @@ try {
     },
     async runCli(args, adapters) {
       assert.deepEqual(args, ["opencode"]);
+      assert.equal(typeof adapters.exec, "function");
       assert.equal(adapters.openCodePackageSource.dataRoot, openCodeDataRoot);
       assert.equal(isAbsolute(adapters.openCodePackageSource.specifier), true);
       assert.match(adapters.openCodePackageSource.specifier, /opencode orchestration data/);

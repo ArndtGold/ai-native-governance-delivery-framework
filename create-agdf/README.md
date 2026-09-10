@@ -36,10 +36,13 @@ Use a different target when Codex is not your agent surface:
 | OpenCode, one repository | `npx --yes @agdf/cli@latest opencode-repo` | Durable control configuration that activates the once-installed global runtime. |
 | Durable control state in an existing setup | `npx --yes @agdf/cli@latest init` | Live `.agdf/control/` state when the repository explicitly needs it. |
 
-In the next AGDF version, an interactive runtime-bearing installer will first offer **Complete setup**,
-**Plugin only** and **Cancel**. Complete setup is marked recommended but is never preselected. It
-shows the proposed MCP target and scope before any mutation, verifies the plugin first and then
-delegates MCP registration to the existing lifecycle owner. Plugin only leaves MCP unchanged.
+In the next AGDF version, an interactive runtime-bearing installer will first show the plugin state,
+the invocation-directory target proposal and separate read-only MCP status for project and user
+scope. It then offers **Complete setup**, **Plugin only** and **Cancel**. Complete setup is marked
+recommended but is never preselected. Choosing it opens a second screen with **Project**, **User**
+and **Back**. That screen also has no default. Back returns to the first choice without mutation.
+Only the selected, available scope is passed to the existing MCP lifecycle owner. Plugin only
+leaves every MCP registration unchanged.
 
 Non-interactive use defaults to plugin only. Automation must provide an explicit absolute target
 to enable MCP:
@@ -50,16 +53,25 @@ npx --yes @agdf/cli@latest codex --with-mcp --dir /absolute/path/to/repository
 npx --yes @agdf/cli@latest copilot --with-mcp --scope user --dir /absolute/path/to/repository
 ```
 
-The setup choice and the following automatic-check choice are separate. Neither grants governance
-authority. A plugin failure prevents MCP mutation. A later MCP failure keeps the verified plugin
-and returns a partial result with one recovery action. Restart the host and start a fresh session
-before treating a matching configuration as discovered.
+Empty or unsupported answers never select a setup or scope; end of input cancels before mutation.
+Native host priority remains authoritative, so a higher-priority project registration can make the
+user option unavailable. The setup choice and the following automatic-check choice are separate.
+Neither grants governance authority. A plugin failure prevents MCP mutation. A later MCP failure
+keeps the verified plugin and returns a partial result with one recovery action. Restart the host
+and start a fresh session before treating a matching configuration as discovered.
 
 For OpenCode, an existing plugin-only command with `--dir` keeps its old meaning: the path is the
 OpenCode configuration directory. Only `opencode --with-mcp --dir <absolute-project>` treats it as
 the MCP target. `OPENCODE_CONFIG_DIR` or the normal default still selects the plugin configuration.
 Installations performed only by a marketplace or host UI remain plugin-only because that path
 cannot execute the guided CLI transaction.
+
+For local wrappers such as `npm run install:codex`, npm's absolute `INIT_CWD` supplies the proposed
+target. If it is absent, the wrapper uses the process working directory. It resolves and validates
+that directory before `release:prepare`; an invalid value fails with
+`AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before package generation or host mutation. Human and
+JSON results distinguish this invocation context from the native registration path and the source
+that actually wins the host's MCP precedence rules.
 
 The runtime-bearing `codex`, `claude`, `copilot` and `opencode` installers ask before enabling narrow automatic
 local checks on an interactive terminal. The choices are `enable`, `manual` and `cancel`; enablement

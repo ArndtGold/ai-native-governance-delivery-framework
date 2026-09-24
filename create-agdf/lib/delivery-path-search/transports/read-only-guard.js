@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../installers/host-command.js";
 
 export function repositoryState(cwd) {
   try {
@@ -17,7 +18,7 @@ export function guardedExecFileSync(file, args, options = {}) {
   let output;
   let failure;
   try {
-    output = execFileSync(file, args, {
+    output = execHostFileSync(file, args, {
       ...options,
       encoding: options.encoding ?? "utf8",
       stdio: options.stdio ?? ["ignore", "pipe", "pipe"],

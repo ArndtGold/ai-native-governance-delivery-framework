@@ -3,11 +3,9 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { tmpdir } from "node:os";
 import { join, win32 } from "node:path";
 import process from "node:process";
-import { execHostFileSync, findWindowsCommand, parseNpmCmdShim, resolveHostCommand } from "../lib/installers/host-command.js";
+import { execHostFileSync, findWindowsCommand, parseNpmCmdShim, resolveHostCommand, spawnHostSync } from "../lib/installers/host-command.js";
+import { npmDirectCmdShim as directShim, npmNodeCmdShim as nodeShim } from "./support/npm-cmd-shim.js";
 
-const HEAD = "@ECHO off\r\nGOTO start\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n:start\r\nSETLOCAL\r\nCALL :find_dp0\r\n";
-const directShim = (target) => `${HEAD}"%dp0%\\${target}"   %*\r\n`;
-const nodeShim = (target, args = "") => `${HEAD}\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%" ${args} "%dp0%\\${target}" %*\r\n`;
 const legacyNodeShim = (target) => `@ECHO off\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\n"%_prog%"  "%dp0%\\${target}" %*\r\nENDLOCAL\r\nEXIT /b %errorlevel%\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n`;
 
 function fakeFs(files) {
@@ -43,6 +41,8 @@ assert.equal(findWindowsCommand("tool", { env: { PATH: ".;relative\\bin;\"C:\\qu
 assert.equal(findWindowsCommand("tool", { env: { PATH: "C:\\a", PATHEXT: ".JS;.PS1;.EXE" }, fs: fakeFs({ "C:\\a\\tool.js": "", "C:\\a\\tool.exe": "" }) }),
   "C:\\a\\tool.exe");
 assert.deepEqual(resolveWith("codex", {}), { executable: "codex", prefixArgs: [] }, "an unavailable host keeps the ENOENT path");
+assert.equal(resolveWith("tool", { "C:\\a\\tool.exe": "", "C:\\b\\tool.exe": "" }, { Path: "C:\\a", PATH: "C:\\b" }).executable, "C:\\b\\tool.exe",
+  "duplicate PATH keys must resolve like Node's spawn, which uses the lexicographically first key");
 
 // Recognized npm cmd-shim templates start their target directly.
 assert.deepEqual(resolveWith("opencode", { "C:\\a\\opencode.cmd": directShim("node_modules\\opencode-ai\\bin\\opencode.exe") }),
@@ -58,6 +58,9 @@ assert.deepEqual(parseNpmCmdShim("C:\\a\\tool.cmd", nodeShim("node_modules\\tool
   ["--no-warnings", "C:\\a\\node_modules\\tool\\cli.js"]);
 assert.deepEqual(parseNpmCmdShim("C:\\a\\tool.cmd", legacyNodeShim("node_modules\\tool\\cli.js")).prefixArgs, ["C:\\a\\node_modules\\tool\\cli.js"]);
 assert.deepEqual(parseNpmCmdShim("C:\\a\\tool.bat", directShim("..\\pkg\\tool.exe")), { executable: "C:\\pkg\\tool.exe", prefixArgs: [] });
+assert.deepEqual(resolveWith("C:\\opt\\opencode.cmd", { "C:\\opt\\opencode.cmd": directShim("node_modules\\opencode-ai\\bin\\opencode.exe") }),
+  { executable: "C:\\opt\\node_modules\\opencode-ai\\bin\\opencode.exe", prefixArgs: [] }, "an explicit shim path is resolved like a PATH match");
+assert.throws(() => resolveWith("C:\\opt\\missing.cmd", {}), (error) => error.code === "ENOENT", "a missing explicit shim reports ENOENT");
 
 // Anything that is not exactly an npm shim fails closed instead of running through cmd.exe.
 for (const [label, content] of [
@@ -93,7 +96,11 @@ if (process.platform === "win32") {
     const marker = join(root, "executed.txt");
     writeFileSync(join(root, "bad.cmd"), `@echo off\r\necho executed > "${marker}"\r\n`);
     assert.throws(() => execHostFileSync("bad", [], { env }), (error) => error.code === "AGDF_HOST_COMMAND_UNSUPPORTED_SHIM");
+    assert.equal(spawnHostSync("bad", [], { env }).error?.code, "AGDF_HOST_COMMAND_UNSUPPORTED_SHIM", "spawnHostSync reports instead of throwing");
     assert.equal(existsSync(marker), false, "an unsupported shim must never run");
+    const spawned = spawnHostSync(join(root, "probe.cmd"), hostile, { env, encoding: "utf8" });
+    assert.equal(spawned.status, 0, spawned.stderr);
+    assert.deepEqual(JSON.parse(spawned.stdout), hostile, "an explicit shim path must reach its target verbatim");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

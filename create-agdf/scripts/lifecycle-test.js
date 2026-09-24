@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,6 +35,7 @@ import {
   repositoryCopilotSettingsPath,
 } from "../lib/installers/copilot-settings.js";
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
+import { linkDirectory } from "./support/symlinks.js";
 
 function mcpLifecycleFixture({ action, surface, scope, target, result = action === "disable" ? "disabled" : "not_configured", registration } = {}) {
   const registrationStatus = registration ?? (result === "disabled" || result === "not_configured" ? "absent" : "matched");
@@ -455,7 +456,7 @@ for (const [name, content, pattern] of [
 
 const symlinkRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-symlink-"));
 mkdirSync(join(symlinkRoot, ".github"), { recursive: true });
-symlinkSync(copilotSharedRoot, join(symlinkRoot, ".github", "copilot"));
+linkDirectory(copilotSharedRoot, join(symlinkRoot, ".github", "copilot"));
 assert.throws(() => planRepositoryDisable(symlinkRoot, "copilot", { shared: true }), /UNOWNED_PATH/);
 
 const atomicRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-atomic-"));
@@ -803,7 +804,7 @@ const canonicalOpenCodeRepositoryStatus = evaluateGeneralStatus(canonicalOpenCod
   }),
 });
 assert.equal(canonicalOpenCodeRepositoryStatus.repository.status, "active", "canonical .agdf/control activation must not depend on legacy .opencode files");
-assert.match(canonicalOpenCodeRepositoryStatus.repository.evidence.join("\n"), /control\/config\.json/);
+assert.match(canonicalOpenCodeRepositoryStatus.repository.evidence.join("\n"), /control[\\/]config\.json/);
 
 writeFileSync(join(canonicalOpenCodeRepository, ".agdf", "control", "config.json"), "{invalid\n");
 const invalidCanonicalOpenCodeRepositoryStatus = evaluateGeneralStatus(canonicalOpenCodeRepository, { surface: "opencode" }, {

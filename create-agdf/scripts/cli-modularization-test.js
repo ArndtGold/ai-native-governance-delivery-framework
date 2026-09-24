@@ -1,7 +1,8 @@
+import "./support/english-locale.js";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { PassThrough } from "node:stream";
 import { fileURLToPath } from "node:url";
 import {
@@ -54,7 +55,7 @@ const parsed = parseArgs([
 assert.equal(parsed.kind, "command");
 assert.deepEqual(parsed.options, {
   target: "delivery-path-search",
-  dir: "/tmp/root/workspace",
+  dir: resolve("/tmp/root/workspace"),
   dirInput: "workspace",
   dirInputAbsolute: false,
   force: false,
@@ -68,7 +69,7 @@ assert.deepEqual(parsed.options, {
   surface: "codex",
   surfaceExplicit: true,
   skillId: undefined,
-  fixture: "/tmp/root/fixture.json",
+  fixture: resolve("/tmp/root/fixture.json"),
   persist: true,
   model: undefined,
   generateCandidates: true,
@@ -118,7 +119,7 @@ assert.equal(fullInstall.options.scope, "user");
 assert.doesNotThrow(() => validateCommandOptions(fullInstall.options));
 const pluginOnlyOpenCode = parseArgs(["opencode", "--plugin-only", "--dir", "config"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(pluginOnlyOpenCode.options.setupRequest, "plugin_only");
-assert.equal(pluginOnlyOpenCode.options.dir, "/tmp/root/config");
+assert.equal(pluginOnlyOpenCode.options.dir, resolve("/tmp/root/config"));
 assert.equal(pluginOnlyOpenCode.options.dirInputAbsolute, false);
 assert.doesNotThrow(() => validateCommandOptions(pluginOnlyOpenCode.options));
 const coupledUninstall = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--with-mcp", "--mcp-scope", "project", "--dir", "/tmp/repo"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
@@ -406,7 +407,7 @@ function prepareMarketplace() {
     ["status", "user"],
     ["enable", "project"],
   ]);
-  assert.equal(mcpCalls[2].target, "/tmp");
+  assert.equal(mcpCalls[2].target, resolve("/tmp"));
   const report = JSON.parse(output.out[0]);
   assert.equal(report.operation, "install_setup");
   assert.equal(report.setup_request, "full");

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { digestDirectory, resolveLocalValidator, resolvePluginHostEnvironment, runLocalValidator } from "../lib/runtime/local-validator.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
+import { withWindowsCmdShim } from "./support/npm-cmd-shim.js";
 
 const nativeCodexRoot = "/native/codex/plugin";
 const compatibilityClaudeRoot = "/compatibility/claude/plugin";
@@ -163,11 +164,18 @@ try {
   assert.equal(missingOwnedPackage.envelope.machine_validation, "unavailable");
   assert.equal(missingOwnedPackage.envelope.reason, "package_missing");
 
-  const configured = join(root, "agdf-test");
-  writeFileSync(configured, `#!/usr/bin/env node\nif (process.argv.includes("--version")) console.log(JSON.stringify({version:"1.2.3"}));\n`);
-  chmodSync(configured, 0o755);
+  writeFileSync(join(root, "agdf-test"), `#!/usr/bin/env node\nif (process.argv.includes("--version")) console.log(JSON.stringify({version:"1.2.3"}));\n`);
+  chmodSync(join(root, "agdf-test"), 0o755);
+  const configured = withWindowsCmdShim(root, "agdf-test");
   const configuredMatch = resolveLocalValidator({ runtimeRoot: join(root, "missing"), expectedVersion: "1.2.3", surface: "generic", configuredPath: configured });
   assert.equal(configuredMatch.envelope.machine_validation, "configured_version_matched");
+  if (process.platform === "win32") {
+    const foreignShim = join(root, "foreign-validator.cmd");
+    writeFileSync(foreignShim, "@echo off\r\necho {\"version\":\"1.2.3\"}\r\n");
+    const foreign = resolveLocalValidator({ runtimeRoot: join(root, "missing"), expectedVersion: "1.2.3", surface: "generic", configuredPath: foreignShim });
+    assert.equal(foreign.envelope.machine_validation, "unavailable");
+    assert.equal(foreign.envelope.reason, "unsupported_command_shim", "a non-npm command shim must not be executed");
+  }
 
   const invalidManifestRoot = join(root, "invalid-manifest");
   mkdirSync(invalidManifestRoot, { recursive: true });

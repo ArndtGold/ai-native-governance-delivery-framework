@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { readFileSync, statSync } from "node:fs";
 import { win32 } from "node:path";
 import process from "node:process";
@@ -18,8 +18,10 @@ const LAUNCH_PREFIX = /^endlocal & goto #_undefined_# 2>nul \|\| title %comspec%
 const DIRECT_LAUNCH = /^"%dp0%\\([^"%*]+)"\s+%\*$/i;
 const NODE_LAUNCH = /^"%_prog%"\s+((?:[^\s"%*]+\s+)*?)"%dp0%\\([^"%*]+)"\s+%\*$/i;
 
+// Like Node's spawn on Windows, the lexicographically first case-insensitive match wins, so
+// { ...process.env, PATH } resolves against the PATH the child process will actually receive.
 function envValue(env, name) {
-  const key = Object.keys(env).find((candidate) => candidate.toUpperCase() === name);
+  const key = Object.keys(env).filter((candidate) => candidate.toUpperCase() === name).sort()[0];
   return key === undefined ? undefined : env[key];
 }
 
@@ -77,8 +79,13 @@ export function resolveHostCommand(command, {
   env = process.env, platform = process.platform, execPath = process.execPath, fs = { readFileSync, statSync },
 } = {}) {
   const unresolved = { executable: command, prefixArgs: [] };
-  if (platform !== "win32" || /[\\/]/.test(command) || win32.extname(command)) return unresolved;
-  const found = findWindowsCommand(command, { env, fs });
+  if (platform !== "win32") return unresolved;
+  const explicitShim = /[\\/]/.test(command) && SHIM_EXTENSIONS.has(win32.extname(command).toLowerCase());
+  if (!explicitShim && (/[\\/]/.test(command) || win32.extname(command))) return unresolved;
+  if (explicitShim && !isFile(command, fs)) {
+    throw Object.assign(new Error(`spawn ${command} ENOENT`), { code: "ENOENT", syscall: `spawn ${command}`, path: command });
+  }
+  const found = explicitShim ? command : findWindowsCommand(command, { env, fs });
   if (!found) return unresolved;
   if (LAUNCHABLE_EXTENSIONS.has(win32.extname(found).toLowerCase())) return { executable: found, prefixArgs: [] };
   const shim = parseNpmCmdShim(found, fs.readFileSync(found, "utf8"));
@@ -92,4 +99,14 @@ export function resolveHostCommand(command, {
 export function execHostFileSync(command, args = [], options = {}) {
   const { executable, prefixArgs } = resolveHostCommand(command, { env: options.env ?? process.env });
   return execFileSync(executable, [...prefixArgs, ...args], options);
+}
+
+export function spawnHostSync(command, args = [], options = {}) {
+  let resolved;
+  try {
+    resolved = resolveHostCommand(command, { env: options.env ?? process.env });
+  } catch (error) {
+    return { pid: 0, output: [null, "", ""], stdout: "", stderr: "", status: null, signal: null, error };
+  }
+  return spawnSync(resolved.executable, [...resolved.prefixArgs, ...args], options);
 }

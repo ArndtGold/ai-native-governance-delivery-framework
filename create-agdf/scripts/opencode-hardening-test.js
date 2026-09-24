@@ -24,6 +24,7 @@ import { enforcementForSurface } from "../lib/delivery-path-search/surfaces/capa
 import { runDeliveryPathSearch } from "../lib/delivery-path-search/search-engine.js";
 import { executeDeliveryPathSearch } from "../lib/cli/delivery-path-search-command.js";
 import { toOpenCodeInstructionsBootstrap, toOpenCodeInstructionsRouter } from "./sync-package-assets.js";
+import { withWindowsCmdShim } from "./support/npm-cmd-shim.js";
 
 const openCodeBootstrap = toOpenCodeInstructionsBootstrap();
 assert.ok(Buffer.byteLength(openCodeBootstrap, "utf8") <= 4000, "OpenCode eager instructions must stay within budget");
@@ -141,9 +142,12 @@ try {
 
   function alignmentRunner({ hostVersion = "1.18.3", registry = "available", install = "success", postVersion = "1.18.3", postDeclaration } = {}) {
     const calls = [];
-    const run = (file, args) => {
+    const run = (file, invocationArgs) => {
+      // Windows runs npm as node + npm-cli.js, so only a non-npm node call is the SDK resolver probe.
+      const viaNpmCli = file === process.execPath && /npm-cli\.js$/.test(invocationArgs[0] ?? "");
+      const args = viaNpmCli ? invocationArgs.slice(1) : invocationArgs;
       calls.push([file, [...args]]);
-      if (file === process.execPath) return JSON.stringify({
+      if (file === process.execPath && !viaNpmCli) return JSON.stringify({
         resolvedPath: join(sdkRoot, "dist", "index.js"),
         manifestPath: join(sdkRoot, "package.json"),
       });
@@ -370,7 +374,7 @@ const result = { contract_version: "1", candidate_id: id, scope_fit: 5, gate_rea
 process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: JSON.stringify(result) } }) + "\\n");
 `);
   chmodSync(fakeBin, 0o755);
-  const adapter = openCodeEvaluator({ cwd: temp, openCodeBin: fakeBin, preflight: passed });
+  const adapter = openCodeEvaluator({ cwd: temp, openCodeBin: withWindowsCmdShim(temp, "fake-opencode"), preflight: passed });
   const input = {
     contract_version: "1",
     scope_key: "fixture",

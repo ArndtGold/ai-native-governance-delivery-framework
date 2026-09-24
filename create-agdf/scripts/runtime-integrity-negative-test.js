@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, unlinkSync, writeFileSync, readFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { linkDirectory } from "./support/symlinks.js";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-integrity-"));
@@ -33,13 +34,18 @@ function copyPluginFixture() {
     recursive: true,
     filter: (path) => path !== join(source, "runtime") && !path.startsWith(`${join(source, "runtime")}/`),
   });
-  symlinkSync(join(source, "runtime"), join(fixtureRoot, "plugin", "runtime"));
+  linkDirectory(join(source, "runtime"), join(fixtureRoot, "plugin", "runtime"));
 }
 
 function makeFixture() {
   copyPluginFixture();
   for (const entry of [".claude-plugin", "agdf", "create-agdf", "pages", ".agdf", "LICENSE"]) {
-    symlinkSync(join(repoRoot, entry), join(fixtureRoot, entry));
+    const source = join(repoRoot, entry);
+    const isFile = existsSync(source) && statSync(source).isFile();
+    // The fixture only mirrors files; Windows without symlink rights gets an identical copy.
+    if (isFile && process.platform === "win32") copyFileSync(source, join(fixtureRoot, entry));
+    else if (isFile) symlinkSync(source, join(fixtureRoot, entry));
+    else linkDirectory(source, join(fixtureRoot, entry));
   }
 }
 

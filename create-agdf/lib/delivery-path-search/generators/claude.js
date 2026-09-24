@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../installers/host-command.js";
 import { generatorOutputSchema, validateGeneratorRequest, validateGeneratorResponse } from "../contracts.js";
 import { guardedExecFileSync } from "../transports/read-only-guard.js";
 
@@ -6,7 +6,7 @@ export function claudeGenerator(options = {}) {
   const claudeBin = options.claudeBin ?? "claude";
   const execute = options.execute ?? guardedExecFileSync;
   let runtime = options.runtime ?? "claude version unavailable";
-  if (!options.runtime) try { runtime = execFileSync(claudeBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch {}
+  if (!options.runtime) try { runtime = execHostFileSync(claudeBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch {}
   return {
     name: "claude",
     metadata: { name: "claude", runtime, model: options.model ?? "configured-default" },

@@ -1,8 +1,10 @@
+import "./support/english-locale.js";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { delimiter, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { withWindowsCmdShim } from "./support/npm-cmd-shim.js";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
@@ -37,6 +39,7 @@ function makeFakeExecutable(tempDir, name, source) {
   const executablePath = join(binDir, name);
   writeFileSync(executablePath, source, "utf8");
   chmodSync(executablePath, 0o755);
+  withWindowsCmdShim(binDir, name);
   return binDir;
 }
 
@@ -172,7 +175,7 @@ if (process.argv[2] === "--version") {
 }
 process.exit(2);
 `);
-const openCodeHostBin = join(openCodeHostBinDir, "opencode");
+const openCodeHostBin = withWindowsCmdShim(openCodeHostBinDir, "opencode");
 process.env.AGDF_OPENCODE_BIN = openCodeHostBin;
 
 function runOpenCodeCli(args, options = {}) {

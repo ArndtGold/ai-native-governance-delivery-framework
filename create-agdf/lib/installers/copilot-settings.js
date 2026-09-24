@@ -7,8 +7,9 @@ import { renameSyncWithRetry } from "../fs-swap.js";
 import { copilotMarketplaceSource } from "./copilot-marketplace-transport.js";
 
 const COPILOT_PLUGIN_SELECTOR = "agdf@agdf";
-const COPILOT_LOCAL_SETTINGS = join(".github", "copilot", "settings.local.json");
-const COPILOT_SHARED_SETTINGS = join(".github", "copilot", "settings.json");
+// Repository-relative Git paths: used as pathspecs and in .gitignore guidance, so always forward slashes.
+const COPILOT_LOCAL_SETTINGS = ".github/copilot/settings.local.json";
+const COPILOT_SHARED_SETTINGS = ".github/copilot/settings.json";
 
 export function defaultCopilotSettingsPath({ env = process.env, home = homedir() } = {}) {
   return join(resolve(env.COPILOT_HOME || join(home, ".copilot")), "settings.json");

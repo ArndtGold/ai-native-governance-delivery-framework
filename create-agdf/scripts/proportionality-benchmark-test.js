@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,6 +11,7 @@ import {
   isRetryableObservationError, loadCorpus, normalizeAgentOutput, normalizeStagedAgentOutput, observationAttemptFailure, persistObservation, recordObservation, renderMarkdown,
   sourceFingerprint, validateBaseline, validateHistoryInventory, validateStagedBlindScenario, validateV3Facts,
 } from "../lib/proportionality-benchmark/index.js";
+import { tryLinkFile } from "./support/symlinks.js";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const corpus = loadCorpus(repoRoot);
@@ -489,8 +490,9 @@ loaderManifest.scenarios_path = "staged-v3-scenarios.json";
 loaderManifest.fixture_path = "fixtures/link.json";
 writeFileSync(join(loaderTemp, "evals/proportionality/staged-v3-manifest.json"), `${JSON.stringify(loaderManifest)}\n`);
 writeFileSync(join(loaderTemp, "outside-fixture.json"), "{}\n");
-symlinkSync(join(loaderTemp, "outside-fixture.json"), join(loaderTemp, "evals/proportionality/fixtures/link.json"));
-assert.throws(() => loadCorpus(loaderTemp, "staged-v3"), /escapes through symlink/);
+if (tryLinkFile(join(loaderTemp, "outside-fixture.json"), join(loaderTemp, "evals/proportionality/fixtures/link.json"), "proportionality-benchmark-test")) {
+  assert.throws(() => loadCorpus(loaderTemp, "staged-v3"), /escapes through symlink/);
+}
 rmSync(loaderTemp, { recursive: true, force: true });
 
 const temp = mkdtempSync(join(tmpdir(), "agdf-proportionality-test-"));

@@ -581,7 +581,7 @@ try {
   assert.equal(await runCli(["init", "--dir", jsonRoot, "--json"], jsonAdapters), 0);
   const repairedJson = readLastJsonResult();
   assert.equal(repairedJson.operation_status.outcome, "repaired");
-  assert.ok(repairedJson.changes.some((change) => change.path === jsonRepairFile.path));
+  assert.ok(repairedJson.changes.some((change) => change.path === jsonRepairFile.path.replaceAll("\\", "/")));
 
   const cliRoot = temporaryRoot("cli");
   const cliLogs = [];

@@ -140,6 +140,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "bin/agdf-validator.js",
     "lib/runtime/local-validator.js",
     "lib/runtime/plugin-provenance.js",
+    "lib/installers/host-command.js",
     "lib/runtime-check-consent/contract.js",
     "lib/host-adapters/codex/session-command.js",
     "lib/host-adapters/claude/session-command.js",

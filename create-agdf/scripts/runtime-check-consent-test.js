@@ -250,7 +250,10 @@ try {
   assert.equal(realpathSync(routeSourcePath), realpathSync(join(projectedPluginRoot, "meta", "contracts", "request-activation.md")));
   assert.equal(readFileSync(routeSourcePath, "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n"), activationContract);
   assert.equal(base.binding.authorizes, false);
+  const jsonEscaped = (value) => JSON.stringify(value).slice(1, -1);
   const normalizedBase = withoutConsent.stdout
+    .replaceAll(jsonEscaped(base.binding.executable), "<executable>")
+    .replaceAll(jsonEscaped(base.binding.argv_prefix[0]), "<validator>")
     .replaceAll(base.binding.executable, "<executable>")
     .replaceAll(base.binding.argv_prefix[0], "<validator>");
   assert.ok(Buffer.byteLength(normalizedBase, "utf8") <= 1900, "normalized SessionStart base must stay within budget");

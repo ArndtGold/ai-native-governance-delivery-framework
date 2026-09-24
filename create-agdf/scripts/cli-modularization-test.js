@@ -1,6 +1,6 @@
 import "./support/english-locale.js";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { PassThrough } from "node:stream";
@@ -14,6 +14,7 @@ import {
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
 import { askRuntimeCheckDecisionByKey, runCli } from "../lib/cli/application.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
+import { readRuntimeContract, runtimeContractModules } from "../lib/cli/contract-command.js";
 import { generatedRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
@@ -26,7 +27,7 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "delivery-path-search", "run-create", "run-update", "run-approve",
+  "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-approve",
   "run-migrate", "run-render-legacy",
 ];
 
@@ -38,7 +39,7 @@ const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
 assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -77,6 +78,7 @@ assert.deepEqual(parsed.options, {
   gate: undefined,
   revisionId: undefined,
   response: undefined,
+  contractModule: undefined,
   allActive: false,
   scope: undefined,
   confirm: false,
@@ -194,6 +196,8 @@ assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: 
 assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
 assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /supported only by run-update and run-approve/);
+assert.throws(() => validateCommandOptions({ target: "contract" }), /contract requires --module/);
+assert.throws(() => validateCommandOptions({ target: "doctor", contractModule: "modes" }), /--module is supported only by contract/);
 {
   const { gate, revisionId, response } = parseArgs(["run-approve", "--run", "run-a", "--gate", "UR", "--revision", "rev", "--response", "Approval: UR"]).options;
   assert.deepEqual({ gate, revisionId, response }, { gate: "UR", revisionId: "rev", response: "Approval: UR" });
@@ -245,7 +249,7 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }
@@ -324,6 +328,28 @@ function recordingIo() {
   assert.match(recording.err.at(-1), /does not support lifecycle command/);
   assert.equal(await runValidatorCli(["run-update", "--run", "missing-run", "--revision", "rev", "--dir", packageRoot], { io: recording.io }), 2);
   assert.equal(JSON.parse(recording.out.at(-1)).reason, "run_missing", "the surface-local validator records run revisions");
+  assert.equal(await runValidatorCli(["contract", "--module", "modes"], { io: recording.io }), 0);
+  assert.match(recording.out.at(-1), /^# AGDF Runtime Contract/, "the surface-local validator serves runtime-contract modules");
+  assert.equal(await runValidatorCli(["contract", "--module", "../agdf-runtime-contract"], { io: recording.io }), 1);
+  assert.match(recording.err.at(-1), /^module_unknown: .*Available modules: request-activation/);
+}
+
+{
+  const pluginRoot = mkdtempSync(join(tmpdir(), "agdf-contract-root-"));
+  try {
+    mkdirSync(join(pluginRoot, "copilot-skills", "contracts"), { recursive: true });
+    writeFileSync(join(pluginRoot, "copilot-skills", "contracts", "quality.md"), "copilot quality\n");
+    assert.equal(readRuntimeContract("quality", { pluginRoot }).content, "copilot quality\n", "the Copilot payload layout is served");
+    mkdirSync(join(pluginRoot, "meta", "contracts"), { recursive: true });
+    writeFileSync(join(pluginRoot, "meta", "contracts", "quality.md"), "plugin quality\n");
+    assert.equal(readRuntimeContract("quality", { pluginRoot }).content, "plugin quality\n", "the verified plugin root wins over the package copy");
+    const packaged = readRuntimeContract("modes", { pluginRoot });
+    assert.equal(packaged.path, join(generatedRoot, "plugins", "agdf", "meta", "contracts", "modes.md"), "missing plugin modules fall back to the package copy");
+    assert.deepEqual(readRuntimeContract("gate-transition", { pluginRoot, packageGeneratedRoot: pluginRoot }).reason, "module_unavailable");
+    assert.deepEqual(runtimeContractModules(), pluginDefinition.runtimeContract.modules.map((path) => path.replace(/^meta\/contracts\/|\.md$/gu, "")));
+  } finally {
+    rmSync(pluginRoot, { recursive: true, force: true });
+  }
 }
 
 {

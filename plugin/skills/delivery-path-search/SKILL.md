@@ -13,7 +13,7 @@ The search is advisory and read-only. Canonical AGDF `gate-check` remains the on
 
 ## Runtime Contract
 
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, read these focused runtime-contract modules through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
 
 - `../../meta/contracts/control-scaffold.md`
 - `../../meta/contracts/gate-transition.md`

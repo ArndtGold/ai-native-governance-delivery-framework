@@ -199,7 +199,12 @@ agdf skill-dispatch --json --skill gate-check --surface codex --language de --wo
 agdf delivery-map --json
 agdf delivery-path-search --surface codex --json
 agdf delivery-path-search --surface claude --json
+agdf contract --module gate-transition
 ```
+
+`contract --module <name>` prints one packaged runtime-contract module named by the plugin
+definition. Skills read their modules this way after `skill_continuation`, because Claude Code grants
+skills no read access to the plugin directory.
 
 Installed AGDF sessions supply the exact version-matched `skill-dispatch` binding to canonical
 skills. It resolves the target first and returns either a terminal canonical result or one bounded

@@ -39,6 +39,7 @@ export const commandRegistry = Object.freeze([
     local: [" --surface codex --json", " --surface claude --json", " --surface opencode --json"],
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
   }),
+  command("contract", { local: [" --module <runtime-contract-module> [--json]"] }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response \"Approval: <gate>\""] }),
@@ -116,6 +117,8 @@ export function validateCommandOptions(options) {
   if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
     throw new Error("run-approve requires --run, --gate, --revision and --response");
   }
+  if (options.contractModule !== undefined && options.target !== "contract") throw new Error("--module is supported only by contract");
+  if (options.target === "contract" && !options.contractModule) throw new Error("contract requires --module");
   if (options.target === "run-render-legacy" && !options.runId) {
     throw new Error("run-render-legacy requires --run");
   }
@@ -210,6 +213,8 @@ Options:
   --approval-envelope
                  Print the deterministic ready-gate cards and exact-text request
   --run <run_id> Select one canonical run
+  --module <runtime-contract-module>
+                 Runtime-contract module for contract, for example gate-transition
   --revision <revision_id>
                  Expected current run revision for run-update and run-approve
   --gate <UR|PRD|SD|TP|QA|UAT>

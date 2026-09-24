@@ -391,6 +391,18 @@ function localizedOperationalValue(value, pack, fallbackPack, fallbackLocale) {
   return null;
 }
 
+// Free text from a run state is shown only when the presentation locale can render it; callers use
+// this to substitute the deterministic value instead of failing the whole card.
+export function isOperationalValueRenderable(value, { registry, requestedLocale } = {}) {
+  try {
+    const locale = resolvePresentationLocale(registry, requestedLocale);
+    const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
+    return Boolean(localizedOperationalValue(value, localePack(registry, locale), localePack(registry, fallbackLocale), locale === fallbackLocale));
+  } catch {
+    return false;
+  }
+}
+
 function localizedOperationalList(value, pack, fallbackPack, fallbackLocale) {
   if (!Array.isArray(value) || value.length === 0) return pack.primary.none;
   const localized = value.map((item) => localizedOperationalValue(item, pack, fallbackPack, fallbackLocale));

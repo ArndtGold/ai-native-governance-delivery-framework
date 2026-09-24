@@ -22,7 +22,7 @@ It answers:
 - whether blockers, critical risks, or missing evidence remain
 
 ## Runtime Contract
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, read these focused runtime-contract modules through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
 
 - `../../meta/contracts/quality.md`
 - `../../meta/contracts/context-graph.md`

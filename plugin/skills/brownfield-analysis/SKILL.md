@@ -19,7 +19,7 @@ The skill answers:
 - whether Context Graph impact exists without automatically creating a node
 
 ## Runtime Contract
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, read these focused runtime-contract modules through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
 
 - `../../meta/contracts/gate-transition.md`
 - `../../meta/contracts/modes.md`

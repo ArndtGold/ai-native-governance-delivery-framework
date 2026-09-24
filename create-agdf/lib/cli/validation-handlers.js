@@ -14,6 +14,7 @@ import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
 import { approveRunGate, recordRunRevision } from "../control-state/run-recording.js";
+import { readRuntimeContract } from "./contract-command.js";
 import { cliGitObservation } from "../control-evaluation/git-observation.js";
 import { resolveRepositoryContext } from "../repository-context.js";
 
@@ -89,6 +90,15 @@ export function createValidationHandlers(io = console) {
       const report = evaluateDeliveryMap(options.dir, options, deliveryMapDependencies);
       printDeliveryMapReport(report, options.json, io);
       return report.status === "block" ? 2 : 0;
+    }],
+    ["contract", (options) => {
+      const result = readRuntimeContract(options.contractModule);
+      if (!result.ok) {
+        io.error(`${result.reason}: ${options.contractModule}. Available modules: ${result.modules.join(", ")}`);
+        return 1;
+      }
+      io.log(options.json ? JSON.stringify({ module: result.module, content: result.content }) : result.content.replace(/\n$/u, ""));
+      return 0;
     }],
     ["run-update", (options) => {
       const result = recordRunRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });

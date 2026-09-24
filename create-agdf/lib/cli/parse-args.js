@@ -53,6 +53,7 @@ export function parseArgs(argv, dependencies = {}) {
   let gate;
   let revisionId;
   let response;
+  let contractModule;
   let allActive = false;
   let scope;
   let confirm = false;
@@ -106,6 +107,12 @@ export function parseArgs(argv, dependencies = {}) {
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
+    if (arg === "--module") {
+      contractModule = requiredValue(args, i, arg);
       i += 1;
       continue;
     }
@@ -238,6 +245,7 @@ export function parseArgs(argv, dependencies = {}) {
       gate,
       revisionId,
       response,
+      contractModule,
       allActive,
       scope,
       confirm,

@@ -26,7 +26,7 @@ It reports:
 - whether further quality follow-up or a separate delivery closeout is useful
 
 ## Runtime Contract
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, read these focused runtime-contract modules through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
 
 - `../../meta/contracts/closeout.md`
 - `../../meta/contracts/quality.md`

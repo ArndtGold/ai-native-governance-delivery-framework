@@ -150,6 +150,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "lib/runtime/validator-application.js",
     "lib/skill-dispatch",
     "lib/cli/command-registry.js",
+    "lib/cli/contract-command.js",
     "lib/cli/delivery-path-search-command.js",
     "lib/cli/parse-args.js",
     "lib/cli/runtime-context.js",

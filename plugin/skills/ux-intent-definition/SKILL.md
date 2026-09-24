@@ -12,7 +12,7 @@ approved product promise instead of inventing requirements after code exists.
 
 ## Runtime Contract
 
-After `skill_continuation`, use:
+After `skill_continuation`, read through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
 
 - `../../meta/contracts/gate-transition.md` for impact routing, authority and revision behavior;
 - `../../meta/contracts/quality.md` for evidence and fail-closed output discipline.

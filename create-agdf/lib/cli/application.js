@@ -794,7 +794,7 @@ function runDisable(options, { io, exec }) {
 function executeUninstall(options, { env, exec }) {
   try {
     const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
-    const plan = planGlobalUninstall(options.surface, { configDir });
+    const plan = planGlobalUninstall(options.surface, { configDir, env, ...(exec ? { exec } : {}) });
     if (!options.confirm) {
       const preview = createLifecycleResult({
         operation: "uninstall", result: "preview", surface: options.surface, scope: "global",

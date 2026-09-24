@@ -14,7 +14,8 @@ import {
 } from "../installers/opencode.js";
 import { inspectPluginSurface } from "../installers/plugin-installers.js";
 import { planCodexRepositoryDisable, verifyCodexRepositoryDisabled, uninstallCommand as codexUninstallCommand } from "../host-adapters/codex/plugin.js";
-import { uninstallCommand as claudeUninstallCommand } from "../host-adapters/claude/plugin.js";
+import { planClaudeGlobalUninstall, verifyClaudeGlobalUninstall } from "../host-adapters/claude/uninstall.js";
+import { revokeClaudeRuntimeRule } from "../runtime-check-consent/claude-settings.js";
 import { uninstallCommand as copilotUninstallCommand } from "../host-adapters/copilot/plugin.js";
 
 export function planRepositoryDisable(targetDir, surface, { shared = false, exec = execFileSync } = {}) {
@@ -53,17 +54,18 @@ export function verifyGlobalUninstall(plan, _targetDir, {
   if (plan.surface === "opencode") {
     return verifyOpenCodeGlobalUninstall(plan, configDir, evaluateOpenCodeGlobalStatus);
   }
+  if (plan.surface === "claude") return verifyClaudeGlobalUninstall(plan, { ...(exec ? { exec } : {}), inspect });
   const report = inspect(plan.surface, exec);
   return report.status === "not_installed"
     ? { status: "healthy", evidence: report.evidence }
     : { status: "failed", evidence: [...report.evidence, `observed:${report.status}`] };
 }
 
-export function planGlobalUninstall(surface, { configDir } = {}) {
+export function planGlobalUninstall(surface, { configDir, ...claudeOptions } = {}) {
   if (surface === "opencode") return planOpenCodeGlobalUninstall(configDir);
+  if (surface === "claude") return planClaudeGlobalUninstall(claudeOptions);
   const command = surface === "codex" ? codexUninstallCommand()
-    : surface === "claude" ? claudeUninstallCommand()
-      : surface === "copilot" ? copilotUninstallCommand() : null;
+    : surface === "copilot" ? copilotUninstallCommand() : null;
   if (!command) throw new Error(`Global uninstall is not supported for ${surface}.`);
   return nativeUninstallPlan(surface, command.executable, command.args);
 }
@@ -93,6 +95,9 @@ export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilot
       } else if (mutation.kind === "remove") {
         rmSync(mutation.path);
         completed.push({ kind: "remove", path: mutation.path });
+      } else if (mutation.kind === "claude_permission_rules") {
+        for (const rule of mutation.rules) revokeClaudeRuntimeRule({ path: mutation.path, rule });
+        completed.push({ kind: "claude_permission_rules", path: mutation.path, rules: mutation.rules });
       } else if (mutation.kind === "command") {
         exec(mutation.executable, mutation.args, { cwd: mutation.cwd, stdio: "inherit" });
         completed.push({ kind: "command", executable: mutation.executable, args: mutation.args });

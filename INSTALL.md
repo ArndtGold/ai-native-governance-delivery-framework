@@ -311,6 +311,11 @@ npx --yes @agdf/cli@latest uninstall --surface codex --scope global --with-mcp -
 The same shape applies to `claude`, `copilot` and `opencode`. AGDF invokes supported native removal and removes
 only exact known entries or marker-proven generated state. Repository files, `.agdf/control`,
 user-authored files and ambiguous configuration are retained. Review the preview before confirmation.
+For Claude Code, the uninstall also removes the AGDF-owned `agdf` marketplace registration, the
+automatic runtime-check permission rules AGDF wrote (including forms from earlier releases) and the
+runtime-check consent receipt, and it plans only the steps whose state is still present, so a rerun
+over partial leftovers succeeds. The shared AGDF marketplace directory, which may still serve Codex,
+and Claude Code's own plugin cache are reported as retained with their paths instead of being deleted.
 For a coupled repository disable, AGDF disables the owned project MCP registration first and then
 applies the supported plugin repository opt-out. For a coupled global uninstall, the first command
 is still a preview; `--confirm` revalidates ownership before disabling MCP and removing the plugin.

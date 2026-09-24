@@ -42,7 +42,17 @@ assert.equal(resolveRuntimeCheckDecision({ interactive: false }), "manual");
 assert.equal(resolveRuntimeCheckDecision({ interactive: true, ask: () => "" }), "cancel");
 assert.throws(() => resolveRuntimeCheckDecision({ explicitValue: "yes" }), /DECISION_INVALID/);
 assert.equal(consentDisclosure("claude").network, "none");
-assert.equal(fixedRuntimeCheckCommand("codex", "/ignored", "darwin"), "node \"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/runtime/agdf-session-check.js\"");
+const sharedHookCommand = fixedRuntimeCheckCommand("codex", "/ignored", "darwin");
+assert.equal(sharedHookCommand, "node \"${CLAUDE_PLUGIN_ROOT}/runtime/agdf-session-check.js\"",
+  "the shared hooks.json command must use only the placeholder Claude Code resolves for PowerShell as well");
+assert.doesNotMatch(sharedHookCommand, /\$\{[A-Za-z_]+:[-=?+]/u, "Claude Code runs hooks.json through PowerShell on native Windows; POSIX parameter expansion does not parse there");
+if (process.platform === "win32") {
+  // Claude Code rewrites ${CLAUDE_PLUGIN_ROOT} to ${env:CLAUDE_PLUGIN_ROOT} before handing the command to PowerShell.
+  const claudeView = sharedHookCommand.replaceAll("${CLAUDE_PLUGIN_ROOT}", "${env:CLAUDE_PLUGIN_ROOT}");
+  const parse = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command",
+    `[void][ScriptBlock]::Create('${claudeView.replaceAll("'", "''")}')`], { encoding: "utf8" });
+  assert.equal(parse.status, 0, `the shared hooks.json command must parse in PowerShell: ${parse.stderr}`);
+}
 assert.equal(fixedRuntimeCheckCommand("claude", "/ignored", "darwin"), "node \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/runtime/agdf-session-check.js\"");
 const codexWindowsCommand = fixedRuntimeCheckCommand("codex", "C:\\ignored", "win32");
 const claudeWindowsCommand = fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32");
@@ -113,6 +123,10 @@ try {
   configureClaudeExactRuntimeRule({ path: settingsPath, rule: bashRule });
   revokeClaudeRuntimeRule({ path: settingsPath, rule: bashRule });
   assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow, ["Read(/safe)"]);
+  assert.deepEqual(revokeClaudeExactRule({ permissions: { allow: [bashRule] }, theme: "dark" }, bashRule), { theme: "dark" },
+    "a permissions block emptied by revocation is removed");
+  assert.deepEqual(revokeClaudeExactRule({ permissions: { allow: [bashRule], deny: ["Bash(rm:*)"] } }, bashRule), { permissions: { deny: ["Bash(rm:*)"] } },
+    "other permission keys survive revocation");
 
   const consentRoot = join(settingsRoot, "data");
   const runtimeCommand = fixedRuntimeCheckCommand("claude", "/ignored", "darwin");

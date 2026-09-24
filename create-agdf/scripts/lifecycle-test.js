@@ -36,6 +36,11 @@ import {
 } from "../lib/installers/copilot-settings.js";
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 import { linkDirectory } from "./support/symlinks.js";
+import { localMarketplaceRoot } from "../lib/installers/local-marketplace.js";
+import { claudePermissionRule } from "../lib/host-adapters/claude/permission-rules.js";
+import { ownedRuntimeCheckRules } from "../lib/host-adapters/claude/uninstall.js";
+import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
+import { createRuntimeCheckReceipt, writeRuntimeCheckReceipt } from "../lib/runtime-check-consent/state.js";
 
 function mcpLifecycleFixture({ action, surface, scope, target, result = action === "disable" ? "disabled" : "not_configured", registration } = {}) {
   const registrationStatus = registration ?? (result === "disabled" || result === "not_configured" ? "absent" : "matched");
@@ -528,6 +533,77 @@ assert.equal(verifyGlobalUninstall(uninstall, root, {
 }).status, "healthy");
 const copilotUninstall = planGlobalUninstall("copilot");
 assert.deepEqual(copilotUninstall.mutations[0], { kind: "command", executable: "copilot", args: ["plugin", "uninstall", "agdf"] });
+
+{
+  // Claude uninstall removes every Claude-only AGDF trace and stays idempotent on partial leftovers.
+  const dataRoot = mkdtempSync(join(tmpdir(), "agdf-claude-uninstall-data-"));
+  const claudeDir = mkdtempSync(join(tmpdir(), "agdf-claude-uninstall-config-"));
+  const env = { AGDF_DATA_DIR: dataRoot, CLAUDE_CONFIG_DIR: claudeDir };
+  const marketplaceRoot = localMarketplaceRoot({ env });
+  mkdirSync(marketplaceRoot, { recursive: true });
+  mkdirSync(join(claudeDir, "plugins", "cache", "agdf"), { recursive: true });
+  const settingsPath = join(claudeDir, "settings.json");
+  const legacyRule = "PowerShell(node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\")";
+  const windowsRule = claudePermissionRule({ platform: "win32", command: fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32") });
+  const posixRule = claudePermissionRule({ platform: "darwin", command: fixedRuntimeCheckCommand("claude", "/ignored", "darwin") });
+  const userRules = ["Bash(npm test)", "Bash(node \"/opt/tools/runtime/agdf-session-check.js\")"];
+  writeFileSync(settingsPath, `${JSON.stringify({ permissions: { allow: [legacyRule, userRules[0], windowsRule, posixRule, userRules[1]] }, theme: "dark" }, null, 2)}\n`);
+  assert.deepEqual(ownedRuntimeCheckRules(JSON.parse(readFileSync(settingsPath, "utf8"))), [legacyRule, windowsRule, posixRule],
+    "only AGDF's PLUGIN_ROOT-relative runtime-check rules are owned, including earlier releases' forms");
+  const receipt = writeRuntimeCheckReceipt(dataRoot, createRuntimeCheckReceipt({
+    surface: "claude", decision: "enable", capabilityIdentity: "a".repeat(64), command: fixedRuntimeCheckCommand("claude", "/ignored", "darwin"),
+  }));
+  let installed = true;
+  let registration = [{ name: "agdf", source: "directory", path: marketplaceRoot, installLocation: marketplaceRoot }];
+  const claudeCalls = [];
+  const claudeExec = (executable, args) => {
+    assert.equal(executable, "claude");
+    const command = args.join(" ");
+    claudeCalls.push(command);
+    if (command === "plugin list") return installed ? `Installed plugins:\n  ❯ agdf@agdf\n    Version: ${pluginDefinition.version}\n` : "Installed plugins:\n";
+    if (command === "plugin marketplace list --json") return JSON.stringify(registration);
+    if (command === "plugin uninstall agdf@agdf --scope user") { installed = false; return ""; }
+    if (command === "plugin marketplace remove agdf --scope user") { registration = []; return ""; }
+    throw new Error(`unexpected claude call: ${command}`);
+  };
+  const plan = planGlobalUninstall("claude", { exec: claudeExec, env });
+  assert.deepEqual(plan.mutations.map(({ kind, args, path }) => [kind, args?.join(" ") ?? path]), [
+    ["command", "plugin uninstall agdf@agdf --scope user"],
+    ["command", "plugin marketplace remove agdf --scope user"],
+    ["claude_permission_rules", settingsPath],
+    ["remove", receipt?.path ?? join(dataRoot, "runtime-checks", "claude.json")],
+  ]);
+  assert.ok(plan.retained.some((item) => item.includes(marketplaceRoot)), "the shared marketplace directory is reported, never deleted");
+  assert.ok(plan.retained.some((item) => item.includes(join(claudeDir, "plugins", "cache", "agdf"))), "the host-owned cache is reported");
+  assert.equal(applyLifecyclePlan(plan, { exec: claudeExec }).status, "success");
+  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")), { permissions: { allow: userRules }, theme: "dark" });
+  assert.equal(existsSync(join(dataRoot, "runtime-checks", "claude.json")), false);
+  assert.equal(existsSync(marketplaceRoot), true);
+  assert.equal(verifyGlobalUninstall(plan, root, { exec: claudeExec }).status, "healthy");
+
+  const rerun = planGlobalUninstall("claude", { exec: claudeExec, env });
+  assert.deepEqual(rerun.mutations, [], "a second uninstall over partial leftovers must plan nothing instead of failing");
+  assert.equal(applyLifecyclePlan(rerun, { exec: claudeExec }).status, "success");
+  assert.equal(verifyGlobalUninstall(rerun, root, { exec: claudeExec }).status, "healthy");
+
+  registration = [{ name: "agdf", source: "directory", path: join(dataRoot, "foreign"), installLocation: join(dataRoot, "foreign") }];
+  const foreign = planGlobalUninstall("claude", { exec: claudeExec, env });
+  assert.equal(foreign.mutations.some((mutation) => mutation.args?.includes("remove")), false, "a non-AGDF marketplace named agdf must never be removed");
+  assert.ok(foreign.retained.some((item) => item.startsWith("Claude marketplace registration agdf")));
+
+  installed = true;
+  registration = [{ name: "agdf", source: "directory", path: marketplaceRoot, installLocation: marketplaceRoot }];
+  const stale = planGlobalUninstall("claude", { exec: claudeExec, env });
+  installed = true;
+  assert.equal(verifyGlobalUninstall(stale, root, { exec: claudeExec }).status, "failed", "verification must observe a remaining plugin or registration");
+  const human = [];
+  printLifecycleResult(createLifecycleResult({
+    operation: "uninstall", result: "preview", surface: "claude", scope: "global",
+    verification: { status: "unknown", evidence: [] }, restart: { required: false },
+    next_action: { kind: "confirm", text: "confirm" }, changes: stale.mutations, retained: stale.retained,
+  }), { io: { log(line) { human.push(line); } } });
+  assert.ok(human.includes("Planned changes:") && human.includes("- claude plugin uninstall agdf@agdf --scope user"), human.join("\n"));
+}
 
 const ownedConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-uninstall-"));
 writeFileSync(join(ownedConfig, "opencode.json"), `${JSON.stringify({

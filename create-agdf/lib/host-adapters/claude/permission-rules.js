@@ -24,6 +24,11 @@ export function applyClaudeExactRule(settings, { rule, deny = [], ask = [] }) {
 
 export function revokeClaudeExactRule(settings, rule) {
   const next = structuredClone(settings);
-  if (Array.isArray(next.permissions?.allow)) next.permissions.allow = next.permissions.allow.filter((entry) => entry !== rule);
+  if (Array.isArray(next.permissions?.allow)) {
+    next.permissions.allow = next.permissions.allow.filter((entry) => entry !== rule);
+    // A block emptied by revocation means nothing; dropping it lets uninstall leave no AGDF trace.
+    if (next.permissions.allow.length === 0) delete next.permissions.allow;
+    if (Object.keys(next.permissions).length === 0) delete next.permissions;
+  }
   return next;
 }

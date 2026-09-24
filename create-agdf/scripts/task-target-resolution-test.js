@@ -142,4 +142,25 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
+// Windows keeps 8.3 short names (for example C:\Users\RUNNER~1) in realpathSync, while git reports
+// the long root; the working directory must still resolve as repository-bound.
+if (process.platform === "win32") {
+  const longRoot = mkdtempSync(join(tmpdir(), "agdf-short-name-repository-"));
+  try {
+    const longRepo = join(longRoot, "repository-with-long-name");
+    mkdirSync(join(longRepo, "src"), { recursive: true });
+    execFileSync("git", ["init", "-q", longRepo]);
+    const shortRepo = execFileSync("cmd.exe", ["/d", "/s", "/c", `for %I in ("${longRepo}") do @echo %~sI`], { encoding: "utf8", windowsVerbatimArguments: true }).trim();
+    if (shortRepo.toLowerCase() === longRepo.toLowerCase()) {
+      console.log("[task-target-resolution-test] SKIPPED short-name assertions: 8.3 names are disabled on this volume");
+    } else {
+      const shortContext = resolveRepositoryContext(join(shortRepo, "src"));
+      assert.equal(shortContext.context_state, "repository_bound", "an 8.3 short working directory stays repository-bound");
+      assert.equal(shortContext.repository_root, realpathSync(shortRepo), "the root keeps the working directory's spelling");
+    }
+  } finally {
+    rmSync(longRoot, { recursive: true, force: true });
+  }
+}
+
 console.log("task target resolution tests passed");

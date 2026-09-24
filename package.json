@@ -12,7 +12,9 @@
     "set-version": "node scripts/set-version.mjs",
     "test:host-compatibility": "node create-agdf/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
     "compatibility:record": "node scripts/host-compatibility/run.mjs record",
-    "compatibility:check": "node scripts/host-compatibility/run.mjs check"
+    "compatibility:check": "node scripts/host-compatibility/run.mjs check",
+    "native:codex-hook-check": "bash scripts/native-probes/codex-macos-hook-check.sh",
+    "native:codex-hook-probe": "bash scripts/native-probes/codex-hook-probe-plugin.sh"
   },
   "devDependencies": {
     "yaml": "2.9.0",

@@ -10,13 +10,14 @@ AGDF umgeht diese Prüfung nie.
 - dieser Checkout mindestens auf Commit `4e414ab`
 - ein zweites Terminal für den manuellen Schritt in Codex
 
-Standardmäßig wird `codex` vom `PATH` verwendet. Für die in der ChatGPT-App gebündelte Version:
-`CODEX_BIN=/Applications/ChatGPT.app/Contents/Resources/codex`.
+Beide Prüfungen werden aus dem Repository-Wurzelverzeichnis über npm gestartet. Standardmäßig wird
+`codex` vom `PATH` verwendet. Für die in der ChatGPT-App gebündelte Version davor setzen:
+`CODEX_BIN=/Applications/ChatGPT.app/Contents/Resources/codex npm run native:codex-hook-check`.
 
 ## Teil A (Pflicht): startet der AGDF-Hook unter Codex?
 
 ```bash
-bash scripts/native-probes/codex-macos-hook-check.sh
+npm run native:codex-hook-check
 ```
 
 Das Skript sichert `~/.codex/config.toml` und die AGDF-Einwilligung, installiert den lokalen Stand
@@ -32,7 +33,7 @@ den lokalen Stand. Zurück zur veröffentlichten Version: `npx --yes @agdf/cli@0
 ## Teil B (optional): Grundlage für eine spätere Trennung der Hook-Dateien
 
 ```bash
-bash scripts/native-probes/codex-hook-probe-plugin.sh
+npm run native:codex-hook-probe
 ```
 
 Ein Wegwerf-Plugin `hookprobe` mit eigenem Marketplace prüft zwei Fragen, ohne AGDF anzufassen:

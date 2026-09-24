@@ -3,8 +3,8 @@
 # with the command introduced in 4e414ab? Evidence comes from Codex's own hook metadata (app-server
 # hooks/list) and the session rollout, not from a model self-report.
 #
-# Usage:  bash scripts/native-probes/codex-macos-hook-check.sh
-#         CODEX_BIN=/Applications/ChatGPT.app/Contents/Resources/codex bash scripts/native-probes/codex-macos-hook-check.sh
+# Usage:  npm run native:codex-hook-check   (from the repository root)
+#         CODEX_BIN=/Applications/ChatGPT.app/Contents/Resources/codex npm run native:codex-hook-check
 set -u
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd -P)"

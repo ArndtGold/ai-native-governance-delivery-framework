@@ -5,7 +5,7 @@
 # The hooks write their own evidence file, so the result does not depend on any model output.
 # The probe plugin and its marketplace are removed at the end.
 #
-# Usage:  bash scripts/native-probes/codex-hook-probe-plugin.sh
+# Usage:  npm run native:codex-hook-probe   (from the repository root)
 set -u
 
 CODEX="${CODEX_BIN:-codex}"

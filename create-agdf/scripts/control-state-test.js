@@ -15,19 +15,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   aggregate,
+  approveRunGate,
   createRun,
   discoverRuns,
   migrateLegacy,
   parseRunState,
+  recordRunRevision,
   renderLegacyProjection,
   resolveRuns,
+  runSealState,
   verifyLegacyProjection,
   writeRun,
   validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
 import { parseControlState, RUN_ID_PATTERN } from "../lib/control-state/run-state-parser.js";
 import { validateRunIdentity, RUN_ID_PATTERN as identityRunIdPattern } from "../lib/control-state/run-identity.js";
-import { postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { evaluateGateCheck, postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
+import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { normalizeBacklogStatus } from "../lib/control-evaluation/shared.js";
 import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
@@ -839,6 +844,99 @@ ${approvals}
       assert.equal("presentation_diagnostics" in gateReport, false, "IPP-4: healthy run report has no presentation_diagnostics key");
     } finally {
       rmSync(healthyRoot, { recursive: true, force: true });
+    }
+  }
+
+  // Sealed runs: run-update records edits as revisions, run-approve alone changes approvals.
+  {
+    const recordingRoot = mkdtempSync(join(tmpdir(), "agdf-run-recording-"));
+    try {
+      initializeCanonicalControl(recordingRoot, generatedFilesForTarget("init", recordingRoot, false, "de"));
+      const statePath = createRun(recordingRoot, "rec");
+      const read = () => readFileSync(statePath, "utf8");
+      const meta = () => parseRunState(read(), "rec").meta;
+      const gate = () => evaluateGateCheck(recordingRoot, { runId: "rec" });
+      const approve = (overrides = {}) => approveRunGate(recordingRoot, {
+        runId: "rec",
+        gate: "UR",
+        revisionId: meta().revision_id,
+        response: "Approval: UR",
+        date: "2026-01-02",
+        ...overrides,
+      }, { evaluateGateCheck });
+
+      assert.equal(runSealState(recordingRoot, read()).status, "valid", "run-create writes a sealed run");
+      for (const heading of ["Approvals", "Artefacts", "Mode/Slice Decision", "Artefact Chain", "Evidence", "Closeout"]) {
+        assert.match(read(), new RegExp(`^## ${heading}$`, "m"), `run-create writes the ${heading} section`);
+      }
+      assert.match(read(), /^\| UR \| missing \|  \|$/m);
+      const fresh = gate();
+      assert.equal(fresh.status, "open");
+      assert.equal(fresh.missing_approval, "Approval: UR");
+      assert.equal(fresh.approval_presentation, null, "no approval is presented before the UR artefact exists");
+      assert.equal(approve().reason, "approval_presentation_unavailable");
+
+      mkdirSync(join(recordingRoot, ".agdf", "control", "artefacts", "rec"), { recursive: true });
+      const urPath = join(recordingRoot, ".agdf", "control", "artefacts", "rec", "UR.md");
+      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n");
+      writeFileSync(statePath, read().replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/rec/UR.md` | draft |  |"));
+      assert.equal(runSealState(recordingRoot, read()).status, "content_changed");
+      const unrecorded = gate();
+      assert.equal(unrecorded.blocking_reason, "AGDF_RUN_SEAL_MISMATCH");
+      assert.equal(unrecorded.approval_presentation, null);
+      assert.ok(unrecorded.status_presentation?.markdown, "the localized card renders the run-update recovery");
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: "not-current" }).reason, "stale_revision");
+      const first = meta();
+      const updated = recordRunRevision(recordingRoot, { runId: "rec", revisionId: first.revision_id });
+      assert.equal(updated.outcome, "updated");
+      assert.equal(updated.revision, "2");
+      assert.notEqual(updated.revision_id, first.revision_id);
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).outcome, "unchanged");
+
+      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n");
+      const lfState = read();
+      writeFileSync(statePath, lfState.replace(/\n/g, "\r\n"));
+      assert.equal(runSealState(recordingRoot, read()).status, "valid", "line-ending conversion keeps the seal valid");
+      writeFileSync(statePath, lfState);
+      assert.equal(gate().approval_presentation?.revision_id, updated.revision_id);
+
+      assert.equal(approve({ response: "passt schon" }).reason, "wrong_or_non_approval_response");
+      assert.equal(approve({ response: "Approval: PRD" }).reason, "wrong_or_non_approval_response");
+      assert.equal(approve({ revisionId: first.revision_id }).reason, "stale_revision");
+      assert.equal(approve({ gate: "PRD", response: "Approval: PRD" }).reason, "gate_not_ready");
+      assert.equal(approve({ gate: "Brownfield Review" }).reason, "gate_invalid");
+      assert.equal(meta().revision_id, updated.revision_id, "rejected approvals write nothing");
+
+      const recorded = read();
+      writeFileSync(statePath, recorded.replace("| UR | missing |  |", "| UR | approved | Approval: UR |"));
+      assert.equal(gate().blocking_reason, "AGDF_RUN_APPROVALS_UNRECORDED");
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).reason, "approvals_unrecorded");
+      writeFileSync(statePath, recorded.replace("| PRD | missing |  |", "| PRD | not_applicable | skipped |"));
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).reason, "approvals_unrecorded", "skipping a gate by hand is an approval change");
+      writeFileSync(statePath, recorded);
+
+      const approved = approve();
+      assert.equal(approved.outcome, "approved");
+      assert.equal(approved.previous_revision_id, updated.revision_id);
+      assert.equal(approved.revision, "3");
+      assert.equal(approved.next_gate_after_approval, "Brownfield Review");
+      const approvedState = read();
+      assert.match(approvedState, /^\| UR \| approved \| `Approval: UR` · 2026-01-02 · revision 2 · `\.agdf\/control\/artefacts\/rec\/UR\.md` sha256:[0-9a-f]{16} \|$/m);
+      assert.match(approvedState, /^\| UR \| `\.agdf\/control\/artefacts\/rec\/UR\.md` \| approved \|  \|$/m);
+      assert.match(approvedState, /^\| UR \| approved_by \| Approval: UR \| `Approval: UR` · 2026-01-02 · revision 2 /m);
+      assert.equal(runSealState(recordingRoot, approvedState).status, "valid");
+      const afterApproval = gate();
+      assert.equal(afterApproval.status, "open");
+      assert.equal(afterApproval.current_gate, "Brownfield Review");
+      assert.ok(afterApproval.status_presentation?.markdown, "the localized card renders after run-approve");
+      assert.equal(approve({ revisionId: approved.revision_id }).reason, "gate_not_ready", "an approval is recorded once");
+
+      writeFileSync(statePath, approvedState.replace(/^- approval_seal:.*\n/m, ""));
+      assert.equal(runSealState(recordingRoot, read()).status, "invalid");
+      assert.equal(gate().blocking_reason, "AGDF_RUN_SEAL_INVALID");
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: approved.revision_id }).reason, "seal_invalid");
+    } finally {
+      rmSync(recordingRoot, { recursive: true, force: true });
     }
   }
 

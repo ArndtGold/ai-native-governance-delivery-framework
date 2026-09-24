@@ -13,6 +13,7 @@ import {
 import { dirname } from "node:path";
 
 import { parseRunState } from "./run-state-parser.js";
+import { approvalSeal, canonicalRunText, runRootFromStatePath, runSealState, sealRunState } from "./run-seal.js";
 
 function fsyncDirectory(path) {
   if (process.platform === "win32") return;
@@ -60,7 +61,10 @@ export function atomicWrite(path, content) {
   }
 }
 
-export function writeRun(path, content, expectedRevisionId) {
+// Every write advances the revision and re-seals the run. Approval rows may change only when the
+// caller has validated one exact gate approval (run-approve); any other write must keep them intact.
+export function writeRun(path, content, expectedRevisionId, { allowApprovalChange = false, expectedContent } = {}) {
+  const root = runRootFromStatePath(path);
   const lockPath = `${path}.lock`;
   let lockDescriptor;
   try {
@@ -71,18 +75,25 @@ export function writeRun(path, content, expectedRevisionId) {
   }
 
   try {
-    const current = parseRunState(readFileSync(path, "utf8"));
+    const currentContent = readFileSync(path, "utf8");
+    const current = parseRunState(currentContent);
     if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
-    if (current.meta.revision_id !== expectedRevisionId) {
+    if (current.meta.revision_id !== expectedRevisionId
+        || (expectedContent !== undefined && currentContent !== expectedContent)) {
       throw new Error("AGDF_STALE_RUN_REVISION");
     }
+    const seal = runSealState(root, currentContent);
+    if (seal.status === "invalid") throw new Error("AGDF_RUN_SEAL_INVALID");
+    if (!allowApprovalChange && seal.status !== "unsealed" && approvalSeal(content) !== seal.recorded.approval_seal) {
+      throw new Error("AGDF_RUN_APPROVALS_UNRECORDED");
+    }
 
-    const next = content
+    const next = sealRunState(root, canonicalRunText(content)
       .replace(
         /^- revision:\s*.*$/m,
         `- revision: ${Number(current.meta.revision) + 1}`,
       )
-      .replace(/^- revision_id:\s*.*$/m, `- revision_id: ${randomUUID()}`);
+      .replace(/^- revision_id:\s*.*$/m, `- revision_id: ${randomUUID()}`));
     const candidate = parseRunState(next);
     if (!candidate.valid || candidate.meta.run_id !== current.meta.run_id) {
       throw new Error("AGDF_RUN_STATE_INVALID");

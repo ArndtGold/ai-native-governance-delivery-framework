@@ -145,9 +145,12 @@ try {
     parser: { cwd: configured },
     io: { log: (value = "") => cliOut.push(String(value)), error: (value = "") => cliErr.push(String(value)) },
   });
-  assert.equal(cliStatus, 2, "the fresh run remains blocked independently of presentation language");
+  assert.equal(cliStatus, 0, "a fresh run is open at UR independently of presentation language");
   assert.deepEqual(cliErr, []);
   const cliReport = JSON.parse(cliOut[0]);
+  assert.equal(cliReport.status, "open");
+  assert.equal(cliReport.current_gate, "UR");
+  assert.equal(cliReport.approval_presentation, null, "no UR approval is presented before a durable UR artefact exists");
   assert.equal(cliReport.status_card.presentation_language, "en", "explicit CLI language must override project configuration in gate evaluation");
   assert.match(cliReport.status_presentation.markdown, /AGDF status-card/);
 

@@ -56,6 +56,12 @@ Repository-level discovery is derived; do not maintain a writable active-run das
 closed. Legacy `AGDF_RUN.md` is migration input or an explicitly rendered non-authoritative projection,
 never a second writable owner. Read-only commands must not migrate state.
 
+`run-create` writes a sealed run. The seal covers the run state and every file listed under
+Artefacts; an unrecorded edit blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH`. After
+changing either, call `run-update --run <run_id> --revision <revision_id>` before `gate-check`; it
+advances the revision and refuses Approvals changes. Only `run-approve` records an approval. Both run
+on the surface-local validator. The seal detects unrecorded edits; it is not a signature.
+
 When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
 
 - `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules remain English.

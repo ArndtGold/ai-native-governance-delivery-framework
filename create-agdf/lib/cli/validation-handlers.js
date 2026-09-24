@@ -13,6 +13,7 @@ import { renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../int
 import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
+import { approveRunGate, recordRunRevision } from "../control-state/run-recording.js";
 import { cliGitObservation } from "../control-evaluation/git-observation.js";
 import { resolveRepositoryContext } from "../repository-context.js";
 
@@ -88,6 +89,21 @@ export function createValidationHandlers(io = console) {
       const report = evaluateDeliveryMap(options.dir, options, deliveryMapDependencies);
       printDeliveryMapReport(report, options.json, io);
       return report.status === "block" ? 2 : 0;
+    }],
+    ["run-update", (options) => {
+      const result = recordRunRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });
+      io.log(JSON.stringify(result, null, 2));
+      return result.outcome === "rejected" ? 2 : 0;
+    }],
+    ["run-approve", (options) => {
+      const result = approveRunGate(options.dir, {
+        runId: options.runId,
+        gate: options.gate,
+        revisionId: options.revisionId,
+        response: options.response,
+      }, { evaluateGateCheck: evaluateGateWithCliGit });
+      io.log(JSON.stringify(result, null, 2));
+      return result.outcome === "rejected" ? 2 : 0;
     }],
     ["delivery-path-search", async (options) => {
       try {

@@ -230,9 +230,21 @@ Canonical run lifecycle:
 
 ```bash
 agdf run-create --run <run_id>
+agdf run-update --run <run_id> --revision <revision_id>
+agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response "Approval: <gate>"
 agdf run-migrate [--run <run_id>]
 agdf run-render-legacy --run <run_id>
 ```
+
+`run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
+Chain tables. The seal covers the run state and every file listed under Artefacts, so an edit made
+outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
+`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows.
+`run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
+presented `revision_id`, records it with the approved artefact's digest and advances the revision.
+Both commands print JSON and are also available through the plugin's surface-local validator. The
+seal detects unrecorded edits; it is not a signature. Removing both seal lines opts a run out and
+remains visible in the diff.
 
 ### Advanced / Compatibility
 

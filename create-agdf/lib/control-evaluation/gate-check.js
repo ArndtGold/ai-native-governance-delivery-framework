@@ -201,6 +201,15 @@ export function qualityReadinessForRunState(runState, nextAction) {
   return Object.freeze({ ...readiness, decisive_reference: decisive?.path ?? "" });
 }
 
+// A gate question needs the artefact it approves: a durable file for UR/PRD/SD/TP and a passing QA
+// report for QA. UAT approves the delivered result and has no separate artefact.
+function isDurableApprovalArtefactPresent(targetDir, runState, gate) {
+  if (gate === "UAT") return true;
+  const artefact = runState.artefacts.get(gate);
+  if (!artefact || !resolvedArtefactFile(targetDir, artefact.path)) return false;
+  return gate !== "QA" || ["pass", "passed"].includes(artefact.status);
+}
+
 function buildHumanPresentation(targetDir, runState, currentGate, presentationLocale) {
   const currentArtefactHeading = readArtefactHeading(targetDir, runState.artefacts.get(currentGate));
   const urHeading = readArtefactHeading(targetDir, runState.artefacts.get("UR"));
@@ -325,7 +334,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
         humanPresentation,
         revisionId,
       });
-  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
+  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval })
+    && isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
   const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
     ready: readyForApproval,
     humanPresentation,

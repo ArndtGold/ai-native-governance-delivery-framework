@@ -78,6 +78,9 @@ function rows(s) {
     )
     .filter((r) => !r.every((x) => /^[-:]+$/.test(x)));
 }
+export function sectionTableRows(content, heading) {
+  return rows(section(content, heading));
+}
 function clean(v = "") {
   return v.replace(/^`|`$/g, "").trim();
 }

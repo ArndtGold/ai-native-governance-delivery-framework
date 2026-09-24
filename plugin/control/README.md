@@ -81,6 +81,9 @@ agdf gate-check --json
   `AGDF_RUN_ID` when more than one run is active.
 - Migrate legacy state explicitly with `run-migrate`; read-only commands never migrate. A retained
   `AGDF_RUN.md` is migration input or a non-authoritative projection, not a second writable owner.
+- A run created by `run-create` is sealed. Record every change to it or to a listed artefact with
+  `run-update`, and record exact gate replies only with `run-approve`; an unrecorded edit blocks
+  `doctor` and `gate-check` until it is recorded.
 
 - The selected `runs/<run_id>/RUN_STATE.md` is the current run dashboard.
 - `config.json` stores the project preference for artefact and chat language; runtime rules stay English.

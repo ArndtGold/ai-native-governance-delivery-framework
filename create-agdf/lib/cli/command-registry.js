@@ -40,6 +40,8 @@ export const commandRegistry = Object.freeze([
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
   }),
   command("run-create", { local: [" --run <run_id>"] }),
+  command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
+  command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
   command("run-render-legacy", { local: [" --run <run_id>"] }),
 ]);
@@ -103,6 +105,16 @@ export function validateCommandOptions(options) {
   }
   if (options.target === "run-create" && (!options.runId || options.allActive)) {
     throw new Error("run-create requires --run and rejects --all-active");
+  }
+  if ((options.gate || options.revisionId || options.response !== undefined)
+      && !["run-update", "run-approve"].includes(options.target)) {
+    throw new Error("--gate, --revision and --response are supported only by run-update and run-approve");
+  }
+  if (options.target === "run-update" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
+    throw new Error("run-update requires --run and --revision and rejects --gate and --response");
+  }
+  if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
+    throw new Error("run-approve requires --run, --gate, --revision and --response");
   }
   if (options.target === "run-render-legacy" && !options.runId) {
     throw new Error("run-render-legacy requires --run");
@@ -198,6 +210,12 @@ Options:
   --approval-envelope
                  Print the deterministic ready-gate cards and exact-text request
   --run <run_id> Select one canonical run
+  --revision <revision_id>
+                 Expected current run revision for run-update and run-approve
+  --gate <UR|PRD|SD|TP|QA|UAT>
+                 Gate whose exact approval run-approve records
+  --response <text>
+                 The user's verbatim reply to the presented gate question
   --target-source ${TASK_TARGET_SOURCE_GRAMMAR}
                  Classify the semantic source for target-check
   --primary-target <absolute-path>

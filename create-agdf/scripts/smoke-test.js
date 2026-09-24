@@ -1302,6 +1302,7 @@ run("config", [
 
 - next_allowed_action: Request exact TP approval.
 `, "utf8");
+    writeFileSync(join(tempDir, "TP.md"), "TP fixture artefact.\n", "utf8");
     const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json"]);
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);

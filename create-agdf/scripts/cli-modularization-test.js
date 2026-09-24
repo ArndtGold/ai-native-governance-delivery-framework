@@ -26,8 +26,8 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "delivery-path-search", "run-create", "run-migrate",
-  "run-render-legacy",
+  "delivery-map", "delivery-path-search", "run-create", "run-update", "run-approve",
+  "run-migrate", "run-render-legacy",
 ];
 
 assert.deepEqual(supportedCommandNames(), expectedCommands);
@@ -37,8 +37,8 @@ assert.equal(new Set(commandRegistry.map(({ handler }) => handler)).size, expect
 const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
-assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-migrate", "run-render-legacy"]) {
+assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -74,6 +74,9 @@ assert.deepEqual(parsed.options, {
   model: undefined,
   generateCandidates: true,
   runId: "run-a",
+  gate: undefined,
+  revisionId: undefined,
+  response: undefined,
   allActive: false,
   scope: undefined,
   confirm: false,
@@ -185,6 +188,16 @@ assert.throws(() => validateCommandOptions({ target: "doctor", approvalEnvelope:
 assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true, json: true }), /cannot be combined/);
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
+assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a" }), /run-update requires --run and --revision/);
+assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev", gate: "UR" }), /rejects --gate and --response/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev" }));
+assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
+assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /supported only by run-update and run-approve/);
+{
+  const { gate, revisionId, response } = parseArgs(["run-approve", "--run", "run-a", "--gate", "UR", "--revision", "rev", "--response", "Approval: UR"]).options;
+  assert.deepEqual({ gate, revisionId, response }, { gate: "UR", revisionId: "rev", response: "Approval: UR" });
+}
 assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "codex" }));
 assert.throws(() => validateCommandOptions({ target: "disable", surface: "copilot" }), /requires explicit --scope repository/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "copilot", scope: "repository", shared: true }));
@@ -232,8 +245,8 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-migrate", "run-render-legacy"]) {
-  assert.match(packageReadme, new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
+  assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }
 assert.match(packageReadme, /BCP 47 language tag/);
@@ -309,6 +322,8 @@ function recordingIo() {
   assert.deepEqual(JSON.parse(recording.out[0]), { name: "create-agdf", version: pluginDefinition.version });
   assert.equal(await runValidatorCli(["codex"], { io: recording.io }), 1);
   assert.match(recording.err.at(-1), /does not support lifecycle command/);
+  assert.equal(await runValidatorCli(["run-update", "--run", "missing-run", "--revision", "rev", "--dir", packageRoot], { io: recording.io }), 2);
+  assert.equal(JSON.parse(recording.out.at(-1)).reason, "run_missing", "the surface-local validator records run revisions");
 }
 
 {

@@ -318,7 +318,7 @@ Before presenting `gate_approval`, the agent must:
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
-7. persist an accepted approval only through the existing control-state workflow.
+7. persist an accepted approval only with `run-approve --run <run_id> --gate <gate> --revision <revision_id> --response "<verbatim reply>"`, which repeats steps 5 and 6 against the presented `revision_id` and advances the revision.
 
 For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
 deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`

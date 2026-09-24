@@ -50,6 +50,9 @@ export function parseArgs(argv, dependencies = {}) {
   let generationTimeoutMs = 30000;
   let generationCostUnits = 5;
   let runId;
+  let gate;
+  let revisionId;
+  let response;
   let allActive = false;
   let scope;
   let confirm = false;
@@ -103,6 +106,15 @@ export function parseArgs(argv, dependencies = {}) {
 
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
+    if (["--gate", "--revision", "--response"].includes(arg)) {
+      const next = requiredValue(args, i, arg);
+      if (arg === "--gate") gate = next;
+      else if (arg === "--revision") revisionId = next;
+      else response = next;
       i += 1;
       continue;
     }
@@ -223,6 +235,9 @@ export function parseArgs(argv, dependencies = {}) {
       model,
       generateCandidates,
       runId,
+      gate,
+      revisionId,
+      response,
       allActive,
       scope,
       confirm,

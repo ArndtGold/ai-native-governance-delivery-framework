@@ -1,4 +1,4 @@
-import { execHostFileSync, spawnHostSync } from "../../installers/host-command.js";
+import { execHostFileSync, spawnHostSync } from "../../host-command.js";
 import process from "node:process";
 import { validateEvaluation } from "../contracts.js";
 import { guardedExecFileSync } from "../transports/read-only-guard.js";

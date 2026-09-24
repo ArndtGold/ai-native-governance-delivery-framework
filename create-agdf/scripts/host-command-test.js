@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { tmpdir } from "node:os";
 import { join, win32 } from "node:path";
 import process from "node:process";
-import { execHostFileSync, findWindowsCommand, parseNpmCmdShim, resolveHostCommand, spawnHostSync } from "../lib/installers/host-command.js";
+import { execHostFileSync, findWindowsCommand, parseNpmCmdShim, resolveHostCommand, spawnHostSync } from "../lib/host-command.js";
 import { npmDirectCmdShim as directShim, npmNodeCmdShim as nodeShim } from "./support/npm-cmd-shim.js";
 
 const legacyNodeShim = (target) => `@ECHO off\r\nSETLOCAL\r\nCALL :find_dp0\r\n\r\nIF EXIST "%dp0%\\node.exe" (\r\n  SET "_prog=%dp0%\\node.exe"\r\n) ELSE (\r\n  SET "_prog=node"\r\n  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n)\r\n\r\n"%_prog%"  "%dp0%\\${target}" %*\r\nENDLOCAL\r\nEXIT /b %errorlevel%\r\n:find_dp0\r\nSET dp0=%~dp0\r\nEXIT /b\r\n`;

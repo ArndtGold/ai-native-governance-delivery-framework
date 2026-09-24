@@ -2,7 +2,7 @@ import { inspectPluginList } from "../../installers/plugin-command.js";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { inspectGeneratedRepositoryMarketplace } from "../../runtime/plugin-provenance.js";
-import { execHostFileSync } from "../../installers/host-command.js";
+import { execHostFileSync } from "../../host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./identity.js";

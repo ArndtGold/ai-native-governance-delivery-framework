@@ -513,7 +513,7 @@ async function validateHandbookInvariants(root, findings) {
       continue;
     }
     const metadata = document.toJS();
-    const expectedTranslationOf = path.relative(path.dirname(englishPath), germanPath);
+    const expectedTranslationOf = path.posix.relative(path.posix.dirname(englishPath), germanPath);
     const sourceBytes = await read(root, germanPath);
     const expectedRevision = `sha256:${createHash("sha256").update(sourceBytes).digest("hex")}`;
     if (metadata.language !== "en"

@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { execHostFileSync } from "../installers/host-command.js";
+import { execHostFileSync } from "../host-command.js";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {

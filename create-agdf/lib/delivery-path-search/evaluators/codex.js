@@ -1,4 +1,4 @@
-import { execHostFileSync } from "../../installers/host-command.js";
+import { execHostFileSync } from "../../host-command.js";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

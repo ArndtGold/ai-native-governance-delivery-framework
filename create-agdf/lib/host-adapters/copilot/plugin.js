@@ -10,7 +10,7 @@ import { copilotMarketplaceSource } from "../../installers/copilot-marketplace-t
 import { verifyCopilotSkillDiscovery } from "../../installers/copilot-skill-discovery.js";
 import { inspectOwnedSharedMarketplaceForCopilotMigration, prepareCopilotMarketplace } from "../../installers/local-marketplace.js";
 import { npmInvocation } from "../../installers/npm-invocation.js";
-import { execHostFileSync } from "../../installers/host-command.js";
+import { execHostFileSync } from "../../host-command.js";
 
 export const COPILOT_CLI_NPM_PACKAGE = "@github/copilot@1.0.80";
 

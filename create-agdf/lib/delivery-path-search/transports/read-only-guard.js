@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { execHostFileSync } from "../../installers/host-command.js";
+import { execHostFileSync } from "../../host-command.js";
 
 export function repositoryState(cwd) {
   try {

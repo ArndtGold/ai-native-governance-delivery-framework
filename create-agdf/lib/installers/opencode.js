@@ -9,7 +9,7 @@ import { resolveLocalValidator } from "../runtime/local-validator.js";
 import { digestDirectory } from "../runtime/plugin-provenance.js";
 import { validateLocalOpenCodePackageSource } from "./local-development.js";
 import { npmInvocation } from "./npm-invocation.js";
-import { execHostFileSync } from "./host-command.js";
+import { execHostFileSync } from "../host-command.js";
 
 function runtimeContractModuleNames(definition) {
   const modules = definition?.runtimeContract?.modules;

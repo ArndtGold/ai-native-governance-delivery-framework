@@ -115,8 +115,14 @@ assert.throws(() => runMcpLifecycle({
   target: join(tmpdir(), "agdf-mcp-target-does-not-exist"),
 }), /AGDF_MCP_TARGET_INVALID/);
 
+// Windows runs npm as node + npm-cli.js; fixtures see every npm call in the same normalized shape.
+function asNpmCall(executable, args) {
+  return /npm-cli.js$/.test(args[0] ?? "") ? { executable: "npm", args: args.slice(1) } : { executable, args };
+}
+
 function installFixture(calls, version = VERSION) {
   return (executable, args, options = {}) => {
+    ({ executable, args } = asNpmCall(executable, args));
     if (executable === "codex") return args[0] === "--version" ? "codex-cli 0.145.0\n" : "{}\n";
     calls.push({ executable, args: [...args], cwd: options.cwd });
     if (executable !== "npm" || !args.includes(`@agdf/mcp-server@${version}`)) {
@@ -471,6 +477,7 @@ for (const surface of ["codex", "claude", "opencode"]) {
   const oldInstall = installFixture([], OLD_VERSION);
   const currentInstall = installFixture([], VERSION);
   const exec = (executable, args, options = {}) => {
+    ({ executable, args } = asNpmCall(executable, args));
     if (executable === "npm") {
       return args.includes(`@agdf/mcp-server@${OLD_VERSION}`)
         ? oldInstall(executable, args, options)
@@ -726,7 +733,7 @@ const userEnabled = runMcpLifecycle({
 assert.equal(userEnabled.scope, "user");
 assert.equal(userEnabled.scope_effect, "user");
 assert.equal(userEnabled.registration.path, join(userFixture.env.OPENCODE_CONFIG_DIR, "opencode.json"));
-assert.match(userEnabled.runtime.entrypoint, new RegExp(`/mcp/user/${VERSION}/`));
+assert.match(userEnabled.runtime.entrypoint.replaceAll("\\", "/"), new RegExp(`/mcp/user/${VERSION}/`));
 assert.equal(userEnabled.runtime.entrypoint.includes(userFixture.target), false);
 const userSecondTarget = join(userFixture.root, "second-target");
 mkdirSync(userSecondTarget);
@@ -751,7 +758,7 @@ const codexUserEnabled = runMcpLifecycle({
 });
 assert.equal(codexUserEnabled.scope, "user");
 assert.equal(codexUserEnabled.registration.path, join(codexUser.env.CODEX_HOME, "config.toml"));
-assert.match(codexUserEnabled.runtime.entrypoint, new RegExp(`/mcp/user/${VERSION}/`));
+assert.match(codexUserEnabled.runtime.entrypoint.replaceAll("\\", "/"), new RegExp(`/mcp/user/${VERSION}/`));
 const codexSecondTarget = join(codexUser.root, "second-target");
 mkdirSync(codexSecondTarget);
 assert.equal(runMcpLifecycle({
@@ -889,6 +896,7 @@ const claudeFixture = lifecycleFixture("claude");
 let claudeState = null;
 const claudeCalls = [];
 const claudeExec = (executable, args, options = {}) => {
+  ({ executable, args } = asNpmCall(executable, args));
   claudeCalls.push({ executable, args: [...args], cwd: options.cwd });
   if (executable === "npm") return installFixture([])(executable, args, options);
   assert.equal(executable, "claude");
@@ -941,7 +949,7 @@ const claudeUserEnabled = runMcpLifecycle({
 });
 assert.equal(claudeUserEnabled.result, "configured_pending_restart");
 assert.equal(claudeUserEnabled.scope, "user");
-assert.match(claudeUserEnabled.runtime.entrypoint, new RegExp(`/mcp/user/${VERSION}/`));
+assert.match(claudeUserEnabled.runtime.entrypoint.replaceAll("\\", "/"), new RegExp(`/mcp/user/${VERSION}/`));
 const userAddCall = claudeCalls.filter((call) => call.args[1] === "add").at(-1);
 assert.equal(userAddCall.args[userAddCall.args.indexOf("--scope") + 1], "user");
 assert.equal(runMcpLifecycle({

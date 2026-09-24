@@ -1,4 +1,4 @@
-import { execHostFileSync } from "../installers/host-command.js";
+import { execHostFileSync } from "../host-command.js";
 import { isAbsolute, resolve } from "node:path";
 import { resolveMcpHostAdapter, validateMcpResolvedSources } from "./adapter-contract.js";
 import { codexAdapterConstants } from "./adapters/codex.js";

@@ -1,5 +1,5 @@
 import { inspectPluginList } from "../../installers/plugin-command.js";
-import { execHostFileSync } from "../../installers/host-command.js";
+import { execHostFileSync } from "../../host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginListHasPlugin, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { classifyMarketplaceList, prepareLocalMarketplace } from "../../installers/local-marketplace.js";

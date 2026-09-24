@@ -7,15 +7,15 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
-  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, extname, join, relative, resolve } from "node:path";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createMcpDispatchRuntime } from "create-agdf/mcp-dispatch-runtime";
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../../create-agdf/lib/runtime/plugin-provenance.js";
 import { DispatchExecutionError, createWorkerDispatchExecutor } from "../src/worker.js";
+import { tryLinkFile } from "../../create-agdf/scripts/support/symlinks.js";
 
 const sourceRoot = new URL("../src/", import.meta.url);
 const sources = readdirSync(sourceRoot)
@@ -64,7 +64,7 @@ for (const [path, content] of visited) {
     assert.equal(content.includes(prohibited), false, `reachable module ${path} includes ${prohibited}`);
   }
   const dispatcherRoot = resolve(repositoryRoot, "create-agdf");
-  if (path.startsWith(`${dispatcherRoot}/`)) {
+  if (path.startsWith(`${dispatcherRoot}${sep}`)) {
     const packagePath = relative(dispatcherRoot, path).replaceAll("\\", "/");
     assert.ok(
       MCP_DISPATCHER_RUNTIME_ENTRIES.some((entry) => packagePath === entry || packagePath.startsWith(`${entry}/`)),
@@ -72,7 +72,7 @@ for (const [path, content] of visited) {
     );
   }
 }
-assert.ok([...visited].some(([path]) => path.endsWith("create-agdf/lib/skill-dispatch/service.js")));
+assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/lib/skill-dispatch/service.js")));
 
 class SilentWorker extends EventEmitter {
   constructor() {
@@ -142,17 +142,18 @@ try {
   mkdirSync(join(escapedTarget, ".agdf", "control"), { recursive: true });
   const outside = join(outsideRoot, "outside-secret.txt");
   writeFileSync(outside, "MCP_BOUNDARY_SECRET");
-  symlinkSync(outside, join(escapedTarget, ".agdf", "control", "escape.md"));
-  const guarded = runtime.execute(runtime.parse({
-    skill_id: "gate-check",
-    presentation_language: "en",
-    working_directory: escapedTarget,
-    target_source: "explicit_target",
-    primary_target: escapedTarget,
-  }));
-  assert.equal(guarded.outcome, "evaluator_error");
-  assert.deepEqual(guarded.diagnostics, [{ code: "dispatch_control_evaluation_failed" }]);
-  assert.equal(JSON.stringify(guarded).includes("MCP_BOUNDARY_SECRET"), false);
+  if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "escape.md"), "mcp-safety-test")) {
+    const guarded = runtime.execute(runtime.parse({
+      skill_id: "gate-check",
+      presentation_language: "en",
+      working_directory: escapedTarget,
+      target_source: "explicit_target",
+      primary_target: escapedTarget,
+    }));
+    assert.equal(guarded.outcome, "evaluator_error");
+    assert.deepEqual(guarded.diagnostics, [{ code: "dispatch_control_evaluation_failed" }]);
+    assert.equal(JSON.stringify(guarded).includes("MCP_BOUNDARY_SECRET"), false);
+  }
 } finally {
   rmSync(escapedTarget, { recursive: true, force: true });
   rmSync(outsideRoot, { recursive: true, force: true });

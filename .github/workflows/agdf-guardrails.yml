@@ -8,7 +8,17 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Runtime, installer and test behavior is OS-specific (npm .cmd shims, path separators, symlink
+    # rights); repository-wide contracts are not, so those steps run once on Linux.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +45,7 @@ jobs:
         run: node plugin/scripts/check-runtime-integrity.mjs
 
       - name: Verify community health contracts
+        if: runner.os == 'Linux'
         run: npm run test:community-health && npm run check:community-health
 
       - name: Verify built plugin integrity
@@ -44,10 +55,16 @@ jobs:
         run: npm --prefix create-agdf run test:package-contents
 
       - name: Verify AGDF delivery-map gate
+        if: runner.os == 'Linux'
         run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active
 
       - name: Verify versioned AGDF skill evaluations
         run: npm --prefix create-agdf run eval:skills
+
+      # The create-agdf smoke test includes the @agdf/mcp-server tests, which need the MCP SDK.
+      - name: Install MCP validation dependencies from checkout
+        working-directory: agdf-mcp-server
+        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
 
       - name: Verify create-agdf package
         run: npm --prefix create-agdf run smoke-test
@@ -56,7 +73,9 @@ jobs:
         run: npm --prefix agdf run smoke-test
 
       - name: Install Pages dependencies
+        if: runner.os == 'Linux'
         run: npm --prefix pages ci
 
       - name: Verify Pages
+        if: runner.os == 'Linux'
         run: npm --prefix pages run check && npm --prefix pages run test:landing && npm --prefix pages run test:public-documents

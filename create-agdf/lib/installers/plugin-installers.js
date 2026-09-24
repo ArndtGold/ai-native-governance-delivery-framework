@@ -1,5 +1,5 @@
 // Existing import entry points; native mechanisms have one host owner.
-import { execHostFileSync } from "./host-command.js";
+import { execHostFileSync } from "../host-command.js";
 import { inspectCodexPlugin, bootstrapCommands as codexCommands } from "../host-adapters/codex/plugin.js";
 import { inspectClaudePlugin, bootstrapCommands as claudeCommands } from "../host-adapters/claude/plugin.js";
 import { inspectCopilotPlugin, bootstrapCommands as copilotCommands } from "../host-adapters/copilot/plugin.js";

@@ -1,4 +1,4 @@
-import { execHostFileSync } from "../installers/host-command.js";
+import { execHostFileSync } from "../host-command.js";
 import { realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";

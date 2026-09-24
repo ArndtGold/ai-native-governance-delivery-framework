@@ -1,4 +1,4 @@
-import { execHostFileSync } from "../../installers/host-command.js";
+import { execHostFileSync } from "../../host-command.js";
 import { evaluatorOutputSchema, validateEvaluation } from "../contracts.js";
 import { guardedExecFileSync } from "../transports/read-only-guard.js";
 import { buildEvaluatorPrompt } from "./prompt.js";

@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
-import { resolveHostCommand } from "../installers/host-command.js";
+import { resolveHostCommand } from "../host-command.js";
 import { runtimeEnvironment } from "../skill-dispatch/binding.js";
 import {
   INSTALLATION_PROVENANCE_FILE,

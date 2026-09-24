@@ -2,13 +2,13 @@ import { inspectPluginList } from "../../installers/plugin-command.js";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { inspectGeneratedRepositoryMarketplace } from "../../runtime/plugin-provenance.js";
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../installers/host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./identity.js";
 import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 
-export function installCodexGlobalPlugin({ exec = execFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
+export function installCodexGlobalPlugin({ exec = execHostFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
   const transaction = prepare({ expectedVersion, codexRegistrationRevision: CODEX_REGISTRATION_REVISION, ...(dataRoot ? { dataRoot } : {}) });
@@ -95,7 +95,7 @@ function recoverMarketplace({ exec, migration, transaction, error }) {
   error.evidence = { ...(error.evidence ?? {}), rollback: recovery };
 }
 
-export function inspectCodexPlugin(exec = execFileSync, options = {}, surface) {
+export function inspectCodexPlugin(exec = execHostFileSync, options = {}, surface) {
   return inspectPluginList({ surface, exec, executable: "codex", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
     selectPlugin: () => "agdf@agdf",
     localVersion(version) {

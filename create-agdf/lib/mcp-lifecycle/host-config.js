@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../installers/host-command.js";
 import { isAbsolute, resolve } from "node:path";
 import { resolveMcpHostAdapter, validateMcpResolvedSources } from "./adapter-contract.js";
 import { codexAdapterConstants } from "./adapters/codex.js";
@@ -18,17 +18,17 @@ export function createMcpRegistrationSpec({ surface, scope = "project", target, 
     digest: runtime.digest, host, reference });
 }
 
-export function inspectMcpRegistration({ surface, scope, target, spec, env = {}, exec = execFileSync } = {}) {
+export function inspectMcpRegistration({ surface, scope, target, spec, env = {}, exec = execHostFileSync } = {}) {
   return resolveMcpHostAdapter(surface).inspect({ scope, target, spec, env, exec });
 }
 
 export function createMcpRegistrationTransaction({
-  action, surface, scope, target, spec, previousSpec = null, env = {}, exec = execFileSync,
+  action, surface, scope, target, spec, previousSpec = null, env = {}, exec = execHostFileSync,
 } = {}) {
   return resolveMcpHostAdapter(surface).createTransaction({ action, scope, target, spec, previousSpec, env, exec });
 }
 
-export function inspectMcpHost({ surface, target, exec = execFileSync } = {}) {
+export function inspectMcpHost({ surface, target, exec = execHostFileSync } = {}) {
   return resolveMcpHostAdapter(surface).probeHost({ target, exec });
 }
 

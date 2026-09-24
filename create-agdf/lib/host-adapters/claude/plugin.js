@@ -1,12 +1,12 @@
 import { inspectPluginList } from "../../installers/plugin-command.js";
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../installers/host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginListHasPlugin, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { classifyMarketplaceList, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 import { recoverClaudeCacheTemp } from "../../installers/claude-cache-recovery.js";
 
 export function installClaudeGlobalPlugin({
-  exec = execFileSync,
+  exec = execHostFileSync,
   prepare = prepareLocalMarketplace,
   dataRoot,
   recoverCache = recoverClaudeCacheTemp,
@@ -125,7 +125,7 @@ function recoverMarketplace({ exec, migration, transaction, error, previousPlugi
   error.evidence = { ...(error.evidence ?? {}), rollback: recovery };
 }
 
-export function inspectClaudePlugin(exec = execFileSync) {
+export function inspectClaudePlugin(exec = execHostFileSync) {
   return inspectPluginList({ surface: "claude", exec, executable: "claude", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
     selectPlugin: () => "agdf@agdf",
   });

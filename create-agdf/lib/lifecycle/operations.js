@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../installers/host-command.js";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
@@ -78,7 +79,7 @@ function nativeUninstallPlan(surface, executable, args) {
   });
 }
 
-export function applyLifecyclePlan(plan, { exec = execFileSync, applyCopilotSettings = applyCopilotRepositoryDisable } = {}) {
+export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilotSettings = applyCopilotRepositoryDisable } = {}) {
   const completed = [];
   for (const mutation of plan.mutations) {
     try {

@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../installers/host-command.js";
 import { realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
@@ -169,7 +169,7 @@ function rollbackTransactions(transactions) {
 
 export function runMcpLifecycle({
   action, surface, scope = "project", target, env = process.env, execPath = process.execPath,
-  nodeVersion = process.versions.node, exec = execFileSync, prepare = prepareMcpServerPackage,
+  nodeVersion = process.versions.node, exec = execHostFileSync, prepare = prepareMcpServerPackage,
   inspectPackage = inspectMcpServerPackage,
   inspectRegistration = inspectMcpRegistration,
   createRegistrationTransaction = createMcpRegistrationTransaction,

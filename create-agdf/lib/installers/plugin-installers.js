@@ -1,5 +1,5 @@
 // Existing import entry points; native mechanisms have one host owner.
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "./host-command.js";
 import { inspectCodexPlugin, bootstrapCommands as codexCommands } from "../host-adapters/codex/plugin.js";
 import { inspectClaudePlugin, bootstrapCommands as claudeCommands } from "../host-adapters/claude/plugin.js";
 import { inspectCopilotPlugin, bootstrapCommands as copilotCommands } from "../host-adapters/copilot/plugin.js";
@@ -8,7 +8,7 @@ export { installClaudeGlobalPlugin } from "../host-adapters/claude/plugin.js";
 export { COPILOT_CLI_NPM_PACKAGE, installCopilotGlobalPlugin, classifyCopilotMarketplaceList, copilotNpmInvocation, setCopilotPluginEnabled } from "../host-adapters/copilot/plugin.js";
 export { pluginListHasPlugin, pluginVersionFromList } from "./plugin-command.js";
 
-export function inspectPluginSurface(surface, exec = execFileSync, options = {}) {
+export function inspectPluginSurface(surface, exec = execHostFileSync, options = {}) {
   if (surface === "claude") return inspectClaudePlugin(exec, options);
   if (surface === "copilot") return inspectCopilotPlugin(exec, options);
   return inspectCodexPlugin(exec, options, surface);

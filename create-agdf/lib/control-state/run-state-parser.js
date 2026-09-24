@@ -7,6 +7,9 @@ export const LIFECYCLES = new Set([
   "superseded",
   "abandoned",
 ]);
+export function normalizeLineEndings(content) {
+  return content.replace(/\r\n/g, "\n");
+}
 export function scalarFields(content) {
   const values = new Map(),
     duplicates = [];

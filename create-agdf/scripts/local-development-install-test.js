@@ -381,6 +381,14 @@ try {
     executable: "/node",
     args: ["/npm/cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
   });
+  assert.deepEqual(copilotNpmInvocation({ env: {}, platform: "win32", execPath: "C:\\node\\node.exe" }), {
+    executable: "C:\\node\\node.exe",
+    args: ["C:\\node\\node_modules\\npm\\bin\\npm-cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  }, "the Windows fallback must run npm-cli.js through node instead of executing npm.cmd directly");
+  assert.deepEqual(copilotNpmInvocation({ env: {}, platform: "linux", execPath: "/node" }), {
+    executable: "npm",
+    args: ["exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  });
   const copilotManual = installCopilotGlobalPlugin({
     pluginRoot: builtCopilotPluginRoot,
     exec() {

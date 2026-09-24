@@ -10,6 +10,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -563,6 +564,24 @@ ${approvals}
   assert.equal(verifyLegacyProjection(legacyRoot).status, "valid");
   const projectionPath = join(legacyRoot, ".agdf", "control", "AGDF_RUN.md");
   const validProjection = readFileSync(projectionPath, "utf8");
+  const lfCanonical = readFileSync(canonical, "utf8");
+  const toCrlf = (text) => text.replaceAll("\n", "\r\n");
+  writeFileSync(projectionPath, toCrlf(validProjection));
+  writeFileSync(canonical, toCrlf(lfCanonical));
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "valid", "a CRLF checkout must not report projection drift");
+  assert.equal(renderLegacyProjection(canonical, legacyRoot), validProjection, "rendering from a CRLF checkout must produce the LF projection");
+  writeFileSync(projectionPath, toCrlf(validProjection.replace("Legacy objective", "Changed projection")));
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "legacy_projection_drift", "content drift must stay detectable in a CRLF checkout");
+  const crlfDigest = createHash("sha256").update(toCrlf(lfCanonical)).digest("hex");
+  writeFileSync(projectionPath, validProjection.replace(/sha256: [0-9a-f]{64}/, `sha256: ${crlfDigest}`));
+  writeFileSync(canonical, lfCanonical);
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "valid", "a projection rendered from a CRLF checkout must stay valid");
+  writeFileSync(
+    projectionPath,
+    validProjection.replace(/sha256: [0-9a-f]{64}/, `sha256: ${createHash("sha256").update("other").digest("hex")}`),
+  );
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "legacy_projection_drift", "a foreign digest must still report drift");
+  writeFileSync(projectionPath, validProjection);
   writeFileSync(
     projectionPath,
     validProjection.replace("Legacy objective", "Changed projection"),

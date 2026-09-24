@@ -9,6 +9,7 @@ import { configureCopilotMarketplace, defaultCopilotSettingsPath, readCopilotSet
 import { copilotMarketplaceSource } from "../../installers/copilot-marketplace-transport.js";
 import { verifyCopilotSkillDiscovery } from "../../installers/copilot-skill-discovery.js";
 import { inspectOwnedSharedMarketplaceForCopilotMigration, prepareCopilotMarketplace } from "../../installers/local-marketplace.js";
+import { npmInvocation } from "../../installers/npm-invocation.js";
 
 export const COPILOT_CLI_NPM_PACKAGE = "@github/copilot@1.0.80";
 
@@ -171,7 +172,8 @@ export function classifyCopilotMarketplaceList(output, expectedRoot, { ownedLega
 export function copilotNpmInvocation({ env = process.env, platform = process.platform, execPath = process.execPath } = {}) {
   const args = ["exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"];
   if (env.npm_execpath) return { executable: execPath, args: [env.npm_execpath, ...args] };
-  return { executable: platform === "win32" ? "npm.cmd" : "npm", args };
+  const invocation = npmInvocation(args, { env, platform, execPath });
+  return { executable: invocation.executable, args: [...invocation.args] };
 }
 
 export function setCopilotPluginEnabled({ enabled, exec = execFileSync } = {}) {

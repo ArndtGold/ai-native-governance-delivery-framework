@@ -40,13 +40,13 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 ## Executable Dispatch
 
-Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
-Follow binding.arguments exactly with `--skill ux-intent-definition`, language and working directory.
+Dispatch through the AGDF MCP tool `agdf_dispatch` whenever the host lists it (hosts add a prefix such as `mcp__agdf__agdf_dispatch`; load a deferred tool first): `skill_id` `ux-intent-definition`, `presentation_language`, `working_directory`, and only when set the `target_source`/`primary_target` pair and `run_id`.
+Otherwise, or when that call fails, use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix, following binding.arguments exactly with `--skill ux-intent-definition`, language and working directory.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
-On skill_continuation use only its target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+On skill_continuation use only its target/control. Without that tool and a valid binding: `dispatcher_unavailable`; no runtime search, environment repair
 or help retries. Dispatch never authorizes.
 
 ## Authority

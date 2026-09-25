@@ -32,7 +32,7 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 ## Route Boundary
 
-Continue only with the operation already selected from the canonical catalog:
+Continue only with the operation selected from the canonical catalog:
 
 - `skill.gate-check` is a direct-skill route. Invoke dispatcher v1 as the first operational call;
   do not first resolve a target or inspect repository, control, run, gate, or presentation state.
@@ -46,18 +46,20 @@ Continue only with the operation already selected from the canonical catalog:
   target from cwd, create a legacy live run, or proxy another operation as `delivery.start`. This
   pre-dispatch branch authorizes only draft/setup, never a gate transition or implementation.
 
-No other catalog operation is handled by this skill.
+No other catalog operation belongs here.
 
 ## Executable Dispatch
 
-Use only binding schema 2: `executable`, child-only `environment` and immutable `argv_prefix`.
-Extend the prefix using its code-derived `arguments`, quoting shell values as data:
-`--skill gate-check`, current `--language`, and absolute `--working-directory`.
+Prefer the listed AGDF MCP tool `agdf_dispatch` (e.g. `mcp__agdf__agdf_dispatch`; load it if
+deferred): `skill_id` `gate-check`, `presentation_language`, `working_directory` and, if set,
+`target_source`/`primary_target` and `run_id`. Only if it is unlisted or fails, use binding schema 2
+(`executable`, child-only `environment`, immutable `argv_prefix`) per `arguments`: `--skill gate-check`,
+`--language`, absolute `--working-directory`, shell values quoted as data.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
-Add `--run` only for an explicit run. For `skill.gate-check` this is the first operational call. For `delivery.start` it
-follows only `candidate_present` or completed authorized setup. Do not discover, install, or construct
-another runtime or repair a failed environment. Old/invalid binding stops as `dispatcher_unavailable`.
+Add the run only for an explicit run. For `delivery.start`, dispatch follows only `candidate_present` or
+completed authorized setup. Do not discover, install, or construct
+another runtime or repair a failed environment.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
 `gate-check` has deterministic-control dispatch. `host_action.text` contains the presentation, or the
@@ -67,8 +69,8 @@ absence or failure alone does not declare the fallback below.
 
 ## Declared `instruction_only` Fallback
 
-Only trusted runtime evidence explicitly declaring this invocation `instruction_only` enables the
-fallback. Load only the needed packaged focused runtime-contract modules:
+Only trusted runtime evidence explicitly declaring this invocation `instruction_only` enables it. Load only the
+needed runtime-contract modules:
 
 - `../../meta/contracts/task-target-resolution.md`
 - `../../meta/contracts/gate-transition.md`
@@ -77,5 +79,5 @@ fallback. Load only the needed packaged focused runtime-contract modules:
 - `../../meta/contracts/modes.md`
 - `../../meta/contracts/quality.md`
 
-Apply those canonical modules directly. Do not recreate their tables, presentations, setup flow,
-or approval rules in this skill. The fallback remains non-authorizing and fail-closed.
+Apply them directly; do not recreate their tables, presentations, setup flow or approval rules.
+The fallback stays non-authorizing and fail-closed.

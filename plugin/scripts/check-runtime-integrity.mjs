@@ -499,8 +499,10 @@ function digestPluginSource(root, canonicalVersion) {
     for (const name of readdirSync(directory).sort()) {
       const path = join(directory, name);
       const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
+      if (stats.isDirectory()) {
+        // Host-owned liveness markers (Claude Code `.in_use/<pid>`) are not plugin payload.
+        if (!(directory === root && name === ".in_use")) visit(path);
+      } else if (stats.isFile()) files.push(path);
     }
   }
   visit(root);

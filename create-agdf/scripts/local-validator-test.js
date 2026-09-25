@@ -133,6 +133,22 @@ try {
   assert.equal(loadedMatch.envelope.evidence_plane, "loaded_session");
   assert.equal(installedMatch.envelope.provenance_status, "matched");
 
+  // Claude Code writes `.in_use/<pid>` into the loaded plugin root; provenance must survive it.
+  const hostMarkerRoot = join(pluginRoot, ".in_use");
+  mkdirSync(hostMarkerRoot, { recursive: true });
+  writeFileSync(join(hostMarkerRoot, "28176"), '{"pid":28176,"procStartFt":"1"}\n');
+  assert.equal(digestNormalizedPluginSource(pluginRoot, "1.2.3"), validProvenance.source_digest);
+  const inUseMatch = resolveLocalValidator({ runtimeRoot, pluginRoot, expectedPluginRoot: pluginRoot, expectedVersion: "1.2.3", surface: "claude" });
+  assert.equal(inUseMatch.envelope.machine_validation, "owned_version_matched");
+  assert.equal(inUseMatch.envelope.provenance_status, "matched");
+  rmSync(hostMarkerRoot, { recursive: true, force: true });
+  // The exemption is root-only: a nested `.in_use` is still payload.
+  const nestedMarkerRoot = join(pluginRoot, "meta", ".in_use");
+  mkdirSync(nestedMarkerRoot, { recursive: true });
+  writeFileSync(join(nestedMarkerRoot, "1"), "x\n");
+  assert.notEqual(digestNormalizedPluginSource(pluginRoot, "1.2.3"), validProvenance.source_digest);
+  rmSync(nestedMarkerRoot, { recursive: true, force: true });
+
   writeFileSync(provenancePath, `${JSON.stringify({ ...validProvenance, owner: "foreign" })}\n`);
   const invalidProvenance = resolveLocalValidator({ runtimeRoot, expectedVersion: "1.2.3", surface: "codex" });
   assert.equal(invalidProvenance.envelope.reason, "installation_provenance_invalid");

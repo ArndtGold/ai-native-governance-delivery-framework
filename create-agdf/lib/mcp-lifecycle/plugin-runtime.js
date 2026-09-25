@@ -1,8 +1,7 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import process from "node:process";
-import { pathToFileURL } from "node:url";
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../runtime/plugin-provenance.js";
 import { inspectMcpServerPackage, mcpPackageConstants, prepareMcpServerPackage } from "./package.js";
 
@@ -108,6 +107,7 @@ export async function launchClaudePluginMcpServer({
   stdout = process.stdout,
   stderr = process.stderr,
   ensure = ensureClaudePluginMcpRuntime,
+  execPath = process.execPath,
 } = {}) {
   const prepareOnly = argv.length === 1 && argv[0] === "--prepare";
   if (argv.length && !prepareOnly) {
@@ -127,8 +127,14 @@ export async function launchClaudePluginMcpServer({
     stdout.write(`${JSON.stringify({ status: runtime.status, version: runtime.version, root: runtime.root, changed: runtime.changed })}\n`);
     return runtime;
   }
-  const { runMcpServer } = await import(pathToFileURL(join(runtime.packageRoot, "src", "main.js")).href);
-  return runMcpServer({ surface: "claude" });
+  // The verified server runs as a child with inherited stdio, exactly as a direct registration
+  // would start it; the launcher only forwards termination and the exit status.
+  const child = spawn(execPath, [runtime.entrypoint, "--surface", "claude"], { stdio: "inherit" });
+  for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => child.kill(signal));
+  return new Promise((resolveExit) => {
+    child.once("error", () => { stderr.write("AGDF_MCP_PLUGIN_RUNTIME_FAILED\n"); process.exitCode = 1; resolveExit(null); });
+    child.once("exit", (code, signal) => { process.exitCode = code ?? (signal ? 1 : 0); resolveExit(runtime); });
+  });
 }
 
 export function claudePluginDataRoot({ claudeConfigDir, pluginId = "agdf@agdf" }) {

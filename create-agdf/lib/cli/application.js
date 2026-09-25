@@ -32,6 +32,7 @@ import {
 } from "../lifecycle/operations.js";
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult, createOperationStatus, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
+import { defaultClaudeSettingsPath } from "../runtime-check-consent/claude-settings.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
@@ -82,6 +83,7 @@ function createHandlers({
     ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
     ...(prepare ? { prepare } : {}),
     copilotSettingsPath: copilotSettingsPath ?? defaultCopilotSettingsPath({ env }),
+    env,
     ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
   };
   const scaffoldHandler = (options) => runScaffold(options, io);
@@ -180,7 +182,7 @@ function createHandlers({
     }],
     ["runtime-checks", async (options) => {
       let runtimeState = options.runtimeChecksAction === "manual"
-        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface })
+        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface, claudeSettingsPath: defaultClaudeSettingsPath({ env }) })
         : runtimeCheckStatus(env.AGDF_DATA_DIR, options.surface);
       runtimeState = await observeRuntimeChecks(options.surface, runtimeState, options.dir);
       const nextActionText = options.runtimeChecksAction === "enable"
@@ -408,6 +410,7 @@ async function runGuidedInstall(options, dependencies) {
           surface: options.target,
           installed: payload.installed,
           dataRoot: dependencies.installerAdapters.dataRoot,
+          claudeSettingsPath: defaultClaudeSettingsPath({ env: dependencies.env }),
         });
         if (options.target === "codex") {
           finalized.state = await dependencies.observeRuntimeChecks("codex", finalized.state, options.dir);
@@ -512,6 +515,8 @@ function finalizeInstallConsent(consent, input) {
 
 async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot, language = "en" }) {
   if (options.runtimeChecksDecision !== undefined) return prepareInstallConsent(surface, options);
+  // Claude Code runs the session check whenever the plugin is enabled, so installing it is the consent.
+  if (surface === "claude") return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "enable" });
   if (!interactive || options.json || typeof askRuntimeCheckDecision !== "function") {
     return prepareInstallConsent(surface, options);
   }

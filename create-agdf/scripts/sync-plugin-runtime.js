@@ -125,7 +125,18 @@ function pruneRuntimeOutput(root, expectedFiles) {
   visit(root);
 }
 
-export function syncPluginRuntime({ outputRoot } = {}) {
+// Modules the plugin-local Claude MCP launcher needs on top of the validator runtime. They stay out of
+// the Copilot runtime, which excludes MCP lifecycle, server and package acquisition code.
+export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
+  "lib/mcp-dispatch-runtime.js",
+  "lib/control-read-boundary.js",
+  "lib/mcp-lifecycle/package.js",
+  "lib/mcp-lifecycle/plugin-runtime.js",
+  "lib/npm-invocation.js",
+  "lib/fs-swap.js",
+]);
+
+export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
   outputRoot = safeOutputRoot(outputRoot);
   const bundledPackageRoot = join(outputRoot, "create-agdf");
   const expectedPackageFiles = new Set();
@@ -165,6 +176,7 @@ export function syncPluginRuntime({ outputRoot } = {}) {
     "generated/plugins/agdf/meta/agdf-plugin.definition.json",
     "generated/plugins/agdf/meta/agdf-interaction-locales.json",
     "NOTICE",
+    ...(claudeMcp ? CLAUDE_MCP_RUNTIME_ENTRIES : []),
   ];
   for (const entry of runtimeEntries) {
     const source = join(packageRoot, entry);

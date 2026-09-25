@@ -9,7 +9,7 @@ import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
 import { digestNormalizedPluginSource } from "../runtime/plugin-provenance.js";
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from "./contract.js";
 import { consentDisclosure, resolveRuntimeCheckDecision } from "./coordinator.js";
-import { configureClaudeRuntimeCheck, revokeClaudeRuntimeCheck } from "../host-adapters/claude/runtime-check.js";
+import { CLAUDE_PLUGIN_DISABLE_COMMAND, claudeRuntimeCheckState, removeLegacyClaudeRuntimeCheckState } from "../host-adapters/claude/runtime-check.js";
 import { createRuntimeCheckReceipt, readRuntimeCheckReceipt, writeRuntimeCheckReceipt } from "./state.js";
 
 export { fixedRuntimeCheckCommand } from "./contract.js";
@@ -51,6 +51,7 @@ function prospectiveRuntimeCheckIdentity(surface, platform = process.platform) {
 }
 
 export function retainCurrentInstallConsent(surface, dataRoot = defaultAgdfDataRoot(), platform = process.platform) {
+  if (surface === "claude") return null;
   const capabilityIdentity = prospectiveRuntimeCheckIdentity(surface, platform);
   if (!capabilityIdentity) return null;
   const current = readRuntimeCheckReceipt(dataRoot, surface);
@@ -65,6 +66,14 @@ export function retainCurrentInstallConsent(surface, dataRoot = defaultAgdfDataR
 
 export function persistInstallConsent({ surface, decision, installed, dataRoot, platform, claudeSettingsPath }) {
   if (decision === "cancel") return { requested: "cancelled", effective: "cancelled", reason: "consent_not_provided", capability_identity: null, verification: "not_attempted", mutation: "none", rollback: "none" };
+  if (surface === "claude") {
+    const removed = removeLegacyClaudeRuntimeCheckState({ claudeSettingsPath, dataRoot: dataRoot ?? defaultAgdfDataRoot() });
+    return {
+      ...claudeRuntimeCheckState(decision === "enable" ? "enabled" : "manual"),
+      mutation: removed.length ? "legacy_rule_or_receipt_removed" : "none",
+      rollback: "none",
+    };
+  }
   const runtimeDigest = installed?.runtimeDigest ?? installed?.digest;
   if (!installed?.pluginRoot || !runtimeDigest || !installed?.sourceDigest) {
     return { requested: decision === "enable" ? "enabled" : "manual", effective: "manual", reason: "host_permission_unverified", capability_identity: null, verification: "unavailable", mutation: "none", rollback: "none" };
@@ -78,40 +87,33 @@ export function persistInstallConsent({ surface, decision, installed, dataRoot, 
     command,
   });
   const receipt = createRuntimeCheckReceipt({ surface, decision, capabilityIdentity, command });
-  let configured = null;
-  let configurationReason = null;
-  if (surface === "claude" && decision === "enable") {
-    configured = configureClaudeRuntimeCheck({ claudeSettingsPath, platform: platform ?? process.platform, command });
-    if (configured.status !== "configured") {
-      configurationReason = configured.reason;
-      configured = null;
-    }
-  }
-  try {
-    writeRuntimeCheckReceipt(dataRoot ?? defaultAgdfDataRoot(), receipt);
-  } catch (error) {
-    configured?.rollback();
-    throw error;
-  }
-  if (configurationReason) return { requested: "enabled", effective: "degraded", reason: configurationReason, capability_identity: capabilityIdentity, verification: "conflict", mutation: "receipt_written", rollback: "none" };
+  writeRuntimeCheckReceipt(dataRoot ?? defaultAgdfDataRoot(), receipt);
   return {
     requested: receipt.requested_state,
     effective: receipt.requested_state === "manual" ? "manual" : "decision_required",
     reason: receipt.requested_state === "manual" ? "consent_not_provided" : "host_permission_unverified",
     capability_identity: capabilityIdentity,
     verification: receipt.requested_state === "manual" ? "not_required" : "host_unverified",
-    mutation: surface === "claude" && decision === "enable" ? "exact_rule_and_receipt_written" : "receipt_written",
+    mutation: "receipt_written",
     rollback: "none",
   };
 }
 
 export function setRuntimeChecksManual({ dataRoot = defaultAgdfDataRoot(), surface, platform = process.platform, claudeSettingsPath }) {
+  if (surface === "claude") {
+    const removed = removeLegacyClaudeRuntimeCheckState({ claudeSettingsPath, dataRoot });
+    return {
+      ...claudeRuntimeCheckState("manual"),
+      effective: "unavailable",
+      reason: "unsupported_host_capability",
+      mutation: removed.length ? "legacy_rule_or_receipt_removed" : "none",
+      rollback: "none",
+      next_action: `Claude Code runs the AGDF session check whenever the AGDF plugin is enabled; to stop it, run: ${CLAUDE_PLUGIN_DISABLE_COMMAND}`,
+    };
+  }
   const result = readRuntimeCheckReceipt(dataRoot, surface);
   if (result.status === "receipt_missing") return { requested: "manual", effective: "manual", reason: "consent_not_provided", capability_identity: null, verification: "not_required", mutation: "none", rollback: "none", path: result.path };
   if (result.status !== "valid") return { requested: "manual", effective: result.status, reason: result.status, capability_identity: null, verification: "unavailable", mutation: "none", rollback: "none", path: result.path };
-  if (surface === "claude" && result.receipt.requested_state === "enabled") {
-    revokeClaudeRuntimeCheck({ claudeSettingsPath, platform, command: result.receipt.command });
-  }
   const receipt = createRuntimeCheckReceipt({
     surface,
     decision: "manual",
@@ -125,13 +127,14 @@ export function setRuntimeChecksManual({ dataRoot = defaultAgdfDataRoot(), surfa
     reason: "consent_not_provided",
     capability_identity: receipt.capability_identity,
     verification: "not_required",
-    mutation: surface === "claude" ? "exact_owned_rule_removed" : "receipt_updated",
+    mutation: "receipt_updated",
     rollback: "none",
     path: result.path,
   };
 }
 
 export function runtimeCheckStatus(dataRoot = defaultAgdfDataRoot(), surface, platform = process.platform) {
+  if (surface === "claude") return { ...claudeRuntimeCheckState(), mutation: "none", rollback: "none" };
   const result = readRuntimeCheckReceipt(dataRoot, surface);
   if (result.status !== "valid") return { requested: "unknown", effective: result.status, reason: result.status, capability_identity: null, verification: "unavailable", mutation: "none", rollback: "none", path: result.path };
   const currentIdentity = prospectiveRuntimeCheckIdentity(surface, platform);

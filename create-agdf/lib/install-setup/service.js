@@ -248,7 +248,9 @@ function pluginFailurePhase(report) {
 function completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport }) {
   const full = selection === "full";
   const reports = PREFLIGHT_MCP_REPORTS.get(preflight) ?? {};
-  const mcp = full ? mcpReport ?? { status: "not_requested" } : reports.project ?? { status: "not_checked" };
+  // The Claude plugin declares its own MCP server, so plugin-only already includes it there.
+  const mcp = full ? mcpReport ?? { status: "not_requested" }
+    : preflight.surface === "claude" ? { status: "plugin_managed" } : reports.project ?? { status: "not_checked" };
   let failure = null;
   let nextAction = "restart_host";
   if (!pluginHealthy(pluginReport)) {
@@ -322,6 +324,13 @@ export async function runInstallSetup({ options, interactive = false, env = proc
     throw new Error("AGDF_INSTALL_SETUP_INPUT_INVALID");
   }
   const effectiveInteractive = Boolean(interactive && !options.json);
+  // The Claude plugin declares its own MCP server, so plugin-only is the complete Claude setup.
+  if (options.target === "claude") {
+    if (options.setupRequest === "full") {
+      throw new Error("Claude Code starts the AGDF MCP server from the AGDF plugin; omit --with-mcp.");
+    }
+    options = { ...options, setupRequest: options.setupRequest ?? "plugin_only" };
+  }
   if (options.setupRequest === "full" && !effectiveInteractive
       && (!options.dirExplicit || !options.dirInputAbsolute)) {
     throw new Error("Non-interactive --with-mcp requires an explicit absolute --dir target.");

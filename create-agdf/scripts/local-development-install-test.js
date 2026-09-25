@@ -26,6 +26,10 @@ import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { runCli } from "../lib/cli/application.js";
 import { installLocalPlugin, resolveLocalInvocationDirectory } from "./install-local-plugin.js";
 
+// Installer paths default to the real Claude home and AGDF data root; keep this test out of both.
+process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
+process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
+
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");

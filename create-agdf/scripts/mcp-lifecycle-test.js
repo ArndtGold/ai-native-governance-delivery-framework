@@ -558,6 +558,20 @@ for (const surface of ["codex", "claude", "opencode"]) {
   }]);
   oldRuntime.commit();
 
+  if (surface === "claude") {
+    // The Claude plugin declares its own MCP server; a registration from an earlier release is retired.
+    const refused = runMcpLifecycle({
+      action: "enable", surface, target: fixture.target, env: fixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec,
+    });
+    assert.equal(refused.result, "not_configured");
+    assert.deepEqual(refused.diagnostics, [{ code: "claude_plugin_managed" }]);
+    assert.notEqual(claudeState, null, "enable must leave the legacy registration for disable");
+    assert.equal(runMcpLifecycle({
+      action: "disable", surface, target: fixture.target, env: fixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec,
+    }).result, "disabled", "an owned registration of an earlier release must be retired");
+    assert.equal(claudeState, null);
+    continue;
+  }
   const updated = runMcpLifecycle({
     action: "enable",
     surface,
@@ -929,11 +943,32 @@ const claudeExec = (executable, args, options = {}) => {
   }
   throw new Error("unexpected Claude fixture command");
 };
-const claudeEnabled = runMcpLifecycle({
+// Registrations that earlier releases wrote with `claude mcp add`, seeded through the lower-level owners.
+function seedLegacyClaudeRegistration(scope) {
+  const runtime = prepareMcpServerPackage({
+    dataRoot: mcpRuntimeDataRoot({ dataRoot: claudeFixture.dataRoot, scope, target: claudeFixture.target }),
+    expectedVersion: VERSION, execPath: "/exact/node", nodeVersion: "22.1.0", exec: claudeExec,
+  });
+  const spec = createMcpRegistrationSpec({ surface: "claude", target: claudeFixture.target, runtime, execPath: "/exact/node", host: null });
+  createMcpRegistrationTransaction({
+    action: "enable", surface: "claude", scope, target: claudeFixture.target, spec, env: claudeFixture.env, exec: claudeExec,
+  }).apply();
+  const verified = inspectMcpRegistration({ surface: "claude", scope, target: claudeFixture.target, spec, env: claudeFixture.env, exec: claudeExec });
+  assert.equal(verified.status, "matched");
+  updateMcpRuntimeReferences(runtime, [{ surface: "claude", scope, target: claudeFixture.target, path: verified.path }]);
+  runtime.commit();
+  return runtime;
+}
+const hostCallsBefore = claudeCalls.length;
+const claudeRefused = runMcpLifecycle({
   action: "enable", surface: "claude", target: claudeFixture.target,
   env: claudeFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: claudeExec,
 });
-assert.equal(claudeEnabled.result, "configured_pending_restart");
+assert.equal(claudeRefused.result, "not_configured");
+assert.deepEqual(claudeRefused.diagnostics, [{ code: "claude_plugin_managed" }]);
+assert.equal(claudeRefused.next_action.code, "use_claude_plugin_mcp");
+assert.equal(claudeCalls.length, hostCallsBefore, "Claude enable must not touch the host");
+seedLegacyClaudeRegistration("project");
 const addCall = claudeCalls.find((call) => call.args[1] === "add");
 assert.deepEqual(addCall.args.slice(0, 8), ["mcp", "add", "--transport", "stdio", "--scope", "local", "agdf", "--"]);
 assert.equal(addCall.cwd, claudeFixture.target);
@@ -943,13 +978,8 @@ const claudeDisabled = runMcpLifecycle({
 });
 assert.equal(claudeDisabled.result, "disabled");
 
-const claudeUserEnabled = runMcpLifecycle({
-  action: "enable", surface: "claude", scope: "user", target: claudeFixture.target,
-  env: claudeFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: claudeExec,
-});
-assert.equal(claudeUserEnabled.result, "configured_pending_restart");
-assert.equal(claudeUserEnabled.scope, "user");
-assert.match(claudeUserEnabled.runtime.entrypoint.replaceAll("\\", "/"), new RegExp(`/mcp/user/${VERSION}/`));
+const claudeUserRuntime = seedLegacyClaudeRegistration("user");
+assert.match(claudeUserRuntime.entrypoint.replaceAll("\\", "/"), new RegExp(`/mcp/user/${VERSION}/`));
 const userAddCall = claudeCalls.filter((call) => call.args[1] === "add").at(-1);
 assert.equal(userAddCall.args[userAddCall.args.indexOf("--scope") + 1], "user");
 assert.equal(runMcpLifecycle({
@@ -960,7 +990,7 @@ assert.equal(runMcpLifecycle({
 const missingClaude = lifecycleFixture("claude");
 let missingClaudePrepared = false;
 const missingClaudeResult = runMcpLifecycle({
-  action: "enable", surface: "claude", target: missingClaude.target,
+  action: "status", surface: "claude", target: missingClaude.target,
   env: missingClaude.env, execPath: "/exact/node", nodeVersion: "22.1.0",
   exec() { throw Object.assign(new Error("missing"), { code: "ENOENT" }); },
   prepare() { missingClaudePrepared = true; },

@@ -49,6 +49,8 @@ function runCliWithPath(args, binDir, extraEnv = {}) {
     stdio: "pipe",
     env: {
       ...process.env,
+      // Never let a smoke install touch the real Claude home.
+      CLAUDE_CONFIG_DIR: join(binDir, "..", "claude-home"),
       ...extraEnv,
       PATH: `${binDir}${delimiter}${process.env.PATH}`,
     },
@@ -405,7 +407,7 @@ if (args.join(" ") === "plugin list") {
   if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf ${pluginDefinition.version}");
   process.exit(0);
 }
-if (args.join(" ") === "plugin uninstall agdf@agdf") {
+if (args.join(" ") === "plugin uninstall agdf@agdf --keep-data") {
   fs.rmSync(process.env.FAKE_CLAUDE_STATE, { force: true });
 }
 if (args.join(" ") === "plugin install agdf@agdf") {
@@ -414,7 +416,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
 `);
     runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
-    const uninstallIndex = calls.indexOf("plugin uninstall agdf@agdf");
+    const uninstallIndex = calls.indexOf("plugin uninstall agdf@agdf --keep-data");
     const installIndex = calls.indexOf("plugin install agdf@agdf");
     if (uninstallIndex < 0 || installIndex < 0 || uninstallIndex >= installIndex || calls.includes("plugin update agdf@agdf")) {
       throw new Error(`Claude existing install must use uninstall then install: ${calls.join(" | ")}`);

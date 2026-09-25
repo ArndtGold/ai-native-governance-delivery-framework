@@ -41,6 +41,7 @@
   },
   "claude": {
     "skillPrefix": "",
+    "mcpServers": "./mcp/claude.mcp.json",
     "agentRouter": "meta/agdf-agent-router.md",
     "defaultPrompt": [
       "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
@@ -89,7 +90,7 @@
     },
     "surfaces": {
       "codex": "native-hook-review",
-      "claude": "exact-command-rule",
+      "claude": "plugin-enablement",
       "copilot": "plugin-hook-review",
       "opencode": "plugin-internal",
       "portable-skills": "manual-external-required"

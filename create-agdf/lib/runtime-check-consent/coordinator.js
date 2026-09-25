@@ -17,7 +17,7 @@ export function resolveRuntimeCheckDecision({ explicitValue, interactive = false
 
 export function consentDisclosure(surface) {
   const permissionOwner = surface === "codex" ? "Codex native hook trust"
-    : surface === "claude" ? "Claude Code user permission settings"
+    : surface === "claude" ? "Claude Code plugin enablement"
     : surface === "copilot" ? "GitHub Copilot plugin hook review"
     : "OpenCode plugin and explicit permission configuration";
   return Object.freeze({
@@ -27,11 +27,11 @@ export function consentDisclosure(surface) {
     when: "at session start",
     executable: "runtime/agdf-session-check.js inside the installed AGDF runtime",
     reads: "AGDF runtime identity and .agdf/control state in the current repository",
-    writes: "one AGDF-owned intent receipt and, only where supported, one exact host permission rule",
+    writes: surface === "claude" ? "nothing; enabling the AGDF plugin is the consent" : "one AGDF-owned intent receipt",
     network: "none",
     permission_owner: permissionOwner,
     renewal: "material command, runtime, source, scope or adapter identity change requires renewed consent",
-    revocation: `npx --yes @agdf/cli@latest runtime-checks manual --surface ${surface}`,
+    revocation: surface === "claude" ? "claude plugin disable agdf@agdf" : `npx --yes @agdf/cli@latest runtime-checks manual --surface ${surface}`,
     gate_authority: "none",
     choices: [...RUNTIME_CHECK_DECISIONS],
   });

@@ -190,6 +190,17 @@ export function runMcpLifecycle({
   const base = { action, surface, scope, target: selectedTarget, execPath, nodeVersion, expectedVersion,
     permissionEffect: mcpPermissionEffect(surface, { scope, target: selectedTarget }) };
 
+  // Claude Code starts the AGDF MCP server from the plugin manifest. A second `claude mcp add`
+  // registration would duplicate it and survive `claude plugin uninstall`; status and disable remain
+  // available to inspect and retire registrations made by earlier releases.
+  if (action === "enable" && surface === "claude") {
+    return envelope({ ...base, result: "not_configured", capability: "unverified", host: null,
+      runtime: { status: "absent", version: expectedVersion },
+      registration: { status: "absent", selected_status: "absent", effective_status: "absent", selected_source: "user",
+        effective_source: "none", sources: [], path: null, native_scope: mcpNativeScope(surface, scope) },
+      diagnostics: [{ code: "claude_plugin_managed" }], nextAction: { code: "use_claude_plugin_mcp" } });
+  }
+
   if (!Number.isInteger(major(nodeVersion)) || major(nodeVersion) < 20) {
     return envelope({ ...base, capability: "manual_compatible", host: null,
       runtime: { status: "node_unsupported", version: expectedVersion }, registration: null,

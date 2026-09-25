@@ -109,7 +109,8 @@
           "unchanged": "unchanged",
           "disabled": "disabled",
           "degraded": "degraded",
-          "failed": "failed"
+          "failed": "failed",
+          "plugin_managed": "included in the plugin"
         },
         "scopes": {
           "project": "project",
@@ -176,7 +177,8 @@
           "discovered_ready": "discovered and ready",
           "partial": "partially completed",
           "degraded_or_foreign": "MCP degraded or foreign",
-          "failed": "failed"
+          "failed": "failed",
+          "plugin_ready_mcp_in_plugin": "plugin ready, MCP included in the plugin"
         },
         "discoveryStates": {
           "not_checked": "not checked",
@@ -271,7 +273,7 @@
           "detailsInstallationScope": "global user installation",
           "detailsRuns": "one argument-free local session check at session start",
           "detailsReads": "AGDF runtime identity and .agdf/control state in the current repository",
-          "detailsWrites": "one AGDF-owned intent receipt and, where supported, one exact host permission rule",
+          "detailsWrites": "one AGDF-owned intent receipt",
           "detailsRenewal": "material command, runtime, source, scope or adapter identity change requires renewed consent",
           "detailsLabels": {
             "appliesTo": "Applies to",
@@ -284,7 +286,7 @@
           },
           "permissionOwners": {
             "codex": "Codex native hook trust",
-            "claude": "Claude Code user permission settings",
+            "claude": "Claude Code plugin enablement",
             "copilot": "GitHub Copilot plugin hook review",
             "opencode": "OpenCode plugin and explicit permission configuration"
           }
@@ -899,7 +901,8 @@
           "agdf_mcp_server_verification_failed": "The installed MCP runtime failed exact verification.",
           "agdf_mcp_claude_update_rollback_failed": "Claude Code could not restore the previous registration during update.",
           "enable_failed": "MCP enablement failed.",
-          "disable_failed": "MCP disablement failed."
+          "disable_failed": "MCP disablement failed.",
+          "claude_plugin_managed": "Claude Code starts the AGDF MCP server from the installed AGDF plugin; no separate registration is used."
         },
         "actions": {
           "use_node_20": "Use Node.js 20 or later and retry.",
@@ -913,7 +916,8 @@
           "disable_effective_scope": "Disable the remaining effective MCP registration explicitly in its scope.",
           "inspect_effective_scope": "Inspect the remaining effective user registration with --scope user.",
           "retry": "Retry the same explicit lifecycle action.",
-          "none": "No further lifecycle action is required."
+          "none": "No further lifecycle action is required.",
+          "use_claude_plugin_mcp": "Install or update the AGDF plugin for Claude Code; its MCP server starts with the plugin."
         }
       }
     },
@@ -1013,7 +1017,8 @@
           "unchanged": "unverändert",
           "disabled": "deaktiviert",
           "degraded": "beeinträchtigt",
-          "failed": "fehlgeschlagen"
+          "failed": "fehlgeschlagen",
+          "plugin_managed": "im Plugin enthalten"
         },
         "scopes": {
           "project": "Projekt",
@@ -1080,7 +1085,8 @@
           "discovered_ready": "erkannt und bereit",
           "partial": "teilweise abgeschlossen",
           "degraded_or_foreign": "MCP beeinträchtigt oder fremd",
-          "failed": "fehlgeschlagen"
+          "failed": "fehlgeschlagen",
+          "plugin_ready_mcp_in_plugin": "Plugin bereit, MCP im Plugin enthalten"
         },
         "discoveryStates": {
           "not_checked": "nicht geprüft",
@@ -1175,7 +1181,7 @@
           "detailsInstallationScope": "globale Installation im Benutzerkonto",
           "detailsRuns": "eine lokale Prüfung ohne Argumente bei Sitzungsbeginn",
           "detailsReads": "AGDF-Runtime-Identität und .agdf/control im aktuellen Repository",
-          "detailsWrites": "einen AGDF-eigenen Auswahlnachweis und, wenn unterstützt, eine genaue Host-Berechtigungsregel",
+          "detailsWrites": "einen AGDF-eigenen Auswahlnachweis",
           "detailsRenewal": "Änderungen an Befehl, Runtime, Quelle, Bereich oder Adapter erfordern eine neue Zustimmung",
           "detailsLabels": {
             "appliesTo": "Gilt für",
@@ -1188,7 +1194,7 @@
           },
           "permissionOwners": {
             "codex": "native Hook-Vertrauensprüfung von Codex",
-            "claude": "Berechtigungseinstellungen von Claude Code",
+            "claude": "Plugin-Aktivierung in Claude Code",
             "copilot": "Hook-Prüfung des GitHub-Copilot-Plugins",
             "opencode": "OpenCode-Plugin und ausdrückliche Berechtigungskonfiguration"
           }
@@ -1803,7 +1809,8 @@
           "agdf_mcp_server_verification_failed": "Die installierte MCP-Laufzeit hat die genaue Prüfung nicht bestanden.",
           "agdf_mcp_claude_update_rollback_failed": "Claude Code konnte beim Aktualisieren die vorherige Registrierung nicht wiederherstellen.",
           "enable_failed": "Die MCP-Aktivierung ist fehlgeschlagen.",
-          "disable_failed": "Die MCP-Deaktivierung ist fehlgeschlagen."
+          "disable_failed": "Die MCP-Deaktivierung ist fehlgeschlagen.",
+          "claude_plugin_managed": "Claude Code startet den AGDF-MCP-Server aus dem installierten AGDF-Plugin; eine separate Registrierung wird nicht verwendet."
         },
         "actions": {
           "use_node_20": "Node.js 20 oder neuer verwenden und erneut versuchen.",
@@ -1817,7 +1824,8 @@
           "disable_effective_scope": "Die verbleibende wirksame MCP-Registrierung ausdrücklich in ihrem Bereich deaktivieren.",
           "inspect_effective_scope": "Die verbleibende wirksame Benutzerregistrierung mit --scope user prüfen.",
           "retry": "Dieselbe ausdrückliche Lebenszyklusaktion erneut versuchen.",
-          "none": "Keine weitere Lebenszyklusaktion erforderlich."
+          "none": "Keine weitere Lebenszyklusaktion erforderlich.",
+          "use_claude_plugin_mcp": "Das AGDF-Plugin für Claude Code installieren oder aktualisieren; sein MCP-Server startet mit dem Plugin."
         }
       }
     }

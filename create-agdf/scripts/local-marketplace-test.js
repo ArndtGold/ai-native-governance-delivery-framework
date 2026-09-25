@@ -693,10 +693,10 @@ try {
   }), /version/);
   assert.equal(unverifiedHistoricalClaudeTx.state.committed, 0);
   assert.equal(unverifiedHistoricalClaudeTx.state.rolledBack, 1);
-  assert.ok(unverifiedHistoricalClaudeCalls.includes("claude plugin uninstall agdf@agdf"));
+  assert.ok(unverifiedHistoricalClaudeCalls.includes("claude plugin uninstall agdf@agdf --keep-data"));
   assert.ok(
     unverifiedHistoricalClaudeCalls.indexOf("claude plugin install agdf@agdf")
-      < unverifiedHistoricalClaudeCalls.lastIndexOf("claude plugin uninstall agdf@agdf"),
+      < unverifiedHistoricalClaudeCalls.lastIndexOf("claude plugin uninstall agdf@agdf --keep-data"),
   );
 
   const claudeTx = fakeTransaction(join(fixtureRoot, "claude-marketplace"));
@@ -712,9 +712,9 @@ try {
   assert.equal(claudeTx.state.committed, 1);
   assert.ok(claudeCalls.includes(`claude plugin marketplace add ${join(fixtureRoot, "claude-marketplace")} --scope user`));
   assert.ok(claudeCalls.includes("claude plugin marketplace update agdf"));
-  assert.ok(claudeCalls.includes("claude plugin uninstall agdf@agdf"), "installed plugin must be reinstalled, not updated");
+  assert.ok(claudeCalls.includes("claude plugin uninstall agdf@agdf --keep-data"), "installed plugin must be reinstalled, not updated");
   assert.ok(claudeCalls.includes("claude plugin install agdf@agdf"));
-  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
+  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf --keep-data") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
   assert.equal(claudeCalls.includes("claude plugin update agdf@agdf"), false, "same-version update must no longer be used");
 
   const claudeRetryTx = fakeTransaction(join(fixtureRoot, "claude-retry-marketplace"));
@@ -782,7 +782,7 @@ try {
   });
   assert.equal(claudeFresh.installedVersion, pluginDefinition.version, "multi-line list output must yield the real version");
   assert.equal(claudeFresh.verificationStatus, "healthy");
-  assert.equal(claudeFreshCalls.includes("claude plugin uninstall agdf@agdf"), false, "a fresh install must not uninstall first");
+  assert.equal(claudeFreshCalls.includes("claude plugin uninstall agdf@agdf --keep-data"), false, "a fresh install must not uninstall first");
 
   const currentTx = fakeTransaction(join(fixtureRoot, "current-marketplace"));
   const currentCalls = [];

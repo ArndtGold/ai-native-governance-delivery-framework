@@ -21,6 +21,10 @@ import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.j
 import { persistInstallConsent, runtimeCheckStatus } from "../lib/runtime-check-consent/service.js";
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 
+// Installer paths default to the real Claude home and AGDF data root; keep this test out of both.
+process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
+process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const expectedCommands = [
@@ -687,7 +691,7 @@ assert.doesNotMatch(germanDetailsRendered, /Technical details|Permission control
   const recording = installerRecording(["[]", "", "", `agdf@agdf ${pluginDefinition.version}\n`, "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
   installClaudeGlobalPlugin({ exec: recording.exec, prepare: prepareMarketplace });
   assert.deepEqual(recording.calls.slice(4, 6).map(({ args }) => args), [
-    ["plugin", "uninstall", "agdf@agdf"],
+    ["plugin", "uninstall", "agdf@agdf", "--keep-data"],
     ["plugin", "install", "agdf@agdf"],
   ]);
 }

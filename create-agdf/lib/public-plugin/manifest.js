@@ -52,7 +52,8 @@ export function renderCodexPluginManifest(definition, options) {
   return `${JSON.stringify(createCodexPluginManifest(definition, options), null, 2)}\n`;
 }
 
-export function createClaudePluginManifest(definition) {
+// The runtime plugin declares the plugin-local AGDF MCP server; the source plugin ships no runtime.
+export function createClaudePluginManifest(definition, { runtimeProfile = false } = {}) {
   return {
     name: definition.id,
     version: definition.version,
@@ -62,11 +63,12 @@ export function createClaudePluginManifest(definition) {
     repository: definition.repository,
     license: definition.license,
     author: definition.author,
+    ...(runtimeProfile ? { mcpServers: definition.claude.mcpServers } : {}),
   };
 }
 
-export function renderClaudePluginManifest(definition) {
-  return `${JSON.stringify(createClaudePluginManifest(definition), null, 2)}\n`;
+export function renderClaudePluginManifest(definition, options) {
+  return `${JSON.stringify(createClaudePluginManifest(definition, options), null, 2)}\n`;
 }
 
 function requireCopilotPath(value, field) {

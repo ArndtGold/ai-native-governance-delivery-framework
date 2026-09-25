@@ -37,7 +37,6 @@ import {
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 import { linkDirectory } from "./support/symlinks.js";
 import { localMarketplaceRoot } from "../lib/installers/local-marketplace.js";
-import { claudePermissionRule } from "../lib/host-adapters/claude/permission-rules.js";
 import { ownedRuntimeCheckRules } from "../lib/host-adapters/claude/uninstall.js";
 import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
 import { createRuntimeCheckReceipt, writeRuntimeCheckReceipt } from "../lib/runtime-check-consent/state.js";
@@ -544,8 +543,8 @@ assert.deepEqual(copilotUninstall.mutations[0], { kind: "command", executable: "
   mkdirSync(join(claudeDir, "plugins", "cache", "agdf"), { recursive: true });
   const settingsPath = join(claudeDir, "settings.json");
   const legacyRule = "PowerShell(node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\")";
-  const windowsRule = claudePermissionRule({ platform: "win32", command: fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32") });
-  const posixRule = claudePermissionRule({ platform: "darwin", command: fixedRuntimeCheckCommand("claude", "/ignored", "darwin") });
+  const windowsRule = `PowerShell(${fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32")})`;
+  const posixRule = `Bash(${fixedRuntimeCheckCommand("claude", "/ignored", "darwin")})`;
   const userRules = ["Bash(npm test)", "Bash(node \"/opt/tools/runtime/agdf-session-check.js\")"];
   writeFileSync(settingsPath, `${JSON.stringify({ permissions: { allow: [legacyRule, userRules[0], windowsRule, posixRule, userRules[1]] }, theme: "dark" }, null, 2)}\n`);
   assert.deepEqual(ownedRuntimeCheckRules(JSON.parse(readFileSync(settingsPath, "utf8"))), [legacyRule, windowsRule, posixRule],

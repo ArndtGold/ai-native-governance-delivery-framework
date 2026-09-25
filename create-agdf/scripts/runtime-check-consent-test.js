@@ -7,14 +7,13 @@ import { generatedRoot, packageRoot, pluginDefinition } from "../lib/cli/runtime
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import { runtimeCheckCapabilityIdentity, validateRuntimeCheckCapability } from "../lib/runtime-check-consent/contract.js";
 import {
-  applyClaudeExactRule,
-  claudePermissionRule,
   codexRuntimeCheckEvidence,
   openCodeRuntimeCheckEvidence,
+  ownedRuntimeCheckRules,
   revokeClaudeExactRule,
 } from "../lib/runtime-check-consent/adapters.js";
 import { consentDisclosure, resolveRuntimeCheckDecision } from "../lib/runtime-check-consent/coordinator.js";
-import { configureClaudeExactRuntimeRule, revokeClaudeRuntimeRule } from "../lib/runtime-check-consent/claude-settings.js";
+import { revokeClaudeRuntimeRule } from "../lib/runtime-check-consent/claude-settings.js";
 import { executeOpenCodeAutomaticRuntimeCheck, fixedRuntimeCheckCommand, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../lib/runtime-check-consent/service.js";
 import {
   createRuntimeCheckReceipt,
@@ -62,7 +61,10 @@ assert.doesNotMatch(codexWindowsCommand, /GetEnvironmentVariable\('PLUGIN_ROOT'\
 assert.doesNotMatch(claudeWindowsCommand, /GetEnvironmentVariable\('CLAUDE_PLUGIN_ROOT'\) \+ GetEnvironmentVariable/u);
 assert.equal(fixedRuntimeCheckCommand("copilot", "/ignored", "darwin"), 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"');
 assert.equal(consentDisclosure("copilot").permission_owner, "GitHub Copilot plugin hook review");
-assert.match(consentDisclosure("claude").revocation, /runtime-checks manual/);
+assert.equal(consentDisclosure("claude").revocation, "claude plugin disable agdf@agdf",
+  "Claude Code runs plugin hooks whenever the plugin is enabled, so disabling the plugin is the only revocation");
+assert.equal(consentDisclosure("claude").permission_owner, "Claude Code plugin enablement");
+assert.match(consentDisclosure("codex").revocation, /runtime-checks manual --surface codex/);
 
 const root = mkdtempSync(join(tmpdir(), "agdf-runtime-check-consent-"));
 try {
@@ -84,12 +86,21 @@ try {
   const generatedPluginRoot = join(generatedRoot, "plugins", "agdf");
   const manifest = JSON.parse(readFileSync(join(generatedPluginRoot, "runtime", "runtime-manifest.json"), "utf8"));
   const sourceDigest = digestNormalizedPluginSource(generatedPluginRoot, pluginDefinition.version);
-  const command = fixedRuntimeCheckCommand("claude", generatedPluginRoot, "darwin");
-  const capabilityIdentity = runtimeCheckCapabilityIdentity({ capability, surface: "claude", runtimeDigest: manifest.digest, sourceDigest, command });
-  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "claude", decision: "enable", capabilityIdentity, command }));
-  assert.deepEqual(retainCurrentInstallConsent("claude", retainedRoot, "darwin")?.decision, "enable");
-  assert.equal(runtimeCheckStatus(retainedRoot, "claude", "darwin").effective, "decision_required");
-  assert.equal(runtimeCheckStatus(retainedRoot, "claude", "win32").effective, "renewal_required");
+  const command = fixedRuntimeCheckCommand("codex", generatedPluginRoot, "darwin");
+  const capabilityIdentity = runtimeCheckCapabilityIdentity({ capability, surface: "codex", runtimeDigest: manifest.digest, sourceDigest, command });
+  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "codex", decision: "enable", capabilityIdentity, command }));
+  assert.deepEqual(retainCurrentInstallConsent("codex", retainedRoot, "darwin")?.decision, "enable");
+  assert.equal(runtimeCheckStatus(retainedRoot, "codex", "darwin").effective, "decision_required");
+  assert.equal(runtimeCheckStatus(retainedRoot, "codex", "win32").effective, "renewal_required");
+  const claudeCommand = fixedRuntimeCheckCommand("claude", generatedPluginRoot, "darwin");
+  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "claude", decision: "enable",
+    capabilityIdentity: runtimeCheckCapabilityIdentity({ capability, surface: "claude", runtimeDigest: manifest.digest, sourceDigest, command: claudeCommand }),
+    command: claudeCommand }));
+  assert.equal(retainCurrentInstallConsent("claude", retainedRoot, "darwin"), null, "Claude consent is plugin enablement, never a retained receipt");
+  const claudeStatus = runtimeCheckStatus(retainedRoot, "claude", "win32");
+  assert.equal(claudeStatus.effective, "enabled");
+  assert.equal(claudeStatus.reason, "host_plugin_enablement");
+  assert.equal(claudeStatus.verification, "host_managed");
   assert.equal(retainCurrentInstallConsent("opencode", retainedRoot, "darwin"), null);
   const copilotCommand = fixedRuntimeCheckCommand("copilot", generatedPluginRoot, "darwin");
   const copilotIdentity = runtimeCheckCapabilityIdentity({ capability, surface: "copilot", runtimeDigest: manifest.digest, sourceDigest, command: copilotCommand });
@@ -99,28 +110,19 @@ try {
   rmSync(retainedRoot, { recursive: true, force: true });
 }
 
-const bashRule = claudePermissionRule({ platform: "darwin", command: "node /exact/check.js" });
-const powerShellRule = claudePermissionRule({ platform: "win32", command: "node C:\\AGDF\\check.js" });
-assert.equal(bashRule, "Bash(node /exact/check.js)");
-assert.equal(powerShellRule, "PowerShell(node C:\\AGDF\\check.js)");
-assert.throws(() => claudePermissionRule({ platform: "darwin", command: "node *" }), /NOT_EXACT/);
-const original = { permissions: { allow: ["Read(/safe)"], deny: ["Bash(rm *)"] }, user: { retained: true } };
-const applied = applyClaudeExactRule(original, { rule: bashRule });
-assert.deepEqual(original.permissions.allow, ["Read(/safe)"]);
-assert.deepEqual(applied.settings.permissions.allow, ["Read(/safe)", bashRule]);
-assert.deepEqual(revokeClaudeExactRule(applied.settings, bashRule).permissions.allow, ["Read(/safe)"]);
-assert.equal(applyClaudeExactRule(original, { rule: bashRule, ask: [bashRule] }).status, "degraded");
+// Earlier releases wrote one of these exact rules; they are only recognised for migration and uninstall.
+const bashRule = 'Bash(node "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/runtime/agdf-session-check.js")';
+const powerShellRule = `PowerShell(${fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32")})`;
+const original = { permissions: { allow: ["Read(/safe)", bashRule], deny: ["Bash(rm *)"] }, user: { retained: true } };
+assert.deepEqual(ownedRuntimeCheckRules(original), [bashRule]);
+assert.deepEqual(ownedRuntimeCheckRules({ permissions: { allow: [powerShellRule, "Bash(node /other/check.js)"] } }), [powerShellRule]);
+assert.deepEqual(revokeClaudeExactRule(original, bashRule).permissions.allow, ["Read(/safe)"]);
+assert.deepEqual(original.permissions.allow, ["Read(/safe)", bashRule], "revocation must not mutate its input");
 
 const settingsRoot = mkdtempSync(join(tmpdir(), "agdf-claude-settings-"));
 try {
   const settingsPath = join(settingsRoot, "settings.json");
   writeFileSync(settingsPath, `${JSON.stringify(original)}\n`);
-  const configured = configureClaudeExactRuntimeRule({ path: settingsPath, rule: bashRule });
-  assert.equal(configured.status, "configured");
-  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow, ["Read(/safe)", bashRule]);
-  configured.rollback();
-  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")), original);
-  configureClaudeExactRuntimeRule({ path: settingsPath, rule: bashRule });
   revokeClaudeRuntimeRule({ path: settingsPath, rule: bashRule });
   assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow, ["Read(/safe)"]);
   assert.deepEqual(revokeClaudeExactRule({ permissions: { allow: [bashRule] }, theme: "dark" }, bashRule), { theme: "dark" },
@@ -128,8 +130,12 @@ try {
   assert.deepEqual(revokeClaudeExactRule({ permissions: { allow: [bashRule], deny: ["Bash(rm:*)"] } }, bashRule), { permissions: { deny: ["Bash(rm:*)"] } },
     "other permission keys survive revocation");
 
+  // Claude install consent writes nothing and migrates the legacy rule and receipt away.
   const consentRoot = join(settingsRoot, "data");
-  const runtimeCommand = fixedRuntimeCheckCommand("claude", "/ignored", "darwin");
+  writeFileSync(settingsPath, `${JSON.stringify(original)}\n`);
+  writeRuntimeCheckReceipt(consentRoot, createRuntimeCheckReceipt({
+    surface: "claude", decision: "enable", capabilityIdentity: identity, command: identityInput.command,
+  }));
   const consentState = persistInstallConsent({
     surface: "claude",
     decision: "enable",
@@ -138,10 +144,18 @@ try {
     platform: "darwin",
     claudeSettingsPath: settingsPath,
   });
-  assert.equal(consentState.effective, "decision_required");
-  assert.ok(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow.includes(`Bash(${runtimeCommand})`));
-  assert.equal(setRuntimeChecksManual({ dataRoot: consentRoot, surface: "claude", platform: "darwin", claudeSettingsPath: settingsPath }).effective, "manual");
-  assert.equal(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow.includes(`Bash(${runtimeCommand})`), false);
+  assert.equal(consentState.effective, "enabled");
+  assert.equal(consentState.reason, "host_plugin_enablement");
+  assert.equal(consentState.mutation, "legacy_rule_or_receipt_removed");
+  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")), { permissions: { allow: ["Read(/safe)"], deny: ["Bash(rm *)"] }, user: { retained: true } });
+  assert.equal(readRuntimeCheckReceipt(consentRoot, "claude").status, "receipt_missing", "the legacy Claude receipt must be removed");
+  const repeated = persistInstallConsent({ surface: "claude", decision: "manual", installed: null, dataRoot: consentRoot, claudeSettingsPath: settingsPath });
+  assert.deepEqual([repeated.requested, repeated.effective, repeated.mutation], ["manual", "enabled", "none"],
+    "a manual request cannot stop a Claude plugin hook and writes nothing");
+  const claudeManual = setRuntimeChecksManual({ dataRoot: consentRoot, surface: "claude", platform: "darwin", claudeSettingsPath: settingsPath });
+  assert.equal(claudeManual.effective, "unavailable");
+  assert.equal(claudeManual.reason, "unsupported_host_capability");
+  assert.match(claudeManual.next_action, /claude plugin disable agdf@agdf/);
 
   writeRuntimeCheckReceipt(consentRoot, createRuntimeCheckReceipt({
     surface: "opencode",
@@ -158,14 +172,12 @@ try {
   mkdirSync(failingRoot);
   writeFileSync(failingRuntimeChecks, "blocks-directory\n");
   assert.throws(() => persistInstallConsent({
-    surface: "claude",
+    surface: "codex",
     decision: "enable",
     installed: { pluginRoot: "/installed", digest: "a".repeat(64), sourceDigest: "b".repeat(64) },
     dataRoot: failingRoot,
     platform: "darwin",
-    claudeSettingsPath: settingsPath,
   }));
-  assert.equal(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow.includes(`Bash(${runtimeCommand})`), false, "receipt failure must roll back the exact Claude rule");
 } finally {
   rmSync(settingsRoot, { recursive: true, force: true });
 }

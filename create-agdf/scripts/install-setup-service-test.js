@@ -530,10 +530,27 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
       return { report: pluginReport({ surface }), installed: { pluginRoot: "/tmp/plugin" } };
     },
   }));
+  if (surface === "claude") {
+    // The Claude plugin declares its own MCP server: no setup choice, no registration preflight.
+    assert.deepEqual(calls, ["plugin.status", "runtime.select", "plugin.install", "runtime.finalize"]);
+    assert.deepEqual(result.report.mcp, { status: "plugin_managed" });
+    assert.equal(result.report.effective_state, "plugin_ready_mcp_in_plugin");
+    continue;
+  }
   assert.deepEqual(calls, ["plugin.status", "mcp.status", "mcp.status", "setup.choose", "runtime.select", "plugin.install", "runtime.finalize"]);
   assert.equal(JSON.stringify(observedMcp), before);
   assert.deepEqual(result.report.mcp, observedMcp);
   assert.equal(result.report.effective_state, "degraded_or_foreign");
+}
+
+{
+  const calls = [];
+  await assert.rejects(() => runInstallSetup({
+    options: options({ target: "claude", setupRequest: "full", dirExplicit: true, dirInput: "/tmp/workspace", dirInputAbsolute: true }),
+    interactive: false,
+    env: {},
+  }, ownerAdapters(calls)), /starts the AGDF MCP server from the AGDF plugin; omit --with-mcp/);
+  assert.deepEqual(calls, [], "a Claude --with-mcp request must fail before inspection or mutation");
 }
 
 console.log("install setup service tests passed");

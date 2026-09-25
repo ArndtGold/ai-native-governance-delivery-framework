@@ -7,17 +7,12 @@ import { classifyMarketplaceList, defaultAgdfDataRoot, localMarketplaceRoot } fr
 import { defaultClaudeSettingsPath, readClaudeSettings } from "../../runtime-check-consent/claude-settings.js";
 import { readRuntimeCheckReceipt } from "../../runtime-check-consent/state.js";
 import { inspectClaudePlugin, uninstallCommand } from "./plugin.js";
+import { ownedRuntimeCheckRules } from "./permission-rules.js";
+
+export { ownedRuntimeCheckRules };
 
 const MARKETPLACE_LIST = ["plugin", "marketplace", "list", "--json"];
 const MARKETPLACE_REMOVE = ["plugin", "marketplace", "remove", "agdf", "--scope", "user"];
-// Exact automatic-runtime-check rules AGDF writes, including forms from earlier releases: one Bash or
-// PowerShell rule that runs the plugin-relative agdf-session-check.js through a PLUGIN_ROOT variable.
-const RUNTIME_CHECK_RULE = /^(?:Bash|PowerShell)\(node "[^"]*PLUGIN_ROOT[^"]*[\\/]runtime[\\/]agdf-session-check\.js"\)$/u;
-
-export function ownedRuntimeCheckRules(settings) {
-  const allow = settings?.permissions?.allow;
-  return Array.isArray(allow) ? allow.filter((rule) => typeof rule === "string" && RUNTIME_CHECK_RULE.test(rule)) : [];
-}
 
 function inspectMarketplace(exec, marketplaceRoot) {
   try {

@@ -35,7 +35,7 @@ export function validateRuntimeCheckCapability(capability) {
     throw new Error("AGDF_RUNTIME_CHECK_CAPABILITY_INVALID: read-only constraints required");
   }
   const surfaces = capability.surfaces ?? {};
-  if (surfaces.codex !== "native-hook-review" || surfaces.claude !== "exact-command-rule"
+  if (surfaces.codex !== "native-hook-review" || surfaces.claude !== "plugin-enablement"
       || surfaces.copilot !== "plugin-hook-review"
       || surfaces.opencode !== "plugin-internal"
       || surfaces["portable-skills"] !== "manual-external-required") {

@@ -3,6 +3,7 @@ import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync, st
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
+import { syncClaudePluginMcp } from "./sync-plugin-mcp.js";
 import {
   renderClaudePluginManifest,
   renderCodexPluginManifest,
@@ -173,12 +174,14 @@ function syncDirectory(sourceRoot, targetRoot) {
 
 function syncPluginDirectory(sourceRoot, targetRoot) {
   prepareGeneratedDirectory(targetRoot, "generated plugin directory");
-  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => entry !== "runtime"));
+  // runtime/ and mcp/ are generated into the runtime plugin only and never come from the source plugin.
+  const generatedOnly = new Set(["runtime", "mcp"]);
+  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => !generatedOnly.has(entry)));
   for (const entry of readdirSync(targetRoot)) {
-    if (!sourceEntries.has(entry)) removeGeneratedPath(join(targetRoot, entry), "generated plugin stale entry");
+    if (!sourceEntries.has(entry) && !generatedOnly.has(entry)) removeGeneratedPath(join(targetRoot, entry), "generated plugin stale entry");
   }
   for (const entry of readdirSync(sourceRoot)) {
-    if (entry === "runtime") continue;
+    if (generatedOnly.has(entry)) continue;
 
     const sourcePath = join(sourceRoot, entry);
     const targetPath = join(targetRoot, entry);
@@ -592,7 +595,9 @@ export function syncPackageAssets({
   writeOpenCodeReadme(skillSlugs);
   const generatedCodexRuntimeRoot = assertGeneratedPathSafe(join(generatedCodexPluginRoot, "runtime"), "generated Codex runtime");
   const generatedCopilotRuntimeRoot = assertGeneratedPathSafe(join(generatedCopilotPluginRoot, "runtime"), "generated Copilot runtime");
-  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot });
+  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, claudeMcp: true });
+  syncClaudePluginMcp({ pluginRoot: generatedCodexPluginRoot });
+  write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
   syncPluginRuntime({ outputRoot: generatedCopilotRuntimeRoot });
   mapGeneratedDirectory(join(generatedCopilotPluginRoot, "runtime"), {
     component: "runtime",

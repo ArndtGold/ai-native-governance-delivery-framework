@@ -7,6 +7,7 @@ const SETUP_REQUESTS = new Set(["plugin_only", "full", "cancel"]);
 const EFFECTIVE_STATES = new Set([
   "cancelled",
   "plugin_ready_mcp_absent",
+  "plugin_ready_mcp_in_plugin",
   "plugin_ready_mcp_unchanged",
   "configured_pending_restart",
   "configured_unverified",
@@ -22,7 +23,7 @@ const INVOCATION_DIRECTORY_SOURCES = new Set(["explicit_dir", "npm_init_cwd", "p
 const SCOPES = new Set(["project", "user"]);
 const INTERACTIONS = new Set(["required", "not_required"]);
 const PLUGIN_PREFLIGHT_STATES = new Set(["observed", "healthy", "degraded", "not_installed", "unavailable", "unknown"]);
-const MCP_STATES = new Set([...mcpCapabilityProfileContract.resultStates, "not_requested", "not_checked"]);
+const MCP_STATES = new Set([...mcpCapabilityProfileContract.resultStates, "not_requested", "not_checked", "plugin_managed"]);
 const RUNTIME_CHECK_STATES = new Set([
   "not_run",
   "not_checked",
@@ -87,6 +88,7 @@ const NEXT_ACTION_CODES = new Set([
 const STATE_ACTIONS = Object.freeze({
   cancelled: new Set(["cancelled"]),
   plugin_ready_mcp_absent: new Set(["restart_host"]),
+  plugin_ready_mcp_in_plugin: new Set(["restart_host"]),
   plugin_ready_mcp_unchanged: new Set(["restart_host"]),
   configured_pending_restart: new Set(["restart_host"]),
   configured_unverified: new Set(["verify_host_discovery"]),
@@ -142,12 +144,12 @@ function pluginVerified(plugin) {
 }
 
 function mcpState(mcp) {
-  if (mcp?.status && ["not_requested", "not_checked"].includes(mcp.status)) return mcp.status;
+  if (mcp?.status && ["not_requested", "not_checked", "plugin_managed"].includes(mcp.status)) return mcp.status;
   return mcp?.result;
 }
 
 function assertMcpPart(mcp) {
-  if (mcp?.status && ["not_requested", "not_checked"].includes(mcp.status)) {
+  if (mcp?.status && ["not_requested", "not_checked", "plugin_managed"].includes(mcp.status)) {
     exactKeys(mcp, ["status"], "AGDF_INSTALL_SETUP_RESULT_INVALID");
     return;
   }
@@ -177,6 +179,7 @@ export function deriveInstallSetupState({ setup_request: setupRequest, plugin, r
   if (failure?.phase === "runtime_check_permission") return "partial";
   const state = mcpState(mcp);
   if (setupRequest === "plugin_only") {
+    if (state === "plugin_managed") return "plugin_ready_mcp_in_plugin";
     if (["foreign", "owned_mismatch", "precedence_conflict", "invalid"].includes(mcp?.registration?.status)
         || state === "degraded") return "degraded_or_foreign";
     if (["not_requested", "not_checked", "not_configured"].includes(state)) return "plugin_ready_mcp_absent";

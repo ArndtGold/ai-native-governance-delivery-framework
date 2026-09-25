@@ -48,6 +48,10 @@ jobs:
         if: runner.os == 'Linux'
         run: npm run test:community-health && npm run check:community-health
 
+      - name: Verify host compatibility fixtures and evidence contracts
+        if: runner.os == 'Linux'
+        run: npm run test:host-compatibility
+
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
 

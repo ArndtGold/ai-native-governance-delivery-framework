@@ -1,77 +1,10 @@
-import { readFileSync } from "node:fs";
 import { validateGateApprovalResponse } from "./gate-approval-validator.js";
-import { parseControlState, parseRunState } from "./run-state-parser.js";
-import { runPath } from "./run-state-reader.js";
+import { parseControlState } from "./run-state-parser.js";
+import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { writeRun } from "./run-state-writer.js";
 
-const WRITE_REJECTIONS = new Map([
-  ["AGDF_STALE_RUN_REVISION", "stale_revision"],
-  ["AGDF_RUN_WRITE_LOCKED", "run_write_locked"],
-  ["AGDF_RUN_APPROVALS_UNRECORDED", "approvals_unrecorded"],
-  ["AGDF_RUN_SEAL_INVALID", "seal_invalid"],
-  ["AGDF_RUN_STATE_INVALID", "run_state_invalid"],
-]);
 const DURABLE_STATUS_GATES = new Set(["UR", "PRD", "SD", "TP"]);
-
-function rejected(runId, reason, details = {}) {
-  return Object.freeze({ schema_version: "1", outcome: "rejected", run_id: runId ?? null, reason, ...details });
-}
-
-function readRun(root, runId) {
-  let path;
-  try {
-    path = runPath(root, runId);
-  } catch {
-    return { rejection: rejected(runId, "run_id_invalid") };
-  }
-  let content;
-  try {
-    content = readFileSync(path, "utf8");
-  } catch {
-    return { rejection: rejected(runId, "run_missing") };
-  }
-  const parsed = parseRunState(content, runId);
-  if (!parsed.valid) {
-    return { rejection: rejected(runId, "run_state_invalid", { findings: parsed.findings.map((finding) => finding.code) }) };
-  }
-  return { path, content, meta: parsed.meta };
-}
-
-function guardedWrite(runId, write) {
-  try {
-    return { state: write() };
-  } catch (error) {
-    const reason = WRITE_REJECTIONS.get(error?.message);
-    if (!reason) throw error;
-    return { rejection: rejected(runId, reason) };
-  }
-}
-
-function tableCells(line) {
-  return line.split("|").slice(1, -1).map((cell) => cell.trim());
-}
-
-function tableLine(cells) {
-  return `| ${cells.join(" | ")} |`;
-}
-
-function firstSection(lines, heading) {
-  const pattern = new RegExp(`^## ${heading.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}\\s*$`, "u");
-  const start = lines.findIndex((line) => pattern.test(line));
-  if (start < 0) return null;
-  let end = start + 1;
-  while (end < lines.length && !/^#{1,2} /u.test(lines[end])) end += 1;
-  return { start, end };
-}
-
-function tableLineIndexes(lines, range) {
-  const indexes = [];
-  for (let index = range.start + 1; index < range.end; index += 1) {
-    if (lines[index].trimStart().startsWith("|")) indexes.push(index);
-  }
-  return indexes;
-}
 
 function recordGateApproval(text, gate, evidence) {
   const lines = text.split("\n");
@@ -140,10 +73,6 @@ function recordUrApprovalChain(text, evidence) {
     lines.splice(range.start + 1, 0, "", "| From | Relationship | To | Evidence |", "|---|---|---|---|", row);
   }
   return lines.join("\n");
-}
-
-function replaceNextAllowedAction(text, action) {
-  return text.replace(/^- next_allowed_action:.*$/mu, () => `- next_allowed_action: ${action}`);
 }
 
 // run-update: record the current run state and listed artefacts as a new sealed revision. Approval
@@ -219,7 +148,7 @@ export function approveRunGate(root, { runId, gate, revisionId, response, date =
   if (DURABLE_STATUS_GATES.has(gate)) next = markGateArtefactApproved(next, gate);
   if (gate === "UR") next = recordUrApprovalChain(next, evidence);
   if (report.allowed_after_approval && report.allowed_after_approval !== "none") {
-    next = replaceNextAllowedAction(next, report.allowed_after_approval);
+    next = replaceFirstScalar(next, "next_allowed_action", report.allowed_after_approval) ?? next;
   }
   const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
     allowApprovalChange: true,

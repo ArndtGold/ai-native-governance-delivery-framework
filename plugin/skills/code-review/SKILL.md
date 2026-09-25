@@ -110,6 +110,8 @@ Use this compact structure:
 
 ```text
 ## Code Review
+Record the decision with the validator's `run-step --step review --decision <pass|revise|block> --evidence`.
+
 - decision: pass | revise | block | not_applicable
 - findings:
   - [severity] file/path - issue - evidence

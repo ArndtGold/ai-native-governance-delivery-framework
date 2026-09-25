@@ -55,6 +55,10 @@ export function tableLine(cells) {
   return `| ${cells.map((cell) => String(cell).replaceAll("|", "/").replace(/\r?\n/gu, " ")).join(" | ")} |`;
 }
 
+function padded(cells, width) {
+  return cells.length >= width ? cells : [...cells, ...Array(width - cells.length).fill("")];
+}
+
 export function firstSection(lines, heading) {
   const pattern = new RegExp(`^## ${heading.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}\\s*$`, "u");
   const start = lines.findIndex((line) => pattern.test(line));
@@ -96,11 +100,12 @@ export function upsertTableRow(text, heading, column, key, cells) {
   if (!range) return null;
   const indexes = tableLineIndexes(lines, range);
   if (indexes.length < 2) return null;
+  const width = tableCells(lines[indexes[0]]).length;
   const matches = indexes.slice(2).filter((index) => tableCells(lines[index])[column] === key);
   if (matches.length) {
-    for (const index of matches) lines[index] = tableLine([...cells, ...tableCells(lines[index]).slice(cells.length)]);
+    for (const index of matches) lines[index] = tableLine(padded([...cells, ...tableCells(lines[index]).slice(cells.length)], width));
   } else {
-    lines.splice(indexes.at(-1) + 1, 0, tableLine(cells));
+    lines.splice(indexes.at(-1) + 1, 0, tableLine(padded(cells, width)));
   }
   return lines.join("\n");
 }
@@ -111,7 +116,7 @@ export function appendTableRow(text, heading, cells) {
   if (!range) return null;
   const indexes = tableLineIndexes(lines, range);
   if (indexes.length < 2) return null;
-  lines.splice(indexes.at(-1) + 1, 0, tableLine(cells));
+  lines.splice(indexes.at(-1) + 1, 0, tableLine(padded(cells, tableCells(lines[indexes[0]]).length)));
   return lines.join("\n");
 }
 

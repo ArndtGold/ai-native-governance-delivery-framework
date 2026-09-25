@@ -176,7 +176,8 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
     const completedRows = tableRows(markdownSection(backlog, "Completed / Superseded Pointers"))
       .slice(1)
       .filter((cells) => cells.some((cell) => filled(cell)));
-    if (!hasFilledTableRow(backlog, /^P[0-9]/) && completedRows.length === 0) {
+    // Priorities are written as P1 or, per the numeric template column, as 1.
+    if (!hasFilledTableRow(backlog, /^P?[0-9]/) && completedRows.length === 0) {
       addFinding(
         findings,
         "warn",

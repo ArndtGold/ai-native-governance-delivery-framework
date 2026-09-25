@@ -42,6 +42,7 @@ export const commandRegistry = Object.freeze([
   command("contract", { local: [" --module <runtime-contract-module> [--json]"] }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
+  command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]"] }),
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
   command("run-render-legacy", { local: [" --run <run_id>"] }),
@@ -91,6 +92,7 @@ export function validateCommandOptions(options) {
     throw new Error("target-check requires --json");
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
+  if (options.intake && options.target !== "skill-dispatch") throw new Error("--intake is supported only by skill-dispatch");
   if (options.target === "skill-dispatch") {
     if (!options.json) throw new Error("skill-dispatch requires --json");
     if (!options.skillId) throw new Error("skill-dispatch requires --skill");
@@ -107,9 +109,17 @@ export function validateCommandOptions(options) {
   if (options.target === "run-create" && (!options.runId || options.allActive)) {
     throw new Error("run-create requires --run and rejects --all-active");
   }
-  if ((options.gate || options.revisionId || options.response !== undefined)
-      && !["run-update", "run-approve"].includes(options.target)) {
-    throw new Error("--gate, --revision and --response are supported only by run-update and run-approve");
+  if ((options.gate || options.response !== undefined) && options.target !== "run-approve") {
+    throw new Error("--gate and --response are supported only by run-approve");
+  }
+  if (options.revisionId && !["run-update", "run-approve", "run-step"].includes(options.target)) {
+    throw new Error("--revision is supported only by run-update, run-approve and run-step");
+  }
+  if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step") {
+    throw new Error("--step and step fields are supported only by run-step");
+  }
+  if (options.target === "run-step" && (!options.runId || !options.revisionId || !options.runStep)) {
+    throw new Error("run-step requires --run, --revision and --step");
   }
   if (options.target === "run-update" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
     throw new Error("run-update requires --run and --revision and rejects --gate and --response");
@@ -215,8 +225,13 @@ Options:
   --run <run_id> Select one canonical run
   --module <runtime-contract-module>
                  Runtime-contract module for contract, for example gate-transition
+  --step <ur|route|review|evidence|closeout>
+                 Standard transition for run-step. Step fields: ur --title; route --route
+                 <quick_task|verified_change|structured_slice|structured_delivery|block> --reason
+                 --evidence; review --decision <pass|revise|block> --evidence [--source]; evidence
+                 --evidence [--source --covers]; closeout --result --evidence --risk --next
   --revision <revision_id>
-                 Expected current run revision for run-update and run-approve
+                 Expected current run revision for run-update, run-approve and run-step
   --gate <UR|PRD|SD|TP|QA|UAT>
                  Gate whose exact approval run-approve records
   --response <text>
@@ -229,6 +244,7 @@ Options:
                  Report execution context without granting target authority
   --skill <skill-id>
                  Select one canonical skill for skill-dispatch
+  --intake       Declare the governed delivery intake (delivery.start) for a gate-check skill-dispatch
   --target-candidate <absolute-path>
                  Repeat to expose competing plausible targets
   --evidence-source <value>

@@ -68,6 +68,7 @@ or help retries. Dispatch never authorizes.
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
 When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
 Use the Runtime Contract definition of `Relevant Run` to decide whether OR is mandatory or whether a Quick Task mini-closeout is enough.
+Close a `quick_task` with the validator's `run-step --step closeout --result --evidence --risk --next`.
 
 ## Rules
 1. OR is always allowed and mandatory for relevant runs as defined in the Runtime Contract.

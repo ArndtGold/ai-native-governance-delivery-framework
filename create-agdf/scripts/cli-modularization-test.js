@@ -27,7 +27,7 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-approve",
+  "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-step", "run-approve",
   "run-migrate", "run-render-legacy",
 ];
 
@@ -39,7 +39,7 @@ const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
 assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -70,6 +70,7 @@ assert.deepEqual(parsed.options, {
   surface: "codex",
   surfaceExplicit: true,
   skillId: undefined,
+  intake: false,
   fixture: resolve("/tmp/root/fixture.json"),
   persist: true,
   model: undefined,
@@ -79,6 +80,8 @@ assert.deepEqual(parsed.options, {
   revisionId: undefined,
   response: undefined,
   contractModule: undefined,
+  runStep: undefined,
+  stepFields: {},
   allActive: false,
   scope: undefined,
   confirm: false,
@@ -150,6 +153,13 @@ assert.equal(skillDispatch.options.skillId, "qa-gate");
 assert.equal(skillDispatch.options.surfaceExplicit, true);
 assert.equal(skillDispatch.options.languageExplicit, true);
 assert.doesNotThrow(() => validateCommandOptions(skillDispatch.options));
+const intakeDispatch = parseArgs([
+  "skill-dispatch", "--json", "--skill", "gate-check", "--surface", "claude", "--language", "de",
+  "--working-directory", "/tmp/chat", "--intake",
+], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(intakeDispatch.options.intake, true);
+assert.doesNotThrow(() => validateCommandOptions(intakeDispatch.options));
+assert.throws(() => validateCommandOptions({ target: "doctor", intake: true }), /--intake is supported only by skill-dispatch/);
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
@@ -191,11 +201,14 @@ assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvel
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a" }), /run-update requires --run and --revision/);
-assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev", gate: "UR" }), /rejects --gate and --response/);
+assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev", gate: "UR" }), /--gate and --response are supported only by run-approve/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev" }));
 assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
-assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /supported only by run-update and run-approve/);
+assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-approve and run-step/);
+assert.throws(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev" }), /run-step requires --run, --revision and --step/);
+assert.throws(() => validateCommandOptions({ target: "doctor", stepFields: { route: "quick_task" } }), /step fields are supported only by run-step/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev", runStep: "route", stepFields: { route: "quick_task" } }));
 assert.throws(() => validateCommandOptions({ target: "contract" }), /contract requires --module/);
 assert.throws(() => validateCommandOptions({ target: "doctor", contractModule: "modes" }), /--module is supported only by contract/);
 {
@@ -249,7 +262,7 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }

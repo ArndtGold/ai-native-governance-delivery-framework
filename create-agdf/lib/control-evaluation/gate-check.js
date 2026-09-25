@@ -206,7 +206,7 @@ export function qualityReadinessForRunState(runState, nextAction) {
 
 // A gate question needs the artefact it approves: a durable file for UR/PRD/SD/TP and a passing QA
 // report for QA. UAT approves the delivered result and has no separate artefact.
-function isDurableApprovalArtefactPresent(targetDir, runState, gate) {
+export function isDurableApprovalArtefactPresent(targetDir, runState, gate) {
   if (gate === "UAT") return true;
   const artefact = runState.artefacts.get(gate);
   if (!artefact || !resolvedArtefactFile(targetDir, artefact.path)) return false;

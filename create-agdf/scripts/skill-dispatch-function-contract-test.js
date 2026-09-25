@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { resolveCommand, skillDispatchArgumentGrammar as registryArgumentGrammar } from "../lib/cli/command-registry.js";
 import {
   SKILL_DISPATCH_FUNCTION_DEFINITION,
+  SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION,
+  SKILL_DISPATCH_INTAKE_DESCRIPTION,
   SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION,
   SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION,
   SKILL_DISPATCH_SURFACES,
@@ -39,6 +41,7 @@ for (const requiredMeaning of [
   "entire assistant response must consist only of host_action.text",
   "Add no question, explanation, heading, citation, link or other surrounding text",
   "use only the returned target and control",
+  "For intake_continuation, run continuation.steps in order without asking the user",
 ]) assert.match(definition.description, new RegExp(requiredMeaning.replaceAll(".", "\\."), "u"));
 assert.equal(renderSkillDispatchTerminalProjection(), SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION);
 assert.equal(definition.outputSchema.properties.control.description, SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION);
@@ -48,8 +51,15 @@ assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
 assert.deepEqual(Object.keys(schema.properties), [
-  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id",
+  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "intake",
 ]);
+assert.equal(schema.properties.intake.type, "boolean");
+assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /governed delivery intake \(catalog delivery\.start\) is the active route/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /delivery wins mixed intent/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /Omit it for status, approval or next-step questions/u);
+assert.match(SKILL_DISPATCH_INTAKE_DESCRIPTION, /never grants approval or delivery authority/u);
+assert.ok(definition.description.endsWith(` ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`));
 assert.equal(schema.additionalProperties, false);
 assert.equal(definition.outputSchema.additionalProperties, false);
 assert.deepEqual(definition.outputSchema.required, [
@@ -59,7 +69,7 @@ assert.deepEqual(definition.outputSchema.required, [
 ]);
 assert.equal(definition.outputSchema.properties.authorizes.const, false);
 assert.deepEqual(definition.outputSchema.properties.outcome.enum, [
-  "invalid_input", "target_unresolved", "control_result", "skill_continuation", "evaluator_error",
+  "invalid_input", "target_unresolved", "control_result", "skill_continuation", "intake_continuation", "evaluator_error",
 ]);
 assert.deepEqual(schema.dependentRequired, {
   target_source: ["primary_target"],
@@ -112,6 +122,17 @@ assert.deepEqual(parsed, {
   interactionLocales: {},
 });
 assert.equal(Object.isFrozen(parsed), true);
+assert.equal(parseSkillDispatchFunctionArguments({
+  skill_id: "gate-check",
+  presentation_language: "de",
+  working_directory: "/tmp/agdf",
+  intake: true,
+}, {
+  surface: "codex",
+  expectedVersion: pluginDefinition.version,
+  skillSet: pluginDefinition.skillSet,
+  interactionLocales: {},
+}).intake, true);
 const semanticInvalid = parseSkillDispatchFunctionArguments({
   skill_id: "not-a-real-agdf-skill",
   presentation_language: "de",
@@ -167,6 +188,7 @@ assert.throws(
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
 assert.match(skillDispatchArgumentGrammar(), /--language <current-conversation-language-tag>/u);
+assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake]"));
 assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
 
 const languageProjection = renderSkillDispatchLanguageProjection();

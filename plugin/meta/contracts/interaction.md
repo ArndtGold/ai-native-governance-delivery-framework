@@ -275,9 +275,13 @@ For `delivery.start`, the original positive delivery request already supplies th
 intent. The deliberate setup decision authorizes only creation or linking of the canonical control
 scaffold. After successful setup, the agent continues the same delivery intake by persisting the
 already reviewed canonical run and revision-stable UR without a second setup prompt. This continuation
-does not approve UR or any later gate. For the explicit standalone `lifecycle.control.init` operation,
-setup remains scaffold-only and creates neither a run nor UR. Gate readiness is always evaluated
-separately after canonical state and a revision-stable artefact exist.
+does not approve UR or any later gate. Dispatcher v1 called with `intake: true` for this route returns a
+non-terminal `intake_continuation` while no active run exists or the selected run has no durable UR
+revision; its ordered steps are `run-create`, the UR artefact and `run-step --step ur`, followed by a
+new dispatch. Every other state, including a ready `Approval: UR`, stays terminal. For the explicit
+standalone `lifecycle.control.init` operation, setup remains scaffold-only and creates neither a run
+nor UR. Gate readiness is always evaluated separately after canonical state and a revision-stable
+artefact exist.
 
 Every explicit lifecycle or status route exposes a normalized, non-authorizing operation envelope:
 

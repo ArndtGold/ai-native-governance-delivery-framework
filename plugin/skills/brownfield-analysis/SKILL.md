@@ -59,7 +59,8 @@ On skill_continuation use only its target/control. Without that tool and a valid
 or help retries. Dispatch never authorizes.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
-When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`.
+When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`,
+then record the Mode/Slice Decision with the validator's `run-step --step route --route <mode> --reason --evidence`.
 
 ## Modes
 

@@ -8,8 +8,8 @@ description: "Use this skill for this scope: new build/change intent, Structured
 ## Purpose
 
 After positive Request Activation, return the earliest blocking AGDF gate or internal step for the
-selected target and run through the existing non-authorizing owners. This compact bootstrap owns no
-second target, control, gate, interaction, setup, approval, quality, or closeout policy.
+selected target and run through existing non-authorizing owners. This compact bootstrap owns no
+second target, control, gate, interaction, setup, approval, quality or closeout policy.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation
@@ -34,19 +34,18 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 Continue only with the operation selected from the canonical catalog:
 
-- `skill.gate-check` is a direct-skill route. Invoke dispatcher v1 as the first operational call;
-  do not first resolve a target or inspect repository, control, run, gate, or presentation state.
+- `skill.gate-check` is a direct-skill route. Invoke dispatcher v1 as the first operational call,
+  with `intake` if it asks for a change; do not first resolve a target or inspect repository,
+  control, run, gate or presentation state.
 - `delivery.start` is a delivery-intake route, not a direct-skill route. Resolve its target once
   for draft/setup authority. An unresolved target returns the canonical target orientation and
   stops. For a resolved target, inspect only `absent | candidate_present`, not control validity or a
-  gate. On `absent`, follow the existing draft, explicit setup/link authority, and durable-UR path;
+  gate. On `absent`, follow the existing draft, explicit setup/link authority and durable-UR path;
   do not request `Approval: UR` before its persisted revision is ready. On `candidate_present`,
-  invoke dispatcher v1 with the same explicit target so it repeats target resolution and owns
-  authoritative control evaluation. A mismatch or non-actionable candidate stops. Never infer the
-  target from cwd, create a legacy live run, or proxy another operation as `delivery.start`. This
+  invoke dispatcher v1 with `intake` and the same explicit target; it repeats target resolution
+  and owns control evaluation. A mismatch or non-actionable candidate stops. Never infer the target
+  from cwd, create a legacy live run or proxy another operation as `delivery.start`. This
   pre-dispatch branch authorizes only draft/setup, never a gate transition or implementation.
-
-No other catalog operation belongs here.
 
 ## Executable Dispatch
 

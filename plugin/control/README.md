@@ -84,6 +84,12 @@ agdf gate-check --json
 - A run created by `run-create` is sealed. Record every change to it or to a listed artefact with
   `run-update`, and record exact gate replies only with `run-approve`; an unrecorded edit blocks
   `doctor` and `gate-check` until it is recorded.
+- Record the standard small-path steps with one `run-step` call each instead of editing the run state
+  and `MASTER_BACKLOG.md` by hand: `--step ur --title` after writing `artefacts/<run_id>/UR.md`;
+  `--step route --route <mode> --reason --evidence` after writing `BROWNFIELD_REVIEW.md`;
+  `--step evidence` for test or check results; `--step review --decision --evidence` for Code Review;
+  and `--step closeout --result --evidence --risk --next` to close a `quick_task` with OR-lite. Each
+  call maintains the tables, the backlog pointer and the next allowed action and prints the next step.
 
 - The selected `runs/<run_id>/RUN_STATE.md` is the current run dashboard.
 - `config.json` stores the project preference for artefact and chat language; runtime rules stay English.

@@ -15,6 +15,8 @@ import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
 import { approveRunGate, recordRunRevision } from "../control-state/run-recording.js";
 import { readRuntimeContract } from "./contract-command.js";
+import { recordRunStep } from "../control-state/run-steps.js";
+import { policyForRunContent } from "../control-evaluation/run-step-policy.js";
 import { cliGitObservation } from "../control-evaluation/git-observation.js";
 import { resolveRepositoryContext } from "../repository-context.js";
 
@@ -58,6 +60,7 @@ export function createValidationHandlers(io = console) {
         targetSource: options.targetSource,
         primaryTarget: options.primaryTarget,
         runId: options.runId,
+        intake: options.intake,
         expectedVersion: pluginDefinition.version,
       });
       io.log(serializeSkillDispatchResult(result, {
@@ -66,7 +69,7 @@ export function createValidationHandlers(io = console) {
           { registry: interactionLocales, requestedLocale: options.language?.chat_language },
         ),
       }));
-      return ["control_result", "skill_continuation"].includes(result.outcome) ? 0 : 2;
+      return ["control_result", "skill_continuation", "intake_continuation"].includes(result.outcome) ? 0 : 2;
     }],
     ["doctor", (options) => {
       const report = evaluateDoctorWithCliGit(options.dir, options);
@@ -102,6 +105,16 @@ export function createValidationHandlers(io = console) {
     }],
     ["run-update", (options) => {
       const result = recordRunRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });
+      io.log(JSON.stringify(result, null, 2));
+      return result.outcome === "rejected" ? 2 : 0;
+    }],
+    ["run-step", (options) => {
+      const result = recordRunStep(options.dir, {
+        runId: options.runId,
+        revisionId: options.revisionId,
+        step: options.runStep,
+        ...options.stepFields,
+      }, { policy: policyForRunContent });
       io.log(JSON.stringify(result, null, 2));
       return result.outcome === "rejected" ? 2 : 0;
     }],

@@ -2,6 +2,7 @@ import process from "node:process";
 import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
+import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps } from "./delivery-intake.js";
 import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
 
 const defaultNow = () => process.hrtime.bigint();
@@ -97,6 +98,12 @@ function bindHostAction(result) {
       allow_surrounding_text: false,
       may_request_run_or_evidence: false,
     });
+  } else if (result.outcome === "intake_continuation") {
+    result.host_action = Object.freeze({
+      mode: "continue_delivery_intake",
+      source: "continuation.steps",
+      bound_to_target: true,
+    });
   } else if (result.terminal) {
     result.host_action = Object.freeze({
       mode: "transmit_recovery_verbatim_and_stop",
@@ -150,6 +157,7 @@ export function createSkillDispatchService(dependencies = {}) {
   const renderInputRecovery = dependencies.renderSkillDispatchInputRecovery ?? renderSkillDispatchInputRecovery;
   const renderRecovery = dependencies.renderSkillDispatchRecovery ?? renderSkillDispatchRecovery;
   const evaluateGate = dependencies.evaluateGateCheck ?? evaluateGateCheck;
+  const resolveIntakePhase = dependencies.deliveryIntakePhase ?? deliveryIntakePhase;
   const validateControlReadBoundary = dependencies.validateControlReadBoundary;
   const env = dependencies.env ?? process.env;
 
@@ -217,6 +225,27 @@ export function createSkillDispatchService(dependencies = {}) {
         });
       });
       timing.control_ms = round(milliseconds(controlStarted, now()));
+      const intake = skill.dispatch_mode === "deterministic_control" && input.intake
+        ? runDispatchStage("control_evaluation_failed", () => resolveIntakePhase(target.governance_target, control))
+        : null;
+      if (intake) {
+        const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Continue the same delivery intake without asking the user: run these AGDF validator steps in order, then dispatch again. They persist intake bookkeeping only; they approve no gate and authorize no implementation.",
+          operation_id: DELIVERY_INTAKE_OPERATION,
+          phase: intake.phase,
+          presentation_language: input.presentation_language,
+          governance_target: target.governance_target,
+          run_id: intake.run_id,
+          revision_id: intake.revision_id,
+          steps: deliveryIntakeSteps(target.governance_target, intake),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
       if (skill.dispatch_mode === "deterministic_control") {
         const presentation = control.approval_presentation ?? control.status_presentation;
         if (!presentation) {

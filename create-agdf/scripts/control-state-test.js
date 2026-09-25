@@ -31,6 +31,9 @@ import {
 import { parseControlState, RUN_ID_PATTERN } from "../lib/control-state/run-state-parser.js";
 import { validateRunIdentity, RUN_ID_PATTERN as identityRunIdPattern } from "../lib/control-state/run-identity.js";
 import { evaluateGateCheck, postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { evaluateDoctor } from "../lib/control-evaluation/doctor.js";
+import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
+import { recordRunStep } from "../lib/control-state/run-steps.js";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
@@ -937,6 +940,72 @@ ${approvals}
       assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: approved.revision_id }).reason, "seal_invalid");
     } finally {
       rmSync(recordingRoot, { recursive: true, force: true });
+    }
+  }
+
+  // run-step records the small path in single sealed revisions, including the backlog pointer.
+  {
+    const stepRoot = mkdtempSync(join(tmpdir(), "agdf-run-step-"));
+    try {
+      initializeCanonicalControl(stepRoot, generatedFilesForTarget("init", stepRoot, false, "de"));
+      const statePath = createRun(stepRoot, "step");
+      const read = () => readFileSync(statePath, "utf8");
+      const revision = () => parseRunState(read(), "step").meta.revision_id;
+      const artefacts = join(stepRoot, ".agdf", "control", "artefacts", "step");
+      const backlog = () => readFileSync(join(stepRoot, ".agdf", "control", "MASTER_BACKLOG.md"), "utf8");
+      const step = (name, fields = {}) => recordRunStep(stepRoot, { runId: "step", revisionId: revision(), step: name, ...fields }, { policy: policyForRunContent, date: "2026-01-03" });
+
+      assert.equal(step("unknown").reason, "step_invalid");
+      assert.equal(recordRunStep(stepRoot, { runId: "step", revisionId: "stale", step: "ur", title: "x" }, { policy: policyForRunContent }).reason, "stale_revision");
+      assert.equal(step("ur", { title: "subtract" }).reason, "artefact_missing");
+      mkdirSync(artefacts, { recursive: true });
+      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n");
+      assert.equal(step("ur").reason, "title_missing");
+      const drafted = step("ur", { title: "subtract | with test" });
+      assert.equal(drafted.outcome, "recorded");
+      assert.equal(drafted.current_gate, "UR");
+      assert.equal(drafted.backlog, "updated");
+      assert.match(read(), /^\| UR \| `\.agdf\/control\/artefacts\/step\/UR\.md` \| draft \|  \|$/m);
+      assert.match(read(), /^\| What is missing\? \| Exact Approval: UR\. \|$/m);
+      assert.match(backlog(), /^\| P1 \| step \| subtract \/ with test \| Needs UR \| \[UR\]\(artefacts\/step\/UR\.md\) \| \[UR\]\(artefacts\/step\/UR\.md\) \| /m);
+      assert.equal(runSealState(stepRoot, read()).status, "valid");
+      const drafting = evaluateGateCheck(stepRoot, { runId: "step" });
+      assert.equal(drafting.approval_presentation?.revision_id, revision(), "the recorded UR is ready for its exact approval");
+      assert.equal(evaluateDoctor(stepRoot, { runId: "step" }).findings.some((finding) => finding.code === "AGDF_BACKLOG_POINTER_EMPTY"), false);
+
+      assert.equal(step("route", { route: "quick_task", reason: "r", evidence: "e" }).reason, "gate_not_ready", "routing waits for Approval: UR");
+      assert.equal(approveRunGate(stepRoot, { runId: "step", gate: "UR", revisionId: revision(), response: "Approval: UR", date: "2026-01-03" }, { evaluateGateCheck }).outcome, "approved");
+      assert.equal(step("route", { route: "quick_task", reason: "r", evidence: "e" }).reason, "artefact_missing");
+      writeFileSync(join(artefacts, "BROWNFIELD_REVIEW.md"), "# Brownfield Review: subtract\n");
+      assert.equal(step("route", { route: "tiny", reason: "r", evidence: "e" }).reason, "route_invalid");
+      assert.equal(step("route", { route: "quick_task", reason: "r" }).reason, "route_reason_missing");
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "closeout_route_unsupported");
+      const routed = step("route", { route: "quick_task", reason: "additive function in one module", evidence: "math.js only" });
+      assert.equal(routed.current_gate, "Quick Task Execution");
+      assert.match(read(), /^- mode: quick_task$/m);
+      assert.match(read(), /^- required_next_gate: Quick Task Execution$/m);
+      assert.match(backlog(), /\| In Progress \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/);
+
+      assert.equal(step("evidence").reason, "evidence_missing");
+      assert.equal(step("evidence", { evidence: "npm test: 2 pass", source: "npm test" }).outcome, "recorded");
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "code_review_missing", "Code Review stays mandatory");
+      assert.equal(step("review", { decision: "maybe", evidence: "e" }).reason, "decision_invalid");
+      assert.equal(step("review", { decision: "pass", evidence: "diff limited to subtract" }).outcome, "recorded");
+      assert.equal(step("closeout", { result: "r", evidence: "e" }).reason, "closeout_fields_missing");
+      const closed = step("closeout", { result: "subtract added with tests", evidence: "npm test: 2 pass", risk: "none", next: "Commit on request" });
+      assert.equal(closed.current_gate, "OR");
+      assert.match(readFileSync(join(artefacts, "OR.md"), "utf8"), /^# OR-lite: subtract$/m);
+      assert.match(read(), /^- lifecycle: completed$/m);
+      assert.doesNotMatch(backlog(), /^\| P1 \| step \|/m, "the active pointer moves to completed");
+      assert.match(backlog(), /^\| step \| subtract \/ with test \| Completed \| \[OR\]\(artefacts\/step\/OR\.md\) \| subtract added with tests \|$/m);
+      assert.equal(runSealState(stepRoot, read()).status, "valid");
+      const done = evaluateGateCheck(stepRoot, { runId: "step" });
+      assert.equal(done.status, "pass");
+      assert.ok(done.status_presentation?.markdown, "the German card renders after closeout");
+      assert.deepEqual(evaluateDoctor(stepRoot, { runId: "step" }).findings.filter((finding) => finding.severity !== "warn"), []);
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "gate_not_ready", "a closed run cannot close twice");
+    } finally {
+      rmSync(stepRoot, { recursive: true, force: true });
     }
   }
 

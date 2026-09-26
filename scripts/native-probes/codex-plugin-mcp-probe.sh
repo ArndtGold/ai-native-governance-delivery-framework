@@ -228,6 +228,12 @@ else
   printf '### codex exec\n\nexit %s\n\n```text\n%s\n```\n\n' "$(cat "$LOG/exec.code")" "$(sed "s#$PROBE#<PROBE>#g" "$LOG/exec.out" | head -80)" >> "$REPORT"
   rm -f "$CODEX_HOME/auth.json"
   echo "Copied auth.json removed after the session." >> "$REPORT"
+  # The session rollout records why MCP servers did or did not start; keep the relevant lines, since
+  # the working directory is deleted at the end.
+  find "$CODEX_HOME/sessions" -type f -name '*.jsonl' -exec grep -h -i -E 'mcp|probe_|plugin' {} + 2>/dev/null \
+    | grep -v -F "$prompt" | cut -c1-600 | head -60 | sed "s#$PROBE#<PROBE>#g" > "$RESULTS/rollout-mcp.txt"
+  printf '### session rollout (lines mentioning mcp, probe_ or plugin)\n\n```text\n%s\n```\n\n' \
+    "$(cat "$RESULTS/rollout-mcp.txt")" >> "$REPORT"
 fi
 
 section "Start records (MCP variants and hook)"
@@ -289,7 +295,7 @@ rm -f "$CODEX_HOME/auth.json"
   elif [ "$NO_SESSION" = 1 ] || [ ! -f "$LOG/exec.code" ]; then
     echo "  Start: nicht geprüft (keine Sitzung)."
   else
-    echo "  Start: kein Plugin-MCP-Server gestartet -> Plugin-MCP unter dieser Codex-Version nicht nutzbar."
+    echo "  Start: in der codex-exec-Sitzung ist kein Plugin-MCP-Server gestartet, auch nicht mit absolutem Pfad (Ursache siehe rollout-mcp.txt)."
   fi
   if grep -qi "No MCP servers" "$LOG/mcp-after-remove.txt" 2>/dev/null; then
     echo "  Entfernen: codex plugin remove nimmt die MCP-Server des Plugins mit."
@@ -308,7 +314,9 @@ rm -f "$CODEX_HOME/auth.json"
   if [ -f "$LOG/exec.code" ]; then
     echo "codex exec: exit $(cat "$LOG/exec.code")"
     exec_blocker "$LOG/exec.out"
-    echo "Vom Modell genannte probe-Tools: $(grep -o '[A-Za-z0-9_.:-]*probe_ping_[a-z]*' "$LOG/exec.out" | sort -u | tr '\n' ' ')"
+    # Only the model's answer counts; the echoed prompt names the tools too.
+    seen="$(grep -v -F "List the exact names of every tool" "$LOG/exec.out" | grep -o '[A-Za-z0-9_.:-]*probe_ping_[a-z]*' | sort -u | tr '\n' ' ')"
+    echo "Vom Modell gesehene probe-Tools: ${seen:-keine}"
   fi
   for file in "$LOG"/*.json; do
     [ -f "$file" ] || continue

@@ -68,7 +68,7 @@ cannot execute the guided CLI transaction.
 
 For local wrappers such as `npm run install:codex`, npm's absolute `INIT_CWD` supplies the proposed
 target. If it is absent, the wrapper uses the process working directory. It resolves and validates
-that directory before `release:prepare`; an invalid value fails with
+that directory before host-specific preparation; an invalid value fails with
 `AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before package generation or host mutation. Human and
 JSON results distinguish this invocation context from the native registration path and the source
 that actually wins the host's MCP precedence rules.

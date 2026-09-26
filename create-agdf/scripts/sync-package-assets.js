@@ -174,14 +174,12 @@ function syncDirectory(sourceRoot, targetRoot) {
 
 function syncPluginDirectory(sourceRoot, targetRoot) {
   prepareGeneratedDirectory(targetRoot, "generated plugin directory");
-  // runtime/ and mcp/ are generated into the runtime plugin only and never come from the source plugin.
-  const generatedOnly = new Set(["runtime", "mcp"]);
-  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => !generatedOnly.has(entry)));
+  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => entry !== "runtime"));
   for (const entry of readdirSync(targetRoot)) {
-    if (!sourceEntries.has(entry) && !generatedOnly.has(entry)) removeGeneratedPath(join(targetRoot, entry), "generated plugin stale entry");
+    if (!sourceEntries.has(entry)) removeGeneratedPath(join(targetRoot, entry), "generated plugin stale entry");
   }
   for (const entry of readdirSync(sourceRoot)) {
-    if (generatedOnly.has(entry)) continue;
+    if (entry === "runtime") continue;
 
     const sourcePath = join(sourceRoot, entry);
     const targetPath = join(targetRoot, entry);
@@ -549,8 +547,14 @@ function writeCodexMarketplace() {
 }
 
 export function syncPackageAssets({
+  surface = "all",
   projectionCheck = () => syncRequestActivationProjections({ repoRoot, mode: "check" }),
 } = {}) {
+  if (!["all", "codex", "claude", "copilot", "opencode"].includes(surface)) {
+    throw new Error(`Unsupported AGDF asset surface: ${surface}`);
+  }
+  const copilot = surface === "all" || surface === "copilot";
+  const opencode = surface === "all" || surface === "opencode";
   copilotMappings.length = 0;
   // Canonical source projections must be current before any source/generated manifest write,
   // deletion, cleanup, copy, or runtime generation begins.
@@ -559,7 +563,7 @@ export function syncPackageAssets({
     const prefix = pluginDefinition.codex.skillPrefix;
     return prefix && skillName.startsWith(prefix) ? skillName.slice(prefix.length) : skillName;
   });
-  removeUnexpectedGeneratedEntries(
+  if (opencode) removeUnexpectedGeneratedEntries(
     generatedOpenCodeSkillsRoot,
     new Set(skillSlugs.map((skillSlug) => openCodeSkillName(skillSlug))),
     "generated OpenCode skill directory",
@@ -573,61 +577,64 @@ export function syncPackageAssets({
   // real missing-assets window when pack, smoke and another agent/session run concurrently.
   // Remove only obsolete package-owned Copilot repository projections. This cleanup never
   // targets a consumer repository and therefore cannot delete existing user-owned files.
-  for (const obsoletePath of [
+  if (copilot) for (const obsoletePath of [
     join(generatedRoot, "AGENTS.md"),
     join(generatedRoot, ".github", "copilot-instructions.md"),
     join(generatedRoot, ".github", "instructions", "agdf-governance.instructions.md"),
     join(generatedRoot, ".github", "skills"),
   ]) removeGeneratedPath(obsoletePath, "obsolete generated projection");
-  syncOpenCodeRuntimeContract();
+  if (opencode) syncOpenCodeRuntimeContract();
   syncDirectory(sourceControlRoot, generatedControlRoot);
   syncPluginDirectory(sourcePluginRoot, generatedCodexPluginRoot);
-  writeCopilotPluginFiles();
-  writeCopilotSupportFiles();
+  // Shared bundle identity is also used by the CLI and its offline validator.
   writeCodexMarketplace();
-  writeOpenCodeConfig();
-  writeOpenCodeInstructions();
-  for (const skillSlug of skillSlugs) {
-    syncCopilotPluginSkill(skillSlug);
-    writeOpenCodeSkill(skillSlug);
+  if (opencode) {
+    writeOpenCodeConfig();
+    writeOpenCodeInstructions();
+    for (const skillSlug of skillSlugs) writeOpenCodeSkill(skillSlug);
+    removeGeneratedPath(generatedOpenCodeAgentsRoot, "retired generated OpenCode agents");
+    writeOpenCodeReadme(skillSlugs);
   }
-  removeGeneratedPath(generatedOpenCodeAgentsRoot, "retired generated OpenCode agents");
-  writeOpenCodeReadme(skillSlugs);
   const generatedCodexRuntimeRoot = assertGeneratedPathSafe(join(generatedCodexPluginRoot, "runtime"), "generated Codex runtime");
-  const generatedCopilotRuntimeRoot = assertGeneratedPathSafe(join(generatedCopilotPluginRoot, "runtime"), "generated Copilot runtime");
-  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, claudeMcp: true });
-  syncClaudePluginMcp({ pluginRoot: generatedCodexPluginRoot });
-  write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
-  syncPluginRuntime({ outputRoot: generatedCopilotRuntimeRoot });
-  mapGeneratedDirectory(join(generatedCopilotPluginRoot, "runtime"), {
-    component: "runtime",
-    owner: "create-agdf/scripts/sync-plugin-runtime.js",
-    rule: "generated_exact_runtime",
-    requirement: "offline exact-version validator and session check",
-  });
-  removeUnexpectedCopilotPayloadFiles();
-  const copilotBaseline = JSON.parse(read(copilotBaselinePath));
-  buildCopilotPayloadInventory({
-    profileRoot: generatedCopilotPluginRoot,
-    mappings: copilotMappings,
-    version: pluginDefinition.version,
-    baseline: { max_files: copilotBaseline.max_files, max_bytes: copilotBaseline.max_bytes },
-  });
-  validateCopilotPayload({
-    profileRoot: generatedCopilotPluginRoot,
-    repoRoot,
-    expectedVersion: pluginDefinition.version,
-    expectedSkills: skillSlugs,
-    baseline: copilotBaseline,
-  });
-  const publicPluginOutputRoot = assertGeneratedPathSafe(
-    join(packageRoot, "generated", "submissions", "openai", "agdf"),
-    "generated public plugin candidate",
-  );
-  buildPublicPluginCandidate({
-    repoRoot,
-    outputRoot: publicPluginOutputRoot,
-  });
+  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot });
+  if (copilot) {
+    writeCopilotPluginFiles();
+    writeCopilotSupportFiles();
+    for (const skillSlug of skillSlugs) syncCopilotPluginSkill(skillSlug);
+    const generatedCopilotRuntimeRoot = assertGeneratedPathSafe(join(generatedCopilotPluginRoot, "runtime"), "generated Copilot runtime");
+    syncPluginRuntime({ outputRoot: generatedCopilotRuntimeRoot });
+    mapGeneratedDirectory(join(generatedCopilotPluginRoot, "runtime"), {
+      component: "runtime",
+      owner: "create-agdf/scripts/sync-plugin-runtime.js",
+      rule: "generated_exact_runtime",
+      requirement: "offline exact-version validator and session check",
+    });
+    removeUnexpectedCopilotPayloadFiles();
+    const copilotBaseline = JSON.parse(read(copilotBaselinePath));
+    buildCopilotPayloadInventory({
+      profileRoot: generatedCopilotPluginRoot,
+      mappings: copilotMappings,
+      version: pluginDefinition.version,
+      baseline: { max_files: copilotBaseline.max_files, max_bytes: copilotBaseline.max_bytes },
+    });
+    validateCopilotPayload({
+      profileRoot: generatedCopilotPluginRoot,
+      repoRoot,
+      expectedVersion: pluginDefinition.version,
+      expectedSkills: skillSlugs,
+      baseline: copilotBaseline,
+    });
+  }
+  if (surface === "all") {
+    const publicPluginOutputRoot = assertGeneratedPathSafe(
+      join(packageRoot, "generated", "submissions", "openai", "agdf"),
+      "generated public plugin candidate",
+    );
+    buildPublicPluginCandidate({
+      repoRoot,
+      outputRoot: publicPluginOutputRoot,
+    });
+  }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

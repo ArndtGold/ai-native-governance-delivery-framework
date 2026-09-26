@@ -112,6 +112,12 @@ cat > "$MKT/.agents/plugins/marketplace.json" <<'JSON'
 }
 JSON
 
+# Node package boundaries are independent of Git roots. Keep these CommonJS probes
+# isolated from the enclosing repository's `type: module`, including installed copies.
+cat > "$PLUGIN/package.json" <<'JSON'
+{ "private": true, "type": "commonjs" }
+JSON
+
 cat > "$PLUGIN/.codex-plugin/plugin.json" <<'JSON'
 {
   "name": "codexprobe",
@@ -231,17 +237,30 @@ else
   printf '### codex exec\n\nexit %s\n\n```text\n%s\n```\n\n' "$(cat "$LOG/exec.code")" "$(sed "s#$PROBE#<PROBE>#g" "$LOG/exec.out" | head -80)" >> "$REPORT"
   rm -f "$CODEX_HOME/auth.json"
   echo "Copied auth.json removed after the session." >> "$REPORT"
-  # The session rollout records why MCP servers did or did not start; keep the relevant lines, since
-  # the working directory is deleted at the end.
+  # Preserve complete diagnostics before cleanup. The short excerpt is navigation only;
+  # neither rollout text nor a missing marker alone proves why startup failed.
+  sed "s#$PROBE#<PROBE>#g" "$LOG/exec.out" > "$RESULTS/exec.log"
+  find "$CODEX_HOME/sessions" -type f -name '*.jsonl' -exec cat {} + 2>/dev/null \
+    | sed "s#$PROBE#<PROBE>#g" > "$RESULTS/rollout.jsonl"
   find "$CODEX_HOME/sessions" -type f -name '*.jsonl' -exec grep -h -i -E 'mcp|probe_|plugin' {} + 2>/dev/null \
     | grep -v -F "$prompt" | cut -c1-600 | head -60 | sed "s#$PROBE#<PROBE>#g" > "$RESULTS/rollout-mcp.txt"
   printf '### session rollout (lines mentioning mcp, probe_ or plugin)\n\n```text\n%s\n```\n\n' \
     "$(cat "$RESULTS/rollout-mcp.txt")" >> "$REPORT"
-  # Tools the session actually offered: probe tool names in rollout entries other than the prompt and
-  # the model's own messages, which mention the names even when the tools are missing.
-  find "$CODEX_HOME/sessions" -type f -name '*.jsonl' -exec cat {} + 2>/dev/null \
-    | grep -v -E '"role":"(user|assistant)"|AgentMessage|task_complete|user_message|agent_message' \
-    | grep -o 'probe_ping_[a-z]*' | sort -u > "$LOG/tools-offered.txt"
+  # Only structured MCP tool-call items count; names in prompts, prose or tool-search
+  # code are not evidence that a tool was exposed. No call does not prove no tools.
+  node - "$RESULTS/rollout.jsonl" > "$LOG/tools-called.txt" <<'JS'
+const fs = require("fs");
+const names = new Set();
+for (const line of fs.readFileSync(process.argv[2], "utf8").split("\n")) {
+  let entry; try { entry = JSON.parse(line); } catch { continue; }
+  const item = entry.payload?.item;
+  if (item && ["mcp_tool_call", "McpToolCall"].includes(item.type)) {
+    const call = item.invocation || item;
+    if (typeof call.tool === "string" && call.tool.startsWith("probe_ping_")) names.add(`${call.server}.${call.tool}`);
+  }
+}
+for (const name of [...names].sort()) console.log(name);
+JS
 fi
 
 section "Start records (MCP variants and hook)"
@@ -249,7 +268,7 @@ for variant in var claudevar rel env abs cache user; do
   if [ -f "$LOG/mcp-$variant.json" ]; then
     printf -- '- **probe_%s: started**\n\n```json\n%s\n```\n\n' "$variant" "$(sed "s#$PROBE#<PROBE>#g" "$LOG/mcp-$variant.json")" >> "$REPORT"
   else
-    printf -- '- probe_%s: **not started** (no record)\n\n' "$variant" >> "$REPORT"
+    printf -- '- probe_%s: **no start record** (not proof that no process was launched)\n\n' "$variant" >> "$REPORT"
   fi
 done
 if [ -f "$LOG/hook-sessionstart.json" ]; then
@@ -296,25 +315,25 @@ rm -f "$CODEX_HOME/auth.json"
   # One-line verdicts first: what AGDF can build on this Codex version.
   echo "FAZIT:"
   if [ -f "$LOG/mcp-var.json" ]; then
-    echo "  Start: Codex ersetzt \${PLUGIN_ROOT} -> AGDF kann denselben Aufbau wie bei Claude nutzen."
+    echo "  Start: Variante mit \${PLUGIN_ROOT} hat einen Startnachweis; Expansion und Datenpfade anhand des Records prüfen."
   elif [ -f "$LOG/mcp-cache.json" ]; then
-    echo "  Start: nur absolute Pfade, auch in Codex' Plugin-Kopie -> AGDF-Installer schreibt den Launcher-Pfad in die Codex-Kopie."
+    echo "  Start: absoluter Pfad in Codex' Plugin-Kopie funktioniert; übrige Varianten siehe DETAILS."
   elif [ -f "$LOG/mcp-abs.json" ]; then
-    echo "  Start: nur absolute Pfade außerhalb der Codex-Kopie -> AGDF braucht einen festen Launcher-Ort außerhalb des Plugins."
+    echo "  Start: absoluter Pfad im Marketplace funktioniert; übrige Varianten siehe DETAILS."
   elif [ "$NO_SESSION" = 1 ] || [ ! -f "$LOG/exec.code" ]; then
     echo "  Start: nicht geprüft (keine Sitzung)."
   else
-    echo "  Start: in der codex-exec-Sitzung ist kein Plugin-MCP-Server gestartet, auch nicht mit absolutem Pfad (Ursache siehe rollout-mcp.txt)."
+    echo "  Start: in der codex-exec-Sitzung fehlt jeder Plugin-MCP-Startnachweis, auch mit absolutem Pfad (Ursache nicht aus fehlenden Startmarkern ableitbar; siehe exec.log und rollout.jsonl)."
   fi
   if [ -f "$LOG/exec.code" ]; then
     plugin_started=0
     for variant in var claudevar rel env abs cache; do [ -f "$LOG/mcp-$variant.json" ] && plugin_started=1; done
     if [ -f "$LOG/mcp-user.json" ] && [ "$plugin_started" = 0 ]; then
-      echo "  Kontrolle: ein normaler MCP-Server (codex mcp add) startet, die Plugin-Server nicht -> Codex lädt Plugin-MCP-Server gezielt nicht."
+      echo "  Kontrolle: normaler MCP-Server mit Startnachweis; bei Plugin-Servern fehlt er. Ursache gesondert prüfen."
     elif [ -f "$LOG/mcp-user.json" ]; then
       echo "  Kontrolle: ein normaler MCP-Server (codex mcp add) startet ebenfalls."
     else
-      echo "  Kontrolle: auch ein normaler MCP-Server (codex mcp add) startet nicht -> codex exec startet hier gar keine MCP-Server."
+      echo "  Kontrolle: auch beim Kontrollserver fehlt der Startnachweis; Prozessstart oder früher Absturz bleiben ungeklärt."
     fi
   fi
   if grep -qi "No MCP servers" "$LOG/mcp-after-remove.txt" 2>/dev/null; then
@@ -324,7 +343,7 @@ rm -f "$CODEX_HOME/auth.json"
   fi
   echo "DETAILS:"
   for variant in var claudevar rel env abs cache user; do
-    if [ -f "$LOG/mcp-$variant.json" ]; then echo "MCP probe_$variant: gestartet"; else echo "MCP probe_$variant: nicht gestartet"; fi
+    if [ -f "$LOG/mcp-$variant.json" ]; then echo "MCP probe_$variant: gestartet"; else echo "MCP probe_$variant: kein Startnachweis"; fi
   done
   if [ -f "$LOG/hook-sessionstart.json" ]; then echo "SessionStart-Hook: gelaufen"; else echo "SessionStart-Hook: nicht gelaufen"; fi
   if [ -f "$LOG/hooks-list.out" ]; then
@@ -334,9 +353,9 @@ rm -f "$CODEX_HOME/auth.json"
   if [ -f "$LOG/exec.code" ]; then
     echo "codex exec: exit $(cat "$LOG/exec.code")"
     exec_blocker "$LOG/exec.out"
-    # Only the model's answer counts; the echoed prompt names the tools too.
-    offered="$(tr '\n' ' ' < "$LOG/tools-offered.txt" 2>/dev/null)"
-    echo "Von Codex angebotene probe-Tools (laut Sitzungsprotokoll): ${offered:-keine}"
+    # Report only structured calls, never names found in model prose.
+    offered="$(tr '\n' ' ' < "$LOG/tools-called.txt" 2>/dev/null)"
+    echo "Strukturiert protokollierte MCP-Aufrufe (kein vollständiges Tool-Inventar): ${offered:-keine}"
   fi
   for file in "$LOG"/*.json; do
     [ -f "$file" ] || continue

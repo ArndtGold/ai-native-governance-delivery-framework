@@ -748,7 +748,7 @@ try {
   });
   assert.equal(orchestrationCode, 0);
   assert.equal(cliCalls, 1);
-  assert.match(orchestrationCalls[0], /run release:prepare$/);
+  assert.match(orchestrationCalls[0], /prepare-local-plugin\.js codex$/);
   assert.equal(preparationOptions.stdio, "pipe", "successful local release preparation must stay out of the consent UI");
 
   const forwarded = ["--with-mcp", "--dir", fixtureRoot, "--scope", "project"];

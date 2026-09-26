@@ -4,6 +4,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
 import { syncPluginMcp } from "./sync-plugin-mcp.js";
+import { validateInteractionCatalog } from "../lib/interaction-catalog-validation.js";
 import {
   renderClaudePluginManifest,
   renderCodexPluginManifest,
@@ -561,6 +562,7 @@ export function syncPackageAssets({
   // Canonical source projections must be current before any source/generated manifest write,
   // deletion, cleanup, copy, or runtime generation begins.
   projectionCheck();
+  validateInteractionCatalog(JSON.parse(read(sourceInteractionLocalesPath)));
   const skillSlugs = getSkillDirectories().map((skillName) => {
     const prefix = pluginDefinition.codex.skillPrefix;
     return prefix && skillName.startsWith(prefix) ? skillName.slice(prefix.length) : skillName;

@@ -1,16 +1,19 @@
-# Native Codex-Prüfungen auf macOS
+# Native Codex-Prüfungen
 
-## Schnellstart: ein Befehl, kein manueller Schritt
+Der [Wartungs- und Release-Vertrag](../../docs/maintenance/README.md) beschreibt den verpflichtenden
+Linux-/Windows-CLI-Release-Test, CI-Secrets, commitgebundene Artefakte und die Paketbudget-Pflege.
+Die interaktiven Desktop-/Hook-Probes weiter unten bleiben macOS-spezifisch.
+
+## Standardtest: Codex CLI mit Luna
 
 ```bash
-npm install -g @openai/codex@latest   # einmalig: aktuelle Codex-CLI
-npm run native:codex-probe
+npm run native:codex-e2e -- --model gpt-6-luna
 ```
 
-Das Skript läuft ohne Rückfragen durch, räumt sich selbst auf und gibt am Ende ein `FAZIT` aus. Den
-Inhalt von `probe-results/codex-mcp-probe-<Zeitstempel>/summary.txt` an Claude zurückgeben – mehr
-ist nicht nötig. Es beantwortet, ob und wie AGDF seinen MCP-Server unter Codex im Plugin halten kann
-(Details in Teil C). Es fasst weder AGDF noch `~/.codex` an.
+Das Skript installiert den aktuellen Stand mit ausdrücklicher Capability-Zustimmung in einem
+isolierten CLI-Profil und prüft ihn ohne Desktop-Neustart. Es entfernt die Testinstallation danach
+wieder. Ergebnis: `probe-results/codex-host-e2e-<Zeitstempel>/summary.txt`. Die ältere
+`native:codex-probe` bleibt eine optionale Transport-Untersuchung (Teil C), nicht der Standardtest.
 
 ## Host-E2E Claude Code: ein Befehl, ein festes Tupel
 
@@ -34,25 +37,112 @@ nicht bestanden gemeldet. Ergebnis: `probe-results/claude-host-e2e-<Zeitstempel>
 
 ## Host-E2E Codex: ein Befehl, ein festes Tupel
 
+Dies ist der Standardtest für AGDF unter Codex. Frische CLI-Prozesse prüfen den installierten
+Teststand ohne Start oder Neustart der Desktop-App. Desktop-Prüfungen bleiben separat und sind
+nur für Aussagen über die App-Oberfläche oder deren tatsächlich geladenen Pluginstand erforderlich.
+
+Mit `--accept-plugin-capabilities` umfasst die bewusste Installationszustimmung den
+mitgelieferten SessionStart-Hook und den MCP-Dispatcher. Diese Zustimmung gilt nicht
+pauschal für andere Plugins, weitere Tools oder spätere geänderte Hook-Definitionen und erteilt
+keine AGDF-Gate-Freigabe. Sie ist von der technisch wirksamen Codex-Freigabe zu unterscheiden:
+MCP-Toolfreigaben sind pluginbezogen konfigurierbar; laut Codex-Vertrag vertraut eine Installation
+den Hooks nicht automatisch. Die native Prüfung und Bestätigung der aktuellen Hook-Definition
+bleibt erforderlich. Der Installer schreibt dafür keine nativen Hook-Vertrauens-Hashes.
+Ein erfolgreicher MCP-Test darf deshalb keinen erfolgreichen Hook-Test behaupten.
+
+Sind MCP-Freigabe und Plugin geprüft, aber die native Hook-Bestätigung noch offen, lautet der
+Abschluss „MCP bereit – Hook-Bestätigung ausstehend“ (`effective_state:
+ mcp_ready_hook_review_required`, `result: partial`, Exitcode 1). Die nächste Aktion ist
+`review_codex_hook`, nicht ein pauschaler Desktop-Neustart. Der CLI-MCP-E2E akzeptiert ausschließlich
+diesen benannten, fehlerfreien Zwischenstand zusätzlich zum vollständigen Installationserfolg;
+andere Teilfehler bleiben Testfehler. Hook-Ausführung wird dadurch nicht als bestanden gewertet.
+
+Lokale Installation mit gemeinsamer Zustimmung:
+
+```bash
+npm --prefix create-agdf run install:codex -- --accept-plugin-capabilities --json
+```
+
+Die Option ist nur für Codex-Installation erlaubt und nicht mit `--runtime-checks manual|cancel`
+kombinierbar. Ohne diese Option bleibt das bisherige Einwilligungsverhalten unverändert.
+Nach verifizierter Installation wird die Hook-Einwilligung gespeichert und ausschließlich
+`plugins."agdf@agdf".mcp_servers.agdf.tools.agdf_dispatch.approval_mode` über Codex'
+native `config/value/write`-Schnittstelle gesetzt und per `config/read` nachgelesen.
+Vorhandene Plugin-/Server-/Toolsperren werden nicht überschrieben. Fehler oder nicht wirksame
+Freigaben ergeben `partial`; `runtime_checks.mcp_approval` enthält den Befund. Native Hook-Prüfung
+und Hook-Ausführung bleiben getrennte Nachweise. Globale Sandbox- und Approval-Einstellungen
+bleiben unverändert. Zum Widerruf die pluginbezogene Toolfreigabe in Codex zurücknehmen;
+`runtime-checks manual` betrifft nur die automatischen Prüfungen, nicht die MCP-Toolfreigabe.
+
 ```bash
 npm install -g @openai/codex@latest                     # einmalig: aktuelle Codex-CLI
-npm run native:codex-e2e                                # Standardmodell gpt-6-astra
+npm run native:codex-e2e -- --model gpt-6-luna          # Modell explizit festhalten
 npm run native:codex-e2e -- --model <modell> --keep     # anderes Modell, Arbeitsordner behalten
 ```
 
-Dieselben sechs Schritte wie bei Claude Code: Host, Installation des aktuellen Checkouts über das
-AGDF-CLI, Discovery (`codex mcp get agdf` zeigt den Launcher aus dem Plugin), ein echter
+Die Prüfung deckt den MCP-Lebenszyklus und die Skill-Fortsetzung ab. Sie legt ein isoliertes
+AGDF-Testziel mit einem expliziten Run an. Danach folgen: Host, Installation des aktuellen Checkouts
+über das AGDF-CLI, Discovery (`codex mcp get agdf` zeigt den Launcher aus dem Plugin), ein echter
 `agdf_dispatch`-Aufruf mit erwartetem `control_result`, der Fehlerfall `invalid_input` und Entfernen
 über `agdf uninstall --surface codex --scope global --confirm` ohne MCP-Server, `config.toml`-Eintrag,
 Plugin-Cache oder MCP-Runtime. Belege stammen aus `codex exec --json` und den Sitzungsprotokollen;
 Codex vermerkt dort auch die `pluginId`, die `agdf@agdf` lauten muss.
 
-Codex verlangt vor jedem MCP-Tool-Aufruf eine Freigabe. Die Prüfung gibt nur `agdf_dispatch` frei:
-zuerst für die eine Sitzung per `-c mcp_servers.agdf.tools.agdf_dispatch.approval_mode="approve"`,
-und falls Codex das für einen Plugin-Server ignoriert, über denselben Schlüssel in der isolierten
-`config.toml`. Die Kurzfassung nennt, welcher Weg funktioniert hat. Alles läuft in einem isolierten
-`CODEX_HOME`; nur `~/.codex/auth.json` wird für die Sitzungen kopiert und danach gelöscht.
-Mit `CODEX_BIN` nutzen Installation und Prüfung dieselbe Codex-Binärdatei.
+Zusätzlich prüft eine dritte Luna-Sitzung `code-review`: Der Dispatcher muss `skill_continuation`
+mit den Modulen `quality` und `context-graph` samt gültiger Inhaltsprüfsumme liefern. Eine
+Hook-Bindung ist dafür nicht erforderlich. Der Protokolltest `npm --prefix agdf-mcp-server run
+test:continuation` prüft dieselbe Eigenschaft für alle neun Skills mit Fortsetzung und vergleicht
+die gelieferten Texte mit den gepackten Verträgen. Er führt keine Modellbewertung dieser Skills durch.
+
+Der Modulbestand steht je Skill in `runtimeContractModules` der Plugin-Definition. MCP liefert
+diese Module in `continuation.runtime_contracts`. Die Dateien sind Teil der geprüften
+Runtime-Provenienz. Fehlende Module brechen die Fortsetzung ab. Bei CLI-Aufrufen bleibt die
+gelieferte Schema-2-Bindung der Leseweg; fehlt auch sie, dürfen die im Skill referenzierten
+Dateien direkt gelesen werden. Ein nicht lesbarer Pflichtvertrag beendet die Skill-Ausführung.
+
+Nach einem Plugin-Update kann der separate SessionStart-Hook in Codex `modified` melden.
+Ein Neustart ersetzt die Vertrauensprüfung nicht: Unter `/hooks` den aktuellen AGDF-Hook prüfen
+und bestätigen, anschließend eine neue Sitzung starten. Gespeicherte Vertrauens-Hashes werden
+nicht automatisch ersetzt. Eine veraltete AGDF-Einwilligung für automatische Laufzeitprüfungen
+muss ebenfalls erneuert werden. Der MCP-Fortsetzungspfad benötigt diese Hook-Freigabe nicht.
+
+Die Prüfung verwendet die neue Installeroption und prüft deren Ergebnis; sie injiziert selbst
+keine Freigabe. Der Installer gibt nur `agdf_dispatch` über die Plugin-Einstellung
+`plugins."agdf@agdf".mcp_servers.agdf.tools.agdf_dispatch.approval_mode = "approve"` frei.
+Der Transport bleibt beim Plugin. Grundlage ist die
+Benutzerkonfiguration: Der Installer prüft mit `config/read` die aktive Basisebene `user`
+und schreibt mit `config/value/write` ausschließlich deren Datei samt `expectedVersion`.
+Eine Projekt- oder Profilfreigabe ersetzt den Benutzer-Nachweis nicht; fehlende Ebenen,
+Versionskonflikte und bestehende Deaktivierungen führen nicht zu einer Erfolgsmeldung.
+Offene Hook-Zustände ergeben `partial`: `hook_review_required` verlangt Bestätigung,
+`hook_disabled` Aktivierung, `host_unverified` Inspektion und
+`hook_trusted_session_unverified` einen Ausführungsnachweis in einer neuen Sitzung.
+Der CLI-Test akzeptiert nur diese genau zugeordneten Teilzustände ohne weiteren Fehler.
+Sie sind kein Nachweis einer erfolgreichen Hook-Ausführung. Siehe auch die
+[offizielle Plugin-Dokumentation](https://developers.openai.com/plugins/build/plugins#bundled-mcp-servers-and-lifecycle-hooks).
+Die Sitzungen verwenden die Read-only-Sandbox. Der Prompt erlaubt die Tool-Suche über den
+Codex-Code-Wrapper, damit Luna auch verzögert geladene MCP-Tools findet. Gezählt wird genau ein
+Aufruf je Sitzung mit bestätigter `pluginId = agdf@agdf`.
+
+Alles läuft in einem isolierten `CODEX_HOME`; nur `~/.codex/auth.json` wird für die Sitzungen
+kopiert und danach gelöscht. Der Test benötigt Netzwerkzugriff für die Modellaufrufe.
+`dispatch-process.json`, `failure-process.json`, `continuation-process.json` und `uninstall-process.json` enthalten die
+Prozessausgaben zur Diagnose. `Reading additional input from stdin` allein ist kein Fehlernachweis.
+Mit `CODEX_BIN` nutzen Installation und Prüfung dieselbe Codex-Binärdatei. Die deterministischen
+Kompatibilitätsfälle ersetzen diesen echten Hostlauf nicht.
+
+Verifizierter Lauf vom 26.09.2026: Codex CLI 0.157.1, `gpt-6-luna`, macOS x64, Node v22.22.3,
+AGDF 0.14.5. Installation, Kontrollziel, Discovery, positiver Dispatch, Fehlerfall und Entfernung
+bestanden. Beide Sitzungsprotokolle bestätigen das Modell und `pluginId = agdf@agdf`.
+Der [strukturierte Nachweis](../../docs/compatibility/evidence/codex-luna-e2e-20260926.json)
+belegt den CLI-MCP-Lauf. Desktop-Oberfläche und SessionStart-Hook wurden damit nicht geprüft.
+
+Der [Nachtest der Wartungs- und Sicherheitskorrekturen](evidence/codex-security-fixes-20260926.json)
+vom selben Tag bestätigt mit demselben Host-/Modelltupel zusätzlich die Benutzerfreigabe
+über den korrigierten Installer und die dritte Sitzung für die Skill-Fortsetzung.
+Projektfreigaben, restriktive Einstellungen, fehlerhafte Konfigurationsebenen und alle offenen
+Hook-Zustände sind durch Regressionstests abgedeckt. Windows-Shims wurden simuliert getestet;
+ein nativer Windows-Lauf steht aus.
 
 ## Weitere Prüfungen (mit manuellem Schritt)
 

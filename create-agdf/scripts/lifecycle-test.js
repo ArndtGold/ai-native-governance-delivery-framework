@@ -530,6 +530,17 @@ assert.deepEqual(calls, [["codex", ["plugin", "remove", "agdf@agdf"]]]);
 assert.equal(verifyGlobalUninstall(uninstall, root, {
   inspect: () => ({ status: "not_installed", evidence: ["fixture"] }),
 }).status, "healthy");
+// A removed Codex plugin remains in the marketplace catalog as "not installed".
+for (const [entry, expected] of [
+  ["agdf@agdf  not installed  /local/marketplace/agdf", "healthy"],
+  [`agdf@agdf  installed, enabled  ${pluginDefinition.version}  /local/marketplace/agdf`, "failed"],
+  [`agdf@agdf  installed, disabled  ${pluginDefinition.version}  /local/marketplace/agdf`, "failed"],
+  ["agdf@agdf  installed, enabled  /local/marketplace/agdf", "failed"],
+]) {
+  assert.equal(verifyGlobalUninstall(uninstall, root, {
+    exec: () => `PLUGIN STATUS VERSION SOURCE\n${entry}\nother@agdf installed, enabled 99.0.0 /other\n`,
+  }).status, expected, entry);
+}
 const copilotUninstall = planGlobalUninstall("copilot");
 assert.deepEqual(copilotUninstall.mutations[0], { kind: "command", executable: "copilot", args: ["plugin", "uninstall", "agdf"] });
 

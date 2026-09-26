@@ -115,6 +115,13 @@ function recoverMarketplace({ exec, migration, transaction, error }) {
 export function inspectCodexPlugin(exec = execHostFileSync, options = {}, surface) {
   return inspectPluginList({ surface, exec, executable: "codex", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
     selectPlugin: () => "agdf@agdf",
+    // Codex also lists available marketplace entries after removal.
+    isInstalled(output, pluginId) {
+      return String(output).split(/\r?\n/).some(line => {
+        const fields = line.trim().split(/\s+/);
+        return fields[0] === pluginId && !(fields[1] === "not" && fields[2] === "installed");
+      });
+    },
     localVersion(version) {
       if (surface !== "codex" || !isCodexLocalInstallVersion(pluginDefinition.version, version)) return false;
       try { return inspectLocalMarketplaceProjection(options)?.codexInstallVersion === version; }

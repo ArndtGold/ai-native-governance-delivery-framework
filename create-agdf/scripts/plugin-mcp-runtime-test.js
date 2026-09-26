@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { mcpPackageConstants } from "../lib/mcp-lifecycle/package.js";
 import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, parseLauncherArguments } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { npmCalls, offlineNpm, pluginRoot, version } from "./support/plugin-mcp-fixture.js";
@@ -17,6 +18,11 @@ try {
   assert.equal(prepared.root, join(mcpRoot, version));
   assert.ok(existsSync(join(prepared.packageRoot, "bin", "agdf-mcp.js")), "the shipped server is installed");
   assert.equal(JSON.parse(readFileSync(join(prepared.dispatcherRoot, "package.json"), "utf8")).name, "create-agdf");
+  // Exercise the assembled plugin package, not a fixture copying all source files.
+  const { readSkillRuntimeContracts } = await import(pathToFileURL(join(prepared.dispatcherRoot, "lib/cli/contract-command.js")));
+  const contracts = readSkillRuntimeContracts("code-review");
+  assert.deepEqual(contracts.map(contract => contract.module), ["quality", "context-graph"]);
+  assert.ok(contracts.every(contract => contract.content.length > 0 && contract.sha256.length === 64));
 
   const again = ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec() { throw new Error("a matched runtime must not reinstall"); } });
   assert.equal(again.changed, false);

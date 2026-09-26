@@ -1,4 +1,5 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
+import { DISPATCH_RECOVERY_CODES } from "./interaction-catalog.js";
 import { TASK_TARGET_SOURCES } from "./task-target-resolution.js";
 
 const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
@@ -152,14 +153,7 @@ export function renderSkillDispatchInputRecovery({ field, allowedValues = [] } =
     .replaceAll("{allowed_values}", allowedValues.join(", "));
 }
 
-const SKILL_DISPATCH_RECOVERY_CODES = new Set([
-  "target_evaluation_failed",
-  "target_presentation_failed",
-  "control_evaluation_failed",
-  "control_presentation_failed",
-  "internal_failure",
-  "output_too_large",
-]);
+const SKILL_DISPATCH_RECOVERY_CODES = new Set(DISPATCH_RECOVERY_CODES);
 
 export function renderSkillDispatchRecovery({ code } = {}, {
   registry,

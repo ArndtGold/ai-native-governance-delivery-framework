@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "kind": "agdf_codex_host_e2e",
+  "recorded_at": "2026-09-26T19:02:19.782Z",
+  "requested_model": "gpt-6-luna",
+  "host": {
+    "client": "codex-cli",
+    "version": "0.157.1",
+    "os": "darwin",
+    "arch": "x64",
+    "node": "v22.22.3"
+  },
+  "agdf": {
+    "version": "0.14.5"
+  },
+  "approval_path": "config_toml",
+  "steps": [
+    {
+      "name": "host",
+      "status": "pass",
+      "evidence": {
+        "version": "0.157.1"
+      }
+    },
+    {
+      "name": "install",
+      "status": "pass",
+      "evidence": {
+        "result": "success",
+        "effective_state": "plugin_ready_mcp_in_plugin",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "control_fixture",
+      "status": "pass",
+      "evidence": {
+        "init_status": 0,
+        "run_create_status": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "discovery",
+      "status": "pass",
+      "evidence": {
+        "command": "node",
+        "args": "[\"<WORK>/agdf-data/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js\",\"--surface\",\"codex\",\"--data\",\"<WORK>/agdf-data/mcp/codex-plugin\"]"
+      }
+    },
+    {
+      "name": "dispatch",
+      "status": "pass",
+      "evidence": {
+        "approval_path": "config_toml",
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 1,
+        "plugin_id": "agdf@agdf",
+        "outcome": "control_result",
+        "terminal": true,
+        "authorizes": false,
+        "approval_blocked": false,
+        "host_action": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgewählter Run | Describe the trustworthy outcome. · `codex-e2e` |\n| Pfad | ● UR |\n| Status | offen |\n|",
+        "exec_status": 0,
+        "exec_stderr": "Reading additional input from stdin...\n"
+      }
+    },
+    {
+      "name": "failure_case",
+      "status": "pass",
+      "evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "plugin_id": "agdf@agdf",
+        "calls": 1,
+        "outcome": "invalid_input",
+        "host_action": "Ungültige Dispatcher-Eingabe für working_directory. Korrigieren und einmal erneut versuchen."
+      }
+    },
+    {
+      "name": "skill_continuation",
+      "status": "pass",
+      "evidence": {
+        "observed_models": [
+          "gpt-6-luna"
+        ],
+        "calls": 1,
+        "plugin_id": "agdf@agdf",
+        "outcome": "skill_continuation",
+        "contract_modules": [
+          "quality",
+          "context-graph"
+        ],
+        "contracts_verified": true
+      }
+    },
+    {
+      "name": "removal",
+      "status": "pass",
+      "evidence": {
+        "uninstall_status": 0,
+        "mcp_listed": false,
+        "config_mcp_section": false,
+        "plugin_cache": false,
+        "mcp_runtime": false,
+        "kept_by_design": "agdf marketplace registration and directory",
+        "stderr": ""
+      }
+    }
+  ],
+  "result": "pass",
+  "evidence_scope": "Native Codex CLI MCP lifecycle and code-review contract transport; not Desktop UI, SessionStart execution or judgement quality.",
+  "local_evidence_directory": "probe-results/codex-host-e2e-20260926-190219"
+}

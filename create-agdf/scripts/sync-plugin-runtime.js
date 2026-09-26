@@ -128,6 +128,7 @@ function pruneRuntimeOutput(root, expectedFiles) {
 // Modules the plugin-local Claude MCP launcher needs on top of the validator runtime. They stay out of
 // the Copilot runtime, which excludes MCP lifecycle, server and package acquisition code.
 export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
+  "generated/plugins/agdf/meta/contracts",
   "lib/mcp-dispatch-runtime.js",
   "lib/control-read-boundary.js",
   "lib/mcp-lifecycle/package.js",
@@ -170,6 +171,7 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
     "lib/control-state",
     "lib/delivery-path-search",
     "lib/interaction-presentation.js",
+    "lib/interaction-catalog.js",
     "lib/repository-context.js",
     "lib/repository-context-reader.js",
     "lib/task-target-resolution.js",

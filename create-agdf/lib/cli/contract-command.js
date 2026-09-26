@@ -2,6 +2,19 @@ import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import process from "node:process";
 import { generatedRoot, pluginDefinition } from "./runtime-context.js";
+import { createHash } from "node:crypto";
+
+// MCP serves only the selected skill's allowlisted modules from its own verified package.
+// No caller-provided path, inherited plugin-root environment or executable is consumed.
+export function readSkillRuntimeContracts(skillId, { definition = pluginDefinition, packageGeneratedRoot = generatedRoot } = {}) {
+  const modules = definition.skillSet.find(skill => skill.slug === skillId)?.runtimeContractModules;
+  if (!Array.isArray(modules) || !modules.length || new Set(modules).size !== modules.length) throw new Error("runtime_contracts_unavailable");
+  return Object.freeze(modules.map(module => {
+    const result = readRuntimeContract(module, { pluginRoot: null, definition, packageGeneratedRoot });
+    if (!result.ok || !result.content.trim()) throw new Error("runtime_contracts_unavailable");
+    return Object.freeze({ module, content: result.content, sha256: createHash("sha256").update(result.content).digest("hex") });
+  }));
+}
 
 export function runtimeContractModules(definition = pluginDefinition) {
   return definition.runtimeContract.modules.map((path) => basename(path, ".md"));

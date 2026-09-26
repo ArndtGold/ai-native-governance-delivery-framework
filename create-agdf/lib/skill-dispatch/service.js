@@ -1,4 +1,5 @@
 import process from "node:process";
+import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
@@ -37,7 +38,7 @@ function runtimeEvidence(expectedVersion, env) {
 
 function trustedRuntimeEvidence(expectedVersion, evidence) {
   if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
-    throw new SkillDispatchRuntimeError("runtime_evidence_invalid");
+    throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.runtime_evidence_invalid);
   }
   return Object.freeze({
     machine_validation: typeof evidence.machine_validation === "string" ? evidence.machine_validation : "unavailable",
@@ -197,10 +198,10 @@ export function createSkillDispatchService(dependencies = {}) {
     const skill = input.skill;
     try {
       const targetStarted = now();
-      const target = runDispatchStage("target_evaluation_failed", () => resolveTarget({ targetSource: input.target_source, primaryTarget: input.primary_target, workingDirectory: input.working_directory }));
+      const target = runDispatchStage(DISPATCH_RECOVERY.target_evaluation_failed, () => resolveTarget({ targetSource: input.target_source, primaryTarget: input.primary_target, workingDirectory: input.working_directory }));
       timing.target_ms = round(milliseconds(targetStarted, now()));
       const renderStarted = now();
-      const orientation = runDispatchStage("target_presentation_failed", () => {
+      const orientation = runDispatchStage(DISPATCH_RECOVERY.target_presentation_failed, () => {
         const rendered = renderTarget(target, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language });
         if (!rendered) throw new Error("task_target_orientation_unavailable");
         return rendered;
@@ -217,7 +218,7 @@ export function createSkillDispatchService(dependencies = {}) {
       }
 
       const controlStarted = now();
-      const control = runDispatchStage("control_evaluation_failed", () => {
+      const control = runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
         validateControlReadBoundary?.(target.governance_target);
         return evaluateGate(target.governance_target, {
           ...(input.run_id ? { runId: input.run_id } : {}),
@@ -226,7 +227,7 @@ export function createSkillDispatchService(dependencies = {}) {
       });
       timing.control_ms = round(milliseconds(controlStarted, now()));
       const intake = skill.dispatch_mode === "deterministic_control" && input.intake
-        ? runDispatchStage("control_evaluation_failed", () => resolveIntakePhase(target.governance_target, control))
+        ? runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed, () => resolveIntakePhase(target.governance_target, control))
         : null;
       if (intake) {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
@@ -249,7 +250,7 @@ export function createSkillDispatchService(dependencies = {}) {
       if (skill.dispatch_mode === "deterministic_control") {
         const presentation = control.approval_presentation ?? control.status_presentation;
         if (!presentation) {
-          throw new SkillDispatchRuntimeError("control_presentation_failed");
+          throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
         }
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
@@ -272,12 +273,15 @@ export function createSkillDispatchService(dependencies = {}) {
         presentation_language: input.presentation_language,
         governance_target: target.governance_target,
         run_id: snapshot?.run_id ?? input.run_id,
+        ...(dependencies.readSkillRuntimeContracts ? {
+          runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(skill.skill_id)),
+        } : {}),
       });
       timing.total_ms = round(milliseconds(started, now()));
       timing.wrapper_ms = round(wrapperMilliseconds(now, env));
       return bindHostAction(result);
     } catch (error) {
-      const recoveryCode = error instanceof SkillDispatchRuntimeError ? error.code : "internal_failure";
+      const recoveryCode = error instanceof SkillDispatchRuntimeError ? error.code : DISPATCH_RECOVERY.internal_failure;
       const result = baseResult({ outcome: "evaluator_error", terminal: true, skill, runtime, timing });
       let recoveryAction;
       try {

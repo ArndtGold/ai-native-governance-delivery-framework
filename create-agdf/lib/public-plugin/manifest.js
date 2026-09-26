@@ -29,6 +29,9 @@ export function createCodexPluginManifest(definition, { publicCandidate = false 
     license: definition.license,
     keywords: definition.keywords,
     skills: definition.codex.skills,
+    // The runtime distribution carries a local MCP declaration. Public submission
+    // candidates deliberately omit this through the existing public builder.
+    ...(publicCandidate ? {} : { mcpServers: "./.mcp.json" }),
     interface: {
       displayName: pluginInterface.displayName,
       shortDescription: pluginInterface.shortDescription,

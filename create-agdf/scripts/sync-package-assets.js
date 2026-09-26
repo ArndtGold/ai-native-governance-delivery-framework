@@ -572,6 +572,16 @@ export function syncPackageAssets({
   // Project the source Codex manifest from the canonical definition before staging the complete
   // plugin. Host manifests are generated projections, never independent metadata owners.
   write(join(sourcePluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition));
+  // Codex loads plugin MCP declarations from the plugin package. Keep the command
+  // version matched and non-interactive so a normal plugin install can initialize it.
+  write(join(sourcePluginRoot, ".mcp.json"), `${JSON.stringify({
+    mcpServers: {
+      agdf: {
+        command: "npx",
+        args: ["--yes", `@agdf/mcp-server@${pluginDefinition.version}`, "--surface", "codex"],
+      },
+    },
+  }, null, 2)}\n`);
   write(join(sourcePluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition));
   // Synchronize source-owned assets in place. Removing the complete generated tree first creates a
   // real missing-assets window when pack, smoke and another agent/session run concurrently.

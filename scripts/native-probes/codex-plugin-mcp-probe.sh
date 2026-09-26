@@ -160,7 +160,7 @@ JS
 
 cat > "$PLUGIN/probe-mcp.js" <<'JS'
 const record = require("./probe-record.js");
-const known = ["var", "claudevar", "rel", "env", "abs", "cache"];
+const known = ["var", "claudevar", "rel", "env", "abs", "cache", "user"];
 const args = process.argv.slice(1);
 const variant = args.find((value) => known.includes(value)) || "unknown";
 const info = record("mcp", variant, args[args.indexOf(variant) + 1]);
@@ -204,6 +204,9 @@ capture "plugin add" codex plugin add codexprobe@codexprobe-mkt --json
 capture "plugin list" codex plugin list
 capture "mcp list" codex mcp list
 capture "mcp get probe_var" codex mcp get probe_var --json
+# Control without any plugin: a plain user-scope server in the same isolated CODEX_HOME. If it starts
+# and the plugin servers do not, Codex skips plugin MCP servers specifically.
+capture "mcp add probe_user (control, no plugin)" codex mcp add probe_user -- node "$PLUGIN/probe-mcp.js" user
 section "CODEX_HOME after install"
 printf '```text\n%s\n```\n' "$(tree_of "$CODEX_HOME")" >> "$REPORT"
 
@@ -234,10 +237,15 @@ else
     | grep -v -F "$prompt" | cut -c1-600 | head -60 | sed "s#$PROBE#<PROBE>#g" > "$RESULTS/rollout-mcp.txt"
   printf '### session rollout (lines mentioning mcp, probe_ or plugin)\n\n```text\n%s\n```\n\n' \
     "$(cat "$RESULTS/rollout-mcp.txt")" >> "$REPORT"
+  # Tools the session actually offered: probe tool names in rollout entries other than the prompt and
+  # the model's own messages, which mention the names even when the tools are missing.
+  find "$CODEX_HOME/sessions" -type f -name '*.jsonl' -exec cat {} + 2>/dev/null \
+    | grep -v -E '"role":"(user|assistant)"|AgentMessage|task_complete|user_message|agent_message' \
+    | grep -o 'probe_ping_[a-z]*' | sort -u > "$LOG/tools-offered.txt"
 fi
 
 section "Start records (MCP variants and hook)"
-for variant in var claudevar rel env abs cache; do
+for variant in var claudevar rel env abs cache user; do
   if [ -f "$LOG/mcp-$variant.json" ]; then
     printf -- '- **probe_%s: started**\n\n```json\n%s\n```\n\n' "$variant" "$(sed "s#$PROBE#<PROBE>#g" "$LOG/mcp-$variant.json")" >> "$REPORT"
   else
@@ -253,6 +261,7 @@ section "CODEX_HOME after session"
 printf '```text\n%s\n```\n' "$(tree_of "$CODEX_HOME")" >> "$REPORT"
 
 # ---------------------------------------------------------------- remove and look for leftovers
+capture "mcp remove probe_user (control)" codex mcp remove probe_user
 section "Remove"
 capture "plugin remove" codex plugin remove codexprobe@codexprobe-mkt --json
 capture "plugin list after remove" codex plugin list
@@ -297,13 +306,24 @@ rm -f "$CODEX_HOME/auth.json"
   else
     echo "  Start: in der codex-exec-Sitzung ist kein Plugin-MCP-Server gestartet, auch nicht mit absolutem Pfad (Ursache siehe rollout-mcp.txt)."
   fi
+  if [ -f "$LOG/exec.code" ]; then
+    plugin_started=0
+    for variant in var claudevar rel env abs cache; do [ -f "$LOG/mcp-$variant.json" ] && plugin_started=1; done
+    if [ -f "$LOG/mcp-user.json" ] && [ "$plugin_started" = 0 ]; then
+      echo "  Kontrolle: ein normaler MCP-Server (codex mcp add) startet, die Plugin-Server nicht -> Codex lädt Plugin-MCP-Server gezielt nicht."
+    elif [ -f "$LOG/mcp-user.json" ]; then
+      echo "  Kontrolle: ein normaler MCP-Server (codex mcp add) startet ebenfalls."
+    else
+      echo "  Kontrolle: auch ein normaler MCP-Server (codex mcp add) startet nicht -> codex exec startet hier gar keine MCP-Server."
+    fi
+  fi
   if grep -qi "No MCP servers" "$LOG/mcp-after-remove.txt" 2>/dev/null; then
     echo "  Entfernen: codex plugin remove nimmt die MCP-Server des Plugins mit."
   else
     echo "  Entfernen: nach codex plugin remove sind noch MCP-Server eingetragen (siehe report.md)."
   fi
   echo "DETAILS:"
-  for variant in var claudevar rel env abs cache; do
+  for variant in var claudevar rel env abs cache user; do
     if [ -f "$LOG/mcp-$variant.json" ]; then echo "MCP probe_$variant: gestartet"; else echo "MCP probe_$variant: nicht gestartet"; fi
   done
   if [ -f "$LOG/hook-sessionstart.json" ]; then echo "SessionStart-Hook: gelaufen"; else echo "SessionStart-Hook: nicht gelaufen"; fi
@@ -315,8 +335,8 @@ rm -f "$CODEX_HOME/auth.json"
     echo "codex exec: exit $(cat "$LOG/exec.code")"
     exec_blocker "$LOG/exec.out"
     # Only the model's answer counts; the echoed prompt names the tools too.
-    seen="$(grep -v -F "List the exact names of every tool" "$LOG/exec.out" | grep -o '[A-Za-z0-9_.:-]*probe_ping_[a-z]*' | sort -u | tr '\n' ' ')"
-    echo "Vom Modell gesehene probe-Tools: ${seen:-keine}"
+    offered="$(tr '\n' ' ' < "$LOG/tools-offered.txt" 2>/dev/null)"
+    echo "Von Codex angebotene probe-Tools (laut Sitzungsprotokoll): ${offered:-keine}"
   fi
   for file in "$LOG"/*.json; do
     [ -f "$file" ] || continue
@@ -336,7 +356,8 @@ if [ "$KEEP" = 1 ]; then
   echo "Temporärer Codex-Arbeitsordner behalten: $RESULTS_REL/work-tmp"
 else
   # Only the working directory created above is ever removed; results stay.
-  case "$PROBE" in */probe-results/codex-mcp-probe-*/work-tmp) rm -rf "$PROBE" ;; esac
+  # A Codex background process can still write briefly after exit, so remove twice.
+  case "$PROBE" in */probe-results/codex-mcp-probe-*/work-tmp) rm -rf "$PROBE"; sleep 2; rm -rf "$PROBE" ;; esac
 fi
 echo
 cat "$SUMMARY"

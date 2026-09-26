@@ -51,20 +51,28 @@ npm run native:codex-mcp-probe -- --review-hooks   # mit Pause für die Hook-Fre
 
 Unter Claude Code entfernt `claude plugin uninstall` inzwischen alles, weil MCP-Server,
 Runtime und Einwilligung im Plugin liegen. Diese Probe klärt, ob das unter Codex genauso geht. Ein
-Wegwerf-Plugin `codexprobe` deklariert fünf MCP-Server, die sich nur im Startweg unterscheiden
+Wegwerf-Plugin `codexprobe` deklariert sechs MCP-Server, die sich nur im Startweg unterscheiden
 (`${PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_ROOT}`, relativer Pfad, Start über die Umgebung, absoluter Pfad
-als Kontrolle), und einen SessionStart-Hook. Jeder Prozess, der wirklich startet, protokolliert
+als Kontrolle und absoluter Pfad in Codex' eigene Plugin-Kopie unter `plugins/cache`), und einen
+SessionStart-Hook. Jeder Prozess, der wirklich startet, protokolliert
 Argumente, Arbeitsverzeichnis, `PLUGIN_ROOT`, `PLUGIN_DATA` und legt einen Marker im Datenordner an.
 Danach entfernt das Skript Plugin und Marketplace und listet, was übrig bleibt.
 
-Alles läuft in einem isolierten `CODEX_HOME` unter `$TMPDIR`; `~/.codex` wird nicht verändert. Für
+Alles läuft in einem isolierten, temporären `CODEX_HOME`; `~/.codex` wird nicht verändert. Für
 die eine kurze `codex exec`-Sitzung wird nur `~/.codex/auth.json` kopiert und sofort danach wieder
 gelöscht, auch bei Abbruch. Liegen die Zugangsdaten im Schlüsselbund, überspringt das Skript die
 Sitzung und nennt den Befehl zum Anmelden im isolierten Ordner. Ohne `--review-hooks` bleibt der
-Hook meist ungeprüft und läuft nicht; für die MCP-Fragen ist das unerheblich.
+Hook ungeprüft und läuft nicht. Weil Codex 0.145.0 MCP-Servern weder `PLUGIN_ROOT` noch
+`PLUGIN_DATA` gibt, klärt nur der Hook, wo Codex Plugin-Daten ablegt und ob `plugin remove` sie
+löscht; für diese Frage `--review-hooks` verwenden. Der Bericht blendet die kuratierten
+Remote-Plugins, Caches und System-Skills aus, die Codex bei der ersten Sitzung selbst anlegt.
+
+Die Ergebnisse landen direkt in diesem Checkout unter `probe-results/codex-mcp-probe-<Zeitstempel>/`
+(`summary.txt`, `report.md` und die Start-Protokolle). Der Ordner ist git-ignoriert. Den temporären
+Codex-Arbeitsordner löscht das Skript am Ende; `--keep` behält ihn zur Fehlersuche.
 
 ## Ergebnis zurückgeben
 
-Alle Skripte legen ihre Ergebnisse unter `$TMPDIR` ab und nennen am Ende eine `summary.txt`. Deren
-Inhalt reicht als Rückmeldung. Die übrigen Dateien im selben Ordner enthalten die Rohdaten für eine
+Teil A und B legen ihre Ergebnisse unter `$TMPDIR` ab, Teil C unter `probe-results/` im Checkout.
+Alle nennen am Ende eine `summary.txt`. Deren Inhalt reicht als Rückmeldung. Die übrigen Dateien im selben Ordner enthalten die Rohdaten für eine
 spätere Evidenz-Aufnahme. Sie können lokale Pfade enthalten und gehören nicht ungeprüft ins Repository.

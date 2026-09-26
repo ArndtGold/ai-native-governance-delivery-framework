@@ -19,19 +19,26 @@
 #   npm run native:codex-mcp-probe -- --no-session       # install/list/remove only, no model call
 #   npm run native:codex-mcp-probe -- --review-hooks     # pause so the probe hook can be trusted in /hooks
 # CODEX_BIN selects another Codex binary, e.g. the one bundled with the ChatGPT app.
-# Result: report.md and summary.txt under $TMPDIR; both contain no credentials.
+#   npm run native:codex-mcp-probe -- --keep             # keep the temporary Codex working directory
+# Result: summary.txt and report.md in probe-results/codex-mcp-probe-<timestamp>/ in this checkout
+# (git-ignored); both contain no credentials. The temporary Codex working directory is removed.
 
 set -u
 CODEX="${CODEX_BIN:-codex}"
 NO_SESSION=0
 REVIEW_HOOKS=0
+KEEP=0
 for arg in "$@"; do
   case "$arg" in
     --no-session) NO_SESSION=1 ;;
     --review-hooks) REVIEW_HOOKS=1 ;;
-    *) echo "Unbekannte Option: $arg (erlaubt: --no-session, --review-hooks)"; exit 2 ;;
+    --keep) KEEP=1 ;;
+    *) echo "Unbekannte Option: $arg (erlaubt: --no-session, --review-hooks, --keep)"; exit 2 ;;
   esac
 done
+REPO="$(cd "$(dirname "$0")/../.." && pwd -P)"
+RESULTS_REL="probe-results/codex-mcp-probe-$(date +%Y%m%d-%H%M%S)"
+RESULTS="$REPO/$RESULTS_REL"
 
 [ "$(uname -s)" = "Darwin" ] || { echo "Dieses Skript ist für macOS gedacht."; exit 2; }
 command -v node >/dev/null || { echo "node fehlt."; exit 2; }
@@ -47,11 +54,11 @@ LOG="$PROBE/log"
 MKT="$PROBE/marketplace"
 PLUGIN="$MKT/plugins/codexprobe"
 WORK="$PROBE/work"
-REPORT="$PROBE/report.md"
-SUMMARY="$PROBE/summary.txt"
+REPORT="$RESULTS/report.md"
+SUMMARY="$RESULTS/summary.txt"
 # The copied auth.json must never outlive the probe, not even after Ctrl-C.
 trap 'rm -f "$CODEX_HOME/auth.json"' EXIT INT TERM
-mkdir -p "$CODEX_HOME" "$LOG" "$PLUGIN/.codex-plugin" "$PLUGIN/hooks" "$MKT/.agents/plugins" "$WORK"
+mkdir -p "$RESULTS" "$CODEX_HOME" "$LOG" "$PLUGIN/.codex-plugin" "$PLUGIN/hooks" "$MKT/.agents/plugins" "$WORK"
 
 # Portable timeout for macOS (no coreutils needed).
 run_with_timeout() { local secs="$1"; shift; perl -e 'alarm shift; exec @ARGV' "$secs" "$@"; }
@@ -68,9 +75,13 @@ capture() {
   return $code
 }
 tree_of() {
-  # tree_of <dir>: file list relative to the probe dir, without credentials.
+  # tree_of <dir>: probe-relevant files only. A fresh CODEX_HOME also receives curated remote plugins,
+  # caches and system skills on the first session; listing them would bury the result.
   [ -e "$1" ] || { echo "(missing: ${1#$PROBE/})"; return; }
-  find "$1" \( -name auth.json -o -name '*.sqlite*' \) -prune -o -print 2>/dev/null | sed "s#$PROBE#<PROBE>#g" | sort | head -200
+  find "$1" \( -name auth.json -o -name '*.sqlite*' -o -path "$1/plugins/cache/openai-curated*" \
+    -o -path "$1/cache" -o -path "$1/skills" -o -path "$1/tmp" -o -path "$1/.tmp" \) -prune -o -print 2>/dev/null \
+    | sed "s#$PROBE#<PROBE>#g" | sort | head -60
+  echo "(ausgeblendet: plugins/cache/openai-curated-*, cache/, skills/, tmp/)"
 }
 
 # ---------------------------------------------------------------- probe plugin and marketplace
@@ -106,7 +117,8 @@ cat > "$PLUGIN/.mcp.json" <<JSON
     "probe_claudevar": { "command": "node", "args": ["\${CLAUDE_PLUGIN_ROOT}/probe-mcp.js", "claudevar", "\${CLAUDE_PLUGIN_DATA}"] },
     "probe_rel":       { "command": "node", "args": ["./probe-mcp.js", "rel"] },
     "probe_env":       { "command": "node", "args": ["-e", "require(require('path').join(process.env.PLUGIN_ROOT || process.env.CLAUDE_PLUGIN_ROOT || '/nonexistent', 'probe-mcp.js'))", "env"] },
-    "probe_abs":       { "command": "node", "args": ["$PLUGIN/probe-mcp.js", "abs"] }
+    "probe_abs":       { "command": "node", "args": ["$PLUGIN/probe-mcp.js", "abs"] },
+    "probe_cache":     { "command": "node", "args": ["$CODEX_HOME/plugins/cache/codexprobe-mkt/codexprobe/0.0.1/probe-mcp.js", "cache"] }
   }
 }
 JSON
@@ -121,6 +133,8 @@ const fs = require("fs"), path = require("path");
 module.exports = function record(kind, variant, dataArg) {
   const env = {};
   for (const key of ["PLUGIN_ROOT", "PLUGIN_DATA", "CLAUDE_PLUGIN_ROOT", "CLAUDE_PLUGIN_DATA", "CODEX_HOME", "PWD"]) env[key] = process.env[key] ?? null;
+  // Every other variable Codex may provide under a name we did not guess.
+  for (const key of Object.keys(process.env)) if (/PLUGIN|CODEX|MCP/i.test(key) && !(key in env)) env[key] = process.env[key];
   const dataDir = [process.env.PLUGIN_DATA, dataArg].find((value) => value && !value.includes("\${")) || null;
   const info = { kind, variant, at: new Date().toISOString(), argv: process.argv.slice(1), cwd: process.cwd(), dirname: __dirname, env, dataDir, dataMarker: null };
   if (dataDir) {
@@ -134,7 +148,7 @@ JS
 
 cat > "$PLUGIN/probe-mcp.js" <<'JS'
 const record = require("./probe-record.js");
-const known = ["var", "claudevar", "rel", "env", "abs"];
+const known = ["var", "claudevar", "rel", "env", "abs", "cache"];
 const args = process.argv.slice(1);
 const variant = args.find((value) => known.includes(value)) || "unknown";
 const info = record("mcp", variant, args[args.indexOf(variant) + 1]);
@@ -194,14 +208,15 @@ else
     read -r _ < /dev/tty
   fi
   # Plugin MCP servers start with the session; calling a tool is not required for the start record.
-  prompt="List the names of all MCP tools you can see that start with probe_ping, then call probe_ping_abs once and print its raw result. Do not modify any files."
-  (cd "$WORK" && capture "codex exec" run_with_timeout 240 "$CODEX" exec --skip-git-repo-check --sandbox read-only "$prompt")
+  prompt="List the exact names of every tool available to you whose name contains probe, including any MCP server or namespace prefix. Then call the probe_ping_abs and probe_ping_cache tools once each (under whatever prefix they have) and print their raw results. Do not modify any files."
+  (cd "$WORK" && run_with_timeout 240 "$CODEX" exec --skip-git-repo-check --sandbox read-only "$prompt" > "$LOG/exec.out" 2>&1; echo $? > "$LOG/exec.code")
+  printf '### codex exec\n\nexit %s\n\n```text\n%s\n```\n\n' "$(cat "$LOG/exec.code")" "$(sed "s#$PROBE#<PROBE>#g" "$LOG/exec.out" | head -80)" >> "$REPORT"
   rm -f "$CODEX_HOME/auth.json"
   echo "Copied auth.json removed after the session." >> "$REPORT"
 fi
 
 section "Start records (MCP variants and hook)"
-for variant in var claudevar rel env abs; do
+for variant in var claudevar rel env abs cache; do
   if [ -f "$LOG/mcp-$variant.json" ]; then
     printf -- '- **probe_%s: started**\n\n```json\n%s\n```\n\n' "$variant" "$(sed "s#$PROBE#<PROBE>#g" "$LOG/mcp-$variant.json")" >> "$REPORT"
   else
@@ -236,21 +251,25 @@ section "Leftovers after plugin remove"
   grep -n -i codexprobe "$CODEX_HOME/config.toml" 2>/dev/null || echo "(none)"
   echo '```'
 } >> "$REPORT"
-printf '```text\n%s\n```\n' "$(tree_of "$CODEX_HOME")" >> "$REPORT"
 
 capture "marketplace remove" codex plugin marketplace remove codexprobe-mkt --json
 section "CODEX_HOME after marketplace remove"
-printf '```text\n%s\n```\n' "$(tree_of "$CODEX_HOME")" >> "$REPORT"
+printf '```text\n%s\n# config.toml mentioning codexprobe:\n%s\n```\n' "$(tree_of "$CODEX_HOME")" \
+  "$(grep -n -i codexprobe "$CODEX_HOME/config.toml" 2>/dev/null || echo "(none)")" >> "$REPORT"
 
 rm -f "$CODEX_HOME/auth.json"
 
 # ---------------------------------------------------------------- short summary for the reply
 {
   echo "AGDF Codex MCP-Probe ($(codex --version 2>&1 | head -1), $(date -u +%Y-%m-%dT%H:%M:%SZ))"
-  for variant in var claudevar rel env abs; do
+  for variant in var claudevar rel env abs cache; do
     if [ -f "$LOG/mcp-$variant.json" ]; then echo "MCP probe_$variant: gestartet"; else echo "MCP probe_$variant: nicht gestartet"; fi
   done
   if [ -f "$LOG/hook-sessionstart.json" ]; then echo "SessionStart-Hook: gelaufen"; else echo "SessionStart-Hook: nicht gelaufen"; fi
+  if [ -f "$LOG/exec.code" ]; then
+    echo "codex exec: exit $(cat "$LOG/exec.code")"
+    echo "Vom Modell genannte probe-Tools: $(grep -o '[A-Za-z0-9_.:-]*probe_ping_[a-z]*' "$LOG/exec.out" | sort -u | tr '\n' ' ')"
+  fi
   for file in "$LOG"/*.json; do
     [ -f "$file" ] || continue
     node -e '
@@ -261,11 +280,19 @@ rm -f "$CODEX_HOME/auth.json"
         console.log(`  Daten-Marker nach plugin remove: ${require("fs").existsSync(r.dataMarker) ? "NOCH DA" : "entfernt"}`);
       }' "$file"
   done
-  echo "Dateien mit codexprobe im Namen nach marketplace remove: $(find "$CODEX_HOME" -iname '*codexprobe*' 2>/dev/null | wc -l | tr -d ' ')"
+  echo "Dateien mit codexprobe im Namen nach marketplace remove: $(find "$CODEX_HOME" -iname '*codexprobe*' 2>/dev/null | sed "s#$CODEX_HOME/##" | tr '\n' ' ')"
+  lines="$(grep -c -i codexprobe "$CODEX_HOME/config.toml" 2>/dev/null)"; echo "config.toml-Zeilen mit codexprobe nach marketplace remove: ${lines:-0}"
 } 2>&1 | sed "s#$PROBE#<PROBE>#g" > "$SUMMARY"
+cp "$LOG"/*.json "$RESULTS/" 2>/dev/null
+if [ "$KEEP" = 1 ]; then
+  echo "Temporärer Codex-Arbeitsordner behalten: $PROBE"
+else
+  # Only the directory mktemp created above is ever removed.
+  case "$PROBE" in */agdf-codex-probe.*) rm -rf "$PROBE" ;; esac
+fi
 echo
 cat "$SUMMARY"
 echo
-echo "Bericht:      $REPORT"
-echo "Kurzfassung:  $SUMMARY"
-echo "Probe-Ordner: $PROBE (danach löschbar)"
+echo "Ergebnisse im Repository (git-ignoriert): $RESULTS_REL/"
+echo "  summary.txt  Kurzfassung für die Rückmeldung"
+echo "  report.md    ausführlicher Bericht"

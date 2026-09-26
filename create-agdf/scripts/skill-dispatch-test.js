@@ -175,6 +175,24 @@ assert.equal(continuation.terminal, false);
 assert.equal(continuation.authorizes, false);
 assert.equal(continuation.continuation.skill_id, "qa-gate");
 assert.equal(continuation.continuation.governance_target, "/tmp/agdf-repo");
+for (const [presentationLanguage, action] of [
+  ["de", "AGDF-Plugin reparieren oder neu installieren: Paketierte Laufzeitverträge konnten nicht geladen werden. Danach einmal erneut versuchen."],
+  ["en", "Repair or reinstall the AGDF plugin: packaged runtime contracts could not be loaded. Then retry once."],
+]) {
+const missingContracts = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => gateReport,
+  readSkillRuntimeContracts: () => { throw new Error("runtime_contracts_unavailable"); },
+  env: {},
+})({ ...base, presentationLanguage, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run" });
+assert.equal(missingContracts.outcome, "evaluator_error");
+assert.equal(missingContracts.terminal, true);
+assert.equal(missingContracts.authorizes, false);
+assert.ok(!missingContracts.continuation);
+assert.equal(missingContracts.recovery.action, action);
+assert.equal(missingContracts.host_action.text, action);
+}
 assert.equal(continuation.control.current_gate, "QA");
 assert.deepEqual(continuation.control.candidate_runs, [{
   run_id: "candidate-run",

@@ -91,6 +91,7 @@ assert.deepEqual(parsed.options, {
   confirm: false,
   shared: false,
   runtimeChecksDecision: undefined,
+  acceptPluginCapabilities: false,
   runtimeChecksAction: "status",
   mcpAction: undefined,
   mcpScope: undefined,
@@ -559,6 +560,38 @@ function prepareMarketplace() {
       assert.equal(runtimeCheckStatus(dataRoot, "codex").requested, selectedDecision === "enable" ? "enabled" : "manual");
       if (selectedDecision === "enable") {
         assert.match(selectedIo.out.at(-1), /Next action: Restart the host and start a fresh session\./);
+      }
+    }
+
+    for (const approvalStatus of ["configured", "blocked"]) {
+      for (const [observation, verification, action] of [
+        [{ status: "observed", hook: { trust_status: "modified", enabled: true } }, "hook_review_required", "review_codex_hook"],
+        [{ status: "observed", hook: { trust_status: "trusted", enabled: false } }, "hook_disabled", "enable_codex_hook"],
+        [{ status: "observed", hook: { trust_status: "trusted", enabled: true } }, "hook_trusted_session_unverified", "verify_codex_hook"],
+        [{ status: "unavailable" }, "host_unverified", "inspect_codex_hook"],
+      ]) {
+      const combinedIo = recordingIo();
+      const combinedOutputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+      let approvals = 0;
+      const exitCode = await runCli(["codex", "--accept-plugin-capabilities", "--json"], {
+        io: combinedIo.io, env: { AGDF_DATA_DIR: dataRoot },
+        exec() { return combinedOutputs.shift(); }, prepare: prepareConsentMarketplace,
+        interactive: false, inspectPluginInstallation, mcpLifecycle: inspectMcpInstallation,
+        askRuntimeCheckDecision() { throw new Error("explicit combined consent must not prompt again"); },
+        observeCodexHookTrust: async () => observation,
+        approveCodexPluginDispatcher: async () => { approvals += 1; return { status: approvalStatus, reason: "fixture" }; },
+      });
+      assert.equal(approvals, 1);
+      assert.equal(exitCode, 1, "pending hook review is not a fully completed setup");
+      const report = JSON.parse(combinedIo.out[0]);
+      assert.equal(report.runtime_checks.requested, "enabled");
+      assert.equal(report.runtime_checks.verification, verification);
+      assert.equal(report.runtime_checks.mcp_approval.status, approvalStatus);
+      assert.equal(report.result, "partial");
+      assert.equal(report.effective_state, approvalStatus === "configured"
+        ? verification === "hook_review_required" ? "mcp_ready_hook_review_required" : "mcp_ready_hook_verification_pending" : "partial");
+      assert.equal(report.next_action.code, approvalStatus === "configured" ? action : "review_runtime_checks");
+      assert.equal(report.authorizes, false);
       }
     }
 

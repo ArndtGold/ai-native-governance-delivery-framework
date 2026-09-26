@@ -3,7 +3,7 @@ import { defaultOpenCodeConfigDir } from "../installers/opencode.js";
 import { inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { runMcpLifecycle } from "../mcp-lifecycle/service.js";
 import { pluginDefinition } from "../cli/runtime-context.js";
-import { createInstallSetupPreflight, createInstallSetupResult } from "./contract.js";
+import { codexHookReviewPending, codexPendingHookAction, createInstallSetupPreflight, createInstallSetupResult } from "./contract.js";
 
 const SURFACES = new Set(["codex", "claude", "copilot", "opencode"]);
 const SCOPE_DECISIONS = new Set(["project", "user", "back", "cancel"]);
@@ -282,6 +282,8 @@ function completedResult({ selection, selectedScope, preflight, pluginReport, ru
     nextAction = "resolve_mcp_registration";
   } else if (full && ["configured_unverified", "unchanged"].includes(mcpReport?.result)) {
     nextAction = "verify_host_discovery";
+  } else if (!full && mcp.status === "plugin_managed" && codexHookReviewPending(preflight.surface, runtimeChecks?.state ?? runtimeChecks)) {
+    nextAction = codexPendingHookAction(runtimeChecks?.state ?? runtimeChecks);
   }
   const target = full ? preflight.target : null;
   const targetSource = full

@@ -35,6 +35,7 @@ import { createLifecycleResult, createOperationStatus, globalInstallRestartActio
 import { defaultClaudeSettingsPath } from "../runtime-check-consent/claude-settings.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
+import { approveCodexDispatcher } from "../runtime-check-consent/codex-plugin-consent.js";
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
 import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { generatedFilesForTarget } from "../scaffold/plan.js";
@@ -71,6 +72,7 @@ function createHandlers({
   inspectPluginInstallation,
   interactive,
   observeCodexHookTrust = observeCodexHooks,
+  approveCodexPluginDispatcher = approveCodexDispatcher,
   evaluateStatus = evaluateStatusOverview,
   evaluateOpenCodeGlobal = evaluateOpenCodeGlobalStatus,
   evaluateOpenCodeRepository = evaluateOpenCodeStatus,
@@ -102,6 +104,7 @@ function createHandlers({
     askInstallSetupScope,
     askRuntimeCheckDecision,
     observeRuntimeChecks,
+    approveCodexPluginDispatcher,
     evaluateOpenCodeGlobal,
     installOpenCodePackage,
     installOpenCodeSurface,
@@ -414,6 +417,17 @@ async function runGuidedInstall(options, dependencies) {
         });
         if (options.target === "codex") {
           finalized.state = await dependencies.observeRuntimeChecks("codex", finalized.state, options.dir);
+          if (options.acceptPluginCapabilities && !finalized.failure) {
+            if (finalized.state.requested !== "enabled" || !finalized.state.capability_identity) {
+              finalized.failure = { phase: "runtime_check_permission", message: "AGDF_PLUGIN_CONSENT_IDENTITY_UNVERIFIED" };
+            } else {
+              const approval = await dependencies.approveCodexPluginDispatcher({ env: dependencies.env, cwd: options.workingDirectory });
+              finalized.state = { ...finalized.state, mcp_approval: approval };
+              if (approval.status !== "configured") finalized.failure = {
+                phase: "runtime_check_permission", message: `AGDF_MCP_APPROVAL_${approval.reason}`,
+              };
+            }
+          }
         }
         return finalized;
       },
@@ -514,6 +528,7 @@ function finalizeInstallConsent(consent, input) {
 }
 
 async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot, language = "en" }) {
+  if (options.acceptPluginCapabilities) return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "enable" });
   if (options.runtimeChecksDecision !== undefined) return prepareInstallConsent(surface, options);
   // Claude Code runs the session check whenever the plugin is enabled, so installing it is the consent.
   if (surface === "claude") return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "enable" });
@@ -952,6 +967,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     inspectPluginInstallation: adapters.inspectPluginInstallation,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,
+    approveCodexPluginDispatcher: adapters.approveCodexPluginDispatcher,
     evaluateStatus: adapters.evaluateStatusOverview,
     evaluateOpenCodeGlobal: adapters.evaluateOpenCodeGlobalStatus,
     evaluateOpenCodeRepository: adapters.evaluateOpenCodeStatus,

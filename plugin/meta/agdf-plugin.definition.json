@@ -342,6 +342,7 @@
   "skillSet": [
     {
       "slug": "delivery-path-search",
+      "runtimeContractModules": ["control-scaffold","gate-transition","quality"],
       "discovery": "optional",
       "useFor": "high-impact planning decisions with several plausible next delivery steps before implementation",
       "boundary": "read-only advisory search; never grants gate permission or replaces gate-check",
@@ -349,6 +350,7 @@
     },
     {
       "slug": "brownfield-analysis",
+      "runtimeContractModules": ["gate-transition","modes","context-graph","quality"],
       "discovery": "automatic",
       "useFor": "after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems",
       "boundary": "clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission",
@@ -356,6 +358,7 @@
     },
     {
       "slug": "ux-intent-definition",
+      "runtimeContractModules": ["gate-transition","quality"],
       "discovery": "automatic",
       "useFor": "after approved UR and post-UR routing for medium/high UI/UX impact or ambiguous low-impact product semantics before PRD readiness",
       "boundary": "non-authorizing analytical PRD input; never creates product intent, gate permission, technical design or a parallel product source of truth",
@@ -363,6 +366,7 @@
     },
     {
       "slug": "clean-implementation-review",
+      "runtimeContractModules": ["quality","context-graph"],
       "discovery": "automatic",
       "useFor": "evidence dimension: inspect whether the solution is structurally clean",
       "boundary": "supports Quality Readiness; not a TP or QA substitute",
@@ -370,6 +374,7 @@
     },
     {
       "slug": "code-review",
+      "runtimeContractModules": ["quality","context-graph"],
       "discovery": "automatic",
       "useFor": "evidence dimension: review the actual diff for defects, regression and security findings",
       "boundary": "supports Quality Readiness; does not replace QA",
@@ -377,6 +382,7 @@
     },
     {
       "slug": "delivery-closeout",
+      "runtimeContractModules": ["closeout","context-graph","gate-transition"],
       "discovery": "automatic",
       "useFor": "commit/PR-near handoff after QA/OR/UAT",
       "boundary": "never performs VCS actions automatically",
@@ -391,6 +397,7 @@
     },
     {
       "slug": "qa-gate",
+      "runtimeContractModules": ["quality","context-graph","gate-transition"],
       "discovery": "automatic",
       "useFor": "sole final Quality Readiness decision",
       "boundary": "only instance for `pass | revise | block`",
@@ -398,6 +405,7 @@
     },
     {
       "slug": "release-or",
+      "runtimeContractModules": ["closeout","quality","context-graph","control-scaffold"],
       "discovery": "automatic",
       "useFor": "auditable closeout for every relevant run",
       "boundary": "not a QA substitute",
@@ -405,6 +413,7 @@
     },
     {
       "slug": "task-plan-review",
+      "runtimeContractModules": ["quality","context-graph","gate-transition"],
       "discovery": "automatic",
       "useFor": "evidence dimension: verify whether the approved Task Plan was fulfilled",
       "boundary": "supports Quality Readiness; no final QA decision",

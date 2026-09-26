@@ -161,6 +161,10 @@ export function validateCommandOptions(options) {
   if (options.runtimeChecksDecision && !["codex", "claude", "copilot", "opencode"].includes(options.target)) {
     throw new Error("--runtime-checks is supported only by codex, claude, copilot and opencode installation commands");
   }
+  if (options.acceptPluginCapabilities && (options.target !== "codex"
+      || (options.runtimeChecksDecision && options.runtimeChecksDecision !== "enable"))) {
+    throw new Error("--accept-plugin-capabilities requires codex installation and cannot be combined with manual or cancel.");
+  }
   if (options.target === "runtime-checks" && !["codex", "claude", "copilot", "opencode"].includes(options.surface)) {
     throw new Error("runtime-checks requires --surface codex, claude, copilot or opencode");
   }
@@ -262,6 +266,8 @@ Options:
   --shared       Apply Copilot repository disable through shared .github/copilot/settings.json
   --runtime-checks <enable|manual|cancel>
                  Make the installation-time automatic-check decision explicitly; no TTY defaults to manual
+  --accept-plugin-capabilities
+                 Codex install: consent to the AGDF hook and approve only agdf_dispatch. Native hook trust remains separate.
   --fixture <path>
                  Use deterministic evaluator/candidate fixtures instead of a live evaluator
   --persist      Persist the redacted Delivery Path Search result under the current scope

@@ -26,7 +26,7 @@ It reports:
 - whether further quality follow-up or a separate delivery closeout is useful
 
 ## Runtime Contract
-After `skill_continuation`, read these focused runtime-contract modules through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
+After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without a binding, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
 
 - `../../meta/contracts/closeout.md`
 - `../../meta/contracts/quality.md`

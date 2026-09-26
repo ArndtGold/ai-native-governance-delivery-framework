@@ -94,12 +94,15 @@ export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "lib/control-evaluation",
   "lib/control-state",
   "lib/cli/runtime-context.js",
+  "lib/cli/contract-command.js",
   "lib/runtime/plugin-provenance.js",
   "lib/task-target-resolution.js",
   "lib/repository-context-reader.js",
   "lib/interaction-presentation.js",
+  "lib/interaction-catalog.js",
   "generated/plugins/agdf/meta/agdf-plugin.definition.json",
   "generated/plugins/agdf/meta/agdf-interaction-locales.json",
+  "generated/plugins/agdf/meta/contracts",
 ]);
 
 export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([

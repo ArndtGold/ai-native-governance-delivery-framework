@@ -6,6 +6,10 @@ on:
       - "create-agdf-v*"
 
 jobs:
+  codex-e2e:
+    uses: ./.github/workflows/codex-release-e2e.yml
+    secrets:
+      CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
   validate:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +48,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    needs: validate
+    needs: [validate, codex-e2e]
     permissions:
       contents: read
       id-token: write

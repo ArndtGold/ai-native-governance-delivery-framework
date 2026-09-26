@@ -65,6 +65,7 @@ export function parseArgs(argv, dependencies = {}) {
   let confirm = false;
   let shared = false;
   let runtimeChecksDecision;
+  let acceptPluginCapabilities = false;
   let runtimeChecksAction;
   let mcpAction;
   let mcpScope;
@@ -91,6 +92,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--all-active") { allActive = true; continue; }
     if (arg === "--confirm") { confirm = true; continue; }
     if (arg === "--shared") { shared = true; continue; }
+    if (arg === "--accept-plugin-capabilities") { acceptPluginCapabilities = true; continue; }
     if (arg === "--target-changed") { targetChanged = true; continue; }
     if (arg === "--with-mcp") {
       if (setupRequest === "plugin_only") throw new CliUsageError("--with-mcp and --plugin-only cannot be combined.");
@@ -277,6 +279,7 @@ export function parseArgs(argv, dependencies = {}) {
       confirm,
       shared,
       runtimeChecksDecision,
+      acceptPluginCapabilities,
       runtimeChecksAction: runtimeChecksAction ?? "status",
       mcpAction,
       mcpScope,

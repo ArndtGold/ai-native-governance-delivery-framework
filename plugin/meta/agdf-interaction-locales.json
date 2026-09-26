@@ -178,7 +178,9 @@
           "partial": "partially completed",
           "degraded_or_foreign": "MCP degraded or foreign",
           "failed": "failed",
-          "plugin_ready_mcp_in_plugin": "plugin ready, MCP included in the plugin"
+          "plugin_ready_mcp_in_plugin": "plugin ready, MCP included in the plugin",
+          "mcp_ready_hook_review_required": "MCP ready – hook confirmation pending",
+          "mcp_ready_hook_verification_pending": "MCP ready – hook verification pending"
         },
         "discoveryStates": {
           "not_checked": "not checked",
@@ -224,6 +226,10 @@
           "retry_mcp": "Keep the installed plugin, resolve the MCP failure and retry complete setup.",
           "resolve_mcp_registration": "Resolve the conflicting MCP registration before complete setup.",
           "review_runtime_checks": "Review the automatic-check state and retry setup.",
+          "review_codex_hook": "Review and trust the AGDF hook under /hooks, then start a fresh session. CLI MCP tests need no desktop restart.",
+          "enable_codex_hook": "Enable the AGDF hook under /hooks, then verify it in a fresh session.",
+          "verify_codex_hook": "Verify execution of the trusted AGDF hook in a fresh session. Trust alone is not execution evidence.",
+          "inspect_codex_hook": "Inspect the AGDF hook under /hooks and retry runtime-checks status --surface codex.",
           "choose_plugin_only_or_cancel": "Choose plugin only or cancel; complete setup is blocked."
         },
         "blockReasons": {
@@ -720,6 +726,8 @@
           "control_evaluation_failed": "Repair gate evaluation and retry once.",
           "control_presentation_failed": "Repair gate presentation and retry once.",
           "internal_failure": "Repair the dispatcher and retry once.",
+          "runtime_contracts_unavailable": "Repair or reinstall the AGDF plugin: packaged runtime contracts could not be loaded. Then retry once.",
+          "runtime_evidence_invalid": "Repair the runtime evidence provider and retry once.",
           "output_too_large": "Repair the dispatcher output bound and retry once."
         }
       },
@@ -1088,7 +1096,9 @@
           "partial": "teilweise abgeschlossen",
           "degraded_or_foreign": "MCP beeinträchtigt oder fremd",
           "failed": "fehlgeschlagen",
-          "plugin_ready_mcp_in_plugin": "Plugin bereit, MCP im Plugin enthalten"
+          "plugin_ready_mcp_in_plugin": "Plugin bereit, MCP im Plugin enthalten",
+          "mcp_ready_hook_review_required": "MCP bereit – Hook-Bestätigung ausstehend",
+          "mcp_ready_hook_verification_pending": "MCP bereit – Hook-Nachweis ausstehend"
         },
         "discoveryStates": {
           "not_checked": "nicht geprüft",
@@ -1134,6 +1144,10 @@
           "retry_mcp": "Behalten Sie das Plugin, beheben Sie den MCP-Fehler und wiederholen Sie das vollständige Setup.",
           "resolve_mcp_registration": "Klären Sie die kollidierende MCP-Registrierung vor dem vollständigen Setup.",
           "review_runtime_checks": "Prüfen Sie den Zustand automatischer Prüfungen und wiederholen Sie das Setup.",
+          "review_codex_hook": "AGDF-Hook unter /hooks prüfen und bestätigen, danach neue Sitzung öffnen. CLI-MCP-Tests benötigen keinen Desktop-Neustart.",
+          "enable_codex_hook": "AGDF-Hook unter /hooks aktivieren und anschließend in einer neuen Sitzung prüfen.",
+          "verify_codex_hook": "Ausführung des bestätigten AGDF-Hooks in einer neuen Sitzung prüfen. Vertrauen allein ist kein Ausführungsnachweis.",
+          "inspect_codex_hook": "AGDF-Hook unter /hooks prüfen und runtime-checks status --surface codex erneut ausführen.",
           "choose_plugin_only_or_cancel": "Wählen Sie nur Plugin oder Abbruch; das vollständige Setup ist gesperrt."
         },
         "blockReasons": {
@@ -1630,6 +1644,8 @@
           "control_evaluation_failed": "Gate-Auswertung reparieren und einmal erneut versuchen.",
           "control_presentation_failed": "Gate-Darstellung reparieren und einmal erneut versuchen.",
           "internal_failure": "Dispatcher reparieren und einmal erneut versuchen.",
+          "runtime_contracts_unavailable": "AGDF-Plugin reparieren oder neu installieren: Paketierte Laufzeitverträge konnten nicht geladen werden. Danach einmal erneut versuchen.",
+          "runtime_evidence_invalid": "Bereitstellung der Laufzeitnachweise reparieren und einmal erneut versuchen.",
           "output_too_large": "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen."
         }
       },

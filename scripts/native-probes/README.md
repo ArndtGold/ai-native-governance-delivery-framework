@@ -32,6 +32,28 @@ Zugangsdaten im Schlüsselbund; dann werden die beiden Sitzungsschritte als übe
 nicht bestanden gemeldet. Ergebnis: `probe-results/claude-host-e2e-<Zeitstempel>/summary.txt` und
 `observation.json`.
 
+## Host-E2E Codex: ein Befehl, ein festes Tupel
+
+```bash
+npm install -g @openai/codex@latest                     # einmalig: aktuelle Codex-CLI
+npm run native:codex-e2e                                # Standardmodell gpt-6-astra
+npm run native:codex-e2e -- --model <modell> --keep     # anderes Modell, Arbeitsordner behalten
+```
+
+Dieselben sechs Schritte wie bei Claude Code: Host, Installation des aktuellen Checkouts über das
+AGDF-CLI, Discovery (`codex mcp get agdf` zeigt den Launcher aus dem Plugin), ein echter
+`agdf_dispatch`-Aufruf mit erwartetem `control_result`, der Fehlerfall `invalid_input` und Entfernen
+über `agdf uninstall --surface codex --scope global --confirm` ohne MCP-Server, `config.toml`-Eintrag,
+Plugin-Cache oder MCP-Runtime. Belege stammen aus `codex exec --json` und den Sitzungsprotokollen;
+Codex vermerkt dort auch die `pluginId`, die `agdf@agdf` lauten muss.
+
+Codex verlangt vor jedem MCP-Tool-Aufruf eine Freigabe. Die Prüfung gibt nur `agdf_dispatch` frei:
+zuerst für die eine Sitzung per `-c mcp_servers.agdf.tools.agdf_dispatch.approval_mode="approve"`,
+und falls Codex das für einen Plugin-Server ignoriert, über denselben Schlüssel in der isolierten
+`config.toml`. Die Kurzfassung nennt, welcher Weg funktioniert hat. Alles läuft in einem isolierten
+`CODEX_HOME`; nur `~/.codex/auth.json` wird für die Sitzungen kopiert und danach gelöscht.
+Mit `CODEX_BIN` nutzen Installation und Prüfung dieselbe Codex-Binärdatei.
+
 ## Weitere Prüfungen (mit manuellem Schritt)
 
 Diese Skripte erheben direkte Host-Evidenz zu Hooks. Sie laufen nicht in CI, weil sie einen

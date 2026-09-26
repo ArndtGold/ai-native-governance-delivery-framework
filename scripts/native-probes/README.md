@@ -12,6 +12,26 @@ Inhalt von `probe-results/codex-mcp-probe-<Zeitstempel>/summary.txt` an Claude z
 ist nicht nötig. Es beantwortet, ob und wie AGDF seinen MCP-Server unter Codex im Plugin halten kann
 (Details in Teil C). Es fasst weder AGDF noch `~/.codex` an.
 
+## Host-E2E Claude Code: ein Befehl, ein festes Tupel
+
+```bash
+npm run native:claude-e2e                               # Standardmodell claude-sonnet-5
+npm run native:claude-e2e -- --model <modell> --keep    # anderes Modell, Arbeitsordner behalten
+```
+
+Prüft genau ein protokolliertes Tupel aus Claude-Code-Version, Modell, Betriebssystem, Node und
+AGDF-Version in sechs Schritten: Host, Installation des aktuellen Checkouts über das AGDF-CLI,
+Discovery (`claude mcp list` meldet `plugin:agdf:agdf` als verbunden), ein echter
+`agdf_dispatch`-Aufruf mit erwartetem `control_result`, ein definierter Fehlerfall (relatives
+`working_directory` ergibt `invalid_input`) und Entfernen nur über `claude plugin uninstall` ohne
+Reste. Belege stammen aus `stream-json`-Ereignissen und CLI-Ausgaben, nie aus Modelltext.
+
+Alles läuft in einem isolierten `CLAUDE_CONFIG_DIR` unter `probe-results/`; aus `~/.claude` wird nur
+`.credentials.json` für die zwei kurzen Sitzungen kopiert und danach gelöscht. Unter macOS liegen die
+Zugangsdaten im Schlüsselbund; dann werden die beiden Sitzungsschritte als übersprungen und damit
+nicht bestanden gemeldet. Ergebnis: `probe-results/claude-host-e2e-<Zeitstempel>/summary.txt` und
+`observation.json`.
+
 ## Weitere Prüfungen (mit manuellem Schritt)
 
 Diese Skripte erheben direkte Host-Evidenz zu Hooks. Sie laufen nicht in CI, weil sie einen

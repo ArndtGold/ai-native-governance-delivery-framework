@@ -42,7 +42,7 @@ Für das Verständnis helfen fünf Begriffe:
 |---|---|
 | **Host** | Das Programm, in dem der Coding-Agent läuft, zum Beispiel Codex oder Claude Code. Der Host besitzt Modellzugriff, Werkzeuge, Berechtigungen und Sitzungen. |
 | **Plugin oder Skills** | Anweisungen und Host-Integration, die dem Agenten sagen, wann und wie AGDF anzuwenden ist. |
-| **MCP-Server** | Ein lokaler Prozess, der dem Host das Werkzeug `agdf_dispatch` über den standardisierten MCP-Transport `stdio` anbietet. |
+| **MCP-Server** | Ein lokaler Prozess, der dem Host das Werkzeug `agdf_dispatch` über den standardisierten MCP-Transport `stdio` anbietet. In Codex lautet die Server-ID `agdf`; `codex_app` gehört zur separaten Codex-App-Integration. |
 | **MCP-Lebenszyklus** | Die AGDF-Befehle `mcp status`, `mcp enable` und `mcp disable`. Sie lesen oder ändern ausschließlich die native MCP-Konfiguration des ausgewählten Hosts. |
 | **Kontrollzustand** | Der ausgewählte Run mit Scope, Artefakten, Nachweisen und Freigaben unter `.agdf/control/`. |
 
@@ -181,6 +181,10 @@ Ein MCP-fähiger Host startet den lokalen Server und fragt mit `tools/list` nach
 Werkzeugen. AGDF liefert genau `agdf_dispatch`. Ein anschließendes `tools/call` enthält den
 Skill-Namen sowie expliziten Ziel- und Laufkontext. OpenCode zeigt das Werkzeug wegen seiner
 Host-Namensbildung als `agdf_agdf_dispatch`; auf Serverebene bleibt der Name `agdf_dispatch`.
+
+Für Codex gilt die sichtbare Zuordnung `agdf` -> `agdf_dispatch`. Der ebenfalls mögliche Eintrag
+`codex_app` ist kein AGDF-Server, sondern gehört zur Codex-App-Integration. Er darf bei der Prüfung
+des AGDF-MCP-Zustands nicht als Ersatz für `agdf` gewertet werden.
 
 Der Server enthält keine zweite fachliche Funktion. Er importiert den kanonischen Vertrag und ruft
 den vorhandenen Dispatcher auf. Damit erhalten Skill- und MCP-Weg dieselbe Zielauflösung, dieselbe

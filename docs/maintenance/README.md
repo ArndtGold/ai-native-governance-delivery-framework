@@ -43,6 +43,13 @@ Dirty-Läufe, doppelte/fehlende Plattformen sowie fehlende oder fehlgeschlagene 
 Artefakte bleiben 30 Tage verfügbar; für längere Aufbewahrung herunterladen.
 Historische eingecheckte Nachweise bleiben erhalten, autorisieren aber keinen neuen Release.
 
+Kompatibilitätsbeobachtungen unter `evals/host-compatibility/observations/` bleiben unverändert
+unter ihrem Inhalts-Hash erhalten. Nur die in `docs/compatibility/evidence/snapshot.json`
+referenzierte Beobachtung gehört zum aktiven Vergleich. Frühere Fixture-Läufe und protokollierte
+Fehlversuche sind Historie, keine aktuelle Freigabe. Native Belege werden über `public_evidence`
+im Kompatibilitätsmanifest beim Neuerzeugen erhalten; das allein macht sie nicht zu nativen
+Vergleichszeilen und ersetzt keine explizite Zuordnung über `native_sources`.
+
 Lokaler Diagnoseaufruf: `npm run native:codex-e2e -- --model gpt-6-luna`.
 Außerhalb CI wird bei Bedarf eine temporäre lokale Auth-Kopie verwendet und danach entfernt.
 Ein erfolgreicher Dirty-Lauf ist Diagnoseevidenz, erfüllt aber nicht die Release-Freigabe.

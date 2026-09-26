@@ -29,6 +29,14 @@ run_exec() {
   fi
   return $rc
 }
+# A session that never started proves nothing about hooks or MCP servers; name the known causes.
+exec_blocker() {
+  if grep -q "requires a newer version of Codex" "$@" 2>/dev/null; then
+    echo "Sitzung nicht gestartet: das in ~/.codex/config.toml eingestellte Modell braucht eine neuere Codex-Version (npm i -g @openai/codex@latest). Ergebnis NICHT aussagekräftig."
+  elif grep -qiE "not logged in|401 Unauthorized|authentication" "$@" 2>/dev/null; then
+    echo "Sitzung nicht gestartet: Codex ist nicht angemeldet. Ergebnis NICHT aussagekräftig."
+  fi
+}
 pause() { printf '\n>>> %s\n    Weiter mit Enter ... ' "$1"; read -r _ < /dev/tty; }
 hook_command() { node -e 'const h=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).hooks.SessionStart[0].hooks[0];console.log(h.command)' "$1"; }
 observe() {
@@ -100,6 +108,7 @@ result "Hook-Status nach Prüfung" "$(trust_of "$OUT/03-hooks-after-review.json"
 touch "$OUT/session.marker"
 run_exec "$TARGET" "$OUT/04-exec.jsonl" "$OUT/04-exec.err"
 result "codex exec" "exit=$?"
+blocker="$(exec_blocker "$OUT/04-exec.jsonl" "$OUT/04-exec.err")"; [ -n "$blocker" ] && say "$blocker"
 rollouts="$(find "$HOME/.codex/sessions" -type f -name '*.jsonl' -newer "$OUT/session.marker" 2>/dev/null)"
 evidence="$OUT/05-evidence.txt"
 : > "$evidence"

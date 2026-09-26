@@ -32,6 +32,14 @@ run_exec() {
   fi
   return $rc
 }
+# A session that never started proves nothing about hooks or MCP servers; name the known causes.
+exec_blocker() {
+  if grep -q "requires a newer version of Codex" "$@" 2>/dev/null; then
+    echo "Sitzung nicht gestartet: das in ~/.codex/config.toml eingestellte Modell braucht eine neuere Codex-Version (npm i -g @openai/codex@latest). Ergebnis NICHT aussagekräftig."
+  elif grep -qiE "not logged in|401 Unauthorized|authentication" "$@" 2>/dev/null; then
+    echo "Sitzung nicht gestartet: Codex ist nicht angemeldet. Ergebnis NICHT aussagekräftig."
+  fi
+}
 pause() { printf '\n>>> %s\n    Weiter mit Enter ... ' "$1"; read -r _ < /dev/tty; }
 
 [ "$(uname -s)" = "Darwin" ] || { echo "Dieses Skript ist für macOS gedacht."; exit 2; }
@@ -72,16 +80,28 @@ say "Ergebnisse: $OUT_REL/"
 
 WORK="$OUT/session-dir"; mkdir -p "$WORK" && WORK="$(cd "$WORK" && pwd -P)"
 git -C "$WORK" init -q
+# Hook count and trust come from Codex's own hooks/list metadata, not from a manual count.
+hooks_list() { node "$REPO/scripts/native-probes/codex-hooks-list.mjs" "$WORK" "hookprobe@$MARKETPLACE_ID" "$CODEX"; }
+hooks_summary() { node -e 'const r=JSON.parse(process.argv[1]);console.log(r.status!=="observed"?`nicht lesbar (${r.status})`:`${r.count} Hook(s): ${r.hooks.map((h)=>`${h.event}/${h.trust}${h.enabled?"":"/deaktiviert"}`).join(", ")||"keine"}`)' "$1"; }
+before_json="$(hooks_list)"; printf '%s\n' "$before_json" > "$OUT/02b-hooks-before-review.json"
+say "Hooks laut Codex vor Freigabe: $(hooks_summary "$before_json")"
 pause "Manueller Schritt:
     1. Zweites Terminal:  cd '$WORK' && $CODEX
-    2. '/hooks' eingeben und NOTIEREN, wie viele SessionStart-Hooks von hookprobe@$MARKETPLACE_ID gelistet sind
-       (1 = der Manifest-Eintrag ersetzt hooks/hooks.json, 2 = beide Dateien werden geladen).
-    3. Nur die hookprobe-Hooks als vertrauenswürdig bestätigen, dann Codex beenden."
-printf '    Anzahl gelisteter hookprobe-Hooks in /hooks: '; read -r listed < /dev/tty
-say "In /hooks gelistet: ${listed:-keine Angabe}"
+    2. '/hooks' eingeben und nur die Hooks von hookprobe@$MARKETPLACE_ID als vertrauenswürdig bestätigen.
+    3. Codex beenden. Die Anzahl liest das Skript danach selbst aus Codex aus."
+after_json="$(hooks_list)"; printf '%s\n' "$after_json" > "$OUT/02c-hooks-after-review.json"
+say "Hooks laut Codex nach Freigabe: $(hooks_summary "$after_json")"
+listed="$(node -e 'const r=JSON.parse(process.argv[1]);console.log(r.status==="observed"?r.count:"")' "$after_json")"
+case "$listed" in
+  1) say "=> Codex listet einen Hook: der Manifest-Eintrag ersetzt hooks/hooks.json." ;;
+  2) say "=> Codex listet zwei Hooks: beide Dateien werden geladen." ;;
+esac
+node -e 'const r=JSON.parse(process.argv[1]);process.exit(r.status==="observed"&&r.count>0&&r.hooks.every((h)=>h.trust==="trusted"||h.trust==="managed")?0:1)' "$after_json" \
+  || say "ACHTUNG: nicht alle hookprobe-Hooks sind freigegeben. Nicht freigegebene Hooks laufen nicht; ein fehlender Hook-Nachweis ist dann nicht aussagekräftig."
 
 run_exec "$WORK" "$OUT/03-exec.jsonl" "$OUT/03-exec.err"
 say "codex exec: exit=$?"
+blocker="$(exec_blocker "$OUT/03-exec.jsonl" "$OUT/03-exec.err")"; [ -n "$blocker" ] && say "$blocker"
 
 if [ -s "$LOG" ]; then
   node -e '

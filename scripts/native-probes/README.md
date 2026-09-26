@@ -39,7 +39,10 @@ npm run native:codex-hook-probe
 Ein Wegwerf-Plugin `hookprobe` mit eigenem Marketplace prüft zwei Fragen, ohne AGDF anzufassen:
 ob `PLUGIN_ROOT` und `CLAUDE_PLUGIN_ROOT` auf denselben Pfad zeigen, und ob ein `hooks`-Eintrag in
 `.codex-plugin/plugin.json` die Datei `hooks/hooks.json` ersetzt. Die Hooks schreiben ihr Ergebnis
-selbst in eine Datei; das Skript entfernt Plugin und Marketplace am Ende wieder.
+selbst in eine Datei; das Skript entfernt Plugin und Marketplace am Ende wieder. Anzahl und
+Freigabestatus der Hooks liest es vor und nach deiner Freigabe in `/hooks` direkt aus Codex
+(`app-server` `hooks/list` über `codex-hooks-list.mjs`), du musst nichts abzählen. Sind nicht alle
+Hooks freigegeben, weist die Kurzfassung ausdrücklich darauf hin.
 
 ## Teil C (optional): kann AGDF unter Codex alles im Plugin halten?
 
@@ -58,7 +61,7 @@ SessionStart-Hook. Jeder Prozess, der wirklich startet, protokolliert
 Argumente, Arbeitsverzeichnis, `PLUGIN_ROOT`, `PLUGIN_DATA` und legt einen Marker im Datenordner an.
 Danach entfernt das Skript Plugin und Marketplace und listet, was übrig bleibt.
 
-Alles läuft in einem isolierten, temporären `CODEX_HOME`; `~/.codex` wird nicht verändert. Für
+Alles läuft in einem isolierten `CODEX_HOME` unter `probe-results/`; `~/.codex` wird nicht verändert. Für
 die eine kurze `codex exec`-Sitzung wird nur `~/.codex/auth.json` kopiert und sofort danach wieder
 gelöscht, auch bei Abbruch. Liegen die Zugangsdaten im Schlüsselbund, überspringt das Skript die
 Sitzung und nennt den Befehl zum Anmelden im isolierten Ordner. Ohne `--review-hooks` bleibt der
@@ -67,12 +70,20 @@ Hook ungeprüft und läuft nicht. Weil Codex 0.145.0 MCP-Servern weder `PLUGIN_R
 löscht; für diese Frage `--review-hooks` verwenden. Der Bericht blendet die kuratierten
 Remote-Plugins, Caches und System-Skills aus, die Codex bei der ersten Sitzung selbst anlegt.
 
-Die Ergebnisse landen direkt in diesem Checkout unter `probe-results/codex-mcp-probe-<Zeitstempel>/`
-(`summary.txt`, `report.md` und die Start-Protokolle). Der Ordner ist git-ignoriert. Den temporären
-Codex-Arbeitsordner löscht das Skript am Ende; `--keep` behält ihn zur Fehlersuche.
+Der temporäre Codex-Arbeitsordner (`work-tmp/` neben den Ergebnissen) wird am Ende gelöscht;
+`--keep` behält ihn zur Fehlersuche.
 
 ## Ergebnis zurückgeben
 
-Teil A und B legen ihre Ergebnisse unter `$TMPDIR` ab, Teil C unter `probe-results/` im Checkout.
-Alle nennen am Ende eine `summary.txt`. Deren Inhalt reicht als Rückmeldung. Die übrigen Dateien im selben Ordner enthalten die Rohdaten für eine
+Alle drei Prüfungen legen ihre Ergebnisse direkt in diesem Checkout ab, nicht im Temp-Verzeichnis
+des Systems:
+
+| Prüfung | Ordner |
+|---|---|
+| Teil A | `probe-results/codex-hook-check-<Zeitstempel>/` |
+| Teil B | `probe-results/codex-hook-probe-<Zeitstempel>/` |
+| Teil C | `probe-results/codex-mcp-probe-<Zeitstempel>/` |
+
+`probe-results/` ist git-ignoriert. Jede Prüfung nennt am Ende den Pfad ihrer `summary.txt`; deren
+Inhalt reicht als Rückmeldung. Die übrigen Dateien im selben Ordner enthalten die Rohdaten für eine
 spätere Evidenz-Aufnahme. Sie können lokale Pfade enthalten und gehören nicht ungeprüft ins Repository.

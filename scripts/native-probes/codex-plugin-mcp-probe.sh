@@ -60,7 +60,18 @@ SUMMARY="$RESULTS/summary.txt"
 # The copied auth.json must never outlive the probe, not even after Ctrl-C.
 trap 'rm -f "$CODEX_HOME/auth.json"' EXIT INT TERM
 mkdir -p "$RESULTS" "$CODEX_HOME" "$LOG" "$PLUGIN/.codex-plugin" "$PLUGIN/hooks" "$MKT/.agents/plugins" "$WORK"
+# The session directory sits inside this checkout; its own git root keeps Codex from loading the
+# AGDF repository's instructions and project configuration into the probe session.
+git -C "$WORK" init -q
 
+# A session that never started proves nothing about hooks or MCP servers; name the known causes.
+exec_blocker() {
+  if grep -q "requires a newer version of Codex" "$@" 2>/dev/null; then
+    echo "Sitzung nicht gestartet: das in ~/.codex/config.toml eingestellte Modell braucht eine neuere Codex-Version (npm i -g @openai/codex@latest). Ergebnis NICHT aussagekräftig."
+  elif grep -qiE "not logged in|401 Unauthorized|authentication" "$@" 2>/dev/null; then
+    echo "Sitzung nicht gestartet: Codex ist nicht angemeldet. Ergebnis NICHT aussagekräftig."
+  fi
+}
 # Portable timeout for macOS (no coreutils needed).
 run_with_timeout() { local secs="$1"; shift; perl -e 'alarm shift; exec @ARGV' "$secs" "$@"; }
 
@@ -208,6 +219,9 @@ else
     printf '\n>>> Zweites Terminal öffnen und ausführen:\n    CODEX_HOME="%s" %s\n    Dort unter /hooks nur den Hook des Plugins codexprobe bestätigen und Codex beenden.\n    Weiter mit Enter ... ' "$CODEX_HOME" "$CODEX"
     read -r _ < /dev/tty
   fi
+  # Hook count and trust straight from Codex (app-server hooks/list), independent of the model.
+  node "$REPO/scripts/native-probes/codex-hooks-list.mjs" "$WORK" codexprobe@codexprobe-mkt "$CODEX" > "$LOG/hooks-list.out" 2>&1
+  printf '### hooks/list (codexprobe)\n\n```json\n%s\n```\n\n' "$(sed "s#$PROBE#<PROBE>#g" "$LOG/hooks-list.out")" >> "$REPORT"
   # Plugin MCP servers start with the session; calling a tool is not required for the start record.
   prompt="List the exact names of every tool available to you whose name contains probe, including any MCP server or namespace prefix. Then call the probe_ping_abs and probe_ping_cache tools once each (under whatever prefix they have) and print their raw results. Do not modify any files."
   (cd "$WORK" && run_with_timeout 240 "$CODEX" exec --skip-git-repo-check --sandbox read-only "$prompt" > "$LOG/exec.out" 2>&1; echo $? > "$LOG/exec.code")
@@ -267,8 +281,13 @@ rm -f "$CODEX_HOME/auth.json"
     if [ -f "$LOG/mcp-$variant.json" ]; then echo "MCP probe_$variant: gestartet"; else echo "MCP probe_$variant: nicht gestartet"; fi
   done
   if [ -f "$LOG/hook-sessionstart.json" ]; then echo "SessionStart-Hook: gelaufen"; else echo "SessionStart-Hook: nicht gelaufen"; fi
+  if [ -f "$LOG/hooks-list.out" ]; then
+    node -e 'let r;try{r=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))}catch{r={status:"unlesbar"}}
+      console.log("Hooks laut Codex: "+(r.status!=="observed"?`nicht lesbar (${r.status})`:`${r.count}: ${r.hooks.map((h)=>h.event+"/"+h.trust).join(", ")||"keine"}`))' "$LOG/hooks-list.out"
+  fi
   if [ -f "$LOG/exec.code" ]; then
     echo "codex exec: exit $(cat "$LOG/exec.code")"
+    exec_blocker "$LOG/exec.out"
     echo "Vom Modell genannte probe-Tools: $(grep -o '[A-Za-z0-9_.:-]*probe_ping_[a-z]*' "$LOG/exec.out" | sort -u | tr '\n' ' ')"
   fi
   for file in "$LOG"/*.json; do

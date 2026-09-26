@@ -17,7 +17,7 @@ import {
   digestMcpDispatcherPackage,
   digestMcpSdkRuntime,
 } from "../runtime/plugin-provenance.js";
-import { defaultNpmInstallRoot, npmInvocation } from "../installers/npm-invocation.js";
+import { defaultNpmInstallRoot, npmInvocation } from "../npm-invocation.js";
 import { renameSyncWithRetry } from "../fs-swap.js";
 
 const OWNER = "create-agdf:mcp-runtime";
@@ -142,6 +142,9 @@ export function prepareMcpServerPackage({
   npmOptions = {},
   packageSpec = `@agdf/mcp-server@${expectedVersion}`,
   dispatcherPackageSpec = null,
+  // Fills stage/node_modules; the plugin-local runtime installs only the SDK from npm and copies the
+  // server and dispatcher it ships. Validation, digests and the owned marker stay shared.
+  acquire = null,
 } = {}) {
   if (!dataRoot || !expectedVersion || typeof packageSpec !== "string" || !packageSpec.trim()
       || (dispatcherPackageSpec !== null && (typeof dispatcherPackageSpec !== "string" || !dispatcherPackageSpec.trim()))) {
@@ -161,13 +164,15 @@ export function prepareMcpServerPackage({
   let movedToStable = false;
   try {
     writeFileSync(join(stage, "package.json"), `${JSON.stringify({ private: true }, null, 2)}\n`, "utf8");
-    const invocation = npmInvocation([
-      "install", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev", "--save-exact",
-      packageSpec,
-      ...(dispatcherPackageSpec ? [dispatcherPackageSpec] : []),
-    ], { execPath, ...npmOptions });
-    try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
-    catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
+    const install = (specs) => {
+      const invocation = npmInvocation([
+        "install", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev", "--save-exact", ...specs,
+      ], { execPath, ...npmOptions });
+      try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
+      catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
+    };
+    if (acquire) acquire({ stage, install });
+    else install([packageSpec, ...(dispatcherPackageSpec ? [dispatcherPackageSpec] : [])]);
     const packageRoot = join(stage, "node_modules", "@agdf", "mcp-server");
     const dispatcherRoot = join(stage, "node_modules", "create-agdf");
     const sdkServerRoot = join(stage, "node_modules", "@modelcontextprotocol", "server");

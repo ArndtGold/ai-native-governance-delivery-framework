@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../host-command.js";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,7 +9,7 @@ export function codexGenerator(options = {}) {
   const codexBin = options.codexBin ?? "codex";
   const execute = options.execute ?? guardedExecFileSync;
   let runtime = options.runtime ?? "codex version unavailable";
-  if (!options.runtime) try { runtime = execFileSync(codexBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch {}
+  if (!options.runtime) try { runtime = execHostFileSync(codexBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch {}
   return {
     name: "codex",
     metadata: { name: "codex", runtime, model: options.model ?? "configured-default" },

@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -6,6 +6,9 @@ import { transitionDecisionForRunState } from './gate-policy.js';
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from './verified-change.js';
 import { gateApprovalStatus, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
 import { isPlaceholderValue } from './shared.js';
+
+// Shown when a finding's next step is free text that the presentation locale cannot render.
+const FINDING_RECOVERY_STEP = "Resolve the finding named under Blocked by, then run gate-check again.";
 
 const nextSkillByGate = {
   UR: "gate-check",
@@ -127,9 +130,9 @@ export function buildStatusCard({
   runState,
   chatLanguage = "en",
   findings = [],
+  qualityOutlook = deriveQualityOutlook(runState, findings),
   interactionKind: requestedInteractionKind,
 }) {
-  const qualityOutlook = deriveQualityOutlook(runState, findings);
   const postApproval = postApprovalTransition(missingApproval);
   const isUserGateApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
@@ -201,6 +204,15 @@ export function qualityReadinessForRunState(runState, nextAction) {
   return Object.freeze({ ...readiness, decisive_reference: decisive?.path ?? "" });
 }
 
+// A gate question needs the artefact it approves: a durable file for UR/PRD/SD/TP and a passing QA
+// report for QA. UAT approves the delivered result and has no separate artefact.
+export function isDurableApprovalArtefactPresent(targetDir, runState, gate) {
+  if (gate === "UAT") return true;
+  const artefact = runState.artefacts.get(gate);
+  if (!artefact || !resolvedArtefactFile(targetDir, artefact.path)) return false;
+  return gate !== "QA" || ["pass", "passed"].includes(artefact.status);
+}
+
 function buildHumanPresentation(targetDir, runState, currentGate, presentationLocale) {
   const currentArtefactHeading = readArtefactHeading(targetDir, runState.artefacts.get(currentGate));
   const urHeading = readArtefactHeading(targetDir, runState.artefacts.get("UR"));
@@ -248,6 +260,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     : isPlaceholderValue(runState.next_allowed_action)
     ? transitionDecision.next_allowed_action
     : runState.next_allowed_action;
+  let nextStepFallback = transitionDecision.next_allowed_action;
   let controlSetupRequired = false;
 
   if (doctorBlocker?.code === "AGDF_CONTROL_FILE_MISSING") {
@@ -282,6 +295,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     allowed = ["repair the AGDF control scaffold", ...transitionDecision.allowed, "run doctor again"];
     forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work", "claim QA or release readiness"];
     nextAllowedAction = doctorBlocker.next_step;
+    nextStepFallback = FINDING_RECOVERY_STEP;
   } else if (doctorRevise && !routesInvalidVerifiedChange) {
     status = "blocked";
     blockingReason = doctorRevise.code;
@@ -290,12 +304,15 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     nextAllowedAction = transitionDecision.current_gate === "UR"
       ? "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
       : doctorRevise.next_step;
+    nextStepFallback = FINDING_RECOVERY_STEP;
   }
 
   const postApproval = postApprovalTransition(missingApproval);
   const presentationLocale = selection.presentationLanguage
     ? resolvePresentationLocale(interactionLocales, selection.presentationLanguage)
     : resolveConfiguredChatLanguage(targetDir);
+  const renderable = (value) => isOperationalValueRenderable(value, { registry: interactionLocales, requestedLocale: presentationLocale });
+  const runQualityOutlook = deriveQualityOutlook(runState, deliveryMap.findings);
   const statusCard = buildStatusCard({
     status,
     currentGate,
@@ -303,7 +320,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     forbidden,
     blockingReason,
     missingApproval,
-    nextAllowedAction,
+    nextAllowedAction: renderable(nextAllowedAction) ? nextAllowedAction : nextStepFallback,
+    qualityOutlook: renderable(runQualityOutlook) ? runQualityOutlook : deriveQualityOutlook({}, deliveryMap.findings),
     runState,
     chatLanguage: presentationLocale,
     findings: deliveryMap.findings,
@@ -325,7 +343,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
         humanPresentation,
         revisionId,
       });
-  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
+  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval })
+    && isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
   const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
     ready: readyForApproval,
     humanPresentation,

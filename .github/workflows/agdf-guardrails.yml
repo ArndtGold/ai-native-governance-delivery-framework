@@ -8,7 +8,28 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Runtime, installer and test behavior is OS-specific (npm .cmd shims, path separators, symlink
+    # rights); repository-wide contracts are not, so those steps run once, in the repository_checks lane.
+    # The Node 20 lane matches the publish workflow and the @agdf/mcp-server engines floor.
+    name: verify (${{ matrix.os }}${{ matrix.node != 22 && format(', node {0}', matrix.node) || '' }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 22
+            repository_checks: true
+          - os: windows-latest
+            node: 22
+            repository_checks: false
+          - os: ubuntu-latest
+            node: 20
+            repository_checks: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -26,6 +47,9 @@ jobs:
 
       - name: Install repository dependencies
         run: npm ci --ignore-scripts
+
+      - name: Check shell script syntax
+        run: git ls-files -z '*.sh' | xargs -0 -n1 bash -n
 
       # Integrity and compatibility checks consume the generated host payloads.
       - name: Prepare and verify release assets
@@ -35,7 +59,12 @@ jobs:
         run: node plugin/scripts/check-runtime-integrity.mjs
 
       - name: Verify community health contracts
+        if: matrix.repository_checks
         run: npm run test:community-health && npm run check:community-health
+
+      - name: Verify host compatibility fixtures and evidence contracts
+        if: matrix.repository_checks
+        run: npm run test:host-compatibility
 
       - name: Verify built plugin integrity
         run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
@@ -43,11 +72,24 @@ jobs:
       - name: Verify release package contents
         run: npm --prefix create-agdf run test:package-contents
 
+      - name: Verify @agdf/cli package contents
+        working-directory: agdf
+        run: npm pack --dry-run
+
       - name: Verify AGDF delivery-map gate
+        if: matrix.repository_checks
         run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active
 
       - name: Verify versioned AGDF skill evaluations
         run: npm --prefix create-agdf run eval:skills
+
+      # The create-agdf smoke test includes the @agdf/mcp-server tests, which need the MCP SDK.
+      - name: Install MCP validation dependencies from checkout
+        working-directory: agdf-mcp-server
+        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
+
+      - name: Verify @agdf/mcp-server package contents
+        run: npm --prefix agdf-mcp-server run test:package
 
       - name: Verify create-agdf package
         run: npm --prefix create-agdf run smoke-test
@@ -56,7 +98,9 @@ jobs:
         run: npm --prefix agdf run smoke-test
 
       - name: Install Pages dependencies
+        if: matrix.repository_checks
         run: npm --prefix pages ci
 
       - name: Verify Pages
+        if: matrix.repository_checks
         run: npm --prefix pages run check && npm --prefix pages run test:landing && npm --prefix pages run test:public-documents

@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import process from "node:process";
+import { resolveHostCommand } from "../host-command.js";
 import { runtimeEnvironment } from "../skill-dispatch/binding.js";
 import {
   INSTALLATION_PROVENANCE_FILE,
@@ -222,7 +223,13 @@ export function resolveLocalValidator(options) {
     if (!isAbsolute(configuredPath) || !existsSync(configuredPath)) {
       return { envelope: envelope("unavailable", options, { source: "configured_path", reason: "invalid_absolute_path" }) };
     }
-    const versionProbe = spawnSync(configuredPath, ["--version", "--json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    let command;
+    try {
+      command = resolveHostCommand(configuredPath);
+    } catch {
+      return { envelope: envelope("unavailable", options, { source: "configured_path", reason: "unsupported_command_shim" }) };
+    }
+    const versionProbe = spawnSync(command.executable, [...command.prefixArgs, "--version", "--json"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     let observedVersion = null;
     try { observedVersion = JSON.parse(versionProbe.stdout)?.version ?? null; } catch {}
     if (versionProbe.status !== 0 || observedVersion !== options.expectedVersion) {
@@ -230,8 +237,8 @@ export function resolveLocalValidator(options) {
     }
     return {
       envelope: envelope("configured_version_matched", options, { observedVersion, source: "configured_path" }),
-      executable: configuredPath,
-      prefixArgs: [],
+      executable: command.executable,
+      prefixArgs: command.prefixArgs,
     };
   }
 

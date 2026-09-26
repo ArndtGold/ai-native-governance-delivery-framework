@@ -6,7 +6,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  renameSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -14,6 +13,7 @@ import {
 import { join, resolve } from "node:path";
 import process from "node:process";
 import { npmExecutable } from "./npm-invocation.js";
+import { renameSyncWithRetry } from "../fs-swap.js";
 
 const LOCAL_PACKAGE_OWNER = "create-agdf";
 const LOCAL_PACKAGE_KIND = "opencode_local_development_package";
@@ -216,7 +216,7 @@ export function prepareLocalOpenCodePackage({
       archive_digest: archiveDigest,
       filename,
     }, null, 2)}\n`, "utf8");
-    renameSync(stageRoot, stableRoot);
+    renameSyncWithRetry(stageRoot, stableRoot);
     return validateLocalOpenCodePackageSource({ kind: "local_checkout", dataRoot, root: stableRoot, version: expectedVersion, digest });
   } catch (error) {
     if (existsSync(stageRoot)) rmSync(stageRoot, { recursive: true, force: true });

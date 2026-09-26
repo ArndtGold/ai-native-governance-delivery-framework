@@ -1,7 +1,8 @@
+import "./support/english-locale.js";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { PassThrough } from "node:stream";
 import { fileURLToPath } from "node:url";
 import {
@@ -11,13 +12,18 @@ import {
   validateCommandOptions,
 } from "../lib/cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
-import { askRuntimeCheckDecisionByKey, runCli } from "../lib/cli/application.js";
+import { askRuntimeCheckDecisionByKey, failureEvidenceEntries, runCli } from "../lib/cli/application.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
+import { readRuntimeContract, runtimeContractModules } from "../lib/cli/contract-command.js";
 import { generatedRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
 import { installClaudeGlobalPlugin, installCodexGlobalPlugin } from "../lib/installers/plugin-installers.js";
 import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.js";
 import { persistInstallConsent, runtimeCheckStatus } from "../lib/runtime-check-consent/service.js";
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
+
+// Installer paths default to the real Claude home and AGDF data root; keep this test out of both.
+process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
+process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
@@ -25,8 +31,8 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "delivery-path-search", "run-create", "run-migrate",
-  "run-render-legacy",
+  "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-step", "run-approve",
+  "run-migrate", "run-render-legacy",
 ];
 
 assert.deepEqual(supportedCommandNames(), expectedCommands);
@@ -36,8 +42,8 @@ assert.equal(new Set(commandRegistry.map(({ handler }) => handler)).size, expect
 const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
-assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-migrate", "run-render-legacy"]) {
+assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -54,7 +60,7 @@ const parsed = parseArgs([
 assert.equal(parsed.kind, "command");
 assert.deepEqual(parsed.options, {
   target: "delivery-path-search",
-  dir: "/tmp/root/workspace",
+  dir: resolve("/tmp/root/workspace"),
   dirInput: "workspace",
   dirInputAbsolute: false,
   force: false,
@@ -68,11 +74,18 @@ assert.deepEqual(parsed.options, {
   surface: "codex",
   surfaceExplicit: true,
   skillId: undefined,
-  fixture: "/tmp/root/fixture.json",
+  intake: false,
+  fixture: resolve("/tmp/root/fixture.json"),
   persist: true,
   model: undefined,
   generateCandidates: true,
   runId: "run-a",
+  gate: undefined,
+  revisionId: undefined,
+  response: undefined,
+  contractModule: undefined,
+  runStep: undefined,
+  stepFields: {},
   allActive: false,
   scope: undefined,
   confirm: false,
@@ -118,7 +131,7 @@ assert.equal(fullInstall.options.scope, "user");
 assert.doesNotThrow(() => validateCommandOptions(fullInstall.options));
 const pluginOnlyOpenCode = parseArgs(["opencode", "--plugin-only", "--dir", "config"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(pluginOnlyOpenCode.options.setupRequest, "plugin_only");
-assert.equal(pluginOnlyOpenCode.options.dir, "/tmp/root/config");
+assert.equal(pluginOnlyOpenCode.options.dir, resolve("/tmp/root/config"));
 assert.equal(pluginOnlyOpenCode.options.dirInputAbsolute, false);
 assert.doesNotThrow(() => validateCommandOptions(pluginOnlyOpenCode.options));
 const coupledUninstall = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--with-mcp", "--mcp-scope", "project", "--dir", "/tmp/repo"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
@@ -144,6 +157,13 @@ assert.equal(skillDispatch.options.skillId, "qa-gate");
 assert.equal(skillDispatch.options.surfaceExplicit, true);
 assert.equal(skillDispatch.options.languageExplicit, true);
 assert.doesNotThrow(() => validateCommandOptions(skillDispatch.options));
+const intakeDispatch = parseArgs([
+  "skill-dispatch", "--json", "--skill", "gate-check", "--surface", "claude", "--language", "de",
+  "--working-directory", "/tmp/chat", "--intake",
+], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
+assert.equal(intakeDispatch.options.intake, true);
+assert.doesNotThrow(() => validateCommandOptions(intakeDispatch.options));
+assert.throws(() => validateCommandOptions({ target: "doctor", intake: true }), /--intake is supported only by skill-dispatch/);
 const uninstallArgs = parseArgs(["uninstall", "--surface", "codex", "--scope", "global", "--confirm"], { cwd: "/tmp/root", resolveLanguagePreference: languagePreference });
 assert.equal(uninstallArgs.options.scope, "global");
 assert.equal(uninstallArgs.options.confirm, true);
@@ -184,6 +204,21 @@ assert.throws(() => validateCommandOptions({ target: "doctor", approvalEnvelope:
 assert.throws(() => validateCommandOptions({ target: "gate-check", approvalEnvelope: true, json: true }), /cannot be combined/);
 assert.throws(() => validateCommandOptions({ target: "run-create", allActive: false }), /requires --run/);
 assert.throws(() => validateCommandOptions({ target: "run-render-legacy" }), /requires --run/);
+assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a" }), /run-update requires --run and --revision/);
+assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev", gate: "UR" }), /--gate and --response are supported only by run-approve/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev" }));
+assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
+assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-approve and run-step/);
+assert.throws(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev" }), /run-step requires --run, --revision and --step/);
+assert.throws(() => validateCommandOptions({ target: "doctor", stepFields: { route: "quick_task" } }), /step fields are supported only by run-step/);
+assert.doesNotThrow(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev", runStep: "route", stepFields: { route: "quick_task" } }));
+assert.throws(() => validateCommandOptions({ target: "contract" }), /contract requires --module/);
+assert.throws(() => validateCommandOptions({ target: "doctor", contractModule: "modes" }), /--module is supported only by contract/);
+{
+  const { gate, revisionId, response } = parseArgs(["run-approve", "--run", "run-a", "--gate", "UR", "--revision", "rev", "--response", "Approval: UR"]).options;
+  assert.deepEqual({ gate, revisionId, response }, { gate: "UR", revisionId: "rev", response: "Approval: UR" });
+}
 assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "codex" }));
 assert.throws(() => validateCommandOptions({ target: "disable", surface: "copilot" }), /requires explicit --scope repository/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "disable", surface: "copilot", scope: "repository", shared: true }));
@@ -231,8 +266,8 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "run-create", "run-migrate", "run-render-legacy"]) {
-  assert.match(packageReadme, new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-create", "run-update", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+  assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }
 assert.match(packageReadme, /BCP 47 language tag/);
@@ -308,6 +343,30 @@ function recordingIo() {
   assert.deepEqual(JSON.parse(recording.out[0]), { name: "create-agdf", version: pluginDefinition.version });
   assert.equal(await runValidatorCli(["codex"], { io: recording.io }), 1);
   assert.match(recording.err.at(-1), /does not support lifecycle command/);
+  assert.equal(await runValidatorCli(["run-update", "--run", "missing-run", "--revision", "rev", "--dir", packageRoot], { io: recording.io }), 2);
+  assert.equal(JSON.parse(recording.out.at(-1)).reason, "run_missing", "the surface-local validator records run revisions");
+  assert.equal(await runValidatorCli(["contract", "--module", "modes"], { io: recording.io }), 0);
+  assert.match(recording.out.at(-1), /^# AGDF Runtime Contract/, "the surface-local validator serves runtime-contract modules");
+  assert.equal(await runValidatorCli(["contract", "--module", "../agdf-runtime-contract"], { io: recording.io }), 1);
+  assert.match(recording.err.at(-1), /^module_unknown: .*Available modules: request-activation/);
+}
+
+{
+  const pluginRoot = mkdtempSync(join(tmpdir(), "agdf-contract-root-"));
+  try {
+    mkdirSync(join(pluginRoot, "copilot-skills", "contracts"), { recursive: true });
+    writeFileSync(join(pluginRoot, "copilot-skills", "contracts", "quality.md"), "copilot quality\n");
+    assert.equal(readRuntimeContract("quality", { pluginRoot }).content, "copilot quality\n", "the Copilot payload layout is served");
+    mkdirSync(join(pluginRoot, "meta", "contracts"), { recursive: true });
+    writeFileSync(join(pluginRoot, "meta", "contracts", "quality.md"), "plugin quality\n");
+    assert.equal(readRuntimeContract("quality", { pluginRoot }).content, "plugin quality\n", "the verified plugin root wins over the package copy");
+    const packaged = readRuntimeContract("modes", { pluginRoot });
+    assert.equal(packaged.path, join(generatedRoot, "plugins", "agdf", "meta", "contracts", "modes.md"), "missing plugin modules fall back to the package copy");
+    assert.deepEqual(readRuntimeContract("gate-transition", { pluginRoot, packageGeneratedRoot: pluginRoot }).reason, "module_unavailable");
+    assert.deepEqual(runtimeContractModules(), pluginDefinition.runtimeContract.modules.map((path) => path.replace(/^meta\/contracts\/|\.md$/gu, "")));
+  } finally {
+    rmSync(pluginRoot, { recursive: true, force: true });
+  }
 }
 
 {
@@ -368,8 +427,10 @@ function prepareMarketplace() {
     ["codex", ["plugin", "marketplace", "add", fakeMarketplaceRoot, "--json"]],
     ["codex", ["plugin", "add", "agdf@agdf", "--json"]],
     ["codex", ["plugin", "list"]],
+    // Read-only check for the legacy user-scope registration the plugin's own MCP server replaces.
+    ["codex", ["mcp", "get", "agdf", "--json"]],
   ]);
-  assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["pipe", "pipe", "pipe", "pipe"]);
+  assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["pipe", "pipe", "pipe", "pipe", ["ignore", "pipe", "pipe"]]);
   assert.deepEqual(installed.nativeOutput, []);
 }
 
@@ -379,7 +440,7 @@ function prepareMarketplace() {
   assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
   assert.match(quiet.out[0], /^AGDF installation setup\n/);
-  assert.match(quiet.out[0], /Effective state: plugin ready, MCP absent/);
+  assert.match(quiet.out[0], /Effective state: plugin ready, MCP included in the plugin/);
   assert.match(quiet.out[0], /Next action: Restart the host and start a fresh session\./);
   assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
 
@@ -391,29 +452,20 @@ function prepareMarketplace() {
 }
 
 {
+  // The Codex runtime plugin declares its own MCP server, so complete setup is rejected before any
+  // host call; the install-setup service tests cover complete setup for hosts that still register.
   const output = recordingIo();
-  const hostOutputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+  const hostCalls = [];
   const mcpCalls = [];
   assert.equal(await runCli(["codex", "--with-mcp", "--dir", "/tmp", "--scope", "project", "--json"], {
     io: output.io,
-    exec() { return hostOutputs.shift(); },
+    exec(...args) { hostCalls.push(args); return ""; },
     prepare: prepareMarketplace,
     inspectPluginInstallation,
     mcpLifecycle(input) { mcpCalls.push(input); return inspectMcpInstallation(input); },
-  }), 0);
-  assert.deepEqual(mcpCalls.map(({ action, scope }) => [action, scope]), [
-    ["status", "project"],
-    ["status", "user"],
-    ["enable", "project"],
-  ]);
-  assert.equal(mcpCalls[2].target, "/tmp");
-  const report = JSON.parse(output.out[0]);
-  assert.equal(report.operation, "install_setup");
-  assert.equal(report.setup_request, "full");
-  assert.equal(report.effective_state, "configured_pending_restart");
-  assert.equal(report.plugin.result, "success");
-  assert.equal(report.mcp.result, "configured_pending_restart");
-  assert.equal(report.authorizes, false);
+  }), 1);
+  assert.deepEqual([hostCalls.length, mcpCalls.length], [0, 0]);
+  assert.match(output.err.join("\n"), /Codex starts the AGDF MCP server from the AGDF plugin; omit --with-mcp/);
 }
 
 {
@@ -632,7 +684,7 @@ assert.doesNotMatch(germanDetailsRendered, /Technical details|Permission control
   const recording = installerRecording(["[]", "", "", `agdf@agdf ${pluginDefinition.version}\n`, "", "", `agdf@agdf ${pluginDefinition.version}\n`]);
   installClaudeGlobalPlugin({ exec: recording.exec, prepare: prepareMarketplace });
   assert.deepEqual(recording.calls.slice(4, 6).map(({ args }) => args), [
-    ["plugin", "uninstall", "agdf@agdf"],
+    ["plugin", "uninstall", "agdf@agdf", "--keep-data"],
     ["plugin", "install", "agdf@agdf"],
   ]);
 }
@@ -687,5 +739,12 @@ for (const [symbol, owner] of ownership) {
   const declarations = moduleFiles.filter((file) => new RegExp(`function\\s+${symbol}\\s*\\(`).test(readFileSync(file, "utf8")));
   assert.deepEqual(declarations, [join(packageRoot, "lib", owner)], `${symbol} must have one owner`);
 }
+
+// Failure evidence stays readable: objects become key:value entries instead of "[object Object]".
+assert.deepEqual(failureEvidenceEntries(undefined), []);
+assert.deepEqual(failureEvidenceEntries({ claude_cache_recovery: "unavailable", detail: { code: "EPERM" } }),
+  ["claude_cache_recovery:unavailable", 'detail:{"code":"EPERM"}']);
+assert.deepEqual(failureEvidenceEntries(["a", { b: 1 }]), ["a", '{"b":1}']);
+assert.deepEqual(failureEvidenceEntries("plain"), ["plain"]);
 
 console.log("cli modularization tests passed");

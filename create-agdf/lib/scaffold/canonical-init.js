@@ -11,13 +11,13 @@ import {
   readFileSync,
   readdirSync,
   realpathSync,
-  renameSync,
   rmdirSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
 import { basename, dirname, isAbsolute, join } from "node:path";
 import { parseRunState, RUN_ID_PATTERN } from "../control-state/run-state-parser.js";
+import { renameSyncWithRetry } from "../fs-swap.js";
 
 const CONTROL_PREFIX = ".agdf/control/";
 const LEGACY_LIVE_RUN = "AGDF_RUN.md";
@@ -566,7 +566,7 @@ export function initializeCanonicalControl(targetDir, files, options = {}, hooks
         || existsSync(controlPath)) {
         throw new CanonicalInitError("AGDF_CANONICAL_INIT_TARGET_DRIFT");
       }
-      renameSync(stagePath, controlPath);
+      renameSyncWithRetry(stagePath, controlPath);
       hooks.afterPublish?.({ targetDir, controlPath, stagePath, mode: "new" });
       const markerPath = join(controlPath, STAGE_MARKER);
       const marker = afterPublish.files.find((file) => file.path === join(stagePath, STAGE_MARKER));

@@ -493,14 +493,34 @@ function expectedSkillDescription(skill, suffix) {
   return `Use this skill for this scope: ${skill.useFor}. Boundary: ${skill.boundary}. ${suffix}`;
 }
 
+// Mirrors create-agdf/lib/runtime/plugin-provenance.js: the installer writes absolute paths into the
+// Codex MCP declaration, and provenance digests the template for any config of the owned shape.
+const CODEX_MCP_TEMPLATE = `${JSON.stringify({ mcpServers: { agdf: { command: "node",
+  args: ["{{AGDF_PLUGIN_ROOT}}/mcp/agdf-mcp-launch.js", "--surface", "codex", "--data", "{{AGDF_MCP_DATA}}"] } } }, null, 2)}\n`;
+function codexMcpShape(content) {
+  try {
+    const config = JSON.parse(String(content));
+    const args = config.mcpServers?.agdf?.args;
+    return Object.keys(config).length === 1 && Object.keys(config.mcpServers ?? {}).length === 1
+      && config.mcpServers.agdf.command === "node" && Array.isArray(args) && args.length === 5
+      && args[0].endsWith("/mcp/agdf-mcp-launch.js") && args[1] === "--surface" && args[2] === "codex"
+      && args[3] === "--data" && typeof args[4] === "string" && args[4].length > 0;
+  } catch { return false; }
+}
+function normalizeCodexPluginMcpConfig(content) {
+  return codexMcpShape(content) ? CODEX_MCP_TEMPLATE : content;
+}
+
 function digestPluginSource(root, canonicalVersion) {
   const files = [];
   function visit(directory) {
     for (const name of readdirSync(directory).sort()) {
       const path = join(directory, name);
       const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
+      if (stats.isDirectory()) {
+        // Host-owned liveness markers (Claude Code `.in_use/<pid>`) are not plugin payload.
+        if (!(directory === root && name === ".in_use")) visit(path);
+      } else if (stats.isFile()) files.push(path);
     }
   }
   visit(root);
@@ -510,7 +530,9 @@ function digestPluginSource(root, canonicalVersion) {
     if ([".agdf-installation.json", ".agdf-local-install.json"].includes(normalizedPath)) continue;
     const content = normalizedPath === ".codex-plugin/plugin.json"
       ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
-      : readFileSync(path);
+      : normalizedPath === "mcp/codex.mcp.json"
+        ? normalizeCodexPluginMcpConfig(readFileSync(path, "utf8"))
+        : readFileSync(path);
     hash.update(normalizedPath);
     hash.update("\0");
     hash.update(content);
@@ -1243,6 +1265,17 @@ if (codexPlugin && pluginDefinition) {
   if (JSON.stringify(codexPlugin.keywords) !== JSON.stringify(pluginDefinition.keywords)) failures.push("Codex plugin manifest keywords must match canonical AGDF plugin definition");
   if (codexPlugin.author?.name !== pluginDefinition.author?.name || codexPlugin.author?.url !== pluginDefinition.author?.url) failures.push("Codex plugin manifest author must match canonical AGDF plugin definition");
   if (codexPlugin.skills !== pluginDefinition.codex?.skills) failures.push("Codex plugin manifest must point skills to canonical AGDF skills path");
+  // Claude Code loads a plugin-root .mcp.json automatically; each host gets its own file under mcp/.
+  if (isFile(join(pluginRoot, ".mcp.json"))) failures.push("plugin root must not contain .mcp.json; host MCP declarations live under mcp/");
+  if (sourceMode) {
+    if (codexPlugin.mcpServers !== undefined) failures.push("source Codex plugin manifest must not declare MCP servers");
+  } else {
+    const codexMcpPath = join(pluginRoot, "mcp", "codex.mcp.json");
+    if (codexPlugin.mcpServers !== "./mcp/codex.mcp.json") failures.push("runtime Codex plugin manifest must declare the plugin-local MCP server file");
+    if (!isFile(codexMcpPath) || !codexMcpShape(readFileSync(codexMcpPath, "utf8"))) {
+      failures.push("runtime Codex MCP config must start only the plugin-local AGDF MCP launcher with an absolute data root");
+    }
+  }
   if (codexPlugin.interface?.displayName !== pluginDefinition.displayName) failures.push("Codex plugin display name must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.shortDescription !== pluginDefinition.description) failures.push("Codex plugin short description must match canonical AGDF plugin description");
   if (codexPlugin.interface?.longDescription !== pluginDefinition.longDescription) failures.push("Codex plugin long description must match canonical AGDF plugin definition");
@@ -1269,6 +1302,23 @@ if (claudePlugin && pluginDefinition) {
   if (claudePlugin.license !== pluginDefinition.license) failures.push("Claude plugin manifest license must match canonical AGDF plugin definition");
   if (JSON.stringify(claudePlugin.keywords) !== JSON.stringify(pluginDefinition.keywords)) failures.push("Claude plugin manifest keywords must match canonical AGDF plugin definition");
   if (claudePlugin.author?.name !== pluginDefinition.author?.name || claudePlugin.author?.url !== pluginDefinition.author?.url) failures.push("Claude plugin manifest author must match canonical AGDF plugin definition");
+  // The runtime plugin owns the Claude MCP registration so `claude plugin uninstall` removes it; the
+  // source plugin ships no runtime and therefore declares no server.
+  if (sourceMode) {
+    if (claudePlugin.mcpServers !== undefined) failures.push("source Claude plugin manifest must not declare MCP servers");
+  } else {
+    const mcpConfigPath = join(pluginRoot, "mcp", "claude.mcp.json");
+    const expectedMcpConfig = { mcpServers: { agdf: { type: "stdio", command: "node", args: ["${CLAUDE_PLUGIN_ROOT}/mcp/agdf-mcp-launch.js"] } } };
+    if (claudePlugin.mcpServers !== pluginDefinition.claude?.mcpServers || pluginDefinition.claude?.mcpServers !== "./mcp/claude.mcp.json") {
+      failures.push("runtime Claude plugin manifest must declare the canonical plugin-local MCP server file");
+    }
+    if (!isFile(mcpConfigPath) || JSON.stringify(readJson(mcpConfigPath, "Claude MCP config")) !== JSON.stringify(expectedMcpConfig)) {
+      failures.push("runtime Claude MCP config must start only the plugin-local AGDF MCP launcher");
+    }
+    for (const required of ["mcp/agdf-mcp-launch.js", "mcp/server/package.json", "mcp/server/bin/agdf-mcp.js", "runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js"]) {
+      assertFile(join(pluginRoot, required), `plugin-local Claude MCP runtime file ${required}`);
+    }
+  }
 }
 
 if (createAgdfPackage && pluginDefinition && createAgdfPackage.version !== pluginDefinition.version) {

@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../host-command.js";
 import { evaluatorOutputSchema, validateEvaluation } from "../contracts.js";
 import { guardedExecFileSync } from "../transports/read-only-guard.js";
 import { buildEvaluatorPrompt } from "./prompt.js";
@@ -7,7 +7,7 @@ export function claudeEvaluator(options = {}) {
   const claudeBin = options.claudeBin ?? "claude";
   let runtime = "claude version unavailable";
   try {
-    runtime = execFileSync(claudeBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    runtime = execHostFileSync(claudeBin, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
   } catch {}
 
   return {

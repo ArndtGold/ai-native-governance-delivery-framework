@@ -26,6 +26,10 @@ import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { runCli } from "../lib/cli/application.js";
 import { installLocalPlugin, resolveLocalInvocationDirectory } from "./install-local-plugin.js";
 
+// Installer paths default to the real Claude home and AGDF data root; keep this test out of both.
+process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
+process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
+
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
@@ -380,6 +384,14 @@ try {
   assert.deepEqual(copilotNpmInvocation({ env: { npm_execpath: "/npm/cli.js" }, platform: "linux", execPath: "/node" }), {
     executable: "/node",
     args: ["/npm/cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  });
+  assert.deepEqual(copilotNpmInvocation({ env: {}, platform: "win32", execPath: "C:\\node\\node.exe" }), {
+    executable: "C:\\node\\node.exe",
+    args: ["C:\\node\\node_modules\\npm\\bin\\npm-cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  }, "the Windows fallback must run npm-cli.js through node instead of executing npm.cmd directly");
+  assert.deepEqual(copilotNpmInvocation({ env: {}, platform: "linux", execPath: "/node" }), {
+    executable: "npm",
+    args: ["exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
   });
   const copilotManual = installCopilotGlobalPlugin({
     pluginRoot: builtCopilotPluginRoot,
@@ -736,7 +748,7 @@ try {
   });
   assert.equal(orchestrationCode, 0);
   assert.equal(cliCalls, 1);
-  assert.match(orchestrationCalls[0], /run release:prepare$/);
+  assert.match(orchestrationCalls[0], /prepare-local-plugin\.js codex$/);
   assert.equal(preparationOptions.stdio, "pipe", "successful local release preparation must stay out of the consent UI");
 
   const forwarded = ["--with-mcp", "--dir", fixtureRoot, "--scope", "project"];

@@ -28,11 +28,13 @@ function deepFreeze(value) {
 export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION = "Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.";
 export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY = "Provide one well-formed BCP 47 presentation_language tag and retry once.";
 export const SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.";
+export const SKILL_DISPATCH_INTAKE_DESCRIPTION = "Set true only with skill_id gate-check when the governed delivery intake (catalog delivery.start) is the active route; delivery wins mixed intent, so a gate-check invocation that asks for a change also sets it. Omit it for status, approval or next-step questions. It never grants approval or delivery authority.";
+export const SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION = "For intake_continuation, run continuation.steps in order without asking the user, then dispatch again as instructed; the steps persist intake bookkeeping only.";
 export const SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION = "For a qa-gate skill_continuation, control.candidate_runs is the complete canonical active-run inventory when run selection is unresolved, otherwise an empty array. Use its run_id, objective, normalized current_gate, decision and revision_id fields as data; filter by current_gate: QA and do not rescan run files, invent candidates or omit returned QA candidates.";
 
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
-  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, use only the returned target and control.`,
+  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, use only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
@@ -56,6 +58,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       },
       primary_target: { type: "string", minLength: 1, maxLength: 4096, description: "Absolute governance-target path paired with target_source. Never derive it from working_directory alone." },
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Supply it only when the request explicitly selects that run." },
+      intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
   },
@@ -72,7 +75,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       contract_version: { type: "integer", const: 1 },
       outcome: {
         type: "string",
-        enum: ["invalid_input", "target_unresolved", "control_result", "skill_continuation", "evaluator_error"],
+        enum: ["invalid_input", "target_unresolved", "control_result", "skill_continuation", "intake_continuation", "evaluator_error"],
       },
       terminal: { type: "boolean" },
       authorizes: { type: "boolean", const: false },
@@ -108,7 +111,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
 export function skillDispatchArgumentGrammar() {
   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
     .map((choice) => choice.const).join("|");
-  return `--skill <skill-id> --language <current-conversation-language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>]`;
+  return `--skill <skill-id> --language <current-conversation-language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>] [--intake]`;
 }
 
 export function skillDispatchCommandGrammar() {
@@ -207,6 +210,9 @@ export function normalizeSkillDispatchInput(input, registry) {
   const targetSource = rawTargetSource ? normalizeTaskTargetSource(rawTargetSource, { allowEmpty: false }) : null;
   const runId = input.runId || null;
   if (runId && !RUN_ID_PATTERN.test(runId)) throw new SkillDispatchInputError("run_id", "run_id is invalid");
+  if (input.intake !== undefined && (typeof input.intake !== "boolean" || (input.intake && skill.dispatch_mode !== "deterministic_control"))) {
+    throw new SkillDispatchInputError("intake", "intake is invalid");
+  }
   return Object.freeze({
     schema_version: SKILL_DISPATCH_SCHEMA_VERSION,
     skill_id: skillId,
@@ -216,6 +222,7 @@ export function normalizeSkillDispatchInput(input, registry) {
     target_source: targetSource,
     primary_target: primaryTarget,
     run_id: runId,
+    intake: input.intake === true,
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
   });
@@ -244,6 +251,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     targetSource: argumentsValue.target_source,
     primaryTarget: argumentsValue.primary_target,
     runId: argumentsValue.run_id,
+    ...(argumentsValue.intake !== undefined ? { intake: argumentsValue.intake } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,
     skillSet: trustedContext.skillSet,

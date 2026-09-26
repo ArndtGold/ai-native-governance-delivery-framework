@@ -46,7 +46,7 @@ export function createMarketplaceFixture(base, surface, built, install) {
           transaction.rollback();
         } };
       };
-      return install({ exec, prepare, dataRoot: join(base, "data"), recoverCache: () => ({ status: "unavailable", reason: "fixture_failure" }) });
+      return install({ exec, prepare, dataRoot: join(base, "data"), recoverCache: () => ({ status: "unavailable", reason: "fixture_failure" }), loadedSessions: () => [] });
     },
     stagedRoot: () => transaction?.pluginRoot,
     dispose: () => rmSync(base, { recursive: true, force: true }),

@@ -1,8 +1,10 @@
+import "./support/english-locale.js";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { delimiter, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { withWindowsCmdShim } from "./support/npm-cmd-shim.js";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
@@ -37,6 +39,7 @@ function makeFakeExecutable(tempDir, name, source) {
   const executablePath = join(binDir, name);
   writeFileSync(executablePath, source, "utf8");
   chmodSync(executablePath, 0o755);
+  withWindowsCmdShim(binDir, name);
   return binDir;
 }
 
@@ -46,6 +49,8 @@ function runCliWithPath(args, binDir, extraEnv = {}) {
     stdio: "pipe",
     env: {
       ...process.env,
+      // Never let a smoke install touch the real Claude home.
+      CLAUDE_CONFIG_DIR: join(binDir, "..", "claude-home"),
       ...extraEnv,
       PATH: `${binDir}${delimiter}${process.env.PATH}`,
     },
@@ -172,7 +177,7 @@ if (process.argv[2] === "--version") {
 }
 process.exit(2);
 `);
-const openCodeHostBin = join(openCodeHostBinDir, "opencode");
+const openCodeHostBin = withWindowsCmdShim(openCodeHostBinDir, "opencode");
 process.env.AGDF_OPENCODE_BIN = openCodeHostBin;
 
 function runOpenCodeCli(args, options = {}) {
@@ -306,6 +311,8 @@ if (args.join(" ") === "plugin list") {
       `plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --json`,
       "plugin add agdf@agdf --json",
       "plugin list",
+      // Read-only check for a legacy user-scope registration the plugin's own MCP server replaces.
+      "mcp get agdf --json",
     ];
     if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
       throw new Error(`Codex global bootstrap command order changed: ${calls.join(" | ")}`);
@@ -402,7 +409,7 @@ if (args.join(" ") === "plugin list") {
   if (fs.existsSync(process.env.FAKE_CLAUDE_STATE)) console.log("agdf@agdf ${pluginDefinition.version}");
   process.exit(0);
 }
-if (args.join(" ") === "plugin uninstall agdf@agdf") {
+if (args.join(" ") === "plugin uninstall agdf@agdf --keep-data") {
   fs.rmSync(process.env.FAKE_CLAUDE_STATE, { force: true });
 }
 if (args.join(" ") === "plugin install agdf@agdf") {
@@ -411,7 +418,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
 `);
     runCliWithPath(["claude"], binDir, { FAKE_CLAUDE_LOG: logPath, FAKE_CLAUDE_STATE: statePath, AGDF_DATA_DIR: join(tempDir, "agdf-data") });
     const calls = readJsonLines(logPath).map((args) => args.join(" "));
-    const uninstallIndex = calls.indexOf("plugin uninstall agdf@agdf");
+    const uninstallIndex = calls.indexOf("plugin uninstall agdf@agdf --keep-data");
     const installIndex = calls.indexOf("plugin install agdf@agdf");
     if (uninstallIndex < 0 || installIndex < 0 || uninstallIndex >= installIndex || calls.includes("plugin update agdf@agdf")) {
       throw new Error(`Claude existing install must use uninstall then install: ${calls.join(" | ")}`);
@@ -1299,6 +1306,7 @@ run("config", [
 
 - next_allowed_action: Request exact TP approval.
 `, "utf8");
+    writeFileSync(join(tempDir, "TP.md"), "TP fixture artefact.\n", "utf8");
     const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json"]);
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
@@ -1477,7 +1485,7 @@ run("config", [
     { name: "cd-tests", steps: { "Brownfield Analysis": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
     { name: "cr", steps: { "Brownfield Analysis": "done", "CD+Tests": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CR", missing: "none", allowed: "run mandatory code review", forbidden: "claim QA pass", next: "Run Code Review for the implemented TP scope and resolve blocking findings before QA." },
     { name: "qa-revise", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "revise"], uat: "missing", gate: "QA", missing: "none", allowed: "revise the implementation against the QA findings", forbidden: "request QA approval", next: "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.", status: "open" },
-    { name: "qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", next: "Resolve or route the blocking QA findings through their authoritative owner, then rerun the required delivery steps. Do not request Approval: QA from a block report.", status: "blocked" },
+    { name: "qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", next: "Resolve or route the blocking QA findings via their authoritative owner, then rerun the required steps. Do not request Approval: QA from a block report.", status: "blocked" },
     { name: "approved-qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "create later-gate artefacts beyond the current allowed gate", next: "Update the QA artefact row in the selected RUN_STATE.md to use the gate-specific durable status vocabulary.", status: "blocked" },
     { name: "qa-approval", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA" },
     { name: "brownfield-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA" },

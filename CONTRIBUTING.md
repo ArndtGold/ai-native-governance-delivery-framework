@@ -49,7 +49,10 @@ npm run install:opencode
 
 Node.js 18 or later, npm and the selected agent CLI are required. Copilot installation also requires
 Git. Run only the command for the selected agent. Each command validates and prepares the current
-checkout before changing that agent's global AGDF installation. Codex receives a content-derived
+checkout before changing that agent's global AGDF installation. Local preparation generates the
+selected host assets plus the shared CLI/runtime bundle and validates their runtime identity.
+Unrelated Copilot, OpenCode and public-submission builds do not run. `release:prepare` and
+`prepack` still build and check every distribution profile. Codex receives a content-derived
 local version so a changed checkout is not mistaken for the previous cache entry. Claude Code uses
 the same local marketplace with the canonical project version. Copilot installs the generated profile
 through its AGDF-owned canonical marketplace root using native Git transport and a content-derived ref. If its CLI is unavailable, the command runs a pinned
@@ -71,7 +74,7 @@ Use `--with-mcp --dir /absolute/path/to/repository` only when a non-interactive 
 perform the complete setup explicitly.
 
 The local wrapper treats a present `INIT_CWD` as authoritative only when it is an absolute existing
-directory. It resolves the real path before `release:prepare`. If `INIT_CWD` is absent, the process
+directory. It resolves the real path before host-specific preparation. If `INIT_CWD` is absent, the process
 working directory is validated the same way. Invalid invocation context stops with
 `AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before generated files or host configuration can change.
 

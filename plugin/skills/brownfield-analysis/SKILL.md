@@ -19,7 +19,7 @@ The skill answers:
 - whether Context Graph impact exists without automatically creating a node
 
 ## Runtime Contract
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, read these focused runtime-contract modules through the dispatch validator (same `executable` and `argv_prefix[0]`, then `contract --module <name>`), not from the file system; open a file only if that command fails:
 
 - `../../meta/contracts/gate-transition.md`
 - `../../meta/contracts/modes.md`
@@ -49,17 +49,18 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 ## Executable Dispatch
 
-Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
-Follow binding.arguments exactly with `--skill brownfield-analysis`, language and working directory.
+Dispatch through the AGDF MCP tool `agdf_dispatch` only when the host lists it (hosts add a prefix such as `mcp__agdf__agdf_dispatch`; load a listed deferred tool first and never search for an unlisted one): `skill_id` `brownfield-analysis`, `presentation_language`, `working_directory`, and only when set the `target_source`/`primary_target` pair and `run_id`.
+Otherwise, or when that call fails, use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix, following binding.arguments exactly with `--skill brownfield-analysis`, language and working directory.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
-On skill_continuation use only its target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+On skill_continuation use only its target/control. Without that tool and a valid binding: `dispatcher_unavailable`; no runtime search, environment repair
 or help retries. Dispatch never authorizes.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
-When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`.
+When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`,
+then record the Mode/Slice Decision with the validator's `run-step --step route --route <mode> --reason --evidence`.
 
 ## Modes
 

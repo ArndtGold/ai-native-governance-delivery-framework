@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { emitKeypressEvents } from "node:readline";
 import { createInterface } from "node:readline/promises";
@@ -31,6 +32,7 @@ import {
 } from "../lifecycle/operations.js";
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult, createOperationStatus, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
+import { defaultClaudeSettingsPath } from "../runtime-check-consent/claude-settings.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
@@ -38,6 +40,7 @@ import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../life
 import { generatedFilesForTarget } from "../scaffold/plan.js";
 import { initializeCanonicalControl } from "../scaffold/canonical-init.js";
 import { printNextSteps } from "../scaffold/presentation.js";
+import { extractField } from "../control-evaluation/verified-change.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
 import { CliUsageError, parseArgs } from "./parse-args.js";
@@ -48,6 +51,7 @@ import { promptInstallScope, promptInstallSetup } from "../install-setup/interac
 import {
   printInstallSetupResult,
   renderInstallProgress,
+  renderLoadedSessionsNotice,
   renderRuntimeCheckConsentDetails,
   renderRuntimeCheckConsentDisclosure,
   runtimeCheckInteractionCopy,
@@ -80,6 +84,7 @@ function createHandlers({
     ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
     ...(prepare ? { prepare } : {}),
     copilotSettingsPath: copilotSettingsPath ?? defaultCopilotSettingsPath({ env }),
+    env,
     ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
   };
   const scaffoldHandler = (options) => runScaffold(options, io);
@@ -113,7 +118,11 @@ function createHandlers({
     ["config", scaffoldHandler],
     ["run-create", (options) => {
       try {
-        io.log(createRun(options.dir, options.runId));
+        const path = createRun(options.dir, options.runId);
+        const revisionId = extractField(readFileSync(path, "utf8"), "revision_id");
+        io.log(path);
+        io.log(`revision_id: ${revisionId}`);
+        io.log(`Next: write .agdf/control/artefacts/${options.runId}/UR.md from .agdf/control/templates/artefacts/UR.md, then record it with run-step --run ${options.runId} --revision ${revisionId} --step ur --title "<short requirement title>".`);
         return 0;
       } catch (error) {
         io.error(error instanceof Error ? error.message : String(error));
@@ -174,7 +183,7 @@ function createHandlers({
     }],
     ["runtime-checks", async (options) => {
       let runtimeState = options.runtimeChecksAction === "manual"
-        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface })
+        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface, claudeSettingsPath: defaultClaudeSettingsPath({ env }) })
         : runtimeCheckStatus(env.AGDF_DATA_DIR, options.surface);
       runtimeState = await observeRuntimeChecks(options.surface, runtimeState, options.dir);
       const nextActionText = options.runtimeChecksAction === "enable"
@@ -238,7 +247,7 @@ function pluginInstallFailure(surface, error) {
     scope: "global",
     phase: error.phase || "plugin_operation",
     message: error.message,
-    evidence: [error.evidence ?? {}],
+    evidence: failureEvidenceEntries(error.evidence),
     nextAction: `Resolve the ${error.phase || "plugin operation"} failure and retry the same installation command.`,
   });
 }
@@ -402,6 +411,7 @@ async function runGuidedInstall(options, dependencies) {
           surface: options.target,
           installed: payload.installed,
           dataRoot: dependencies.installerAdapters.dataRoot,
+          claudeSettingsPath: defaultClaudeSettingsPath({ env: dependencies.env }),
         });
         if (options.target === "codex") {
           finalized.state = await dependencies.observeRuntimeChecks("codex", finalized.state, options.dir);
@@ -410,7 +420,9 @@ async function runGuidedInstall(options, dependencies) {
       },
     });
     printInstallSetupResult(outcome.report, { json: options.json, io: dependencies.io, language });
+    printLoadedSessionsNotice(outcome.plugin_payload?.installed ?? {}, options, dependencies.io, language);
     printVerboseHostOutput(outcome.plugin_payload?.installed ?? {}, options, dependencies.io);
+    printVerboseFailure(outcome.report, options, dependencies.io);
     printOpenCodeVerbose(outcome.plugin_payload, options, dependencies.io);
     return ["failed", "partial"].includes(outcome.report.result) ? 1 : 0;
   } catch (error) {
@@ -506,6 +518,8 @@ function finalizeInstallConsent(consent, input) {
 
 async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot, language = "en" }) {
   if (options.runtimeChecksDecision !== undefined) return prepareInstallConsent(surface, options);
+  // Claude Code runs the session check whenever the plugin is enabled, so installing it is the consent.
+  if (surface === "claude") return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "enable" });
   if (!interactive || options.json || typeof askRuntimeCheckDecision !== "function") {
     return prepareInstallConsent(surface, options);
   }
@@ -553,6 +567,30 @@ function printCancelledConsent(surface, options, io) {
   return 0;
 }
 
+// Structured adapter evidence becomes readable "key:value" entries; String() on the object printed
+// "[object Object]" and hid the cause of a failed plugin operation.
+export function failureEvidenceEntries(evidence) {
+  if (evidence === undefined || evidence === null) return [];
+  if (Array.isArray(evidence)) return evidence.map((entry) => (typeof entry === "string" ? entry : JSON.stringify(entry)));
+  if (typeof evidence !== "object") return [String(evidence)];
+  return Object.entries(evidence).map(([key, value]) => `${key}:${typeof value === "string" ? value : JSON.stringify(value)}`);
+}
+
+function printVerboseFailure(report, options, io) {
+  if (!options.verbose || options.json || !report?.failure) return;
+  io.log("Technical failure detail:");
+  if (report.failure.message) io.log(`  ${report.failure.message}`);
+  for (const entry of report.failure.evidence ?? []) io.log(`  ${entry}`);
+}
+
+function printLoadedSessionsNotice(installed, options, io, language) {
+  if (options.json) return;
+  const entry = (installed.evidence ?? []).find((item) => String(item).startsWith("claude_sessions_with_agdf:"));
+  if (!entry) return;
+  const count = entry.slice("claude_sessions_with_agdf:".length).split(",").length;
+  io.log(renderLoadedSessionsNotice(count, installed.expectedVersion ?? pluginDefinition.version, { language }));
+}
+
 function printVerboseHostOutput(installed, options, io) {
   if (!options.verbose || options.json || !installed.nativeOutput?.length) return;
   io.log("Host command output:");
@@ -566,7 +604,7 @@ function printInstallFailure(surface, error, options, io, command = surface) {
     scope: "global",
     phase: error.phase || "plugin_operation",
     message: error.message,
-    evidence: [error.evidence ?? {}],
+    evidence: failureEvidenceEntries(error.evidence),
     nextAction: `Resolve the ${error.phase || "plugin operation"} failure and rerun npx --yes @agdf/cli@latest ${command}.`,
   });
   if (options.json) printLifecycleResult(report, { json: true, io });
@@ -794,7 +832,7 @@ function runDisable(options, { io, exec }) {
 function executeUninstall(options, { env, exec }) {
   try {
     const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
-    const plan = planGlobalUninstall(options.surface, { configDir });
+    const plan = planGlobalUninstall(options.surface, { configDir, env, ...(exec ? { exec } : {}) });
     if (!options.confirm) {
       const preview = createLifecycleResult({
         operation: "uninstall", result: "preview", surface: options.surface, scope: "global",

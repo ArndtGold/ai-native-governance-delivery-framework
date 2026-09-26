@@ -68,7 +68,7 @@ cannot execute the guided CLI transaction.
 
 For local wrappers such as `npm run install:codex`, npm's absolute `INIT_CWD` supplies the proposed
 target. If it is absent, the wrapper uses the process working directory. It resolves and validates
-that directory before `release:prepare`; an invalid value fails with
+that directory before host-specific preparation; an invalid value fails with
 `AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before package generation or host mutation. Human and
 JSON results distinguish this invocation context from the native registration path and the source
 that actually wins the host's MCP precedence rules.
@@ -199,7 +199,12 @@ agdf skill-dispatch --json --skill gate-check --surface codex --language de --wo
 agdf delivery-map --json
 agdf delivery-path-search --surface codex --json
 agdf delivery-path-search --surface claude --json
+agdf contract --module gate-transition
 ```
+
+`contract --module <name>` prints one packaged runtime-contract module named by the plugin
+definition. Skills read their modules this way after `skill_continuation`, because Claude Code grants
+skills no read access to the plugin directory.
 
 Installed AGDF sessions supply the exact version-matched `skill-dispatch` binding to canonical
 skills. It resolves the target first and returns either a terminal canonical result or one bounded
@@ -208,6 +213,12 @@ recovery text. For `terminal: true`, the entire assistant response must equal th
 question, explanation, heading, citation, translation, choice or later tool call. It never grants
 approval. Pass an explicit target pair only when the conversation has actually selected one; do not
 substitute the working directory.
+
+A governed delivery intake (`delivery.start`) adds `--intake` (MCP: `intake: true`). While no active
+run exists or the selected run has no durable UR revision, gate-check then returns a non-terminal
+`intake_continuation` whose ordered steps create the run, write the UR and record it with
+`run-step --step ur`; the agent runs them and dispatches again instead of ending the turn. A ready
+approval and every other state stay terminal.
 
 When a resolved target contains several active runs, the gate evaluator returns one complete
 canonical `candidate_runs` inventory. A QA continuation retains this inventory in
@@ -230,9 +241,25 @@ Canonical run lifecycle:
 
 ```bash
 agdf run-create --run <run_id>
+agdf run-update --run <run_id> --revision <revision_id>
+agdf run-step --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]
+agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response "Approval: <gate>"
 agdf run-migrate [--run <run_id>]
 agdf run-render-legacy --run <run_id>
 ```
+
+`run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
+Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
+and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
+`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows.
+`run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
+presented `revision_id`, records it with the approved artefact's digest and advances the revision.
+`run-step` records one standard small-path transition per call (UR registration, Mode/Slice route,
+evidence, Code Review, `quick_task` closeout with OR-lite) and maintains the run tables, the
+`MASTER_BACKLOG.md` pointer and the policy-derived next action. These commands print JSON and are
+also available through the plugin's surface-local validator. The
+seal detects unrecorded edits; it is not a signature. Removing both seal lines opts a run out and
+remains visible in the diff.
 
 ### Advanced / Compatibility
 

@@ -10,23 +10,32 @@ import {
   writeFileSync,
 } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   aggregate,
+  approveRunGate,
   createRun,
   discoverRuns,
   migrateLegacy,
   parseRunState,
+  recordRunRevision,
   renderLegacyProjection,
   resolveRuns,
+  runSealState,
   verifyLegacyProjection,
   writeRun,
   validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
 import { parseControlState, RUN_ID_PATTERN } from "../lib/control-state/run-state-parser.js";
 import { validateRunIdentity, RUN_ID_PATTERN as identityRunIdPattern } from "../lib/control-state/run-identity.js";
-import { postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { evaluateGateCheck, postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { evaluateDoctor } from "../lib/control-evaluation/doctor.js";
+import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
+import { recordRunStep } from "../lib/control-state/run-steps.js";
+import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
+import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { normalizeBacklogStatus } from "../lib/control-evaluation/shared.js";
 import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
@@ -563,6 +572,24 @@ ${approvals}
   assert.equal(verifyLegacyProjection(legacyRoot).status, "valid");
   const projectionPath = join(legacyRoot, ".agdf", "control", "AGDF_RUN.md");
   const validProjection = readFileSync(projectionPath, "utf8");
+  const lfCanonical = readFileSync(canonical, "utf8");
+  const toCrlf = (text) => text.replaceAll("\n", "\r\n");
+  writeFileSync(projectionPath, toCrlf(validProjection));
+  writeFileSync(canonical, toCrlf(lfCanonical));
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "valid", "a CRLF checkout must not report projection drift");
+  assert.equal(renderLegacyProjection(canonical, legacyRoot), validProjection, "rendering from a CRLF checkout must produce the LF projection");
+  writeFileSync(projectionPath, toCrlf(validProjection.replace("Legacy objective", "Changed projection")));
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "legacy_projection_drift", "content drift must stay detectable in a CRLF checkout");
+  const crlfDigest = createHash("sha256").update(toCrlf(lfCanonical)).digest("hex");
+  writeFileSync(projectionPath, validProjection.replace(/sha256: [0-9a-f]{64}/, `sha256: ${crlfDigest}`));
+  writeFileSync(canonical, lfCanonical);
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "valid", "a projection rendered from a CRLF checkout must stay valid");
+  writeFileSync(
+    projectionPath,
+    validProjection.replace(/sha256: [0-9a-f]{64}/, `sha256: ${createHash("sha256").update("other").digest("hex")}`),
+  );
+  assert.equal(verifyLegacyProjection(legacyRoot).status, "legacy_projection_drift", "a foreign digest must still report drift");
+  writeFileSync(projectionPath, validProjection);
   writeFileSync(
     projectionPath,
     validProjection.replace("Legacy objective", "Changed projection"),
@@ -820,6 +847,165 @@ ${approvals}
       assert.equal("presentation_diagnostics" in gateReport, false, "IPP-4: healthy run report has no presentation_diagnostics key");
     } finally {
       rmSync(healthyRoot, { recursive: true, force: true });
+    }
+  }
+
+  // Sealed runs: run-update records edits as revisions, run-approve alone changes approvals.
+  {
+    const recordingRoot = mkdtempSync(join(tmpdir(), "agdf-run-recording-"));
+    try {
+      initializeCanonicalControl(recordingRoot, generatedFilesForTarget("init", recordingRoot, false, "de"));
+      const statePath = createRun(recordingRoot, "rec");
+      const read = () => readFileSync(statePath, "utf8");
+      const meta = () => parseRunState(read(), "rec").meta;
+      const gate = () => evaluateGateCheck(recordingRoot, { runId: "rec" });
+      const approve = (overrides = {}) => approveRunGate(recordingRoot, {
+        runId: "rec",
+        gate: "UR",
+        revisionId: meta().revision_id,
+        response: "Approval: UR",
+        date: "2026-01-02",
+        ...overrides,
+      }, { evaluateGateCheck });
+
+      assert.equal(runSealState(recordingRoot, read()).status, "valid", "run-create writes a sealed run");
+      for (const heading of ["Approvals", "Artefacts", "Mode/Slice Decision", "Artefact Chain", "Evidence", "Closeout"]) {
+        assert.match(read(), new RegExp(`^## ${heading}$`, "m"), `run-create writes the ${heading} section`);
+      }
+      assert.match(read(), /^\| UR \| missing \|  \|$/m);
+      const fresh = gate();
+      assert.equal(fresh.status, "open");
+      assert.equal(fresh.missing_approval, "Approval: UR");
+      assert.equal(fresh.approval_presentation, null, "no approval is presented before the UR artefact exists");
+      assert.equal(approve().reason, "approval_presentation_unavailable");
+
+      mkdirSync(join(recordingRoot, ".agdf", "control", "artefacts", "rec"), { recursive: true });
+      const urPath = join(recordingRoot, ".agdf", "control", "artefacts", "rec", "UR.md");
+      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n");
+      writeFileSync(statePath, read().replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/rec/UR.md` | draft |  |"));
+      assert.equal(runSealState(recordingRoot, read()).status, "content_changed");
+      const unrecorded = gate();
+      assert.equal(unrecorded.blocking_reason, "AGDF_RUN_SEAL_MISMATCH");
+      assert.equal(unrecorded.approval_presentation, null);
+      assert.ok(unrecorded.status_presentation?.markdown, "the localized card renders the run-update recovery");
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: "not-current" }).reason, "stale_revision");
+      const first = meta();
+      const updated = recordRunRevision(recordingRoot, { runId: "rec", revisionId: first.revision_id });
+      assert.equal(updated.outcome, "updated");
+      assert.equal(updated.revision, "2");
+      assert.notEqual(updated.revision_id, first.revision_id);
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).outcome, "unchanged");
+
+      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n");
+      const lfState = read();
+      writeFileSync(statePath, lfState.replace(/\n/g, "\r\n"));
+      assert.equal(runSealState(recordingRoot, read()).status, "valid", "line-ending conversion keeps the seal valid");
+      writeFileSync(statePath, lfState);
+      assert.equal(gate().approval_presentation?.revision_id, updated.revision_id);
+
+      assert.equal(approve({ response: "passt schon" }).reason, "wrong_or_non_approval_response");
+      assert.equal(approve({ response: "Approval: PRD" }).reason, "wrong_or_non_approval_response");
+      assert.equal(approve({ revisionId: first.revision_id }).reason, "stale_revision");
+      assert.equal(approve({ gate: "PRD", response: "Approval: PRD" }).reason, "gate_not_ready");
+      assert.equal(approve({ gate: "Brownfield Review" }).reason, "gate_invalid");
+      assert.equal(meta().revision_id, updated.revision_id, "rejected approvals write nothing");
+
+      const recorded = read();
+      writeFileSync(statePath, recorded.replace("| UR | missing |  |", "| UR | approved | Approval: UR |"));
+      assert.equal(gate().blocking_reason, "AGDF_RUN_APPROVALS_UNRECORDED");
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).reason, "approvals_unrecorded");
+      writeFileSync(statePath, recorded.replace("| PRD | missing |  |", "| PRD | not_applicable | skipped |"));
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).reason, "approvals_unrecorded", "skipping a gate by hand is an approval change");
+      writeFileSync(statePath, recorded);
+
+      const approved = approve();
+      assert.equal(approved.outcome, "approved");
+      assert.equal(approved.previous_revision_id, updated.revision_id);
+      assert.equal(approved.revision, "3");
+      assert.equal(approved.next_gate_after_approval, "Brownfield Review");
+      const approvedState = read();
+      assert.match(approvedState, /^\| UR \| approved \| `Approval: UR` · 2026-01-02 · revision 2 · `\.agdf\/control\/artefacts\/rec\/UR\.md` sha256:[0-9a-f]{16} \|$/m);
+      assert.match(approvedState, /^\| UR \| `\.agdf\/control\/artefacts\/rec\/UR\.md` \| approved \|  \|$/m);
+      assert.match(approvedState, /^\| UR \| approved_by \| Approval: UR \| `Approval: UR` · 2026-01-02 · revision 2 /m);
+      assert.equal(runSealState(recordingRoot, approvedState).status, "valid");
+      const afterApproval = gate();
+      assert.equal(afterApproval.status, "open");
+      assert.equal(afterApproval.current_gate, "Brownfield Review");
+      assert.ok(afterApproval.status_presentation?.markdown, "the localized card renders after run-approve");
+      assert.equal(approve({ revisionId: approved.revision_id }).reason, "gate_not_ready", "an approval is recorded once");
+
+      writeFileSync(statePath, approvedState.replace(/^- approval_seal:.*\n/m, ""));
+      assert.equal(runSealState(recordingRoot, read()).status, "invalid");
+      assert.equal(gate().blocking_reason, "AGDF_RUN_SEAL_INVALID");
+      assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: approved.revision_id }).reason, "seal_invalid");
+    } finally {
+      rmSync(recordingRoot, { recursive: true, force: true });
+    }
+  }
+
+  // run-step records the small path in single sealed revisions, including the backlog pointer.
+  {
+    const stepRoot = mkdtempSync(join(tmpdir(), "agdf-run-step-"));
+    try {
+      initializeCanonicalControl(stepRoot, generatedFilesForTarget("init", stepRoot, false, "de"));
+      const statePath = createRun(stepRoot, "step");
+      const read = () => readFileSync(statePath, "utf8");
+      const revision = () => parseRunState(read(), "step").meta.revision_id;
+      const artefacts = join(stepRoot, ".agdf", "control", "artefacts", "step");
+      const backlog = () => readFileSync(join(stepRoot, ".agdf", "control", "MASTER_BACKLOG.md"), "utf8");
+      const step = (name, fields = {}) => recordRunStep(stepRoot, { runId: "step", revisionId: revision(), step: name, ...fields }, { policy: policyForRunContent, date: "2026-01-03" });
+
+      assert.equal(step("unknown").reason, "step_invalid");
+      assert.equal(recordRunStep(stepRoot, { runId: "step", revisionId: "stale", step: "ur", title: "x" }, { policy: policyForRunContent }).reason, "stale_revision");
+      assert.equal(step("ur", { title: "subtract" }).reason, "artefact_missing");
+      mkdirSync(artefacts, { recursive: true });
+      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n");
+      assert.equal(step("ur").reason, "title_missing");
+      const drafted = step("ur", { title: "subtract | with test" });
+      assert.equal(drafted.outcome, "recorded");
+      assert.equal(drafted.current_gate, "UR");
+      assert.equal(drafted.backlog, "updated");
+      assert.match(read(), /^\| UR \| `\.agdf\/control\/artefacts\/step\/UR\.md` \| draft \|  \|$/m);
+      assert.match(read(), /^\| What is missing\? \| Exact Approval: UR\. \|$/m);
+      assert.match(backlog(), /^\| P1 \| step \| subtract \/ with test \| Needs UR \| \[UR\]\(artefacts\/step\/UR\.md\) \| \[UR\]\(artefacts\/step\/UR\.md\) \| /m);
+      assert.equal(runSealState(stepRoot, read()).status, "valid");
+      const drafting = evaluateGateCheck(stepRoot, { runId: "step" });
+      assert.equal(drafting.approval_presentation?.revision_id, revision(), "the recorded UR is ready for its exact approval");
+      assert.equal(evaluateDoctor(stepRoot, { runId: "step" }).findings.some((finding) => finding.code === "AGDF_BACKLOG_POINTER_EMPTY"), false);
+
+      assert.equal(step("route", { route: "quick_task", reason: "r", evidence: "e" }).reason, "gate_not_ready", "routing waits for Approval: UR");
+      assert.equal(approveRunGate(stepRoot, { runId: "step", gate: "UR", revisionId: revision(), response: "Approval: UR", date: "2026-01-03" }, { evaluateGateCheck }).outcome, "approved");
+      assert.equal(step("route", { route: "quick_task", reason: "r", evidence: "e" }).reason, "artefact_missing");
+      writeFileSync(join(artefacts, "BROWNFIELD_REVIEW.md"), "# Brownfield Review: subtract\n");
+      assert.equal(step("route", { route: "tiny", reason: "r", evidence: "e" }).reason, "route_invalid");
+      assert.equal(step("route", { route: "quick_task", reason: "r" }).reason, "route_reason_missing");
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "closeout_route_unsupported");
+      const routed = step("route", { route: "quick_task", reason: "additive function in one module", evidence: "math.js only" });
+      assert.equal(routed.current_gate, "Quick Task Execution");
+      assert.match(read(), /^- mode: quick_task$/m);
+      assert.match(read(), /^- required_next_gate: Quick Task Execution$/m);
+      assert.match(backlog(), /\| In Progress \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/);
+
+      assert.equal(step("evidence").reason, "evidence_missing");
+      assert.equal(step("evidence", { evidence: "npm test: 2 pass", source: "npm test" }).outcome, "recorded");
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "code_review_missing", "Code Review stays mandatory");
+      assert.equal(step("review", { decision: "maybe", evidence: "e" }).reason, "decision_invalid");
+      assert.equal(step("review", { decision: "pass", evidence: "diff limited to subtract" }).outcome, "recorded");
+      assert.equal(step("closeout", { result: "r", evidence: "e" }).reason, "closeout_fields_missing");
+      const closed = step("closeout", { result: "subtract added with tests", evidence: "npm test: 2 pass", risk: "none", next: "Commit on request" });
+      assert.equal(closed.current_gate, "OR");
+      assert.match(readFileSync(join(artefacts, "OR.md"), "utf8"), /^# OR-lite: subtract$/m);
+      assert.match(read(), /^- lifecycle: completed$/m);
+      assert.doesNotMatch(backlog(), /^\| P1 \| step \|/m, "the active pointer moves to completed");
+      assert.match(backlog(), /^\| step \| subtract \/ with test \| Completed \| \[OR\]\(artefacts\/step\/OR\.md\) \| subtract added with tests \|$/m);
+      assert.equal(runSealState(stepRoot, read()).status, "valid");
+      const done = evaluateGateCheck(stepRoot, { runId: "step" });
+      assert.equal(done.status, "pass");
+      assert.ok(done.status_presentation?.markdown, "the German card renders after closeout");
+      assert.deepEqual(evaluateDoctor(stepRoot, { runId: "step" }).findings.filter((finding) => finding.severity !== "warn"), []);
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "gate_not_ready", "a closed run cannot close twice");
+    } finally {
+      rmSync(stepRoot, { recursive: true, force: true });
     }
   }
 

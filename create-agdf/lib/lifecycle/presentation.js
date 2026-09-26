@@ -100,6 +100,14 @@ export function compactLifecycleCardLines(report) {
   ];
 }
 
+function describeChange(change) {
+  if (change.kind === "command") return [change.executable, ...(change.args ?? [])].join(" ");
+  if (change.kind === "claude_permission_rules") return `revoke ${change.rules.length} AGDF runtime-check permission rule(s) in ${change.path}`;
+  if (change.kind === "remove") return `remove ${change.path}`;
+  if (change.kind === "remove_tree") return `remove the owned AGDF plugin MCP runtime ${change.path}`;
+  return typeof change === "string" ? change : JSON.stringify(change);
+}
+
 export function printLifecycleResult(report, { json = false, compact = false, io = console } = {}) {
   if (json) {
     io.log(JSON.stringify(report, null, 2));
@@ -107,6 +115,10 @@ export function printLifecycleResult(report, { json = false, compact = false, io
   }
   for (const line of compact ? compactLifecycleCardLines(report) : lifecycleCardLines(report)) io.log(line);
   if (report.failure) io.log(`Failure phase: ${report.failure.phase}: ${report.failure.message}`);
+  if (report.operation === "uninstall" && report.changes?.length) {
+    io.log(report.result === "preview" ? "Planned changes:" : "Changes:");
+    for (const change of report.changes) io.log(`- ${describeChange(change)}`);
+  }
   if (report.retained.length) {
     io.log("Retained:");
     for (const item of report.retained) io.log(`- ${typeof item === "string" ? item : JSON.stringify(item)}`);

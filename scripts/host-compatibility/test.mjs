@@ -108,7 +108,9 @@ try {
   }
   check("path traversal and symlink escape", () => {
     for (const path of ["../outside", "/absolute", "docs/../outside", "docs\\outside"]) assert.throws(() => safePath(temp, path));
-    symlinkSync(root, join(temp, "escape")); assert.throws(() => safePath(temp, "escape/package.json"), /symlink/);
+    // Windows junctions need no symlink privilege and still report as symbolic links.
+    symlinkSync(root, join(temp, "escape"), process.platform === "win32" ? "junction" : undefined);
+    assert.throws(() => safePath(temp, "escape/package.json"), /symlink/);
   });
   check("AST follows added helpers and handles import cycles", () => {
     writeFileSync(join(temp, "a.mjs"), 'import "./b.mjs";'); writeFileSync(join(temp, "b.mjs"), 'export * from "./a.mjs";');

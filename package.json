@@ -12,7 +12,13 @@
     "set-version": "node scripts/set-version.mjs",
     "test:host-compatibility": "node create-agdf/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
     "compatibility:record": "node scripts/host-compatibility/run.mjs record",
-    "compatibility:check": "node scripts/host-compatibility/run.mjs check"
+    "compatibility:check": "node scripts/host-compatibility/run.mjs check",
+    "native:claude-e2e": "node scripts/native-probes/claude-host-e2e.mjs",
+    "native:codex-e2e": "node scripts/native-probes/codex-host-e2e.mjs",
+    "native:codex-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
+    "native:codex-hook-check": "bash scripts/native-probes/codex-macos-hook-check.sh",
+    "native:codex-hook-probe": "bash scripts/native-probes/codex-hook-probe-plugin.sh",
+    "native:codex-mcp-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh"
   },
   "devDependencies": {
     "yaml": "2.9.0",

@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { execHostFileSync, spawnHostSync } from "../../host-command.js";
 import process from "node:process";
 import { validateEvaluation } from "../contracts.js";
 import { guardedExecFileSync } from "../transports/read-only-guard.js";
@@ -80,7 +80,7 @@ function terminalPermissionDecision(permissions, permissionName) {
 
 export function preflightOpenCodeEvaluator(options = {}) {
   const executable = options.openCodeBin ?? process.env.AGDF_OPENCODE_BIN ?? "opencode";
-  const run = options.execFileSync ?? execFileSync;
+  const run = options.execFileSync ?? execHostFileSync;
   const cwd = options.cwd ?? process.cwd();
   const agentName = options.agentName ?? OPENCODE_EVALUATOR_AGENT;
   const env = openCodePermissionEnvironment(options.env ?? process.env);
@@ -100,7 +100,7 @@ export function preflightOpenCodeEvaluator(options = {}) {
         cwd, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 5000,
       });
     } else {
-      const helpProbe = (options.spawnSync ?? spawnSync)(executable, ["run", "--help"], {
+      const helpProbe = (options.spawnSync ?? spawnHostSync)(executable, ["run", "--help"], {
         cwd, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 5000,
       });
       if (helpProbe.error || helpProbe.status !== 0) throw helpProbe.error ?? new Error(helpProbe.stderr || "OpenCode run help failed.");

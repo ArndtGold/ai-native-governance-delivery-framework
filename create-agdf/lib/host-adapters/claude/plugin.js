@@ -1,20 +1,33 @@
+import process from "node:process";
 import { inspectPluginList } from "../../installers/plugin-command.js";
-import { execFileSync } from "node:child_process";
+import { execHostFileSync } from "../../host-command.js";
 import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginListHasPlugin, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { classifyMarketplaceList, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 import { recoverClaudeCacheTemp } from "../../installers/claude-cache-recovery.js";
+import { prepareClaudePluginMcp, migrateLegacyClaudeMcpRegistration } from "./plugin-mcp.js";
+import { loadedClaudeSessions, loadedSessionEvidence, loadedSessionLockHint } from "./loaded-sessions.js";
 
 export function installClaudeGlobalPlugin({
-  exec = execFileSync,
+  exec = execHostFileSync,
   prepare = prepareLocalMarketplace,
   dataRoot,
   recoverCache = recoverClaudeCacheTemp,
   cacheRecoveryOptions = {},
+  env = process.env,
+  migrateMcp = migrateLegacyClaudeMcpRegistration,
+  prepareMcp = prepareClaudePluginMcp,
+  loadedSessions = loadedClaudeSessions,
 } = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
-  const transaction = prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
+  const sessions = loadedSessions({ env });
+  let transaction;
+  try {
+    transaction = prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
+  } catch (error) {
+    throw loadedSessionLockHint(error, sessions);
+  }
   const migration = { state: "unknown", source: "", addedLocal: false, removedLegacy: false };
   let previousPluginRemoved = false;
   let pluginInstalled = false;
@@ -26,8 +39,9 @@ export function installClaudeGlobalPlugin({
     const alreadyInstalled = pluginListHasPlugin(beforeList, "agdf@agdf");
     // `claude plugin update` keeps the cached copy when the version is unchanged, so a
     // same-version local source change never reaches the host; reinstall replaces the content.
+    // --keep-data preserves the plugin-local MCP runtime; its launcher retires other versions.
     if (alreadyInstalled) {
-      nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "uninstall", "agdf@agdf"], "plugin_operation", captureOptions()));
+      nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "uninstall", "agdf@agdf", "--keep-data"], "plugin_operation", captureOptions()));
       previousPluginRemoved = true;
     }
     let cacheRecovery = null;
@@ -66,6 +80,12 @@ export function installClaudeGlobalPlugin({
       throw lifecycleAdapterError("version", versionMismatchMessage("Claude Code", "agdf@agdf", expectedVersion, installedVersion, "npx --yes @agdf/cli@latest claude"));
     }
     transaction.commit();
+    // Both steps are best effort: the plugin already works, and the launcher installs the MCP runtime
+    // on first start when the prewarm could not run.
+    const mcpEvidence = [
+      ...migrateMcp({ exec, env }),
+      ...(transaction.pluginRoot ? prepareMcp({ exec, env, pluginRoot: transaction.pluginRoot }) : []),
+    ];
     return {
       surface: "claude",
       operation: migration.state === "owned_local_current" ? "update" : "install",
@@ -81,9 +101,12 @@ export function installClaudeGlobalPlugin({
         ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
         ...(transaction.existingClassification === "owned_supported_historical_rebuild" ? ["marketplace_recovery:owned_supported_historical_rebuild", "loaded_session:fresh_session_required"] : []),
+        ...(transaction.existingClassification === "owned_damaged_rebuild" ? ["marketplace_recovery:owned_damaged_rebuild", "loaded_session:restart_required"] : []),
         ...historicalEvidenceEntries(transaction),
+        ...loadedSessionEvidence(sessions),
         ...(cacheRecovery?.status === "recovered" ? ["claude_cache_temp_recovery:bounded_retry"] : []),
         ...(installedVersion ? [] : ["host_did_not_expose_version"]),
+        ...mcpEvidence,
       ],
       pluginRoot: transaction.pluginRoot ?? null,
       digest: transaction.digest ?? null,
@@ -119,13 +142,13 @@ function recoverMarketplace({ exec, migration, transaction, error, previousPlugi
   const attempt = recoveryAttempt(exec, "claude", recovery);
   if (migration?.addedLocal) attempt(["plugin", "marketplace", "remove", "agdf", "--scope", "user"]);
   if (migration?.removedLegacy && migration.source) attempt(["plugin", "marketplace", "add", migration.source, "--scope", "user"]);
-  if (pluginInstalled) attempt(["plugin", "uninstall", "agdf@agdf"]);
+  if (pluginInstalled) attempt(["plugin", "uninstall", "agdf@agdf", "--keep-data"]);
   const filesystemRestored = rollbackMarketplaceFilesystem(transaction, recovery);
   if (previousPluginRemoved && filesystemRestored) attempt(["plugin", "install", "agdf@agdf"]);
   error.evidence = { ...(error.evidence ?? {}), rollback: recovery };
 }
 
-export function inspectClaudePlugin(exec = execFileSync) {
+export function inspectClaudePlugin(exec = execHostFileSync) {
   return inspectPluginList({ surface: "claude", exec, executable: "claude", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
     selectPlugin: () => "agdf@agdf",
   });

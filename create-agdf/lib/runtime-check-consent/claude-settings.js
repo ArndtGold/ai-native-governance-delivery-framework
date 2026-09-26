@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { renameSyncWithRetry } from "../fs-swap.js";
-import { applyClaudeExactRule, revokeClaudeExactRule } from "../host-adapters/claude/permission-rules.js";
+import { revokeClaudeExactRule } from "../host-adapters/claude/permission-rules.js";
 
 export function defaultClaudeSettingsPath({ env = process.env, home = homedir() } = {}) {
   return join(resolve(env.CLAUDE_CONFIG_DIR || join(home, ".claude")), "settings.json");
@@ -39,27 +39,6 @@ function atomicSettingsWrite(path, settings) {
     if (hadPrevious && process.platform === "win32" && existsSync(backup) && !existsSync(path)) renameSyncWithRetry(backup, path);
     throw error;
   }
-}
-
-export function configureClaudeExactRuntimeRule({ path = defaultClaudeSettingsPath(), rule }) {
-  const before = readClaudeSettings(path);
-  const permissions = before.settings.permissions ?? {};
-  const applied = applyClaudeExactRule(before.settings, {
-    rule,
-    deny: Array.isArray(permissions.deny) ? permissions.deny : [],
-    ask: Array.isArray(permissions.ask) ? permissions.ask : [],
-  });
-  if (applied.status !== "configured") return { ...applied, path, rollback() {} };
-  atomicSettingsWrite(path, applied.settings);
-  return {
-    status: "configured",
-    reason: "host_permission_unverified",
-    path,
-    rollback() {
-      if (before.exists) atomicSettingsWrite(path, before.settings);
-      else rmSync(path, { force: true });
-    },
-  };
 }
 
 export function revokeClaudeRuntimeRule({ path = defaultClaudeSettingsPath(), rule }) {

@@ -4,12 +4,14 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { npmInvocation } from "../lib/installers/npm-invocation.js";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const npmCache = mkdtempSync(join(tmpdir(), "create-agdf-npm-cache-"));
 let packOutput;
 try {
-  packOutput = execFileSync("npm", ["pack", "--dry-run", "--json"], {
+  const pack = npmInvocation(["pack", "--dry-run", "--json"]);
+  packOutput = execFileSync(pack.executable, pack.args, {
     cwd: packageRoot,
     encoding: "utf8",
     stdio: "pipe",

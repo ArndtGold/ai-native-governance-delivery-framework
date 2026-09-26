@@ -47,6 +47,7 @@ import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { runSelectionRecovery } from "../lib/control-evaluation/shared.js";
+import { deriveQualityOutlook } from "../lib/control-evaluation/delivery-map.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "agdf-interaction-locales.json"), "utf8"));
@@ -65,6 +66,20 @@ for (const [command, key] of [["gate-check", "selectIntendedRun"], ["doctor", "s
   assert.match(rendered.markdown, /Den gewünschten Run/);
   assert.doesNotMatch(rendered.markdown, /Pass --run/);
   assert.equal(renderOperationalStatusCard({ ...card, next_step: "Unreviewed new recovery text" }, { registry: sourceRegistry, humanPresentation: {} }), null, "unknown English recovery must still fail closed in German");
+}
+// Every canonical quality outlook the delivery map can derive must render in every locale; a missing
+// entry makes the whole status card fail closed for that language.
+for (const findings of [[], [{ severity: "warn" }], [{ severity: "revise" }], [{ severity: "block" }]]) {
+  const qualityOutlook = deriveQualityOutlook({}, findings);
+  for (const locale of Object.keys(sourceRegistry.locales)) {
+    const card = {
+      run_id: "unknown", current_gate: "UR", presentation_language: locale, status: "blocked",
+      allowed_now: [], forbidden_now: [], blocking_condition: "AGDF_CURRENT_GATE_MISSING",
+      allowed_after_approval: "none", next_step: "none", quality_outlook: qualityOutlook,
+    };
+    assert.ok(renderOperationalStatusCard(card, { registry: sourceRegistry, humanPresentation: {} }),
+      `${locale} status card must render quality outlook "${qualityOutlook}": ${JSON.stringify(validateOperationalStatusCardPreconditions(card, { registry: sourceRegistry }))}`);
+  }
 }
 assert.equal(PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE, "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$");
 for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {

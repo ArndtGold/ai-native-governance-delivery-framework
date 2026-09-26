@@ -134,6 +134,7 @@ When the target repository uses the AGDF control scaffold, keep live control fil
 Use templates as starting points only.
 
 Do not let chat history become the source of truth for gate state, approvals, evidence, backlog status or durable Brownfield knowledge.
+After editing a run or its listed artefacts, record the revision with the dispatch validator's `run-update` before `gate-check`; record an exact gate reply only with `run-approve`, never by editing Approvals.
 
 AGDF is agent-native first and CLI-verifiable by design: read the live control state, apply the active skill and make the next allowed step explicit.
 Use `init` only when durable control state is explicitly requested, the repository already uses `.agdf/control/` as its live AGDF working state, or a deterministic CLI/CI setup path is being executed.

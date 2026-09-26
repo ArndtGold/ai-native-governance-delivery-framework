@@ -113,7 +113,8 @@ export function printNextSteps(target, destination, files, removedOpenCodeAgents
     io.log(`- AGDF language preference: artefacts=${language.artifact_language}, chat=${language.chat_language}, runtime=${language.runtime_language}.`);
   }
   if (target === "init") {
-    io.log("- Create or migrate a canonical run, then fill its RUN_STATE.md with the current gate, evidence and next allowed action.");
+    io.log("- Create the canonical run with `run-create --run <run_id>` and record each later step with `run-step` instead of editing RUN_STATE.md by hand.");
+    io.log("- An active delivery intake continues without a second setup prompt: write the UR, record it with `run-step --step ur`, then dispatch gate-check with `--intake`.");
     io.log("- Run the installed `agdf doctor` to check the control state before the next agent run.");
     io.log("- Commit the live control files once they represent the repository's current delivery state.");
     return;

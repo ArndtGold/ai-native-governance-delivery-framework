@@ -7,6 +7,9 @@ export const LIFECYCLES = new Set([
   "superseded",
   "abandoned",
 ]);
+export function normalizeLineEndings(content) {
+  return content.replace(/\r\n/g, "\n");
+}
 export function scalarFields(content) {
   const values = new Map(),
     duplicates = [];
@@ -74,6 +77,9 @@ function rows(s) {
         .map((x) => x.trim()),
     )
     .filter((r) => !r.every((x) => /^[-:]+$/.test(x)));
+}
+export function sectionTableRows(content, heading) {
+  return rows(section(content, heading));
 }
 function clean(v = "") {
   return v.replace(/^`|`$/g, "").trim();

@@ -275,9 +275,13 @@ For `delivery.start`, the original positive delivery request already supplies th
 intent. The deliberate setup decision authorizes only creation or linking of the canonical control
 scaffold. After successful setup, the agent continues the same delivery intake by persisting the
 already reviewed canonical run and revision-stable UR without a second setup prompt. This continuation
-does not approve UR or any later gate. For the explicit standalone `lifecycle.control.init` operation,
-setup remains scaffold-only and creates neither a run nor UR. Gate readiness is always evaluated
-separately after canonical state and a revision-stable artefact exist.
+does not approve UR or any later gate. Dispatcher v1 called with `intake: true` for this route returns a
+non-terminal `intake_continuation` while no active run exists or the selected run has no durable UR
+revision; its ordered steps are `run-create`, the UR artefact and `run-step --step ur`, followed by a
+new dispatch. Every other state, including a ready `Approval: UR`, stays terminal. For the explicit
+standalone `lifecycle.control.init` operation, setup remains scaffold-only and creates neither a run
+nor UR. Gate readiness is always evaluated separately after canonical state and a revision-stable
+artefact exist.
 
 Every explicit lifecycle or status route exposes a normalized, non-authorizing operation envelope:
 
@@ -318,7 +322,7 @@ Before presenting `gate_approval`, the agent must:
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
-7. persist an accepted approval only through the existing control-state workflow.
+7. persist an accepted approval only with `run-approve --run <run_id> --gate <gate> --revision <revision_id> --response "<verbatim reply>"`, which repeats steps 5 and 6 against the presented `revision_id` and advances the revision.
 
 For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
 deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`

@@ -3,6 +3,8 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { npmInvocation } from "../../create-agdf/lib/installers/npm-invocation.js";
 
 const root = new URL("../", import.meta.url);
 const manifest = JSON.parse(readFileSync(new URL("package.json", root), "utf8"));
@@ -25,7 +27,8 @@ assert.equal(lock.packages["node_modules/@modelcontextprotocol/client"].dev, tru
 assert.equal(lock.version, manifest.version);
 assert.equal(lock.packages[""].version, manifest.version);
 assert.equal(lock.packages[""].dependencies["create-agdf"], manifest.version);
-assert.equal(statSync(new URL("bin/agdf-mcp.js", root)).mode & 0o111, 0o111);
+// Windows file modes carry no execute bits; npm creates the bin shim there instead.
+if (process.platform !== "win32") assert.equal(statSync(new URL("bin/agdf-mcp.js", root)).mode & 0o111, 0o111);
 assert.equal(capability.release_version, manifest.version);
 assert.equal(capability.schema_version, 2);
 assert.equal(capability.tool.name, "agdf_dispatch");
@@ -43,7 +46,8 @@ assert.match(readFileSync(new URL("bin/agdf-mcp.js", root), "utf8"), /"copilot"/
 const npmCache = mkdtempSync(join(tmpdir(), "agdf-mcp-npm-cache-"));
 let packed;
 try {
-  packed = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], {
+  const pack = npmInvocation(["pack", "--dry-run", "--json", "--ignore-scripts"]);
+  packed = JSON.parse(execFileSync(pack.executable, pack.args, {
     cwd: root,
     encoding: "utf8",
     env: { ...process.env, npm_config_cache: npmCache },
@@ -60,7 +64,7 @@ assert.equal(paths.some((path) => path.includes("node_modules")), false);
 
 const node18Probe = spawnSync(process.execPath, ["--input-type=module", "--eval", `
 Object.defineProperty(process.versions, "node", { value: "18.20.8" });
-process.argv = [process.execPath, ${JSON.stringify(new URL("bin/agdf-mcp.js", root).pathname)}, "--surface", "codex"];
+process.argv = [process.execPath, ${JSON.stringify(fileURLToPath(new URL("bin/agdf-mcp.js", root)))}, "--surface", "codex"];
 await import(${JSON.stringify(new URL("bin/agdf-mcp.js", root).href)});
 `], { encoding: "utf8" });
 assert.equal(node18Probe.status, 1);

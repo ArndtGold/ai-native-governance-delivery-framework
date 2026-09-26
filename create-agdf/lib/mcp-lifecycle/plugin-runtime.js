@@ -5,9 +5,10 @@ import process from "node:process";
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../runtime/plugin-provenance.js";
 import { inspectMcpServerPackage, mcpPackageConstants, prepareMcpServerPackage } from "./package.js";
 
-// Claude Code starts the AGDF MCP server from the plugin manifest and deletes ${CLAUDE_PLUGIN_DATA}
-// on uninstall, so the runtime lives there instead of in a user-scope `claude mcp add` registration.
-// The plugin ships the server and dispatcher; only the pinned MCP SDK is installed from npm, once.
+// Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
+// Claude Code passes ${CLAUDE_PLUGIN_DATA}, which it deletes on uninstall; Codex receives an absolute
+// AGDF-owned data root from the installer-written declaration. The plugin ships the server and
+// dispatcher; only the pinned MCP SDK is installed from npm, once.
 const SDK_PACKAGE_SPEC = "@modelcontextprotocol/server@2.0.0";
 const STALE_STAGE_MS = 10 * 60 * 1000;
 
@@ -19,7 +20,7 @@ function ownedRoot(root) {
   return readJson(join(root, mcpPackageConstants.marker))?.owner === mcpPackageConstants.owner;
 }
 
-export function claudePluginMcpVersion(pluginRoot) {
+export function pluginMcpVersion(pluginRoot) {
   const version = readJson(join(pluginRoot, "runtime", "runtime-manifest.json"))?.version;
   if (typeof version !== "string" || !version) throw new Error("AGDF_MCP_PLUGIN_RUNTIME_INVALID");
   return version;
@@ -58,7 +59,7 @@ function pruneMcpDataRoot(mcpDataRoot, version, now) {
   }
 }
 
-export function ensureClaudePluginMcpRuntime({
+export function ensurePluginMcpRuntime({
   pluginRoot,
   dataRoot,
   execPath = process.execPath,
@@ -67,7 +68,7 @@ export function ensureClaudePluginMcpRuntime({
   now = Date.now(),
 } = {}) {
   if (!pluginRoot || !dataRoot) throw new Error("AGDF_MCP_PLUGIN_DATA_MISSING");
-  const version = claudePluginMcpVersion(pluginRoot);
+  const version = pluginMcpVersion(pluginRoot);
   const mcpDataRoot = join(resolve(dataRoot), "mcp");
   mkdirSync(mcpDataRoot, { recursive: true });
   pruneMcpDataRoot(mcpDataRoot, version, now);
@@ -114,13 +115,13 @@ export function parseLauncherArguments(argv, env = {}) {
   return null;
 }
 
-export async function launchClaudePluginMcpServer({
+export async function launchPluginMcpServer({
   pluginRoot,
   argv = process.argv.slice(2),
   env = process.env,
   stdout = process.stdout,
   stderr = process.stderr,
-  ensure = ensureClaudePluginMcpRuntime,
+  ensure = ensurePluginMcpRuntime,
   execPath = process.execPath,
 } = {}) {
   const invocation = parseLauncherArguments(argv, env);

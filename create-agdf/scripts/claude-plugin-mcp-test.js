@@ -1,85 +1,32 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { migrateLegacyClaudeMcpRegistration, prepareClaudePluginMcp } from "../lib/host-adapters/claude/plugin-mcp.js";
-import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "../lib/host-adapters/codex/plugin-mcp.js";
-import { prepareLocalMarketplace } from "../lib/installers/local-marketplace.js";
-import { digestNormalizedPluginSource, renderCodexPluginMcpConfig } from "../lib/runtime/plugin-provenance.js";
-import { mcpPackageConstants } from "../lib/mcp-lifecycle/package.js";
-import { claudePluginDataRoot, ensureClaudePluginMcpRuntime, inspectPluginMcpDataRoot, launchClaudePluginMcpServer, parseLauncherArguments } from "../lib/mcp-lifecycle/plugin-runtime.js";
-import { planGlobalUninstall } from "../lib/lifecycle/operations.js";
+import { claudePluginDataRoot, ensurePluginMcpRuntime } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { runMcpLifecycle } from "../lib/mcp-lifecycle/service.js";
-import { pluginDefinition } from "../lib/cli/runtime-context.js";
+import { offlineNpm, pluginRoot, version } from "./support/plugin-mcp-fixture.js";
 
-const packageRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const pluginRoot = join(packageRoot, "generated", "plugins", "agdf");
-const sdkSource = join(packageRoot, "..", "agdf-mcp-server", "node_modules");
-const version = pluginDefinition.version;
-assert.ok(existsSync(join(pluginRoot, "mcp", "agdf-mcp-launch.js")), "run sync-package-assets before this test");
-
-// Offline stand-in for `npm install @modelcontextprotocol/server@2.0.0`: copies the pinned SDK closure.
-const npmCalls = [];
-const offlineNpm = (_executable, args, options) => {
-  npmCalls.push(args.at(-1));
-  assert.equal(args.at(-1), "@modelcontextprotocol/server@2.0.0", "only the pinned SDK is acquired from npm");
-  for (const entry of ["@modelcontextprotocol/server", "@modelcontextprotocol/core", "zod"]) {
-    cpSync(join(sdkSource, entry), join(options.cwd, "node_modules", entry), { recursive: true });
-  }
-  return "";
-};
-
+// Claude Code: the runtime plugin declares the server in mcp/claude.mcp.json; Claude expands
+// ${CLAUDE_PLUGIN_ROOT} and passes ${CLAUDE_PLUGIN_DATA}, which it deletes on uninstall.
+const manifest = JSON.parse(readFileSync(join(pluginRoot, ".claude-plugin", "plugin.json"), "utf8"));
+assert.equal(manifest.mcpServers, "./mcp/claude.mcp.json");
+assert.deepEqual(JSON.parse(readFileSync(join(pluginRoot, "mcp", "claude.mcp.json"), "utf8")),
+  { mcpServers: { agdf: { type: "stdio", command: "node", args: ["${CLAUDE_PLUGIN_ROOT}/mcp/agdf-mcp-launch.js"] } } });
+assert.equal(existsSync(join(pluginRoot, ".mcp.json")), false, "Claude Code would load a plugin-root .mcp.json automatically");
 assert.equal(claudePluginDataRoot({ claudeConfigDir: "/home/user/.claude" }), resolve("/home/user/.claude/plugins/data/agdf-agdf"));
 
 const root = mkdtempSync(join(tmpdir(), "agdf-claude-plugin-mcp-"));
 try {
+  // The generated launcher takes the data root from ${CLAUDE_PLUGIN_DATA}, verifies the prepared
+  // runtime without network and fails closed without data or with Codex-only arguments.
   const dataRoot = join(root, "data");
-  const mcpRoot = join(dataRoot, "mcp");
-  const prepared = ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
-  assert.equal(prepared.status, "matched");
-  assert.equal(prepared.changed, true);
-  assert.equal(prepared.root, join(mcpRoot, version));
-  assert.ok(existsSync(join(prepared.packageRoot, "bin", "agdf-mcp.js")), "the shipped server is installed");
-  assert.equal(JSON.parse(readFileSync(join(prepared.dispatcherRoot, "package.json"), "utf8")).name, "create-agdf");
-
-  const again = ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot, exec() { throw new Error("a matched runtime must not reinstall"); } });
-  assert.equal(again.changed, false);
-
-  // Plugin updates keep ${CLAUDE_PLUGIN_DATA}: owned runtimes of other versions and abandoned stages are retired.
-  const retired = join(mcpRoot, "0.0.1");
-  cpSync(prepared.root, retired, { recursive: true });
-  const foreignSibling = join(mcpRoot, "notes");
-  mkdirSync(foreignSibling);
-  const staleStage = join(mcpRoot, `.stage-${version}-stale`);
-  mkdirSync(staleStage);
-  const old = new Date(Date.now() - 60 * 60 * 1000);
-  utimesSync(staleStage, old, old);
-  ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
-  assert.equal(existsSync(retired), false, "an owned runtime of another version is retired");
-  assert.equal(existsSync(staleStage), false, "an abandoned stage is removed");
-  assert.equal(existsSync(foreignSibling), true, "unowned directories are never removed");
-
-  // A same-version runtime whose content drifted is owned and therefore rebuilt.
-  writeFileSync(join(prepared.packageRoot, "src", "main.js"), "tampered\n");
-  npmCalls.length = 0;
-  const rebuilt = ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
-  assert.equal(rebuilt.changed, true);
-  assert.equal(npmCalls.length, 1);
-
-  // A directory without the AGDF marker at the runtime path is never overwritten.
-  const foreignData = join(root, "foreign");
-  mkdirSync(join(foreignData, "mcp", version), { recursive: true });
-  assert.throws(() => ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot: foreignData, exec: offlineNpm }), /AGDF_MCP_RUNTIME_UNOWNED/);
-  assert.throws(() => ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot: null, exec: offlineNpm }), /AGDF_MCP_PLUGIN_DATA_MISSING/);
-  assert.equal(JSON.parse(readFileSync(join(rebuilt.root, mcpPackageConstants.marker), "utf8")).owner, mcpPackageConstants.owner);
-
-  // The generated launcher verifies the prepared runtime without network and fails closed without data.
+  const prepared = ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec: offlineNpm });
   const launcher = join(pluginRoot, "mcp", "agdf-mcp-launch.js");
   const prepareRun = spawnSync(process.execPath, [launcher, "--prepare"], { encoding: "utf8", env: { ...process.env, CLAUDE_PLUGIN_DATA: dataRoot } });
   assert.equal(prepareRun.status, 0, prepareRun.stderr);
-  assert.deepEqual(JSON.parse(prepareRun.stdout), { status: "matched", version, root: rebuilt.root, changed: false });
+  assert.deepEqual(JSON.parse(prepareRun.stdout), { status: "matched", version, root: prepared.root, changed: false });
   const env = { ...process.env };
   delete env.CLAUDE_PLUGIN_DATA;
   const missingData = spawnSync(process.execPath, [launcher], { encoding: "utf8", env });
@@ -142,95 +89,7 @@ const enable = runMcpLifecycle({
   exec() { throw new Error("Claude enable must not call the host"); },
   prepare() { throw new Error("Claude enable must not prepare a user runtime"); },
 });
-assert.equal(enable.result, "not_configured");
-assert.deepEqual(enable.diagnostics.map(({ code }) => code), ["claude_plugin_managed"]);
-assert.equal(enable.next_action.code, "use_claude_plugin_mcp");
+assert.deepEqual([enable.result, enable.diagnostics[0].code, enable.next_action.code],
+  ["not_configured", "claude_plugin_managed", "use_claude_plugin_mcp"]);
 
-// Codex: the runtime plugin declares the server in mcp/codex.mcp.json with installer-written absolute
-// paths, because Codex expands no plugin variables and passes no plugin data directory.
-const codexEnable = runMcpLifecycle({
-  action: "enable", surface: "codex", scope: "user", target: tmpdir(),
-  exec() { throw new Error("Codex enable must not call the host"); },
-  prepare() { throw new Error("Codex enable must not prepare a user runtime"); },
-});
-assert.deepEqual([codexEnable.result, codexEnable.diagnostics[0].code, codexEnable.next_action.code],
-  ["not_configured", "codex_plugin_managed", "use_codex_plugin_mcp"]);
-
-assert.equal(JSON.parse(readFileSync(join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8")).mcpServers, "./mcp/codex.mcp.json");
-assert.equal(readFileSync(join(pluginRoot, "mcp", "codex.mcp.json"), "utf8"), renderCodexPluginMcpConfig(), "the generated file is the template");
-assert.equal(existsSync(join(pluginRoot, ".mcp.json")), false, "Claude Code would load a plugin-root .mcp.json automatically");
-
-const codexRoot = mkdtempSync(join(tmpdir(), "agdf-codex-plugin-mcp-"));
-try {
-  const dataRoot = join(codexRoot, "data");
-  const staged = prepareLocalMarketplace({ dataRoot, builtPluginRoot: pluginRoot, expectedVersion: version });
-  staged.commit();
-  const args = JSON.parse(readFileSync(join(staged.pluginRoot, "mcp", "codex.mcp.json"), "utf8")).mcpServers.agdf.args;
-  assert.equal(args[0], `${staged.pluginRoot.replaceAll("\\", "/")}/mcp/agdf-mcp-launch.js`, "absolute launcher in the marketplace plugin");
-  assert.deepEqual(args.slice(1, 4), ["--surface", "codex", "--data"]);
-  assert.equal(args[4], join(dataRoot, "mcp", "codex-plugin").replaceAll("\\", "/"), "absolute AGDF-owned data root");
-  assert.equal(digestNormalizedPluginSource(staged.pluginRoot, version), digestNormalizedPluginSource(pluginRoot, version),
-    "installed absolute paths must not change the provenance digest");
-  const tampered = renderCodexPluginMcpConfig().replace('"node"', '"sh"');
-  writeFileSync(join(staged.pluginRoot, "mcp", "codex.mcp.json"), tampered);
-  assert.notEqual(digestNormalizedPluginSource(staged.pluginRoot, version), digestNormalizedPluginSource(pluginRoot, version),
-    "any other declaration must change the provenance digest");
-
-  // The launcher takes the Codex surface and data root from its arguments.
-  const ensured = [];
-  const prepared = await launchClaudePluginMcpServer({
-    pluginRoot, argv: ["--surface", "codex", "--data", args[4], "--prepare"], env: {},
-    stdout: { write() {} }, stderr: { write() {} },
-    ensure(input) { ensured.push(input); return { status: "matched", version, root: "/r", changed: false }; },
-  });
-  assert.equal(prepared.status, "matched");
-  assert.deepEqual(ensured, [{ pluginRoot, dataRoot: args[4] }]);
-  assert.equal(parseLauncherArguments(["--surface", "codex", "--data", "relative"], {}), null, "a relative data root is rejected");
-
-  // The installer prewarm reuses exactly the installed declaration.
-  const prewarm = [];
-  writeFileSync(join(staged.pluginRoot, "mcp", "codex.mcp.json"), renderCodexPluginMcpConfig({ pluginRoot: staged.pluginRoot, dataRoot: args[4] }));
-  assert.deepEqual(prepareCodexPluginMcp({ pluginRoot: staged.pluginRoot, execPath: "/node", exec(file, argv) { prewarm.push([file, argv]); return ""; } }),
-    ["codex_plugin_mcp:prepared"]);
-  assert.deepEqual(prewarm, [["/node", [...args, "--prepare"]]]);
-} finally {
-  rmSync(codexRoot, { recursive: true, force: true });
-}
-
-// `agdf uninstall --surface codex` removes the owned Codex plugin MCP runtime, which lives in the AGDF
-// data root because `codex plugin remove` cannot reach it, and keeps anything it does not own.
-const uninstallRoot = mkdtempSync(join(tmpdir(), "agdf-codex-uninstall-"));
-try {
-  const codexData = join(uninstallRoot, "mcp", "codex-plugin");
-  assert.equal(inspectPluginMcpDataRoot(codexData), "absent");
-  ensureClaudePluginMcpRuntime({ pluginRoot, dataRoot: codexData, exec: offlineNpm });
-  assert.equal(inspectPluginMcpDataRoot(codexData), "owned");
-  const plan = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: uninstallRoot } });
-  assert.deepEqual(plan.mutations.map(({ kind }) => kind), ["command", "remove_tree"]);
-  assert.equal(plan.mutations[1].path, codexData);
-  writeFileSync(join(codexData, "user-notes.txt"), "keep\n");
-  assert.equal(inspectPluginMcpDataRoot(codexData), "foreign");
-  const kept = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: uninstallRoot } });
-  assert.deepEqual(kept.mutations.map(({ kind }) => kind), ["command"], "unowned content blocks removal");
-  assert.ok(kept.retained.some((entry) => entry.includes(codexData)));
-} finally {
-  rmSync(uninstallRoot, { recursive: true, force: true });
-}
-
-// Only the AGDF-owned user registration of earlier releases is retired.
-const legacyCodex = { name: "agdf", transport: { type: "stdio", command: "/node", args: ["/home/me/.local/share/agdf/mcp/user/0.14.5/node_modules/@agdf/mcp-server/bin/agdf-mcp.js", "--surface", "codex"] } };
-for (const [entry, expectedDisable] of [
-  [legacyCodex, true],
-  [{ ...legacyCodex, transport: { ...legacyCodex.transport, args: ["/p/mcp/agdf-mcp-launch.js", "--surface", "codex", "--data", "/d"] } }, false],
-  [{ ...legacyCodex, transport: { ...legacyCodex.transport, args: ["/other/server.js", "--surface", "codex"] } }, false],
-]) {
-  const calls = [];
-  const evidence = migrateLegacyCodexMcpRegistration({
-    env: {}, exec: () => JSON.stringify(entry), mcpLifecycle(input) { calls.push(input); return { result: "disabled" }; },
-  });
-  assert.equal(calls.length, expectedDisable ? 1 : 0);
-  if (expectedDisable) assert.deepEqual([calls[0].action, calls[0].surface, calls[0].scope, evidence], ["disable", "codex", "user", ["legacy_user_mcp_registration:disabled"]]);
-}
-assert.deepEqual(migrateLegacyCodexMcpRegistration({ env: {}, exec() { throw new Error("no codex"); } }), []);
-
-console.log("Claude and Codex plugin MCP tests passed");
+console.log("Claude plugin MCP tests passed");

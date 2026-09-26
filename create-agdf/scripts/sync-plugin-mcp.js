@@ -44,8 +44,10 @@ function copyText(source, destination, expected, root) {
   expected.add(relative(root, destination).replaceAll("\\", "/"));
 }
 
-export function syncClaudePluginMcp({ pluginRoot } = {}) {
-  if (!pluginRoot || resolve(pluginRoot) !== pluginRoot) throw new Error("Claude MCP sync requires an absolute pluginRoot.");
+// Writes the runtime plugin's mcp/ directory: the shared launcher and server copy plus one declaration per
+// host whose plugin starts the server itself (Claude Code, and Codex as an installer-completed template).
+export function syncPluginMcp({ pluginRoot } = {}) {
+  if (!pluginRoot || resolve(pluginRoot) !== pluginRoot) throw new Error("Plugin MCP sync requires an absolute pluginRoot.");
   const mcpRoot = join(pluginRoot, "mcp");
   mkdirSync(mcpRoot, { recursive: true });
   const expected = new Set(["claude.mcp.json", "codex.mcp.json", "agdf-mcp-launch.js"]);

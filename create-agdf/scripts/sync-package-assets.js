@@ -3,7 +3,7 @@ import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync, st
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPluginRuntime } from "./sync-plugin-runtime.js";
-import { syncClaudePluginMcp } from "./sync-plugin-mcp.js";
+import { syncPluginMcp } from "./sync-plugin-mcp.js";
 import {
   renderClaudePluginManifest,
   renderCodexPluginManifest,
@@ -604,7 +604,7 @@ export function syncPackageAssets({
   // The runtime plugin root is shared by Codex and Claude Code; it always carries the plugin-local
   // MCP launcher so `claude plugin uninstall` removes the MCP registration and its runtime.
   syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, claudeMcp: true });
-  syncClaudePluginMcp({ pluginRoot: generatedCodexPluginRoot });
+  syncPluginMcp({ pluginRoot: generatedCodexPluginRoot });
   write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
   write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
   if (copilot) {

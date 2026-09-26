@@ -10,7 +10,10 @@ set -u
 
 CODEX="${CODEX_BIN:-codex}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-OUT="${TMPDIR:-/tmp}"; OUT="$(cd "$OUT" && pwd -P)/agdf-codex-hookprobe-$STAMP"
+# Results stay in this checkout (git-ignored probe-results/), not in the system temp directory.
+REPO="$(cd "$(dirname "$0")/../.." && pwd -P)"
+OUT_REL="probe-results/codex-hook-probe-$STAMP"
+OUT="$REPO/$OUT_REL"
 MARKETPLACE="$OUT/marketplace"
 PLUGIN="$MARKETPLACE/plugins/hookprobe"
 LOG="$OUT/probe-log.jsonl"
@@ -63,7 +66,7 @@ EOF
 node -e 'const fs=require("fs");const [file,log]=process.argv.slice(1);fs.writeFileSync(file,fs.readFileSync(file,"utf8").replace("__AGDF_PROBE_LOG__",JSON.stringify(log)))' "$PLUGIN/probe.js" "$LOG"
 
 say "AGDF Codex-Hook-Probe ($STAMP), Codex: $("$CODEX" --version 2>&1 | head -1)"
-say "Ergebnisse: $OUT"
+say "Ergebnisse: $OUT_REL/"
 "$CODEX" plugin marketplace add "$MARKETPLACE" --json > "$OUT/01-marketplace-add.json" 2>&1 || say "marketplace add fehlgeschlagen (siehe 01-marketplace-add.json)"
 "$CODEX" plugin add "hookprobe@$MARKETPLACE_ID" --json > "$OUT/02-plugin-add.json" 2>&1 || say "plugin add fehlgeschlagen (siehe 02-plugin-add.json)"
 
@@ -106,4 +109,4 @@ say ""
 say "Aufräumen:"
 "$CODEX" plugin remove "hookprobe@$MARKETPLACE_ID" > "$OUT/04-plugin-remove.txt" 2>&1 && say "- Probe-Plugin entfernt" || say "- Probe-Plugin entfernen fehlgeschlagen (04-plugin-remove.txt)"
 "$CODEX" plugin marketplace remove "$MARKETPLACE_ID" --json > "$OUT/05-marketplace-remove.json" 2>&1 && say "- Probe-Marketplace entfernt" || say "- Probe-Marketplace entfernen fehlgeschlagen (05-marketplace-remove.json)"
-say "Bitte den Inhalt von $SUMMARY an Claude zurückgeben."
+say "Bitte den Inhalt von $OUT_REL/summary.txt an Claude zurückgeben."

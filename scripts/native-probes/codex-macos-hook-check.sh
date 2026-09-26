@@ -10,7 +10,9 @@ set -u
 REPO="$(cd "$(dirname "$0")/../.." && pwd -P)"
 CODEX="${CODEX_BIN:-codex}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
-OUT="${TMPDIR:-/tmp}"; OUT="$(cd "$OUT" && pwd -P)/agdf-codex-hook-check-$STAMP"
+# Results stay in this checkout (git-ignored probe-results/), not in the system temp directory.
+OUT_REL="probe-results/codex-hook-check-$STAMP"
+OUT="$REPO/$OUT_REL"
 EXPECTED='node "${CLAUDE_PLUGIN_ROOT}/runtime/agdf-session-check.js"'
 SUMMARY="$OUT/summary.txt"
 mkdir -p "$OUT/backup"
@@ -47,7 +49,7 @@ git -C "$REPO" merge-base --is-ancestor 4e414ab HEAD 2>/dev/null || { echo "Der 
 [ "$(hook_command "$REPO/plugin/hooks/hooks.json")" = "$EXPECTED" ] || { echo "plugin/hooks/hooks.json enthält nicht die erwartete Hook-Zeile."; exit 2; }
 
 say "AGDF Codex-Hook-Check ($STAMP)"
-say "Ergebnisse: $OUT"
+say "Ergebnisse: $OUT_REL/"
 result "macOS" "$(sw_vers -productVersion) ($(uname -m))"
 result "node" "$(node --version)"
 result "codex" "$("$CODEX" --version 2>&1 | head -1)"
@@ -124,4 +126,4 @@ fi
 
 say ""
 say "Zurück zur veröffentlichten Version:  npx --yes @agdf/cli@0.14.5 codex"
-say "Bitte den Inhalt von $SUMMARY an Claude zurückgeben."
+say "Bitte den Inhalt von $OUT_REL/summary.txt an Claude zurückgeben."

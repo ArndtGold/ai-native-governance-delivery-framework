@@ -10,7 +10,7 @@
 #   3. Where is the plugin data directory, and is ${PLUGIN_DATA} expanded in MCP args?
 #   4. What does `codex plugin remove` delete, and what stays behind?
 #
-# Everything runs in an isolated CODEX_HOME under a temporary directory; your real ~/.codex is only
+# Everything runs in an isolated CODEX_HOME inside probe-results/; your real ~/.codex is only
 # read to copy auth.json (needed for the one short `codex exec` session) and is never modified.
 # The copied auth.json is deleted right after that session.
 #
@@ -47,8 +47,9 @@ command -v "$CODEX" >/dev/null 2>&1 || [ -x "$CODEX" ] || { echo "Codex nicht ge
 CODEX="$(command -v "$CODEX")"
 codex() { "$CODEX" "$@"; }
 
-PROBE="$(mktemp -d "${TMPDIR:-/tmp}/agdf-codex-probe.XXXXXX")"
-PROBE="$(cd "$PROBE" && pwd -P)"
+# The disposable Codex working directory lives next to the results, not in the system temp directory.
+PROBE="$RESULTS/work-tmp"
+mkdir -p "$PROBE" && PROBE="$(cd "$PROBE" && pwd -P)"
 export CODEX_HOME="$PROBE/codex-home"
 LOG="$PROBE/log"
 MKT="$PROBE/marketplace"
@@ -285,10 +286,10 @@ rm -f "$CODEX_HOME/auth.json"
 } 2>&1 | sed "s#$PROBE#<PROBE>#g" > "$SUMMARY"
 cp "$LOG"/*.json "$RESULTS/" 2>/dev/null
 if [ "$KEEP" = 1 ]; then
-  echo "Temporärer Codex-Arbeitsordner behalten: $PROBE"
+  echo "Temporärer Codex-Arbeitsordner behalten: $RESULTS_REL/work-tmp"
 else
-  # Only the directory mktemp created above is ever removed.
-  case "$PROBE" in */agdf-codex-probe.*) rm -rf "$PROBE" ;; esac
+  # Only the working directory created above is ever removed; results stay.
+  case "$PROBE" in */probe-results/codex-mcp-probe-*/work-tmp) rm -rf "$PROBE" ;; esac
 fi
 echo
 cat "$SUMMARY"

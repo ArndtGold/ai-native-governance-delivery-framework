@@ -28,6 +28,7 @@ import { createMcpLifecycleResult } from "./result.js";
 const ACTIONS = new Set(["status", "enable", "disable"]);
 const SURFACES = new Set(["codex", "claude", "opencode", "copilot"]);
 const SCOPES = new Set(["project", "user"]);
+export const PLUGIN_MANAGED_SURFACES = Object.freeze(["claude", "codex"]);
 
 function major(version) { return Number.parseInt(String(version).split(".")[0], 10); }
 
@@ -175,6 +176,8 @@ export function runMcpLifecycle({
   createRegistrationTransaction = createMcpRegistrationTransaction,
   createReferenceTransaction = createMcpRuntimeReferenceTransaction,
   createRetirementTransaction = createMcpRuntimeRetirementTransaction,
+  // Hosts whose runtime plugin declares the AGDF MCP server itself; enable refuses a second registration.
+  pluginManagedSurfaces = PLUGIN_MANAGED_SURFACES,
 } = {}) {
   if (!ACTIONS.has(action) || !SURFACES.has(surface) || !SCOPES.has(scope) || !isAbsolute(target || "")) {
     throw new Error("AGDF_MCP_LIFECYCLE_INPUT_INVALID");
@@ -190,15 +193,15 @@ export function runMcpLifecycle({
   const base = { action, surface, scope, target: selectedTarget, execPath, nodeVersion, expectedVersion,
     permissionEffect: mcpPermissionEffect(surface, { scope, target: selectedTarget }) };
 
-  // Claude Code starts the AGDF MCP server from the plugin manifest. A second `claude mcp add`
-  // registration would duplicate it and survive `claude plugin uninstall`; status and disable remain
-  // available to inspect and retire registrations made by earlier releases.
-  if (action === "enable" && surface === "claude") {
+  // Claude Code and Codex start the AGDF MCP server from the runtime plugin. A second host registration
+  // would duplicate it and survive plugin removal; status and disable remain available to inspect and
+  // retire registrations made by earlier releases.
+  if (action === "enable" && pluginManagedSurfaces.includes(surface)) {
     return envelope({ ...base, result: "not_configured", capability: "unverified", host: null,
       runtime: { status: "absent", version: expectedVersion },
       registration: { status: "absent", selected_status: "absent", effective_status: "absent", selected_source: "user",
         effective_source: "none", sources: [], path: null, native_scope: mcpNativeScope(surface, scope) },
-      diagnostics: [{ code: "claude_plugin_managed" }], nextAction: { code: "use_claude_plugin_mcp" } });
+      diagnostics: [{ code: `${surface}_plugin_managed` }], nextAction: { code: `use_${surface}_plugin_mcp` } });
   }
 
   if (!Number.isInteger(major(nodeVersion)) || major(nodeVersion) < 20) {

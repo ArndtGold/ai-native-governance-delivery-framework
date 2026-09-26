@@ -1,3 +1,4 @@
+import process from "node:process";
 import { inspectPluginList } from "../../installers/plugin-command.js";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -7,8 +8,16 @@ import { pluginDefinition } from "../../cli/runtime-context.js";
 import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOptions, runPluginPhase, lifecycleAdapterError, pluginVersionFromList, versionMismatchMessage, recoveryAttempt } from "../../installers/plugin-command.js";
 import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./identity.js";
 import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
+import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "./plugin-mcp.js";
 
-export function installCodexGlobalPlugin({ exec = execHostFileSync, prepare = prepareLocalMarketplace, dataRoot } = {}) {
+export function installCodexGlobalPlugin({
+  exec = execHostFileSync,
+  prepare = prepareLocalMarketplace,
+  dataRoot,
+  env = process.env,
+  migrateMcp = migrateLegacyCodexMcpRegistration,
+  prepareMcp = prepareCodexPluginMcp,
+} = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
   const transaction = prepare({ expectedVersion, codexRegistrationRevision: CODEX_REGISTRATION_REVISION, ...(dataRoot ? { dataRoot } : {}) });
@@ -24,6 +33,12 @@ export function installCodexGlobalPlugin({ exec = execHostFileSync, prepare = pr
       throw lifecycleAdapterError("version", versionMismatchMessage("Codex", "agdf@agdf", expectedInstallVersion, installedVersion, "npx --yes @agdf/cli@latest codex"));
     }
     transaction.commit();
+    // Best effort, both: retire the legacy user-scope `agdf` registration, which shares the plugin server
+    // name and survives `codex plugin remove`, then prewarm the runtime the launcher would install on first start.
+    const mcpEvidence = [
+      ...migrateMcp({ exec, env }),
+      ...(transaction.pluginRoot ? prepareMcp({ exec, pluginRoot: transaction.pluginRoot }) : []),
+    ];
     return {
       surface: "codex", operation: migration.state === "owned_local_current" ? "update" : "install", expectedVersion: expectedInstallVersion, canonicalVersion: expectedVersion, installedVersion, verificationStatus: "healthy",
       evidence: [
@@ -37,6 +52,7 @@ export function installCodexGlobalPlugin({ exec = execHostFileSync, prepare = pr
         ...(transaction.existingClassification === "owned_supported_historical_rebuild" ? ["marketplace_recovery:owned_supported_historical_rebuild", "loaded_session:fresh_session_required"] : []),
         ...historicalEvidenceEntries(transaction),
         ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`]),
+        ...mcpEvidence,
       ],
       pluginRoot: transaction.pluginRoot ?? null,
       digest: transaction.digest ?? null,

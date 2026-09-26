@@ -1,6 +1,6 @@
 import { execFileSync, spawn } from "node:child_process";
 import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../runtime/plugin-provenance.js";
 import { inspectMcpServerPackage, mcpPackageConstants, prepareMcpServerPackage } from "./package.js";
@@ -100,6 +100,20 @@ export function ensureClaudePluginMcpRuntime({
   }
 }
 
+// Claude Code passes ${CLAUDE_PLUGIN_DATA} in the environment and needs no arguments. Codex passes no
+// plugin variables, so its installer-written declaration names the surface and an absolute data root.
+export function parseLauncherArguments(argv, env = {}) {
+  const args = [...argv];
+  const prepareOnly = args.at(-1) === "--prepare";
+  if (prepareOnly) args.pop();
+  if (args.length === 0) return { surface: "claude", dataRoot: env.CLAUDE_PLUGIN_DATA, prepareOnly };
+  if (args.length === 4 && args[0] === "--surface" && args[1] === "codex" && args[2] === "--data"
+      && typeof args[3] === "string" && isAbsolute(args[3])) {
+    return { surface: "codex", dataRoot: args[3], prepareOnly };
+  }
+  return null;
+}
+
 export async function launchClaudePluginMcpServer({
   pluginRoot,
   argv = process.argv.slice(2),
@@ -109,15 +123,16 @@ export async function launchClaudePluginMcpServer({
   ensure = ensureClaudePluginMcpRuntime,
   execPath = process.execPath,
 } = {}) {
-  const prepareOnly = argv.length === 1 && argv[0] === "--prepare";
-  if (argv.length && !prepareOnly) {
+  const invocation = parseLauncherArguments(argv, env);
+  if (!invocation) {
     stderr.write("AGDF_MCP_ARGUMENTS_INVALID\n");
     process.exitCode = 1;
     return null;
   }
+  const { surface, dataRoot, prepareOnly } = invocation;
   let runtime;
   try {
-    runtime = ensure({ pluginRoot, dataRoot: env.CLAUDE_PLUGIN_DATA });
+    runtime = ensure({ pluginRoot, dataRoot });
   } catch (error) {
     stderr.write(`${/^AGDF_[A-Z_]+/.exec(error?.message ?? "")?.[0] ?? "AGDF_MCP_PLUGIN_RUNTIME_FAILED"}\n`);
     process.exitCode = 1;
@@ -129,7 +144,7 @@ export async function launchClaudePluginMcpServer({
   }
   // The verified server runs as a child with inherited stdio, exactly as a direct registration
   // would start it; the launcher only forwards termination and the exit status.
-  const child = spawn(execPath, [runtime.entrypoint, "--surface", "claude"], { stdio: "inherit" });
+  const child = spawn(execPath, [runtime.entrypoint, "--surface", surface], { stdio: "inherit" });
   for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => child.kill(signal));
   return new Promise((resolveExit) => {
     child.once("error", () => { stderr.write("AGDF_MCP_PLUGIN_RUNTIME_FAILED\n"); process.exitCode = 1; resolveExit(null); });
@@ -144,3 +159,26 @@ export function claudePluginDataRoot({ claudeConfigDir, pluginId = "agdf@agdf" }
 }
 
 export const claudePluginMcpConstants = Object.freeze({ sdkPackageSpec: SDK_PACKAGE_SPEC, launcher: "mcp/agdf-mcp-launch.js" });
+
+// Codex keeps the plugin-local MCP runtime in an AGDF-owned data root because it passes no plugin data
+// directory; `codex plugin remove` cannot delete it. `dataRoot` is the launcher data root (--data);
+// uninstall removes it only when it holds nothing but owned runtimes and abandoned stages under mcp/.
+export function inspectPluginMcpDataRoot(dataRoot) {
+  if (!existsSync(dataRoot)) return "absent";
+  try {
+    if (!lstatSync(dataRoot).isDirectory() || lstatSync(dataRoot).isSymbolicLink()) return "foreign";
+    if (readdirSync(dataRoot).some((name) => name !== "mcp")) return "foreign";
+    const mcpDataRoot = join(dataRoot, "mcp");
+    if (!existsSync(mcpDataRoot)) return "owned";
+    if (!lstatSync(mcpDataRoot).isDirectory() || lstatSync(mcpDataRoot).isSymbolicLink()) return "foreign";
+    for (const name of readdirSync(mcpDataRoot)) {
+      const path = join(mcpDataRoot, name);
+      const stats = lstatSync(path);
+      if (!stats.isDirectory() || stats.isSymbolicLink()) return "foreign";
+      if (!name.startsWith(".stage-") && !ownedRoot(path)) return "foreign";
+    }
+    return "owned";
+  } catch {
+    return "foreign";
+  }
+}

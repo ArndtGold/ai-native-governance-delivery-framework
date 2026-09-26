@@ -6,7 +6,11 @@ function publicValues(definition) {
   return distribution;
 }
 
-export function createCodexPluginManifest(definition, { publicCandidate = false } = {}) {
+// Codex reads the plugin-local MCP declaration only from the runtime plugin, where the installer has
+// written absolute paths; the source plugin and public candidates carry no runtime and no declaration.
+export const CODEX_RUNTIME_MCP_SERVERS = "./mcp/codex.mcp.json";
+
+export function createCodexPluginManifest(definition, { publicCandidate = false, runtimeProfile = false } = {}) {
   const distribution = publicValues(definition);
   const pluginInterface = publicCandidate ? {
     displayName: distribution.publicDisplayName,
@@ -29,9 +33,7 @@ export function createCodexPluginManifest(definition, { publicCandidate = false 
     license: definition.license,
     keywords: definition.keywords,
     skills: definition.codex.skills,
-    // The runtime distribution carries a local MCP declaration. Public submission
-    // candidates deliberately omit this through the existing public builder.
-    ...(publicCandidate ? {} : { mcpServers: "./.mcp.json" }),
+    ...(runtimeProfile && !publicCandidate ? { mcpServers: CODEX_RUNTIME_MCP_SERVERS } : {}),
     interface: {
       displayName: pluginInterface.displayName,
       shortDescription: pluginInterface.shortDescription,

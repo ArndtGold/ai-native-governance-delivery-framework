@@ -1,3 +1,4 @@
+import process from "node:process";
 import { execFileSync } from "node:child_process";
 import { execHostFileSync } from "../host-command.js";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -16,6 +17,8 @@ import { inspectPluginSurface } from "../installers/plugin-installers.js";
 import { planCodexRepositoryDisable, verifyCodexRepositoryDisabled, uninstallCommand as codexUninstallCommand } from "../host-adapters/codex/plugin.js";
 import { planClaudeGlobalUninstall, verifyClaudeGlobalUninstall } from "../host-adapters/claude/uninstall.js";
 import { revokeClaudeRuntimeRule } from "../runtime-check-consent/claude-settings.js";
+import { inspectPluginMcpDataRoot } from "../mcp-lifecycle/plugin-runtime.js";
+import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
 import { uninstallCommand as copilotUninstallCommand } from "../host-adapters/copilot/plugin.js";
 
 export function planRepositoryDisable(targetDir, surface, { shared = false, exec = execFileSync } = {}) {
@@ -67,7 +70,16 @@ export function planGlobalUninstall(surface, { configDir, ...claudeOptions } = {
   const command = surface === "codex" ? codexUninstallCommand()
     : surface === "copilot" ? copilotUninstallCommand() : null;
   if (!command) throw new Error(`Global uninstall is not supported for ${surface}.`);
-  return nativeUninstallPlan(surface, command.executable, command.args);
+  const plan = nativeUninstallPlan(surface, command.executable, command.args);
+  if (surface !== "codex") return plan;
+  // The Codex plugin MCP runtime lives in the AGDF data root, which `codex plugin remove` never touches.
+  const runtimeRoot = join(defaultAgdfDataRoot({ env: claudeOptions.env ?? process.env }), "mcp", "codex-plugin");
+  const state = inspectPluginMcpDataRoot(runtimeRoot);
+  return Object.freeze({
+    ...plan,
+    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot }] : [])]),
+    retained: Object.freeze([...plan.retained, ...(state === "foreign" ? [`Codex plugin MCP runtime with unowned content: ${runtimeRoot}`] : [])]),
+  });
 }
 
 function nativeUninstallPlan(surface, executable, args) {
@@ -95,6 +107,9 @@ export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilot
       } else if (mutation.kind === "remove") {
         rmSync(mutation.path);
         completed.push({ kind: "remove", path: mutation.path });
+      } else if (mutation.kind === "remove_tree") {
+        rmSync(mutation.path, { recursive: true, force: true });
+        completed.push({ kind: "remove_tree", path: mutation.path });
       } else if (mutation.kind === "claude_permission_rules") {
         for (const rule of mutation.rules) revokeClaudeRuntimeRule({ path: mutation.path, rule });
         completed.push({ kind: "claude_permission_rules", path: mutation.path, rules: mutation.rules });

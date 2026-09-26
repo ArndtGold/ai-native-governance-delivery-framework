@@ -104,6 +104,7 @@ function describeChange(change) {
   if (change.kind === "command") return [change.executable, ...(change.args ?? [])].join(" ");
   if (change.kind === "claude_permission_rules") return `revoke ${change.rules.length} AGDF runtime-check permission rule(s) in ${change.path}`;
   if (change.kind === "remove") return `remove ${change.path}`;
+  if (change.kind === "remove_tree") return `remove the owned AGDF plugin MCP runtime ${change.path}`;
   return typeof change === "string" ? change : JSON.stringify(change);
 }
 

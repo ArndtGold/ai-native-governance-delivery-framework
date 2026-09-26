@@ -9,6 +9,42 @@ export const COPILOT_PAYLOAD_INVENTORY_FILE = ".agdf-payload-inventory.json";
 // (Claude Code: `.in_use/<pid>`). They are not plugin payload and must not affect provenance.
 export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
 
+// Codex starts plugin MCP servers only from absolute paths and passes no plugin root or data directory
+// (native probe, Codex 0.145/0.157). The runtime plugin therefore ships a template that the installer
+// fills with the absolute marketplace plugin root and data directory; provenance digests the template.
+export const CODEX_PLUGIN_MCP_FILE = "mcp/codex.mcp.json";
+const CODEX_ROOT_TOKEN = "{{AGDF_PLUGIN_ROOT}}";
+const CODEX_DATA_TOKEN = "{{AGDF_MCP_DATA}}";
+
+export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN } = {}) {
+  const root = pluginRoot.replaceAll("\\", "/");
+  return `${JSON.stringify({
+    mcpServers: {
+      agdf: {
+        command: "node",
+        args: [`${root}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")],
+      },
+    },
+  }, null, 2)}\n`;
+}
+
+// Returns the template for any config of the owned shape, so an installed file with absolute paths
+// digests exactly like the generated one; any other content is returned unchanged and therefore
+// changes the digest.
+export function normalizeCodexPluginMcpConfig(content) {
+  try {
+    const config = JSON.parse(String(content));
+    const args = config.mcpServers?.agdf?.args;
+    if (Object.keys(config).length === 1 && Object.keys(config.mcpServers ?? {}).length === 1
+        && config.mcpServers.agdf.command === "node" && Array.isArray(args) && args.length === 5
+        && args[0].endsWith("/mcp/agdf-mcp-launch.js") && args[1] === "--surface" && args[2] === "codex"
+        && args[3] === "--data" && typeof args[4] === "string" && args[4]) {
+      return renderCodexPluginMcpConfig();
+    }
+  } catch {}
+  return content;
+}
+
 function isHostRuntimeMarker(root, directory, name) {
   return directory === root && HOST_RUNTIME_MARKER_DIRECTORIES.includes(name);
 }
@@ -165,6 +201,8 @@ export function digestNormalizedPluginSource(root, canonicalVersion) {
       const manifest = readJson(path);
       if (!manifest) throw new Error(`Invalid Codex plugin manifest: ${path}`);
       content = `${JSON.stringify({ ...manifest, version: canonicalVersion }, null, 2)}\n`;
+    } else if (normalizedPath === CODEX_PLUGIN_MCP_FILE) {
+      content = normalizeCodexPluginMcpConfig(content);
     }
     hash.update(normalizedPath);
     hash.update("\0");

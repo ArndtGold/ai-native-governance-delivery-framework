@@ -18,9 +18,11 @@ import { renameSyncWithRetry } from "../fs-swap.js";
 import { buildCopilotMarketplaceTransport, copilotMarketplaceSpec, COPILOT_TRANSPORT_REVISION, verifyCopilotMarketplaceTransport } from "./copilot-marketplace-transport.js";
 import { classifyHistoricalDistributionProfile } from "../runtime/distribution-profile-history.js";
 import {
+  CODEX_PLUGIN_MCP_FILE,
   INSTALLATION_PROVENANCE_FILE,
   LEGACY_LOCAL_INSTALL_FILE,
   digestDirectory,
+  renderCodexPluginMcpConfig,
   inspectCopilotPayloadInventory,
   digestNormalizedPluginSource,
   inspectInstallationProvenance,
@@ -498,6 +500,15 @@ function prepareLocalMarketplaceFromSource({
     });
     const stagedPluginRoot = join(stageRoot, "plugins", MARKETPLACE_ID);
     cpSync(builtPluginRoot, stagedPluginRoot, { recursive: true });
+    // Codex starts plugin MCP servers only from absolute paths and passes no plugin data directory,
+    // so the installed declaration names the final marketplace plugin root and an AGDF-owned data root.
+    const codexMcpPath = join(stagedPluginRoot, CODEX_PLUGIN_MCP_FILE);
+    if (!copilotProfile && existsSync(codexMcpPath)) {
+      writeFileSync(codexMcpPath, renderCodexPluginMcpConfig({
+        pluginRoot: join(stableRoot, "plugins", MARKETPLACE_ID),
+        dataRoot: join(dataRoot, "mcp", "codex-plugin"),
+      }), "utf8");
+    }
     sourceStaged();
     validateBuiltPlugin(stagedPluginRoot, expectedVersion, expectedVersion, "", { profileId });
     if (!copilotProfile && codexInstallVersion !== expectedVersion) {

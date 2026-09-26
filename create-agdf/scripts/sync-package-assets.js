@@ -174,12 +174,14 @@ function syncDirectory(sourceRoot, targetRoot) {
 
 function syncPluginDirectory(sourceRoot, targetRoot) {
   prepareGeneratedDirectory(targetRoot, "generated plugin directory");
-  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => entry !== "runtime"));
+  // runtime/ and mcp/ are generated into the runtime plugin only and never come from the source plugin.
+  const generatedOnly = new Set(["runtime", "mcp"]);
+  const sourceEntries = new Set(readdirSync(sourceRoot).filter((entry) => !generatedOnly.has(entry)));
   for (const entry of readdirSync(targetRoot)) {
-    if (!sourceEntries.has(entry)) removeGeneratedPath(join(targetRoot, entry), "generated plugin stale entry");
+    if (!sourceEntries.has(entry) && !generatedOnly.has(entry)) removeGeneratedPath(join(targetRoot, entry), "generated plugin stale entry");
   }
   for (const entry of readdirSync(sourceRoot)) {
-    if (entry === "runtime") continue;
+    if (generatedOnly.has(entry)) continue;
 
     const sourcePath = join(sourceRoot, entry);
     const targetPath = join(targetRoot, entry);
@@ -572,16 +574,9 @@ export function syncPackageAssets({
   // Project the source Codex manifest from the canonical definition before staging the complete
   // plugin. Host manifests are generated projections, never independent metadata owners.
   write(join(sourcePluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition));
-  // Codex loads plugin MCP declarations from the plugin package. Keep the command
-  // version matched and non-interactive so a normal plugin install can initialize it.
-  write(join(sourcePluginRoot, ".mcp.json"), `${JSON.stringify({
-    mcpServers: {
-      agdf: {
-        command: "npx",
-        args: ["--yes", `@agdf/mcp-server@${pluginDefinition.version}`, "--surface", "codex"],
-      },
-    },
-  }, null, 2)}\n`);
+  // No plugin-root .mcp.json: Claude Code loads that file automatically, and neither host can start
+  // the server from it (Codex needs absolute paths, the package is not on npm). The runtime plugin
+  // declares host-specific MCP files under mcp/ instead.
   write(join(sourcePluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition));
   // Synchronize source-owned assets in place. Removing the complete generated tree first creates a
   // real missing-assets window when pack, smoke and another agent/session run concurrently.
@@ -606,7 +601,12 @@ export function syncPackageAssets({
     writeOpenCodeReadme(skillSlugs);
   }
   const generatedCodexRuntimeRoot = assertGeneratedPathSafe(join(generatedCodexPluginRoot, "runtime"), "generated Codex runtime");
-  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot });
+  // The runtime plugin root is shared by Codex and Claude Code; it always carries the plugin-local
+  // MCP launcher so `claude plugin uninstall` removes the MCP registration and its runtime.
+  syncPluginRuntime({ outputRoot: generatedCodexRuntimeRoot, claudeMcp: true });
+  syncClaudePluginMcp({ pluginRoot: generatedCodexPluginRoot });
+  write(join(generatedCodexPluginRoot, ".claude-plugin", "plugin.json"), renderClaudePluginManifest(pluginDefinition, { runtimeProfile: true }));
+  write(join(generatedCodexPluginRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(pluginDefinition, { runtimeProfile: true }));
   if (copilot) {
     writeCopilotPluginFiles();
     writeCopilotSupportFiles();

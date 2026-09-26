@@ -59,18 +59,18 @@ plugin-only. Complete setup requires `--with-mcp` and an absolute `--dir` entere
 
 ```bash
 # Existing automation remains plugin-only.
-npx --yes @agdf/cli@latest codex --plugin-only
+npx --yes @agdf/cli@latest copilot --plugin-only
 
 # Install the plugin and register MCP for one project.
-npx --yes @agdf/cli@latest codex --with-mcp --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest copilot --with-mcp --dir /absolute/path/to/repository
 
 # Use the broader user MCP scope deliberately. The invocation target is still explicit.
 npx --yes @agdf/cli@latest copilot --with-mcp --scope user --dir /absolute/path/to/repository
 ```
 
-Claude Code is the exception: its AGDF plugin declares the MCP server itself, so the plugin-only
-installation is already the complete setup and `claude --with-mcp` is rejected. See
-[Claude Code: everything lives in the plugin](#claude-code-everything-lives-in-the-plugin).
+Claude Code and Codex are the exception: their AGDF plugin declares the MCP server itself, so the
+plugin-only installation is already the complete setup and `claude --with-mcp` or `codex --with-mcp`
+is rejected. See [Claude Code and Codex: MCP lives in the plugin](#claude-code-and-codex-mcp-lives-in-the-plugin).
 
 `--with-mcp` and `--plugin-only` cannot be combined. In non-interactive use, project scope is the
 complete-setup default and user scope must be written explicitly. Interactive use always asks for
@@ -115,14 +115,13 @@ The MCP process requires Node.js 20 or later. The existing CLI retains its Node.
 Use an absolute repository path and inspect the project scope before enabling it:
 
 ```bash
-npx --yes @agdf/cli@latest mcp status --surface codex --dir /absolute/path/to/repository --json
-npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absolute/path/to/repository
-npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp status --surface copilot --dir /absolute/path/to/repository --json
 npx --yes @agdf/cli@latest mcp enable --surface copilot --dir /absolute/path/to/repository
+npx --yes @agdf/cli@latest mcp disable --surface copilot --dir /absolute/path/to/repository
 ```
 
-Replace `codex` with `copilot` or `opencode` for another delivered adapter. For Claude Code,
-`mcp enable` registers nothing because the plugin already starts the server; `status` and
+Replace `copilot` with `opencode` for the other adapter that registers MCP. For Claude Code and
+Codex, `mcp enable` registers nothing because the plugin already starts the server; `status` and
 `disable` remain available for registrations made by earlier releases. Project scope is the
 default. Choose `--scope user` explicitly when the broader registration is intended. `status` never
 downloads a package or edits configuration. `enable` acquires the exact matching
@@ -131,7 +130,7 @@ exact Node executable and versioned entrypoint. `disable` removes only an owned 
 removes its owned runtime only when no managed reference remains. Foreign or malformed entries fail
 closed and preserve existing settings.
 
-The project configuration owners are `.codex/config.toml` for Codex, `.github/mcp.json` for the GitHub Copilot CLI contract and the version-matched MCP section in
+The project configuration owners are `.github/mcp.json` for the GitHub Copilot CLI contract and the version-matched MCP section in
 `opencode.json` for OpenCode. A Copilot `.mcp.json` entry has higher priority and blocks mutation of
 the managed project source until the conflict is resolved. OpenCode 1.x
 uses `mcp.agdf`; OpenCode 2.x uses `mcp.servers.agdf` and `disabled: false`. The lifecycle reads the
@@ -149,8 +148,8 @@ qualification record when the host does not expose its negotiated lane. Copilot 
 Desktop, IDE integrations and cloud agents remain separate client variants. Each tuple stays
 unverified until direct discovery, bounded dispatch, failure and cleanup evidence is complete. The
 public OpenAI Skills-only candidate remains MCP-free. A host or marketplace plugin installation
-never enables MCP, except for Claude Code, whose plugin declares the server. Otherwise only the
-explicit complete CLI setup or the separate `mcp enable` command can do so.
+never enables MCP, except for Claude Code and Codex, whose plugin declares the server. Otherwise only
+the explicit complete CLI setup or the separate `mcp enable` command can do so.
 
 ### Automatic runtime checks and installation consent
 
@@ -328,7 +327,9 @@ is still a preview; `--confirm` revalidates ownership before disabling MCP and r
 If the second operation fails, the output reports `partial` and never silently recreates the first
 state. Shared MCP runtimes remain until their final managed reference is removed.
 
-### Claude Code: everything lives in the plugin
+### Claude Code and Codex: MCP lives in the plugin
+
+#### Claude Code
 
 Claude Code has no uninstall callback for plugins, so AGDF keeps all Claude state inside surfaces the
 plugin owns. `claude plugin uninstall agdf@agdf` therefore removes AGDF completely:
@@ -350,6 +351,24 @@ Installing or updating through `npx --yes @agdf/cli@latest claude` also retires 
 wrote outside the plugin: a user-scope `agdf` MCP registration, the runtime-check permission rule and
 the runtime-check receipt. A project-scope registration from an earlier release is removed with
 `npx --yes @agdf/cli@latest mcp disable --surface claude --dir /absolute/path/to/repository`.
+
+#### Codex
+
+Codex starts plugin MCP servers only from absolute paths and passes the server neither a plugin root
+nor a data directory (native probe, Codex 0.145 and 0.157). The runtime plugin therefore declares
+the server in `mcp/codex.mcp.json`, and the AGDF installer writes the absolute launcher path in the
+AGDF marketplace and an AGDF-owned data directory into it; provenance digests the file's template.
+
+- `codex plugin remove agdf@agdf` removes the MCP declaration with the plugin. AGDF writes no
+  `[mcp_servers.agdf]` entry into `config.toml`.
+- The runtime lives in `<AGDF data directory>/mcp/codex-plugin`, because Codex offers no plugin data
+  directory. `codex plugin remove` cannot reach it; `npx --yes @agdf/cli@latest uninstall --surface
+  codex --scope global --confirm` removes it when it holds only AGDF-owned content.
+- Codex asks for approval before each MCP tool call. Non-interactive `codex exec` with approval
+  policy `never` rejects the call, and the skills fall back to the version-matched CLI dispatch.
+
+Installing or updating through `npx --yes @agdf/cli@latest codex` also retires a user-scope `agdf`
+registration from earlier releases, which would share the plugin server's name.
 
 ## Optional advanced planning and runtime reference
 

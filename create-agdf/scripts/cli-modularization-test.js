@@ -427,8 +427,10 @@ function prepareMarketplace() {
     ["codex", ["plugin", "marketplace", "add", fakeMarketplaceRoot, "--json"]],
     ["codex", ["plugin", "add", "agdf@agdf", "--json"]],
     ["codex", ["plugin", "list"]],
+    // Read-only check for the legacy user-scope registration the plugin's own MCP server replaces.
+    ["codex", ["mcp", "get", "agdf", "--json"]],
   ]);
-  assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["pipe", "pipe", "pipe", "pipe"]);
+  assert.deepEqual(recording.calls.map(({ options }) => options.stdio), ["pipe", "pipe", "pipe", "pipe", ["ignore", "pipe", "pipe"]]);
   assert.deepEqual(installed.nativeOutput, []);
 }
 
@@ -438,7 +440,7 @@ function prepareMarketplace() {
   assert.equal(await runCli(["codex"], { io: quiet.io, exec() { return outputs.shift(); }, prepare: prepareMarketplace, inspectPluginInstallation }), 0);
   assert.equal(quiet.out.some((line) => line.includes("marketplace added")), false, "successful host details are quiet by default");
   assert.match(quiet.out[0], /^AGDF installation setup\n/);
-  assert.match(quiet.out[0], /Effective state: plugin ready, MCP absent/);
+  assert.match(quiet.out[0], /Effective state: plugin ready, MCP included in the plugin/);
   assert.match(quiet.out[0], /Next action: Restart the host and start a fresh session\./);
   assert.equal(quiet.out.some((line) => line.includes("codex-repo")), false, "global installation must not route to the repository-local test path");
 
@@ -450,29 +452,20 @@ function prepareMarketplace() {
 }
 
 {
+  // The Codex runtime plugin declares its own MCP server, so complete setup is rejected before any
+  // host call; the install-setup service tests cover complete setup for hosts that still register.
   const output = recordingIo();
-  const hostOutputs = ['{"marketplaces":[]}', "", "", `agdf@agdf ${pluginDefinition.version}\n`];
+  const hostCalls = [];
   const mcpCalls = [];
   assert.equal(await runCli(["codex", "--with-mcp", "--dir", "/tmp", "--scope", "project", "--json"], {
     io: output.io,
-    exec() { return hostOutputs.shift(); },
+    exec(...args) { hostCalls.push(args); return ""; },
     prepare: prepareMarketplace,
     inspectPluginInstallation,
     mcpLifecycle(input) { mcpCalls.push(input); return inspectMcpInstallation(input); },
-  }), 0);
-  assert.deepEqual(mcpCalls.map(({ action, scope }) => [action, scope]), [
-    ["status", "project"],
-    ["status", "user"],
-    ["enable", "project"],
-  ]);
-  assert.equal(mcpCalls[2].target, resolve("/tmp"));
-  const report = JSON.parse(output.out[0]);
-  assert.equal(report.operation, "install_setup");
-  assert.equal(report.setup_request, "full");
-  assert.equal(report.effective_state, "configured_pending_restart");
-  assert.equal(report.plugin.result, "success");
-  assert.equal(report.mcp.result, "configured_pending_restart");
-  assert.equal(report.authorizes, false);
+  }), 1);
+  assert.deepEqual([hostCalls.length, mcpCalls.length], [0, 0]);
+  assert.match(output.err.join("\n"), /Codex starts the AGDF MCP server from the AGDF plugin; omit --with-mcp/);
 }
 
 {

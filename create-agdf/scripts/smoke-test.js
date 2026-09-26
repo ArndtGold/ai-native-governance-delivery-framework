@@ -311,6 +311,8 @@ if (args.join(" ") === "plugin list") {
       `plugin marketplace add ${join(dataRoot, "marketplaces", "agdf")} --json`,
       "plugin add agdf@agdf --json",
       "plugin list",
+      // Read-only check for a legacy user-scope registration the plugin's own MCP server replaces.
+      "mcp get agdf --json",
     ];
     if (JSON.stringify(calls) !== JSON.stringify(expectedCalls)) {
       throw new Error(`Codex global bootstrap command order changed: ${calls.join(" | ")}`);

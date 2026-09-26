@@ -493,6 +493,24 @@ function expectedSkillDescription(skill, suffix) {
   return `Use this skill for this scope: ${skill.useFor}. Boundary: ${skill.boundary}. ${suffix}`;
 }
 
+// Mirrors create-agdf/lib/runtime/plugin-provenance.js: the installer writes absolute paths into the
+// Codex MCP declaration, and provenance digests the template for any config of the owned shape.
+const CODEX_MCP_TEMPLATE = `${JSON.stringify({ mcpServers: { agdf: { command: "node",
+  args: ["{{AGDF_PLUGIN_ROOT}}/mcp/agdf-mcp-launch.js", "--surface", "codex", "--data", "{{AGDF_MCP_DATA}}"] } } }, null, 2)}\n`;
+function codexMcpShape(content) {
+  try {
+    const config = JSON.parse(String(content));
+    const args = config.mcpServers?.agdf?.args;
+    return Object.keys(config).length === 1 && Object.keys(config.mcpServers ?? {}).length === 1
+      && config.mcpServers.agdf.command === "node" && Array.isArray(args) && args.length === 5
+      && args[0].endsWith("/mcp/agdf-mcp-launch.js") && args[1] === "--surface" && args[2] === "codex"
+      && args[3] === "--data" && typeof args[4] === "string" && args[4].length > 0;
+  } catch { return false; }
+}
+function normalizeCodexPluginMcpConfig(content) {
+  return codexMcpShape(content) ? CODEX_MCP_TEMPLATE : content;
+}
+
 function digestPluginSource(root, canonicalVersion) {
   const files = [];
   function visit(directory) {
@@ -512,7 +530,9 @@ function digestPluginSource(root, canonicalVersion) {
     if ([".agdf-installation.json", ".agdf-local-install.json"].includes(normalizedPath)) continue;
     const content = normalizedPath === ".codex-plugin/plugin.json"
       ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
-      : readFileSync(path);
+      : normalizedPath === "mcp/codex.mcp.json"
+        ? normalizeCodexPluginMcpConfig(readFileSync(path, "utf8"))
+        : readFileSync(path);
     hash.update(normalizedPath);
     hash.update("\0");
     hash.update(content);
@@ -1245,6 +1265,17 @@ if (codexPlugin && pluginDefinition) {
   if (JSON.stringify(codexPlugin.keywords) !== JSON.stringify(pluginDefinition.keywords)) failures.push("Codex plugin manifest keywords must match canonical AGDF plugin definition");
   if (codexPlugin.author?.name !== pluginDefinition.author?.name || codexPlugin.author?.url !== pluginDefinition.author?.url) failures.push("Codex plugin manifest author must match canonical AGDF plugin definition");
   if (codexPlugin.skills !== pluginDefinition.codex?.skills) failures.push("Codex plugin manifest must point skills to canonical AGDF skills path");
+  // Claude Code loads a plugin-root .mcp.json automatically; each host gets its own file under mcp/.
+  if (isFile(join(pluginRoot, ".mcp.json"))) failures.push("plugin root must not contain .mcp.json; host MCP declarations live under mcp/");
+  if (sourceMode) {
+    if (codexPlugin.mcpServers !== undefined) failures.push("source Codex plugin manifest must not declare MCP servers");
+  } else {
+    const codexMcpPath = join(pluginRoot, "mcp", "codex.mcp.json");
+    if (codexPlugin.mcpServers !== "./mcp/codex.mcp.json") failures.push("runtime Codex plugin manifest must declare the plugin-local MCP server file");
+    if (!isFile(codexMcpPath) || !codexMcpShape(readFileSync(codexMcpPath, "utf8"))) {
+      failures.push("runtime Codex MCP config must start only the plugin-local AGDF MCP launcher with an absolute data root");
+    }
+  }
   if (codexPlugin.interface?.displayName !== pluginDefinition.displayName) failures.push("Codex plugin display name must match canonical AGDF plugin definition");
   if (codexPlugin.interface?.shortDescription !== pluginDefinition.description) failures.push("Codex plugin short description must match canonical AGDF plugin description");
   if (codexPlugin.interface?.longDescription !== pluginDefinition.longDescription) failures.push("Codex plugin long description must match canonical AGDF plugin definition");

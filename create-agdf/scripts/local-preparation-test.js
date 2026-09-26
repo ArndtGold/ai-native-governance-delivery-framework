@@ -15,6 +15,10 @@ try {
   for (const entry of ["scripts", "lib", "bin", "package.json", "NOTICE"]) {
     cpSync(join(repo, "create-agdf", entry), join(fixture, "create-agdf", entry), { recursive: true });
   }
+  // The runtime plugin ships the MCP server files its plugin-local launcher installs.
+  for (const entry of ["bin", "src", "package.json", "README.md", "NOTICE"]) {
+    cpSync(join(repo, "agdf-mcp-server", entry), join(fixture, "agdf-mcp-server", entry), { recursive: true });
+  }
   const baselinePath = join(fixture, "plugin", "meta", "copilot-payload-baseline.json");
   const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
   baseline.max_bytes = 1;

@@ -1,6 +1,7 @@
 import { chmodSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { CODEX_PLUGIN_MCP_FILE, renderCodexPluginMcpConfig } from "../lib/runtime/plugin-provenance.js";
 
 const scriptsRoot = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptsRoot, "..", "..");
@@ -47,9 +48,11 @@ export function syncClaudePluginMcp({ pluginRoot } = {}) {
   if (!pluginRoot || resolve(pluginRoot) !== pluginRoot) throw new Error("Claude MCP sync requires an absolute pluginRoot.");
   const mcpRoot = join(pluginRoot, "mcp");
   mkdirSync(mcpRoot, { recursive: true });
-  const expected = new Set(["claude.mcp.json", "agdf-mcp-launch.js"]);
+  const expected = new Set(["claude.mcp.json", "codex.mcp.json", "agdf-mcp-launch.js"]);
   writeFileSync(join(mcpRoot, "claude.mcp.json"), `${JSON.stringify(claudePluginMcpConfig(), null, 2)}\n`, "utf8");
   writeFileSync(join(mcpRoot, "agdf-mcp-launch.js"), LAUNCHER, "utf8");
+  // Template only: the installer writes the absolute marketplace paths Codex requires.
+  writeFileSync(join(pluginRoot, CODEX_PLUGIN_MCP_FILE), renderCodexPluginMcpConfig(), "utf8");
   for (const entry of SERVER_ENTRIES) {
     copyText(join(serverSourceRoot, entry), join(mcpRoot, "server", entry), expected, mcpRoot);
   }

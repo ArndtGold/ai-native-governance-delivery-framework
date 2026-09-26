@@ -9,7 +9,8 @@ import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 
 function options(overrides = {}) {
   return {
-    target: "codex",
+    // Copilot still registers MCP through the CLI; the Claude and Codex plugins declare it themselves.
+    target: "copilot",
     dir: "/tmp/workspace",
     dirInput: ".",
     dirInputAbsolute: false,
@@ -530,8 +531,8 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
       return { report: pluginReport({ surface }), installed: { pluginRoot: "/tmp/plugin" } };
     },
   }));
-  if (surface === "claude") {
-    // The Claude plugin declares its own MCP server: no setup choice, no registration preflight.
+  if (surface === "claude" || surface === "codex") {
+    // The Claude and Codex plugins declare their own MCP server: no setup choice, no registration preflight.
     assert.deepEqual(calls, ["plugin.status", "runtime.select", "plugin.install", "runtime.finalize"]);
     assert.deepEqual(result.report.mcp, { status: "plugin_managed" });
     assert.equal(result.report.effective_state, "plugin_ready_mcp_in_plugin");
@@ -551,6 +552,16 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
     env: {},
   }, ownerAdapters(calls)), /starts the AGDF MCP server from the AGDF plugin; omit --with-mcp/);
   assert.deepEqual(calls, [], "a Claude --with-mcp request must fail before inspection or mutation");
+}
+
+{
+  const calls = [];
+  await assert.rejects(() => runInstallSetup({
+    options: options({ target: "codex", setupRequest: "full", dirExplicit: true, dirInput: "/tmp/workspace", dirInputAbsolute: true }),
+    interactive: false,
+    env: {},
+  }, ownerAdapters(calls)), /Codex starts the AGDF MCP server from the AGDF plugin; omit --with-mcp/);
+  assert.deepEqual(calls, [], "a Codex --with-mcp request must fail before inspection or mutation");
 }
 
 console.log("install setup service tests passed");

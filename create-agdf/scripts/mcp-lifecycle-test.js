@@ -206,7 +206,7 @@ assert.throws(() => prepareMcpServerPackage({ dataRoot: packageData, expectedVer
 const oldNodeRoot = mkdtempSync(join(tmpdir(), "agdf-mcp-node18-"));
 let oldNodePrepared = false;
 const oldNode = runMcpLifecycle({
-  action: "enable", surface: "codex", target: oldNodeRoot,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: oldNodeRoot,
   env: { AGDF_DATA_DIR: join(oldNodeRoot, "data") },
   nodeVersion: "18.20.8",
   prepare() { oldNodePrepared = true; },
@@ -263,7 +263,7 @@ for (const surface of ["codex", "opencode"]) {
     }, null, 2)}\n`);
   }
   const enabled = runMcpLifecycle({
-    action: "enable", surface, scope: "project", target: fixture.target,
+    action: "enable", surface, pluginManagedSurfaces: ["claude"], scope: "project", target: fixture.target,
     env: fixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec,
   });
   assert.equal(enabled.result, "configured_pending_restart");
@@ -315,7 +315,7 @@ const sharedInstall = installFixture(sharedCalls);
 const sharedExec = (executable, args, options) => executable === "copilot"
   ? (args[0] === "--version" ? "0.0.401\n" : "{}\n")
   : sharedInstall(executable, args, options);
-const sharedCodex = runMcpLifecycle({ action: "enable", surface: "codex", target: sharedFixture.target,
+const sharedCodex = runMcpLifecycle({ action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: sharedFixture.target,
   env: sharedFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: sharedExec });
 const sharedCopilot = runMcpLifecycle({ action: "enable", surface: "copilot", target: sharedFixture.target,
   env: sharedFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: sharedExec });
@@ -423,7 +423,7 @@ const legacyRuntime = prepareMcpServerPackage({ dataRoot: legacyRoot, expectedVe
   execPath: "/exact/node", nodeVersion: "22.1.0", exec: legacyInstall });
 const legacySpec = createMcpRegistrationSpec({ surface: "codex", target: legacyFixture.target,
   runtime: legacyRuntime, execPath: "/exact/node" });
-const legacyRegistration = createMcpRegistrationTransaction({ action: "enable", surface: "codex", scope: "project",
+const legacyRegistration = createMcpRegistrationTransaction({ action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], scope: "project",
   target: legacyFixture.target, spec: legacySpec, env: legacyFixture.env });
 legacyRegistration.apply();
 const legacyVerified = inspectMcpRegistration({ surface: "codex", scope: "project", target: legacyFixture.target,
@@ -431,7 +431,7 @@ const legacyVerified = inspectMcpRegistration({ surface: "codex", scope: "projec
 updateMcpRuntimeReferences(legacyRuntime, [{ surface: "codex", scope: "project", target: legacyFixture.target,
   path: legacyVerified.path }]);
 legacyRuntime.commit();
-const migrated = runMcpLifecycle({ action: "enable", surface: "codex", target: legacyFixture.target,
+const migrated = runMcpLifecycle({ action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: legacyFixture.target,
   env: legacyFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]) });
 assert.equal(migrated.result, "configured_pending_restart");
 assert.equal(inspectMcpServerPackage({ dataRoot: legacyRoot, expectedVersion: VERSION }).status, "absent");
@@ -443,7 +443,7 @@ assert.equal(runMcpLifecycle({ action: "disable", surface: "codex", target: lega
 const generatedCodex = lifecycleFixture("codex");
 assert.equal(existsSync(join(generatedCodex.target, ".codex")), false);
 assert.equal(runMcpLifecycle({
-  action: "enable", surface: "codex", target: generatedCodex.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: generatedCodex.target,
   env: generatedCodex.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
 }).result, "configured_pending_restart");
 const generatedCodexPath = join(generatedCodex.target, ".codex", "config.toml");
@@ -460,7 +460,7 @@ const existingCodexDirectory = lifecycleFixture("codex");
 const existingCodexDirectoryPath = join(existingCodexDirectory.target, ".codex");
 mkdirSync(existingCodexDirectoryPath, { recursive: true });
 assert.equal(runMcpLifecycle({
-  action: "enable", surface: "codex", target: existingCodexDirectory.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: existingCodexDirectory.target,
   env: existingCodexDirectory.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
 }).result, "configured_pending_restart");
 assert.equal(runMcpLifecycle({
@@ -575,6 +575,7 @@ for (const surface of ["codex", "claude", "opencode"]) {
   const updated = runMcpLifecycle({
     action: "enable",
     surface,
+    pluginManagedSurfaces: ["claude"],
     target: fixture.target,
     env: fixture.env,
     execPath: "/exact/node",
@@ -630,7 +631,7 @@ mkdirSync(join(foreign.target, ".codex"), { recursive: true });
 const foreignConfig = "[mcp_servers.agdf]\ncommand = \"/foreign\"\nargs = []\n";
 writeFileSync(join(foreign.target, ".codex", "config.toml"), foreignConfig);
 const foreignResult = runMcpLifecycle({
-  action: "enable", surface: "codex", target: foreign.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: foreign.target,
   env: foreign.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
 });
 assert.equal(foreignResult.result, "failed");
@@ -638,7 +639,7 @@ assert.deepEqual(readFileSync(join(foreign.target, ".codex", "config.toml"), "ut
 assert.equal(existsSync(join(foreign.dataRoot, "mcp", VERSION)), false, "failed registration must roll back a new runtime");
 
 const rollbackFailure = runMcpLifecycle({
-  action: "enable", surface: "codex", target: foreign.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: foreign.target,
   env: foreign.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
   prepare() {
     return { status: "matched", version: VERSION, digest: "digest",
@@ -653,7 +654,7 @@ assert.match(projectMcpLifecycleResult(rollbackFailure, { language: "de" }).diag
 for (const phase of ["prepare", "registration_apply", "registration_readback", "reference_apply"]) {
   const fixture = lifecycleFixture(`fault-${phase}`);
   const input = {
-    action: "enable", surface: "codex", target: fixture.target,
+    action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: fixture.target,
     env: fixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
   };
   if (phase === "prepare") input.prepare = () => { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); };
@@ -688,7 +689,7 @@ const retirementLegacyRuntime = prepareMcpServerPackage({ dataRoot: retirementLe
   expectedVersion: VERSION, execPath: "/old/node", nodeVersion: "22.1.0", exec: installFixture([]) });
 const retirementLegacySpec = createMcpRegistrationSpec({ surface: "codex", target: retirementFailureFixture.target,
   runtime: retirementLegacyRuntime, execPath: "/old/node" });
-const retirementLegacyRegistration = createMcpRegistrationTransaction({ action: "enable", surface: "codex",
+const retirementLegacyRegistration = createMcpRegistrationTransaction({ action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"],
   scope: "project", target: retirementFailureFixture.target, spec: retirementLegacySpec, env: retirementFailureFixture.env });
 retirementLegacyRegistration.apply();
 const retirementLegacyVerified = inspectMcpRegistration({ surface: "codex", scope: "project",
@@ -699,7 +700,7 @@ retirementLegacyRuntime.commit();
 const retirementConfigBefore = readFileSync(retirementLegacyVerified.path, "utf8");
 const retirementMarkerBefore = readFileSync(retirementLegacyRuntime.markerPath, "utf8");
 const retirementFailureResult = runMcpLifecycle({
-  action: "enable", surface: "codex", target: retirementFailureFixture.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: retirementFailureFixture.target,
   env: retirementFailureFixture.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
   createRetirementTransaction(runtime) {
     const actual = createMcpRuntimeRetirementTransaction(runtime);
@@ -727,7 +728,7 @@ for (const invalidConfig of [
   const invalidPath = join(invalid.target, ".codex", "config.toml");
   writeFileSync(invalidPath, invalidConfig);
   const invalidResult = runMcpLifecycle({
-    action: "enable", surface: "codex", target: invalid.target,
+    action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: invalid.target,
     env: invalid.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
   });
   assert.equal(invalidResult.result, "failed", invalidConfig);
@@ -767,7 +768,7 @@ assert.equal(runMcpLifecycle({
 const codexUser = lifecycleFixture("codex", "user");
 codexUser.env.CODEX_HOME = join(codexUser.root, "codex-user");
 const codexUserEnabled = runMcpLifecycle({
-  action: "enable", surface: "codex", scope: "user", target: codexUser.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], scope: "user", target: codexUser.target,
   env: codexUser.env, execPath: "/exact/node", nodeVersion: "22.1.0", exec: installFixture([]),
 });
 assert.equal(codexUserEnabled.scope, "user");
@@ -865,7 +866,7 @@ assert.equal(missingPrepared, false);
 const missingCodex = lifecycleFixture("codex-missing");
 let missingCodexPrepared = false;
 const missingCodexResult = runMcpLifecycle({
-  action: "enable", surface: "codex", target: missingCodex.target,
+  action: "enable", surface: "codex", pluginManagedSurfaces: ["claude"], target: missingCodex.target,
   env: missingCodex.env, execPath: "/exact/node", nodeVersion: "22.1.0",
   exec() { throw Object.assign(new Error("missing"), { code: "ENOENT" }); },
   prepare() { missingCodexPrepared = true; },

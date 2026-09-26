@@ -251,6 +251,7 @@ section "Remove"
 capture "plugin remove" codex plugin remove codexprobe@codexprobe-mkt --json
 capture "plugin list after remove" codex plugin list
 capture "mcp list after remove" codex mcp list
+codex mcp list > "$LOG/mcp-after-remove.txt" 2>&1
 section "Leftovers after plugin remove"
 {
   echo '```text'
@@ -277,6 +278,25 @@ rm -f "$CODEX_HOME/auth.json"
 # ---------------------------------------------------------------- short summary for the reply
 {
   echo "AGDF Codex MCP-Probe ($(codex --version 2>&1 | head -1), $(date -u +%Y-%m-%dT%H:%M:%SZ))"
+  # One-line verdicts first: what AGDF can build on this Codex version.
+  echo "FAZIT:"
+  if [ -f "$LOG/mcp-var.json" ]; then
+    echo "  Start: Codex ersetzt \${PLUGIN_ROOT} -> AGDF kann denselben Aufbau wie bei Claude nutzen."
+  elif [ -f "$LOG/mcp-cache.json" ]; then
+    echo "  Start: nur absolute Pfade, auch in Codex' Plugin-Kopie -> AGDF-Installer schreibt den Launcher-Pfad in die Codex-Kopie."
+  elif [ -f "$LOG/mcp-abs.json" ]; then
+    echo "  Start: nur absolute Pfade außerhalb der Codex-Kopie -> AGDF braucht einen festen Launcher-Ort außerhalb des Plugins."
+  elif [ "$NO_SESSION" = 1 ] || [ ! -f "$LOG/exec.code" ]; then
+    echo "  Start: nicht geprüft (keine Sitzung)."
+  else
+    echo "  Start: kein Plugin-MCP-Server gestartet -> Plugin-MCP unter dieser Codex-Version nicht nutzbar."
+  fi
+  if grep -qi "No MCP servers" "$LOG/mcp-after-remove.txt" 2>/dev/null; then
+    echo "  Entfernen: codex plugin remove nimmt die MCP-Server des Plugins mit."
+  else
+    echo "  Entfernen: nach codex plugin remove sind noch MCP-Server eingetragen (siehe report.md)."
+  fi
+  echo "DETAILS:"
   for variant in var claudevar rel env abs cache; do
     if [ -f "$LOG/mcp-$variant.json" ]; then echo "MCP probe_$variant: gestartet"; else echo "MCP probe_$variant: nicht gestartet"; fi
   done

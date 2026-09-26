@@ -1,6 +1,20 @@
 # Native Codex-Prüfungen auf macOS
 
-Diese Skripte erheben direkte Host-Evidenz auf einem Mac. Sie laufen nicht in CI, weil sie einen
+## Schnellstart: ein Befehl, kein manueller Schritt
+
+```bash
+npm install -g @openai/codex@latest   # einmalig: aktuelle Codex-CLI
+npm run native:codex-probe
+```
+
+Das Skript läuft ohne Rückfragen durch, räumt sich selbst auf und gibt am Ende ein `FAZIT` aus. Den
+Inhalt von `probe-results/codex-mcp-probe-<Zeitstempel>/summary.txt` an Claude zurückgeben – mehr
+ist nicht nötig. Es beantwortet, ob und wie AGDF seinen MCP-Server unter Codex im Plugin halten kann
+(Details in Teil C). Es fasst weder AGDF noch `~/.codex` an.
+
+## Weitere Prüfungen (mit manuellem Schritt)
+
+Diese Skripte erheben direkte Host-Evidenz zu Hooks. Sie laufen nicht in CI, weil sie einen
 angemeldeten Codex, eine echte Sitzung und eine manuelle Vertrauensprüfung in Codex brauchen.
 AGDF umgeht diese Prüfung nie.
 
@@ -8,7 +22,7 @@ AGDF umgeht diese Prüfung nie.
 
 - macOS mit Node.js 18 oder neuer und angemeldetem Codex (CLI auf dem `PATH` oder `CODEX_BIN`)
 - dieser Checkout mindestens auf Commit `4e414ab`
-- ein zweites Terminal für den manuellen Schritt in Codex
+- für Teil A und B ein zweites Terminal für den manuellen Schritt in Codex
 
 Alle Prüfungen werden aus dem Repository-Wurzelverzeichnis über npm gestartet. Standardmäßig wird
 `codex` vom `PATH` verwendet. Für die in der ChatGPT-App gebündelte Version davor setzen:

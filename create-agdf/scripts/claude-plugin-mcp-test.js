@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { loadedClaudeSessions, loadedSessionEvidence, loadedSessionLockHint } from "../lib/host-adapters/claude/loaded-sessions.js";
 import { migrateLegacyClaudeMcpRegistration, prepareClaudePluginMcp } from "../lib/host-adapters/claude/plugin-mcp.js";
 import { claudePluginDataRoot, ensurePluginMcpRuntime } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { runMcpLifecycle } from "../lib/mcp-lifecycle/service.js";
@@ -91,5 +92,26 @@ const enable = runMcpLifecycle({
 });
 assert.deepEqual([enable.result, enable.diagnostics[0].code, enable.next_action.code],
   ["not_configured", "claude_plugin_managed", "use_claude_plugin_mcp"]);
+
+// Running Claude sessions that loaded AGDF are found through the host's own .in_use/<pid> markers.
+const sessionHome = mkdtempSync(join(tmpdir(), "agdf-claude-sessions-"));
+try {
+  const sessionEnv = { CLAUDE_CONFIG_DIR: sessionHome };
+  assert.deepEqual(loadedClaudeSessions({ env: sessionEnv }), [], "no plugin cache means no loaded session");
+  const inUse = join(sessionHome, "plugins", "cache", "agdf", "agdf", "0.14.5", ".in_use");
+  mkdirSync(inUse, { recursive: true });
+  for (const pid of ["111", "222", String(process.pid), "not-a-pid"]) writeFileSync(join(inUse, pid), "{}");
+  const sessions = loadedClaudeSessions({ env: sessionEnv, isAlive: (pid) => pid === 111 || pid === process.pid });
+  assert.deepEqual(sessions, [{ pid: 111, version: "0.14.5" }], "only live foreign pids count; the installer itself is skipped");
+  assert.deepEqual(loadedSessionEvidence(sessions), ["claude_sessions_with_agdf:111"]);
+  assert.deepEqual(loadedSessionEvidence([]), []);
+  const locked = loadedSessionLockHint(Object.assign(new Error("rename failed."), { code: "EPERM" }), sessions);
+  assert.match(locked.message, /rename failed\. Claude Code sessions with AGDF loaded are still running \(pid 111\)/);
+  assert.equal(locked.evidence.claude_sessions_with_agdf, "111");
+  const other = new Error("digest mismatch");
+  assert.equal(loadedSessionLockHint(other, sessions).message, "digest mismatch", "only lock errors get the session hint");
+} finally {
+  rmSync(sessionHome, { recursive: true, force: true });
+}
 
 console.log("Claude plugin MCP tests passed");

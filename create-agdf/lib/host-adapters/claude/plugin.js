@@ -6,6 +6,7 @@ import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOption
 import { classifyMarketplaceList, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 import { recoverClaudeCacheTemp } from "../../installers/claude-cache-recovery.js";
 import { prepareClaudePluginMcp, migrateLegacyClaudeMcpRegistration } from "./plugin-mcp.js";
+import { loadedClaudeSessions, loadedSessionEvidence, loadedSessionLockHint } from "./loaded-sessions.js";
 
 export function installClaudeGlobalPlugin({
   exec = execHostFileSync,
@@ -16,10 +17,17 @@ export function installClaudeGlobalPlugin({
   env = process.env,
   migrateMcp = migrateLegacyClaudeMcpRegistration,
   prepareMcp = prepareClaudePluginMcp,
+  loadedSessions = loadedClaudeSessions,
 } = {}) {
   const expectedVersion = pluginDefinition.version;
   const nativeOutput = [];
-  const transaction = prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
+  const sessions = loadedSessions({ env });
+  let transaction;
+  try {
+    transaction = prepare({ expectedVersion, ...(dataRoot ? { dataRoot } : {}) });
+  } catch (error) {
+    throw loadedSessionLockHint(error, sessions);
+  }
   const migration = { state: "unknown", source: "", addedLocal: false, removedLegacy: false };
   let previousPluginRemoved = false;
   let pluginInstalled = false;
@@ -93,7 +101,9 @@ export function installClaudeGlobalPlugin({
         ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
         ...(transaction.existingClassification === "owned_supported_historical_rebuild" ? ["marketplace_recovery:owned_supported_historical_rebuild", "loaded_session:fresh_session_required"] : []),
+        ...(transaction.existingClassification === "owned_damaged_rebuild" ? ["marketplace_recovery:owned_damaged_rebuild", "loaded_session:restart_required"] : []),
         ...historicalEvidenceEntries(transaction),
+        ...loadedSessionEvidence(sessions),
         ...(cacheRecovery?.status === "recovered" ? ["claude_cache_temp_recovery:bounded_retry"] : []),
         ...(installedVersion ? [] : ["host_did_not_expose_version"]),
         ...mcpEvidence,

@@ -51,6 +51,7 @@ import { promptInstallScope, promptInstallSetup } from "../install-setup/interac
 import {
   printInstallSetupResult,
   renderInstallProgress,
+  renderLoadedSessionsNotice,
   renderRuntimeCheckConsentDetails,
   renderRuntimeCheckConsentDisclosure,
   runtimeCheckInteractionCopy,
@@ -246,7 +247,7 @@ function pluginInstallFailure(surface, error) {
     scope: "global",
     phase: error.phase || "plugin_operation",
     message: error.message,
-    evidence: [error.evidence ?? {}],
+    evidence: failureEvidenceEntries(error.evidence),
     nextAction: `Resolve the ${error.phase || "plugin operation"} failure and retry the same installation command.`,
   });
 }
@@ -419,7 +420,9 @@ async function runGuidedInstall(options, dependencies) {
       },
     });
     printInstallSetupResult(outcome.report, { json: options.json, io: dependencies.io, language });
+    printLoadedSessionsNotice(outcome.plugin_payload?.installed ?? {}, options, dependencies.io, language);
     printVerboseHostOutput(outcome.plugin_payload?.installed ?? {}, options, dependencies.io);
+    printVerboseFailure(outcome.report, options, dependencies.io);
     printOpenCodeVerbose(outcome.plugin_payload, options, dependencies.io);
     return ["failed", "partial"].includes(outcome.report.result) ? 1 : 0;
   } catch (error) {
@@ -564,6 +567,30 @@ function printCancelledConsent(surface, options, io) {
   return 0;
 }
 
+// Structured adapter evidence becomes readable "key:value" entries; String() on the object printed
+// "[object Object]" and hid the cause of a failed plugin operation.
+export function failureEvidenceEntries(evidence) {
+  if (evidence === undefined || evidence === null) return [];
+  if (Array.isArray(evidence)) return evidence.map((entry) => (typeof entry === "string" ? entry : JSON.stringify(entry)));
+  if (typeof evidence !== "object") return [String(evidence)];
+  return Object.entries(evidence).map(([key, value]) => `${key}:${typeof value === "string" ? value : JSON.stringify(value)}`);
+}
+
+function printVerboseFailure(report, options, io) {
+  if (!options.verbose || options.json || !report?.failure) return;
+  io.log("Technical failure detail:");
+  if (report.failure.message) io.log(`  ${report.failure.message}`);
+  for (const entry of report.failure.evidence ?? []) io.log(`  ${entry}`);
+}
+
+function printLoadedSessionsNotice(installed, options, io, language) {
+  if (options.json) return;
+  const entry = (installed.evidence ?? []).find((item) => String(item).startsWith("claude_sessions_with_agdf:"));
+  if (!entry) return;
+  const count = entry.slice("claude_sessions_with_agdf:".length).split(",").length;
+  io.log(renderLoadedSessionsNotice(count, installed.expectedVersion ?? pluginDefinition.version, { language }));
+}
+
 function printVerboseHostOutput(installed, options, io) {
   if (!options.verbose || options.json || !installed.nativeOutput?.length) return;
   io.log("Host command output:");
@@ -577,7 +604,7 @@ function printInstallFailure(surface, error, options, io, command = surface) {
     scope: "global",
     phase: error.phase || "plugin_operation",
     message: error.message,
-    evidence: [error.evidence ?? {}],
+    evidence: failureEvidenceEntries(error.evidence),
     nextAction: `Resolve the ${error.phase || "plugin operation"} failure and rerun npx --yes @agdf/cli@latest ${command}.`,
   });
   if (options.json) printLifecycleResult(report, { json: true, io });

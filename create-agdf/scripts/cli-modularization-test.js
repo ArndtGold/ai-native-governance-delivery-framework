@@ -12,7 +12,7 @@ import {
   validateCommandOptions,
 } from "../lib/cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
-import { askRuntimeCheckDecisionByKey, runCli } from "../lib/cli/application.js";
+import { askRuntimeCheckDecisionByKey, failureEvidenceEntries, runCli } from "../lib/cli/application.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
 import { readRuntimeContract, runtimeContractModules } from "../lib/cli/contract-command.js";
 import { generatedRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
@@ -739,5 +739,12 @@ for (const [symbol, owner] of ownership) {
   const declarations = moduleFiles.filter((file) => new RegExp(`function\\s+${symbol}\\s*\\(`).test(readFileSync(file, "utf8")));
   assert.deepEqual(declarations, [join(packageRoot, "lib", owner)], `${symbol} must have one owner`);
 }
+
+// Failure evidence stays readable: objects become key:value entries instead of "[object Object]".
+assert.deepEqual(failureEvidenceEntries(undefined), []);
+assert.deepEqual(failureEvidenceEntries({ claude_cache_recovery: "unavailable", detail: { code: "EPERM" } }),
+  ["claude_cache_recovery:unavailable", 'detail:{"code":"EPERM"}']);
+assert.deepEqual(failureEvidenceEntries(["a", { b: 1 }]), ["a", '{"b":1}']);
+assert.deepEqual(failureEvidenceEntries("plain"), ["plain"]);
 
 console.log("cli modularization tests passed");

@@ -50,6 +50,7 @@ export function installCodexGlobalPlugin({
         ...(transaction.digest ? [`plugin_digest:${transaction.digest}`] : []),
         ...(transaction.existingClassification === "owned_pre_provenance_rebuild" ? ["marketplace_recovery:owned_pre_provenance_rebuild", "loaded_session:restart_required"] : []),
         ...(transaction.existingClassification === "owned_supported_historical_rebuild" ? ["marketplace_recovery:owned_supported_historical_rebuild", "loaded_session:fresh_session_required"] : []),
+        ...(transaction.existingClassification === "owned_damaged_rebuild" ? ["marketplace_recovery:owned_damaged_rebuild", "loaded_session:restart_required"] : []),
         ...historicalEvidenceEntries(transaction),
         ...(expectedInstallVersion === expectedVersion ? [] : [`canonical_version:${expectedVersion}`, `local_install_version:${expectedInstallVersion}`]),
         ...mcpEvidence,

@@ -472,16 +472,22 @@ function prepareLocalMarketplaceFromSource({
   let existingMarketplace = null;
   let existingClassification = "none";
   let historicalEvidence = null;
+  let damagedReason = null;
   if (existing) {
-    let classified;
     try {
-      classified = classifyExistingMarketplace(stableRoot, existing, { profileId, distributionProfileHistory });
+      const classified = classifyExistingMarketplace(stableRoot, existing, { profileId, distributionProfileHistory });
+      existingClassification = classified.classification;
+      existingMarketplace = classified.marketplace;
+      historicalEvidence = classified.historicalEvidence;
     } catch (error) {
-      throw invalidExistingMarketplace(error);
+      // An invalid profile history belongs to the incoming build, not to the existing root.
+      if (/profile_history_invalid/.test(error.message)) throw invalidExistingMarketplace(error);
+      // The ownership marker proves AGDF created this root, but its payload no longer validates
+      // (for example a half-replaced update). Nothing from it is reused: it becomes the transaction
+      // backup, is restored on rollback and removed only after the fresh build committed.
+      existingClassification = "owned_damaged_rebuild";
+      damagedReason = error.message;
     }
-    existingClassification = classified.classification;
-    existingMarketplace = classified.marketplace;
-    historicalEvidence = classified.historicalEvidence;
   }
   mkdirSync(stageRoot, { recursive: false });
   try {
@@ -574,6 +580,7 @@ function prepareLocalMarketplaceFromSource({
         runtimeDigest: runtimeManifest.digest,
         existingClassification,
         historicalEvidence,
+        damagedReason,
         ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
         changed: false,
         commit() {},
@@ -599,6 +606,7 @@ function prepareLocalMarketplaceFromSource({
       runtimeDigest: runtimeManifest.digest,
       existingClassification,
       historicalEvidence,
+      damagedReason,
       ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
       changed: true,
       commit() {

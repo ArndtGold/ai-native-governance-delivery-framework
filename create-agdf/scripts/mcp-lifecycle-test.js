@@ -243,7 +243,13 @@ function lifecycleFixture(surface, scope = "project") {
   const dataRoot = join(root, "data");
   mkdirSync(targetPath, { recursive: true });
   const target = realpathSync(targetPath);
-  return { root, target, dataRoot, env: { AGDF_DATA_DIR: dataRoot }, scope };
+  // Project-scope tests also inspect user-scope precedence; never read the real host config.
+  return { root, target, dataRoot, env: {
+    AGDF_DATA_DIR: dataRoot,
+    CODEX_HOME: join(root, "codex-user"),
+    COPILOT_HOME: join(root, "copilot-user"),
+    OPENCODE_CONFIG_DIR: join(root, "opencode-user"),
+  }, scope };
 }
 
 for (const surface of ["codex", "opencode"]) {

@@ -523,7 +523,11 @@ mkdirSync(join(ambiguousDisableRoot, ".codex"), { recursive: true });
 writeFileSync(join(ambiguousDisableRoot, ".codex", "config.toml"), "[plugins.\"agdf@agdf\"]\ncustom = \"user-owned\"\n");
 assert.throws(() => planRepositoryDisable(ambiguousDisableRoot, "codex"), /ambiguous AGDF plugin state/);
 
-const uninstall = planGlobalUninstall("codex");
+// Mocking the host command does not isolate filesystem cleanup performed by the plan.
+const codexUninstallData = mkdtempSync(join(tmpdir(), "agdf-codex-uninstall-data-"));
+const uninstall = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: codexUninstallData } });
+assert.deepEqual(uninstall.mutations.map(({ kind }) => kind), ["command"],
+  "an empty isolated data root must never schedule cleanup of the real user runtime");
 const calls = [];
 assert.equal(applyLifecyclePlan(uninstall, { exec(command, args) { calls.push([command, args]); } }).status, "success");
 assert.deepEqual(calls, [["codex", ["plugin", "remove", "agdf@agdf"]]]);
@@ -682,6 +686,7 @@ assert.equal(JSON.parse(readFileSync(join(partialConfig, "opencode.json"), "utf8
 const uninstallPreviewOutput = [];
 assert.equal(await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--json"], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { uninstallPreviewOutput.push(value); }, error(message) { throw new Error(message); } },
 }), 0);
 const uninstallPreviewReport = JSON.parse(uninstallPreviewOutput[0]);
@@ -697,6 +702,7 @@ assert.equal(await runCli([
   "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--json",
 ], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallPreviewOutput.push(value); }, error(message) { throw new Error(message); } },
   mcpLifecycle(input) {
     coupledUninstallCalls.push(input.action);
@@ -716,6 +722,7 @@ assert.equal(await runCli([
   "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--confirm", "--json",
 ], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
   exec() { return ""; },
   mcpLifecycle(input) {
@@ -737,6 +744,7 @@ assert.equal(await runCli([
   "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--confirm", "--json",
 ], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallEffectiveOutput.push(value); }, error(message) { throw new Error(message); } },
   exec() { coupledUninstallEffectivePluginCalls += 1; return ""; },
   mcpLifecycle: (input) => mcpLifecycleFixture({ ...input, result: "configured_unverified", registration: "matched" }),
@@ -749,6 +757,7 @@ assert.equal(coupledUninstallEffectivePluginCalls, 0);
 const uninstallApplyOutput = [];
 assert.equal(await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { uninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
   exec() { return ""; },
 }), 0);

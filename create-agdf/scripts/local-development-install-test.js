@@ -923,7 +923,7 @@ try {
     assert.match(contributing, new RegExp(command.replaceAll(":", "\\:")));
   }
   assert.match(contributing, /fresh task/i);
-  assert.match(contributing, /Node\.js 18 or later/);
+  assert.match(contributing, /Node\.js 22 or later/);
   assert.match(contributing, /restart the selected host/i);
   assert.match(contributing, /does not prove restarted-host loading, repository activation or\s+UAT/i);
 

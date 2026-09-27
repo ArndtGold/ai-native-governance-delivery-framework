@@ -325,7 +325,7 @@ try {
     mkdirSync(artefactDir, { recursive: true });
     const approvalDocs = {
       "UR.md": "# UR\n\n## 1. Problem\nUsers need a clear gate summary.\n\n## 2. Goal\nReview the exact linked document.\n\n## 3. Scope\nAdd a concise summary before approval.\n\n## 5. Acceptance Signals\n| ID | Result |\n|---|---|\n| UR-01 | Summary matches this revision. |\n\n## 7. Risks And Unknowns\nWhether the link opens in each host.\n",
-      "PRD.md": "# PRD\n\n## 1. Product Scope\nShow a concise summary and linked artefact.\n\n## 2. UX Intent And Success\nReduce review effort.\n\n## 5. Acceptance Criteria\n| ID | Result |\n|---|---|\n| PRD-01 | Summary is visible before approval. |\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n",
+      "PRD.md": "# PRD\n\n## 1. Product Scope\nAfter an approved UR and a completed Brownfield Review that selects structured_delivery or structured_slice, prepare and persist a reviewable PRD before presenting the next user decision card. The PRD card must link the exact draft and summarize its intent.\n\n## 2. UX Intent And Success\n- primary_user_intent: inspect the product requirements before deciding whether to approve them\n- success_signal: the next PRD card links a durable draft and includes a concise relevant summary\n- primary_decision_or_action: approve, request revision, or decline the PRD\n\n## 5. Acceptance Criteria\n- criterion_id: PRD-CARD-001; working_mode: structured_delivery; source_state: UR approved, Brownfield Review done, PRD absent; trigger/action: continue the same run; expected effective state: a PRD draft is persisted before the next user card; visible feedback: no PRD approval card is shown while the draft is absent; observable success: the PRD artefact exists and is recorded in the run.\n- criterion_id: PRD-CARD-002; working_mode: structured_delivery; source_state: PRD draft persisted; trigger/action: prepare the PRD decision card; expected effective state: the card is bound to the exact PRD and revision; visible feedback: a concise summary and clickable PRD link appear before the approval choice; observable success: the card and linked artefact identify the same run and revision.\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n",
       "SD.md": "# SD\n\n## 1. Solution Overview\nRender deterministic summaries from the source artefact.\n\n## 2. Ownership And Source Of Truth\nThe artefact remains authoritative.\n\n## 3. Architecture Decisions\nBind summary and link to the revision digest.\n\n## 4. Integration Points\nrun-present produces the review text.\n\n## 7. Risks And Open Questions\nHost path support.\n",
       "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n",
       "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: revise until live-tested.\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n",
@@ -414,11 +414,41 @@ ${approvals}
     assert.equal(sealed.outcome, "updated");
     const prepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id }, { evaluateGateCheck });
     assert.equal(prepared.outcome, "prepared", `${gate} must prepare: ${JSON.stringify(prepared)}`);
+    assert.ok(prepared.text.includes("Next step: Review the linked artefact; choose an option below."),
+      `${gate} summary or options are clearly identified as the next user action`);
     assert.match(prepared.artefact_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds the actual artefact body`);
     assert.match(prepared.summary_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds its summary`);
     const visibleGateContent = gate === "UAT" ? /## (?:Vorliegende UAT-Evidenz|Available UAT evidence)/u : new RegExp(`(?:Artefakt|Artefact): \\[${gate === "QA" ? "QA_REPORT.md" : `${gate}.md`}\\]`);
     assert.ok(typeof visibleGateContent === "string" ? prepared.text.includes(visibleGateContent) : visibleGateContent.test(prepared.text), `${gate} approval links the exact artefact or presents existing UAT evidence`);
     assert.ok(prepared.text.includes(`Revision: \`${sealed.revision_id}\``), `${gate} approval identifies the revision under review`);
+    assert.ok(prepared.text.includes(`| Your decision | Approval: ${gate} · Revise · Decline |`),
+      `${gate} card separates the user's decision from agent work`);
+    assert.match(prepared.text, /\| Agent may work on now \|/u, `${gate} card labels allowed work as agent work`);
+    if (gate === "PRD") {
+      assert.match(prepared.text, /\| Your decision \|/u);
+      assert.doesNotMatch(prepared.text, /\| Allowed now \|/u);
+      assert.doesNotMatch(prepared.text, /\| Next step \| Review the linked artefact/u,
+        "the detailed card avoids repeating the top-level user action");
+      assert.match(prepared.text, /- User intent: Inspect the product requirements before deciding whether to approve them/u,
+        "PRD summary uses the user's intent rather than a long process scope");
+      assert.match(prepared.text, /- Success: The next PRD card links a durable draft and includes a concise relevant summary/u,
+        "PRD summary surfaces the success signal");
+      assert.doesNotMatch(prepared.text, /\| (?:Next step|Next gate after approval|Allowed after approval|Quality outlook) \|/u,
+        "the approval-ready detail card omits repeated transition and no-op quality rows");
+      const germanPrepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id, language: "de" }, { evaluateGateCheck });
+      assert.match(germanPrepared.text, /Nächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option\./u,
+        "German card directs the reviewer to the linked artefact and available choices");
+      assert.ok(germanPrepared.text.includes("| Deine Entscheidung | Approval: PRD · Überarbeiten · Ablehnen |"),
+        "German card localizes the decision options while preserving the exact approval token");
+      assert.match(germanPrepared.text, /Quellsprache: Englisch · Auszüge im Originalwortlaut/u,
+        "German card discloses English source excerpts");
+      assert.match(germanPrepared.text, /No PRD approval card is shown while the draft is absent; A concise summary and clickable PRD link appear before the approval choice/u,
+        "PRD acceptance summary highlights user-visible behavior");
+      assert.doesNotMatch(germanPrepared.text, /criterion_id|working_mode: structured_delivery|source_state:/u,
+        "internal criterion metadata is not exposed as the acceptance summary");
+      assert.match(prepared.text, /After your PRD approval, the agent drafts the Solution Design\. Once the draft is ready, you will review and decide on the Solution Design\./u,
+        "the post-approval sequence separates agent drafting from the user's next decision");
+    }
     const summaryPosition = prepared.text.search(new RegExp(`## (?:Kurzfassung|Review summary) · ${gate}`));
     const actionPosition = Math.min(...[prepared.text.indexOf("Jetzt freigeben"), prepared.text.indexOf("Approve now")].filter((position) => position >= 0));
     assert.ok(summaryPosition >= 0 && actionPosition > summaryPosition, `${gate} summary appears before the approval action`);

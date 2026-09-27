@@ -260,24 +260,18 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       }
-      const modeDecision = control.status_card?.runState?.mode_slice_decision?.decision ?? control.mode_slice_decision;
-      const preApprovalRouting = control.current_gate === "UR"
-        && control.missing_approval === "Approval: UR"
-        && (!modeDecision || modeDecision === "undecided")
-        && Boolean(control.approval_presentation);
       if ((input.intake || input.continue_delivery)
           && control.status === "open"
-          && (preApprovalRouting || (control.missing_approval === "none" && ["Brownfield Review", "Mode/Slice Decision"].includes(control.current_gate)))) {
+          && control.missing_approval === "none"
+          && ["Brownfield Review", "Mode/Slice Decision"].includes(control.current_gate)) {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: preApprovalRouting
-            ? "Complete Brownfield Review and proportional routing before preparing UR approval; record evidence, then re-evaluate. Do not approve or implement."
-            : "Execute Brownfield Review and proportional routing for this bound run, then re-evaluate. Stop with the concrete blocker if the same state remains; never loop or infer another gate approval.",
-          phase: preApprovalRouting ? "pre_ur_approval_routing" : "post_ur_review",
+          instruction: "Execute Brownfield Review and proportional routing for this bound run, then re-evaluate. Stop with the concrete blocker if the same state remains; never loop or infer another gate approval.",
+          phase: "post_ur_review",
           skill_id: "brownfield-analysis",
-          mode: preApprovalRouting ? "pre_ur_approval" : "post_ur_review",
+          mode: "post_ur_review",
           governance_target: target.governance_target,
           run_id: result.control.run_id,
           revision_id: result.control.revision_id,
@@ -285,6 +279,145 @@ export function createSkillDispatchService(dependencies = {}) {
           ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("brownfield-analysis") } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      const route = control.status_card?.mode_slice_decision ?? control.delivery_map?.mode_slice_decision?.decision;
+      const structuredRoute = ["structured_slice", "structured_delivery"].includes(route);
+      const tpIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "TP" && item.status === "fulfilled");
+      if (input.continue_delivery
+          && control.status === "open"
+          && control.current_gate === "Brownfield Analysis"
+          && control.missing_approval === "none"
+          && structuredRoute
+          && tpIsFulfilled) {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Run implementation-preparation Brownfield Analysis for this bound run against its approved TP and the existing system before CD+Tests. Identify owners, reusable components, affected interfaces and data, regression risks, test impact and the minimal safe implementation path. Persist the analysis and mark the internal step complete in canonical run control, then dispatch again with the same run and target. Do not begin CD+Tests until the review and control record are complete.",
+          phase: "pre_implementation_analysis",
+          skill_id: "brownfield-analysis",
+          mode: "pre_implementation_analysis",
+          governance_target: target.governance_target,
+          run_id: controlSnapshot(control).run_id,
+          revision_id: controlSnapshot(control).revision_id,
+          presentation_language: input.presentation_language,
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("brownfield-analysis") } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
+      if (input.continue_delivery
+          && control.status === "open"
+          && control.current_gate === "PRD"
+          && control.missing_approval === "Approval: PRD"
+          && structuredRoute
+          && !control.approval_presentation) {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Prepare and persist the PRD for this bound run from its approved UR and completed Brownfield Review before presenting the next user card. Include scope, acceptance criteria and non-goals at the smallest depth justified by the recorded route. Record the durable PRD in canonical run control, then dispatch again with the same run and target. Do not request Approval: PRD until the prepared PRD is linked and presented.",
+          phase: "required_gate_artifact",
+          skill_id: "gate-check",
+          gate: "PRD",
+          governance_target: target.governance_target,
+          run_id: result.control.run_id,
+          revision_id: result.control.revision_id,
+          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/PRD.md`,
+          source_artifacts: [
+            `.agdf/control/artefacts/${result.control.run_id}/UR.md`,
+            `.agdf/control/artefacts/${result.control.run_id}/BROWNFIELD_REVIEW.md`,
+          ],
+          presentation_language: input.presentation_language,
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
+      const sdRelationship = control.delivery_map?.relationships?.find((relationship) => relationship.from === "SD");
+      if (input.continue_delivery
+          && control.status === "open"
+          && control.current_gate === "SD"
+          && control.missing_approval === "Approval: SD"
+          && structuredRoute
+          && !control.approval_presentation
+          && sdRelationship?.status !== "pass") {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Prepare and persist the Solution Design for this bound run from its approved PRD before presenting the next user card. Define the architecture, key components and boundaries, relevant flows, ownership, risks and open questions at the smallest depth justified by the recorded route. Record the durable SD in canonical run control as derived from the approved PRD, then dispatch again with the same run and target. Do not create the Task/Test Plan or implement code before the SD and TP approvals.",
+          phase: "required_gate_artifact",
+          skill_id: "gate-check",
+          gate: "SD",
+          governance_target: target.governance_target,
+          run_id: result.control.run_id,
+          revision_id: result.control.revision_id,
+          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/SD.md`,
+          source_artifacts: [`.agdf/control/artefacts/${result.control.run_id}/PRD.md`],
+          presentation_language: input.presentation_language,
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
+      const tpRelationship = control.delivery_map?.relationships?.find((relationship) => relationship.from === "TP");
+      if (input.continue_delivery
+          && control.status === "open"
+          && control.current_gate === "TP"
+          && control.missing_approval === "Approval: TP"
+          && structuredRoute
+          && !control.approval_presentation
+          && tpRelationship?.status !== "pass") {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Prepare and persist the Task/Test Plan for this bound run from its approved PRD and Solution Design before presenting the next user card. Map each implementation task to approved requirements and design decisions, define proportionate verification steps and the evidence each step must produce, and identify dependencies and risks. Record the durable TP in canonical run control as derived from the approved SD, then dispatch again with the same run and target. Do not implement code or claim QA or release readiness before TP approval.",
+          phase: "required_gate_artifact",
+          skill_id: "gate-check",
+          gate: "TP",
+          governance_target: target.governance_target,
+          run_id: result.control.run_id,
+          revision_id: result.control.revision_id,
+          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/TP.md`,
+          source_artifacts: [
+            `.agdf/control/artefacts/${result.control.run_id}/PRD.md`,
+            `.agdf/control/artefacts/${result.control.run_id}/SD.md`,
+          ],
+          presentation_language: input.presentation_language,
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
+      const runState = control.status_card?.runState;
+      const orArtefact = runState?.artefacts?.get?.("OR");
+      const uatIsFulfilled = control.status_card?.breadcrumb?.some((item) => item.gate === "UAT" && item.status === "fulfilled");
+      if (input.continue_delivery
+          && control.status === "open"
+          && control.current_gate === "OR"
+          && control.missing_approval === "none"
+          && structuredRoute
+          && uatIsFulfilled
+          && orArtefact?.status !== "done") {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Produce and persist the Orchestration Report for this bound run using its recorded approvals, artefacts, Task Plan, implementation and test evidence, QA result, and UAT approval. Preserve any missing evidence and risks explicitly; do not perform commit, push, PR, release or other VCS actions. After the OR is recorded, dispatch again with the same run and target.",
+          phase: "post_uat_closeout",
+          skill_id: "release-or",
+          governance_target: target.governance_target,
+          run_id: controlSnapshot(control).run_id,
+          revision_id: controlSnapshot(control).revision_id,
+          presentation_language: input.presentation_language,
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("release-or") } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       }
       if ((input.intake || input.continue_delivery) && control.approval_presentation) {

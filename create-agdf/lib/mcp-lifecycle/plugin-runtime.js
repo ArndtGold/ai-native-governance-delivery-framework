@@ -2,7 +2,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
-import { MCP_DISPATCHER_RUNTIME_ENTRIES } from "../runtime/plugin-provenance.js";
+import { digestDirectory, digestPluginMcpDispatcherSource, MCP_DISPATCHER_RUNTIME_ENTRIES } from "../runtime/plugin-provenance.js";
 import { inspectMcpServerPackage, mcpPackageConstants, prepareMcpServerPackage } from "./package.js";
 
 // Plugin-local AGDF MCP runtime shared by the hosts whose runtime plugin declares the server itself:
@@ -73,8 +73,13 @@ export function ensurePluginMcpRuntime({
   mkdirSync(mcpDataRoot, { recursive: true });
   pruneMcpDataRoot(mcpDataRoot, version, now);
   let current = inspectMcpServerPackage({ dataRoot: mcpDataRoot, expectedVersion: version });
-  if (current.status === "matched") return Object.freeze({ ...current, changed: false });
-  if (current.status === "mismatch" && ownedRoot(current.root)) {
+  const sourceServerDigest = digestDirectory(join(pluginRoot, "mcp", "server"));
+  const sourceDispatcherDigest = digestPluginMcpDispatcherSource(join(pluginRoot, "runtime", "create-agdf"), version);
+  const matchesPlugin = current.status === "matched"
+    && current.digest === sourceServerDigest
+    && current.dispatcherDigest === sourceDispatcherDigest;
+  if (matchesPlugin) return Object.freeze({ ...current, changed: false });
+  if (["matched", "mismatch"].includes(current.status) && ownedRoot(current.root)) {
     rmSync(current.root, { recursive: true, force: true });
   } else if (current.status !== "absent") {
     throw new Error("AGDF_MCP_RUNTIME_UNOWNED");
@@ -96,7 +101,11 @@ export function ensurePluginMcpRuntime({
   } catch (error) {
     // A concurrent session may have installed the same runtime first.
     current = inspectMcpServerPackage({ dataRoot: mcpDataRoot, expectedVersion: version });
-    if (current.status === "matched") return Object.freeze({ ...current, changed: false });
+    if (current.status === "matched"
+        && current.digest === sourceServerDigest
+        && current.dispatcherDigest === sourceDispatcherDigest) {
+      return Object.freeze({ ...current, changed: false });
+    }
     throw error;
   }
 }

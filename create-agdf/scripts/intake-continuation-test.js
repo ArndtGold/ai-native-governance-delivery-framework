@@ -66,20 +66,8 @@ try {
   writeFileSync(ur, "# UR: Bound intake\n\nA new scope.\n");
   assert.equal(run("run-step", "--run", "new-run", "--revision", revision("new-run"), "--step", "ur", "--title", "Bound intake").value.outcome, "recorded");
   const routeFirst = resume();
-  assert.equal(routeFirst.outcome, "skill_continuation");
-  assert.equal(routeFirst.continuation.phase, "pre_ur_approval_routing");
-  assert.equal(routeFirst.continuation.skill_id, "brownfield-analysis");
-  assert.equal(dispatch("--run", "new-run", "--continue-delivery").continuation.phase, "pre_ur_approval_routing", "a ready UR is routed before its approval is presented");
-  writeFileSync(join(artefacts, "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n\nStructured delivery is proportionate to this change.\n");
-  const routed = run("run-step", "--run", "new-run", "--revision", revision("new-run"), "--step", "route", "--route", "structured_delivery",
-    "--reason", "The change spans governed control flow and host-facing behavior.", "--evidence", ".agdf/control/artefacts/new-run/BROWNFIELD_REVIEW.md");
-  assert.equal(routed.value.outcome, "recorded", routed.text);
-  const routeAwareCard = run("gate-check", "--run", "new-run", "--json").value.status_card;
-  assert.equal(routeAwareCard.next_gate_after_approval, "PRD");
-  assert.equal(routeAwareCard.next_user_gate, "PRD");
-  assert.equal(routeAwareCard.user_action_required, "yes");
-  assert.match(routeAwareCard.allowed_after_approval, /PRD/u);
-  assert.equal(resume().continuation.phase, "presentation_required", "after route recording, intake presents the exact UR revision");
+  assert.equal(routeFirst.outcome, "intake_continuation");
+  assert.equal(routeFirst.continuation.phase, "presentation_required", "Brownfield routing waits until the UR is approved");
   const present = () => run("run-present", "--run", "new-run", "--gate", "UR", "--revision", revision("new-run"), "--language", "de").value;
   const approve = (id, response = "Approval: UR", rev = revision("new-run")) => run("run-approve", "--run", "new-run", "--gate", "UR", "--revision", rev, "--response", response,
     ...(id ? ["--presentation", id] : [])).value;
@@ -141,14 +129,34 @@ try {
   assert.equal(results.filter(r => r.outcome === "approved").length, 1, "concurrent replies approve once");
   assert.equal(results.filter(r => r.outcome === "rejected").length, 1);
   assert.equal(approve(fresh.presentation_id, "Approval: UR", previous).outcome, "rejected");
+  const brownfield = dispatch("--run", "new-run", "--continue-delivery");
+  assert.equal(brownfield.outcome, "skill_continuation");
+  assert.equal(brownfield.continuation.phase, "post_ur_review");
+  assert.equal(brownfield.continuation.mode, "post_ur_review");
+  writeFileSync(join(artefacts, "BROWNFIELD_REVIEW.md"), "# Brownfield Review\n\nStructured delivery is proportionate to this change.\n");
+  const routed = run("run-step", "--run", "new-run", "--revision", revision("new-run"), "--step", "route", "--route", "structured_delivery",
+    "--reason", "The change spans governed control flow and host-facing behavior.", "--evidence", ".agdf/control/artefacts/new-run/BROWNFIELD_REVIEW.md");
+  assert.equal(routed.value.outcome, "recorded", routed.text);
+  const routeAwareCard = run("gate-check", "--run", "new-run", "--json").value.status_card;
+  assert.equal(routeAwareCard.current_gate, "PRD");
+  assert.equal(routeAwareCard.next_gate_after_approval, "SD");
+  assert.equal(routeAwareCard.next_user_gate, "SD");
+  assert.equal(routeAwareCard.user_action_required, "yes");
+  assert.match(routeAwareCard.allowed_after_approval, /Solution Design/u);
   before = snapshot();
   assert.equal(dispatch("--run", "new-run").terminal, true);
   assert.deepEqual(snapshot(), before);
   const continuation = dispatch("--run", "new-run", "--continue-delivery");
-  assert.equal(continuation.outcome, "control_result");
+  assert.equal(continuation.outcome, "skill_continuation");
+  assert.equal(continuation.terminal, false, "a missing next-gate draft must not expose a bare approval card");
+  assert.equal(continuation.continuation.phase, "required_gate_artifact");
+  assert.equal(continuation.continuation.gate, "PRD");
+  assert.equal(continuation.continuation.artifact_path, ".agdf/control/artefacts/new-run/PRD.md");
+  assert.match(continuation.continuation.instruction, /persist the PRD/u);
+  assert.match(continuation.continuation.instruction, /Do not request Approval: PRD/u);
+  assert.equal(continuation.host_action.mode, "continue_named_skill");
   assert.equal(continuation.control.current_gate, "PRD", "the preselected route advances directly to its next gate after UR approval");
   assert.deepEqual(snapshot(), before);
-  assert.equal(continuation.terminal, true, "missing next artefact cannot start another internal skill");
   assert.deepEqual(["foreign-a", "foreign-b"].map(id => readFileSync(statePath(id), "utf8")), foreign);
   console.log(`intake continuation packaged-runtime E2E passed (new/resume, binding, rejection, read-only, recovery, route); archive sha256:${createHash("sha256").update(readFileSync(archive)).digest("hex")}`);
 } finally { rmSync(temporary, { recursive: true, force: true }); }

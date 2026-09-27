@@ -478,6 +478,9 @@ export function renderOperationalStatusCard(statusCard, {
   const gateLabel = String(humanPresentation.gateTitle ?? "").trim() || gateTitle(registry, locale, currentGate);
   const runTitle = displaySafeTitle(humanPresentation.runTitle, normalizedRunTitle(runId));
   const breadcrumb = operationalBreadcrumb(statusCard.breadcrumb, labels);
+  const approvalReady = statusCard.interaction_kind === "gate_approval"
+    && statusCard.status === "open"
+    && statusCard.missing_approval === `Approval: ${currentGate}`;
   const allowedNow = localizedOperationalList(statusCard.allowed_now, pack, fallbackPack, usesFallbackLocale);
   const forbiddenNow = localizedOperationalList(statusCard.forbidden_now, pack, fallbackPack, usesFallbackLocale);
   const blockingCondition = localizedBlockingCondition(statusCard.blocking_condition, pack, fallbackPack, usesFallbackLocale);
@@ -492,14 +495,18 @@ export function renderOperationalStatusCard(statusCard, {
     ...(breadcrumb ? [[labels.breadcrumb, breadcrumb]] : []),
     [labels.status, primary.status[statusCard.status] ?? statusCard.status],
     [labels.gate, `${gateLabel} (\`${currentGate}\`)`],
-    [labels.allowed, allowedNow],
+    ...(approvalReady
+      ? [[labels.userDecision, `${statusCard.missing_approval} · ${pack.interaction.reviseLabel} · ${pack.interaction.declineLabel}`],
+        [labels.agentAllowed, allowedNow]]
+      : [[labels.allowed, allowedNow]]),
     [labels.forbidden, forbiddenNow],
     [labels.blocked, blockingCondition],
-    [labels.missing, statusCard.missing_approval === "none" ? none : statusCard.missing_approval],
-    [labels.nextGate, statusCard.next_gate_after_approval === "none" ? none : statusCard.next_gate_after_approval],
-    [labels.allowedAfter, allowedAfter],
-    [labels.step, nextStep],
-    [labels.quality, qualityOutlook],
+    ...(!approvalReady ? [[labels.missing, statusCard.missing_approval === "none" ? none : statusCard.missing_approval]] : []),
+    ...(!approvalReady && statusCard.next_gate_after_approval !== "none" ? [[labels.nextGate, statusCard.next_gate_after_approval]] : []),
+    ...(!approvalReady && statusCard.allowed_after_approval !== "none" ? [[labels.allowedAfter, allowedAfter]] : []),
+    ...(!approvalReady ? [[labels.step, nextStep]] : []),
+    ...(statusCard.quality_outlook !== fallbackPack.operationalValues.noAdditionalQualityFollowUp
+      ? [[labels.quality, qualityOutlook]] : []),
   ];
   const markdown = [
     `## ${labels.title}`,

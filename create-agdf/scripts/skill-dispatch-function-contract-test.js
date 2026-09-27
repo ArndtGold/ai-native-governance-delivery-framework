@@ -42,7 +42,7 @@ for (const requiredMeaning of [
   "never grants approval or delivery authority",
   "entire assistant response must consist only of host_action.text",
   "Add no question, explanation, heading, citation, link or other surrounding text",
-  "use only the returned target and control",
+  "follow its continuation instruction using only the returned target and control",
   "For intake_continuation, run continuation.steps in order",
 ]) assert.match(definition.description, new RegExp(requiredMeaning.replaceAll(".", "\\."), "u"));
 assert.equal(renderSkillDispatchTerminalProjection(), SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION);
@@ -88,6 +88,8 @@ assert.match(schema.properties.presentation_language.description, /valid unsuppo
 assert.match(schema.properties.presentation_language.description, /Missing or invalid input fails before governance evaluation/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
 assert.match(schema.properties.run_id.description, /explicit request or unambiguous bound continuation/u);
+assert.match(schema.properties.continue_delivery.description, /implementation-preparation Brownfield Analysis after TP approval/u);
+assert.match(schema.properties.continue_delivery.description, /OR closeout after UAT approval/u);
 
 const targetChoices = schema.properties.target_source.oneOf;
 assert.deepEqual(targetChoices.map((choice) => choice.const), TASK_TARGET_SOURCES);

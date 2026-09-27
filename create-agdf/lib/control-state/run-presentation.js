@@ -6,10 +6,12 @@ import { readRun, rejected } from "./run-state-edits.js";
 import { readRunState, resolvedArtefactFile } from "../control-evaluation/run-state.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { TextDecoder } from "node:util";
+import { interactionLocales } from "../cli/runtime-context.js";
+import { localePack, resolvePresentationLocale } from "../interaction-presentation.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 const MAX_APPROVAL_ARTEFACT_BYTES = 131072;
-const MAX_SUMMARY_ITEM_CHARS = 160;
+const MAX_SUMMARY_ITEM_CHARS = 280;
 const SUMMARY_SECTIONS = Object.freeze({
   UR: [
     ["Problem", /problem|need|anlass/iu], ["Ziel", /goal|objective|ziel/iu],
@@ -17,7 +19,8 @@ const SUMMARY_SECTIONS = Object.freeze({
     ["Offen", /risk|unknown|open question|offen/iu],
   ],
   PRD: [
-    ["Produktumfang", /product scope|produktumfang/iu], ["Erfolg", /ux intent|success|erfolg/iu],
+    ["Nutzerziel", /ux intent and success|user intent/iu, /^primary_user_intent\s*:/iu],
+    ["Erfolg", /ux intent and success|user intent/iu, /^success_signal\s*:/iu],
     ["Abnahme", /acceptance criteria|abnahmekriterien/iu], ["Abgrenzung", /non-goal|out of scope|nichtumfang/iu],
     ["Offen", /risk|open question|offen/iu],
   ],
@@ -38,7 +41,7 @@ const SUMMARY_SECTIONS = Object.freeze({
 });
 const SUMMARY_LABELS_EN = Object.freeze({
   Problem: "Problem", Ziel: "Goal", Umfang: "Scope", Abnahme: "Acceptance", Offen: "Open questions",
-  Produktumfang: "Product scope", Erfolg: "Success", "Abgrenzung": "Non-goals", Lösung: "Solution",
+  Produktumfang: "Product scope", Nutzerziel: "User intent", Erfolg: "Success", "Abgrenzung": "Non-goals", Lösung: "Solution",
   Verantwortung: "Ownership", Entscheidungen: "Design decisions", Integration: "Integration",
   Aufgaben: "Tasks", Tests: "Tests", Risiken: "Risks", Entscheidung: "Decision",
   "TP-Abdeckung": "Task plan coverage", Belege: "Evidence", Fehlt: "Missing evidence", "Nächster Schritt": "Next step",
@@ -65,13 +68,31 @@ function compactSummaryText(value) {
     .replace(/<[^>]+>/gu, "").replace(/\s+/gu, " ").trim();
 }
 
+function userFacingSummaryText(value) {
+  const text = compactSummaryText(value);
+  const intent = text.match(/^(?:primary_user_intent|success_signal)\s*:\s*(.+)$/iu);
+  if (intent) return capitalizeSummary(intent[1].trim());
+  if (/^(?:ui_ux_impact|ux_intent_definition|primary_decision_or_action)\s*:/iu.test(text)) return "";
+  if (!/^criterion_id\s*:/iu.test(text)) return text;
+  const clauses = text.split(/;\s*/u);
+  for (const field of ["visible feedback", "observable success", "expected effective state"]) {
+    const clause = clauses.find((item) => item.match(new RegExp(`^${field}\\s*:`, "iu")));
+    if (clause) return capitalizeSummary(clause.replace(new RegExp(`^${field}\\s*:\\s*`, "iu"), "").trim());
+  }
+  return "";
+}
+
+function capitalizeSummary(value) {
+  return value.replace(/^\p{Ll}/u, (letter) => letter.toUpperCase());
+}
+
 function clipSummary(value) {
   if (value.length <= MAX_SUMMARY_ITEM_CHARS) return value;
   const clipped = value.slice(0, MAX_SUMMARY_ITEM_CHARS - 1);
   return `${clipped.slice(0, Math.max(0, clipped.lastIndexOf(" ")))}…`;
 }
 
-function sectionBody(markdown, pattern) {
+function sectionBody(markdown, pattern, contentPattern = null) {
   const lines = markdown.replace(/\r\n?/gu, "\n").split("\n");
   for (let index = 0; index < lines.length; index += 1) {
     const heading = lines[index].match(/^(#{2,6})\s+(?:\d+\.\s*)?(.+?)\s*#*\s*$/u);
@@ -92,7 +113,8 @@ function sectionBody(markdown, pattern) {
         inTable = false;
         line = line.replace(/^(?:[-*+]\s+|\d+[.)]\s+)/u, "");
       }
-      const cleaned = compactSummaryText(line);
+      if (contentPattern && !contentPattern.test(line)) continue;
+      const cleaned = userFacingSummaryText(line);
       if (!cleaned || /^(?:what|which|how|who|every field|specify|decision:|status:|gate:|date:|owner:)/iu.test(cleaned)
           || /^(?:ui_ux_impact|ux_intent_definition|primary_user_intent|success_signal|primary_decision_or_action):/iu.test(cleaned)) continue;
       body.push(cleaned);
@@ -105,12 +127,17 @@ function sectionBody(markdown, pattern) {
 
 function artifactSummary(gate, markdown, { runId, revisionId, language }) {
   const german = String(language ?? "").toLowerCase().startsWith("de");
+  const locale = resolvePresentationLocale(interactionLocales, language);
+  const pack = localePack(interactionLocales, locale);
   const sections = SUMMARY_SECTIONS[gate] ?? [];
   const items = [];
-  for (const [label, pattern] of sections) {
-    const values = sectionBody(markdown, pattern);
+  for (const [label, pattern, contentPattern] of sections) {
+    const values = sectionBody(markdown, pattern, contentPattern);
     if (!values.length) continue;
-    const value = clipSummary(values.slice(0, gate === "TP" && label === "Aufgaben" ? 3 : 1).join("; "));
+    const value = clipSummary(values.slice(0,
+      gate === "TP" && label === "Aufgaben" ? 3
+        : gate === "PRD" && label === "Abnahme" ? 2
+          : 1).join("; "));
     items.push(`- ${german ? label : (SUMMARY_LABELS_EN[label] ?? label)}: ${value}`);
     if (items.length >= 5) break;
   }
@@ -122,8 +149,28 @@ function artifactSummary(gate, markdown, { runId, revisionId, language }) {
     if (fallback) items.push(`- ${german ? "Inhalt" : "Content"}: ${clipSummary(fallback)}`);
   }
   if (!items.length) return null;
-  const summary = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${items.join("\n")}`;
-  return { markdown: summary, digest: hash(items.join("\n")) };
+  const sourceLanguage = detectSourceLanguage(markdown);
+  const presentationLanguage = locale.split("-")[0];
+  const sourceLanguageNote = sourceLanguage && sourceLanguage !== presentationLanguage
+    ? `- ${pack.statusCard.sourceLanguage}: ${pack.statusCard[sourceLanguage === "en" ? "languageEnglish" : "languageGerman"]} · ${pack.statusCard.originalLanguageExcerpts}`
+    : "";
+  const summaryItems = [sourceLanguageNote, ...items].filter(Boolean);
+  const summary = `## ${german ? "Kurzfassung" : "Review summary"} · ${gate}\n\nRun: \`${runId}\` · Gate: \`${gate}\` · Revision: \`${revisionId}\`\n\n${summaryItems.join("\n")}`;
+  return { markdown: summary, digest: hash(summaryItems.join("\n")) };
+}
+
+function detectSourceLanguage(markdown) {
+  const text = ` ${compactSummaryText(markdown).toLowerCase()} `;
+  const markers = {
+    en: ["the", "and", "before", "after", "this", "user", "users", "review", "draft", "scope", "success", "approval", "linked", "must", "should", "with", "from", "for"],
+    de: ["der", "die", "das", "und", "vor", "nach", "diese", "dieser", "du", "nutzer", "prüfen", "entwurf", "umfang", "erfolg", "freigabe", "mit", "für", "aus", "wird", "soll", "darf"],
+  };
+  const score = Object.fromEntries(Object.entries(markers).map(([language, words]) => [language,
+    words.reduce((count, word) => count + (text.match(new RegExp(`\\b${word}\\b`, "gu"))?.length ?? 0), 0),
+  ]));
+  if (score.en >= 3 && score.en >= score.de + 3) return "en";
+  if (score.de >= 3 && score.de >= score.en + 3) return "de";
+  return "";
 }
 
 function presentationText(root, report, { runId, gate, revisionId }, runState) {

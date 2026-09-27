@@ -262,6 +262,177 @@ const intakeCallsBefore = intakeCalls.length;
 const directGateCheck = intakeDispatch({ ...intakeInput, intake: undefined });
 assert.equal(directGateCheck.outcome, "control_result", "skill.gate-check without intake stays terminal");
 assert.equal(intakeCalls.length, intakeCallsBefore, "intake state is evaluated only for an intake dispatch");
+let structuredRoute = "structured_delivery";
+const sdContinuationDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    status: "open",
+    current_gate: "SD",
+    blocking_reason: "none",
+    missing_approval: "Approval: SD",
+    revision_id: "approved-prd-revision",
+    status_card: { run_id: "delivery-run", mode_slice_decision: structuredRoute },
+    delivery_map: { relationships: [{ from: "SD", relationship: "derived_from", to: "PRD", status: "missing" }] },
+    approval_presentation: null,
+  }),
+  env: {},
+});
+const sdContinuation = sdContinuationDispatch({
+  ...base,
+  skillId: "gate-check",
+  targetSource: "continued_target",
+  primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run",
+  continueDelivery: true,
+});
+assert.equal(sdContinuation.outcome, "skill_continuation", "PRD approval must lead to SD preparation before the SD card");
+assert.equal(sdContinuation.terminal, false);
+assert.equal(sdContinuation.continuation.phase, "required_gate_artifact");
+assert.equal(sdContinuation.continuation.gate, "SD");
+assert.equal(sdContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/SD.md");
+assert.deepEqual(sdContinuation.continuation.source_artifacts, [".agdf/control/artefacts/delivery-run/PRD.md"]);
+assert.match(sdContinuation.continuation.instruction, /approved PRD before presenting the next user card/u);
+assert.match(sdContinuation.continuation.instruction, /Do not create the Task\/Test Plan or implement code/u);
+assert.equal(sdContinuation.host_action.mode, "continue_named_skill");
+assert.equal(sdContinuation.authorizes, false);
+const tpContinuationDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    status: "open",
+    current_gate: "TP",
+    blocking_reason: "none",
+    missing_approval: "Approval: TP",
+    revision_id: "approved-sd-revision",
+    status_card: { run_id: "delivery-run", mode_slice_decision: structuredRoute },
+    delivery_map: { relationships: [{ from: "TP", relationship: "derived_from", to: "SD", status: "missing" }] },
+    approval_presentation: null,
+  }),
+  env: {},
+});
+const tpContinuation = tpContinuationDispatch({
+  ...base,
+  skillId: "gate-check",
+  targetSource: "continued_target",
+  primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run",
+  continueDelivery: true,
+});
+assert.equal(tpContinuation.outcome, "skill_continuation", "SD approval must lead to TP preparation before the TP card");
+assert.equal(tpContinuation.terminal, false);
+assert.equal(tpContinuation.continuation.phase, "required_gate_artifact");
+assert.equal(tpContinuation.continuation.gate, "TP");
+assert.equal(tpContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/TP.md");
+assert.deepEqual(tpContinuation.continuation.source_artifacts, [
+  ".agdf/control/artefacts/delivery-run/PRD.md",
+  ".agdf/control/artefacts/delivery-run/SD.md",
+]);
+assert.match(tpContinuation.continuation.instruction, /approved PRD and Solution Design before presenting the next user card/u);
+assert.match(tpContinuation.continuation.instruction, /Do not implement code/u);
+assert.equal(tpContinuation.host_action.mode, "continue_named_skill");
+assert.equal(tpContinuation.authorizes, false);
+const runtimeContractReads = [];
+const postTpDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    status: "open",
+    current_gate: "Brownfield Analysis",
+    blocking_reason: "none",
+    missing_approval: "none",
+    revision_id: "approved-tp-revision",
+    status_card: {
+      run_id: "delivery-run",
+      mode_slice_decision: structuredRoute,
+      breadcrumb: [{ gate: "TP", status: "fulfilled" }],
+      runState: { content: "- revision_id: approved-tp-revision" },
+    },
+  }),
+  readSkillRuntimeContracts: (skillId) => { runtimeContractReads.push(skillId); return [`contracts:${skillId}`]; },
+  env: {},
+});
+const brownfieldContinuation = postTpDispatch({
+  ...base,
+  skillId: "gate-check",
+  targetSource: "continued_target",
+  primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run",
+  continueDelivery: true,
+});
+assert.equal(brownfieldContinuation.outcome, "skill_continuation", "TP approval must hand off to implementation-preparation Brownfield Analysis");
+assert.equal(brownfieldContinuation.continuation.phase, "pre_implementation_analysis");
+assert.equal(brownfieldContinuation.continuation.skill_id, "brownfield-analysis");
+assert.equal(brownfieldContinuation.continuation.mode, "pre_implementation_analysis");
+assert.deepEqual(brownfieldContinuation.continuation.runtime_contracts, ["contracts:brownfield-analysis"]);
+assert.match(brownfieldContinuation.continuation.instruction, /before CD\+Tests/u);
+assert.equal(runtimeContractReads.at(-1), "brownfield-analysis");
+let orStatus = "missing";
+const postUatDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    status: "open",
+    current_gate: "OR",
+    blocking_reason: "none",
+    missing_approval: "none",
+    revision_id: "approved-uat-revision",
+    status_card: {
+      run_id: "delivery-run",
+      mode_slice_decision: structuredRoute,
+      breadcrumb: [{ gate: "UAT", status: "fulfilled" }],
+      runState: { content: "- revision_id: approved-uat-revision", artefacts: new Map(orStatus === "missing" ? [] : [["OR", { status: orStatus }]]) },
+    },
+    status_presentation: { semantic_block: "run_status_card", markdown: "OR recorded" },
+  }),
+  readSkillRuntimeContracts: (skillId) => { runtimeContractReads.push(skillId); return [`contracts:${skillId}`]; },
+  env: {},
+});
+const closeoutContinuation = postUatDispatch({
+  ...base,
+  skillId: "gate-check",
+  targetSource: "continued_target",
+  primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run",
+  continueDelivery: true,
+});
+assert.equal(closeoutContinuation.outcome, "skill_continuation", "UAT approval must hand off to required OR closeout");
+assert.equal(closeoutContinuation.continuation.phase, "post_uat_closeout");
+assert.equal(closeoutContinuation.continuation.skill_id, "release-or");
+assert.deepEqual(closeoutContinuation.continuation.runtime_contracts, ["contracts:release-or"]);
+assert.match(closeoutContinuation.continuation.instruction, /do not perform commit, push, PR, release/u);
+assert.equal(runtimeContractReads.at(-1), "release-or");
+orStatus = "done";
+const alreadyClosed = postUatDispatch({
+  ...base,
+  skillId: "gate-check",
+  targetSource: "continued_target",
+  primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run",
+  continueDelivery: true,
+});
+assert.equal(alreadyClosed.outcome, "control_result", "a durable OR prevents duplicate closeout continuation");
+structuredRoute = "structured_slice";
+orStatus = "missing";
+for (const [dispatch, phase] of [
+  [sdContinuationDispatch, "required_gate_artifact"],
+  [tpContinuationDispatch, "required_gate_artifact"],
+  [postTpDispatch, "pre_implementation_analysis"],
+  [postUatDispatch, "post_uat_closeout"],
+]) {
+  const result = dispatch({
+    ...base,
+    skillId: "gate-check",
+    targetSource: "continued_target",
+    primaryTarget: "/tmp/agdf-repo",
+    runId: "delivery-run",
+    continueDelivery: true,
+  });
+  assert.equal(result.outcome, "skill_continuation", `structured_slice must continue at ${phase}`);
+  assert.equal(result.continuation.phase, phase);
+  assert.equal(result.terminal, false);
+  assert.equal(result.authorizes, false);
+}
 for (const invalidOperation of [
   { ...intakeInput, skillId: "qa-gate" },
   { ...intakeInput, intake: "delivery.start" },
@@ -508,12 +679,11 @@ assert.equal(recoveryRendererFailure.host_action.text, "Repair the installed loc
       "--revision", revisionId, "--step", "ur", "--title", "Intake run"], { encoding: "utf8" }));
     assert.equal(recorded.outcome, "recorded");
     const ready = dispatch("--intake", "--run", "intake-run");
-    assert.equal(ready.outcome, "skill_continuation", "a ready UR routes before its approval binding is prepared");
+    assert.equal(ready.outcome, "intake_continuation", "a drafted UR proceeds to its bound approval presentation");
     assert.equal(ready.terminal, false);
     assert.equal(ready.control.missing_approval, "Approval: UR");
-    assert.equal(ready.host_action.mode, "continue_named_skill");
-    assert.equal(ready.continuation.phase, "pre_ur_approval_routing");
-    assert.equal(ready.continuation.skill_id, "brownfield-analysis");
+    assert.equal(ready.host_action.mode, "continue_delivery_intake");
+    assert.equal(ready.continuation.phase, "presentation_required");
     assert.match(readFileSync(join(root, ".agdf", "control", "runs", "intake-run", "RUN_STATE.md"), "utf8"), /\| UR \| `\.agdf\/control\/artefacts\/intake-run\/UR\.md` \| draft \|/u);
   } finally {
     rmSync(root, { recursive: true, force: true });

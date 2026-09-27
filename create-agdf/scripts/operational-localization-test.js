@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { evaluateGateCheck } from "../lib/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { createRun, recordRunRevision } from "../lib/control-state/index.js";
-import { isOperationalValueRenderable } from "../lib/interaction-presentation.js";
+import { isOperationalValueRenderable, renderOperationalStatusCard } from "../lib/interaction-presentation.js";
 import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 
@@ -64,6 +64,26 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
     reached.add(decision.blocking_reason === "none" ? decision.current_gate : decision.blocking_reason);
     for (const value of [...decision.allowed, ...decision.forbidden, decision.next_allowed_action]) {
       assert.deepEqual(unrenderable(value), [], `gate-policy value must render in every locale: ${value}`);
+    }
+    for (const locale of locales) {
+      const rendered = renderOperationalStatusCard({
+        run_id: "locale-matrix-run",
+        presentation_language: locale,
+        status: decision.status,
+        current_gate: decision.current_gate,
+        allowed_now: decision.allowed,
+        forbidden_now: decision.forbidden,
+        blocking_condition: decision.blocking_reason || "none",
+        missing_approval: decision.missing_approval || "none",
+        next_gate_after_approval: "none",
+        allowed_after_approval: "none",
+        next_step: decision.next_allowed_action,
+        quality_outlook: registry.locales.en.operationalValues.noAdditionalQualityFollowUp,
+        interaction_kind: "status",
+      }, { registry, requestedLocale: locale, humanPresentation: {} });
+      assert.ok(rendered, `${locale} status card renders for gate ${decision.current_gate}`);
+      assert.ok(rendered.markdown.includes(registry.locales[locale].statusCard.title), `${locale} status card uses the localized title`);
+      assert.ok(rendered.markdown.includes(registry.locales[locale].statusCard.gate), `${locale} status card uses the localized gate label`);
     }
   }
   for (const expected of ["UR", "Brownfield Review", "Mode/Slice Decision", "Quick Task Execution", "OR", "PRD", "SD", "TP",
@@ -150,11 +170,15 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
     const germanCard = german.status_presentation?.markdown ?? "";
     assert.equal(german.next_allowed_action, freeStep, "the machine report keeps the run-state next action");
     assert.ok(germanCard, `the German card renders despite free text: ${JSON.stringify(german.presentation_diagnostics)}`);
-    assert.ok(!germanCard.includes(freeStep) && germanCard.includes(registry.locales.de.operationalValues.fillUrControlState),
-      "the German card shows the deterministic next step instead of unlocalized free text");
+    assert.ok(!germanCard.includes(freeStep)
+      && germanCard.includes(registry.locales.de.statusCard.userDecision)
+      && germanCard.includes(registry.locales.de.statusCard.agentAllowed),
+    "the German approval card separates the user's decision from the agent's allowed work");
     assert.ok(!germanCard.includes("Freier Qualitätsausblick"), "the German card derives the quality outlook instead of free text");
     const english = evaluateGateCheck(root, { runId: "loc", presentationLanguage: "en" });
-    assert.ok(english.status_presentation?.markdown.includes(freeStep), "the English card keeps the run-state free text");
+    assert.ok(english.status_presentation?.markdown.includes(registry.locales.en.statusCard.userDecision)
+      && english.status_presentation?.markdown.includes(registry.locales.en.statusCard.agentAllowed),
+    "the English approval card separates the user's decision from the agent's allowed work");
 
     writeFileSync(statePath, readFileSync(statePath, "utf8").replace("## Evidence", "## Risks\n\n| Risk | Impact | Mitigation or owner |\n|---|---|---|\n| Fixture risk | block | Freie Minderung durch den Agenten. |\n\n## Evidence"));
     assert.equal(recordRunRevision(root, { runId: "loc", revisionId: revision() }).outcome, "updated");

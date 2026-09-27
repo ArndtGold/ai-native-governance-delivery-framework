@@ -34,7 +34,7 @@ export const SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION = "For a qa-gate skill_con
 
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
-  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, use only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
+  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, follow its continuation instruction using only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
@@ -60,7 +60,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Select an existing run only from an explicit request or unambiguous bound continuation. For intake_mode new, choose a new id for the authorized change; never reuse an existing run." },
       intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
       intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
-      continue_delivery: { type: "boolean", description: "Set only for an authorized bound delivery continuation, including after a valid UR approval. Requires run_id; incompatible with intake. Never set for status or advice. Allows only canonical Brownfield Review / Mode-Slice recovery." },
+      continue_delivery: { type: "boolean", description: "Set only for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
   },

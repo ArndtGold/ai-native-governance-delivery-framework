@@ -111,20 +111,21 @@ export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
   "node_modules/zod",
 ]);
 
-function digestSelectedEntries(root, entries) {
+function digestSelectedEntries(root, entries, syntheticEntries = []) {
   const files = [];
   function visit(path) {
     const stats = statSync(path);
     if (stats.isDirectory()) {
       for (const name of readdirSync(path).sort()) visit(join(path, name));
-    } else if (stats.isFile()) files.push(path);
+    } else if (stats.isFile()) files.push({ path, content: readFileSync(path) });
   }
   for (const entry of entries) visit(join(root, entry));
+  for (const entry of syntheticEntries) files.push({ path: join(root, entry.path), content: Buffer.from(entry.content) });
   const hash = createHash("sha256");
-  for (const path of files.sort()) {
-    hash.update(relative(root, path).replaceAll("\\", "/"));
+  for (const file of files.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)) {
+    hash.update(relative(root, file.path).replaceAll("\\", "/"));
     hash.update("\0");
-    hash.update(readFileSync(path));
+    hash.update(file.content);
     hash.update("\0");
   }
   return hash.digest("hex");
@@ -132,6 +133,21 @@ function digestSelectedEntries(root, entries) {
 
 export function digestMcpDispatcherPackage(root) {
   return digestSelectedEntries(root, MCP_DISPATCHER_RUNTIME_ENTRIES);
+}
+
+export function digestPluginMcpDispatcherSource(root, version) {
+  const packageJson = `${JSON.stringify({
+    name: "create-agdf",
+    version,
+    private: true,
+    type: "module",
+    exports: { "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js" },
+  }, null, 2)}\n`;
+  return digestSelectedEntries(
+    root,
+    MCP_DISPATCHER_RUNTIME_ENTRIES.filter((entry) => entry !== "package.json"),
+    [{ path: "package.json", content: packageJson }],
+  );
 }
 
 export function digestMcpSdkRuntime(root) {

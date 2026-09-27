@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildStatusCard } from "../lib/control-evaluation/gate-check.js";
 import {
   attachApprovalOrientationSnapshot,
   buildApprovalOrientationSnapshot,
@@ -101,17 +102,20 @@ assert.equal(resolvePresentationLocale(registry, "de-AT"), "de");
 assert.equal(resolvePresentationLocale(registry, "fr-FR"), "en");
 assert.throws(() => resolvePresentationLocale(registry, ""), /Invalid AGDF presentation language tag/u);
 
-const controlSetup = renderControlSetupOrientation({ target: "/repo/target" }, { registry: sourceRegistry, requestedLocale: "de" });
-assert.equal(controlSetup.semantic_block, "control_setup");
-assert.equal(controlSetup.status, "control_setup_required");
-assert.equal(controlSetup.target, "/repo/target");
-assert.equal(controlSetup.durable_scope, ".agdf/control");
-assert.deepEqual(controlSetup.excluded_authority, ["automatic_run_creation", "automatic_ur_persistence", "gate_approval"]);
-assert.equal(controlSetup.authorizes, false);
-assert.match(controlSetup.markdown, /AGDF-Kontrollstatus einrichten/);
-assert.match(controlSetup.markdown, /Aktiver Delivery-Intake persistiert danach Run und UR ohne zweite Frage/);
-assert.match(controlSetup.markdown, /eigenständiges Init bleibt gerüstbezogen/);
-assert.doesNotMatch(controlSetup.markdown, /Approval: UR/);
+for (const locale of Object.keys(sourceRegistry.locales)) {
+  const controlSetup = renderControlSetupOrientation({ target: "/repo/target" }, { registry: sourceRegistry, requestedLocale: locale });
+  const pack = sourceRegistry.locales[locale].controlSetup;
+  assert.equal(controlSetup.semantic_block, "control_setup");
+  assert.equal(controlSetup.status, "control_setup_required");
+  assert.equal(controlSetup.target, "/repo/target");
+  assert.equal(controlSetup.durable_scope, ".agdf/control");
+  assert.deepEqual(controlSetup.excluded_authority, ["automatic_run_creation", "automatic_ur_persistence", "gate_approval"]);
+  assert.equal(controlSetup.authorizes, false);
+  assert.ok(controlSetup.markdown.includes(pack.title), `${locale} control setup includes its localized title`);
+  assert.ok(controlSetup.markdown.includes(pack.required), `${locale} control setup includes its localized requirement`);
+  assert.ok(controlSetup.markdown.includes(pack.actionValue), `${locale} control setup includes its localized next action`);
+  assert.doesNotMatch(controlSetup.markdown, /Approval: UR/);
+}
 assert.equal(renderControlSetupOrientation({ target: "" }, { registry: sourceRegistry, requestedLocale: "de" }), null);
 const incompleteControlSetupRegistry = JSON.parse(JSON.stringify(sourceRegistry));
 delete incompleteControlSetupRegistry.locales.de.controlSetup.actionValue;
@@ -458,11 +462,45 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
     forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
     missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
-    next_step: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    next_step: "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.",
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Implementierung und Tests" } });
-  assert.match(germanCdTests.markdown, /Den freigegebenen TP-Umfang implementieren, seine Tests ausführen/);
+  assert.match(germanCdTests.markdown, /TP freigegeben/);
+  assert.match(germanCdTests.markdown, /Mit \"leg los\" starte ich genehmigte Implementierung und Tests/);
+  assert.match(germanCdTests.markdown, /weitere Freigabe ist nicht nötig/);
   assert.doesNotMatch(germanCdTests.markdown, /Implement the approved TP scope/);
+
+  const englishCdTests = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "en", status: "open", current_gate: "CD+Tests",
+    allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
+    forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
+    missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
+    next_step: "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.",
+    quality_outlook: "No additional quality follow-up identified from the current control state.",
+  }, { registry, humanPresentation: { gateTitle: "Implementation and tests" } });
+  assert.match(englishCdTests.markdown, /TP approved/);
+  assert.match(englishCdTests.markdown, /Say \"let's go\" to start implementation and tests/);
+  assert.match(englishCdTests.markdown, /no further approval is needed/);
+
+  const postTpRunState = {
+    content: "- run_id: status-run\n- mode: structured_delivery\n- lifecycle: active",
+    mode_slice_decision: { decision: "structured_delivery" },
+    approvals: new Map([["TP", { status: "approved" }]]),
+    artefacts: new Map([["TP", { status: "approved", path: ".agdf/control/artefacts/status-run/TP.md" }]]),
+    evidence_refs: [],
+  };
+  const postTpStatus = buildStatusCard({
+    status: "open", currentGate: "CD+Tests", missingApproval: "none",
+    nextAllowedAction: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    runState: postTpRunState,
+  });
+  assert.equal(postTpStatus.next_step, "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.");
+  const preTpStatus = buildStatusCard({
+    status: "open", currentGate: "CD+Tests", missingApproval: "none",
+    nextAllowedAction: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    runState: { ...postTpRunState, approvals: new Map(), artefacts: new Map() },
+  });
+  assert.equal(preTpStatus.next_step, "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.", "explicit start wording requires a durable TP approval");
 
   const germanCr = renderOperationalStatusCard({
     run_id: "status-run", presentation_language: "de", status: "open", current_gate: "CR",
@@ -603,7 +641,7 @@ for (const attemptOutcome of ["presented", "unavailable_before_invocation", "att
 }
 assert.throws(() => buildInteractionAttempt({ interactionId: "i", runId: "r", currentGate: "UR", attemptOutcome: "invalid" }));
 
-for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+for (const locale of Object.keys(registry.locales)) for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   const statusCard = {
     run_id: "approval-run",
     status: "open",
@@ -617,18 +655,18 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     statusCard,
     humanPresentation: {
       runTitle: "Approval run",
-      gateTitle: gateTitle(registry, "de", gate),
+      gateTitle: gateTitle(registry, locale, gate),
       artefactRefs: refs,
     },
     revisionId: "revision-1",
     registry,
-    requestedLocale: "de-AT",
+    requestedLocale: locale,
   });
   assert.deepEqual(snapshot.sequence, ["run_status_card", "gate_transition_card", "approval_interaction"]);
   assert.equal(snapshot.compact_status_card.semantic_block, "run_status_card");
   assert.equal(snapshot.gate_transition_card.semantic_block, "gate_transition_card");
   assert.equal(snapshot.approval_interaction.semantic_block, "approval_interaction");
-  assert.equal(snapshot.compact_status_card.primary_heading, registry.locales.de.gateActionTitles[gate]);
+  assert.equal(snapshot.compact_status_card.primary_heading, registry.locales[locale].gateActionTitles[gate]);
   assert.equal(snapshot.compact_status_card.title, snapshot.compact_status_card.primary_heading);
   assert.equal(snapshot.compact_status_card.primary_heading_level, 2);
   assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] });
@@ -638,9 +676,9 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(snapshot.run_id, "approval-run");
   assert.equal(snapshot.revision_id, "revision-1");
   assert.equal(snapshot.current_gate, gate);
-  assert.equal(snapshot.presentation_language, "de");
-  assert.equal(snapshot.compact_status_card.fields[1].value, "Bereit für deine Entscheidung");
-  assert.equal(snapshot.compact_status_card.fields[3].value, registry.locales.de.gateRequiredDecisions[gate]);
+  assert.equal(snapshot.presentation_language, locale);
+  assert.equal(snapshot.compact_status_card.fields[1].value, registry.locales[locale].interaction.ready);
+  assert.equal(snapshot.compact_status_card.fields[3].value, registry.locales[locale].gateRequiredDecisions[gate]);
   assert.equal(snapshot.compact_status_card.fields.some((field) => field.value.includes(`Approval: ${gate}`)), false);
   assert.equal(snapshot.gate_transition_card.exact_approval, `Approval: ${gate}`);
   assert.equal(snapshot.approval_interaction.options[0].value, `Approval: ${gate}`);
@@ -651,10 +689,10 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(Object.isFrozen(snapshot.approval_interaction.options), true);
   const rendered = renderApprovalOrientationSnapshot(snapshot, {
     registry,
-    expectedIdentity: { run_id: "approval-run", revision_id: "revision-1", current_gate: gate, presentation_language: "de" },
+    expectedIdentity: { run_id: "approval-run", revision_id: "revision-1", current_gate: gate, presentation_language: locale },
   });
   assert.equal(rendered.schema_version, "1");
-  assert.match(rendered.blocks.run_status_card.markdown, new RegExp(`^## ${registry.locales.de.gateActionTitles[gate]}`));
+  assert.match(rendered.blocks.run_status_card.markdown, new RegExp(`^## ${registry.locales[locale].gateActionTitles[gate]}`));
   assert.equal(rendered.blocks.run_status_card.markdown.includes(`Approval: ${gate}`), false);
   assert.equal((`${rendered.blocks.run_status_card.markdown}\n${rendered.blocks.gate_transition_card.markdown}`.match(new RegExp(`Approval: ${gate}`, "g")) ?? []).length, 1);
   assert.match(rendered.approval_interaction.exact_text_fallback, new RegExp(`Approval: ${gate}`));
@@ -699,7 +737,10 @@ for (const locale of ["en", "de"]) {
     registry,
     requestedLocale: locale,
   });
-  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].interaction.decisionFollows));
+  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.gates.PRD.userAction),
+    `${locale} PRD transition says the user reviews the SD after the agent drafts it`);
+  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.gates.PRD.agentNext),
+    `${locale} PRD transition says the agent drafts the SD only after PRD approval`);
   assert.equal(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.noAction), false);
   assert.deepEqual(validateApprovalOrientationSnapshot(userGateSnapshot, { registry }), { valid: true, errors: [] });
 }

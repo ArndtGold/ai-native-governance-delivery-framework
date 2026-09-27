@@ -2,7 +2,7 @@ import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadi
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
-import { transitionDecisionForRunState } from './gate-policy.js';
+import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js';
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from './verified-change.js';
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
 import { isPlaceholderValue } from './shared.js';
@@ -184,7 +184,11 @@ export function buildStatusCard({
     user_action_required: postApproval.user_action_required || (isUserGateApproval ? "yes" : "no"),
     evidence: runState.evidence_refs,
     next_skill: nextSkillByGate[currentGate] ?? "gate-check",
-    next_step: nextAllowedAction,
+    next_step: isUserGateApproval
+      ? "Review the linked artefact and choose whether to approve, request revision, or decline it."
+      : currentGate === "CD+Tests" && isGateSatisfied(runState, "TP")
+      ? localePack(interactionLocales, "en").operationalValues.nextCdTestsAfterTpApproval
+      : nextAllowedAction,
     quality_outlook: qualityOutlook,
     interaction_kind: interactionKind,
     native_attempt_required: nativeAttemptRequired,

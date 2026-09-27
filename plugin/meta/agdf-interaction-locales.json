@@ -319,6 +319,12 @@
         "skill": "Next skill",
         "step": "Next step",
         "quality": "Quality outlook",
+        "userDecision": "Your decision",
+        "agentAllowed": "Agent may work on now",
+        "sourceLanguage": "Source language",
+        "languageEnglish": "English",
+        "languageGerman": "German",
+        "originalLanguageExcerpts": "excerpts in original wording",
         "lifecycle": "Delivery status",
         "allowed": "Allowed now",
         "forbidden": "Forbidden now",
@@ -375,6 +381,7 @@
         "forbidImplementationBeforeBrownfield": "implement before Brownfield evidence supports the approved TP path",
         "nextBrownfieldBeforeCdTests": "Run Brownfield Analysis for the approved TP scope before CD+Tests.",
         "nextCdTestsBeforeCr": "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+        "nextCdTestsAfterTpApproval": "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.",
         "runMandatoryCodeReview": "run mandatory code review",
         "recordCodeReviewFindings": "record correctness, regression, security and maintainability findings",
         "fixBlockingReviewFindings": "fix blocking review findings",
@@ -423,6 +430,7 @@
         "forbidPrdBeforeBrownfieldResolved": "create PRD before Brownfield Review is resolved",
         "nextBrownfieldReviewBeforePrd": "Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence.",
         "nextStructuredPrdBeforeSdTp": "Draft or refine the PRD; do not implement before PRD, SD and TP are approved.",
+        "reviewLinkedArtefactForDecision": "Review the linked artefact and choose whether to approve, request revision, or decline it.",
         "nextStructuredSlicePrdBeforeApproval": "Draft or refine the smallest PRD slice justified by Brownfield Review; do not implement before required artefacts are approved.",
         "nextSdBeforeTp": "Draft or refine the Solution Design; do not implement before SD and TP are approved.",
         "nextTpBeforeImplementation": "Draft or refine the Task/Test Plan; do not implement before TP is approved.",
@@ -698,7 +706,7 @@
         "ready": "Ready for your decision",
         "approveHeading": "Approve now",
         "nextHeading": "Next",
-        "decisionInstruction": "Choose approve, request revision or decline.",
+        "decisionInstruction": "Review the linked artefact; choose an option below.",
         "decisionPrompt": "Choose approve, request revision or decline for {gate} in run {run_id}.",
         "exactTextRequest": "To approve, reply exactly with `{approval}`; otherwise request revision or decline.",
         "decisionFollows": "will be the next user decision",
@@ -802,7 +810,8 @@
               "agentNext": "Agent runs Brownfield Review next"
             },
             "PRD": {
-              "agentNext": "Agent drafts the Solution Design next"
+              "agentNext": "After your PRD approval, the agent drafts the Solution Design",
+              "userAction": "Once the draft is ready, you will review and decide on the Solution Design"
             },
             "SD": {
               "agentNext": "Agent drafts the Task and Test Plan next"
@@ -1238,6 +1247,12 @@
         "skill": "Nächster Skill",
         "step": "Nächster Schritt",
         "quality": "Qualitätsausblick",
+        "userDecision": "Deine Entscheidung",
+        "agentAllowed": "Der Agent darf jetzt",
+        "sourceLanguage": "Quellsprache",
+        "languageEnglish": "Englisch",
+        "languageGerman": "Deutsch",
+        "originalLanguageExcerpts": "Auszüge im Originalwortlaut",
         "lifecycle": "Lieferstatus",
         "allowed": "Jetzt erlaubt",
         "forbidden": "Aktuell verboten",
@@ -1294,6 +1309,7 @@
         "forbidImplementationBeforeBrownfield": "implementieren, bevor die Brownfield-Nachweise den freigegebenen TP-Pfad stützen",
         "nextBrownfieldBeforeCdTests": "Die Brownfield-Analyse für den freigegebenen TP-Umfang vor CD+Tests durchführen.",
         "nextCdTestsBeforeCr": "Den freigegebenen TP-Umfang implementieren, seine Tests ausführen und die CD+Tests-Nachweise vor dem Code Review erfassen.",
+        "nextCdTestsAfterTpApproval": "TP freigegeben. Mit \"leg los\" starte ich genehmigte Implementierung und Tests; weitere Freigabe ist nicht nötig.",
         "runMandatoryCodeReview": "das verpflichtende Code Review durchführen",
         "recordCodeReviewFindings": "Befunde zu Korrektheit, Regression, Sicherheit und Wartbarkeit erfassen",
         "fixBlockingReviewFindings": "blockierende Review-Befunde beheben",
@@ -1342,6 +1358,7 @@
         "forbidPrdBeforeBrownfieldResolved": "PRD erstellen, bevor Brownfield Review geklärt ist",
         "nextBrownfieldReviewBeforePrd": "Brownfield Review nach G-00 vor dem PRD-Entwurf durchführen oder mit Nachweis als nicht zutreffend markieren.",
         "nextStructuredPrdBeforeSdTp": "PRD entwerfen oder überarbeiten. Erst implementieren, nachdem PRD, SD und TP freigegeben sind.",
+        "reviewLinkedArtefactForDecision": "Den verlinkten Entwurf prüfen und entscheiden, ob du ihn freigibst, überarbeiten lässt oder ablehnst.",
         "nextStructuredSlicePrdBeforeApproval": "Den kleinsten durch Brownfield Review begründeten PRD-Umfang entwerfen oder überarbeiten. Erst nach Freigabe der erforderlichen Artefakte implementieren.",
         "nextSdBeforeTp": "Das Lösungsdesign entwerfen oder überarbeiten. Erst implementieren, nachdem SD und TP freigegeben sind.",
         "nextTpBeforeImplementation": "Den Aufgaben- und Testplan entwerfen oder überarbeiten. Erst nach TP-Freigabe implementieren.",
@@ -1617,7 +1634,7 @@
         "ready": "Bereit für deine Entscheidung",
         "approveHeading": "Jetzt freigeben",
         "nextHeading": "Danach",
-        "decisionInstruction": "Freigeben, Überarbeitung anfordern oder ablehnen.",
+        "decisionInstruction": "Prüfe das verlinkte Artefakt und wähle unten eine Option.",
         "decisionPrompt": "Für {gate} im Run {run_id}: freigeben, Überarbeitung anfordern oder ablehnen.",
         "exactTextRequest": "Zur Freigabe exakt mit `{approval}` antworten; andernfalls Überarbeitung anfordern oder ablehnen.",
         "decisionFollows": "ist die nächste Nutzerentscheidung",
@@ -1721,7 +1738,8 @@
               "agentNext": "Agent führt Brownfield Review als Nächstes durch"
             },
             "PRD": {
-              "agentNext": "Agent entwirft als Nächstes das Lösungsdesign"
+              "agentNext": "Nach deiner PRD-Freigabe entwirft der Agent das Lösungsdesign",
+              "userAction": "Sobald der Entwurf vorliegt, prüfst du das Lösungsdesign und entscheidest darüber"
             },
             "SD": {
               "agentNext": "Agent entwirft als Nächstes den Aufgaben- und Testplan"

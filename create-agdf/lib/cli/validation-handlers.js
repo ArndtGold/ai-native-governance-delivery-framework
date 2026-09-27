@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { createRun } from "../control-state/run-state-repository.js";
+import { extractField } from "../control-evaluation/verified-change.js";
+import { prepareRunPresentation } from "../control-state/run-presentation.js";
 import {
   buildStatusCard,
   evaluateGateCheck,
@@ -33,6 +37,25 @@ export function createValidationHandlers(io = console) {
     resolveTaskTarget: resolveTaskTargetWithCliGit,
   });
   return new Map([
+    ["run-create", (options) => {
+      try {
+        const path = createRun(options.dir, options.runId);
+        const revisionId = extractField(readFileSync(path, "utf8"), "revision_id");
+        io.log(path);
+        io.log(`revision_id: ${revisionId}`);
+        io.log(`Next: write .agdf/control/artefacts/${options.runId}/UR.md from .agdf/control/templates/artefacts/UR.md, then record it with run-step --run ${options.runId} --revision ${revisionId} --step ur --title "<short requirement title>".`);
+        return 0;
+      } catch (error) {
+        io.error(error instanceof Error ? error.message : String(error));
+        return 1;
+      }
+    }],
+    ["run-present", (options) => {
+      const result = prepareRunPresentation(options.dir, { runId: options.runId, gate: options.gate,
+        revisionId: options.revisionId, language: options.language?.chat_language }, { evaluateGateCheck: evaluateGateWithCliGit });
+      io.log(JSON.stringify(result, null, 2));
+      return result.outcome === "prepared" ? 0 : 2;
+    }],
     ["target-check", (options) => {
       const report = resolveTaskTargetWithCliGit({
         targetSource: options.targetSource,
@@ -61,6 +84,8 @@ export function createValidationHandlers(io = console) {
         primaryTarget: options.primaryTarget,
         runId: options.runId,
         intake: options.intake,
+        intakeMode: options.intakeMode,
+        continueDelivery: options.continueDelivery,
         expectedVersion: pluginDefinition.version,
       });
       io.log(serializeSkillDispatchResult(result, {
@@ -124,6 +149,7 @@ export function createValidationHandlers(io = console) {
         gate: options.gate,
         revisionId: options.revisionId,
         response: options.response,
+        presentationId: options.presentationId,
       }, { evaluateGateCheck: evaluateGateWithCliGit });
       io.log(JSON.stringify(result, null, 2));
       return result.outcome === "rejected" ? 2 : 0;

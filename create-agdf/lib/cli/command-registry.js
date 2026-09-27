@@ -40,10 +40,11 @@ export const commandRegistry = Object.freeze([
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
   }),
   command("contract", { local: [" --module <runtime-contract-module> [--json]"] }),
+  command("run-present", { local: [" --run <run_id> --gate <gate> --revision <revision_id>"] }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
   command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]"] }),
-  command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response \"Approval: <gate>\""] }),
+  command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
   command("run-render-legacy", { local: [" --run <run_id>"] }),
 ]);
@@ -92,6 +93,9 @@ export function validateCommandOptions(options) {
     throw new Error("target-check requires --json");
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
+  if ((options.intakeMode || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
+  if (options.presentationId && options.target !== "run-approve") throw new Error("--presentation is supported only by run-approve");
+  if (options.target === "run-present" && (!options.runId || !options.gate || !options.revisionId)) throw new Error("run-present requires --run, --gate and --revision");
   if (options.intake && options.target !== "skill-dispatch") throw new Error("--intake is supported only by skill-dispatch");
   if (options.target === "skill-dispatch") {
     if (!options.json) throw new Error("skill-dispatch requires --json");
@@ -109,11 +113,11 @@ export function validateCommandOptions(options) {
   if (options.target === "run-create" && (!options.runId || options.allActive)) {
     throw new Error("run-create requires --run and rejects --all-active");
   }
-  if ((options.gate || options.response !== undefined) && options.target !== "run-approve") {
-    throw new Error("--gate and --response are supported only by run-approve");
+  if ((options.gate && !["run-approve", "run-present"].includes(options.target)) || (options.response !== undefined && options.target !== "run-approve")) {
+    throw new Error("--gate is supported by run-present/run-approve; --response only by run-approve");
   }
-  if (options.revisionId && !["run-update", "run-approve", "run-step"].includes(options.target)) {
-    throw new Error("--revision is supported only by run-update, run-approve and run-step");
+  if (options.revisionId && !["run-update", "run-approve", "run-step", "run-present"].includes(options.target)) {
+    throw new Error("--revision is supported only by run-update, run-present, run-approve and run-step");
   }
   if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step") {
     throw new Error("--step and step fields are supported only by run-step");
@@ -235,9 +239,9 @@ Options:
                  --evidence; review --decision <pass|revise|block> --evidence [--source]; evidence
                  --evidence [--source --covers]; closeout --result --evidence --risk --next
   --revision <revision_id>
-                 Expected current run revision for run-update, run-approve and run-step
+                 Expected current run revision for run-update, run-present, run-approve and run-step
   --gate <UR|PRD|SD|TP|QA|UAT>
-                 Gate whose exact approval run-approve records
+                 Gate to present or approve
   --response <text>
                  The user's verbatim reply to the presented gate question
   --target-source ${TASK_TARGET_SOURCE_GRAMMAR}
@@ -248,6 +252,9 @@ Options:
                  Report execution context without granting target authority
   --skill <skill-id>
                  Select one canonical skill for skill-dispatch
+  --intake-mode <new|resume>  Explicit new scope or bound intake recovery; requires --intake and --run
+  --continue-delivery  Bound internal continuation; excludes intake and read-only status
+  --presentation <uuid>  Previously prepared run-present binding required for run-approve
   --intake       Declare the governed delivery intake (delivery.start) for a gate-check skill-dispatch
   --target-candidate <absolute-path>
                  Repeat to expose competing plausible targets

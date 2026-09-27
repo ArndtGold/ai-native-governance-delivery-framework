@@ -243,7 +243,8 @@ Canonical run lifecycle:
 agdf run-create --run <run_id>
 agdf run-update --run <run_id> --revision <revision_id>
 agdf run-step --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]
-agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --response "Approval: <gate>"
+agdf run-present --run <run_id> --gate <gate> --revision <revision_id>
+agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response "Approval: <gate>"
 agdf run-migrate [--run <run_id>]
 agdf run-render-legacy --run <run_id>
 ```
@@ -582,3 +583,17 @@ See the root `RELEASE.md` for the sequenced `agdf-v<version>` workflow and npm t
 
 AGDF(TM) and AI Governance & Delivery Framework(TM) are marks of Arndt Gold.
 Use of the AGDF name and marks is governed by the project trademark guidelines.
+
+
+### Approval preparation compatibility
+
+New approvals require `run-present --run <id> --gate <gate> --revision <uuid>` before showing the
+returned text and waiting for the user. The presentation links the exact current gate artefact and
+shows its digest, run, gate and revision. Before the approval action it includes a short
+gate-specific summary, bound by `summary_digest`; UAT summarizes and presents its existing evidence
+rows. A missing summary is a presentation failure. Supply its `presentation_id` as
+`run-approve --presentation`.
+Old stored approvals remain valid; new legacy calls without the binding are rejected with recovery.
+Never prepare a missing record after receiving an answer and reuse that answer. Read-only gate
+previews are not preparation records. Install matching runtime and skills; older runtimes reject
+new intake/continuation fields rather than silently dropping them.

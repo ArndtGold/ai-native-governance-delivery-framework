@@ -1,7 +1,9 @@
+import { validateRunPresentation } from "./run-presentation.js";
 import { validateGateApprovalResponse } from "./gate-approval-validator.js";
 import { parseControlState } from "./run-state-parser.js";
-import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes } from "./run-state-edits.js";
+import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
+import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
 import { writeRun } from "./run-state-writer.js";
 
 const DURABLE_STATUS_GATES = new Set(["UR", "PRD", "SD", "TP"]);
@@ -101,7 +103,7 @@ export function recordRunRevision(root, { runId, revisionId }) {
 
 // run-approve: persist one exact gate reply for the revision the user was shown. The CLI cannot
 // observe the conversation; callers pass only the user's verbatim reply to the presented gate.
-export function approveRunGate(root, { runId, gate, revisionId, response, date = new Date().toISOString().slice(0, 10) }, { evaluateGateCheck }) {
+export function approveRunGate(root, { runId, gate, revisionId, response, presentationId, date = new Date().toISOString().slice(0, 10) }, { evaluateGateCheck }) {
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
@@ -138,20 +140,48 @@ export function approveRunGate(root, { runId, gate, revisionId, response, date =
   });
   if (!validation.accepted) return rejected(runId, validation.reason);
 
+  const presentation = validateRunPresentation(root, { runId, gate, revisionId, presentationId }, { evaluateGateCheck });
+  if (presentation.reason) return rejected(runId, presentation.reason, { recovery: presentation.recovery });
+
   const evidence = [
     `\`Approval: ${gate}\``,
     date,
     `revision ${run.meta.revision}`,
     ...(digest ? [`\`${artefact.path}\` ${digest.slice(0, 23)}`] : []),
+    `presentation ${presentation.presentationId} ${presentation.digest}`,
   ].join(" · ");
   let next = recordGateApproval(canonicalRunText(run.content), gate, evidence);
   if (DURABLE_STATUS_GATES.has(gate)) next = markGateArtefactApproved(next, gate);
   if (gate === "UR") next = recordUrApprovalChain(next, evidence);
-  if (report.allowed_after_approval && report.allowed_after_approval !== "none") {
-    next = replaceFirstScalar(next, "next_allowed_action", report.allowed_after_approval) ?? next;
+  const postApprovalState = parseControlState(next, {
+    userGates: APPROVAL_GATES,
+    internalSteps: ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR"],
+    closeoutArtefacts: ["OR"],
+  });
+  const after = transitionDecisionForRunState({
+    ...postApprovalState,
+    current_gate: postApprovalState.current_gate,
+    content: next,
+  });
+  const approvedGates = APPROVAL_GATES.filter((candidate) => postApprovalState.approvals.get(candidate)?.status === "approved");
+  const controlRows = [
+    ["What is known?", `Approval recorded for ${gate}; current gate is ${after.current_gate}.`],
+    ["What is approved?", approvedGates.length ? approvedGates.map((candidate) => `Approval: ${candidate}`).join(", ") : "Nothing yet."],
+    ["What is missing?", after.missing_approval !== "none" ? `Exact ${after.missing_approval}.` : "No approval is pending."],
+    ["What is the next allowed action?", after.next_allowed_action],
+    ["What is explicitly forbidden right now?", after.forbidden.join("; ") || "none"],
+  ];
+  next = replaceFirstScalar(next, "current_gate", after.current_gate) ?? next;
+  next = replaceFirstScalar(next, "next_allowed_action", after.next_allowed_action) ?? next;
+  for (const [key, value] of controlRows) {
+    next = upsertTableRow(next, "Current Control State", 0, key, [key, value]) ?? next;
   }
   const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
     allowApprovalChange: true,
+    validateBeforeWrite: () => {
+      const current = validateRunPresentation(root, { runId, gate, revisionId, presentationId }, { evaluateGateCheck });
+      if (current.reason || current.digest !== presentation.digest) throw new Error("AGDF_STALE_RUN_REVISION");
+    },
     expectedContent: run.content,
   }));
   if (written.rejection) return written.rejection;
@@ -164,7 +194,7 @@ export function approveRunGate(root, { runId, gate, revisionId, response, date =
     previous_revision_id: revisionId,
     revision: written.state.meta.revision,
     revision_id: written.state.meta.revision_id,
-    next_gate_after_approval: report.next_gate_after_approval,
-    allowed_after_approval: report.allowed_after_approval,
+    next_gate_after_approval: after.current_gate,
+    allowed_after_approval: after.next_allowed_action,
   });
 }

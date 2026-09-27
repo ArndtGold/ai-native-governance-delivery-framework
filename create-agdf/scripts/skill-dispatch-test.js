@@ -232,7 +232,8 @@ assert.equal(runMissing.continuation.operation_id, "delivery.start");
 assert.equal(runMissing.continuation.phase, "run_missing");
 assert.equal(runMissing.continuation.governance_target, "/tmp/agdf-repo");
 assert.deepEqual(runMissing.continuation.steps.map((step) => step.id), ["create_run", "write_ur", "record_ur", "dispatch_again"]);
-assert.equal(runMissing.continuation.steps[0].command, 'run-create --dir "/tmp/agdf-repo" --run <run_id>');
+assert.equal(runMissing.continuation.steps[0].command, "run-create --dir '/tmp/agdf-repo' --run <run_id>");
+assert.deepEqual(runMissing.continuation.steps[0].argv, ["run-create", "--dir", "/tmp/agdf-repo", "--run", "<run_id>"]);
 assert.equal(runMissing.continuation.steps[1].template, ".agdf/control/templates/artefacts/UR.md");
 assert.match(runMissing.continuation.instruction, /approve no gate and authorize no implementation/u);
 assert.equal(Object.isFrozen(runMissing.continuation), true);
@@ -248,13 +249,13 @@ assert.equal(urMissing.continuation.revision_id, "rev-1");
 assert.deepEqual(urMissing.continuation.steps.map((step) => step.id), ["write_ur", "record_ur", "dispatch_again"]);
 assert.equal(urMissing.continuation.steps[0].path, ".agdf/control/artefacts/delivery-run/UR.md");
 assert.match(urMissing.continuation.steps[1].command, /--run delivery-run --revision rev-1 --step ur --title/u);
-assert.match(urMissing.continuation.steps[2].rule, /again with intake and run_id delivery-run/u);
+assert.match(urMissing.continuation.steps[2].rule, /again with intake, intake_mode resume and run_id delivery-run/u);
 
 intakeState = null;
 const intakeReady = intakeDispatch(intakeInput);
-assert.equal(intakeReady.outcome, "control_result");
-assert.equal(intakeReady.terminal, true, "a state without intake bookkeeping stays terminal");
-assert.equal(intakeReady.host_action.mode, "transmit_presentation_verbatim_and_stop");
+assert.equal(intakeReady.outcome, "intake_continuation");
+assert.equal(intakeReady.terminal, false, "ready decisions require explicit preparation");
+assert.equal(intakeReady.host_action.mode, "continue_delivery_intake");
 
 intakeState = { phase: "run_missing", run_id: null, revision_id: null };
 const intakeCallsBefore = intakeCalls.length;
@@ -507,10 +508,12 @@ assert.equal(recoveryRendererFailure.host_action.text, "Repair the installed loc
       "--revision", revisionId, "--step", "ur", "--title", "Intake run"], { encoding: "utf8" }));
     assert.equal(recorded.outcome, "recorded");
     const ready = dispatch("--intake", "--run", "intake-run");
-    assert.equal(ready.outcome, "control_result", "a ready Approval: UR stays terminal for an intake dispatch");
-    assert.equal(ready.terminal, true);
+    assert.equal(ready.outcome, "skill_continuation", "a ready UR routes before its approval binding is prepared");
+    assert.equal(ready.terminal, false);
     assert.equal(ready.control.missing_approval, "Approval: UR");
-    assert.equal(ready.host_action.mode, "transmit_presentation_verbatim_and_stop");
+    assert.equal(ready.host_action.mode, "continue_named_skill");
+    assert.equal(ready.continuation.phase, "pre_ur_approval_routing");
+    assert.equal(ready.continuation.skill_id, "brownfield-analysis");
     assert.match(readFileSync(join(root, ".agdf", "control", "runs", "intake-run", "RUN_STATE.md"), "utf8"), /\| UR \| `\.agdf\/control\/artefacts\/intake-run\/UR\.md` \| draft \|/u);
   } finally {
     rmSync(root, { recursive: true, force: true });

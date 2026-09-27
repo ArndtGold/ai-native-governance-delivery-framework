@@ -395,7 +395,7 @@ function validateBindingJson(content, canonicalKernel, expectedVersion, surfaceI
     && activationKeys
     && routeSourceValid
     && binding.schema_version === "2"
-    && typeof binding.arguments === "string" && binding.arguments.length > 0 && binding.arguments.length <= 240
+    && typeof binding.arguments === "string" && binding.arguments.length > 0 && binding.arguments.length <= 512
     && binding.environment && typeof binding.environment === "object" && !Array.isArray(binding.environment)
     && Object.keys(binding.environment).every((key) => key === "ELECTRON_RUN_AS_NODE" && binding.environment[key] === "1")
     && isAbsoluteInstructionPath(binding.executable)

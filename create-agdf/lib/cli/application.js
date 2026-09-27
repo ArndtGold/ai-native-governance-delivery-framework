@@ -1,10 +1,8 @@
-import { readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { emitKeypressEvents } from "node:readline";
 import { createInterface } from "node:readline/promises";
 import process from "node:process";
 import {
-  createRun,
   migrateLegacy,
   resolveRuns,
   writeLegacyProjection,
@@ -41,7 +39,6 @@ import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../life
 import { generatedFilesForTarget } from "../scaffold/plan.js";
 import { initializeCanonicalControl } from "../scaffold/canonical-init.js";
 import { printNextSteps } from "../scaffold/presentation.js";
-import { extractField } from "../control-evaluation/verified-change.js";
 import { assertGeneratedWritePlan, writeGeneratedFile } from "../scaffold/write.js";
 import { renderUsage, resolveCommand, validateCommandOptions } from "./command-registry.js";
 import { CliUsageError, parseArgs } from "./parse-args.js";
@@ -119,19 +116,6 @@ function createHandlers({
     ["opencode-repo", scaffoldHandler],
     ["init", scaffoldHandler],
     ["config", scaffoldHandler],
-    ["run-create", (options) => {
-      try {
-        const path = createRun(options.dir, options.runId);
-        const revisionId = extractField(readFileSync(path, "utf8"), "revision_id");
-        io.log(path);
-        io.log(`revision_id: ${revisionId}`);
-        io.log(`Next: write .agdf/control/artefacts/${options.runId}/UR.md from .agdf/control/templates/artefacts/UR.md, then record it with run-step --run ${options.runId} --revision ${revisionId} --step ur --title "<short requirement title>".`);
-        return 0;
-      } catch (error) {
-        io.error(error instanceof Error ? error.message : String(error));
-        return 1;
-      }
-    }],
     ["run-migrate", (options) => {
       io.log(JSON.stringify(migrateLegacy(options.dir, options.runId), null, 2));
       return 0;

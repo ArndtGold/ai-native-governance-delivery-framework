@@ -1,9 +1,10 @@
 import process from "node:process";
+import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
 import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
-import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps } from "./delivery-intake.js";
+import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, quoteDispatchArgument } from "./delivery-intake.js";
 import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
 
 const defaultNow = () => process.hrtime.bigint();
@@ -145,7 +146,7 @@ function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
     missing_approval: report.missing_approval,
     next_allowed_action: report.next_allowed_action,
     run_id: report.status_card?.run_id ?? null,
-    revision_id: report.approval_presentation?.revision_id ?? null,
+    revision_id: report.approval_presentation?.revision_id ?? extractField(report.status_card?.runState?.content ?? "", "revision_id") ?? null,
     doctor_status: report.doctor_status,
     ...(includeCandidateRuns ? { candidate_runs: candidateRunsSnapshot(report) } : {}),
   });
@@ -226,9 +227,21 @@ export function createSkillDispatchService(dependencies = {}) {
         });
       });
       timing.control_ms = round(milliseconds(controlStarted, now()));
-      const intake = skill.dispatch_mode === "deterministic_control" && input.intake
-        ? runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed, () => resolveIntakePhase(target.governance_target, control))
+      let intake;
+      try {
+        intake = skill.dispatch_mode === "deterministic_control" && input.intake
+        ? resolveIntakePhase(target.governance_target, control, input)
         : null;
+      } catch (error) {
+        const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.diagnostics = [{ code: error.message === "AGDF_RUN_COLLISION" ? "AGDF_RUN_COLLISION" : "AGDF_CANONICAL_SCAFFOLD_REQUIRED" }];
+        result.recovery = { action: error.message === "AGDF_RUN_COLLISION"
+          ? (input.presentation_language === "de" ? "Die Run-ID ist bereits belegt. Den bestehenden Auftrag ausdrücklich zuordnen oder für den neuen Umfang eine unbenutzte ID wählen." : "The run id already exists. Bind an explicit continuation or choose an unused id for the new scope.")
+          : (input.presentation_language === "de" ? "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen." : "Inspect and restore the canonical control scaffold before creating the run.") };
+        return bindHostAction(result);
+      }
       if (intake) {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
@@ -245,6 +258,46 @@ export function createSkillDispatchService(dependencies = {}) {
         });
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      }
+      const modeDecision = control.status_card?.runState?.mode_slice_decision?.decision ?? control.mode_slice_decision;
+      const preApprovalRouting = control.current_gate === "UR"
+        && control.missing_approval === "Approval: UR"
+        && (!modeDecision || modeDecision === "undecided")
+        && Boolean(control.approval_presentation);
+      if ((input.intake || input.continue_delivery)
+          && control.status === "open"
+          && (preApprovalRouting || (control.missing_approval === "none" && ["Brownfield Review", "Mode/Slice Decision"].includes(control.current_gate)))) {
+        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: preApprovalRouting
+            ? "Complete Brownfield Review and proportional routing before preparing UR approval; record evidence, then re-evaluate. Do not approve or implement."
+            : "Execute Brownfield Review and proportional routing for this bound run, then re-evaluate. Stop with the concrete blocker if the same state remains; never loop or infer another gate approval.",
+          phase: preApprovalRouting ? "pre_ur_approval_routing" : "post_ur_review",
+          skill_id: "brownfield-analysis",
+          mode: preApprovalRouting ? "pre_ur_approval" : "post_ur_review",
+          governance_target: target.governance_target,
+          run_id: result.control.run_id,
+          revision_id: result.control.revision_id,
+          presentation_language: input.presentation_language,
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("brownfield-analysis") } : {}),
+        });
+        timing.total_ms = round(milliseconds(started, now()));
+        return bindHostAction(result);
+      }
+      if ((input.intake || input.continue_delivery) && control.approval_presentation) {
+        const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.control = controlSnapshot(control);
+        result.continuation = Object.freeze({
+          instruction: "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
+          phase: "presentation_required", governance_target: target.governance_target,
+          run_id: result.control.run_id, revision_id: result.control.revision_id,
+          steps: [{ id: "prepare_presentation", argv: ["run-present", "--dir", target.governance_target, "--run", result.control.run_id, "--gate", control.current_gate, "--revision", result.control.revision_id, "--language", input.presentation_language], command: `run-present --dir ${quoteDispatchArgument(target.governance_target)} --run ${result.control.run_id} --gate ${control.current_gate} --revision ${result.control.revision_id} --language ${input.presentation_language}` }],
+        });
+        timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
       }
       if (skill.dispatch_mode === "deterministic_control") {

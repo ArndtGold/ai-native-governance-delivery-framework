@@ -225,3 +225,12 @@ Automatic discovery alone does not activate AGDF.
   generic `gate-check`.
 - No hook, generated profile, test fixture, installed runtime, keyword list, or host-specific prompt
   becomes another request-applicability owner.
+
+
+### Delivery intent transport
+
+A clear new scope uses gate-check intake_mode new with intake true and an unused run_id selected
+for that authorized scope. Existing-run continuation uses its bound id; interrupted intake uses
+resume. Mere ambiguity does not authorize new-run creation. Read-only requests omit intake and
+continue_delivery. Following a valid bound UR approval, continue_delivery requests the canonical
+internal Brownfield Review/Mode-Slice continuation without another user prompt.

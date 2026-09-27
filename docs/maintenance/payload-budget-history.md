@@ -188,3 +188,36 @@ The explicit pending-hook setup state and focused English/German next action add
 The security-review fixes add localized runtime-contract recovery and distinct pending-hook verification actions, increasing the two locale copies by 2544 bytes to 103 files/960796 bytes; no new payload file.
 
 Registering the new recovery code adds 35 runtime bytes, yielding 103 files/960831 bytes.
+
+
+## 2026-09-27 — Intake continuation repair
+
+Reviewed source/runtime addition: shared run-presentation owner, explicit new/resume/continue
+transport, canonical create handler in the local validator and updated approval instructions.
+Copilot budget: 104 files / 965362 bytes -> 106 files / 984680 bytes (+2 files, +19318 bytes).
+Final generated payload after instruction compaction: 106 files / 984167 bytes (513 bytes below the ceiling).
+The read-only run-store-inspection split keeps writing modules outside the MCP import closure.
+The all-profile guard remains enabled; this is the accounted functional payload, not a bypass
+of unrelated Copilot checks for a local Codex install. No cache contents were patched.
+
+
+## 2026-09-27 — Approval presentation content
+
+The prepared, revision-bound approval presentation now includes the complete current gate artefact (or the existing UAT evidence rows) before the exact approval prompt. Copilot budget: 106 files / 984680 bytes -> 106 files / 985626 bytes (+946 bytes). The all-profile guard remains enabled.
+
+
+## 2026-09-27 — Click-through approval review
+
+Approval presentations now link directly to the revision-bound gate artefact and show its SHA-256 digest instead of embedding the full document body. Run, gate and revision are explicit; UAT continues to show existing evidence rows. Copilot budget: 106 files / 985626 bytes -> 106 files / 986109 bytes (+483 bytes). The all-profile guard remains enabled.
+
+
+## 2026-09-27 — Gate-specific approval summaries
+
+Approval presentations now include a deterministic concise summary of relevant sections for UR, PRD, SD, TP and QA, or existing evidence for UAT. The summary appears before the approval action and has its own digest bound with the source artefact digest and revision. Missing summary content fails closed. Copilot budget: 106 files / 986109 bytes -> 106 files / 992602 bytes (+6493 bytes). The all-profile guard remains enabled.
+
+
+## 2026-09-27 — Approval status and early route persistence
+
+Approval persistence now advances the canonical run gate and refreshes the run-state summary atomically. Intake completes Brownfield Review and records the proportional route before presenting UR approval, so the approved run can continue directly at its selected next gate. Copilot budget: 106 files / 992602 bytes -> 106 files / 994764 bytes (+2162 bytes). The all-profile guard remains enabled.
+
+UR approval transition cards now derive the post-approval action from the recorded Brownfield Review and route, so a pre-routed `structured_delivery` run shows PRD instead of repeating Brownfield Review. Copilot budget: 106 files / 994764 bytes -> 106 files / 995772 bytes (+1008 bytes). The all-profile guard remains enabled.

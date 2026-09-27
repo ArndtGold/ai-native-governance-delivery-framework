@@ -1,0 +1,88 @@
+
+RUN npm run test:gate-check-missing-control
+
+> create-agdf@0.14.5 test:gate-check-missing-control
+> node ./scripts/gate-check-missing-control-test.js
+
+Gate-check missing-control tests passed.
+
+RUN npm run test:canonical-init
+
+> create-agdf@0.14.5 test:canonical-init
+> node ./scripts/canonical-init-test.js
+
+Canonical init tests passed.
+
+RUN npm run test:cli-modularization
+
+> create-agdf@0.14.5 test:cli-modularization
+> node ./scripts/cli-modularization-test.js
+
+cli modularization tests passed
+
+RUN npm run test:install-setup-contract
+
+> create-agdf@0.14.5 test:install-setup-contract
+> node ./scripts/install-setup-contract-test.js
+
+install setup contract tests passed
+
+RUN npm run test:install-setup-interaction
+
+> create-agdf@0.14.5 test:install-setup-interaction
+> node ./scripts/install-setup-interaction-test.js
+
+install setup interaction tests passed
+
+RUN npm run test:install-setup-service
+
+> create-agdf@0.14.5 test:install-setup-service
+> node ./scripts/install-setup-service-test.js
+
+install setup service tests passed
+
+RUN npm run test:runtime-check-consent
+
+> create-agdf@0.14.5 test:runtime-check-consent
+> node ./scripts/runtime-check-consent-test.js && node ./scripts/codex-plugin-consent-test.js
+
+Codex hook observation tests passed.
+Runtime-check consent tests passed
+Codex plugin consent: exact tool policy, readback, disable preservation, failures and input validation passed.
+
+RUN npm run test:task-target-resolution
+
+> create-agdf@0.14.5 test:task-target-resolution
+> node ./scripts/task-target-resolution-test.js
+
+task target resolution tests passed
+
+RUN npm run test:skill-dispatch
+
+> create-agdf@0.14.5 test:skill-dispatch
+> node ./scripts/skill-dispatch-function-contract-test.js && node ./scripts/skill-dispatch-test.js && node ./scripts/skill-dispatch-binding-test.js
+
+Skill dispatch semantic function contract tests passed
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ "run-create --dir '/tmp/agdf-repo' --run <run_id>"
+- 'run-create --dir "/tmp/agdf-repo" --run <run_id>'
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/skill-dispatch-test.js:235:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: "run-create --dir '/tmp/agdf-repo' --run <run_id>",
+  expected: 'run-create --dir "/tmp/agdf-repo" --run <run_id>',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

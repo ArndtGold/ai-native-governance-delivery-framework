@@ -78,7 +78,7 @@ for (const surface of ["codex", "claude", "copilot", "opencode"]) {
   const binding = createDispatchBinding({ ...options, surface });
   assert.equal(binding.schema_version, "2");
   assert.equal(binding.arguments, skillDispatchArgumentGrammar());
-  assert.match(binding.arguments, /--language <current-conversation-language-tag>/u);
+  assert.match(binding.arguments, /--language <language-tag>/u);
   assert.match(binding.arguments, new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
   assert.doesNotMatch(binding.arguments, /<source>/u);
   assert.equal(binding.authorizes, false);

@@ -1,3 +1,4 @@
+import { prepareRunPresentation } from "../lib/control-state/run-presentation.js";
 import assert from "node:assert/strict";
 import {
   existsSync,
@@ -322,8 +323,15 @@ try {
     execFileSync(process.execPath, [cli, "run-create", "--dir", readyRoot, "--run", runId]);
     const artefactDir = join(readyRoot, ".agdf", "control", "artefacts", runId);
     mkdirSync(artefactDir, { recursive: true });
+    const approvalDocs = {
+      "UR.md": "# UR\n\n## 1. Problem\nUsers need a clear gate summary.\n\n## 2. Goal\nReview the exact linked document.\n\n## 3. Scope\nAdd a concise summary before approval.\n\n## 5. Acceptance Signals\n| ID | Result |\n|---|---|\n| UR-01 | Summary matches this revision. |\n\n## 7. Risks And Unknowns\nWhether the link opens in each host.\n",
+      "PRD.md": "# PRD\n\n## 1. Product Scope\nShow a concise summary and linked artefact.\n\n## 2. UX Intent And Success\nReduce review effort.\n\n## 5. Acceptance Criteria\n| ID | Result |\n|---|---|\n| PRD-01 | Summary is visible before approval. |\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n",
+      "SD.md": "# SD\n\n## 1. Solution Overview\nRender deterministic summaries from the source artefact.\n\n## 2. Ownership And Source Of Truth\nThe artefact remains authoritative.\n\n## 3. Architecture Decisions\nBind summary and link to the revision digest.\n\n## 4. Integration Points\nrun-present produces the review text.\n\n## 7. Risks And Open Questions\nHost path support.\n",
+      "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n",
+      "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: revise until live-tested.\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n",
+    };
     for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md", "CD_TESTS.md", "CODE_REVIEW.md"]) {
-      writeFileSync(join(artefactDir, name), `# ${name}\n`);
+      writeFileSync(join(artefactDir, name), approvalDocs[name] ?? `# ${name}\n`);
     }
     const gateIndex = ["UR", "PRD", "SD", "TP", "QA", "UAT"].indexOf(gate);
     const approvals = ["UR", "PRD", "SD", "TP", "QA", "UAT"].map((candidate, index) =>
@@ -402,6 +410,26 @@ ${approvals}
     assert.equal(report.missing_approval, `Approval: ${gate}`);
     assert.equal(report.interaction_kind, "gate_approval");
     assert.equal(report.native_attempt_required, false, "report-only evaluation has no verified host adapter capability");
+    const sealed = recordRunRevision(readyRoot, { runId, revisionId: report.approval_presentation.revision_id });
+    assert.equal(sealed.outcome, "updated");
+    const prepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id }, { evaluateGateCheck });
+    assert.equal(prepared.outcome, "prepared", `${gate} must prepare: ${JSON.stringify(prepared)}`);
+    assert.match(prepared.artefact_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds the actual artefact body`);
+    assert.match(prepared.summary_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds its summary`);
+    const visibleGateContent = gate === "UAT" ? /## (?:Vorliegende UAT-Evidenz|Available UAT evidence)/u : new RegExp(`(?:Artefakt|Artefact): \\[${gate === "QA" ? "QA_REPORT.md" : `${gate}.md`}\\]`);
+    assert.ok(typeof visibleGateContent === "string" ? prepared.text.includes(visibleGateContent) : visibleGateContent.test(prepared.text), `${gate} approval links the exact artefact or presents existing UAT evidence`);
+    assert.ok(prepared.text.includes(`Revision: \`${sealed.revision_id}\``), `${gate} approval identifies the revision under review`);
+    const summaryPosition = prepared.text.search(new RegExp(`## (?:Kurzfassung|Review summary) · ${gate}`));
+    const actionPosition = Math.min(...[prepared.text.indexOf("Jetzt freigeben"), prepared.text.indexOf("Approve now")].filter((position) => position >= 0));
+    assert.ok(summaryPosition >= 0 && actionPosition > summaryPosition, `${gate} summary appears before the approval action`);
+    const approved = approveRunGate(readyRoot, { runId, gate, revisionId: sealed.revision_id,
+      response: `Approval: ${gate}`, presentationId: prepared.presentation_id }, { evaluateGateCheck });
+    assert.equal(approved.outcome, "approved", `${gate} bound response must persist: ${JSON.stringify(approved)}`);
+    const afterApproval = parseRunState(readFileSync(join(readyRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md"), "utf8"));
+    const nextGate = { UR: "PRD", PRD: "SD", SD: "TP", TP: "QA", QA: "UAT", UAT: "OR" }[gate];
+    assert.equal(afterApproval.meta.current_gate, nextGate, `${gate} approval advances persisted current_gate`);
+    assert.match(afterApproval.content, new RegExp(`^- next_allowed_action: .*(?:${nextGate}|${gate === "TP" ? "implementation" : "close"}).*$`, "m"), `${gate} approval refreshes the persisted next action`);
+    assert.doesNotMatch(afterApproval.content, new RegExp(`\\| What is missing\\? \\| Exact Approval: ${gate}\\. \\|`), `${gate} is no longer reported as missing`);
     rmSync(readyRoot, { recursive: true, force: true });
   }
   const legacyMode = parseControlState(
@@ -881,7 +909,7 @@ ${approvals}
 
       mkdirSync(join(recordingRoot, ".agdf", "control", "artefacts", "rec"), { recursive: true });
       const urPath = join(recordingRoot, ".agdf", "control", "artefacts", "rec", "UR.md");
-      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n");
+      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n\r\n## Problem\r\nA recorded UR needs a visible problem statement.\r\n");
       writeFileSync(statePath, read().replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/rec/UR.md` | draft |  |"));
       assert.equal(runSealState(recordingRoot, read()).status, "content_changed");
       const unrecorded = gate();
@@ -896,7 +924,7 @@ ${approvals}
       assert.notEqual(updated.revision_id, first.revision_id);
       assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).outcome, "unchanged");
 
-      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n");
+      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n\n## Problem\nA recorded UR needs a visible problem statement.\n");
       const lfState = read();
       writeFileSync(statePath, lfState.replace(/\n/g, "\r\n"));
       assert.equal(runSealState(recordingRoot, read()).status, "valid", "line-ending conversion keeps the seal valid");
@@ -918,13 +946,22 @@ ${approvals}
       assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).reason, "approvals_unrecorded", "skipping a gate by hand is an approval change");
       writeFileSync(statePath, recorded);
 
-      const approved = approve();
+      assert.equal(approve().reason, "presentation_required", "an unbound valid reply cannot approve");
+      const prepared = prepareRunPresentation(recordingRoot, { runId: "rec", gate: "UR", revisionId: meta().revision_id }, { evaluateGateCheck });
+      assert.equal(prepared.outcome, "prepared");
+      const approved = approve({ presentationId: prepared.presentation_id });
       assert.equal(approved.outcome, "approved");
       assert.equal(approved.previous_revision_id, updated.revision_id);
       assert.equal(approved.revision, "3");
       assert.equal(approved.next_gate_after_approval, "Brownfield Review");
       const approvedState = read();
-      assert.match(approvedState, /^\| UR \| approved \| `Approval: UR` · 2026-01-02 · revision 2 · `\.agdf\/control\/artefacts\/rec\/UR\.md` sha256:[0-9a-f]{16} \|$/m);
+      const approvedControl = parseControlState(approvedState, { userGates: ["UR", "PRD", "SD", "TP", "QA", "UAT"], internalSteps: ["Brownfield Review", "CR"], closeoutArtefacts: ["OR"] });
+      assert.equal(parseRunState(approvedState).meta.current_gate, "Brownfield Review", "approval advances the persisted run meta to the canonical next gate");
+      assert.equal(approvedControl.approvals.get("UR")?.status, "approved");
+      assert.match(approvedState, /^\| What is missing\? \| No approval is pending\. \|$/m);
+      assert.match(approvedState, /^\| What is the next allowed action\? \| Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence\. \|$/m);
+      assert.match(approvedState, /^- next_allowed_action: Run Brownfield Review after G-00 before drafting PRD, or mark Brownfield Review not_applicable with evidence\.$/m);
+      assert.match(approvedState, /^\| UR \| approved \| `Approval: UR` · 2026-01-02 · revision 2 · `\.agdf\/control\/artefacts\/rec\/UR\.md` sha256:[0-9a-f]{16} · presentation [0-9a-f-]{36} sha256:[0-9a-f]{64} \|$/m);
       assert.match(approvedState, /^\| UR \| `\.agdf\/control\/artefacts\/rec\/UR\.md` \| approved \|  \|$/m);
       assert.match(approvedState, /^\| UR \| approved_by \| Approval: UR \| `Approval: UR` · 2026-01-02 · revision 2 /m);
       assert.equal(runSealState(recordingRoot, approvedState).status, "valid");
@@ -959,7 +996,7 @@ ${approvals}
       assert.equal(recordRunStep(stepRoot, { runId: "step", revisionId: "stale", step: "ur", title: "x" }, { policy: policyForRunContent }).reason, "stale_revision");
       assert.equal(step("ur", { title: "subtract" }).reason, "artefact_missing");
       mkdirSync(artefacts, { recursive: true });
-      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n");
+      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n\n## Problem\nA small numeric change is needed.\n");
       assert.equal(step("ur").reason, "title_missing");
       const drafted = step("ur", { title: "subtract | with test" });
       assert.equal(drafted.outcome, "recorded");
@@ -973,17 +1010,17 @@ ${approvals}
       assert.equal(drafting.approval_presentation?.revision_id, revision(), "the recorded UR is ready for its exact approval");
       assert.equal(evaluateDoctor(stepRoot, { runId: "step" }).findings.some((finding) => finding.code === "AGDF_BACKLOG_POINTER_EMPTY"), false);
 
-      assert.equal(step("route", { route: "quick_task", reason: "r", evidence: "e" }).reason, "gate_not_ready", "routing waits for Approval: UR");
-      assert.equal(approveRunGate(stepRoot, { runId: "step", gate: "UR", revisionId: revision(), response: "Approval: UR", date: "2026-01-03" }, { evaluateGateCheck }).outcome, "approved");
       assert.equal(step("route", { route: "quick_task", reason: "r", evidence: "e" }).reason, "artefact_missing");
       writeFileSync(join(artefacts, "BROWNFIELD_REVIEW.md"), "# Brownfield Review: subtract\n");
       assert.equal(step("route", { route: "tiny", reason: "r", evidence: "e" }).reason, "route_invalid");
       assert.equal(step("route", { route: "quick_task", reason: "r" }).reason, "route_reason_missing");
-      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "closeout_route_unsupported");
       const routed = step("route", { route: "quick_task", reason: "additive function in one module", evidence: "math.js only" });
-      assert.equal(routed.current_gate, "Quick Task Execution");
+      assert.equal(routed.current_gate, "UR", "pre-approval routing keeps the exact UR approval as the next user gate");
       assert.match(read(), /^- mode: quick_task$/m);
       assert.match(read(), /^- required_next_gate: Quick Task Execution$/m);
+      assert.equal(approveRunGate(stepRoot, { runId: "step", gate: "UR", revisionId: revision(), response: "Approval: UR", presentationId: prepareRunPresentation(stepRoot, { runId: "step", gate: "UR", revisionId: revision() }, { evaluateGateCheck }).presentation_id, date: "2026-01-03" }, { evaluateGateCheck }).outcome, "approved");
+      assert.equal(evaluateGateCheck(stepRoot, { runId: "step" }).current_gate, "Quick Task Execution", "the recorded route is applied immediately after UR approval");
+      assert.equal(step("closeout", { result: "r", evidence: "e", risk: "none", next: "none" }).reason, "code_review_missing");
       assert.match(backlog(), /\| In Progress \| \[UR\]\(artefacts\/step\/UR\.md\) · \[Brownfield\]\(artefacts\/step\/BROWNFIELD_REVIEW\.md\) \|/);
 
       assert.equal(step("evidence").reason, "evidence_missing");

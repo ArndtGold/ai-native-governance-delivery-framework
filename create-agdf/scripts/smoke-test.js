@@ -1364,13 +1364,15 @@ run("config", [
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("This compact bootstrap owns no")
-      || !content.includes("`skill.gate-check` is a direct-skill route. Invoke dispatcher v1 as the first operational call")
-      || !content.includes("`delivery.start` is a delivery-intake route, not a direct-skill route")
+    if (!content.includes("This non-authorizing bootstrap creates no parallel policy.")
+      || !content.includes("`skill.gate-check`: dispatch first, with `intake` for a change; no prior repository/control inspection.")
+      || !content.includes("`delivery.start`: resolve target once for draft/setup. Unresolved target: canonical orientation and stop.")
       || !content.includes("For a result with `terminal: true`")
       || !content.includes("the entire assistant response must consist only of host_action.text, copied verbatim")
       || !content.includes("Add no question, explanation, heading, citation, link or other surrounding text")
-      || !content.includes("Only trusted runtime evidence explicitly declaring this invocation `instruction_only`")
+      || !content.includes("Only explicit trusted `instruction_only` runtime evidence enables fallback.")
+      || !content.includes("Never bind an earlier reply retroactively.")
+      || !content.includes("`continue_delivery: true`")
       || (content.match(/interaction\.md/g) ?? []).length !== 1
       || content.includes("Consume the canonical `approval_presentation` verbatim")
       || content.includes("`status_presentation.markdown` verbatim")

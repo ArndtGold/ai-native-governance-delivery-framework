@@ -45,6 +45,9 @@ export function parseArgs(argv, dependencies = {}) {
   let surfaceExplicit = false;
   let skillId;
   let intake = false;
+  let intakeMode;
+  let continueDelivery = false;
+  let presentationId;
   let fixture;
   let persist = false;
   let model;
@@ -152,6 +155,14 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (arg === "--intake-mode" || arg === "--presentation") {
+      const value = requiredValue(args, i, arg);
+      if (arg === "--intake-mode") intakeMode = value;
+      else presentationId = value;
+      i += 1;
+      continue;
+    }
+    if (arg === "--continue-delivery") { continueDelivery = true; continue; }
     if (arg === "--intake") {
       intake = true;
       continue;
@@ -263,6 +274,9 @@ export function parseArgs(argv, dependencies = {}) {
       surfaceExplicit,
       skillId,
       intake,
+      intakeMode,
+      continueDelivery,
+      presentationId,
       fixture: fixture ? resolve(cwd, fixture) : null,
       persist,
       model,

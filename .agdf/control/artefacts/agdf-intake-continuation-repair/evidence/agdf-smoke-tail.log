@@ -1,0 +1,315 @@
+
+RUN npm run test:host-command
+
+> create-agdf@0.14.5 test:host-command
+> node ./scripts/host-command-test.js
+
+[host-command-test] SKIPPED live Windows shim assertions on darwin
+Host command tests passed
+
+RUN npm run test:mcp-lifecycle
+
+> create-agdf@0.14.5 test:mcp-lifecycle
+> node ./scripts/mcp-lifecycle-test.js
+
+AGDF MCP lifecycle, package acquisition and host adapter tests passed.
+
+RUN npm run test:plugin-mcp-runtime
+
+> create-agdf@0.14.5 test:plugin-mcp-runtime
+> node ./scripts/plugin-mcp-runtime-test.js
+
+Plugin MCP runtime tests passed
+
+RUN npm run test:claude-plugin-mcp
+
+> create-agdf@0.14.5 test:claude-plugin-mcp
+> node ./scripts/claude-plugin-mcp-test.js
+
+Claude plugin MCP tests passed
+
+RUN npm run test:codex-plugin-mcp
+
+> create-agdf@0.14.5 test:codex-plugin-mcp
+> node ./scripts/codex-plugin-mcp-test.js
+
+Codex plugin MCP tests passed
+
+RUN npm run test:mcp-server
+
+> create-agdf@0.14.5 test:mcp-server
+> npm --prefix ../agdf-mcp-server test
+
+
+> @agdf/mcp-server@0.14.5 test
+> npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package
+
+
+> @agdf/mcp-server@0.14.5 test:contract
+> node ./test/contract.test.js
+
+AGDF MCP semantic contract tests passed.
+
+> @agdf/mcp-server@0.14.5 test:continuation
+> node ./test/continuation.test.js
+
+All nine MCP skill continuations supply exact packaged contracts without a hook binding.
+
+> @agdf/mcp-server@0.14.5 test:protocol
+> node ./test/protocol.test.js
+
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+
+> @agdf/mcp-server@0.14.5 test:safety
+> node ./test/safety.test.js
+
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+
+> @agdf/mcp-server@0.14.5 test:provenance
+> node ./test/provenance.test.js
+
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+
+> @agdf/mcp-server@0.14.5 test:performance
+> node ./test/performance.test.js
+
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[520.774,500.212,498.586,504.941,498.558,491.998,489.666,499.973,493.71,497.782,491.177,495.943,495.199,492.05,494.035,496.2,497.58,496.086,495.385,488.958],"cold_p95_ms":504.941,"warm_dispatch_ms":[312.385,303.865,295.149,296.009,293.731,297.424,291.459,296.028,296.604,300.262,294.519,293.416,298.012,299.356,297.298,293.322,293.868,297.554,300.51,294.931],"warm_p95_ms":303.865}
+
+> @agdf/mcp-server@0.14.5 test:package
+> node ./test/package.test.js
+
+AGDF MCP package boundary tests passed.
+
+RUN npm run test:local-validator
+
+> create-agdf@0.14.5 test:local-validator
+> node ./scripts/local-validator-test.js
+
+Local validator tests passed
+
+RUN npm run test:local-marketplace
+
+> create-agdf@0.14.5 test:local-marketplace
+> node ./scripts/local-marketplace-test.js
+
+Local marketplace tests passed
+
+RUN npm run test:claude-cache-recovery
+
+> create-agdf@0.14.5 test:claude-cache-recovery
+> node ./scripts/claude-cache-recovery-test.js
+
+Claude cache recovery tests passed
+
+RUN npm run test:copilot-profile
+
+> create-agdf@0.14.5 test:copilot-profile
+> node ./scripts/copilot-profile-test.js
+
+Copilot profile tests passed (inventory, drift, exclusions and growth fail closed)
+
+RUN npm run test:copilot-installer
+
+> create-agdf@0.14.5 test:copilot-installer
+> node ./scripts/copilot-installer-test.js
+
+Copilot installer tests passed (native Git checkout, same-version updates, migration, rollback, discovery and isolation)
+
+RUN npm run test:local-preparation
+
+> create-agdf@0.14.5 test:local-preparation
+> node ./scripts/local-preparation-test.js
+
+local host preparation: isolation, clean bootstrap, runtime validation and release guard passed
+
+RUN npm run test:local-development-install
+
+> create-agdf@0.14.5 test:local-development-install
+> npm run release:prepare && node ./scripts/local-development-install-test.js
+
+
+> create-agdf@0.14.5 release:prepare
+> npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin
+
+
+> create-agdf@0.14.5 sync-package-assets
+> node ./scripts/sync-package-assets.js
+
+
+> create-agdf@0.14.5 test:distribution-profile-history
+> node ./scripts/distribution-profile-history-test.js
+
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+
+> create-agdf@0.14.5 test:release-bump
+> node ./scripts/release-bump-test.js
+
+Release bump passed (16 transactional files; repair, forward, review, rollback and recovery)
+
+> create-agdf@0.14.5 test:release-version-coherence
+> node ./scripts/release-version-coherence-test.js
+
+Release version coherence passed (39 surfaces at 0.14.5; 8 profile snapshots)
+
+> create-agdf@0.14.5 test:public-plugin
+> node ./scripts/public-plugin-test.js
+
+Public plugin tests passed (46 inventoried candidate files; digest 883242b5e5ebb7d12a3c82730f75ac2b301abb1230ffacfdd83d2bbb71b32d29)
+Local development install tests passed
+
+RUN npm run test:package-build
+
+> create-agdf@0.14.5 test:package-build
+> node ./scripts/package-build-test.js
+
+Package build tests passed (all generated profiles byte-identical across complete builds; source untouched)
+
+RUN npm run test:package-contents
+
+> create-agdf@0.14.5 test:package-contents
+> node ./scripts/package-contents-test.js
+
+Package contents tests passed (538 files; complete release-built plugin present)
+
+RUN npm run test:lifecycle
+
+> create-agdf@0.14.5 test:lifecycle
+> node ./scripts/lifecycle-test.js
+
+lifecycle tests passed
+
+RUN npm run test:copilot-repository-retention
+
+> create-agdf@0.14.5 test:copilot-repository-retention
+> node ./scripts/copilot-repository-retention-test.js
+
+Copilot repository retention tests passed (install, update, status, disable, uninstall and failure)
+
+RUN npm run test:control-state
+
+> create-agdf@0.14.5 test:control-state
+> node ./scripts/control-state-test.js
+
+control-state tests passed
+backlog status vocabulary tests passed
+
+RUN npm run test:intake-continuation
+
+> create-agdf@0.14.5 test:intake-continuation
+> node ./scripts/intake-continuation-test.js
+
+intake continuation packaged-runtime E2E passed (new/resume, binding, rejection, read-only, recovery, route)
+
+RUN npm run test:parent-reconciliation
+
+> create-agdf@0.14.5 test:parent-reconciliation
+> node ./scripts/parent-reconciliation-test.js
+
+AGDF parent reconciliation tests passed
+
+RUN npm run test:interaction-presentation
+
+> create-agdf@0.14.5 test:interaction-presentation
+> node ./scripts/interaction-presentation-test.js
+
+interaction presentation tests passed
+gate rationale and why tests passed
+scope classification card tests passed
+task target orientation tests passed
+
+RUN npm run test:operational-localization
+
+> create-agdf@0.14.5 test:operational-localization
+> node ./scripts/operational-localization-test.js
+
+operational localization tests passed
+
+RUN npm run test:verified-change
+
+> create-agdf@0.14.5 test:verified-change
+> node ./scripts/verified-change-test.js
+
+Verified Change tests passed
+
+RUN npm run test:runtime-integrity-layout
+
+> create-agdf@0.14.5 test:runtime-integrity-layout
+> node ./scripts/runtime-integrity-layout-test.js
+
+Runtime integrity layout tests passed
+
+RUN npm run test:runtime-integrity-negative
+
+> create-agdf@0.14.5 test:runtime-integrity-negative
+> node ./scripts/runtime-integrity-negative-test.js
+
+Runtime integrity negative tests passed
+
+RUN npm run test:agent-skills-conformance
+
+> create-agdf@0.14.5 test:agent-skills-conformance
+> node ./scripts/agent-skills-conformance-test.js
+
+Agent Skills conformance tests passed (source, policy, metadata, resources, symlinks and 4 generated surfaces)
+
+RUN npm run test:skill-evals
+
+> create-agdf@0.14.5 test:skill-evals
+> node ./scripts/skill-evals-test.js
+
+AGDF skill eval tests passed
+
+RUN npm run eval:skills
+
+> create-agdf@0.14.5 eval:skills
+> node ./scripts/run-skill-evals.js
+
+AGDF skill evals: pass (83/83 cases; 10 skills; deterministic replay, not live host execution)
+
+RUN npm run test:proportionality
+
+> create-agdf@0.14.5 test:proportionality
+> node ./scripts/proportionality-benchmark-test.js
+
+AGDF proportionality benchmark tests passed
+
+RUN npm run test:delivery-path-search
+
+> create-agdf@0.14.5 test:delivery-path-search
+> node ./scripts/delivery-path-search-test.js
+
+Delivery Path Search focused tests passed.
+
+RUN npm run test:delivery-path-search-unit
+
+> create-agdf@0.14.5 test:delivery-path-search-unit
+> node ./scripts/delivery-path-search-unit-test.js
+
+Delivery Path Search unit tests passed.
+
+RUN npm run test:delivery-path-search-generator
+
+> create-agdf@0.14.5 test:delivery-path-search-generator
+> node ./scripts/delivery-path-search-generator-test.js
+
+Delivery Path Search generator tests passed.
+
+RUN npm run test:opencode-hardening
+
+> create-agdf@0.14.5 test:opencode-hardening
+> node ./scripts/opencode-hardening-test.js
+
+OpenCode hardening tests passed.
+
+RUN node ./scripts/smoke-test.js
+file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/smoke-test.js:1379
+      throw new Error(`Generated gate-check surface must preserve compact orchestration and single contract ownership: ${path}`);
+            ^
+
+Error: Generated gate-check surface must preserve compact orchestration and single contract ownership: /Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/generated/plugins/agdf/skills/gate-check/SKILL.md
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/smoke-test.js:1379:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3

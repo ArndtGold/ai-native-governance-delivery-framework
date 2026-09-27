@@ -1,0 +1,952 @@
+{
+  "schema_version": "1",
+  "status": "pass",
+  "checked_at": "2026-09-27T07:42:05.116Z",
+  "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+  "current_gate": "QA",
+  "next_allowed_action": "Execute LIVE_VALIDATION.md after Codex restart, then refresh TP Review and qa-gate.",
+  "next_gate_after_approval": "none",
+  "allowed_after_approval": "none",
+  "quality_outlook": "No additional quality follow-up identified from the current control state.",
+  "status_card": {
+    "run_id": "agdf-intake-continuation-repair",
+    "presentation_language": "de",
+    "mode": "structured_delivery",
+    "lifecycle": "active",
+    "delivery_state": "active",
+    "status": "pass",
+    "current_gate": "QA",
+    "mode_slice_decision": "structured_delivery",
+    "breadcrumb": [
+      {
+        "gate": "UR",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "PRD",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "SD",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "TP",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "QA",
+        "status": "current"
+      },
+      {
+        "gate": "UAT",
+        "status": "open"
+      }
+    ],
+    "allowed_now": [
+      "revise the implementation against the QA findings",
+      "refresh CD+Tests and mandatory reviews",
+      "rerun QA with refreshed evidence"
+    ],
+    "forbidden_now": [
+      "request QA approval",
+      "request UAT approval",
+      "release",
+      "claim delivery readiness"
+    ],
+    "blocking_condition": "qa_revise_required",
+    "missing_approval": "none",
+    "next_gate_after_approval": "none",
+    "allowed_after_approval": "none",
+    "user_visible_outcome_after_approval": "none",
+    "internal_next_step": "Execute LIVE_VALIDATION.md after Codex restart, then refresh TP Review and qa-gate.",
+    "next_user_gate": "none",
+    "user_action_required": "no",
+    "evidence": [
+      {
+        "evidence": "Run creation",
+        "source": "run-create",
+        "covers": "Control initialization",
+        "strength": "direct"
+      },
+      {
+        "evidence": "UR draft",
+        "source": "`.agdf/control/artefacts/agdf-intake-continuation-repair/UR.md`",
+        "covers": "problem, goal, scope and acceptance signals",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Brownfield Review",
+        "source": "`.agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_REVIEW.md`",
+        "covers": "Mode/Slice Decision `structured_delivery`",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Code Review",
+        "source": ".agdf/control/artefacts/agdf-intake-continuation-repair/CR.md",
+        "covers": "decision pass: Diff reviewed; source and packaged tests passed; live UX evidence remains TP-LIVE-01",
+        "strength": "direct"
+      }
+    ],
+    "next_skill": "qa-gate",
+    "next_step": "Execute LIVE_VALIDATION.md after Codex restart, then refresh TP Review and qa-gate.",
+    "quality_outlook": "No additional quality follow-up identified from the current control state.",
+    "interaction_kind": "status",
+    "native_attempt_required": false,
+    "native_preflight_outcome": "not_applicable",
+    "native_preflight_reason": "none"
+  },
+  "backlog_pointers": [
+    {
+      "prio": "1",
+      "key": "agdf-host-adapter-compatibility",
+      "title": "[framework-maintenance] Make core and host-adapter boundaries consistent and support claims evidence-based",
+      "scope": "framework_maintenance",
+      "status": "awaiting_uat",
+      "ur": ".agdf/control/artefacts/agdf-host-adapter-compatibility/UR.md",
+      "brownfield_review": "",
+      "prd": ".agdf/control/artefacts/agdf-host-adapter-compatibility/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-host-adapter-compatibility/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-host-adapter-compatibility/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-host-adapter-compatibility/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agdf-host-adapter-compatibility/OR.md",
+      "current_spec": "QA Revision 3 approved on 2026-09-09 after evidence refresh: 56 scenarios, 64 evidence checks and 30 verification groups plus release preparation; 12/12 tasks covered; native-host and remote-CI observations remain unverified",
+      "notes": "Review UAT_PREPARATION.md and the compatibility report, then decide on Approval: UAT"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-request-activation-boundary",
+      "title": "[framework-maintenance] Activate AGDF only for delivery intent, explicit AGDF operations or active-run continuation",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/agdf-request-activation-boundary/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-request-activation-boundary/BROWNFIELD_ANALYSIS.md",
+      "prd": ".agdf/control/artefacts/agdf-request-activation-boundary/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-request-activation-boundary/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-request-activation-boundary/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-request-activation-boundary/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agdf-request-activation-boundary/OR.md",
+      "current_spec": "Final two-stage implementation, instruction budgets, canonical-init correction, mandatory reviews and full smoke pass. QA Revision 3 is `revise` only because external model-backed composed-profile runs and exact fresh-host evidence remain unavailable.",
+      "notes": "Obtain separate authorization for `RAB-TPR-02` external transfer and for `RAB-TPR-01` lifecycle changes per host, then collect both evidence sets and rerun QA; do not request QA approval yet"
+    },
+    {
+      "prio": "1",
+      "key": "cross-surface-executable-skill-dispatcher",
+      "title": "[framework-maintenance] Execute canonical AGDF skill preflight deterministically across supported hosts",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/PRD.md",
+      "sd": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/SD.md",
+      "tp": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/TP.md",
+      "qa": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/cross-surface-executable-skill-dispatcher/OR.md",
+      "current_spec": "SD2/TP2 implemented. Native plugin-root priority, conditional Windows fallback, canonical QA candidates and whole-response terminal semantics pass repository and installed Codex replay. TP coverage remains 12/16; QA Revision 17 is revise because fresh loaded-model and native-OS evidence remains missing",
+      "notes": "Open a new Codex task and repeat the reported QA and root-selection paths, then continue the remaining separately authorized host matrix. No QA approval, commit or release"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-guided-mcp-activation",
+      "title": "[framework-maintenance] Offer deliberate project- or user-scoped MCP activation within the AGDF installation journey",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/agdf-guided-mcp-activation/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-guided-mcp-activation/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-guided-mcp-activation/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-guided-mcp-activation/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-guided-mcp-activation/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-guided-mcp-activation/QA_REPORT.md",
+      "or": "",
+      "current_spec": "TP Revision 2 is approved. Brownfield Analysis Revision 2 passes the bounded extension of existing setup, interaction, service, presentation, wrapper and evidence owners for GMA-19 through GMA-28 and AC-13",
+      "notes": "Implement the approved delta, run the planned tests and renew reviews plus QA evidence"
+    },
+    {
+      "prio": "1",
+      "key": "opencode-native-dispatch-tool",
+      "title": "[framework-maintenance] Replace repeated general shell confirmation for bounded OpenCode AGDF dispatch with a narrow native capability",
+      "scope": "framework_maintenance",
+      "status": "needs_ur",
+      "ur": ".agdf/control/artefacts/opencode-native-dispatch-tool/UR.md",
+      "brownfield_review": "",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": "",
+      "current_spec": "UR Revision 1 is draft; native custom tool is the leading candidate, while exact API, owner reuse, consent and permission scope require post-approval Brownfield Review",
+      "notes": "Review UR Revision 1 and provide exact `Approval: UR`, request revision or decline"
+    },
+    {
+      "prio": "1",
+      "key": "cross-surface-skill-target-preflight",
+      "title": "[framework-maintenance] Bind direct evidence-dependent skill invocations to the canonical task target across supported hosts",
+      "scope": "framework_maintenance",
+      "status": "awaiting_uat",
+      "ur": ".agdf/control/artefacts/cross-surface-skill-target-preflight/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/cross-surface-skill-target-preflight/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/cross-surface-skill-target-preflight/PRD.md",
+      "sd": ".agdf/control/artefacts/cross-surface-skill-target-preflight/SD.md",
+      "tp": ".agdf/control/artefacts/cross-surface-skill-target-preflight/TP.md",
+      "qa": ".agdf/control/artefacts/cross-surface-skill-target-preflight/QA_REPORT.md",
+      "or": "",
+      "current_spec": "QA approved; [UAT Revision 1](artefacts/cross-surface-skill-target-preflight/UAT_REPORT.md) records that loaded Copilot proves the safe target stop but not German locale, verbatim renderer transfer or compact recovery; the executable dispatcher remains a separate future run",
+      "notes": "Review UAT Revision 1 with disclosed limitations and provide exact `Approval: UAT`, request revision or decline"
+    },
+    {
+      "prio": "1",
+      "key": "cross-surface-plugin-opt-out",
+      "title": "[framework-maintenance] Make plugin deactivation and removal explicit, safe and verifiable across supported AGDF surfaces",
+      "scope": "framework_maintenance",
+      "status": "awaiting_qa",
+      "ur": ".agdf/control/artefacts/cross-surface-plugin-opt-out/UR.md",
+      "brownfield_review": "",
+      "prd": ".agdf/control/artefacts/cross-surface-plugin-opt-out/PRD.md",
+      "sd": ".agdf/control/artefacts/cross-surface-plugin-opt-out/SD.md",
+      "tp": ".agdf/control/artefacts/cross-surface-plugin-opt-out/TP.md",
+      "qa": ".agdf/control/artefacts/cross-surface-plugin-opt-out/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Personal/shared Copilot opt-out, safety controls, documentation and focused/package evidence pass; 11/12 TP tasks complete, but combined aggregate evidence is blocked by named foreign release and gate-validation fixtures",
+      "notes": "Reconcile the foreign baseline in its owning run, then rerun smoke and skill evaluations; do not request QA approval"
+    },
+    {
+      "prio": "1",
+      "key": "legacy-profile-upgrade-recovery",
+      "title": "[framework-maintenance] Make historical profile upgrades systematic through an exact release-owned compatibility catalogue and retain bounded Windows Claude recovery",
+      "scope": "framework_maintenance",
+      "status": "awaiting_qa",
+      "ur": ".agdf/control/artefacts/legacy-profile-upgrade-recovery/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/legacy-profile-upgrade-recovery/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/legacy-profile-upgrade-recovery/PRD.md",
+      "sd": ".agdf/control/artefacts/legacy-profile-upgrade-recovery/SD.md",
+      "tp": ".agdf/control/artefacts/legacy-profile-upgrade-recovery/TP.md",
+      "qa": ".agdf/control/artefacts/legacy-profile-upgrade-recovery/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Snapshot implementation and focused reviews pass; 15/16 TP tasks complete, but complete smoke stops at an unchanged runtime-packaging fixture and remote evidence is absent",
+      "notes": "Reconcile the aggregate baseline, rerun complete smoke and remote CI; do not request QA approval"
+    },
+    {
+      "prio": "1",
+      "key": "pre-decision-status-card-visibility",
+      "title": "[framework-maintenance] Offer or render the full operational Run Status Card before every ready-gate approval request so users decide with complete authority context",
+      "scope": "framework_maintenance",
+      "status": "awaiting_uat",
+      "ur": ".agdf/control/artefacts/pre-decision-status-card-visibility/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/pre-decision-status-card-visibility/PRD.md",
+      "sd": ".agdf/control/artefacts/pre-decision-status-card-visibility/SD.md",
+      "tp": ".agdf/control/artefacts/pre-decision-status-card-visibility/TP.md",
+      "qa": ".agdf/control/artefacts/pre-decision-status-card-visibility/QA_REPORT.md",
+      "or": "",
+      "current_spec": "QA revision 1 approved; loaded Claude/Copilot evidence remains negative and must be refreshed in fresh sessions",
+      "notes": "Prepare UAT and obtain explicit instruction before refreshing either host installation"
+    },
+    {
+      "prio": "1",
+      "key": "doctor-presentation-identity-parity",
+      "title": "[framework-maintenance] Bring doctor to parity with presentation-layer identity validation (`run_id` format, `revision_id`) and surface renderer validation errors instead of silent null cards",
+      "scope": "framework_maintenance",
+      "status": "awaiting_uat",
+      "ur": ".agdf/control/artefacts/doctor-presentation-identity-parity/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/doctor-presentation-identity-parity/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/doctor-presentation-identity-parity/PRD.md",
+      "sd": ".agdf/control/artefacts/doctor-presentation-identity-parity/SD.md",
+      "tp": ".agdf/control/artefacts/doctor-presentation-identity-parity/TP.md",
+      "qa": ".agdf/control/artefacts/doctor-presentation-identity-parity/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Implementation, mandatory reviews and QA revision 1 pass; only live-host rendering and pre-existing native-Windows suite failures remain disclosed",
+      "notes": "Review QA report revision 1 and provide exact `Approval: QA`, request revision or decline"
+    },
+    {
+      "prio": "1",
+      "key": "delivery-path-search-control-input-integrity",
+      "title": "[framework-maintenance] Make Delivery Path Search consume canonical gate actions and distinguish missing or empty input from an evaluated no-safe recommendation",
+      "scope": "framework_maintenance",
+      "status": "awaiting_uat",
+      "ur": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/PRD.md",
+      "sd": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/SD.md",
+      "tp": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/TP.md",
+      "qa": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/QA_REPORT.md",
+      "or": "",
+      "current_spec": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/UAT_REPORT.md",
+      "notes": "Restart Codex and exercise Delivery Path Search in a fresh task before UAT approval"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-copilot-plugin-integration",
+      "title": "[framework-maintenance] Make the installable plugin the only supported GitHub Copilot integration while preserving repository-owned governance and exact approval authority",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/agdf-copilot-plugin-integration/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-copilot-plugin-integration/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-copilot-plugin-integration/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-copilot-plugin-integration/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-copilot-plugin-integration/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-copilot-plugin-integration/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Latest loaded `qa-gate` still selected English in a German chat; the function-owned cross-skill correction now covers missing, regional and unsupported values, complete English/German selected-run status, the uninterrupted aggregate and refreshed installed 0.14.5; QA Revision 16 remains revise",
+      "notes": "Fully restart Copilot and capture the complete German `qa-gate` target card without translation"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-npm-package-payload-cleanup",
+      "title": "[framework-maintenance] Publish a runtime-complete `create-agdf` npm payload without generated submission, review or temporary build artefacts",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/agdf-npm-package-payload-cleanup/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-npm-package-payload-cleanup/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-npm-package-payload-cleanup/PRD.md",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": "",
+      "current_spec": "UR approved; Brownfield Review selected Structured Delivery because the npm tarball is a public cross-host compatibility and release contract; PRD revision 1 is ready",
+      "notes": "Review PRD revision 1 and provide exact `Approval: PRD`, request revision or decline"
+    },
+    {
+      "prio": "1",
+      "key": "installation-consent-runtime-checks",
+      "title": "[framework-maintenance] Add informed installation consent for narrow automatic AGDF runtime checks across supported coding-agent hosts",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/installation-consent-runtime-checks/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/installation-consent-runtime-checks/BROWNFIELD_ANALYSIS.md",
+      "prd": ".agdf/control/artefacts/installation-consent-runtime-checks/PRD.md",
+      "sd": ".agdf/control/artefacts/installation-consent-runtime-checks/SD.md",
+      "tp": ".agdf/control/artefacts/installation-consent-runtime-checks/TP.md",
+      "qa": ".agdf/control/artefacts/installation-consent-runtime-checks/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Versioned beginner choice, truthful previous intent, manual help, input recovery and compact result are fully regression-tested; TPR-01 remains open for revised live-host rendering, Codex trust, Windows and public evidence",
+      "notes": "Collect separately authorized direct-host evidence without inferred parity; do not request QA approval yet"
+    },
+    {
+      "prio": "1",
+      "key": "claude-loaded-host-conformance-observation",
+      "title": "[framework-maintenance] Observe the 12 Claude conformance cases (HC-01–HC-12) on the freshly restarted local host to replace the standing `host_unavailable` evidence gap",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": "",
+      "current_spec": "UR approved on 2026-08-26; executable 12-case protocol is persisted; execution requires a fresh post-restart session",
+      "notes": "Restart Claude Code, then execute the Observation Protocol in the first fresh session"
+    },
+    {
+      "prio": "1",
+      "key": "claude-local-install-content-refresh",
+      "title": "[framework-maintenance] Make the local Claude install deliver current source content deterministically and verify the real installed version",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/claude-local-install-content-refresh/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/claude-local-install-content-refresh/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": ".agdf/control/artefacts/claude-local-install-content-refresh/VERIFIED_CHANGE.md",
+      "current_spec": "Verified Change executed: deterministic uninstall→install refresh, multi-line list parsing, healthy `Version: 0.13.5 (verified)` end-to-end result and fresh host cache; loaded-host proof awaits restart",
+      "notes": "VCS actions require separate explicit user instruction"
+    },
+    {
+      "prio": "1",
+      "key": "windows-native-install-viability",
+      "title": "[framework-maintenance] Make the local install chain viable on native Windows: probe-gated symlink fixture skip and bounded `EPERM` rename retry for owned-root swaps",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/windows-native-install-viability/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/windows-native-install-viability/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": ".agdf/control/artefacts/windows-native-install-viability/VERIFIED_CHANGE.md",
+      "current_spec": "Verified Change executed: shared `EPERM` rename retry for all owned-root swaps, capability-gated symlink fixture, 3/3 test passes and a complete end-to-end `install:claude`; provenance migration gap surfaced as QA-relevant finding for `agdf-cross-host-runtime-integrity`",
+      "notes": "VCS actions require separate explicit user instruction"
+    },
+    {
+      "prio": "1",
+      "key": "install-scripts-fresh-checkout-fix",
+      "title": "[framework-maintenance] Fix fresh-checkout crash of `npm run install:<surface>` caused by eager loading of gitignored generated plugin definition",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/install-scripts-fresh-checkout-fix/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/install-scripts-fresh-checkout-fix/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": ".agdf/control/artefacts/install-scripts-fresh-checkout-fix/VERIFIED_CHANGE.md",
+      "current_spec": "Verified Change executed: installer lib imports deferred until after `release:prepare`, fresh-checkout load regression added; probe, negative control and end-to-end boundary evidence pass, native-Windows full-suite evidence disclosed as pre-existing host limitation",
+      "notes": "VCS actions require separate explicit user instruction"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-cross-host-runtime-integrity",
+      "title": "[framework-maintenance] Prevent runtime-free plugin sources from shadowing complete AGDF installations and prove one shared validator across supported host adapters",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/agdf-cross-host-runtime-integrity/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-cross-host-runtime-integrity/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-cross-host-runtime-integrity/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-cross-host-runtime-integrity/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-cross-host-runtime-integrity/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-cross-host-runtime-integrity/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Secure rebuild, exact rollback, target-platform paths, exact public 0.13.6 bootstrap, full smoke, Clean Review and Code Review pass; QA Revision 5 is revise only for direct native-Windows CRI-H05 evidence",
+      "notes": "Run the complete local-marketplace and rebuild transaction probe on native Windows, attach evidence, then rerun TP Review and QA"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-plugin-family-language",
+      "title": "[framework-maintenance] Establish one visible AGDF plugin-family language while preserving lowercase technical identifiers and distinct product roles",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/agdf-plugin-family-language/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-plugin-family-language/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-plugin-family-language/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-plugin-family-language/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-plugin-family-language/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-plugin-family-language/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Codex-native repository projection and app-server `AGDF` result pass; QA revise only for rendered-screen evidence",
+      "notes": "Capture one direct rendered Plugins-screen observation without reinstalling or changing code"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-local-plugin-install-scripts",
+      "title": "[framework-maintenance] Add simple source-checkout npm scripts for safe AGDF plugin installation and update across supported coding-agent surfaces",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agdf-local-plugin-install-scripts/OR.md",
+      "current_spec": "UAT approved; fresh Codex task directly loads `0.13.5+codex.local-619acdcbd1f9`; implementation and evidence are complete",
+      "notes": "Use delivery closeout only when commit, push or pull request handoff is explicitly requested"
+    },
+    {
+      "prio": "1",
+      "key": "codex-harness-conformance-slice",
+      "title": "[framework-maintenance] Establish a bounded Codex harness conformance boundary without weakening AGDF authority or cross-host portability",
+      "scope": "framework_maintenance",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/codex-harness-conformance-slice/UR.md",
+      "brownfield_review": "",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": "",
+      "current_spec": "Durable UR draft separates Codex execution and tool permissions from AGDF governance, exact gate approvals and `.agdf/control/` authority",
+      "notes": "Review the UR and provide exact `Approval: UR`, request revision or decline"
+    },
+    {
+      "prio": "1",
+      "key": "pages-landing-ci-coverage",
+      "title": "[framework-maintenance] Run the existing Pages landing regression in the standard GitHub Actions guardrail job",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/pages-landing-ci-coverage/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/pages-landing-ci-coverage/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": ".agdf/control/artefacts/pages-landing-ci-coverage/OR.md",
+      "current_spec": "Compact Delivery passes: the standard PR/push guardrail runs the existing landing regression; both Pages suites, YAML parsing and diff checks pass",
+      "notes": "Use delivery closeout only when commit, push or pull-request handoff is explicitly requested"
+    },
+    {
+      "prio": "1",
+      "key": "agent-skills-conformance-portability",
+      "title": "[framework-maintenance] Establish a deterministic Agent Skills conformance baseline and explicit plugin-scoped portability boundary",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/agent-skills-conformance-portability/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agent-skills-conformance-portability/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agent-skills-conformance-portability/PRD.md",
+      "sd": ".agdf/control/artefacts/agent-skills-conformance-portability/SD.md",
+      "tp": ".agdf/control/artefacts/agent-skills-conformance-portability/TP.md",
+      "qa": ".agdf/control/artefacts/agent-skills-conformance-portability/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agent-skills-conformance-portability/OR.md",
+      "current_spec": "UAT approved; QA and OR pass; 7/7 tasks fully done; repository/package conformance is evidenced while live-host and public-distribution claims remain excluded",
+      "notes": "Use delivery closeout only when an operative commit, push or pull-request handoff is explicitly requested"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-public-plugin-distribution",
+      "title": "[external-delivery] Prepare AGDF for public distribution through OpenAI's shared ChatGPT and Codex plugin directory",
+      "scope": "external_delivery",
+      "status": "awaiting_qa",
+      "ur": ".agdf/control/artefacts/agdf-public-plugin-distribution/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-public-plugin-distribution/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-public-plugin-distribution/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-public-plugin-distribution/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-public-plugin-distribution/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Canonical English CONTRIBUTING/GOVERNANCE/CODE_OF_CONDUCT and semantic guards pass; QA Revision 10 resolves PPD-QA-03",
+      "notes": "Review QA Report Revision 10 and provide exact `Approval: QA`, request revision or decline"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-product-maturity-roadmap",
+      "title": "[framework-maintenance] Reduce visible ceremony, classify enforcement honestly, verify live hosts, improve proportional routing and simplify the user journey",
+      "scope": "framework_maintenance",
+      "status": "blocked",
+      "ur": ".agdf/control/artefacts/agdf-product-maturity-roadmap/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-product-maturity-roadmap/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-product-maturity-roadmap/TP.md",
+      "qa": "",
+      "or": "",
+      "current_spec": "RMP-10 Revision 4: PMR-1 and PMR-5 are satisfied with limits; PMR-6 protocol is ready but execution is externally blocked at 0/4 participants and 0/8 observations",
+      "notes": "Resume the PMR-6 protocol when at least four independent participants are available; keep RMP-12 closed"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-parent-reconciliation-handoff",
+      "title": "[framework-maintenance] Make explicit Child-to-Parent reconciliation visible at closeout without coupling independent Child completion",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/agdf-parent-reconciliation-handoff/UR.md",
+      "brownfield_review": "",
+      "prd": ".agdf/control/artefacts/agdf-parent-reconciliation-handoff/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-parent-reconciliation-handoff/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-parent-reconciliation-handoff/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-parent-reconciliation-handoff/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agdf-parent-reconciliation-handoff/OR.md",
+      "current_spec": "OR-full passes: approved UR through UAT, 17/17 tasks, 12/12 obligations, 6/6 UX rows, 66/66 evals and resolved Context Graph impact",
+      "notes": "No governance work remains; use delivery-closeout only after an explicit VCS request"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-staged-proportionality-baseline-v3",
+      "title": "[framework-maintenance] Version the staged proportionality baseline and observation protocol against complete canonical facts without rewriting historical evidence",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/OR.md",
+      "current_spec": "UAT accepted and OR complete: 24/24 TP tasks, all reviews and regressions pass; 225 historical v2/r3 files remain protected",
+      "notes": "Optional `delivery-closeout` only on explicit VCS instruction; authenticated live evidence remains separate"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-proportionality-benchmark",
+      "title": "[framework-maintenance] Measure expected versus actual AGDF delivery paths across a versioned 40-case real-task baseline without weakening gate protection",
+      "scope": "framework_maintenance",
+      "status": "blocked",
+      "ur": ".agdf/control/artefacts/agdf-proportionality-benchmark/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-proportionality-benchmark/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-proportionality-benchmark/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-proportionality-benchmark/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-proportionality-benchmark/QA_REPORT.md",
+      "or": "",
+      "current_spec": "TP 18/18, reviews and smoke pass; fresh 120-observation benchmark preserved; QA block assessed as protocol-stage mismatch, not proven routing failure",
+      "notes": "Keep this run unchanged; remediate only in a new separately approved child"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-staged-proportionality-observation",
+      "title": "[framework-maintenance] Separate current permissible stage from eventual delivery path in the proportionality benchmark without weakening fail-closed governance",
+      "scope": "framework_maintenance",
+      "status": "blocked",
+      "ur": ".agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md",
+      "qa": ".agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md",
+      "current_spec": "Fresh r3 216/216; TP Review 24/24, Clean und Code Review pass; Parent bewertet neun Scenarios als Benchmark-/Requirements-Gaps statt pauschale Routingfehler",
+      "notes": "Keep r3 unchanged; wait for canonical Structured Depth decision before Benchmark v3"
+    },
+    {
+      "prio": "2",
+      "key": "github-community-health-governance",
+      "title": "[external-delivery] Establish a project-appropriate GitHub Community Health and maintainer-governance surface",
+      "scope": "external_delivery",
+      "status": "in_progress",
+      "ur": ".agdf/control/artefacts/github-community-health-governance/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/github-community-health-governance/PRD.md",
+      "sd": ".agdf/control/artefacts/github-community-health-governance/SD.md",
+      "tp": ".agdf/control/artefacts/github-community-health-governance/TP.md",
+      "qa": ".agdf/control/artefacts/github-community-health-governance/QA_REPORT.md",
+      "or": "",
+      "current_spec": "Repository policies/adapters, social preview, validator and CI integration are implemented; all regressions are green and 18/20 tasks are complete, while QA awaits authenticated host settings and later default-branch evidence",
+      "notes": "Sign in to GitHub in the in-app browser, execute T17 with read-back, then rerun QA"
+    },
+    {
+      "prio": "1",
+      "key": "opencode-plugin-honesty-hardening",
+      "title": "[framework-maintenance] Remove three false-confidence sources in the OpenCode plugin surface: document the subagent enforcement bypass, surface inactive-repo warnings in the TUI, and report plugin/validator version drift at load time",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/opencode-plugin-honesty-hardening/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/opencode-plugin-honesty-hardening/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": ".agdf/control/artefacts/opencode-plugin-honesty-hardening/VERIFIED_CHANGE.md",
+      "current_spec": "Verified Change executed: subagent-bypass disclosure in 4 generated surfaces, TUI toast on inactive + version-drift check in session.created, 5 new test cases passing; all validation green",
+      "notes": "VCS actions require separate explicit user instruction"
+    },
+    {
+      "prio": "1",
+      "key": "opencode-surface-hardening-parity",
+      "title": "[framework-maintenance] Make OpenCode hook degradation observable, align the plugin SDK safely during install and add a preflight-gated executable Delivery Path Search evaluator",
+      "scope": "framework_maintenance",
+      "status": "blocked",
+      "ur": ".agdf/control/artefacts/opencode-surface-hardening-parity/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md",
+      "sd": ".agdf/control/artefacts/opencode-surface-hardening-parity/SD.md",
+      "tp": ".agdf/control/artefacts/opencode-surface-hardening-parity/TP.md",
+      "qa": ".agdf/control/artefacts/opencode-surface-hardening-parity/QA_REPORT.md",
+      "or": "",
+      "current_spec": "OHP-11 exact SDK alignment is implemented and fully tested; full smoke, package and Runtime Integrity checks plus Clean/Code Review pass; QA remains revise only because the live evaluator still lacks authenticated output",
+      "notes": "Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation, then rerun QA"
+    },
+    {
+      "prio": "1",
+      "key": "agdf-backlog-or-status",
+      "title": "[framework-maintenance] Add canonical `awaiting_or` backlog status label",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/agdf-backlog-or-status/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-backlog-or-status/BROWNFIELD_REVIEW.md",
+      "prd": "",
+      "sd": "",
+      "tp": "",
+      "qa": "",
+      "or": ".agdf/control/artefacts/agdf-backlog-or-status/VERIFIED_CHANGE.md",
+      "current_spec": "Verified Change and Mini-Closeout complete: `awaiting_or` added to `shared.js`, template parity and regression coverage; all validation green",
+      "notes": "VCS actions require separate explicit user instruction"
+    },
+    {
+      "prio": "1",
+      "key": "automatic-version-asset-sync",
+      "title": "[framework-maintenance] Build plugin runtime during package publication instead of tracking it in the source plugin",
+      "scope": "framework_maintenance",
+      "status": "completed",
+      "ur": ".agdf/control/artefacts/automatic-version-asset-sync/UR.md",
+      "brownfield_review": "",
+      "prd": ".agdf/control/artefacts/automatic-version-asset-sync/PRD.md",
+      "sd": ".agdf/control/artefacts/automatic-version-asset-sync/SD.md",
+      "tp": ".agdf/control/artefacts/automatic-version-asset-sync/TP.md",
+      "qa": ".agdf/control/artefacts/automatic-version-asset-sync/QA_REPORT.md",
+      "or": ".agdf/control/artefacts/automatic-version-asset-sync/OR.md",
+      "current_spec": "UAT accepted the complete release-built runtime distribution with authenticated Claude migration, native Windows interruption and live publication explicitly unproven",
+      "notes": "Continue the separate approved OpenCode QA revision; VCS delivery remains explicit"
+    },
+    {
+      "prio": "P1",
+      "key": "agdf-intake-continuation-repair",
+      "title": "Verlässlicher Delivery-Intake und Fortsetzung nach Freigaben",
+      "scope": "",
+      "status": "awaiting_prd",
+      "ur": ".agdf/control/artefacts/agdf-intake-continuation-repair/UR.md",
+      "brownfield_review": ".agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_REVIEW.md",
+      "prd": ".agdf/control/artefacts/agdf-intake-continuation-repair/PRD.md",
+      "sd": ".agdf/control/artefacts/agdf-intake-continuation-repair/SD.md",
+      "tp": ".agdf/control/artefacts/agdf-intake-continuation-repair/TP.md",
+      "qa": "",
+      "or": "",
+      "current_spec": ".agdf/control/artefacts/agdf-intake-continuation-repair/UR.md",
+      "notes": "Run the QA gate, persist the QA report, and request exact approval: Approval: QA"
+    }
+  ],
+  "artefacts": {
+    "UR": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/UR.md",
+      "status": "approved",
+      "notes": "",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/UR.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "Brownfield Review": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_REVIEW.md",
+      "status": "done",
+      "notes": "",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_REVIEW.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "Verified Change": {
+      "path": "",
+      "status": "missing",
+      "notes": "",
+      "raw_path": "",
+      "path_format": "plain",
+      "path_reason": "empty"
+    },
+    "PRD": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/PRD.md",
+      "status": "approved",
+      "notes": "Fassung 1; IC-01 bis IC-08",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/PRD.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "SD": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/SD.md",
+      "status": "approved",
+      "notes": "Fassung 1; D-01 bis D-06",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/SD.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "TP": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/TP.md",
+      "status": "approved",
+      "notes": "Fassung 1; T01 bis T12, V01 bis V11",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/TP.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "Brownfield Analysis": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_ANALYSIS.md",
+      "status": "done",
+      "notes": "pre_implementation_analysis; pass",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_ANALYSIS.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "CD+Tests": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/IMPLEMENTATION_EVIDENCE.md",
+      "status": "done",
+      "notes": "Source/package suites passed; T10 live evidence remains open",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/IMPLEMENTATION_EVIDENCE.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "CR": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/CR.md",
+      "status": "done",
+      "notes": "Code Review pass",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/CR.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "TP Review": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/TP_REVIEW.md",
+      "status": "revise",
+      "notes": "TP-LIVE-01 evidence_gap",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/TP_REVIEW.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "Clean Implementation Review": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/CLEAN_IMPLEMENTATION_REVIEW.md",
+      "status": "done",
+      "notes": "pass",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/CLEAN_IMPLEMENTATION_REVIEW.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    },
+    "QA": {
+      "path": ".agdf/control/artefacts/agdf-intake-continuation-repair/QA_REPORT.md",
+      "status": "revise",
+      "notes": "TP-LIVE-01: fresh Codex multi-turn evidence missing",
+      "raw_path": "`.agdf/control/artefacts/agdf-intake-continuation-repair/QA_REPORT.md`",
+      "path_format": "code_span",
+      "path_reason": "none"
+    }
+  },
+  "approvals": {
+    "UR": {
+      "status": "approved",
+      "evidence": "`Approval: UR` · 2026-09-27 · revision 2 · `.agdf/control/artefacts/agdf-intake-continuation-repair/UR.md` sha256:29548afcbedd5129"
+    },
+    "PRD": {
+      "status": "approved",
+      "evidence": "`Approval: PRD` · 2026-09-27 · revision 5 · `.agdf/control/artefacts/agdf-intake-continuation-repair/PRD.md` sha256:ed39aacd51abd06a"
+    },
+    "SD": {
+      "status": "approved",
+      "evidence": "`Approval: SD` · 2026-09-27 · revision 7 · `.agdf/control/artefacts/agdf-intake-continuation-repair/SD.md` sha256:451a81bab013a5eb"
+    },
+    "TP": {
+      "status": "approved",
+      "evidence": "`Approval: TP` · 2026-09-27 · revision 9 · `.agdf/control/artefacts/agdf-intake-continuation-repair/TP.md` sha256:a9a19d69d12a9b7b"
+    },
+    "QA": {
+      "status": "missing",
+      "evidence": ""
+    },
+    "UAT": {
+      "status": "missing",
+      "evidence": ""
+    }
+  },
+  "mode_slice_decision": {
+    "decision": "structured_delivery",
+    "required_next_gate": "PRD",
+    "scope_reason": "authority_policy_security_depth: Freigabebindung und Fortsetzungsautorität sowie öffentliche CLI/MCP-Verträge betroffen; structured_slice und kompakte Pfade ausgeschlossen.",
+    "evidence": ".agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_REVIEW.md"
+  },
+  "relationships": [
+    {
+      "from": "UR",
+      "relationship": "approved_by",
+      "to": "Approval: UR",
+      "required": true,
+      "status": "pass",
+      "evidence": "`Approval: UR` · 2026-09-27 · revision 2 · `.agdf/control/artefacts/agdf-intake-continuation-repair/UR.md` sha256:29548afcbedd5129"
+    },
+    {
+      "from": "PRD",
+      "relationship": "derived_from",
+      "to": "UR",
+      "required": true,
+      "status": "pass",
+      "evidence": "`.agdf/control/artefacts/agdf-intake-continuation-repair/UR.md`"
+    },
+    {
+      "from": "SD",
+      "relationship": "derived_from",
+      "to": "PRD",
+      "required": true,
+      "status": "pass",
+      "evidence": "`.agdf/control/artefacts/agdf-intake-continuation-repair/PRD.md`"
+    },
+    {
+      "from": "TP",
+      "relationship": "derived_from",
+      "to": "SD",
+      "required": true,
+      "status": "pass",
+      "evidence": "`.agdf/control/artefacts/agdf-intake-continuation-repair/SD.md`"
+    },
+    {
+      "from": "QA_REPORT",
+      "relationship": "tests",
+      "to": "TP",
+      "required": false,
+      "status": "missing",
+      "evidence": ""
+    }
+  ],
+  "evidence_refs": [
+    {
+      "evidence": "Run creation",
+      "source": "run-create",
+      "covers": "Control initialization",
+      "strength": "direct"
+    },
+    {
+      "evidence": "UR draft",
+      "source": "`.agdf/control/artefacts/agdf-intake-continuation-repair/UR.md`",
+      "covers": "problem, goal, scope and acceptance signals",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Brownfield Review",
+      "source": "`.agdf/control/artefacts/agdf-intake-continuation-repair/BROWNFIELD_REVIEW.md`",
+      "covers": "Mode/Slice Decision `structured_delivery`",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Code Review",
+      "source": ".agdf/control/artefacts/agdf-intake-continuation-repair/CR.md",
+      "covers": "decision pass: Diff reviewed; source and packaged tests passed; live UX evidence remains TP-LIVE-01",
+      "strength": "direct"
+    }
+  ],
+  "missing_evidence": [],
+  "risks": [],
+  "context_graph": {
+    "impact": "",
+    "refs": "",
+    "required_action": "",
+    "gate_effect": "",
+    "evidence": ""
+  },
+  "source_scope": {
+    "normative_instruction_source": "plugin/meta/contracts",
+    "multi_scope_state": "clear",
+    "active_scope_evidence": "",
+    "competing_scope_lines": "",
+    "branch_workspace_evidence": "",
+    "branch_workspace_scope_effect": ""
+  },
+  "memory": {
+    "target": "",
+    "reason": "",
+    "refs": ""
+  },
+  "parent_reconciliation": {
+    "outcome": "not_applicable",
+    "target_run_id": "",
+    "disposition": "not_applicable",
+    "evidence": "",
+    "missing_evidence": "none",
+    "next_action": "none"
+  },
+  "programme_aggregation": {
+    "applicable": false,
+    "startable": false,
+    "final_ready": false,
+    "acceptance_ref": "",
+    "evidence": [],
+    "missing_evidence": [],
+    "next_action": "none"
+  },
+  "findings": [],
+  "doctor_status": "pass",
+  "doctor_summary": {
+    "findings": 0,
+    "block": 0,
+    "revise": 0,
+    "warn": 0
+  },
+  "doctor_report": {
+    "schema_version": "1",
+    "status": "pass",
+    "checked_at": "2026-09-27T07:42:05.102Z",
+    "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": []
+  }
+}

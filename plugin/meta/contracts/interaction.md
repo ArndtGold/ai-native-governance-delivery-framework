@@ -278,7 +278,7 @@ already reviewed canonical run and revision-stable UR without a second setup pro
 does not approve UR or any later gate. Dispatcher v1 called with `intake: true` for this route returns a
 non-terminal `intake_continuation` while no active run exists or the selected run has no durable UR
 revision; its ordered steps are `run-create`, the UR artefact and `run-step --step ur`, followed by a
-new dispatch. Every other state, including a ready `Approval: UR`, stays terminal. For the explicit
+new dispatch. A ready user gate during authorized intake or continuation returns `presentation_required`: run-present prepares the binding, then the agent shows its returned text and waits. A read-only status query remains terminal and does not prepare a binding. For the explicit
 standalone `lifecycle.control.init` operation, setup remains scaffold-only and creates neither a run
 nor UR. Gate readiness is always evaluated separately after canonical state and a revision-stable
 artefact exist.
@@ -318,11 +318,11 @@ Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. consume one validated canonical `approval_presentation`, emit its compact Run Status Card and Gate Transition Card verbatim in that order immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
+3. first execute `run-present --run <run_id> --gate <gate> --revision <revision_id>`; retain its presentation_id and show its exact returned text. This includes a short deterministic summary from the gate-specific source sections, bound by `summary_digest`, and a clickable link to the exact durable artefact with its digest, run, gate and revision; UAT summarizes and lists its existing evidence rows. Missing summary material makes presentation unavailable. This explicit writing operation prepares a binding but never proves human visibility. Then consume that validated canonical `approval_presentation`, emit the compact Run Status Card and status presentation, then the short summary and artefact link, then the Gate Transition Card immediately before the gate question. Ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
-7. persist an accepted approval only with `run-approve --run <run_id> --gate <gate> --revision <revision_id> --response "<verbatim reply>"`, which repeats steps 5 and 6 against the presented `revision_id` and advances the revision.
+7. persist an accepted approval only with `run-approve --run <run_id> --gate <gate> --revision <revision_id> --presentation <presentation_id> --response "<verbatim reply>"`, which repeats steps 5 and 6 against the presented `revision_id` and advances the revision.
 
 For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
 deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`
@@ -532,3 +532,21 @@ Missing input, timeout, cancellation and empty input are not decline. Only
 `approve` backed by the exact revalidated `Approval: <GateName>` value may
 advance a gate. Clarification, blocked, internal-step and status-only
 interactions must not display gate-approval controls.
+
+
+### Presentation binding and delivery recovery
+
+New approvals require a previously prepared run-present record for the exact run, gate, revision
+and content. Missing or stale bindings require a NEW presentation and NEW deliberate reply;
+never bind an earlier reply to a subsequently prepared revision. Historical recorded approvals
+remain unchanged. Plain gate-check, --approval-envelope and agdf_dispatch stay read-only.
+Their unrecorded previews cannot be used as run-approve evidence.
+
+For a clear new scope use intake with intake_mode new and an unused run_id, even when unrelated
+runs exist. Resume only a bound run. After a valid UR approval, continue_delivery permits only
+canonical Brownfield Review and proportional routing. Stop at the next user decision or concrete
+blocker; report unchanged internal state rather than looping. Status/advice never activates it.
+
+The record proves prepared state, not actual display or user-response timing. The host/agent must
+show it before waiting and bind only the subsequent deliberate reply. Visible multi-turn evidence
+is required for a live claim. Filesystem digests are integrity checks, not adversarial signatures.

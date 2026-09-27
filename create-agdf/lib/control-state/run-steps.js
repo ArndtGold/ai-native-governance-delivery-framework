@@ -167,7 +167,11 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
     evidenceRow = ["UR draft", `\`${path}\``, "problem, goal, scope and acceptance signals", "direct"];
     backlog = { title: input.title, status: "Needs UR" };
   } else if (step === "route") {
-    if (!approved("UR") || !["Brownfield Review", "Mode/Slice Decision"].includes(before.current_gate)) {
+    const routeBeforeUrApproval = !approved("UR")
+      && before.status === "open"
+      && before.current_gate === "UR"
+      && before.missing_approval === "Approval: UR";
+    if (!routeBeforeUrApproval && (!approved("UR") || !["Brownfield Review", "Mode/Slice Decision"].includes(before.current_gate))) {
       return rejected(runId, "gate_not_ready", { current_gate: before.current_gate });
     }
     if (!RUN_STEP_ROUTES.includes(input.route)) return rejected(runId, "route_invalid", { routes: RUN_STEP_ROUTES });

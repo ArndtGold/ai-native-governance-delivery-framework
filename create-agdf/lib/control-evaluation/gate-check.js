@@ -4,7 +4,7 @@ import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
 import { transitionDecisionForRunState } from './gate-policy.js';
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from './verified-change.js';
-import { gateApprovalStatus, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
+import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
 import { isPlaceholderValue } from './shared.js';
 
 // Shown when a finding's next step is free text that the presentation locale cannot render.
@@ -27,7 +27,26 @@ const nextSkillByGate = {
   OR: "release-or",
 };
 
-export function postApprovalTransition(missingApproval) {
+export function postApprovalTransition(missingApproval, runState = null) {
+  if (missingApproval === "Approval: UR" && runState
+      && modeSliceDecision(runState) !== "undecided"
+      && isInternalStepSatisfied(runState, "Brownfield Review")) {
+    const approvals = new Map(runState.approvals);
+    approvals.set("UR", { ...approvals.get("UR"), status: "approved" });
+    const artefacts = new Map(runState.artefacts);
+    artefacts.set("UR", { ...artefacts.get("UR"), status: "approved" });
+    const after = transitionDecisionForRunState({ ...runState, approvals, artefacts });
+    const nextUserGate = after.missing_approval.startsWith("Approval: ")
+      ? after.missing_approval.slice("Approval: ".length)
+      : "none";
+    return {
+      next_gate_after_approval: after.current_gate,
+      allowed_after_approval: after.next_allowed_action,
+      internal_next_step: after.next_allowed_action,
+      next_user_gate: nextUserGate,
+      user_action_required: nextUserGate === "none" ? "no" : "yes",
+    };
+  }
   const transitions = new Map([
     ["Approval: UR", {
       next_gate_after_approval: "Brownfield Review",
@@ -133,7 +152,7 @@ export function buildStatusCard({
   qualityOutlook = deriveQualityOutlook(runState, findings),
   interactionKind: requestedInteractionKind,
 }) {
-  const postApproval = postApprovalTransition(missingApproval);
+  const postApproval = postApprovalTransition(missingApproval, runState);
   const isUserGateApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
   const nativeAttemptRequired = false;
@@ -289,6 +308,13 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     ];
     forbidden = ["request gate approval without a durable run and artefact", "implement gated work", "claim QA or release readiness"];
     nextAllowedAction = "Create, migrate or select the canonical run, then persist its UR revision before requesting approval.";
+  } else if (doctorBlocker && /AGDF_(?:ACTIVE_RUN|RUN_NOT_SELECTABLE|RUN_PATH_INVALID)/u.test(doctorBlocker.code)) {
+    status = "blocked";
+    blockingReason = doctorBlocker.code;
+    missingApproval = "none";
+    allowed = ["select an existing canonical run explicitly", "run doctor again"];
+    forbidden = ["request gate approval without a durable run and artefact", "implement gated work", "claim QA or release readiness"];
+    nextAllowedAction = doctorBlocker.next_step;
   } else if (doctorBlocker && !routesInvalidVerifiedChange) {
     status = "blocked";
     blockingReason = doctorBlocker.code;
@@ -307,7 +333,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     nextStepFallback = FINDING_RECOVERY_STEP;
   }
 
-  const postApproval = postApprovalTransition(missingApproval);
+  const postApproval = postApprovalTransition(missingApproval, runState);
   const presentationLocale = selection.presentationLanguage
     ? resolvePresentationLocale(interactionLocales, selection.presentationLanguage)
     : resolveConfiguredChatLanguage(targetDir);

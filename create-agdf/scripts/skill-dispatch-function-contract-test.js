@@ -12,6 +12,8 @@ import {
   SKILL_DISPATCH_SURFACES,
   SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION,
   parseSkillDispatchFunctionArguments,
+  normalizeSkillDispatchInput,
+  buildSkillDispatchRegistry,
   renderSkillDispatchLanguageProjection,
   renderSkillDispatchQaCandidatesProjection,
   renderSkillDispatchSemanticProjection,
@@ -41,7 +43,7 @@ for (const requiredMeaning of [
   "entire assistant response must consist only of host_action.text",
   "Add no question, explanation, heading, citation, link or other surrounding text",
   "use only the returned target and control",
-  "For intake_continuation, run continuation.steps in order without asking the user",
+  "For intake_continuation, run continuation.steps in order",
 ]) assert.match(definition.description, new RegExp(requiredMeaning.replaceAll(".", "\\."), "u"));
 assert.equal(renderSkillDispatchTerminalProjection(), SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION);
 assert.equal(definition.outputSchema.properties.control.description, SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION);
@@ -51,7 +53,7 @@ assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
 assert.deepEqual(Object.keys(schema.properties), [
-  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "intake",
+  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "intake", "intake_mode", "continue_delivery",
 ]);
 assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
@@ -85,7 +87,7 @@ assert.match(schema.properties.presentation_language.description, /mixed or ambi
 assert.match(schema.properties.presentation_language.description, /valid unsupported tag/u);
 assert.match(schema.properties.presentation_language.description, /Missing or invalid input fails before governance evaluation/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
-assert.match(schema.properties.run_id.description, /only when the request explicitly selects that run/u);
+assert.match(schema.properties.run_id.description, /explicit request or unambiguous bound continuation/u);
 
 const targetChoices = schema.properties.target_source.oneOf;
 assert.deepEqual(targetChoices.map((choice) => choice.const), TASK_TARGET_SOURCES);
@@ -133,6 +135,16 @@ assert.equal(parseSkillDispatchFunctionArguments({
   skillSet: pluginDefinition.skillSet,
   interactionLocales: {},
 }).intake, true);
+const transportContext = { surface: "codex", expectedVersion: pluginDefinition.version, skillSet: pluginDefinition.skillSet, interactionLocales: JSON.parse(readFileSync(join(repoRoot, "plugin/meta/agdf-interaction-locales.json"), "utf8")) };
+const deliveryInput = { skill_id: "gate-check", presentation_language: "de", working_directory: "/tmp/agdf", run_id: "bound-run" };
+const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
+for (const fields of [{ intake: true, intake_mode: "new" }, { intake: true, intake_mode: "resume" }, { continue_delivery: true }]) {
+  const normalized = normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput, ...fields }, transportContext), registry);
+  for (const [key, value] of Object.entries(fields)) assert.equal(normalized[key], value);
+}
+for (const fields of [{ intake_mode: "new" }, { intake: true, intake_mode: "invalid" }, { intake: true, continue_delivery: true }, { continue_delivery: "true" }]) {
+  assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput, ...fields }, transportContext), registry));
+}
 const semanticInvalid = parseSkillDispatchFunctionArguments({
   skill_id: "not-a-real-agdf-skill",
   presentation_language: "de",
@@ -187,8 +199,8 @@ assert.throws(
 
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
-assert.match(skillDispatchArgumentGrammar(), /--language <current-conversation-language-tag>/u);
-assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake]"));
+assert.match(skillDispatchArgumentGrammar(), /--language <language-tag>/u);
+assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>]] [--continue-delivery]"));
 assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
 
 const languageProjection = renderSkillDispatchLanguageProjection();

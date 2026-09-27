@@ -47,7 +47,7 @@ npm run install:copilot
 npm run install:opencode
 ```
 
-Node.js 18 or later, npm and the selected agent CLI are required. Copilot installation also requires
+Node.js 22 or later, npm and the selected agent CLI are required. Copilot installation also requires
 Git. Run only the command for the selected agent. Each command validates and prepares the current
 checkout before changing that agent's global AGDF installation. Local preparation generates the
 selected host assets plus the shared CLI/runtime bundle and validates their runtime identity.

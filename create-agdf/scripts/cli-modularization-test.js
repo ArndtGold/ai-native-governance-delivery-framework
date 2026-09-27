@@ -262,7 +262,7 @@ for (const command of ["codex-repo", "opencode-repo"]) {
 }
 
 const bin = readFileSync(join(packageRoot, "bin", "create-agdf.js"), "utf8");
-assert.match(bin, /from "\.\.\/lib\/cli\/application\.js"/);
+assert.match(bin, /await import\("\.\.\/lib\/cli\/application\.js"\)/);
 assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|evaluateDeliveryMap|generatedFilesForTarget)/);
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 

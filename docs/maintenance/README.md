@@ -1,5 +1,15 @@
 # Wartungsverträge und Release-Nachweise
 
+## Node-Versionen und GitHub Actions
+
+CLI und MCP benötigen Node.js 22 oder neuer. Die Pflichtmatrix prüft Linux/Node 22,
+Windows/Node 22 und Linux/Node 24; Veröffentlichungen und native Codex-E2E nutzen Node 22.
+Die JavaScript-Laufzeit der Actions ist davon unabhängig: Checkout und Setup Node verwenden
+Version 7, Upload Artifact Version 7 und Download Artifact Version 8, jeweils mit Node 24.
+`scripts/node-support-test.mjs` prüft die Paketgrenzen, Workflow-Versionen und die Ablehnung
+von Node 18/20/21. Die simulierte Versionsprüfung ersetzt keinen echten Node-24-CI-Lauf.
+Historische Nachweise behalten ihre damals tatsächlich verwendeten Node-Versionen.
+
 ## Gemeinsamer Katalog
 
 `create-agdf/lib/interaction-catalog.js` definiert Setup-Zustände, zulässige Aktionen,

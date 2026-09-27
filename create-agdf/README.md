@@ -145,8 +145,8 @@ presentation and continuation results. Tool permission and successful execution 
 AGDF approval. The process is offline while serving and exposes no generic shell, filesystem or
 network operation, but it inherits the operating-system permissions of the host user.
 
-The existing CLI remains on Node.js 18. MCP enablement requires the actual registered executable
-to be Node.js 20 or later and installs the exact matching `@agdf/mcp-server` package only after the
+The CLI requires Node.js 22 or later. MCP enablement requires the actual registered executable
+to be Node.js 22 or later and installs the exact matching `@agdf/mcp-server` package only after the
 explicit `enable` command:
 
 ```bash
@@ -160,8 +160,8 @@ After enablement, restart the host and verify tool discovery in a fresh session.
 the qualified name `agdf_agdf_dispatch`; the server-level name is `agdf_dispatch`. Its adapter reads
 the installed major version and writes the flat OpenCode 1.x or nested OpenCode 2.x MCP shape. `status` is
 read-only, and `disable` removes only the owned registration plus an unreferenced owned runtime.
-Foreign entries fail closed. Node.js 18 returns `capability: manual_compatible` and names the
-version-matched CLI dispatch path without running it automatically. One runtime is shared by all
+Foreign entries fail closed. Node.js versions below 22 are rejected by the CLI before application
+loading and cannot acquire an MCP runtime. Upgrade Node.js before retrying. One runtime is shared by all
 registrations in the selected project or user scope and is removed only after its last owned
 reference is gone.
 

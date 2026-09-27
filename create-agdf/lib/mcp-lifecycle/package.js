@@ -98,7 +98,7 @@ export function inspectMcpServerPackage({ dataRoot, expectedVersion } = {}) {
       && manifest.version === expectedVersion
       && manifest.dependencies?.["create-agdf"] === expectedVersion
       && manifest.dependencies?.["@modelcontextprotocol/server"] === "2.0.0"
-      && manifest.engines?.node === ">=20"
+      && manifest.engines?.node === ">=22"
       && dispatcherManifest.name === "create-agdf"
       && dispatcherManifest.version === expectedVersion
       && sdkServerManifest.name === "@modelcontextprotocol/server"
@@ -150,7 +150,7 @@ export function prepareMcpServerPackage({
       || (dispatcherPackageSpec !== null && (typeof dispatcherPackageSpec !== "string" || !dispatcherPackageSpec.trim()))) {
     throw new Error("AGDF_MCP_PACKAGE_INPUT_INVALID");
   }
-  if (nodeMajor(nodeVersion) < 20) throw new Error("AGDF_MCP_NODE_UNSUPPORTED");
+  if (nodeMajor(nodeVersion) < 22) throw new Error("AGDF_MCP_NODE_UNSUPPORTED");
   const existing = inspectMcpServerPackage({ dataRoot, expectedVersion });
   if (existing.status === "matched") {
     return Object.freeze({ ...existing, changed: false, commit() {}, rollback() {} });
@@ -187,7 +187,7 @@ export function prepareMcpServerPackage({
         || manifest.version !== expectedVersion
         || manifest.dependencies?.["create-agdf"] !== expectedVersion
         || manifest.dependencies?.["@modelcontextprotocol/server"] !== "2.0.0"
-        || manifest.engines?.node !== ">=20"
+        || manifest.engines?.node !== ">=22"
         || dispatcherManifest.name !== "create-agdf"
         || dispatcherManifest.version !== expectedVersion
         || sdkServerManifest.name !== "@modelcontextprotocol/server"

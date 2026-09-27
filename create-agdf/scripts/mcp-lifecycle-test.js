@@ -135,7 +135,7 @@ function installFixture(calls, version = VERSION) {
     writeFileSync(join(packageRoot, "package.json"), `${JSON.stringify({
       name: "@agdf/mcp-server",
       version,
-      engines: { node: ">=20" },
+      engines: { node: ">=22" },
       dependencies: {
         "@modelcontextprotocol/server": "2.0.0",
         "create-agdf": version,
@@ -176,7 +176,7 @@ const prepared = prepareMcpServerPackage({
   dataRoot: packageData,
   expectedVersion: VERSION,
   execPath: "/exact/node",
-  nodeVersion: "20.19.0",
+  nodeVersion: "22.0.0",
   exec: installFixture(npmCalls),
   npmOptions: { platform: "linux", execPath: "/exact/node", env: {} },
 });
@@ -215,15 +215,24 @@ assert.equal(oldNode.result, "not_configured");
 assert.equal(oldNode.capability, "manual_compatible");
 assert.equal(oldNode.schema_version, 2);
 assert.equal(oldNode.contract_version, 2);
-assert.match(renderMcpLifecycleText(oldNode, { language: "en" }), /Use Node\.js 20 or later/);
-assert.match(renderMcpLifecycleText(oldNode, { language: "de" }), /Node\.js 20 oder neuer/);
+assert.match(renderMcpLifecycleText(oldNode, { language: "en" }), /Use Node\.js 22 or later/);
+assert.match(renderMcpLifecycleText(oldNode, { language: "de" }), /Node\.js 22 oder neuer/);
 assert.equal(oldNode.authorizes, false);
 assert.equal(oldNode.effective_scope, null);
 assert.deepEqual(oldNode.permission_effect, { code: "inherited_host_user", parameters: {} });
 assert.equal(oldNode.discovery.source, "none");
 assert.equal(projectMcpLifecycleResult(oldNode, { language: "de" }).next_action.text,
-  "Node.js 20 oder neuer verwenden und erneut versuchen.");
+  "Node.js 22 oder neuer verwenden und erneut versuchen.");
 assert.equal(oldNodePrepared, false);
+for (const nodeVersion of ["20.19.0", "21.0.0"]) {
+  assert.throws(() => prepareMcpServerPackage({ dataRoot: packageData, expectedVersion: VERSION, nodeVersion }), /NODE_UNSUPPORTED/);
+  const unsupported = runMcpLifecycle({ action: "enable", surface: "codex", pluginManagedSurfaces: [],
+    target: oldNodeRoot, env: { AGDF_DATA_DIR: join(oldNodeRoot, "data") }, nodeVersion,
+    prepare() { throw new Error("unsupported Node must not acquire a runtime"); } });
+  assert.equal(unsupported.runtime.package_status, "node_unsupported");
+  assert.equal(projectMcpLifecycleResult(unsupported, { language: "en" }).next_action.text,
+    "Use Node.js 22 or later and retry.");
+}
 assert.equal(existsSync(join(oldNodeRoot, "data")), false);
 
 assert.throws(() => createMcpLifecycleResult({
@@ -527,7 +536,7 @@ for (const surface of ["codex", "claude", "opencode"]) {
     dataRoot: runtimeDataRoot,
     expectedVersion: OLD_VERSION,
     execPath: "/old/node",
-    nodeVersion: "20.19.0",
+    nodeVersion: "22.0.0",
     exec,
   });
   const oldSpec = createMcpRegistrationSpec({

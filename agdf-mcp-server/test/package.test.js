@@ -14,7 +14,7 @@ const capability = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-mcp-c
 
 assert.equal(manifest.name, "@agdf/mcp-server");
 assert.equal(manifest.version, dispatcherManifest.version);
-assert.equal(manifest.engines.node, ">=20");
+assert.equal(manifest.engines.node, ">=22");
 assert.deepEqual(manifest.dependencies, {
   "@modelcontextprotocol/server": "2.0.0",
   "create-agdf": dispatcherManifest.version,

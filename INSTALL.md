@@ -19,7 +19,7 @@ your own installation.
 
 ## Choose your installation path
 
-Before running a command, install Node.js 18 or later with npm and the selected agent runtime. Run
+Before running a command, install Node.js 22 or later with npm and the selected agent runtime. Run
 repository-local commands inside the target Git repository, not inside this AGDF repository.
 
 | Need | Command | Scope and verification | First safe action |
@@ -111,7 +111,7 @@ successful execution never count as `Approval: <GateName>`. The process inherits
 host user's operating-system identity and filesystem permissions; AGDF does not claim an operating-
 system sandbox.
 
-The MCP process requires Node.js 20 or later. The existing CLI retains its Node.js 18 baseline.
+The MCP process requires Node.js 22 or later. The CLI uses the same Node.js 22 baseline.
 Use an absolute repository path and inspect the project scope before enabling it:
 
 ```bash
@@ -135,9 +135,10 @@ The project configuration owners are `.github/mcp.json` for the GitHub Copilot C
 the managed project source until the conflict is resolved. OpenCode 1.x
 uses `mcp.agdf`; OpenCode 2.x uses `mcp.servers.agdf` and `disabled: false`. The lifecycle reads the
 installed OpenCode version before choosing either form and leaves other servers and permissions
-unchanged. The OpenCode host-visible qualified tool name is `agdf_agdf_dispatch`; the server-level name remains `agdf_dispatch`. A Node.js 18
-attempt returns `capability: manual_compatible` with the version-matched CLI dispatch path and performs no MCP
-package acquisition or host mutation. No failure silently invokes that fallback.
+unchanged. The OpenCode host-visible qualified tool name is `agdf_agdf_dispatch`; the server-level name remains `agdf_dispatch`.
+The CLI rejects Node.js versions below 22 before loading its application. The MCP lifecycle also
+rejects unsupported runtime versions without package acquisition or host mutation; upgrade Node.js
+before retrying. No failure silently invokes a fallback.
 
 Restart the selected host after enablement and verify discovery in a fresh session. Support is
 qualified independently per exact host client, client variant, OS, architecture, scope,
@@ -544,7 +545,7 @@ This avoids drift between:
 
 ## Detailed surface setup
 
-You need Node.js 18 or later, npm (`node -v`, `npm -v`) and the selected runtime: Codex CLI or the
+You need Node.js 22 or later, npm (`node -v`, `npm -v`) and the selected runtime: Codex CLI or the
 Codex app with plugin support, Claude Code CLI, OpenCode, or GitHub Copilot CLI/Coding Agent.
 
 If Node.js is missing, install it with `winget install OpenJS.NodeJS.LTS` (Windows), `brew install

@@ -33,7 +33,7 @@ export const PLUGIN_MANAGED_SURFACES = Object.freeze(["claude", "codex"]);
 function major(version) { return Number.parseInt(String(version).split(".")[0], 10); }
 
 function capabilityFor({ surface, host, nodeVersion, scope, registration, runtime, expectedVersion }) {
-  if (!Number.isInteger(major(nodeVersion)) || major(nodeVersion) < 20) return "manual_compatible";
+  if (!Number.isInteger(major(nodeVersion)) || major(nodeVersion) < 22) return "manual_compatible";
   if (host?.status === "unavailable") return "unavailable";
   if (host?.status === "unsupported") return "unsupported";
   const entrypointIdentity = runtime?.status === "matched" && runtime.digest && expectedVersion
@@ -204,10 +204,10 @@ export function runMcpLifecycle({
       diagnostics: [{ code: `${surface}_plugin_managed` }], nextAction: { code: `use_${surface}_plugin_mcp` } });
   }
 
-  if (!Number.isInteger(major(nodeVersion)) || major(nodeVersion) < 20) {
+  if (!Number.isInteger(major(nodeVersion)) || major(nodeVersion) < 22) {
     return envelope({ ...base, capability: "manual_compatible", host: null,
       runtime: { status: "node_unsupported", version: expectedVersion }, registration: null,
-      result: "not_configured", nextAction: { code: "use_node_20" } });
+      result: "not_configured", nextAction: { code: "use_node_22" } });
   }
 
   const host = inspectMcpHost({ surface, target: selectedTarget, exec });

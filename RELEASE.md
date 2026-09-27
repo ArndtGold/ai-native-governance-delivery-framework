@@ -15,7 +15,7 @@ A release includes:
 - generated package assets produced during package build
 
 The `@agdf/mcp-server` and `@agdf/cli` packages both depend on the matching
-`create-agdf` version. The server keeps its Node.js 20 MCP SDK closure separate,
+`create-agdf` version. The server keeps its Node.js 22 MCP SDK closure separate,
 while the CLI delegates command execution through the shared `create-agdf/cli` export.
 
 ## Prepare a version

@@ -221,3 +221,20 @@ Approval presentations now include a deterministic concise summary of relevant s
 Approval persistence now advances the canonical run gate and refreshes the run-state summary atomically. Intake completes Brownfield Review and records the proportional route before presenting UR approval, so the approved run can continue directly at its selected next gate. Copilot budget: 106 files / 992602 bytes -> 106 files / 994764 bytes (+2162 bytes). The all-profile guard remains enabled.
 
 UR approval transition cards now derive the post-approval action from the recorded Brownfield Review and route, so a pre-routed `structured_delivery` run shows PRD instead of repeating Brownfield Review. Copilot budget: 106 files / 994764 bytes -> 106 files / 995772 bytes (+1008 bytes). The all-profile guard remains enabled.
+
+
+## 2026-09-28 — Archived baseline rationale before 3ad9a0d
+
+Preserved when the baseline prose was replaced by a current review reason. Ceiling: 110 files / 1035473 bytes.
+
+Reviewed 2953-byte total growth from conditional Brownfield architecture guidance and the explicit revise/block rule for incomplete retained debt; no new payload files. Review fixes after the approval-binding commits split the read-only approval rendering into run-presentation-render.js, so gate-check and the MCP dispatcher reach no presentation writer, adding one file. The PRD decision and duplicate-row recovery values become fixed, localizable operational values with English and German entries, known intake refusals move into the dispatch recovery catalog, and the continue_delivery and pre-UR routing contract text is aligned with the dispatcher. The gate-check skill restores its three pinned safety sentences within the unchanged budget. Run creation and run-state writes reuse the bounded Windows rename retry of fs-swap.js, which the shared validator runtime therefore ships, adding a second file. These reviewed changes produce 110 files and 1035473 bytes.
+
+
+## 2026-09-28 — Unreviewed growth from 9b00a7e and 70dd195
+
+Commits 9b00a7e (PRD-to-TP acceptance traceability) and 70dd195 (MCP registration tracking checks) grew the Copilot payload without a baseline update, so `sync-package-assets` failed on 70dd195. The growth was accepted as observed so that the size-independent activation change could be built; it still needs its own review. Copilot budget: 110 files / 1035473 bytes -> 111 files / 1056897 bytes (+1 file, +21424 bytes). The all-profile guard remains enabled.
+
+
+## 2026-09-28 — Size-independent Request Activation
+
+Guard, discovery suffix, gate-check description and Quick Task wording now state that any requested file or code change activates AGDF regardless of size (live evidence: scripts/native-probes/evidence/claude-activation-matrix-20260928.md). Copilot budget: 111 files / 1056897 bytes -> 111 files / 1057396 bytes (+499 bytes). The all-profile guard remains enabled.

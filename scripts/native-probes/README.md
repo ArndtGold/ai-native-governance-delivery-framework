@@ -35,6 +35,20 @@ Zugangsdaten im Schlüsselbund; dann werden die beiden Sitzungsschritte als übe
 nicht bestanden gemeldet. Ergebnis: `probe-results/claude-host-e2e-<Zeitstempel>/summary.txt` und
 `observation.json`.
 
+## Live-Matrix Request Activation unter Claude Code
+
+```bash
+npm run native:claude-activation-matrix
+npm run native:claude-activation-matrix -- --runs 3 --concurrency 8 --model <modell> --keep
+```
+
+Prüft, ob das installierte Plug-in in echten `claude -p`-Sitzungen je nach Stufe richtig reagiert:
+still bei Lesefragen, aktiv bei jeder verlangten Änderung, auch bei kleinen Fixes, und ohne
+Implementierung vor der UR. Pro Lauf ein Wegwerf-Git-Repo; bewertet werden nur `stream-json`-Toolaufrufe
+und `git status`. Das Ergebnis ist probabilistische Live-Evidenz, kein Release-Gate.
+Ergebnis: `probe-results/claude-activation-matrix-<Zeitstempel>/summary.txt` und `observation.json`.
+Letzter Nachweis: [evidence/claude-activation-matrix-20260928.md](evidence/claude-activation-matrix-20260928.md).
+
 ## Host-E2E Codex: ein Befehl, ein festes Tupel
 
 Dies ist der Standardtest für AGDF unter Codex. Frische CLI-Prozesse prüfen den installierten

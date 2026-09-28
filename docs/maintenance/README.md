@@ -64,6 +64,14 @@ Lokaler Diagnoseaufruf: `npm run native:codex-e2e -- --model gpt-6-luna`.
 Außerhalb CI wird bei Bedarf eine temporäre lokale Auth-Kopie verwendet und danach entfernt.
 Ein erfolgreicher Dirty-Lauf ist Diagnoseevidenz, erfüllt aber nicht die Release-Freigabe.
 
+## Live-Evaluierung der Request Activation
+
+Das Verhalten des Modells bei der Aktivierung wird zusätzlich live gemessen (`npm run native:claude-activation-matrix`,
+siehe [native Prüfungen](../../scripts/native-probes/README.md)). Der deterministische Korpus unter
+`evals/request-activation/` prüft nur die erwartete Klassifikation, nicht das Modell.
+Letzter Nachweis mit Vorher/Nachher der größenunabhängigen Aktivierung:
+[claude-activation-matrix-20260928.md](../../scripts/native-probes/evidence/claude-activation-matrix-20260928.md).
+
 ## Explizite Paketbudget-Pflege
 
 ```sh

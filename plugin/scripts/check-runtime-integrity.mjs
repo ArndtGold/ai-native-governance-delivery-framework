@@ -880,6 +880,21 @@ for (const required of [
 ]) {
   if (!brownfieldSkill.includes(required)) failures.push(`brownfield-analysis structured-depth guidance missing: ${required}`);
 }
+for (const required of [
+  "In the same `post_ur_review`, record architecture relevance",
+  "architecture-not-applicable",
+  "problem`, `trade-off` or `unresolved",
+  "rationale, accountable owner, mitigation and finite review date or exit condition",
+  "Until all four are present, leave it unresolved",
+  "Do not report `pass` while claiming that the debt",
+  "Use a focused diagram only when it answers a named ownership or dependency question",
+  "normalized owners in `quality.md`",
+]) {
+  if (!brownfieldSkill.includes(required)) failures.push(`brownfield-analysis architecture guidance missing: ${required}`);
+}
+if (!gateTransitionContract.includes("conditional Architecture Impact under `brownfield-analysis`")) {
+  failures.push("gate-transition must keep Architecture Impact inside Brownfield Review");
+}
 const codexPlugin = isFile(codexPluginPath) ? readJson(codexPluginPath, "Codex plugin manifest") : null;
 const claudePlugin = isFile(claudePluginPath) ? readJson(claudePluginPath, "Claude plugin manifest") : null;
 const installationProvenance = isFile(installationProvenancePath) ? readJson(installationProvenancePath, "AGDF installation provenance") : null;
@@ -2139,8 +2154,25 @@ if (isFile(brownfieldReviewTemplatePath)) {
     "migration_propagation_bounded",
     "failure_recovery_local",
     "independently_acceptable",
+    "## Architecture Impact",
+    "architecture_relevance",
+    "architecture_impact",
+    "architecture_reason",
+    "architecture_evidence",
+    "architecture_missing_evidence",
+    "architecture_next_owner_and_action",
+    "### Retained Debt Detail (only when applicable)",
+    "- finding: <same label as the Reuse And Parallel-Structure Risk row>",
+    "- rationale:",
+    "- accountable_owner:",
+    "- mitigation:",
+    "- review_date_or_exit_condition:",
+    "Keep the review decision at least `revise` until every debt-acceptance field is evidenced",
   ]) {
     if (!brownfieldReviewTemplate.includes(required)) failures.push(`BROWNFIELD_REVIEW.md missing control field: ${required}`);
+  }
+  if (!brownfieldReviewTemplate.includes("| Finding | Evidence | Risk | Required action |")) {
+    failures.push("BROWNFIELD_REVIEW.md must retain the four-column finding index");
   }
 }
 

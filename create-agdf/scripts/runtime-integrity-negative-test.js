@@ -151,6 +151,14 @@ try {
   expectIntegrityFailure(/BROWNFIELD_REVIEW\.md missing control field: depth_policy_version/);
 
   resetPluginFixture();
+  replaceRequired(brownfieldTemplatePath, "architecture_next_owner_and_action", "architecture_owner_removed");
+  expectIntegrityFailure(/BROWNFIELD_REVIEW\.md missing control field: architecture_next_owner_and_action/);
+
+  resetPluginFixture();
+  replaceRequired(brownfieldTemplatePath, "| Finding | Evidence | Risk | Required action |", "| Finding | Risk | Required action |");
+  expectIntegrityFailure(/BROWNFIELD_REVIEW\.md must retain the four-column finding index/);
+
+  resetPluginFixture();
   writeFileSync(
     brownfieldSkillPath,
     readFileSync(brownfieldSkillPath, "utf8").replace("Brownfield\/Mode-Slice re-evaluation", "structured-depth recovery removed"),

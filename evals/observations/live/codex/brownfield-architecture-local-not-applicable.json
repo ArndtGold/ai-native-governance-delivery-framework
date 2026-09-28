@@ -1,0 +1,16 @@
+{
+  "case_id": "brownfield-architecture-local-not-applicable",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:55:55.533Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "record architecture-not-applicable with code and owner reason",
+    "continue existing Mode/Slice Decision"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nMode: post_ur_review. UR is approved and control state is Brownfield Review. change.patch changes only readyMessage wording in src/messages.js. docs/ownership.md assigns that wording to the UI Copy team; interfaces, data, runtime and policy paths remain unchanged.\n\n## Missing evidence\nNone for architecture relevance or the local reuse path.\n\n## Decision\nDecision: pass. Record architecture-not-applicable with the affected code and owner reason. Reuse the existing UI copy module; no exhaustive architecture checklist or diagram is required.\n\n## Risks\nNo material architecture boundary effect, ownership conflict, drift or parallel structure risk is evidenced. This review grants no implementation approval.\n\n## Required next step\nContinue the existing Mode/Slice Decision using the local wording scope and repository evidence. In an executing run, persist the review and canonical route decision together before marking the review complete. No new user approval is required for this internal step."
+}

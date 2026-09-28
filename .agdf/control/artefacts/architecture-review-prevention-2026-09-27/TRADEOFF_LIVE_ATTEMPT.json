@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "surface": "codex",
+  "runtime": "codex-cli 0.157.1",
+  "persisted": false,
+  "observation": {
+    "case_id": "brownfield-architecture-retained-tradeoff",
+    "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+    "evidence_kind": "live_codex",
+    "recorded_at": "2026-09-28T07:53:37.851Z",
+    "selected_skill": "brownfield-analysis",
+    "current_gate": null,
+    "internal_step": "Brownfield Review",
+    "missing_approval": null,
+    "actions": [
+      "record trade-off with rationale owner mitigation and review or exit condition",
+      "tie retained debt detail to same finding"
+    ],
+    "changed_paths": [],
+    "artefact_content": "## Evidence\nUR is approved and control state is brownfield-review. The case establishes a compatibility adapter retained by owner choice until a dated consumer migration. Active mode: post_ur_review.\n\n## Missing evidence\nThe supplied metadata does not identify the existing finding, accountable owner, migration date, affected runtime paths, or concrete mitigation. These must be evidenced in the actual review.\n\n## Decision\nDecision: pass for the required behavior: record the adapter as an intentional trade-off and its retained-debt decision in the same existing finding. Acceptance requires compatibility rationale, accountable owner, mitigation, and a finite review date or migration exit condition. Incomplete acceptance remains unresolved and makes the actual review at least revise.\n\n## Risks\nThe adapter could become permanent or introduce overlapping ownership without mitigation and an enforceable removal condition.\n\n## Required next step\nComplete the existing finding with the four acceptance elements and supporting evidence, retaining canonical runtime and test ownership. Do not create a separate debt registry. Complete and record the evidenced Mode/Slice Decision before downstream artefacts or implementation; Brownfield Review grants no implementation approval."
+  },
+  "grade": {
+    "case_id": "brownfield-architecture-retained-tradeoff",
+    "target_skill": "brownfield-analysis",
+    "case_class": "boundary",
+    "evidence_kind": "live_codex",
+    "status": "block",
+    "failures": [
+      {
+        "status": "block",
+        "code": "EVAL_ARTEFACT_QUALITY_FAILED",
+        "message": "contradictory decisions"
+      }
+    ]
+  }
+}

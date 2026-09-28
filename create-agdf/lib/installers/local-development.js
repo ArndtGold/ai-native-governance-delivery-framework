@@ -37,10 +37,16 @@ function readJson(path, label) {
 }
 
 function parsePackResult(output) {
-  const start = String(output).indexOf("[");
+  const text = String(output).trim();
+  const start = text.search(/[\[{]/u);
   if (start < 0) throw new Error("AGDF local package build did not return npm pack JSON.");
-  const parsed = JSON.parse(String(output).slice(start));
-  const result = parsed?.[0];
+  const parsed = JSON.parse(text.slice(start));
+  // npm 12 returns an object keyed by package name; older npm returns an array.
+  const result = Array.isArray(parsed)
+    ? parsed[0]
+    : parsed && typeof parsed === "object" && Object.keys(parsed).length === 1
+      ? Object.values(parsed)[0]
+      : undefined;
   const filename = result?.filename;
   if (typeof filename !== "string" || !filename || filename.includes("/") || filename.includes("\\")) {
     throw new Error("AGDF local package build returned an unsafe tarball name.");

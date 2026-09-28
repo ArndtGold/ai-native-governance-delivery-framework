@@ -74,6 +74,33 @@ In `post_ur_review`, also record `delivery_context`, `ui_ux_impact`, `ui_ux_impa
 `../../meta/contracts/gate-transition.md`. Greenfield records make existing-system evidence explicitly
 not applicable; Brownfield records cite repository evidence. Do not create a second Greenfield router.
 
+In the same `post_ur_review`, record architecture relevance before the existing Mode/Slice
+Decision. Check only boundaries the proposed change could affect: module or owner, externally
+consumed interface, data or source-of-truth ownership, compatibility or migration, runtime or
+host contract, and security or policy authority. An unresolved effect on one of these boundaries
+is relevant until its evidence owner resolves it. Cite the affected repository paths, contracts
+or observed behavior; do not infer relevance from file or owner counts.
+
+For a local change with no material boundary effect or unresolved architecture question, record
+`architecture-not-applicable` and the affected code/owner evidence supporting that reason. Do
+not require a full architecture checklist or diagram for this route. For a relevant change,
+record the boundary, impact, evidence, missing facts and existing owner of the next action in
+the same Brownfield Review. Classify each architecture finding in its existing Reuse And
+Parallel-Structure Risk row as `problem`, `trade-off` or `unresolved`. A proposed trade-off that
+knowingly retains or adds debt is not accepted merely because it is documented: the same finding
+must have a rationale, accountable owner, mitigation and finite review date or exit condition.
+Until all four are present, leave it unresolved and route the missing decision to its owner.
+The Brownfield Review itself must then be at least `revise`; use `block` when the missing
+decision prevents a safe Mode/Slice route. Do not report `pass` while claiming that the debt
+acceptance is still open.
+Use a focused diagram only when it answers a named ownership or dependency question that the
+textual evidence cannot settle; link it from the same review.
+
+Architecture evidence informs the sole Structured Depth Decision in `modes.md`; it does not
+select a mode independently. If a decisive route fact is missing or conflicting, use the
+existing `block` and `depth_facts_missing | depth_facts_conflicting` recovery. Route later gaps
+through the normalized owners in `quality.md`; this review grants no downstream approval.
+
 ## Rules
 1. Brownfield first: understand the existing codebase before PRD/SD decisions when existing-system impact is possible, and again before implementation.
 2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must visibly decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen. Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation; mark the review `done` only after both the artefact and canonical run projection are complete. An interrupted, incomplete or legacy record stays at fail-closed `Mode/Slice Decision` recovery without another user approval.
@@ -101,6 +128,9 @@ not applicable; Brownfield records cite repository evidence. Do not create a sec
     completion and Brownfield/Mode-Slice re-evaluation.
 17. Owner, file, consumer, task or derived-path counts must never select a structured depth by
     themselves.
+18. In `post_ur_review`, record architecture relevance, evidence, missing evidence and the next
+    owner before the existing Mode/Slice Decision. Keep a retained-debt decision tied to the
+    same finding in the Brownfield Review; incomplete acceptance remains unresolved.
 
 ## When To Use
 - after `gate-check` permits `Brownfield Review` or the selected canonical run record names Brownfield Review as the next allowed action
@@ -154,7 +184,11 @@ When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, T
 9. Check UI monolith risk for large surfaces or central hooks.
 10. Check Context Graph impact according to `../../meta/contracts/context-graph.md`.
 11. Recommend the minimal clean implementation path.
-12. In `post_ur_review`, record `depth_policy_version`, `depth_facts_status`,
+12. In `post_ur_review`, record conditional Architecture Impact in the same Brownfield Review.
+    For relevant findings, distinguish a structural problem, intentional trade-off and unresolved
+    question. For `architecture-not-applicable`, give the local code/owner reason. Use a diagram
+    only for a named boundary question that cannot be decided from text alone.
+13. In `post_ur_review`, record `depth_policy_version`, `depth_facts_status`,
     `primary_reason_code`, `decisive_full_depth_triggers`, `rejected_alternative`,
     `missing_or_conflicting_facts`, `depth_evidence_refs` and evidence for all seven bounded-slice
     check IDs in the Brownfield Review. Then persist the completed review and the existing

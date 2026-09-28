@@ -86,6 +86,8 @@ It is the sizing and routing step that decides how much later gate discipline is
 When evidence is sufficient, persist the review and Mode/Slice selection together; do not expose a
 second routine user decision. Keep the standalone Mode/Slice step only for fail-closed recovery when
 the review record is incomplete or legacy.
+The same review records conditional Architecture Impact under `brownfield-analysis`; its evidence
+feeds the existing Mode/Slice Decision, whose structured-depth policy remains in `modes.md`.
 
 Its output is limited to:
 

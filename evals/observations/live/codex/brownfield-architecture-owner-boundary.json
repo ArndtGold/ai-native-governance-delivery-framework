@@ -1,0 +1,17 @@
+{
+  "case_id": "brownfield-architecture-owner-boundary",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:55:25.804Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "record relevant Architecture Impact with missing evidence",
+    "leave ownership finding unresolved",
+    "name next owner before Mode/Slice Decision"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nMode: post_ur_review. UR is approved and control state is brownfield-review. The proposed case-state move affects module and state ownership. The supplied package and plugin metadata contain only fixture descriptions and control state.\n\n## Missing evidence\nThe two modules, affected code paths, current state owner, intended receiving owner, ownership contracts and relevant regression tests are unidentified. The fixture's maturity description does not establish these facts.\n\n## Decision\nDecision: revise. Record relevant Architecture Impact and classify the ownership finding as unresolved in the existing Reuse And Parallel-Structure Risk row. No structural defect is proven. A delivery mode cannot yet be justified; decisive missing route facts require existing Mode/Slice recovery using block and depth_facts_missing.\n\n## Risks\nMoving state without established ownership could introduce overlapping owners, a second source of truth or regressions. These are unresolved risks, not observed defects.\n\n## Required next step\nIdentify and name the existing accountable evidence owner before the Mode/Slice Decision; the supplied fixture cannot establish that person's identity. Obtain module paths, current and intended ownership, contracts and test evidence. Prefer reuse of the existing modules, then re-evaluate Brownfield Review and the existing Mode/Slice route. No separate architecture approval gate is required."
+}

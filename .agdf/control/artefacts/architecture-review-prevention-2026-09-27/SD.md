@@ -3,7 +3,7 @@
 Status: draft
 Gate: SD
 Gate approval: open
-Based on: revised PRD pending renewed approval; draft remains unlinked
+Based on: approved PRD revision 11 (sha256:8ebc3a31ec124af91b6b09c84751474f25125eba11d7b11732172bb2482a7609)
 Date: 2026-09-28
 Owner: Arndt Gold (AGDF Brownfield policy)
 
@@ -27,7 +27,7 @@ This design implements PRD criteria `AC-ARCH-01` through `AC-ARCH-07` within the
 | Durable run authority | `.agdf/control/runs/<run_id>/RUN_STATE.md` | Continue to link one Brownfield Review artefact and one Mode/Slice Decision per run. |
 | Host packaging | canonical `plugin/` source and `create-agdf/scripts/sync-package-assets.js` | Derive Codex, Claude, Copilot, and OpenCode surfaces from canonical source; do not edit generated profiles as separate owners. |
 
-Arndt Gold is the accountable Brownfield policy owner. The user confirmed Codex, Claude, Copilot, and OpenCode as the direct fresh-session acceptance scope on 2026-09-28. Both decisions are recorded in the revised PRD, which requires renewed approval before this SD draft can be linked or presented.
+Arndt Gold is the accountable Brownfield policy owner. The approved PRD names Codex, Claude, Copilot, and OpenCode as the direct fresh-session acceptance scope. AD-01 resolves the PRD's deferred proportional trigger decision; AD-02 resolves its compact finding-format decision. TP still assigns direct host observation execution and evidence review under Arndt Gold's policy ownership.
 
 ## 3. Architecture Decisions
 
@@ -64,13 +64,13 @@ Use a focused diagram only if textual evidence cannot make a specific ownership 
 2. `plugin/control/templates/artefacts/BROWNFIELD_REVIEW.md` provides the compact fields; existing run artefacts are not bulk migrated. If an older run is revised, the reviewer adds only the applicable evidence then.
 3. `plugin/scripts/check-runtime-integrity.mjs` checks that the canonical skill and template retain their owner boundaries and required fields. Skill evaluations cover relevant risk, accepted trade-off, missing owner/evidence, and low-impact not-applicable cases. These checks provide structural and scenario evidence, not proof of fresh-host behavior.
 4. `create-agdf/scripts/sync-package-assets.js` projects the changed canonical content into host packages. The TP must require installation, full restart, and a fresh-session observation for each of Codex, Claude, Copilot, and OpenCode before claiming that host accepted the change.
-5. Run status and approval presentations keep using their existing renderer and exact gate binding. No new UI, CLI command, persisted decision type, or authorization path is needed.
+5. Run status and approval presentations keep using their existing renderer and exact gate binding. This architecture change requires no additional UI, CLI command, persisted decision type, or authorization path.
 
 ## 5. Constraints And Compatibility
 
 - Preserve existing `BROWNFIELD_REVIEW.md` files and the four-column Reuse And Parallel-Structure Risk table. New fields apply when a review is created or revised under the updated guidance; absence in an untouched historical run is not retroactive evidence of failure.
 - Keep `modes.md` as the sole structured-depth decision policy and `quality.md` as the sole normalized gap route. The architecture lens supplies facts; it cannot choose depth or quality disposition independently.
-- This draft remains unlinked until the revised PRD is approved. Its product scope and host acceptance requirements derive from that PRD revision.
+- Product scope and host acceptance requirements derive from approved PRD revision 11; SD decisions may refine technical handling without changing that product boundary.
 - Do not add a parallel finding store, debt backlog, new reviewer skill, gate, approval authority, or required architecture diagram.
 - A package/source match alone cannot satisfy direct host acceptance. Record unobserved or stale hosts explicitly.
 
@@ -92,7 +92,6 @@ The TP should distinguish source checks, generated-package checks, installed-hos
 
 | Risk or question | Treatment before TP |
 |---|---|
-| The earlier PRD approval preceded confirmation of its named policy owner and direct host scope. | The prior approval is superseded in run evidence. Link this draft only after the revised PRD receives a new approval. |
 | Broad architecture language could cause needless review ceremony. | Keep the trigger tied to concrete affected boundaries or unresolved evidence, and require an evidence-backed not-applicable path. |
 | Accepted debt could become a permanent workaround. | Require accountable owner, mitigation, and finite review/exit condition in the same Brownfield artefact; incomplete fields remain unresolved. |
 | Generated packages may be current while a host session is stale. | Require a fresh-session check per claimed host; report each unobserved host separately. |
@@ -100,6 +99,6 @@ The TP should distinguish source checks, generated-package checks, installed-hos
 
 ## 8. Next Step
 
-Review this design, including the two post-PRD clarifications, and approve only with:
+Review this design against approved PRD revision 11 and approve only with:
 
 `Approval: SD`

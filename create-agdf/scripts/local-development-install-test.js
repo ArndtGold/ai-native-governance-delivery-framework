@@ -64,7 +64,8 @@ function packExec(content = "local package\n", calls = [], result = {}) {
     const destination = args[destinationIndex + 1];
     const filename = result.filename ?? `create-agdf-${pluginDefinition.version}.tgz`;
     writeFileSync(join(destination, filename), content);
-    return `${JSON.stringify([{ filename, files: result.files ?? [{ path: "package.json", mode: 420 }] }])}\n`;
+    const packed = { filename, files: result.files ?? [{ path: "package.json", mode: 420 }] };
+    return `${JSON.stringify(result.shape === "object" ? { "create-agdf": packed } : [packed])}\n`;
   };
 }
 
@@ -581,6 +582,14 @@ try {
   assert.throws(() => validateLocalOpenCodePackageSource({ ...localPackage, root: dirname(localPackage.root) }), /outside its owned data root/);
   assert.equal(resolveOpenCodeInstallPackageSource(localPackage).specifier, localPackage.specifier);
   assert.equal(resolveOpenCodeInstallPackageSource().specifier, `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`);
+
+  const objectResultPackage = prepareLocalOpenCodePackage({
+    dataRoot: join(fixtureRoot, "package-data-npm12"),
+    packageRoot,
+    expectedVersion: pluginDefinition.version,
+    exec: packExec("npm 12 package\n", [], { shape: "object" }),
+  });
+  assert.equal(validateLocalOpenCodePackageSource(objectResultPackage).digest, objectResultPackage.digest);
 
   const samePackage = prepareLocalOpenCodePackage({
     dataRoot: join(fixtureRoot, "package-data"),

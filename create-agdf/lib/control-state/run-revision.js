@@ -48,7 +48,7 @@ export function reopenPrdRevision(root, { runId, revisionId }) {
   next = replaceFirstScalar(next, "current_gate", "PRD") ?? next;
   next = replaceFirstScalar(next, "next_allowed_action", after.next_allowed_action) ?? next;
   for (const [question, answer] of [
-    ["What is known?", "The previous PRD approval was superseded; the PRD must be revised and presented again."],
+    ["What is known?", "The previous PRD approval was superseded; renewed PRD approval is required."],
     ["What is approved?", "Approval: UR"],
     ["What is missing?", "Exact Approval: PRD for the new revision."],
     ["What is the next allowed action?", after.next_allowed_action],

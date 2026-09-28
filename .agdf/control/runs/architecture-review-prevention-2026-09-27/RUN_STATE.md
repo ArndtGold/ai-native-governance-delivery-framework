@@ -5,9 +5,9 @@
 - control_state_version: 2
 - run_id: architecture-review-prevention-2026-09-27
 - lifecycle: active
-- revision: 10
-- revision_id: 3e455f58-1761-4e24-8d49-d2e87db9b6a8
-- content_seal: sha256:b65f48d8e4f61b612f0938093b222673fbb04c017c73c8008649665010ba2ec2
+- revision: 11
+- revision_id: 42c5853e-562e-4e16-a5b2-e7e52aa17362
+- content_seal: sha256:c556e92db6d5cef84574a91fbee170647a72017230c245279ce8affc1311f44d
 - approval_seal: sha256:63c875107a992f795f96e3fd3bbbcea0fbd8c484eb81a4867476e306ab177b5c
 - mode: structured_delivery
 - current_gate: PRD
@@ -22,7 +22,7 @@ Make architecture risks and trade-offs visible before implementation so the smal
 
 | Question | Answer |
 |---|---|
-| What is known? | The previous PRD approval was superseded; the PRD must be revised and presented again. |
+| What is known? | The previous PRD approval was superseded; renewed PRD approval is required. |
 | What is approved? | Approval: UR |
 | What is missing? | Exact Approval: PRD for the new revision. |
 | What is the next allowed action? | Draft or refine the PRD; do not implement before PRD, SD and TP are approved. |

@@ -5,7 +5,7 @@ Gate: PRD
 Gate approval: open
 Based on: UR
 Date: 2026-09-27
-Owner: AGDF repository maintainer (named individual to confirm before approval)
+Owner: Arndt Gold (AGDF Brownfield policy)
 
 ## 1. Product Scope
 
@@ -110,14 +110,14 @@ Keep the existing Brownfield Review as the sole pre-PRD sizing and routing step.
 ### AC-ARCH-06 — Shared plugin delivery
 
 - criterion_id: `AC-ARCH-06`
-- working_mode: Plugin update on a supported AGDF host
+- working_mode: Plugin update on Codex, Claude, Copilot or OpenCode
 - source_state: Canonical `plugin/` content has been updated and generated payloads prepared.
 - trigger/action: The update is installed and loaded on each host claimed as supported for the change.
-- expected effective state: The host exposes the same approved guidance from the generated source; stale sessions are not reported as current.
+- expected effective state: Each of Codex, Claude, Copilot and OpenCode exposes the same approved guidance from the generated source; stale sessions are not reported as current.
 - visible feedback: Host-specific version/provenance and a fresh-session observation are recorded for the tested surface.
 - blocker/failure behavior: A source/package match alone does not claim live behavior on an unobserved host.
 - recovery/next action: Refresh through that host's existing installation flow, restart it, and repeat the bounded observation.
-- observable success: Each claimed host has direct evidence of the loaded guidance; unobserved surfaces are named.
+- observable success: Each of the four agreed hosts has direct fresh-session evidence of the loaded guidance before cross-host acceptance is claimed; unobserved surfaces are named.
 - required evidence: Generated payload integrity plus direct fresh-session observation for each host in the agreed release scope.
 
 ### AC-ARCH-07 — Optional diagrams
@@ -148,7 +148,7 @@ Keep the existing Brownfield Review as the sole pre-PRD sizing and routing step.
 - Brownfield reviewer: gathers repository evidence, names uncertainty, and routes decisions; does not approve product or architecture policy on behalf of the owner.
 - Product/requirements owner: resolves user intent and acceptance scope through existing UR/PRD ownership.
 - Technical/design owner: resolves architecture, source-of-truth, migration, and interface decisions through existing SD ownership.
-- Policy owner: AGDF repository maintainer. The named individual is not identified in repository metadata and must be confirmed before PRD approval.
+- Policy owner: Arndt Gold, confirmed by the user on 2026-09-28.
 - Approval authority: existing exact gate approval only; no new approver or delegated authority is introduced.
 
 ## 8. Constraints
@@ -165,20 +165,27 @@ Keep the existing Brownfield Review as the sole pre-PRD sizing and routing step.
 - Source review of the Brownfield skill, gate-transition/modes/quality contracts, and existing Clean Implementation/Code Review boundaries.
 - Skill evaluation cases for: evidence-backed architecture risk; justified retained debt; missing owner/evidence; low-impact `architecture-not-applicable`; and no duplicate gate, debt registry, or review checklist.
 - Structural/runtime-integrity evidence that generated host profiles preserve the canonical skill and contract content.
-- Direct fresh-session evidence for each host included in the release claim; separately report unobserved hosts.
+- Direct fresh-session evidence for Codex, Claude, Copilot and OpenCode before claiming acceptance on those hosts; separately report unobserved hosts. The delivery implementer records the observations for the policy owner's review.
 - Later QA evidence mapped to these criteria; no test or host pass is presumed by this PRD.
 
 ## 10. Risks And Open Questions
 
-- Confirm the named accountable AGDF policy owner before `Approval: PRD`.
 - Define the proportional trigger threshold with examples that distinguish material architecture impact from low-impact work without turning the review into an exhaustive checklist.
 - Confirm the smallest evidence format for findings and retained debt, including the review date/exit condition, within `BROWNFIELD_REVIEW.md`.
-- Confirm which host profiles are in the release acceptance scope and who owns direct host observations.
-- Reconcile the generic run objective `Describe the trustworthy outcome.` with the approved UR's specific scope without expanding that scope.
 - Determine whether any architecture diagram adds decision value for the selected boundaries; diagrams remain optional.
+
+## Approval Decisions
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| Accountable AGDF Brownfield policy owner | before_prd | resolved | Arndt Gold, confirmed by the user on 2026-09-28. | Arndt Gold |
+| Direct fresh-session host acceptance scope | before_prd | resolved | Codex, Claude, Copilot and OpenCode, confirmed by the user on 2026-09-28. | Arndt Gold |
+| Proportional architecture trigger and compact finding format | later_sd | open | Define in SD within the approved Brownfield route. | Arndt Gold |
+| Direct host observation assignments and evidence | later_tp | open | Assign execution and evidence review in TP; record each host observation. | Arndt Gold |
 
 ## 11. Next Step
 
-Review this PRD and approve only with:
+This revision includes the decisions confirmed after the earlier PRD approval. Review this revised PRD
+as a new approval decision. The previous approval does not carry forward. Approve only with:
 
 `Approval: PRD`

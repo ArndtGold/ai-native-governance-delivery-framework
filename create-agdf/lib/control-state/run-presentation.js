@@ -138,8 +138,19 @@ function artifactSummary(gate, markdown, { runId, revisionId, language }) {
       gate === "TP" && label === "Aufgaben" ? 3
         : gate === "PRD" && label === "Abnahme" ? 2
           : 1).join("; "));
-    items.push(`- ${german ? label : (SUMMARY_LABELS_EN[label] ?? label)}: ${value}`);
+    const displayLabel = gate === "PRD" && label === "Offen"
+      ? german ? "Für SD/TP" : "For SD/TP"
+      : german ? label : (SUMMARY_LABELS_EN[label] ?? label);
+    items.push(`- ${displayLabel}: ${value}`);
     if (items.length >= 5) break;
+  }
+  if (gate === "PRD") {
+    const decisionSection = markdown.split(/^## Approval Decisions\s*$/mu)[1]?.split(/^## /mu)[0] ?? "";
+    const resolved = decisionSection.split(/\r?\n/u).filter((line) => line.trim().startsWith("|"))
+      .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()))
+      .filter((cells) => cells[1] === "before_prd" && cells[2] === "resolved")
+      .map((cells) => `${cells[0]}: ${cells[3]}`);
+    if (resolved.length) items.push(`- ${german ? "Vor PRD geklärt" : "Resolved before PRD"}: ${clipSummary(resolved.slice(0, 2).join("; "))}`);
   }
   if (!items.length) {
     const fallback = markdown.replace(/\r\n?/gu, "\n").split("\n")

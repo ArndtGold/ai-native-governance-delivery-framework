@@ -62,7 +62,8 @@ export function atomicWrite(path, content) {
 }
 
 // Every write advances the revision and re-seals the run. Approval rows may change only when the
-// caller has validated one exact gate approval (run-approve); any other write must keep them intact.
+// caller has validated one exact gate approval (run-approve) or the bounded PRD supersession
+// (run-revise); any other write must keep them intact.
 export function writeRun(path, content, expectedRevisionId, { allowApprovalChange = false, expectedContent, validateBeforeWrite } = {}) {
   const root = runRootFromStatePath(path);
   const lockPath = `${path}.lock`;

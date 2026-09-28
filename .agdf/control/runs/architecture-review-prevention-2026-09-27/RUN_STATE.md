@@ -5,9 +5,9 @@
 - control_state_version: 2
 - run_id: architecture-review-prevention-2026-09-27
 - lifecycle: active
-- revision: 6
-- revision_id: d56d81d4-de3a-44a8-ba48-37c504f01cef
-- content_seal: sha256:da526757af17dc38951c3f0062ad339093ea390a2c9b465fd48bd26a9feccee7
+- revision: 10
+- revision_id: 3e455f58-1761-4e24-8d49-d2e87db9b6a8
+- content_seal: sha256:b65f48d8e4f61b612f0938093b222673fbb04c017c73c8008649665010ba2ec2
 - approval_seal: sha256:63c875107a992f795f96e3fd3bbbcea0fbd8c484eb81a4867476e306ab177b5c
 - mode: structured_delivery
 - current_gate: PRD
@@ -16,16 +16,16 @@
 
 ## Objective
 
-Describe the trustworthy outcome.
+Make architecture risks and trade-offs visible before implementation so the smallest durable solution fits the existing system and avoids preventable technical debt.
 
 ## Current Control State
 
 | Question | Answer |
 |---|---|
-| What is known? | PRD draft at `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/PRD.md` is linked and derived from the approved UR and completed Brownfield Review. |
+| What is known? | The previous PRD approval was superseded; the PRD must be revised and presented again. |
 | What is approved? | Approval: UR |
-| What is missing? | Exact Approval: PRD. |
-| What is the next allowed action? | Review the linked PRD and request exact Approval: PRD. |
+| What is missing? | Exact Approval: PRD for the new revision. |
+| What is the next allowed action? | Draft or refine the PRD; do not implement before PRD, SD and TP are approved. |
 | What is explicitly forbidden right now? | create SD; create TP; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Approvals
@@ -77,8 +77,9 @@ Describe the trustworthy outcome.
 | UR draft | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/UR.md` | problem, goal, scope and acceptance signals | direct |
 | Brownfield Review | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/BROWNFIELD_REVIEW.md` | Mode/Slice Decision `structured_delivery` | direct |
 | PRD draft | `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/PRD.md` | scope, acceptance criteria, non-goals, roles and evidence plan | direct |
+| Superseded PRD approval | `Approval: PRD` · 2026-09-28 · revision 6 · `.agdf/control/artefacts/architecture-review-prevention-2026-09-27/PRD.md` sha256:ea84fcb59ea79509 · presentation 40f63b08-c534-44bd-ac6c-9eab19b014dc sha256:a5085388b3dfe457260366dac6ae7eec2d1fd14d4b16ff819e254a74b19e1724 | Prior PRD revision only; renewed Approval: PRD required | direct |
 
 ## Closeout
 
-- next_allowed_action: Review the linked PRD and request exact Approval: PRD.
+- next_allowed_action: Draft or refine the PRD; do not implement before PRD, SD and TP are approved.
 - quality_outlook:

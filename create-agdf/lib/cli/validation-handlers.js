@@ -18,6 +18,7 @@ import { interactionLocales, pluginDefinition } from "./runtime-context.js";
 import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
 import { approveRunGate, recordRunRevision } from "../control-state/run-recording.js";
+import { reopenPrdRevision } from "../control-state/run-revision.js";
 import { readRuntimeContract } from "./contract-command.js";
 import { recordRunStep } from "../control-state/run-steps.js";
 import { policyForRunContent } from "../control-evaluation/run-step-policy.js";
@@ -130,6 +131,11 @@ export function createValidationHandlers(io = console) {
     }],
     ["run-update", (options) => {
       const result = recordRunRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });
+      io.log(JSON.stringify(result, null, 2));
+      return result.outcome === "rejected" ? 2 : 0;
+    }],
+    ["run-revise", (options) => {
+      const result = reopenPrdRevision(options.dir, { runId: options.runId, revisionId: options.revisionId });
       io.log(JSON.stringify(result, null, 2));
       return result.outcome === "rejected" ? 2 : 0;
     }],

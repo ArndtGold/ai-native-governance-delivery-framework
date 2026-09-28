@@ -7,6 +7,7 @@ import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets }
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
 import { isPlaceholderValue } from './shared.js';
 import { renderReviewableApproval } from '../control-state/run-presentation.js';
+import { evaluatePrdReadiness } from './prd-readiness.js';
 
 // Shown when a finding's next step is free text that the presentation locale cannot render.
 const FINDING_RECOVERY_STEP = "Resolve the finding named under Blocked by, then run gate-check again.";
@@ -340,6 +341,15 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   }
 
   const approvalArtefactReady = isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
+  const prdReadiness = currentGate === "PRD" && approvalArtefactReady
+    ? evaluatePrdReadiness(targetDir, runState) : null;
+  if (status === "open" && currentGate === "PRD" && prdReadiness && !prdReadiness.ready) {
+    status = "blocked";
+    blockingReason = "AGDF_PRD_DECISIONS_OPEN";
+    allowed = ["resolve the listed PRD decisions together and record a new run revision"];
+    forbidden = [...forbidden, "present or approve PRD before required product decisions are resolved"];
+    nextAllowedAction = `Resolve PRD approval decisions: ${prdReadiness.open_decisions.join("; ")}. Then record the revision with run-update.`;
+  }
   if (status === "open" && /^Approval: /u.test(missingApproval) && !approvalArtefactReady) {
     allowed = allowed.filter((action) => !/^request exact .* approval$/iu.test(action));
     if (/request exact approval: Approval: /iu.test(nextAllowedAction)) {
@@ -466,6 +476,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     current_gate: currentGate,
     blocking_reason: blockingReason,
     missing_approval: missingApproval,
+    ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
     allowed,

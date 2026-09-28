@@ -65,10 +65,22 @@ Which evidence must later support QA?
 
 ## 10. Risks And Open Questions
 
-Which questions must SD, TP or Brownfield Analysis clarify later?
+Record risks and questions that can be answered later. Move every decision that changes product
+scope, acceptance, accountable ownership or release acceptance into Approval Decisions below.
+
+## Approval Decisions
+
+Before presenting this PRD, collect all `before_prd` answers in one request and record their
+resolution here. Use `later_sd` or `later_tp` only for genuine design or planning decisions;
+name the responsible owner in the final column. Keep at least one explicit row.
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| <product decision or none> | before_prd | open | <answer> | <accountable owner> |
 
 ## 11. Next Step
 
-Review this PRD and approve only with:
+Present this PRD only after every `before_prd` row is `resolved` with a concrete answer and
+the named PRD Owner is filled. Then review and approve only with:
 
 `Approval: PRD`

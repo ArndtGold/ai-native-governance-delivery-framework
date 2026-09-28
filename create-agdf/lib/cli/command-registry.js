@@ -43,6 +43,7 @@ export const commandRegistry = Object.freeze([
   command("run-present", { local: [" --run <run_id> --gate <gate> --revision <revision_id>"] }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
+  command("run-revise", { local: [" --run <run_id> --revision <revision_id>"] }),
   command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]"] }),
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
@@ -116,8 +117,8 @@ export function validateCommandOptions(options) {
   if ((options.gate && !["run-approve", "run-present"].includes(options.target)) || (options.response !== undefined && options.target !== "run-approve")) {
     throw new Error("--gate is supported by run-present/run-approve; --response only by run-approve");
   }
-  if (options.revisionId && !["run-update", "run-approve", "run-step", "run-present"].includes(options.target)) {
-    throw new Error("--revision is supported only by run-update, run-present, run-approve and run-step");
+  if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present"].includes(options.target)) {
+    throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve and run-step");
   }
   if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step") {
     throw new Error("--step and step fields are supported only by run-step");
@@ -127,6 +128,9 @@ export function validateCommandOptions(options) {
   }
   if (options.target === "run-update" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
     throw new Error("run-update requires --run and --revision and rejects --gate and --response");
+  }
+  if (options.target === "run-revise" && (!options.runId || !options.revisionId || options.gate || options.response !== undefined)) {
+    throw new Error("run-revise requires --run and --revision and rejects --gate and --response");
   }
   if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
     throw new Error("run-approve requires --run, --gate, --revision and --response");
@@ -239,7 +243,7 @@ Options:
                  --evidence; review --decision <pass|revise|block> --evidence [--source]; evidence
                  --evidence [--source --covers]; closeout --result --evidence --risk --next
   --revision <revision_id>
-                 Expected current run revision for run-update, run-present, run-approve and run-step
+                 Expected current run revision for run-update, run-revise, run-present, run-approve and run-step
   --gate <UR|PRD|SD|TP|QA|UAT>
                  Gate to present or approve
   --response <text>

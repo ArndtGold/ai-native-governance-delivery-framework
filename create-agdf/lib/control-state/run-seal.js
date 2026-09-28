@@ -5,7 +5,7 @@ import { normalizeLineEndings, parseArtefactPathCell, scalarFields, sectionTable
 
 // The seal makes unrecorded edits visible: content_seal covers the run state and every file listed
 // under Artefacts, approval_seal covers only the recorded gate approvals. It detects changes made
-// outside run-update and run-approve; it is not a signature and does not resist deliberate tampering.
+// outside run-update, run-revise and run-approve; it is not a signature and does not resist deliberate tampering.
 export const APPROVAL_GATES = Object.freeze(["UR", "PRD", "SD", "TP", "QA", "UAT"]);
 export const APPROVAL_SECTIONS = Object.freeze(["Approvals", "Gate Checklist"]);
 const SEAL_PATTERN = /^sha256:[0-9a-f]{64}$/u;

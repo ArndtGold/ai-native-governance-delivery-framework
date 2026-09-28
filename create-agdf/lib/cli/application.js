@@ -33,7 +33,7 @@ import { createLifecycleResult, createOperationStatus, globalInstallRestartActio
 import { defaultClaudeSettingsPath } from "../runtime-check-consent/claude-settings.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
-import { approveCodexDispatcher } from "../runtime-check-consent/codex-plugin-consent.js";
+import { approveCodexDispatcher, revokeCodexDispatcher } from "../runtime-check-consent/codex-plugin-consent.js";
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
 import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { generatedFilesForTarget } from "../scaffold/plan.js";
@@ -71,6 +71,7 @@ function createHandlers({
   interactive,
   observeCodexHookTrust = observeCodexHooks,
   approveCodexPluginDispatcher = approveCodexDispatcher,
+  revokeCodexPluginDispatcher = revokeCodexDispatcher,
   evaluateStatus = evaluateStatusOverview,
   evaluateOpenCodeGlobal = evaluateOpenCodeGlobalStatus,
   evaluateOpenCodeRepository = evaluateOpenCodeStatus,
@@ -218,8 +219,8 @@ function createHandlers({
       ? runCoupledDisable(options, { io, env, exec, mcpLifecycle })
       : runDisable(options, { io, exec })],
     ["uninstall", (options) => options.setupRequest === "full"
-      ? runCoupledUninstall(options, { io, env, exec, mcpLifecycle })
-      : runUninstall(options, { io, env, exec })],
+      ? runCoupledUninstall(options, { io, env, exec, mcpLifecycle, revokeCodexPolicy: revokeCodexPluginDispatcher })
+      : runUninstall(options, { io, env, exec, revokeCodexPolicy: revokeCodexPluginDispatcher })],
     ["codex", guidedInstall],
     ["claude", guidedInstall],
     ["copilot", guidedInstall],
@@ -722,7 +723,7 @@ function runCoupledDisable(options, dependencies) {
   }
 }
 
-function runCoupledUninstall(options, dependencies) {
+async function runCoupledUninstall(options, dependencies) {
   const scope = options.mcpScope;
   try {
     const before = inspectCoupledMcp(options, dependencies, scope);
@@ -732,7 +733,7 @@ function runCoupledUninstall(options, dependencies) {
       return 1;
     }
     if (!options.confirm) {
-      const plugin = executeUninstall(options, dependencies);
+      const plugin = await executeUninstall(options, dependencies);
       const report = createCoupledLifecycleResult({
         operation: "coupled_uninstall", result: "preview", surface: options.surface, target: options.dir,
         mcpScope: scope, plugin: plugin.report, mcp: before,
@@ -760,7 +761,7 @@ function runCoupledUninstall(options, dependencies) {
       printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
       return 1;
     }
-    const plugin = executeUninstall(options, dependencies);
+    const plugin = await executeUninstall(options, dependencies);
     const result = plugin.code === 0 ? "success" : "partial";
     const report = createCoupledLifecycleResult({
       operation: "coupled_uninstall", result, surface: options.surface, target: options.dir,
@@ -828,7 +829,7 @@ function runDisable(options, { io, exec }) {
   return outcome.code;
 }
 
-function executeUninstall(options, { env, exec }) {
+async function executeUninstall(options, { env, exec, revokeCodexPolicy = revokeCodexDispatcher }) {
   try {
     const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
     const plan = planGlobalUninstall(options.surface, { configDir, env, ...(exec ? { exec } : {}) });
@@ -846,15 +847,30 @@ function executeUninstall(options, { env, exec }) {
     const verified = applied.status === "success"
       ? verifyGlobalUninstall(plan, options.dir, { configDir, exec })
       : { status: "failed", evidence: [] };
-    const result = applied.status === "success" && verified.status !== "healthy" ? "failed" : applied.status;
+    // The Codex tool approval is config, not plugin content: revoke it natively and report what remains.
+    const policyMutation = plan.mutations.find((mutation) => mutation.kind === "codex_tool_policy");
+    const policy = policyMutation && applied.status === "success"
+      ? await revokeCodexPolicy({ env, cwd: options.dir })
+      : null;
+    const policyClean = !policy || ["removed", "absent"].includes(policy.status);
+    const completed = policy?.status === "removed" ? [...applied.completed, policyMutation] : applied.completed;
+    const retained = policyClean ? applied.retained
+      : [...(applied.retained ?? []), `Codex tool approval ${policyMutation.key} (${policy.status}: ${policy.reason})`];
+    const result = applied.status === "success" && verified.status !== "healthy" ? "failed"
+      : applied.status === "success" && !policyClean ? "partial" : applied.status;
     const report = createLifecycleResult({
       operation: "uninstall", result, surface: options.surface, scope: "global",
-      verification: { status: verified.status === "healthy" ? "healthy" : "degraded", evidence: [...applied.completed.map((item) => item.path || item.executable), ...verified.evidence] },
+      verification: { status: verified.status === "healthy" && policyClean ? "healthy" : "degraded", evidence: [
+        ...applied.completed.map((item) => item.path || item.executable), ...verified.evidence,
+        ...(policy ? [`codex_tool_policy:${policy.status}`] : []),
+      ] },
       restart: { required: result === "success", reason: result === "success" ? "host_reload" : "none" },
       next_action: result === "success"
         ? { kind: "restart", text: "Restart the host; the uninstall postcondition has already been verified." }
-        : { kind: "verify", text: "Inspect the reported uninstall or verification failure before retrying." },
-      changes: applied.completed, retained: applied.retained,
+        : !policyClean
+          ? { kind: "verify", text: `The plugin is removed, but Codex kept ${policyMutation.key}; remove that line from ~/.codex/config.toml.` }
+          : { kind: "verify", text: "Inspect the reported uninstall or verification failure before retrying." },
+      changes: completed, retained,
       failure: applied.error
         ? { phase: "plugin_operation", message: applied.error.message }
         : result === "failed" ? { phase: "verification", message: "Global uninstall postcondition was not observed." } : null,
@@ -874,8 +890,8 @@ function executeUninstall(options, { env, exec }) {
   }
 }
 
-function runUninstall(options, { io, env, exec }) {
-  const outcome = executeUninstall(options, { env, exec });
+async function runUninstall(options, { io, env, exec, revokeCodexPolicy }) {
+  const outcome = await executeUninstall(options, { env, exec, revokeCodexPolicy });
   if (outcome.error && !options.json) io.error(outcome.error.message);
   printLifecycleResult(outcome.report, { json: options.json, io });
   return outcome.code;
@@ -979,6 +995,7 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,
     approveCodexPluginDispatcher: adapters.approveCodexPluginDispatcher,
+    revokeCodexPluginDispatcher: adapters.revokeCodexPluginDispatcher,
     evaluateStatus: adapters.evaluateStatusOverview,
     evaluateOpenCodeGlobal: adapters.evaluateOpenCodeGlobalStatus,
     evaluateOpenCodeRepository: adapters.evaluateOpenCodeStatus,

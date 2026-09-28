@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
-  "max_files": 108,
-  "max_bytes": 1029788,
-  "rationale": "Reviewed 2953-byte total growth from conditional Brownfield architecture guidance and the explicit revise/block rule for incomplete retained debt; no new payload files."
+  "max_files": 110,
+  "max_bytes": 1035473,
+  "rationale": "Reviewed 2953-byte total growth from conditional Brownfield architecture guidance and the explicit revise/block rule for incomplete retained debt; no new payload files. Review fixes after the approval-binding commits split the read-only approval rendering into run-presentation-render.js, so gate-check and the MCP dispatcher reach no presentation writer, adding one file. The PRD decision and duplicate-row recovery values become fixed, localizable operational values with English and German entries, known intake refusals move into the dispatch recovery catalog, and the continue_delivery and pre-UR routing contract text is aligned with the dispatcher. The gate-check skill restores its three pinned safety sentences within the unchanged budget. Run creation and run-state writes reuse the bounded Windows rename retry of fs-swap.js, which the shared validator runtime therefore ships, adding a second file. These reviewed changes produce 110 files and 1035473 bytes."
 }

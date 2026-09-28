@@ -233,13 +233,16 @@ export function createSkillDispatchService(dependencies = {}) {
         ? resolveIntakePhase(target.governance_target, control, input)
         : null;
       } catch (error) {
+        const code = error.message === "AGDF_RUN_COLLISION" ? "AGDF_RUN_COLLISION"
+          : error.code === "AGDF_CANONICAL_SCAFFOLD_REQUIRED" ? "AGDF_CANONICAL_SCAFFOLD_REQUIRED" : null;
+        // Only the two known intake refusals are reported as such; anything else keeps its real class.
+        if (!code) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_evaluation_failed);
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
-        result.diagnostics = [{ code: error.message === "AGDF_RUN_COLLISION" ? "AGDF_RUN_COLLISION" : "AGDF_CANONICAL_SCAFFOLD_REQUIRED" }];
-        result.recovery = { action: error.message === "AGDF_RUN_COLLISION"
-          ? (input.presentation_language === "de" ? "Die Run-ID ist bereits belegt. Den bestehenden Auftrag ausdrücklich zuordnen oder für den neuen Umfang eine unbenutzte ID wählen." : "The run id already exists. Bind an explicit continuation or choose an unused id for the new scope.")
-          : (input.presentation_language === "de" ? "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen." : "Inspect and restore the canonical control scaffold before creating the run.") };
+        result.diagnostics = [{ code }];
+        result.recovery = { action: renderRecovery({ code: code === "AGDF_RUN_COLLISION" ? DISPATCH_RECOVERY.intake_run_collision
+          : DISPATCH_RECOVERY.intake_scaffold_required }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }) };
         return bindHostAction(result);
       }
       if (intake) {
@@ -276,7 +279,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: result.control.run_id,
           revision_id: result.control.revision_id,
           presentation_language: input.presentation_language,
-          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("brownfield-analysis") } : {}),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("brownfield-analysis")) } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
         return bindHostAction(result);
@@ -302,7 +305,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: controlSnapshot(control).run_id,
           revision_id: controlSnapshot(control).revision_id,
           presentation_language: input.presentation_language,
-          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("brownfield-analysis") } : {}),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("brownfield-analysis")) } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
@@ -417,7 +420,7 @@ export function createSkillDispatchService(dependencies = {}) {
           run_id: controlSnapshot(control).run_id,
           revision_id: controlSnapshot(control).revision_id,
           presentation_language: input.presentation_language,
-          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: dependencies.readSkillRuntimeContracts("release-or") } : {}),
+          ...(dependencies.readSkillRuntimeContracts ? { runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("release-or")) } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));

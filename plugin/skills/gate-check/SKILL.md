@@ -8,6 +8,7 @@ description: "Use this skill for this scope: new build/change intent, Structured
 ## Purpose
 
 After positive Request Activation, return the earliest gate or internal step through canonical owners.
+This non-authorizing bootstrap creates no parallel policy.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation
@@ -33,19 +34,18 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 Use only the selected catalog operation:
 
 - `skill.gate-check`: dispatch first, with `intake` for a change; no prior repository/control inspection.
-- `delivery.start`: resolve target once for draft/setup; if unresolved, show canonical orientation and stop.
+- `delivery.start`: resolve target once for draft/setup. Unresolved target: canonical orientation and stop.
   Inspect only `absent | candidate_present`. If absent, perform authorized setup and persist UR before
   approval. If present, dispatch intake for the same target; dispatcher evaluates control. Stop on
   mismatch. Cwd selects no target; create no legacy live run or proxy operation.
 
 New scope: `intake: true`, `intake_mode: new`, unused `run_id`; never reuse a run.
-Resume bound intake with `intake_mode: resume`. After recorded UR approval use `continue_delivery: true`
+Resume bound intake with `intake_mode: resume`. After a recorded approval use `continue_delivery: true`
 for that run, never for status. Execute Brownfield/routing; stop on an unchanged blocker. If a
 continuation names another skill, invoke it without `continue_delivery`; use that flag only on the
 next bound `gate-check` dispatch.
 For `presentation_required`, run the supplied `run-present`, show its exact text, wait for a NEW reply,
-and retain `presentation_id` for `run-approve --presentation`. Never bind an earlier reply.
-Read-only previews are unbound.
+and retain `presentation_id` for `run-approve --presentation`. Never bind an earlier reply retroactively.
 
 ## Executable Dispatch
 
@@ -56,8 +56,7 @@ deferred; no search): `skill_id` `gate-check`, `presentation_language`, `working
 `--language`, absolute `--working-directory`, shell values quoted as data.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
-Bind existing runs only from explicit selection or unambiguous continuation. New ids require authorized
-new scope. Dispatch follows `candidate_present` or authorized setup. Never construct or repair a runtime.
+Bind existing runs only from explicit selection or unambiguous continuation. Never construct or repair a runtime.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
 `gate-check` has deterministic-control dispatch. A read-only status request returns an artefact

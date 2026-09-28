@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
-import { approveCodexDispatcher } from "../lib/runtime-check-consent/codex-plugin-consent.js";
+import { approveCodexDispatcher, revokeCodexDispatcher } from "../lib/runtime-check-consent/codex-plugin-consent.js";
 import { parseArgs } from "../lib/cli/parse-args.js";
 import { validateCommandOptions } from "../lib/cli/command-registry.js";
 import { resolveHostCommand } from "../lib/host-command.js";
@@ -94,4 +94,46 @@ assert.equal(parsed.options.acceptPluginCapabilities, true);
 assert.doesNotThrow(() => validateCommandOptions(parsed.options));
 for (const target of ["claude", "status", "uninstall"]) assert.throws(() => validateCommandOptions({ target, acceptPluginCapabilities: true }));
 for (const runtimeChecksDecision of ["manual", "cancel"]) assert.throws(() => validateCommandOptions({ target: "codex", acceptPluginCapabilities: true, runtimeChecksDecision }));
-console.log("Codex plugin consent: exact tool policy, readback, disable preservation, failures and input validation passed.");
+
+// Uninstall: remove only the approval key, through the same API, and verify it by readback.
+async function revokeFixture(userConfig, { codexKeeps = false } = {}) {
+  const writes = [];
+  const result = await revokeCodexDispatcher({ timeoutMs: 100, spawnProcess() {
+    const child = new EventEmitter();
+    child.stdin = new PassThrough(); child.stdout = new PassThrough(); child.stderr = new PassThrough();
+    child.kill = () => {};
+    child.stdin.on("data", bytes => {
+      const request = JSON.parse(String(bytes));
+      if (request.method === "initialized") return;
+      let result = {};
+      if (request.method === "config/read") {
+        result = { config: userConfig, layers: [{ name: { type: "user", file: "/tmp/consent/config.toml" }, version: "v1", config: userConfig }] };
+      }
+      if (request.method === "config/value/write") {
+        writes.push(request.params);
+        if (!codexKeeps) userConfig = configWith({ tools: { agdf_dispatch: {} } });
+      }
+      queueMicrotask(() => child.stdout.write(JSON.stringify({ id: request.id, result }) + "\n"));
+    });
+    return child;
+  } });
+  return { result, writes };
+}
+const approved = configWith({ tools: { agdf_dispatch: { approval_mode: "approve" } } });
+const revoked = await revokeFixture(approved);
+assert.equal(revoked.result.status, "removed");
+assert.equal(revoked.result.verification, "config_readback");
+assert.deepEqual(revoked.writes, [{ keyPath: 'plugins."agdf@agdf".mcp_servers.agdf.tools.agdf_dispatch.approval_mode',
+  value: null, mergeStrategy: "replace", filePath: "/tmp/consent/config.toml", expectedVersion: "v1" }]);
+const nothing = await revokeFixture({});
+assert.equal(nothing.result.status, "absent");
+assert.equal(nothing.writes.length, 0, "no approval, no write");
+// A disabled plugin still has its approval removed; revocation never re-enables anything.
+const disabledApproved = configWith({ enabled: false, tools: { agdf_dispatch: { approval_mode: "approve" } } });
+assert.equal((await revokeFixture(disabledApproved)).result.status, "removed");
+const keptByCodex = await revokeFixture(approved, { codexKeeps: true });
+assert.equal(keptByCodex.result.status, "retained");
+assert.equal(keptByCodex.result.reason, "policy_not_removed");
+assert.equal(keptByCodex.result.verification, "unverified");
+
+console.log("Codex plugin consent: exact tool policy, readback, disable preservation, failures and input validation passed; revocation removes only the approval key.");

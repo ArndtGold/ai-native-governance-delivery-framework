@@ -15,7 +15,10 @@ const UR_TEMPLATE = ".agdf/control/templates/artefacts/UR.md";
 // Intake bookkeeping the agent finishes without a user decision after authorized setup: no active
 // run yet, or a run whose UR revision is not persisted. Every other state stays terminal.
 export function deliveryIntakePhase(targetDir, control, input = {}) {
+  const blockers = (control?.doctor_report?.findings ?? []).filter((finding) => finding.severity === "block");
   if (input.intake_mode === "new") {
+    // The not-yet-created run is expected to be unselectable; any other blocker keeps the result terminal.
+    if (blockers.some((finding) => !["AGDF_RUN_NOT_SELECTABLE", "AGDF_ACTIVE_RUN_MISSING"].includes(finding.code))) return null;
     assertCanonicalRunStore(targetDir);
     let exists = true;
     try { lstatSync(dirname(runPath(targetDir, input.run_id))); }
@@ -23,7 +26,6 @@ export function deliveryIntakePhase(targetDir, control, input = {}) {
     if (exists) throw new Error("AGDF_RUN_COLLISION");
     return Object.freeze({ phase: "run_missing", run_id: input.run_id, revision_id: null });
   }
-  const blockers = (control?.doctor_report?.findings ?? []).filter((finding) => finding.severity === "block");
   if (control?.blocking_reason === "AGDF_ACTIVE_RUN_MISSING"
       && blockers.every((finding) => finding.code === "AGDF_ACTIVE_RUN_MISSING")) {
     return Object.freeze({ phase: "run_missing", run_id: null, revision_id: null });

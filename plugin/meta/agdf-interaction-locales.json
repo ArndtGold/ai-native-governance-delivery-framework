@@ -357,6 +357,9 @@
         "clarifyUserNeed": "clarify user need",
         "formulateAndPersistUr": "formulate and persist UR",
         "draftOrRefinePrd": "draft or refine PRD",
+        "resolveListedPrdDecisions": "resolve the listed PRD decisions together and record a new run revision",
+        "resolveOpenPrdDecisions": "resolve the open PRD approval decisions together, then record the revision with run-update",
+        "noPrdBeforeDecisions": "present or approve PRD before required product decisions are resolved",
         "defineScope": "define scope",
         "defineAcceptanceCriteria": "define acceptance criteria",
         "defineNonGoals": "define non-goals",
@@ -480,6 +483,7 @@
         "keepRunsIndependentlyActionable": "Keep every active run independently actionable.",
         "keepSingleActiveSot": "Keep exactly one active primary source of truth for this domain.",
         "backlogOneLinkPerType": "Keep exactly one link per artefact type.",
+        "keepSingleArtefactRow": "Keep exactly one Artefacts row per type, record the reviewed correction with run-update, then retry the gate presentation.",
         "verifiedChangeLinkRecord": "Link a stable repository-relative VERIFIED_CHANGE.md artefact from the selected run state.",
         "listCompetingScopes": "List competing scope lines with gate and artefact evidence, then clarify the active scope.",
         "verifiedChangeMarkEscalated": "Mark the record escalated and continue at the declared structured target.",
@@ -737,7 +741,9 @@
           "internal_failure": "Repair the dispatcher and retry once.",
           "runtime_contracts_unavailable": "Repair or reinstall the AGDF plugin: packaged runtime contracts could not be loaded. Then retry once.",
           "runtime_evidence_invalid": "Repair the runtime evidence provider and retry once.",
-          "output_too_large": "Repair the dispatcher output bound and retry once."
+          "output_too_large": "Repair the dispatcher output bound and retry once.",
+          "intake_run_collision": "The run id already exists. Bind an explicit continuation or choose an unused id for the new scope.",
+          "intake_scaffold_required": "Inspect and restore the canonical control scaffold before creating the run."
         }
       },
       "artefacts": {
@@ -1285,6 +1291,9 @@
         "clarifyUserNeed": "den Nutzerbedarf klären",
         "formulateAndPersistUr": "die Nutzeranforderungen formulieren und dauerhaft festhalten",
         "draftOrRefinePrd": "PRD entwerfen oder überarbeiten",
+        "resolveListedPrdDecisions": "die aufgeführten PRD-Entscheidungen gemeinsam klären und eine neue Run-Revision festhalten",
+        "resolveOpenPrdDecisions": "die offenen PRD-Freigabeentscheidungen gemeinsam klären und die Revision dann mit run-update festhalten",
+        "noPrdBeforeDecisions": "das PRD vorlegen oder freigeben, bevor die erforderlichen Produktentscheidungen geklärt sind",
         "defineScope": "den Umfang festlegen",
         "defineAcceptanceCriteria": "Akzeptanzkriterien festlegen",
         "defineNonGoals": "Nicht-Ziele festlegen",
@@ -1408,6 +1417,7 @@
         "keepRunsIndependentlyActionable": "Jeden aktiven Run unabhängig handlungsfähig halten.",
         "keepSingleActiveSot": "Für diesen Bereich genau eine aktive primäre Source of Truth behalten.",
         "backlogOneLinkPerType": "Genau einen Link pro Artefakttyp behalten.",
+        "keepSingleArtefactRow": "Pro Typ genau eine Artefakts-Zeile behalten, die geprüfte Korrektur mit run-update festhalten und die Gate-Darstellung dann erneut anfordern.",
         "verifiedChangeLinkRecord": "Ein stabiles, repository-relatives VERIFIED_CHANGE.md-Artefakt im ausgewählten Run-Status verlinken.",
         "listCompetingScopes": "Konkurrierende Umfangslinien mit Gate- und Artefaktnachweisen auflisten und danach den aktiven Umfang klären.",
         "verifiedChangeMarkEscalated": "Den Record als eskaliert markieren und am erklärten strukturierten Ziel fortfahren.",
@@ -1665,7 +1675,9 @@
           "internal_failure": "Dispatcher reparieren und einmal erneut versuchen.",
           "runtime_contracts_unavailable": "AGDF-Plugin reparieren oder neu installieren: Paketierte Laufzeitverträge konnten nicht geladen werden. Danach einmal erneut versuchen.",
           "runtime_evidence_invalid": "Bereitstellung der Laufzeitnachweise reparieren und einmal erneut versuchen.",
-          "output_too_large": "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen."
+          "output_too_large": "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen.",
+          "intake_run_collision": "Die Run-ID ist bereits belegt. Den bestehenden Auftrag ausdrücklich zuordnen oder für den neuen Umfang eine unbenutzte ID wählen.",
+          "intake_scaffold_required": "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen."
         }
       },
       "artefacts": {

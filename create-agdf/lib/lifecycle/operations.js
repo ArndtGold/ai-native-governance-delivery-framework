@@ -18,6 +18,7 @@ import { planCodexRepositoryDisable, verifyCodexRepositoryDisabled, uninstallCom
 import { planClaudeGlobalUninstall, verifyClaudeGlobalUninstall } from "../host-adapters/claude/uninstall.js";
 import { revokeClaudeRuntimeRule } from "../runtime-check-consent/claude-settings.js";
 import { inspectPluginMcpDataRoot } from "../mcp-lifecycle/plugin-runtime.js";
+import { CODEX_DISPATCH_POLICY_KEY } from "../runtime-check-consent/codex-plugin-consent.js";
 import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
 import { uninstallCommand as copilotUninstallCommand } from "../host-adapters/copilot/plugin.js";
 
@@ -77,7 +78,9 @@ export function planGlobalUninstall(surface, { configDir, ...claudeOptions } = {
   const state = inspectPluginMcpDataRoot(runtimeRoot);
   return Object.freeze({
     ...plan,
-    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot }] : [])]),
+    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot }] : []),
+      // The installer's tool approval lives in ~/.codex/config.toml; it is revoked through Codex after removal.
+      { kind: "codex_tool_policy", key: CODEX_DISPATCH_POLICY_KEY }]),
     retained: Object.freeze([...plan.retained, ...(state === "foreign" ? [`Codex plugin MCP runtime with unowned content: ${runtimeRoot}`] : [])]),
   });
 }

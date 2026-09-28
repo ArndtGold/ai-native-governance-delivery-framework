@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "../lib/skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../lib/skill-dispatch/service.js";
+import { deliveryIntakePhase } from "../lib/skill-dispatch/delivery-intake.js";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
   VALID_PRESENTATION_LANGUAGE_CASES,
@@ -315,7 +316,8 @@ assert.equal(sdContinuation.continuation.phase, "required_gate_artifact");
 assert.equal(sdContinuation.continuation.gate, "SD");
 assert.equal(sdContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/SD.md");
 assert.deepEqual(sdContinuation.continuation.source_artifacts, [".agdf/control/artefacts/delivery-run/PRD.md"]);
-assert.match(sdContinuation.continuation.instruction, /approved PRD before presenting the next user card/u);
+assert.match(sdContinuation.continuation.instruction, /approved PRD and its resolved Approval Decisions before presenting the next user card/u);
+assert.match(sdContinuation.continuation.instruction, /do not reopen answered product questions in SD/u);
 assert.match(sdContinuation.continuation.instruction, /Do not create the Task\/Test Plan or implement code/u);
 assert.equal(sdContinuation.host_action.mode, "continue_named_skill");
 assert.equal(sdContinuation.authorizes, false);
@@ -664,5 +666,40 @@ const recoveryRendererFailure = createSkillDispatchService({
 })({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
 assert.equal(recoveryRendererFailure.diagnostics[0].code, "dispatch_control_evaluation_failed");
 assert.equal(recoveryRendererFailure.host_action.text, "Repair the installed locale registry and retry once.");
+
+// Intake refusals: the two known cases are localized through the recovery catalog, anything else keeps its class.
+const intakeFailure = (error, language = "de-DE") => createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => gateReport,
+  deliveryIntakePhase: () => { throw error; },
+  env: {},
+})({ ...base, presentationLanguage: language, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", intake: true });
+const collision = intakeFailure(new Error("AGDF_RUN_COLLISION"));
+assert.equal(collision.diagnostics[0].code, "AGDF_RUN_COLLISION");
+assert.match(collision.recovery.action, /Run-ID ist bereits belegt/u, "a regional German tag gets the German recovery");
+assert.match(intakeFailure(new Error("AGDF_RUN_COLLISION"), "en").recovery.action, /run id already exists/u);
+const scaffold = intakeFailure(Object.assign(new Error("AGDF_CANONICAL_SCAFFOLD_REQUIRED: /tmp/x"), { code: "AGDF_CANONICAL_SCAFFOLD_REQUIRED" }));
+assert.equal(scaffold.diagnostics[0].code, "AGDF_CANONICAL_SCAFFOLD_REQUIRED");
+assert.match(scaffold.recovery.action, /Kontrollgerüst/u);
+const unexpected = intakeFailure(Object.assign(new Error("EACCES: permission denied"), { code: "EACCES" }));
+assert.equal(unexpected.outcome, "evaluator_error", "an unrelated failure is not reported as a missing scaffold");
+assert.equal(unexpected.diagnostics[0].code, "dispatch_control_evaluation_failed");
+
+// intake_mode new: only the expected run-selection blocker lets intake prepare the new run.
+const newModeControl = (codes) => ({ doctor_report: { findings: codes.map((code) => ({ severity: "block", code })) } });
+assert.equal(deliveryIntakePhase("/nonexistent-agdf-target", newModeControl(["AGDF_RUN_NOT_SELECTABLE", "AGDF_CONTRACTS_INVALID"]),
+  { intake_mode: "new", run_id: "fresh" }), null, "another doctor blocker keeps the result terminal");
+
+// Contract loading failures report runtime_contracts_unavailable on every continuation branch.
+const brownfieldContractsMissing = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, status: "open", current_gate: "Brownfield Review", missing_approval: "none", approval_presentation: undefined }),
+  readSkillRuntimeContracts: () => { throw new Error("contracts missing"); },
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(brownfieldContractsMissing.outcome, "evaluator_error");
+assert.equal(brownfieldContractsMissing.diagnostics[0].code, "dispatch_runtime_contracts_unavailable");
 
 console.log("skill dispatch tests passed");

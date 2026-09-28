@@ -69,11 +69,11 @@ try {
   const codexData = join(uninstallRoot, "mcp", "codex-plugin");
   ensurePluginMcpRuntime({ pluginRoot, dataRoot: codexData, exec: offlineNpm });
   const plan = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: uninstallRoot } });
-  assert.deepEqual(plan.mutations.map(({ kind }) => kind), ["command", "remove_tree"]);
+  assert.deepEqual(plan.mutations.map(({ kind }) => kind), ["command", "remove_tree", "codex_tool_policy"]);
   assert.equal(plan.mutations[1].path, codexData);
   writeFileSync(join(codexData, "user-notes.txt"), "keep\n");
   const kept = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: uninstallRoot } });
-  assert.deepEqual(kept.mutations.map(({ kind }) => kind), ["command"], "unowned content blocks removal");
+  assert.deepEqual(kept.mutations.map(({ kind }) => kind), ["command", "codex_tool_policy"], "unowned content blocks removal");
   assert.ok(kept.retained.some((entry) => entry.includes(codexData)));
 } finally {
   rmSync(uninstallRoot, { recursive: true, force: true });

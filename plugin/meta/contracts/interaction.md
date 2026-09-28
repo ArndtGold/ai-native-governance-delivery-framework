@@ -546,9 +546,12 @@ remain unchanged. Plain gate-check, --approval-envelope and agdf_dispatch stay r
 Their unrecorded previews cannot be used as run-approve evidence.
 
 For a clear new scope use intake with intake_mode new and an unused run_id, even when unrelated
-runs exist. Resume only a bound run. After a valid UR approval, continue_delivery permits only
-canonical Brownfield Review and proportional routing. Stop at the next user decision or concrete
-blocker; report unchanged internal state rather than looping. Status/advice never activates it.
+runs exist. Resume only a bound run. On a bound run, continue_delivery permits only these canonical
+internal continuations: Brownfield Review and proportional routing; on a structured route after the
+preceding approval, the missing PRD, SD or TP draft before its card; Brownfield Analysis after TP
+approval; and the OR closeout after UAT. A ready artefact returns presentation_required instead.
+None of them approves a gate. Stop at the next user decision or concrete blocker; report unchanged
+internal state rather than looping. Status/advice never activates it.
 
 The record proves prepared state, not actual display or user-response timing. The host/agent must
 show it before waiting and bind only the subsequent deliberate reply. Visible multi-turn evidence

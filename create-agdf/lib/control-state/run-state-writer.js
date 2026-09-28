@@ -6,10 +6,10 @@ import {
   lstatSync,
   openSync,
   readFileSync,
-  renameSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
+import { renameSyncWithRetry } from "../fs-swap.js";
 import { dirname } from "node:path";
 
 import { duplicateArtefactRowTypes, parseRunState } from "./run-state-parser.js";
@@ -48,7 +48,8 @@ export function atomicWrite(path, content) {
     closeSync(descriptor);
     descriptor = undefined;
 
-    renameSync(temp, path);
+    // Windows scanners briefly lock fresh files; the same bounded retry as the marketplace swap.
+    renameSyncWithRetry(temp, path);
     fsyncDirectory(dirname(path));
   } catch (error) {
     if (descriptor !== undefined) closeSync(descriptor);

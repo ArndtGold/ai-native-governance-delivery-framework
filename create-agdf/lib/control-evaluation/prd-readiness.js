@@ -27,7 +27,8 @@ export function evaluatePrdReadiness(targetDir, runState) {
     if (incomplete(owner) || (timing === "before_prd" && (status !== "resolved" || incomplete(resolution)))
         || (timing !== "before_prd" && incomplete(resolution))) open.push(decision);
   }
-  const owner = content.match(/^Owner:\s*(.*)$/mu)?.[1]?.trim();
+  // [ \t] rather than \s: an empty Owner line must not capture the following line.
+  const owner = content.match(/^Owner:[ \t]*(.*)$/mu)?.[1]?.trim();
   if (incomplete(owner) || /\bto confirm\b|named individual/iu.test(owner)) open.unshift("Named PRD owner");
   return { ready: open.length === 0, open_decisions: open };
 }

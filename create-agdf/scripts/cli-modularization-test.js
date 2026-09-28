@@ -31,7 +31,7 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-step", "run-approve",
+  "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
   "run-migrate", "run-render-legacy",
 ];
 
@@ -43,7 +43,7 @@ const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
 assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -213,7 +213,7 @@ assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev" }));
 assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
-assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-present, run-approve and run-step/);
+assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-revise, run-present, run-approve and run-step/);
 assert.throws(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev" }), /run-step requires --run, --revision and --step/);
 assert.throws(() => validateCommandOptions({ target: "doctor", stepFields: { route: "quick_task" } }), /step fields are supported only by run-step/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev", runStep: "route", stepFields: { route: "quick_task" } }));
@@ -270,7 +270,7 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }

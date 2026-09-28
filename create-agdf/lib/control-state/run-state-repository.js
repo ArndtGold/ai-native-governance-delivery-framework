@@ -8,11 +8,11 @@ import {
   openSync,
   readFileSync,
   readdirSync,
-  renameSync,
   rmdirSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
+import { renameSyncWithRetry } from "../fs-swap.js";
 import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { assertCanonicalRunStore, canonicalScaffoldRequired, directoryIdentity, regularFileSnapshot } from "./run-store-inspection.js";
@@ -191,7 +191,8 @@ export function createRun(root, id, body = DEFAULT_BODY, hooks = {}) {
     }
     ensureStagedRunUnchanged(stageIdentity, stagedFile);
     if (existsSync(runDirectory)) throw Error("AGDF_RUN_COLLISION");
-    renameSync(stageDirectory, runDirectory);
+    // Windows scanners briefly lock fresh files; the same bounded retry as the marketplace swap.
+    renameSyncWithRetry(stageDirectory, runDirectory);
     return path;
   } catch (error) {
     cleanupRunStage(stageIdentity, stagedFile);

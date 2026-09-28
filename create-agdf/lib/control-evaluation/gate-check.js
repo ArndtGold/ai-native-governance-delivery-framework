@@ -6,7 +6,7 @@ import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from './verified-change.js';
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
 import { isPlaceholderValue } from './shared.js';
-import { renderReviewableApproval } from '../control-state/run-presentation.js';
+import { renderReviewableApproval } from '../control-state/run-presentation-render.js';
 import { evaluatePrdReadiness } from './prd-readiness.js';
 
 // Shown when a finding's next step is free text that the presentation locale cannot render.
@@ -348,7 +348,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     blockingReason = "AGDF_PRD_DECISIONS_OPEN";
     allowed = ["resolve the listed PRD decisions together and record a new run revision"];
     forbidden = [...forbidden, "present or approve PRD before required product decisions are resolved"];
-    nextAllowedAction = `Resolve PRD approval decisions: ${prdReadiness.open_decisions.join("; ")}. Then record the revision with run-update.`;
+    // Fixed text keeps the card localizable; the open decisions travel separately as prd_readiness.open_decisions.
+    nextAllowedAction = "resolve the open PRD approval decisions together, then record the revision with run-update";
   }
   if (status === "open" && /^Approval: /u.test(missingApproval) && !approvalArtefactReady) {
     allowed = allowed.filter((action) => !/^request exact .* approval$/iu.test(action));

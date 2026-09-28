@@ -239,6 +239,8 @@ try {
   const leftovers = {
     mcp_listed: /^agdf\s/m.test(after.stdout),
     config_mcp_section: /\[mcp_servers\.agdf[\].]/.test(config),
+    // The installer's tool approval (plugins."agdf@agdf"...approval_mode) must not survive removal.
+    plugin_tool_policy: /^\s*\[plugins\."agdf@agdf"[\].]/m.test(config) || /agdf_dispatch[\s\S]*approval_mode/.test(config),
     plugin_cache: existsSync(join(codexHome, "plugins", "cache", "agdf", "agdf")),
     mcp_runtime: existsSync(join(dataRoot, "mcp", "codex-plugin")),
   };

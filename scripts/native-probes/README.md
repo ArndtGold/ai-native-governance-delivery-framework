@@ -85,7 +85,9 @@ AGDF-Testziel mit einem expliziten Run an. Danach folgen: Host, Installation des
 über das AGDF-CLI, Discovery (`codex mcp get agdf` zeigt den Launcher aus dem Plugin), ein echter
 `agdf_dispatch`-Aufruf mit erwartetem `control_result`, der Fehlerfall `invalid_input` und Entfernen
 über `agdf uninstall --surface codex --scope global --confirm` ohne MCP-Server, `config.toml`-Eintrag,
-Plugin-Cache oder MCP-Runtime. Belege stammen aus `codex exec --json` und den Sitzungsprotokollen;
+Plugin-Cache oder MCP-Runtime. Dazu gehört auch die vom Installer gesetzte Tool-Freigabe
+`plugins."agdf@agdf".mcp_servers.agdf.tools.agdf_dispatch.approval_mode` (Feld `plugin_tool_policy`);
+AGDF entfernt sie über `config/value/write` und meldet `partial`, wenn Codex sie behält. Belege stammen aus `codex exec --json` und den Sitzungsprotokollen;
 Codex vermerkt dort auch die `pluginId`, die `agdf@agdf` lauten muss.
 
 Zusätzlich prüft eine dritte Luna-Sitzung `code-review`: Der Dispatcher muss `skill_continuation`

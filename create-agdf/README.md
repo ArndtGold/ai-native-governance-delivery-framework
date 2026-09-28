@@ -242,6 +242,7 @@ Canonical run lifecycle:
 ```bash
 agdf run-create --run <run_id>
 agdf run-update --run <run_id> --revision <revision_id>
+agdf run-revise --run <run_id> --revision <revision_id>
 agdf run-step --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]
 agdf run-present --run <run_id> --gate <gate> --revision <revision_id>
 agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response "Approval: <gate>"
@@ -252,7 +253,7 @@ agdf run-render-legacy --run <run_id>
 `run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
 Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
 and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
-`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows.
+`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows. `run-revise` is the one bounded exception: at SD, before any later artefact is linked or approved, it supersedes the PRD approval after a material product clarification and requires a new `Approval: PRD`.
 Run writers also reject duplicate `Artefacts` rows; replace the existing row for a type, or remove
 an extra row and retry `run-update` to record the correction.
 `run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the

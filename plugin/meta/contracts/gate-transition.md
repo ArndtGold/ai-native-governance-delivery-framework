@@ -62,6 +62,7 @@ They must not override AGDF gates, approvals or the Runtime Contract.
   explicit setup or link authority, initialize or link canonical control and persist a revision-stable
   UR first; only then may revalidation determine whether `Approval: UR` is ready. This branch is
   unreachable for `target_unresolved` and never creates a free-standing legacy live run.
+- Brownfield Review and its route may be recorded while the UR card is ready, so that card can name the next gate; this grants nothing beyond the pending `Approval: UR`.
 - `Approval: UR` permits Brownfield Review after G-00 first. The review records its Mode/Slice Decision in the same internal operation when evidence is sufficient; the user is told that no action is required now. A separate `Mode/Slice Decision` step is fail-closed recovery for incomplete or legacy review state, not a normal user decision. UR approval never permits implementation by itself and does not preselect PRD.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
 - The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in the selected canonical `RUN_STATE.md` or an equivalent linked control artefact.

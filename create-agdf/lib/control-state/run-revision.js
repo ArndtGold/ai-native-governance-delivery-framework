@@ -57,6 +57,7 @@ export function reopenPrdRevision(root, { runId, revisionId }) {
   const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
     allowApprovalChange: true, expectedContent: run.content,
     validateBeforeWrite: () => {
+      // Recomputes the artefact digests on disk under the write lock.
       if (runSealState(root, run.content).status !== "valid") throw new Error("AGDF_STALE_RUN_REVISION");
     },
   }));

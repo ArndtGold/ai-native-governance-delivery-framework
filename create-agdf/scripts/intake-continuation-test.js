@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from "node:fs";
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -9,9 +9,9 @@ import { join, resolve } from "node:path";
 const temporary = mkdtempSync(join(tmpdir(), "agdf-intake-e2e-"));
 const sourceCli = resolve(import.meta.dirname, "../bin/create-agdf.js");
 try {
-  const archive = join(temporary, "plugin.tgz");
-  execFileSync("tar", ["-czf", archive, "-C", resolve(import.meta.dirname, "../generated"), "plugins/agdf", ".agents/plugins/marketplace.json"]);
-  execFileSync("tar", ["-xzf", archive, "-C", temporary]);
+  // A plain copy instead of tar: Git Bash tar reads "C:\..." archive paths as a remote host.
+  const generated = resolve(import.meta.dirname, "../generated");
+  for (const entry of ["plugins/agdf", ".agents/plugins/marketplace.json"]) cpSync(join(generated, entry), join(temporary, entry), { recursive: true });
   const plugin = join(temporary, "plugins", "agdf");
   const validator = join(plugin, "runtime", "agdf-local.js");
   const root = join(temporary, "project");
@@ -77,7 +77,7 @@ try {
   assert.equal(p.schema_version, "1", "CLI envelope uses the canonical string version");
   assert.match(p.text, /## Kurzfassung · UR/u);
   assert.match(p.text, /## Prüfartefakt · UR/u);
-  assert.match(p.text, /Artefakt: \[UR\.md\]\(<[^>]+\/UR\.md>\)/u, "the exact UR file must be clickable");
+  assert.match(p.text, /Artefakt: \[UR\.md\]\(<[^>]+[\\/]UR\.md>\)/u, "the exact UR file must be clickable");
   assert.match(p.text, /SHA-256: `sha256:[0-9a-f]{64}`/u);
   assert.match(p.text, /- Inhalt: A new scope\./u, "short artefact content appears in the summary");
   assert.ok(p.text.indexOf("## Kurzfassung · UR") < p.text.indexOf("Jetzt freigeben"), "summary appears before the approval action");
@@ -107,9 +107,18 @@ try {
   unlinkSync(recordPath);
   const outside = join(temporary, "outside.json");
   writeFileSync(outside, record);
-  symlinkSync(outside, recordPath);
-  assert.equal(approve(p.presentation_id).reason, "presentation_path_invalid");
-  unlinkSync(recordPath); writeFileSync(recordPath, record);
+  let linked = true;
+  try { symlinkSync(outside, recordPath); } catch (error) {
+    // Windows without developer mode cannot create symlinks; the negative case needs one.
+    if (error?.code !== "EPERM") throw error;
+    linked = false;
+    console.log("Skipped symlinked presentation record: symlink creation is unavailable on this host (EPERM).");
+  }
+  if (linked) {
+    assert.equal(approve(p.presentation_id).reason, "presentation_path_invalid");
+    unlinkSync(recordPath);
+  }
+  writeFileSync(recordPath, record);
   writeFileSync(ur, "# UR: Bound intake\n\nChanged scope.\n");
   assert.equal(approve(p.presentation_id).outcome, "rejected");
   assert.equal(run("run-update", "--run", "new-run", "--revision", revision("new-run")).value.outcome, "updated");
@@ -139,10 +148,12 @@ try {
   assert.equal(routed.value.outcome, "recorded", routed.text);
   const routeAwareCard = run("gate-check", "--run", "new-run", "--json").value.status_card;
   assert.equal(routeAwareCard.current_gate, "PRD");
-  assert.equal(routeAwareCard.next_gate_after_approval, "SD");
-  assert.equal(routeAwareCard.next_user_gate, "SD");
-  assert.equal(routeAwareCard.user_action_required, "yes");
-  assert.match(routeAwareCard.allowed_after_approval, /Solution Design/u);
+  // Without a PRD draft the card offers drafting only; no approval or post-approval preview yet.
+  assert.equal(routeAwareCard.missing_approval, "none");
+  assert.equal(routeAwareCard.next_gate_after_approval, "none");
+  assert.equal(routeAwareCard.user_action_required, "no");
+  assert.ok(routeAwareCard.allowed_now.includes("draft or refine PRD"));
+  assert.match(routeAwareCard.next_step, /^Draft or refine the PRD/u);
   before = snapshot();
   assert.equal(dispatch("--run", "new-run").terminal, true);
   assert.deepEqual(snapshot(), before);
@@ -158,5 +169,5 @@ try {
   assert.equal(continuation.control.current_gate, "PRD", "the preselected route advances directly to its next gate after UR approval");
   assert.deepEqual(snapshot(), before);
   assert.deepEqual(["foreign-a", "foreign-b"].map(id => readFileSync(statePath(id), "utf8")), foreign);
-  console.log(`intake continuation packaged-runtime E2E passed (new/resume, binding, rejection, read-only, recovery, route); archive sha256:${createHash("sha256").update(readFileSync(archive)).digest("hex")}`);
+  console.log(`intake continuation packaged-runtime E2E passed (new/resume, binding, rejection, read-only, recovery, route); runtime sha256:${createHash("sha256").update(readFileSync(validator)).digest("hex")}`);
 } finally { rmSync(temporary, { recursive: true, force: true }); }

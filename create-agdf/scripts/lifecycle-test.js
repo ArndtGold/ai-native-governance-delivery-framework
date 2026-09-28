@@ -526,7 +526,7 @@ assert.throws(() => planRepositoryDisable(ambiguousDisableRoot, "codex"), /ambig
 // Mocking the host command does not isolate filesystem cleanup performed by the plan.
 const codexUninstallData = mkdtempSync(join(tmpdir(), "agdf-codex-uninstall-data-"));
 const uninstall = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: codexUninstallData } });
-assert.deepEqual(uninstall.mutations.map(({ kind }) => kind), ["command"],
+assert.deepEqual(uninstall.mutations.map(({ kind }) => kind), ["command", "codex_tool_policy"],
   "an empty isolated data root must never schedule cleanup of the real user runtime");
 const calls = [];
 assert.equal(applyLifecyclePlan(uninstall, { exec(command, args) { calls.push([command, args]); } }).status, "success");
@@ -725,6 +725,7 @@ assert.equal(await runCli([
   env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
   exec() { return ""; },
+  revokeCodexPluginDispatcher: async () => ({ status: "absent", reason: "none" }),
   mcpLifecycle(input) {
     coupledUninstallApplyCalls.push(input.action);
     return mcpLifecycleFixture(input);
@@ -754,16 +755,35 @@ assert.equal(coupledUninstallEffectiveReport.plugin.status, "not_run");
 assert.equal(coupledUninstallEffectiveReport.next_action.code, "retry_mcp_disable");
 assert.equal(coupledUninstallEffectivePluginCalls, 0);
 
-const uninstallApplyOutput = [];
-assert.equal(await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"], {
-  parser: { cwd: root },
-  env: { AGDF_DATA_DIR: codexUninstallData },
-  io: { log(value) { uninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
-  exec() { return ""; },
-}), 0);
-const uninstallApplyReport = JSON.parse(uninstallApplyOutput[0]);
-assert.equal(uninstallApplyReport.operation_status.outcome, "succeeded");
-assert.equal(uninstallApplyReport.operation_status.authorizes, false);
+const codexUninstall = async (policy) => {
+  const output = [];
+  const revocations = [];
+  const code = await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"], {
+    parser: { cwd: root },
+    env: { AGDF_DATA_DIR: codexUninstallData },
+    io: { log(value) { output.push(value); }, error(message) { throw new Error(message); } },
+    exec() { return ""; },
+    async revokeCodexPluginDispatcher(input) { revocations.push(input); return policy; },
+  });
+  return { code, report: JSON.parse(output[0]), revocations };
+};
+const uninstallApply = await codexUninstall({ status: "removed", reason: "none" });
+assert.equal(uninstallApply.code, 0);
+assert.equal(uninstallApply.report.operation_status.outcome, "succeeded");
+assert.equal(uninstallApply.report.operation_status.authorizes, false);
+assert.equal(uninstallApply.revocations.length, 1, "uninstall revokes the installer's Codex tool approval");
+assert.ok(uninstallApply.report.changes.some((change) => change.kind === "codex_tool_policy"));
+assert.ok(uninstallApply.report.verification.evidence.includes("codex_tool_policy:removed"));
+const alreadyClean = await codexUninstall({ status: "absent", reason: "none" });
+assert.equal(alreadyClean.code, 0);
+assert.ok(!alreadyClean.report.changes.some((change) => change.kind === "codex_tool_policy"), "an absent key is not reported as a change");
+// A key Codex keeps is a remaining trace: the result is partial and names it, never a clean success.
+const kept = await codexUninstall({ status: "retained", reason: "policy_not_removed" });
+assert.equal(kept.code, 1);
+assert.equal(kept.report.result, "partial");
+assert.equal(kept.report.verification.status, "degraded");
+assert.ok(kept.report.retained.some((entry) => entry.includes("agdf_dispatch.approval_mode") && entry.includes("retained")));
+assert.match(kept.report.next_action.text, /config.toml/u);
 
 const uninstallPartialConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-cli-partial-"));
 writeFileSync(join(uninstallPartialConfig, "opencode.json"), `${JSON.stringify({ plugin: [pluginDefinition.opencode.npmPackage] })}\n`);

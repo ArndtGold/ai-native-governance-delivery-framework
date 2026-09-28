@@ -254,6 +254,7 @@ Verify canonical actions without a persisted Run Status Card.
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
+| UR | approved_by | Approval: UR | fixture |
 | PRD | derived_from | UR | fixture |
 | SD | derived_from | PRD | fixture |
 | TP | derived_from | SD | fixture |

@@ -134,7 +134,6 @@ export const CLAUDE_MCP_RUNTIME_ENTRIES = Object.freeze([
   "lib/mcp-lifecycle/package.js",
   "lib/mcp-lifecycle/plugin-runtime.js",
   "lib/npm-invocation.js",
-  "lib/fs-swap.js",
 ]);
 
 export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
@@ -153,6 +152,8 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
     "lib/runtime/local-validator.js",
     "lib/runtime/plugin-provenance.js",
     "lib/host-command.js",
+    // Run creation and run-state writes retry Windows rename locks through it.
+    "lib/fs-swap.js",
     "lib/runtime-check-consent/contract.js",
     "lib/host-adapters/codex/session-command.js",
     "lib/host-adapters/claude/session-command.js",

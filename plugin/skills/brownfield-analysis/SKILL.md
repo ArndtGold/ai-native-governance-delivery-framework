@@ -103,7 +103,7 @@ through the normalized owners in `quality.md`; this review grants no downstream 
 
 ## Rules
 1. Brownfield first: understand the existing codebase before PRD/SD decisions when existing-system impact is possible, and again before implementation.
-2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must visibly decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen. Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation; mark the review `done` only after both the artefact and canonical run projection are complete. An interrupted, incomplete or legacy record stays at fail-closed `Mode/Slice Decision` recovery without another user approval.
+2. Brownfield Review after `Approval: UR`, or before it while the UR card is ready so that card can name the route, is a sizing and routing step. It must visibly decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen. Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation; mark the review `done` only after both the artefact and canonical run projection are complete. An interrupted, incomplete or legacy record stays at fail-closed `Mode/Slice Decision` recovery without another user approval.
 3. Reuse-before-create: prefer existing modules, services, components, tables, endpoints, tests, and configuration.
 4. Minimal clean slice: choose the smallest durable intervention, not merely the smallest technical diff.
 5. No silent parallel structures.
@@ -128,9 +128,7 @@ through the normalized owners in `quality.md`; this review grants no downstream 
     completion and Brownfield/Mode-Slice re-evaluation.
 17. Owner, file, consumer, task or derived-path counts must never select a structured depth by
     themselves.
-18. In `post_ur_review`, record architecture relevance, evidence, missing evidence and the next
-    owner before the existing Mode/Slice Decision. Keep a retained-debt decision tied to the
-    same finding in the Brownfield Review; incomplete acceptance remains unresolved.
+18. In `post_ur_review`, apply the architecture-relevance rules above before the Mode/Slice Decision.
 
 ## When To Use
 - after `gate-check` permits `Brownfield Review` or the selected canonical run record names Brownfield Review as the next allowed action
@@ -184,10 +182,7 @@ When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, T
 9. Check UI monolith risk for large surfaces or central hooks.
 10. Check Context Graph impact according to `../../meta/contracts/context-graph.md`.
 11. Recommend the minimal clean implementation path.
-12. In `post_ur_review`, record conditional Architecture Impact in the same Brownfield Review.
-    For relevant findings, distinguish a structural problem, intentional trade-off and unresolved
-    question. For `architecture-not-applicable`, give the local code/owner reason. Use a diagram
-    only for a named boundary question that cannot be decided from text alone.
+12. In `post_ur_review`, record the conditional Architecture Impact described above in the same Brownfield Review.
 13. In `post_ur_review`, record `depth_policy_version`, `depth_facts_status`,
     `primary_reason_code`, `decisive_full_depth_triggers`, `rejected_alternative`,
     `missing_or_conflicting_facts`, `depth_evidence_refs` and evidence for all seven bounded-slice

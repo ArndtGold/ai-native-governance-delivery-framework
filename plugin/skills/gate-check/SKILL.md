@@ -42,6 +42,8 @@ Continue only with the operation selected from the canonical catalog:
 New authorized scope: `intake: true`, `intake_mode: new`, unused `run_id`; never reuse a foreign run.
 Resume bound intake with `intake_mode: resume`. After recorded UR approval use `continue_delivery: true`
 with that run, never for status. Execute returned Brownfield/routing; stop on an unchanged blocker.
+When a continuation names another skill, invoke that skill without `continue_delivery`; use the flag
+only on the next bound `gate-check` dispatch.
 For `presentation_required`, run the supplied `run-present`, show its exact text, wait for a NEW reply,
 and retain `presentation_id` for `run-approve --presentation`. Never bind an earlier reply retroactively.
 Read-only previews are not prepared bindings.
@@ -59,8 +61,10 @@ Bind existing runs only from explicit selection or unambiguous continuation. New
 new scope. Dispatch follows `candidate_present` or authorized setup. Never construct or repair a runtime.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
-`gate-check` has deterministic-control dispatch. `host_action.text` contains the presentation, or the
-recovery only when no presentation is available.
+`gate-check` has deterministic-control dispatch. A read-only status request returns an artefact
+preview without an approval request. Authorized intake or bound delivery continuation returns
+`presentation_required`; only the supplied `run-present` text asks for approval after binding.
+`host_action.text` contains the preview or recovery for terminal results.
 Dispatch is non-authorizing. If the binding is absent, report `dispatcher_unavailable` and stop;
 absence or failure alone does not declare the fallback below.
 

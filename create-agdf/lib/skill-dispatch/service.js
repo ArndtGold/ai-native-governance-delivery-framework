@@ -1,7 +1,7 @@
 import process from "node:process";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
-import { evaluateGateCheck } from "../control-evaluation/gate-check.js";
+import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluation/gate-check.js";
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, quoteDispatchArgument } from "./delivery-intake.js";
@@ -268,7 +268,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: "Execute Brownfield Review and proportional routing for this bound run, then re-evaluate. Stop with the concrete blocker if the same state remains; never loop or infer another gate approval.",
+          instruction: "Execute brownfield-analysis for this bound run without continue_delivery. Record Brownfield Review and proportional routing, then redispatch gate-check with the same run and continue_delivery: true. Stop with the concrete blocker if the same state remains; never loop or infer another gate approval.",
           phase: "post_ur_review",
           skill_id: "brownfield-analysis",
           mode: "post_ur_review",
@@ -294,7 +294,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: "Run implementation-preparation Brownfield Analysis for this bound run against its approved TP and the existing system before CD+Tests. Identify owners, reusable components, affected interfaces and data, regression risks, test impact and the minimal safe implementation path. Persist the analysis and mark the internal step complete in canonical run control, then dispatch again with the same run and target. Do not begin CD+Tests until the review and control record are complete.",
+          instruction: "Run brownfield-analysis without continue_delivery for this bound run against its approved TP and the existing system before CD+Tests. Identify owners, reusable components, affected interfaces and data, regression risks, test impact and the minimal safe implementation path. Persist the analysis and mark the internal step complete in canonical run control, then redispatch gate-check with the same run and continue_delivery: true. Do not begin CD+Tests until the review and control record are complete.",
           phase: "pre_implementation_analysis",
           skill_id: "brownfield-analysis",
           mode: "pre_implementation_analysis",
@@ -313,7 +313,8 @@ export function createSkillDispatchService(dependencies = {}) {
           && control.current_gate === "PRD"
           && control.missing_approval === "Approval: PRD"
           && structuredRoute
-          && !control.approval_presentation) {
+          && !control.approval_presentation
+          && !control.presentation_diagnostics?.approval_presentation_errors?.length) {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
@@ -343,6 +344,7 @@ export function createSkillDispatchService(dependencies = {}) {
           && control.missing_approval === "Approval: SD"
           && structuredRoute
           && !control.approval_presentation
+          && !control.presentation_diagnostics?.approval_presentation_errors?.length
           && sdRelationship?.status !== "pass") {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
@@ -370,6 +372,7 @@ export function createSkillDispatchService(dependencies = {}) {
           && control.missing_approval === "Approval: TP"
           && structuredRoute
           && !control.approval_presentation
+          && !control.presentation_diagnostics?.approval_presentation_errors?.length
           && tpRelationship?.status !== "pass") {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
@@ -420,7 +423,13 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       }
-      if ((input.intake || input.continue_delivery) && control.approval_presentation) {
+      if (control.status_card?.interaction_kind === "gate_approval"
+          && isReadyUserGateApproval({ status: control.status, currentGate: control.current_gate, missingApproval: control.missing_approval })
+          && !control.approval_presentation?.markdown) {
+        throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
+      }
+      if ((input.intake || input.continue_delivery)
+          && control.approval_presentation?.markdown) {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
@@ -434,13 +443,15 @@ export function createSkillDispatchService(dependencies = {}) {
         return bindHostAction(result);
       }
       if (skill.dispatch_mode === "deterministic_control") {
-        const presentation = control.approval_presentation ?? control.status_presentation;
+        const presentation = control.approval_presentation?.preview_markdown
+          ? { markdown: control.approval_presentation.preview_markdown, authorizes: false }
+          : control.status_presentation;
         if (!presentation) {
           throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
         }
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
-        result.control = control;
+        result.control = controlSnapshot(control, { includeCandidateRuns: true });
         result.presentation = presentation;
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
@@ -454,7 +465,7 @@ export function createSkillDispatchService(dependencies = {}) {
       result.target = target;
       result.control = snapshot;
       result.continuation = Object.freeze({
-        instruction: "Execute the named skill using only this target, presentation language and control snapshot.",
+        instruction: "Execute the named skill using only this target, presentation language and control snapshot. Do not set continue_delivery on a judgement skill; use it only when redispatching gate-check for the same run.",
         skill_id: skill.skill_id,
         presentation_language: input.presentation_language,
         governance_target: target.governance_target,

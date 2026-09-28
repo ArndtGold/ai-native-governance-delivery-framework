@@ -6,6 +6,7 @@ import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js
 import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from './verified-change.js';
 import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
 import { isPlaceholderValue } from './shared.js';
+import { renderReviewableApproval } from '../control-state/run-presentation.js';
 
 // Shown when a finding's next step is free text that the presentation locale cannot render.
 const FINDING_RECOVERY_STEP = "Resolve the finding named under Blocked by, then run gate-check again.";
@@ -151,9 +152,12 @@ export function buildStatusCard({
   findings = [],
   qualityOutlook = deriveQualityOutlook(runState, findings),
   interactionKind: requestedInteractionKind,
+  approvalArtefactReady = true,
 }) {
-  const postApproval = postApprovalTransition(missingApproval, runState);
-  const isUserGateApproval = isReadyUserGateApproval({ status, currentGate, missingApproval });
+  const isUserGateApproval = approvalArtefactReady
+    && isReadyUserGateApproval({ status, currentGate, missingApproval });
+  const visibleMissingApproval = isUserGateApproval ? missingApproval : "none";
+  const postApproval = postApprovalTransition(visibleMissingApproval, runState);
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
   const nativeAttemptRequired = false;
   const interactionKind = requestedInteractionKind
@@ -175,7 +179,7 @@ export function buildStatusCard({
     allowed_now: allowed,
     forbidden_now: forbidden,
     blocking_condition: blockingReason || "none",
-    missing_approval: missingApproval || "none",
+    missing_approval: visibleMissingApproval,
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
     user_visible_outcome_after_approval: postApproval.allowed_after_approval,
@@ -322,19 +326,26 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   } else if (doctorBlocker && !routesInvalidVerifiedChange) {
     status = "blocked";
     blockingReason = doctorBlocker.code;
-    allowed = ["repair the AGDF control scaffold", ...transitionDecision.allowed, "run doctor again"];
+    allowed = ["repair the AGDF control scaffold", "run doctor again"];
     forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work", "claim QA or release readiness"];
     nextAllowedAction = doctorBlocker.next_step;
     nextStepFallback = FINDING_RECOVERY_STEP;
   } else if (doctorRevise && !routesInvalidVerifiedChange) {
     status = "blocked";
     blockingReason = doctorRevise.code;
-    allowed = [...new Set(["complete the current control-state fields", ...transitionDecision.allowed, "run doctor again"])];
+    allowed = ["complete the current control-state fields", "run doctor again"];
     forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work before the gate allows it", "claim QA or release readiness"];
-    nextAllowedAction = transitionDecision.current_gate === "UR"
-      ? "Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR."
-      : doctorRevise.next_step;
+    nextAllowedAction = doctorRevise.next_step;
     nextStepFallback = FINDING_RECOVERY_STEP;
+  }
+
+  const approvalArtefactReady = isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
+  if (status === "open" && /^Approval: /u.test(missingApproval) && !approvalArtefactReady) {
+    allowed = allowed.filter((action) => !/^request exact .* approval$/iu.test(action));
+    if (/request exact approval: Approval: /iu.test(nextAllowedAction)) {
+      nextAllowedAction = allowed.find((action) => /^(?:formulate and persist|persist or refine|draft)/iu.test(action))
+        ?? allowed[0] ?? nextAllowedAction;
+    }
   }
 
   const postApproval = postApprovalTransition(missingApproval, runState);
@@ -343,6 +354,8 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     : resolveConfiguredChatLanguage(targetDir);
   const renderable = (value) => isOperationalValueRenderable(value, { registry: interactionLocales, requestedLocale: presentationLocale });
   const runQualityOutlook = deriveQualityOutlook(runState, deliveryMap.findings);
+  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval })
+    && approvalArtefactReady;
   const statusCard = buildStatusCard({
     status,
     currentGate,
@@ -356,6 +369,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     chatLanguage: presentationLocale,
     findings: deliveryMap.findings,
     interactionKind: controlSetupRequired ? "control_setup" : undefined,
+    approvalArtefactReady: readyForApproval,
   });
   const humanPresentation = buildHumanPresentation(targetDir, runState, currentGate, presentationLocale);
   Object.defineProperty(statusCard, "humanPresentation", {
@@ -373,8 +387,6 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
         humanPresentation,
         revisionId,
       });
-  const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval })
-    && isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
   const approvalOrientation = attachApprovalOrientationSnapshot(statusCard, {
     ready: readyForApproval,
     humanPresentation,
@@ -387,7 +399,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     enumerable: false,
   });
 
-  const approvalPresentation = renderApprovalOrientationSnapshot(approvalOrientation, {
+  const approvalOrientationPresentation = renderApprovalOrientationSnapshot(approvalOrientation, {
     registry: interactionLocales,
     expectedIdentity: {
       run_id: statusCard.run_id,
@@ -397,6 +409,21 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     },
   });
   const presentationDiagnostics = {};
+  let approvalPresentation = null;
+  if (approvalOrientationPresentation && statusPresentation) {
+    try {
+      const review = renderReviewableApproval(targetDir, {
+        approval_presentation: approvalOrientationPresentation,
+        status_presentation: statusPresentation,
+      }, { runId: statusCard.run_id, gate: currentGate, revisionId }, runState);
+      if (review) approvalPresentation = Object.freeze({ ...approvalOrientationPresentation, ...review });
+      else presentationDiagnostics.approval_presentation_errors = ["review_artefact_unavailable"];
+    } catch (error) {
+      presentationDiagnostics.approval_presentation_errors = [error.message || "review_artefact_unavailable"];
+    }
+  } else if (approvalOrientationPresentation && !statusPresentation) {
+    presentationDiagnostics.approval_presentation_errors = ["status_presentation_unavailable"];
+  }
   if (!statusPresentation) {
     presentationDiagnostics.status_presentation_errors = controlSetupRequired
       ? ["control_setup_presentation_unavailable"]
@@ -407,7 +434,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
           }).errors,
         ];
   }
-  if (readyForApproval && !approvalPresentation) {
+  if (readyForApproval && !approvalPresentation && !presentationDiagnostics.approval_presentation_errors) {
     presentationDiagnostics.approval_presentation_errors = approvalOrientation
       ? [
           ...validateApprovalOrientationSnapshot(approvalOrientation, {
@@ -471,6 +498,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
 }
 
 function canonicalApprovalForReport(report) {
+  if (report?.status_card?.interaction_kind && report.status_card.interaction_kind !== "gate_approval") return "";
   const gate = String(report?.current_gate ?? "").trim();
   const approval = String(report?.missing_approval ?? "").trim();
   return isReadyUserGateApproval({ status: report?.status, currentGate: gate, missingApproval: approval })
@@ -479,21 +507,9 @@ function canonicalApprovalForReport(report) {
 }
 
 export function printApprovalEnvelope(report, { io = console, reEvaluate } = {}) {
-  if (report?.approval_presentation) {
-    io.log(report.approval_presentation.blocks.run_status_card.markdown);
-    io.log("");
-    if (report.status_presentation?.markdown) {
-      io.log(report.status_presentation.markdown);
-    } else {
-      const pack = localePack(interactionLocales, report.approval_presentation.presentation_language || "en");
-      const codes = report.presentation_diagnostics?.status_presentation_errors ?? [];
-      io.log(codes.length ? `${pack.interaction.statusPresentationFailure} (${codes.join(", ")})` : pack.interaction.statusPresentationFailure);
-    }
-    io.log("");
-    io.log(report.approval_presentation.blocks.gate_transition_card.markdown);
-    io.log("");
-    io.log(report.approval_presentation.approval_interaction.exact_text_fallback);
-    return Object.freeze({ outcome: "rendered", requested_decision: true, status: report.status });
+  if (report?.approval_presentation?.preview_markdown) {
+    io.log(report.approval_presentation.preview_markdown);
+    return Object.freeze({ outcome: "preview", requested_decision: false, status: report.status });
   }
 
   const initialApproval = canonicalApprovalForReport(report);
@@ -512,8 +528,7 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
       ?? report?.presentation_diagnostics?.approval_presentation_errors
       ?? [];
     io.log(codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure);
-    io.log(pack.interaction.exactTextRequest.replace("{approval}", refreshedApproval));
-    return Object.freeze({ outcome: "exact_text_recovery", requested_decision: true, status: refreshed.status });
+    return Object.freeze({ outcome: "presentation_unavailable", requested_decision: false, status: refreshed.status });
   }
 
   const blockingReason = String(refreshed?.blocking_reason ?? "").trim();
@@ -528,6 +543,16 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
 
 function printGateCheckStatusCard(report, io) {
   const card = report.status_card;
+  if (canonicalApprovalForReport(report)) {
+    if (report.approval_presentation?.preview_markdown) {
+      io.log(report.approval_presentation.preview_markdown);
+      return true;
+    }
+    const pack = localePack(interactionLocales, card?.presentation_language || "en");
+    const codes = report.presentation_diagnostics?.approval_presentation_errors ?? [];
+    io.log(codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure);
+    return false;
+  }
   if (!report.status_presentation?.markdown) {
     const failure = localePack(interactionLocales, card?.presentation_language || "en").interaction.statusPresentationFailure;
     const codes = report.presentation_diagnostics?.status_presentation_errors ?? [];

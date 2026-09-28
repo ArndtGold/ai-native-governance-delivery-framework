@@ -1,6 +1,6 @@
 import { validateRunPresentation } from "./run-presentation.js";
 import { validateGateApprovalResponse } from "./gate-approval-validator.js";
-import { parseControlState } from "./run-state-parser.js";
+import { duplicateArtefactRowTypes, parseControlState } from "./run-state-parser.js";
 import { firstSection, guardedWrite, readRun, rejected, replaceFirstScalar, tableCells, tableLine, tableLineIndexes, upsertTableRow } from "./run-state-edits.js";
 import { APPROVAL_GATES, artefactFileDigest, canonicalRunText, runSealState } from "./run-seal.js";
 import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
@@ -83,6 +83,11 @@ export function recordRunRevision(root, { runId, revisionId }) {
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
   if (run.meta.revision_id !== revisionId) return rejected(runId, "stale_revision");
+  const duplicates = duplicateArtefactRowTypes(run.content);
+  if (duplicates.length) return rejected(runId, "artefact_row_duplicate", {
+    artefact_types: duplicates,
+    recovery: "Keep one Artefacts row per type, then retry run-update with the current revision_id.",
+  });
   const seal = runSealState(root, run.content);
   if (seal.status === "valid") {
     return Object.freeze({ schema_version: "1", outcome: "unchanged", run_id: runId, revision: run.meta.revision, revision_id: run.meta.revision_id });

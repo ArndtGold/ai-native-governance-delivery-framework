@@ -12,7 +12,7 @@ import {
 } from "node:fs";
 import { dirname } from "node:path";
 
-import { parseRunState } from "./run-state-parser.js";
+import { duplicateArtefactRowTypes, parseRunState } from "./run-state-parser.js";
 import { approvalSeal, canonicalRunText, runRootFromStatePath, runSealState, sealRunState } from "./run-seal.js";
 
 function fsyncDirectory(path) {
@@ -88,6 +88,7 @@ export function writeRun(path, content, expectedRevisionId, { allowApprovalChang
       throw new Error("AGDF_RUN_APPROVALS_UNRECORDED");
     }
 
+    if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
     validateBeforeWrite?.();
     const next = sealRunState(root, canonicalRunText(content)
       .replace(

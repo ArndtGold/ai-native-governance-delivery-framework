@@ -419,7 +419,7 @@ function writeOpenCodeReadme(skillSlugs) {
     "- Preserve an explicit user `permission.question: deny`; AGDF then uses exact textual approval and never interprets OpenCode permission outcomes or auto mode as gate authority.",
     "- After positive Request Activation selects actual delivery work, load `agdf-global-gate-check` through OpenCode's native `skill` tool. Unclear approval alone never activates AGDF.",
     "- Use `npx --yes @agdf/cli@latest opencode-status --json` to distinguish global hook/native-skill configuration, package loadability, durable activation, legacy compatibility and session activity.",
-    "- For deterministic ready-gate rendering, prefer an installed `agdf gate-check --approval-envelope`; reserve `agdf gate-check --json` for native-adapter input, automation or audit evidence and use `npx ...@latest` only for bootstrap, refresh or a missing local executable.",
+    "- For a read-only ready-gate preview, use installed `agdf gate-check --approval-envelope`; prepare the actual approval with `run-present` before asking the user. Reserve `agdf gate-check --json` for native-adapter input, automation or audit evidence and use `npx ...@latest` only for bootstrap, refresh or a missing local executable.",
     "- The globally installed runtime contract is the shared gate and output contract.",
     "",
     "## Skills",

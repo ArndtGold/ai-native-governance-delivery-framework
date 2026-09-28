@@ -350,11 +350,14 @@ user request may reopen the unchanged decision after revalidation; it is not an
 automatic retry.
 
 For deterministic local projection, use an already installed `agdf gate-check
---json` and consume `approval_presentation`, or use `agdf gate-check
---approval-envelope` on an exact-text surface. These are renderer/validator
+--json` or `agdf gate-check --approval-envelope` for a read-only artefact preview.
+Neither output asks for an approval. The agent first prepares the bound decision
+with `run-present`, then shows its returned text. These are renderer/validator
 helpers, not a second UX or gate authority. Do not require a registry-resolved
 `npx ...@latest` call for each normal interaction. `npx` remains the explicit
 bootstrap, installation, refresh or missing-local-executable path.
+Read-only dispatcher results expose a compact run snapshot and preview; the full
+gate report remains available through `gate-check --json` for diagnosis.
 
 A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. A localized label, description, option position, recommendation style or host action never authorizes a gate. Revise, decline and cancel outcomes never advance a gate.
 

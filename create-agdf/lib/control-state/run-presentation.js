@@ -3,7 +3,7 @@ import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, openS
 import { basename, dirname, join } from "node:path";
 import { runPath } from "./run-state-reader.js";
 import { readRun, rejected } from "./run-state-edits.js";
-import { readRunState, resolvedArtefactFile } from "../control-evaluation/run-state.js";
+import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
 import { APPROVAL_GATES, runSealState } from "./run-seal.js";
 import { TextDecoder } from "node:util";
 import { interactionLocales } from "../cli/runtime-context.js";
@@ -173,7 +173,7 @@ function detectSourceLanguage(markdown) {
   return "";
 }
 
-function presentationText(root, report, { runId, gate, revisionId }, runState) {
+export function renderReviewableApproval(root, report, { runId, gate, revisionId }, runState) {
   const p = report.approval_presentation;
   if (!p) return null;
   const german = String(p.presentation_language ?? "").toLowerCase().startsWith("de");
@@ -209,7 +209,8 @@ function presentationText(root, report, { runId, gate, revisionId }, runState) {
     artifactSection, p.blocks?.gate_transition_card?.markdown,
     p.approval_interaction?.exact_text_fallback];
   return parts.every((part) => typeof part === "string" && part.trim())
-    ? { text: parts.join("\n\n"), artefact_digest: artefactDigest, summary_digest: summaryDigest } : null;
+    ? { markdown: parts.join("\n\n"), preview_markdown: artifactSection,
+        artefact_digest: artefactDigest, summary_digest: summaryDigest } : null;
 }
 
 function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck) {
@@ -220,8 +221,13 @@ function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck)
   const seal = runSealState(root, run.content);
   if (seal.status !== "valid") throw new Error("presentation_state_changed");
   const report = evaluateGateCheck(root, { runId, ...(language ? { presentationLanguage: language } : {}) });
-  const artefactPresentation = presentationText(root, report, { runId, gate, revisionId }, readRunState(root, { runId }));
-  const text = artefactPresentation?.text;
+  const artefactPresentation = report.approval_presentation;
+  const text = artefactPresentation?.markdown;
+  if (report.status !== "open" && report.blocking_reason && report.blocking_reason !== "none") {
+    const error = new Error(report.blocking_reason);
+    error.recovery = report.next_allowed_action;
+    throw error;
+  }
   if (report.status !== "open" || report.current_gate !== gate || report.missing_approval !== `Approval: ${gate}`
       || report.approval_presentation?.revision_id !== revisionId || !text) throw new Error("approval_presentation_unavailable");
   return { run_id: runId, gate, revision_id: revisionId, content_digest: seal.actual.content_seal,
@@ -253,7 +259,7 @@ export function prepareRunPresentation(root, input, { evaluateGateCheck }) {
     return Object.freeze({ ...record, schema_version: "1", outcome: "prepared", text, record_digest: hash(body),
       next_action: "Show text verbatim before waiting for a deliberate response. Pass this presentation_id to run-approve only for that response." });
   } catch (error) {
-    return rejected(runId, error.code ?? error.message, { recovery });
+    return rejected(runId, error.code ?? error.message, { recovery: error.recovery ?? recovery });
   }
 }
 
@@ -280,6 +286,6 @@ export function validateRunPresentation(root, { runId, gate, revisionId, present
     if (Object.entries(fresh).some(([key, value]) => key !== "text" && record[key] !== value)) throw new Error("presentation_state_changed");
     return { presentationId, digest };
   } catch (error) {
-    return { reason: error.code === "ENOENT" ? "presentation_missing" : error.message, recovery };
+    return { reason: error.code === "ENOENT" ? "presentation_missing" : error.message, recovery: error.recovery ?? recovery };
   }
 }

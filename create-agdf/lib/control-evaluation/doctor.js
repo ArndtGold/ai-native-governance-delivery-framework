@@ -248,6 +248,16 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
     }
 
     const runState = selectedRunState;
+    for (const type of runState.artefact_row_duplicates ?? []) {
+      addFinding(
+        findings,
+        "block",
+        "AGDF_ARTEFACT_ROW_DUPLICATE",
+        `The selected run has more than one Artefacts row for ${type}; the effective artefact is ambiguous.`,
+        runState.path,
+        `Keep exactly one ${type} row, record the reviewed correction with run-update, then retry the gate presentation.`,
+      );
+    }
     if (modeSliceDecision(runState) === "verified_change") {
       const verifiedChange = evaluateVerifiedChange(targetDir, runState, dependencies);
       for (const finding of verifiedChange.findings) {

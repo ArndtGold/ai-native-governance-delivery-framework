@@ -60,7 +60,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Select an existing run only from an explicit request or unambiguous bound continuation. For intake_mode new, choose a new id for the authorized change; never reuse an existing run." },
       intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
       intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
-      continue_delivery: { type: "boolean", description: "Set only for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
+      continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
   },
@@ -220,7 +220,7 @@ export function normalizeSkillDispatchInput(input, registry) {
   }
   if (input.continueDelivery !== undefined && (typeof input.continueDelivery !== "boolean"
       || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
-    throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires a bound run and excludes intake");
+    throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
   }
   return Object.freeze({
     schema_version: SKILL_DISPATCH_SCHEMA_VERSION,

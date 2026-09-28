@@ -30,8 +30,9 @@ import {
   validateGateApprovalResponse,
 } from "../lib/control-state/index.js";
 import { parseControlState, RUN_ID_PATTERN } from "../lib/control-state/run-state-parser.js";
+import { sealRunState } from "../lib/control-state/run-seal.js";
 import { validateRunIdentity, RUN_ID_PATTERN as identityRunIdPattern } from "../lib/control-state/run-identity.js";
-import { evaluateGateCheck, postApprovalTransition } from "../lib/control-evaluation/gate-check.js";
+import { evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 import { evaluateDoctor } from "../lib/control-evaluation/doctor.js";
 import { policyForRunContent } from "../lib/control-evaluation/run-step-policy.js";
 import { recordRunStep } from "../lib/control-state/run-steps.js";
@@ -143,6 +144,7 @@ try {
     [...parsedControlState.artefacts.keys()],
     ["Brownfield Review", "Brownfield Analysis", "CD+Tests", "CR", "QA", "OR"],
   );
+  assert.deepEqual(parsedControlState.artefact_row_duplicates, []);
   assert.equal(parsedControlState.artefacts.get("OR")?.path, "OR.md");
   assert.equal(parsedControlState.artefacts.get("OR")?.path_format, "code_span");
   const invalidPathState = parseControlState(controlStateFixture.replace("`OR.md`", "`OR.md"), { closeoutArtefacts: ["OR"] });
@@ -414,6 +416,14 @@ ${approvals}
     assert.equal(sealed.outcome, "updated");
     const prepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id }, { evaluateGateCheck });
     assert.equal(prepared.outcome, "prepared", `${gate} must prepare: ${JSON.stringify(prepared)}`);
+    const reviewable = evaluateGateCheck(readyRoot, { runId });
+    assert.equal(reviewable.approval_presentation?.markdown, prepared.text,
+      `${gate} gate-check and run-present must show the same artefact-bound review text`);
+    const statusLines = [];
+    assert.equal(printGateCheckReport(reviewable, false, true, { log: (line) => statusLines.push(line) }), true);
+    assert.equal(statusLines.join("\n"), reviewable.approval_presentation.preview_markdown,
+      `${gate} status-card output is a read-only artefact preview without an approval choice`);
+    assert.doesNotMatch(statusLines.join("\n"), /Approval: (?:UR|PRD|SD|TP|QA|UAT)/u);
     assert.ok(prepared.text.includes("Next step: Review the linked artefact; choose an option below."),
       `${gate} summary or options are clearly identified as the next user action`);
     assert.match(prepared.artefact_digest, /^sha256:[0-9a-f]{64}$/u, `${gate} presentation binds the actual artefact body`);
@@ -461,6 +471,59 @@ ${approvals}
     assert.match(afterApproval.content, new RegExp(`^- next_allowed_action: .*(?:${nextGate}|${gate === "TP" ? "implementation" : "close"}).*$`, "m"), `${gate} approval refreshes the persisted next action`);
     assert.doesNotMatch(afterApproval.content, new RegExp(`\\| What is missing\\? \\| Exact Approval: ${gate}\\. \\|`), `${gate} is no longer reported as missing`);
     rmSync(readyRoot, { recursive: true, force: true });
+  }
+  // Writers reject duplicate artefact rows, and older sealed duplicates still block presentation.
+  {
+    const duplicateRoot = mkdtempSync(join(tmpdir(), "agdf-duplicate-artefact-"));
+    try {
+      initializeCanonicalControl(duplicateRoot, generatedFilesForTarget("init", duplicateRoot, false, "de"));
+      const statePath = createRun(duplicateRoot, "duplicate-prd");
+      const original = readFileSync(statePath, "utf8");
+      const relativePrd = ".agdf/control/artefacts/duplicate-prd/PRD.md";
+      const absolutePrd = join(duplicateRoot, relativePrd);
+      mkdirSync(join(duplicateRoot, ".agdf", "control", "artefacts", "duplicate-prd"), { recursive: true });
+      writeFileSync(absolutePrd, "# PRD: Duplicate row\n\n## Product Scope\nReviewable content.\n");
+      const duplicate = original.replace("| PRD |  | missing |  |",
+        `| PRD | \`${relativePrd}\` | draft |  |\n| PRD |  | missing |  |`);
+      writeFileSync(statePath, duplicate);
+      const revisionId = parseRunState(original).meta.revision_id;
+      const rejectedDuplicate = recordRunRevision(duplicateRoot, { runId: "duplicate-prd", revisionId });
+      assert.equal(rejectedDuplicate.reason, "artefact_row_duplicate");
+      assert.deepEqual(rejectedDuplicate.artefact_types, ["PRD"]);
+      assert.match(rejectedDuplicate.recovery, /Keep one Artefacts row per type/u);
+      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_ARTEFACT_ROW_DUPLICATE/u);
+      assert.equal(readFileSync(statePath, "utf8"), duplicate, "rejected writes must preserve the run");
+      writeFileSync(statePath, sealRunState(duplicateRoot, duplicate), "utf8");
+      assert.equal(runSealState(duplicateRoot, readFileSync(statePath, "utf8")).status, "valid");
+      assert.equal(recordRunRevision(duplicateRoot, { runId: "duplicate-prd", revisionId }).reason,
+        "artefact_row_duplicate", "a legacy sealed duplicate is not an unchanged success");
+      const doctor = evaluateDoctor(duplicateRoot, { runId: "duplicate-prd" });
+      assert.equal(doctor.status, "block");
+      assert.ok(doctor.findings.some((finding) => finding.code === "AGDF_ARTEFACT_ROW_DUPLICATE"));
+      const report = evaluateGateCheck(duplicateRoot, { runId: "duplicate-prd", presentationLanguage: "de" });
+      assert.equal(report.blocking_reason, "AGDF_ARTEFACT_ROW_DUPLICATE");
+      assert.equal(report.approval_presentation, null);
+      assert.equal(report.status_card.missing_approval, "none", "a blocked card must not display an approval token");
+      assert.equal(report.status_card.next_gate_after_approval, "none", "a blocked card must not suggest a transition");
+      const statusLines = [];
+      assert.equal(printGateCheckReport(report, false, true, { log: (line) => statusLines.push(line) }), true);
+      assert.doesNotMatch(statusLines.join("\n"), /Approval: PRD|Nach Freigabe erlaubt|Nächstes Gate nach Freigabe/u);
+      assert.equal(report.allowed.some((item) => item.includes("approval")), false);
+      const lines = [];
+      const envelope = printApprovalEnvelope(report, { io: { log: (line) => lines.push(line) } });
+      assert.equal(envelope.requested_decision, false);
+      assert.doesNotMatch(lines.join("\n"), /Approval: PRD/u);
+      assert.equal(prepareRunPresentation(duplicateRoot, { runId: "duplicate-prd", gate: "UR", revisionId }, { evaluateGateCheck }).reason,
+        "AGDF_ARTEFACT_ROW_DUPLICATE");
+      writeFileSync(statePath, readFileSync(statePath, "utf8").replace("\n| PRD |  | missing |  |", ""));
+      const repaired = recordRunRevision(duplicateRoot, { runId: "duplicate-prd", revisionId });
+      assert.equal(repaired.outcome, "updated", "removing the extra row remains repairable");
+      assert.equal(runSealState(duplicateRoot, readFileSync(statePath, "utf8")).status, "valid");
+      assert.equal(evaluateDoctor(duplicateRoot, { runId: "duplicate-prd" }).findings.some((finding) =>
+        finding.code === "AGDF_ARTEFACT_ROW_DUPLICATE"), false);
+    } finally {
+      rmSync(duplicateRoot, { recursive: true, force: true });
+    }
   }
   const legacyMode = parseControlState(
     controlStateFixture.replace("## Mode/Slice Decision", "## Mode / Slice Decision"),

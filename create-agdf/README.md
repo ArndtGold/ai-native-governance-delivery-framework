@@ -253,6 +253,8 @@ agdf run-render-legacy --run <run_id>
 Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
 and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
 `run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows.
+Run writers also reject duplicate `Artefacts` rows; replace the existing row for a type, or remove
+an extra row and retry `run-update` to record the correction.
 `run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
 presented `revision_id`, records it with the approved artefact's digest and advances the revision.
 `run-step` records one standard small-path transition per call (UR registration, Mode/Slice route,
@@ -494,8 +496,8 @@ npx --yes create-agdf@latest gate-check --json
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
 
-Use an installed `agdf gate-check --approval-envelope` to print deterministic ready-gate cards and the
-exact-text request without a fresh registry lookup. Use `gate-check --status-card` for compact
+Use an installed `agdf gate-check --approval-envelope` for a read-only summary and link to the
+current artefact. Prepare a bound approval with `run-present` before asking the user. Use `gate-check --status-card` for compact
 operational detail and keep `gate-check --json` for native-adapter input, automation, CI, regression
 evidence and audit trails. The CLI output validates and renders the selected run; it does not replace
 the agent-native workflow or approve a gate.
@@ -564,10 +566,13 @@ This README is the package guide. Keep framework rationale, limits and examples 
 Non-sensitive feedback, examples and contributions are welcome through [GitHub Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues). To validate a local package change before proposing it, run:
 
 ```bash
+npm --prefix create-agdf run test:cli-gates
 npm --prefix create-agdf run smoke-test
 npm --prefix create-agdf run eval:skills
 npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-check-normal
 ```
+
+`test:cli-gates` runs the CLI against disposable repositories and prints each scenario's result and duration. During gate work, select one scenario with `npm --prefix create-agdf run test:cli-gates -- --case duplicate-prd` (`new-ur` and `bound-ur` are also available). Run the full smoke suite before release handoff.
 
 `eval:skills` is the credential-free deterministic CI lane. The recorder is an explicit supporting-evidence lane; it uses a disposable repository, records live provenance and refuses to persist a failing or mutation-violating result.
 

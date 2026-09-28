@@ -23,6 +23,10 @@ const contractModules = pluginDefinition.runtimeContract.modules.map((modulePath
   }
   return modulePath.slice(prefix.length);
 });
+const smokeStarted = performance.now();
+function smokePhase(name) {
+  console.log(`[smoke ${((performance.now() - smokeStarted) / 1000).toFixed(1)}s] ${name}`);
+}
 
 function runJson(args) {
   try {
@@ -194,6 +198,7 @@ function runOpenCodeCli(args, options = {}) {
   });
 }
 
+smokePhase("CLI metadata and release guards");
 if (packageJson.bin?.["create-agdf"] !== "./bin/create-agdf.js") {
   throw new Error("create-agdf must keep the backward-compatible create-agdf binary.");
 }
@@ -288,6 +293,7 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   }
 }
 
+smokePhase("codex global");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-codex-global-"));
   const logPath = join(tempDir, "codex.log");
@@ -325,6 +331,7 @@ if (args.join(" ") === "plugin list") {
   }
 }
 
+smokePhase("host installer scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-codex-mismatch-"));
   const logPath = join(tempDir, "codex.log");
@@ -357,6 +364,7 @@ if (args.join(" ") === "plugin list") {
   }
 }
 
+smokePhase("claude install");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-install-"));
   const logPath = join(tempDir, "claude.log");
@@ -393,6 +401,7 @@ if (args.join(" ") === "plugin install agdf@agdf" || args.join(" ") === "plugin 
   }
 }
 
+smokePhase("claude update");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-update-"));
   const logPath = join(tempDir, "claude.log");
@@ -428,6 +437,7 @@ if (args.join(" ") === "plugin install agdf@agdf") {
   }
 }
 
+smokePhase("Claude installer scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-claude-no-version-"));
   const logPath = join(tempDir, "claude.log");
@@ -488,6 +498,7 @@ if (generatedDeliveryPathSearchOutput.generation?.status !== "success"
   throw new Error("delivery-path-search CLI must expose bounded generated-candidate provenance and budgets.");
 }
 
+smokePhase("OpenCode global installation and validator");
 const openCodeConfigTempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-config-"));
 try {
   const openCodeSdkFixture = join(openCodeConfigTempDir, "node_modules", "@opencode-ai", "plugin");
@@ -658,6 +669,7 @@ try {
   rmSync(openCodeConfigTempDir, { recursive: true, force: true });
 }
 
+smokePhase("OpenCode installation and status scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-sdk-unavailable-"));
   try {
@@ -701,6 +713,7 @@ try {
   }
 }
 
+smokePhase("opencode global preservation");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-global-preservation-"));
   const userSkillPath = join(tempDir, "skills", "user-skill", "SKILL.md");
@@ -787,6 +800,7 @@ for (const explicitQuestionDecision of ["allow", "deny"]) {
   }
 }
 
+smokePhase("opencode global collision");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-global-collision-"));
   const configPath = join(tempDir, "opencode.json");
@@ -811,6 +825,7 @@ for (const explicitQuestionDecision of ["allow", "deny"]) {
   rmSync(tempDir, { recursive: true, force: true });
 }
 
+smokePhase("opencode validator package collision");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-validator-package-collision-"));
   const validatorPackagePath = join(tempDir, "agdf", "package.json");
@@ -951,6 +966,7 @@ function run(target, expectedFiles) {
   }
 }
 
+smokePhase("repository bootstrap scenarios");
 run("codex-repo", [
   join(".agdf", "control", "config.json"),
   join(".agents", "plugins", "marketplace.json"),
@@ -977,6 +993,7 @@ run("opencode-repo", [
   join(".agdf", "control", "templates", "artefacts", "QA_REPORT.md"),
 ]);
 
+smokePhase("opencode agent migration");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-agent-migration-"));
   const agentsDir = join(tempDir, ".opencode", "agents");
@@ -1012,6 +1029,7 @@ run("opencode-repo", [
   }
 }
 
+smokePhase("opencode existing config");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-opencode-existing-config-"));
 
@@ -1030,10 +1048,12 @@ run("opencode-repo", [
     rmSync(tempDir, { recursive: true, force: true });
   }
 }
+smokePhase("configuration and locale scenarios");
 run("config", [
   join(".agdf", "control", "config.json"),
 ]);
 
+smokePhase("init");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-init-"));
 
@@ -1115,6 +1135,7 @@ run("config", [
   }
 }
 
+smokePhase("gate check status card");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-status-card-"));
 
@@ -1144,6 +1165,7 @@ run("config", [
   }
 }
 
+smokePhase("language explicit");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-explicit-"));
 
@@ -1161,6 +1183,7 @@ run("config", [
   }
 }
 
+smokePhase("language config update");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-config-update-"));
 
@@ -1184,6 +1207,7 @@ run("config", [
   }
 }
 
+smokePhase("language locale");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-language-locale-"));
 
@@ -1210,6 +1234,7 @@ run("config", [
   }
 }
 
+smokePhase("localized status cards");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-status-card-i18n-"));
 
@@ -1220,8 +1245,9 @@ run("config", [
     if (!german.includes("## AGDF-Statuskarte")
       || !german.includes("| Ausgewählter Run |") || !german.includes("`locale-card`")
       || !german.includes("| Aktuelles Gate | Nutzeranforderungen (`UR`) |")
-      || !german.includes("| Fehlende Freigabe | Approval: UR |")) {
-      throw new Error("German chat language should render a German status card while preserving the exact English approval token.");
+      || !german.includes("| Fehlende Freigabe | keine |")
+      || /Approval: UR|Freigabe anfordern/u.test(german)) {
+      throw new Error("German chat language should render a German status card without requesting approval for an absent UR.");
     }
     for (const rawPrimary of ["internal_next_step", "next_user_gate", "mode_slice_decision", "Internal next step", "Allowed now:"]) {
       if (german.includes(rawPrimary)) throw new Error(`German primary status card must not expose mixed or raw process wording: ${rawPrimary}`);
@@ -1233,14 +1259,16 @@ run("config", [
     if (!fallback.includes("## AGDF status-card")
       || !fallback.includes("| Selected run |") || !fallback.includes("`locale-card`")
       || !fallback.includes("| Current gate | User requirements (`UR`) |")
-      || !fallback.includes("| Missing approval | Approval: UR |")) {
-      throw new Error("Unsupported chat language should fall back deterministically to English status-card copy.");
+      || !fallback.includes("| Missing approval | none |")
+      || /Approval: UR|request exact UR approval/u.test(fallback)) {
+      throw new Error("Unsupported chat language should fall back to English without requesting approval for an absent UR.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
 }
 
+smokePhase("status card tp transition");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-status-card-tp-transition-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "tp-transition", "RUN_STATE.md");
@@ -1313,7 +1341,7 @@ run("config", [
     }
     if (report.status_presentation?.run_id !== "tp-transition"
       || report.status_presentation?.revision_id !== report.approval_presentation?.revision_id
-      || !report.status_presentation?.markdown?.includes("| Allowed now |")
+      || !report.status_presentation?.markdown?.includes("| Agent may work on now |")
       || !report.status_presentation?.markdown?.includes("request exact TP approval")
       || report.status_presentation?.authorizes !== false) {
       throw new Error(`Gate-check JSON must expose one deterministic operational status presentation: ${JSON.stringify(report.status_presentation)}`);
@@ -1328,17 +1356,11 @@ run("config", [
       throw new Error(`Ready gate-check cards must contain the exact approval value once, got ${cardApprovalCount}.`);
     }
     const envelope = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "tp-transition", "--approval-envelope"], { encoding: "utf8", stdio: "pipe" });
-    if (!envelope.includes("## Review and decide on task and test plan")
-      || !envelope.includes("Required decision: Task and Test Plan approval")
-      || !envelope.includes("To approve, reply exactly with `Approval: TP`")) {
-      throw new Error(`gate-check --approval-envelope must render both cards and the safe exact-text request: ${envelope}`);
-    }
-    const envelopeApprovalCount = envelope.split("Approval: TP").length - 1;
-    if (envelopeApprovalCount !== 3) {
-      throw new Error(`Approval envelope must contain the exact value once in the snapshot cards, once in the full status card and once in the request, got ${envelopeApprovalCount}.`);
-    }
-    if (!envelope.includes("| Missing approval |") || !envelope.includes("| Allowed now |")) {
-      throw new Error("Approval envelope must render the complete operational Run Status Card between the cards.");
+    if (!envelope.includes("## Review summary · TP")
+      || !envelope.includes("## Review artefact · TP")
+      || !envelope.includes("Artefact: [TP.md]")
+      || envelope.includes("Approval: TP")) {
+      throw new Error(`gate-check --approval-envelope must preview the artefact without requesting an unbound approval: ${envelope}`);
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -1400,6 +1422,7 @@ run("config", [
   }
 }
 
+smokePhase("gate check implicit consent");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-implicit-consent-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -1470,8 +1493,8 @@ run("config", [
     if (gateCheckReport.missing_approval !== "Approval: UR") {
       throw new Error(`Gate-check should require exact UR approval, got ${gateCheckReport.missing_approval}.`);
     }
-    if (gateCheckReport.interaction_kind !== "gate_approval") {
-      throw new Error(`Gate-check should classify ready UR as gate_approval, got ${gateCheckReport.interaction_kind}.`);
+    if (gateCheckReport.interaction_kind !== "status" || gateCheckReport.approval_presentation !== null) {
+      throw new Error(`Gate-check must not request UR approval while its durable artefact is absent: ${gateCheckReport.interaction_kind}.`);
     }
     if (!gateCheckReport.forbidden.includes("implement code")) {
       throw new Error("Gate-check should forbid implementation when consent is only implicit.");
@@ -1481,6 +1504,7 @@ run("config", [
   }
 }
 
+smokePhase("late gate transition scenarios");
 {
   const cases = [
     { name: "brownfield", steps: {}, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
@@ -1488,9 +1512,9 @@ run("config", [
     { name: "cr", steps: { "Brownfield Analysis": "done", "CD+Tests": "done" }, qa: "missing", qaArtefact: ["", "missing"], uat: "missing", gate: "CR", missing: "none", allowed: "run mandatory code review", forbidden: "claim QA pass", next: "Run Code Review for the implemented TP scope and resolve blocking findings before QA." },
     { name: "qa-revise", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "revise"], uat: "missing", gate: "QA", missing: "none", allowed: "revise the implementation against the QA findings", forbidden: "request QA approval", next: "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.", status: "open" },
     { name: "qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "request QA approval", next: "Resolve or route the blocking QA findings via their authoritative owner, then rerun the required steps. Do not request Approval: QA from a block report.", status: "blocked" },
-    { name: "approved-qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "route the blocking QA findings to their authoritative owner", forbidden: "create later-gate artefacts beyond the current allowed gate", next: "Update the QA artefact row in the selected RUN_STATE.md to use the gate-specific durable status vocabulary.", status: "blocked" },
-    { name: "qa-approval", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA" },
-    { name: "brownfield-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "Run the QA gate, persist the QA report, and request exact approval: Approval: QA" },
+    { name: "approved-qa-block", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "block"], uat: "missing", gate: "QA", missing: "none", allowed: "complete the current control-state fields", forbidden: "create later-gate artefacts beyond the current allowed gate", next: "Update the QA artefact row in the selected RUN_STATE.md to use the gate-specific durable status vocabulary.", status: "blocked" },
+    { name: "qa-approval", steps: { "Brownfield Analysis": "done", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "persist or refine the QA report" },
+    { name: "brownfield-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "done", CR: "done" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "QA", missing: "Approval: QA", allowed: "run QA gate", forbidden: "request UAT approval", next: "persist or refine the QA report" },
     { name: "mandatory-not-applicable", steps: { "Brownfield Analysis": "not_applicable", "CD+Tests": "not_applicable", CR: "not_applicable" }, qa: "missing", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
     { name: "premature-qa", steps: {}, qa: "approved", qaArtefact: ["QA_REPORT.md", "pass"], uat: "missing", gate: "Brownfield Analysis", missing: "none", allowed: "run Brownfield Analysis for the approved TP scope", forbidden: "implement before Brownfield evidence supports the approved TP path", next: "Run Brownfield Analysis for the approved TP scope before CD+Tests." },
     { name: "premature-uat", steps: { "Brownfield Analysis": "done" }, qa: "approved", qaArtefact: ["QA_REPORT.md", "pass"], uat: "approved", gate: "CD+Tests", missing: "none", allowed: "implement the approved TP tasks", forbidden: "claim QA pass", next: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR." },
@@ -1599,6 +1623,7 @@ ${internalRows}
   }
 }
 
+smokePhase("QA and UAT gate scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-qa-passed-uat-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "qa-passed-run", "RUN_STATE.md");
@@ -1695,6 +1720,7 @@ ${internalRows}
   }
 }
 
+smokePhase("doctor qa status mismatch");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-qa-status-mismatch-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "qa-status-mismatch", "RUN_STATE.md");
@@ -1784,6 +1810,7 @@ ${internalRows}
   }
 }
 
+smokePhase("doctor missing");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-doctor-missing-"));
 
@@ -1846,6 +1873,7 @@ ${internalRows}
   }
 }
 
+smokePhase("gate check ur triage");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-ur-triage-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -1935,6 +1963,7 @@ ${internalRows}
   }
 }
 
+smokePhase("gate-check presentation scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-open-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -2027,26 +2056,29 @@ ${internalRows}
     if (gateCheckReport.next_allowed_action !== "Draft PRD.") {
       throw new Error(`Gate-check should expose the next allowed action, got ${gateCheckReport.next_allowed_action}.`);
     }
-    if (gateCheckReport.next_gate_after_approval !== "SD" || gateCheckReport.status_card?.next_gate_after_approval !== "SD") {
-      throw new Error("Gate-check should expose SD as the next gate after PRD approval.");
+    if (gateCheckReport.next_gate_after_approval !== "SD"
+        || gateCheckReport.status_card?.next_gate_after_approval !== "none") {
+      throw new Error("Gate-check should retain the planned SD transition without displaying it before the PRD is reviewable.");
     }
     if (!gateCheckReport.allowed_after_approval.includes("Draft Solution Design") || gateCheckReport.allowed_after_approval.includes("implementation is allowed")) {
       throw new Error("Gate-check should describe post-PRD approval authority without implying implementation authority.");
     }
-    if (!gateCheckReport.status_card?.allowed_after_approval.includes("Draft Solution Design")) {
-      throw new Error("Status card should expose allowed-after-approval text for a missing PRD approval.");
+    if (gateCheckReport.status_card?.allowed_after_approval !== "none"
+        || gateCheckReport.status_card?.missing_approval !== "none") {
+      throw new Error("Status card must not offer approval or post-approval authority before the PRD exists.");
     }
-    if (gateCheckReport.status_card?.next_user_gate !== "SD" || gateCheckReport.status_card?.user_action_required !== "yes") {
-      throw new Error("Status card should identify SD as the next actual user gate after PRD approval.");
+    if (gateCheckReport.status_card?.next_user_gate !== "none" || gateCheckReport.status_card?.user_action_required !== "no") {
+      throw new Error("Status card should require no user decision before the PRD is reviewable.");
     }
-    if (gateCheckReport.interaction_kind !== "gate_approval" || gateCheckReport.native_attempt_required !== false || gateCheckReport.status_card?.native_attempt_required !== false) {
-      throw new Error("A report-only ready gate must remain a gate approval while failing closed before native invocation without host capability evidence.");
+    if (gateCheckReport.interaction_kind !== "status" || gateCheckReport.approval_presentation !== null
+        || gateCheckReport.native_attempt_required !== false || gateCheckReport.status_card?.native_attempt_required !== false) {
+      throw new Error("A PRD gate without a durable artefact remains informational and cannot request approval.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
-    if (!statusCardOutput.includes("| Next gate after approval | SD |")
-      || !statusCardOutput.includes("| Allowed after approval | Draft Solution Design; implementation remains forbidden. |")
-      || statusCardOutput.includes("| User action required |")) {
-      throw new Error("gate-check --status-card should print post-approval transition lines for missing approval cases.");
+    if (statusCardOutput.includes("| Next gate after approval |")
+      || statusCardOutput.includes("| Allowed after approval |")
+      || statusCardOutput.includes("Approval: PRD")) {
+      throw new Error("gate-check --status-card should show the drafting step without suggesting approval of an absent PRD.");
     }
     if (gateCheckReport.evidence_refs.length !== 1 || gateCheckReport.evidence_refs[0].evidence !== "UR approval") {
       throw new Error("Gate-check should expose filled evidence references.");
@@ -2056,6 +2088,7 @@ ${internalRows}
   }
 }
 
+smokePhase("Mode and slice decision scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-mode-slice-missing-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -2137,14 +2170,16 @@ ${internalRows}
       throw new Error("Internal-step status card should distinguish its next internal step from user approval.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
-    if (!statusCardOutput.includes("| Next gate after approval | none |") || !statusCardOutput.includes("| Allowed after approval | none |")) {
-      throw new Error("Internal-step status card should deterministically render empty post-approval authority.");
+    if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
+        || !statusCardOutput.includes("| Missing approval | none |") || !statusCardOutput.includes("| Next step |")) {
+      throw new Error("Internal-step status card should show its next step without implying approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
 }
 
+smokePhase("gate check or handoff");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-or-handoff-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "or-run", "RUN_STATE.md");
@@ -2219,14 +2254,16 @@ ${internalRows}
       throw new Error("OR handoff should not expose post-approval transition fields.");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--status-card"], { encoding: "utf8" });
-    if (!statusCardOutput.includes("| Next gate after approval | none |") || !statusCardOutput.includes("| Allowed after approval | none |")) {
-      throw new Error("OR handoff status card should deterministically render empty post-approval authority.");
+    if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
+        || !statusCardOutput.includes("| Missing approval | none |") || !statusCardOutput.includes("| Next step |")) {
+      throw new Error("OR handoff status card should show its next step without implying approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
 }
 
+smokePhase("gate check mode slice incomplete");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-mode-slice-incomplete-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -2313,6 +2350,7 @@ ${internalRows}
   }
 }
 
+smokePhase("delivery map chain");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-delivery-map-chain-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -2451,8 +2489,10 @@ ${internalRows}
       if (gateCheckReport.status_card?.current_gate !== "SD") {
         throw new Error("Gate-check should expose a Run Status Card with the current gate.");
       }
-      if (!gateCheckReport.status_card?.allowed_now?.includes("draft or refine Solution Design")) {
-        throw new Error("Gate-check status card should expose currently allowed actions.");
+      if (gateCheckReport.status !== "blocked"
+          || !gateCheckReport.status_card?.allowed_now?.some((action) => gateCheckReport.allowed.includes(action))
+          || gateCheckReport.status_card.allowed_now.includes("draft or refine Solution Design")) {
+        throw new Error("A blocked gate-check status card should expose repair actions without authorizing SD drafting.");
       }
       if (!gateCheckReport.quality_outlook || gateCheckReport.status_card?.quality_outlook !== gateCheckReport.quality_outlook) {
         throw new Error("Gate-check should expose quality_outlook consistently on the report and status card.");
@@ -2466,6 +2506,7 @@ ${internalRows}
   }
 }
 
+smokePhase("delivery map and backlog scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-compact-backlog-"));
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
@@ -2549,6 +2590,7 @@ ${statusRows}
   }
 }
 
+smokePhase("invalid compact backlog");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-invalid-compact-backlog-"));
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
@@ -2587,6 +2629,7 @@ ${statusRows}
   }
 }
 
+smokePhase("completed only backlog");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-completed-only-backlog-"));
   const backlogPath = join(tempDir, ".agdf", "control", "MASTER_BACKLOG.md");
@@ -2621,6 +2664,7 @@ ${statusRows}
   }
 }
 
+smokePhase("gate check missing ur artifact");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-missing-ur-artifact-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -2704,6 +2748,7 @@ ${statusRows}
   }
 }
 
+smokePhase("missing artefact and package compatibility scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-missing-prd-artifact-"));
   const runPath = join(tempDir, ".agdf", "control", "runs", "test-run", "RUN_STATE.md");
@@ -2952,6 +2997,7 @@ ${missingCase.chain.join("\n")}
   }
 }
 
+smokePhase("generated host surface scenarios");
 {
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-retired-copilot-targets-"));
   const existingAgentsPath = join(tempDir, "AGENTS.md");

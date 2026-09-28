@@ -90,6 +90,7 @@ assert.match(schema.properties.primary_target.description, /Never derive it from
 assert.match(schema.properties.run_id.description, /explicit request or unambiguous bound continuation/u);
 assert.match(schema.properties.continue_delivery.description, /implementation-preparation Brownfield Analysis after TP approval/u);
 assert.match(schema.properties.continue_delivery.description, /OR closeout after UAT approval/u);
+assert.match(schema.properties.continue_delivery.description, /only with skill_id gate-check/u);
 
 const targetChoices = schema.properties.target_source.oneOf;
 assert.deepEqual(targetChoices.map((choice) => choice.const), TASK_TARGET_SOURCES);
@@ -147,6 +148,9 @@ for (const fields of [{ intake: true, intake_mode: "new" }, { intake: true, inta
 for (const fields of [{ intake_mode: "new" }, { intake: true, intake_mode: "invalid" }, { intake: true, continue_delivery: true }, { continue_delivery: "true" }]) {
   assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput, ...fields }, transportContext), registry));
 }
+assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput,
+  skill_id: "brownfield-analysis", continue_delivery: true }, transportContext), registry),
+  /continue_delivery requires skill_id gate-check/u);
 const semanticInvalid = parseSkillDispatchFunctionArguments({
   skill_id: "not-a-real-agdf-skill",
   presentation_language: "de",

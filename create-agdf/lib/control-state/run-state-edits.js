@@ -10,6 +10,7 @@ const WRITE_REJECTIONS = new Map([
   ["AGDF_RUN_APPROVALS_UNRECORDED", "approvals_unrecorded"],
   ["AGDF_RUN_SEAL_INVALID", "seal_invalid"],
   ["AGDF_RUN_STATE_INVALID", "run_state_invalid"],
+  ["AGDF_ARTEFACT_ROW_DUPLICATE", "artefact_row_duplicate"],
 ]);
 
 export function rejected(runId, reason, details = {}) {

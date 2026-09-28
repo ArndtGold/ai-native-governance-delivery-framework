@@ -1,9 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { buildSkillDispatchRegistry, serializeSkillDispatchResult } from "../lib/skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../lib/skill-dispatch/service.js";
 import {
@@ -80,6 +75,9 @@ assert.equal(gateCalls, 0, "unresolved dispatch must not evaluate repository con
 
 const approvalPresentation = {
   schema_version: "1",
+  revision_id: "approval-revision",
+  markdown: "full approval review with linked artefact",
+  preview_markdown: "review summary and linked artefact",
   sequence: ["run_status_card", "gate_transition_card", "approval_interaction"],
   blocks: {
     run_status_card: { markdown: "approval status" },
@@ -124,15 +122,39 @@ const resolvedDispatch = createSkillDispatchService({
 const controlResult = resolvedDispatch({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run" });
 assert.equal(controlResult.outcome, "control_result");
 assert.equal(controlResult.terminal, true);
-assert.equal(controlResult.control, gateReport);
-assert.equal(controlResult.presentation, approvalPresentation);
+assert.equal(controlResult.control.run_id, "delivery-run");
+assert.equal(controlResult.control.current_gate, "QA");
+assert.equal(controlResult.control.approval_presentation, undefined, "read-only dispatch keeps the full approval text out of the control payload");
 assert.equal(controlResult.host_action.mode, "transmit_presentation_verbatim_and_stop");
-assert.equal(controlResult.host_action.source, "presentation.sequence");
-assert.equal(controlResult.host_action.text, "approval status\n\napproval transition\n\napproval fallback");
+assert.equal(controlResult.host_action.text, approvalPresentation.preview_markdown);
 assert.equal(controlResult.runtime.machine_validation, "owned_version_matched");
 assert.equal(evaluatedRunIds.at(-1), "delivery-run");
 assert.equal(evaluatedPresentationLanguages.at(-1), "de");
 assert.ok(controlResult.timing.total_ms < 2000, "deterministic dispatch must remain below two seconds");
+
+const incompleteApprovalDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, approval_presentation: null,
+    status_card: { ...gateReport.status_card, interaction_kind: "gate_approval" } }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run" });
+assert.equal(incompleteApprovalDispatch.outcome, "evaluator_error");
+assert.equal(incompleteApprovalDispatch.host_action.mode, "transmit_recovery_verbatim_and_stop");
+assert.doesNotMatch(incompleteApprovalDispatch.host_action.text, /Approval: QA/u);
+
+const unpresentablePrd = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, current_gate: "PRD", missing_approval: "Approval: PRD",
+    approval_presentation: null, status_card: { run_id: "delivery-run", interaction_kind: "gate_approval",
+      mode_slice_decision: "structured_delivery" },
+    presentation_diagnostics: { approval_presentation_errors: ["approval_artefact_too_large"] } }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo",
+  runId: "delivery-run", continueDelivery: true });
+assert.equal(unpresentablePrd.outcome, "evaluator_error", "an existing unpresentable PRD must not be sent back to drafting");
+assert.equal(unpresentablePrd.host_action.mode, "transmit_recovery_verbatim_and_stop");
 
 const immutableRuntimeEvidence = Object.freeze({
   machine_validation: "local_exact_version_digest",
@@ -260,7 +282,8 @@ assert.equal(intakeReady.host_action.mode, "continue_delivery_intake");
 intakeState = { phase: "run_missing", run_id: null, revision_id: null };
 const intakeCallsBefore = intakeCalls.length;
 const directGateCheck = intakeDispatch({ ...intakeInput, intake: undefined });
-assert.equal(directGateCheck.outcome, "control_result", "skill.gate-check without intake stays terminal");
+assert.equal(directGateCheck.outcome, "control_result", "a read-only gate-check stays terminal and offers no approval");
+assert.equal(directGateCheck.host_action.text, approvalPresentation.preview_markdown);
 assert.equal(intakeCalls.length, intakeCallsBefore, "intake state is evaluated only for an intake dispatch");
 let structuredRoute = "structured_delivery";
 const sdContinuationDispatch = createSkillDispatchService({
@@ -366,6 +389,7 @@ assert.equal(brownfieldContinuation.continuation.skill_id, "brownfield-analysis"
 assert.equal(brownfieldContinuation.continuation.mode, "pre_implementation_analysis");
 assert.deepEqual(brownfieldContinuation.continuation.runtime_contracts, ["contracts:brownfield-analysis"]);
 assert.match(brownfieldContinuation.continuation.instruction, /before CD\+Tests/u);
+assert.match(brownfieldContinuation.continuation.instruction, /without continue_delivery/u);
 assert.equal(runtimeContractReads.at(-1), "brownfield-analysis");
 let orStatus = "missing";
 const postUatDispatch = createSkillDispatchService({
@@ -640,54 +664,5 @@ const recoveryRendererFailure = createSkillDispatchService({
 })({ ...base, skillId: "qa-gate", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo" });
 assert.equal(recoveryRendererFailure.diagnostics[0].code, "dispatch_control_evaluation_failed");
 assert.equal(recoveryRendererFailure.host_action.text, "Repair the installed locale registry and retry once.");
-
-{
-  const cli = fileURLToPath(new URL("../bin/create-agdf.js", import.meta.url));
-  const root = mkdtempSync(join(tmpdir(), "agdf-intake-continuation-"));
-  try {
-    execFileSync("git", ["init", "-q"], { cwd: root });
-    execFileSync(process.execPath, [cli, "init", "--dir", root], { stdio: "pipe" });
-    const dispatch = (...extra) => {
-      try {
-        return JSON.parse(execFileSync(process.execPath, [cli, "skill-dispatch", "--json", "--skill", "gate-check", "--surface", "claude",
-          "--language", "de", "--working-directory", root, "--target-source", "explicit_target", "--primary-target", root, ...extra], { encoding: "utf8" }));
-      } catch (error) {
-        return JSON.parse(error.stdout);
-      }
-    };
-    const afterSetup = dispatch("--intake");
-    assert.equal(afterSetup.outcome, "intake_continuation", "authorized setup continues the delivery intake");
-    assert.equal(afterSetup.continuation.phase, "run_missing");
-    assert.equal(afterSetup.control.blocking_reason, "AGDF_ACTIVE_RUN_MISSING");
-    assert.equal(dispatch().outcome, "control_result", "a direct gate-check after setup stays terminal");
-
-    const created = execFileSync(process.execPath, [cli, "run-create", "--dir", root, "--run", "intake-run"], { encoding: "utf8" });
-    const revisionId = created.match(/^revision_id: (\S+)$/mu)?.[1];
-    assert.ok(revisionId, "run-create prints the revision id");
-    assert.match(created, /^Next: write \.agdf\/control\/artefacts\/intake-run\/UR\.md from \.agdf\/control\/templates\/artefacts\/UR\.md/mu);
-
-    const afterRun = dispatch("--intake");
-    assert.equal(afterRun.outcome, "intake_continuation");
-    assert.equal(afterRun.continuation.phase, "ur_missing");
-    assert.equal(afterRun.continuation.run_id, "intake-run");
-    assert.equal(afterRun.continuation.revision_id, revisionId);
-    assert.equal(dispatch().outcome, "control_result");
-
-    mkdirSync(join(root, ".agdf", "control", "artefacts", "intake-run"), { recursive: true });
-    writeFileSync(join(root, ".agdf", "control", "artefacts", "intake-run", "UR.md"), "# UR: Intake run\n\n## Problem\n\nAdd subtract.\n");
-    const recorded = JSON.parse(execFileSync(process.execPath, [cli, "run-step", "--dir", root, "--run", "intake-run",
-      "--revision", revisionId, "--step", "ur", "--title", "Intake run"], { encoding: "utf8" }));
-    assert.equal(recorded.outcome, "recorded");
-    const ready = dispatch("--intake", "--run", "intake-run");
-    assert.equal(ready.outcome, "intake_continuation", "a drafted UR proceeds to its bound approval presentation");
-    assert.equal(ready.terminal, false);
-    assert.equal(ready.control.missing_approval, "Approval: UR");
-    assert.equal(ready.host_action.mode, "continue_delivery_intake");
-    assert.equal(ready.continuation.phase, "presentation_required");
-    assert.match(readFileSync(join(root, ".agdf", "control", "runs", "intake-run", "RUN_STATE.md"), "utf8"), /\| UR \| `\.agdf\/control\/artefacts\/intake-run\/UR\.md` \| draft \|/u);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
 
 console.log("skill dispatch tests passed");

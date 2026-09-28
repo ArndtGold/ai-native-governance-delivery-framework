@@ -229,7 +229,7 @@ Options:
   --verbose       Print captured host command output and generated-file details
   --status-card  Print compact gate-check status-card output for interactive use
   --approval-envelope
-                 Print the deterministic ready-gate cards and exact-text request
+                 Preview the current gate artefact; run-present is required before asking for approval
   --run <run_id> Select one canonical run
   --module <runtime-contract-module>
                  Runtime-contract module for contract, for example gate-transition

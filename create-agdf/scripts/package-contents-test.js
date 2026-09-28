@@ -20,11 +20,12 @@ try {
 } finally {
   rmSync(npmCache, { recursive: true, force: true });
 }
-const reportStart = packOutput.search(/^\[/m);
-assert.notEqual(reportStart, -1, "npm pack must emit a JSON report after prepack output");
-const report = JSON.parse(packOutput.slice(reportStart));
-const files = report[0]?.files?.map((entry) => entry.path) ?? [];
 const packageManifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+const reportStarts = [...packOutput.matchAll(/^(?:\[|\{)$/gm)];
+assert.ok(reportStarts.length, "npm pack must emit a JSON report after prepack output");
+const rawReport = JSON.parse(packOutput.slice(reportStarts.at(-1).index));
+const packageReport = Array.isArray(rawReport) ? rawReport[0] : rawReport[packageManifest.name];
+const files = packageReport?.files?.map((entry) => entry.path) ?? [];
 const pluginDefinition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
 const required = [
   "generated/.opencode/AGDF.md",

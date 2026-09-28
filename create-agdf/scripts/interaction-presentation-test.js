@@ -833,34 +833,33 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
   const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
   const lines = [];
   const fullCardMarkdown = "## AGDF status card\n\n| Field | Value |\n|---|---|\n| Missing approval | Approval: UR |";
+  const reviewMarkdown = `${rendered.blocks.run_status_card.markdown}\n\n${fullCardMarkdown}\n\n## Review artefact · UR\n\nArtefact: [UR.md](</repo/UR.md>)\n\n${rendered.blocks.gate_transition_card.markdown}\n\n${rendered.approval_interaction.exact_text_fallback}`;
+  const previewMarkdown = "## Review summary · UR\n\nArtefact: [UR.md](</repo/UR.md>)";
   const output = printApprovalEnvelope({
     status: "open",
-    approval_presentation: rendered,
+    approval_presentation: { ...rendered, markdown: reviewMarkdown, preview_markdown: previewMarkdown },
     status_presentation: { markdown: fullCardMarkdown },
   }, { io: { log: (line = "") => lines.push(String(line)) } });
-  assert.equal(output.outcome, "rendered");
-  assert.equal(output.requested_decision, true);
-  assert.equal(lines.length, 7);
-  assert.match(lines[0], /^## Nutzeranforderungen prüfen und entscheiden/);
-  assert.equal(lines[2], fullCardMarkdown, "envelope renders the full operational status card verbatim between the cards");
-  assert.equal(lines.filter((line) => line === fullCardMarkdown).length, 1, "full card appears exactly once");
-  assert.match(lines[4], /Nutzeranforderungen ·/);
-  assert.match(lines.at(-1), /Approval: UR/);
+  assert.equal(output.outcome, "preview");
+  assert.equal(output.requested_decision, false);
+  assert.deepEqual(lines, [previewMarkdown], "the read-only envelope previews the artefact without soliciting an unbound approval");
 }
 
 {
-  // Degradation: a ready gate without a deliverable full card names the codes at the card position.
+  // A partial card never asks for approval when the complete review text is unavailable.
   const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
   const lines = [];
   const output = printApprovalEnvelope({
     status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
     approval_presentation: rendered,
     status_presentation: null,
     presentation_diagnostics: { status_presentation_errors: ["run_id_missing"] },
   }, { io: { log: (line = "") => lines.push(String(line)) } });
-  assert.equal(output.outcome, "rendered");
-  assert.match(lines[2], /run_id_missing/, "degradation line carries the concrete codes");
-  assert.match(lines.at(-1), /Approval: UR/, "decision is still requested");
+  assert.equal(output.outcome, "presentation_unavailable");
+  assert.equal(output.requested_decision, false);
+  assert.doesNotMatch(lines.join("\n"), /Approval: UR/);
 }
 
 {
@@ -869,11 +868,13 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
   const lines = [];
   printApprovalEnvelope({
     status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
     approval_presentation: rendered,
     status_presentation: null,
     presentation_diagnostics: { status_presentation_errors: [] },
   }, { io: { log: (line = "") => lines.push(String(line)) } });
-  assert.doesNotMatch(lines[2], /\(\)/, "no empty parentheses on the degradation line");
+  assert.doesNotMatch(lines[0], /\(\)/, "no empty parentheses on the failure line");
 }
 
 {
@@ -889,10 +890,10 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
     io: { log: (line = "") => lines.push(String(line)) },
     reEvaluate: () => ({ ...readyReport }),
   });
-  assert.equal(output.outcome, "exact_text_recovery");
-  assert.equal(output.requested_decision, true);
+  assert.equal(output.outcome, "presentation_unavailable");
+  assert.equal(output.requested_decision, false);
   assert.match(lines[0], /could not be rendered safely/);
-  assert.match(lines[1], /Approval: UR/);
+  assert.doesNotMatch(lines.join("\n"), /Approval: UR/);
 }
 
 {
@@ -1062,9 +1063,10 @@ assert.equal(validateLocaleRegistry(longLocale).valid, false);
     status_card: { presentation_language: "en" },
   };
   const envelopeResult = printApprovalEnvelope(readyReport, { io: envelopeIo, reEvaluate: () => readyReport });
-  assert.equal(envelopeResult.outcome, "exact_text_recovery");
+  assert.equal(envelopeResult.outcome, "presentation_unavailable");
+  assert.equal(envelopeResult.requested_decision, false);
   assert.match(envelopeLines.join("\n"), /revision_identity/, "IPP: envelope fallback names the error codes");
-  assert.match(envelopeLines.join("\n"), /Approval: UR/, "IPP: envelope fallback still requests the exact approval");
+  assert.doesNotMatch(envelopeLines.join("\n"), /Approval: UR/, "IPP: envelope fallback never requests approval without the artefact");
 }
 
 console.log("interaction presentation tests passed");

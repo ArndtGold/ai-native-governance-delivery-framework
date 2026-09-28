@@ -8,7 +8,6 @@ description: "Use this skill for this scope: new build/change intent, Structured
 ## Purpose
 
 After positive Request Activation, return the earliest gate or internal step through canonical owners.
-This non-authorizing bootstrap creates no parallel policy.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation
@@ -31,22 +30,22 @@ Then choose one catalog route. Non-authorizing; downstream checks remain.
 
 ## Route Boundary
 
-Continue only with the operation selected from the canonical catalog:
+Use only the selected catalog operation:
 
 - `skill.gate-check`: dispatch first, with `intake` for a change; no prior repository/control inspection.
-- `delivery.start`: resolve target once for draft/setup. Unresolved target: canonical orientation and stop.
-  Inspect only `absent | candidate_present`. If absent, follow authorized canonical setup and persist UR
-  before requesting approval. If present, dispatch with intake and the same target; dispatcher owns control
-  evaluation. Mismatches stop. Never infer target from cwd, create legacy live runs or proxy other operations.
+- `delivery.start`: resolve target once for draft/setup; if unresolved, show canonical orientation and stop.
+  Inspect only `absent | candidate_present`. If absent, perform authorized setup and persist UR before
+  approval. If present, dispatch intake for the same target; dispatcher evaluates control. Stop on
+  mismatch. Cwd selects no target; create no legacy live run or proxy operation.
 
-New authorized scope: `intake: true`, `intake_mode: new`, unused `run_id`; never reuse a foreign run.
+New scope: `intake: true`, `intake_mode: new`, unused `run_id`; never reuse a run.
 Resume bound intake with `intake_mode: resume`. After recorded UR approval use `continue_delivery: true`
-with that run, never for status. Execute returned Brownfield/routing; stop on an unchanged blocker.
-When a continuation names another skill, invoke that skill without `continue_delivery`; use the flag
-only on the next bound `gate-check` dispatch.
+for that run, never for status. Execute Brownfield/routing; stop on an unchanged blocker. If a
+continuation names another skill, invoke it without `continue_delivery`; use that flag only on the
+next bound `gate-check` dispatch.
 For `presentation_required`, run the supplied `run-present`, show its exact text, wait for a NEW reply,
-and retain `presentation_id` for `run-approve --presentation`. Never bind an earlier reply retroactively.
-Read-only previews are not prepared bindings.
+and retain `presentation_id` for `run-approve --presentation`. Never bind an earlier reply.
+Read-only previews are unbound.
 
 ## Executable Dispatch
 

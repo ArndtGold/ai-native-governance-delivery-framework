@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -16,6 +17,12 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
 const pluginRoot = join(repoRoot, "plugin");
 const outputRoot = join(packageRoot, "generated", "submissions", "openai", "agdf");
+const generatedHostRegistrations = ["create-agdf/.codex/config.toml", "create-agdf/.github/mcp.json"];
+const trackedHostRegistrations = execFileSync("git", ["ls-files", "--", ...generatedHostRegistrations], {
+  cwd: repoRoot,
+  encoding: "utf8",
+}).trim().split(/\r?\n/u).filter(Boolean);
+assert.deepEqual(trackedHostRegistrations, [], "locally generated MCP registrations must not be tracked in the source repository");
 const definition = loadJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"));
 const capabilityMatrix = loadJson(join(pluginRoot, "submission", "openai", "capability-matrix.json"));
 const reviewerCases = loadJson(join(pluginRoot, "submission", "openai", "reviewer-cases.json"));

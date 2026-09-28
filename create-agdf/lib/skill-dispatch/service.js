@@ -322,7 +322,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: "Prepare and persist the PRD for this bound run from its approved UR and completed Brownfield Review. Include scope, acceptance criteria and non-goals at the smallest justified depth. Put product decisions needed for PRD approval in Approval Decisions; gather unresolved before_prd answers together before recording the final PRD revision. Defer only genuine design/planning decisions with named owners. Record the durable PRD in canonical run control, then dispatch again with the same run and target. Do not request Approval: PRD until the decision table is ready and the PRD is linked and presented.",
+          instruction: "Prepare and persist the PRD for this bound run from its approved UR and completed Brownfield Review. Retain the criteria-chain-v1 traceability marker. Include scope, uniquely identified observable acceptance criteria and non-goals at the smallest justified depth. Put product decisions needed for PRD approval in Approval Decisions; gather unresolved before_prd answers together before recording the final PRD revision. Defer only genuine design/planning decisions with named owners. Record the durable PRD in canonical run control, then dispatch again with the same run and target. Do not request Approval: PRD until the decision table and acceptance criteria are ready and the PRD is linked and presented.",
           phase: "required_gate_artifact",
           skill_id: "gate-check",
           gate: "PRD",
@@ -353,7 +353,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: "Prepare and persist the Solution Design for this bound run directly from the approved PRD and its resolved Approval Decisions before presenting the next user card. Define architecture, boundaries, flows, technical ownership and trade-offs at the smallest justified depth. Ask only for genuine unresolved design choices; do not reopen answered product questions in SD. If new facts materially change product scope or acceptance, use the PRD revision route and obtain a new exact PRD approval first. Record the durable SD as derived from the approved PRD, then dispatch again with the same run and target. Do not create the Task/Test Plan or implement code before SD and TP approvals.",
+          instruction: "Prepare and persist the Solution Design for this bound run directly from the approved PRD and its resolved Approval Decisions before presenting the next user card. Retain the criteria-chain-v1 traceability marker and map each PRD criterion exactly once to its design response, authoritative source/owner, stable SDD decision ID or reasoned none, and compatibility/risk treatment. Define architecture, boundaries, flows and trade-offs at the smallest justified depth. Ask only for genuine unresolved design choices; do not reopen answered product questions in SD. If new facts materially change product scope or acceptance, use the PRD revision route and obtain a new exact PRD approval first. Record the durable SD as derived from the approved PRD, then dispatch again with the same run and target. Do not create the Task/Test Plan or implement code before SD and TP approvals.",
           phase: "required_gate_artifact",
           skill_id: "gate-check",
           gate: "SD",
@@ -381,7 +381,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: "Prepare and persist the Task/Test Plan for this bound run from its approved PRD and Solution Design before presenting the next user card. Map each implementation task to approved requirements and design decisions, define proportionate verification steps and the evidence each step must produce, and identify dependencies and risks. Record the durable TP in canonical run control as derived from the approved SD, then dispatch again with the same run and target. Do not implement code or claim QA or release readiness before TP approval.",
+          instruction: "Prepare and persist the Task/Test Plan for this bound run from its approved PRD and Solution Design before presenting the next user card. Retain the criteria-chain-v1 traceability marker. Map every PRD criterion and SD design decision to one or more stable task IDs, scenario IDs, observable expected results and specific evidence sources; include proportionate boundary/failure scenarios and identify dependencies and risks. Do not copy or rename acceptance text. Record the durable TP in canonical run control as derived from the approved SD, then dispatch again with the same run and target. Do not implement code or claim QA or release readiness before TP approval.",
           phase: "required_gate_artifact",
           skill_id: "gate-check",
           gate: "TP",

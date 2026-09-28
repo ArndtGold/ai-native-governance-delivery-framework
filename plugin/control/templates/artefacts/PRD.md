@@ -6,6 +6,7 @@ Gate approval: open
 Based on: UR
 Date:
 Owner:
+Traceability contract: criteria-chain-v1
 
 ## 1. Product Scope
 
@@ -43,9 +44,12 @@ ownership remain Solution Design concerns.
 
 ## 5. Acceptance Criteria
 
-Every applicable UX criterion must include a stable `criterion_id`, `working_mode`, `source_state`,
-trigger/action, expected effective state, visible feedback, blocker/failure behavior, recovery/next
-action, observable success and required evidence. Specify observable behavior, not implementation.
+Give every acceptance criterion a unique, stable `criterion_id` (for example `AC-001`) so SD, TP
+and QA can refer to the same requirement without copying or renaming it. Every applicable UX
+criterion must also include `working_mode`, `source_state`, trigger/action, expected effective state,
+visible feedback, blocker/failure behavior, recovery/next action, observable success and required
+evidence. Specify observable behavior, not implementation. Do not leave the section empty or retain
+placeholders when requesting approval.
 
 ## 6. Non-Goals
 

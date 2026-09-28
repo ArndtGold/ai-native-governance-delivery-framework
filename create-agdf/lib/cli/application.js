@@ -868,7 +868,7 @@ async function executeUninstall(options, { env, exec, revokeCodexPolicy = revoke
       next_action: result === "success"
         ? { kind: "restart", text: "Restart the host; the uninstall postcondition has already been verified." }
         : !policyClean
-          ? { kind: "verify", text: `The plugin is removed, but Codex kept ${policyMutation.key}; remove that line from ~/.codex/config.toml.` }
+          ? { kind: "verify", text: `The plugin is removed, but Codex kept ${policyMutation.key} in ${policy?.config_file || "the active Codex config.toml"}; remove or change that setting there, then retry uninstall.` }
           : { kind: "verify", text: "Inspect the reported uninstall or verification failure before retrying." },
       changes: completed, retained,
       failure: applied.error

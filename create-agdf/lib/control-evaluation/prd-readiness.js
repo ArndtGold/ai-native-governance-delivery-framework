@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolvedArtefactFile } from "./run-state.js";
+import { evaluatePrdCriteriaReadiness } from "./traceability-readiness.js";
 
 // PRD product decisions are explicit data. Free-form risk prose cannot safely establish
 // whether a decision was resolved before the user saw an approval card.
@@ -30,5 +31,7 @@ export function evaluatePrdReadiness(targetDir, runState) {
   // [ \t] rather than \s: an empty Owner line must not capture the following line.
   const owner = content.match(/^Owner:[ \t]*(.*)$/mu)?.[1]?.trim();
   if (incomplete(owner) || /\bto confirm\b|named individual/iu.test(owner)) open.unshift("Named PRD owner");
+  const criteria = evaluatePrdCriteriaReadiness(content);
+  open.push(...criteria.open_items);
   return { ready: open.length === 0, open_decisions: open };
 }

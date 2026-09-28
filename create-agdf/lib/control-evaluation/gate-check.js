@@ -8,6 +8,7 @@ import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArt
 import { isPlaceholderValue } from './shared.js';
 import { renderReviewableApproval } from '../control-state/run-presentation-render.js';
 import { evaluatePrdReadiness } from './prd-readiness.js';
+import { evaluateSdTraceability, evaluateTpTraceability } from './traceability-readiness.js';
 
 // Shown when a finding's next step is free text that the presentation locale cannot render.
 const FINDING_RECOVERY_STEP = "Resolve the finding named under Blocked by, then run gate-check again.";
@@ -346,10 +347,26 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   if (status === "open" && currentGate === "PRD" && prdReadiness && !prdReadiness.ready) {
     status = "blocked";
     blockingReason = "AGDF_PRD_DECISIONS_OPEN";
-    allowed = ["resolve the listed PRD decisions together and record a new run revision"];
-    forbidden = [...forbidden, "present or approve PRD before required product decisions are resolved"];
-    // Fixed text keeps the card localizable; the open decisions travel separately as prd_readiness.open_decisions.
-    nextAllowedAction = "resolve the open PRD approval decisions together, then record the revision with run-update";
+    allowed = ["complete the listed PRD readiness items together and record a new run revision"];
+    forbidden = [...forbidden, "present or approve PRD before required decisions and acceptance criteria are ready"];
+    // Fixed text keeps the card localizable; detailed gaps travel separately in prd_readiness.open_decisions.
+    nextAllowedAction = "complete the open PRD readiness items together, then record the revision with run-update";
+  }
+  const traceabilityReadiness = status === "open" && approvalArtefactReady && currentGate === "SD"
+    ? evaluateSdTraceability(targetDir, runState)
+    : status === "open" && approvalArtefactReady && currentGate === "TP"
+      ? evaluateTpTraceability(targetDir, runState)
+      : null;
+  if (traceabilityReadiness && !traceabilityReadiness.ready) {
+    status = "blocked";
+    blockingReason = currentGate === "SD" ? "AGDF_SD_TRACEABILITY_INCOMPLETE" : "AGDF_TP_TRACEABILITY_INCOMPLETE";
+    allowed = [currentGate === "SD"
+      ? "complete the listed SD traceability rows and record a new run revision"
+      : "complete the listed TP traceability rows and record a new run revision"];
+    forbidden = [...forbidden, "present or approve the current artefact before its traceability is complete"];
+    nextAllowedAction = currentGate === "SD"
+      ? "complete the listed SD traceability rows, then record the revision with run-update"
+      : "complete the listed TP traceability rows, then record the revision with run-update";
   }
   if (status === "open" && /^Approval: /u.test(missingApproval) && !approvalArtefactReady) {
     allowed = allowed.filter((action) => !/^request exact .* approval$/iu.test(action));
@@ -478,6 +495,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     blocking_reason: blockingReason,
     missing_approval: missingApproval,
     ...(prdReadiness ? { prd_readiness: prdReadiness } : {}),
+    ...(traceabilityReadiness ? { traceability_readiness: traceabilityReadiness } : {}),
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
     allowed,
@@ -550,7 +568,20 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
       : refreshed?.next_allowed_action || "gate_not_ready",
   ).trim();
   io.log(pack.interaction.nonReadyDecision.replace("{reason}", reason));
+  printReadinessDetails(refreshed, pack.statusCard, io);
   return Object.freeze({ outcome: "non_ready", requested_decision: false, status: refreshed?.status || "blocked" });
+}
+
+function printReadinessDetails(report, labels, io) {
+  const groups = [
+    [labels.prdReadinessItems, report?.prd_readiness?.open_decisions ?? []],
+    [labels.traceabilityGaps, report?.traceability_readiness?.open_items ?? []],
+  ];
+  for (const [label, items] of groups) {
+    if (!items.length) continue;
+    io.log(`${label}:`);
+    for (const item of items) io.log(`- ${item}`);
+  }
 }
 
 function printGateCheckStatusCard(report, io) {
@@ -572,6 +603,8 @@ function printGateCheckStatusCard(report, io) {
     return false;
   }
   io.log(report.status_presentation.markdown);
+  const statusLabels = localePack(interactionLocales, card?.presentation_language || "en").statusCard;
+  printReadinessDetails(report, statusLabels, io);
   const primary = localePack(interactionLocales, card.presentation_language).primary;
   const readiness = qualityReadinessForRunState(card.runState, report.next_allowed_action);
   if (readiness) {
@@ -615,5 +648,7 @@ export function printGateCheckReport(report, json, statusCard = false, io = cons
   for (const item of report.forbidden) io.log(`- ${item}`);
   io.log("");
   io.log(`Next allowed action: ${report.next_allowed_action}`);
+  const labels = localePack(interactionLocales, report?.status_card?.presentation_language || "en").statusCard;
+  printReadinessDetails(report, labels, io);
   return true;
 }

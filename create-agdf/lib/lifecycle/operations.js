@@ -79,7 +79,7 @@ export function planGlobalUninstall(surface, { configDir, ...claudeOptions } = {
   return Object.freeze({
     ...plan,
     mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot }] : []),
-      // The installer's tool approval lives in ~/.codex/config.toml; it is revoked through Codex after removal.
+      // The installer's tool approval lives in the Codex user config; it is revoked through Codex after removal.
       { kind: "codex_tool_policy", key: CODEX_DISPATCH_POLICY_KEY }]),
     retained: Object.freeze([...plan.retained, ...(state === "foreign" ? [`Codex plugin MCP runtime with unowned content: ${runtimeRoot}`] : [])]),
   });

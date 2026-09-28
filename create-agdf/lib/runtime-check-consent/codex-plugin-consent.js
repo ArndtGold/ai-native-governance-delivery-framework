@@ -55,7 +55,7 @@ function updateUserToolPolicy({ env = process.env, cwd = process.cwd(),
       settled = true;
       clearTimeout(timer);
       try { child?.stdin?.end(); child?.kill(); } catch {}
-      resolve({ status, reason, tool: "agdf_dispatch", policy_key: KEY,
+      resolve({ status, reason, tool: "agdf_dispatch", policy_key: KEY, config_file: userFile,
         write_attempted: writeAttempted,
         verification: [success, "absent"].includes(status) ? "config_readback" : "unverified" });
     };

@@ -12,7 +12,8 @@ recommendation, review, diagnosis, hypothetical advice and AGDF-as-topic discuss
 read-only handling and are not Quick Tasks. Quick Task is a downstream process choice for an actual
 delivery effect or explicit AGDF operation; it is never an activation fallback.
 
-Quick Task Mode must not become ritual gate overhead.
+Quick Task Mode must not become ritual gate overhead. It lightens artefact depth, never activation:
+a positively activated small fix still closes with the Quick Task Output below.
 Structured Delivery must not bypass missing approvals.
 New product semantics, functional change, user-visible behaviour, policy, persistence, architecture or release-critical work requires a durable UR in `.agdf/control/` or a linked authoritative repository SoT before later artefacts or implementation.
 UR, PRD, SD, TP and QA report approvals require durable artefacts or linked authoritative repository SoT entries before the next gate can open.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "corpus_version": "1.2.0",
+  "corpus_version": "1.3.0",
   "policy_version": 1,
   "evidence_boundary": "Deterministic validation proves corpus structure, expected callback policy and source identity only. Behavioral model output and loaded-host behavior are separate evidence planes.",
   "source_fingerprint": {
@@ -9,7 +9,7 @@
       "plugin/meta/contracts/request-activation.md",
       "plugin/meta/agdf-plugin.definition.json"
     ],
-    "value": "sha256:cddeff872a3fa5213ee6a5f0a0945aab3c1d40b00d10b30c6c5d6709017124d7"
+    "value": "sha256:39bb45c5128bda6831446b31e19a2e5554730acec87dff8cfd6d770e688588e2"
   },
   "required_locales": [
     "de",
@@ -95,6 +95,20 @@
       "sides": [
         "unrelated",
         "continue"
+      ]
+    },
+    {
+      "id": "small-change-de",
+      "sides": [
+        "explain",
+        "fix"
+      ]
+    },
+    {
+      "id": "small-change-en",
+      "sides": [
+        "advice",
+        "delivery"
       ]
     }
   ],

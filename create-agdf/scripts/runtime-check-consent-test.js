@@ -266,7 +266,7 @@ try {
   assert.deepEqual(base.binding.request_activation, {
     owner: "request_activation_contract",
     policy_version: 1,
-    guard_fingerprint: "sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab",
+    guard_fingerprint: "sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999",
   });
   assert.deepEqual(base.binding.route_source_after_activation, {
     relative_to: "validator_directory",

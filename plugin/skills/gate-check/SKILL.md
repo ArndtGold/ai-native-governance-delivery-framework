@@ -1,6 +1,6 @@
 ---
 name: gate-check
-description: "Use this skill for this scope: new build/change intent, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context. Boundary: does not create later artefacts or skip Mode/Slice Decision after Brownfield Review. Automatic discovery alone does not activate AGDF."
+description: "Use this skill for this scope: any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context. Boundary: does not create later artefacts or skip Mode/Slice Decision after Brownfield Review. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # gate-check
@@ -16,17 +16,17 @@ This non-authorizing bootstrap creates no parallel policy.
 - `owner`: `request_activation_contract`
 - `path`: `plugin/meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
 
-Decide effect from loaded instructions before AGDF action/output.
+Decide effect from loaded instructions before AGDF action.
 
-Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+Abstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
 
-Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+Activate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
 
 Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
 
-Then choose one catalog route. Non-authorizing; downstream checks remain.
+Then pick one catalog route; non-authorizing, downstream checks remain.
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
 
 ## Route Boundary

@@ -391,7 +391,7 @@
     {
       "slug": "gate-check",
       "discovery": "start_here",
-      "useFor": "new build/change intent, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context",
+      "useFor": "any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context",
       "boundary": "does not create later artefacts or skip Mode/Slice Decision after Brownfield Review",
       "dispatch": { "mode": "deterministic_control", "deterministicCommand": "gate-check", "requiresControlSnapshot": true }
     },

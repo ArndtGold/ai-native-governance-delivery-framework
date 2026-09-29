@@ -1,10 +1,29 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, realpathSync, statSync } from "node:fs";
-import { isAbsolute, relative, sep } from "node:path";
+import { dirname, isAbsolute, relative, sep } from "node:path";
 
 function isInside(root, candidate) {
   const path = relative(root, candidate);
   return path === "" || (path !== ".." && !path.startsWith(`..${sep}`) && !isAbsolute(path));
+}
+
+function nativeRealpath(path) {
+  try {
+    return realpathSync.native(path);
+  } catch {
+    return path;
+  }
+}
+
+// Git reports the root with long names, while realpathSync keeps Windows 8.3 short names such as
+// C:\Users\RUNNER~1. Map the reported root onto the working directory's own spelling.
+function rootInWorkingDirectorySpelling(reportedRoot, workingDirectory) {
+  if (isInside(reportedRoot, workingDirectory)) return reportedRoot;
+  const target = nativeRealpath(reportedRoot);
+  for (let current = workingDirectory; ; current = dirname(current)) {
+    if (nativeRealpath(current) === target) return current;
+    if (dirname(current) === current) return "";
+  }
 }
 
 export function resolveRepositoryContext(workingDirectory, dependencies = {}) {
@@ -47,8 +66,8 @@ export function resolveRepositoryContext(workingDirectory, dependencies = {}) {
     });
   }
   try {
-    const repositoryRoot = realpathSync(String(child.stdout ?? "").trim());
-    if (!isInside(repositoryRoot, canonicalWorkingDirectory)) throw new Error("root_mismatch");
+    const repositoryRoot = rootInWorkingDirectorySpelling(realpathSync(String(child.stdout ?? "").trim()), canonicalWorkingDirectory);
+    if (!repositoryRoot) throw new Error("root_mismatch");
     return Object.freeze({
       context_state: "repository_bound",
       working_directory: canonicalWorkingDirectory,

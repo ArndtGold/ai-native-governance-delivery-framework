@@ -9,6 +9,7 @@ import {
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createSkillDispatchService } from "./skill-dispatch/service.js";
+import { readSkillRuntimeContracts } from "./cli/contract-command.js";
 import { assertMcpControlReadBoundary } from "./control-read-boundary.js";
 import { interactionLocales, packageRoot, pluginDefinition } from "./cli/runtime-context.js";
 import {
@@ -132,6 +133,7 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
   const execute = createSkillDispatchService({
     runtimeEvidence: inspected.runtimeEvidence,
     validateControlReadBoundary: assertMcpControlReadBoundary,
+    readSkillRuntimeContracts,
   });
   return Object.freeze({
     definition: SKILL_DISPATCH_FUNCTION_DEFINITION,

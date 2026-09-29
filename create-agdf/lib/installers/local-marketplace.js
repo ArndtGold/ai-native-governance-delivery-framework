@@ -18,9 +18,11 @@ import { renameSyncWithRetry } from "../fs-swap.js";
 import { buildCopilotMarketplaceTransport, copilotMarketplaceSpec, COPILOT_TRANSPORT_REVISION, verifyCopilotMarketplaceTransport } from "./copilot-marketplace-transport.js";
 import { classifyHistoricalDistributionProfile } from "../runtime/distribution-profile-history.js";
 import {
+  CODEX_PLUGIN_MCP_FILE,
   INSTALLATION_PROVENANCE_FILE,
   LEGACY_LOCAL_INSTALL_FILE,
   digestDirectory,
+  renderCodexPluginMcpConfig,
   inspectCopilotPayloadInventory,
   digestNormalizedPluginSource,
   inspectInstallationProvenance,
@@ -470,16 +472,22 @@ function prepareLocalMarketplaceFromSource({
   let existingMarketplace = null;
   let existingClassification = "none";
   let historicalEvidence = null;
+  let damagedReason = null;
   if (existing) {
-    let classified;
     try {
-      classified = classifyExistingMarketplace(stableRoot, existing, { profileId, distributionProfileHistory });
+      const classified = classifyExistingMarketplace(stableRoot, existing, { profileId, distributionProfileHistory });
+      existingClassification = classified.classification;
+      existingMarketplace = classified.marketplace;
+      historicalEvidence = classified.historicalEvidence;
     } catch (error) {
-      throw invalidExistingMarketplace(error);
+      // An invalid profile history belongs to the incoming build, not to the existing root.
+      if (/profile_history_invalid/.test(error.message)) throw invalidExistingMarketplace(error);
+      // The ownership marker proves AGDF created this root, but its payload no longer validates
+      // (for example a half-replaced update). Nothing from it is reused: it becomes the transaction
+      // backup, is restored on rollback and removed only after the fresh build committed.
+      existingClassification = "owned_damaged_rebuild";
+      damagedReason = error.message;
     }
-    existingClassification = classified.classification;
-    existingMarketplace = classified.marketplace;
-    historicalEvidence = classified.historicalEvidence;
   }
   mkdirSync(stageRoot, { recursive: false });
   try {
@@ -498,6 +506,15 @@ function prepareLocalMarketplaceFromSource({
     });
     const stagedPluginRoot = join(stageRoot, "plugins", MARKETPLACE_ID);
     cpSync(builtPluginRoot, stagedPluginRoot, { recursive: true });
+    // Codex starts plugin MCP servers only from absolute paths and passes no plugin data directory,
+    // so the installed declaration names the final marketplace plugin root and an AGDF-owned data root.
+    const codexMcpPath = join(stagedPluginRoot, CODEX_PLUGIN_MCP_FILE);
+    if (!copilotProfile && existsSync(codexMcpPath)) {
+      writeFileSync(codexMcpPath, renderCodexPluginMcpConfig({
+        pluginRoot: join(stableRoot, "plugins", MARKETPLACE_ID),
+        dataRoot: join(dataRoot, "mcp", "codex-plugin"),
+      }), "utf8");
+    }
     sourceStaged();
     validateBuiltPlugin(stagedPluginRoot, expectedVersion, expectedVersion, "", { profileId });
     if (!copilotProfile && codexInstallVersion !== expectedVersion) {
@@ -563,6 +580,7 @@ function prepareLocalMarketplaceFromSource({
         runtimeDigest: runtimeManifest.digest,
         existingClassification,
         historicalEvidence,
+        damagedReason,
         ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
         changed: false,
         commit() {},
@@ -588,6 +606,7 @@ function prepareLocalMarketplaceFromSource({
       runtimeDigest: runtimeManifest.digest,
       existingClassification,
       historicalEvidence,
+      damagedReason,
       ...(copilotProfile ? { marketplaceSpec: copilotMarketplaceSpec(stableRoot, sourceDigest) } : {}),
       changed: true,
       commit() {

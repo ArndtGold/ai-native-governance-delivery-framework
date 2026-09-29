@@ -9,14 +9,6 @@ import process from "node:process";
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const supportedSurfaces = new Set(["codex", "claude", "copilot", "opencode"]);
 
-function npmInvocation(args) {
-  if (process.platform !== "win32") return { executable: "npm", args };
-  return {
-    executable: process.execPath,
-    args: [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"), ...args],
-  };
-}
-
 export function resolveLocalInvocationDirectory({ env = process.env, cwd = process.cwd() } = {}) {
   const hasInitCwd = Object.hasOwn(env, "INIT_CWD");
   const candidate = hasInitCwd ? env.INIT_CWD : cwd;
@@ -39,17 +31,20 @@ export async function installLocalPlugin(surface, forwardedArgsOrAdapters = [], 
   const runtimeEnv = adapters.env ?? process.env;
   const invocation = resolveLocalInvocationDirectory({ env: runtimeEnv, cwd: adapters.cwd ?? process.cwd() });
   const exec = adapters.exec ?? execFileSync;
-  const preparation = npmInvocation(["--prefix", packageRoot, "run", "release:prepare"]);
+  const preparation = {
+    executable: process.execPath,
+    args: [join(packageRoot, "scripts", "prepare-local-plugin.js"), surface],
+  };
   try {
     exec(preparation.executable, preparation.args, { encoding: "utf8", stdio: "pipe" });
   } catch (error) {
     const output = [error?.stdout, error?.stderr].map((value) => String(value || "").trim()).filter(Boolean).join("\n");
     if (!output) throw error;
-    throw new Error(`AGDF local release preparation failed.\n${output}`, { cause: error });
+    throw new Error(`AGDF local plugin preparation failed.\n${output}`, { cause: error });
   }
 
   // The lib modules read generated plugin metadata at import time, so they are
-  // loadable only after release:prepare has produced generated/ on a fresh checkout.
+  // loadable only after host-specific preparation has produced generated/ on a fresh checkout.
   const [
     { runCli },
     { pluginDefinition },

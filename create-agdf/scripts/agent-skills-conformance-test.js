@@ -7,13 +7,13 @@ import {
   readFileSync,
   renameSync,
   rmSync,
-  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateAgentSkillsConformance } from "../../plugin/scripts/agent-skills-conformance.mjs";
+import { tryLinkFile } from "./support/symlinks.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
@@ -216,10 +216,11 @@ const symlinkRoot = createFixture();
 const externalRoot = mkdtempSync(join(tmpdir(), "agdf-agent-skills-external-"));
 try {
   writeFileSync(join(externalRoot, "outside.md"), "# outside\n");
-  symlinkSync(join(externalRoot, "outside.md"), join(symlinkRoot, "skills", "demo", "linked.md"));
-  writeFileSync(join(symlinkRoot, "skills", "demo", "SKILL.md"), skill({ resource: "./linked.md" }));
-  const result = validate(symlinkRoot);
-  assert.equal(codes(result).includes("AGDF_SKILL_RESOURCE_SYMLINK_ESCAPE"), true, JSON.stringify(result.findings, null, 2));
+  if (tryLinkFile(join(externalRoot, "outside.md"), join(symlinkRoot, "skills", "demo", "linked.md"), "agent-skills-conformance-test")) {
+    writeFileSync(join(symlinkRoot, "skills", "demo", "SKILL.md"), skill({ resource: "./linked.md" }));
+    const result = validate(symlinkRoot);
+    assert.equal(codes(result).includes("AGDF_SKILL_RESOURCE_SYMLINK_ESCAPE"), true, JSON.stringify(result.findings, null, 2));
+  }
 } finally {
   rmSync(symlinkRoot, { recursive: true, force: true });
   rmSync(externalRoot, { recursive: true, force: true });

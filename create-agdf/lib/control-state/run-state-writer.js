@@ -6,13 +6,14 @@ import {
   lstatSync,
   openSync,
   readFileSync,
-  renameSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
+import { renameSyncWithRetry } from "../fs-swap.js";
 import { dirname } from "node:path";
 
-import { parseRunState } from "./run-state-parser.js";
+import { duplicateArtefactRowTypes, parseRunState } from "./run-state-parser.js";
+import { approvalSeal, canonicalRunText, runRootFromStatePath, runSealState, sealRunState } from "./run-seal.js";
 
 function fsyncDirectory(path) {
   if (process.platform === "win32") return;
@@ -47,7 +48,8 @@ export function atomicWrite(path, content) {
     closeSync(descriptor);
     descriptor = undefined;
 
-    renameSync(temp, path);
+    // Windows scanners briefly lock fresh files; the same bounded retry as the marketplace swap.
+    renameSyncWithRetry(temp, path);
     fsyncDirectory(dirname(path));
   } catch (error) {
     if (descriptor !== undefined) closeSync(descriptor);
@@ -60,7 +62,11 @@ export function atomicWrite(path, content) {
   }
 }
 
-export function writeRun(path, content, expectedRevisionId) {
+// Every write advances the revision and re-seals the run. Approval rows may change only when the
+// caller has validated one exact gate approval (run-approve) or the bounded PRD supersession
+// (run-revise); any other write must keep them intact.
+export function writeRun(path, content, expectedRevisionId, { allowApprovalChange = false, expectedContent, validateBeforeWrite } = {}) {
+  const root = runRootFromStatePath(path);
   const lockPath = `${path}.lock`;
   let lockDescriptor;
   try {
@@ -71,18 +77,27 @@ export function writeRun(path, content, expectedRevisionId) {
   }
 
   try {
-    const current = parseRunState(readFileSync(path, "utf8"));
+    const currentContent = readFileSync(path, "utf8");
+    const current = parseRunState(currentContent);
     if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
-    if (current.meta.revision_id !== expectedRevisionId) {
+    if (current.meta.revision_id !== expectedRevisionId
+        || (expectedContent !== undefined && currentContent !== expectedContent)) {
       throw new Error("AGDF_STALE_RUN_REVISION");
     }
+    const seal = runSealState(root, currentContent);
+    if (seal.status === "invalid") throw new Error("AGDF_RUN_SEAL_INVALID");
+    if (!allowApprovalChange && seal.status !== "unsealed" && approvalSeal(content) !== seal.recorded.approval_seal) {
+      throw new Error("AGDF_RUN_APPROVALS_UNRECORDED");
+    }
 
-    const next = content
+    if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
+    validateBeforeWrite?.();
+    const next = sealRunState(root, canonicalRunText(content)
       .replace(
         /^- revision:\s*.*$/m,
         `- revision: ${Number(current.meta.revision) + 1}`,
       )
-      .replace(/^- revision_id:\s*.*$/m, `- revision_id: ${randomUUID()}`);
+      .replace(/^- revision_id:\s*.*$/m, `- revision_id: ${randomUUID()}`));
     const candidate = parseRunState(next);
     if (!candidate.valid || candidate.meta.run_id !== current.meta.run_id) {
       throw new Error("AGDF_RUN_STATE_INVALID");

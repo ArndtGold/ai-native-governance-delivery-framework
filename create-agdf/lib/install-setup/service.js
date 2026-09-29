@@ -3,7 +3,7 @@ import { defaultOpenCodeConfigDir } from "../installers/opencode.js";
 import { inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { runMcpLifecycle } from "../mcp-lifecycle/service.js";
 import { pluginDefinition } from "../cli/runtime-context.js";
-import { createInstallSetupPreflight, createInstallSetupResult } from "./contract.js";
+import { codexHookReviewPending, codexPendingHookAction, createInstallSetupPreflight, createInstallSetupResult } from "./contract.js";
 
 const SURFACES = new Set(["codex", "claude", "copilot", "opencode"]);
 const SCOPE_DECISIONS = new Set(["project", "user", "back", "cancel"]);
@@ -248,7 +248,9 @@ function pluginFailurePhase(report) {
 function completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport }) {
   const full = selection === "full";
   const reports = PREFLIGHT_MCP_REPORTS.get(preflight) ?? {};
-  const mcp = full ? mcpReport ?? { status: "not_requested" } : reports.project ?? { status: "not_checked" };
+  // The Claude plugin declares its own MCP server, so plugin-only already includes it there.
+  const mcp = full ? mcpReport ?? { status: "not_requested" }
+    : ["claude", "codex"].includes(preflight.surface) ? { status: "plugin_managed" } : reports.project ?? { status: "not_checked" };
   let failure = null;
   let nextAction = "restart_host";
   if (!pluginHealthy(pluginReport)) {
@@ -280,6 +282,8 @@ function completedResult({ selection, selectedScope, preflight, pluginReport, ru
     nextAction = "resolve_mcp_registration";
   } else if (full && ["configured_unverified", "unchanged"].includes(mcpReport?.result)) {
     nextAction = "verify_host_discovery";
+  } else if (!full && mcp.status === "plugin_managed" && codexHookReviewPending(preflight.surface, runtimeChecks?.state ?? runtimeChecks)) {
+    nextAction = codexPendingHookAction(runtimeChecks?.state ?? runtimeChecks);
   }
   const target = full ? preflight.target : null;
   const targetSource = full
@@ -322,6 +326,14 @@ export async function runInstallSetup({ options, interactive = false, env = proc
     throw new Error("AGDF_INSTALL_SETUP_INPUT_INVALID");
   }
   const effectiveInteractive = Boolean(interactive && !options.json);
+  // The Claude and Codex runtime plugins declare their own MCP server, so plugin-only is the complete setup.
+  if (options.target === "claude" || options.target === "codex") {
+    if (options.setupRequest === "full") {
+      const host = options.target === "claude" ? "Claude Code" : "Codex";
+      throw new Error(`${host} starts the AGDF MCP server from the AGDF plugin; omit --with-mcp.`);
+    }
+    options = { ...options, setupRequest: options.setupRequest ?? "plugin_only" };
+  }
   if (options.setupRequest === "full" && !effectiveInteractive
       && (!options.dirExplicit || !options.dirInputAbsolute)) {
     throw new Error("Non-interactive --with-mcp requires an explicit absolute --dir target.");

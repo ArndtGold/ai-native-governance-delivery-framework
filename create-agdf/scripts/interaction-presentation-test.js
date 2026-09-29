@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildStatusCard } from "../lib/control-evaluation/gate-check.js";
 import {
   attachApprovalOrientationSnapshot,
   buildApprovalOrientationSnapshot,
@@ -47,6 +48,7 @@ import { RUN_ID_PATTERN } from "../lib/control-state/run-identity.js";
 import { postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../lib/control-evaluation/gate-check.js";
 import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-policy.js";
 import { runSelectionRecovery } from "../lib/control-evaluation/shared.js";
+import { deriveQualityOutlook } from "../lib/control-evaluation/delivery-map.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "agdf-interaction-locales.json"), "utf8"));
@@ -65,6 +67,20 @@ for (const [command, key] of [["gate-check", "selectIntendedRun"], ["doctor", "s
   assert.match(rendered.markdown, /Den gewünschten Run/);
   assert.doesNotMatch(rendered.markdown, /Pass --run/);
   assert.equal(renderOperationalStatusCard({ ...card, next_step: "Unreviewed new recovery text" }, { registry: sourceRegistry, humanPresentation: {} }), null, "unknown English recovery must still fail closed in German");
+}
+// Every canonical quality outlook the delivery map can derive must render in every locale; a missing
+// entry makes the whole status card fail closed for that language.
+for (const findings of [[], [{ severity: "warn" }], [{ severity: "revise" }], [{ severity: "block" }]]) {
+  const qualityOutlook = deriveQualityOutlook({}, findings);
+  for (const locale of Object.keys(sourceRegistry.locales)) {
+    const card = {
+      run_id: "unknown", current_gate: "UR", presentation_language: locale, status: "blocked",
+      allowed_now: [], forbidden_now: [], blocking_condition: "AGDF_CURRENT_GATE_MISSING",
+      allowed_after_approval: "none", next_step: "none", quality_outlook: qualityOutlook,
+    };
+    assert.ok(renderOperationalStatusCard(card, { registry: sourceRegistry, humanPresentation: {} }),
+      `${locale} status card must render quality outlook "${qualityOutlook}": ${JSON.stringify(validateOperationalStatusCardPreconditions(card, { registry: sourceRegistry }))}`);
+  }
 }
 assert.equal(PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE, "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$");
 for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
@@ -86,17 +102,21 @@ assert.equal(resolvePresentationLocale(registry, "de-AT"), "de");
 assert.equal(resolvePresentationLocale(registry, "fr-FR"), "en");
 assert.throws(() => resolvePresentationLocale(registry, ""), /Invalid AGDF presentation language tag/u);
 
-const controlSetup = renderControlSetupOrientation({ target: "/repo/target" }, { registry: sourceRegistry, requestedLocale: "de" });
-assert.equal(controlSetup.semantic_block, "control_setup");
-assert.equal(controlSetup.status, "control_setup_required");
-assert.equal(controlSetup.target, "/repo/target");
-assert.equal(controlSetup.durable_scope, ".agdf/control");
-assert.deepEqual(controlSetup.excluded_authority, ["automatic_run_creation", "automatic_ur_persistence", "gate_approval"]);
-assert.equal(controlSetup.authorizes, false);
-assert.match(controlSetup.markdown, /AGDF-Kontrollstatus einrichten/);
-assert.match(controlSetup.markdown, /Aktiver Delivery-Intake persistiert danach Run und UR ohne zweite Frage/);
-assert.match(controlSetup.markdown, /eigenständiges Init bleibt gerüstbezogen/);
-assert.doesNotMatch(controlSetup.markdown, /Approval: UR/);
+for (const locale of Object.keys(sourceRegistry.locales)) {
+  const controlSetup = renderControlSetupOrientation({ target: "/repo/target" }, { registry: sourceRegistry, requestedLocale: locale });
+  const pack = sourceRegistry.locales[locale].controlSetup;
+  assert.equal(controlSetup.semantic_block, "control_setup");
+  assert.equal(controlSetup.status, "control_setup_required");
+  assert.equal(controlSetup.target, "/repo/target");
+  assert.equal(controlSetup.durable_scope, ".agdf/control");
+  assert.deepEqual(controlSetup.excluded_authority, ["automatic_run_creation", "automatic_ur_persistence", "gate_approval"]);
+  assert.equal(controlSetup.authorizes, false);
+  assert.ok(controlSetup.markdown.includes(pack.title), `${locale} control setup includes its localized title`);
+  assert.ok(controlSetup.markdown.includes(pack.required), `${locale} control setup includes its localized requirement`);
+  assert.ok(controlSetup.markdown.includes(pack.actionValue), `${locale} control setup includes its localized next action`);
+  assert.ok(controlSetup.markdown.includes(pack.replyOptionsValue), `${locale} setup names exact user replies and their consequences`);
+  assert.doesNotMatch(controlSetup.markdown, /Approval: UR/);
+}
 assert.equal(renderControlSetupOrientation({ target: "" }, { registry: sourceRegistry, requestedLocale: "de" }), null);
 const incompleteControlSetupRegistry = JSON.parse(JSON.stringify(sourceRegistry));
 delete incompleteControlSetupRegistry.locales.de.controlSetup.actionValue;
@@ -443,11 +463,87 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
     forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
     missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
-    next_step: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    next_step: "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Implementierung und Tests" } });
-  assert.match(germanCdTests.markdown, /Den freigegebenen TP-Umfang implementieren, seine Tests ausführen/);
+  assert.match(germanCdTests.markdown, /TP freigegeben/);
+  assert.match(germanCdTests.markdown, /Ich setze den genehmigten Umfang um/);
+  assert.match(germanCdTests.markdown, /Keine Antwort nötig/);
   assert.doesNotMatch(germanCdTests.markdown, /Implement the approved TP scope/);
+
+  const englishCdTests = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "en", status: "open", current_gate: "CD+Tests",
+    allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
+    forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
+    missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
+    next_step: "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
+    quality_outlook: "No additional quality follow-up identified from the current control state.",
+  }, { registry, humanPresentation: { gateTitle: "Implementation and tests" } });
+  assert.match(englishCdTests.markdown, /TP approved/);
+  assert.match(englishCdTests.markdown, /No reply needed; I am proceeding with the approved implementation/);
+
+  const prdBlockedCard = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "de", status: "blocked", current_gate: "PRD",
+    allowed_now: ["complete the listed PRD readiness items together and record a new run revision"],
+    forbidden_now: ["present or approve PRD before required decisions and acceptance criteria are ready"],
+    blocking_condition: "AGDF_PRD_DECISIONS_OPEN", prd_readiness_items: ["PD-01: Nutzergruppe festlegen", "PD-02: Wirkung klären"],
+    missing_approval: "none", next_user_gate: "none", user_action_required: "no",
+    internal_next_step: "complete the listed PRD readiness items together and record a new run revision",
+    next_step: "complete the listed PRD readiness items together and record a new run revision",
+    blocking_details: [{
+      code: "AGDF_MISSING_EVIDENCE_DECLARED", message: "Der Testnachweis aus dem Host fehlt.",
+      next_step: "complete the listed PRD readiness items together and record a new run revision",
+    }],
+    next_gate_after_approval: "none", allowed_after_approval: "none",
+    quality_outlook: sourceRegistry.locales.en.operationalValues.noAdditionalQualityFollowUp,
+  }, { registry: sourceRegistry, humanPresentation: { gateTitle: "Produktanforderungen" } });
+  assert.ok(prdBlockedCard);
+  assert.match(prdBlockedCard.markdown, /Erforderliche Produktentscheidungen sind noch offen \(AGDF_PRD_DECISIONS_OPEN\)/);
+  assert.match(prdBlockedCard.markdown, /PD-01: Nutzergruppe festlegen/);
+  assert.match(prdBlockedCard.markdown, /Der Testnachweis aus dem Host fehlt\. \(Originalwortlaut\)/);
+  assert.match(prdBlockedCard.markdown, /Behebung/);
+  assert.doesNotMatch(prdBlockedCard.markdown, /Wartet auf/u);
+
+  const postTpRunState = {
+    content: "- run_id: status-run\n- mode: structured_delivery\n- lifecycle: active",
+    mode_slice_decision: { decision: "structured_delivery" },
+    approvals: new Map([["TP", { status: "approved" }]]),
+    artefacts: new Map([["TP", { status: "approved", path: ".agdf/control/artefacts/status-run/TP.md" }]]),
+    evidence_refs: [],
+  };
+  const postTpStatus = buildStatusCard({
+    status: "open", currentGate: "CD+Tests", missingApproval: "none",
+    nextAllowedAction: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    continuePostTpWork: true,
+    runState: postTpRunState,
+  });
+  assert.equal(postTpStatus.next_step, "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.");
+  assert.equal(postTpStatus.internal_next_step, postTpStatus.next_step, "the canonical internal action agrees with the rendered post-TP action");
+  assert.equal(postTpStatus.user_action_required, "no", "approved TP work does not ask the user to respond");
+  const hostEvidenceChoice = sourceRegistry.locales.en.operationalValues.hostEvidenceProvisioningChoice;
+  const hostEvidenceStatus = buildStatusCard({
+    status: "open", currentGate: "CD+Tests", missingApproval: "none",
+    nextAllowedAction: hostEvidenceChoice,
+    nextActionRequiresUserAction: true,
+    chatLanguage: "de",
+    runState: postTpRunState,
+  });
+  assert.equal(hostEvidenceStatus.next_step, hostEvidenceChoice);
+  assert.equal(hostEvidenceStatus.internal_next_step, "none", "a pending host-provisioning choice suspends agent continuation");
+  assert.equal(hostEvidenceStatus.user_action_required, "yes", "the host-provisioning choice is explicitly assigned to the user");
+  const hostEvidenceCardDe = renderOperationalStatusCard(hostEvidenceStatus, {
+    registry: sourceRegistry,
+    humanPresentation: { gateTitle: "Implementierung und Tests" },
+  });
+  assert.match(hostEvidenceCardDe.markdown, /Du bist dran/);
+  assert.match(hostEvidenceCardDe.markdown, /AC-006 offenlassen oder eine separate Umfangsänderung für Host-Bereitstellung/);
+  assert.doesNotMatch(hostEvidenceCardDe.markdown, /Ich arbeite weiter/);
+  const preTpStatus = buildStatusCard({
+    status: "open", currentGate: "CD+Tests", missingApproval: "none",
+    nextAllowedAction: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    runState: { ...postTpRunState, approvals: new Map(), artefacts: new Map() },
+  });
+  assert.equal(preTpStatus.next_step, "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.", "explicit start wording requires a durable TP approval");
 
   const germanCr = renderOperationalStatusCard({
     run_id: "status-run", presentation_language: "de", status: "open", current_gate: "CR",
@@ -588,7 +684,7 @@ for (const attemptOutcome of ["presented", "unavailable_before_invocation", "att
 }
 assert.throws(() => buildInteractionAttempt({ interactionId: "i", runId: "r", currentGate: "UR", attemptOutcome: "invalid" }));
 
-for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
+for (const locale of Object.keys(registry.locales)) for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   const statusCard = {
     run_id: "approval-run",
     status: "open",
@@ -602,18 +698,18 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
     statusCard,
     humanPresentation: {
       runTitle: "Approval run",
-      gateTitle: gateTitle(registry, "de", gate),
+      gateTitle: gateTitle(registry, locale, gate),
       artefactRefs: refs,
     },
     revisionId: "revision-1",
     registry,
-    requestedLocale: "de-AT",
+    requestedLocale: locale,
   });
   assert.deepEqual(snapshot.sequence, ["run_status_card", "gate_transition_card", "approval_interaction"]);
   assert.equal(snapshot.compact_status_card.semantic_block, "run_status_card");
   assert.equal(snapshot.gate_transition_card.semantic_block, "gate_transition_card");
   assert.equal(snapshot.approval_interaction.semantic_block, "approval_interaction");
-  assert.equal(snapshot.compact_status_card.primary_heading, registry.locales.de.gateActionTitles[gate]);
+  assert.equal(snapshot.compact_status_card.primary_heading, registry.locales[locale].gateActionTitles[gate]);
   assert.equal(snapshot.compact_status_card.title, snapshot.compact_status_card.primary_heading);
   assert.equal(snapshot.compact_status_card.primary_heading_level, 2);
   assert.deepEqual(validateApprovalOrientationSnapshot(snapshot), { valid: true, errors: [] });
@@ -623,9 +719,9 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(snapshot.run_id, "approval-run");
   assert.equal(snapshot.revision_id, "revision-1");
   assert.equal(snapshot.current_gate, gate);
-  assert.equal(snapshot.presentation_language, "de");
-  assert.equal(snapshot.compact_status_card.fields[1].value, "Bereit für deine Entscheidung");
-  assert.equal(snapshot.compact_status_card.fields[3].value, registry.locales.de.gateRequiredDecisions[gate]);
+  assert.equal(snapshot.presentation_language, locale);
+  assert.equal(snapshot.compact_status_card.fields[1].value, registry.locales[locale].interaction.ready);
+  assert.equal(snapshot.compact_status_card.fields[3].value, registry.locales[locale].gateRequiredDecisions[gate]);
   assert.equal(snapshot.compact_status_card.fields.some((field) => field.value.includes(`Approval: ${gate}`)), false);
   assert.equal(snapshot.gate_transition_card.exact_approval, `Approval: ${gate}`);
   assert.equal(snapshot.approval_interaction.options[0].value, `Approval: ${gate}`);
@@ -636,10 +732,10 @@ for (const gate of ["UR", "PRD", "SD", "TP", "QA", "UAT"]) {
   assert.equal(Object.isFrozen(snapshot.approval_interaction.options), true);
   const rendered = renderApprovalOrientationSnapshot(snapshot, {
     registry,
-    expectedIdentity: { run_id: "approval-run", revision_id: "revision-1", current_gate: gate, presentation_language: "de" },
+    expectedIdentity: { run_id: "approval-run", revision_id: "revision-1", current_gate: gate, presentation_language: locale },
   });
   assert.equal(rendered.schema_version, "1");
-  assert.match(rendered.blocks.run_status_card.markdown, new RegExp(`^## ${registry.locales.de.gateActionTitles[gate]}`));
+  assert.match(rendered.blocks.run_status_card.markdown, new RegExp(`^## ${registry.locales[locale].gateActionTitles[gate]}`));
   assert.equal(rendered.blocks.run_status_card.markdown.includes(`Approval: ${gate}`), false);
   assert.equal((`${rendered.blocks.run_status_card.markdown}\n${rendered.blocks.gate_transition_card.markdown}`.match(new RegExp(`Approval: ${gate}`, "g")) ?? []).length, 1);
   assert.match(rendered.approval_interaction.exact_text_fallback, new RegExp(`Approval: ${gate}`));
@@ -684,7 +780,10 @@ for (const locale of ["en", "de"]) {
     registry,
     requestedLocale: locale,
   });
-  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].interaction.decisionFollows));
+  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.gates.PRD.userAction),
+    `${locale} PRD transition says the user reviews the SD after the agent drafts it`);
+  assert.ok(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.gates.PRD.agentNext),
+    `${locale} PRD transition says the agent drafts the SD only after PRD approval`);
   assert.equal(userGateSnapshot.gate_transition_card.next_transition.includes(registry.locales[locale].primary.narration.noAction), false);
   assert.deepEqual(validateApprovalOrientationSnapshot(userGateSnapshot, { registry }), { valid: true, errors: [] });
 }
@@ -777,34 +876,33 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
   const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
   const lines = [];
   const fullCardMarkdown = "## AGDF status card\n\n| Field | Value |\n|---|---|\n| Missing approval | Approval: UR |";
+  const reviewMarkdown = `${rendered.blocks.run_status_card.markdown}\n\n${fullCardMarkdown}\n\n## Review artefact · UR\n\nArtefact: [UR.md](</repo/UR.md>)\n\n${rendered.blocks.gate_transition_card.markdown}\n\n${rendered.approval_interaction.exact_text_fallback}`;
+  const previewMarkdown = "## Review summary · UR\n\nArtefact: [UR.md](</repo/UR.md>)";
   const output = printApprovalEnvelope({
     status: "open",
-    approval_presentation: rendered,
+    approval_presentation: { ...rendered, markdown: reviewMarkdown, preview_markdown: previewMarkdown },
     status_presentation: { markdown: fullCardMarkdown },
   }, { io: { log: (line = "") => lines.push(String(line)) } });
-  assert.equal(output.outcome, "rendered");
-  assert.equal(output.requested_decision, true);
-  assert.equal(lines.length, 7);
-  assert.match(lines[0], /^## Nutzeranforderungen prüfen und entscheiden/);
-  assert.equal(lines[2], fullCardMarkdown, "envelope renders the full operational status card verbatim between the cards");
-  assert.equal(lines.filter((line) => line === fullCardMarkdown).length, 1, "full card appears exactly once");
-  assert.match(lines[4], /Nutzeranforderungen ·/);
-  assert.match(lines.at(-1), /Approval: UR/);
+  assert.equal(output.outcome, "preview");
+  assert.equal(output.requested_decision, false);
+  assert.deepEqual(lines, [previewMarkdown], "the read-only envelope previews the artefact without soliciting an unbound approval");
 }
 
 {
-  // Degradation: a ready gate without a deliverable full card names the codes at the card position.
+  // A partial card never asks for approval when the complete review text is unavailable.
   const rendered = renderApprovalOrientationSnapshot(preflightSnapshot);
   const lines = [];
   const output = printApprovalEnvelope({
     status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
     approval_presentation: rendered,
     status_presentation: null,
     presentation_diagnostics: { status_presentation_errors: ["run_id_missing"] },
   }, { io: { log: (line = "") => lines.push(String(line)) } });
-  assert.equal(output.outcome, "rendered");
-  assert.match(lines[2], /run_id_missing/, "degradation line carries the concrete codes");
-  assert.match(lines.at(-1), /Approval: UR/, "decision is still requested");
+  assert.equal(output.outcome, "presentation_unavailable");
+  assert.equal(output.requested_decision, false);
+  assert.doesNotMatch(lines.join("\n"), /Approval: UR/);
 }
 
 {
@@ -813,11 +911,13 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
   const lines = [];
   printApprovalEnvelope({
     status: "open",
+    current_gate: "UR",
+    missing_approval: "Approval: UR",
     approval_presentation: rendered,
     status_presentation: null,
     presentation_diagnostics: { status_presentation_errors: [] },
   }, { io: { log: (line = "") => lines.push(String(line)) } });
-  assert.doesNotMatch(lines[2], /\(\)/, "no empty parentheses on the degradation line");
+  assert.doesNotMatch(lines[0], /\(\)/, "no empty parentheses on the failure line");
 }
 
 {
@@ -833,10 +933,10 @@ assert.throws(() => attachApprovalOrientationSnapshot(null, {}), /status card mi
     io: { log: (line = "") => lines.push(String(line)) },
     reEvaluate: () => ({ ...readyReport }),
   });
-  assert.equal(output.outcome, "exact_text_recovery");
-  assert.equal(output.requested_decision, true);
+  assert.equal(output.outcome, "presentation_unavailable");
+  assert.equal(output.requested_decision, false);
   assert.match(lines[0], /could not be rendered safely/);
-  assert.match(lines[1], /Approval: UR/);
+  assert.doesNotMatch(lines.join("\n"), /Approval: UR/);
 }
 
 {
@@ -1006,9 +1106,10 @@ assert.equal(validateLocaleRegistry(longLocale).valid, false);
     status_card: { presentation_language: "en" },
   };
   const envelopeResult = printApprovalEnvelope(readyReport, { io: envelopeIo, reEvaluate: () => readyReport });
-  assert.equal(envelopeResult.outcome, "exact_text_recovery");
+  assert.equal(envelopeResult.outcome, "presentation_unavailable");
+  assert.equal(envelopeResult.requested_decision, false);
   assert.match(envelopeLines.join("\n"), /revision_identity/, "IPP: envelope fallback names the error codes");
-  assert.match(envelopeLines.join("\n"), /Approval: UR/, "IPP: envelope fallback still requests the exact approval");
+  assert.doesNotMatch(envelopeLines.join("\n"), /Approval: UR/, "IPP: envelope fallback never requests approval without the artefact");
 }
 
 console.log("interaction presentation tests passed");
@@ -1205,20 +1306,25 @@ for (const reasonCode of [
   "target_unavailable",
   "no_reliable_target",
 ]) {
-  const unresolved = renderTaskTargetOrientation({
-    resolution_state: "unresolved",
-    reason_code: reasonCode,
-    primary_target: "",
-    governance_target: "",
-    evidence_sources: ["/repo/evidence"],
-    working_directory: "/repo/current",
-    target_changed: false,
-    next_action: "Clarify or supply the requested target, then retry.",
-  }, { registry, requestedLocale: "en" });
-  assert.ok(unresolved, `${reasonCode} renders a fail-closed orientation`);
-  assert.equal(unresolved.resolution_state, "unresolved");
-  assert.ok(unresolved.markdown.includes("Next action"), `${reasonCode} shows recovery`);
-  assert.ok(!unresolved.markdown.includes("Clarify or supply"), `${reasonCode} uses the locale-owned recovery text`);
+  for (const locale of Object.keys(registry.locales)) {
+    const unresolved = renderTaskTargetOrientation({
+      resolution_state: "unresolved",
+      reason_code: reasonCode,
+      primary_target: "",
+      governance_target: "",
+      evidence_sources: ["/repo/evidence"],
+      working_directory: "/repo/current",
+      target_changed: false,
+      next_action: "Clarify or supply the requested target, then retry.",
+    }, { registry, requestedLocale: locale });
+    assert.ok(unresolved, `${reasonCode} renders a fail-closed ${locale} orientation`);
+    assert.equal(unresolved.resolution_state, "unresolved");
+    assert.ok(unresolved.markdown.includes(registry.locales[locale].taskTargetResolution.nextAction), `${reasonCode} shows a localized recovery`);
+    assert.ok(unresolved.markdown.includes("/Users/alex/work/project"), `${reasonCode} includes a copyable path example in ${locale}`);
+    assert.ok(unresolved.markdown.includes("https://github.com/org/project"), `${reasonCode} includes a copyable Git URL example in ${locale}`);
+    assert.ok(unresolved.markdown.includes("run-project-20260928"), `${reasonCode} includes a copyable run ID example in ${locale}`);
+    assert.ok(!unresolved.markdown.includes("Clarify or supply"), `${reasonCode} never exposes the raw resolver action`);
+  }
 }
 
 const targetCardDe = renderTaskTargetOrientation({
@@ -1231,8 +1337,22 @@ const targetCardDe = renderTaskTargetOrientation({
   target_changed: false,
   next_action: "Name exactly one primary task target.",
 }, { registry, requestedLocale: "de" });
-assert.match(targetCardDe.markdown, /Ein primäres Ziel benennen\./);
+assert.match(targetCardDe.markdown, /Ein exaktes Ziel mit vollständigem Pfad/);
 assert.doesNotMatch(targetCardDe.markdown, /Name exactly one/);
+const invalidTargetSource = renderTaskTargetOrientation({
+  resolution_state: "unresolved",
+  reason_code: "target_source_invalid",
+  primary_target: "",
+  governance_target: "",
+  evidence_sources: [],
+  working_directory: "/tmp/chat",
+  target_changed: false,
+  next_action: "Use one allowed target_source value.",
+  input_error: { field: "target_source", allowed_values: ["explicit_target", "continued_target", "current_repository"] },
+}, { registry, requestedLocale: "de" });
+assert.ok(invalidTargetSource);
+assert.match(invalidTargetSource.markdown, /explicit_target, continued_target, current_repository/);
+assert.match(invalidTargetSource.markdown, /run-project-20260928/);
 
 const incompleteTargetRegistry = JSON.parse(JSON.stringify(registry));
 delete incompleteTargetRegistry.locales.de.taskTargetResolution;

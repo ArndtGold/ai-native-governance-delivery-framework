@@ -3,11 +3,30 @@ import { dirname, join } from 'node:path';
 import { aggregate } from '../control-state/aggregate.js';
 import { verifyLegacyProjection } from '../control-state/legacy-projection-reader.js';
 import { resolveRuns } from '../control-state/run-state-resolver.js';
+import { runSealState } from '../control-state/run-seal.js';
 import { doctorRequiredFiles } from './required-files.js';
 import { analyzeDeliveryMap } from './delivery-map.js';
 import { evaluateVerifiedChange } from './verified-change.js';
 import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from './run-state.js';
 import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseBacklogSection, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from './shared.js';
+
+const RUN_SEAL_FINDINGS = Object.freeze({
+  approvals_changed: {
+    code: "AGDF_RUN_APPROVALS_UNRECORDED",
+    message: "The Approvals rows differ from the approvals recorded by run-approve.",
+    next_step: "Restore the recorded Approvals rows; record a gate approval only with run-approve after the exact user reply.",
+  },
+  content_changed: {
+    code: "AGDF_RUN_SEAL_MISMATCH",
+    message: "The run state or a listed artefact changed after the last recorded revision.",
+    next_step: "Record the reviewed change with run-update so the run revision advances, then run gate-check again.",
+  },
+  invalid: {
+    code: "AGDF_RUN_SEAL_INVALID",
+    message: "The run seal lines are missing or malformed.",
+    next_step: "Restore both seal lines, or remove both and record a new sealed revision with run-update.",
+  },
+});
 
 export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
   if (selection.allActive) {
@@ -145,6 +164,9 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
           "Run run-migrate to repair the run identity, or migrate the legacy state to a canonical run record.",
         );
       }
+
+      const sealFinding = RUN_SEAL_FINDINGS[runSealState(targetDir, run).status];
+      if (sealFinding) addFinding(findings, "block", sealFinding.code, sealFinding.message, runPath, sealFinding.next_step);
     }
 
     const backlogPath = join(".agdf", "control", "MASTER_BACKLOG.md");
@@ -154,7 +176,8 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
     const completedRows = tableRows(markdownSection(backlog, "Completed / Superseded Pointers"))
       .slice(1)
       .filter((cells) => cells.some((cell) => filled(cell)));
-    if (!hasFilledTableRow(backlog, /^P[0-9]/) && completedRows.length === 0) {
+    // Priorities are written as P1 or, per the numeric template column, as 1.
+    if (!hasFilledTableRow(backlog, /^P?[0-9]/) && completedRows.length === 0) {
       addFinding(
         findings,
         "warn",
@@ -225,6 +248,16 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
     }
 
     const runState = selectedRunState;
+    for (const type of runState.artefact_row_duplicates ?? []) {
+      addFinding(
+        findings,
+        "block",
+        "AGDF_ARTEFACT_ROW_DUPLICATE",
+        `The selected run has more than one Artefacts row for ${type}; the effective artefact is ambiguous.`,
+        runState.path,
+        "Keep exactly one Artefacts row per type, record the reviewed correction with run-update, then retry the gate presentation.",
+      );
+    }
     if (modeSliceDecision(runState) === "verified_change") {
       const verifiedChange = evaluateVerifiedChange(targetDir, runState, dependencies);
       for (const finding of verifiedChange.findings) {

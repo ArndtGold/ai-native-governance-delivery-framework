@@ -67,7 +67,10 @@ export function buildCopilotPayloadInventory({ profileRoot, mappings, version, b
   return inventory;
 }
 
-export function validateCopilotPayload({ profileRoot, repoRoot, expectedVersion, expectedSkills, baseline }) {
+export function validateCopilotPayload({ profileRoot, repoRoot, expectedVersion, expectedSkills, baseline, checkBudget = true }) {
+  if (!baseline || ![baseline.max_files, baseline.max_bytes].every(value => Number.isSafeInteger(value) && value >= 0)) {
+    throw new Error("AGDF_COPILOT_PAYLOAD_BASELINE_INVALID");
+  }
   const inventoryPath = join(profileRoot, COPILOT_INVENTORY_FILE);
   if (!existsSync(inventoryPath)) throw new Error("AGDF_COPILOT_PAYLOAD_INVENTORY_MISSING");
   let inventory;
@@ -115,7 +118,7 @@ export function validateCopilotPayload({ profileRoot, repoRoot, expectedVersion,
     files: entries.length,
     bytes: entries.reduce((sum, entry) => sum + entry.bytes, 0),
   };
-  if (stats.files > baseline.max_files || stats.bytes > baseline.max_bytes) {
+  if (checkBudget && (stats.files > baseline.max_files || stats.bytes > baseline.max_bytes)) {
     throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
   }
   if (inventory.stats?.files !== stats.files || inventory.stats?.bytes !== stats.bytes

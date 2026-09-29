@@ -12,6 +12,9 @@ export class CliUsageError extends Error {
   }
 }
 
+const STEP_FIELD_FLAGS = new Map(["title", "route", "reason", "evidence", "source", "covers", "decision", "result", "risk", "next"]
+  .map((name) => [`--${name}`, name]));
+
 function requiredValue(args, index, option) {
   const next = args[index + 1];
   if (!next) throw new CliUsageError(`Missing value for ${option}`);
@@ -41,6 +44,10 @@ export function parseArgs(argv, dependencies = {}) {
   let surface = "generic";
   let surfaceExplicit = false;
   let skillId;
+  let intake = false;
+  let intakeMode;
+  let continueDelivery = false;
+  let presentationId;
   let fixture;
   let persist = false;
   let model;
@@ -50,11 +57,18 @@ export function parseArgs(argv, dependencies = {}) {
   let generationTimeoutMs = 30000;
   let generationCostUnits = 5;
   let runId;
+  let gate;
+  let revisionId;
+  let response;
+  let contractModule;
+  let runStep;
+  const stepFields = {};
   let allActive = false;
   let scope;
   let confirm = false;
   let shared = false;
   let runtimeChecksDecision;
+  let acceptPluginCapabilities = false;
   let runtimeChecksAction;
   let mcpAction;
   let mcpScope;
@@ -81,6 +95,7 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--all-active") { allActive = true; continue; }
     if (arg === "--confirm") { confirm = true; continue; }
     if (arg === "--shared") { shared = true; continue; }
+    if (arg === "--accept-plugin-capabilities") { acceptPluginCapabilities = true; continue; }
     if (arg === "--target-changed") { targetChanged = true; continue; }
     if (arg === "--with-mcp") {
       if (setupRequest === "plugin_only") throw new CliUsageError("--with-mcp and --plugin-only cannot be combined.");
@@ -107,9 +122,49 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (arg === "--step") {
+      runStep = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
+    if (STEP_FIELD_FLAGS.has(arg)) {
+      stepFields[STEP_FIELD_FLAGS.get(arg)] = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
+    if (arg === "--module") {
+      contractModule = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+
+    if (["--gate", "--revision", "--response"].includes(arg)) {
+      const next = requiredValue(args, i, arg);
+      if (arg === "--gate") gate = next;
+      else if (arg === "--revision") revisionId = next;
+      else response = next;
+      i += 1;
+      continue;
+    }
+
     if (arg === "--skill") {
       skillId = requiredValue(args, i, arg);
       i += 1;
+      continue;
+    }
+
+    if (arg === "--intake-mode" || arg === "--presentation") {
+      const value = requiredValue(args, i, arg);
+      if (arg === "--intake-mode") intakeMode = value;
+      else presentationId = value;
+      i += 1;
+      continue;
+    }
+    if (arg === "--continue-delivery") { continueDelivery = true; continue; }
+    if (arg === "--intake") {
+      intake = true;
       continue;
     }
 
@@ -218,16 +273,27 @@ export function parseArgs(argv, dependencies = {}) {
       surface,
       surfaceExplicit,
       skillId,
+      intake,
+      intakeMode,
+      continueDelivery,
+      presentationId,
       fixture: fixture ? resolve(cwd, fixture) : null,
       persist,
       model,
       generateCandidates,
       runId,
+      gate,
+      revisionId,
+      response,
+      contractModule,
+      runStep,
+      stepFields,
       allActive,
       scope,
       confirm,
       shared,
       runtimeChecksDecision,
+      acceptPluginCapabilities,
       runtimeChecksAction: runtimeChecksAction ?? "status",
       mcpAction,
       mcpScope,

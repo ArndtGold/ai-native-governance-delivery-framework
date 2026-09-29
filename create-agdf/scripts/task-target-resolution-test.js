@@ -122,7 +122,7 @@ try {
     io: { log(value) { germanOutput.push(value); }, error(value) { germanOutput.push(value); } },
   });
   const germanPresentation = JSON.parse(germanOutput[0]).task_target_orientation.markdown;
-  assert.match(germanPresentation, /Ein primäres Ziel benennen\./);
+  assert.match(germanPresentation, /Ein exaktes Ziel mit vollständigem Pfad, Git-URL oder vorhandener Run-ID benennen\./);
   assert.doesNotMatch(germanPresentation, /Name exactly one/);
 
   const invalidSourceOutput = [];
@@ -136,10 +136,31 @@ try {
   assert.deepEqual(invalidSourceReport.input_error.allowed_values, ["explicit_target", "continued_target", "current_repository"]);
   assert.match(invalidSourceReport.task_target_orientation.markdown, /Ungültige Zielquelle/);
   assert.match(invalidSourceReport.task_target_orientation.markdown, /explicit_target, continued_target, current_repository/);
-  assert.match(invalidSourceReport.task_target_orientation.markdown, /Einen erlaubten Wert für target_source verwenden\./);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /Einen erlaubten target_source-Wert und den vollständigen Pfad, die Git-URL oder Run-ID angeben\./);
   assert.doesNotMatch(invalidSourceReport.task_target_orientation.markdown, /Kein belastbares Arbeitsziel/);
 } finally {
   rmSync(root, { recursive: true, force: true });
+}
+
+// Windows keeps 8.3 short names (for example C:\Users\RUNNER~1) in realpathSync, while git reports
+// the long root; the working directory must still resolve as repository-bound.
+if (process.platform === "win32") {
+  const longRoot = mkdtempSync(join(tmpdir(), "agdf-short-name-repository-"));
+  try {
+    const longRepo = join(longRoot, "repository-with-long-name");
+    mkdirSync(join(longRepo, "src"), { recursive: true });
+    execFileSync("git", ["init", "-q", longRepo]);
+    const shortRepo = execFileSync("cmd.exe", ["/d", "/s", "/c", `for %I in ("${longRepo}") do @echo %~sI`], { encoding: "utf8", windowsVerbatimArguments: true }).trim();
+    if (shortRepo.toLowerCase() === longRepo.toLowerCase()) {
+      console.log("[task-target-resolution-test] SKIPPED short-name assertions: 8.3 names are disabled on this volume");
+    } else {
+      const shortContext = resolveRepositoryContext(join(shortRepo, "src"));
+      assert.equal(shortContext.context_state, "repository_bound", "an 8.3 short working directory stays repository-bound");
+      assert.equal(shortContext.repository_root, realpathSync(shortRepo), "the root keeps the working directory's spelling");
+    }
+  } finally {
+    rmSync(longRoot, { recursive: true, force: true });
+  }
 }
 
 console.log("task target resolution tests passed");

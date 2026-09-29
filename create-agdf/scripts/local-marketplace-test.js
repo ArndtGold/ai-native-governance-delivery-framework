@@ -41,6 +41,19 @@ function captureError(action, pattern) {
   return caught;
 }
 
+// An AGDF-owned root whose payload no longer validates is rebuilt from the trusted source; the damaged
+// root becomes the transaction backup, so rollback restores it byte for byte.
+function assertDamagedRebuild(options, pattern, damagedFile) {
+  const before = damagedFile ? readFileSync(damagedFile, "utf8") : null;
+  const repaired = prepareLocalMarketplace(options);
+  assert.equal(repaired.existingClassification, "owned_damaged_rebuild");
+  assert.equal(repaired.changed, true);
+  assert.match(repaired.damagedReason, pattern);
+  repaired.rollback();
+  if (damagedFile) assert.equal(readFileSync(damagedFile, "utf8"), before, "rollback must restore the damaged root");
+  return repaired;
+}
+
 function fakeTransaction(root = join(fixtureRoot, "fake-marketplace"), { changed = true, events } = {}) {
   const state = { committed: 0, rolledBack: 0 };
   return {
@@ -229,12 +242,9 @@ try {
       ...historicalMarker,
       source_digest: "0".repeat(64),
     }, null, 2)}\n`);
-    captureError(
-      () => prepareLocalMarketplace({ dataRoot: historicalDataRoot, builtPluginRoot }),
-      /ownership source digest mismatch/,
-    );
+    assertDamagedRebuild({ dataRoot: historicalDataRoot, builtPluginRoot }, /ownership source digest mismatch/, historicalMarkerPath);
     writeFileSync(historicalMarkerPath, `${JSON.stringify(historicalMarker, null, 2)}\n`);
-    assert.equal(digestDirectory(historicalInitial.root), historicalRootDigest, "ownership source digest mismatch must block before marketplace mutation");
+    assert.equal(digestDirectory(historicalInitial.root), historicalRootDigest, "rollback of a damaged-root rebuild must restore the root unchanged");
     if (version === "0.13.8") {
       const invalidHistoryPlugin = join(fixtureRoot, "invalid-history-built-plugin");
       cpSync(builtPluginRoot, invalidHistoryPlugin, { recursive: true });
@@ -350,11 +360,8 @@ try {
     ...json(invalidLegacyOwnedPath),
     plugin_digest: digestDirectory(invalidLegacyPluginRoot),
   }, null, 2)}\n`);
-  assert.throws(
-    () => prepareLocalMarketplace({ dataRoot: invalidLegacyDataRoot, builtPluginRoot }),
-    /installation_provenance_invalid/,
-    "arbitrary legacy marker must not become migration authority",
-  );
+  // Arbitrary legacy marker must not become migration authority: the owned root is rebuilt, not migrated.
+  assertDamagedRebuild({ dataRoot: invalidLegacyDataRoot, builtPluginRoot }, /installation_provenance_invalid/, join(invalidLegacyPluginRoot, ".agdf-local-install.json"));
 
   const missingProvenanceDataRoot = join(fixtureRoot, "missing-provenance-data");
   const missingProvenanceInitial = prepareLocalMarketplace({ dataRoot: missingProvenanceDataRoot, builtPluginRoot });
@@ -365,11 +372,8 @@ try {
     ...json(missingProvenanceOwnedPath),
     plugin_digest: digestDirectory(missingProvenanceInitial.pluginRoot),
   }, null, 2)}\n`);
-  assert.throws(
-    () => prepareLocalMarketplace({ dataRoot: missingProvenanceDataRoot, builtPluginRoot }),
-    /installation_provenance_missing/,
-    "missing provenance must not become migration authority",
-  );
+  // Missing provenance must not become migration authority: the owned root is rebuilt, not migrated.
+  assertDamagedRebuild({ dataRoot: missingProvenanceDataRoot, builtPluginRoot }, /installation_provenance_missing/);
 
   const preProvenanceDataRoot = join(fixtureRoot, "pre-provenance-data");
   const preProvenanceInitial = prepareLocalMarketplace({ dataRoot: preProvenanceDataRoot, builtPluginRoot });
@@ -422,11 +426,7 @@ try {
   const tamperedDefinitionPath = join(tamperedPreProvenanceInitial.pluginRoot, "meta", "agdf-plugin.definition.json");
   const { distributionProfiles: _tamperedProfiles, ...tamperedDefinition } = json(tamperedDefinitionPath);
   writeFileSync(tamperedDefinitionPath, `${JSON.stringify(tamperedDefinition, null, 2)}\n`);
-  const tamperedPreProvenanceError = captureError(
-    () => prepareLocalMarketplace({ dataRoot: tamperedPreProvenanceDataRoot, builtPluginRoot }),
-    /tampered AGDF marketplace root/,
-  );
-  assert.equal(tamperedPreProvenanceError.existingClassification, "invalid_or_unowned");
+  assertDamagedRebuild({ dataRoot: tamperedPreProvenanceDataRoot, builtPluginRoot }, /tampered AGDF marketplace root/, tamperedDefinitionPath);
 
   const incompletePreProvenanceDataRoot = join(fixtureRoot, "incomplete-pre-provenance-data");
   const incompletePreProvenanceInitial = prepareLocalMarketplace({ dataRoot: incompletePreProvenanceDataRoot, builtPluginRoot });
@@ -441,11 +441,7 @@ try {
     ...json(incompleteOwnedPath),
     plugin_digest: digestDirectory(incompletePreProvenanceInitial.pluginRoot),
   }, null, 2)}\n`);
-  const incompleteError = captureError(
-    () => prepareLocalMarketplace({ dataRoot: incompletePreProvenanceDataRoot, builtPluginRoot }),
-    /Built plugin is incomplete/,
-  );
-  assert.equal(incompleteError.existingClassification, "invalid_or_unowned");
+  assertDamagedRebuild({ dataRoot: incompletePreProvenanceDataRoot, builtPluginRoot }, /Built plugin is incomplete/, incompleteOwnedPath);
 
   const malformedCurrentDataRoot = join(fixtureRoot, "malformed-current-data");
   const malformedCurrentInitial = prepareLocalMarketplace({ dataRoot: malformedCurrentDataRoot, builtPluginRoot });
@@ -457,11 +453,7 @@ try {
     ...json(malformedCurrentOwnedPath),
     plugin_digest: digestDirectory(malformedCurrentInitial.pluginRoot),
   }, null, 2)}\n`);
-  const malformedCurrentError = captureError(
-    () => prepareLocalMarketplace({ dataRoot: malformedCurrentDataRoot, builtPluginRoot }),
-    /installation_provenance_invalid/,
-  );
-  assert.equal(malformedCurrentError.existingClassification, "invalid_or_unowned");
+  assertDamagedRebuild({ dataRoot: malformedCurrentDataRoot, builtPluginRoot }, /installation_provenance_invalid/, malformedCurrentMarkerPath);
 
   const codexMarketplacePath = join(current.root, ".agents", "plugins", "marketplace.json");
   const previousCodexMarketplace = json(codexMarketplacePath);
@@ -543,10 +535,10 @@ try {
   const tamperedClaudeManifest = JSON.parse(claudeManifest);
   tamperedClaudeManifest.metadata.description = "Foreign description.";
   writeFileSync(claudeManifestPath, `${JSON.stringify(tamperedClaudeManifest, null, 2)}\n`);
-  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /Claude local marketplace manifest is not owned/);
+  assertDamagedRebuild({ dataRoot, builtPluginRoot }, /Claude local marketplace manifest is not owned/, claudeManifestPath);
   writeFileSync(claudeManifestPath, claudeManifest);
   writeFileSync(claudeManifestPath, claudeManifest.replace("./plugins/agdf", "./plugins/foreign"));
-  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /Claude local marketplace manifest is not owned/);
+  assertDamagedRebuild({ dataRoot, builtPluginRoot }, /Claude local marketplace manifest is not owned/, claudeManifestPath);
   writeFileSync(claudeManifestPath, claudeManifest);
 
   const codexManifestPath = join(update.root, ".agents", "plugins", "marketplace.json");
@@ -554,11 +546,17 @@ try {
   const tamperedCodexManifest = JSON.parse(codexManifest);
   tamperedCodexManifest.interface.displayName = "Foreign AGDF";
   writeFileSync(codexManifestPath, `${JSON.stringify(tamperedCodexManifest, null, 2)}\n`);
-  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /Codex local marketplace manifest is not owned/);
+  assertDamagedRebuild({ dataRoot, builtPluginRoot }, /Codex local marketplace manifest is not owned/, codexManifestPath);
   writeFileSync(codexManifestPath, codexManifest);
 
   writeFileSync(join(update.root, "plugins", "agdf", "LICENSE"), "tampered\n");
-  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /source_digest_mismatch|tampered AGDF marketplace root/);
+  assertDamagedRebuild({ dataRoot, builtPluginRoot }, /source_digest_mismatch|tampered AGDF marketplace root/, join(update.root, "plugins", "agdf", "LICENSE"));
+  const damagedCommit = prepareLocalMarketplace({ dataRoot, builtPluginRoot });
+  assert.equal(damagedCommit.existingClassification, "owned_damaged_rebuild");
+  damagedCommit.commit();
+  assert.equal(readFileSync(join(update.root, "plugins", "agdf", "LICENSE"), "utf8"), readFileSync(join(builtPluginRoot, "LICENSE"), "utf8"));
+  assert.equal(existsSync(`${update.root}.backup`), false, "commit must remove the damaged root");
+  assert.equal(prepareLocalMarketplace({ dataRoot, builtPluginRoot }).changed, false, "a repaired root must be current afterwards");
   rmSync(update.root, { recursive: true, force: true });
   mkdirSync(update.root, { recursive: true });
   writeFileSync(join(update.root, "foreign.txt"), "foreign\n");
@@ -693,10 +691,10 @@ try {
   }), /version/);
   assert.equal(unverifiedHistoricalClaudeTx.state.committed, 0);
   assert.equal(unverifiedHistoricalClaudeTx.state.rolledBack, 1);
-  assert.ok(unverifiedHistoricalClaudeCalls.includes("claude plugin uninstall agdf@agdf"));
+  assert.ok(unverifiedHistoricalClaudeCalls.includes("claude plugin uninstall agdf@agdf --keep-data"));
   assert.ok(
     unverifiedHistoricalClaudeCalls.indexOf("claude plugin install agdf@agdf")
-      < unverifiedHistoricalClaudeCalls.lastIndexOf("claude plugin uninstall agdf@agdf"),
+      < unverifiedHistoricalClaudeCalls.lastIndexOf("claude plugin uninstall agdf@agdf --keep-data"),
   );
 
   const claudeTx = fakeTransaction(join(fixtureRoot, "claude-marketplace"));
@@ -712,9 +710,9 @@ try {
   assert.equal(claudeTx.state.committed, 1);
   assert.ok(claudeCalls.includes(`claude plugin marketplace add ${join(fixtureRoot, "claude-marketplace")} --scope user`));
   assert.ok(claudeCalls.includes("claude plugin marketplace update agdf"));
-  assert.ok(claudeCalls.includes("claude plugin uninstall agdf@agdf"), "installed plugin must be reinstalled, not updated");
+  assert.ok(claudeCalls.includes("claude plugin uninstall agdf@agdf --keep-data"), "installed plugin must be reinstalled, not updated");
   assert.ok(claudeCalls.includes("claude plugin install agdf@agdf"));
-  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
+  assert.ok(claudeCalls.indexOf("claude plugin uninstall agdf@agdf --keep-data") < claudeCalls.indexOf("claude plugin install agdf@agdf"));
   assert.equal(claudeCalls.includes("claude plugin update agdf@agdf"), false, "same-version update must no longer be used");
 
   const claudeRetryTx = fakeTransaction(join(fixtureRoot, "claude-retry-marketplace"));
@@ -782,7 +780,7 @@ try {
   });
   assert.equal(claudeFresh.installedVersion, pluginDefinition.version, "multi-line list output must yield the real version");
   assert.equal(claudeFresh.verificationStatus, "healthy");
-  assert.equal(claudeFreshCalls.includes("claude plugin uninstall agdf@agdf"), false, "a fresh install must not uninstall first");
+  assert.equal(claudeFreshCalls.includes("claude plugin uninstall agdf@agdf --keep-data"), false, "a fresh install must not uninstall first");
 
   const currentTx = fakeTransaction(join(fixtureRoot, "current-marketplace"));
   const currentCalls = [];

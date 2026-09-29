@@ -1,3 +1,4 @@
+import "./support/english-locale.js";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -253,6 +254,7 @@ Verify canonical actions without a persisted Run Status Card.
 
 | From | Relationship | To | Evidence |
 |---|---|---|---|
+| UR | approved_by | Approval: UR | fixture |
 | PRD | derived_from | UR | fixture |
 | SD | derived_from | PRD | fixture |
 | TP | derived_from | SD | fixture |

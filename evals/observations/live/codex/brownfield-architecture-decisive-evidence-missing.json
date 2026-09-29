@@ -1,0 +1,15 @@
+{
+  "case_id": "brownfield-architecture-decisive-evidence-missing",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:56:47.896Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "persist block with depth_facts_missing and evidence owner"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nUR is approved; control state is brownfield-review. The fixture describes existing runtime, tests and CI owners. Active mode: post_ur_review. The supplied JSON files establish fixture metadata, not consumer compatibility evidence.\n\n## Missing evidence\nExternal consumers, compatibility effects and coordinated migration requirements remain unknown. No decisive full-depth trigger is established; bounded-slice eligibility is unproven. The responsible interface/consumer evidence owner must be identified.\n\n## Decision\nDecision: revise. Architecture impact remains relevant and unresolved. Mode/Slice Decision must persist block with depth_facts_missing, presented as depth_unresolved. Unknown facts cannot justify a positive route.\n\n## Risks\nPremature routing could miss coordinated migration or introduce incompatible interfaces and parallel ownership. Reuse existing runtime, tests and CI ownership; the concrete reuse path still needs evidence.\n\n## Required next step\nObtain consumer and migration evidence from the existing interface owner and affected consumer owners. Record named gaps, evidence ownership and precise recovery action in the linked BROWNFIELD_REVIEW.md and canonical route projection, then re-evaluate Brownfield Review and structured depth. No new user approval is required for evidence completion; later artefacts and implementation remain unavailable."
+}

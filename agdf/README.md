@@ -24,7 +24,7 @@ node -v
 npm -v
 ```
 
-If either command fails, install Node.js 18 or later:
+If either command fails, install Node.js 22 or later:
 
 - **Windows:** `winget install OpenJS.NodeJS.LTS`
 - **macOS:** `brew install node`

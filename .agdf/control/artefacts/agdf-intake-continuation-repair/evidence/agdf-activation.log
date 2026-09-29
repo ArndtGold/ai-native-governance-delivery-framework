@@ -1,0 +1,232 @@
+
+> create-agdf@0.14.5 test:request-activation
+> npm run test:instruction-footprint && node ./scripts/request-activation-test.js && node ./scripts/request-activation-evals-test.js && npm run test:request-activation-callbacks && npm run test:request-activation-host-schema
+
+
+> create-agdf@0.14.5 test:instruction-footprint
+> node ./scripts/instruction-footprint-test.js
+
+{
+  "status": "pass",
+  "evidence_plane": "source_composed",
+  "profile_surface": "generated_and_temporary_install_fixture",
+  "evaluator_surface": "node_deterministic",
+  "loaded_host_evidence": false,
+  "generated_digest": "943142761cf3ce9bd3e8e39312e38f4e0e9412edcfe2ff00c634b3d75d6a71b0",
+  "canonical_kernel_fingerprint": "sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab",
+  "measurements": [
+    {
+      "surface_id": "activationKernel",
+      "instance_id": "canonical",
+      "raw_bytes": 1092,
+      "normalized_bytes": 1092,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-path-search",
+      "raw_bytes": 269,
+      "normalized_bytes": 269,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "brownfield-analysis",
+      "raw_bytes": 349,
+      "normalized_bytes": 349,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "ux-intent-definition",
+      "raw_bytes": 364,
+      "normalized_bytes": 364,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "clean-implementation-review",
+      "raw_bytes": 219,
+      "normalized_bytes": 219,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "code-review",
+      "raw_bytes": 231,
+      "normalized_bytes": 231,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "delivery-closeout",
+      "raw_bytes": 174,
+      "normalized_bytes": 174,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "gate-check",
+      "raw_bytes": 361,
+      "normalized_bytes": 361,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "qa-gate",
+      "raw_bytes": 174,
+      "normalized_bytes": 174,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "release-or",
+      "raw_bytes": 156,
+      "normalized_bytes": 156,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "skillDiscoveryDescription",
+      "instance_id": "task-plan-review",
+      "raw_bytes": 215,
+      "normalized_bytes": 215,
+      "max_normalized_bytes": 420,
+      "status": "pass"
+    },
+    {
+      "surface_id": "allSkillDiscoveryDescriptions",
+      "instance_id": "definition-order",
+      "raw_bytes": 2512,
+      "normalized_bytes": 2512,
+      "max_normalized_bytes": 3000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "codex",
+      "raw_bytes": 2012,
+      "normalized_bytes": 1881,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "claude",
+      "raw_bytes": 2013,
+      "normalized_bytes": 1882,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "sessionStartBase",
+      "instance_id": "copilot",
+      "raw_bytes": 2014,
+      "normalized_bytes": 1883,
+      "max_normalized_bytes": 1900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "runtimeCheckSupplement",
+      "instance_id": "codex-consented",
+      "raw_bytes": 278,
+      "normalized_bytes": 224,
+      "max_normalized_bytes": 320,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "repository",
+      "raw_bytes": 1501,
+      "normalized_bytes": 1501,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeEagerInstructions",
+      "instance_id": "global-installed",
+      "raw_bytes": 1577,
+      "normalized_bytes": 1577,
+      "max_normalized_bytes": 4000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeActiveDynamicContext",
+      "instance_id": "active",
+      "raw_bytes": 852,
+      "normalized_bytes": 726,
+      "max_normalized_bytes": 1000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeInactiveDynamicContext",
+      "instance_id": "inactive",
+      "raw_bytes": 0,
+      "normalized_bytes": 0,
+      "max_normalized_bytes": 0,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "repository",
+      "raw_bytes": 2354,
+      "normalized_bytes": 2228,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeComposedStaticAndActiveDynamic",
+      "instance_id": "global-installed",
+      "raw_bytes": 2430,
+      "normalized_bytes": 2304,
+      "max_normalized_bytes": 5000,
+      "status": "pass"
+    },
+    {
+      "surface_id": "openCodeCompactionAddition",
+      "instance_id": "active",
+      "raw_bytes": 1092,
+      "normalized_bytes": 1092,
+      "max_normalized_bytes": 1100,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "canonical-generated",
+      "raw_bytes": 5388,
+      "normalized_bytes": 5388,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    },
+    {
+      "surface_id": "selectedGateCheckSkill",
+      "instance_id": "global-installed",
+      "raw_bytes": 6720,
+      "normalized_bytes": 6720,
+      "max_normalized_bytes": 6900,
+      "status": "pass"
+    }
+  ]
+}
+Instruction-footprint tests passed
+Request activation projection tests passed
+Request Activation eval tests passed (33 cases; source and callback policy current)
+
+> create-agdf@0.14.5 test:request-activation-callbacks
+> node ./scripts/request-activation-callback-test.js
+
+Request Activation callback and ordering integration tests passed
+
+> create-agdf@0.14.5 test:request-activation-host-schema
+> node ./scripts/request-activation-host-schema-test.js
+
+Request Activation host observation schema tests passed

@@ -62,10 +62,14 @@ They must not override AGDF gates, approvals or the Runtime Contract.
   explicit setup or link authority, initialize or link canonical control and persist a revision-stable
   UR first; only then may revalidation determine whether `Approval: UR` is ready. This branch is
   unreachable for `target_unresolved` and never creates a free-standing legacy live run.
+- Brownfield Review and its route may be recorded while the UR card is ready, so that card can name the next gate; this grants nothing beyond the pending `Approval: UR`.
 - `Approval: UR` permits Brownfield Review after G-00 first. The review records its Mode/Slice Decision in the same internal operation when evidence is sufficient; the user is told that no action is required now. A separate `Mode/Slice Decision` step is fail-closed recovery for incomplete or legacy review state, not a normal user decision. UR approval never permits implementation by itself and does not preselect PRD.
 - PRD, SD and TP depth is chosen after Brownfield Review through the Mode/Slice Decision, not before existing-system impact is understood.
 - The Mode/Slice Decision must be visible before any PRD shortcut, Quick Task execution or implementation: record the decision, required next gate, scope reason and evidence in the selected canonical `RUN_STATE.md` or an equivalent linked control artefact.
 - `Approval: PRD` permits Solution Design drafting, not implementation.
+- Before presenting a PRD approval, the PRD `Approval Decisions` table must resolve every `before_prd` product, acceptance, owner and release-scope decision and name its PRD owner. Collect related missing answers in one request. `later_sd` and `later_tp` rows may remain open only with a named owner; they cannot silently carry a product decision past PRD approval. The runtime suppresses `run-present` and `run-approve` when PRD readiness is open.
+- The `criteria-chain-v1` contract keeps PRD acceptance as the sole product source: every PRD criterion has one stable `criterion_id`; SD maps every criterion exactly once to its design, source-of-truth owner, decision and compatibility/risk treatment; TP maps every criterion and SD decision to task IDs, scenario IDs, expected results and evidence. Existing gate readiness checks suppress the SD or TP presentation when a marked artefact has incomplete or inconsistent mappings. Do not create a parallel acceptance register or copy acceptance prose downstream.
+- A clarification after approval that does not change approved scope, behavior or acceptance may be attributed as run evidence without changing the approved PRD. A material change uses `run-revise --run <run_id> --revision <revision_id>` at the PRD-to-SD boundary before a downstream artefact is linked. This preserves the old approval as superseded evidence, returns to PRD, and requires a revised sealed PRD, new `run-present` and new deliberate `Approval: PRD`. An old reply or presentation never transfers to the new revision.
 - `Approval: SD` permits Task/Test Plan drafting, not implementation.
 - `Approval: TP` permits implementation-preparation Brownfield Analysis and then CD+Tests when Brownfield evidence supports it.
 - `CD+Tests` is implementation and test status only, not a delivery signal.
@@ -84,6 +88,8 @@ It is the sizing and routing step that decides how much later gate discipline is
 When evidence is sufficient, persist the review and Mode/Slice selection together; do not expose a
 second routine user decision. Keep the standalone Mode/Slice step only for fail-closed recovery when
 the review record is incomplete or legacy.
+The same review records conditional Architecture Impact under `brownfield-analysis`; its evidence
+feeds the existing Mode/Slice Decision, whose structured-depth policy remains in `modes.md`.
 
 Its output is limited to:
 

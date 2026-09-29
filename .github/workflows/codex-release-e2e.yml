@@ -1,0 +1,84 @@
+name: Codex native release gate
+
+on:
+  workflow_call:
+    secrets:
+      CODEX_API_KEY:
+        required: true
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Codex E2E (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win32
+    runs-on: ${{ matrix.os }}
+    environment: codex-release
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Require a trusted release or manual invocation
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" && "$GITHUB_REF" != refs/tags/agdf-v* && "$GITHUB_REF" != refs/tags/create-agdf-v* ]]; then
+            echo "Native credential-bearing tests require a release tag or reviewed manual invocation" >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts
+      - name: Install MCP dependencies from checkout
+        working-directory: agdf-mcp-server
+        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
+      - name: Install pinned Codex CLI
+        run: npm install --global --ignore-scripts "@openai/codex@$(node -p "require('./scripts/native-probes/codex-release-policy.json').codex_version")"
+      - name: Verify native command resolution
+        run: node create-agdf/scripts/host-command-test.js
+      # Trusted release/manual refs only; never invoked from a PR job. No account auth.json in CI.
+      # The harness strips credentials before builds/install/removal and passes this key only to
+      # codex exec. Raw transcripts and the isolated CODEX_HOME are never uploaded.
+      - name: Run real CLI lifecycle
+        env:
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
+        run: |
+          test -n "$CODEX_API_KEY" || { echo "CODEX_API_KEY is required for the release gate" >&2; exit 1; }
+          node scripts/native-probes/codex-host-e2e.mjs --model "$(node -p "require('./scripts/native-probes/codex-release-policy.json').model")"
+      - name: Preserve bounded evidence only
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: codex-release-${{ matrix.platform }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            probe-results/codex-host-e2e-*/observation.json
+            probe-results/codex-host-e2e-*/summary.txt
+
+  evidence:
+    needs: native
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: codex-release-*
+          path: .release-evidence
+      - name: Verify exact release tuple on both native platforms
+        run: node scripts/native-probes/release-evidence.mjs --directory .release-evidence

@@ -167,7 +167,7 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
         missing_approval: "none",
         allowed: ["create or refine the compact Verified Change record", "capture baseline paths", "prove fail-closed eligibility with doctor and gate-check"],
         forbidden: ["implement candidate changes", "claim validation, QA, UAT or release readiness"],
-        next_allowed_action: "Create or repair VERIFIED_CHANGE.md, capture the baseline and satisfy every eligibility check before implementation; escalate when any condition cannot be proven.",
+        next_allowed_action: "Create or repair VERIFIED_CHANGE.md, capture the baseline and satisfy every eligibility check before implementation; escalate if any condition is unproven.",
       };
     }
 
@@ -262,7 +262,7 @@ export function transitionDecisionForRunState(runState, verifiedChange = null) {
         : ["revise the implementation against the QA findings", "refresh CD+Tests and mandatory reviews", "rerun QA with refreshed evidence"],
       forbidden: ["request QA approval", "request UAT approval", "release", "claim delivery readiness"],
       next_allowed_action: blocked
-        ? "Resolve or route the blocking QA findings through their authoritative owner, then rerun the required delivery steps. Do not request Approval: QA from a block report."
+        ? "Resolve or route the blocking QA findings via their authoritative owner, then rerun the required steps. Do not request Approval: QA from a block report."
         : "Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.",
     };
   }

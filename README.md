@@ -39,6 +39,9 @@ offline und ist nicht freigebend. Eine Werkzeugberechtigung oder ein erfolgreich
 AGDF-Freigabe. Der Prozess übernimmt die Betriebssystemrechte des startenden Hosts und beansprucht
 keine Sandbox.
 
+In Codex ist die Zuordnung: Der MCP-Server heißt `agdf`, sein Werkzeug heißt `agdf_dispatch`.
+Ein Eintrag `codex_app` gehört zur separaten Codex-App-Integration und ist nicht der AGDF-MCP-Server.
+
 ```bash
 npx --yes @agdf/cli@latest mcp status --surface codex --dir /absoluter/pfad/zum/repository --json
 npx --yes @agdf/cli@latest mcp enable --surface codex --dir /absoluter/pfad/zum/repository
@@ -46,7 +49,7 @@ npx --yes @agdf/cli@latest mcp disable --surface codex --dir /absoluter/pfad/zum
 ```
 
 Der Repository-Bereich ist der Standard. `--scope user` muss bewusst gewählt werden. MCP benötigt
-Node.js 20 oder neuer, während die bestehende CLI weiterhin Node.js 18 unterstützt. Nach der
+Node.js 22 oder neuer, ebenso wie die CLI. Nach der
 Aktivierung muss der Host neu gestartet und die Erkennung in einer frischen Sitzung geprüft werden.
 Host-Unterstützung bleibt bis zu direkter Registrierung, Erkennung, Aufruf, kontrolliertem Fehler
 und Entfernung je Host und Betriebssystem-Tupel `unverified`. Die vier Adapter teilen eine

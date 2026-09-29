@@ -68,7 +68,7 @@ cannot execute the guided CLI transaction.
 
 For local wrappers such as `npm run install:codex`, npm's absolute `INIT_CWD` supplies the proposed
 target. If it is absent, the wrapper uses the process working directory. It resolves and validates
-that directory before `release:prepare`; an invalid value fails with
+that directory before host-specific preparation; an invalid value fails with
 `AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before package generation or host mutation. Human and
 JSON results distinguish this invocation context from the native registration path and the source
 that actually wins the host's MCP precedence rules.
@@ -145,8 +145,8 @@ presentation and continuation results. Tool permission and successful execution 
 AGDF approval. The process is offline while serving and exposes no generic shell, filesystem or
 network operation, but it inherits the operating-system permissions of the host user.
 
-The existing CLI remains on Node.js 18. MCP enablement requires the actual registered executable
-to be Node.js 20 or later and installs the exact matching `@agdf/mcp-server` package only after the
+The CLI requires Node.js 22 or later. MCP enablement requires the actual registered executable
+to be Node.js 22 or later and installs the exact matching `@agdf/mcp-server` package only after the
 explicit `enable` command:
 
 ```bash
@@ -160,8 +160,8 @@ After enablement, restart the host and verify tool discovery in a fresh session.
 the qualified name `agdf_agdf_dispatch`; the server-level name is `agdf_dispatch`. Its adapter reads
 the installed major version and writes the flat OpenCode 1.x or nested OpenCode 2.x MCP shape. `status` is
 read-only, and `disable` removes only the owned registration plus an unreferenced owned runtime.
-Foreign entries fail closed. Node.js 18 returns `capability: manual_compatible` and names the
-version-matched CLI dispatch path without running it automatically. One runtime is shared by all
+Foreign entries fail closed. Node.js versions below 22 are rejected by the CLI before application
+loading and cannot acquire an MCP runtime. Upgrade Node.js before retrying. One runtime is shared by all
 registrations in the selected project or user scope and is removed only after its last owned
 reference is gone.
 
@@ -199,7 +199,12 @@ agdf skill-dispatch --json --skill gate-check --surface codex --language de --wo
 agdf delivery-map --json
 agdf delivery-path-search --surface codex --json
 agdf delivery-path-search --surface claude --json
+agdf contract --module gate-transition
 ```
+
+`contract --module <name>` prints one packaged runtime-contract module named by the plugin
+definition. Skills read their modules this way after `skill_continuation`, because Claude Code grants
+skills no read access to the plugin directory.
 
 Installed AGDF sessions supply the exact version-matched `skill-dispatch` binding to canonical
 skills. It resolves the target first and returns either a terminal canonical result or one bounded
@@ -208,6 +213,12 @@ recovery text. For `terminal: true`, the entire assistant response must equal th
 question, explanation, heading, citation, translation, choice or later tool call. It never grants
 approval. Pass an explicit target pair only when the conversation has actually selected one; do not
 substitute the working directory.
+
+A governed delivery intake (`delivery.start`) adds `--intake` (MCP: `intake: true`). While no active
+run exists or the selected run has no durable UR revision, gate-check then returns a non-terminal
+`intake_continuation` whose ordered steps create the run, write the UR and record it with
+`run-step --step ur`; the agent runs them and dispatches again instead of ending the turn. A ready
+approval and every other state stay terminal.
 
 When a resolved target contains several active runs, the gate evaluator returns one complete
 canonical `candidate_runs` inventory. A QA continuation retains this inventory in
@@ -230,9 +241,29 @@ Canonical run lifecycle:
 
 ```bash
 agdf run-create --run <run_id>
+agdf run-update --run <run_id> --revision <revision_id>
+agdf run-revise --run <run_id> --revision <revision_id>
+agdf run-step --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]
+agdf run-present --run <run_id> --gate <gate> --revision <revision_id>
+agdf run-approve --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response "Approval: <gate>"
 agdf run-migrate [--run <run_id>]
 agdf run-render-legacy --run <run_id>
 ```
+
+`run-create` writes a sealed run with empty Approvals, Artefacts, Mode/Slice Decision and Artefact
+Chain tables and prints its path, `revision_id` and the next UR step. The seal covers the run state
+and every file listed under Artefacts, so an edit made outside these commands blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH` until
+`run-update` records it as a new revision. `run-update` refuses a change to the Approvals rows. `run-revise` is the one bounded exception: at SD, before any later artefact is linked or approved, it supersedes the PRD approval after a material product clarification and requires a new `Approval: PRD`.
+Run writers also reject duplicate `Artefacts` rows; replace the existing row for a type, or remove
+an extra row and retry `run-update` to record the correction.
+`run-approve` re-evaluates the gate, accepts only the exact `Approval: <gate>` reply for the
+presented `revision_id`, records it with the approved artefact's digest and advances the revision.
+`run-step` records one standard small-path transition per call (UR registration, Mode/Slice route,
+evidence, Code Review, `quick_task` closeout with OR-lite) and maintains the run tables, the
+`MASTER_BACKLOG.md` pointer and the policy-derived next action. These commands print JSON and are
+also available through the plugin's surface-local validator. The
+seal detects unrecorded edits; it is not a signature. Removing both seal lines opts a run out and
+remains visible in the diff.
 
 ### Advanced / Compatibility
 
@@ -466,8 +497,8 @@ npx --yes create-agdf@latest gate-check --json
 
 The gate check reports `open | blocked`, the current gate, blocking reason, missing exact approval, allowed outputs, forbidden outputs, next allowed action, evidence references and the embedded doctor report.
 
-Use an installed `agdf gate-check --approval-envelope` to print deterministic ready-gate cards and the
-exact-text request without a fresh registry lookup. Use `gate-check --status-card` for compact
+Use an installed `agdf gate-check --approval-envelope` for a read-only summary and link to the
+current artefact. Prepare a bound approval with `run-present` before asking the user. Use `gate-check --status-card` for compact
 operational detail and keep `gate-check --json` for native-adapter input, automation, CI, regression
 evidence and audit trails. The CLI output validates and renders the selected run; it does not replace
 the agent-native workflow or approve a gate.
@@ -536,10 +567,13 @@ This README is the package guide. Keep framework rationale, limits and examples 
 Non-sensitive feedback, examples and contributions are welcome through [GitHub Issues](https://github.com/ArndtGold/ai-native-governance-delivery-framework/issues). To validate a local package change before proposing it, run:
 
 ```bash
+npm --prefix create-agdf run test:cli-gates
 npm --prefix create-agdf run smoke-test
 npm --prefix create-agdf run eval:skills
 npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-check-normal
 ```
+
+`test:cli-gates` runs the CLI against disposable repositories and prints each scenario's result and duration. During gate work, select one scenario with `npm --prefix create-agdf run test:cli-gates -- --case duplicate-prd` (`new-ur` and `bound-ur` are also available). Run the full smoke suite before release handoff.
 
 `eval:skills` is the credential-free deterministic CI lane. The recorder is an explicit supporting-evidence lane; it uses a disposable repository, records live provenance and refuses to persist a failing or mutation-violating result.
 
@@ -555,3 +589,17 @@ See the root `RELEASE.md` for the sequenced `agdf-v<version>` workflow and npm t
 
 AGDF(TM) and AI Governance & Delivery Framework(TM) are marks of Arndt Gold.
 Use of the AGDF name and marks is governed by the project trademark guidelines.
+
+
+### Approval preparation compatibility
+
+New approvals require `run-present --run <id> --gate <gate> --revision <uuid>` before showing the
+returned text and waiting for the user. The presentation links the exact current gate artefact and
+shows its digest, run, gate and revision. Before the approval action it includes a short
+gate-specific summary, bound by `summary_digest`; UAT summarizes and presents its existing evidence
+rows. A missing summary is a presentation failure. Supply its `presentation_id` as
+`run-approve --presentation`.
+Old stored approvals remain valid; new legacy calls without the binding are rejected with recovery.
+Never prepare a missing record after receiving an answer and reuse that answer. Read-only gate
+previews are not preparation records. Install matching runtime and skills; older runtimes reject
+new intake/continuation fields rather than silently dropping them.

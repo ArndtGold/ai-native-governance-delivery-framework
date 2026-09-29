@@ -1,0 +1,16 @@
+{
+  "case_id": "brownfield-architecture-incomplete-debt",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:56:22.267Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "leave retained debt unresolved",
+    "route missing decision to owner"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nUR is approved; control state is brownfield-review. Active mode: post_ur_review. The fixture describes a mature repository with canonical runtime, tests and CI owners; supplied files contain fixture metadata only.\n\n## Missing evidence\nThe temporary adapter has no recorded accountable owner or finite review date/exit condition. Complete acceptance also requires evidenced rationale and mitigation. Decisive facts for a positive Mode/Slice route remain missing.\n\n## Decision\nDecision: block. Debt acceptance remains unresolved. Mode/Slice Decision: block; depth_facts_missing (depth_unresolved). Approved UR does not authorize downstream work.\n\n## Risks\nCalling this accepted debt would misrepresent unresolved ownership and permit an unsupported route. Adapter overlap with canonical runtime ownership and the reuse path remain unverified.\n\n## Required next step\nRoute the missing decision to the existing responsible owner; identify the accountable adapter owner and record rationale, mitigation and a finite review date or exit condition in the same finding. Complete boundary and reuse evidence, then re-evaluate Brownfield Review and record its artefact and canonical Mode/Slice projection before later artefacts or implementation."
+}

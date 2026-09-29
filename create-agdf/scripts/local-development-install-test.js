@@ -26,6 +26,10 @@ import { pluginDefinition } from "../lib/cli/runtime-context.js";
 import { runCli } from "../lib/cli/application.js";
 import { installLocalPlugin, resolveLocalInvocationDirectory } from "./install-local-plugin.js";
 
+// Installer paths default to the real Claude home and AGDF data root; keep this test out of both.
+process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
+process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
+
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
 const builtPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
@@ -60,7 +64,8 @@ function packExec(content = "local package\n", calls = [], result = {}) {
     const destination = args[destinationIndex + 1];
     const filename = result.filename ?? `create-agdf-${pluginDefinition.version}.tgz`;
     writeFileSync(join(destination, filename), content);
-    return `${JSON.stringify([{ filename, files: result.files ?? [{ path: "package.json", mode: 420 }] }])}\n`;
+    const packed = { filename, files: result.files ?? [{ path: "package.json", mode: 420 }] };
+    return `${JSON.stringify(result.shape === "object" ? { "create-agdf": packed } : [packed])}\n`;
   };
 }
 
@@ -381,6 +386,14 @@ try {
     executable: "/node",
     args: ["/npm/cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
   });
+  assert.deepEqual(copilotNpmInvocation({ env: {}, platform: "win32", execPath: "C:\\node\\node.exe" }), {
+    executable: "C:\\node\\node.exe",
+    args: ["C:\\node\\node_modules\\npm\\bin\\npm-cli.js", "exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  }, "the Windows fallback must run npm-cli.js through node instead of executing npm.cmd directly");
+  assert.deepEqual(copilotNpmInvocation({ env: {}, platform: "linux", execPath: "/node" }), {
+    executable: "npm",
+    args: ["exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"],
+  });
   const copilotManual = installCopilotGlobalPlugin({
     pluginRoot: builtCopilotPluginRoot,
     exec() {
@@ -570,6 +583,14 @@ try {
   assert.equal(resolveOpenCodeInstallPackageSource(localPackage).specifier, localPackage.specifier);
   assert.equal(resolveOpenCodeInstallPackageSource().specifier, `${pluginDefinition.opencode.npmPackage}@${pluginDefinition.version}`);
 
+  const objectResultPackage = prepareLocalOpenCodePackage({
+    dataRoot: join(fixtureRoot, "package-data-npm12"),
+    packageRoot,
+    expectedVersion: pluginDefinition.version,
+    exec: packExec("npm 12 package\n", [], { shape: "object" }),
+  });
+  assert.equal(validateLocalOpenCodePackageSource(objectResultPackage).digest, objectResultPackage.digest);
+
   const samePackage = prepareLocalOpenCodePackage({
     dataRoot: join(fixtureRoot, "package-data"),
     packageRoot,
@@ -736,7 +757,7 @@ try {
   });
   assert.equal(orchestrationCode, 0);
   assert.equal(cliCalls, 1);
-  assert.match(orchestrationCalls[0], /run release:prepare$/);
+  assert.match(orchestrationCalls[0], /prepare-local-plugin\.js codex$/);
   assert.equal(preparationOptions.stdio, "pipe", "successful local release preparation must stay out of the consent UI");
 
   const forwarded = ["--with-mcp", "--dir", fixtureRoot, "--scope", "project"];
@@ -911,7 +932,7 @@ try {
     assert.match(contributing, new RegExp(command.replaceAll(":", "\\:")));
   }
   assert.match(contributing, /fresh task/i);
-  assert.match(contributing, /Node\.js 18 or later/);
+  assert.match(contributing, /Node\.js 22 or later/);
   assert.match(contributing, /restart the selected host/i);
   assert.match(contributing, /does not prove restarted-host loading, repository activation or\s+UAT/i);
 

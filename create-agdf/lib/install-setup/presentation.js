@@ -142,6 +142,13 @@ export function renderInstallProgress(surface, version, {
   return replacement(pack.progress, { version, host });
 }
 
+export function renderLoadedSessionsNotice(count, version, {
+  registry = interactionLocales,
+  language = "en",
+} = {}) {
+  return replacement(runtimeConsentPack(registry, language).loadedSessions, { count: String(count), version });
+}
+
 export function installSetupChoiceOptions(preflight, { registry = interactionLocales, language = "en" } = {}) {
   const pack = localePack(registry, language).installSetup;
   return Object.freeze([

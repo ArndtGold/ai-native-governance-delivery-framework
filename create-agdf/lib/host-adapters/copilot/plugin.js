@@ -9,11 +9,13 @@ import { configureCopilotMarketplace, defaultCopilotSettingsPath, readCopilotSet
 import { copilotMarketplaceSource } from "../../installers/copilot-marketplace-transport.js";
 import { verifyCopilotSkillDiscovery } from "../../installers/copilot-skill-discovery.js";
 import { inspectOwnedSharedMarketplaceForCopilotMigration, prepareCopilotMarketplace } from "../../installers/local-marketplace.js";
+import { npmInvocation } from "../../installers/npm-invocation.js";
+import { execHostFileSync } from "../../host-command.js";
 
 export const COPILOT_CLI_NPM_PACKAGE = "@github/copilot@1.0.80";
 
 export function installCopilotGlobalPlugin({
-  exec = execFileSync, packagedCopilotExec = execFileSync, prepare = prepareCopilotMarketplace,
+  exec = execHostFileSync, packagedCopilotExec = execFileSync, prepare = prepareCopilotMarketplace,
   dataRoot, pluginRoot, copilotSettingsPath = defaultCopilotSettingsPath(),
 } = {}) {
   const expectedVersion = pluginDefinition.version;
@@ -171,10 +173,11 @@ export function classifyCopilotMarketplaceList(output, expectedRoot, { ownedLega
 export function copilotNpmInvocation({ env = process.env, platform = process.platform, execPath = process.execPath } = {}) {
   const args = ["exec", "--yes", `--package=${COPILOT_CLI_NPM_PACKAGE}`, "--", "copilot"];
   if (env.npm_execpath) return { executable: execPath, args: [env.npm_execpath, ...args] };
-  return { executable: platform === "win32" ? "npm.cmd" : "npm", args };
+  const invocation = npmInvocation(args, { env, platform, execPath });
+  return { executable: invocation.executable, args: [...invocation.args] };
 }
 
-export function setCopilotPluginEnabled({ enabled, exec = execFileSync } = {}) {
+export function setCopilotPluginEnabled({ enabled, exec = execHostFileSync } = {}) {
   if (typeof enabled !== "boolean") throw lifecycleAdapterError("plugin_operation", "Copilot plugin enabled state must be boolean.");
   const operation = enabled ? "enable" : "disable";
   try {
@@ -206,7 +209,7 @@ function copilotCliUnavailable(error) {
     || /^Cannot find GitHub Copilot CLI(?:\s|$|\()/i.test(commandErrorText(error));
 }
 
-export function inspectCopilotPlugin(exec = execFileSync) {
+export function inspectCopilotPlugin(exec = execHostFileSync) {
   return inspectPluginList({ surface: "copilot", exec, executable: "copilot", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
     selectPlugin: output => pluginListHasPlugin(output, "agdf@agdf") ? "agdf@agdf" : "agdf",
   });

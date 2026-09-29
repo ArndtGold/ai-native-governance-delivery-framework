@@ -1,6 +1,6 @@
 ---
 name: release-or
-description: "Use this skill for this scope: auditable closeout for every relevant run. Boundary: not a QA substitute. Automatic discovery alone does not activate AGDF."
+description: "Use this skill for this scope: auditable closeout for every relevant run. Boundary: not a QA substitute. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # release-or
@@ -26,7 +26,7 @@ It reports:
 - whether further quality follow-up or a separate delivery closeout is useful
 
 ## Runtime Contract
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without a binding, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
 
 - `../../meta/contracts/closeout.md`
 - `../../meta/contracts/quality.md`
@@ -41,33 +41,34 @@ After `skill_continuation`, use these focused runtime-contract modules:
 - `owner`: `request_activation_contract`
 - `path`: `plugin/meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
 
-Decide effect from loaded instructions before AGDF action/output.
+Decide effect from loaded instructions before AGDF action.
 
-Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+Abstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
 
-Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+Activate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
 
 Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
 
-Then choose one catalog route. Non-authorizing; downstream checks remain.
+Then pick one catalog route; non-authorizing, downstream checks remain.
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
 
 ## Executable Dispatch
 
-Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
-Follow binding.arguments exactly with `--skill release-or`, language and working directory.
+Dispatch through the AGDF MCP tool `agdf_dispatch` only when the host lists it (hosts add a prefix such as `mcp__agdf__agdf_dispatch`; load a listed deferred tool first and never search for an unlisted one): `skill_id` `release-or`, `presentation_language`, `working_directory`, and only when set the `target_source`/`primary_target` pair and `run_id`.
+Otherwise, or when that call fails, use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix, following binding.arguments exactly with `--skill release-or`, language and working directory.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
-On skill_continuation use only its target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+On skill_continuation use only its target/control. Without that tool and a valid binding: `dispatcher_unavailable`; no runtime search, environment repair
 or help retries. Dispatch never authorizes.
 
 OR-specific output must make gate status, delivered and intentionally not delivered content, missing approvals, missing evidence, risks, retained fallbacks, and the next permissible step visible.
 When `.agdf/control/` is present, persist or link the OR under `.agdf/control/artefacts/<key>/OR.md` and reference it from the selected canonical `RUN_STATE.md` or `MASTER_BACKLOG.md` when it is steering-relevant.
 Use the Runtime Contract definition of `Relevant Run` to decide whether OR is mandatory or whether a Quick Task mini-closeout is enough.
+Close a `quick_task` with the validator's `run-step --step closeout --result --evidence --risk --next`.
 
 ## Rules
 1. OR is always allowed and mandatory for relevant runs as defined in the Runtime Contract.

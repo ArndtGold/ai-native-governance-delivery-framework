@@ -41,11 +41,42 @@ Brownfield cites repository evidence.
 | Tests / QA |  |  | `none | low | medium | high` |
 | Release / operations |  |  | `none | low | medium | high` |
 
+## Architecture Impact
+
+- architecture_relevance: `relevant | architecture-not-applicable`
+- architecture_impact: `none | low | medium | high`
+- architecture_reason:
+- architecture_evidence:
+- architecture_missing_evidence: `none | <fact and evidence owner>`
+- architecture_next_owner_and_action:
+
+Assess only affected module/owner, external interface, data/SoT, compatibility/migration,
+runtime/host, or security/policy boundaries. An unresolved effect is relevant until its evidence
+owner resolves it. For `architecture-not-applicable`, cite the affected code and owner and explain
+why no material boundary or unresolved question remains. Do not add an exhaustive checklist.
+
 ## Reuse And Parallel-Structure Risk
 
 | Finding | Evidence | Risk | Required action |
 |---|---|---|---|
 |  |  | `none | warn | revise | block` |  |
+
+For a relevant architecture finding, prefix the existing Finding cell with `problem`,
+`trade-off` or `unresolved`; cite its boundary in Evidence and put the existing owner and route
+in Required action. A deliberate trade-off that retains or adds debt uses the same finding label
+in the detail below. An incomplete detail remains unresolved and cannot be called accepted debt.
+Keep the review decision at least `revise` until every debt-acceptance field is evidenced;
+use `block` if the missing decision prevents a safe Mode/Slice route.
+Add a focused diagram link only if it answers a named ownership or dependency question that
+textual evidence cannot settle.
+
+### Retained Debt Detail (only when applicable)
+
+- finding: <same label as the Reuse And Parallel-Structure Risk row>
+- rationale:
+- accountable_owner:
+- mitigation:
+- review_date_or_exit_condition:
 
 ## Mode / Slice Decision
 

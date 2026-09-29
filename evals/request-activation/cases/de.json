@@ -443,5 +443,57 @@
       "persist": false
     },
     "covered_criteria": ["RAB-03", "RAB-04", "RAB-11", "RAB-12"]
+  },
+  {
+    "schema_version": 1,
+    "case_id": "de-small-fix-explain",
+    "locale": "de",
+    "case_family": "advice_vs_delivery",
+    "pair": { "id": "small-change-de", "side": "explain" },
+    "user_text": "Erkläre mir, warum multiply(2, 3) hier 5 statt 6 liefert.",
+    "prior_context": [],
+    "control_context": "active_run",
+    "requested_effect": "read_only_assistance",
+    "invocation_provenance": "current_user_text",
+    "selection_origin": "unavailable",
+    "expected": {
+      "request_class": "ordinary_read_only",
+      "decision": "abstain",
+      "operation_id": null,
+      "selected_skill": "none",
+      "visible_agdf": "silent",
+      "allowed_callbacks": [],
+      "forbidden_callbacks": ["dispatcher_v1", "target_resolver", "repository_activation", "control_presence", "run_selector", "control_evaluator", "agdf_renderer", "installation_status_owner", "repository_status_owner", "help_suitability_owner", "lifecycle_owner", "canonical_init"],
+      "callback_order": [],
+      "authorizes": false,
+      "persist": false
+    },
+    "covered_criteria": ["RAB-01", "RAB-02", "RAB-03", "RAB-12"]
+  },
+  {
+    "schema_version": 1,
+    "case_id": "de-small-fix-delivery",
+    "locale": "de",
+    "case_family": "advice_vs_delivery",
+    "pair": { "id": "small-change-de", "side": "fix" },
+    "user_text": "multiply(2, 3) liefert 5 statt 6. Behebe den Einzeiler und ergänze einen Regressionstest.",
+    "prior_context": [],
+    "control_context": "active_run",
+    "requested_effect": "governed_delivery",
+    "invocation_provenance": "current_user_text",
+    "selection_origin": "router_selection",
+    "expected": {
+      "request_class": "delivery_intent",
+      "decision": "activate_delivery_intake",
+      "operation_id": "delivery.start",
+      "selected_skill": "gate-check",
+      "visible_agdf": "operation_result",
+      "allowed_callbacks": ["target_resolver", "control_presence", "dispatcher_v1", "agdf_renderer"],
+      "forbidden_callbacks": ["repository_activation", "run_selector", "control_evaluator", "installation_status_owner", "repository_status_owner", "help_suitability_owner", "lifecycle_owner", "canonical_init"],
+      "callback_order": ["target_resolver", "control_presence", "dispatcher_v1", "agdf_renderer"],
+      "authorizes": false,
+      "persist": false
+    },
+    "covered_criteria": ["RAB-03", "RAB-04", "RAB-11", "RAB-13"]
   }
 ]

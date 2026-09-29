@@ -6,6 +6,7 @@ Gate approval: open
 Based on: UR
 Date:
 Owner:
+Traceability contract: criteria-chain-v1
 
 ## 1. Product Scope
 
@@ -43,9 +44,12 @@ ownership remain Solution Design concerns.
 
 ## 5. Acceptance Criteria
 
-Every applicable UX criterion must include a stable `criterion_id`, `working_mode`, `source_state`,
-trigger/action, expected effective state, visible feedback, blocker/failure behavior, recovery/next
-action, observable success and required evidence. Specify observable behavior, not implementation.
+Give every acceptance criterion a unique, stable `criterion_id` (for example `AC-001`) so SD, TP
+and QA can refer to the same requirement without copying or renaming it. Every applicable UX
+criterion must also include `working_mode`, `source_state`, trigger/action, expected effective state,
+visible feedback, blocker/failure behavior, recovery/next action, observable success and required
+evidence. Specify observable behavior, not implementation. Do not leave the section empty or retain
+placeholders when requesting approval.
 
 ## 6. Non-Goals
 
@@ -65,10 +69,22 @@ Which evidence must later support QA?
 
 ## 10. Risks And Open Questions
 
-Which questions must SD, TP or Brownfield Analysis clarify later?
+Record risks and questions that can be answered later. Move every decision that changes product
+scope, acceptance, accountable ownership or release acceptance into Approval Decisions below.
+
+## Approval Decisions
+
+Before presenting this PRD, collect all `before_prd` answers in one request and record their
+resolution here. Use `later_sd` or `later_tp` only for genuine design or planning decisions;
+name the responsible owner in the final column. Keep at least one explicit row.
+
+| Decision | Timing | Status | Resolution | Owner |
+|---|---|---|---|---|
+| <product decision or none> | before_prd | open | <answer> | <accountable owner> |
 
 ## 11. Next Step
 
-Review this PRD and approve only with:
+Present this PRD only after every `before_prd` row is `resolved` with a concrete answer and
+the named PRD Owner is filled. Then review and approve only with:
 
 `Approval: PRD`

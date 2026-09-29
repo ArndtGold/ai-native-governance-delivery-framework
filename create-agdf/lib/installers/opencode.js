@@ -9,6 +9,7 @@ import { resolveLocalValidator } from "../runtime/local-validator.js";
 import { digestDirectory } from "../runtime/plugin-provenance.js";
 import { validateLocalOpenCodePackageSource } from "./local-development.js";
 import { npmInvocation } from "./npm-invocation.js";
+import { execHostFileSync } from "../host-command.js";
 
 function runtimeContractModuleNames(definition) {
   const modules = definition?.runtimeContract?.modules;
@@ -504,7 +505,7 @@ function packageLocalPath(packageRoot, candidate) {
 
 function openCodeHostProbe(dependencies = {}) {
   const executable = dependencies.openCodeBin ?? process.env.AGDF_OPENCODE_BIN ?? "opencode";
-  const run = dependencies.execFileSync ?? execFileSync;
+  const run = dependencies.execFileSync ?? execHostFileSync;
   try {
     return {
       name: "opencode",

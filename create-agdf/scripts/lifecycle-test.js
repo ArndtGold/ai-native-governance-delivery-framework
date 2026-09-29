@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,6 +35,11 @@ import {
   repositoryCopilotSettingsPath,
 } from "../lib/installers/copilot-settings.js";
 import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
+import { linkDirectory } from "./support/symlinks.js";
+import { localMarketplaceRoot } from "../lib/installers/local-marketplace.js";
+import { ownedRuntimeCheckRules } from "../lib/host-adapters/claude/uninstall.js";
+import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
+import { createRuntimeCheckReceipt, writeRuntimeCheckReceipt } from "../lib/runtime-check-consent/state.js";
 
 function mcpLifecycleFixture({ action, surface, scope, target, result = action === "disable" ? "disabled" : "not_configured", registration } = {}) {
   const registrationStatus = registration ?? (result === "disabled" || result === "not_configured" ? "absent" : "matched");
@@ -455,7 +460,7 @@ for (const [name, content, pattern] of [
 
 const symlinkRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-symlink-"));
 mkdirSync(join(symlinkRoot, ".github"), { recursive: true });
-symlinkSync(copilotSharedRoot, join(symlinkRoot, ".github", "copilot"));
+linkDirectory(copilotSharedRoot, join(symlinkRoot, ".github", "copilot"));
 assert.throws(() => planRepositoryDisable(symlinkRoot, "copilot", { shared: true }), /UNOWNED_PATH/);
 
 const atomicRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-atomic-"));
@@ -518,15 +523,101 @@ mkdirSync(join(ambiguousDisableRoot, ".codex"), { recursive: true });
 writeFileSync(join(ambiguousDisableRoot, ".codex", "config.toml"), "[plugins.\"agdf@agdf\"]\ncustom = \"user-owned\"\n");
 assert.throws(() => planRepositoryDisable(ambiguousDisableRoot, "codex"), /ambiguous AGDF plugin state/);
 
-const uninstall = planGlobalUninstall("codex");
+// Mocking the host command does not isolate filesystem cleanup performed by the plan.
+const codexUninstallData = mkdtempSync(join(tmpdir(), "agdf-codex-uninstall-data-"));
+const uninstall = planGlobalUninstall("codex", { env: { AGDF_DATA_DIR: codexUninstallData } });
+assert.deepEqual(uninstall.mutations.map(({ kind }) => kind), ["command", "codex_tool_policy"],
+  "an empty isolated data root must never schedule cleanup of the real user runtime");
 const calls = [];
 assert.equal(applyLifecyclePlan(uninstall, { exec(command, args) { calls.push([command, args]); } }).status, "success");
 assert.deepEqual(calls, [["codex", ["plugin", "remove", "agdf@agdf"]]]);
 assert.equal(verifyGlobalUninstall(uninstall, root, {
   inspect: () => ({ status: "not_installed", evidence: ["fixture"] }),
 }).status, "healthy");
+// A removed Codex plugin remains in the marketplace catalog as "not installed".
+for (const [entry, expected] of [
+  ["agdf@agdf  not installed  /local/marketplace/agdf", "healthy"],
+  [`agdf@agdf  installed, enabled  ${pluginDefinition.version}  /local/marketplace/agdf`, "failed"],
+  [`agdf@agdf  installed, disabled  ${pluginDefinition.version}  /local/marketplace/agdf`, "failed"],
+  ["agdf@agdf  installed, enabled  /local/marketplace/agdf", "failed"],
+]) {
+  assert.equal(verifyGlobalUninstall(uninstall, root, {
+    exec: () => `PLUGIN STATUS VERSION SOURCE\n${entry}\nother@agdf installed, enabled 99.0.0 /other\n`,
+  }).status, expected, entry);
+}
 const copilotUninstall = planGlobalUninstall("copilot");
 assert.deepEqual(copilotUninstall.mutations[0], { kind: "command", executable: "copilot", args: ["plugin", "uninstall", "agdf"] });
+
+{
+  // Claude uninstall removes every Claude-only AGDF trace and stays idempotent on partial leftovers.
+  const dataRoot = mkdtempSync(join(tmpdir(), "agdf-claude-uninstall-data-"));
+  const claudeDir = mkdtempSync(join(tmpdir(), "agdf-claude-uninstall-config-"));
+  const env = { AGDF_DATA_DIR: dataRoot, CLAUDE_CONFIG_DIR: claudeDir };
+  const marketplaceRoot = localMarketplaceRoot({ env });
+  mkdirSync(marketplaceRoot, { recursive: true });
+  mkdirSync(join(claudeDir, "plugins", "cache", "agdf"), { recursive: true });
+  const settingsPath = join(claudeDir, "settings.json");
+  const legacyRule = "PowerShell(node \"$([Environment]::GetEnvironmentVariable('PLUGIN_ROOT') + [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT'))\\runtime\\agdf-session-check.js\")";
+  const windowsRule = `PowerShell(${fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32")})`;
+  const posixRule = `Bash(${fixedRuntimeCheckCommand("claude", "/ignored", "darwin")})`;
+  const userRules = ["Bash(npm test)", "Bash(node \"/opt/tools/runtime/agdf-session-check.js\")"];
+  writeFileSync(settingsPath, `${JSON.stringify({ permissions: { allow: [legacyRule, userRules[0], windowsRule, posixRule, userRules[1]] }, theme: "dark" }, null, 2)}\n`);
+  assert.deepEqual(ownedRuntimeCheckRules(JSON.parse(readFileSync(settingsPath, "utf8"))), [legacyRule, windowsRule, posixRule],
+    "only AGDF's PLUGIN_ROOT-relative runtime-check rules are owned, including earlier releases' forms");
+  const receipt = writeRuntimeCheckReceipt(dataRoot, createRuntimeCheckReceipt({
+    surface: "claude", decision: "enable", capabilityIdentity: "a".repeat(64), command: fixedRuntimeCheckCommand("claude", "/ignored", "darwin"),
+  }));
+  let installed = true;
+  let registration = [{ name: "agdf", source: "directory", path: marketplaceRoot, installLocation: marketplaceRoot }];
+  const claudeCalls = [];
+  const claudeExec = (executable, args) => {
+    assert.equal(executable, "claude");
+    const command = args.join(" ");
+    claudeCalls.push(command);
+    if (command === "plugin list") return installed ? `Installed plugins:\n  ❯ agdf@agdf\n    Version: ${pluginDefinition.version}\n` : "Installed plugins:\n";
+    if (command === "plugin marketplace list --json") return JSON.stringify(registration);
+    if (command === "plugin uninstall agdf@agdf --scope user") { installed = false; return ""; }
+    if (command === "plugin marketplace remove agdf --scope user") { registration = []; return ""; }
+    throw new Error(`unexpected claude call: ${command}`);
+  };
+  const plan = planGlobalUninstall("claude", { exec: claudeExec, env });
+  assert.deepEqual(plan.mutations.map(({ kind, args, path }) => [kind, args?.join(" ") ?? path]), [
+    ["command", "plugin uninstall agdf@agdf --scope user"],
+    ["command", "plugin marketplace remove agdf --scope user"],
+    ["claude_permission_rules", settingsPath],
+    ["remove", receipt?.path ?? join(dataRoot, "runtime-checks", "claude.json")],
+  ]);
+  assert.ok(plan.retained.some((item) => item.includes(marketplaceRoot)), "the shared marketplace directory is reported, never deleted");
+  assert.ok(plan.retained.some((item) => item.includes(join(claudeDir, "plugins", "cache", "agdf"))), "the host-owned cache is reported");
+  assert.equal(applyLifecyclePlan(plan, { exec: claudeExec }).status, "success");
+  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")), { permissions: { allow: userRules }, theme: "dark" });
+  assert.equal(existsSync(join(dataRoot, "runtime-checks", "claude.json")), false);
+  assert.equal(existsSync(marketplaceRoot), true);
+  assert.equal(verifyGlobalUninstall(plan, root, { exec: claudeExec }).status, "healthy");
+
+  const rerun = planGlobalUninstall("claude", { exec: claudeExec, env });
+  assert.deepEqual(rerun.mutations, [], "a second uninstall over partial leftovers must plan nothing instead of failing");
+  assert.equal(applyLifecyclePlan(rerun, { exec: claudeExec }).status, "success");
+  assert.equal(verifyGlobalUninstall(rerun, root, { exec: claudeExec }).status, "healthy");
+
+  registration = [{ name: "agdf", source: "directory", path: join(dataRoot, "foreign"), installLocation: join(dataRoot, "foreign") }];
+  const foreign = planGlobalUninstall("claude", { exec: claudeExec, env });
+  assert.equal(foreign.mutations.some((mutation) => mutation.args?.includes("remove")), false, "a non-AGDF marketplace named agdf must never be removed");
+  assert.ok(foreign.retained.some((item) => item.startsWith("Claude marketplace registration agdf")));
+
+  installed = true;
+  registration = [{ name: "agdf", source: "directory", path: marketplaceRoot, installLocation: marketplaceRoot }];
+  const stale = planGlobalUninstall("claude", { exec: claudeExec, env });
+  installed = true;
+  assert.equal(verifyGlobalUninstall(stale, root, { exec: claudeExec }).status, "failed", "verification must observe a remaining plugin or registration");
+  const human = [];
+  printLifecycleResult(createLifecycleResult({
+    operation: "uninstall", result: "preview", surface: "claude", scope: "global",
+    verification: { status: "unknown", evidence: [] }, restart: { required: false },
+    next_action: { kind: "confirm", text: "confirm" }, changes: stale.mutations, retained: stale.retained,
+  }), { io: { log(line) { human.push(line); } } });
+  assert.ok(human.includes("Planned changes:") && human.includes("- claude plugin uninstall agdf@agdf --scope user"), human.join("\n"));
+}
 
 const ownedConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-uninstall-"));
 writeFileSync(join(ownedConfig, "opencode.json"), `${JSON.stringify({
@@ -595,6 +686,7 @@ assert.equal(JSON.parse(readFileSync(join(partialConfig, "opencode.json"), "utf8
 const uninstallPreviewOutput = [];
 assert.equal(await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--json"], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { uninstallPreviewOutput.push(value); }, error(message) { throw new Error(message); } },
 }), 0);
 const uninstallPreviewReport = JSON.parse(uninstallPreviewOutput[0]);
@@ -610,6 +702,7 @@ assert.equal(await runCli([
   "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--json",
 ], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallPreviewOutput.push(value); }, error(message) { throw new Error(message); } },
   mcpLifecycle(input) {
     coupledUninstallCalls.push(input.action);
@@ -629,8 +722,10 @@ assert.equal(await runCli([
   "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--confirm", "--json",
 ], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
   exec() { return ""; },
+  revokeCodexPluginDispatcher: async () => ({ status: "absent", reason: "none" }),
   mcpLifecycle(input) {
     coupledUninstallApplyCalls.push(input.action);
     return mcpLifecycleFixture(input);
@@ -650,6 +745,7 @@ assert.equal(await runCli([
   "--mcp-scope", "project", "--dir", coupledUninstallTarget, "--confirm", "--json",
 ], {
   parser: { cwd: root },
+  env: { AGDF_DATA_DIR: codexUninstallData },
   io: { log(value) { coupledUninstallEffectiveOutput.push(value); }, error(message) { throw new Error(message); } },
   exec() { coupledUninstallEffectivePluginCalls += 1; return ""; },
   mcpLifecycle: (input) => mcpLifecycleFixture({ ...input, result: "configured_unverified", registration: "matched" }),
@@ -659,15 +755,35 @@ assert.equal(coupledUninstallEffectiveReport.plugin.status, "not_run");
 assert.equal(coupledUninstallEffectiveReport.next_action.code, "retry_mcp_disable");
 assert.equal(coupledUninstallEffectivePluginCalls, 0);
 
-const uninstallApplyOutput = [];
-assert.equal(await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"], {
-  parser: { cwd: root },
-  io: { log(value) { uninstallApplyOutput.push(value); }, error(message) { throw new Error(message); } },
-  exec() { return ""; },
-}), 0);
-const uninstallApplyReport = JSON.parse(uninstallApplyOutput[0]);
-assert.equal(uninstallApplyReport.operation_status.outcome, "succeeded");
-assert.equal(uninstallApplyReport.operation_status.authorizes, false);
+const codexUninstall = async (policy) => {
+  const output = [];
+  const revocations = [];
+  const code = await runCli(["uninstall", "--surface", "codex", "--scope", "global", "--confirm", "--json"], {
+    parser: { cwd: root },
+    env: { AGDF_DATA_DIR: codexUninstallData },
+    io: { log(value) { output.push(value); }, error(message) { throw new Error(message); } },
+    exec() { return ""; },
+    async revokeCodexPluginDispatcher(input) { revocations.push(input); return policy; },
+  });
+  return { code, report: JSON.parse(output[0]), revocations };
+};
+const uninstallApply = await codexUninstall({ status: "removed", reason: "none" });
+assert.equal(uninstallApply.code, 0);
+assert.equal(uninstallApply.report.operation_status.outcome, "succeeded");
+assert.equal(uninstallApply.report.operation_status.authorizes, false);
+assert.equal(uninstallApply.revocations.length, 1, "uninstall revokes the installer's Codex tool approval");
+assert.ok(uninstallApply.report.changes.some((change) => change.kind === "codex_tool_policy"));
+assert.ok(uninstallApply.report.verification.evidence.includes("codex_tool_policy:removed"));
+const alreadyClean = await codexUninstall({ status: "absent", reason: "none" });
+assert.equal(alreadyClean.code, 0);
+assert.ok(!alreadyClean.report.changes.some((change) => change.kind === "codex_tool_policy"), "an absent key is not reported as a change");
+// A key Codex keeps is a remaining trace: the result is partial and names it, never a clean success.
+const kept = await codexUninstall({ status: "retained", reason: "policy_not_removed" });
+assert.equal(kept.code, 1);
+assert.equal(kept.report.result, "partial");
+assert.equal(kept.report.verification.status, "degraded");
+assert.ok(kept.report.retained.some((entry) => entry.includes("agdf_dispatch.approval_mode") && entry.includes("retained")));
+assert.match(kept.report.next_action.text, /config.toml/u);
 
 const uninstallPartialConfig = mkdtempSync(join(tmpdir(), "agdf-opencode-cli-partial-"));
 writeFileSync(join(uninstallPartialConfig, "opencode.json"), `${JSON.stringify({ plugin: [pluginDefinition.opencode.npmPackage] })}\n`);
@@ -803,7 +919,7 @@ const canonicalOpenCodeRepositoryStatus = evaluateGeneralStatus(canonicalOpenCod
   }),
 });
 assert.equal(canonicalOpenCodeRepositoryStatus.repository.status, "active", "canonical .agdf/control activation must not depend on legacy .opencode files");
-assert.match(canonicalOpenCodeRepositoryStatus.repository.evidence.join("\n"), /control\/config\.json/);
+assert.match(canonicalOpenCodeRepositoryStatus.repository.evidence.join("\n"), /control[\\/]config\.json/);
 
 writeFileSync(join(canonicalOpenCodeRepository, ".agdf", "control", "config.json"), "{invalid\n");
 const invalidCanonicalOpenCodeRepositoryStatus = evaluateGeneralStatus(canonicalOpenCodeRepository, { surface: "opencode" }, {

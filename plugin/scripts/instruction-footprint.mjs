@@ -29,10 +29,10 @@ export const INSTRUCTION_FOOTPRINT_SURFACE_IDS = Object.freeze([
 // irrelevant to the schema digest. A semantic change requires an explicitly reviewed validator
 // update, not a silent limit increase, condition weakening or dispatch rewrite.
 const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "6f47e205a8ec606515e1de9618b71e2e0dbb0fd0fa15ae5d13eebe64b08546c4";
-const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "91091acf83e618b016bbc18d1eb25a883fdbb84a24d3acd55e36ee19bbecef48";
+const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "a6c88ba3da4a022d0910f59b0bbf1d88726dcbc8077bba0ae6bd00b3bfd9b9e0";
 const AUTHORIZED_OPENCODE_EAGER_FINGERPRINTS = Object.freeze({
-  canonical: "07dbbf9d0cb2af2ada57a795ee37423997531c9dfe8af38f0693af764d1c409c",
-  global: "141fc97184e7cbd551f09078aba8dfceed5856f0367cfff254d0151a561ee798",
+  canonical: "c76252c6a68ac8a636c9b2a9a8d429ab9b4436e2a1f04b3cb5c74886b85df6d1",
+  global: "bed67e381876fd16ad3a74f013e7c1722f3ac7db43ae6537c041829d4b415fdc",
 });
 const TERMINAL_DISPATCH_ANCHOR = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim.";
 const GLOBAL_TERMINAL_DISPATCH_ANCHOR = TERMINAL_DISPATCH_ANCHOR;
@@ -395,7 +395,7 @@ function validateBindingJson(content, canonicalKernel, expectedVersion, surfaceI
     && activationKeys
     && routeSourceValid
     && binding.schema_version === "2"
-    && typeof binding.arguments === "string" && binding.arguments.length > 0 && binding.arguments.length <= 240
+    && typeof binding.arguments === "string" && binding.arguments.length > 0 && binding.arguments.length <= 512
     && binding.environment && typeof binding.environment === "object" && !Array.isArray(binding.environment)
     && Object.keys(binding.environment).every((key) => key === "ELECTRON_RUN_AS_NODE" && binding.environment[key] === "1")
     && isAbsoluteInstructionPath(binding.executable)

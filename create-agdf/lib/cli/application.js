@@ -3,7 +3,6 @@ import { emitKeypressEvents } from "node:readline";
 import { createInterface } from "node:readline/promises";
 import process from "node:process";
 import {
-  createRun,
   migrateLegacy,
   resolveRuns,
   writeLegacyProjection,
@@ -31,8 +30,10 @@ import {
 } from "../lifecycle/operations.js";
 import { printGeneralStatus, printLifecycleResult } from "../lifecycle/presentation.js";
 import { createLifecycleResult, createOperationStatus, globalInstallRestartAction, lifecycleFailure } from "../lifecycle/result.js";
+import { defaultClaudeSettingsPath } from "../runtime-check-consent/claude-settings.js";
 import { prepareInstallConsent, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../runtime-check-consent/service.js";
 import { observeCodexHooks } from "../runtime-check-consent/codex-hooks.js";
+import { approveCodexDispatcher, revokeCodexDispatcher } from "../runtime-check-consent/codex-plugin-consent.js";
 import { projectCodexHookObservation } from "../runtime-check-consent/adapters.js";
 import { evaluateStatusOverview, inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { generatedFilesForTarget } from "../scaffold/plan.js";
@@ -48,6 +49,7 @@ import { promptInstallScope, promptInstallSetup } from "../install-setup/interac
 import {
   printInstallSetupResult,
   renderInstallProgress,
+  renderLoadedSessionsNotice,
   renderRuntimeCheckConsentDetails,
   renderRuntimeCheckConsentDisclosure,
   runtimeCheckInteractionCopy,
@@ -68,6 +70,8 @@ function createHandlers({
   inspectPluginInstallation,
   interactive,
   observeCodexHookTrust = observeCodexHooks,
+  approveCodexPluginDispatcher = approveCodexDispatcher,
+  revokeCodexPluginDispatcher = revokeCodexDispatcher,
   evaluateStatus = evaluateStatusOverview,
   evaluateOpenCodeGlobal = evaluateOpenCodeGlobalStatus,
   evaluateOpenCodeRepository = evaluateOpenCodeStatus,
@@ -80,6 +84,7 @@ function createHandlers({
     ...(packagedCopilotExec ? { packagedCopilotExec } : {}),
     ...(prepare ? { prepare } : {}),
     copilotSettingsPath: copilotSettingsPath ?? defaultCopilotSettingsPath({ env }),
+    env,
     ...(env.AGDF_DATA_DIR ? { dataRoot: env.AGDF_DATA_DIR } : {}),
   };
   const scaffoldHandler = (options) => runScaffold(options, io);
@@ -98,6 +103,7 @@ function createHandlers({
     askInstallSetupScope,
     askRuntimeCheckDecision,
     observeRuntimeChecks,
+    approveCodexPluginDispatcher,
     evaluateOpenCodeGlobal,
     installOpenCodePackage,
     installOpenCodeSurface,
@@ -111,15 +117,6 @@ function createHandlers({
     ["opencode-repo", scaffoldHandler],
     ["init", scaffoldHandler],
     ["config", scaffoldHandler],
-    ["run-create", (options) => {
-      try {
-        io.log(createRun(options.dir, options.runId));
-        return 0;
-      } catch (error) {
-        io.error(error instanceof Error ? error.message : String(error));
-        return 1;
-      }
-    }],
     ["run-migrate", (options) => {
       io.log(JSON.stringify(migrateLegacy(options.dir, options.runId), null, 2));
       return 0;
@@ -174,7 +171,7 @@ function createHandlers({
     }],
     ["runtime-checks", async (options) => {
       let runtimeState = options.runtimeChecksAction === "manual"
-        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface })
+        ? setRuntimeChecksManual({ dataRoot: env.AGDF_DATA_DIR, surface: options.surface, claudeSettingsPath: defaultClaudeSettingsPath({ env }) })
         : runtimeCheckStatus(env.AGDF_DATA_DIR, options.surface);
       runtimeState = await observeRuntimeChecks(options.surface, runtimeState, options.dir);
       const nextActionText = options.runtimeChecksAction === "enable"
@@ -222,8 +219,8 @@ function createHandlers({
       ? runCoupledDisable(options, { io, env, exec, mcpLifecycle })
       : runDisable(options, { io, exec })],
     ["uninstall", (options) => options.setupRequest === "full"
-      ? runCoupledUninstall(options, { io, env, exec, mcpLifecycle })
-      : runUninstall(options, { io, env, exec })],
+      ? runCoupledUninstall(options, { io, env, exec, mcpLifecycle, revokeCodexPolicy: revokeCodexPluginDispatcher })
+      : runUninstall(options, { io, env, exec, revokeCodexPolicy: revokeCodexPluginDispatcher })],
     ["codex", guidedInstall],
     ["claude", guidedInstall],
     ["copilot", guidedInstall],
@@ -238,7 +235,7 @@ function pluginInstallFailure(surface, error) {
     scope: "global",
     phase: error.phase || "plugin_operation",
     message: error.message,
-    evidence: [error.evidence ?? {}],
+    evidence: failureEvidenceEntries(error.evidence),
     nextAction: `Resolve the ${error.phase || "plugin operation"} failure and retry the same installation command.`,
   });
 }
@@ -402,15 +399,29 @@ async function runGuidedInstall(options, dependencies) {
           surface: options.target,
           installed: payload.installed,
           dataRoot: dependencies.installerAdapters.dataRoot,
+          claudeSettingsPath: defaultClaudeSettingsPath({ env: dependencies.env }),
         });
         if (options.target === "codex") {
           finalized.state = await dependencies.observeRuntimeChecks("codex", finalized.state, options.dir);
+          if (options.acceptPluginCapabilities && !finalized.failure) {
+            if (finalized.state.requested !== "enabled" || !finalized.state.capability_identity) {
+              finalized.failure = { phase: "runtime_check_permission", message: "AGDF_PLUGIN_CONSENT_IDENTITY_UNVERIFIED" };
+            } else {
+              const approval = await dependencies.approveCodexPluginDispatcher({ env: dependencies.env, cwd: options.workingDirectory });
+              finalized.state = { ...finalized.state, mcp_approval: approval };
+              if (approval.status !== "configured") finalized.failure = {
+                phase: "runtime_check_permission", message: `AGDF_MCP_APPROVAL_${approval.reason}`,
+              };
+            }
+          }
         }
         return finalized;
       },
     });
     printInstallSetupResult(outcome.report, { json: options.json, io: dependencies.io, language });
+    printLoadedSessionsNotice(outcome.plugin_payload?.installed ?? {}, options, dependencies.io, language);
     printVerboseHostOutput(outcome.plugin_payload?.installed ?? {}, options, dependencies.io);
+    printVerboseFailure(outcome.report, options, dependencies.io);
     printOpenCodeVerbose(outcome.plugin_payload, options, dependencies.io);
     return ["failed", "partial"].includes(outcome.report.result) ? 1 : 0;
   } catch (error) {
@@ -505,7 +516,10 @@ function finalizeInstallConsent(consent, input) {
 }
 
 async function installConsentDecision(surface, options, { io, askRuntimeCheckDecision, interactive, dataRoot, language = "en" }) {
+  if (options.acceptPluginCapabilities) return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "enable" });
   if (options.runtimeChecksDecision !== undefined) return prepareInstallConsent(surface, options);
+  // Claude Code runs the session check whenever the plugin is enabled, so installing it is the consent.
+  if (surface === "claude") return prepareInstallConsent(surface, { ...options, runtimeChecksDecision: "enable" });
   if (!interactive || options.json || typeof askRuntimeCheckDecision !== "function") {
     return prepareInstallConsent(surface, options);
   }
@@ -553,6 +567,30 @@ function printCancelledConsent(surface, options, io) {
   return 0;
 }
 
+// Structured adapter evidence becomes readable "key:value" entries; String() on the object printed
+// "[object Object]" and hid the cause of a failed plugin operation.
+export function failureEvidenceEntries(evidence) {
+  if (evidence === undefined || evidence === null) return [];
+  if (Array.isArray(evidence)) return evidence.map((entry) => (typeof entry === "string" ? entry : JSON.stringify(entry)));
+  if (typeof evidence !== "object") return [String(evidence)];
+  return Object.entries(evidence).map(([key, value]) => `${key}:${typeof value === "string" ? value : JSON.stringify(value)}`);
+}
+
+function printVerboseFailure(report, options, io) {
+  if (!options.verbose || options.json || !report?.failure) return;
+  io.log("Technical failure detail:");
+  if (report.failure.message) io.log(`  ${report.failure.message}`);
+  for (const entry of report.failure.evidence ?? []) io.log(`  ${entry}`);
+}
+
+function printLoadedSessionsNotice(installed, options, io, language) {
+  if (options.json) return;
+  const entry = (installed.evidence ?? []).find((item) => String(item).startsWith("claude_sessions_with_agdf:"));
+  if (!entry) return;
+  const count = entry.slice("claude_sessions_with_agdf:".length).split(",").length;
+  io.log(renderLoadedSessionsNotice(count, installed.expectedVersion ?? pluginDefinition.version, { language }));
+}
+
 function printVerboseHostOutput(installed, options, io) {
   if (!options.verbose || options.json || !installed.nativeOutput?.length) return;
   io.log("Host command output:");
@@ -566,7 +604,7 @@ function printInstallFailure(surface, error, options, io, command = surface) {
     scope: "global",
     phase: error.phase || "plugin_operation",
     message: error.message,
-    evidence: [error.evidence ?? {}],
+    evidence: failureEvidenceEntries(error.evidence),
     nextAction: `Resolve the ${error.phase || "plugin operation"} failure and rerun npx --yes @agdf/cli@latest ${command}.`,
   });
   if (options.json) printLifecycleResult(report, { json: true, io });
@@ -685,7 +723,7 @@ function runCoupledDisable(options, dependencies) {
   }
 }
 
-function runCoupledUninstall(options, dependencies) {
+async function runCoupledUninstall(options, dependencies) {
   const scope = options.mcpScope;
   try {
     const before = inspectCoupledMcp(options, dependencies, scope);
@@ -695,7 +733,7 @@ function runCoupledUninstall(options, dependencies) {
       return 1;
     }
     if (!options.confirm) {
-      const plugin = executeUninstall(options, dependencies);
+      const plugin = await executeUninstall(options, dependencies);
       const report = createCoupledLifecycleResult({
         operation: "coupled_uninstall", result: "preview", surface: options.surface, target: options.dir,
         mcpScope: scope, plugin: plugin.report, mcp: before,
@@ -723,7 +761,7 @@ function runCoupledUninstall(options, dependencies) {
       printCoupledLifecycleResult(report, { json: options.json, io: dependencies.io });
       return 1;
     }
-    const plugin = executeUninstall(options, dependencies);
+    const plugin = await executeUninstall(options, dependencies);
     const result = plugin.code === 0 ? "success" : "partial";
     const report = createCoupledLifecycleResult({
       operation: "coupled_uninstall", result, surface: options.surface, target: options.dir,
@@ -791,10 +829,10 @@ function runDisable(options, { io, exec }) {
   return outcome.code;
 }
 
-function executeUninstall(options, { env, exec }) {
+async function executeUninstall(options, { env, exec, revokeCodexPolicy = revokeCodexDispatcher }) {
   try {
     const configDir = env.OPENCODE_CONFIG_DIR || defaultOpenCodeConfigDir();
-    const plan = planGlobalUninstall(options.surface, { configDir });
+    const plan = planGlobalUninstall(options.surface, { configDir, env, ...(exec ? { exec } : {}) });
     if (!options.confirm) {
       const preview = createLifecycleResult({
         operation: "uninstall", result: "preview", surface: options.surface, scope: "global",
@@ -809,15 +847,30 @@ function executeUninstall(options, { env, exec }) {
     const verified = applied.status === "success"
       ? verifyGlobalUninstall(plan, options.dir, { configDir, exec })
       : { status: "failed", evidence: [] };
-    const result = applied.status === "success" && verified.status !== "healthy" ? "failed" : applied.status;
+    // The Codex tool approval is config, not plugin content: revoke it natively and report what remains.
+    const policyMutation = plan.mutations.find((mutation) => mutation.kind === "codex_tool_policy");
+    const policy = policyMutation && applied.status === "success"
+      ? await revokeCodexPolicy({ env, cwd: options.dir })
+      : null;
+    const policyClean = !policy || ["removed", "absent"].includes(policy.status);
+    const completed = policy?.status === "removed" ? [...applied.completed, policyMutation] : applied.completed;
+    const retained = policyClean ? applied.retained
+      : [...(applied.retained ?? []), `Codex tool approval ${policyMutation.key} (${policy.status}: ${policy.reason})`];
+    const result = applied.status === "success" && verified.status !== "healthy" ? "failed"
+      : applied.status === "success" && !policyClean ? "partial" : applied.status;
     const report = createLifecycleResult({
       operation: "uninstall", result, surface: options.surface, scope: "global",
-      verification: { status: verified.status === "healthy" ? "healthy" : "degraded", evidence: [...applied.completed.map((item) => item.path || item.executable), ...verified.evidence] },
+      verification: { status: verified.status === "healthy" && policyClean ? "healthy" : "degraded", evidence: [
+        ...applied.completed.map((item) => item.path || item.executable), ...verified.evidence,
+        ...(policy ? [`codex_tool_policy:${policy.status}`] : []),
+      ] },
       restart: { required: result === "success", reason: result === "success" ? "host_reload" : "none" },
       next_action: result === "success"
         ? { kind: "restart", text: "Restart the host; the uninstall postcondition has already been verified." }
-        : { kind: "verify", text: "Inspect the reported uninstall or verification failure before retrying." },
-      changes: applied.completed, retained: applied.retained,
+        : !policyClean
+          ? { kind: "verify", text: `The plugin is removed, but Codex kept ${policyMutation.key} in ${policy?.config_file || "the active Codex config.toml"}; remove or change that setting there, then retry uninstall.` }
+          : { kind: "verify", text: "Inspect the reported uninstall or verification failure before retrying." },
+      changes: completed, retained,
       failure: applied.error
         ? { phase: "plugin_operation", message: applied.error.message }
         : result === "failed" ? { phase: "verification", message: "Global uninstall postcondition was not observed." } : null,
@@ -837,8 +890,8 @@ function executeUninstall(options, { env, exec }) {
   }
 }
 
-function runUninstall(options, { io, env, exec }) {
-  const outcome = executeUninstall(options, { env, exec });
+async function runUninstall(options, { io, env, exec, revokeCodexPolicy }) {
+  const outcome = await executeUninstall(options, { env, exec, revokeCodexPolicy });
   if (outcome.error && !options.json) io.error(outcome.error.message);
   printLifecycleResult(outcome.report, { json: options.json, io });
   return outcome.code;
@@ -941,6 +994,8 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     inspectPluginInstallation: adapters.inspectPluginInstallation,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,
+    approveCodexPluginDispatcher: adapters.approveCodexPluginDispatcher,
+    revokeCodexPluginDispatcher: adapters.revokeCodexPluginDispatcher,
     evaluateStatus: adapters.evaluateStatusOverview,
     evaluateOpenCodeGlobal: adapters.evaluateOpenCodeGlobalStatus,
     evaluateOpenCodeRepository: adapters.evaluateOpenCodeStatus,

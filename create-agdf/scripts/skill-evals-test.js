@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +7,7 @@ import { FAILURE, gradeCase, runSkillEvals, safePath } from "../lib/skill-evals/
 import { gradeArtefactContent } from "../lib/skill-evals/artefact-quality.js";
 import { changedPaths, disposeFixture, materializeFixture, mutationViolations, resolveInside, snapshotWorkspace } from "../lib/skill-evals/workspace.js";
 import { persistLiveObservation, recordLiveCase } from "../lib/skill-evals/live-recorder.js";
+import { linkDirectory } from "./support/symlinks.js";
 
 const root = fileURLToPath(new URL("../..", import.meta.url));
 const report = runSkillEvals(root);
@@ -65,7 +66,7 @@ assert.deepEqual(mutationViolations(["unexpected.txt"], []), ["unexpected.txt"])
 disposeFixture(fixture);
 const linkRoot = mkdtempSync(join(tmpdir(), "agdf-eval-link-"));
 const outside = mkdtempSync(join(tmpdir(), "agdf-eval-outside-"));
-symlinkSync(outside, join(linkRoot, "escape"));
+linkDirectory(outside, join(linkRoot, "escape"));
 assert.throws(() => snapshotWorkspace(linkRoot), /escapes workspace/);
 assert.throws(() => safePath(linkRoot, "escape"), /escapes through symlink/);
 rmSync(linkRoot, { recursive: true, force: true }); rmSync(outside, { recursive: true, force: true });

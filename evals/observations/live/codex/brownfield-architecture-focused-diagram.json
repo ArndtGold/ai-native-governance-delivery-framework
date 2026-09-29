@@ -1,0 +1,15 @@
+{
+  "case_id": "brownfield-architecture-focused-diagram",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:54:53.339Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "name boundary question and link focused diagram in same review"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nUR is approved and control state is Brownfield Review; the applicable mode is post_ur_review. The case describes source links exposing unclear ownership between two runtime services. Materialized files establish fixture identity and control state only.\n\n## Missing evidence\nWhich service commits the event, and which runtime path or contract proves that responsibility? Concrete service paths and authoritative ownership evidence are not supplied.\n\n## Decision\nDecision: revise. Architecture relevance remains unresolved. A focused diagram helps address the named event-commit ownership question because textual evidence cannot settle it. It must remain linked to source evidence, not substitute for it.\n\n## Risks\nAssumed commit responsibility could conceal overlapping owners, duplicate event commits or a second source of truth. Reuse and Mode/Slice routing remain insufficiently evidenced.\n\n## Required next step\nHave the existing runtime owners resolve commit responsibility using source-backed evidence and a focused diagram linked from the same Brownfield Review. Record the unresolved boundary, impact, missing facts and accountable owner; prefer existing runtime structures. Re-evaluate and record the Mode/Slice Decision before later artefacts or implementation. No new user approval is currently required."
+}

@@ -28,11 +28,13 @@ function deepFreeze(value) {
 export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION = "Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.";
 export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY = "Provide one well-formed BCP 47 presentation_language tag and retry once.";
 export const SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.";
+export const SKILL_DISPATCH_INTAKE_DESCRIPTION = "Set true only with skill_id gate-check when the governed delivery intake (catalog delivery.start) is the active route; delivery wins mixed intent, so a gate-check invocation that asks for a change also sets it. Omit it for status, approval or next-step questions. It never grants approval or delivery authority.";
+export const SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION = "For intake_continuation, run continuation.steps in order. For presentation_required, show the run-present text and wait for a NEW deliberate response; otherwise dispatch again as instructed. Preparation approves no gate.";
 export const SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION = "For a qa-gate skill_continuation, control.candidate_runs is the complete canonical active-run inventory when run selection is unresolved, otherwise an empty array. Use its run_id, objective, normalized current_gate, decision and revision_id fields as data; filter by current_gate: QA and do not rescan run files, invent candidates or omit returned QA candidates.";
 
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_dispatch",
-  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, use only the returned target and control.`,
+  description: `Run the version-matched AGDF preflight for one canonical skill. It resolves target and control state but never grants approval or delivery authority. ${SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION} For skill_continuation, follow its continuation instruction using only the returned target and control. ${SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION}`,
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
@@ -55,7 +57,10 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
         description: "Authority source for primary_target. Supply it only with primary_target and only when exactly one listed meaning applies; otherwise omit both fields.",
       },
       primary_target: { type: "string", minLength: 1, maxLength: 4096, description: "Absolute governance-target path paired with target_source. Never derive it from working_directory alone." },
-      run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Supply it only when the request explicitly selects that run." },
+      run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Select an existing run only from an explicit request or unambiguous bound continuation. For intake_mode new, choose a new id for the authorized change; never reuse an existing run." },
+      intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
+      intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
+      continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
   },
@@ -72,7 +77,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       contract_version: { type: "integer", const: 1 },
       outcome: {
         type: "string",
-        enum: ["invalid_input", "target_unresolved", "control_result", "skill_continuation", "evaluator_error"],
+        enum: ["invalid_input", "target_unresolved", "control_result", "skill_continuation", "intake_continuation", "evaluator_error"],
       },
       terminal: { type: "boolean" },
       authorizes: { type: "boolean", const: false },
@@ -108,7 +113,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
 export function skillDispatchArgumentGrammar() {
   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
     .map((choice) => choice.const).join("|");
-  return `--skill <skill-id> --language <current-conversation-language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>]`;
+  return `--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>]] [--continue-delivery]`;
 }
 
 export function skillDispatchCommandGrammar() {
@@ -207,6 +212,16 @@ export function normalizeSkillDispatchInput(input, registry) {
   const targetSource = rawTargetSource ? normalizeTaskTargetSource(rawTargetSource, { allowEmpty: false }) : null;
   const runId = input.runId || null;
   if (runId && !RUN_ID_PATTERN.test(runId)) throw new SkillDispatchInputError("run_id", "run_id is invalid");
+  if (input.intake !== undefined && (typeof input.intake !== "boolean" || (input.intake && skill.dispatch_mode !== "deterministic_control"))) {
+    throw new SkillDispatchInputError("intake", "intake is invalid");
+  }
+  if (input.intakeMode !== undefined && (!input.intake || !runId || !["new", "resume"].includes(input.intakeMode))) {
+    throw new SkillDispatchInputError("intake_mode", "intake_mode requires intake and run_id");
+  }
+  if (input.continueDelivery !== undefined && (typeof input.continueDelivery !== "boolean"
+      || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
+    throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
+  }
   return Object.freeze({
     schema_version: SKILL_DISPATCH_SCHEMA_VERSION,
     skill_id: skillId,
@@ -216,6 +231,9 @@ export function normalizeSkillDispatchInput(input, registry) {
     target_source: targetSource,
     primary_target: primaryTarget,
     run_id: runId,
+    intake: input.intake === true,
+    intake_mode: input.intakeMode,
+    continue_delivery: input.continueDelivery === true,
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
   });
@@ -244,6 +262,9 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     targetSource: argumentsValue.target_source,
     primaryTarget: argumentsValue.primary_target,
     runId: argumentsValue.run_id,
+    ...(argumentsValue.intake !== undefined ? { intake: argumentsValue.intake } : {}),
+    ...(argumentsValue.intake_mode !== undefined ? { intakeMode: argumentsValue.intake_mode } : {}),
+    ...(argumentsValue.continue_delivery !== undefined ? { continueDelivery: argumentsValue.continue_delivery } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,
     skillSet: trustedContext.skillSet,

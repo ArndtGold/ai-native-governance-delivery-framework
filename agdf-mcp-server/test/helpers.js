@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
+import { fileURLToPath } from "node:url";
 
 export const SERVER_COMMAND = process.execPath;
-export const SERVER_ARGS = [new URL("./stdio-entry.js", import.meta.url).pathname];
+export const SERVER_ARGS = [fileURLToPath(new URL("./stdio-entry.js", import.meta.url))];
 
 export async function withStdioClient({
   modern = false,
   command = SERVER_COMMAND,
   args = SERVER_ARGS,
-  cwd = new URL("..", import.meta.url).pathname,
+  cwd = fileURLToPath(new URL("..", import.meta.url)),
 } = {}, callback) {
   const transport = new StdioClientTransport({
     command,

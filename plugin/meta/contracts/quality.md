@@ -55,7 +55,7 @@ Tool-call batching:
 
 - `RUN_STATE.md` is written once per user gate approval, not once per field change. The
   agent keeps intermediate state in memory between gate approvals and writes the complete
-  updated state in one operation.
+  updated state in one operation, then records it with `run-update` before the next `gate-check`.
 - The agent does not `read` existing artefacts for format reference. Skill instructions
   carry the format/structure inline. If a specific existing artefact must be inspected
   for content (not format), the read has no accompanying commentary.

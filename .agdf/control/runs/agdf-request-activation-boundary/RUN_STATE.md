@@ -5,8 +5,10 @@
 - control_state_version: 2
 - run_id: agdf-request-activation-boundary
 - lifecycle: active
-- revision: 29
-- revision_id: 00E80939-BDC0-4C77-B2D0-BF1E42CE4888
+- revision: 32
+- revision_id: c0f27dde-fb24-4df1-95d5-8fbdefa0bb2d
+- content_seal: sha256:51aa0e6816909504cc5366a741755acba0fd5fc137841a27acb0087ccfc5b448
+- approval_seal: sha256:dc1992b5080524df353ad2abc238acb82e5d39c755988626a44d9a67e189221b
 - started_at: 2026-09-04
 - mode: `structured_delivery`
 - current_gate: `QA`
@@ -22,9 +24,9 @@ unambiguous active-run continuation, while ordinary read-only requests remain ou
 
 | Question | Answer |
 |---|---|
-| What is known? | Revision 3 implementation uses one 1,092-byte Activation Kernel, compact discovery and on-demand operational detail without a second hook or classifier. Deterministic, package and full smoke evidence pass. Canonical-init finding `RAB-CR-01` was corrected and independently re-reviewed as pass. |
+| What is known? | Revision 3 implementation uses one 1,092-byte Activation Kernel, compact discovery and on-demand operational detail without a second hook or classifier. Deterministic, package and full smoke evidence pass; `RAB-CR-01` is resolved. The Codex CLI matrix adds 30 live sessions: 30/30 expected activation matches, 15/15 abstentions, 15/15 AGDF dispatches; 9 targets resolved and 6 unresolved; no fixture writes. |
 | What is approved? | UR Revision 1, PRD Revision 4, SD Revision 5 and TP Revision 3 are approved. The TP Revision 2 approval remains historical only. |
-| What is missing? | Four required external model-backed composed-profile runs and exact install/readback/restart/fresh-session evidence for Codex, Claude Code, GitHub Copilot and OpenCode. |
+| What is missing? | `RAB-TPR-01`: exact install/readback/restart/fresh-session evidence for all four hosts. `RAB-TPR-02`: four external model-backed composed-profile runs. |
 | What is the next allowed action? | Obtain separate authorization for the external model-profile transfer in `RAB-TPR-02` and for each host lifecycle change in `RAB-TPR-01`; then collect both evidence sets and rerun QA. |
 | What is explicitly forbidden right now? | External profile transfer or host mutation without separate authorization, inferred host parity, QA approval request, UAT, release, commit, push or PR while either evidence obligation remains open. |
 
@@ -136,6 +138,7 @@ unambiguous active-run continuation, while ordinary read-only requests remain ou
 | Canonical-init correction | `canonical-init.js`; `canonical-init-test.js`; public CLI reproduction; independent re-review | strict valid-run retention, retry/repair idempotency, concurrent drift and invalid-state safety | focused and final full smoke pass; `RAB-CR-01` resolved |
 | Final full smoke | `npm --prefix create-agdf run smoke-test`, 2026-09-05 | release prepare, activation, lifecycle, package, integrity, 83/83 skill evals and routing render | pass; deterministic/package evidence only |
 | Mandatory reviews | `TASK_PLAN_REVIEW.md` Revision 3; `CLEAN_IMPLEMENTATION_REVIEW.md` Revision 5; `CODE_REVIEW.md` Revision 3; `QA_REPORT.md` Revision 3 | final TP coverage, solution integrity, actual diff and QA decision | Clean and Code Review pass; TP Review and QA revise only for `RAB-TPR-01` and `RAB-TPR-02` |
+| Codex CLI activation matrix: 30 live sessions; 30/30 activation matches, 15/15 abstentions, 15/15 AGDF dispatches; 9 targets resolved and 6 unresolved; no fixture writes. | scripts/native-probes/evidence/codex-activation-matrix-20260928.md | Supplemental Codex activation and target-binding behavior only; does not close RAB-TPR-01 or RAB-TPR-02. | direct |
 
 ## Missing Evidence
 
@@ -175,5 +178,5 @@ unambiguous active-run continuation, while ordinary read-only requests remain ou
 
 ## Closeout
 
-- next_allowed_action: Resolve blocking or revise-level delivery-map findings before making stronger quality claims.
+- next_allowed_action: Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report.
 - quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.

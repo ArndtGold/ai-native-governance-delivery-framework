@@ -1,0 +1,16 @@
+{
+  "case_id": "brownfield-architecture-retained-tradeoff",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:54:25.223Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "record trade-off with rationale owner mitigation and review or exit condition",
+    "tie retained debt detail to same finding"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nUR is approved and Brownfield Review is active. Compatibility motivates a temporary adapter; the owner chooses retention until a dated consumer migration. This affects compatibility and migration boundaries in post_ur_review mode.\n\n## Missing evidence\nThe fixture supplies no existing finding, concrete accountable owner, migration date/reference, or mitigation. Repository files contain fixture metadata rather than runtime, test, or ownership evidence. An evidenced Mode/Slice Decision is absent.\n\n## Decision\nDecision: revise. Retention is a proposed trade-off; debt acceptance remains unresolved until rationale, accountable owner, mitigation, and a finite review date or exit condition are evidenced in the same finding.\n\n## Risks\nThe adapter could persist beyond migration or duplicate runtime responsibility without clear ownership and regression coverage.\n\n## Required next step\nComplete the existing finding with the compatibility rationale, accountable owner, mitigation, and dated migration exit condition, tying retained-debt details to that finding without creating a debt registry. Verify the canonical reuse path and relevant tests, then record the evidenced Mode/Slice Decision before downstream work."
+}

@@ -1,20 +1,11 @@
+import { INSTALL_SETUP_STATES, INSTALL_ACTIONS, INSTALL_FAILURE_PHASES, INSTALL_FAILURE_CODES, codexHookState } from "../interaction-catalog.js";
 import { isAbsolute } from "node:path";
 import { assertLifecycleResult } from "../lifecycle/result.js";
 import { mcpCapabilityProfileContract } from "../mcp-lifecycle/profile.js";
 
 const SURFACES = new Set(mcpCapabilityProfileContract.surfaces);
 const SETUP_REQUESTS = new Set(["plugin_only", "full", "cancel"]);
-const EFFECTIVE_STATES = new Set([
-  "cancelled",
-  "plugin_ready_mcp_absent",
-  "plugin_ready_mcp_unchanged",
-  "configured_pending_restart",
-  "configured_unverified",
-  "discovered_ready",
-  "partial",
-  "degraded_or_foreign",
-  "failed",
-]);
+const EFFECTIVE_STATES = new Set(Object.keys(INSTALL_SETUP_STATES));
 const RESULTS = new Set(["success", "partial", "failed", "cancelled"]);
 const TARGET_SOURCES = new Set(["explicit_dir", "interactive_invocation_cwd_selection", "none"]);
 const PREFLIGHT_TARGET_SOURCES = new Set(["explicit_dir", "interactive_invocation_cwd_proposal", "none"]);
@@ -22,7 +13,7 @@ const INVOCATION_DIRECTORY_SOURCES = new Set(["explicit_dir", "npm_init_cwd", "p
 const SCOPES = new Set(["project", "user"]);
 const INTERACTIONS = new Set(["required", "not_required"]);
 const PLUGIN_PREFLIGHT_STATES = new Set(["observed", "healthy", "degraded", "not_installed", "unavailable", "unknown"]);
-const MCP_STATES = new Set([...mcpCapabilityProfileContract.resultStates, "not_requested", "not_checked"]);
+const MCP_STATES = new Set([...mcpCapabilityProfileContract.resultStates, "not_requested", "not_checked", "plugin_managed"]);
 const RUNTIME_CHECK_STATES = new Set([
   "not_run",
   "not_checked",
@@ -43,58 +34,10 @@ const FULL_BLOCK_REASONS = new Set(["none", "target_required", "mcp_foreign", "m
 const MCP_EFFECTIVE_SOURCES = new Set([
   "none", "unknown", "user", "project", "project_override", "local", "shared_project", "inline", "custom",
 ]);
-const FAILURE_PHASES = new Set([
-  "input_validation",
-  "setup_preflight",
-  "setup_selection",
-  "runtime_check_permission",
-  "plugin_operation",
-  "plugin_verification",
-  "mcp_preflight",
-  "mcp_enable",
-  "mcp_disable",
-  "plugin_disable",
-  "plugin_uninstall",
-  "result_validation",
-  "presentation",
-]);
-const FAILURE_CODES = new Set([
-  "input_invalid",
-  "setup_preflight_failed",
-  "setup_selection_blocked",
-  "runtime_check_permission_failed",
-  "plugin_operation_failed",
-  "plugin_verification_failed",
-  "mcp_preflight_failed",
-  "mcp_enable_failed",
-  "mcp_disable_failed",
-  "plugin_disable_failed",
-  "plugin_uninstall_failed",
-  "result_invalid",
-  "presentation_failed",
-]);
-const NEXT_ACTION_CODES = new Set([
-  "none",
-  "cancelled",
-  "restart_host",
-  "verify_host_discovery",
-  "retry_plugin",
-  "retry_mcp",
-  "resolve_mcp_registration",
-  "review_runtime_checks",
-  "choose_plugin_only_or_cancel",
-]);
-const STATE_ACTIONS = Object.freeze({
-  cancelled: new Set(["cancelled"]),
-  plugin_ready_mcp_absent: new Set(["restart_host"]),
-  plugin_ready_mcp_unchanged: new Set(["restart_host"]),
-  configured_pending_restart: new Set(["restart_host"]),
-  configured_unverified: new Set(["verify_host_discovery"]),
-  discovered_ready: new Set(["none"]),
-  partial: new Set(["retry_mcp", "retry_plugin", "review_runtime_checks", "resolve_mcp_registration"]),
-  degraded_or_foreign: new Set(["resolve_mcp_registration"]),
-  failed: new Set(["retry_plugin", "resolve_mcp_registration", "choose_plugin_only_or_cancel"]),
-});
+const FAILURE_PHASES = new Set(INSTALL_FAILURE_PHASES);
+const FAILURE_CODES = new Set(INSTALL_FAILURE_CODES);
+const NEXT_ACTION_CODES = new Set(INSTALL_ACTIONS);
+
 
 function plainObject(value) {
   return value && typeof value === "object" && !Array.isArray(value);
@@ -142,12 +85,12 @@ function pluginVerified(plugin) {
 }
 
 function mcpState(mcp) {
-  if (mcp?.status && ["not_requested", "not_checked"].includes(mcp.status)) return mcp.status;
+  if (mcp?.status && ["not_requested", "not_checked", "plugin_managed"].includes(mcp.status)) return mcp.status;
   return mcp?.result;
 }
 
 function assertMcpPart(mcp) {
-  if (mcp?.status && ["not_requested", "not_checked"].includes(mcp.status)) {
+  if (mcp?.status && ["not_requested", "not_checked", "plugin_managed"].includes(mcp.status)) {
     exactKeys(mcp, ["status"], "AGDF_INSTALL_SETUP_RESULT_INVALID");
     return;
   }
@@ -170,13 +113,27 @@ function runtimeCheckState(runtimeChecks) {
   return runtimeChecks?.effective ?? runtimeChecks?.status;
 }
 
-export function deriveInstallSetupState({ setup_request: setupRequest, plugin, runtime_checks: runtimeChecks, mcp, failure }) {
+export function codexHookReviewPending(surface, runtimeChecks) {
+  return surface === "codex" && runtimeChecks?.requested === "enabled"
+    && runtimeChecks.effective === "decision_required"
+    && runtimeChecks.mcp_approval?.status === "configured";
+}
+
+export function codexPendingHookAction(runtimeChecks) {
+  return codexHookState(runtimeChecks?.verification).action;
+}
+
+export function deriveInstallSetupState({ setup_request: setupRequest, surface, plugin, runtime_checks: runtimeChecks, mcp, failure }) {
   if (setupRequest === "cancel") return "cancelled";
   if (plugin?.status === "not_run" && ["cancel", "cancelled"].includes(runtimeCheckState(runtimeChecks))) return "cancelled";
   if (!pluginVerified(plugin)) return "failed";
   if (failure?.phase === "runtime_check_permission") return "partial";
   const state = mcpState(mcp);
   if (setupRequest === "plugin_only") {
+    if (state === "plugin_managed" && !failure && codexHookReviewPending(surface, runtimeChecks)) {
+      return codexHookState(runtimeChecks.verification).state;
+    }
+    if (state === "plugin_managed") return "plugin_ready_mcp_in_plugin";
     if (["foreign", "owned_mismatch", "precedence_conflict", "invalid"].includes(mcp?.registration?.status)
         || state === "degraded") return "degraded_or_foreign";
     if (["not_requested", "not_checked", "not_configured"].includes(state)) return "plugin_ready_mcp_absent";
@@ -190,10 +147,7 @@ export function deriveInstallSetupState({ setup_request: setupRequest, plugin, r
 }
 
 function resultForState(state) {
-  if (state === "cancelled") return "cancelled";
-  if (state === "failed") return "failed";
-  if (["partial", "degraded_or_foreign"].includes(state)) return "partial";
-  return "success";
+  return INSTALL_SETUP_STATES[state]?.result;
 }
 
 export function createInstallSetupPreflight(input = {}) {
@@ -312,7 +266,8 @@ export function createInstallSetupResult(input = {}) {
   if ((input.effective_state && input.effective_state !== effectiveState)
       || (input.result && input.result !== result) || !EFFECTIVE_STATES.has(effectiveState) || !RESULTS.has(result)
       || cancelledShapeInvalid || fullBindingInvalid || pluginOnlyBindingInvalid
-      || !STATE_ACTIONS[effectiveState]?.has(input.next_action.code)
+      || !INSTALL_SETUP_STATES[effectiveState]?.actions.includes(input.next_action.code)
+      || (effectiveState.startsWith("mcp_ready_hook_") && input.next_action.code !== codexPendingHookAction(input.runtime_checks))
       || (effectiveState === "discovered_ready" && input.discovery.status !== "discovered")
       || (result === "failed" && !input.failure)
       || (result !== "failed" && input.failure && effectiveState !== "partial")) {

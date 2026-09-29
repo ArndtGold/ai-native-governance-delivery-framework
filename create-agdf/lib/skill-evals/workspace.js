@@ -16,6 +16,12 @@ export function resolveInside(root, candidate) {
 }
 
 function fixtureContent(path, description, controlState) {
+  if (path === "src/messages.js") return '// Existing UI copy module; no policy or state decision here.\nexport const readyMessage = "Your documents are ready.";\n';
+  if (path === "docs/ownership.md") return '# Existing owner\n\nThe UI Copy team owns wording in `src/messages.js`. Status policy, external interfaces, persistence and runtime behavior are owned elsewhere and are unchanged by wording edits.\n';
+  if (path === "change.patch") return 'diff --git a/src/messages.js b/src/messages.js\n--- a/src/messages.js\n+++ b/src/messages.js\n@@\n-export const readyMessage = "Your documents are ready.";\n+export const readyMessage = "Your documents are ready to review.";\n';
+  if (path === "src/compat-adapter.js") return '// Temporary compatibility adapter for one named consumer.\nimport { canonicalStatus } from "./policy.js";\nexport const legacyStatus = (caseFile) => canonicalStatus(caseFile);\n';
+  if (path === "docs/tradeoff.md") return '# Brownfield Review finding: trade-off: temporary status adapter\n\n- rationale: Preserve Legacy Reporting during migration without moving policy ownership.\n- accountable_owner: Arndt Gold.\n- mitigation: Delegate to the canonical status function and monitor remaining Legacy Reporting calls.\n- review_date_or_exit_condition: Remove by 2026-10-31 after Legacy Reporting migration is verified.\n- evidence: `src/compat-adapter.js` and `migration.patch`.\n';
+  if (path === "migration.patch") return 'diff --git a/src/compat-adapter.js b/src/compat-adapter.js\n--- a/src/compat-adapter.js\n+++ b/src/compat-adapter.js\n@@\n+// Temporary compatibility adapter for the named legacy consumer.\n+export const legacyStatus = (caseFile) => canonicalStatus(caseFile);\n';
   if (path.endsWith(".json")) return `${JSON.stringify({ fixture: description, control_state: controlState }, null, 2)}\n`;
   if (path.endsWith("RUN_STATE.md") && controlState === "ur-approved-structured") return `# AGDF Run State\n\n- schema_version: 1\n- run_id: example\n- lifecycle: active\n- mode: structured_delivery\n- current_gate: PRD\n- control_state: ${controlState}\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | Approval: UR |\n| PRD | pending | none |\n`;
   if (path.endsWith("RUN_STATE.md")) return `# AGDF Run State\n\n- schema_version: 1\n- run_id: example\n- lifecycle: active\n- control_state: ${controlState}\n- evidence: ${description}\n`;

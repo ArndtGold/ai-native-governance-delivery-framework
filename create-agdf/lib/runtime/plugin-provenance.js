@@ -5,6 +5,49 @@ import { isAbsolute, join, relative, resolve, sep } from "node:path";
 export const INSTALLATION_PROVENANCE_FILE = ".agdf-installation.json";
 export const LEGACY_LOCAL_INSTALL_FILE = ".agdf-local-install.json";
 export const COPILOT_PAYLOAD_INVENTORY_FILE = ".agdf-payload-inventory.json";
+// Host-owned liveness markers written into the installed plugin root while a session holds it
+// (Claude Code: `.in_use/<pid>`). They are not plugin payload and must not affect provenance.
+export const HOST_RUNTIME_MARKER_DIRECTORIES = Object.freeze([".in_use"]);
+
+// Codex starts plugin MCP servers only from absolute paths and passes no plugin root or data directory
+// (native probe, Codex 0.145/0.157). The runtime plugin therefore ships a template that the installer
+// fills with the absolute marketplace plugin root and data directory; provenance digests the template.
+export const CODEX_PLUGIN_MCP_FILE = "mcp/codex.mcp.json";
+const CODEX_ROOT_TOKEN = "{{AGDF_PLUGIN_ROOT}}";
+const CODEX_DATA_TOKEN = "{{AGDF_MCP_DATA}}";
+
+export function renderCodexPluginMcpConfig({ pluginRoot = CODEX_ROOT_TOKEN, dataRoot = CODEX_DATA_TOKEN } = {}) {
+  const root = pluginRoot.replaceAll("\\", "/");
+  return `${JSON.stringify({
+    mcpServers: {
+      agdf: {
+        command: "node",
+        args: [`${root}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")],
+      },
+    },
+  }, null, 2)}\n`;
+}
+
+// Returns the template for any config of the owned shape, so an installed file with absolute paths
+// digests exactly like the generated one; any other content is returned unchanged and therefore
+// changes the digest.
+export function normalizeCodexPluginMcpConfig(content) {
+  try {
+    const config = JSON.parse(String(content));
+    const args = config.mcpServers?.agdf?.args;
+    if (Object.keys(config).length === 1 && Object.keys(config.mcpServers ?? {}).length === 1
+        && config.mcpServers.agdf.command === "node" && Array.isArray(args) && args.length === 5
+        && args[0].endsWith("/mcp/agdf-mcp-launch.js") && args[1] === "--surface" && args[2] === "codex"
+        && args[3] === "--data" && typeof args[4] === "string" && args[4]) {
+      return renderCodexPluginMcpConfig();
+    }
+  } catch {}
+  return content;
+}
+
+function isHostRuntimeMarker(root, directory, name) {
+  return directory === root && HOST_RUNTIME_MARKER_DIRECTORIES.includes(name);
+}
 
 const EXPECTED_PROFILES = Object.freeze({
   "source-development": Object.freeze({ runtime: "absent", installable: false, machineValidation: "unavailable" }),
@@ -51,12 +94,15 @@ export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "lib/control-evaluation",
   "lib/control-state",
   "lib/cli/runtime-context.js",
+  "lib/cli/contract-command.js",
   "lib/runtime/plugin-provenance.js",
   "lib/task-target-resolution.js",
   "lib/repository-context-reader.js",
   "lib/interaction-presentation.js",
+  "lib/interaction-catalog.js",
   "generated/plugins/agdf/meta/agdf-plugin.definition.json",
   "generated/plugins/agdf/meta/agdf-interaction-locales.json",
+  "generated/plugins/agdf/meta/contracts",
 ]);
 
 export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
@@ -65,20 +111,21 @@ export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
   "node_modules/zod",
 ]);
 
-function digestSelectedEntries(root, entries) {
+function digestSelectedEntries(root, entries, syntheticEntries = []) {
   const files = [];
   function visit(path) {
     const stats = statSync(path);
     if (stats.isDirectory()) {
       for (const name of readdirSync(path).sort()) visit(join(path, name));
-    } else if (stats.isFile()) files.push(path);
+    } else if (stats.isFile()) files.push({ path, content: readFileSync(path) });
   }
   for (const entry of entries) visit(join(root, entry));
+  for (const entry of syntheticEntries) files.push({ path: join(root, entry.path), content: Buffer.from(entry.content) });
   const hash = createHash("sha256");
-  for (const path of files.sort()) {
-    hash.update(relative(root, path).replaceAll("\\", "/"));
+  for (const file of files.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0)) {
+    hash.update(relative(root, file.path).replaceAll("\\", "/"));
     hash.update("\0");
-    hash.update(readFileSync(path));
+    hash.update(file.content);
     hash.update("\0");
   }
   return hash.digest("hex");
@@ -86,6 +133,21 @@ function digestSelectedEntries(root, entries) {
 
 export function digestMcpDispatcherPackage(root) {
   return digestSelectedEntries(root, MCP_DISPATCHER_RUNTIME_ENTRIES);
+}
+
+export function digestPluginMcpDispatcherSource(root, version) {
+  const packageJson = `${JSON.stringify({
+    name: "create-agdf",
+    version,
+    private: true,
+    type: "module",
+    exports: { "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js" },
+  }, null, 2)}\n`;
+  return digestSelectedEntries(
+    root,
+    MCP_DISPATCHER_RUNTIME_ENTRIES.filter((entry) => entry !== "package.json"),
+    [{ path: "package.json", content: packageJson }],
+  );
 }
 
 export function digestMcpSdkRuntime(root) {
@@ -112,8 +174,9 @@ export function inspectCopilotPayloadInventory(pluginRoot, expectedVersion) {
     for (const name of readdirSync(directory).sort()) {
       const path = join(directory, name);
       const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) {
+      if (stats.isDirectory()) {
+        if (!isHostRuntimeMarker(pluginRoot, directory, name)) visit(path);
+      } else if (stats.isFile()) {
         const normalized = relative(pluginRoot, path).replaceAll("\\", "/");
         if (![COPILOT_PAYLOAD_INVENTORY_FILE, INSTALLATION_PROVENANCE_FILE, LEGACY_LOCAL_INSTALL_FILE].includes(normalized)) actual.push(normalized);
       }
@@ -142,8 +205,9 @@ export function digestNormalizedPluginSource(root, canonicalVersion) {
     for (const name of readdirSync(directory).sort()) {
       const path = join(directory, name);
       const stats = statSync(path);
-      if (stats.isDirectory()) visit(path);
-      else if (stats.isFile()) files.push(path);
+      if (stats.isDirectory()) {
+        if (!isHostRuntimeMarker(root, directory, name)) visit(path);
+      } else if (stats.isFile()) files.push(path);
     }
   }
   visit(root);
@@ -156,6 +220,8 @@ export function digestNormalizedPluginSource(root, canonicalVersion) {
       const manifest = readJson(path);
       if (!manifest) throw new Error(`Invalid Codex plugin manifest: ${path}`);
       content = `${JSON.stringify({ ...manifest, version: canonicalVersion }, null, 2)}\n`;
+    } else if (normalizedPath === CODEX_PLUGIN_MCP_FILE) {
+      content = normalizeCodexPluginMcpConfig(content);
     }
     hash.update(normalizedPath);
     hash.update("\0");

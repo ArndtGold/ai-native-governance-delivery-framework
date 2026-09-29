@@ -56,6 +56,16 @@ Repository-level discovery is derived; do not maintain a writable active-run das
 closed. Legacy `AGDF_RUN.md` is migration input or an explicitly rendered non-authoritative projection,
 never a second writable owner. Read-only commands must not migrate state.
 
+`run-create` writes a sealed run. The seal covers the run state and every file listed under
+Artefacts; an unrecorded edit blocks `doctor` and `gate-check` with `AGDF_RUN_SEAL_MISMATCH`. After
+changing either, call `run-update --run <run_id> --revision <revision_id>` before `gate-check`; it
+advances the revision and refuses Approvals changes. Only `run-approve` records an approval. Both run
+on the surface-local validator. The seal detects unrecorded edits; it is not a signature.
+Keep one `Artefacts` row per type: update the existing placeholder row instead of appending another.
+`run-update` and all run writers reject duplicate rows without advancing the revision. Remove the
+extra row and retry `run-update` to record the correction. Duplicate rows in older sealed runs also
+block `doctor` and gate presentation.
+
 When a repository needs durable AGDF state, use the plugin-local `control/` scaffold as the starting point.
 
 - `config.json` stores project language preferences. Use `artifact_language` for generated AGDF artefacts and `chat_language` for user-facing responses unless the user explicitly asks otherwise. Runtime rules remain English.
@@ -102,7 +112,7 @@ Helper commands are deterministic proof and automation interfaces, not the norma
 - `init` creates the machine-readable control scaffold.
 - `doctor --json` checks whether `.agdf/control/` is consistent and actionable; it is not the reviewer.
 - `gate-check --json` reports reproducible gate state; it does not replace the gate-check skill judgement.
-- `gate-check --approval-envelope` prints the canonical ready-gate cards and exact-text request from the same evaluation; it does not grant approval or replace the chat workflow.
+- `gate-check --approval-envelope` prints a read-only summary and link to the current artefact. The agent uses `run-present` before asking for an exact gate approval.
 - `delivery-map --json` reports the delivery picture for CI, PRs, regression checks and audit trails.
 
 Machine-readable outputs should stay agent-friendly: stable decisions, blocking gate or current gate, missing approval, allowed outputs, forbidden outputs, next step, evidence and findings.

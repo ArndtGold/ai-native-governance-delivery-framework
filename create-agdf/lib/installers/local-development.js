@@ -6,7 +6,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  renameSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -14,6 +13,7 @@ import {
 import { join, resolve } from "node:path";
 import process from "node:process";
 import { npmExecutable } from "./npm-invocation.js";
+import { renameSyncWithRetry } from "../fs-swap.js";
 
 const LOCAL_PACKAGE_OWNER = "create-agdf";
 const LOCAL_PACKAGE_KIND = "opencode_local_development_package";
@@ -37,10 +37,16 @@ function readJson(path, label) {
 }
 
 function parsePackResult(output) {
-  const start = String(output).indexOf("[");
+  const text = String(output).trim();
+  const start = text.search(/[\[{]/u);
   if (start < 0) throw new Error("AGDF local package build did not return npm pack JSON.");
-  const parsed = JSON.parse(String(output).slice(start));
-  const result = parsed?.[0];
+  const parsed = JSON.parse(text.slice(start));
+  // npm 12 returns an object keyed by package name; older npm returns an array.
+  const result = Array.isArray(parsed)
+    ? parsed[0]
+    : parsed && typeof parsed === "object" && Object.keys(parsed).length === 1
+      ? Object.values(parsed)[0]
+      : undefined;
   const filename = result?.filename;
   if (typeof filename !== "string" || !filename || filename.includes("/") || filename.includes("\\")) {
     throw new Error("AGDF local package build returned an unsafe tarball name.");
@@ -216,7 +222,7 @@ export function prepareLocalOpenCodePackage({
       archive_digest: archiveDigest,
       filename,
     }, null, 2)}\n`, "utf8");
-    renameSync(stageRoot, stableRoot);
+    renameSyncWithRetry(stageRoot, stableRoot);
     return validateLocalOpenCodePackageSource({ kind: "local_checkout", dataRoot, root: stableRoot, version: expectedVersion, digest });
   } catch (error) {
     if (existsSync(stageRoot)) rmSync(stageRoot, { recursive: true, force: true });

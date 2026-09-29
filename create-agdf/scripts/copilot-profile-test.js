@@ -42,6 +42,9 @@ function fixture(name, action) {
 
 try {
   const first = validate(generatedRoot);
+  for (const max_bytes of [null, NaN, Infinity, -1, "9999999"]) {
+    assert.throws(() => validate(generatedRoot, { baseline: { ...baseline, max_bytes } }), /BASELINE_INVALID/);
+  }
   const second = validate(generatedRoot);
   assert.equal(second.inventoryDigest, first.inventoryDigest, "unchanged Copilot payload inventory must be deterministic");
   const hooks = JSON.parse(readFileSync(join(generatedRoot, "hooks", "copilot-hooks.json"), "utf8"));
@@ -70,6 +73,7 @@ try {
   fixture("digest", (root) => {
     writeFileSync(join(root, "plugin.json"), "{}\n");
     assert.throws(() => validate(root), /AGDF_COPILOT_PAYLOAD_DIGEST_MISMATCH/);
+    assert.throws(() => validate(root, { checkBudget: false }), /AGDF_COPILOT_PAYLOAD_DIGEST_MISMATCH/);
   });
   fixture("stale-source", (root) => {
     const value = inventory(root);

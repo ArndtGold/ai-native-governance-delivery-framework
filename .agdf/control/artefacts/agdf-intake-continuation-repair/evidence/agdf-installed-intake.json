@@ -1,0 +1,110 @@
+{
+  "schema_version": "1",
+  "contract_version": 1,
+  "outcome": "intake_continuation",
+  "terminal": false,
+  "authorizes": false,
+  "skill": {
+    "skill_id": "gate-check",
+    "dispatch_mode": "deterministic_control",
+    "deterministic_command": "gate-check",
+    "requires_control_snapshot": true,
+    "contract_version": 1
+  },
+  "runtime": {
+    "machine_validation": "owned_version_matched",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-8f2a6ae0c54a",
+    "runtime_digest": "21f49bfd9db5174ae09354fdc847cd77010822435a552794d23d258238b56ccc",
+    "provenance_status": "matched"
+  },
+  "target": {
+    "schema_version": "1",
+    "resolution_state": "resolved",
+    "reason_code": "explicit_target",
+    "primary_target": "/private/tmp/agdf-intake-live-sljh0dgq",
+    "evidence_sources": [],
+    "working_directory": "/private/tmp/agdf-intake-live-sljh0dgq",
+    "governance_target": "/private/tmp/agdf-intake-live-sljh0dgq",
+    "target_source": "explicit_target",
+    "target_changed": false,
+    "next_action": "",
+    "authorizes": false
+  },
+  "control": {
+    "status": "blocked",
+    "current_gate": "UR",
+    "blocking_reason": "AGDF_RUN_NOT_SELECTABLE",
+    "missing_approval": "none",
+    "next_allowed_action": "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run.",
+    "run_id": "unknown",
+    "revision_id": "",
+    "doctor_status": "block"
+  },
+  "presentation": null,
+  "continuation": {
+    "instruction": "Continue the same delivery intake without asking the user: run these AGDF validator steps in order, then dispatch again. They persist intake bookkeeping only; they approve no gate and authorize no implementation.",
+    "operation_id": "delivery.start",
+    "phase": "run_missing",
+    "presentation_language": "de",
+    "governance_target": "/private/tmp/agdf-intake-live-sljh0dgq",
+    "run_id": "live-new-feature",
+    "revision_id": null,
+    "steps": [
+      {
+        "id": "create_run",
+        "command": "run-create --dir '/private/tmp/agdf-intake-live-sljh0dgq' --run live-new-feature",
+        "argv": [
+          "run-create",
+          "--dir",
+          "/private/tmp/agdf-intake-live-sljh0dgq",
+          "--run",
+          "live-new-feature"
+        ],
+        "rule": "Choose one new lowercase run id for the requested change; the output names its revision_id."
+      },
+      {
+        "id": "write_ur",
+        "path": ".agdf/control/artefacts/live-new-feature/UR.md",
+        "template": ".agdf/control/templates/artefacts/UR.md",
+        "rule": "Write or complete the user requirement of the original delivery request; leave its approval pending."
+      },
+      {
+        "id": "record_ur",
+        "command": "run-step --dir '/private/tmp/agdf-intake-live-sljh0dgq' --run live-new-feature --revision <revision_id from run-create> --step ur --title \"<short requirement title>\"",
+        "argv": [
+          "run-step",
+          "--dir",
+          "/private/tmp/agdf-intake-live-sljh0dgq",
+          "--run",
+          "live-new-feature",
+          "--revision",
+          "<revision_id from run-create>",
+          "--step",
+          "ur",
+          "--title",
+          "<short requirement title>"
+        ]
+      },
+      {
+        "id": "dispatch_again",
+        "rule": "Dispatch gate-check again with intake, intake_mode resume and run_id live-new-feature; that result decides the response."
+      }
+    ]
+  },
+  "recovery": null,
+  "host_action": {
+    "mode": "continue_delivery_intake",
+    "source": "continuation.steps",
+    "bound_to_target": true
+  },
+  "timing": {
+    "wrapper_ms": 457.775,
+    "input_ms": 5.152,
+    "target_ms": 68.225,
+    "control_ms": 72.068,
+    "render_ms": 7.184,
+    "total_ms": 154.019
+  },
+  "diagnostics": []
+}

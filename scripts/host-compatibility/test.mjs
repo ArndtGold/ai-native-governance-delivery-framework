@@ -106,9 +106,16 @@ try {
   for (const path of ["create-agdf/generated/plugins/agdf", "create-agdf/generated/plugins/copilot/agdf", ".agdf/control/artefacts/agdf-live-host-conformance-matrix"]) {
     mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path), { recursive: true });
   }
+  // Approved public evidence is an input too, even when it does not supply native comparison rows.
+  for (const path of ["docs/compatibility/.agdf-compatibility-owned.json", ...manifest.public_evidence]) {
+    const destination = safePath(temp, path);
+    mkdirSync(dirname(destination), { recursive: true }); cpSync(safePath(root, path), destination);
+  }
   check("path traversal and symlink escape", () => {
     for (const path of ["../outside", "/absolute", "docs/../outside", "docs\\outside"]) assert.throws(() => safePath(temp, path));
-    symlinkSync(root, join(temp, "escape")); assert.throws(() => safePath(temp, "escape/package.json"), /symlink/);
+    // Windows junctions need no symlink privilege and still report as symbolic links.
+    symlinkSync(root, join(temp, "escape"), process.platform === "win32" ? "junction" : undefined);
+    assert.throws(() => safePath(temp, "escape/package.json"), /symlink/);
   });
   check("AST follows added helpers and handles import cycles", () => {
     writeFileSync(join(temp, "a.mjs"), 'import "./b.mjs";'); writeFileSync(join(temp, "b.mjs"), 'export * from "./a.mjs";');
@@ -139,6 +146,11 @@ try {
   const factsPath = join(temp, "docs/compatibility/evidence/facts.json"); const factsBefore = readFileSync(factsPath);
   await recordComparison(temp, { runSuite: synthetic });
   check("deterministic rendering and immutable attempt reuse", () => assert.deepEqual(readFileSync(reportPath), reportBytes));
+  check("approved public evidence survives regeneration without native promotion", () => {
+    for (const path of manifest.public_evidence) assert.deepEqual(readFileSync(safePath(temp, path)), readFileSync(safePath(root, path)));
+    const snapshot = JSON.parse(readFileSync(join(temp, "docs/compatibility/evidence/snapshot.json")));
+    assert.equal(snapshot.observations.filter(row => row.lane !== "deterministic_adapter").length, 0);
+  });
   await assert.rejects(() => recordComparison(temp, { runSuite: () => [] }), /scenario_recording_failed/);
   check("empty recording retains accepted comparison", () => assert.deepEqual(readFileSync(reportPath), reportBytes));
   await assert.rejects(() => recordComparison(temp, { runSuite: () => { throw new Error("injected_runner_failure"); } }), /injected_runner_failure/);
@@ -167,7 +179,7 @@ try {
   const nativeBytes = JSON.stringify(native.facts); writeFileSync(join(temp, nativeEvidence), nativeBytes);
   native.references = [{ path: nativeEvidence, sha256: hash(nativeBytes) }]; native.publication = { reviewed: true, evidence: nativeEvidence };
   writeFileSync(join(temp, nativeSource), JSON.stringify([native]));
-  const nativeManifest = { ...manifest, native_sources: [nativeSource], public_evidence: [nativeEvidence],
+  const nativeManifest = { ...manifest, native_sources: [nativeSource], public_evidence: [...manifest.public_evidence, nativeEvidence],
     native_targets: [{ environment: native.environment, lane: native.lane, mechanisms: { installed: native.mechanism } }] };
   writeFileSync(join(temp, MANIFEST_PATH), JSON.stringify(nativeManifest));
   await recordComparison(temp, { runSuite: synthetic });

@@ -7,6 +7,9 @@ export const LIFECYCLES = new Set([
   "superseded",
   "abandoned",
 ]);
+export function normalizeLineEndings(content) {
+  return content.replace(/\r\n/g, "\n");
+}
 export function scalarFields(content) {
   const values = new Map(),
     duplicates = [];
@@ -74,6 +77,19 @@ function rows(s) {
         .map((x) => x.trim()),
     )
     .filter((r) => !r.every((x) => /^[-:]+$/.test(x)));
+}
+export function sectionTableRows(content, heading) {
+  return rows(section(content, heading));
+}
+export function duplicateArtefactRowTypes(content) {
+  const seen = new Set();
+  const duplicates = new Set();
+  for (const [type = ""] of sectionTableRows(content, "Artefacts")) {
+    if (!type || type === "Type") continue;
+    if (seen.has(type)) duplicates.add(type);
+    else seen.add(type);
+  }
+  return [...duplicates];
 }
 function clean(v = "") {
   return v.replace(/^`|`$/g, "").trim();
@@ -172,6 +188,7 @@ export function parseControlState(
     next_allowed_action: field(content, "next_allowed_action"),
     approvals,
     artefacts,
+    artefact_row_duplicates: duplicateArtefactRowTypes(content),
     evidence_refs: mapRows("Evidence", "Evidence", (r) => ({
       evidence: r[0] ?? "",
       source: r[1] ?? "",

@@ -1,6 +1,6 @@
 ---
 name: brownfield-analysis
-description: "Use this skill for this scope: after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems. Boundary: clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission. Automatic discovery alone does not activate AGDF."
+description: "Use this skill for this scope: after gate-check permits Brownfield Review or implementation preparation, before non-trivial changes in existing systems. Boundary: clarifies reuse, owners, risks and Mode/Slice Decision; never bypasses gate-check; Brownfield Review is not implementation permission. The requested effect, not discovery, decides AGDF activation."
 ---
 
 # brownfield-analysis
@@ -19,7 +19,7 @@ The skill answers:
 - whether Context Graph impact exists without automatically creating a node
 
 ## Runtime Contract
-After `skill_continuation`, use these focused runtime-contract modules:
+After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without a binding, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
 
 - `../../meta/contracts/gate-transition.md`
 - `../../meta/contracts/modes.md`
@@ -34,32 +34,33 @@ After `skill_continuation`, use these focused runtime-contract modules:
 - `owner`: `request_activation_contract`
 - `path`: `plugin/meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
 
-Decide effect from loaded instructions before AGDF action/output.
+Decide effect from loaded instructions before AGDF action.
 
-Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+Abstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
 
-Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+Activate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
 
 Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
 
-Then choose one catalog route. Non-authorizing; downstream checks remain.
+Then pick one catalog route; non-authorizing, downstream checks remain.
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
 
 ## Executable Dispatch
 
-Use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix.
-Follow binding.arguments exactly with `--skill brownfield-analysis`, language and working directory.
+Dispatch through the AGDF MCP tool `agdf_dispatch` only when the host lists it (hosts add a prefix such as `mcp__agdf__agdf_dispatch`; load a listed deferred tool first and never search for an unlisted one): `skill_id` `brownfield-analysis`, `presentation_language`, `working_directory`, and only when set the `target_source`/`primary_target` pair and `run_id`.
+Otherwise, or when that call fails, use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix, following binding.arguments exactly with `--skill brownfield-analysis`, language and working directory.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
-On skill_continuation use only its target/control. Missing/failed/old binding: `dispatcher_unavailable`; no search, environment repair
+On skill_continuation use only its target/control. Without that tool and a valid binding: `dispatcher_unavailable`; no runtime search, environment repair
 or help retries. Dispatch never authorizes.
 
 Brownfield-specific output must make evidence, missing existing-system view, parallel-structure risk, reuse strategy, and the minimal next step visible.
-When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`.
+When `.agdf/control/` is present, persist or link `post_ur_review` output under `.agdf/control/artefacts/<key>/BROWNFIELD_REVIEW.md`,
+then record the Mode/Slice Decision with the validator's `run-step --step route --route <mode> --reason --evidence`.
 
 ## Modes
 
@@ -73,9 +74,36 @@ In `post_ur_review`, also record `delivery_context`, `ui_ux_impact`, `ui_ux_impa
 `../../meta/contracts/gate-transition.md`. Greenfield records make existing-system evidence explicitly
 not applicable; Brownfield records cite repository evidence. Do not create a second Greenfield router.
 
+In the same `post_ur_review`, record architecture relevance before the existing Mode/Slice
+Decision. Check only boundaries the proposed change could affect: module or owner, externally
+consumed interface, data or source-of-truth ownership, compatibility or migration, runtime or
+host contract, and security or policy authority. An unresolved effect on one of these boundaries
+is relevant until its evidence owner resolves it. Cite the affected repository paths, contracts
+or observed behavior; do not infer relevance from file or owner counts.
+
+For a local change with no material boundary effect or unresolved architecture question, record
+`architecture-not-applicable` and the affected code/owner evidence supporting that reason. Do
+not require a full architecture checklist or diagram for this route. For a relevant change,
+record the boundary, impact, evidence, missing facts and existing owner of the next action in
+the same Brownfield Review. Classify each architecture finding in its existing Reuse And
+Parallel-Structure Risk row as `problem`, `trade-off` or `unresolved`. A proposed trade-off that
+knowingly retains or adds debt is not accepted merely because it is documented: the same finding
+must have a rationale, accountable owner, mitigation and finite review date or exit condition.
+Until all four are present, leave it unresolved and route the missing decision to its owner.
+The Brownfield Review itself must then be at least `revise`; use `block` when the missing
+decision prevents a safe Mode/Slice route. Do not report `pass` while claiming that the debt
+acceptance is still open.
+Use a focused diagram only when it answers a named ownership or dependency question that the
+textual evidence cannot settle; link it from the same review.
+
+Architecture evidence informs the sole Structured Depth Decision in `modes.md`; it does not
+select a mode independently. If a decisive route fact is missing or conflicting, use the
+existing `block` and `depth_facts_missing | depth_facts_conflicting` recovery. Route later gaps
+through the normalized owners in `quality.md`; this review grants no downstream approval.
+
 ## Rules
 1. Brownfield first: understand the existing codebase before PRD/SD decisions when existing-system impact is possible, and again before implementation.
-2. Brownfield Review after `Approval: UR` is a sizing and routing step. It must visibly decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen. Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation; mark the review `done` only after both the artefact and canonical run projection are complete. An interrupted, incomplete or legacy record stays at fail-closed `Mode/Slice Decision` recovery without another user approval.
+2. Brownfield Review after `Approval: UR`, or before it while the UR card is ready so that card can name the route, is a sizing and routing step. It must visibly decide `quick_task`, `verified_change`, `structured_slice`, `structured_delivery`, or `block` before PRD depth or implementation is chosen. Persist the completed review and its decision, scope reason, evidence and required next gate in the same internal operation; mark the review `done` only after both the artefact and canonical run projection are complete. An interrupted, incomplete or legacy record stays at fail-closed `Mode/Slice Decision` recovery without another user approval.
 3. Reuse-before-create: prefer existing modules, services, components, tables, endpoints, tests, and configuration.
 4. Minimal clean slice: choose the smallest durable intervention, not merely the smallest technical diff.
 5. No silent parallel structures.
@@ -100,6 +128,7 @@ not applicable; Brownfield records cite repository evidence. Do not create a sec
     completion and Brownfield/Mode-Slice re-evaluation.
 17. Owner, file, consumer, task or derived-path counts must never select a structured depth by
     themselves.
+18. In `post_ur_review`, apply the architecture-relevance rules above before the Mode/Slice Decision.
 
 ## When To Use
 - after `gate-check` permits `Brownfield Review` or the selected canonical run record names Brownfield Review as the next allowed action
@@ -153,7 +182,8 @@ When used as Brownfield Review after `Approval: UR`, do not recommend PRD, SD, T
 9. Check UI monolith risk for large surfaces or central hooks.
 10. Check Context Graph impact according to `../../meta/contracts/context-graph.md`.
 11. Recommend the minimal clean implementation path.
-12. In `post_ur_review`, record `depth_policy_version`, `depth_facts_status`,
+12. In `post_ur_review`, record the conditional Architecture Impact described above in the same Brownfield Review.
+13. In `post_ur_review`, record `depth_policy_version`, `depth_facts_status`,
     `primary_reason_code`, `decisive_full_depth_triggers`, `rejected_alternative`,
     `missing_or_conflicting_facts`, `depth_evidence_refs` and evidence for all seven bounded-slice
     check IDs in the Brownfield Review. Then persist the completed review and the existing

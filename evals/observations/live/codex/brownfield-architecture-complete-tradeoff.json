@@ -1,0 +1,16 @@
+{
+  "case_id": "brownfield-architecture-complete-tradeoff",
+  "source_fingerprint": "99ab401f2f755b34fb7a3e5f5a65775899f901e611092e4d8a4f9dbd0afbcf77",
+  "evidence_kind": "live_codex",
+  "recorded_at": "2026-09-28T07:53:03.277Z",
+  "selected_skill": "brownfield-analysis",
+  "current_gate": null,
+  "internal_step": "Brownfield Review",
+  "missing_approval": null,
+  "actions": [
+    "accept evidenced trade-off in same finding",
+    "continue existing Mode/Slice Decision"
+  ],
+  "changed_paths": [],
+  "artefact_content": "## Evidence\nIn post_ur_review, src/compat-adapter.js and migration.patch evidence delegation to canonicalStatus. docs/tradeoff.md records rationale, accountable owner Arndt Gold, mitigation and removal by 2026-10-31 in the same Brownfield finding.\n## Missing evidence\nNone for accepting this deliberate trade-off. The supplied evidence does not establish a completed Mode/Slice Decision or runtime validation.\n## Decision\nDecision: pass. Retain the evidenced trade-off in the existing finding; no new debt registry is required.\n## Risks\nThe temporary compatibility path could outlive its removal date. Delegation preserves canonical policy ownership; monitoring and verified migration mitigate retention risk.\n## Required next step\nContinue the existing Mode/Slice Decision with this finding as evidence. Brownfield acceptance grants no implementation permission."
+}

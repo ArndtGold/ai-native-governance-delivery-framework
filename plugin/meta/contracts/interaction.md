@@ -21,6 +21,8 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 - `internal_next_step`: the next agent-controlled process step, or `none`
 - `next_user_gate`: the next actual user approval gate, or `none`
 - `user_action_required`: `yes` only when the user must provide another deliberate approval or decision; otherwise `no`
+- `prd_readiness_items`: concrete unresolved PRD decisions to show with a PRD-readiness blocker
+- `traceability_gaps`: concrete missing traceability rows to show with an SD/TP-readiness blocker
 - `evidence`: concrete evidence references currently visible
 - `next_skill`: next AGDF skill or `none`
 - `next_step`: the single next permissible process action
@@ -62,6 +64,18 @@ This determinism protects semantic parity, permission boundaries and evidence vi
 hosts. It does not standardize host chrome or unrelated conversational prose. `approval_presentation`
 remains the separate decision-time projection and is present only for a ready user gate; both public
 presentations derive from the same `status_card` snapshot and neither grants approval.
+
+The visible actor is derived from canonical state: a ready user decision is shown as `Waiting for`
+with its exact approval literal; another required user decision is shown as `Your turn` together
+with the concrete localized response, choice or missing input; an internal action is shown as agent
+work; and a state that needs no user input or agent action says no reply is needed. An unresolved
+next action belongs to the user for clarification, so the card must not say the agent is continuing.
+The post-TP continuation is valid only while the canonical next action is still the standard
+implementation-and-tests action; a distinct recorded action controls the actor and wording.
+`Blocked by` appears only for an actual blocked state, not for a gate that is simply waiting for
+approval. Concrete PRD readiness and SD/TP traceability items are shown with their blocker. An
+action that has no safe locale mapping produces a focused clarification; it must never be replaced
+by a generic action for a different gate.
 
 
 ### Breadcrumb
@@ -275,9 +289,13 @@ For `delivery.start`, the original positive delivery request already supplies th
 intent. The deliberate setup decision authorizes only creation or linking of the canonical control
 scaffold. After successful setup, the agent continues the same delivery intake by persisting the
 already reviewed canonical run and revision-stable UR without a second setup prompt. This continuation
-does not approve UR or any later gate. For the explicit standalone `lifecycle.control.init` operation,
-setup remains scaffold-only and creates neither a run nor UR. Gate readiness is always evaluated
-separately after canonical state and a revision-stable artefact exist.
+does not approve UR or any later gate. Dispatcher v1 called with `intake: true` for this route returns a
+non-terminal `intake_continuation` while no active run exists or the selected run has no durable UR
+revision; its ordered steps are `run-create`, the UR artefact and `run-step --step ur`, followed by a
+new dispatch. A ready user gate during authorized intake or continuation returns `presentation_required`: run-present prepares the binding, then the agent shows its returned text and waits. A read-only status query remains terminal and does not prepare a binding. For the explicit
+standalone `lifecycle.control.init` operation, setup remains scaffold-only and creates neither a run
+nor UR. Gate readiness is always evaluated separately after canonical state and a revision-stable
+artefact exist.
 
 Every explicit lifecycle or status route exposes a normalized, non-authorizing operation envelope:
 
@@ -310,15 +328,34 @@ buttons or exact-text fallback may appear only after both cards. Render the two
 cards once per eligible attempt; an unavailable or not-applied native control
 proceeds to exact text without repeating them.
 
+### Approval Summary Source and Completeness
+
+The approval summary is part of the current gate artefact's digest-bound presentation. It follows the
+resolved presentation language, contains no ellipsis that hides decision-relevant content, and is
+included in `summary_digest` exactly as rendered. When the detected source language matches the
+presentation language, the deterministic gate parser summarizes the source sections and includes
+every PRD acceptance-criterion ID and decision-bearing decision row without truncation. Language
+detection excludes localized summary blocks; uncertain source language fails closed.
+
+When source and presentation languages differ, the artefact must contain exactly one block for the
+resolved locale using `## AGDF Approval Summary (<locale>; source=<language>)`. A PRD block must
+summarize user goal and scope, include every canonical acceptance-criterion ID exactly once, and
+include decision context when the PRD has approval decisions. Duplicate, unknown or missing IDs,
+empty/overlong fields, ellipses, a missing or duplicate locale block, or a source-language mismatch
+make the approval presentation unavailable. Recovery identifies the selected run, gate, revision,
+missing summary requirement, exact artefact and the next agent action. It never asks the user to decide
+on an incomplete summary. The localized summary is editorial; the canonical artefact remains the only
+decision authority and the existing `run-approve` binding remains unchanged.
+
 Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. consume one validated canonical `approval_presentation`, emit its compact Run Status Card and Gate Transition Card verbatim in that order immediately before the gate question, then ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
+3. first execute `run-present --run <run_id> --gate <gate> --revision <revision_id>`; retain its presentation_id and show its exact returned text. This contains the complete deterministic or embedded localized summary, bound by `summary_digest`, and a clickable link to the exact durable artefact with its digest, run, gate and revision; UAT summarizes and lists its existing evidence rows. Missing or invalid summary material makes presentation unavailable and returns a targeted non-authorizing recovery. This explicit writing operation prepares a binding but never proves human visibility. Then consume that validated canonical `approval_presentation`, emit the compact Run Status Card and status presentation, then the complete summary and artefact link, then the Gate Transition Card immediately before the gate question. Ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
-7. persist an accepted approval only through the existing control-state workflow.
+7. persist an accepted approval only with `run-approve --run <run_id> --gate <gate> --revision <revision_id> --presentation <presentation_id> --response "<verbatim reply>"`, which repeats steps 5 and 6 against the presented `revision_id` and advances the revision.
 
 For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
 deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`
@@ -346,11 +383,14 @@ user request may reopen the unchanged decision after revalidation; it is not an
 automatic retry.
 
 For deterministic local projection, use an already installed `agdf gate-check
---json` and consume `approval_presentation`, or use `agdf gate-check
---approval-envelope` on an exact-text surface. These are renderer/validator
+--json` or `agdf gate-check --approval-envelope` for a read-only artefact preview.
+Neither output asks for an approval. The agent first prepares the bound decision
+with `run-present`, then shows its returned text. These are renderer/validator
 helpers, not a second UX or gate authority. Do not require a registry-resolved
 `npx ...@latest` call for each normal interaction. `npx` remains the explicit
 bootstrap, installation, refresh or missing-local-executable path.
+Read-only dispatcher results expose a compact run snapshot and preview; the full
+gate report remains available through `gate-check --json` for diagnosis.
 
 A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. A localized label, description, option position, recommendation style or host action never authorizes a gate. Revise, decline and cancel outcomes never advance a gate.
 
@@ -386,7 +426,9 @@ the canonical `task_target_orientation.markdown` verbatim from `renderTaskTarget
 
 The projection may show the primary target, governance target, evidence sources and working
 directory for a resolved result. For an unresolved result it shows the localized reason and required
-next action. It carries `authorizes: false`, never renders approval controls and never selects or
+next action plus the exact missing target value: a full repository path, Git URL or existing run ID,
+with examples in every registered locale. Target setup shows the exact authorize/cancel replies and
+their different effects. It carries `authorizes: false`, never renders approval controls and never selects or
 derives a target.
 
 After positive Request Activation selects a target-bound route, render the target orientation before
@@ -528,3 +570,24 @@ Missing input, timeout, cancellation and empty input are not decline. Only
 `approve` backed by the exact revalidated `Approval: <GateName>` value may
 advance a gate. Clarification, blocked, internal-step and status-only
 interactions must not display gate-approval controls.
+
+
+### Presentation binding and delivery recovery
+
+New approvals require a previously prepared run-present record for the exact run, gate, revision
+and content. Missing or stale bindings require a NEW presentation and NEW deliberate reply;
+never bind an earlier reply to a subsequently prepared revision. Historical recorded approvals
+remain unchanged. Plain gate-check, --approval-envelope and agdf_dispatch stay read-only.
+Their unrecorded previews cannot be used as run-approve evidence.
+
+For a clear new scope use intake with intake_mode new and an unused run_id, even when unrelated
+runs exist. Resume only a bound run. On a bound run, continue_delivery permits only these canonical
+internal continuations: Brownfield Review and proportional routing; on a structured route after the
+preceding approval, the missing PRD, SD or TP draft before its card; Brownfield Analysis after TP
+approval; and the OR closeout after UAT. A ready artefact returns presentation_required instead.
+None of them approves a gate. Stop at the next user decision or concrete blocker; report unchanged
+internal state rather than looping. Status/advice never activates it.
+
+The record proves prepared state, not actual display or user-response timing. The host/agent must
+show it before waiting and bind only the subsequent deliberate reply. Visible multi-turn evidence
+is required for a live claim. Filesystem digests are integrity checks, not adversarial signatures.

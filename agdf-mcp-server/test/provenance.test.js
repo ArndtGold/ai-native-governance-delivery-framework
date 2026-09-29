@@ -88,4 +88,12 @@ try {
   sdkFixture.dispose();
 }
 
+const contractFixture = createOwnedRuntimeFixture();
+try {
+  appendFileSync(`${contractFixture.dispatcherRoot}/generated/plugins/agdf/meta/contracts/quality.md`, "\nTampered contract\n");
+  assertProvenanceFailure(contractFixture);
+} finally {
+  contractFixture.dispose();
+}
+
 console.log("AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.");

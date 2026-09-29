@@ -31,17 +31,17 @@ That `agdf-` prefix is reserved for GitHub Copilot repository skills, where no p
 - `owner`: `request_activation_contract`
 - `path`: `plugin/meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:50833bf7396f65e57ffd73bb9200e6dfd5dc016440e6d7186fbcd8a6e07dd2ab`
+- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
 
-Decide effect from loaded instructions before AGDF action/output.
+Decide effect from loaded instructions before AGDF action.
 
-Abstain silently, call no AGDF owner, for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+Abstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
 
-Activate only for actual delivery/mutation, binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+Activate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
 
 Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
 
-Then choose one catalog route. Non-authorizing; downstream checks remain.
+Then pick one catalog route; non-authorizing, downstream checks remain.
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
 
 ## Task Target Resolution
@@ -66,8 +66,8 @@ ordinary read-only request never enters AGDF Mode Selection or Quick Task handli
 
 Default entry rule: a new user intent to build, add, change, extend, refactor or otherwise deliver something starts with `gate-check` unless it is clearly only a question, explanation, local inspection, or explicitly scoped review.
 
-Use Quick Task Mode only for a positively invoked AGDF operation that remains a small question,
-review, local debugging task or narrow fix without new product semantics. Use Verified Change only after approved UR and Brownfield Review when the Runtime Contract's compact record can prove bounded ownership, clean-at-baseline paths, prohibited-impact absence and deterministic validation.
+Use Quick Task Mode only for a positively activated request that remains a local debugging task,
+operational task or narrow fix without new product semantics. Size lightens the mode, never activation. Use Verified Change only after approved UR and Brownfield Review when the Runtime Contract's compact record can prove bounded ownership, clean-at-baseline paths, prohibited-impact absence and deterministic validation.
 
 Use Structured Delivery Mode for new capabilities, architecture, policy, persistence, release-critical work, formal artefacts or explicit approvals.
 
@@ -101,7 +101,7 @@ Structured Delivery Mode must respect gates, reviews and closeout discipline.
 | `clean-implementation-review` | evidence dimension: inspect whether the solution is structurally clean | supports Quality Readiness; not a TP or QA substitute |
 | `code-review` | evidence dimension: review the actual diff for defects, regression and security findings | supports Quality Readiness; does not replace QA |
 | `delivery-closeout` | commit/PR-near handoff after QA/OR/UAT | never performs VCS actions automatically |
-| `gate-check` | new build/change intent, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
+| `gate-check` | any requested build or code/file change, even a small fix or function, Structured Delivery, or a later-gate artefact request; unclear approval or next-step questions only inside already positive delivery or explicit AGDF context | does not create later artefacts or skip Mode/Slice Decision after Brownfield Review |
 | `qa-gate` | sole final Quality Readiness decision | only instance for `pass | revise | block` |
 | `release-or` | auditable closeout for every relevant run | not a QA substitute |
 | `task-plan-review` | evidence dimension: verify whether the approved Task Plan was fulfilled | supports Quality Readiness; no final QA decision |
@@ -134,6 +134,7 @@ When the target repository uses the AGDF control scaffold, keep live control fil
 Use templates as starting points only.
 
 Do not let chat history become the source of truth for gate state, approvals, evidence, backlog status or durable Brownfield knowledge.
+After editing a run or its listed artefacts, record the revision with the dispatch validator's `run-update` before `gate-check`; record an exact gate reply only with `run-approve`, never by editing Approvals.
 
 AGDF is agent-native first and CLI-verifiable by design: read the live control state, apply the active skill and make the next allowed step explicit.
 Use `init` only when durable control state is explicitly requested, the repository already uses `.agdf/control/` as its live AGDF working state, or a deterministic CLI/CI setup path is being executed.

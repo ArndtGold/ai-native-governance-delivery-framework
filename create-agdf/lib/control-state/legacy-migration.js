@@ -4,6 +4,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { renderRunState } from "./run-state-repository.js";
 import { runPath } from "./run-state-reader.js";
 import {
+  normalizeLineEndings,
   parseRunState,
   RUN_ID_PATTERN,
   scalarFields,
@@ -55,7 +56,7 @@ export function migrateLegacy(root, requested, io = {}) {
   return { status: "migrated", path: dest };
 }
 export function renderLegacyProjection(path, root = process.cwd()) {
-  const content = readFileSync(path, "utf8"),
+  const content = normalizeLineEndings(readFileSync(path, "utf8")),
     parsed = parseRunState(content),
     digest = createHash("sha256").update(content).digest("hex");
   if (!parsed.valid) throw Error("AGDF_RUN_NOT_SELECTABLE");

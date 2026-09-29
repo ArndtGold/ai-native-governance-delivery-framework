@@ -205,7 +205,8 @@ try {
   assert.equal(check.report.missing_approval, "Approval: PRD");
   assert.equal(check.report.blocking_reason, "verified_change_invalid_escalated");
   assert.ok(check.report.forbidden.includes("implement through Verified Change"));
-  assert.match(check.report.next_allowed_action, /structured_slice/);
+  // Without a PRD artefact the gate asks for the PRD draft, not yet for Approval: PRD.
+  assert.equal(check.report.next_allowed_action, "draft the structured PRD required by the declared escalation target");
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_OWNER_INVALID"));
 
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ owner: "none", escalationTarget: "structured_delivery" }));
@@ -215,7 +216,7 @@ try {
   assert.equal(check.report.missing_approval, "Approval: PRD");
   assert.equal(check.report.blocking_reason, "verified_change_invalid_escalated");
   assert.ok(check.report.forbidden.includes("implement through Verified Change"));
-  assert.match(check.report.next_allowed_action, /structured_delivery/);
+  assert.equal(check.report.next_allowed_action, "draft the structured PRD required by the declared escalation target");
 
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ sourcePaths: "none" }));
   check = run();
@@ -350,14 +351,15 @@ try {
   assert.equal(check.report.missing_approval, "Approval: PRD");
   assert.equal(check.report.blocking_reason, "verified_change_escalated");
   assert.ok(check.report.forbidden.includes("implement through Verified Change"));
-  assert.match(check.report.next_allowed_action, /structured_slice/);
+  // Without a PRD artefact the gate asks for the PRD draft, not yet for Approval: PRD.
+  assert.equal(check.report.next_allowed_action, "draft the structured PRD required by the declared escalation target");
 
   write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "escalated", escalationTarget: "structured_delivery" }));
   check = run();
   assert.equal(check.report.current_gate, "PRD");
   assert.equal(check.report.missing_approval, "Approval: PRD");
   assert.ok(check.report.forbidden.includes("implement through Verified Change"));
-  assert.match(check.report.next_allowed_action, /structured_delivery/);
+  assert.equal(check.report.next_allowed_action, "draft the structured PRD required by the declared escalation target");
 
   assert.equal(readFileSync(join(root, "README.md"), "utf8"), "verified change\n");
   console.log("Verified Change tests passed");

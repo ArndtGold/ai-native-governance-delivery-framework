@@ -204,6 +204,41 @@ const failedRuntime = createInstallSetupResult({
   authorizes: false,
 });
 const failedRuntimeGerman = renderInstallSetupText(failedRuntime, { registry, language: "de" });
+const { schema_version, contract_version, operation, result, effective_state, ...pendingInput } = failedRuntime;
+pendingInput.failure = null;
+pendingInput.mcp = { status: "plugin_managed" };
+pendingInput.runtime_checks = { requested: "enabled", effective: "decision_required", verification: "hook_review_required", mcp_approval: { status: "configured" } };
+pendingInput.next_action = { code: "review_codex_hook", parameters: {}, text: null };
+const hookPending = createInstallSetupResult(pendingInput);
+assert.equal(hookPending.result, "partial");
+assert.equal(hookPending.effective_state, "mcp_ready_hook_review_required");
+for (const [language, phrase] of [["de", "MCP bereit – Hook-Bestätigung ausstehend"], ["en", "MCP ready – hook confirmation pending"]]) {
+  const rendered = renderInstallSetupText(hookPending, { registry, language });
+  assert.ok(rendered.includes(phrase));
+  const json = projectInstallSetupResult(hookPending, { registry, language });
+  assert.equal(json.result, "partial");
+  assert.equal(json.next_action.code, "review_codex_hook");
+  assert.ok(json.next_action.text.includes("/hooks"));
+  assert.ok(json.next_action.text.includes("CLI"));
+}
+assert.throws(() => createInstallSetupResult({ ...pendingInput, result: "success" }), /AGDF_INSTALL_SETUP_RESULT_INVALID/);
+for (const [verification, action] of [["hook_disabled", "enable_codex_hook"], ["host_unverified", "inspect_codex_hook"],
+  ["hook_trusted_session_unverified", "verify_codex_hook"], ["future_unknown", "inspect_codex_hook"]]) {
+  const input = { ...pendingInput, runtime_checks: { ...pendingInput.runtime_checks, verification },
+    next_action: { code: action, parameters: {}, text: null } };
+  const pending = createInstallSetupResult(input);
+  assert.equal(pending.result, "partial");
+  assert.equal(pending.effective_state, "mcp_ready_hook_verification_pending");
+  for (const language of ["de", "en"]) {
+    const rendered = projectInstallSetupResult(pending, { registry, language });
+    assert.equal(rendered.next_action.code, action);
+    assert.ok(rendered.next_action.text.length > 20);
+  }
+  assert.throws(() => createInstallSetupResult({ ...input, result: "success" }), /AGDF_INSTALL_SETUP_RESULT_INVALID/);
+  assert.throws(() => createInstallSetupResult({ ...input, next_action: pendingInput.next_action }), /AGDF_INSTALL_SETUP_RESULT_INVALID/);
+}
+assert.throws(() => createInstallSetupResult({ ...pendingInput, next_action: { code: "restart_host", parameters: {}, text: null } }), /AGDF_INSTALL_SETUP_RESULT_INVALID/);
+assert.throws(() => createInstallSetupResult({ ...pendingInput, runtime_checks: { ...pendingInput.runtime_checks, mcp_approval: { status: "blocked" } } }), /AGDF_INSTALL_SETUP_RESULT_INVALID/);
 assert.match(failedRuntimeGerman, /Automatische Prüfungen: fehlgeschlagen/);
 assert.match(failedRuntimeGerman, /Fehler: Auswahl automatischer Prüfungen: Prüfauswahl fehlgeschlagen/);
 assert.doesNotMatch(failedRuntimeGerman, /Receipt write failed/);

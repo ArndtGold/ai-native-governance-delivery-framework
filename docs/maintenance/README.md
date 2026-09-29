@@ -66,11 +66,14 @@ Ein erfolgreicher Dirty-Lauf ist Diagnoseevidenz, erfüllt aber nicht die Releas
 
 ## Live-Evaluierung der Request Activation
 
-Das Verhalten des Modells bei der Aktivierung wird zusätzlich live gemessen (`npm run native:claude-activation-matrix`,
-siehe [native Prüfungen](../../scripts/native-probes/README.md)). Der deterministische Korpus unter
+Das Verhalten des Modells bei der Aktivierung wird zusätzlich mit echten Host-Sitzungen gemessen:
+`npm run native:claude-activation-matrix` und `npm run native:codex-activation-matrix` (Details unter
+[native Prüfungen](../../scripts/native-probes/README.md)). Der deterministische Korpus unter
 `evals/request-activation/` prüft nur die erwartete Klassifikation, nicht das Modell.
-Letzter Nachweis mit Vorher/Nachher der größenunabhängigen Aktivierung:
+Letzter Claude-Vorher/Nachher-Nachweis der größenunabhängigen Aktivierung:
 [claude-activation-matrix-20260928.md](../../scripts/native-probes/evidence/claude-activation-matrix-20260928.md).
+Codex-CLI-Nachweis für die Aktivierungsgrenze und Zielbindung:
+[codex-activation-matrix-20260928.md](../../scripts/native-probes/evidence/codex-activation-matrix-20260928.md).
 
 ## Explizite Paketbudget-Pflege
 

@@ -407,7 +407,22 @@ function localizedOperationalList(value, pack, fallbackPack, fallbackLocale) {
 function localizedBlockingCondition(value, pack, fallbackPack, fallbackLocale) {
   const normalized = String(value ?? "").trim();
   if (!normalized || normalized === "none") return pack.primary.none;
-  if (/^[A-Za-z0-9_]+$/.test(normalized)) return normalized;
+  if (/^[A-Za-z0-9_]+$/.test(normalized)) {
+    const reasonKeys = {
+      AGDF_PRD_DECISIONS_OPEN: "blockedPrdDecisionsOpen",
+      AGDF_SD_TRACEABILITY_INCOMPLETE: "blockedSdTraceability",
+      AGDF_TP_TRACEABILITY_INCOMPLETE: "blockedTpTraceability",
+      AGDF_CONTROL_FILE_MISSING: "blockedControlMissing",
+      AGDF_ACTIVE_RUN_MISSING: "blockedRunMissing",
+      AGDF_DELIVERY_RELATIONSHIP_MISSING: "blockedRelationshipMissing",
+      AGDF_DELIVERY_RELATIONSHIP_EVIDENCE_MISSING: "blockedRelationshipEvidenceMissing",
+      AGDF_MISSING_EVIDENCE_DECLARED: "blockedEvidenceDeclared",
+      AGDF_RISK_DECLARED: "blockedRiskDeclared",
+    };
+    const explanation = String(pack.operationalValues?.[reasonKeys[normalized]] ?? "").trim();
+    const fallback = String(pack.operationalValues?.blockedUnknown ?? "").trim();
+    return `${explanation || fallback || normalized} (${normalized})`;
+  }
   return localizedOperationalValue(normalized, pack, fallbackPack, fallbackLocale);
 }
 
@@ -441,6 +456,9 @@ export function validateOperationalStatusCardPreconditions(statusCard, {
     }
     if (!locale) errors.push("locale_unresolved");
     if (locale) {
+      const labels = localePack(registry, locale).statusCard;
+      for (const key of ["waitingOn", "userTurn", "userInputNeeded", "agentWorking", "noReply"])
+        if (!String(labels?.[key] ?? "").trim()) errors.push(`status_card_${key}_missing`);
       const fallbackLocale = resolvePresentationLocale(registry, registry.fallbackLocale);
       if (locale !== fallbackLocale) {
         const pack = localePack(registry, locale);
@@ -490,6 +508,32 @@ export function renderOperationalStatusCard(statusCard, {
   const nextStep = localizedOperationalValue(statusCard.next_step, pack, fallbackPack, usesFallbackLocale);
   const qualityOutlook = localizedOperationalValue(statusCard.quality_outlook, pack, fallbackPack, usesFallbackLocale);
   if (!allowedNow || !forbiddenNow || !blockingCondition || !allowedAfter || !nextStep || !qualityOutlook) return null;
+  const hasBlocker = statusCard.status === "blocked" && statusCard.blocking_condition !== "none";
+  const userMustAct = approvalReady || statusCard.user_action_required === "yes";
+  const agentMustAct = !userMustAct && statusCard.internal_next_step !== "none";
+  const actorRow = approvalReady
+    ? [labels.waitingOn, statusCard.missing_approval]
+    : userMustAct
+      ? [labels.userTurn, statusCard.next_user_gate !== "none" ? statusCard.next_user_gate : nextStep]
+      : agentMustAct
+        ? [labels.agentWorking, nextStep]
+        : [labels.noReply, nextStep];
+  const prdReadinessItems = Array.isArray(statusCard.prd_readiness_items) ? statusCard.prd_readiness_items : [];
+  const traceabilityGaps = Array.isArray(statusCard.traceability_gaps) ? statusCard.traceability_gaps : [];
+  const blockingDetails = hasBlocker && Array.isArray(statusCard.blocking_details)
+    ? statusCard.blocking_details.map((item) => {
+        const code = String(item?.code ?? "").trim();
+        const message = String(item?.message ?? "").trim();
+        const rawNextAction = String(item?.next_step ?? "").trim();
+        const nextActionValue = rawNextAction && rawNextAction !== "none"
+          ? localizedOperationalValue(rawNextAction, pack, fallbackPack, usesFallbackLocale)
+          : null;
+        return [
+          [labels.blockerDetails, `${code ? `${code}: ` : ""}${message}${message ? ` (${labels.sourceWording})` : ""}`],
+          [labels.recovery, nextActionValue || pack.operationalValues.unknownRunAction],
+        ];
+      }).flat()
+    : [];
   const rows = [
     [labels.run, `${runTitle} · \`${runId}\``],
     ...(breadcrumb ? [[labels.breadcrumb, breadcrumb]] : []),
@@ -500,11 +544,14 @@ export function renderOperationalStatusCard(statusCard, {
         [labels.agentAllowed, allowedNow]]
       : [[labels.allowed, allowedNow]]),
     [labels.forbidden, forbiddenNow],
-    [labels.blocked, blockingCondition],
+    ...(hasBlocker ? [[labels.blocked, blockingCondition]] : []),
+    ...blockingDetails,
+    ...(prdReadinessItems.length ? [[labels.prdReadinessItems, prdReadinessItems.join("\n")]] : []),
+    ...(traceabilityGaps.length ? [[labels.traceabilityGaps, traceabilityGaps.join("\n")]] : []),
+    actorRow,
     ...(!approvalReady ? [[labels.missing, statusCard.missing_approval === "none" ? none : statusCard.missing_approval]] : []),
     ...(!approvalReady && statusCard.next_gate_after_approval !== "none" ? [[labels.nextGate, statusCard.next_gate_after_approval]] : []),
     ...(!approvalReady && statusCard.allowed_after_approval !== "none" ? [[labels.allowedAfter, allowedAfter]] : []),
-    ...(!approvalReady ? [[labels.step, nextStep]] : []),
     ...(statusCard.quality_outlook !== fallbackPack.operationalValues.noAdditionalQualityFollowUp
       ? [[labels.quality, qualityOutlook]] : []),
   ];
@@ -544,7 +591,7 @@ export function renderControlSetupOrientation({ target } = {}, {
   if (!plainObject(labels)) return null;
   const required = [
     "title", "field", "value", "status", "target", "durableScope", "plannedEffect",
-    "excludedAuthority", "nextAction", "required", "scopeValue", "effectValue",
+    "excludedAuthority", "nextAction", "replyOptions", "replyOptionsValue", "required", "scopeValue", "effectValue",
     "excludedValue", "actionValue",
   ];
   if (required.some((key) => !String(labels[key] ?? "").trim())) return null;
@@ -555,6 +602,7 @@ export function renderControlSetupOrientation({ target } = {}, {
     [labels.plannedEffect, labels.effectValue],
     [labels.excludedAuthority, labels.excludedValue],
     [labels.nextAction, labels.actionValue],
+    [labels.replyOptions, labels.replyOptionsValue],
   ];
   const markdown = [
     `## ${labels.title}`,
@@ -634,6 +682,7 @@ export function renderTaskTargetOrientation(resolution, {
   const pack = localePack(registry, locale);
   const labels = pack?.taskTargetResolution;
   if (!plainObject(labels) || !plainObject(labels.reasonCodes) || !plainObject(labels.nextActions)) return null;
+  if (!String(labels.nextActions.examples ?? "").trim() || !String(labels.examplesLabel ?? "").trim()) return null;
   const reason = labels.reasonCodes[reasonCode];
   if (!reason) return null;
   const localizedNextAction = resolutionState === "unresolved" ? labels.nextActions[reasonCode] : "";
@@ -656,6 +705,7 @@ export function renderTaskTargetOrientation(resolution, {
         [labels.workingDirectory, workingDirectory],
         ...(allowedValues ? [[labels.allowedValues, allowedValues.join(", ")]] : []),
         [labels.nextAction, localizedNextAction],
+        [labels.examplesLabel, labels.nextActions.examples],
       ];
 
   const markdown = [

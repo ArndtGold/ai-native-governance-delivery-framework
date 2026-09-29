@@ -114,6 +114,7 @@ for (const locale of Object.keys(sourceRegistry.locales)) {
   assert.ok(controlSetup.markdown.includes(pack.title), `${locale} control setup includes its localized title`);
   assert.ok(controlSetup.markdown.includes(pack.required), `${locale} control setup includes its localized requirement`);
   assert.ok(controlSetup.markdown.includes(pack.actionValue), `${locale} control setup includes its localized next action`);
+  assert.ok(controlSetup.markdown.includes(pack.replyOptionsValue), `${locale} setup names exact user replies and their consequences`);
   assert.doesNotMatch(controlSetup.markdown, /Approval: UR/);
 }
 assert.equal(renderControlSetupOrientation({ target: "" }, { registry: sourceRegistry, requestedLocale: "de" }), null);
@@ -462,12 +463,12 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
     forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
     missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
-    next_step: "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.",
+    next_step: "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
     quality_outlook: "Preserve the distinction between installed state and fresh-session loaded behavior.",
   }, { registry, humanPresentation: { gateTitle: "Implementierung und Tests" } });
   assert.match(germanCdTests.markdown, /TP freigegeben/);
-  assert.match(germanCdTests.markdown, /Mit \"leg los\" starte ich genehmigte Implementierung und Tests/);
-  assert.match(germanCdTests.markdown, /weitere Freigabe ist nicht nötig/);
+  assert.match(germanCdTests.markdown, /Ich setze den genehmigten Umfang um/);
+  assert.match(germanCdTests.markdown, /Keine Antwort nötig/);
   assert.doesNotMatch(germanCdTests.markdown, /Implement the approved TP scope/);
 
   const englishCdTests = renderOperationalStatusCard({
@@ -475,12 +476,33 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
     allowed_now: ["implement the approved TP tasks", "run the approved test plan", "record implementation and test evidence"],
     forbidden_now: ["claim QA pass", "request UAT approval", "release"], blocking_condition: "none",
     missing_approval: "none", next_gate_after_approval: "none", allowed_after_approval: "none",
-    next_step: "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.",
+    next_step: "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.",
     quality_outlook: "No additional quality follow-up identified from the current control state.",
   }, { registry, humanPresentation: { gateTitle: "Implementation and tests" } });
   assert.match(englishCdTests.markdown, /TP approved/);
-  assert.match(englishCdTests.markdown, /Say \"let's go\" to start implementation and tests/);
-  assert.match(englishCdTests.markdown, /no further approval is needed/);
+  assert.match(englishCdTests.markdown, /No reply needed; I am proceeding with the approved implementation/);
+
+  const prdBlockedCard = renderOperationalStatusCard({
+    run_id: "status-run", presentation_language: "de", status: "blocked", current_gate: "PRD",
+    allowed_now: ["complete the listed PRD readiness items together and record a new run revision"],
+    forbidden_now: ["present or approve PRD before required decisions and acceptance criteria are ready"],
+    blocking_condition: "AGDF_PRD_DECISIONS_OPEN", prd_readiness_items: ["PD-01: Nutzergruppe festlegen", "PD-02: Wirkung klären"],
+    missing_approval: "none", next_user_gate: "none", user_action_required: "no",
+    internal_next_step: "complete the listed PRD readiness items together and record a new run revision",
+    next_step: "complete the listed PRD readiness items together and record a new run revision",
+    blocking_details: [{
+      code: "AGDF_MISSING_EVIDENCE_DECLARED", message: "Der Testnachweis aus dem Host fehlt.",
+      next_step: "complete the listed PRD readiness items together and record a new run revision",
+    }],
+    next_gate_after_approval: "none", allowed_after_approval: "none",
+    quality_outlook: sourceRegistry.locales.en.operationalValues.noAdditionalQualityFollowUp,
+  }, { registry: sourceRegistry, humanPresentation: { gateTitle: "Produktanforderungen" } });
+  assert.ok(prdBlockedCard);
+  assert.match(prdBlockedCard.markdown, /Erforderliche Produktentscheidungen sind noch offen \(AGDF_PRD_DECISIONS_OPEN\)/);
+  assert.match(prdBlockedCard.markdown, /PD-01: Nutzergruppe festlegen/);
+  assert.match(prdBlockedCard.markdown, /Der Testnachweis aus dem Host fehlt\. \(Originalwortlaut\)/);
+  assert.match(prdBlockedCard.markdown, /Behebung/);
+  assert.doesNotMatch(prdBlockedCard.markdown, /Wartet auf/u);
 
   const postTpRunState = {
     content: "- run_id: status-run\n- mode: structured_delivery\n- lifecycle: active",
@@ -492,9 +514,30 @@ assert.equal(normalizedRunTitle("only_run.id"), "Only Run Id");
   const postTpStatus = buildStatusCard({
     status: "open", currentGate: "CD+Tests", missingApproval: "none",
     nextAllowedAction: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
+    continuePostTpWork: true,
     runState: postTpRunState,
   });
-  assert.equal(postTpStatus.next_step, "TP approved. Say \"let's go\" to start implementation and tests; no further approval is needed.");
+  assert.equal(postTpStatus.next_step, "TP approved. No reply needed; I am proceeding with the approved implementation, tests and CD+Tests evidence.");
+  assert.equal(postTpStatus.internal_next_step, postTpStatus.next_step, "the canonical internal action agrees with the rendered post-TP action");
+  assert.equal(postTpStatus.user_action_required, "no", "approved TP work does not ask the user to respond");
+  const hostEvidenceChoice = sourceRegistry.locales.en.operationalValues.hostEvidenceProvisioningChoice;
+  const hostEvidenceStatus = buildStatusCard({
+    status: "open", currentGate: "CD+Tests", missingApproval: "none",
+    nextAllowedAction: hostEvidenceChoice,
+    nextActionRequiresUserAction: true,
+    chatLanguage: "de",
+    runState: postTpRunState,
+  });
+  assert.equal(hostEvidenceStatus.next_step, hostEvidenceChoice);
+  assert.equal(hostEvidenceStatus.internal_next_step, "none", "a pending host-provisioning choice suspends agent continuation");
+  assert.equal(hostEvidenceStatus.user_action_required, "yes", "the host-provisioning choice is explicitly assigned to the user");
+  const hostEvidenceCardDe = renderOperationalStatusCard(hostEvidenceStatus, {
+    registry: sourceRegistry,
+    humanPresentation: { gateTitle: "Implementierung und Tests" },
+  });
+  assert.match(hostEvidenceCardDe.markdown, /Du bist dran/);
+  assert.match(hostEvidenceCardDe.markdown, /AC-006 offenlassen oder eine separate Umfangsänderung für Host-Bereitstellung/);
+  assert.doesNotMatch(hostEvidenceCardDe.markdown, /Ich arbeite weiter/);
   const preTpStatus = buildStatusCard({
     status: "open", currentGate: "CD+Tests", missingApproval: "none",
     nextAllowedAction: "Implement the approved TP scope, run its tests, and record CD+Tests evidence before CR.",
@@ -1263,20 +1306,25 @@ for (const reasonCode of [
   "target_unavailable",
   "no_reliable_target",
 ]) {
-  const unresolved = renderTaskTargetOrientation({
-    resolution_state: "unresolved",
-    reason_code: reasonCode,
-    primary_target: "",
-    governance_target: "",
-    evidence_sources: ["/repo/evidence"],
-    working_directory: "/repo/current",
-    target_changed: false,
-    next_action: "Clarify or supply the requested target, then retry.",
-  }, { registry, requestedLocale: "en" });
-  assert.ok(unresolved, `${reasonCode} renders a fail-closed orientation`);
-  assert.equal(unresolved.resolution_state, "unresolved");
-  assert.ok(unresolved.markdown.includes("Next action"), `${reasonCode} shows recovery`);
-  assert.ok(!unresolved.markdown.includes("Clarify or supply"), `${reasonCode} uses the locale-owned recovery text`);
+  for (const locale of Object.keys(registry.locales)) {
+    const unresolved = renderTaskTargetOrientation({
+      resolution_state: "unresolved",
+      reason_code: reasonCode,
+      primary_target: "",
+      governance_target: "",
+      evidence_sources: ["/repo/evidence"],
+      working_directory: "/repo/current",
+      target_changed: false,
+      next_action: "Clarify or supply the requested target, then retry.",
+    }, { registry, requestedLocale: locale });
+    assert.ok(unresolved, `${reasonCode} renders a fail-closed ${locale} orientation`);
+    assert.equal(unresolved.resolution_state, "unresolved");
+    assert.ok(unresolved.markdown.includes(registry.locales[locale].taskTargetResolution.nextAction), `${reasonCode} shows a localized recovery`);
+    assert.ok(unresolved.markdown.includes("/Users/alex/work/project"), `${reasonCode} includes a copyable path example in ${locale}`);
+    assert.ok(unresolved.markdown.includes("https://github.com/org/project"), `${reasonCode} includes a copyable Git URL example in ${locale}`);
+    assert.ok(unresolved.markdown.includes("run-project-20260928"), `${reasonCode} includes a copyable run ID example in ${locale}`);
+    assert.ok(!unresolved.markdown.includes("Clarify or supply"), `${reasonCode} never exposes the raw resolver action`);
+  }
 }
 
 const targetCardDe = renderTaskTargetOrientation({
@@ -1289,8 +1337,22 @@ const targetCardDe = renderTaskTargetOrientation({
   target_changed: false,
   next_action: "Name exactly one primary task target.",
 }, { registry, requestedLocale: "de" });
-assert.match(targetCardDe.markdown, /Ein primäres Ziel benennen\./);
+assert.match(targetCardDe.markdown, /Ein exaktes Ziel mit vollständigem Pfad/);
 assert.doesNotMatch(targetCardDe.markdown, /Name exactly one/);
+const invalidTargetSource = renderTaskTargetOrientation({
+  resolution_state: "unresolved",
+  reason_code: "target_source_invalid",
+  primary_target: "",
+  governance_target: "",
+  evidence_sources: [],
+  working_directory: "/tmp/chat",
+  target_changed: false,
+  next_action: "Use one allowed target_source value.",
+  input_error: { field: "target_source", allowed_values: ["explicit_target", "continued_target", "current_repository"] },
+}, { registry, requestedLocale: "de" });
+assert.ok(invalidTargetSource);
+assert.match(invalidTargetSource.markdown, /explicit_target, continued_target, current_repository/);
+assert.match(invalidTargetSource.markdown, /run-project-20260928/);
 
 const incompleteTargetRegistry = JSON.parse(JSON.stringify(registry));
 delete incompleteTargetRegistry.locales.de.taskTargetResolution;

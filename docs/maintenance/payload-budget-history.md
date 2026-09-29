@@ -238,3 +238,20 @@ Commits 9b00a7e (PRD-to-TP acceptance traceability) and 70dd195 (MCP registratio
 ## 2026-09-28 — Size-independent Request Activation
 
 Guard, discovery suffix, gate-check description and Quick Task wording now state that any requested file or code change activates AGDF regardless of size (live evidence: scripts/native-probes/evidence/claude-activation-matrix-20260928.md). Copilot budget: 111 files / 1056897 bytes -> 111 files / 1057396 bytes (+499 bytes). The all-profile guard remains enabled.
+
+
+## 2026-09-28 — Actionable status and approval summaries
+
+The approved card UX change adds localized actor/wait/blocker rows, safe handling for unknown actions, complete non-truncated source-language summaries, and digest-bound embedded summaries for cross-language PRD review. The reviewed generated Copilot profile remains at 111 files and grows by 14477 bytes. Baseline acceptance is limited to the measured artifact size; the all-profile integrity guard remains enabled.
+
+Target clarification now names full repository paths, Git URLs and exact run IDs with examples in both locales; setup shows exact authorize/cancel replies; invalid localized summaries return a linked, non-authorizing recovery. These changes add 8128 bytes without another file, producing 111 files and 1080001 bytes. The all-profile integrity guard remains enabled.
+
+The final implementation review corrected unknown-action localization and summary parsing, and made blocker findings actionable in both locales. The final generated Copilot profile measures 111 files / 1080015 bytes (+14 bytes from the preceding reviewed ceiling); the limit is updated to the measured inventory and all-profile integrity checks remain enabled.
+
+The final gate-check surfaced a mismatch between the localized post-TP continuation and its structured internal action, plus unknown actions that asked for clarification while claiming the agent could continue. The correction keeps actor, user-action and internal-step fields consistent; focused EN/DE regressions pass. Runtime-only growth is 674 bytes, bringing the measured profile to 111 files / 1080689 bytes; integrity checks remain enabled.
+
+The host-evidence blocker now asks the user to keep AC-006 open or start a separate scope update, and shows that concrete choice in the actor row. The post-TP continuation appears only for the canonical implementation/test action. Contract and EN/DE regressions cover both states. The profile grows by 1385 bytes to 111 files / 1082074 bytes; all integrity checks remain enabled.
+
+The localized AC-006 choice now states that host changes are outside this TP and offers the user a separate scope update. This copy-only clarification adds 96 bytes; final measured profile is 111 files / 1082170 bytes, with the all-profile integrity guard enabled.
+
+The German AC-006 action was shortened to meet the locale catalogue's 160-character limit while preserving the explicit choice and TP boundary. This reduces the profile by 138 bytes; the final baseline is reset to the exact 111-file / 1082032-byte inventory, with all integrity checks enabled.

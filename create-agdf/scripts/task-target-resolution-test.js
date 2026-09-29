@@ -122,7 +122,7 @@ try {
     io: { log(value) { germanOutput.push(value); }, error(value) { germanOutput.push(value); } },
   });
   const germanPresentation = JSON.parse(germanOutput[0]).task_target_orientation.markdown;
-  assert.match(germanPresentation, /Ein primäres Ziel benennen\./);
+  assert.match(germanPresentation, /Ein exaktes Ziel mit vollständigem Pfad, Git-URL oder vorhandener Run-ID benennen\./);
   assert.doesNotMatch(germanPresentation, /Name exactly one/);
 
   const invalidSourceOutput = [];
@@ -136,7 +136,7 @@ try {
   assert.deepEqual(invalidSourceReport.input_error.allowed_values, ["explicit_target", "continued_target", "current_repository"]);
   assert.match(invalidSourceReport.task_target_orientation.markdown, /Ungültige Zielquelle/);
   assert.match(invalidSourceReport.task_target_orientation.markdown, /explicit_target, continued_target, current_repository/);
-  assert.match(invalidSourceReport.task_target_orientation.markdown, /Einen erlaubten Wert für target_source verwenden\./);
+  assert.match(invalidSourceReport.task_target_orientation.markdown, /Einen erlaubten target_source-Wert und den vollständigen Pfad, die Git-URL oder Run-ID angeben\./);
   assert.doesNotMatch(invalidSourceReport.task_target_orientation.markdown, /Kein belastbares Arbeitsziel/);
 } finally {
   rmSync(root, { recursive: true, force: true });

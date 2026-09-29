@@ -40,6 +40,15 @@ function binding(root, { runId, gate, revisionId, language }, evaluateGateCheck)
     error.recovery = report.next_allowed_action;
     throw error;
   }
+  if (report.status === "open" && report.current_gate === gate && report.missing_approval === `Approval: ${gate}`
+      && !text && report.presentation_diagnostics?.approval_presentation_errors?.length) {
+    const code = report.presentation_diagnostics.approval_presentation_errors[0];
+    const error = new Error(code);
+    error.recovery = report.presentation_diagnostics.approval_presentation_recovery
+      ?? report.status_presentation?.markdown
+      ?? recovery;
+    throw error;
+  }
   if (report.status !== "open" || report.current_gate !== gate || report.missing_approval !== `Approval: ${gate}`
       || report.approval_presentation?.revision_id !== revisionId || !text) throw new Error("approval_presentation_unavailable");
   return { run_id: runId, gate, revision_id: revisionId, content_digest: seal.actual.content_seal,

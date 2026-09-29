@@ -10,9 +10,6 @@ import { renderReviewableApproval } from '../control-state/run-presentation-rend
 import { evaluatePrdReadiness } from './prd-readiness.js';
 import { evaluateSdTraceability, evaluateTpTraceability } from './traceability-readiness.js';
 
-// Shown when a finding's next step is free text that the presentation locale cannot render.
-const FINDING_RECOVERY_STEP = "Resolve the finding named under Blocked by, then run gate-check again.";
-
 const nextSkillByGate = {
   UR: "gate-check",
   "Brownfield Review": "brownfield-analysis",
@@ -152,6 +149,11 @@ export function buildStatusCard({
   runState,
   chatLanguage = "en",
   findings = [],
+  prdReadinessItems = [],
+  traceabilityGaps = [],
+  blockingDetails = [],
+  continuePostTpWork = false,
+  nextActionRequiresUserAction = false,
   qualityOutlook = deriveQualityOutlook(runState, findings),
   interactionKind: requestedInteractionKind,
   approvalArtefactReady = true,
@@ -160,6 +162,12 @@ export function buildStatusCard({
     && isReadyUserGateApproval({ status, currentGate, missingApproval });
   const visibleMissingApproval = isUserGateApproval ? missingApproval : "none";
   const postApproval = postApprovalTransition(visibleMissingApproval, runState);
+  const nextStep = isUserGateApproval
+    ? "Review the linked artefact and choose whether to approve, request revision, or decline it."
+    : continuePostTpWork
+      ? localePack(interactionLocales, "en").operationalValues.nextCdTestsAfterTpApproval
+      : nextAllowedAction;
+  const needsUserAction = nextActionRequiresUserAction && !isUserGateApproval;
   const lifecycle = extractField(runState.content ?? "", "lifecycle") || "unknown";
   const nativeAttemptRequired = false;
   const interactionKind = requestedInteractionKind
@@ -185,16 +193,19 @@ export function buildStatusCard({
     next_gate_after_approval: postApproval.next_gate_after_approval,
     allowed_after_approval: postApproval.allowed_after_approval,
     user_visible_outcome_after_approval: postApproval.allowed_after_approval,
-    internal_next_step: postApproval.internal_next_step || (isUserGateApproval ? "none" : nextAllowedAction),
+    internal_next_step: needsUserAction
+      ? "none"
+      : postApproval.internal_next_step || (isUserGateApproval ? "none" : nextStep),
     next_user_gate: postApproval.next_user_gate || "none",
-    user_action_required: postApproval.user_action_required || (isUserGateApproval ? "yes" : "no"),
+    user_action_required: needsUserAction
+      ? "yes"
+      : postApproval.user_action_required || (isUserGateApproval ? "yes" : "no"),
+    prd_readiness_items: prdReadinessItems,
+    traceability_gaps: traceabilityGaps,
+    blocking_details: blockingDetails,
     evidence: runState.evidence_refs,
     next_skill: nextSkillByGate[currentGate] ?? "gate-check",
-    next_step: isUserGateApproval
-      ? "Review the linked artefact and choose whether to approve, request revision, or decline it."
-      : currentGate === "CD+Tests" && isGateSatisfied(runState, "TP")
-      ? localePack(interactionLocales, "en").operationalValues.nextCdTestsAfterTpApproval
-      : nextAllowedAction,
+    next_step: nextStep,
     quality_outlook: qualityOutlook,
     interaction_kind: interactionKind,
     native_attempt_required: nativeAttemptRequired,
@@ -289,7 +300,6 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     : isPlaceholderValue(runState.next_allowed_action)
     ? transitionDecision.next_allowed_action
     : runState.next_allowed_action;
-  let nextStepFallback = transitionDecision.next_allowed_action;
   let controlSetupRequired = false;
 
   if (doctorBlocker?.code === "AGDF_CONTROL_FILE_MISSING") {
@@ -331,14 +341,12 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     allowed = ["repair the AGDF control scaffold", "run doctor again"];
     forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work", "claim QA or release readiness"];
     nextAllowedAction = doctorBlocker.next_step;
-    nextStepFallback = FINDING_RECOVERY_STEP;
   } else if (doctorRevise && !routesInvalidVerifiedChange) {
     status = "blocked";
     blockingReason = doctorRevise.code;
     allowed = ["complete the current control-state fields", "run doctor again"];
     forbidden = ["create later-gate artefacts beyond the current allowed gate", "implement gated work before the gate allows it", "claim QA or release readiness"];
     nextAllowedAction = doctorRevise.next_step;
-    nextStepFallback = FINDING_RECOVERY_STEP;
   }
 
   const approvalArtefactReady = isDurableApprovalArtefactPresent(targetDir, runState, currentGate);
@@ -384,6 +392,14 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
   const runQualityOutlook = deriveQualityOutlook(runState, deliveryMap.findings);
   const readyForApproval = isReadyUserGateApproval({ status, currentGate, missingApproval })
     && approvalArtefactReady;
+  const continuePostTpWork = status === "open" && blockingReason === "none"
+    && currentGate === "CD+Tests" && isGateSatisfied(runState, "TP")
+    && runState.next_allowed_action === transitionDecision.next_allowed_action;
+  const hostEvidenceProvisioningChoice = localePack(interactionLocales, "en").operationalValues.hostEvidenceProvisioningChoice;
+  const statusCardNextStep = continuePostTpWork
+    ? localePack(interactionLocales, "en").operationalValues.nextCdTestsAfterTpApproval
+    : nextAllowedAction;
+  const statusCardNextStepRenderable = renderable(statusCardNextStep);
   const statusCard = buildStatusCard({
     status,
     currentGate,
@@ -391,11 +407,20 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     forbidden,
     blockingReason,
     missingApproval,
-    nextAllowedAction: renderable(nextAllowedAction) ? nextAllowedAction : nextStepFallback,
+    nextAllowedAction: statusCardNextStepRenderable
+      ? statusCardNextStep
+      : localePack(interactionLocales, "en").operationalValues.unknownRunAction,
+    continuePostTpWork,
+    nextActionRequiresUserAction: !statusCardNextStepRenderable || statusCardNextStep === hostEvidenceProvisioningChoice,
     qualityOutlook: renderable(runQualityOutlook) ? runQualityOutlook : deriveQualityOutlook({}, deliveryMap.findings),
     runState,
     chatLanguage: presentationLocale,
     findings: deliveryMap.findings,
+    prdReadinessItems: prdReadiness?.open_decisions ?? [],
+    traceabilityGaps: traceabilityReadiness?.open_items ?? [],
+    blockingDetails: deliveryMap.findings
+      .filter((finding) => finding.severity === "block" || finding.severity === "revise")
+      .map(({ code, message, next_step }) => ({ code, message, next_step })),
     interactionKind: controlSetupRequired ? "control_setup" : undefined,
     approvalArtefactReady: readyForApproval,
   });
@@ -448,6 +473,9 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
       else presentationDiagnostics.approval_presentation_errors = ["review_artefact_unavailable"];
     } catch (error) {
       presentationDiagnostics.approval_presentation_errors = [error.message || "review_artefact_unavailable"];
+      if (typeof error.recovery === "string" && error.recovery.trim()) {
+        presentationDiagnostics.approval_presentation_recovery = error.recovery;
+      }
     }
   } else if (approvalOrientationPresentation && !statusPresentation) {
     presentationDiagnostics.approval_presentation_errors = ["status_presentation_unavailable"];
@@ -557,7 +585,9 @@ export function printApprovalEnvelope(report, { io = console, reEvaluate } = {})
     const codes = refreshed?.presentation_diagnostics?.approval_presentation_errors
       ?? report?.presentation_diagnostics?.approval_presentation_errors
       ?? [];
-    io.log(codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure);
+    const recovery = refreshed?.presentation_diagnostics?.approval_presentation_recovery
+      ?? report?.presentation_diagnostics?.approval_presentation_recovery;
+    io.log(recovery || (codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure));
     return Object.freeze({ outcome: "presentation_unavailable", requested_decision: false, status: refreshed.status });
   }
 
@@ -593,7 +623,8 @@ function printGateCheckStatusCard(report, io) {
     }
     const pack = localePack(interactionLocales, card?.presentation_language || "en");
     const codes = report.presentation_diagnostics?.approval_presentation_errors ?? [];
-    io.log(codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure);
+    const recovery = report.presentation_diagnostics?.approval_presentation_recovery;
+    io.log(recovery || (codes.length ? `${pack.interaction.presentationFailure} (${codes.join(", ")})` : pack.interaction.presentationFailure));
     return false;
   }
   if (!report.status_presentation?.markdown) {

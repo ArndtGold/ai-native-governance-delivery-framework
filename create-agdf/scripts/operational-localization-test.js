@@ -184,8 +184,11 @@ const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRe
     assert.equal(recordRunRevision(root, { runId: "loc", revisionId: revision() }).outcome, "updated");
     const blocked = evaluateGateCheck(root, { runId: "loc", presentationLanguage: "de" });
     assert.equal(blocked.blocking_reason, "AGDF_RISK_DECLARED");
-    assert.ok(blocked.status_presentation?.markdown.includes(registry.locales.de.operationalValues.resolveReportedFinding),
-      "a free-text finding step falls back to the localized finding recovery");
+    assert.ok(blocked.status_presentation?.markdown.includes(registry.locales.de.operationalValues.unknownRunAction),
+      `an unknown selected-run action asks a localized focused clarification instead of substituting another action: ${JSON.stringify({ diagnostics: blocked.presentation_diagnostics, status_card: blocked.status_card, status_presentation: blocked.status_presentation })}`);
+    assert.equal(blocked.status_card.user_action_required, "yes", "an unknown next action correctly asks the user to clarify");
+    assert.equal(blocked.status_card.internal_next_step, "none", "the agent does not claim it can proceed while clarification is required");
+    assert.ok(blocked.status_presentation.markdown.includes(registry.locales.de.statusCard.userTurn), "the card labels the clarification as the user's turn");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

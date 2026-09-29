@@ -49,6 +49,25 @@ und `git status`. Das Ergebnis ist probabilistische Live-Evidenz, kein Release-G
 Ergebnis: `probe-results/claude-activation-matrix-<Zeitstempel>/summary.txt` und `observation.json`.
 Letzter Nachweis: [evidence/claude-activation-matrix-20260928.md](evidence/claude-activation-matrix-20260928.md).
 
+## Live-Matrix Request Activation unter Codex CLI
+
+```bash
+npm run native:codex-activation-matrix -- --scope-run agdf-request-activation-boundary
+npm run native:codex-activation-matrix -- --scope-run <run-id> --runs 3 --concurrency 2 --model <modell> --keep
+```
+
+Führt dieselben zehn Fälle je dreimal mit `codex exec --json` in frischen Wegwerf-Git-Repositories
+aus. Vorher werden Codex-Version, aktives AGDF-MCP und Paketversion geprüft. Die Matrix verwendet
+ein temporäres `CODEX_HOME` mit den aktiven Modell-/Reasoning-Einstellungen und einer isolierten Kopie
+des installierten AGDF-Pakets; nur die MCP-Launcher- und Datapfade zeigen in den temporären Bereich.
+Die Authentifizierungsdatei wird kurzzeitig mit restriktiven Rechten kopiert und am Ende entfernt.
+Das echte Profil und der echte AGDF-Datenbestand bleiben unverändert. Codex führt die Sitzungen mit
+seinem automatischen Reviewer im `workspace-write`-Sandbox aus. Bewertet werden strukturierte
+AGDF-Aufrufe und `git status`, niemals Modelltext. Das Ergebnis ist probabilistische Host-Evidenz,
+kein Release-Gate.
+Ergebnis: `probe-results/codex-activation-matrix-<Zeitstempel>/summary.txt` und `observation.json`.
+Letzter Nachweis: [evidence/codex-activation-matrix-20260928.md](evidence/codex-activation-matrix-20260928.md).
+
 ## Host-E2E Codex: ein Befehl, ein festes Tupel
 
 Dies ist der Standardtest für AGDF unter Codex. Frische CLI-Prozesse prüfen den installierten

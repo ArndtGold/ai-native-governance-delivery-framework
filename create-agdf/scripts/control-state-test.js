@@ -2,6 +2,7 @@ import { prepareRunPresentation } from "../lib/control-state/run-presentation.js
 import assert from "node:assert/strict";
 import {
   existsSync,
+  cpSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -327,7 +328,7 @@ try {
     mkdirSync(artefactDir, { recursive: true });
     const approvalDocs = {
       "UR.md": "# UR\n\n## 1. Problem\nUsers need a clear gate summary.\n\n## 2. Goal\nReview the exact linked document.\n\n## 3. Scope\nAdd a concise summary before approval.\n\n## 5. Acceptance Signals\n| ID | Result |\n|---|---|\n| UR-01 | Summary matches this revision. |\n\n## 7. Risks And Unknowns\nWhether the link opens in each host.\n",
-      "PRD.md": "# PRD\n\nOwner: Product Owner\n\n## 1. Product Scope\nAfter an approved UR and a completed Brownfield Review that selects structured_delivery or structured_slice, prepare and persist a reviewable PRD before presenting the next user decision card. The PRD card must link the exact draft and summarize its intent.\n\n## 2. UX Intent And Success\n- primary_user_intent: inspect the product requirements before deciding whether to approve them\n- success_signal: the next PRD card links a durable draft and includes a concise relevant summary\n- primary_decision_or_action: approve, request revision, or decline the PRD\n\n## 5. Acceptance Criteria\n- criterion_id: PRD-CARD-001; working_mode: structured_delivery; source_state: UR approved, Brownfield Review done, PRD absent; trigger/action: continue the same run; expected effective state: a PRD draft is persisted before the next user card; visible feedback: no PRD approval card is shown while the draft is absent; observable success: the PRD artefact exists and is recorded in the run.\n- criterion_id: PRD-CARD-002; working_mode: structured_delivery; source_state: PRD draft persisted; trigger/action: prepare the PRD decision card; expected effective state: the card is bound to the exact PRD and revision; visible feedback: a concise summary and clickable PRD link appear before the approval choice; observable success: the card and linked artefact identify the same run and revision.\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n\n## Approval Decisions\n\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Card link target | before_prd | resolved | Link the exact PRD revision. | Product Owner |\n",
+      "PRD.md": "# PRD\n\nOwner: Product Owner\n\n## 1. Product Scope\nAfter an approved UR and a completed Brownfield Review that selects structured_delivery or structured_slice, prepare and persist a reviewable PRD before presenting the next user decision card. The PRD card must link the exact draft and summarize its intent.\n\n## 2. UX Intent And Success\n- primary_user_intent: inspect the product requirements before deciding whether to approve them\n- success_signal: the next PRD card links a durable draft and includes a concise relevant summary\n- primary_decision_or_action: approve, request revision, or decline the PRD\n\n## 5. Acceptance Criteria\n- criterion_id: PRD-CARD-001; working_mode: structured_delivery; source_state: UR approved, Brownfield Review done, PRD absent; trigger/action: continue the same run; expected effective state: a PRD draft is persisted before the next user card; visible feedback: no PRD approval card is shown while the draft is absent; observable success: the PRD artefact exists and is recorded in the run.\n- criterion_id: PRD-CARD-002; working_mode: structured_delivery; source_state: PRD draft persisted; trigger/action: prepare the PRD decision card; expected effective state: the card is bound to the exact PRD and revision; visible feedback: a concise summary and clickable PRD link appear before the approval choice; observable success: the card and linked artefact identify the same run and revision.\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n\n## Approval Decisions\n\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Card link target | before_prd | resolved | Link the exact PRD revision. | Product Owner |\n\n## AGDF Approval Summary (de; source=en)\n- Nutzerziel: Die Produktanforderungen vor der Entscheidung über ihre Freigabe prüfen.\n- Umfang: Ein dauerhaftes PRD mit klarer Absicht und passendem Entscheidungslink vorlegen.\n- Entscheidungen:\n  - Card link target (geklärt): Die exakt geprüfte PRD-Revision verlinken.\n- Abnahmekriterien:\n  - PRD-CARD-001: Das PRD wird gespeichert und im Run erfasst, bevor eine Freigabekarte erscheint.\n  - PRD-CARD-002: Karte und Link verweisen auf denselben Run und dieselbe Revision.\n",
       "SD.md": "# SD\n\n## 1. Solution Overview\nRender deterministic summaries from the source artefact.\n\n## 2. Ownership And Source Of Truth\nThe artefact remains authoritative.\n\n## 3. Architecture Decisions\nBind summary and link to the revision digest.\n\n## 4. Integration Points\nrun-present produces the review text.\n\n## 7. Risks And Open Questions\nHost path support.\n",
       "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n",
       "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: revise until live-tested.\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n",
@@ -411,6 +412,7 @@ ${approvals}
     assert.equal(report.current_gate, gate);
     assert.equal(report.missing_approval, `Approval: ${gate}`);
     assert.equal(report.interaction_kind, "gate_approval");
+    assert.ok(report.approval_presentation, `${gate}: ${JSON.stringify(report.presentation_diagnostics)}`);
     assert.equal(report.native_attempt_required, false, "report-only evaluation has no verified host adapter capability");
     const sealed = recordRunRevision(readyRoot, { runId, revisionId: report.approval_presentation.revision_id });
     assert.equal(sealed.outcome, "updated");
@@ -447,14 +449,58 @@ ${approvals}
       assert.doesNotMatch(prepared.text, /\| (?:Next step|Next gate after approval|Allowed after approval|Quality outlook) \|/u,
         "the approval-ready detail card omits repeated transition and no-op quality rows");
       const germanPrepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id, language: "de" }, { evaluateGateCheck });
+      assert.equal(germanPrepared.outcome, "prepared", `German PRD summary must prepare: ${JSON.stringify(germanPrepared)}`);
       assert.match(germanPrepared.text, /Nächster Schritt: Prüfe das verlinkte Artefakt und wähle unten eine Option\./u,
         "German card directs the reviewer to the linked artefact and available choices");
       assert.ok(germanPrepared.text.includes("| Deine Entscheidung | Approval: PRD · Überarbeiten · Ablehnen |"),
         "German card localizes the decision options while preserving the exact approval token");
-      assert.match(germanPrepared.text, /Quellsprache: Englisch · Auszüge im Originalwortlaut/u,
-        "German card discloses English source excerpts");
-      assert.match(germanPrepared.text, /No PRD approval card is shown while the draft is absent; A concise summary and clickable PRD link appear before the approval choice/u,
-        "PRD acceptance summary highlights user-visible behavior");
+      assert.match(germanPrepared.text, /Quellsprache: Englisch · Zusammenfassung in gewählter Sprache/u,
+        "German card identifies the source language while keeping the summary localized");
+      assert.match(germanPrepared.text, /PRD-CARD-001: Das PRD wird gespeichert und im Run erfasst/u,
+        "German approval summary includes the first criterion in German");
+      assert.match(germanPrepared.text, /PRD-CARD-002: Karte und Link verweisen auf denselben Run/u,
+        "German approval summary includes every criterion in German");
+      assert.doesNotMatch(germanPrepared.text, /No PRD approval card is shown|A concise summary and clickable PRD link/u,
+        "German approval summary does not expose unmarked English source text");
+      const criterionSummaryVariants = [
+        ["approval_summary_locale_missing", (text) => text.replace(/\n## AGDF Approval Summary \(de; source=en\)[\s\S]*$/u, "")],
+        ["approval_summary_criteria_duplicate", (text) => text.replace("PRD-CARD-002: Karte und Link verweisen", "PRD-CARD-001: Karte und Link verweisen")],
+        ["approval_summary_criteria_unknown", (text) => text.replace("PRD-CARD-002: Karte und Link verweisen", "PRD-CARD-999: Karte und Link verweisen")],
+        ["approval_summary_criteria_incomplete", (text) => text.replace("  - PRD-CARD-002: Karte und Link verweisen auf denselben Run und dieselbe Revision.\n", "")],
+        ["approval_summary_truncated_or_overlong", (text) => text.replace("Die Produktanforderungen vor der Entscheidung", "Die Produktanforderungen… vor der Entscheidung")],
+      ];
+      const readyPrdPath = join(readyRoot, ".agdf", "control", "artefacts", runId, "PRD.md");
+      const readyPrd = readFileSync(readyPrdPath, "utf8");
+      for (const [expectedCode, mutate] of criterionSummaryVariants) {
+        const invalidRoot = mkdtempSync(join(tmpdir(), `agdf-summary-${expectedCode}-`));
+        try {
+          cpSync(readyRoot, invalidRoot, { recursive: true });
+          const invalidPrdPath = join(invalidRoot, ".agdf", "control", "artefacts", runId, "PRD.md");
+          writeFileSync(invalidPrdPath, mutate(readyPrd));
+          const invalidStatePath = join(invalidRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md");
+          const invalidRevision = readFileSync(invalidStatePath, "utf8").match(/^- revision_id: (.+)$/mu)?.[1];
+          assert.ok(invalidRevision, `${expectedCode}: copied run has a revision`);
+          assert.equal(recordRunRevision(invalidRoot, { runId, revisionId: invalidRevision }).outcome, "updated");
+          const invalidReport = evaluateGateCheck(invalidRoot, { runId, presentationLanguage: "de" });
+          assert.ok(invalidReport.presentation_diagnostics?.approval_presentation_errors?.includes(expectedCode),
+            `${expectedCode}: ${JSON.stringify(invalidReport.presentation_diagnostics)}`);
+          assert.equal(invalidReport.approval_presentation, null, `${expectedCode} never prepares a partial approval`);
+          const recoveryLines = [];
+          printGateCheckReport(invalidReport, false, true, { log: (line) => recoveryLines.push(line) });
+          assert.ok(recoveryLines.join("\n").includes("AGDF Approval Summary (de; source=en)"), `${expectedCode} shows exact summary recovery`);
+          assert.ok(recoveryLines.join("\n").includes(invalidPrdPath), `${expectedCode} links the exact artefact`);
+          assert.doesNotMatch(recoveryLines.join("\n"), /Approval: PRD · Überarbeiten · Ablehnen/u,
+            `${expectedCode} does not ask for a decision on an incomplete summary`);
+          const rejectedPresentation = prepareRunPresentation(invalidRoot, {
+            runId, gate, revisionId: invalidReport.status_presentation.revision_id, language: "de",
+          }, { evaluateGateCheck });
+          assert.equal(rejectedPresentation.outcome, "rejected");
+          assert.equal(rejectedPresentation.reason, expectedCode);
+          assert.ok(rejectedPresentation.recovery.includes(invalidPrdPath));
+        } finally {
+          rmSync(invalidRoot, { recursive: true, force: true });
+        }
+      }
       assert.doesNotMatch(germanPrepared.text, /criterion_id|working_mode: structured_delivery|source_state:/u,
         "internal criterion metadata is not exposed as the acceptance summary");
       assert.match(prepared.text, /After your PRD approval, the agent drafts the Solution Design\. Once the draft is ready, you will review and decide on the Solution Design\./u,
@@ -1003,7 +1049,7 @@ ${approvals}
 
       mkdirSync(join(recordingRoot, ".agdf", "control", "artefacts", "rec"), { recursive: true });
       const urPath = join(recordingRoot, ".agdf", "control", "artefacts", "rec", "UR.md");
-      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n\r\n## Problem\r\nA recorded UR needs a visible problem statement.\r\n");
+      writeFileSync(urPath, "# UR: Recording\r\n\r\nStatus: draft\r\n\r\n## Problem\r\nA recorded UR needs a visible problem statement. The user should review this document before approval.\r\n\r\n## AGDF Approval Summary (de; source=en)\r\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\r\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\r\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\r\n");
       writeFileSync(statePath, read().replace("| UR |  | missing |  |", "| UR | `.agdf/control/artefacts/rec/UR.md` | draft |  |"));
       assert.equal(runSealState(recordingRoot, read()).status, "content_changed");
       const unrecorded = gate();
@@ -1018,12 +1064,13 @@ ${approvals}
       assert.notEqual(updated.revision_id, first.revision_id);
       assert.equal(recordRunRevision(recordingRoot, { runId: "rec", revisionId: updated.revision_id }).outcome, "unchanged");
 
-      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n\n## Problem\nA recorded UR needs a visible problem statement.\n");
+      writeFileSync(urPath, "# UR: Recording\n\nStatus: draft\n\n## Problem\nA recorded UR needs a visible problem statement. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\n");
       const lfState = read();
       writeFileSync(statePath, lfState.replace(/\n/g, "\r\n"));
       assert.equal(runSealState(recordingRoot, read()).status, "valid", "line-ending conversion keeps the seal valid");
       writeFileSync(statePath, lfState);
-      assert.equal(gate().approval_presentation?.revision_id, updated.revision_id);
+      const recordedGate = gate();
+      assert.equal(recordedGate.approval_presentation?.revision_id, updated.revision_id, JSON.stringify(recordedGate.presentation_diagnostics));
 
       assert.equal(approve({ response: "passt schon" }).reason, "wrong_or_non_approval_response");
       assert.equal(approve({ response: "Approval: PRD" }).reason, "wrong_or_non_approval_response");
@@ -1090,7 +1137,7 @@ ${approvals}
       assert.equal(recordRunStep(stepRoot, { runId: "step", revisionId: "stale", step: "ur", title: "x" }, { policy: policyForRunContent }).reason, "stale_revision");
       assert.equal(step("ur", { title: "subtract" }).reason, "artefact_missing");
       mkdirSync(artefacts, { recursive: true });
-      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n\n## Problem\nA small numeric change is needed.\n");
+      writeFileSync(join(artefacts, "UR.md"), "# UR: subtract\n\n## Problem\nA small numeric change is needed. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein dauerhaftes UR braucht ein sichtbares Problem.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kurze, nachvollziehbare Nutzeranforderung.\n");
       assert.equal(step("ur").reason, "title_missing");
       const drafted = step("ur", { title: "subtract | with test" });
       assert.equal(drafted.outcome, "recorded");

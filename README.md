@@ -32,14 +32,16 @@ npx --yes @agdf/cli@latest opencode
 
 Alle Befehle für Installation, Statusprüfung, Deaktivierung und Entfernung stehen in [INSTALL.md](INSTALL.md).
 
-Optional kann AGDF für Codex, Claude Code, GitHub Copilot und OpenCode einen lokalen MCP-Server registrieren. Er
-stellt genau das Werkzeug `agdf_dispatch` bereit und verwendet dieselbe kanonische
-Funktionsbeschreibung und Gate-Auswertung wie die CLI. Der Server läuft lokal über STDIO, arbeitet
+Optional kann AGDF für Codex, Claude Code, GitHub Copilot und OpenCode einen lokalen MCP-Server registrieren.
+MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`.
+`agdf_dispatch` verwendet dieselbe kanonische
+Funktionsbeschreibung und Gate-Auswertung wie die CLI; `agdf_inspect` bietet lesenden Zugriff auf
+Doctor, Gate-Check, Delivery-Map und Runtime-Verträge. Der Server läuft lokal über STDIO, arbeitet
 offline und ist nicht freigebend. Eine Werkzeugberechtigung oder ein erfolgreicher Aufruf ist keine
 AGDF-Freigabe. Der Prozess übernimmt die Betriebssystemrechte des startenden Hosts und beansprucht
 keine Sandbox.
 
-In Codex ist die Zuordnung: Der MCP-Server heißt `agdf`, sein Werkzeug heißt `agdf_dispatch`.
+In Codex heißt der MCP-Server `agdf`; seine Werkzeuge heißen `agdf_dispatch` und `agdf_inspect`.
 Ein Eintrag `codex_app` gehört zur separaten Codex-App-Integration und ist nicht der AGDF-MCP-Server.
 
 ```bash

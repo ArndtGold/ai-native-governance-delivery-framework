@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { runPath } from "./run-state-reader.js";
 import { parseControlState } from "./run-state-parser.js";
 import { APPROVAL_GATES, canonicalRunText } from "./run-seal.js";
 import {
@@ -15,7 +16,9 @@ import {
   upsertTableRow,
   appendTableRow,
 } from "./run-state-edits.js";
-import { atomicWrite, writeRun } from "./run-state-writer.js";
+import { withOwnedFileLock, writeRunLocked } from "./run-state-writer.js";
+import { commitRunStepLocked, recoverPendingRunStepLocked } from "./run-step-transaction.js";
+import { pendingRunStepIds } from "./run-step-pending.js";
 
 // run-step records one standard transition of the small path in a single sealed revision. The agent
 // supplies content, reasons and evidence; the command maintains the dependent tables, the backlog
@@ -70,9 +73,9 @@ function backlogLinks(text) {
     .map(([label, path]) => `[${label}](${path.slice(CONTROL_PREFIX.length)})`);
 }
 
-function updateBacklog(root, key, { title, status, links, next, closeout }) {
+function prepareBacklog(root, key, { title, status, links, next, closeout }) {
   const path = join(root, BACKLOG_PATH);
-  if (!existsSync(path)) return "missing";
+  if (!existsSync(path)) return { status: "missing", update: null };
   const original = readFileSync(path, "utf8");
   let text = canonicalRunText(original);
   const lines = text.split("\n");
@@ -95,16 +98,13 @@ function updateBacklog(root, key, { title, status, links, next, closeout }) {
       oneLine(next),
     ]);
   }
-  if (text === null) return "layout_unsupported";
-  if (text === canonicalRunText(original)) return "unchanged";
-  atomicWrite(path, text);
-  return "updated";
+  if (text === null) return { status: "layout_unsupported", update: null };
+  if (text === canonicalRunText(original)) return { status: "unchanged", update: null };
+  return { status: "updated", update: { old: original, next: text } };
 }
 
-function writeCloseoutRecord(root, path, { title, runId, date, result, evidence, risk, next }) {
-  const target = join(root, path);
-  mkdirSync(dirname(target), { recursive: true });
-  writeFileSync(target, [
+function closeoutRecord({ title, runId, date, result, evidence, risk, next }) {
+  return [
     `# OR-lite: ${title}`,
     "",
     "Report mode: OR-lite",
@@ -128,10 +128,10 @@ function writeCloseoutRecord(root, path, { title, runId, date, result, evidence,
     "",
     oneLine(next),
     "",
-  ].join("\n"), "utf8");
+  ].join("\n");
 }
 
-export function recordRunStep(root, input, { policy, date = new Date().toISOString().slice(0, 10) }) {
+function recordRunStepLocked(root, input, { policy, date, afterWrite }) {
   const { runId, revisionId, step } = input;
   if (!RUN_STEPS.includes(step)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
   const run = readRun(root, runId);
@@ -147,7 +147,7 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
   let known = "";
   let evidenceRow = null;
   let backlog = null;
-  let createdRecord = null;
+  let orContent = null;
   const edit = (fn) => {
     const result = withSectionEdit(runId, text, fn);
     if (result.rejection) return result.rejection;
@@ -223,8 +223,7 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
       const failed = edit(fn);
       if (failed) return failed;
     }
-    if (!existsSync(join(root, path))) createdRecord = join(root, path);
-    writeCloseoutRecord(root, path, { title, runId, date, ...input });
+    orContent = closeoutRecord({ title, runId, date, ...input });
     known = `Quick task delivered; OR-lite at \`${path}\`.`;
     evidenceRow = ["OR-lite", `\`${path}\``, "quick task closeout", "direct"];
     backlog = { closeout: { record: `[OR](artefacts/${key}/OR.md)`, outcome: input.result } };
@@ -249,14 +248,17 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
     if (failed) return failed;
   }
 
-  const written = guardedWrite(runId, () => writeRun(run.path, text, revisionId, { expectedContent: run.content }));
-  if (written.rejection) {
-    if (createdRecord) unlinkSync(createdRecord);
-    return written.rejection;
-  }
-  const backlogResult = backlog
-    ? updateBacklog(root, key, { ...backlog, links: backlogLinks(text), next: after.next_allowed_action })
-    : "unchanged";
+  const backlogPlan = backlog
+    ? prepareBacklog(root, key, { ...backlog, links: backlogLinks(text), next: after.next_allowed_action })
+    : { status: "unchanged", update: null };
+  if (backlogPlan.status === "layout_unsupported") return rejected(runId, "backlog_layout_unsupported");
+  const written = guardedWrite(runId, () => (orContent || backlogPlan.update)
+    ? commitRunStepLocked(root, {
+      runId, runPath: run.path, content: text, revisionId, expectedContent: run.content,
+      backlog: backlogPlan.update, or: orContent, afterWrite,
+    })
+    : writeRunLocked(run.path, text, revisionId, { expectedContent: run.content }));
+  if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",
     outcome: "recorded",
@@ -267,6 +269,26 @@ export function recordRunStep(root, input, { policy, date = new Date().toISOStri
     revision_id: written.state.meta.revision_id,
     current_gate: after.current_gate,
     next_allowed_action: after.next_allowed_action,
-    backlog: backlogResult,
+    backlog: backlogPlan.status,
   });
+}
+
+export function recordRunStep(root, input, { policy, date = new Date().toISOString().slice(0, 10), afterWrite } = {}) {
+  const { runId, step } = input;
+  if (!RUN_STEPS.includes(step)) return rejected(runId, "step_invalid", { steps: RUN_STEPS });
+  let path;
+  try { path = runPath(root, runId); } catch { return rejected(runId, "run_id_invalid"); }
+  const backlogPath = join(root, BACKLOG_PATH);
+  const locked = guardedWrite(runId, () => withOwnedFileLock(path, () => withOwnedFileLock(backlogPath, () => {
+    const otherPending = pendingRunStepIds(root).find((id) => id !== runId);
+    if (otherPending) return rejected(runId, "run_step_recovery_required", { pending_run_id: otherPending });
+    const recovered = recoverPendingRunStepLocked(root, runId);
+    if (recovered.status === "completed") {
+      return Object.freeze({ schema_version: "1", outcome: "recovered", run_id: runId,
+        operation_id: recovered.operation_id, revision_id: recovered.revision_id,
+        backlog: "updated" });
+    }
+    return recordRunStepLocked(root, input, { policy, date, afterWrite });
+  })));
+  return locked.rejection ?? locked.state;
 }

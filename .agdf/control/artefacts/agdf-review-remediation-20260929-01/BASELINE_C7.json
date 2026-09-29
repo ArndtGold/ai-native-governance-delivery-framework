@@ -1,0 +1,11 @@
+{
+  "source_commit": "737457bdd8b4f19c18524eaa4cb469759e158836",
+  "source_location": "create-agdf/lib/installers/local-marketplace.js",
+  "isolation": "temporary marketplace root with copied generated plugin source",
+  "new_stable_before_restart": true,
+  "backup_residue_before_restart": true,
+  "new_stable_after_restart": false,
+  "restart_changed": false,
+  "interpretation": "the old recovery treats a new stable root plus prior backup as precommit residue and restores the old root; this is the same durable shape left by a postcommit backup-cleanup failure",
+  "limit": "the cleanup error itself was not injected into the unchanged old source"
+}

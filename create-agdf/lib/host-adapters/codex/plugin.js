@@ -9,6 +9,7 @@ import { historicalEvidenceEntries, rollbackMarketplaceFilesystem, captureOption
 import { CODEX_REGISTRATION_REVISION, isCodexLocalInstallVersion } from "./identity.js";
 import { classifyMarketplaceList, inspectLocalMarketplaceProjection, prepareLocalMarketplace } from "../../installers/local-marketplace.js";
 import { migrateLegacyCodexMcpRegistration, prepareCodexPluginMcp } from "./plugin-mcp.js";
+import { ownedFileSnapshot } from "../../lifecycle/owned-mutation.js";
 
 export function installCodexGlobalPlugin({
   exec = execHostFileSync,
@@ -148,6 +149,7 @@ function repositorySelector(targetDir, config = "") {
 export function planCodexRepositoryDisable(targetDir) {
   const surface = "codex";
   const path = join(targetDir, ".codex", "config.toml");
+  const expectedSnapshot = ownedFileSnapshot(path);
   const existing = existsSync(path) ? readFileSync(path, "utf8") : "";
   const selector = repositorySelector(targetDir, existing);
   const escaped = JSON.stringify(selector).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -167,7 +169,7 @@ export function planCodexRepositoryDisable(targetDir) {
     operation: "disable",
     surface,
     scope: "repository",
-    mutations: Object.freeze([{ kind: "write", path, content, ownership: currentSection ? "exact_plugin_section" : "agdf_marker" }]),
+    mutations: Object.freeze([{ kind: "write", path, content, ownership: currentSection ? "exact_plugin_section" : "agdf_marker", expectedSnapshot }]),
     retained: Object.freeze([join(targetDir, ".agdf", "control"), "global AGDF plugin availability"]),
     expected: Object.freeze({ repository_status: "disabled" }),
   });

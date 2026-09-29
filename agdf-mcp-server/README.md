@@ -1,6 +1,10 @@
 # @agdf/mcp-server
 
-Local STDIO MCP adapter for the canonical AGDF `agdf_dispatch` function.
+Local STDIO MCP adapter for AGDF dispatch and control inspection.
+
+MCP tools: `agdf_dispatch`, `agdf_inspect`.
+Dispatch follows the canonical skill-dispatch contract;
+inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
 
 > [!IMPORTANT]
 > This package is an unreleased development component for the next AGDF version. AGDF 0.14.5 does not include MCP support.

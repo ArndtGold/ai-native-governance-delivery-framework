@@ -93,8 +93,8 @@ export function recordRunRevision(root, { runId, revisionId }) {
     return Object.freeze({ schema_version: "1", outcome: "unchanged", run_id: runId, revision: run.meta.revision, revision_id: run.meta.revision_id });
   }
   if (seal.status === "approvals_changed") return rejected(runId, "approvals_unrecorded");
-  if (seal.status === "invalid") return rejected(runId, "seal_invalid");
-  const written = guardedWrite(runId, () => writeRun(run.path, run.content, revisionId, { expectedContent: run.content }));
+  if (seal.status === "invalid" || seal.status === "unsealed") return rejected(runId, "seal_invalid");
+  const written = guardedWrite(runId, () => writeRun(run.path, run.content, revisionId, { expectedContent: run.content, allowContentChange: true }));
   if (written.rejection) return written.rejection;
   return Object.freeze({
     schema_version: "1",
@@ -121,16 +121,18 @@ export function approveRunGate(root, { runId, gate, revisionId, response, presen
       blocking_reason: report.blocking_reason,
     });
   }
-  if (report.approval_presentation?.revision_id !== run.meta.revision_id) {
-    return rejected(runId, "approval_presentation_unavailable", {
-      presentation_errors: report.presentation_diagnostics?.approval_presentation_errors ?? [],
-    });
-  }
+  // The durable presentation record carries its own locale. Revalidating an unrelated default
+  // locale here can reject a correctly prepared presentation before its binding is inspected.
   const artefact = parseControlState(run.content, { userGates: APPROVAL_GATES }).artefacts.get(gate);
   const digest = gate === "UAT" ? null : artefactFileDigest(root, artefact?.path);
   const durableArtefactReady = gate === "UAT"
     || (artefact?.path_format !== "invalid" && digest.startsWith("sha256:")
       && (gate !== "QA" || ["pass", "passed"].includes(artefact.status)));
+  if (!presentationId && !durableArtefactReady) {
+    return rejected(runId, "approval_presentation_unavailable", {
+      presentation_errors: report.presentation_diagnostics?.approval_presentation_errors ?? [],
+    });
+  }
   const validation = validateGateApprovalResponse({
     response,
     responseOrigin: "deliberate_user_input",

@@ -85,12 +85,27 @@ workflow run. This avoids registry visibility races before dependent-package val
 
 The repository secret `NPM_TOKEN` must have publish rights for `create-agdf`,
 `@agdf/mcp-server` and `@agdf/cli`.
+The native release gate also needs `CODEX_API_KEY` in the protected `codex-release` environment.
+The workflow uses `id-token: write` for npm provenance and currently supplies `NPM_TOKEN` for
+publishing. Do not describe this as npm Trusted Publishing until the registry-side publisher
+configuration and a real publish have been observed.
 
 The publish workflow reports release readiness only after it verifies all three exact
 package versions and that `@agdf/cli@latest` resolves to the same release version.
 It then runs a disposable clean-client bootstrap smoke test using the documented
 command shape. These checks are maintainer/CI evidence; they do not add flags or
 parameters to the public bootstrap commands.
+
+Before the first publish, the workflow reads all three exact registry versions. It starts only
+when all three are absent. A retry after any package was published stops with a machine-readable
+`published`, `absent` or `unknown` result for each version. A failed publish job reads the same
+three versions again; registry timeouts and unexpected replies remain `unknown`.
+
+For a partial or unknown result, verify the three exact versions in npm and inspect the failed
+workflow run. Decide deliberately whether to complete the missing packages from the same tagged
+sources or prepare a superseding version. Never unpublish automatically, and do not retry the tag
+workflow as though it were an untouched release. Record each published package, version and
+registry observation in the release handoff before calling the release complete.
 
 ## Do not use legacy split tags
 

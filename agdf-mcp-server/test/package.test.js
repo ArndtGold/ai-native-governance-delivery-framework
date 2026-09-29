@@ -58,7 +58,7 @@ try {
 }
 assert.ok(Array.isArray(packed?.files), "npm pack must report the package file inventory");
 const paths = packed.files.map((file) => file.path);
-for (const required of ["bin/agdf-mcp.js", "src/main.js", "src/server.js", "src/worker.js", "src/worker-entry.js", "README.md", "NOTICE", "package.json"]) {
+for (const required of ["bin/agdf-mcp.js", "src/main.js", "src/server.js", "src/worker.js", "src/worker-entry.js", "README.md", "LICENSE", "NOTICE", "package.json"]) {
   assert.ok(paths.includes(required), `packed server is missing ${required}`);
 }
 assert.equal(paths.some((path) => path.startsWith("test/")), false);

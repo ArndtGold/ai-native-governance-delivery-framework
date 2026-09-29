@@ -4,6 +4,7 @@ export { CODEX_REGISTRATION_REVISION, codexLocalInstallVersion, isCodexLocalInst
 import {
   cpSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -15,6 +16,7 @@ import { dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from 
 import process from "node:process";
 import { generatedRoot, packageRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { renameSyncWithRetry } from "../fs-swap.js";
+import { atomicWrite } from "../control-state/run-state-writer.js";
 import { buildCopilotMarketplaceTransport, copilotMarketplaceSpec, COPILOT_TRANSPORT_REVISION, verifyCopilotMarketplaceTransport } from "./copilot-marketplace-transport.js";
 import { classifyHistoricalDistributionProfile } from "../runtime/distribution-profile-history.js";
 import {
@@ -36,6 +38,28 @@ const LEGACY_REPOSITORY = "arndtgold/ai-native-governance-delivery-framework";
 function pathInside(root, candidate) {
   const rel = relative(root, candidate);
   return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+}
+
+function rootIdentity(path) {
+  if (!existsSync(path)) return null;
+  const type = lstatSync(path);
+  if (type.isSymbolicLink() || !type.isDirectory()) throw new Error(`Unsafe AGDF marketplace root: ${path}`);
+  return `${type.dev}:${type.ino}`;
+}
+
+function assertTransactionBackupIdentity(path, transaction) {
+  if (rootIdentity(path) !== transaction.previous_root_identity || !transaction.previous_root_identity) {
+    throw new Error(`AGDF marketplace backup identity changed: ${path}`);
+  }
+}
+
+function assertTransactionStablePayload(path, transaction) {
+  const stable = ownership(path);
+  if (stable.plugin_digest !== transaction.plugin_digest || stable.version !== transaction.version
+      || stable.profile_id !== transaction.profile_id
+      || digestDirectory(join(path, "plugins", MARKETPLACE_ID)) !== stable.plugin_digest) {
+    throw new Error(`AGDF marketplace stable payload changed: ${path}`);
+  }
 }
 
 function readOptionalJson(path) {
@@ -135,6 +159,7 @@ export function localMarketplaceRoot(options = {}) {
 }
 
 function ownership(root, { allowBuilding = false } = {}) {
+  rootIdentity(root);
   if (!existsSync(join(root, OWNERSHIP_FILE))) {
     throw new Error(`Refusing marketplace path without AGDF ownership marker: ${root}`);
   }
@@ -406,20 +431,55 @@ function invalidExistingMarketplace(error) {
   return error;
 }
 
-function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot) {
+function recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot, transactionPath) {
   const parent = dirname(stableRoot);
+  const transaction = existsSync(transactionPath)
+    ? readOptionalJson(transactionPath) : null;
+  if (existsSync(transactionPath) && (transaction?.schema_version !== 1
+      || transaction.owner !== "create-agdf" || !["prepared", "committed"].includes(transaction.phase)
+      || typeof transaction.plugin_digest !== "string" || typeof transaction.version !== "string"
+      || typeof transaction.profile_id !== "string"
+      || (transaction.previous_root_identity !== null && typeof transaction.previous_root_identity !== "string"))) {
+    throw new Error(`Invalid AGDF marketplace transaction marker: ${transactionPath}`);
+  }
+  if (transaction?.phase === "committed") {
+    assertTransactionStablePayload(stableRoot, transaction);
+    if (existsSync(backupRoot)) {
+      assertTransactionBackupIdentity(backupRoot, transaction);
+      removeOwnedRoot(backupRoot, parent);
+    }
+    if (existsSync(stageRoot)) removeOwnedRoot(stageRoot, parent, { allowBuilding: true });
+    if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
+    rmSync(transactionPath);
+    return;
+  }
   if (existsSync(backupRoot)) {
+    if (!transaction && existsSync(stableRoot)) {
+      throw new Error(`Ambiguous AGDF marketplace backup without transaction marker: ${backupRoot}`);
+    }
+    if (transaction) assertTransactionBackupIdentity(backupRoot, transaction);
     ownership(backupRoot);
     if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
     if (existsSync(stableRoot)) {
-      ownership(stableRoot);
+      assertTransactionStablePayload(stableRoot, transaction);
       renameSyncWithRetry(stableRoot, failedRoot);
     }
     renameSyncWithRetry(backupRoot, stableRoot);
     if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
+  } else if (transaction?.phase === "prepared" && existsSync(stableRoot)) {
+    if (rootIdentity(stableRoot) !== transaction.previous_root_identity) {
+      if (transaction.previous_root_identity !== null) {
+        throw new Error(`AGDF marketplace prior backup missing: ${backupRoot}`);
+      }
+      assertTransactionStablePayload(stableRoot, transaction);
+      removeOwnedRoot(stableRoot, parent);
+    }
+  } else if (transaction?.phase === "prepared" && transaction.previous_root_identity !== null) {
+    throw new Error(`AGDF marketplace prior backup missing: ${backupRoot}`);
   }
   if (existsSync(stageRoot)) removeOwnedRoot(stageRoot, parent, { allowBuilding: true });
   if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
+  if (transaction) rmSync(transactionPath);
 }
 
 function prepareLocalMarketplaceFromSource({
@@ -432,6 +492,7 @@ function prepareLocalMarketplaceFromSource({
   knownSourceDigest = "",
   sourceStaged = () => {},
   transportAdapters = {},
+  cleanupBackup = removeOwnedRoot,
 } = {}) {
   dataRoot = resolve(dataRoot);
   const copilotProfile = profileId === "copilot-runtime-plugin";
@@ -444,6 +505,7 @@ function prepareLocalMarketplaceFromSource({
   const stageRoot = `${stableRoot}.stage`;
   const backupRoot = `${stableRoot}.backup`;
   const failedRoot = `${stableRoot}.failed`;
+  const transactionPath = `${stableRoot}.transaction.json`;
   if (!pathInside(dataRoot, stableRoot) || dirname(stableRoot) !== parent) throw new Error(`Unsafe AGDF marketplace root: ${stableRoot}`);
   const sourceDigest = knownSourceDigest || digestPluginSource(builtPluginRoot, expectedVersion);
   if (!copilotProfile && codexInstallVersion !== expectedVersion
@@ -455,7 +517,7 @@ function prepareLocalMarketplaceFromSource({
     join(builtPluginRoot, "meta", "distribution-profile-history.json"),
   );
   mkdirSync(parent, { recursive: true });
-  recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot);
+  recoverInterruptedTransaction(stableRoot, stageRoot, backupRoot, failedRoot, transactionPath);
 
   let existing = null;
   if (existsSync(stableRoot)) {
@@ -588,11 +650,25 @@ function prepareLocalMarketplaceFromSource({
       });
     }
 
+    const transaction = {
+      schema_version: 1,
+      owner: "create-agdf",
+      phase: "prepared",
+      profile_id: profileId,
+      version: expectedVersion,
+      plugin_digest: pluginDigest,
+      previous_root_identity: rootIdentity(stableRoot),
+    };
+    atomicWrite(transactionPath, `${JSON.stringify(transaction)}\n`);
     if (existsSync(stableRoot)) renameSyncWithRetry(stableRoot, backupRoot);
     try {
       renameSyncWithRetry(stageRoot, stableRoot);
     } catch (error) {
-      if (existsSync(backupRoot) && !existsSync(stableRoot)) renameSyncWithRetry(backupRoot, stableRoot);
+      if (existsSync(backupRoot) && !existsSync(stableRoot)) {
+        assertTransactionBackupIdentity(backupRoot, transaction);
+        renameSyncWithRetry(backupRoot, stableRoot);
+      }
+      if (existsSync(transactionPath)) rmSync(transactionPath);
       throw error;
     }
     let closed = false;
@@ -611,19 +687,33 @@ function prepareLocalMarketplaceFromSource({
       changed: true,
       commit() {
         if (closed) return;
-        if (existsSync(backupRoot)) removeOwnedRoot(backupRoot, parent);
+        atomicWrite(transactionPath, `${JSON.stringify({ ...transaction, phase: "committed" })}\n`);
         closed = true;
+        if (existsSync(backupRoot)) {
+          assertTransactionBackupIdentity(backupRoot, transaction);
+          cleanupBackup(backupRoot, parent);
+        }
+        rmSync(transactionPath);
       },
       rollback() {
         if (closed) return;
+        if (existsSync(backupRoot)) assertTransactionBackupIdentity(backupRoot, transaction);
         if (existsSync(backupRoot)) {
           if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
-          if (existsSync(stableRoot)) renameSyncWithRetry(stableRoot, failedRoot);
+          if (existsSync(stableRoot)) {
+            assertTransactionStablePayload(stableRoot, transaction);
+            renameSyncWithRetry(stableRoot, failedRoot);
+          }
           renameSyncWithRetry(backupRoot, stableRoot);
           if (existsSync(failedRoot)) removeOwnedRoot(failedRoot, parent);
         } else if (existsSync(stableRoot)) {
+          if (transaction.previous_root_identity !== null) {
+            throw new Error(`AGDF marketplace prior backup missing: ${backupRoot}`);
+          }
+          assertTransactionStablePayload(stableRoot, transaction);
           removeOwnedRoot(stableRoot, parent);
         }
+        if (existsSync(transactionPath)) rmSync(transactionPath);
         closed = true;
       },
     });

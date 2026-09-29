@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile_id": "copilot-runtime-plugin",
-  "max_files": 114,
-  "max_bytes": 1108897,
-  "rationale": "Slice 1 read-only MCP inspection and review corrections (+3 runtime files, +26865 bytes vs 1082032): gate variants reuse CLI presentation functions, and the Copilot adapter exposes both tools; see docs/maintenance/payload-budget-history.md 2026-09-29"
+  "max_files": 117,
+  "max_bytes": 1125353,
+  "rationale": "Review remediation adds contained-file, read-only pending-run and run-step transaction runtime leaves (+3 files, +16456 bytes vs 1108897); required by sealed control-state recovery, MCP read isolation, cross-platform path checks, marketplace recovery, localized recovery guidance and private atomic file writes; see docs/maintenance/payload-budget-history.md 2026-09-29"
 }

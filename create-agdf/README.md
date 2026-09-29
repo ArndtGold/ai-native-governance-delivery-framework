@@ -139,9 +139,11 @@ npx --yes @agdf/cli@latest config --language en
 
 ### Optional local MCP dispatcher (unreleased development preview)
 
-AGDF can register one local STDIO tool, `agdf_dispatch`, for Codex, Claude Code, GitHub Copilot or OpenCode.
-It projects the existing canonical skill-dispatch contract and returns the same target, gate,
-presentation and continuation results. Tool permission and successful execution never grant an
+AGDF can register one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode.
+MCP tools: `agdf_dispatch`, `agdf_inspect`.
+Dispatch projects the existing canonical skill-dispatch
+contract; inspect provides read-only doctor, gate-check, delivery-map and contract operations.
+Tool permission and successful execution never grant an
 AGDF approval. The process is offline while serving and exposes no generic shell, filesystem or
 network operation, but it inherits the operating-system permissions of the host user.
 
@@ -262,8 +264,9 @@ presented `revision_id`, records it with the approved artefact's digest and adva
 evidence, Code Review, `quick_task` closeout with OR-lite) and maintains the run tables, the
 `MASTER_BACKLOG.md` pointer and the policy-derived next action. These commands print JSON and are
 also available through the plugin's surface-local validator. The
-seal detects unrecorded edits; it is not a signature. Removing both seal lines opts a run out and
-remains visible in the diff.
+seal detects unrecorded edits; it is not a signature. Normal write commands reject missing seal
+lines. Restore a trusted sealed revision before recording changes; `run-migrate` remains the explicit
+path for legacy control state and does not infer approvals.
 
 ### Advanced / Compatibility
 

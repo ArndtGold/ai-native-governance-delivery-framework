@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { parseRunState } from "./run-state-parser.js";
 import { runPath } from "./run-state-reader.js";
+import { pendingRunStepPath } from "./run-step-pending.js";
+import { existsSync } from "node:fs";
 
 // Shared line-based edits for the recording commands (run-approve, run-step). They change only the
 // addressed section or table row and keep every other byte of the run state.
@@ -11,6 +13,7 @@ const WRITE_REJECTIONS = new Map([
   ["AGDF_RUN_SEAL_INVALID", "seal_invalid"],
   ["AGDF_RUN_STATE_INVALID", "run_state_invalid"],
   ["AGDF_ARTEFACT_ROW_DUPLICATE", "artefact_row_duplicate"],
+  ["AGDF_RUN_STEP_RECOVERY_REQUIRED", "run_step_recovery_required"],
 ]);
 
 export function rejected(runId, reason, details = {}) {
@@ -23,6 +26,9 @@ export function readRun(root, runId) {
     path = runPath(root, runId);
   } catch {
     return { rejection: rejected(runId, "run_id_invalid") };
+  }
+  if (existsSync(pendingRunStepPath(root, runId))) {
+    return { rejection: rejected(runId, "run_step_recovery_required", { pending_path: pendingRunStepPath(root, runId) }) };
   }
   let content;
   try {
@@ -43,7 +49,10 @@ export function guardedWrite(runId, write) {
   } catch (error) {
     const reason = WRITE_REJECTIONS.get(error?.message);
     if (!reason) throw error;
-    return { rejection: rejected(runId, reason) };
+    return { rejection: rejected(runId, reason, {
+      ...(error.lock_path ? { lock_path: error.lock_path } : {}),
+      ...(error.pending_run_id ? { pending_run_id: error.pending_run_id } : {}),
+    }) };
   }
 }
 

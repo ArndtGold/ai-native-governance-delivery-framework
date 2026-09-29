@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { withWindowsCmdShim } from "./support/npm-cmd-shim.js";
+import { runRootFromStatePath, sealRunState } from "../lib/control-state/run-seal.js";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
@@ -35,6 +36,10 @@ function runJson(args) {
     if (error.stdout) return JSON.parse(error.stdout.toString());
     throw error;
   }
+}
+
+function sealFixtureRun(path) {
+  writeFileSync(path, sealRunState(runRootFromStatePath(path), readFileSync(path, "utf8")), "utf8");
 }
 
 function makeFakeExecutable(tempDir, name, source) {
@@ -1335,8 +1340,10 @@ smokePhase("status card tp transition");
 
 - next_allowed_action: Request exact TP approval.
 `, "utf8");
+    sealFixtureRun(runPath);
     // The approval summary renderer needs reviewable TP content (tasks and risks), not a placeholder.
     writeFileSync(join(tempDir, "TP.md"), "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render the TP fixture | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun the fixture checks.\n\n## 5. Risks And Blockers\nFixture-only risk.\n", "utf8");
+    sealFixtureRun(runPath);
     const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json", "--language", "en"]);
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
@@ -1480,6 +1487,7 @@ smokePhase("gate check implicit consent");
 
 - next_allowed_action: Request exact UR approval.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(
       process.execPath,
@@ -1610,6 +1618,7 @@ ${internalRows}
 
 - next_allowed_action: ${testCase.next}
 `, "utf8");
+      sealFixtureRun(runPath);
       const report = runJson(["gate-check", "--dir", tempDir, "--run", runId, "--json"]);
       if (report.current_gate !== testCase.gate
         || report.missing_approval !== testCase.missing
@@ -1703,6 +1712,7 @@ smokePhase("QA and UAT gate scenarios");
 
 - next_allowed_action: Request Approval: UAT before delivery handoff.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "qa-passed-run", "--json"], { encoding: "utf8" }));
     if (gateCheckReport.current_gate !== "UAT") {
@@ -1799,6 +1809,7 @@ smokePhase("doctor qa status mismatch");
 |---|---|---|---|
 | QA report | .agdf/control/artefacts/qa-status-mismatch/QA_REPORT.md | QA | direct |
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const doctorReport = runJson(["doctor", "--dir", tempDir, "--run", "qa-status-mismatch", "--json"]);
     if (doctorReport.status !== "revise") {
@@ -1945,6 +1956,7 @@ smokePhase("gate check ur triage");
 
 - next_allowed_action: Run Brownfield Review after G-00.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2040,6 +2052,7 @@ smokePhase("gate-check presentation scenarios");
 
 - next_allowed_action: Draft PRD.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2153,6 +2166,7 @@ smokePhase("Mode and slice decision scenarios");
 
 - next_allowed_action: Decide process size.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2247,6 +2261,7 @@ smokePhase("gate check or handoff");
 
 - next_allowed_action: Produce delivery closeout.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--json"], { encoding: "utf8" }));
     if (gateCheckReport.current_gate !== "OR" || gateCheckReport.missing_approval !== "none") {
@@ -2335,6 +2350,7 @@ smokePhase("gate check mode slice incomplete");
 
 - next_allowed_action: Record Mode/Slice Decision with evidence.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2448,6 +2464,7 @@ smokePhase("delivery map chain");
 
 - next_allowed_action: Fill Artefact Chain evidence.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const deliveryMapOutput = execFileSync(process.execPath, [binPath, "delivery-map", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const deliveryMapReport = JSON.parse(deliveryMapOutput);
@@ -2722,6 +2739,7 @@ smokePhase("gate check missing ur artifact");
 
 - next_allowed_action: Persist UR.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     let failed = false;
     try {
@@ -2815,6 +2833,7 @@ smokePhase("missing artefact and package compatibility scenarios");
 
 - next_allowed_action: Persist PRD.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     let failed = false;
     try {
@@ -2974,6 +2993,7 @@ ${missingCase.chain.join("\n")}
 
 - next_allowed_action: ${missingCase.nextAction}
 `, "utf8");
+    sealFixtureRun(runPath);
 
     let failed = false;
     try {

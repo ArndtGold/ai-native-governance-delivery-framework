@@ -39,7 +39,7 @@ function requestActivationKernel() {
     guard_fingerprint: readMetadata("guard_fingerprint", /- `guard_fingerprint`: `(sha256:[0-9a-f]{64})`/g),
   };
   if (identity.owner !== "request_activation_contract"
-      || identity.path !== "plugin/meta/contracts/request-activation.md"
+      || identity.path !== "meta/contracts/request-activation.md"
       || identity.policy_version !== 1) {
     throw new Error("Request Activation Guard identity does not match the runtime binding contract.");
   }

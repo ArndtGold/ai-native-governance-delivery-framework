@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { containedRegularFile, isSafeControlRelativePath } from "../lib/control-state/contained-file.js";
+import { artefactFileDigest, sealRunState } from "../lib/control-state/run-seal.js";
+import { resolvedArtefactFile } from "../lib/control-evaluation/run-state.js";
+import { isSafeRepoRelativePath, readVerifiedChangeRecord } from "../lib/control-evaluation/verified-change.js";
 
 const root = mkdtempSync(join(tmpdir(), "agdf-verified-change-"));
 const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
@@ -17,6 +21,7 @@ function write(path, content) {
 }
 
 function run(target = "gate-check") {
+  write(runStatePath, sealRunState(root, readFileSync(join(root, runStatePath), "utf8")));
   const result = spawnSync(process.execPath, [cli, target, "--dir", root, "--run", "example", "--json"], { encoding: "utf8" });
   if (!result.stdout.trim()) throw new Error(`Verified Change CLI produced no JSON: ${result.stderr.trim()}`);
   return { result, report: JSON.parse(result.stdout) };
@@ -119,6 +124,18 @@ ${extra}
 }
 
 try {
+  for (const path of ["D:foo", "D:/foo", "C:\\foo", "//server/share", "\\\\server\\share", "\\\\?\\C:\\foo", "../outside", "/absolute", "file:stream"]) {
+    assert.equal(isSafeControlRelativePath(path), false, `cross-host invalid path: ${path}`);
+    assert.equal(isSafeRepoRelativePath(path), false, `Verified Change rejects ${path}`);
+    assert.equal(resolvedArtefactFile(root, path), "", `Run artefact rejects ${path}`);
+    assert.equal(artefactFileDigest(root, path), "unresolved", `Run seal rejects ${path}`);
+    assert.equal(readVerifiedChangeRecord(root, { artefacts: new Map([["Verified Change", { path }]]) }).status, "invalid");
+  }
+  write("contained.md", "contained\n");
+  assert.equal(containedRegularFile(root, "contained.md").status, "valid");
+  assert.equal(resolvedArtefactFile(root, "contained.md"), realpathSync(join(root, "contained.md")));
+  assert.match(artefactFileDigest(root, "contained.md"), /^sha256:[0-9a-f]{64}$/u);
+
   const agentRouter = readFileSync(join(repoRoot, "plugin", "meta", "agdf-agent-router.md"), "utf8");
   const runtimeContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "modes.md"), "utf8");
   assert.match(agentRouter, /Use Verified Change only after approved UR and Brownfield Review/);

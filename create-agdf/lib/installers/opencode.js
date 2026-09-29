@@ -10,6 +10,8 @@ import { digestDirectory } from "../runtime/plugin-provenance.js";
 import { validateLocalOpenCodePackageSource } from "./local-development.js";
 import { npmInvocation } from "./npm-invocation.js";
 import { execHostFileSync } from "../host-command.js";
+import { atomicWrite } from "../control-state/run-state-writer.js";
+import { assertUnchangedOwnedFile, fileContentDigest, ownedFileSnapshot } from "../lifecycle/owned-mutation.js";
 
 function runtimeContractModuleNames(definition) {
   const modules = definition?.runtimeContract?.modules;
@@ -74,6 +76,7 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
   }
   const previousPackage = resolveOpenCodePackage(configDir);
   const configPath = join(configDir, "opencode.json");
+  const originalConfigSnapshot = ownedFileSnapshot(configPath);
   let config = {};
 
   if (existsSync(configPath)) {
@@ -158,7 +161,8 @@ export function installOpenCodeGlobalPlugin(configDir, dependencies = {}) {
     });
   }
   try {
-    writeFileSync(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf8");
+    assertUnchangedOwnedFile(configPath, originalConfigSnapshot);
+    atomicWrite(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`);
   } catch (error) {
     throw openCodeLifecycleError("configuration", `Failed to write OpenCode config ${configPath}: ${error.message}`, { configPath });
   }
@@ -227,7 +231,7 @@ function globalOpenCodeOwnershipMarkerIsValid(content, marker, placement) {
 }
 
 function assertGlobalOpenCodeFileWritable(path, marker, placement) {
-  if (!existsSync(path)) return;
+  if (fileContentDigest(path) === null) return;
   const existing = readFileSync(path, "utf8");
   if (!globalOpenCodeOwnershipMarkerIsValid(existing, marker, placement)) {
     throw new Error(`Refusing to overwrite unowned global OpenCode file: ${path}`);
@@ -262,7 +266,7 @@ function writeOwnedGlobalOpenCodeFile(path, content, marker, placement) {
     assertGlobalOpenCodeFileWritable(path, marker, placement);
   }
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, content, "utf8");
+  atomicWrite(path, content);
 }
 
 function globalOpenCodeActivationGuard() {
@@ -984,6 +988,7 @@ export function planOpenCodeGlobalUninstall(configDir) {
     if (!configDir) throw new Error("OpenCode uninstall requires its explicit config directory.");
     const configPath = join(configDir, "opencode.json");
     if (!existsSync(configPath)) throw new Error(`OpenCode config not found: ${configPath}`);
+    const originalConfigSnapshot = ownedFileSnapshot(configPath);
     let config;
     try {
       config = JSON.parse(readFileSync(configPath, "utf8"));
@@ -998,14 +1003,15 @@ export function planOpenCodeGlobalUninstall(configDir) {
     if (Array.isArray(config.instructions)) next.instructions = config.instructions.filter((entry) => entry !== "AGDF.md");
     const npm = openCodeNpmInvocation(["uninstall", "--silent", pluginDefinition.opencode.npmPackage]);
     const mutations = [
-      { kind: "write", path: configPath, content: `${JSON.stringify(next, null, 2)}\n`, ownership: "exact_known_entries" },
+      { kind: "write", path: configPath, content: `${JSON.stringify(next, null, 2)}\n`, ownership: "exact_known_entries", expectedSnapshot: originalConfigSnapshot },
       { kind: "command", executable: npm.executable, args: npm.args, cwd: configDir },
     ];
     const retained = ["repository AGDF files", ".agdf/control"];
     for (const candidate of openCodeOwnedGlobalFiles(configDir)) {
       if (!existsSync(candidate.path)) continue;
+      const expectedSnapshot = ownedFileSnapshot(candidate.path);
       const content = readFileSync(candidate.path, "utf8");
-      if (candidate.owned(content)) mutations.push({ kind: "remove", path: candidate.path, ownership: "agdf_marker" });
+      if (candidate.owned(content)) mutations.push({ kind: "remove", path: candidate.path, ownership: "agdf_marker", expectedSnapshot });
       else retained.push(candidate.path);
     }
     return Object.freeze({

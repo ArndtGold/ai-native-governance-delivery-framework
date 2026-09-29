@@ -12,8 +12,12 @@ for (const name of ["create-agdf", "agdf", "agdf-mcp-server"]) {
 assert.equal(json("agdf-mcp-server/package-lock.json").packages[""].engines.node, ">=22");
 assert.equal(json("plugin/meta/agdf-mcp-capability.json").package.node, ">=22");
 
-const actions = { "actions/checkout": "v7", "actions/setup-node": "v7",
-  "actions/upload-artifact": "v7", "actions/download-artifact": "v8" };
+const actions = {
+  "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+  "actions/setup-node": "820762786026740c76f36085b0efc47a31fe5020",
+  "actions/upload-artifact": "bbbca2ddaa5d8feaa63e36b76fdaad77386f024f",
+  "actions/download-artifact": "70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3",
+};
 for (const file of readdirSync(new URL(".github/workflows/", root))) {
   if (!file.endsWith(".yml")) continue;
   const workflow = parse(readFileSync(new URL(`.github/workflows/${file}`, root), "utf8"));
@@ -40,4 +44,4 @@ for (const version of ["18.20.0", "20.19.0", "21.0.0"]) for (const path of [
   assert.equal(result.status, 1, `${path} must reject ${version}`);
   assert.match(result.stderr, /AGDF_(?:MCP_)?NODE_UNSUPPORTED/);
 }
-console.log("Node support: package minimum, CI matrix, Action versions and legacy-runtime rejection passed.");
+console.log("Node support: package minimum, CI matrix, pinned Actions and legacy-runtime rejection passed.");

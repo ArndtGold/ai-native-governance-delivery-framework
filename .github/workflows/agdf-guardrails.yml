@@ -4,7 +4,10 @@ on:
   pull_request:
   push:
     branches:
-      - "**"
+      - main
+
+permissions:
+  contents: read
 
 jobs:
   verify:
@@ -32,12 +35,12 @@ jobs:
         shell: bash
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -76,8 +79,10 @@ jobs:
         run: npm --prefix create-agdf run test:package-contents
 
       - name: Verify @agdf/cli package contents
-        working-directory: agdf
-        run: npm pack --dry-run
+        run: npm --prefix agdf run test:package
+
+      - name: Verify control transactions and lock ownership
+        run: npm --prefix create-agdf run test:run-step-transaction && npm --prefix create-agdf run test:run-lock
 
       - name: Verify AGDF delivery-map gate
         if: matrix.repository_checks
@@ -89,7 +94,7 @@ jobs:
       # The create-agdf smoke test includes the @agdf/mcp-server tests, which need the MCP SDK.
       - name: Install MCP validation dependencies from checkout
         working-directory: agdf-mcp-server
-        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
+        run: npm ci --ignore-scripts
 
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix agdf-mcp-server run test:package

@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import process from "node:process";
 import { parseControlState } from "../control-state/run-state-parser.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
@@ -7,6 +7,7 @@ import { validateRunIdentity } from "../control-state/run-identity.js";
 import { buildRunCandidates } from "../interaction-presentation.js";
 import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./shared.js";
 import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
+import { containedRegularFile } from "../control-state/contained-file.js";
 
 export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
@@ -15,15 +16,9 @@ export const closeoutArtefacts = new Set(["OR"]);
 
 export function resolvedArtefactFile(targetDir, rawPath) {
   const normalizedPath = String(rawPath ?? "").replace(/^`|`$/g, "").trim();
-  if (!normalizedPath || isAbsolute(normalizedPath) || normalizedPath.includes("<") || normalizedPath.includes(">")) return "";
-  const absolutePath = resolve(targetDir, normalizedPath);
-  if (relative(targetDir, absolutePath).startsWith("..") || !existsSync(absolutePath)) return "";
-  try {
-    const realPath = realpathSync(absolutePath);
-    return relative(realpathSync(targetDir), realPath).startsWith("..") || !statSync(realPath).isFile() ? "" : realPath;
-  } catch {
-    return "";
-  }
+  if (normalizedPath.includes("<") || normalizedPath.includes(">")) return "";
+  const result = containedRegularFile(targetDir, normalizedPath);
+  return result.status === "valid" ? result.path : "";
 }
 
 export function readArtefactHeading(targetDir, artefact) {

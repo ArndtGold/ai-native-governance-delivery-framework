@@ -1,0 +1,11 @@
+{
+  "source_commit": "737457bdd8b4f19c18524eaa4cb469759e158836",
+  "source_location": "create-agdf/lib/control-state/run-steps.js",
+  "isolation": "two child processes, different Run IDs, one temporary shared Backlog with a 4 MB inert comment to widen the read/write overlap",
+  "attempt": 1,
+  "alpha_result": "recorded; backlog updated",
+  "beta_result": "recorded; backlog updated",
+  "final_alpha_backlog_rows": 0,
+  "final_beta_backlog_rows": 1,
+  "interpretation": "both sealed Run writes reported success, but the shared Backlog lost alpha's row"
+}

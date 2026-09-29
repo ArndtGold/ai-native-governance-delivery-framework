@@ -268,6 +268,8 @@ try {
 - next_allowed_action: Resolve QA findings.
 - quality_outlook: QA revise.
 `);
+  const qaRunPath = join(qaReviseRoot, ".agdf", "control", "runs", "qa-revise", "RUN_STATE.md");
+  writeFileSync(qaRunPath, sealRunState(qaReviseRoot, readFileSync(qaRunPath, "utf8")));
   const qaReviseGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
   assert.equal(qaReviseGateCheck.status, 0, qaReviseGateCheck.stderr);
   const qaReviseReport = JSON.parse(qaReviseGateCheck.stdout);
@@ -276,20 +278,18 @@ try {
   assert.equal(qaReviseReport.missing_approval, "none");
   assert.ok(qaReviseReport.allowed.every((action) => !action.includes("approval")));
   assert.ok(qaReviseReport.forbidden.includes("request QA approval"));
-  // A free-text QA-revise action is not in the operational locale catalogue; per the approved card UX
-  // (run agdf-actionable-card-ux-20260928-01, AC-003/AC-004) the card hands the turn to the user for a
-  // focused clarification instead of substituting a generic action or claiming agent continuation.
-  assert.equal(qaReviseReport.status_card.user_action_required, "yes");
-  assert.equal(qaReviseReport.status_card.internal_next_step, "none");
+  // QA revise gives the agent an explicit remediation action and does not request a user gate approval.
+  assert.equal(qaReviseReport.status_card.user_action_required, "no");
+  assert.equal(qaReviseReport.status_card.internal_next_step, "Resolve QA findings.");
   assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
   assert.equal(Object.hasOwn(qaReviseReport.status_card, "approvalOrientation"), false, "approval orientation must not change public JSON keys");
 
   const qaBlockRunPath = join(qaReviseRoot, ".agdf", "control", "runs", "qa-revise", "RUN_STATE.md");
   writeFileSync(
     qaBlockRunPath,
-    readFileSync(qaBlockRunPath, "utf8")
+    sealRunState(qaReviseRoot, readFileSync(qaBlockRunPath, "utf8")
       .replace("| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | revise | QA revision required |", "| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | block | QA blocked |")
-      .replace("- next_allowed_action: Resolve QA findings.", "- next_allowed_action: Route blocking QA findings."),
+      .replace("- next_allowed_action: Resolve QA findings.", "- next_allowed_action: Route blocking QA findings.")),
   );
   const qaBlockGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
   assert.equal(qaBlockGateCheck.status, 2, qaBlockGateCheck.stderr);
@@ -304,14 +304,14 @@ try {
   assert.ok(qaBlockReport.forbidden.includes("request UAT approval"));
   assert.equal(qaBlockReport.interaction_kind, "blocked");
   assert.equal(qaBlockReport.approval_presentation, null);
-  // Free-text QA-block action: same approved fail-closed clarification as the revise case above.
-  assert.equal(qaBlockReport.status_card.user_action_required, "yes");
-  assert.equal(qaBlockReport.status_card.internal_next_step, "none");
+  // QA block routes the finding to its owner without creating a new user gate approval.
+  assert.equal(qaBlockReport.status_card.user_action_required, "no");
+  assert.equal(qaBlockReport.status_card.internal_next_step, "Route blocking QA findings.");
   assert.equal(qaBlockReport.status_card.next_gate_after_approval, "none");
 
   writeFileSync(
     qaBlockRunPath,
-    readFileSync(qaBlockRunPath, "utf8").replace("| QA | missing |  |", "| QA | approved | Approval: QA |"),
+    sealRunState(qaReviseRoot, readFileSync(qaBlockRunPath, "utf8").replace("| QA | missing |  |", "| QA | approved | Approval: QA |")),
   );
   const approvedQaBlockGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
   assert.equal(approvedQaBlockGateCheck.status, 2, approvedQaBlockGateCheck.stderr);
@@ -411,6 +411,8 @@ ${approvals}
 
 - next_allowed_action: Request exact Approval: ${gate}.
 `);
+    const readyRunPath = join(readyRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md");
+    writeFileSync(readyRunPath, sealRunState(readyRoot, readFileSync(readyRunPath, "utf8")));
     const ready = spawnSync(process.execPath, [cli, "gate-check", "--dir", readyRoot, "--run", runId, "--json"], { encoding: "utf8" });
     assert.equal(ready.status, 0, `${gate}: ${ready.stderr}${ready.stdout.slice(0, 1500)}`);
     const report = JSON.parse(ready.stdout);
@@ -421,7 +423,7 @@ ${approvals}
     assert.ok(report.approval_presentation, `${gate}: ${JSON.stringify(report.presentation_diagnostics)}`);
     assert.equal(report.native_attempt_required, false, "report-only evaluation has no verified host adapter capability");
     const sealed = recordRunRevision(readyRoot, { runId, revisionId: report.approval_presentation.revision_id });
-    assert.equal(sealed.outcome, "updated");
+    assert.equal(sealed.outcome, "unchanged");
     // The wording below is English; pin it so the check does not follow the machine locale.
     const prepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id, language: "en" }, { evaluateGateCheck });
     assert.equal(prepared.outcome, "prepared", `${gate} must prepare: ${JSON.stringify(prepared)}`);
@@ -544,10 +546,11 @@ ${approvals}
       assert.equal(rejectedDuplicate.reason, "artefact_row_duplicate");
       assert.deepEqual(rejectedDuplicate.artefact_types, ["PRD"]);
       assert.match(rejectedDuplicate.recovery, /Keep one Artefacts row per type/u);
-      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_ARTEFACT_ROW_DUPLICATE/u);
+      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_RUN_SEAL_INVALID/u);
       assert.equal(readFileSync(statePath, "utf8"), duplicate, "rejected writes must preserve the run");
       writeFileSync(statePath, sealRunState(duplicateRoot, duplicate), "utf8");
       assert.equal(runSealState(duplicateRoot, readFileSync(statePath, "utf8")).status, "valid");
+      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_ARTEFACT_ROW_DUPLICATE/u);
       assert.equal(recordRunRevision(duplicateRoot, { runId: "duplicate-prd", revisionId }).reason,
         "artefact_row_duplicate", "a legacy sealed duplicate is not an unchanged success");
       const doctor = evaluateDoctor(duplicateRoot, { runId: "duplicate-prd" });
@@ -1002,8 +1005,8 @@ ${approvals}
 
       const gateResult = spawnSync(process.execPath, [cli, "gate-check", "--dir", identityRoot, "--json"], { encoding: "utf8" });
       const gateReport = JSON.parse(gateResult.stdout);
-      assert.ok(["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID"].includes(gateReport.blocking_reason), "IPP-3: gate-check names the identity defect instead of silently dropping the card");
-      assert.match(gateReport.next_allowed_action, /run-migrate|Fill the current UR control state/, "IPP-3: gate-check names a concrete repair action");
+      assert.ok(["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID", "AGDF_RUN_SEAL_INVALID"].includes(gateReport.blocking_reason), "IPP-3: gate-check blocks an unsealed legacy identity instead of silently dropping the card");
+      assert.match(gateReport.next_allowed_action, /run-migrate|legacy migration|Fill the current UR control state/, "IPP-3: gate-check names a concrete repair action");
     } finally {
       rmSync(identityRoot, { recursive: true, force: true });
     }

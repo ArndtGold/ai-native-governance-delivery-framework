@@ -42,7 +42,7 @@ Für das Verständnis helfen fünf Begriffe:
 |---|---|
 | **Host** | Das Programm, in dem der Coding-Agent läuft, zum Beispiel Codex oder Claude Code. Der Host besitzt Modellzugriff, Werkzeuge, Berechtigungen und Sitzungen. |
 | **Plugin oder Skills** | Anweisungen und Host-Integration, die dem Agenten sagen, wann und wie AGDF anzuwenden ist. |
-| **MCP-Server** | Ein lokaler Prozess, der dem Host das Werkzeug `agdf_dispatch` über den standardisierten MCP-Transport `stdio` anbietet. In Codex lautet die Server-ID `agdf`; `codex_app` gehört zur separaten Codex-App-Integration. |
+| **MCP-Server** | Ein lokaler Prozess, der dem Host `agdf_dispatch` und `agdf_inspect` über den standardisierten MCP-Transport `stdio` anbietet. In Codex lautet die Server-ID `agdf`; `codex_app` gehört zur separaten Codex-App-Integration. |
 | **MCP-Lebenszyklus** | Die AGDF-Befehle `mcp status`, `mcp enable` und `mcp disable`. Sie lesen oder ändern ausschließlich die native MCP-Konfiguration des ausgewählten Hosts. |
 | **Kontrollzustand** | Der ausgewählte Run mit Scope, Artefakten, Nachweisen und Freigaben unter `.agdf/control/`. |
 
@@ -71,7 +71,7 @@ Separat:
 
 ## 1. Systemkontext
 
-![Systemkontext: Der Mensch beauftragt den Agenten. Skills und MCP verbinden den Host mit dem gemeinsamen AGDF-Dispatcher. Der MCP-Lebenszyklus verwaltet davon getrennt die native Registrierung und Laufzeit.](diagrams/01-context.svg)
+![Systemkontext: Der Mensch beauftragt den Agenten. Skills und die beiden MCP-Werkzeuge verbinden den Host mit AGDF-Kontrollfunktionen. Der MCP-Lebenszyklus verwaltet die native Registrierung und Laufzeit.](diagrams/01-context.svg)
 
 *Abbildung 1: Logische Systemgrenze. Die Pfeile zeigen Aufrufe und Datenbeziehungen. Der MCP-Server
 ist ein lokaler `stdio`-Prozess und kein entfernter AGDF-Dienst.
@@ -84,7 +84,7 @@ werden dürfen und welche Sitzung neu geladen werden muss.
 AGDF hat zwei Verbindungen zum Host:
 
 1. **Anweisungsweg:** Plugin und Skills erklären dem Agenten Aktivierung, Arbeitsweise und Grenzen.
-2. **Werkzeugweg:** Der lokale MCP-Server stellt genau ein Werkzeug namens `agdf_dispatch` bereit.
+2. **Werkzeugweg:** Der lokale MCP-Server stellt zwei Werkzeuge bereit: `agdf_dispatch` für den Skill-Dispatcher und `agdf_inspect` für lesende Kontrollabfragen.
 
 Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`.
 Ein Run beschreibt genau einen abgegrenzten Arbeitsumfang. Sein kanonischer Zustand liegt unter
@@ -108,7 +108,7 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Bereich | Aufgabe | Maßgebliche Quelle |
 |---|---|---|
 | Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugin/meta/contracts/`](../../plugin/meta/contracts/), [`plugin/skills/`](../../plugin/skills/) |
-| Tool-Semantik | Besitzt Name, Beschreibung, Eingabe- und Ausgabeschema sowie Annotationen von `agdf_dispatch`. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) |
+| Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) |
 | Dispatch | Prüft Eingaben, bindet das Ziel und liefert ein terminales Kontrollergebnis oder einen begrenzten Fortsetzungsauftrag. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js) |
 | MCP-Server | Übersetzt MCP `tools/list` und `tools/call` in den vorhandenen Dispatch-Aufruf. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |
 | MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |
@@ -178,17 +178,21 @@ Programm, Validatorpfad, Host und erwarteter Version.
 ### 3.2 MCP-Werkzeugweg
 
 Ein MCP-fähiger Host startet den lokalen Server und fragt mit `tools/list` nach verfügbaren
-Werkzeugen. AGDF liefert genau `agdf_dispatch`. Ein anschließendes `tools/call` enthält den
-Skill-Namen sowie expliziten Ziel- und Laufkontext. OpenCode zeigt das Werkzeug wegen seiner
-Host-Namensbildung als `agdf_agdf_dispatch`; auf Serverebene bleibt der Name `agdf_dispatch`.
+Werkzeugen.
+MCP-Werkzeuge: `agdf_dispatch`, `agdf_inspect`.
+Ein `agdf_dispatch`-Aufruf enthält den
+Skill-Namen sowie expliziten Ziel- und Laufkontext. `agdf_inspect` bietet die lesenden Operationen
+`doctor`, `gate-check`, `delivery-map` und `contract` über dieselben Evaluatoren wie die CLI an;
+es schreibt keinen Kontrollzustand und erteilt keine Freigabe. OpenCode qualifiziert die Namen mit
+dem Serverpräfix `agdf_`.
 
-Für Codex gilt die sichtbare Zuordnung `agdf` -> `agdf_dispatch`. Der ebenfalls mögliche Eintrag
+Für Codex gilt die sichtbare Zuordnung `agdf` -> `agdf_dispatch` und `agdf_inspect`. Der ebenfalls mögliche Eintrag
 `codex_app` ist kein AGDF-Server, sondern gehört zur Codex-App-Integration. Er darf bei der Prüfung
 des AGDF-MCP-Zustands nicht als Ersatz für `agdf` gewertet werden.
 
-Der Server enthält keine zweite fachliche Funktion. Er importiert den kanonischen Vertrag und ruft
-den vorhandenen Dispatcher auf. Damit erhalten Skill- und MCP-Weg dieselbe Zielauflösung, dieselbe
-Gate-Auswertung und dieselben terminalen Fehlergrenzen.
+Der Server besitzt keine eigene Gate-Policy. Er importiert die kanonischen Werkzeugverträge und
+ruft für Dispatch und Inspect die vorhandenen Dienste und Evaluatoren auf. Damit erhalten CLI,
+Skill- und MCP-Weg dieselbe Zielauflösung und Gate-Auswertung.
 
 ### 3.3 Gemeinsame Grenzen
 

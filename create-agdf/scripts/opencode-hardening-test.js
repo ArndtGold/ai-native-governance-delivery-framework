@@ -521,7 +521,7 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     assert.deepEqual(binding.request_activation, {
       owner: "request_activation_contract",
       policy_version: 1,
-      guard_fingerprint: "sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999",
+      guard_fingerprint: "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
     });
     assert.equal(binding.authorizes, false);
     assert.deepEqual(JSON.parse(factsLine.slice("AGDF runtime facts: ".length)), { active: true, version: binding.expected_version });
@@ -542,7 +542,7 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     await activePlugin["experimental.session.compacting"]({}, compactionOutput);
     await activePlugin["experimental.session.compacting"]({}, compactionOutput);
     assert.deepEqual(compactionOutput.context, [activationKernel], "compaction must add at most one kernel-only recovery block");
-    assert.equal(Buffer.byteLength(compactionOutput.context[0], "utf8"), 1094);
+    assert.equal(Buffer.byteLength(compactionOutput.context[0], "utf8"), Buffer.byteLength(activationKernel, "utf8"));
     assert.doesNotMatch(compactionOutput.context[0], /AGDF dispatcher binding:|AGDF runtime facts:/);
 
     const inactiveSystemOutput = { system: [] };

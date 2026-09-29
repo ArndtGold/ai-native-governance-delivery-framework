@@ -31,9 +31,9 @@ After `skill_continuation`, consume the modules below from `continuation.runtime
 ## Request Activation
 
 - `owner`: `request_activation_contract`
-- `path`: `plugin/meta/contracts/request-activation.md`
+- `path`: `meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
+- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`
 
 Decide effect from loaded instructions before AGDF action.
 

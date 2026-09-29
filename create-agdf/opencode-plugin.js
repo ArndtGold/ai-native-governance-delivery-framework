@@ -18,7 +18,7 @@ function normalizeLf(content) {
 
 function validateRequestActivationIdentity(identity) {
   if (identity?.owner !== "request_activation_contract"
-      || identity?.path !== "plugin/meta/contracts/request-activation.md"
+      || identity?.path !== "meta/contracts/request-activation.md"
       || identity?.policy_version !== 1
       || !/^sha256:[0-9a-f]{64}$/.test(identity?.guard_fingerprint ?? "")) {
     throw new Error("AGDF Request Activation binding identity is invalid.");

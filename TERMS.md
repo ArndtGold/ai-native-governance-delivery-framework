@@ -1,9 +1,9 @@
 # Terms of Use
 
-Last updated: 2026-08-17
+Last updated: 2026-09-29
 
 These terms apply to the independent AI Governance & Delivery Framework (AGDF) project and its
-public plugin distribution. You are responsible for deciding whether AGDF is appropriate for your
+public plugin, CLI and local MCP server distributions. You are responsible for deciding whether AGDF is appropriate for your
 work and for reviewing all actions and outputs produced with it.
 
 ## Open-source license

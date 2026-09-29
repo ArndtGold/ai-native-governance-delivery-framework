@@ -1438,7 +1438,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
   }
   for (const required of [
     'identity?.owner !== "request_activation_contract"',
-    'identity?.path !== "plugin/meta/contracts/request-activation.md"',
+    'identity?.path !== "meta/contracts/request-activation.md"',
     "identity?.policy_version !== 1",
     "fingerprint mismatch",
     "const activeContext = () =>",
@@ -1466,7 +1466,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
   try {
     const expectedIdentity = {
       owner: "request_activation_contract",
-      path: "plugin/meta/contracts/request-activation.md",
+      path: "meta/contracts/request-activation.md",
       policy_version: 1,
       guard_fingerprint: canonicalGuardFingerprint,
     };

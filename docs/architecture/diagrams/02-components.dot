@@ -1,5 +1,5 @@
 digraph components {
-  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.38, ranksep=0.58, fontname="Helvetica", label="02  /  EIN VERTRAG, ZWEI EINSTIEGE, VIER ADAPTER", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  graph [rankdir=TB, newrank=true, bgcolor="white", pad=0.3, nodesep=0.38, ranksep=0.58, fontname="Helvetica", label="02  /  ZWEI WERKZEUGVERTRÄGE, VIER ADAPTER", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
   node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.18,0.12", penwidth=1.3];
   edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
 
@@ -7,8 +7,10 @@ digraph components {
   binding [label="Geprüfte Skill-Bindung"];
   host [label="Coding-Agent im Host", fillcolor="#EEE9FF", color="#8270AE"];
   server [label="MCP-Server\ntools/list · tools/call"];
-  contract [label="Kanonischer Tool-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
+  contract [label="Dispatch-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
   dispatch [label="Skill-Dispatcher\nEingabe · Zielbindung"];
+  inspect_contract [label="Inspect-Vertrag\nName · Beschreibung · Schemas", fillcolor="#FFF2CF", color="#BF9840"];
+  inspect [label="Lesender Inspect-Service\nDoctor · Gate-Check · Map · Vertrag"];
   target [label="Zielauflösung"];
   gate [label="Gate-Auswertung"];
   state [label=".agdf/control/\nRun · Artefakte · Freigaben", fillcolor="#E5F0FC", color="#5284AD"];
@@ -26,9 +28,12 @@ digraph components {
   skills -> binding;
   binding -> contract;
   server -> contract;
+  server -> inspect_contract;
   contract -> dispatch;
+  inspect_contract -> inspect;
   dispatch -> target;
   target -> gate;
+  inspect -> gate [label="gemeinsame Evaluatoren"];
   gate -> state [label="prüft"];
 
   profile -> service [label="validiert"];

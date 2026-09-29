@@ -53,11 +53,16 @@ Letzter Nachweis: [evidence/claude-activation-matrix-20260928.md](evidence/claud
 
 ```bash
 npm run native:codex-activation-matrix -- --scope-run agdf-request-activation-boundary
+npm run native:codex-activation-matrix -- --scope-run <run-id> --repeat-case A3 --repeat-case N1
 npm run native:codex-activation-matrix -- --scope-run <run-id> --runs 3 --concurrency 2 --model <modell> --keep
 ```
 
-Führt dieselben zehn Fälle je dreimal mit `codex exec --json` in frischen Wegwerf-Git-Repositories
-aus. Vorher werden Codex-Version, aktives AGDF-MCP und Paketversion geprüft. Die Matrix verwendet
+Führt dieselben zehn Fälle zunächst je einmal mit `codex exec --json` in frischen Wegwerf-Git-Repositories
+aus. Nur Fälle mit abweichendem oder unvollständigem Erstlauf erhalten automatisch zwei weitere
+frische Sitzungen. Mit wiederholbarem `--repeat-case <Fall-ID>` lassen sich Grenzfälle vor dem Start
+für zwei zusätzliche Läufe markieren. `--runs 3` behält die bisherige feste Dreifachmatrix bei;
+`--runs` und `--repeat-case` lassen sich nicht kombinieren. Vorher werden Codex-Version, aktives
+AGDF-MCP und Paketversion geprüft. Die Matrix verwendet
 ein temporäres `CODEX_HOME` mit den aktiven Modell-/Reasoning-Einstellungen und einer isolierten Kopie
 des installierten AGDF-Pakets; nur die MCP-Launcher- und Datapfade zeigen in den temporären Bereich.
 Die Authentifizierungsdatei wird kurzzeitig mit restriktiven Rechten kopiert und am Ende entfernt.
@@ -65,8 +70,15 @@ Das echte Profil und der echte AGDF-Datenbestand bleiben unverändert. Codex fü
 seinem automatischen Reviewer im `workspace-write`-Sandbox aus. Bewertet werden strukturierte
 AGDF-Aufrufe und `git status`, niemals Modelltext. Das Ergebnis ist probabilistische Host-Evidenz,
 kein Release-Gate.
+Der A4-Erklärungsfall bekommt `meta/contracts/modes.md` aus der isolierten Plugin-Kopie als konkrete
+Quelle. `observation.json` dokumentiert je Sitzung Gesamt-, Cache- und nicht gecachte Input-Tokens,
+Output-Tokens, Laufzeit sowie beobachtete Datei-/Shell-Such- und Dateileseaufrufe. Fehlende Telemetrie
+steht als `null` beziehungsweise `unknown`; die Suchwerte zählen abgeschlossene Toolaufrufe und nicht
+gelesene Dateien oder einzelne Kommandos innerhalb eines Shell-Aufrufs. `summary.txt` nennt pro Fall
+die Laufzahl und den Wiederholungsauslöser. Zehn statt 30 Sitzungen bei unauffälligen Erstläufen
+sind möglich; die tatsächliche Token- oder Kostenersparnis ist daraus nicht exakt ableitbar.
 Ergebnis: `probe-results/codex-activation-matrix-<Zeitstempel>/summary.txt` und `observation.json`.
-Letzter Nachweis: [evidence/codex-activation-matrix-20260928.md](evidence/codex-activation-matrix-20260928.md).
+Letzter Nachweis: [evidence/codex-activation-matrix-20260929.md](evidence/codex-activation-matrix-20260929.md).
 
 ## Host-E2E Codex: ein Befehl, ein festes Tupel
 

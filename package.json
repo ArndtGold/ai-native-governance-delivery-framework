@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:maintenance-contracts": "node scripts/node-support-test.mjs && node create-agdf/scripts/interaction-catalog-test.js && node create-agdf/scripts/payload-budget-test.js && node scripts/native-probes/release-evidence-test.mjs",
+    "test:maintenance-contracts": "node scripts/node-support-test.mjs && node create-agdf/scripts/interaction-catalog-test.js && node create-agdf/scripts/payload-budget-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
     "check:community-health": "node scripts/check-community-health.mjs",
     "install:claude": "npm --prefix create-agdf run install:claude",
     "install:codex": "npm --prefix create-agdf run install:codex",

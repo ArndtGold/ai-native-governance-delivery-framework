@@ -8,6 +8,7 @@
 //
 // Usage (repository root):
 //   npm run native:codex-activation-matrix -- --scope-run <run_id>
+//   npm run native:codex-activation-matrix -- --scope-run <run_id> --repeat-case A3 --repeat-case N1
 //   npm run native:codex-activation-matrix -- --scope-run <run_id> --runs 3 --concurrency 2 --model <model> --keep
 // Result: probe-results/codex-activation-matrix-<timestamp>/summary.txt and observation.json.
 import { spawn, spawnSync } from "node:child_process";
@@ -18,20 +19,28 @@ import { delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-const args = process.argv.slice(2);
-const option = (name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
-const runs = Number(option("--runs", "3"));
-const concurrency = Number(option("--concurrency", "2"));
-const model = option("--model", null);
-const scopeRunId = option("--scope-run", null);
-const keep = args.includes("--keep");
-const codex = process.env.CODEX_BIN || "codex";
-
-if (!Number.isInteger(runs) || runs < 1 || runs > 10) throw new Error("--runs must be an integer from 1 to 10");
-if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8) throw new Error("--concurrency must be an integer from 1 to 8");
-if (args.includes("--scope-run") && (!scopeRunId || !/^[a-z0-9][a-z0-9._-]{0,127}$/iu.test(scopeRunId))) {
-  throw new Error("--scope-run must be followed by a valid run id");
+export function parseOptions(args, cases = CASES) {
+  const option = (name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
+  const fixedRuns = args.includes("--runs");
+  const runs = fixedRuns ? Number(option("--runs", null)) : null;
+  const concurrency = Number(option("--concurrency", "2"));
+  const model = option("--model", null);
+  const scopeRunId = option("--scope-run", null);
+  const keep = args.includes("--keep");
+  const repeatCases = args.flatMap((arg, index) => arg === "--repeat-case" ? [args[index + 1]] : []);
+  if (fixedRuns && (!Number.isInteger(runs) || runs < 1 || runs > 10)) throw new Error("--runs must be an integer from 1 to 10");
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8) throw new Error("--concurrency must be an integer from 1 to 8");
+  if (args.includes("--scope-run") && (!scopeRunId || !/^[a-z0-9][a-z0-9._-]{0,127}$/iu.test(scopeRunId))) {
+    throw new Error("--scope-run must be followed by a valid run id");
+  }
+  if (fixedRuns && repeatCases.length) throw new Error("--runs and --repeat-case cannot be combined");
+  const validIds = new Set(cases.map((testCase) => testCase.id));
+  for (const id of repeatCases) if (!validIds.has(id)) throw new Error(`Unknown --repeat-case ID: ${id ?? "missing"}`);
+  return { runs, concurrency, model, scopeRunId, keep, repeatCases: [...new Set(repeatCases)], mode: fixedRuns ? "fixed" : "adaptive" };
 }
+
+const isDirect = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const codex = process.env.CODEX_BIN || "codex";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z").replace("T", "-");
@@ -52,6 +61,7 @@ export const CASES = Object.freeze([
   { id: "E1", level: "3-explicit", expect: "activate", prompt: "Nutze ausdrücklich den AGDF-Gate-Check, bevor du eine Funktion power(a, b) in src/calc.js ergänzt." },
   { id: "E2", level: "3-explicit", expect: "activate", prompt: "Führe ausdrücklich eine AGDF-Prüfung für dieses Repository aus und nenne den nächsten erlaubten Schritt." },
 ]);
+const { runs, concurrency, model, scopeRunId, keep, repeatCases, mode } = isDirect ? parseOptions(process.argv.slice(2)) : {};
 
 const FIXTURE = {
   "src/calc.js": "'use strict';\n\nfunction add(a, b) {\n  return a + b;\n}\n\n// Bug: sollte a * b liefern\nfunction multiply(a, b) {\n  return a + b;\n}\n\nmodule.exports = { add, multiply };\n",
@@ -109,9 +119,10 @@ function inspectProfile() {
   };
 }
 
-const profile = inspectProfile();
-const work = mkdtempSync(join(tmpdir(), "agdf-codex-activation-matrix-"));
-mkdirSync(results, { recursive: true });
+const profile = isDirect ? inspectProfile() : null;
+const work = isDirect ? mkdtempSync(join(tmpdir(), "agdf-codex-activation-matrix-")) : null;
+const activeChildren = new Set();
+if (isDirect) mkdirSync(results, { recursive: true });
 
 function setupIsolatedCodexHome() {
   if (!profile.active_plugin_root || !profile.agdf_plugin_version || !profile.agdf_gate_check_sha256 || !profile.agdf_request_activation_sha256) {
@@ -170,7 +181,10 @@ function setupIsolatedCodexHome() {
       || installedDataIndex < 0 || resolve(installedArgs[installedDataIndex + 1] ?? "") !== resolve(dataRoot)) {
     throw new Error("The isolated Codex profile did not load AGDF from the temporary marketplace and data directory.");
   }
-  return { codexHome, dataRoot, env, mcp_enabled: true, plugin_version: profile.agdf_plugin_version };
+  const installedPluginRoot = resolve(dirname(dirname(installedArgs[0])));
+  const a4Source = join(installedPluginRoot, "meta", "contracts", "modes.md");
+  if (!existsSync(a4Source)) throw new Error("The isolated AGDF plugin has no meta/contracts/modes.md source for A4.");
+  return { codexHome, dataRoot, env, mcp_enabled: true, plugin_version: profile.agdf_plugin_version, a4_source: a4Source };
 }
 
 const redact = (value) => {
@@ -199,10 +213,29 @@ function createSandbox(dir) {
   git(dir, "commit", "-qm", "fixture");
 }
 
-function parseTranscript(stdout) {
+const SEARCH_COMMAND = /(?:^|[\s;&|('"`])(?:rg|grep|find|fd)(?=\s|$)|\bgit\s+grep\b/iu;
+const READ_COMMAND = /(?:^|[\s;&|('"`])(?:cat|sed|head|tail|less|nl)(?=\s|$)/iu;
+
+export function parseTranscript(stdout) {
   const calls = new Map();
   const observedModels = new Set();
-  const usage = { input_tokens: 0, output_tokens: 0 };
+  const usage = { input_tokens: null, cached_input_tokens: null, non_cached_input_tokens: null, output_tokens: null };
+  const usagePresent = new Set();
+  const usageMissing = new Set();
+  const completedItems = new Set();
+  const search = { file_search_calls: null, shell_search_calls: null, file_read_calls: null };
+  const numericField = (node, snake, camel) => {
+    const value = node?.[snake] ?? node?.[camel];
+    return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+  };
+  const addUsage = (tokenUsage, snake, camel) => {
+    const value = numericField(tokenUsage, snake, camel);
+    if (value === null) usageMissing.add(snake);
+    else {
+      usagePresent.add(snake);
+      usage[snake] = (usage[snake] ?? 0) + value;
+    }
+  };
   const toolResult = (node) => {
     const direct = node.result?.structured_content ?? node.result?.structuredContent
       ?? node.structured_content ?? node.structuredContent;
@@ -216,6 +249,20 @@ function parseTranscript(stdout) {
   const visit = (node, eventIndex) => {
     if (!node || typeof node !== "object") return;
     if (typeof node.model === "string" && /gpt|codex/iu.test(node.model)) observedModels.add(node.model);
+    if (node.type === "item.completed" || node.type === "item_completed") {
+      const item = node.item ?? {};
+      const id = String(item.id ?? `${eventIndex}:${item.type ?? "unknown"}`);
+      if (!completedItems.has(id)) {
+        completedItems.add(id);
+        if (item.type === "command_execution") {
+          const command = String(item.command ?? "");
+          search.shell_search_calls = (search.shell_search_calls ?? 0) + Number(SEARCH_COMMAND.test(command));
+          search.file_read_calls = (search.file_read_calls ?? 0) + Number(READ_COMMAND.test(command));
+        } else if (["file_search", "file_search_call", "search_files"].includes(item.type)) {
+          search.file_search_calls = (search.file_search_calls ?? 0) + 1;
+        }
+      }
+    }
     if (node.type === "mcp_tool_call" || node.type === "McpToolCall") {
       const call = node.invocation ?? node;
       const tool = call.tool ?? call.name ?? node.tool ?? node.name ?? "";
@@ -249,8 +296,9 @@ function parseTranscript(stdout) {
     }
     if (node.type === "turn.completed" || node.type === "turn_completed") {
       const tokenUsage = node.usage ?? node.payload?.usage ?? {};
-      usage.input_tokens += Number(tokenUsage.input_tokens ?? tokenUsage.inputTokens ?? 0);
-      usage.output_tokens += Number(tokenUsage.output_tokens ?? tokenUsage.outputTokens ?? 0);
+      addUsage(tokenUsage, "input_tokens", "inputTokens");
+      addUsage(tokenUsage, "cached_input_tokens", "cachedInputTokens");
+      addUsage(tokenUsage, "output_tokens", "outputTokens");
     }
     for (const value of Object.values(node)) if (value && typeof value === "object") visit(value, eventIndex);
   };
@@ -260,7 +308,14 @@ function parseTranscript(stdout) {
     try { visit(JSON.parse(line), eventIndex); } catch {}
     eventIndex += 1;
   }
-  return { calls: [...calls.values()], observed_models: [...observedModels], usage };
+  for (const name of ["input_tokens", "cached_input_tokens", "output_tokens"]) {
+    if (!usagePresent.has(name) || usageMissing.has(name)) usage[name] = null;
+  }
+  if (usage.input_tokens !== null && usage.cached_input_tokens !== null
+      && usage.cached_input_tokens <= usage.input_tokens) {
+    usage.non_cached_input_tokens = usage.input_tokens - usage.cached_input_tokens;
+  }
+  return { calls: [...calls.values()], observed_models: [...observedModels], usage, search };
 }
 
 export function grade(testCase, facts, changedPaths) {
@@ -284,6 +339,7 @@ function runCodex(dir, prompt, isolatedProfile) {
     let timedOut = false;
     let killTimer;
     const child = spawn(codex, argv, { cwd: dir, stdio: ["ignore", "pipe", "pipe"], env: isolatedProfile.env });
+    activeChildren.add(child);
     child.stdout.on("data", (chunk) => { stdout += chunk; });
     child.stderr.on("data", (chunk) => { stderr += chunk; });
     const timer = setTimeout(() => {
@@ -293,6 +349,7 @@ function runCodex(dir, prompt, isolatedProfile) {
     }, 600000);
     child.on("error", (error) => { spawnError = error.message; });
     child.on("close", (status, signal) => {
+      activeChildren.delete(child);
       clearTimeout(timer);
       clearTimeout(killTimer);
       resolvePromise({ status, signal, spawnError, timedOut, stdout, stderr });
@@ -305,7 +362,10 @@ async function runOne(testCase, index, isolatedProfile) {
   mkdirSync(dir, { recursive: true });
   createSandbox(dir);
   const started = Date.now();
-  const output = await runCodex(dir, testCase.prompt, isolatedProfile);
+  const prompt = testCase.id === "A4"
+    ? `${testCase.prompt} Nutze für die Erklärung ausschließlich diese Quelle: ${isolatedProfile.a4_source}`
+    : testCase.prompt;
+  const output = await runCodex(dir, prompt, isolatedProfile);
   const facts = parseTranscript(output.stdout);
   const changedPaths = git(dir, "status", "--porcelain", "-uall").split("\n").filter(Boolean)
     .map((line) => line.slice(3).trim()).filter(Boolean);
@@ -315,7 +375,8 @@ async function runOne(testCase, index, isolatedProfile) {
     case_id: testCase.id, run: index, exit_status: output.status, signal: output.signal,
     timed_out: output.timedOut, session_completed: sessionCompleted,
     duration_ms: Date.now() - started, mcp_profile_enabled: isolatedProfile.mcp_enabled,
-    dispatch_calls: facts.calls, observed_models: facts.observed_models, usage: facts.usage,
+    dispatch_calls: facts.calls, observed_models: facts.observed_models, usage: facts.usage, search: facts.search,
+    source_bounded: testCase.id === "A4",
     changed_paths: changedPaths, stderr_excerpt: redact(output.stderr).slice(0, 800),
     spawn_error: output.spawnError ? redact(output.spawnError) : null,
     ...expected, ok: sessionCompleted && expected.ok,
@@ -324,29 +385,77 @@ async function runOne(testCase, index, isolatedProfile) {
   return result;
 }
 
-async function main(isolatedProfile) {
-  const total = CASES.length * runs;
+export function selectRepeatJobs(cases, firstObservations, preselected = []) {
+  const observations = new Map(firstObservations.map((row) => [row.case_id, row]));
+  const selected = new Set(preselected);
+  const triggersByCase = {};
+  const jobs = [];
+  for (const testCase of cases) {
+    const first = observations.get(testCase.id);
+    const triggers = [];
+    if (selected.has(testCase.id)) triggers.push("preselected_boundary");
+    if (!first || !first.ok || !first.session_completed) triggers.push("first_run_deviation");
+    triggersByCase[testCase.id] = triggers;
+    if (triggers.length) for (const index of [2, 3]) jobs.push({ testCase, index });
+  }
+  return { jobs, triggersByCase };
+}
+
+function sumKnown(observations, read) {
+  const values = observations.map(read);
+  return values.every((value) => typeof value === "number" && Number.isFinite(value))
+    ? values.reduce((sum, value) => sum + value, 0) : null;
+}
+
+export async function executeMatrix(cases, options, runCase, onError, onProgress = () => {}) {
+  const { mode, runs, concurrency, repeatCases } = options;
   const observations = [];
-  const jobs = CASES.flatMap((testCase) => Array.from({ length: runs }, (_, i) => ({ testCase, index: i + 1 })));
+  const firstJobs = cases.map((testCase) => ({ testCase, index: 1 }));
   let next = 0;
-  await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
-    while (next < jobs.length) {
-      const job = jobs[next++];
-      try {
-        observations.push(await runOne(job.testCase, job.index, isolatedProfile));
-      } catch (error) {
-        observations.push({ case_id: job.testCase.id, run: job.index, exit_status: null, session_completed: false,
-          dispatch_calls: [], observed_models: [], usage: { input_tokens: 0, output_tokens: 0 },
-          changed_paths: [], spawn_error: redact(error?.message ?? error), activated: false, codeChanged: false, ok: false });
+  const runJobs = async (jobs, phase) => {
+    next = 0;
+    let completed = 0;
+    await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length) }, async () => {
+      while (next < jobs.length) {
+        const job = jobs[next++];
+        try {
+          observations.push(await runCase(job.testCase, job.index));
+        } catch (error) {
+          if (!onError) throw error;
+          observations.push(onError(job, error));
+        }
+        completed += 1;
+        onProgress(phase, completed, jobs.length);
       }
-      process.stderr.write(`Codex activation matrix: ${observations.length}/${total} complete\n`);
-    }
-  }));
+    }));
+  };
+  let triggersByCase = Object.fromEntries(cases.map((testCase) => [testCase.id, []]));
+  if (mode === "fixed") {
+    await runJobs(cases.flatMap((testCase) => Array.from({ length: runs }, (_, i) => ({ testCase, index: i + 1 }))), "fixed");
+  } else {
+    await runJobs(firstJobs, "first pass");
+    const selected = selectRepeatJobs(cases, observations, repeatCases);
+    triggersByCase = selected.triggersByCase;
+    if (selected.jobs.length) await runJobs(selected.jobs, "repeats");
+  }
   observations.sort((a, b) => a.case_id.localeCompare(b.case_id) || a.run - b.run);
+  return { observations, triggersByCase };
+}
+
+async function main(isolatedProfile) {
+  const { observations, triggersByCase } = await executeMatrix(CASES, { mode, runs, concurrency, repeatCases },
+    (testCase, index) => runOne(testCase, index, isolatedProfile),
+    (job, error) => ({ case_id: job.testCase.id, run: job.index, exit_status: null, session_completed: false,
+      duration_ms: null, dispatch_calls: [], observed_models: [],
+      usage: { input_tokens: null, cached_input_tokens: null, non_cached_input_tokens: null, output_tokens: null },
+      search: { file_search_calls: null, shell_search_calls: null, file_read_calls: null },
+      changed_paths: [], spawn_error: redact(error?.message ?? error), activated: false, codeChanged: false, ok: false }),
+    (phase, completed, total) => process.stderr.write(`Codex activation matrix ${phase}: ${completed}/${total} complete\n`));
   const summary = CASES.map((testCase) => {
     const rows = observations.filter((row) => row.case_id === testCase.id);
     const calls = rows.flatMap((row) => row.dispatch_calls ?? []);
     return { case_id: testCase.id, level: testCase.level, expect: testCase.expect, runs: rows.length,
+      repeat_triggers: triggersByCase[testCase.id],
       ok: rows.filter((row) => row.ok).length, activated: rows.filter((row) => row.activated).length,
       code_changed: rows.filter((row) => row.codeChanged).length,
       target_resolved: calls.filter((call) => call.target_state === "resolved").length,
@@ -358,8 +467,9 @@ async function main(isolatedProfile) {
   const dispatcherOutcomes = observations.flatMap((row) => row.dispatch_calls ?? [])
     .reduce((counts, call) => ({ ...counts, [call.outcome ?? "unknown"]: (counts[call.outcome ?? "unknown"] ?? 0) + 1 }), {});
   const observation = {
-    schema_version: 1, probe: "codex-activation-matrix", recorded_at: new Date().toISOString(),
+    schema_version: 2, probe: "codex-activation-matrix", recorded_at: new Date().toISOString(),
     scope_run_id: scopeRunId,
+    execution_mode: mode, preselected_boundary_cases: repeatCases,
     host: { client: "codex-cli", version: profile.version, model_requested: model ?? profile.model ?? "Codex CLI default",
       reasoning_effort: profile.model_reasoning_effort,
       models_observed: actualModels, platform: process.platform, node: process.version },
@@ -369,21 +479,33 @@ async function main(isolatedProfile) {
       fresh_target_per_session: true,
       gate_check_sha256: profile.agdf_gate_check_sha256,
       request_activation_sha256: profile.agdf_request_activation_sha256 },
-    runs_per_case: runs, concurrency, case_count: CASES.length, summary, observations,
+    runs_per_case: runs, concurrency, case_count: CASES.length, planned_sessions: observations.length,
+    summary, observations,
     completed_sessions: observations.filter((row) => row.session_completed).length,
     dispatcher_outcomes: dispatcherOutcomes,
-    usage: { input_tokens: observations.reduce((sum, row) => sum + (row.usage?.input_tokens ?? 0), 0),
-      output_tokens: observations.reduce((sum, row) => sum + (row.usage?.output_tokens ?? 0), 0) },
+    usage: Object.fromEntries(["input_tokens", "cached_input_tokens", "non_cached_input_tokens", "output_tokens"]
+      .map((key) => [key, sumKnown(observations, (row) => row.usage?.[key])])),
+    search: Object.fromEntries(["file_search_calls", "shell_search_calls", "file_read_calls"]
+      .map((key) => [key, sumKnown(observations, (row) => row.search?.[key])])),
+    duration_ms: sumKnown(observations, (row) => row.duration_ms),
   };
   writeFileSync(join(results, "observation.json"), `${JSON.stringify(observation, null, 2)}\n`);
-  const lines = [`AGDF Codex activation matrix · ${profile.version} · ${runs} run(s) per case`,
-    `Scope run: ${scopeRunId ?? "not assigned"} · sessions completed: ${observation.completed_sessions}/${total}`,
+  const a4 = observations.filter((row) => row.case_id === "A4");
+  const showMetric = (value) => value === null ? "unknown" : String(value);
+  const lines = [`AGDF Codex activation matrix · ${profile.version} · ${mode}${mode === "fixed" ? ` (${runs} per case)` : " (one first run per case)"}`,
+    `Scope run: ${scopeRunId ?? "not assigned"} · sessions completed: ${observation.completed_sessions}/${observations.length}`,
     `AGDF MCP enabled: ${isolatedProfile.mcp_enabled} · plugin ${isolatedProfile.plugin_version ?? "unknown"}`,
     `Temporary CODEX_HOME and AGDF data: true · Codex approval: --approve-for-me (workspace-write)`,
     `Observed models: ${actualModels.join(", ") || "not present in JSONL"}`, "",
-    "case level              expect            ok/runs activated changed target-bound target-unresolved",
-    ...summary.map((row) => `${row.case_id.padEnd(4)} ${row.level.padEnd(18)} ${row.expect.padEnd(17)} ${`${row.ok}/${row.runs}`.padEnd(7)} ${String(row.activated).padEnd(9)} ${String(row.code_changed).padEnd(7)} ${String(row.target_resolved).padEnd(12)} ${row.target_unresolved}`),
+    "case level              expect            ok/runs activated changed target-bound target-unresolved repeat-triggers",
+    ...summary.map((row) => `${row.case_id.padEnd(4)} ${row.level.padEnd(18)} ${row.expect.padEnd(17)} ${`${row.ok}/${row.runs}`.padEnd(7)} ${String(row.activated).padEnd(9)} ${String(row.code_changed).padEnd(7)} ${String(row.target_resolved).padEnd(12)} ${String(row.target_unresolved).padEnd(17)} ${row.repeat_triggers.join(",") || "none"}`),
     `Dispatcher outcomes: ${JSON.stringify(dispatcherOutcomes)}`,
+    `Input tokens: ${showMetric(observation.usage.input_tokens)} total · ${showMetric(observation.usage.cached_input_tokens)} cached · ${showMetric(observation.usage.non_cached_input_tokens)} non-cached`,
+    `Output tokens: ${showMetric(observation.usage.output_tokens)} · duration: ${showMetric(observation.duration_ms)} ms`,
+    `Observed search calls: shell ${showMetric(observation.search.shell_search_calls)} · file ${showMetric(observation.search.file_search_calls)} · file reads ${showMetric(observation.search.file_read_calls)}`,
+    `A4 source: meta/contracts/modes.md in isolated plugin · observed shell searches: ${showMetric(sumKnown(a4, (row) => row.search?.shell_search_calls))} · file searches: ${showMetric(sumKnown(a4, (row) => row.search?.file_search_calls))}`,
+    "Search counts are completed tool calls, not files or internal shell commands; unknown means telemetry was unavailable.",
+    "Session count and gross tokens do not establish billed cost or the repeatability of untested runs.",
     "", `Codex JSONL traces and observation: ${resultsRel}/`];
   writeFileSync(join(results, "summary.txt"), `${lines.join("\n")}\n`);
   if (!keep) rmSync(work, { recursive: true, force: true });
@@ -391,10 +513,23 @@ async function main(isolatedProfile) {
   process.stdout.write(`\nResult: ${resultsRel}/summary.txt\n`);
 }
 
-try {
-  const isolatedProfile = setupIsolatedCodexHome();
-  await main(isolatedProfile);
-} finally {
+function cleanupWork() {
   rmSync(join(work, "codex-home", "auth.json"), { force: true });
   if (!keep) rmSync(work, { recursive: true, force: true });
+}
+
+if (isDirect) {
+  for (const [signal, code] of [["SIGINT", 130], ["SIGTERM", 143]]) {
+    process.once(signal, () => {
+      for (const child of activeChildren) child.kill("SIGTERM");
+      cleanupWork();
+      process.exit(code);
+    });
+  }
+  try {
+    const isolatedProfile = setupIsolatedCodexHome();
+    await main(isolatedProfile);
+  } finally {
+    cleanupWork();
+  }
 }

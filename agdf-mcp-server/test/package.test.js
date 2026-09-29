@@ -47,14 +47,16 @@ const npmCache = mkdtempSync(join(tmpdir(), "agdf-mcp-npm-cache-"));
 let packed;
 try {
   const pack = npmInvocation(["pack", "--dry-run", "--json", "--ignore-scripts"]);
-  packed = JSON.parse(execFileSync(pack.executable, pack.args, {
+  const report = JSON.parse(execFileSync(pack.executable, pack.args, {
     cwd: root,
     encoding: "utf8",
     env: { ...process.env, npm_config_cache: npmCache },
-  }))[0];
+  }));
+  packed = Array.isArray(report) ? report[0] : report[manifest.name];
 } finally {
   rmSync(npmCache, { recursive: true, force: true });
 }
+assert.ok(Array.isArray(packed?.files), "npm pack must report the package file inventory");
 const paths = packed.files.map((file) => file.path);
 for (const required of ["bin/agdf-mcp.js", "src/main.js", "src/server.js", "src/worker.js", "src/worker-entry.js", "README.md", "NOTICE", "package.json"]) {
   assert.ok(paths.includes(required), `packed server is missing ${required}`);

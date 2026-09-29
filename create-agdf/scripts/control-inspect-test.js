@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -90,8 +90,15 @@ function cliJson(args, root) {
   assert.ok([0, 2].includes(run.status), `${args.join(" ")}: ${run.stderr}`);
   return JSON.parse(run.stdout);
 }
+function cliText(args, root) {
+  const run = spawnSync(process.execPath, [cli, ...args, "--dir", root], { encoding: "utf8" });
+  assert.ok([0, 2].includes(run.status), `${args.join(" ")}: ${run.stderr}`);
+  return run.stdout.replace(/\n$/u, "");
+}
 
-const root = mkdtempSync(join(tmpdir(), "agdf-control-inspect-"));
+// macOS may expose the same temporary directory as /var and /private/var. Both surfaces
+// receive the canonical path so the report comparison tests content rather than an alias.
+const root = realpathSync(mkdtempSync(join(tmpdir(), "agdf-control-inspect-")));
 try {
   mkdirSync(join(root, ".git"));
   writeFileSync(join(root, ".git", "HEAD"), "ref: refs/heads/main\n", "utf8");
@@ -127,9 +134,16 @@ try {
       const expected = cliJson(operation === "gate-check" ? [...cliArgs, "--language", language] : cliArgs, root);
       assert.equal(stable(result.report), stable(expected), `${language} ${operation} ${JSON.stringify(extra)} report parity`);
       if (operation === "gate-check") {
-        assert.equal(result.presentation?.markdown, extra.variant === "approval-envelope" && expected.approval_presentation?.markdown
-          ? expected.approval_presentation.markdown
-          : expected.status_presentation?.markdown, `${language} ${operation} markdown parity`);
+        const flag = extra.variant === "approval-envelope" ? "--approval-envelope"
+          : extra.variant === "status-card" ? "--status-card" : null;
+        const expectedMarkdown = flag
+          ? cliText([...cliArgs, flag, "--language", language], root)
+          : expected.status_presentation?.markdown;
+        assert.equal(result.presentation?.markdown, expectedMarkdown, `${language} ${operation} ${JSON.stringify(extra)} CLI Markdown parity`);
+        if (flag && expected.approval_presentation?.preview_markdown) {
+          assert.equal(result.presentation.markdown, expected.approval_presentation.preview_markdown,
+            "a read-only gate variant exposes the preview, never the unbound approval question");
+        }
         assert.equal(result.presentation.authorizes, false);
       }
     }
@@ -141,6 +155,13 @@ try {
       assert.equal(JSON.stringify(result.report), JSON.stringify(JSON.parse(run.stdout)), `${language} contract ${module} parity`);
       assert.equal(result.presentation.markdown, result.report.content);
     }
+  }
+  for (const [variant, flag] of [["status-card", "--status-card"], ["approval-envelope", "--approval-envelope"]]) {
+    const blocked = inspect({ ...base, operation: "gate-check", presentationLanguage: "en", runId: "missing-run", variant });
+    assert.equal(blocked.outcome, "inspect_result");
+    assert.equal(blocked.presentation?.markdown,
+      cliText(["gate-check", "--run", "missing-run", flag, "--language", "en"], root),
+      `${variant} also matches CLI output when the gate is not ready`);
   }
   const unknownModule = inspect({ ...base, operation: "contract", presentationLanguage: "en", contractModule: "does-not-exist" });
   assert.equal(unknownModule.outcome, "invalid_input");

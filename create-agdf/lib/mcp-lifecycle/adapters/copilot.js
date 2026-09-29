@@ -16,7 +16,7 @@ const OWNER = "create-agdf:mcp-runtime";
 function entry(spec) {
   return { type: "local", command: spec.command, args: [...spec.args],
     env: { AGDF_MCP_OWNER: OWNER, AGDF_MCP_VERSION: spec.version, AGDF_MCP_DIGEST: spec.digest },
-    tools: ["agdf_dispatch"] };
+    tools: ["agdf_dispatch", "agdf_inspect"] };
 }
 
 function inspectPath(path, expected) {

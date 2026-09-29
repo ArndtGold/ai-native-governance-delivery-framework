@@ -349,7 +349,7 @@ assert.deepEqual(copilotConfig.mcpServers.agdf, {
     AGDF_MCP_VERSION: VERSION,
     AGDF_MCP_DIGEST: sharedCopilot.runtime.digest,
   },
-  tools: ["agdf_dispatch"],
+  tools: ["agdf_dispatch", "agdf_inspect"],
 });
 const sharedRoot = mcpRuntimeDataRoot({ dataRoot: sharedFixture.dataRoot, scope: "project", target: sharedFixture.target });
 const sharedReferences = inspectMcpServerPackage({ dataRoot: sharedRoot, expectedVersion: VERSION }).references;

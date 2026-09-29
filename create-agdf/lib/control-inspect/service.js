@@ -1,6 +1,6 @@
 import process from "node:process";
 import { DISPATCH_RECOVERY } from "../interaction-catalog.js";
-import { buildStatusCard, evaluateGateCheck, postApprovalTransition } from "../control-evaluation/gate-check.js";
+import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../control-evaluation/gate-check.js";
 import { evaluateDoctor } from "../control-evaluation/doctor.js";
 import { evaluateDeliveryMap } from "../control-evaluation/delivery-map.js";
 import { readRuntimeContract } from "../cli/contract-command.js";
@@ -108,9 +108,13 @@ export function createInspectFailureResult(code, runtime, action) {
   return bindHostAction(result);
 }
 
-function gateCheckPresentation(report, variant) {
-  if (variant === "approval-envelope" && report.approval_presentation?.markdown) {
-    return { markdown: report.approval_presentation.markdown, authorizes: false };
+function gateCheckPresentation(report, variant, reEvaluate) {
+  if (variant === "approval-envelope" || variant === "status-card") {
+    const lines = [];
+    const io = { log: (line = "") => lines.push(String(line)) };
+    if (variant === "approval-envelope") printApprovalEnvelope(report, { io, reEvaluate });
+    else printGateCheckReport(report, false, true, io);
+    return lines.length ? { markdown: lines.join("\n"), authorizes: false } : null;
   }
   if (report.status_presentation?.markdown) return report.status_presentation;
   if (report.approval_presentation?.preview_markdown) return { markdown: report.approval_presentation.preview_markdown, authorizes: false };
@@ -192,8 +196,9 @@ export function createControlInspectService(dependencies = {}) {
             return { report: evaluated, presentation: null };
           }
           case "gate-check": {
-            const evaluated = gateCheck(target.governance_target, { ...selection, presentationLanguage: input.presentation_language });
-            return { report: evaluated, presentation: gateCheckPresentation(evaluated, input.variant) };
+            const evaluate = () => gateCheck(target.governance_target, { ...selection, presentationLanguage: input.presentation_language });
+            const evaluated = evaluate();
+            return { report: evaluated, presentation: gateCheckPresentation(evaluated, input.variant, evaluate) };
           }
           case "delivery-map": {
             const evaluated = deliveryMap(target.governance_target, selection, deliveryMapDependencies);

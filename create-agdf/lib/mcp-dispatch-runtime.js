@@ -10,6 +10,8 @@ import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createSkillDispatchService } from "./skill-dispatch/service.js";
 import { readSkillRuntimeContracts } from "./cli/contract-command.js";
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, parseControlInspectFunctionArguments, serializeControlInspectResult } from "./control-inspect/contract.js";
+import { createControlInspectService, createInspectFailureResult } from "./control-inspect/service.js";
 import { assertMcpControlReadBoundary } from "./control-read-boundary.js";
 import { interactionLocales, packageRoot, pluginDefinition } from "./cli/runtime-context.js";
 import {
@@ -63,7 +65,9 @@ function readOwnedRuntimeMarker(dispatcherDigest) {
 }
 
 export {
+  CONTROL_INSPECT_FUNCTION_DEFINITION,
   SKILL_DISPATCH_FUNCTION_DEFINITION,
+  parseControlInspectFunctionArguments,
   parseSkillDispatchFunctionArguments,
   serializeSkillDispatchResult,
 };
@@ -135,18 +139,38 @@ export function createMcpDispatchRuntime({ surface, inspected = inspectMcpDispat
     validateControlReadBoundary: assertMcpControlReadBoundary,
     readSkillRuntimeContracts,
   });
+  // The read tool shares the dispatcher's runtime evidence and read boundary (SDD-001, SDD-002).
+  const executeInspect = createControlInspectService({
+    runtimeEvidence: inspected.runtimeEvidence,
+    validateControlReadBoundary: assertMcpControlReadBoundary,
+  });
+  const parse = (argumentsValue) => parseSkillDispatchFunctionArguments(argumentsValue, trustedContext);
+  const failureEvidence = { ...inspected.runtimeEvidence, expected_version: inspected.expectedVersion };
+  const tools = Object.freeze([
+    Object.freeze({ name: SKILL_DISPATCH_FUNCTION_DEFINITION.name, definition: SKILL_DISPATCH_FUNCTION_DEFINITION, parse, execute, serialize: serializeSkillDispatchResult }),
+    Object.freeze({
+      name: CONTROL_INSPECT_FUNCTION_DEFINITION.name,
+      definition: CONTROL_INSPECT_FUNCTION_DEFINITION,
+      parse: (argumentsValue) => parseControlInspectFunctionArguments(argumentsValue, trustedContext),
+      execute: executeInspect,
+      serialize: serializeControlInspectResult,
+    }),
+  ]);
   return Object.freeze({
     definition: SKILL_DISPATCH_FUNCTION_DEFINITION,
-    parse(argumentsValue) {
-      return parseSkillDispatchFunctionArguments(argumentsValue, trustedContext);
-    },
+    parse,
     execute,
+    tools,
+    tool(name) {
+      return tools.find((entry) => entry.name === name) ?? null;
+    },
     serialize: serializeSkillDispatchResult,
-    failure(code) {
-      return createFailureResult(code, {
-        ...inspected.runtimeEvidence,
-        expected_version: inspected.expectedVersion,
-      });
+    failure(code, toolName = SKILL_DISPATCH_FUNCTION_DEFINITION.name) {
+      if (toolName === CONTROL_INSPECT_FUNCTION_DEFINITION.name) {
+        const action = FAILURE_ACTIONS[code] ?? FAILURE_ACTIONS.dispatch_worker_failed;
+        return createInspectFailureResult(code, failureEvidence, action);
+      }
+      return createFailureResult(code, failureEvidence);
     },
     trustedContext,
   });

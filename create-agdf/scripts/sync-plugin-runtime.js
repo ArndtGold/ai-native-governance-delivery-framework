@@ -162,6 +162,7 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
     "lib/host-adapters/session-command.js",
     "lib/runtime/validator-application.js",
     "lib/skill-dispatch",
+    "lib/control-inspect",
     "lib/cli/command-registry.js",
     "lib/cli/contract-command.js",
     "lib/cli/delivery-path-search-command.js",

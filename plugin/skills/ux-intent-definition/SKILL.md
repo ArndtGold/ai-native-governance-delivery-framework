@@ -12,7 +12,7 @@ approved product promise instead of inventing requirements after code exists.
 
 ## Runtime Contract
 
-After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without a binding, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
+After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use the MCP tool `agdf_inspect` (`operation: contract`, `module: <name>`) when the host lists it; otherwise a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without either, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
 
 - `../../meta/contracts/gate-transition.md` for impact routing, authority and revision behavior;
 - `../../meta/contracts/quality.md` for evidence and fail-closed output discipline.

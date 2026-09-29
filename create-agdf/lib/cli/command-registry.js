@@ -1,5 +1,6 @@
 import { TASK_TARGET_SOURCES } from "../task-target-resolution.js";
 import { skillDispatchArgumentGrammar, skillDispatchCommandGrammar } from "../skill-dispatch/contract.js";
+import { validateReadSelection } from "../control-inspect/selection.js";
 export { skillDispatchArgumentGrammar };
 
 const TASK_TARGET_SOURCE_GRAMMAR = `<${TASK_TARGET_SOURCES.join("|")}>`;
@@ -108,9 +109,9 @@ export function validateCommandOptions(options) {
       throw new Error("skill-dispatch accepts only the paired --target-source and --primary-target target options");
     }
   }
-  if (options.allActive && !["doctor", "delivery-map"].includes(options.target)) {
-    throw new Error("--all-active is supported only by doctor and delivery-map");
-  }
+  // Shared read-selection rules (MCP agdf_inspect applies the same function). The gate-check
+  // --status-card/--approval-envelope flags keep their historical CLI tolerance and are not passed here.
+  validateReadSelection({ operation: options.target, allActive: options.allActive, contractModule: options.contractModule });
   if (options.target === "run-create" && (!options.runId || options.allActive)) {
     throw new Error("run-create requires --run and rejects --all-active");
   }
@@ -135,8 +136,6 @@ export function validateCommandOptions(options) {
   if (options.target === "run-approve" && (!options.runId || !options.gate || !options.revisionId || options.response === undefined)) {
     throw new Error("run-approve requires --run, --gate, --revision and --response");
   }
-  if (options.contractModule !== undefined && options.target !== "contract") throw new Error("--module is supported only by contract");
-  if (options.target === "contract" && !options.contractModule) throw new Error("contract requires --module");
   if (options.target === "run-render-legacy" && !options.runId) {
     throw new Error("run-render-legacy requires --run");
   }

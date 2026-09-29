@@ -88,7 +88,10 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
         anyOf: [{ type: "object" }, { type: "null" }],
         description: SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION,
       },
-      presentation: { anyOf: [{ type: "object" }, { type: "null" }] },
+      presentation: {
+        anyOf: [{ type: "object" }, { type: "null" }],
+        description: "Canonical Markdown for terminal results. For presentation_required it is the read-only approval_preview of the current gate (same digests as run-present); it binds nothing, so still run the supplied run-present step and ask the gate question only after its presentation_id exists.",
+      },
       continuation: { anyOf: [{ type: "object" }, { type: "null" }] },
       recovery: { anyOf: [{ type: "object" }, { type: "null" }] },
       host_action: { anyOf: [{ type: "object" }, { type: "null" }] },

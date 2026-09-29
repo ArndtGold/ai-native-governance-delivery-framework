@@ -1140,7 +1140,8 @@ smokePhase("gate check status card");
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-status-card-"));
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    // Explicit English keeps this check independent of the machine locale.
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
     let failed = false;
     try {
       execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8", stdio: "pipe" });
@@ -1150,8 +1151,8 @@ smokePhase("gate check status card");
       if (!output.includes("## AGDF status-card")
         || !output.includes("| Status | blocked |")
         || !output.includes("| Current gate | User requirements (`UR`) |")
-        || !output.includes("| Next step |")) {
-        throw new Error("gate-check --status-card should print compact status-card fields.");
+        || !output.includes("| I am continuing |")) {
+        throw new Error("gate-check --status-card should print compact status-card fields, including the actor row.");
       }
       if (output.includes("doctor_report") || output.includes("delivery_map")) {
         throw new Error("gate-check --status-card must not print the full JSON report.");
@@ -1334,8 +1335,9 @@ smokePhase("status card tp transition");
 
 - next_allowed_action: Request exact TP approval.
 `, "utf8");
-    writeFileSync(join(tempDir, "TP.md"), "TP fixture artefact.\n", "utf8");
-    const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json"]);
+    // The approval summary renderer needs reviewable TP content (tasks and risks), not a placeholder.
+    writeFileSync(join(tempDir, "TP.md"), "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render the TP fixture | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun the fixture checks.\n\n## 5. Risks And Blockers\nFixture-only risk.\n", "utf8");
+    const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json", "--language", "en"]);
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
     }
@@ -2171,8 +2173,8 @@ smokePhase("Mode and slice decision scenarios");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
-        || !statusCardOutput.includes("| Missing approval | none |") || !statusCardOutput.includes("| Next step |")) {
-      throw new Error("Internal-step status card should show its next step without implying approval authority.");
+        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:I am continuing|No reply needed|Your turn) |/u.test(statusCardOutput)) {
+      throw new Error("Internal-step status card should show its actor and next step without implying approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -2255,8 +2257,8 @@ smokePhase("gate check or handoff");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
-        || !statusCardOutput.includes("| Missing approval | none |") || !statusCardOutput.includes("| Next step |")) {
-      throw new Error("OR handoff status card should show its next step without implying approval authority.");
+        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:I am continuing|No reply needed|Your turn) |/u.test(statusCardOutput)) {
+      throw new Error("OR handoff status card should show its actor and next step without implying approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });

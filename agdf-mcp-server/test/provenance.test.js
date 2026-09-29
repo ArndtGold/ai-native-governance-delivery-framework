@@ -37,7 +37,7 @@ const fixture = createOwnedRuntimeFixture();
 try {
   await withStdioClient(fixture, async (client) => {
     const tools = await client.listTools();
-    assert.deepEqual(tools.tools.map((tool) => tool.name), ["agdf_dispatch"]);
+    assert.deepEqual(tools.tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect"]);
     const result = await client.callTool({ name: "agdf_dispatch", arguments: unresolvedArguments });
     assert.equal(result.structuredContent.outcome, "target_unresolved");
     assert.equal(result.structuredContent.runtime.provenance_status, "matched");

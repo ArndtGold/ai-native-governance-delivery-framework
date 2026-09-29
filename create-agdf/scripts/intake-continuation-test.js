@@ -63,7 +63,7 @@ try {
   const artefacts = join(root, ".agdf/control/artefacts/new-run");
   mkdirSync(artefacts, { recursive: true });
   const ur = join(artefacts, "UR.md");
-  writeFileSync(ur, "# UR: Bound intake\n\nA new scope.\n");
+  writeFileSync(ur, "# UR: Bound intake\n\nA new scope. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Ein neuer Umfang wird gebunden.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
   assert.equal(run("run-step", "--run", "new-run", "--revision", revision("new-run"), "--step", "ur", "--title", "Bound intake").value.outcome, "recorded");
   const routeFirst = resume();
   assert.equal(routeFirst.outcome, "intake_continuation");
@@ -79,7 +79,8 @@ try {
   assert.match(p.text, /## Prüfartefakt · UR/u);
   assert.match(p.text, /Artefakt: \[UR\.md\]\(<[^>]+[\\/]UR\.md>\)/u, "the exact UR file must be clickable");
   assert.match(p.text, /SHA-256: `sha256:[0-9a-f]{64}`/u);
-  assert.match(p.text, /- Inhalt: A new scope\./u, "short artefact content appears in the summary");
+  assert.match(p.text, /- Problem: Ein neuer Umfang wird gebunden\./u, "the German presentation uses the embedded localized summary");
+  assert.doesNotMatch(p.text, /A new scope\./u, "no unmarked English source excerpt in the German summary");
   assert.ok(p.text.indexOf("## Kurzfassung · UR") < p.text.indexOf("Jetzt freigeben"), "summary appears before the approval action");
   assert.match(p.artefact_digest, /^sha256:[0-9a-f]{64}$/u);
   assert.match(p.summary_digest, /^sha256:[0-9a-f]{64}$/u);
@@ -119,7 +120,7 @@ try {
     unlinkSync(recordPath);
   }
   writeFileSync(recordPath, record);
-  writeFileSync(ur, "# UR: Bound intake\n\nChanged scope.\n");
+  writeFileSync(ur, "# UR: Bound intake\n\nChanged scope. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Der Umfang wurde geändert.\n- Ziel: Das geänderte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
   assert.equal(approve(p.presentation_id).outcome, "rejected");
   assert.equal(run("run-update", "--run", "new-run", "--revision", revision("new-run")).value.outcome, "updated");
   assert.equal(approve(p.presentation_id).reason, "presentation_binding_invalid");

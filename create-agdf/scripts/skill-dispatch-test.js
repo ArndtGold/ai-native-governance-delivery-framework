@@ -703,3 +703,29 @@ assert.equal(brownfieldContractsMissing.outcome, "evaluator_error");
 assert.equal(brownfieldContractsMissing.diagnostics[0].code, "dispatch_runtime_contracts_unavailable");
 
 console.log("skill dispatch tests passed");
+
+// SDD-003: presentation_required carries gate-check's read-only preview; run-present stays the binding step.
+const previewDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, approval_presentation: { ...approvalPresentation, artefact_digest: "sha256:a", summary_digest: "sha256:s" } }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(previewDispatch.outcome, "intake_continuation");
+assert.equal(previewDispatch.continuation.phase, "presentation_required");
+assert.equal(previewDispatch.terminal, false);
+assert.deepEqual(previewDispatch.host_action, { mode: "continue_delivery_intake", source: "continuation.steps", bound_to_target: true });
+assert.deepEqual(previewDispatch.presentation, {
+  schema_version: "1", semantic_block: "approval_preview", run_id: "delivery-run", revision_id: "approval-revision", current_gate: "QA",
+  presentation_language: "de", markdown: "review summary and linked artefact", artefact_digest: "sha256:a", summary_digest: "sha256:s", authorizes: false,
+});
+assert.equal(previewDispatch.continuation.steps[0].argv[0], "run-present");
+const noPreviewDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, approval_presentation: { ...approvalPresentation, preview_markdown: "" } }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(noPreviewDispatch.continuation.phase, "presentation_required");
+assert.equal(noPreviewDispatch.presentation, null, "without a rendered preview the field stays null");
+console.log("presentation_required preview tests passed.");

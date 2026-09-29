@@ -233,3 +233,21 @@ for (const skill of pluginDefinition.skillSet) {
 }
 
 console.log("Skill dispatch semantic function contract tests passed");
+
+// agdf_inspect: one read tool with an operation enum, capped definition size, non-authorizing output.
+const { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTES, controlInspectDefinitionBytes } = await import("../lib/control-inspect/contract.js");
+assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, definition.annotations);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation", "presentation_language", "working_directory"]);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract"]);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.terminal.const, true);
+assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Never writes, selects a run or grants approval/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /verified_change git observation is unavailable/u);
+assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);
+assert.match(definition.outputSchema.properties.presentation.description, /only after its presentation_id exists/u);
+console.log("agdf_inspect function contract pins passed.");

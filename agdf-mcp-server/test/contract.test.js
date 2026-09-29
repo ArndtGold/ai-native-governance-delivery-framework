@@ -17,9 +17,10 @@ assert.throws(
 );
 let calls = 0;
 const executor = {
-  async execute(argumentsValue) {
+  async execute(argumentsValue, { toolName } = {}) {
     calls += 1;
-    return runtime.execute(runtime.parse(argumentsValue));
+    const tool = runtime.tool(toolName ?? runtime.definition.name);
+    return tool.execute(tool.parse(argumentsValue));
   },
   async close() {},
 };
@@ -31,7 +32,9 @@ await server.connect(serverTransport);
 await client.connect(clientTransport);
 
 const { tools } = await client.listTools();
-assert.equal(tools.length, 1);
+assert.equal(tools.length, 2);
+assert.equal(tools[1].name, "agdf_inspect");
+assert.equal(tools[1].annotations.readOnlyHint, true);
 assert.equal(tools[0].name, SKILL_DISPATCH_FUNCTION_DEFINITION.name);
 assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
 assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);

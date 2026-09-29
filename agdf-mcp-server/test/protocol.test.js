@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { SKILL_DISPATCH_FUNCTION_DEFINITION } from "create-agdf/mcp-dispatch-runtime";
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "create-agdf/mcp-dispatch-runtime";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
   VALID_PRESENTATION_LANGUAGE_CASES,
@@ -13,7 +13,18 @@ for (const modern of [false, true]) {
     assert.equal(client.getNegotiatedProtocolVersion(), protocol);
     assert.equal(client.getProtocolEra(), modern ? "modern" : "legacy");
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 1);
+    assert.equal(tools.length, 2);
+    assert.deepEqual(tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect"]);
+    assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
+    assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+    const inspectUnresolved = await client.callTool({ name: "agdf_inspect", arguments: { operation: "doctor", presentation_language: "de", working_directory: "/tmp" } });
+    assert.equal(inspectUnresolved.isError, undefined, `${protocol}:inspect`);
+    assert.equal(inspectUnresolved.structuredContent.outcome, "target_unresolved");
+    assert.equal(inspectUnresolved.structuredContent.authorizes, false);
+    assert.equal(inspectUnresolved.structuredContent.report, null);
+    const inspectRejected = await client.callTool({ name: "agdf_inspect", arguments: { operation: "run-approve", presentation_language: "de", working_directory: "/tmp" } });
+    assert.equal(inspectRejected.isError, true, `${protocol}:inspect schema rejects write-shaped operations`);
+    assert.equal(inspectRejected.structuredContent, undefined);
     assert.equal(tools[0].name, "agdf_dispatch");
     assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
     assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);

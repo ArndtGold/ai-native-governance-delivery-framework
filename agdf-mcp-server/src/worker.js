@@ -25,14 +25,14 @@ export function createWorkerDispatchExecutor({
   }
 
   return Object.freeze({
-    async execute(argumentsValue, { signal } = {}) {
+    async execute(argumentsValue, { signal, toolName } = {}) {
       if (active) throw new DispatchExecutionError("dispatch_busy");
       if (signal?.aborted) throw new DispatchExecutionError("dispatch_cancelled");
 
       return new Promise((resolve, reject) => {
         let settled = false;
         const worker = new WorkerClass(WORKER_URL, {
-          workerData: { surface, expectedVersion, argumentsValue },
+          workerData: { surface, expectedVersion, argumentsValue, toolName: toolName ?? null },
         });
 
         const finish = async (callback, value) => {

@@ -436,6 +436,21 @@ export function createSkillDispatchService(dependencies = {}) {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
+        // Read-only preview rendered by gate-check; run-present remains the only binding writer and the
+        // gate question is asked only after it returned a presentation_id.
+        const preview = control.approval_presentation;
+        result.presentation = preview?.preview_markdown ? Object.freeze({
+          schema_version: SKILL_DISPATCH_SCHEMA_VERSION,
+          semantic_block: "approval_preview",
+          run_id: result.control.run_id,
+          revision_id: preview.revision_id ?? result.control.revision_id,
+          current_gate: control.current_gate,
+          presentation_language: input.presentation_language,
+          markdown: preview.preview_markdown,
+          artefact_digest: preview.artefact_digest ?? null,
+          summary_digest: preview.summary_digest ?? null,
+          authorizes: false,
+        }) : null;
         result.continuation = Object.freeze({
           instruction: "Prepare this exact gate with run-present, show its returned text verbatim, then stop and wait for a NEW deliberate user response. Do not redispatch or apply an earlier reply.",
           phase: "presentation_required", governance_target: target.governance_target,

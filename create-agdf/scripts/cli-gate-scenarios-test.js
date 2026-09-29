@@ -131,7 +131,7 @@ function boundUrApproval() {
   withFixture("bound-ur", "bound-ur", ({ root, runId, revisionId }) => {
     const artefactDir = join(root, ".agdf", "control", "artefacts", runId);
     mkdirSync(artefactDir, { recursive: true });
-    writeFileSync(join(artefactDir, "UR.md"), "# UR: Bound CLI run\n\n## Problem\n\nAdd subtract.\n");
+    writeFileSync(join(artefactDir, "UR.md"), "# UR: Bound CLI run\n\n## Problem\n\nAdd subtract. The user should review this document before approval.\n\n## AGDF Approval Summary (de; source=en)\n- Problem: Eine Subtraktionsfunktion fehlt.\n- Ziel: Das gespeicherte UR vor der Entscheidung prüfen.\n- Umfang: Eine kleine, nachvollziehbare Nutzeranforderung.\n");
     const recorded = json(["run-step", "--dir", root, "--run", runId, "--revision", revisionId,
       "--step", "ur", "--title", "Bound CLI run"]);
     assert.equal(recorded.outcome, "recorded");

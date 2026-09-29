@@ -22,7 +22,7 @@ It answers:
 - whether blockers, critical risks, or missing evidence remain
 
 ## Runtime Contract
-After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without a binding, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
+After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use the MCP tool `agdf_inspect` (`operation: contract`, `module: <name>`) when the host lists it; otherwise a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without either, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
 
 - `../../meta/contracts/quality.md`
 - `../../meta/contracts/context-graph.md`

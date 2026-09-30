@@ -115,9 +115,26 @@ git diff --check
 Community-health files are additionally checked with:
 
 ```bash
+npm --prefix create-agdf run release:prepare
 npm run test:community-health
 npm run check:community-health
 ```
+
+`Refresh host compatibility evidence` runs on pushes to `main` and can also be started manually
+from the Actions tab on `main`. When the source fingerprint has changed, it reruns the 56 adapter
+scenarios, checks the new evidence and community health, and creates or updates a PR from the
+workflow-owned `codex/host-compatibility-evidence` branch. Current evidence produces no update.
+Other evidence errors fail the workflow rather than being overwritten. The verified patch is
+available as the `host-compatibility-update` artifact for 14 days.
+
+Enable **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create
+and approve pull requests** for automatic PR creation. The workflow uses `GITHUB_TOKEN` and
+explicitly starts Guardrails on its update branch; no additional token secret is required.
+Review and merge the evidence PR normally. Guardrails continues to reject stale checked-in
+evidence. For a source-changing PR that needs current evidence before merge, refresh it locally
+with `npm run compatibility:record` after `release:prepare`, and commit the generated report,
+snapshot, facts and new observation JSON together. CI fixture evidence does not establish native
+host compatibility or human UAT.
 
 Document the tests performed, visible evidence and deliberately omitted checks. A green test does
 not replace required host or UI observation.

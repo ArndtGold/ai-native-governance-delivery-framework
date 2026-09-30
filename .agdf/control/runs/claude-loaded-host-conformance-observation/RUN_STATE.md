@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: claude-loaded-host-conformance-observation
 - lifecycle: active
-- revision: 2
-- revision_id: fd42ab8c-9f8d-4ece-9c23-40e006944f10
+- revision: 3
+- revision_id: 29ff4a75-39fd-45e1-9970-5308963b5889
+- content_seal: sha256:199b01db0b361883564119880f6da254dc019eae44622652c10c5c06ef5191b4
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T10:44:38.357Z
 - mode: verified_change
-- current_gate: CD+Tests
+- current_gate: UR
 - decision: pending
 - owner: agent
 
@@ -20,17 +23,17 @@ Observe the 12 predefined Claude conformance cases (HC-01–HC-12) on a real, fr
 
 | Question | Answer |
 |---|---|
-| What is known? | Case definitions, expected behaviors and the observation field vocabulary exist in the completed matrix run; a content-fresh local Claude install exists since 2026-08-26; the executable protocol is persisted. |
-| What is approved? | UR is approved by exact user approval on 2026-08-26. Verified Change requires no further user gate. |
-| What is missing? | Host restart by the user, then execution of `OBSERVATION_PROTOCOL.md` in a fresh session. |
-| What is the next allowed action? | User restarts Claude Code; the first fresh session in this repository executes the protocol and records `CLAUDE_LOADED_HOST_MATRIX.json` plus `OBSERVATION_REPORT.md`. |
-| What is explicitly forbidden right now? | Executing observations in the current stale-loaded session; mutating real gate authority through probes; rewriting historical matrix evidence; fixing findings inside this run; commit/push/release. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | `Approval: UR` provided by the user on 2026-08-26 for revision 1 (`fd42ab8c-9f8d-4ece-9c23-40e006944f10`) via native gate question and revalidated before persistence. |
+| UR | missing |  |
 
 ## Artefacts
 
@@ -84,5 +87,5 @@ Observe the 12 predefined Claude conformance cases (HC-01–HC-12) on a real, fr
 
 ## Closeout
 
-- next_allowed_action: User restarts Claude Code; the first fresh session executes `OBSERVATION_PROTOCOL.md`.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: pending observation results.

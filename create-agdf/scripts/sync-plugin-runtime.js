@@ -169,6 +169,8 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
     "lib/cli/parse-args.js",
     "lib/cli/runtime-context.js",
     "lib/cli/validation-handlers.js",
+    "lib/cli/control-maintenance-command.js",
+    "lib/control-maintenance",
     "lib/control-evaluation",
     "lib/control-state",
     "lib/delivery-path-search",
@@ -220,6 +222,8 @@ import { resolvePluginHostEnvironment } from "./create-agdf/lib/runtime/local-va
 import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from "./create-agdf/lib/runtime-check-consent/contract.js";
 import { resolveRepositoryContext } from "./create-agdf/lib/repository-context.js";
 import { createDispatchBinding, unavailableDispatchContext } from "./create-agdf/lib/skill-dispatch/binding.js";
+import { inspectStartupCompatibility, startupMaintenanceInvocation } from "./create-agdf/lib/control-maintenance/startup.js";
+import { renderStartupControlNotice } from "./create-agdf/lib/control-maintenance/presentation.js";
 
 if (process.argv.length !== 2) {
   console.error("AGDF automatic runtime check accepts no arguments.");
@@ -293,12 +297,15 @@ if (process.argv.length !== 2) {
     const input = readFileSync(0, "utf8").trim();
     if (input) hookInput = JSON.parse(input);
   } catch {}
-  const hookCwd = typeof hookInput.cwd === "string" && isAbsolute(hookInput.cwd) ? hookInput.cwd : "";
+  const hookCwd = typeof hookInput.cwd === "string" && isAbsolute(hookInput.cwd) ? hookInput.cwd
+    : surface === "opencode" ? process.cwd() : "";
   const hostContext = resolveRepositoryContext(hookCwd);
   const repositoryRoot = hostContext.context_state === "repository_bound" ? hostContext.repository_root : "";
   let check = { status: "skipped", findings: 0 };
   let configState = "unavailable";
   let languages;
+  let repositoryControl;
+  const deadline = Date.now() + 10000;
   if (repositoryRoot) {
     const child = spawnSync(process.execPath, [validator, "doctor", "--all-active", "--json", "--dir", repositoryRoot], {
       cwd: repositoryRoot,
@@ -344,6 +351,14 @@ if (process.argv.length !== 2) {
         configState = "invalid";
       }
     }
+    repositoryControl = inspectStartupCompatibility({ target: repositoryRoot, executable: process.execPath,
+      validator, env: { ...process.env, AGDF_SURFACE: process.env.AGDF_SURFACE || "plugin" }, deadline });
+    const invocation = startupMaintenanceInvocation(repositoryControl, { executable: process.execPath,
+      validator, language: languages?.chat || "en" });
+    if (invocation) {
+      repositoryControl.invocation = invocation;
+      repositoryControl.notice = renderStartupControlNotice(repositoryControl, { language: languages?.chat || "en" });
+    }
   }
   const facts = {
     context_state: hostContext.context_state,
@@ -351,6 +366,7 @@ if (process.argv.length !== 2) {
     automatic_check: check,
     config: configState,
     ...(languages ? { languages } : {}),
+    ...(repositoryControl ? { repository_control: repositoryControl } : {}),
   };
   const additionalContext = [baseContext, \`AGDF runtime facts: \${JSON.stringify(facts)}\`].join("\\n\\n");
   emitContext(additionalContext);

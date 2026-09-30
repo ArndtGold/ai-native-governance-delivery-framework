@@ -491,6 +491,7 @@ try {
 
   const codexLifecycleOutput = [];
   assert.equal(await runCli(["codex", "--json"], {
+    parser: { cwd: fixtureRoot },
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log(value) { codexLifecycleOutput.push(value); }, error(value) { codexLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: marketplaceDataRoot, builtPluginRoot, codexInstallVersion: localVersion }),
@@ -509,6 +510,7 @@ try {
 
   const claudeLifecycleOutput = [];
   assert.equal(await runCli(["claude", "--json"], {
+    parser: { cwd: fixtureRoot },
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     io: { log(value) { claudeLifecycleOutput.push(value); }, error(value) { claudeLifecycleOutput.push(value); } },
     prepare: (options) => prepareLocalMarketplace({ ...options, dataRoot: marketplaceDataRoot, builtPluginRoot, codexInstallVersion: localVersion }),
@@ -527,6 +529,7 @@ try {
   const copilotLifecycleOutput = [];
   let lifecyclePackagedListCalls = 0;
   assert.equal(await runCli(["copilot", "--json"], {
+    parser: { cwd: fixtureRoot },
     inspectPluginInstallation: () => ({ status: "not_installed", evidence: [] }),
     copilotSettingsPath: join(fixtureRoot, "copilot-lifecycle-settings.json"),
     io: { log(value) { copilotLifecycleOutput.push(value); }, error(value) { copilotLifecycleOutput.push(value); } },

@@ -44,10 +44,12 @@ export function discoverRuns(root) {
 
       const stateStats = lstatSync(path);
       if (stateStats.isSymbolicLink() || !stateStats.isFile()) return invalidRun(id, path);
+      const parsed = parseRunState(readFileSync(path, "utf8"), id);
       return {
         run_id: id,
         path,
-        ...parseRunState(readFileSync(path, "utf8"), id),
+        ...parsed,
+        last_updated_at: parsed.meta.updated_at || stateStats.mtime.toISOString(),
       };
     });
 }

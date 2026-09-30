@@ -40,7 +40,7 @@ export function readRunState(targetDir, selection = {}) {
     try {
       const selected = resolveRuns(targetDir, {
         runIdArg: selection.runId,
-        runIdEnv: process.env.AGDF_RUN_ID,
+        runIdEnv: selection.ignoreRunIdEnv ? undefined : process.env.AGDF_RUN_ID,
       });
       runPath = selected.run.path.startsWith(targetDir)
         ? selected.run.path.slice(targetDir.length + 1)

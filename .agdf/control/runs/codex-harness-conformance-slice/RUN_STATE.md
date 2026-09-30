@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: codex-harness-conformance-slice
 - lifecycle: active
-- revision: 2
-- revision_id: 8DDED160-6D2A-46F1-B286-AC2A8B039090
+- revision: 3
+- revision_id: 69574f16-9f4a-4a62-b925-7061afbc6159
+- content_seal: sha256:85f1d833703fa353303eae15e6557a36b624770f4ff6fbc9317675e6bf24ca59
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:12.434Z
 - started_at: 2026-08-21
 - mode: `structured_delivery`
-- current_gate: `UR`
+- current_gate: UR
 - decision: `in_progress`
 - owner: Arndt Gold
 
@@ -22,11 +25,11 @@ before any adapter, protocol integration or public capability claim is designed 
 
 | Question | Answer |
 |---|---|
-| What is known? | OpenAI documents the Codex harness as an open execution and integration layer; AGDF already owns durable governance, approval and host-adapter boundaries. |
-| What is approved? | No gate approval is recorded for this new scope. |
-| What is missing? | Review of the durable UR and exact `Approval: UR`. |
-| What is the next allowed action? | Review or refine the UR and request the exact UR approval. |
-| What is explicitly forbidden right now? | Brownfield Review, PRD, SD, TP, adapter design, implementation, QA, UAT and release claims. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -57,12 +60,12 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `missing` | none |
-| PRD | `missing` | none |
-| SD | `missing` | none |
-| TP | `missing` | none |
-| QA | `missing` | none |
-| UAT | `missing` | none |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -147,5 +150,5 @@ Keep the active work item traceable. A gate may open only when the previous gate
 - not_delivered: Brownfield Review, mode decision, PRD, design, plan, adapter, implementation, QA, UAT, VCS and release.
 - verification_performed: Target resolution, exact-version validator resolution, all-active inventory and existing-owner search.
 - unverified: App Server or SDK protocol fit, adapter feasibility and direct host behavior.
-- next_allowed_action: Review the UR and provide exact `Approval: UR`, request revision or decline.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Keep the conformance outcome independently acceptable and avoid a parallel runtime or authority owner.

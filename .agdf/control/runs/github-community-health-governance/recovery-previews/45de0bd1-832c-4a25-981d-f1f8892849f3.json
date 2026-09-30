@@ -1,0 +1,140 @@
+{
+  "schema_version": "1",
+  "preview_format_version": 2,
+  "preview_id": "45de0bd1-832c-4a25-981d-f1f8892849f3",
+  "run_id": "github-community-health-governance",
+  "created_at": "2026-09-30T08:31:14.803Z",
+  "source_revision_id": "9995e0ce-42a6-4538-8c0f-d2dd9592854a",
+  "source_content_digest": "sha256:3e560aaad84e4a12a2b005ba36306f57fdfd1178a3bfb64109a9d8f53310c796",
+  "source_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: github-community-health-governance\n- lifecycle: active\n- revision: 1\n- revision_id: 9995e0ce-42a6-4538-8c0f-d2dd9592854a\n- mode: structured_delivery\n- current_gate: QA\n- decision: revise\n- owner: agent\n\n## Objective\n\nEstablish a truthful, project-appropriate and GitHub-recognized community health and maintainer governance surface for AGDF.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | GitHub currently recognizes README and License; the repository lacks the remaining project-specific community health surfaces and repository metadata is incomplete. |\n| What is approved? | UR, PRD, SD and TP. Brownfield Analysis passed; repository implementation, Clean Review and Code Review pass. |\n| What is missing? | TPR-001: authenticated browser access for T17 GitHub settings mutation/read-back. TPR-002: post-delivery recognition requires later VCS authority. |\n| What is the next allowed action? | Sign in to GitHub in the in-app browser, execute T17, then rerun QA. |\n| What is explicitly forbidden right now? | QA approval request, UAT, VCS delivery, release and publish actions; claiming host settings before authenticated read-back. |\n\n## Source And Scope State\n\n- normative_instruction_source: Repository instructions, AGDF Runtime Contract and selected run control state\n- multi_scope_state: `clear`\n- active_scope_evidence: Approved UR and dedicated run `github-community-health-governance`\n- competing_scope_lines: Existing OpenCode and other active runs remain separate and are not modified by this scope.\n- branch_workspace_evidence: Existing untracked OpenCode control artefacts are unrelated; the Community Health run has its own paths.\n- branch_workspace_scope_effect: `supports`\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | Exact user response `Approval: UR` on 2026-07-23 |\n| PRD | approved | Exact user response `Approval: PRD` on 2026-07-23 |\n| SD | approved | Exact user response `Approval: SD` on 2026-07-23 |\n| TP | approved | Exact user response `Approval: TP` on 2026-07-23 |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/github-community-health-governance/UR.md` | approved | Project-appropriate community health and governance scope |\n| Brownfield Review | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md` | done | Structured Delivery selected; high public UX and security-routing impact |\n| UX Intent Definition | `.agdf/control/artefacts/github-community-health-governance/UX_INTENT_DEFINITION.md` | done | Ready; recommended product-decision package accepted on 2026-07-23 |\n| Verified Change |  | missing | Not eligible unless Brownfield evidence proves the compact boundary |\n| PRD | `.agdf/control/artefacts/github-community-health-governance/PRD.md` | approved | Exact approval accepted on 2026-07-23 |\n| SD | `.agdf/control/artefacts/github-community-health-governance/SD.md` | approved | Exact approval accepted on 2026-07-23 |\n| TP | `.agdf/control/artefacts/github-community-health-governance/TP.md` | approved | Exact approval accepted on 2026-07-23 |\n| Brownfield Analysis | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_ANALYSIS.md` | done | Pass; existing owners, reuse path, scope isolation, compatibility and host-evidence gaps verified |\n| CD+Tests | `.agdf/control/artefacts/github-community-health-governance/CD_TEST_EVIDENCE.md` | done | Repository scope delivered and focused/regression evidence recorded; unrelated full-suite blockers isolated |\n| Clean Implementation Review | `.agdf/control/artefacts/github-community-health-governance/CLEAN_IMPLEMENTATION_REVIEW.md` | done | Pass; no workaround or parallel structure |\n| Task Plan Review | `.agdf/control/artefacts/github-community-health-governance/TASK_PLAN_REVIEW.md` | done | Revise; 18/20 tasks fully done with two open evidence obligations |\n| CR | `.agdf/control/artefacts/github-community-health-governance/CODE_REVIEW.md` | done | Pass; no code finding |\n| QA | `.agdf/control/artefacts/github-community-health-governance/QA_REPORT.md` | revise | Open evidence obligations prevent pass |\n\n## Mode/Slice Decision\n\n- decision: `structured_delivery`\n- required_next_gate: Brownfield Analysis\n- scope_reason: Public security and contributor policy, safety-relevant recovery paths, GitHub-hosted settings and multiple existing repository owners require explicit product, authority and validation decisions.\n- evidence: `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md`; GitHub repository and Community Profile APIs; repository owner and workflow inventory.\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | `approved_by` | `Approval: UR` | Exact user response recorded on 2026-07-23 |\n| Brownfield Review | `derived_from` | UR | Repository, GitHub host and ownership evidence recorded on 2026-07-23 |\n| PRD | `derived_from` | UR | Brownfield Review, ready UX Intent Definition and accepted product decisions on 2026-07-23 |\n| PRD | `approved_by` | `Approval: PRD` | Exact user response recorded on 2026-07-23 |\n| SD | `derived_from` | PRD | All 19 approved product criteria mapped to technical owners and evidence routes on 2026-07-23 |\n| SD | `approved_by` | `Approval: SD` | Exact user response recorded on 2026-07-23 |\n| TP | `derived_from` | SD | Twenty executable tasks map all approved criteria to deterministic, live-host and post-delivery evidence on 2026-07-23 |\n| TP | `approved_by` | `Approval: TP` | Exact user response recorded on 2026-07-23 |\n| Brownfield Analysis | `derived_from` | TP | Pre-implementation analysis passed on 2026-07-23 with reuse, scope and regression boundaries |\n| CD+Tests | `implements` | TP | Repository-owned implementation and test evidence recorded on 2026-07-23 |\n| CR | `reviews` | CD+Tests | Clean and Code Reviews pass; Task Plan Review records 16/20 complete |\n| QA_REPORT | `tests` | TP | Revise decision consumes two open evidence obligations without reclassification |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| GitHub Community Profile screenshot | User-provided observation | Missing public community profile components | direct host-visible observation |\n| Repository community-file inventory | `.github/`, repository root | Existing README/License and missing policy/templates | direct repository evidence |\n| Approved UR | `.agdf/control/artefacts/github-community-health-governance/UR.md` | Intended outcome, scope, non-goals and acceptance signals | authoritative scope evidence |\n| Brownfield Review | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md` | Existing owners, coverage, host state and Structured Delivery routing | direct repository and host evidence |\n| UX Intent Definition | `.agdf/control/artefacts/github-community-health-governance/UX_INTENT_DEFINITION.md` | Working modes, state authority, blockers, recovery and resolved product choices | structured analytical evidence |\n| Approved PRD | `.agdf/control/artefacts/github-community-health-governance/PRD.md` | Product scope, nineteen observable criteria, evidence and public policy boundaries | authoritative product evidence |\n| Approved Solution Design | `.agdf/control/artefacts/github-community-health-governance/SD.md` | Canonical policy owners, GitHub adapters, validation, external integration and evidence separation | authoritative technical evidence |\n| Approved Task/Test Plan | `.agdf/control/artefacts/github-community-health-governance/TP.md` | Twenty tasks, test matrix, Brownfield scope, QA rules and post-delivery evidence boundary | authoritative execution evidence |\n| Brownfield Analysis | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_ANALYSIS.md` | Existing coverage, reuse path, exact scope, compatibility, risks and evidence gaps | implementation-preparation evidence |\n| CD+Tests Evidence | `.agdf/control/artefacts/github-community-health-governance/CD_TEST_EVIDENCE.md` | Delivered files, passing checks and isolated unrelated failures | implementation evidence |\n| Clean Implementation Review | `.agdf/control/artefacts/github-community-health-governance/CLEAN_IMPLEMENTATION_REVIEW.md` | Primary solution, fallback and parallel-structure assessment | pass |\n| Code Review | `.agdf/control/artefacts/github-community-health-governance/CODE_REVIEW.md` | Correctness, security, compatibility and maintainability review | pass |\n| Task Plan Review | `.agdf/control/artefacts/github-community-health-governance/TASK_PLAN_REVIEW.md` | 20-task coverage and UX Intent Fidelity | revise |\n| QA Report | `.agdf/control/artefacts/github-community-health-governance/QA_REPORT.md` | Formal QA decision and consumed findings | revise |\n\n## Missing Evidence\n\n| Missing evidence | Impact | Required next step |\n|---|---|---|\n| Private vulnerability reporting availability | `warn` | Confirm the host capability during implementation; use the approved email fallback if unavailable. |\n| Default-branch Community Profile recognition | `warn` | Verify after repository files are delivered to the default branch. |\n| Applied GitHub metadata and social preview | `warn` | Verify through public or authenticated host observation after application. |\n\n## Risks\n\n| Risk | Impact | Mitigation or owner |\n|---|---|---|\n| Public policy text could promise unsupported response behavior | `warn` | Enforce the approved no-SLA and current-release-only boundaries through deterministic policy assertions. |\n| New files could duplicate existing Pages or runtime documentation instead of routing to canonical owners | `warn` | Brownfield Review must identify canonical owners and link rather than copy where appropriate. |\n| Host metadata and repository files could drift because they have separate mutation paths | `warn` | Define separate validation and delivery evidence for repository files and GitHub-hosted settings. |\n\n## Context Graph Impact\n\n- context_graph_impact: `new_node_required`\n- context_graph_refs: `CG-PUBLIC-COMMUNITY-GOVERNANCE`\n- context_graph_reconciliation: `resolved`\n- context_graph_required_action: `create`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: `CG-PUBLIC-COMMUNITY-GOVERNANCE` now records the durable ownership, security, host-state and exit-criteria decisions.\n\n## Knowledge Persistence Decision\n\n- memory_target: `scope_artifact`\n- memory_reason: Public governance, security and contribution rules are durable project policy and must remain repository-owned.\n- memory_refs: `.agdf/control/artefacts/github-community-health-governance/UR.md`\n\n## Closeout\n\n- next_allowed_action: Sign in to GitHub in the in-app browser, execute T17, then rerun QA.\n- quality_outlook: Reuse existing product, runtime and release owners while making externally visible policy truthful and maintainable.\n",
+  "source_artefacts": [
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/UR.md",
+      "status": "valid",
+      "digest": "sha256:62ef8a525385b27fcbc32c64bb4c544bf9eb9397a3c78cdd4f6dfb2e5675c6b0"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:51afd165b0f004bd5c1a8d7796eeffab79afb43dc96456937b599a05e2843c38"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/UX_INTENT_DEFINITION.md",
+      "status": "valid",
+      "digest": "sha256:f4d57501199834bfdd14d59de0cb9099c85c14c1dde6da316100aaeddb946f73"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/PRD.md",
+      "status": "valid",
+      "digest": "sha256:7341eeaec7d1847e6740313e431d783cd94ed136e430ed49fd9e85ffbc860929"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/SD.md",
+      "status": "valid",
+      "digest": "sha256:247a5f75711e1af1de38d933b1e640738601e5c0334cad5cd4e2015709175a3a"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/TP.md",
+      "status": "valid",
+      "digest": "sha256:5d9e02fb61fb5eb0693c4356207bec4887c9a82046abbb049abce747de571e08"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/BROWNFIELD_ANALYSIS.md",
+      "status": "valid",
+      "digest": "sha256:9a0ff9d187f430df974daa4c1fc85f544964319b53ba17ba825641eb687e7331"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/CD_TEST_EVIDENCE.md",
+      "status": "valid",
+      "digest": "sha256:f890fc0977887f5565db2bf42600efd0a54e612ada3923b00812a1ebb8d0409b"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/CLEAN_IMPLEMENTATION_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:895ed217af28917c069dad38569c6da7937ca78b9419e4c59e92dd10d8120a48"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/TASK_PLAN_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:80a50512db0f668837ddd750f137fdaac5526dc2b555e607efc9ee07d35a4041"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/CODE_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:f27890c689456b0d92a525c81f4f3b4b1c97d891afa0f52940698eadeb9c56aa"
+    },
+    {
+      "path": ".agdf/control/artefacts/github-community-health-governance/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:0a7b7cf2d6068785fb31a57d07492a2900bb0ab6335fbf1424e4249b8008b804"
+    }
+  ],
+  "git_history": {
+    "status": "available",
+    "candidates": [
+      {
+        "commit": "7f65cb30f02fabe0aee5167e92cbf90f0710298b",
+        "revision_id": "9995e0ce-42a6-4538-8c0f-d2dd9592854a",
+        "content_digest": "sha256:3e560aaad84e4a12a2b005ba36306f57fdfd1178a3bfb64109a9d8f53310c796",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      }
+    ]
+  },
+  "prior_approvals": [
+    {
+      "section": "Approvals",
+      "gate": "UR",
+      "status": "approved",
+      "evidence": "Exact user response `Approval: UR` on 2026-07-23"
+    },
+    {
+      "section": "Approvals",
+      "gate": "PRD",
+      "status": "approved",
+      "evidence": "Exact user response `Approval: PRD` on 2026-07-23"
+    },
+    {
+      "section": "Approvals",
+      "gate": "SD",
+      "status": "approved",
+      "evidence": "Exact user response `Approval: SD` on 2026-07-23"
+    },
+    {
+      "section": "Approvals",
+      "gate": "TP",
+      "status": "approved",
+      "evidence": "Exact user response `Approval: TP` on 2026-07-23"
+    },
+    {
+      "section": "Approvals",
+      "gate": "QA",
+      "status": "missing",
+      "evidence": ""
+    },
+    {
+      "section": "Approvals",
+      "gate": "UAT",
+      "status": "missing",
+      "evidence": ""
+    }
+  ],
+  "approval_provenance": "no_independent_provenance",
+  "approvals_to_invalidate": [
+    "UR",
+    "PRD",
+    "SD",
+    "TP",
+    "QA",
+    "UAT"
+  ],
+  "next_gate": "UR",
+  "next_revision_id": "ec8f97b8-0a6b-4cbb-8e0f-ab8af6e3a035",
+  "candidate_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: github-community-health-governance\n- lifecycle: active\n- revision: 1\n- revision_id: 9995e0ce-42a6-4538-8c0f-d2dd9592854a\n- mode: structured_delivery\n- current_gate: UR\n- decision: revise\n- owner: agent\n\n## Objective\n\nEstablish a truthful, project-appropriate and GitHub-recognized community health and maintainer governance surface for AGDF.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |\n| What is approved? | Nothing yet. |\n| What is missing? | Exact Approval: UR. |\n| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |\n| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |\n\n## Source And Scope State\n\n- normative_instruction_source: Repository instructions, AGDF Runtime Contract and selected run control state\n- multi_scope_state: `clear`\n- active_scope_evidence: Approved UR and dedicated run `github-community-health-governance`\n- competing_scope_lines: Existing OpenCode and other active runs remain separate and are not modified by this scope.\n- branch_workspace_evidence: Existing untracked OpenCode control artefacts are unrelated; the Community Health run has its own paths.\n- branch_workspace_scope_effect: `supports`\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/github-community-health-governance/UR.md` | approved | Project-appropriate community health and governance scope |\n| Brownfield Review | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md` | done | Structured Delivery selected; high public UX and security-routing impact |\n| UX Intent Definition | `.agdf/control/artefacts/github-community-health-governance/UX_INTENT_DEFINITION.md` | done | Ready; recommended product-decision package accepted on 2026-07-23 |\n| Verified Change |  | missing | Not eligible unless Brownfield evidence proves the compact boundary |\n| PRD | `.agdf/control/artefacts/github-community-health-governance/PRD.md` | approved | Exact approval accepted on 2026-07-23 |\n| SD | `.agdf/control/artefacts/github-community-health-governance/SD.md` | approved | Exact approval accepted on 2026-07-23 |\n| TP | `.agdf/control/artefacts/github-community-health-governance/TP.md` | approved | Exact approval accepted on 2026-07-23 |\n| Brownfield Analysis | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_ANALYSIS.md` | done | Pass; existing owners, reuse path, scope isolation, compatibility and host-evidence gaps verified |\n| CD+Tests | `.agdf/control/artefacts/github-community-health-governance/CD_TEST_EVIDENCE.md` | done | Repository scope delivered and focused/regression evidence recorded; unrelated full-suite blockers isolated |\n| Clean Implementation Review | `.agdf/control/artefacts/github-community-health-governance/CLEAN_IMPLEMENTATION_REVIEW.md` | done | Pass; no workaround or parallel structure |\n| Task Plan Review | `.agdf/control/artefacts/github-community-health-governance/TASK_PLAN_REVIEW.md` | done | Revise; 18/20 tasks fully done with two open evidence obligations |\n| CR | `.agdf/control/artefacts/github-community-health-governance/CODE_REVIEW.md` | done | Pass; no code finding |\n| QA | `.agdf/control/artefacts/github-community-health-governance/QA_REPORT.md` | revise | Open evidence obligations prevent pass |\n\n## Mode/Slice Decision\n\n- decision: `structured_delivery`\n- required_next_gate: Brownfield Analysis\n- scope_reason: Public security and contributor policy, safety-relevant recovery paths, GitHub-hosted settings and multiple existing repository owners require explicit product, authority and validation decisions.\n- evidence: `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md`; GitHub repository and Community Profile APIs; repository owner and workflow inventory.\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | `approved_by` | `Approval: UR` | Exact user response recorded on 2026-07-23 |\n| Brownfield Review | `derived_from` | UR | Repository, GitHub host and ownership evidence recorded on 2026-07-23 |\n| PRD | `derived_from` | UR | Brownfield Review, ready UX Intent Definition and accepted product decisions on 2026-07-23 |\n| PRD | `approved_by` | `Approval: PRD` | Exact user response recorded on 2026-07-23 |\n| SD | `derived_from` | PRD | All 19 approved product criteria mapped to technical owners and evidence routes on 2026-07-23 |\n| SD | `approved_by` | `Approval: SD` | Exact user response recorded on 2026-07-23 |\n| TP | `derived_from` | SD | Twenty executable tasks map all approved criteria to deterministic, live-host and post-delivery evidence on 2026-07-23 |\n| TP | `approved_by` | `Approval: TP` | Exact user response recorded on 2026-07-23 |\n| Brownfield Analysis | `derived_from` | TP | Pre-implementation analysis passed on 2026-07-23 with reuse, scope and regression boundaries |\n| CD+Tests | `implements` | TP | Repository-owned implementation and test evidence recorded on 2026-07-23 |\n| CR | `reviews` | CD+Tests | Clean and Code Reviews pass; Task Plan Review records 16/20 complete |\n| QA_REPORT | `tests` | TP | Revise decision consumes two open evidence obligations without reclassification |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| GitHub Community Profile screenshot | User-provided observation | Missing public community profile components | direct host-visible observation |\n| Repository community-file inventory | `.github/`, repository root | Existing README/License and missing policy/templates | direct repository evidence |\n| Approved UR | `.agdf/control/artefacts/github-community-health-governance/UR.md` | Intended outcome, scope, non-goals and acceptance signals | authoritative scope evidence |\n| Brownfield Review | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_REVIEW.md` | Existing owners, coverage, host state and Structured Delivery routing | direct repository and host evidence |\n| UX Intent Definition | `.agdf/control/artefacts/github-community-health-governance/UX_INTENT_DEFINITION.md` | Working modes, state authority, blockers, recovery and resolved product choices | structured analytical evidence |\n| Approved PRD | `.agdf/control/artefacts/github-community-health-governance/PRD.md` | Product scope, nineteen observable criteria, evidence and public policy boundaries | authoritative product evidence |\n| Approved Solution Design | `.agdf/control/artefacts/github-community-health-governance/SD.md` | Canonical policy owners, GitHub adapters, validation, external integration and evidence separation | authoritative technical evidence |\n| Approved Task/Test Plan | `.agdf/control/artefacts/github-community-health-governance/TP.md` | Twenty tasks, test matrix, Brownfield scope, QA rules and post-delivery evidence boundary | authoritative execution evidence |\n| Brownfield Analysis | `.agdf/control/artefacts/github-community-health-governance/BROWNFIELD_ANALYSIS.md` | Existing coverage, reuse path, exact scope, compatibility, risks and evidence gaps | implementation-preparation evidence |\n| CD+Tests Evidence | `.agdf/control/artefacts/github-community-health-governance/CD_TEST_EVIDENCE.md` | Delivered files, passing checks and isolated unrelated failures | implementation evidence |\n| Clean Implementation Review | `.agdf/control/artefacts/github-community-health-governance/CLEAN_IMPLEMENTATION_REVIEW.md` | Primary solution, fallback and parallel-structure assessment | pass |\n| Code Review | `.agdf/control/artefacts/github-community-health-governance/CODE_REVIEW.md` | Correctness, security, compatibility and maintainability review | pass |\n| Task Plan Review | `.agdf/control/artefacts/github-community-health-governance/TASK_PLAN_REVIEW.md` | 20-task coverage and UX Intent Fidelity | revise |\n| QA Report | `.agdf/control/artefacts/github-community-health-governance/QA_REPORT.md` | Formal QA decision and consumed findings | revise |\n\n## Missing Evidence\n\n| Missing evidence | Impact | Required next step |\n|---|---|---|\n| Private vulnerability reporting availability | `warn` | Confirm the host capability during implementation; use the approved email fallback if unavailable. |\n| Default-branch Community Profile recognition | `warn` | Verify after repository files are delivered to the default branch. |\n| Applied GitHub metadata and social preview | `warn` | Verify through public or authenticated host observation after application. |\n\n## Risks\n\n| Risk | Impact | Mitigation or owner |\n|---|---|---|\n| Public policy text could promise unsupported response behavior | `warn` | Enforce the approved no-SLA and current-release-only boundaries through deterministic policy assertions. |\n| New files could duplicate existing Pages or runtime documentation instead of routing to canonical owners | `warn` | Brownfield Review must identify canonical owners and link rather than copy where appropriate. |\n| Host metadata and repository files could drift because they have separate mutation paths | `warn` | Define separate validation and delivery evidence for repository files and GitHub-hosted settings. |\n\n## Context Graph Impact\n\n- context_graph_impact: `new_node_required`\n- context_graph_refs: `CG-PUBLIC-COMMUNITY-GOVERNANCE`\n- context_graph_reconciliation: `resolved`\n- context_graph_required_action: `create`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: `CG-PUBLIC-COMMUNITY-GOVERNANCE` now records the durable ownership, security, host-state and exit-criteria decisions.\n\n## Knowledge Persistence Decision\n\n- memory_target: `scope_artifact`\n- memory_reason: Public governance, security and contribution rules are durable project policy and must remain repository-owned.\n- memory_refs: `.agdf/control/artefacts/github-community-health-governance/UR.md`\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook: Reuse existing product, runtime and release owners while making externally visible policy truthful and maintainable.\n",
+  "candidate_digest": "sha256:553a849b19871652432638f70c2b0816b8f2cfdf8f035d37c5ab068a28d054d7",
+  "phase": "committed",
+  "preview_digest": "sha256:71574f17134ec52d574735ff6d9fc8313cb454eeb5b6a521265b2c0e5b921c7a",
+  "confirmation": "RECOVER github-community-health-governance 45de0bd1-832c-4a25-981d-f1f8892849f3 sha256:71574f17134ec52d574735ff6d9fc8313cb454eeb5b6a521265b2c0e5b921c7a",
+  "result_digest": "sha256:60afb8ef8a8d282651b9839f89ff4903c4b9f1d3e1f5baa3aa42a792c15d0419",
+  "result_revision_id": "ec8f97b8-0a6b-4cbb-8e0f-ab8af6e3a035"
+}

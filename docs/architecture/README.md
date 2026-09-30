@@ -34,6 +34,11 @@ sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im
 [Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Architekturübersicht
 erklärt die Zusammenhänge. Sie erzeugt keine eigenen Regeln.
 
+Ein **nicht-normativer Diskussionsvorschlag** für mögliche fachliche MCP-Schnittstellen steht in
+der [Zielarchitektur Fachlicher MCP-Schnittstellen](mcp-target-architecture.md). Er ergänzt diese
+Übersicht um Kandidaten und offene Fragen; die oben verlinkten Verträge und Quell-Owner bleiben für
+das aktuelle Verhalten maßgeblich.
+
 ## Der kürzeste Einstieg
 
 Für das Verständnis helfen fünf Begriffe:
@@ -206,6 +211,28 @@ als gesamte Antwort unverändert dargestellt und beendet diesen Dispatch-Aufruf.
 oder danach keine Frage, Erklärung, Übersetzung oder weitere Aktion ergänzen. Ein
 Fortsetzungsauftrag bindet genau einen Skill und ein Ziel, er erteilt aber ebenfalls keine
 Gate-Freigabe.
+
+Bei einem Umsetzungsauftrag ohne bestätigte Run-Bindung liefert der erste Intake-Dispatch
+`resolve_delivery_run`, bevor ein einzelnes Gate ausgewertet wird. Der Coding-Agent vergleicht
+den Auftrag mit dem vollständigen UR-Umfang der kanonischen Kandidaten. Eine eindeutige Fortsetzung
+wird mit Run-ID und `expected_revision_id` erneut gebunden; ein eigenständiger Auftrag beginnt
+einen neuen Run am Gate UR. Nur überlappende plausible Umfänge benötigen eine fachliche Rückfrage.
+Ein einzelner aktiver Run oder sein Zeitstempel beweist keine Zuordnung. Der Dispatcher prüft
+Integrität und Revision erneut; fehlerhafte Daten werden nicht als fehlender Treffer ausgelegt.
+Die Zuordnung erzeugt weder ein weiteres Skill-Gate noch eine zweite persistierte Run-Liste.
+
+| Situation beim Umsetzungsauftrag | Verhalten |
+| --- | --- |
+| Eindeutige Fortsetzung innerhalb eines bestehenden UR | Bestehenden Run mit der gelesenen Revision fortsetzen |
+| Eigenständiger Auftrag, kein passender aktiver Umfang | Run-ID intern vergeben, neuen Run erzeugen und UR zur Freigabe vorbereiten |
+| Mehrere plausible Umfänge oder unklare Fortsetzung | Eine fachliche Frage zum gewünschten Umfang stellen |
+| Revision seit der Zuordnung geändert | Kandidaten aktualisieren und den Umfang erneut vergleichen |
+| Run-Daten unvollständig oder Integrität verletzt | Konkreten technischen Befund melden; Zuordnung bleibt blockiert |
+
+Die fachliche Entscheidung bleibt beim Coding-Agenten. Der Laufzeitcode prüft deren technische
+Bindung; er beweist keine semantische Übereinstimmung und übernimmt keine frühere Freigabe.
+Statusabfragen nutzen weiterhin die eigene Run-Auswahlkarte. CLI-Fallback und MCP liefern bei
+Skill-Fortsetzungen die registrierten Verträge aus dem eigenen Paket.
 
 Wenn das Zielprojekt feststeht, aber mehrere aktive Runs möglich sind, ermittelt der
 Gate-Evaluator einmal die vollständige kanonische Kandidatenliste. Der Dispatcher übergibt diese

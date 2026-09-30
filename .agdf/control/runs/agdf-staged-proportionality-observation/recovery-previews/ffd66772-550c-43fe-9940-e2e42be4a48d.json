@@ -1,0 +1,155 @@
+{
+  "schema_version": "1",
+  "preview_format_version": 2,
+  "preview_id": "ffd66772-550c-43fe-9940-e2e42be4a48d",
+  "run_id": "agdf-staged-proportionality-observation",
+  "created_at": "2026-09-30T08:31:12.060Z",
+  "source_revision_id": "e47c686f-9b6d-4487-b0cd-c33361c9053c",
+  "source_content_digest": "sha256:f82348c1dbe47f5a7061ce0545358c78640cc24cddcdb54a1e6c1574e69d6f5a",
+  "source_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: agdf-staged-proportionality-observation\n- lifecycle: active\n- revision: 16\n- revision_id: e47c686f-9b6d-4487-b0cd-c33361c9053c\n- mode: structured_slice\n- current_gate: QA\n- decision: block\n- owner: user / agent\n\n## Objective\n\nDen Proportionalitäts-Benchmark stufengerecht in aktuelle nächste Stufe und späteren Delivery Path\ntrennen, ohne Approval-/Brownfield-State zu erfinden oder historische Evidenz zu überschreiben.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Adapter 2.1 und Corpus/Fixture 2.0 bestehen 24/24 TP-Tasks, Clean Review und Code Review; die Parent-Bewertung trennt r3 in Benchmark-Semantik/-Evidenzgaps, eine fehlende Structured-Depth-Grenze und eine fehlerhafte QA-Block-Approval-Projektion. Ein Autoritätsbypass ist nicht belegt. |\n| What is approved? | Child-UR, PRD, SD und TP jeweils Revision 1 durch separate exakte Freigaben am 2026-07-29; keine Approval-Vererbung. |\n| What is missing? | Eigene Child-Freigaben für QA Transition Integrity und Structured Delivery Depth Boundary; Benchmark v3 bleibt von der kanonischen Depth-Entscheidung abhängig. |\n| What is the next allowed action? | Parent-Bewertung verwenden und zuerst die separate Child-UR für QA-Block Transition Integrity entscheiden. |\n| What is explicitly forbidden right now? | `Approval: QA`, UAT, clean delivery handoff, Optimierung gültiger Live-Ergebnisse, VCS und Release. |\n\n## Source And Scope State\n\n- primary_target: stufengerechtes Proportionalitäts-Beobachtungsprotokoll\n- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- evidence_sources: Parent-Ambiguitätsassessment, unveränderte Benchmark-Serie v2, Baseline 1.0.0, aktuelle Mode-/Gate-/Brownfield-Owner\n- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- scope_stability: durch separaten Parent-Produktbefund und eigenständige UR abgegrenzt\n- competing_scope_lines: Vorgänger-Benchmark bleibt blockiert; RMP-08 bis RMP-12 und fremde aktive Runs bleiben eigenständig\n- excluded_mutation_targets: historische v2-Evidenz, Vorgänger-QA, Routing-/Gate-/Approval-Semantik, fremde Runs, VCS und Release\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | Exaktes `Approval: UR` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |\n| PRD | approved | Exaktes `Approval: PRD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |\n| SD | approved | Exaktes `Approval: SD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |\n| TP | approved | Exaktes `Approval: TP` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |\n| QA | blocked | Reportentscheidung `block`; Approval nicht zulässig. |\n| UAT | missing | Nicht zulässig. |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| Parent Finding | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md` | assessed | Separater Protokoll-Scope gerechtfertigt. |\n| UR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md` | approved | SPO-1 bis SPO-8; exakt freigegeben 2026-07-29; keine Routing-Semantikänderung. |\n| Brownfield Review | `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md` | done | Pass; `structured_slice`; bestehende Benchmark-Pipeline versioniert erweitern. |\n| PRD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md` | approved | SPR-1 bis SPR-14 und SPA-1 bis SPA-14; exakt freigegeben 2026-07-29. |\n| SD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md` | approved | Profilfähige gemeinsame Pipeline; exakt freigegeben 2026-07-29. |\n| TP | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md` | approved | 24 Tasks, 22 Testfelder; exakt freigegeben 2026-07-29. |\n| Brownfield Analysis | `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_ANALYSIS.md` | done | Pass; Scope, Historienhashes, Codex/Modell, Safety und 230-Attempt-Grenze revalidiert. |\n| Live Preflight | `.agdf/control/artefacts/agdf-staged-proportionality-observation/LIVE_PREFLIGHT.md` | pass | Adapter 2.1, Corpus/Fixture 2.0, Package-Smoke, Host, Modell, Serienziel, Safety, Historie und Budgetgrenze revalidiert. |\n| CD+Tests | `.agdf/control/artefacts/agdf-staged-proportionality-observation/CD_TESTS.md` | done | Pipeline und Tests vollständig; r3 216/216 technisch gültig; fachlicher Report blockiert. |\n| Staged Report | `.agdf/control/artefacts/agdf-staged-proportionality-observation/STAGED_PROPORTIONALITY_REPORT.json` | block | Fresh r3 216/216; zwei Critical Under, drei Stage-Abweichungen, acht Mixed/Ambiguous. |\n| TP Review | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TASK_PLAN_REVIEW.md` | pass | 24/24 fully_done; keine offene TP-Lücke. |\n| Clean Review | `.agdf/control/artefacts/agdf-staged-proportionality-observation/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Gemeinsame Primärlösung ohne Parallelpipeline. |\n| CR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/CODE_REVIEW.md` | done | Code-Review-Entscheidung pass; CR-SPT-01 bis -03 geschlossen; keine offenen relevanten Findings. |\n| QA | `.agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md` | block | Implementierungsqualität pass; gültige Produktabweichungen verhindern QA pass. |\n| OR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md` | block | OR-full; kein clean delivery handoff. |\n\n## Mode/Slice Decision\n\n- decision: structured_slice\n- required_next_gate: PRD\n- scope_reason: Mehrere gekoppelte Benchmark-Daten-/Codeowner und neue messbare Ergebnissemantik erfordern fokussierte formale Artefakte; Runtime-, Gate-, Policy-, Persistenz-, Release- und öffentliche Cross-Host-Wirkung bleiben ausgeschlossen.\n- evidence: `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| Vorgänger Benchmark QA | exposes | Ambiguitätsbefund | 27/40 Fälle ambiguous; QA block. |\n| Parent Ambiguity Assessment | evaluates | Ambiguitätsbefund | 26 Protocol-Stage-Mismatches, ein Baseline-Semantikfehler, null belegte Routingfehler. |\n| UR | derived_from | Parent Ambiguity Assessment | SPO-1 bis SPO-8 trennen Lifecycle-Stufe und späteren Delivery Path. |\n| UR | approved_by | `Approval: UR` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| Brownfield Review | sizes | UR | `structured_slice`; vorhandene Pipeline erweitern, historische Evidenz bewahren, keine zweite Routingautorität. |\n| PRD | derived_from | UR | SPR-1 bis SPR-14 operationalisieren SPO-1 bis SPO-8 unter den Grenzen der Brownfield Review. |\n| PRD | approved_by | `Approval: PRD` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| SD | derived_from | PRD | AD-1 bis AD-16 operationalisieren SPR-1 bis SPR-14 in einer profilfähigen gemeinsamen Pipeline. |\n| SD | approved_by | `Approval: SD` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| TP | derived_from | SD | SPT-T01 bis SPT-T24 planen Brownfield-Preflight, gemeinsame Pipeline, 72 Scenarios, Offline-/Live-Evidenz, Reviews und QA. |\n| TP | approved_by | `Approval: TP` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| Brownfield Analysis | prepares | TP | `pass`; bestehende Pipeline erweitern, Kandidatenpfade isoliert, Live-Konfiguration fixiert. |\n| CD+Tests | implements | TP | Gemeinsame Pipeline, vollständige Offline-Validierung und frische r3-216er-Live-Serie. |\n| Code Review | reviews | CD+Tests | `pass`; CR-SPT-01 bis CR-SPT-03 durch Adapter 2.1, vollständige Matrizen und neue Tests geschlossen. |\n| QA_REPORT | tests | TP | `block`; ausschließlich gültige Live-Produktabweichungen verhindern Pass. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Fresh benchmark v2 | Vorgänger `PROPORTIONALITY_BENCHMARK_REPORT.json` | 120/120 gültige Live-Observationen, 27 ambiguous | direct |\n| Parent assessment | `PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md` | Ursachencluster, Produktgrenze, kleinster Remediation-Scope | direct |\n| Baseline 1.0.0 | Parent `PROPORTIONALITY_BENCHMARK_BASELINE.json` | 40 Sollfälle und historische Evidenzreferenzen | direct |\n| Brownfield Review | `BROWNFIELD_REVIEW.md` | Owner-Inventar, Wiederverwendung, Kompatibilität, Risiken und Mode/Slice Decision | direct |\n\n## Missing Evidence\n\n- Produktentscheidung, genehmigte Remediation und danach getrennte frische Conformance-Evidenz;\n  QA-Pass- und UAT-Evidenz.\n\n## Risks\n\n- Fixture-Leakage des Sollpfads;\n- synthetischer State wird mit echter Approval-Autorität verwechselt;\n- Benchmark erzeugt eine zweite Routinglogik;\n- historische Live-Evidenz wird nachträglich umgedeutet;\n- stage-aware Ergebnis wird fälschlich als universeller Cross-Surface-Beleg ausgegeben.\n\n## Context Graph Impact\n\n- context_graph_impact: `link_only`\n- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`; `CG-DOCUMENTATION-CEREMONY-BOUNDARY`\n- context_graph_reconciliation: `resolved_for_prd`\n- context_graph_required_action: `link`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: Die Brownfield Review bestätigt `link_only`; der Slice erweitert die bestehende Messpipeline und erzeugt keinen neuen Policy- oder Architektur-Owner.\n\n## Closeout\n\n- delivered: 40/72 staged Protokoll, gemeinsame Pipeline, historische Integritätsgrenze, Offline- und\n  Package-Tests, 216/216 Live-Observationen, deterministischer Report sowie Pflichtreviews/QA/OR.\n- intentionally_not_delivered: QA-Freigabe, UAT, clean delivery handoff, VCS, Release und\n  Routing-/Gate-Semantikänderung.\n- next_allowed_action: Parent-Bewertung verwenden und zuerst die separate Child-UR für QA-Block\n  Transition Integrity entscheiden.\n- quality_outlook: Messstufen sauber trennen, historische Evidenz bewahren und Fail-Closed-Schutz nicht in eine Pfadprognose umdeuten.\n",
+  "source_artefacts": [
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md",
+      "status": "valid",
+      "digest": "sha256:a42557423d18ad9b14133be3d4c7240e43b84d99ef3cca6c01afb47fd2086242"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md",
+      "status": "valid",
+      "digest": "sha256:c9b784a97760a7babe419fb3a5a88170e289e9c9550aafb12ec1f484d1a2ee43"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:65a4363f303316eefa41452f96943af03a09afc436f53932e843de388e419aca"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md",
+      "status": "valid",
+      "digest": "sha256:35488a18cea71516d36c43e9ccddb98ac162dd05684eff8f41553268c7f27404"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md",
+      "status": "valid",
+      "digest": "sha256:f1dcfa3777e4205072b5be6dcfb13b46500d09bc381092571d06dde1ab2109eb"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md",
+      "status": "valid",
+      "digest": "sha256:d8c90c871037a95f7915d922608ed30a1a2862252a7f339c756ae14019e0c21a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_ANALYSIS.md",
+      "status": "valid",
+      "digest": "sha256:5d609676d9f02a8d026a5c2dc79ab371ac586d5dd9996ed71bfb9a1c362cf6c0"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/LIVE_PREFLIGHT.md",
+      "status": "valid",
+      "digest": "sha256:947d3d5fc0debd20711fefabe18ef790ef5dfa6a2c535e64748428b1081fa7a6"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/CD_TESTS.md",
+      "status": "valid",
+      "digest": "sha256:a7c8c5d939914eb351422b6bb51b7cf8541a0afc5f0d1d358578ec6c2ecb8f6c"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/STAGED_PROPORTIONALITY_REPORT.json",
+      "status": "valid",
+      "digest": "sha256:719ace92ab71f7211d5cdf9bf8c869d9b2ce5dbe6ecba65608d6c6f145182ba3"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/TASK_PLAN_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:cbac9259a57dcb3974abf8a8582e4d8557118cf8830b333ca54cad1398efcc9e"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/CLEAN_IMPLEMENTATION_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:1561a0f04eeed8ff41c58f704b467c0c18ecf6365708b5c807b219bc5694d5fc"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/CODE_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:780169ee5ab4cd9ca353e8e58e27bbdee8588e7117858c13c7ce605942dd47b2"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:fecc47b22f5037a3c0866c260289d5ca171dbec71c99094d87225aee25d02b9a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md",
+      "status": "valid",
+      "digest": "sha256:7585b0d69c270f2906c2497be1496fe36e8ba3e3aefc34fbdce3868b374ee4e7"
+    }
+  ],
+  "git_history": {
+    "status": "available",
+    "candidates": [
+      {
+        "commit": "60d3a2eb1c91cd500e3bc7f63fdd9cab6e9eb484",
+        "revision_id": "e47c686f-9b6d-4487-b0cd-c33361c9053c",
+        "content_digest": "sha256:f82348c1dbe47f5a7061ce0545358c78640cc24cddcdb54a1e6c1574e69d6f5a",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      }
+    ]
+  },
+  "prior_approvals": [
+    {
+      "section": "Approvals",
+      "gate": "UR",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: UR` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt."
+    },
+    {
+      "section": "Approvals",
+      "gate": "PRD",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: PRD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt."
+    },
+    {
+      "section": "Approvals",
+      "gate": "SD",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: SD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt."
+    },
+    {
+      "section": "Approvals",
+      "gate": "TP",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: TP` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt."
+    },
+    {
+      "section": "Approvals",
+      "gate": "QA",
+      "status": "blocked",
+      "evidence": "Reportentscheidung `block`; Approval nicht zulässig."
+    },
+    {
+      "section": "Approvals",
+      "gate": "UAT",
+      "status": "missing",
+      "evidence": "Nicht zulässig."
+    }
+  ],
+  "approval_provenance": "no_independent_provenance",
+  "approvals_to_invalidate": [
+    "UR",
+    "PRD",
+    "SD",
+    "TP",
+    "QA",
+    "UAT"
+  ],
+  "next_gate": "UR",
+  "next_revision_id": "b7cd751b-0c69-45df-82f7-b19dd746633d",
+  "candidate_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: agdf-staged-proportionality-observation\n- lifecycle: active\n- revision: 16\n- revision_id: e47c686f-9b6d-4487-b0cd-c33361c9053c\n- mode: structured_slice\n- current_gate: UR\n- decision: block\n- owner: user / agent\n\n## Objective\n\nDen Proportionalitäts-Benchmark stufengerecht in aktuelle nächste Stufe und späteren Delivery Path\ntrennen, ohne Approval-/Brownfield-State zu erfinden oder historische Evidenz zu überschreiben.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |\n| What is approved? | Nothing yet. |\n| What is missing? | Exact Approval: UR. |\n| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |\n| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |\n\n## Source And Scope State\n\n- primary_target: stufengerechtes Proportionalitäts-Beobachtungsprotokoll\n- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- evidence_sources: Parent-Ambiguitätsassessment, unveränderte Benchmark-Serie v2, Baseline 1.0.0, aktuelle Mode-/Gate-/Brownfield-Owner\n- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- scope_stability: durch separaten Parent-Produktbefund und eigenständige UR abgegrenzt\n- competing_scope_lines: Vorgänger-Benchmark bleibt blockiert; RMP-08 bis RMP-12 und fremde aktive Runs bleiben eigenständig\n- excluded_mutation_targets: historische v2-Evidenz, Vorgänger-QA, Routing-/Gate-/Approval-Semantik, fremde Runs, VCS und Release\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| Parent Finding | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md` | assessed | Separater Protokoll-Scope gerechtfertigt. |\n| UR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md` | approved | SPO-1 bis SPO-8; exakt freigegeben 2026-07-29; keine Routing-Semantikänderung. |\n| Brownfield Review | `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md` | done | Pass; `structured_slice`; bestehende Benchmark-Pipeline versioniert erweitern. |\n| PRD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md` | approved | SPR-1 bis SPR-14 und SPA-1 bis SPA-14; exakt freigegeben 2026-07-29. |\n| SD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md` | approved | Profilfähige gemeinsame Pipeline; exakt freigegeben 2026-07-29. |\n| TP | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md` | approved | 24 Tasks, 22 Testfelder; exakt freigegeben 2026-07-29. |\n| Brownfield Analysis | `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_ANALYSIS.md` | done | Pass; Scope, Historienhashes, Codex/Modell, Safety und 230-Attempt-Grenze revalidiert. |\n| Live Preflight | `.agdf/control/artefacts/agdf-staged-proportionality-observation/LIVE_PREFLIGHT.md` | pass | Adapter 2.1, Corpus/Fixture 2.0, Package-Smoke, Host, Modell, Serienziel, Safety, Historie und Budgetgrenze revalidiert. |\n| CD+Tests | `.agdf/control/artefacts/agdf-staged-proportionality-observation/CD_TESTS.md` | done | Pipeline und Tests vollständig; r3 216/216 technisch gültig; fachlicher Report blockiert. |\n| Staged Report | `.agdf/control/artefacts/agdf-staged-proportionality-observation/STAGED_PROPORTIONALITY_REPORT.json` | block | Fresh r3 216/216; zwei Critical Under, drei Stage-Abweichungen, acht Mixed/Ambiguous. |\n| TP Review | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TASK_PLAN_REVIEW.md` | pass | 24/24 fully_done; keine offene TP-Lücke. |\n| Clean Review | `.agdf/control/artefacts/agdf-staged-proportionality-observation/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Gemeinsame Primärlösung ohne Parallelpipeline. |\n| CR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/CODE_REVIEW.md` | done | Code-Review-Entscheidung pass; CR-SPT-01 bis -03 geschlossen; keine offenen relevanten Findings. |\n| QA | `.agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md` | block | Implementierungsqualität pass; gültige Produktabweichungen verhindern QA pass. |\n| OR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md` | block | OR-full; kein clean delivery handoff. |\n\n## Mode/Slice Decision\n\n- decision: structured_slice\n- required_next_gate: PRD\n- scope_reason: Mehrere gekoppelte Benchmark-Daten-/Codeowner und neue messbare Ergebnissemantik erfordern fokussierte formale Artefakte; Runtime-, Gate-, Policy-, Persistenz-, Release- und öffentliche Cross-Host-Wirkung bleiben ausgeschlossen.\n- evidence: `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| Vorgänger Benchmark QA | exposes | Ambiguitätsbefund | 27/40 Fälle ambiguous; QA block. |\n| Parent Ambiguity Assessment | evaluates | Ambiguitätsbefund | 26 Protocol-Stage-Mismatches, ein Baseline-Semantikfehler, null belegte Routingfehler. |\n| UR | derived_from | Parent Ambiguity Assessment | SPO-1 bis SPO-8 trennen Lifecycle-Stufe und späteren Delivery Path. |\n| UR | approved_by | `Approval: UR` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| Brownfield Review | sizes | UR | `structured_slice`; vorhandene Pipeline erweitern, historische Evidenz bewahren, keine zweite Routingautorität. |\n| PRD | derived_from | UR | SPR-1 bis SPR-14 operationalisieren SPO-1 bis SPO-8 unter den Grenzen der Brownfield Review. |\n| PRD | approved_by | `Approval: PRD` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| SD | derived_from | PRD | AD-1 bis AD-16 operationalisieren SPR-1 bis SPR-14 in einer profilfähigen gemeinsamen Pipeline. |\n| SD | approved_by | `Approval: SD` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| TP | derived_from | SD | SPT-T01 bis SPT-T24 planen Brownfield-Preflight, gemeinsame Pipeline, 72 Scenarios, Offline-/Live-Evidenz, Reviews und QA. |\n| TP | approved_by | `Approval: TP` | Exakte Freigabe am 2026-07-29 für Run, Gate und Revision 1. |\n| Brownfield Analysis | prepares | TP | `pass`; bestehende Pipeline erweitern, Kandidatenpfade isoliert, Live-Konfiguration fixiert. |\n| CD+Tests | implements | TP | Gemeinsame Pipeline, vollständige Offline-Validierung und frische r3-216er-Live-Serie. |\n| Code Review | reviews | CD+Tests | `pass`; CR-SPT-01 bis CR-SPT-03 durch Adapter 2.1, vollständige Matrizen und neue Tests geschlossen. |\n| QA_REPORT | tests | TP | `block`; ausschließlich gültige Live-Produktabweichungen verhindern Pass. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Fresh benchmark v2 | Vorgänger `PROPORTIONALITY_BENCHMARK_REPORT.json` | 120/120 gültige Live-Observationen, 27 ambiguous | direct |\n| Parent assessment | `PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md` | Ursachencluster, Produktgrenze, kleinster Remediation-Scope | direct |\n| Baseline 1.0.0 | Parent `PROPORTIONALITY_BENCHMARK_BASELINE.json` | 40 Sollfälle und historische Evidenzreferenzen | direct |\n| Brownfield Review | `BROWNFIELD_REVIEW.md` | Owner-Inventar, Wiederverwendung, Kompatibilität, Risiken und Mode/Slice Decision | direct |\n\n## Missing Evidence\n\n- Produktentscheidung, genehmigte Remediation und danach getrennte frische Conformance-Evidenz;\n  QA-Pass- und UAT-Evidenz.\n\n## Risks\n\n- Fixture-Leakage des Sollpfads;\n- synthetischer State wird mit echter Approval-Autorität verwechselt;\n- Benchmark erzeugt eine zweite Routinglogik;\n- historische Live-Evidenz wird nachträglich umgedeutet;\n- stage-aware Ergebnis wird fälschlich als universeller Cross-Surface-Beleg ausgegeben.\n\n## Context Graph Impact\n\n- context_graph_impact: `link_only`\n- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`; `CG-DOCUMENTATION-CEREMONY-BOUNDARY`\n- context_graph_reconciliation: `resolved_for_prd`\n- context_graph_required_action: `link`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: Die Brownfield Review bestätigt `link_only`; der Slice erweitert die bestehende Messpipeline und erzeugt keinen neuen Policy- oder Architektur-Owner.\n\n## Closeout\n\n- delivered: 40/72 staged Protokoll, gemeinsame Pipeline, historische Integritätsgrenze, Offline- und\n  Package-Tests, 216/216 Live-Observationen, deterministischer Report sowie Pflichtreviews/QA/OR.\n- intentionally_not_delivered: QA-Freigabe, UAT, clean delivery handoff, VCS, Release und\n  Routing-/Gate-Semantikänderung.\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n  Transition Integrity entscheiden.\n- quality_outlook: Messstufen sauber trennen, historische Evidenz bewahren und Fail-Closed-Schutz nicht in eine Pfadprognose umdeuten.\n",
+  "candidate_digest": "sha256:4995e2e9e6ee781fc30830a0ec6c3ab108bfca61dc3c33bb3b7fa4f18e47efa4",
+  "phase": "committed",
+  "preview_digest": "sha256:b14663dcc1766f1d287cc704a696374370ca3fb0da79b6d78d5759a0d38ea363",
+  "confirmation": "RECOVER agdf-staged-proportionality-observation ffd66772-550c-43fe-9940-e2e42be4a48d sha256:b14663dcc1766f1d287cc704a696374370ca3fb0da79b6d78d5759a0d38ea363",
+  "result_digest": "sha256:eebaf7c3244f9314e108925da7f4faf7fa6cc4876ac091d9829e65ba5d2e0aeb",
+  "result_revision_id": "b7cd751b-0c69-45df-82f7-b19dd746633d"
+}

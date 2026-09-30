@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: cross-surface-executable-skill-dispatcher
 - lifecycle: active
-- revision: 29
-- revision_id: F83C9B73-9ACE-46E5-8EB6-205E71DD1BA9
+- revision: 30
+- revision_id: fe999aaf-4cd1-4fa0-8b8d-b195ac7c2a1c
+- content_seal: sha256:b075372a0293362d468f82b2a5fccc903a11c0ef8cedc8350a0241d9b83359c6
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:13.110Z
 - started_at: 2026-09-04
 - mode: `structured_delivery`
-- current_gate: QA
+- current_gate: UR
 - decision: revise
 - owner: Arndt Gold
 
@@ -117,11 +120,11 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 | Question | Answer |
 |---|---|
-| What is known? | Die freigegebene Transportkorrektur, die semantische Funktionsdefinition sowie die Target-source-, Failure-Recovery-, QA-Kandidaten-, Terminalantwort- und Plugin-root-Korrektur sind implementiert. Source und installierte Codex-Laufzeit verwenden die native Root vor der Kompatibilitätsvariable. 40 Adapterfälle, 83 geprüfte Offline-Replays, Integrität, Pakete, serielle Regression und isolierter Rollback bestehen. |
-| What is approved? | UR und PRD Revision 1, SD Revision 2 und TP Revision 2 durch die jeweiligen exakten Freigaben. |
-| What is missing? | Frischer geladener Codex-Modellnachweis sowie übrige Host-, native Windows/Linux- und sichtbare Latenznachweise. QA Revision 17 entscheidet revise. |
-| What is the next allowed action? | Neuen Codex-Task öffnen und beide gemeldeten QA-Pfade gegen die aktualisierte Installation beobachten. |
-| What is explicitly forbidden right now? | Unbelegter QA-Pass, UAT, weitere Hostinstallation ohne eigene Autorisierung, externe Modellläufe, Commit, Push, PR und Release. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -154,12 +157,12 @@ einen terminalen Ausgang oder eine begrenzte nächste Aktion übergibt.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exaktes `Approval: UR` nach Revalidierung von Ziel, Run, Gate und Revision 1. |
-| PRD | approved | Exaktes `Approval: PRD` nach Revalidierung von Ziel, Run, Gate und Revision 3. |
-| SD | approved | Exaktes Approval: SD für SD Revision 2 nach Revalidierung von Ziel, Run und Gate SD bei Revision 18 / 3CA1DBAC-196A-4268-A103-F8B79045B18F. Frühere SD1-Freigabe bleibt historische Evidenz. |
-| TP | approved | Exaktes Approval: TP für TP Revision 2 nach Revalidierung von Ziel, Run, Gate und Revision 19 / 38F9EC31-0A51-42DA-B60E-1EE409BCAB5D. |
-| QA | blocked | Revision 17 entscheidet revise. CSED-QA-01 ist offen; CSED-DISPATCH-15 bis 18 sowie frühere Implementierungsbefunde sind repository- und installationsseitig gelöst. Kein Approval: QA angefordert. |
-| UAT | blocked | QA fehlt. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -297,6 +300,6 @@ belegt noch keinen frisch geladenen Modellturn.
 
 ## Closeout
 
-- next_allowed_action: record evidence
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Preserve the distinction between installed state and fresh-session loaded behavior.
 - lifecycle_authorization_required: Codex installation was separately authorized and completed. Any other host installation or external model evaluation still requires its own authorization.

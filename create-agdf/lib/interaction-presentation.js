@@ -94,7 +94,7 @@ export function validateLocaleRegistry(registry) {
       }
       if (!value.trim()) errors.push(`empty_copy:${locale}:${key}`);
       const budget = key.startsWith("gateTitles.") || key.startsWith("gateActionTitles.") ? budgets.title
-        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
+        : key.includes("Description") || key.includes("fallbackReasons") || key.startsWith("runResolution.") || key.startsWith("controlSetup.") || key.startsWith("operationalValues.") || key.startsWith("gateRequiredDecisions.") || key.startsWith("taskTargetResolution.nextActions.") || key.startsWith("skillDispatch.recoveries.") || key.startsWith("primary.actions.") || key.startsWith("primary.afterApproval.") || key.startsWith("primary.narration.") || key.startsWith("gateRationale.") || key.startsWith("interaction.why.") || key.startsWith("mcpLifecycle.actions.") || key.startsWith("mcpLifecycle.permissionEffects.") || key.startsWith("mcpLifecycle.diagnostics.") || key.startsWith("installSetup.actions.") || key.startsWith("installSetup.blockReasons.") || key.startsWith("installSetup.runtimeConsent.") || ["installSetup.invalidChoice", "installSetup.emptyChoice", "installSetup.blockedChoice", "interaction.decisionInstruction", "interaction.decisionPrompt", "interaction.exactTextRequest", "interaction.decisionFollows", "interaction.presentationFailure", "interaction.nonReadyDecision", "primary.quality"].includes(key)
           ? budgets.description
           : budgets.label;
       if (Number.isInteger(budget) && value.length > budget) errors.push(`length_budget:${locale}:${key}`);
@@ -238,6 +238,7 @@ export function buildRunCandidates(runs) {
         decision: String(run.meta?.decision || "unknown").replaceAll("`", "").trim() || "unknown",
         next_allowed_action: String(run.control_state?.next_allowed_action ?? "").trim(),
         revision_id: String(run.meta?.revision_id ?? "").trim(),
+        last_updated_at: String(run.meta?.updated_at || run.last_updated_at || "").trim(),
       };
     })
     .sort((left, right) => left.display_title.localeCompare(right.display_title) || left.run_id.localeCompare(right.run_id));
@@ -570,6 +571,58 @@ export function renderOperationalStatusCard(statusCard, {
     revision_id: revision,
     current_gate: currentGate,
     presentation_language: locale,
+    markdown,
+    authorizes: false,
+  });
+}
+
+export function renderRunResolutionCard({ candidates = [], noActiveRun = false, presentationLanguage } = {}, {
+  registry,
+} = {}) {
+  let locale;
+  try {
+    locale = resolvePresentationLocale(registry, presentationLanguage);
+  } catch {
+    return null;
+  }
+  const labels = localePack(registry, locale)?.runResolution;
+  if (!plainObject(labels)) return null;
+  if (noActiveRun) {
+    return Object.freeze({
+      schema_version: "1",
+      semantic_block: "run_resolution",
+      presentation_language: locale,
+      markdown: `## ${labels.noneTitle}\n\n${labels.nonePrompt}`,
+      authorizes: false,
+    });
+  }
+  if (!Array.isArray(candidates) || candidates.length < 2) return null;
+  const orderedCandidates = [...candidates].sort((left, right) => {
+    const leftTime = Date.parse(left.last_updated_at) || 0;
+    const rightTime = Date.parse(right.last_updated_at) || 0;
+    return rightTime - leftTime || left.run_id.localeCompare(right.run_id);
+  });
+  const [recommended, ...alternatives] = orderedCandidates;
+  const renderCandidate = (candidate) => [
+    `- **${markdownCell(candidate.display_title || candidate.run_id)}** · \`${markdownCell(candidate.run_id)}\``,
+    `  - ${labels.gate}: ${markdownCell(candidate.current_gate || "unknown")}`,
+    ...(candidate.last_updated_at ? [`  - ${labels.updated}: ${markdownCell(candidate.last_updated_at)}`] : []),
+    ...(candidate.objective ? [`  - ${labels.objective}: ${markdownCell(candidate.objective)}`] : []),
+  ].join("\n");
+  const markdown = [
+    `## ${labels.title}`,
+    "",
+    `**${labels.latest}:**`,
+    renderCandidate(recommended),
+    ...(alternatives.length ? ["", `**${labels.otherRuns}:**`, ...alternatives.map(renderCandidate)] : []),
+    "",
+    labels.choosePrompt,
+  ].join("\n");
+  return Object.freeze({
+    schema_version: "1",
+    semantic_block: "run_resolution",
+    presentation_language: locale,
+    recommended_run_id: recommended.run_id,
     markdown,
     authorizes: false,
   });

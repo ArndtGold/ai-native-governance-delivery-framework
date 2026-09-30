@@ -226,6 +226,8 @@ try {
       if (skill === "qa-gate") {
         assert.equal(qaInput.outcome, "skill_continuation");
         assert.equal(qaInput.continuation.run_id, "qa-input");
+        assert.ok(qaInput.continuation.runtime_contracts.some(contract => contract.module === "quality"
+          && contract.content.length > 0 && /^[0-9a-f]{64}$/u.test(contract.sha256)), "every shipped CLI profile supplies its owned runtime contracts");
         assert.equal(qaInput.continuation.governance_target, active);
         assert.equal(qaInput.authorizes, false);
       }
@@ -242,7 +244,7 @@ try {
       assert.equal(ambiguous.control.blocking_reason, "AGDF_ACTIVE_RUN_AMBIGUOUS");
       if (skill === "gate-check") {
         assert.equal(ambiguous.presentation.presentation_language, "en");
-        assert.match(ambiguous.host_action.text, /Pass --run/);
+        assert.match(ambiguous.host_action.text, /Reply with the run ID/);
         assert.doesNotMatch(ambiguous.host_action.text, /Repair the existing/);
       } else if (skill === "qa-gate") {
         assert.deepEqual(ambiguous.control.candidate_runs.map(({ run_id, objective, current_gate, decision }) => ({ run_id, objective, current_gate, decision })), [

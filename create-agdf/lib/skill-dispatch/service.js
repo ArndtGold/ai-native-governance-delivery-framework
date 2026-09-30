@@ -5,6 +5,7 @@ import { evaluateGateCheck, isReadyUserGateApproval } from "../control-evaluatio
 import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
 import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
 import { DELIVERY_INTAKE_OPERATION, deliveryIntakePhase, deliveryIntakeSteps, quoteDispatchArgument } from "./delivery-intake.js";
+import { deliveryRunAssignmentContinuation, readDeliveryRunInventory } from "./delivery-run-assignment.js";
 import { SKILL_DISPATCH_CONTRACT_VERSION, SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SKILL_DISPATCH_SCHEMA_VERSION, SkillDispatchInputError, buildSkillDispatchRegistry, emptySkillDispatchTiming, normalizeSkillDispatchInput } from "./contract.js";
 
 const defaultNow = () => process.hrtime.bigint();
@@ -98,12 +99,12 @@ function bindHostAction(result) {
       mode: "transmit_presentation_verbatim_and_stop",
       ...presentationAction,
       allow_surrounding_text: false,
-      may_request_run_or_evidence: false,
+      may_request_run_or_evidence: result.control?.blocking_reason === "AGDF_ACTIVE_RUN_AMBIGUOUS",
     });
   } else if (result.outcome === "intake_continuation") {
     result.host_action = Object.freeze({
       mode: "continue_delivery_intake",
-      source: "continuation.steps",
+      source: result.continuation?.phase === "resolve_delivery_run" ? "continuation" : "continuation.steps",
       bound_to_target: true,
     });
   } else if (result.terminal) {
@@ -138,12 +139,26 @@ function candidateRunsSnapshot(report) {
     })));
 }
 
+function gateRouteSnapshot(report) {
+  const gate = typeof report?.current_gate === "string" && report.current_gate.trim()
+    ? report.current_gate
+    : null;
+  if (!gate) return null;
+  const skill = report?.status_card?.next_skill;
+  return Object.freeze({
+    gate,
+    skills: typeof skill === "string" && skill && skill !== "none" ? [skill] : [],
+  });
+}
+
 function controlSnapshot(report, { includeCandidateRuns = false } = {}) {
   return Object.freeze({
     status: report.status,
     current_gate: report.current_gate,
+    gate_route: gateRouteSnapshot(report),
     blocking_reason: report.blocking_reason,
     missing_approval: report.missing_approval,
+    next_operation: report.next_operation ?? null,
     next_allowed_action: report.next_allowed_action,
     run_id: report.status_card?.run_id ?? null,
     revision_id: report.approval_presentation?.revision_id ?? extractField(report.status_card?.runState?.content ?? "", "revision_id") ?? null,
@@ -160,6 +175,7 @@ export function createSkillDispatchService(dependencies = {}) {
   const renderRecovery = dependencies.renderSkillDispatchRecovery ?? renderSkillDispatchRecovery;
   const evaluateGate = dependencies.evaluateGateCheck ?? evaluateGateCheck;
   const resolveIntakePhase = dependencies.deliveryIntakePhase ?? deliveryIntakePhase;
+  const readRunInventory = dependencies.readDeliveryRunInventory ?? readDeliveryRunInventory;
   const validateControlReadBoundary = dependencies.validateControlReadBoundary;
   const env = dependencies.env ?? process.env;
 
@@ -196,7 +212,7 @@ export function createSkillDispatchService(dependencies = {}) {
     }
 
     timing.input_ms = round(milliseconds(started, now()));
-    const skill = input.skill;
+    let skill = input.skill;
     try {
       const targetStarted = now();
       const target = runDispatchStage(DISPATCH_RECOVERY.target_evaluation_failed, () => resolveTarget({ targetSource: input.target_source, primaryTarget: input.primary_target, workingDirectory: input.working_directory }));
@@ -219,13 +235,52 @@ export function createSkillDispatchService(dependencies = {}) {
       }
 
       const controlStarted = now();
+      const assignmentResult = (candidates, reason) => {
+        const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
+        result.target = target;
+        result.continuation = deliveryRunAssignmentContinuation(target.governance_target, input, candidates, reason);
+        timing.control_ms = round(milliseconds(controlStarted, now()));
+        timing.total_ms = round(milliseconds(started, now()));
+        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
+        return bindHostAction(result);
+      };
+      if (input.intake && (!input.run_id || input.expected_revision_id)) {
+        let candidates;
+        try {
+          validateControlReadBoundary?.(target.governance_target);
+          candidates = readRunInventory(target.governance_target);
+        } catch (error) {
+          const code = error.code === "AGDF_CANONICAL_SCAFFOLD_REQUIRED" ? "intake_scaffold_required"
+            : error.code === "AGDF_RUN_ASSIGNMENT_INVENTORY_INVALID" ? "run_assignment_inventory_invalid" : null;
+          if (!code) throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_evaluation_failed);
+          const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
+          result.target = target;
+          result.diagnostics = [{ code: error.code, ...(error.findings ? { findings: error.findings } : {}) }];
+          const details = (error.findings ?? []).map((finding) =>
+            `- ${[finding.code, finding.run_id, finding.path].filter(Boolean).map((value) => String(value).replace(/[\r\n|`]/gu, " ")).join(" · ")}`).join("\n");
+          result.recovery = { action: [renderRecovery({ code }, { registry: rawInput.interactionLocales, requestedLocale: input.presentation_language }), details].filter(Boolean).join("\n\n") };
+          timing.control_ms = round(milliseconds(controlStarted, now()));
+          timing.total_ms = round(milliseconds(started, now()));
+          return bindHostAction(result);
+        }
+        const selected = candidates.find((candidate) => candidate.run_id === input.run_id);
+        if (!input.run_id || selected?.revision_id !== input.expected_revision_id) {
+          return assignmentResult(candidates, input.run_id ? "stale_assignment" : "unbound_delivery");
+        }
+      }
       const control = runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed, () => {
         validateControlReadBoundary?.(target.governance_target);
         return evaluateGate(target.governance_target, {
           ...(input.run_id ? { runId: input.run_id } : {}),
+          ...(input.intake ? { ignoreRunIdEnv: true } : {}),
           presentationLanguage: input.presentation_language,
         });
       });
+      if (input.expected_revision_id
+          && controlSnapshot(control).revision_id !== input.expected_revision_id) {
+        return assignmentResult(runDispatchStage(DISPATCH_RECOVERY.control_evaluation_failed,
+          () => readRunInventory(target.governance_target)), "stale_assignment");
+      }
       timing.control_ms = round(milliseconds(controlStarted, now()));
       let intake;
       try {
@@ -250,7 +305,7 @@ export function createSkillDispatchService(dependencies = {}) {
         result.target = target;
         result.control = controlSnapshot(control);
         result.continuation = Object.freeze({
-          instruction: "Continue the same delivery intake without asking the user: run these AGDF validator steps in order, then dispatch again. They persist intake bookkeeping only; they approve no gate and authorize no implementation.",
+          instruction: "Continue the same delivery intake without asking the user: run these AGDF validator steps in order, then dispatch again. Use the returned run-create revision in the following resume dispatch. They persist intake bookkeeping only; they approve no gate and authorize no implementation.",
           operation_id: DELIVERY_INTAKE_OPERATION,
           phase: intake.phase,
           presentation_language: input.presentation_language,
@@ -311,89 +366,25 @@ export function createSkillDispatchService(dependencies = {}) {
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
         return bindHostAction(result);
       }
-      if (input.continue_delivery
-          && control.status === "open"
-          && control.current_gate === "PRD"
-          && control.missing_approval === "Approval: PRD"
-          && structuredRoute
-          && !control.approval_presentation
-          && !control.presentation_diagnostics?.approval_presentation_errors?.length) {
+      if (input.continue_delivery && control.next_operation?.type === "prepare_gate_artifact") {
         const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
         result.target = target;
         result.control = controlSnapshot(control);
+        const artifact = control.next_operation;
         result.continuation = Object.freeze({
-          instruction: "Prepare and persist the PRD for this bound run from its approved UR and completed Brownfield Review. Retain the criteria-chain-v1 traceability marker. Include scope, uniquely identified observable acceptance criteria and non-goals at the smallest justified depth. Put product decisions needed for PRD approval in Approval Decisions; gather unresolved before_prd answers together before recording the final PRD revision. Defer only genuine design/planning decisions with named owners. Record the durable PRD in canonical run control, then dispatch again with the same run and target. Do not request Approval: PRD until the decision table and acceptance criteria are ready and the PRD is linked and presented.",
           phase: "required_gate_artifact",
-          skill_id: "gate-check",
-          gate: "PRD",
+          skill_id: artifact.skill_id,
+          gate: artifact.gate,
           governance_target: target.governance_target,
           run_id: result.control.run_id,
           revision_id: result.control.revision_id,
-          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/PRD.md`,
-          source_artifacts: [
-            `.agdf/control/artefacts/${result.control.run_id}/UR.md`,
-            `.agdf/control/artefacts/${result.control.run_id}/BROWNFIELD_REVIEW.md`,
-          ],
+          artifact_path: artifact.artifact_path,
+          source_artifacts: artifact.source_artifacts,
+          instruction: "Follow the gate-artifact-preparation runtime contract for this exact gate and the supplied canonical artefact/source paths. Persist the required artefact in the selected run, then redispatch gate-check for the same target/run; do not ask for approval until the fresh dispatch supplies a valid presentation.",
           presentation_language: input.presentation_language,
-        });
-        timing.total_ms = round(milliseconds(started, now()));
-        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
-        return bindHostAction(result);
-      }
-      const sdRelationship = control.delivery_map?.relationships?.find((relationship) => relationship.from === "SD");
-      if (input.continue_delivery
-          && control.status === "open"
-          && control.current_gate === "SD"
-          && control.missing_approval === "Approval: SD"
-          && structuredRoute
-          && !control.approval_presentation
-          && !control.presentation_diagnostics?.approval_presentation_errors?.length
-          && sdRelationship?.status !== "pass") {
-        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
-        result.target = target;
-        result.control = controlSnapshot(control);
-        result.continuation = Object.freeze({
-          instruction: "Prepare and persist the Solution Design for this bound run directly from the approved PRD and its resolved Approval Decisions before presenting the next user card. Retain the criteria-chain-v1 traceability marker and map each PRD criterion exactly once to its design response, authoritative source/owner, stable SDD decision ID or reasoned none, and compatibility/risk treatment. Define architecture, boundaries, flows and trade-offs at the smallest justified depth. Ask only for genuine unresolved design choices; do not reopen answered product questions in SD. If new facts materially change product scope or acceptance, use the PRD revision route and obtain a new exact PRD approval first. Record the durable SD as derived from the approved PRD, then dispatch again with the same run and target. Do not create the Task/Test Plan or implement code before SD and TP approvals.",
-          phase: "required_gate_artifact",
-          skill_id: "gate-check",
-          gate: "SD",
-          governance_target: target.governance_target,
-          run_id: result.control.run_id,
-          revision_id: result.control.revision_id,
-          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/SD.md`,
-          source_artifacts: [`.agdf/control/artefacts/${result.control.run_id}/PRD.md`],
-          presentation_language: input.presentation_language,
-        });
-        timing.total_ms = round(milliseconds(started, now()));
-        timing.wrapper_ms = round(wrapperMilliseconds(now, env));
-        return bindHostAction(result);
-      }
-      const tpRelationship = control.delivery_map?.relationships?.find((relationship) => relationship.from === "TP");
-      if (input.continue_delivery
-          && control.status === "open"
-          && control.current_gate === "TP"
-          && control.missing_approval === "Approval: TP"
-          && structuredRoute
-          && !control.approval_presentation
-          && !control.presentation_diagnostics?.approval_presentation_errors?.length
-          && tpRelationship?.status !== "pass") {
-        const result = baseResult({ outcome: "skill_continuation", terminal: false, skill, runtime, timing });
-        result.target = target;
-        result.control = controlSnapshot(control);
-        result.continuation = Object.freeze({
-          instruction: "Prepare and persist the Task/Test Plan for this bound run from its approved PRD and Solution Design before presenting the next user card. Retain the criteria-chain-v1 traceability marker. Map every PRD criterion and SD design decision to one or more stable task IDs, scenario IDs, observable expected results and specific evidence sources; include proportionate boundary/failure scenarios and identify dependencies and risks. Do not copy or rename acceptance text. Record the durable TP in canonical run control as derived from the approved SD, then dispatch again with the same run and target. Do not implement code or claim QA or release readiness before TP approval.",
-          phase: "required_gate_artifact",
-          skill_id: "gate-check",
-          gate: "TP",
-          governance_target: target.governance_target,
-          run_id: result.control.run_id,
-          revision_id: result.control.revision_id,
-          artifact_path: `.agdf/control/artefacts/${result.control.run_id}/TP.md`,
-          source_artifacts: [
-            `.agdf/control/artefacts/${result.control.run_id}/PRD.md`,
-            `.agdf/control/artefacts/${result.control.run_id}/SD.md`,
-          ],
-          presentation_language: input.presentation_language,
+          ...(dependencies.readSkillRuntimeContracts ? {
+            runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts("gate-check")),
+          } : {}),
         });
         timing.total_ms = round(milliseconds(started, now()));
         timing.wrapper_ms = round(wrapperMilliseconds(now, env));
@@ -431,6 +422,11 @@ export function createSkillDispatchService(dependencies = {}) {
           && !control.approval_presentation?.markdown) {
         throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
       }
+      const nextSkillId = control.status_card?.next_skill;
+      const routeNextSkill = input.continue_delivery && !control.approval_presentation?.markdown
+        && nextSkillId && nextSkillId !== "none"
+        && (control.current_gate !== "QA" || control.missing_approval === "Approval: QA");
+      if (routeNextSkill) skill = buildSkillDispatchRegistry(rawInput.skillSet).get(nextSkillId) ?? skill;
       if ((input.intake || input.continue_delivery)
           && control.approval_presentation?.markdown) {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });
@@ -488,6 +484,7 @@ export function createSkillDispatchService(dependencies = {}) {
         presentation_language: input.presentation_language,
         governance_target: target.governance_target,
         run_id: snapshot?.run_id ?? input.run_id,
+        revision_id: snapshot?.revision_id ?? null,
         ...(dependencies.readSkillRuntimeContracts ? {
           runtime_contracts: runDispatchStage(DISPATCH_RECOVERY.runtime_contracts_unavailable, () => dependencies.readSkillRuntimeContracts(skill.skill_id)),
         } : {}),

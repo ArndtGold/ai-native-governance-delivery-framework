@@ -14,6 +14,17 @@
   },
   "locales": {
     "en": {
+      "runResolution": {
+        "title": "Choose the delivery run",
+        "latest": "Most recently updated active run",
+        "gate": "Current gate",
+        "updated": "Last updated",
+        "objective": "Objective",
+        "otherRuns": "Other active runs",
+        "choosePrompt": "Reply with the run ID to continue, or describe a different action. This selects a run; it does not approve a gate.",
+        "noneTitle": "No active delivery run",
+        "nonePrompt": "Would you like to start a new run, or do something else? No run has been created."
+      },
       "installSetup": {
         "title": "AGDF installation setup",
         "choicePrompt": "Set up the local MCP server? (1-3): ",
@@ -180,7 +191,9 @@
           "failed": "failed",
           "plugin_ready_mcp_in_plugin": "plugin ready, MCP included in the plugin",
           "mcp_ready_hook_review_required": "MCP ready – hook confirmation pending",
-          "mcp_ready_hook_verification_pending": "MCP ready – hook verification pending"
+          "mcp_ready_hook_verification_pending": "MCP ready – hook verification pending",
+          "control_migration_required": "migration required",
+          "control_repair_required": "repair required"
         },
         "discoveryStates": {
           "not_checked": "not checked",
@@ -230,7 +243,9 @@
           "enable_codex_hook": "Enable the AGDF hook under /hooks, then verify it in a fresh session.",
           "verify_codex_hook": "Verify execution of the trusted AGDF hook in a fresh session. Trust alone is not execution evidence.",
           "inspect_codex_hook": "Inspect the AGDF hook under /hooks and retry runtime-checks status --surface codex.",
-          "choose_plugin_only_or_cancel": "Choose plugin only or cancel; complete setup is blocked."
+          "choose_plugin_only_or_cancel": "Choose plugin only or cancel; complete setup is blocked.",
+          "migrate_control": "Review and migrate the existing repository control state. Historical approvals require a separate recovery confirmation.",
+          "repair_control": "Use the repair assistant to search for originals, or view Details for the required input."
         },
         "blockReasons": {
           "none": "none",
@@ -296,6 +311,68 @@
             "claude": "Claude Code plugin enablement",
             "copilot": "GitHub Copilot plugin hook review",
             "opencode": "OpenCode plugin and explicit permission configuration"
+          }
+        },
+        "controlMigration": {
+          "title": "Repository control compatibility",
+          "target": "Repository",
+          "state": "Control state",
+          "format": "Supported run format",
+          "changed": "Migrated runs: {count}",
+          "backup": "Original snapshot and recovery journal",
+          "run": "Run",
+          "sourceRevision": "Source revision",
+          "nextGate": "Gate after recovery",
+          "states": {
+            "not_checked": "not checked",
+            "absent": "no existing control state",
+            "current": "compatible",
+            "migration_required": "migration required",
+            "repair_required": "repair required",
+            "historical": "historical record retained"
+          },
+          "migrationDescription": "Use the installed runtime: control-maintenance --dir <absolute-repository> --guided.",
+          "manualDescription": "Interactive setup offers one decision for all eligible runs. Manual recovery remains available via run-recovery inspect, preview and apply.",
+          "legacyDescription": "For legacy AGDF_RUN.md, use run-migrate first, then inspect the canonical run.",
+          "repairDescription": "Some control data needs repair. Eligible runs can still be migrated separately.",
+          "historicalCount": "Historical runs retained: {count}",
+          "eligibleDescription": "{count} runs can be migrated together.",
+          "blockedDescription": "{count} runs need repair and will be left unchanged.",
+          "batchDescription": "Migrate the {count} eligible runs in this repository?",
+          "backupDescription": "Original records and artefact hashes are saved automatically in private recovery journals.",
+          "resetDescription": "Unproven approvals in {count} runs will be reset. These runs resume at UR and require new approvals.",
+          "detailsDescription": "Use Details or control-maintenance --dir <absolute-repository> --details for run names and diagnostics.",
+          "migrateChoice": "Migrate eligible runs",
+          "skipChoice": "Later",
+          "detailsChoice": "Details",
+          "batchPrompt": "Choice (empty = later): ",
+          "invalidChoice": "Choose 1, 2 or 3."
+        },
+        "controlRepair": {
+          "title": "Repair repository control data",
+          "resultDescription": "Plugin successfully installed; repository control data needs repair.",
+          "searchDescription": "Search recovery journals and Git for original records. Nothing is changed until you select a concrete repair.",
+          "availableDescription": "{count} runs have a verified repair proposal.",
+          "repairedDescription": "Repaired runs: {count}",
+          "backupDescription": "Before repair, the current record and the selected originals are saved in a private repair journal.",
+          "resetDescription": "Restoring missing artefacts in unsealed runs also resets unproven approvals; these runs resume at UR.",
+          "manualDescription": "Original data or manual correction required",
+          "startChoice": "Start repair assistant",
+          "skipChoice": "Later",
+          "detailsChoice": "Show details",
+          "applyChoice": "Apply the proposed repairs",
+          "prompt": "Choice (empty = later): ",
+          "invalidChoice": "Choose 1, 2 or 3.",
+          "kinds": {
+            "manual": "needs original data or correction",
+            "self_reference": "verified self-reference correction",
+            "run_snapshot": "verified original run snapshot",
+            "missing_artefacts": "original artefacts found in Git"
+          },
+          "reasons": {
+            "AGDF_REPAIR_ORIGINAL_REQUIRED": "Restore the missing original file",
+            "AGDF_REPAIR_REFERENCE_REQUIRED": "Verified file references required",
+            "AGDF_RECOVERY_ARTEFACT_MISSING": "Restore the missing original file"
           }
         }
       },
@@ -782,7 +859,8 @@
           "runtime_evidence_invalid": "Repair the runtime evidence provider and retry once.",
           "output_too_large": "Repair the dispatcher output bound and retry once.",
           "intake_run_collision": "The run id already exists. Bind an explicit continuation or choose an unused id for the new scope.",
-          "intake_scaffold_required": "Inspect and restore the canonical control scaffold before creating the run."
+          "intake_scaffold_required": "Inspect and restore the canonical control scaffold before creating the run.",
+          "run_assignment_inventory_invalid": "Run inventory is incomplete or invalid. Resolve the listed control findings and retry intake; this failure does not establish a new scope."
         }
       },
       "artefacts": {
@@ -984,9 +1062,37 @@
           "use_claude_plugin_mcp": "Install or update the AGDF plugin for Claude Code; its MCP server starts with the plugin.",
           "use_codex_plugin_mcp": "Install or update the AGDF plugin for Codex; its MCP server starts with the plugin."
         }
+      },
+      "repositoryMaintenance": {
+        "title": "Repository maintenance",
+        "start": "Start migration and repair",
+        "later": "Later",
+        "details": "Show details",
+        "prompt": "Choice (empty = later): ",
+        "invalid": "Choose 1, 2 or 3.",
+        "unavailable": "Repository inspection unavailable",
+        "next": "Direct runtime command:",
+        "outcomes": {
+          "not_started": "inspection only",
+          "deferred": "deferred; no unselected changes",
+          "applied": "applied",
+          "partial": "partially applied",
+          "needs_input": "original or correction needed"
+        }
       }
     },
     "de": {
+      "runResolution": {
+        "title": "Liefer-Run auswählen",
+        "latest": "Zuletzt aktualisierter aktiver Run",
+        "gate": "Aktuelles Gate",
+        "updated": "Zuletzt aktualisiert",
+        "objective": "Ziel",
+        "otherRuns": "Weitere aktive Runs",
+        "choosePrompt": "Antworte mit der Run-ID, um fortzufahren, oder beschreibe eine andere Aktion. Die Auswahl bindet einen Run, sie genehmigt kein Gate.",
+        "noneTitle": "Kein aktiver Liefer-Run",
+        "nonePrompt": "Möchtest du einen neuen Run starten oder etwas anderes tun? Es wurde kein Run angelegt."
+      },
       "installSetup": {
         "title": "AGDF-Installation einrichten",
         "choicePrompt": "Lokalen MCP-Server einrichten? (1-3): ",
@@ -1153,7 +1259,9 @@
           "failed": "fehlgeschlagen",
           "plugin_ready_mcp_in_plugin": "Plugin bereit, MCP im Plugin enthalten",
           "mcp_ready_hook_review_required": "MCP bereit – Hook-Bestätigung ausstehend",
-          "mcp_ready_hook_verification_pending": "MCP bereit – Hook-Nachweis ausstehend"
+          "mcp_ready_hook_verification_pending": "MCP bereit – Hook-Nachweis ausstehend",
+          "control_migration_required": "Migration erforderlich",
+          "control_repair_required": "Reparatur erforderlich"
         },
         "discoveryStates": {
           "not_checked": "nicht geprüft",
@@ -1203,7 +1311,9 @@
           "enable_codex_hook": "AGDF-Hook unter /hooks aktivieren und anschließend in einer neuen Sitzung prüfen.",
           "verify_codex_hook": "Ausführung des bestätigten AGDF-Hooks in einer neuen Sitzung prüfen. Vertrauen allein ist kein Ausführungsnachweis.",
           "inspect_codex_hook": "AGDF-Hook unter /hooks prüfen und runtime-checks status --surface codex erneut ausführen.",
-          "choose_plugin_only_or_cancel": "Wählen Sie nur Plugin oder Abbruch; das vollständige Setup ist gesperrt."
+          "choose_plugin_only_or_cancel": "Wählen Sie nur Plugin oder Abbruch; das vollständige Setup ist gesperrt.",
+          "migrate_control": "Den vorhandenen Kontrollbestand prüfen und migrieren. Historische Freigaben benötigen eine eigene Recovery-Bestätigung.",
+          "repair_control": "Mit dem Reparaturassistenten nach Originalen suchen oder unter Details die benötigten Unterlagen anzeigen."
         },
         "blockReasons": {
           "none": "keiner",
@@ -1269,6 +1379,68 @@
             "claude": "Plugin-Aktivierung in Claude Code",
             "copilot": "Hook-Prüfung des GitHub-Copilot-Plugins",
             "opencode": "OpenCode-Plugin und ausdrückliche Berechtigungskonfiguration"
+          }
+        },
+        "controlMigration": {
+          "title": "Kompatibilität des Kontrollbestands",
+          "target": "Repository",
+          "state": "Kontrollbestand",
+          "format": "Unterstütztes Run-Format",
+          "changed": "Migrierte Runs: {count}",
+          "backup": "Originalzustand und Recovery-Journal",
+          "run": "Run",
+          "sourceRevision": "Ausgangsrevision",
+          "nextGate": "Gate nach Wiederherstellung",
+          "states": {
+            "not_checked": "nicht geprüft",
+            "absent": "kein vorhandener Kontrollbestand",
+            "current": "kompatibel",
+            "migration_required": "Migration erforderlich",
+            "repair_required": "Reparatur erforderlich",
+            "historical": "historischer Bestand erhalten"
+          },
+          "migrationDescription": "Installierte Runtime nutzen: control-maintenance --dir <absolutes-repository> --guided.",
+          "manualDescription": "Das interaktive Setup bietet eine Entscheidung für alle geeigneten Runs. Manuell bleibt run-recovery inspect, preview und apply verfügbar.",
+          "legacyDescription": "Für alte AGDF_RUN.md zuerst run-migrate verwenden, dann den kanonischen Run prüfen.",
+          "repairDescription": "Ein Teil des Kontrollbestands benötigt eine Reparatur. Geeignete Runs können trotzdem migriert werden.",
+          "historicalCount": "Historische Runs erhalten: {count}",
+          "eligibleDescription": "{count} Runs können gemeinsam migriert werden.",
+          "blockedDescription": "{count} Runs benötigen eine Reparatur und bleiben unverändert.",
+          "batchDescription": "Die {count} geeigneten Runs in diesem Repository migrieren?",
+          "backupDescription": "Originalzustände und Artefakt-Hashes werden automatisch in privaten Recovery-Journalen gesichert.",
+          "resetDescription": "Unbelegte Freigaben in {count} Runs werden zurückgesetzt. Diese Runs beginnen wieder bei UR und benötigen neue Freigaben.",
+          "detailsDescription": "Details oder control-maintenance --dir <absolutes-repository> --details zeigt Runs und Diagnosen.",
+          "migrateChoice": "Geeignete Runs migrieren",
+          "skipChoice": "Später",
+          "detailsChoice": "Details",
+          "batchPrompt": "Auswahl (leer = später): ",
+          "invalidChoice": "Wähle 1, 2 oder 3."
+        },
+        "controlRepair": {
+          "title": "Kontrollbestand reparieren",
+          "resultDescription": "Plugin erfolgreich installiert; Kontrollbestand benötigt Reparatur.",
+          "searchDescription": "Originale in Recovery-Journalen und Git suchen. Erst nach Auswahl einer konkreten Reparatur werden Daten geändert.",
+          "availableDescription": "Für {count} Runs liegt ein belegbarer Reparaturvorschlag vor.",
+          "repairedDescription": "Reparierte Runs: {count}",
+          "backupDescription": "Vor der Reparatur werden der aktuelle Zustand und die ausgewählten Originale in einem privaten Reparaturjournal gesichert.",
+          "resetDescription": "Bei unversiegelten Runs setzt die Wiederherstellung fehlender Artefakte unbelegte Freigaben zurück. Diese Runs beginnen wieder bei UR.",
+          "manualDescription": "Originaldaten oder Korrektur erforderlich",
+          "startChoice": "Reparaturassistent starten",
+          "skipChoice": "Später",
+          "detailsChoice": "Details anzeigen",
+          "applyChoice": "Vorgeschlagene Reparaturen anwenden",
+          "prompt": "Auswahl (leer = später): ",
+          "invalidChoice": "Bitte 1, 2 oder 3 wählen.",
+          "kinds": {
+            "manual": "Originaldaten oder Korrektur nötig",
+            "self_reference": "belegte Korrektur des Selbstbezugs",
+            "run_snapshot": "belegter Originalzustand des Runs",
+            "missing_artefacts": "Originalartefakte in Git gefunden"
+          },
+          "reasons": {
+            "AGDF_REPAIR_ORIGINAL_REQUIRED": "Fehlende Originaldatei wiederherstellen",
+            "AGDF_REPAIR_REFERENCE_REQUIRED": "Belegte Dateiverweise benötigt",
+            "AGDF_RECOVERY_ARTEFACT_MISSING": "Fehlende Originaldatei wiederherstellen"
           }
         }
       },
@@ -1755,7 +1927,8 @@
           "runtime_evidence_invalid": "Bereitstellung der Laufzeitnachweise reparieren und einmal erneut versuchen.",
           "output_too_large": "Ausgabegrenze des Dispatchers reparieren und einmal erneut versuchen.",
           "intake_run_collision": "Die Run-ID ist bereits belegt. Den bestehenden Auftrag ausdrücklich zuordnen oder für den neuen Umfang eine unbenutzte ID wählen.",
-          "intake_scaffold_required": "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen."
+          "intake_scaffold_required": "Das kanonische Kontrollgerüst prüfen und vor der Run-Erstellung wiederherstellen.",
+          "run_assignment_inventory_invalid": "Das Run-Inventar ist unvollständig oder ungültig. Die genannten Kontrollbefunde beheben und Intake erneut prüfen; der Fehler begründet keinen neuen Umfang."
         }
       },
       "artefacts": {
@@ -1956,6 +2129,23 @@
           "none": "Keine weitere Lebenszyklusaktion erforderlich.",
           "use_claude_plugin_mcp": "Das AGDF-Plugin für Claude Code installieren oder aktualisieren; sein MCP-Server startet mit dem Plugin.",
           "use_codex_plugin_mcp": "Das AGDF-Plugin für Codex installieren oder aktualisieren; sein MCP-Server startet mit dem Plugin."
+        }
+      },
+      "repositoryMaintenance": {
+        "title": "Repository-Wartung",
+        "start": "Migration und Reparatur starten",
+        "later": "Später",
+        "details": "Details anzeigen",
+        "prompt": "Auswahl (leer = später): ",
+        "invalid": "Wähle 1, 2 oder 3.",
+        "unavailable": "Repository-Prüfung nicht verfügbar",
+        "next": "Direkter Runtime-Aufruf:",
+        "outcomes": {
+          "not_started": "nur geprüft",
+          "deferred": "verschoben; keine ungewählten Änderungen",
+          "applied": "angewendet",
+          "partial": "teilweise angewendet",
+          "needs_input": "Original oder Korrektur nötig"
         }
       }
     }

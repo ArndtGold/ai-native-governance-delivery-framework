@@ -37,11 +37,21 @@ try {
     return e.isDirectory() ? Object.entries(snapshot(path)) : [[path, createHash("sha256").update(readFileSync(path)).digest("hex")]];
   }));
   for (const id of ["foreign-a", "foreign-b"]) {
+    const beforeAssignment = snapshot();
+    const assignment = dispatch("--intake");
+    assert.equal(assignment.continuation.phase, "resolve_delivery_run");
+    assert.equal(assignment.continuation.candidate_runs.length, id === "foreign-a" ? 0 : 1);
+    assert.equal(assignment.control, null);
+    assert.deepEqual(snapshot(), beforeAssignment, "unbound intake only reads evidence");
     const probe = dispatch("--intake", "--intake-mode", "new", "--run", "new-run");
     assert.equal(probe.continuation.phase, "run_missing", "zero/one foreign runs must not hijack new scope");
     const r = run("run-create", "--run", id); assert.equal(r.code, 0, r.text); }
   const foreign = ["foreign-a", "foreign-b"].map(id => readFileSync(statePath(id), "utf8"));
   let before = snapshot();
+  const assignment = dispatch("--intake");
+  assert.equal(assignment.continuation.phase, "resolve_delivery_run");
+  assert.deepEqual(assignment.continuation.candidate_runs.map(run => run.run_id).sort(), ["foreign-a", "foreign-b"]);
+  assert.deepEqual(snapshot(), before);
   const ambiguous = dispatch();
   assert.equal(ambiguous.control.blocking_reason, "AGDF_ACTIVE_RUN_AMBIGUOUS");
   assert.equal(ambiguous.control.missing_approval, "none");
@@ -60,6 +70,8 @@ try {
   assert.equal(dispatch("--intake", "--intake-mode", "new", "--run", "new-run").diagnostics[0].code, "AGDF_RUN_COLLISION");
   const resume = () => dispatch("--intake", "--intake-mode", "resume", "--run", "new-run");
   assert.equal(resume().continuation.phase, "ur_missing");
+  assert.equal(dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", revision("new-run")).continuation.phase, "ur_missing");
+  assert.equal(dispatch("--intake", "--intake-mode", "resume", "--run", "new-run", "--revision", "00000000-0000-4000-8000-000000000000").continuation.reason, "stale_assignment");
   const artefacts = join(root, ".agdf/control/artefacts/new-run");
   mkdirSync(artefacts, { recursive: true });
   const ur = join(artefacts, "UR.md");
@@ -164,8 +176,10 @@ try {
   assert.equal(continuation.continuation.phase, "required_gate_artifact");
   assert.equal(continuation.continuation.gate, "PRD");
   assert.equal(continuation.continuation.artifact_path, ".agdf/control/artefacts/new-run/PRD.md");
-  assert.match(continuation.continuation.instruction, /persist the PRD/u);
-  assert.match(continuation.continuation.instruction, /Do not request Approval: PRD/u);
+  assert.equal(continuation.control.next_operation.type, "prepare_gate_artifact");
+  assert.equal(continuation.control.next_operation.gate, "PRD");
+  assert.ok(continuation.continuation.runtime_contracts.some(contract => contract.module === "gate-artifact-preparation" && contract.content.length > 0));
+
   assert.equal(continuation.host_action.mode, "continue_named_skill");
   assert.equal(continuation.control.current_gate, "PRD", "the preselected route advances directly to its next gate after UR approval");
   assert.deepEqual(snapshot(), before);

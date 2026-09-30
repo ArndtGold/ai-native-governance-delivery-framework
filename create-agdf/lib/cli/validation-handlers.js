@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { executeControlMaintenance } from "./control-maintenance-command.js";
 import { createRun } from "../control-state/run-state-repository.js";
 import { extractField } from "../control-evaluation/verified-change.js";
 import { prepareRunPresentation } from "../control-state/run-presentation.js";
@@ -19,11 +20,12 @@ import { serializeSkillDispatchResult } from "../skill-dispatch/contract.js";
 import { createSkillDispatchService } from "../skill-dispatch/service.js";
 import { approveRunGate, recordRunRevision } from "../control-state/run-recording.js";
 import { reopenPrdRevision } from "../control-state/run-revision.js";
-import { readRuntimeContract } from "./contract-command.js";
+import { readRuntimeContract, readSkillRuntimeContracts } from "./contract-command.js";
 import { recordRunStep } from "../control-state/run-steps.js";
 import { policyForRunContent } from "../control-evaluation/run-step-policy.js";
 import { cliGitObservation } from "../control-evaluation/git-observation.js";
 import { resolveRepositoryContext } from "../repository-context.js";
+import { applyRunRecovery, inspectRunRecovery, previewRunRecovery } from "../control-state/run-recovery.js";
 
 const evaluateDoctorWithCliGit = (target, selection) => evaluateDoctor(target, selection, cliGitObservation);
 const evaluateGateWithCliGit = (target, selection) => evaluateGateCheck(target, selection, cliGitObservation);
@@ -36,8 +38,10 @@ export function createValidationHandlers(io = console) {
   const executeSkillDispatch = createSkillDispatchService({
     evaluateGateCheck: evaluateGateWithCliGit,
     resolveTaskTarget: resolveTaskTargetWithCliGit,
+    readSkillRuntimeContracts,
   });
   return new Map([
+    ["control-maintenance", (options) => executeControlMaintenance(options, io)],
     ["run-create", (options) => {
       try {
         const path = createRun(options.dir, options.runId);
@@ -86,6 +90,7 @@ export function createValidationHandlers(io = console) {
         runId: options.runId,
         intake: options.intake,
         intakeMode: options.intakeMode,
+        ...(options.revisionId ? { expectedRevisionId: options.revisionId } : {}),
         continueDelivery: options.continueDelivery,
         expectedVersion: pluginDefinition.version,
       });
@@ -159,6 +164,22 @@ export function createValidationHandlers(io = console) {
       }, { evaluateGateCheck: evaluateGateWithCliGit });
       io.log(JSON.stringify(result, null, 2));
       return result.outcome === "rejected" ? 2 : 0;
+    }],
+    ["run-recovery", (options) => {
+      try {
+        const result = options.recoveryAction === "inspect"
+          ? inspectRunRecovery(options.dir, options.runId)
+          : options.recoveryAction === "preview"
+            ? previewRunRecovery(options.dir, options.runId)
+            : applyRunRecovery(options.dir, { runId: options.runId,
+              previewId: options.recoveryPreviewId, confirmation: options.recoveryConfirmation });
+        io.log(JSON.stringify(result, null, 2));
+        return 0;
+      } catch (error) {
+        io.log(JSON.stringify({ schema_version: "1", outcome: "blocked", run_id: options.runId,
+          action: options.recoveryAction, reason: error instanceof Error ? error.message : String(error) }, null, 2));
+        return 2;
+      }
     }],
     ["delivery-path-search", async (options) => {
       try {

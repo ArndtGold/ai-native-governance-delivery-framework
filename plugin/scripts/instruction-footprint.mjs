@@ -753,6 +753,7 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
       const expectedResources = [
         "task-target-resolution.md",
         "gate-transition.md",
+        "gate-artifact-preparation.md",
         "interaction.md",
         "control-scaffold.md",
         "modes.md",
@@ -764,7 +765,7 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
       if (JSON.stringify(declaredResources) !== JSON.stringify(expectedResources) || resourcesOutsideFallback.length !== 0) {
         failures.push(failure(
           "AGDF_INSTRUCTION_FOOTPRINT_GATE_RESOURCES_INVALID",
-          `${surfaceId}/${instanceId} must load exactly six focused contracts only through its declared fallback`,
+          `${surfaceId}/${instanceId} must load exactly ${expectedResources.length} focused contracts only through its declared fallback`,
           surfaceId,
           instanceId,
         ));

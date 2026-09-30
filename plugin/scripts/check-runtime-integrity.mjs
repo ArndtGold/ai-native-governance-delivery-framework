@@ -1969,11 +1969,13 @@ for (const skill of expectedSkills) {
   }
   for (const required of [
     "## Executable Dispatch",
-    `--skill ${skill}`,
     "`terminal: true`",
     "`dispatcher_unavailable`",
   ]) {
     if (!skillMd.includes(required)) failures.push(`${skill} executable dispatch boundary missing: ${required}`);
+  }
+  if (!skillMd.includes(`--skill ${skill}`) && !skillMd.includes(`\`skill_id: ${skill}\``)) {
+    failures.push(`${skill} executable dispatch boundary missing: canonical skill identifier`);
   }
   if (skill === "gate-check") {
     for (const required of [

@@ -41,6 +41,7 @@ export const commandRegistry = Object.freeze([
     scaffold: [" --surface codex", " --surface claude", " --surface opencode"],
   }),
   command("contract", { local: [" --module <runtime-contract-module> [--json]"] }),
+  command("control-maintenance", { local: [" --dir <absolute-repository> [--guided | --details | --json] [--language <tag>]"] }),
   command("run-present", { local: [" --run <run_id> --gate <gate> --revision <revision_id>"] }),
   command("run-create", { local: [" --run <run_id>"] }),
   command("run-update", { local: [" --run <run_id> --revision <revision_id>"] }),
@@ -48,6 +49,7 @@ export const commandRegistry = Object.freeze([
   command("run-step", { local: [" --run <run_id> --revision <revision_id> --step <ur|route|review|evidence|closeout> [step fields]"] }),
   command("run-approve", { local: [" --run <run_id> --gate <UR|PRD|SD|TP|QA|UAT> --revision <revision_id> --presentation <presentation_id> --response \"Approval: <gate>\""] }),
   command("run-migrate", { local: [" [--run <run_id>]"] }),
+  command("run-recovery", { local: [" --run <run_id> --action <inspect|preview>", " --run <run_id> --action apply --preview-id <uuid> --recovery-confirmation \"RECOVER <run_id> <preview_id>\""] }),
   command("run-render-legacy", { local: [" --run <run_id>"] }),
 ]);
 
@@ -62,8 +64,23 @@ export function supportedCommandNames() {
 }
 
 export function validateCommandOptions(options) {
+  if ((options.guided || options.details) && options.target !== "control-maintenance") {
+    throw new Error("--guided and --details are supported only by control-maintenance");
+  }
+  if (options.target === "control-maintenance") {
+    if (!options.dirExplicit || !options.dirInputAbsolute) throw new Error("control-maintenance requires an explicit absolute --dir target");
+    if (options.guided && (options.json || options.details)) throw new Error("--guided cannot be combined with --json or --details");
+    if (options.runId || options.allActive || options.force || options.confirm || options.persist) throw new Error("control-maintenance does not support run selection or implicit apply flags");
+  }
   const installTargets = ["codex", "claude", "copilot", "opencode"];
   const installTarget = installTargets.includes(options.target);
+  if ((options.controlDir || options.controlMigration) && !installTarget) {
+    throw new Error("--control-dir and --control-migration are supported only by installation commands");
+  }
+  if (options.controlMigration === "safe" && !options.controlDir
+      && !(options.dirExplicit && (options.target !== "opencode" || options.setupRequest === "full"))) {
+    throw new Error("--control-migration safe requires an explicit repository target (--control-dir or --dir).");
+  }
   if (options.target !== "mcp" && options.target !== "status" && !installTarget && ["project", "user"].includes(options.scope)) {
     throw new Error("project and user scopes are supported only by mcp or a full installation setup");
   }
@@ -115,11 +132,24 @@ export function validateCommandOptions(options) {
   if (options.target === "run-create" && (!options.runId || options.allActive)) {
     throw new Error("run-create requires --run and rejects --all-active");
   }
+  if (options.target === "run-recovery") {
+    if (!options.runId || !["inspect", "preview", "apply"].includes(options.recoveryAction)) {
+      throw new Error("run-recovery requires --run and --action inspect, preview or apply");
+    }
+    if (options.recoveryAction === "apply" && (!options.recoveryPreviewId || !options.recoveryConfirmation)) {
+      throw new Error("run-recovery apply requires --preview-id and --recovery-confirmation");
+    }
+    if (options.recoveryAction !== "apply" && (options.recoveryPreviewId || options.recoveryConfirmation)) {
+      throw new Error("--preview-id and --recovery-confirmation are supported only by run-recovery apply");
+    }
+  } else if (options.recoveryAction || options.recoveryPreviewId || options.recoveryConfirmation) {
+    throw new Error("--action, --preview-id and --recovery-confirmation are supported only by run-recovery");
+  }
   if ((options.gate && !["run-approve", "run-present"].includes(options.target)) || (options.response !== undefined && options.target !== "run-approve")) {
     throw new Error("--gate is supported by run-present/run-approve; --response only by run-approve");
   }
-  if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present"].includes(options.target)) {
-    throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve and run-step");
+  if (options.revisionId && !["run-update", "run-revise", "run-approve", "run-step", "run-present", "skill-dispatch"].includes(options.target)) {
+    throw new Error("--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch");
   }
   if ((options.runStep || Object.keys(options.stepFields ?? {}).length) && options.target !== "run-step") {
     throw new Error("--step and step fields are supported only by run-step");
@@ -224,6 +254,10 @@ Options:
   --dir <path>   Select an explicit target directory. OpenCode installation uses it as its config directory; MCP requires an absolute repository target.
   --with-mcp     Install the plugin and explicitly enable AGDF MCP for the selected target.
   --plugin-only  Install or update only the plugin and leave MCP unchanged.
+  --control-dir <absolute-repository>
+                 Inspect existing .agdf state separately from host configuration; enables safe migrations.
+  --control-migration <inspect|safe>
+                 Inspect without changes, or migrate eligible unsealed runs in the explicit repository.
   --force        Overwrite existing generated files
   --language <tag>
                  Set AGDF chat and artefact language. Defaults to detected system locale.
@@ -234,6 +268,12 @@ Options:
   --approval-envelope
                  Preview the current gate artefact; run-present is required before asking for approval
   --run <run_id> Select one canonical run
+  --action <inspect|preview|apply>
+                 run-recovery operation; apply also requires its preview ID and exact recovery confirmation
+  --preview-id <uuid>
+                 Bind run-recovery apply to one stored read-only preview
+  --recovery-confirmation <text>
+                 Exact confirmation printed by run-recovery preview
   --module <runtime-contract-module>
                  Runtime-contract module for contract, for example gate-transition
   --step <ur|route|review|evidence|closeout>

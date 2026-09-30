@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: opencode-native-dispatch-tool
 - lifecycle: active
-- revision: 1
-- revision_id: ED08162F-D35C-4DF3-84F6-4841EC6DEFAC
+- revision: 2
+- revision_id: a7bd2f8d-e8fe-447c-aa11-06b175802e90
+- content_seal: sha256:6f10e2c4fa8038479ffe0f3579eebef5a534970026dfff585497fbe780f28f9f
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:16.046Z
 - started_at: 2026-09-04
 - mode: `undecided`
-- current_gate: `UR`
+- current_gate: UR
 - decision: `in_progress`
 - owner: Arndt Gold
 
@@ -23,11 +26,11 @@ approval or evidence boundaries.
 
 | Question | Answer |
 |---|---|
-| What is known? | OpenCode routes current AGDF dispatch through `bash: ask`; official OpenCode documentation supports custom plugin tools and tool-specific permissions. |
-| What is approved? | No gate approval is recorded for this new permission-architecture scope. |
-| What is missing? | Review of UR Revision 1 and exact `Approval: UR`. |
-| What is the next allowed action? | Review or refine the durable UR and request exact UR approval. |
-| What is explicitly forbidden right now? | Brownfield Review, PRD, SD, TP, custom-tool implementation, permission mutation, installation, QA, UAT and release claims. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -60,12 +63,12 @@ approval or evidence boundaries.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | missing | none |
-| PRD | missing | none |
-| SD | missing | none |
-| TP | missing | none |
-| QA | missing | none |
-| UAT | missing | none |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -134,5 +137,5 @@ approval or evidence boundaries.
 
 ## Closeout
 
-- next_allowed_action: review or refine UR Revision 1
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Keep the native permission adapter narrower than general shell access and separate from governance approval.

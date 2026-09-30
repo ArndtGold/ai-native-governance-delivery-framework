@@ -229,8 +229,12 @@ The requested effect, not discovery, decides AGDF activation.
 
 ### Delivery intent transport
 
-A clear new scope uses gate-check intake_mode new with intake true and an unused run_id selected
-for that authorized scope. Existing-run continuation uses its bound id; interrupted intake uses
-resume. Mere ambiguity does not authorize new-run creation. Read-only requests omit intake and
+A delivery request without a confirmed run binding first dispatches gate-check with intake true
+and no run_id. Its resolve_delivery_run continuation supplies canonical UR scope evidence for the
+coding agent's assignment. One unequivocal same-scope continuation uses resume, its run_id and
+expected_revision_id; a clear independent scope uses new and an unused run_id even when unrelated
+runs exist. Single-run count, recency, shared files and ambient AGDF_RUN_ID prove no scope match.
+Overlapping plausible scopes require one question about the work, not a technical Run-ID choice.
+Incomplete inventory is a technical failure, never evidence for a new scope. Read-only requests omit intake and
 continue_delivery. On a bound run, continue_delivery requests the next canonical internal
 continuation listed in the interaction contract without another user prompt; it approves no gate.

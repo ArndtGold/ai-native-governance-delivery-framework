@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-public-plugin-distribution
 - lifecycle: active
-- revision: 36
-- revision_id: c15ec237-7e2b-44d8-a37f-9be836765b3f
+- revision: 37
+- revision_id: 468e7977-6268-4466-91ef-13913d675a4f
+- content_seal: sha256:05c3fd6323d682652057aad418e25fefcd35bd558907c706b5adf152a41e9bab
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:11.741Z
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: UR
 - decision: qa_approved
 - owner: agent
 
@@ -22,11 +25,11 @@ separate authority for submission, publication and release.
 
 | Question | Answer |
 |---|---|
-| What is known? | Approved PRD/SD/TP Revision 4 are implemented. Release preparation now synchronizes derived assets, proves 29 exact-version surfaces and validates the public candidate through one canonical composition owner. The reproduced five-surface `0.13.0` drift is resolved at `0.13.1`; complete repository and bundle regressions pass. |
-| What is approved? | Exact approvals are recorded for UR, PRD Revisions 1–4, SD Revisions 1–4, TP Revisions 2–4 and QA Revision 15. QA received exact `Approval: QA` on 2026-08-19 after same-run, same-gate, revision and durable-report revalidation. |
-| What is missing? | UAT evidence and exact `Approval: UAT`; separately authorized live-host, deployment, publisher, portal, submission and publication evidence remains pending. |
-| What is the next allowed action? | Prepare the bounded UAT evidence plan without performing portal, publication, release or VCS actions. |
-| What is explicitly forbidden right now? | Portal mutation, identity action, deployment, submission, publication, release, VCS action, installed-cache edit and any inference of external success from repository evidence. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -55,23 +58,23 @@ separate authority for submission, publication and release.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` provided on 2026-08-17 after revalidation of run, gate, revision and durable UR. |
+| UR | missing |  |
 | Brownfield Review | done | `.agdf/control/artefacts/agdf-public-plugin-distribution/BROWNFIELD_REVIEW.md`; `structured_delivery` selected. |
 | UX Intent Definition | ready | `.agdf/control/artefacts/agdf-public-plugin-distribution/UX_INTENT_DEFINITION.md`; non-authorizing PRD input. |
 | PRD Revision 1 | approved | Exact `Approval: PRD` provided on 2026-08-17 after revalidation of run, gate, revision and durable PRD. |
 | PRD Revision 2 | approved | Revision 2 received exact `Approval: PRD` on 2026-08-17 after revalidation of run, gate, revision and durable PRD. |
 | PRD Revision 3 | approved | Revision 3 received exact `Approval: PRD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| PRD | approved | Revision 4 received exact `Approval: PRD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| PRD | missing |  |
 | SD Revision 1 | approved | Exact `Approval: SD` provided on 2026-08-17 after revalidation of run, gate, revision and durable SD. |
 | SD Revision 2 | approved | Revision 2 received exact `Approval: SD` on 2026-08-17 after revalidation of run, gate, revision and durable SD. |
 | SD Revision 3 | approved | Revision 3 received exact `Approval: SD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| SD | approved | Revision 4 received exact `Approval: SD` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| SD | missing |  |
 | TP Revision 2 | approved | Revision 2 received exact `Approval: TP` on 2026-08-17 after revalidation of run, gate, revision and durable TP. |
 | TP Revision 3 | approved | Revision 3 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
-| TP | approved | Revision 4 received exact `Approval: TP` on 2026-08-18 after same-run, same-gate, revision and durable-artefact revalidation. |
+| TP | missing |  |
 | Brownfield Analysis Revision 5 | done | Existing handbook owners, links, validator, fixtures, SoT/Context Graph targets and worktree isolation support T21–T24 without a parallel authority. |
-| QA | approved | QA Report Revision 15 decision `pass`; exact `Approval: QA` provided on 2026-08-19 after revalidation of run, gate, revision and durable report. |
-| UAT | pending | Applicable UAT evidence and exact `Approval: UAT` remain incomplete. |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -204,5 +207,5 @@ separate authority for submission, publication and release.
 
 ## Closeout
 
-- next_allowed_action: Prepare and execute only separately authorized UAT evidence, then request exact `Approval: UAT`.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Preserve exact release-version coherence and do not infer host, portal or publication state from repository evidence.

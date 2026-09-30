@@ -1,5 +1,5 @@
 import { isAbsolute } from "node:path";
-import { RUN_ID_PATTERN } from "../control-state/run-identity.js";
+import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "../control-state/run-identity.js";
 import {
   PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
   canonicalizeLanguageTag,
@@ -29,7 +29,7 @@ export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_DESCRIPTION = "Required presen
 export const SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY = "Provide one well-formed BCP 47 presentation_language tag and retry once.";
 export const SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.";
 export const SKILL_DISPATCH_INTAKE_DESCRIPTION = "Set true only with skill_id gate-check when the governed delivery intake (catalog delivery.start) is the active route; delivery wins mixed intent, so a gate-check invocation that asks for a change also sets it. Omit it for status, approval or next-step questions. It never grants approval or delivery authority.";
-export const SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION = "For intake_continuation, run continuation.steps in order. For presentation_required, show the run-present text and wait for a NEW deliberate response; otherwise dispatch again as instructed. Preparation approves no gate.";
+export const SKILL_DISPATCH_INTAKE_CONTINUATION_DESCRIPTION = "For intake_continuation phase resolve_delivery_run, match the request to supplied UR scope evidence; resume one same-scope run with its expected_revision_id, or start a clear new scope. Ask only about genuinely ambiguous work, never for technical Run IDs. Other phases execute continuation.steps in order; presentation_required shows run-present text and waits for a NEW deliberate response. Preparation approves no gate.";
 export const SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION = "For a qa-gate skill_continuation, control.candidate_runs is the complete canonical active-run inventory when run selection is unresolved, otherwise an empty array. Use its run_id, objective, normalized current_gate, decision and revision_id fields as data; filter by current_gate: QA and do not rescan run files, invent candidates or omit returned QA candidates.";
 
 export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
@@ -57,7 +57,8 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
         description: "Authority source for primary_target. Supply it only with primary_target and only when exactly one listed meaning applies; otherwise omit both fields.",
       },
       primary_target: { type: "string", minLength: 1, maxLength: 4096, description: "Absolute governance-target path paired with target_source. Never derive it from working_directory alone." },
-      run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Select an existing run only from an explicit request or unambiguous bound continuation. For intake_mode new, choose a new id for the authorized change; never reuse an existing run." },
+      run_id: { type: "string", pattern: RUN_ID_PATTERN.source, description: "Canonical run identifier. Select an existing run from an explicit request, confirmed continuation or unequivocal same-scope assignment after resolve_delivery_run. Scope assignment must use expected_revision_id. For intake_mode new, choose an unused id for the authorized change; never reuse an existing run." },
+      expected_revision_id: { type: "string", pattern: REVISION_ID_PATTERN.source, description: "Revision from the resolve_delivery_run candidate used for scope matching. Requires intake true, intake_mode resume and run_id. Changed or unavailable binding returns fresh assignment evidence before gate evaluation; it never adopts another run automatically." },
       intake: { type: "boolean", description: SKILL_DISPATCH_INTAKE_DESCRIPTION },
       intake_mode: { type: "string", enum: ["new", "resume"], description: "With intake true: new prepares the explicitly authorized new scope at an unused run_id; resume continues the bound run. Requires run_id. Never infer new from ambiguous continuation." },
       continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
@@ -116,7 +117,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
 export function skillDispatchArgumentGrammar() {
   const targetSources = SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema.properties.target_source.oneOf
     .map((choice) => choice.const).join("|");
-  return `--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>]] [--continue-delivery]`;
+  return `--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <${targetSources}> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]`;
 }
 
 export function skillDispatchCommandGrammar() {
@@ -221,6 +222,10 @@ export function normalizeSkillDispatchInput(input, registry) {
   if (input.intakeMode !== undefined && (!input.intake || !runId || !["new", "resume"].includes(input.intakeMode))) {
     throw new SkillDispatchInputError("intake_mode", "intake_mode requires intake and run_id");
   }
+  if (input.expectedRevisionId !== undefined && (typeof input.expectedRevisionId !== "string" || !REVISION_ID_PATTERN.test(input.expectedRevisionId)
+      || !input.intake || input.intakeMode !== "resume" || !runId)) {
+    throw new SkillDispatchInputError("expected_revision_id", "expected_revision_id requires intake_mode resume and run_id");
+  }
   if (input.continueDelivery !== undefined && (typeof input.continueDelivery !== "boolean"
       || (input.continueDelivery && (skill.dispatch_mode !== "deterministic_control" || !runId || input.intake || input.intakeMode)))) {
     throw new SkillDispatchInputError("continue_delivery", "continue_delivery requires skill_id gate-check and a bound run; it excludes intake");
@@ -236,6 +241,7 @@ export function normalizeSkillDispatchInput(input, registry) {
     run_id: runId,
     intake: input.intake === true,
     intake_mode: input.intakeMode,
+    expected_revision_id: input.expectedRevisionId,
     continue_delivery: input.continueDelivery === true,
     expected_version: requireText(input.expectedVersion, "expected_version", 64),
     skill,
@@ -267,6 +273,7 @@ export function parseSkillDispatchFunctionArguments(argumentsValue, trustedConte
     runId: argumentsValue.run_id,
     ...(argumentsValue.intake !== undefined ? { intake: argumentsValue.intake } : {}),
     ...(argumentsValue.intake_mode !== undefined ? { intakeMode: argumentsValue.intake_mode } : {}),
+    ...(argumentsValue.expected_revision_id !== undefined ? { expectedRevisionId: argumentsValue.expected_revision_id } : {}),
     ...(argumentsValue.continue_delivery !== undefined ? { continueDelivery: argumentsValue.continue_delivery } : {}),
     surface: trustedContext.surface,
     expectedVersion: trustedContext.expectedVersion,

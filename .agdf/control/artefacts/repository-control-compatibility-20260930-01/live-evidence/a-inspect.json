@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/A legacy",
+  "operation": "inspect",
+  "authorizes": false,
+  "inspection_state": "complete",
+  "compatibility": {
+    "schema_version": 1,
+    "supported_control_state_version": 2,
+    "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/A legacy",
+    "status": "migration_required",
+    "runs": [
+      {
+        "run_id": "legacy",
+        "control_state_version": "2",
+        "lifecycle": "active",
+        "status": "migration_required",
+        "seal_status": "unsealed",
+        "safe_to_migrate": true,
+        "approvals": [
+          {
+            "section": "Approvals",
+            "gate": "UR",
+            "status": "missing",
+            "evidence": ""
+          },
+          {
+            "section": "Approvals",
+            "gate": "PRD",
+            "status": "missing",
+            "evidence": ""
+          },
+          {
+            "section": "Approvals",
+            "gate": "SD",
+            "status": "missing",
+            "evidence": ""
+          },
+          {
+            "section": "Approvals",
+            "gate": "TP",
+            "status": "missing",
+            "evidence": ""
+          },
+          {
+            "section": "Approvals",
+            "gate": "QA",
+            "status": "missing",
+            "evidence": ""
+          },
+          {
+            "section": "Approvals",
+            "gate": "UAT",
+            "status": "missing",
+            "evidence": ""
+          }
+        ],
+        "pending_recoveries": [],
+        "diagnostics": [],
+        "next_gate": "UR"
+      }
+    ],
+    "diagnostics": [],
+    "changes": [],
+    "authorizes": false
+  },
+  "counts": {
+    "migration": 1,
+    "repair": 0,
+    "historical": 0
+  },
+  "maintenance_outcome": "not_started",
+  "diagnostics": []
+}

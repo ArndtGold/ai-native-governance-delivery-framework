@@ -7,6 +7,7 @@
 - lifecycle: active
 - revision: 1
 - revision_id:
+- updated_at:
 - mode: structured_delivery
 - current_gate: UR
 - decision: in_progress

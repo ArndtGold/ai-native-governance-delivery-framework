@@ -9,6 +9,8 @@ function freeze(value) {
 }
 export const INSTALL_SETUP_STATES = freeze({
   cancelled: { result: "cancelled", actions: ["cancelled"] },
+  control_migration_required: { result: "partial", actions: ["migrate_control"] },
+  control_repair_required: { result: "partial", actions: ["repair_control"] },
   plugin_ready_mcp_absent: { result: "success", actions: ["restart_host"] },
   plugin_ready_mcp_in_plugin: { result: "success", actions: ["restart_host"] },
   mcp_ready_hook_review_required: { result: "partial", actions: ["review_codex_hook"] },
@@ -57,6 +59,7 @@ export const DISPATCH_RECOVERY_CODES = freeze([
   "target_evaluation_failed", "target_presentation_failed", "control_evaluation_failed",
   "control_presentation_failed", "runtime_contracts_unavailable", "runtime_evidence_invalid",
   "internal_failure", "output_too_large", "intake_run_collision", "intake_scaffold_required",
+  "run_assignment_inventory_invalid",
 ]);
 export const DISPATCH_RECOVERY = freeze(Object.fromEntries(DISPATCH_RECOVERY_CODES.map(code => [code, code])));
 

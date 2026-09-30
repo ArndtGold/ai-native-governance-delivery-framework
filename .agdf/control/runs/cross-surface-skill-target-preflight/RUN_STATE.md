@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: cross-surface-skill-target-preflight
 - lifecycle: active
-- revision: 7
-- revision_id: 6AA58D3E-DA76-405E-8C01-E053E6E9B0C8
+- revision: 8
+- revision_id: 005f2066-7dad-4802-8109-cb648b72890e
+- content_seal: sha256:798dbf244040ac68797b177a7950e3fe9ceb58b6aed789e9bf631dd79b1fa0b2
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:13.806Z
 - started_at: 2026-09-03
 - mode: `structured_slice`
-- current_gate: UAT
+- current_gate: UR
 - decision: pass
 - owner: Arndt Gold
 
@@ -23,11 +26,11 @@ skill-spezifischen Output verwenden.
 
 | Question | Answer |
 |---|---|
-| What is known? | Source, Profile und Paket bestehen; die geladene Copilot-Beobachtung bestätigt den sicheren Target-Stopp, aber nicht deutsche Locale-, Verbatim- und kompakte Recovery-Konformität. |
-| What is approved? | UR, PRD, SD, TP und QA Revision 1 durch exakte Freigaben; QA wurde am 2026-09-04 gegen Run, Gate und Revision 6 revalidiert. |
-| What is missing? | Exakte UAT-Entscheidung über den Instruction-Layer-Slice mit offengelegten Hostgrenzen; andere Hosts und der resolved-repository QA-Fall bleiben unbeobachtet. |
-| What is the next allowed action? | UAT Report Revision 1 prüfen und exakt freigeben, Überarbeitung anfordern oder ablehnen. |
-| What is explicitly forbidden right now? | Release, automatische Commit-, Push-, PR- oder Hostaktionen sowie das stillschweigende Hinzufügen eines ausführbaren Dispatchers. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -64,12 +67,12 @@ skill-spezifischen Output verwenden.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exaktes `Approval: UR` am 2026-09-03 nach sichtbarem Scope-Entwurf. |
-| PRD | approved | Exaktes `Approval: PRD` am 2026-09-03 nach Revalidierung von Run, Gate und Revision. |
-| SD | approved | Exaktes `Approval: SD` am 2026-09-03 nach Revalidierung von Run, Gate und Revision. |
-| TP | approved | Exaktes `Approval: TP` am 2026-09-03 nach Revalidierung von Run, Gate und Revision. |
-| QA | approved | Exaktes `Approval: QA` am 2026-09-04 nach Revalidierung von Run, Gate und Revision 6. |
-| UAT | missing | UAT Revision 1 ist mit offengelegten Loaded-Host-Grenzen bereit zur Entscheidung. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -166,5 +169,5 @@ skill-spezifischen Output verwenden.
 
 ## Closeout
 
-- next_allowed_action: UAT Report Revision 1 prüfen und `Approval: UAT` anfordern.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Der sichere Target-Stopp ist live belegt; technische Dispatcher-Erzwingung und vollständige Hostparität bleiben separat.

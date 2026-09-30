@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import process from "node:process";
 import { generatedRoot, pluginDefinition } from "./runtime-context.js";
 import { createHash } from "node:crypto";
@@ -30,9 +30,16 @@ export function readRuntimeContract(module, {
 } = {}) {
   const modules = runtimeContractModules(definition);
   if (!modules.includes(module)) return Object.freeze({ ok: false, reason: "module_unknown", modules });
+  // Copilot keeps contracts beside its runtime/create-agdf package. Derive this profile
+  // location from the loaded package, never from a caller path or inherited environment.
+  const packagedRuntime = dirname(dirname(packageGeneratedRoot));
+  const ownCopilotContracts = basename(packagedRuntime) === "runtime"
+      && basename(dirname(packageGeneratedRoot)) === "create-agdf"
+    ? join(dirname(packagedRuntime), "copilot-skills", "contracts") : null;
   const roots = [
     ...(pluginRoot ? [join(pluginRoot, "meta", "contracts"), join(pluginRoot, "copilot-skills", "contracts")] : []),
     join(packageGeneratedRoot, "plugins", "agdf", "meta", "contracts"),
+    ...(ownCopilotContracts ? [ownCopilotContracts] : []),
   ];
   for (const root of roots) {
     const path = join(root, `${module}.md`);

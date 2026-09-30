@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-staged-proportionality-observation
 - lifecycle: active
-- revision: 16
-- revision_id: e47c686f-9b6d-4487-b0cd-c33361c9053c
+- revision: 17
+- revision_id: b7cd751b-0c69-45df-82f7-b19dd746633d
+- content_seal: sha256:2837c7e5e6718f029c50d420349a9aebe20ef855e446884dd3535e07c8317a51
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:12.060Z
 - mode: structured_slice
-- current_gate: QA
+- current_gate: UR
 - decision: block
 - owner: user / agent
 
@@ -21,11 +24,11 @@ trennen, ohne Approval-/Brownfield-State zu erfinden oder historische Evidenz zu
 
 | Question | Answer |
 |---|---|
-| What is known? | Adapter 2.1 und Corpus/Fixture 2.0 bestehen 24/24 TP-Tasks, Clean Review und Code Review; die Parent-Bewertung trennt r3 in Benchmark-Semantik/-Evidenzgaps, eine fehlende Structured-Depth-Grenze und eine fehlerhafte QA-Block-Approval-Projektion. Ein Autoritätsbypass ist nicht belegt. |
-| What is approved? | Child-UR, PRD, SD und TP jeweils Revision 1 durch separate exakte Freigaben am 2026-07-29; keine Approval-Vererbung. |
-| What is missing? | Eigene Child-Freigaben für QA Transition Integrity und Structured Delivery Depth Boundary; Benchmark v3 bleibt von der kanonischen Depth-Entscheidung abhängig. |
-| What is the next allowed action? | Parent-Bewertung verwenden und zuerst die separate Child-UR für QA-Block Transition Integrity entscheiden. |
-| What is explicitly forbidden right now? | `Approval: QA`, UAT, clean delivery handoff, Optimierung gültiger Live-Ergebnisse, VCS und Release. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -41,12 +44,12 @@ trennen, ohne Approval-/Brownfield-State zu erfinden oder historische Evidenz zu
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exaktes `Approval: UR` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |
-| PRD | approved | Exaktes `Approval: PRD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |
-| SD | approved | Exaktes `Approval: SD` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |
-| TP | approved | Exaktes `Approval: TP` am 2026-07-29 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |
-| QA | blocked | Reportentscheidung `block`; Approval nicht zulässig. |
-| UAT | missing | Nicht zulässig. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -132,6 +135,6 @@ trennen, ohne Approval-/Brownfield-State zu erfinden oder historische Evidenz zu
   Package-Tests, 216/216 Live-Observationen, deterministischer Report sowie Pflichtreviews/QA/OR.
 - intentionally_not_delivered: QA-Freigabe, UAT, clean delivery handoff, VCS, Release und
   Routing-/Gate-Semantikänderung.
-- next_allowed_action: Parent-Bewertung verwenden und zuerst die separate Child-UR für QA-Block
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
   Transition Integrity entscheiden.
 - quality_outlook: Messstufen sauber trennen, historische Evidenz bewahren und Fail-Closed-Schutz nicht in eine Pfadprognose umdeuten.

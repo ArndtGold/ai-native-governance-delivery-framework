@@ -1,3 +1,5 @@
+export { renderControlMigration, renderControlMigrationDecision, renderControlRepairOffer, renderControlRepairPlan } from "../control-maintenance/presentation.js";
+import { renderControlMigration } from "../control-maintenance/presentation.js";
 import { interactionLocales } from "../cli/runtime-context.js";
 import { localePack } from "../interaction-presentation.js";
 
@@ -233,6 +235,7 @@ export function renderInstallSetupPreflight(preflight, { registry = interactionL
     `${labels.packageAcquisition}: ${preflight.package_acquisition_required ? value.required : value.not_required}`,
     `${labels.removal}: ${preflight.removal_overview}`,
     `${labels.authorizes}: ${preflight.authorizes}`,
+    renderControlMigration(preflight.control, { registry, language }),
     "",
   ];
   for (const option of options) {
@@ -293,7 +296,7 @@ export function projectInstallSetupResult(report, { registry = interactionLocale
   });
 }
 
-export function renderInstallSetupText(report, { registry = interactionLocales, language = "en" } = {}) {
+export function renderInstallSetupText(report, { registry = interactionLocales, language = "en", verbose = false } = {}) {
   const pack = localePack(registry, language).installSetup;
   const projected = projectInstallSetupResult(report, { registry, language });
   const labels = pack.labels;
@@ -305,7 +308,7 @@ export function renderInstallSetupText(report, { registry = interactionLocales, 
   const registration = report.mcp?.registration;
   return [
     pack.title,
-    `${labels.result}: ${localized({ installSetup: pack }, "results", report.result)}`,
+    `${labels.result}: ${report.effective_state === "control_repair_required" ? pack.controlRepair.resultDescription : localized({ installSetup: pack }, "results", report.result)}`,
     `${labels.setupRequest}: ${localized({ installSetup: pack }, "setupRequests", report.setup_request)}`,
     `${labels.effectiveState}: ${localized({ installSetup: pack }, "effectiveStates", report.effective_state)}`,
     `${labels.surface}: ${report.surface}`,
@@ -323,11 +326,12 @@ export function renderInstallSetupText(report, { registry = interactionLocales, 
     `${labels.failure}: ${failure}`,
     `${labels.authorizes}: ${report.authorizes}`,
     `${labels.nextAction}: ${projected.next_action.text}`,
+    renderControlMigration(report.control, { registry, language, details: verbose }),
   ].join("\n");
 }
 
-export function printInstallSetupResult(report, { json = false, io = console, registry = interactionLocales, language = "en" } = {}) {
+export function printInstallSetupResult(report, { json = false, verbose = false, io = console, registry = interactionLocales, language = "en" } = {}) {
   io.log(json
     ? JSON.stringify(projectInstallSetupResult(report, { registry, language }), null, 2)
-    : renderInstallSetupText(report, { registry, language }));
+    : renderInstallSetupText(report, { registry, language, verbose }));
 }

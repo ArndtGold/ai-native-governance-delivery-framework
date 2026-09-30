@@ -12,10 +12,12 @@ import {
   writeFileSync,
 } from "node:fs";
 import { renameSyncWithRetry } from "../fs-swap.js";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
-import { duplicateArtefactRowTypes, parseRunState } from "./run-state-parser.js";
-import { approvalSeal, canonicalRunText, runRootFromStatePath, runSealState, sealRunState } from "./run-seal.js";
+import { duplicateArtefactRowTypes, parseControlState, parseRunState } from "./run-state-parser.js";
+import { APPROVAL_GATES, approvalSeal, canonicalRunText, runRootFromStatePath, runSealState, sealRunState } from "./run-seal.js";
+import { transitionDecisionForRunState } from "../control-evaluation/gate-policy.js";
+import { closeoutArtefacts, internalStepArtefacts, userGateOrder } from "../control-evaluation/run-state.js";
 
 function fsyncDirectory(path) {
   if (process.platform === "win32") return;
@@ -25,6 +27,13 @@ function fsyncDirectory(path) {
   } finally {
     closeSync(descriptor);
   }
+}
+
+function stampRunActivity(content, updatedAt = new Date().toISOString()) {
+  if (/^- updated_at:.*$/mu.test(content)) {
+    return content.replace(/^- updated_at:.*$/mu, `- updated_at: ${updatedAt}`);
+  }
+  return content.replace(/(^## Run Meta\s*\n(?:.*\n)*?- revision_id:.*$)/mu, `$1\n- updated_at: ${updatedAt}`);
 }
 
 export function atomicWrite(path, content) {
@@ -180,7 +189,7 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
 
     if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
     validateBeforeWrite?.();
-    const next = sealRunState(root, canonicalRunText(content)
+    const next = sealRunState(root, stampRunActivity(canonicalRunText(content))
       .replace(
         /^- revision:\s*.*$/m,
         `- revision: ${Number(current.meta.revision) + 1}`,
@@ -193,6 +202,96 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
 
     atomicWrite(path, next);
     return candidate;
+}
+
+export function unapproveRecoveryApprovals(content) {
+  const lines = canonicalRunText(content).split("\n");
+  let approvalSection = "";
+  for (let index = 0; index < lines.length; index += 1) {
+    const heading = lines[index].match(/^##\s+(.+?)\s*$/u);
+    if (heading) { approvalSection = heading[1]; continue; }
+    if (!["Approvals", "Gate Checklist"].includes(approvalSection) || !lines[index].trimStart().startsWith("|")) continue;
+    const cells = lines[index].split("|").slice(1, -1).map((cell) => cell.trim());
+    if (!APPROVAL_GATES.includes(cells[0])) continue;
+    cells[1] = "missing";
+    if (cells.length > 2) cells[2] = "";
+    lines[index] = `| ${cells.join(" | ")} |`;
+  }
+  let candidate = lines.join("\n");
+  const state = { content: candidate, ...parseControlState(candidate, {
+    userGates: userGateOrder,
+    internalSteps: [...internalStepArtefacts],
+    closeoutArtefacts: [...closeoutArtefacts],
+  }) };
+  const decision = transitionDecisionForRunState(state);
+  candidate = candidate.replace(/^- current_gate:.*$/mu, `- current_gate: ${decision.current_gate}`)
+    .replace(/^- next_allowed_action:.*$/mu, `- next_allowed_action: ${decision.next_allowed_action}`);
+  const answers = new Map([
+    ["What is known?", "Recovery reset approvals without independent provenance; the ordinary approval sequence resumes."],
+    ["What is approved?", "Nothing yet."],
+    ["What is missing?", `Exact ${decision.missing_approval}.`],
+    ["What is the next allowed action?", decision.next_allowed_action],
+    ["What is explicitly forbidden right now?", decision.forbidden.join("; ")],
+  ]);
+  const projected = candidate.split("\n");
+  let controlSection = "";
+  for (let index = 0; index < projected.length; index += 1) {
+    const heading = projected[index].match(/^##\s+(.+?)\s*$/u);
+    if (heading) { controlSection = heading[1]; continue; }
+    if (controlSection !== "Current Control State" || !projected[index].trimStart().startsWith("|")) continue;
+    const cells = projected[index].split("|").slice(1, -1).map((cell) => cell.trim());
+    if (answers.has(cells[0])) {
+      cells[1] = answers.get(cells[0]);
+      projected[index] = `| ${cells.join(" | ")} |`;
+    }
+  }
+  return projected.join("\n");
+}
+
+// Recovery is the sole exception to the ordinary fail-closed seal check. Callers must hold the
+// existing run lock and provide the exact preview snapshot; normal run-update never reaches here.
+export function recoveryRunContent(root, candidateContent, { revision, nextRevisionId, updatedAt }) {
+  const bumped = stampRunActivity(canonicalRunText(candidateContent), updatedAt)
+    .replace(/^- revision:\s*.*$/m, `- revision: ${Number(revision) + 1}`)
+    .replace(/^- revision_id:\s*.*$/m, `- revision_id: ${nextRevisionId}`);
+  return sealRunState(root, bumped);
+}
+
+export function writeRunRecoveryLocked(path, candidateContent, {
+  expectedContent,
+  expectedRevisionId,
+  nextRevisionId,
+  updatedAt,
+  validateBeforeWrite,
+} = {}) {
+  const root = runRootFromStatePath(path);
+  if (existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
+    throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
+  }
+  const currentContent = readFileSync(path, "utf8");
+  const current = parseRunState(currentContent);
+  if (!current.valid) throw new Error("AGDF_RUN_STATE_INVALID");
+  if (current.meta.run_id !== basename(dirname(path))) throw new Error("AGDF_RUN_PATH_INVALID");
+  if (current.meta.lifecycle !== "active") throw new Error("AGDF_RECOVERY_LIFECYCLE_UNSUPPORTED");
+  if (current.meta.revision_id !== expectedRevisionId || currentContent !== expectedContent) {
+    throw new Error("AGDF_STALE_RUN_REVISION");
+  }
+  const currentSeal = runSealState(root, currentContent);
+  if (!["unsealed", "invalid"].includes(currentSeal.status)) {
+    throw new Error("AGDF_RUN_RECOVERY_NOT_REQUIRED");
+  }
+  if (canonicalRunText(candidateContent) !== canonicalRunText(unapproveRecoveryApprovals(currentContent))) {
+    throw new Error("AGDF_RUN_RECOVERY_CANDIDATE_INVALID");
+  }
+  if (duplicateArtefactRowTypes(candidateContent).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
+  const candidate = parseRunState(candidateContent);
+  if (!candidate.valid || candidate.meta.run_id !== current.meta.run_id) throw new Error("AGDF_RUN_STATE_INVALID");
+  validateBeforeWrite?.();
+  const sealed = recoveryRunContent(root, candidateContent, { revision: current.meta.revision, nextRevisionId, updatedAt });
+  const validated = parseRunState(sealed);
+  if (!validated.valid || runSealState(root, sealed).status !== "valid") throw new Error("AGDF_RUN_STATE_INVALID");
+  atomicWrite(path, sealed);
+  return validated;
 }
 
 export function writeRun(path, content, expectedRevisionId, options = {}) {

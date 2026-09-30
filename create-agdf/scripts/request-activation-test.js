@@ -113,6 +113,7 @@ const expectedModules = [
   "meta/contracts/request-activation.md",
   "meta/contracts/task-target-resolution.md",
   "meta/contracts/gate-transition.md",
+  "meta/contracts/gate-artifact-preparation.md",
   "meta/contracts/interaction.md",
   "meta/contracts/modes.md",
   "meta/contracts/quality.md",

@@ -36,6 +36,8 @@ export function parseArgs(argv, dependencies = {}) {
   let force = false;
   let json = false;
   let verbose = false;
+  let guided = false;
+  let details = false;
   let statusCard = false;
   let approvalEnvelope = false;
   let language;
@@ -62,6 +64,9 @@ export function parseArgs(argv, dependencies = {}) {
   let response;
   let contractModule;
   let runStep;
+  let recoveryAction;
+  let recoveryPreviewId;
+  let recoveryConfirmation;
   const stepFields = {};
   let allActive = false;
   let scope;
@@ -73,6 +78,8 @@ export function parseArgs(argv, dependencies = {}) {
   let mcpAction;
   let mcpScope;
   let setupRequest;
+  let controlDir;
+  let controlMigration;
   let targetSource;
   let primaryTarget;
   let workingDirectory = cwd;
@@ -88,6 +95,8 @@ export function parseArgs(argv, dependencies = {}) {
     if (arg === "--force") { force = true; continue; }
     if (arg === "--json") { json = true; continue; }
     if (arg === "--verbose") { verbose = true; continue; }
+    if (arg === "--guided") { guided = true; continue; }
+    if (arg === "--details") { details = true; continue; }
     if (arg === "--status-card") { statusCard = true; continue; }
     if (arg === "--approval-envelope") { approvalEnvelope = true; continue; }
     if (arg === "--persist") { persist = true; continue; }
@@ -116,6 +125,19 @@ export function parseArgs(argv, dependencies = {}) {
       continue;
     }
 
+    if (arg === "--control-dir" || arg === "--control-migration") {
+      const next = requiredValue(args, i, arg);
+      if (arg === "--control-dir") {
+        if (!isAbsolute(next)) throw new CliUsageError("--control-dir requires an absolute repository path.");
+        controlDir = next;
+      } else {
+        if (!["inspect", "safe"].includes(next)) throw new CliUsageError("--control-migration must be inspect or safe.");
+        controlMigration = next;
+      }
+      i += 1;
+      continue;
+    }
+
     if (arg === "--run") {
       runId = requiredValue(args, i, arg);
       i += 1;
@@ -124,6 +146,18 @@ export function parseArgs(argv, dependencies = {}) {
 
     if (arg === "--step") {
       runStep = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+    if (arg === "--action") {
+      recoveryAction = requiredValue(args, i, arg);
+      i += 1;
+      continue;
+    }
+    if (arg === "--preview-id" || arg === "--recovery-confirmation") {
+      const value = requiredValue(args, i, arg);
+      if (arg === "--preview-id") recoveryPreviewId = value;
+      else recoveryConfirmation = value;
       i += 1;
       continue;
     }
@@ -265,6 +299,8 @@ export function parseArgs(argv, dependencies = {}) {
       force,
       json,
       verbose,
+      ...(guided ? { guided: true } : {}),
+      ...(details ? { details: true } : {}),
       statusCard,
       approvalEnvelope,
       dirExplicit,
@@ -287,6 +323,9 @@ export function parseArgs(argv, dependencies = {}) {
       response,
       contractModule,
       runStep,
+      recoveryAction,
+      recoveryPreviewId,
+      recoveryConfirmation,
       stepFields,
       allActive,
       scope,
@@ -298,6 +337,8 @@ export function parseArgs(argv, dependencies = {}) {
       mcpAction,
       mcpScope,
       setupRequest,
+      controlDir,
+      controlMigration,
       generatorModel,
       maxGeneratedCandidates,
       generationTimeoutMs,

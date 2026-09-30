@@ -1,0 +1,22 @@
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
+## Request Activation
+
+- `owner`: `request_activation_contract`
+- `path`: `meta/contracts/request-activation.md`
+- `policy_version`: `1`
+- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`
+
+Decide effect from loaded instructions before AGDF action.
+
+Abstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.
+
+Activate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.
+
+Invocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.
+
+Then pick one catalog route; non-authorizing, downstream checks remain.
+<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->
+
+AGDF dispatcher binding: {"schema_version":"2","executable":"/usr/local/Cellar/node@22/22.22.3/bin/node","argv_prefix":["/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js","skill-dispatch","--json","--surface","codex"],"environment":{},"arguments":"--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]","expected_version":"0.14.5","request_activation":{"owner":"request_activation_contract","policy_version":1,"guard_fingerprint":"sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc"},"route_source_after_activation":{"relative_to":"validator_directory","path":"../meta/contracts/request-activation.md"},"authorizes":false}
+
+AGDF runtime facts: {"context_state":"repository_bound","working_directory":"/private/tmp/agdf-installed-live-20260930-PXiuyz/D repair","automatic_check":{"status":"warn","findings":2},"config":"valid","languages":{"artifact":"en","chat":"de","runtime":"en"},"repository_control":{"target":"/private/tmp/agdf-installed-live-20260930-PXiuyz/D repair","inspection_state":"complete","status":"current","counts":{"migration":0,"repair":0,"historical":0},"authorizes":false}}

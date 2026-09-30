@@ -109,6 +109,114 @@ For prerequisites, all surface-specific flows and operational boundaries, use th
 
 ## Command overview
 
+### Existing repository control state during installation (development)
+
+Install and update commands inspect existing `.agdf` state in the invocation directory without
+changing it. Interactive setup shows a compact count of eligible runs and repair cases, then offers one
+migration decision for that exact repository. Choose 1 to migrate, 2 to defer, or 3 for details (d remains an alias);
+empty input keeps the inspection read-only, including recovery journals. Select a repository explicitly in automation:
+
+```bash
+node ./bin/create-agdf.js codex --control-dir /absolute/path/to/repository --control-migration safe
+```
+
+The flags are part of the development version; they do not describe the currently published
+`@agdf/cli@latest`. `--control-migration inspect` disables all control writes. `--control-dir` is
+independent of the OpenCode host configuration directory. No other repositories are scanned.
+
+The installation report separates the plugin result from `control.status`: compatible, migration
+required or repair required. A verified plugin with unresolved control compatibility returns a
+partial setup result (exit 1); it does not roll back or misreport the installed plugin. Safe
+migration covers active version-2 runs with missing seals, complete approval tables containing only
+missing approvals with empty evidence, and resolvable artefacts. Existing seals that are malformed
+or no longer match are repair cases. Unsupported versions and conflicting/missing artefacts stop
+migration of the affected runs; other eligible runs can proceed. Historical unsealed completed, superseded or abandoned runs are retained as
+non-authorizing history and are not reopened or retrospectively attested.
+
+For eligible runs with historical approvals, the common decision explicitly describes the
+approval reset and return to UR. Original records and artefact hashes are backed up automatically.
+Details show the selected runs, source revisions, prior approvals and next gates. The decision
+binds to those exact source snapshots: concurrent edits stop the affected run, and newly discovered
+runs are not added after confirmation. Repair cases do not block other eligible runs.
+Noninteractive/JSON setup never resets historical approvals. The manual `run-recovery inspect|preview|apply` path remains available.
+Legacy authoritative `AGDF_RUN.md` is reported separately and requires explicit `run-migrate`
+followed by inspection; it is not silently converted during plugin installation.
+
+If repair cases remain after migration, interactive setup offers **1: Start repair assistant**,
+**2: Later**, **3: Details**. Starting the assistant searches private recovery checkpoints and this
+repository's Git history without writing. It then shows concrete proposals and missing original
+files; a second 1/2/3 selection applies only the displayed proposals or defers them. Missing originals
+and placeholder references remain explicit input requirements. Repair is disabled by
+`--control-migration inspect`, noninteractive/JSON setup, or a failed plugin operation.
+
+The assistant can restore missing artefacts from an exact Git path in the current checkout's
+history, reset unproven approvals in the unsealed run, and record the resulting state through the
+canonical recovery writer. A changed sealed run can use a valid original snapshot of the same
+revision with identical recorded approvals. The former self-reference hashing defect is repairable
+only when a validated recovery journal reconstructs the complete current record and all other
+artefact hashes still match. Unsupported formats, changed approvals, unsafe paths and absent
+originals require manual input. No missing report or approval is invented.
+
+Before applying a proposal, the assistant saves the existing record and selected originals in a
+private `repair-previews` journal and rechecks the displayed snapshots under the run lock. A failed
+write rolls back only restored files still owned by that attempt; an interruption after atomic
+replacement retains the original backup and does not cause another revision on reinstall.
+The report distinguishes a successfully installed plugin from unresolved repository repair and
+lists the concrete files or reference corrections still needed.
+
+Migration reuses the locked, atomic recovery writer, retains the source and artefact digests in the
+recovery journal, and resumes interrupted writes without adding a second revision. A repeated
+installation leaves already migrated runs byte-identical. The journal is a recovery checkpoint
+and original snapshot, not a blanket automatic rollback: concurrent edits stop recovery. Restoring
+an older state remains an explicit operation. A new seal records integrity; it cannot prove an old
+human approval. This compatibility check does not evaluate QA or grant delivery authority.
+
+| Existing control format | Installer behavior |
+|---|---|
+| Version 2, valid seals | Inspect and preserve exact bytes. |
+| Version 2, active, unsealed, all approvals missing | Recover automatically in the explicitly selected repository. |
+| Version 2, active, unsealed, historical approvals | Include in the common, snapshot-bound decision; reset approvals only after migration is selected. |
+| Version 2, inactive and unsealed | Retain as non-authorizing historical evidence. |
+| Unsupported version, invalid/mismatched seal or missing artefact | Report repair required; do not bless or overwrite the state. |
+| Authoritative legacy `AGDF_RUN.md` | Report the explicit `run-migrate` path, then inspect its canonical output. |
+
+New recovery journals use preview format 2, which binds the write timestamp into the preview
+digest. Existing format-1 journal digests remain readable. A legacy interrupted transaction whose
+recorded result does not match the actual bytes remains a repair conflict rather than being
+silently accepted.
+
+
+### Repository maintenance without reinstalling (development)
+
+Compatibility belongs to each repository. The installed full runtime can inspect and maintain
+its explicitly selected control root directly; no installer, registry or MCP setup is involved.
+Use the fixed runtime invocation supplied by your host, for example:
+
+```bash
+node "<installed-plugin>/runtime/agdf-local.js" control-maintenance --dir /absolute/repository --json
+node "<installed-plugin>/runtime/agdf-local.js" control-maintenance --dir /absolute/repository --details --language de
+node "<installed-plugin>/runtime/agdf-local.js" control-maintenance --dir /absolute/repository --guided --language de
+```
+
+These are invocation examples; use your host's actual supplied runtime path. Default, details and
+JSON inspect read-only. Guided mode needs interactive input and offers **1: Migration and repair**,
+**2: Later**, **3: Details**. Starting searches proposals only; applying a displayed migration
+batch or concrete repairs is a separate deliberate selection after scope, originals, backups and
+approval-reset consequences are shown. Blank/EOF defer. No new noninteractive apply API is exposed.
+Required originals remain named input; missing evidence is never synthesized.
+
+The prepared development CLI also exposes `agdf control-maintenance --dir /absolute/repository`.
+This new entry belongs to the development candidate; source/package tests do not refresh an older
+installed plugin or establish availability in the currently published release.
+
+Permitted startup checks report this repository's own compatibility and a compact direct invocation
+when maintenance is needed, separately from Doctor readiness. They never apply changes or wait for
+input. Disabled/stale check permission does not inspect automatically. Supported session/repository
+reentry binds fresh context; other surfaces use the explicit command fallback. Current or absent
+control needs no maintenance prompt. Package/fixture results and fresh installed-host observations
+remain separate evidence; executable identity changes retain existing permission-renewal rules.
+
+
 The Quick Start above is the recommended entry point. For the exact current command and option reference, run `npx --yes @agdf/cli@latest --help`; the groups below explain the supported surfaces, validation paths and canonical run lifecycle.
 
 Installation, activation and explicit lifecycle changes:

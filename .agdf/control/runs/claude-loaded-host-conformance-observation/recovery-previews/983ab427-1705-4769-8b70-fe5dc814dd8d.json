@@ -1,0 +1,77 @@
+{
+  "schema_version": "1",
+  "preview_format_version": 2,
+  "preview_id": "983ab427-1705-4769-8b70-fe5dc814dd8d",
+  "run_id": "claude-loaded-host-conformance-observation",
+  "created_at": "2026-09-30T10:44:38.357Z",
+  "source_revision_id": "fd42ab8c-9f8d-4ece-9c23-40e006944f10",
+  "source_content_digest": "sha256:f28f766be9f7d2c549fb53b35996e00adb7c676b9ad149208430c7584e2dee60",
+  "source_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: claude-loaded-host-conformance-observation\n- lifecycle: active\n- revision: 2\n- revision_id: fd42ab8c-9f8d-4ece-9c23-40e006944f10\n- mode: verified_change\n- current_gate: CD+Tests\n- decision: pending\n- owner: agent\n\n## Objective\n\nObserve the 12 predefined Claude conformance cases (HC-01–HC-12) on a real, freshly restarted Claude Code host running the locally installed 0.13.5 build, producing durable loaded-host evidence.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Case definitions, expected behaviors and the observation field vocabulary exist in the completed matrix run; a content-fresh local Claude install exists since 2026-08-26; the executable protocol is persisted. |\n| What is approved? | UR is approved by exact user approval on 2026-08-26. Verified Change requires no further user gate. |\n| What is missing? | Host restart by the user, then execution of `OBSERVATION_PROTOCOL.md` in a fresh session. |\n| What is the next allowed action? | User restarts Claude Code; the first fresh session in this repository executes the protocol and records `CLAUDE_LOADED_HOST_MATRIX.json` plus `OBSERVATION_REPORT.md`. |\n| What is explicitly forbidden right now? | Executing observations in the current stale-loaded session; mutating real gate authority through probes; rewriting historical matrix evidence; fixing findings inside this run; commit/push/release. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | `Approval: UR` provided by the user on 2026-08-26 for revision 1 (`fd42ab8c-9f8d-4ece-9c23-40e006944f10`) via native gate question and revalidated before persistence. |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/UR.md` | approved | Loaded-host evidence goal, derivation boundary to the historical matrix. |\n| Brownfield Review | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md` | done | Evidence-only extend strategy; `verified_change` selected. |\n| Observation Protocol | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/OBSERVATION_PROTOCOL.md` | ready_for_execution | Self-contained 12-case protocol for the fresh post-restart session. |\n| Observation Matrix | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/CLAUDE_LOADED_HOST_MATRIX.json` | pending | Written by the executing session. |\n| Observation Report | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/OBSERVATION_REPORT.md` | pending | Written by the executing session. |\n\n## Mode/Slice Decision\n\n- decision: verified_change\n- required_next_gate: none\n- scope_reason: `bounded_evidence_collection`; approved definitions and vocabulary are reused, the deliverable is a durable observation artefact set, locally reversible and independently verifiable.\n- evidence: `.agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | defines | loaded-host observation scope | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/UR.md` |\n| UR | approved_by | `Approval: UR` | User input on 2026-08-26 after revalidation of revision 1. |\n| UR | derives_cases_from | run `agdf-live-host-conformance-matrix` | Historical `HOST_CONFORMANCE_MATRIX.json` (12 `claude_code` rows) and `OBSERVATION_SCHEMA.json`; historical evidence stays immutable. |\n| UR | enabled_by | runs `install-scripts-fresh-checkout-fix`, `windows-native-install-viability`, `claude-local-install-content-refresh` | Content-fresh local Claude install of 2026-08-26. |\n| Brownfield Review | sizes | UR | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md` |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| 12 Claude rows `host_unavailable` | Historical `HOST_CONFORMANCE_MATRIX.json` | Standing evidence gap | direct |\n| Content-fresh install with provenance | `claude-local-install-content-refresh` Verified Change | Usable observed host | direct |\n| Standing Claude live-observation limitations | ORs of `deterministic-agent-ux`, `surface-native-interactions`, `agdf-skill-evaluation-framework`, `automatic-version-asset-sync` | Cross-run value of the observation | direct |\n\n## Context Graph Impact\n\n- context_graph_impact: update_existing_node\n- context_graph_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`\n- context_graph_reconciliation: resolved\n- context_graph_required_action: none until observations complete\n- context_graph_gate_effect: none\n- context_graph_evidence: Observation-only run; follow-up nodes only for real findings.\n\n## Knowledge Persistence Decision\n\n- memory_target: context_graph\n- memory_reason: Loaded-host conformance evidence and any enforcement-boundary findings are reusable across future host work.\n- memory_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`\n\n## Closeout\n\n- next_allowed_action: User restarts Claude Code; the first fresh session executes `OBSERVATION_PROTOCOL.md`.\n- quality_outlook: pending observation results.\n",
+  "source_artefacts": [
+    {
+      "path": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/UR.md",
+      "status": "valid",
+      "digest": "sha256:bcc7d6de40b4e289e126e9aa9438ee7a0b3be33c395527d37ef6fa81131230a3"
+    },
+    {
+      "path": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:9d71806f13d669458ec56755f073a5c4cab50f4b0dc9f1a4c86c9c01fa130c66"
+    },
+    {
+      "path": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/OBSERVATION_PROTOCOL.md",
+      "status": "valid",
+      "digest": "sha256:6c980b527127971943f231f756f24f1f74f93ee7dc64a6c6abbe8664fb281d9d"
+    },
+    {
+      "path": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/CLAUDE_LOADED_HOST_MATRIX.json",
+      "status": "missing",
+      "digest": "missing",
+      "planned": true
+    },
+    {
+      "path": ".agdf/control/artefacts/claude-loaded-host-conformance-observation/OBSERVATION_REPORT.md",
+      "status": "missing",
+      "digest": "missing",
+      "planned": true
+    }
+  ],
+  "git_history": {
+    "status": "available",
+    "candidates": [
+      {
+        "commit": "1faab8717d9a45416909b06d55760d77a72ff720",
+        "revision_id": "fd42ab8c-9f8d-4ece-9c23-40e006944f10",
+        "content_digest": "sha256:f28f766be9f7d2c549fb53b35996e00adb7c676b9ad149208430c7584e2dee60",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      }
+    ]
+  },
+  "prior_approvals": [
+    {
+      "section": "Approvals",
+      "gate": "UR",
+      "status": "approved",
+      "evidence": "`Approval: UR` provided by the user on 2026-08-26 for revision 1 (`fd42ab8c-9f8d-4ece-9c23-40e006944f10`) via native gate question and revalidated before persistence."
+    }
+  ],
+  "approval_provenance": "no_independent_provenance",
+  "approvals_to_invalidate": [
+    "UR",
+    "PRD",
+    "SD",
+    "TP",
+    "QA",
+    "UAT"
+  ],
+  "next_gate": "UR",
+  "next_revision_id": "29ff4a75-39fd-45e1-9970-5308963b5889",
+  "candidate_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: claude-loaded-host-conformance-observation\n- lifecycle: active\n- revision: 2\n- revision_id: fd42ab8c-9f8d-4ece-9c23-40e006944f10\n- mode: verified_change\n- current_gate: UR\n- decision: pending\n- owner: agent\n\n## Objective\n\nObserve the 12 predefined Claude conformance cases (HC-01–HC-12) on a real, freshly restarted Claude Code host running the locally installed 0.13.5 build, producing durable loaded-host evidence.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |\n| What is approved? | Nothing yet. |\n| What is missing? | Exact Approval: UR. |\n| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |\n| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/UR.md` | approved | Loaded-host evidence goal, derivation boundary to the historical matrix. |\n| Brownfield Review | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md` | done | Evidence-only extend strategy; `verified_change` selected. |\n| Observation Protocol | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/OBSERVATION_PROTOCOL.md` | ready_for_execution | Self-contained 12-case protocol for the fresh post-restart session. |\n| Observation Matrix | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/CLAUDE_LOADED_HOST_MATRIX.json` | pending | Written by the executing session. |\n| Observation Report | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/OBSERVATION_REPORT.md` | pending | Written by the executing session. |\n\n## Mode/Slice Decision\n\n- decision: verified_change\n- required_next_gate: none\n- scope_reason: `bounded_evidence_collection`; approved definitions and vocabulary are reused, the deliverable is a durable observation artefact set, locally reversible and independently verifiable.\n- evidence: `.agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | defines | loaded-host observation scope | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/UR.md` |\n| UR | approved_by | `Approval: UR` | User input on 2026-08-26 after revalidation of revision 1. |\n| UR | derives_cases_from | run `agdf-live-host-conformance-matrix` | Historical `HOST_CONFORMANCE_MATRIX.json` (12 `claude_code` rows) and `OBSERVATION_SCHEMA.json`; historical evidence stays immutable. |\n| UR | enabled_by | runs `install-scripts-fresh-checkout-fix`, `windows-native-install-viability`, `claude-local-install-content-refresh` | Content-fresh local Claude install of 2026-08-26. |\n| Brownfield Review | sizes | UR | `.agdf/control/artefacts/claude-loaded-host-conformance-observation/BROWNFIELD_REVIEW.md` |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| 12 Claude rows `host_unavailable` | Historical `HOST_CONFORMANCE_MATRIX.json` | Standing evidence gap | direct |\n| Content-fresh install with provenance | `claude-local-install-content-refresh` Verified Change | Usable observed host | direct |\n| Standing Claude live-observation limitations | ORs of `deterministic-agent-ux`, `surface-native-interactions`, `agdf-skill-evaluation-framework`, `automatic-version-asset-sync` | Cross-run value of the observation | direct |\n\n## Context Graph Impact\n\n- context_graph_impact: update_existing_node\n- context_graph_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`\n- context_graph_reconciliation: resolved\n- context_graph_required_action: none until observations complete\n- context_graph_gate_effect: none\n- context_graph_evidence: Observation-only run; follow-up nodes only for real findings.\n\n## Knowledge Persistence Decision\n\n- memory_target: context_graph\n- memory_reason: Loaded-host conformance evidence and any enforcement-boundary findings are reusable across future host work.\n- memory_refs: `CG-CREATE-AGDF-CLI-COMPOSITION`\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook: pending observation results.\n",
+  "candidate_digest": "sha256:cd67958d2d17d78f2f0ab37dc2439d5cb05ea3b41b7004241b169e78f4372294",
+  "phase": "committed",
+  "preview_digest": "sha256:e5391239eb5b5a2aa4e0ba09ea930d9867105fb61c914e8e881abd8321bf9052",
+  "confirmation": "RECOVER claude-loaded-host-conformance-observation 983ab427-1705-4769-8b70-fe5dc814dd8d sha256:e5391239eb5b5a2aa4e0ba09ea930d9867105fb61c914e8e881abd8321bf9052",
+  "result_digest": "sha256:6f8e0da09c4f0ca45774fa0667ab4eaf4062efa8d649b40b5fdcbafa64677d62",
+  "result_revision_id": "29ff4a75-39fd-45e1-9970-5308963b5889"
+}

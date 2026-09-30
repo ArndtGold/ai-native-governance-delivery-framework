@@ -1,0 +1,338 @@
+{
+  "schema_version": "1",
+  "preview_format_version": 2,
+  "preview_id": "453c8069-0fd6-4928-a437-03142ac43a96",
+  "run_id": "agdf-product-maturity-roadmap",
+  "created_at": "2026-09-30T08:31:10.860Z",
+  "source_revision_id": "5af25162-0b2a-452e-89ed-d3b3b19ad762",
+  "source_content_digest": "sha256:0e47e5238016d3863631120576941530f5709bf251c23ebc912b1530d43abbd1",
+  "source_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: agdf-product-maturity-roadmap\n- lifecycle: active\n- revision: 48\n- revision_id: 5af25162-0b2a-452e-89ed-d3b3b19ad762\n- mode: structured_delivery\n- current_gate: CD+Tests\n- decision: in_progress\n- owner: user / agent\n\n## Objective\n\nAGDF entlang fünf evidenzbasierter Reifegradlinien weiterentwickeln: weniger sichtbare Zeremonie,\nehrliche technische Durchsetzung, echte Host-/Mehrturn-Conformance, bessere Proportionalität und\neinfachere Nutzerinteraktion.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | QA Transition, Structured Depth, Benchmark v3, Task Target Resolution, Lean Interaction Ownership and Single Install Activation are completed with accepted ORs. RMP-10 Revision 4 records PMR-1 and PMR-5 as `satisfied_with_limits`; no residual Unified Journey product gap is evidenced, the Parent-owned PMR-6 direct-UAT protocol is ready, and the user confirmed that no independent participants are currently available. |\n| What is approved? | Roadmap-UR, PRD, SD und TP sind durch exakte Freigaben vom 2026-07-28 genehmigt; Pre-Implementation Brownfield Analysis entscheidet `pass`. |\n| What is missing? | At least four independent participants and eight valid blinded understandability observations for PMR-6; authenticated OpenCode parity evidence; completion of RMP-10 and later RMP-12 reviews/QA/UAT. |\n| What is the next allowed action? | Wait until at least four independent participants are available, then execute the eight observations in `UNDERSTANDABILITY_UAT_PROTOCOL.md`; keep RMP-12 closed. |\n| What is explicitly forbidden right now? | Simulated or agent substitutes for participants, a speculative Unified Journey child, final RMP-10/Parent QA claims, Parent runtime/plugin code, approval inheritance and automatic VCS actions. |\n\n## Source And Scope State\n\n- primary_target: AGDF-Produktreifegrad-Roadmap\n- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- evidence_sources: aktuelle AGDF-Contracts, Skills, Control State, aktive und abgeschlossene Runs, Repository-Tests und explizite Live-Host-Evidenzgrenzen\n- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- scope_stability: durch den unmittelbar vorausgehenden benannten Run und exaktes `Approval: UR` bestätigt\n- competing_scope_lines: `task-target-resolution-boundary`, `agdf-interaction-ownership-quick-path-ux`, `opencode-single-install-activation`, `opencode-surface-hardening-parity` und weitere aktive Runs bleiben eigenständig\n- excluded_mutation_targets: Implementierungscode, bestehende fremde Runs, VCS, Release und Reinstall\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | Exaktes `Approval: UR` am 2026-07-28 nach Run-, Ziel- und Scope-Revalidierung. |\n| PRD | approved | Exaktes `Approval: PRD` am 2026-07-28 nach same-run, same-gate, revision-4 und durable-artefact revalidation. |\n| SD | approved | Exaktes `Approval: SD` am 2026-07-28 nach same-run, same-gate, revision-5 und durable-artefact revalidation. |\n| TP | approved | Exaktes `Approval: TP` am 2026-07-28 nach same-run, same-gate, revision-6 und durable-artefact revalidation. |\n| QA | missing | Nicht zulässig. |\n| UAT | missing | Nicht zulässig. |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UR.md` | approved | Fünf Reifegradlinien, Lieferstrategie, Akzeptanzsignale und Nicht-Ziele. |\n| Brownfield Review | `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_REVIEW.md` | done | `structured_delivery`; Roadmap koordiniert, Implementierung wird in eigenständige Runs geschnitten. |\n| UX Intent Definition | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UX_INTENT_DEFINITION.md` | ready | High-Impact-Analyse; Ziel, Modi, Zustände, Blocker, Recovery und PRD-Kriterien definiert. |\n| PRD | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PRD.md` | approved | PMR-1 bis PMR-7; freigegeben 2026-07-28. |\n| SD | `.agdf/control/artefacts/agdf-product-maturity-roadmap/SD.md` | approved | AD-1 bis AD-10; freigegeben 2026-07-28. |\n| TP | `.agdf/control/artefacts/agdf-product-maturity-roadmap/TP.md` | approved | RMP-01 bis RMP-12; freigegeben 2026-07-28. |\n| Brownfield Analysis | `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_ANALYSIS.md` | done | Pass; Phase A bleibt auf run-eigene Control-Artefakte begrenzt. |\n| CD+Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md` | in_progress | RMP-01 through RMP-08 done; RMP-09 has an evidence-only direct-UAT protocol; RMP-10 Revision 4 waits on external participants; RMP-12 remains closed. |\n| Aggregate Acceptance | `.agdf/control/artefacts/agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | in_progress | Revision 4: PMR-1 and PMR-5 are satisfied with limits; PMR-6 retains a critical direct-UAT evidence gap with 0/8 observations and 0/4 available participants. |\n| Understandability UAT Protocol | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md` | ready_for_execution | Protocol is complete, but execution is blocked by unavailable external participants; no substitute evidence is permitted. |\n| RMP-07 Assessment | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_SCOPE_ASSESSMENT.md` | completed | Baseline-Eingangsevidenz erfüllt; Child-Scope gerechtfertigt. |\n| Proportionality Baseline | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_BASELINE.json` | ready | 40 reale Fälle, sechs Pfade, 19 adversariale Fälle, 40/40 Quellen. |\n| Proportionality Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_SCOPE.md` | ready_for_child_ur | Benchmark erweitert bestehende Eval-Owner und bewahrt alle PMR-4-Schwellen. |\n| Proportionality Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BASELINE_TESTS.md` | pass | Struktur-, Coverage-, Adversarial-, Referenz-, Redaction-, Schwellen- und Scope-Prüfungen grün. |\n| Child UR | `.agdf/control/artefacts/agdf-proportionality-benchmark/UR.md` | approved | Exaktes Child-`Approval: UR` am 2026-07-28; Parent-Approvals wurden nicht vererbt. |\n| Child Brownfield Review | `.agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_REVIEW.md` | done | Pass; `structured_slice`; bestehende Eval-/Routing-Owner erweitern, keine zweite Autorität. |\n| Child PRD | `.agdf/control/artefacts/agdf-proportionality-benchmark/PRD.md` | approved | Revision 2; exakt freigegeben 2026-07-28. |\n| Child SD | `.agdf/control/artefacts/agdf-proportionality-benchmark/SD.md` | approved | Revision 2; separat exakt freigegeben 2026-07-28. |\n| Child TP | `.agdf/control/artefacts/agdf-proportionality-benchmark/TP.md` | approved | Revision 2; separat exakt freigegeben 2026-07-28. |\n| Child Brownfield Analysis | `.agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_ANALYSIS.md` | done | Pass; bestehende Safety-Primitiven erweitern; expliziter Codex-/Modell-/Auth-/Budget-Preflight grün. |\n| Child CD+Tests | `.agdf/control/artefacts/agdf-proportionality-benchmark/CD_TESTS.md` | done | Implementierung, Smoke und frische 120er-Serie vollständig. |\n| Child Benchmark | `.agdf/control/artefacts/agdf-proportionality-benchmark/PROPORTIONALITY_BENCHMARK_REPORT.md` | block | 13 korrekt, 27 ambiguous, 0 Critical Under, 0/8 Small Over. |\n| Child Reviews | `.agdf/control/artefacts/agdf-proportionality-benchmark/TASK_PLAN_REVIEW.md` | pass | TP 18/18; Clean/Code Review ebenfalls pass. |\n| Child QA | `.agdf/control/artefacts/agdf-proportionality-benchmark/QA_REPORT.md` | block | Ambiguitäts-Stop-Bedingung greift; keine QA-Freigabe. |\n| Ambiguitäts-Produktbefund | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md` | assessed | 26 Protocol-Stage-Mismatches, ein Baseline-Semantikfehler, null belegte Routingfehler; separater Protokoll-Child gerechtfertigt. |\n| Protokoll-Child UR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md` | approved | SPO-1 bis SPO-8; exakt freigegeben 2026-07-29. |\n| Protokoll-Child Brownfield | `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md` | done | Pass; `structured_slice`; vorhandene Pipeline erweitern. |\n| Protokoll-Child PRD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md` | approved | Stage-/Pfadtrennung, Blindheit, historische Integrität und getrenntes Grading; exakt freigegeben 2026-07-29. |\n| Protokoll-Child SD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md` | approved | Eine profilfähige Pipeline, 72 Pflichtscenarios, Schema v2 und Legacy-Integritätsgrenze; exakt freigegeben 2026-07-29. |\n| Protokoll-Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md` | approved | Revision 1; exakt freigegeben 2026-07-29. |\n| Protokoll-Child QA | `.agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md` | block | Fresh r3 216/216; TP 24/24, Clean/Code pass; Block ausschließlich durch gültige Produktabweichungen. |\n| Protokoll-Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md` | block | OR-full; Produktbefund upstream bewerten, kein Delivery-Handoff. |\n| Staged Product Findings | `.agdf/control/artefacts/agdf-product-maturity-roadmap/STAGED_PRODUCT_FINDINGS_ASSESSMENT.md` | reconciled | QA Transition, Depth and bounded Benchmark v3 paths completed; Unified Journey still has no safe child scope. |\n| Enforcement Closure Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/ENFORCEMENT_CLOSURE_SCOPE.md` | ready_for_child_ur | QA-Block-Approval-Projektion, bestehender Owner und negativer Test. |\n| QA Transition Child OR | `.agdf/control/artefacts/agdf-qa-block-transition-integrity/OR.md` | complete | OR `pass`; QA-`block` no longer requests approval and contradictory stored approval remains fail-closed. |\n| Structured Depth Child OR | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/OR.md` | complete | QA-approved and UAT-accepted Modes-owned boundary; 14/14 tasks and 58/58 evals; no Benchmark mutation. |\n| Benchmark v3 Child UR | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/UR.md` | approved | Revision 1 approved exactly on 2026-08-19 without inheriting Parent approvals. |\n| Benchmark v3 Child Brownfield Review | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/BROWNFIELD_REVIEW.md` | done | Structured Delivery selected through complete Depth facts; public CLI/profile compatibility is decisive. |\n| Benchmark v3 Child PRD | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/PRD.md` | approved | Revision 1 approved exactly on 2026-08-19. |\n| Benchmark v3 Child SD | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/SD.md` | approved | Revision 1 approved exactly on 2026-08-19. |\n| Benchmark v3 Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/TP.md` | approved | Revision 1 approved exactly on 2026-08-19; 24/24 tasks subsequently completed. |\n| Benchmark v3 Child QA | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/QA_REPORT.md` | pass | QA passed and was exactly approved on 2026-08-19. |\n| Benchmark v3 Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/OR.md` | complete | UAT accepted and OR `pass`; repository scope closed with authenticated live behavior explicitly unclaimed. |\n| Task Target Child OR | `.agdf/control/artefacts/task-target-resolution-boundary/OR.md` | complete | QA/UAT accepted; target authority and fail-closed ambiguity behavior pass with host limits retained. |\n| Interaction Ownership Child OR | `.agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/OR.md` | complete | QA/UAT accepted; Compact Delivery and one code-owned operational projection pass with release/install limits retained. |\n| Single Install Child OR | `.agdf/control/artefacts/opencode-single-install-activation/OR.md` | complete | QA/UAT accepted; durable activation and no local runtime duplication pass with live OpenCode observation retained as a non-claim. |\n| QA |  | missing | Nicht zulässig. |\n\n## Mode/Slice Decision\n\n- decision: `structured_delivery`\n- required_next_gate: PRD\n- scope_reason: Mehrere Hosts, Produktversprechen, UX, Routing-Qualität und Enforcement-Transparenz erfordern einen strukturierten Rahmen; ausführbare Arbeit bleibt in getrennten Runs.\n- evidence: `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | approved_by | `Approval: UR` | Exakte Freigabe am 2026-07-28 für `agdf-product-maturity-roadmap`. |\n| UR | constrained_by | bestehende aktive und abgeschlossene AGDF-Runs | Brownfield Review muss Wiederverwendung und Scope-Grenzen bestimmen. |\n| Brownfield Review | sizes | UR | `structured_delivery`; bestehende Owner wiederverwenden und ausführbare Restlücken in getrennte Runs schneiden. |\n| UX Intent Definition | informs | PRD | Entscheidung `ready`; Nutzerziel, Modi, Zustände, Blocker, Recovery und zehn vorgeschlagene Akzeptanzkriterien. |\n| PRD | derived_from | UR | PMR-1 bis PMR-7 operationalisieren die fünf genehmigten Reifegradlinien ohne gemeinsamen Implementierungs-Scope. |\n| PRD | approved_by | `Approval: PRD` | Exakte Freigabe am 2026-07-28 nach Revalidierung von Run, Gate, Revision 4 und dauerhaftem Artefakt. |\n| SD | derived_from | PRD | AD-1 bis AD-10 definieren Programmgrenze, unabhängige Child-Runs, vorhandene Owner und evidence-first Reihenfolge. |\n| SD | approved_by | `Approval: SD` | Exakte Freigabe am 2026-07-28 nach Revalidierung von Run, Gate, Revision 5 und dauerhaftem Artefakt. |\n| TP | derived_from | SD | RMP-01 bis RMP-12 planen Parent-Koordination und getrennte Child-Gates ohne Roadmap-Code-Scope. |\n| TP | approved_by | `Approval: TP` | Exakte Freigabe am 2026-07-28 nach Revalidierung von Run, Gate, Revision 6 und dauerhaftem Artefakt. |\n| Brownfield Analysis | prepares | Parent Phase A | Pass; bestehende Run-/Backlog-/Artefakt-Owner reichen ohne Runtime-Änderung aus. |\n| CD+Tests Phase A | implements | TP RMP-01 bis RMP-04 | Baseline-, Workstream- und Conformance-Scope-Artefakte erstellt. |\n| Child UR/PRD/SD/TP | derived_from | Roadmap Conformance Scope | Child-UR, PRD, SD und TP sind separat genehmigt; Brownfield Analysis ist `pass`; keine Parent-Approval-Vererbung. |\n| Child OR | fulfills | TP RMP-06 | QA und UAT akzeptiert; 16 Passes, 8 Limitierungen und 12 `host_unavailable` unverändert als BL-11/WS-01 verlinkt. |\n| RMP-07 Assessment | evaluates | BL-10 und BL-11 | `no_child_scope_yet`; Modus-/Hostgrenzen sind keine Über-/Unter-Governance-Evidenz. |\n| Proportionality Baseline | resolves | RMP-07 evidence prerequisite | 40 reale Fälle, sechs Pfade, 19 adversariale Fälle und 40/40 kanonische Quellen. |\n| Proportionality Scope | derived_from | Baseline und RMP-07 Assessment | Child-UR wurde separat genehmigt; keine Approval-Vererbung. |\n| Child UR | derived_from | Proportionality Scope | PBM-1 bis PBM-8; separat exakt genehmigt. |\n| Child Brownfield Review | sizes | Child UR | `structured_slice`; deterministischer Benchmark in bestehenden Ownern. |\n| Child PRD | derived_from | Child UR und Brownfield Review | PBM-1 bis PBM-12; separat exakt genehmigt. |\n| Child SD | derived_from | Child PRD | Source-fingerprinted Decision-Fixtures, bestehende Validatoren und eine gemeinsame Ergebnis-/Berichtspipeline. |\n| Child TP | derived_from | Child SD | Brownfield-/Architektur-Proof vor Safety Core, 40-Fall-Corpus, Integration, Reviews und QA. |\n| Child Brownfield Analysis | prepares | Child TP | `revise`; Evidenzmodell muss im PRD bewusst entschieden werden, bevor Implementierung zulässig ist. |\n| Child PRD Revision 2 | resolves | Child Brownfield Analysis | Nutzer wählt frische wiederholte Agent-Beobachtung und deterministisches Grading/Replay. |\n| Child SD Revision 2 | derived_from | Child PRD Revision 2 | Blind-Corpus und Live-Aufzeichnung bleiben strikt vom Offline-Grading getrennt. |\n| Child SD Revision 2 | approved_by | Approval: SD | Exakte separate Freigabe am 2026-07-28 nach Child-Revision 7. |\n| Child TP Revision 2 | derived_from | Child SD Revision 2 | Safety Core, fixe Live-Agent-Serie, Offline-Grading, Reviews und QA. |\n| Child TP Revision 2 | approved_by | Approval: TP | Exakte separate Freigabe am 2026-07-28 nach Child-Revision 8. |\n| Child Brownfield Analysis Revision 2 | prepares | Child TP Revision 2 | `pass`; Codex 0.145.0 mit explizitem `gpt-5.6-sol` ist authentifiziert, read-only und mutationsfrei vorgeprüft. |\n| Child CD+Tests | implements | Child TP Revision 2 | 18/18 Tasks einschließlich frischer 120er-Serie und deterministischem Bericht ausgeführt. |\n| Child QA | evaluates | Child Benchmark | `block`; 27/40 Fälle ambiguous, daher separate Produktentscheidung nötig. |\n| Ambiguitäts-Produktbefund | evaluates | Child QA block | 26 Fälle messen einen pre-UR Zustand gegen post-Brownfield Sollpfade; `PB-008` vermischt read-only Zielklärung und Produktänderung. |\n| Protokoll-Child UR | derived_from | Ambiguitäts-Produktbefund | Eigene Revision 1; keine Parent- oder Vorgänger-Approval-Vererbung. |\n| Protokoll-Child Brownfield | sizes | Protokoll-Child UR | `structured_slice`; UI/UX `low`, keine UX Intent Definition erforderlich. |\n| Protokoll-Child PRD | derived_from | Protokoll-Child UR | Revision 1 ist separat exakt freigegeben. |\n| Protokoll-Child SD | derived_from | Protokoll-Child PRD | Revision 1 ist separat exakt freigegeben. |\n| Protokoll-Child TP | approved_by | Approval: TP | Revision 1 am 2026-07-29 separat exakt freigegeben. |\n| Protokoll-Child Live-Serie | implements | Protokoll-Child TP | 216/216 gültige Observationen, ein Timeout-Retry, keine Safetyfehler. |\n| Protokoll-Child QA | evaluates | Protokoll-Child Live-Serie | `block`; TP 24/24 und Reviews pass, aber zwei Critical Under, drei Stage-Abweichungen und acht Mixed/Ambiguous; Gate-Checker-Approval-Projektion als separater Produktgap. |\n| Staged Product Findings | evaluates | Protokoll-Child QA | Benchmark-Semantik/-Evidenz, Structured-Depth-Requirements und QA-Transition getrennt; kein Autoritätsbypass belegt. |\n| Enforcement Closure Scope | derived_from | SPF-06 | Garantie, Owner, Zielklasse und negativer Test für QA-Block Transition Integrity. |\n| QA Transition Child UR | derived_from | Enforcement Closure Scope | QBT-1 bis QBT-7; Parent-Approvals werden nicht vererbt. |\n| QA Transition Child OR | fulfills | RMP-08 / WS-03 | Completed repository-tested closure with no new gate or approval value. |\n| Structured Depth Child OR | resolves | SPF-05 / WS-02 prerequisite | Accepted Modes-owned boundary with exact QA/UAT approvals and 58/58 deterministic evals. |\n| RMP-11 Revalidation | reconciles | Child ORs and Parent registers | Existing owners reused by link; Context Graph remains link-only; no silent scope transfer. |\n| Staged Findings Reconciliation | routes | Benchmark v3 | SPF-01 through SPF-04 remain a bounded separate child; RMP-09 remains without a safe child scope. |\n| Benchmark v3 Child UR | approved_by | `Approval: UR` | Revision 1 approved exactly on 2026-08-19 without inheriting Parent approvals. |\n| Benchmark v3 Child Brownfield Review | routes | Benchmark v3 PRD | Full depth follows from the compatibility-sensitive public CLI/profile contract. |\n| Benchmark v3 Child PRD | approved_by | `Approval: PRD` | Revision 1 approved exactly on 2026-08-19 without authority inheritance. |\n| Benchmark v3 Child SD | approved_by | `Approval: SD` | Revision 1 approved exactly on 2026-08-19 without authority inheritance. |\n| Benchmark v3 Child TP | approved_by | `Approval: TP` | Revision 1 approved exactly on 2026-08-19 without Parent authority inheritance. |\n| Benchmark v3 Child QA | approved_by | `Approval: QA` | Passing QA report approved exactly on 2026-08-19. |\n| Benchmark v3 Child OR | fulfills | SPF-01 through SPF-04 / WS-02 | UAT accepted; 24/24 tasks, v3 corpus/replay and historical-integrity evidence close the bounded remediation. |\n| RMP-11 Benchmark v3 Revalidation | reconciles | Child OR and Parent registers | BL-14, WS-02, Brownfield fit and Context Graph link-only boundary match the completed Child without scope transfer. |\n| RMP-10 Aggregate Acceptance | evaluates | PMR-1 through PMR-7 | Revision 2 is startable but not final; PMR-1 is satisfied with limits, PMR-5 is partial and PMR-6 has a critical direct-UAT evidence gap, so RMP-12 stays closed. |\n| Task Target OR | supports | PMR-2, PMR-5 and PMR-7 | QA/UAT accepted; 13/13 tasks and TTR-1 through TTR-10 pass with live-host limits retained. |\n| Interaction Ownership OR | supports | PMR-1, PMR-2, PMR-5 and PMR-7 | QA/UAT accepted; 12/12 tasks, Compact Delivery and code-owned status projection pass with release/install limits retained. |\n| RMP-10 Aggregate Acceptance Revision 2 | re_evaluates | PMR-1, PMR-5 and PMR-6 | PMR-1 is satisfied with limits, PMR-5 is partial pending Single Install UAT and PMR-6 remains a critical direct-UAT evidence gap. |\n| Single Install OR | supports | PMR-2, PMR-3 and PMR-5 | QA/UAT accepted; 6/6 tasks and one durable activation owner pass with authenticated live-host evidence retained as a non-claim. |\n| RMP-10 Aggregate Acceptance Revision 3 | re_evaluates | PMR-5 and PMR-6 | PMR-5 is satisfied with limits; PMR-6 remains open with a ready eight-scenario protocol and 0/8 direct observations. |\n| Understandability UAT Protocol | prepares | PMR-6 direct evidence | Parent-owned evidence obligation defines blinded participants, eight immutable scenarios, four-question scoring and fail-closed routing without authorizing a product Child. |\n| Participant availability | constrains | Understandability UAT Protocol execution | User confirmed 0/4 independent participants currently available; protocol remains ready, PMR-6 stays open and no substitute evidence is valid. |\n| RMP-10 Aggregate Acceptance Revision 4 | records | external PMR-6 evidence dependency | RMP-10 remains startable but not final, with 0/8 observations and RMP-12 closed until the resume condition is met. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Akzeptierte Compact-Interaction- und lokale Validator-Lösung | `agdf-interaction-ownership-quick-path-ux/OR.md` | R1, Teile von R2 und R5 | user_accepted |\n| Akzeptierte vorgelagerte Task-Target-Grenze | `task-target-resolution-boundary/OR.md` | Mehrturn-Zielbindung und UAT-Baseline | user_accepted |\n| Akzeptierte Single-Install-Aktivierung | `opencode-single-install-activation/OR.md` | PMR-5 canonical owner completion and OpenCode activation boundary | user_accepted |\n| Understandability UAT Protocol | `agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md` | PMR-6 direct-observation method, scenarios, scoring and stop conditions | direct |\n| Aktive OpenCode Enforcement-/Host-Lücken | `opencode-surface-hardening-parity`; `opencode-plugin-honesty-hardening` | R2 und R3 | direct |\n| Bestehende proportionale Pfade und Erklärbarkeit | Modes, Gate Transition, Scope Classification, Gate Rationale | R1 und R4 | direct |\n| Akzeptierte Live Host Conformance | `agdf-live-host-conformance-matrix/OR.md`; BL-11 | R2, R3, R6 und Grenzen für RMP-07 bis RMP-10 | user_accepted |\n| QA Transition Closure | `agdf-qa-block-transition-integrity/OR.md`; BL-12 | R2, R7 and WS-03 exit evidence | repository_tested |\n| Structured Depth Boundary | `agdf-structured-delivery-depth-boundary/OR.md`; BL-13 | R1, R4, R7 and Benchmark v3 prerequisite | user_accepted |\n| Benchmark v3 Child closeout | `agdf-staged-proportionality-baseline-v3/OR.md`; BL-14 | SPF-01 through SPF-04 resolved in v3 with protected history and explicit live-host non-claim | user_accepted |\n| Aggregate Acceptance | `agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | current PMR-1 through PMR-7 coverage, limitations and RMP-10 readiness | direct |\n\n## Missing Evidence\n\n- authenticated evaluator evidence for OpenCode parity;\n- at least four independent participants and eight valid direct blinded observations required by PMR-6;\n- authenticated native-UI, multi-turn and restart conformance remains an accepted BL-11 boundary.\n\n## Risks\n\n- Mega-Run statt kleiner unabhängiger Arbeitslinien.\n- Duplikation bestehender Interaction-, Routing-, Enforcement- oder Presentation-Owner.\n- UX-Vereinfachung verbirgt Autorität oder Evidenz.\n- Repository-/Replay-Evidenz wird als Live-Host-Nachweis missverstanden.\n\n## Context Graph Impact\n\n- context_graph_impact: `link_only`\n- context_graph_refs: `CG-TASK-TARGET-AUTHORITY`; `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-DOCUMENTATION-CEREMONY-BOUNDARY`; `CG-DELIVERY-PATH-SEARCH`; `CG-RUN-STATUS-CARD`; `CG-UX-INTENT-BEFORE-PRD`\n- context_graph_reconciliation: `resolved`\n- context_graph_required_action: `none`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: Brownfield Review entscheidet `link_only`; die Roadmap koordiniert bestehende Autoritätsknoten und schafft noch keine neue Architekturautorität.\n\n## Closeout\n\n- delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; completed QA Transition, Structured Depth, Benchmark v3, Task Target, Interaction Ownership and Single Install outcomes; RMP-10 Revision 3 with PMR-1/PMR-5 satisfied-with-limits; Parent-owned PMR-6 eight-scenario UAT protocol ready without a product Child.\n- intentionally_not_delivered: speculative Unified Journey scope, final RMP-10 acceptance, RMP-12 reviews/QA/UAT, VCS and release.\n- next_allowed_action: Wait until at least four independent participants are available, then execute the eight observations in `UNDERSTANDABILITY_UAT_PROTOCOL.md`; keep RMP-12 closed.\n- quality_outlook: Preserve canonical owner boundaries and add direct understandability UAT before claiming the simpler Journey is mature.\n",
+  "source_artefacts": [
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/UR.md",
+      "status": "valid",
+      "digest": "sha256:5636033db2f6c982c8ea0bfff76e767431bf2a3462e4b9a82d7e4b5c85e91643"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:bfa67909d54898db0f81c0b124a2096f807b3a2d9fcb68884d0bb8f169c5cc76"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/UX_INTENT_DEFINITION.md",
+      "status": "valid",
+      "digest": "sha256:afededd1513096cfcc2eb08af4ac09265257fbfb0da7aa8b0dda9bf2eb2d3bee"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PRD.md",
+      "status": "valid",
+      "digest": "sha256:abbc0f7299ee0a335becc800b26ce7b53c83050deb17be39ef9ffdc6a2e08968"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/SD.md",
+      "status": "valid",
+      "digest": "sha256:dfb225d0136b3e7f18d190798daca8ff59abe6f696a922063636bfb9d33b03cd"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/TP.md",
+      "status": "valid",
+      "digest": "sha256:3788f4aab3bbf6918142a9d3b797576673a43e34bc08a4ee8f119ddaf57e255b"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_ANALYSIS.md",
+      "status": "valid",
+      "digest": "sha256:d0d588356e5c6207192c0d653719814334226e0dd6f84def74cf9474d2412c79"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md",
+      "status": "valid",
+      "digest": "sha256:c80fc63c92c318a5306504060fb741394d90b83b659f1296fc9fbf1cdb2a435a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md",
+      "status": "valid",
+      "digest": "sha256:38031ed84beea1cfd41a1954894d5f3da2bcf472de581904d0ee3fc1d3d850d4"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md",
+      "status": "valid",
+      "digest": "sha256:adbe1faf661bb65c98980eabb313bd22c88f8a16ee43cedc42ef390ebb0a42ba"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_SCOPE_ASSESSMENT.md",
+      "status": "valid",
+      "digest": "sha256:35894e32c27e6c24da145aab829f16fa5c4c3b28279b96957b58737830a77f89"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_BASELINE.json",
+      "status": "valid",
+      "digest": "sha256:ede47f3d26eea49ddfd096d681d0fe46cdf463ebde8ac05d1fcde36482e07246"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_SCOPE.md",
+      "status": "valid",
+      "digest": "sha256:cb1208a719e4b8075226897b1bf69de1b15612e967c138b5c578f76b375b5842"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BASELINE_TESTS.md",
+      "status": "valid",
+      "digest": "sha256:a2ab05084da824bd8c393a6da9d4297b4814e09bf4b1f373888bceedf323bb71"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/UR.md",
+      "status": "valid",
+      "digest": "sha256:a7dc4637e371f6b05d82f2ef713070bd5725a5fb793ec7accee6f66098436413"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:d5c273d32574872390d369895142cf49911e68d502488b98e3874e7ab11b1ccf"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/PRD.md",
+      "status": "valid",
+      "digest": "sha256:3615dab9864b969d15a32a47d71f9b29ee4f04f6147a0ac3a798f04cbc288e48"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/SD.md",
+      "status": "valid",
+      "digest": "sha256:30630286a803da3b37e3bf39eefcc073bbe2133c994cbd924896ee5119020c95"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/TP.md",
+      "status": "valid",
+      "digest": "sha256:73682f2b6e759ee10aa850d8cb034c832623f26fc10a2da7ccf30c6ab25bacd0"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_ANALYSIS.md",
+      "status": "valid",
+      "digest": "sha256:963583030c6bd7e06456437adb7d1efa3beed6800eca00c120a58e1ec6e4d535"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/CD_TESTS.md",
+      "status": "valid",
+      "digest": "sha256:79b882cc624c0f3487d5aae3ef850253b50827882658533242db1b5a37a89092"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/PROPORTIONALITY_BENCHMARK_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:51ad80651a0305b278d4469fd9fe0ad5158612f504ee5aac110a7f21bcb049ec"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/TASK_PLAN_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:97cfecaab8554520f40cec1ce7bbc8505a1b095748b500f190c3d9f69f43d20b"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-proportionality-benchmark/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:053ba438bf7f450c2226fcfe1a33653f7df12b5062bf588920d607a3930cf682"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md",
+      "status": "valid",
+      "digest": "sha256:a42557423d18ad9b14133be3d4c7240e43b84d99ef3cca6c01afb47fd2086242"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md",
+      "status": "valid",
+      "digest": "sha256:c9b784a97760a7babe419fb3a5a88170e289e9c9550aafb12ec1f484d1a2ee43"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:65a4363f303316eefa41452f96943af03a09afc436f53932e843de388e419aca"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md",
+      "status": "valid",
+      "digest": "sha256:35488a18cea71516d36c43e9ccddb98ac162dd05684eff8f41553268c7f27404"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md",
+      "status": "valid",
+      "digest": "sha256:f1dcfa3777e4205072b5be6dcfb13b46500d09bc381092571d06dde1ab2109eb"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md",
+      "status": "valid",
+      "digest": "sha256:d8c90c871037a95f7915d922608ed30a1a2862252a7f339c756ae14019e0c21a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:fecc47b22f5037a3c0866c260289d5ca171dbec71c99094d87225aee25d02b9a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md",
+      "status": "valid",
+      "digest": "sha256:7585b0d69c270f2906c2497be1496fe36e8ba3e3aefc34fbdce3868b374ee4e7"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/STAGED_PRODUCT_FINDINGS_ASSESSMENT.md",
+      "status": "valid",
+      "digest": "sha256:5709a36b4aa07b6cd7d593d2c1ea43e2f9501cd3129b59e2d60096197d53e8bd"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-product-maturity-roadmap/ENFORCEMENT_CLOSURE_SCOPE.md",
+      "status": "valid",
+      "digest": "sha256:a171a9539afa046c1e028df0307ef4d50d355b9741a69124f369977f37688e99"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-qa-block-transition-integrity/OR.md",
+      "status": "valid",
+      "digest": "sha256:981193dd0456053f2ccad82ccfb95617ef3248bc09ce155c42f23173e5cee89e"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-structured-delivery-depth-boundary/OR.md",
+      "status": "valid",
+      "digest": "sha256:c935315fd24501183739dd417f45419e849834b21cd7a84cbb8b347691bba81d"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/UR.md",
+      "status": "valid",
+      "digest": "sha256:3a1ff8146cd8cb403fa95279840ea70b776200abb6592f4d74302d31f61233d2"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:db8ddbbd8475444d68e2cb2b5746a2d85e194e1a8a599c1dfb6a05c6db36e653"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/PRD.md",
+      "status": "valid",
+      "digest": "sha256:16a2ee7518b9049ff7e05572e6c94186363159fb4e06c5d252a3f671104ef90a"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/SD.md",
+      "status": "valid",
+      "digest": "sha256:032c3218c00f809f30adc3d2c178517d84416e5d816c12838448ddde4f3a8338"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/TP.md",
+      "status": "valid",
+      "digest": "sha256:f34c90cf6c522052d014ff55fd38ab4cabcfcce57228133acd5c660cdc792055"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:6977080a7334f8cc3ced0b684f312c2f483ad2325cdd074315d75df649cf7dce"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/OR.md",
+      "status": "valid",
+      "digest": "sha256:183a7b4a822368654b8351e65c2b581547d8f6eb654c78c38d5bf4098e49cf95"
+    },
+    {
+      "path": ".agdf/control/artefacts/task-target-resolution-boundary/OR.md",
+      "status": "valid",
+      "digest": "sha256:ac47309f5c124cb3b1b02287585d0bff5155398aabf03f8a453a8334049d9568"
+    },
+    {
+      "path": ".agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/OR.md",
+      "status": "valid",
+      "digest": "sha256:f8981c188cf7158cc3fe22349c9f1e3059ea9b6eccfc76954fd0f48684c3bfb4"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-single-install-activation/OR.md",
+      "status": "valid",
+      "digest": "sha256:211e0204e5dd2d382342692334084682f445dcbf542f4ff783a0925b2ef1a496"
+    }
+  ],
+  "git_history": {
+    "status": "available",
+    "candidates": [
+      {
+        "commit": "5a70b14669674550596d0290f1888dd4b8bd0b28",
+        "revision_id": "5af25162-0b2a-452e-89ed-d3b3b19ad762",
+        "content_digest": "sha256:0e47e5238016d3863631120576941530f5709bf251c23ebc912b1530d43abbd1",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      },
+      {
+        "commit": "d32e72bf3723c8fec23668e40213d25f54ea58ef",
+        "revision_id": "70b53f4e-ad2e-4c2d-8263-a413033d72be",
+        "content_digest": "sha256:bc265e2551ad074352d2bfaf146cde7dcff3328b138e132265bff36491d73d00",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      },
+      {
+        "commit": "c25f7825700f9a7235d3248be031aafbb96e0fc5",
+        "revision_id": "0521911b-f0b1-462b-a742-74cc3dd64293",
+        "content_digest": "sha256:c4151ca30e62e09b409dcdbad9927d62aa8336febe98b6527202776aa8664f05",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      },
+      {
+        "commit": "1215d5b454e45883c8f63aa6db73633abf590af9",
+        "revision_id": "69ac043e-5f13-411e-8448-0300bc4ea210",
+        "content_digest": "sha256:78048880f703e117f280e692c05d5abbe82f5f9c887893b2f65ab215b3de0f0c",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      },
+      {
+        "commit": "60d3a2eb1c91cd500e3bc7f63fdd9cab6e9eb484",
+        "revision_id": "e744823d-103c-467e-8c91-c230a2ff8ea5",
+        "content_digest": "sha256:18bcfc20e9a6205a6ae09fa3b9b3ae18f87a1d608e600a76b4550d24bb5c4427",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      }
+    ]
+  },
+  "prior_approvals": [
+    {
+      "section": "Approvals",
+      "gate": "UR",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: UR` am 2026-07-28 nach Run-, Ziel- und Scope-Revalidierung."
+    },
+    {
+      "section": "Approvals",
+      "gate": "PRD",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: PRD` am 2026-07-28 nach same-run, same-gate, revision-4 und durable-artefact revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "SD",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: SD` am 2026-07-28 nach same-run, same-gate, revision-5 und durable-artefact revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "TP",
+      "status": "approved",
+      "evidence": "Exaktes `Approval: TP` am 2026-07-28 nach same-run, same-gate, revision-6 und durable-artefact revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "QA",
+      "status": "missing",
+      "evidence": "Nicht zulässig."
+    },
+    {
+      "section": "Approvals",
+      "gate": "UAT",
+      "status": "missing",
+      "evidence": "Nicht zulässig."
+    }
+  ],
+  "approval_provenance": "no_independent_provenance",
+  "approvals_to_invalidate": [
+    "UR",
+    "PRD",
+    "SD",
+    "TP",
+    "QA",
+    "UAT"
+  ],
+  "next_gate": "UR",
+  "next_revision_id": "eb4ce093-db17-4daa-9261-c1a798243e9c",
+  "candidate_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: agdf-product-maturity-roadmap\n- lifecycle: active\n- revision: 48\n- revision_id: 5af25162-0b2a-452e-89ed-d3b3b19ad762\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: user / agent\n\n## Objective\n\nAGDF entlang fünf evidenzbasierter Reifegradlinien weiterentwickeln: weniger sichtbare Zeremonie,\nehrliche technische Durchsetzung, echte Host-/Mehrturn-Conformance, bessere Proportionalität und\neinfachere Nutzerinteraktion.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |\n| What is approved? | Nothing yet. |\n| What is missing? | Exact Approval: UR. |\n| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |\n| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |\n\n## Source And Scope State\n\n- primary_target: AGDF-Produktreifegrad-Roadmap\n- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- evidence_sources: aktuelle AGDF-Contracts, Skills, Control State, aktive und abgeschlossene Runs, Repository-Tests und explizite Live-Host-Evidenzgrenzen\n- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- scope_stability: durch den unmittelbar vorausgehenden benannten Run und exaktes `Approval: UR` bestätigt\n- competing_scope_lines: `task-target-resolution-boundary`, `agdf-interaction-ownership-quick-path-ux`, `opencode-single-install-activation`, `opencode-surface-hardening-parity` und weitere aktive Runs bleiben eigenständig\n- excluded_mutation_targets: Implementierungscode, bestehende fremde Runs, VCS, Release und Reinstall\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UR.md` | approved | Fünf Reifegradlinien, Lieferstrategie, Akzeptanzsignale und Nicht-Ziele. |\n| Brownfield Review | `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_REVIEW.md` | done | `structured_delivery`; Roadmap koordiniert, Implementierung wird in eigenständige Runs geschnitten. |\n| UX Intent Definition | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UX_INTENT_DEFINITION.md` | ready | High-Impact-Analyse; Ziel, Modi, Zustände, Blocker, Recovery und PRD-Kriterien definiert. |\n| PRD | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PRD.md` | approved | PMR-1 bis PMR-7; freigegeben 2026-07-28. |\n| SD | `.agdf/control/artefacts/agdf-product-maturity-roadmap/SD.md` | approved | AD-1 bis AD-10; freigegeben 2026-07-28. |\n| TP | `.agdf/control/artefacts/agdf-product-maturity-roadmap/TP.md` | approved | RMP-01 bis RMP-12; freigegeben 2026-07-28. |\n| Brownfield Analysis | `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_ANALYSIS.md` | done | Pass; Phase A bleibt auf run-eigene Control-Artefakte begrenzt. |\n| CD+Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/CD_TESTS.md` | in_progress | RMP-01 through RMP-08 done; RMP-09 has an evidence-only direct-UAT protocol; RMP-10 Revision 4 waits on external participants; RMP-12 remains closed. |\n| Aggregate Acceptance | `.agdf/control/artefacts/agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | in_progress | Revision 4: PMR-1 and PMR-5 are satisfied with limits; PMR-6 retains a critical direct-UAT evidence gap with 0/8 observations and 0/4 available participants. |\n| Understandability UAT Protocol | `.agdf/control/artefacts/agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md` | ready_for_execution | Protocol is complete, but execution is blocked by unavailable external participants; no substitute evidence is permitted. |\n| RMP-07 Assessment | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_SCOPE_ASSESSMENT.md` | completed | Baseline-Eingangsevidenz erfüllt; Child-Scope gerechtfertigt. |\n| Proportionality Baseline | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_BASELINE.json` | ready | 40 reale Fälle, sechs Pfade, 19 adversariale Fälle, 40/40 Quellen. |\n| Proportionality Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BENCHMARK_SCOPE.md` | ready_for_child_ur | Benchmark erweitert bestehende Eval-Owner und bewahrt alle PMR-4-Schwellen. |\n| Proportionality Tests | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_BASELINE_TESTS.md` | pass | Struktur-, Coverage-, Adversarial-, Referenz-, Redaction-, Schwellen- und Scope-Prüfungen grün. |\n| Child UR | `.agdf/control/artefacts/agdf-proportionality-benchmark/UR.md` | approved | Exaktes Child-`Approval: UR` am 2026-07-28; Parent-Approvals wurden nicht vererbt. |\n| Child Brownfield Review | `.agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_REVIEW.md` | done | Pass; `structured_slice`; bestehende Eval-/Routing-Owner erweitern, keine zweite Autorität. |\n| Child PRD | `.agdf/control/artefacts/agdf-proportionality-benchmark/PRD.md` | approved | Revision 2; exakt freigegeben 2026-07-28. |\n| Child SD | `.agdf/control/artefacts/agdf-proportionality-benchmark/SD.md` | approved | Revision 2; separat exakt freigegeben 2026-07-28. |\n| Child TP | `.agdf/control/artefacts/agdf-proportionality-benchmark/TP.md` | approved | Revision 2; separat exakt freigegeben 2026-07-28. |\n| Child Brownfield Analysis | `.agdf/control/artefacts/agdf-proportionality-benchmark/BROWNFIELD_ANALYSIS.md` | done | Pass; bestehende Safety-Primitiven erweitern; expliziter Codex-/Modell-/Auth-/Budget-Preflight grün. |\n| Child CD+Tests | `.agdf/control/artefacts/agdf-proportionality-benchmark/CD_TESTS.md` | done | Implementierung, Smoke und frische 120er-Serie vollständig. |\n| Child Benchmark | `.agdf/control/artefacts/agdf-proportionality-benchmark/PROPORTIONALITY_BENCHMARK_REPORT.md` | block | 13 korrekt, 27 ambiguous, 0 Critical Under, 0/8 Small Over. |\n| Child Reviews | `.agdf/control/artefacts/agdf-proportionality-benchmark/TASK_PLAN_REVIEW.md` | pass | TP 18/18; Clean/Code Review ebenfalls pass. |\n| Child QA | `.agdf/control/artefacts/agdf-proportionality-benchmark/QA_REPORT.md` | block | Ambiguitäts-Stop-Bedingung greift; keine QA-Freigabe. |\n| Ambiguitäts-Produktbefund | `.agdf/control/artefacts/agdf-product-maturity-roadmap/PROPORTIONALITY_AMBIGUITY_ASSESSMENT.md` | assessed | 26 Protocol-Stage-Mismatches, ein Baseline-Semantikfehler, null belegte Routingfehler; separater Protokoll-Child gerechtfertigt. |\n| Protokoll-Child UR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/UR.md` | approved | SPO-1 bis SPO-8; exakt freigegeben 2026-07-29. |\n| Protokoll-Child Brownfield | `.agdf/control/artefacts/agdf-staged-proportionality-observation/BROWNFIELD_REVIEW.md` | done | Pass; `structured_slice`; vorhandene Pipeline erweitern. |\n| Protokoll-Child PRD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/PRD.md` | approved | Stage-/Pfadtrennung, Blindheit, historische Integrität und getrenntes Grading; exakt freigegeben 2026-07-29. |\n| Protokoll-Child SD | `.agdf/control/artefacts/agdf-staged-proportionality-observation/SD.md` | approved | Eine profilfähige Pipeline, 72 Pflichtscenarios, Schema v2 und Legacy-Integritätsgrenze; exakt freigegeben 2026-07-29. |\n| Protokoll-Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-observation/TP.md` | approved | Revision 1; exakt freigegeben 2026-07-29. |\n| Protokoll-Child QA | `.agdf/control/artefacts/agdf-staged-proportionality-observation/QA_REPORT.md` | block | Fresh r3 216/216; TP 24/24, Clean/Code pass; Block ausschließlich durch gültige Produktabweichungen. |\n| Protokoll-Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-observation/OR.md` | block | OR-full; Produktbefund upstream bewerten, kein Delivery-Handoff. |\n| Staged Product Findings | `.agdf/control/artefacts/agdf-product-maturity-roadmap/STAGED_PRODUCT_FINDINGS_ASSESSMENT.md` | reconciled | QA Transition, Depth and bounded Benchmark v3 paths completed; Unified Journey still has no safe child scope. |\n| Enforcement Closure Scope | `.agdf/control/artefacts/agdf-product-maturity-roadmap/ENFORCEMENT_CLOSURE_SCOPE.md` | ready_for_child_ur | QA-Block-Approval-Projektion, bestehender Owner und negativer Test. |\n| QA Transition Child OR | `.agdf/control/artefacts/agdf-qa-block-transition-integrity/OR.md` | complete | OR `pass`; QA-`block` no longer requests approval and contradictory stored approval remains fail-closed. |\n| Structured Depth Child OR | `.agdf/control/artefacts/agdf-structured-delivery-depth-boundary/OR.md` | complete | QA-approved and UAT-accepted Modes-owned boundary; 14/14 tasks and 58/58 evals; no Benchmark mutation. |\n| Benchmark v3 Child UR | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/UR.md` | approved | Revision 1 approved exactly on 2026-08-19 without inheriting Parent approvals. |\n| Benchmark v3 Child Brownfield Review | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/BROWNFIELD_REVIEW.md` | done | Structured Delivery selected through complete Depth facts; public CLI/profile compatibility is decisive. |\n| Benchmark v3 Child PRD | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/PRD.md` | approved | Revision 1 approved exactly on 2026-08-19. |\n| Benchmark v3 Child SD | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/SD.md` | approved | Revision 1 approved exactly on 2026-08-19. |\n| Benchmark v3 Child TP | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/TP.md` | approved | Revision 1 approved exactly on 2026-08-19; 24/24 tasks subsequently completed. |\n| Benchmark v3 Child QA | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/QA_REPORT.md` | pass | QA passed and was exactly approved on 2026-08-19. |\n| Benchmark v3 Child OR | `.agdf/control/artefacts/agdf-staged-proportionality-baseline-v3/OR.md` | complete | UAT accepted and OR `pass`; repository scope closed with authenticated live behavior explicitly unclaimed. |\n| Task Target Child OR | `.agdf/control/artefacts/task-target-resolution-boundary/OR.md` | complete | QA/UAT accepted; target authority and fail-closed ambiguity behavior pass with host limits retained. |\n| Interaction Ownership Child OR | `.agdf/control/artefacts/agdf-interaction-ownership-quick-path-ux/OR.md` | complete | QA/UAT accepted; Compact Delivery and one code-owned operational projection pass with release/install limits retained. |\n| Single Install Child OR | `.agdf/control/artefacts/opencode-single-install-activation/OR.md` | complete | QA/UAT accepted; durable activation and no local runtime duplication pass with live OpenCode observation retained as a non-claim. |\n| QA |  | missing | Nicht zulässig. |\n\n## Mode/Slice Decision\n\n- decision: `structured_delivery`\n- required_next_gate: PRD\n- scope_reason: Mehrere Hosts, Produktversprechen, UX, Routing-Qualität und Enforcement-Transparenz erfordern einen strukturierten Rahmen; ausführbare Arbeit bleibt in getrennten Runs.\n- evidence: `.agdf/control/artefacts/agdf-product-maturity-roadmap/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | approved_by | `Approval: UR` | Exakte Freigabe am 2026-07-28 für `agdf-product-maturity-roadmap`. |\n| UR | constrained_by | bestehende aktive und abgeschlossene AGDF-Runs | Brownfield Review muss Wiederverwendung und Scope-Grenzen bestimmen. |\n| Brownfield Review | sizes | UR | `structured_delivery`; bestehende Owner wiederverwenden und ausführbare Restlücken in getrennte Runs schneiden. |\n| UX Intent Definition | informs | PRD | Entscheidung `ready`; Nutzerziel, Modi, Zustände, Blocker, Recovery und zehn vorgeschlagene Akzeptanzkriterien. |\n| PRD | derived_from | UR | PMR-1 bis PMR-7 operationalisieren die fünf genehmigten Reifegradlinien ohne gemeinsamen Implementierungs-Scope. |\n| PRD | approved_by | `Approval: PRD` | Exakte Freigabe am 2026-07-28 nach Revalidierung von Run, Gate, Revision 4 und dauerhaftem Artefakt. |\n| SD | derived_from | PRD | AD-1 bis AD-10 definieren Programmgrenze, unabhängige Child-Runs, vorhandene Owner und evidence-first Reihenfolge. |\n| SD | approved_by | `Approval: SD` | Exakte Freigabe am 2026-07-28 nach Revalidierung von Run, Gate, Revision 5 und dauerhaftem Artefakt. |\n| TP | derived_from | SD | RMP-01 bis RMP-12 planen Parent-Koordination und getrennte Child-Gates ohne Roadmap-Code-Scope. |\n| TP | approved_by | `Approval: TP` | Exakte Freigabe am 2026-07-28 nach Revalidierung von Run, Gate, Revision 6 und dauerhaftem Artefakt. |\n| Brownfield Analysis | prepares | Parent Phase A | Pass; bestehende Run-/Backlog-/Artefakt-Owner reichen ohne Runtime-Änderung aus. |\n| CD+Tests Phase A | implements | TP RMP-01 bis RMP-04 | Baseline-, Workstream- und Conformance-Scope-Artefakte erstellt. |\n| Child UR/PRD/SD/TP | derived_from | Roadmap Conformance Scope | Child-UR, PRD, SD und TP sind separat genehmigt; Brownfield Analysis ist `pass`; keine Parent-Approval-Vererbung. |\n| Child OR | fulfills | TP RMP-06 | QA und UAT akzeptiert; 16 Passes, 8 Limitierungen und 12 `host_unavailable` unverändert als BL-11/WS-01 verlinkt. |\n| RMP-07 Assessment | evaluates | BL-10 und BL-11 | `no_child_scope_yet`; Modus-/Hostgrenzen sind keine Über-/Unter-Governance-Evidenz. |\n| Proportionality Baseline | resolves | RMP-07 evidence prerequisite | 40 reale Fälle, sechs Pfade, 19 adversariale Fälle und 40/40 kanonische Quellen. |\n| Proportionality Scope | derived_from | Baseline und RMP-07 Assessment | Child-UR wurde separat genehmigt; keine Approval-Vererbung. |\n| Child UR | derived_from | Proportionality Scope | PBM-1 bis PBM-8; separat exakt genehmigt. |\n| Child Brownfield Review | sizes | Child UR | `structured_slice`; deterministischer Benchmark in bestehenden Ownern. |\n| Child PRD | derived_from | Child UR und Brownfield Review | PBM-1 bis PBM-12; separat exakt genehmigt. |\n| Child SD | derived_from | Child PRD | Source-fingerprinted Decision-Fixtures, bestehende Validatoren und eine gemeinsame Ergebnis-/Berichtspipeline. |\n| Child TP | derived_from | Child SD | Brownfield-/Architektur-Proof vor Safety Core, 40-Fall-Corpus, Integration, Reviews und QA. |\n| Child Brownfield Analysis | prepares | Child TP | `revise`; Evidenzmodell muss im PRD bewusst entschieden werden, bevor Implementierung zulässig ist. |\n| Child PRD Revision 2 | resolves | Child Brownfield Analysis | Nutzer wählt frische wiederholte Agent-Beobachtung und deterministisches Grading/Replay. |\n| Child SD Revision 2 | derived_from | Child PRD Revision 2 | Blind-Corpus und Live-Aufzeichnung bleiben strikt vom Offline-Grading getrennt. |\n| Child SD Revision 2 | approved_by | Approval: SD | Exakte separate Freigabe am 2026-07-28 nach Child-Revision 7. |\n| Child TP Revision 2 | derived_from | Child SD Revision 2 | Safety Core, fixe Live-Agent-Serie, Offline-Grading, Reviews und QA. |\n| Child TP Revision 2 | approved_by | Approval: TP | Exakte separate Freigabe am 2026-07-28 nach Child-Revision 8. |\n| Child Brownfield Analysis Revision 2 | prepares | Child TP Revision 2 | `pass`; Codex 0.145.0 mit explizitem `gpt-5.6-sol` ist authentifiziert, read-only und mutationsfrei vorgeprüft. |\n| Child CD+Tests | implements | Child TP Revision 2 | 18/18 Tasks einschließlich frischer 120er-Serie und deterministischem Bericht ausgeführt. |\n| Child QA | evaluates | Child Benchmark | `block`; 27/40 Fälle ambiguous, daher separate Produktentscheidung nötig. |\n| Ambiguitäts-Produktbefund | evaluates | Child QA block | 26 Fälle messen einen pre-UR Zustand gegen post-Brownfield Sollpfade; `PB-008` vermischt read-only Zielklärung und Produktänderung. |\n| Protokoll-Child UR | derived_from | Ambiguitäts-Produktbefund | Eigene Revision 1; keine Parent- oder Vorgänger-Approval-Vererbung. |\n| Protokoll-Child Brownfield | sizes | Protokoll-Child UR | `structured_slice`; UI/UX `low`, keine UX Intent Definition erforderlich. |\n| Protokoll-Child PRD | derived_from | Protokoll-Child UR | Revision 1 ist separat exakt freigegeben. |\n| Protokoll-Child SD | derived_from | Protokoll-Child PRD | Revision 1 ist separat exakt freigegeben. |\n| Protokoll-Child TP | approved_by | Approval: TP | Revision 1 am 2026-07-29 separat exakt freigegeben. |\n| Protokoll-Child Live-Serie | implements | Protokoll-Child TP | 216/216 gültige Observationen, ein Timeout-Retry, keine Safetyfehler. |\n| Protokoll-Child QA | evaluates | Protokoll-Child Live-Serie | `block`; TP 24/24 und Reviews pass, aber zwei Critical Under, drei Stage-Abweichungen und acht Mixed/Ambiguous; Gate-Checker-Approval-Projektion als separater Produktgap. |\n| Staged Product Findings | evaluates | Protokoll-Child QA | Benchmark-Semantik/-Evidenz, Structured-Depth-Requirements und QA-Transition getrennt; kein Autoritätsbypass belegt. |\n| Enforcement Closure Scope | derived_from | SPF-06 | Garantie, Owner, Zielklasse und negativer Test für QA-Block Transition Integrity. |\n| QA Transition Child UR | derived_from | Enforcement Closure Scope | QBT-1 bis QBT-7; Parent-Approvals werden nicht vererbt. |\n| QA Transition Child OR | fulfills | RMP-08 / WS-03 | Completed repository-tested closure with no new gate or approval value. |\n| Structured Depth Child OR | resolves | SPF-05 / WS-02 prerequisite | Accepted Modes-owned boundary with exact QA/UAT approvals and 58/58 deterministic evals. |\n| RMP-11 Revalidation | reconciles | Child ORs and Parent registers | Existing owners reused by link; Context Graph remains link-only; no silent scope transfer. |\n| Staged Findings Reconciliation | routes | Benchmark v3 | SPF-01 through SPF-04 remain a bounded separate child; RMP-09 remains without a safe child scope. |\n| Benchmark v3 Child UR | approved_by | `Approval: UR` | Revision 1 approved exactly on 2026-08-19 without inheriting Parent approvals. |\n| Benchmark v3 Child Brownfield Review | routes | Benchmark v3 PRD | Full depth follows from the compatibility-sensitive public CLI/profile contract. |\n| Benchmark v3 Child PRD | approved_by | `Approval: PRD` | Revision 1 approved exactly on 2026-08-19 without authority inheritance. |\n| Benchmark v3 Child SD | approved_by | `Approval: SD` | Revision 1 approved exactly on 2026-08-19 without authority inheritance. |\n| Benchmark v3 Child TP | approved_by | `Approval: TP` | Revision 1 approved exactly on 2026-08-19 without Parent authority inheritance. |\n| Benchmark v3 Child QA | approved_by | `Approval: QA` | Passing QA report approved exactly on 2026-08-19. |\n| Benchmark v3 Child OR | fulfills | SPF-01 through SPF-04 / WS-02 | UAT accepted; 24/24 tasks, v3 corpus/replay and historical-integrity evidence close the bounded remediation. |\n| RMP-11 Benchmark v3 Revalidation | reconciles | Child OR and Parent registers | BL-14, WS-02, Brownfield fit and Context Graph link-only boundary match the completed Child without scope transfer. |\n| RMP-10 Aggregate Acceptance | evaluates | PMR-1 through PMR-7 | Revision 2 is startable but not final; PMR-1 is satisfied with limits, PMR-5 is partial and PMR-6 has a critical direct-UAT evidence gap, so RMP-12 stays closed. |\n| Task Target OR | supports | PMR-2, PMR-5 and PMR-7 | QA/UAT accepted; 13/13 tasks and TTR-1 through TTR-10 pass with live-host limits retained. |\n| Interaction Ownership OR | supports | PMR-1, PMR-2, PMR-5 and PMR-7 | QA/UAT accepted; 12/12 tasks, Compact Delivery and code-owned status projection pass with release/install limits retained. |\n| RMP-10 Aggregate Acceptance Revision 2 | re_evaluates | PMR-1, PMR-5 and PMR-6 | PMR-1 is satisfied with limits, PMR-5 is partial pending Single Install UAT and PMR-6 remains a critical direct-UAT evidence gap. |\n| Single Install OR | supports | PMR-2, PMR-3 and PMR-5 | QA/UAT accepted; 6/6 tasks and one durable activation owner pass with authenticated live-host evidence retained as a non-claim. |\n| RMP-10 Aggregate Acceptance Revision 3 | re_evaluates | PMR-5 and PMR-6 | PMR-5 is satisfied with limits; PMR-6 remains open with a ready eight-scenario protocol and 0/8 direct observations. |\n| Understandability UAT Protocol | prepares | PMR-6 direct evidence | Parent-owned evidence obligation defines blinded participants, eight immutable scenarios, four-question scoring and fail-closed routing without authorizing a product Child. |\n| Participant availability | constrains | Understandability UAT Protocol execution | User confirmed 0/4 independent participants currently available; protocol remains ready, PMR-6 stays open and no substitute evidence is valid. |\n| RMP-10 Aggregate Acceptance Revision 4 | records | external PMR-6 evidence dependency | RMP-10 remains startable but not final, with 0/8 observations and RMP-12 closed until the resume condition is met. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Akzeptierte Compact-Interaction- und lokale Validator-Lösung | `agdf-interaction-ownership-quick-path-ux/OR.md` | R1, Teile von R2 und R5 | user_accepted |\n| Akzeptierte vorgelagerte Task-Target-Grenze | `task-target-resolution-boundary/OR.md` | Mehrturn-Zielbindung und UAT-Baseline | user_accepted |\n| Akzeptierte Single-Install-Aktivierung | `opencode-single-install-activation/OR.md` | PMR-5 canonical owner completion and OpenCode activation boundary | user_accepted |\n| Understandability UAT Protocol | `agdf-product-maturity-roadmap/UNDERSTANDABILITY_UAT_PROTOCOL.md` | PMR-6 direct-observation method, scenarios, scoring and stop conditions | direct |\n| Aktive OpenCode Enforcement-/Host-Lücken | `opencode-surface-hardening-parity`; `opencode-plugin-honesty-hardening` | R2 und R3 | direct |\n| Bestehende proportionale Pfade und Erklärbarkeit | Modes, Gate Transition, Scope Classification, Gate Rationale | R1 und R4 | direct |\n| Akzeptierte Live Host Conformance | `agdf-live-host-conformance-matrix/OR.md`; BL-11 | R2, R3, R6 und Grenzen für RMP-07 bis RMP-10 | user_accepted |\n| QA Transition Closure | `agdf-qa-block-transition-integrity/OR.md`; BL-12 | R2, R7 and WS-03 exit evidence | repository_tested |\n| Structured Depth Boundary | `agdf-structured-delivery-depth-boundary/OR.md`; BL-13 | R1, R4, R7 and Benchmark v3 prerequisite | user_accepted |\n| Benchmark v3 Child closeout | `agdf-staged-proportionality-baseline-v3/OR.md`; BL-14 | SPF-01 through SPF-04 resolved in v3 with protected history and explicit live-host non-claim | user_accepted |\n| Aggregate Acceptance | `agdf-product-maturity-roadmap/AGGREGATE_ACCEPTANCE.md` | current PMR-1 through PMR-7 coverage, limitations and RMP-10 readiness | direct |\n\n## Missing Evidence\n\n- authenticated evaluator evidence for OpenCode parity;\n- at least four independent participants and eight valid direct blinded observations required by PMR-6;\n- authenticated native-UI, multi-turn and restart conformance remains an accepted BL-11 boundary.\n\n## Risks\n\n- Mega-Run statt kleiner unabhängiger Arbeitslinien.\n- Duplikation bestehender Interaction-, Routing-, Enforcement- oder Presentation-Owner.\n- UX-Vereinfachung verbirgt Autorität oder Evidenz.\n- Repository-/Replay-Evidenz wird als Live-Host-Nachweis missverstanden.\n\n## Context Graph Impact\n\n- context_graph_impact: `link_only`\n- context_graph_refs: `CG-TASK-TARGET-AUTHORITY`; `CG-NATIVE-INTERACTION-AUTHORITY`; `CG-DOCUMENTATION-CEREMONY-BOUNDARY`; `CG-DELIVERY-PATH-SEARCH`; `CG-RUN-STATUS-CARD`; `CG-UX-INTENT-BEFORE-PRD`\n- context_graph_reconciliation: `resolved`\n- context_graph_required_action: `none`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: Brownfield Review entscheidet `link_only`; die Roadmap koordiniert bestehende Autoritätsknoten und schafft noch keine neue Architekturautorität.\n\n## Closeout\n\n- delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; completed QA Transition, Structured Depth, Benchmark v3, Task Target, Interaction Ownership and Single Install outcomes; RMP-10 Revision 3 with PMR-1/PMR-5 satisfied-with-limits; Parent-owned PMR-6 eight-scenario UAT protocol ready without a product Child.\n- intentionally_not_delivered: speculative Unified Journey scope, final RMP-10 acceptance, RMP-12 reviews/QA/UAT, VCS and release.\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook: Preserve canonical owner boundaries and add direct understandability UAT before claiming the simpler Journey is mature.\n",
+  "candidate_digest": "sha256:51da71a2eef6c4d131a84fea8b35885cb1b0b0ef119b46b45e1df41661f3805d",
+  "phase": "committed",
+  "preview_digest": "sha256:9ff18878638eae74ba819a530b08c7caf911a65f8b3c29c3ed9f2424e28fe53f",
+  "confirmation": "RECOVER agdf-product-maturity-roadmap 453c8069-0fd6-4928-a437-03142ac43a96 sha256:9ff18878638eae74ba819a530b08c7caf911a65f8b3c29c3ed9f2424e28fe53f",
+  "result_digest": "sha256:9405203911d32dc361fc85a8cd79f25b587dde7e150d8af65e5f60333d1f954c",
+  "result_revision_id": "eb4ce093-db17-4daa-9261-c1a798243e9c"
+}

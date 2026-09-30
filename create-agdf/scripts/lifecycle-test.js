@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1292,6 +1292,8 @@ if (process.platform !== "win32") assert.equal(statSync(privateConfig).mode & 0o
 const changingConfig = join(ownershipRoot, "opencode.json");
 writeFileSync(changingConfig, "old complete config\n");
 const plannedSnapshot = ownedFileSnapshot(changingConfig);
+const exactFile = lstatSync(changingConfig, { bigint: true });
+assert.equal(plannedSnapshot.file, `${exactFile.dev}:${exactFile.ino}`);
 writeFileSync(changingConfig, "foreign replacement\n");
 const writeConflict = applyLifecyclePlan({ mutations: [{ kind: "write", path: changingConfig,
   content: "new complete config\n", expectedSnapshot: plannedSnapshot }], retained: [] });
@@ -1332,6 +1334,11 @@ mkdirSync(replacedConfigDir);
 mkdirSync(replacementConfigDir);
 const replacedConfig = join(replacedConfigDir, "config.json");
 const replacedSnapshot = ownedFileSnapshot(replacedConfig);
+// NTFS file IDs can exceed Number's exact integer range. Keep the full identity.
+const exactParent = lstatSync(replacedConfigDir, { bigint: true });
+assert.equal(replacedSnapshot.parent, `${exactParent.dev}:${exactParent.ino}`);
+assert.equal(directoryIdentity(replacedConfigDir), replacedSnapshot.parent);
+assert.notEqual(directoryIdentity(replacementConfigDir), replacedSnapshot.parent);
 rmSync(replacedConfigDir, { recursive: true });
 renameSync(replacementConfigDir, replacedConfigDir);
 const regularDirectorySwap = applyLifecyclePlan({ mutations: [{ kind: "write", path: replacedConfig,

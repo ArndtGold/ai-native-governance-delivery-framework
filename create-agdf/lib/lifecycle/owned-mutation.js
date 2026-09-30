@@ -9,13 +9,14 @@ function conflict(path) {
 }
 
 export function ownedFileSnapshot(path) {
+  // NTFS inode IDs can exceed Number precision; compare complete integer identities.
   // A planned new file has no inode to check. Validate its nearest existing parent too, so a
   // directory replaced by a symlink between plan and apply cannot redirect an atomic write.
   let parentPath = dirname(path);
   let parent;
   for (;;) {
     try {
-      parent = lstatSync(parentPath);
+      parent = lstatSync(parentPath, { bigint: true });
       if (parent.isSymbolicLink() || !parent.isDirectory()) throw conflict(path);
       break;
     } catch (error) {
@@ -26,7 +27,7 @@ export function ownedFileSnapshot(path) {
     }
   }
   let target;
-  try { target = lstatSync(path); }
+  try { target = lstatSync(path, { bigint: true }); }
   catch (error) {
     if (error?.code === "ENOENT") return {
       parent: `${parent.dev}:${parent.ino}`, file: null, digest: null,
@@ -50,7 +51,7 @@ export function assertUnchangedOwnedFile(path, expectedSnapshot) {
 
 export function directoryIdentity(path) {
   let type;
-  try { type = lstatSync(path); }
+  try { type = lstatSync(path, { bigint: true }); }
   catch (error) { if (error?.code === "ENOENT") return null; throw error; }
   if (type.isSymbolicLink() || !type.isDirectory()) throw conflict(path);
   return `${type.dev}:${type.ino}`;

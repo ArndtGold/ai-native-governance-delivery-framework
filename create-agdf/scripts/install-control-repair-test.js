@@ -141,7 +141,20 @@ try {
   git(snapshot, ["commit", "-qm", "Original sealed run"]);
   const changedSnapshot = snapshotRun.content.replace("Describe the trustworthy outcome.", "Unrecorded objective.");
   writeFileSync(snapshotRun.path, changedSnapshot);
-  assert.equal(inspectControlRepair(snapshot).items[0].kind, "run_snapshot");
+  const snapshotItem = inspectControlRepair(snapshot).items[0];
+  let snapshotDiagnostic;
+  if (snapshotItem.kind !== "run_snapshot") {
+    const objectPath = ".agdf/control/runs/snapshot/RUN_STATE.md";
+    const original = git(snapshot, ["show", `HEAD:${objectPath}`]).toString("utf8");
+    snapshotDiagnostic = JSON.stringify({
+      required: snapshotItem.required, sources: snapshotItem.sources,
+      git_root: git(snapshot, ["rev-parse", "--show-toplevel"]).toString().trim(), target: snapshot,
+      tree: git(snapshot, ["ls-tree", "--full-tree", "-z", "HEAD", "--", objectPath]).toString(),
+      original_seal: runSealState(snapshot, original), changed_seal: runSealState(snapshot, changedSnapshot),
+      original_matches: canonicalRunText(original) === canonicalRunText(snapshotRun.content),
+    });
+  }
+  assert.equal(snapshotItem.kind, "run_snapshot", snapshotDiagnostic);
   const snapshotResult = await install(snapshot);
   assert.equal(snapshotResult.report.control.status, "current");
   assert.match(readFileSync(snapshotRun.path, "utf8"), /Describe the trustworthy outcome\./u);

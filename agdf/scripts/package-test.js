@@ -3,12 +3,14 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { npmInvocation } from "../../create-agdf/lib/npm-invocation.js";
 
 const root = new URL("../", import.meta.url);
 const cache = mkdtempSync(join(tmpdir(), "agdf-cli-pack-"));
 let output;
 try {
-  output = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], {
+  const pack = npmInvocation(["pack", "--dry-run", "--json", "--ignore-scripts"]);
+  output = JSON.parse(execFileSync(pack.executable, pack.args, {
     cwd: root,
     encoding: "utf8",
     env: { ...process.env, npm_config_cache: cache },

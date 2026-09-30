@@ -1147,9 +1147,14 @@ smokePhase("gate check status card");
   try {
     // Explicit English keeps this check independent of the machine locale.
     execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "status-card"], { stdio: "pipe" });
+    // The missing-run route now renders assignment orientation. Use an explicitly bound
+    // run with an unrecorded edit to exercise the blocked status-card and exit code.
+    const runPath = join(tempDir, ".agdf", "control", "runs", "status-card", "RUN_STATE.md");
+    writeFileSync(runPath, `${readFileSync(runPath, "utf8")}\nUnrecorded fixture edit.\n`, "utf8");
     let failed = false;
     try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8", stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "status-card", "--status-card"], { encoding: "utf8", stdio: "pipe" });
     } catch (error) {
       failed = true;
       const output = error.stdout.toString();
@@ -1395,14 +1400,15 @@ smokePhase("status card tp transition");
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("This non-authorizing bootstrap creates no parallel policy.")
-      || !content.includes("`skill.gate-check`: dispatch first, with `intake` for a change; no prior repository/control inspection.")
-      || !content.includes("`delivery.start`: resolve target once for draft/setup. Unresolved target: canonical orientation and stop.")
+    if (!content.includes("Dispatch is non-authorizing.")
+      || !content.includes("`skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.")
+      || !content.includes("`delivery.start`: resolve target once; unresolved: orient and stop.")
       || !content.includes("For a result with `terminal: true`")
       || !content.includes("the entire assistant response must consist only of host_action.text, copied verbatim")
       || !content.includes("Add no question, explanation, heading, citation, link or other surrounding text")
       || !content.includes("Only explicit trusted `instruction_only` runtime evidence enables fallback.")
-      || !content.includes("Never bind an earlier reply retroactively.")
+      || !content.includes("Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope")
+      || !content.includes("`expected_revision_id`")
       || !content.includes("`continue_delivery: true`")
       || (content.match(/interaction\.md/g) ?? []).length !== 1
       || content.includes("Consume the canonical `approval_presentation` verbatim")
@@ -1418,7 +1424,8 @@ smokePhase("status card tp transition");
     if (!content.includes("## Gate Transition Card")
       || !content.includes("answers exactly three user questions")
       || !content.includes("Run Status Card remains the operational,")
-      || !content.includes("must not be a Markdown table or dashboard")) {
+      || !content.includes("must not be a Markdown table or dashboard")
+      || !content.includes("never bind an earlier reply to a subsequently prepared revision.")) {
       throw new Error(`Generated runtime contract must preserve the transition-card and status-projection boundary: ${path}`);
     }
   }

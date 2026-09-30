@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: cross-surface-plugin-opt-out
 - lifecycle: active
-- revision: 10
-- revision_id: 28c09832-9ba6-4e58-9f06-b11ad8680333
-- content_seal: sha256:83b893fa2ac118e6874496c183342eab594f6df8ffba8e98cb34ab7607e4acc3
+- revision: 12
+- revision_id: 03a2db80-4237-408a-88f4-d51b99614bc0
+- content_seal: sha256:b9ca9f4aab5e8bdbca2d9c72d428b1d26bec65920080899fbcffc86d642457e1
 - approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
-- updated_at: 2026-09-30T08:31:13.462Z
+- updated_at: 2026-09-30T17:22:21.552Z
 - mode: `structured_delivery`
 - current_gate: UR
 - decision: `revise`
@@ -65,7 +65,7 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 | TP Review | `.agdf/control/artefacts/cross-surface-plugin-opt-out/TASK_PLAN_REVIEW.md` | `revise` | 11/12 tasks fully done; `CSO-T11` remains partial. |
 | Clean Review | `.agdf/control/artefacts/cross-surface-plugin-opt-out/CLEAN_IMPLEMENTATION_REVIEW.md` | `pass` | One primary settings/lifecycle solution without fallback or parallel owner. |
 | CR | `.agdf/control/artefacts/cross-surface-plugin-opt-out/CODE_REVIEW.md` | `pass` | No scoped code finding remains. |
-| QA | `.agdf/control/artefacts/cross-surface-plugin-opt-out/QA_REPORT.md` | `revise` | Open aggregate evidence gap prevents QA pass and approval request. |
+| QA | `.agdf/control/artefacts/cross-surface-plugin-opt-out/QA_REPORT.md` | `revise` | Historical QA remains revise; aggregate CI revalidation below changes neither current UR gate nor approvals. |
 
 ## Mode / Slice Decision
 
@@ -116,13 +116,13 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 | Official Copilot instructions reference | `https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions` | Independent loading of `AGENTS.md` and other custom instructions | direct |
 | Scoped implementation evidence | `.agdf/control/artefacts/cross-surface-plugin-opt-out/CD_TESTS.md` | CLI, settings, lifecycle, retention, documentation and test results | strong |
 | Mandatory reviews and QA | `TASK_PLAN_REVIEW.md`; `CLEAN_IMPLEMENTATION_REVIEW.md`; `CODE_REVIEW.md`; `QA_REPORT.md` | 11/12 coverage, clean solution, scoped code pass and QA revise | strong |
+| Aggregate CI revalidation, 2026-09-30 | `create-agdf` smoke-test command sequence (all component commands plus integration and routing); `eval:skills`; `agdf` package and packed CLI smoke; Pages checks; host compatibility and community health | Isolated checkout of `d076d3d` plus the reviewed CI repair: all component and integration tests pass, 90/90 deterministic replay cases and 56/56 compatibility fixtures; fixes cover Windows npm invocation, review aliases, startup facts and stale fixtures. Native-host UAT and gate approvals are separate. | strong |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
 | Direct fresh-session behavior for repository-disabled Copilot AGDF | `warn` | Keep as later host evidence; do not infer from repository fixtures. |
-| Clean aggregate evidence on the combined active worktree | `revise` | Reconcile foreign release/gate-validation fixtures, then rerun smoke and skill evaluations. |
 
 ## Risks
 
@@ -154,4 +154,4 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 - verification_performed: CLI, lifecycle, real-Git retention, strict JSON/path/atomicity fixtures, Runtime Integrity, package contents/build, broad component regressions, routing and diff checks; complete smoke attempted.
 - unverified: Effective repository-disabled Copilot behavior in a fresh host session and managed-policy precedence.
 - next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
-- quality_outlook: Scoped implementation is clean and well covered, but QA correctly remains revise until combined-worktree aggregate evidence is green.
+- quality_outlook: Aggregate source/fixture evidence was revalidated on 2026-09-30. Historical QA remains revise, current approvals remain missing, and fresh-host UAT remains unverified.

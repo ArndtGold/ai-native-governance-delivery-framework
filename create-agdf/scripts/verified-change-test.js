@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { containedRegularFile, isSafeControlRelativePath } from "../lib/control-state/contained-file.js";
 import { artefactFileDigest, sealRunState } from "../lib/control-state/run-seal.js";
-import { resolvedArtefactFile } from "../lib/control-evaluation/run-state.js";
+import { analyzeArtefactRoleConsistency, resolvedArtefactFile } from "../lib/control-evaluation/run-state.js";
 import { isSafeRepoRelativePath, readVerifiedChangeRecord } from "../lib/control-evaluation/verified-change.js";
 
 const root = mkdtempSync(join(tmpdir(), "agdf-verified-change-"));
@@ -13,6 +13,16 @@ const cli = join(import.meta.dirname, "..", "bin", "create-agdf.js");
 const repoRoot = join(import.meta.dirname, "..", "..");
 const runStatePath = ".agdf/control/runs/example/RUN_STATE.md";
 let baselineCommit = "0".repeat(40);
+
+for (const roles of [["CR", "Code Review"], ["Clean Review", "Clean Implementation Review"]]) {
+  const state = { artefacts: new Map(roles.map(role => [role, { path: "reviews/review.md", status: "done" }])) };
+  assert.deepEqual(analyzeArtefactRoleConsistency(root, state), [], "same-role review aliases may share evidence");
+  state.artefacts.get(roles[0]).status = "missing";
+  assert.ok(analyzeArtefactRoleConsistency(root, state).some(finding => finding.code === "AGDF_ARTEFACT_ROLE_ALIAS_INVALID"), "aliases cannot conceal conflicting completion states");
+  state.artefacts.get(roles[0]).status = "done";
+  state.artefacts.set("QA", { path: "reviews/review.md", status: "done" });
+  assert.ok(analyzeArtefactRoleConsistency(root, state).some(finding => finding.code === "AGDF_ARTEFACT_ROLE_ALIAS_INVALID"), "review aliases do not permit incompatible gate roles to share evidence");
+}
 
 function write(path, content) {
   const target = join(root, path);

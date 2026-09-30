@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
 import { inspectStartupCompatibility, startupMaintenanceInvocation } from "../lib/control-maintenance/startup.js";
 import { runControlMaintenance } from "../lib/control-maintenance/service.js";
@@ -11,6 +12,7 @@ import { digestNormalizedPluginSource } from "../lib/runtime/plugin-provenance.j
 import { readFileSync, realpathSync } from "node:fs";
 import { repository, addRun, treeDigest, git } from "./control-maintenance-fixtures.js";
 
+const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const base = mkdtempSync(join(tmpdir(), "agdf-repository-startup-"));
 try {
   const a = repository(base, "root A", { language: "de" }); addRun(a, "old"); git(a, "init", "-q");
@@ -57,7 +59,7 @@ try {
   const windowsCopy = renderStartupControlNotice(special, { platform: "win32" });
   assert.ok(windowsCopy.includes("& '") && windowsCopy.includes("'' quotes"));
 
-  const pluginRoot = resolve("create-agdf/generated/plugins/agdf");
+  const pluginRoot = resolve(repoRoot, "create-agdf/generated/plugins/agdf");
   const entrypoint = join(pluginRoot, "runtime/agdf-session-check.js");
   const data = join(base, "data"); mkdirSync(join(data, "runtime-checks"), { recursive: true });
   const definition = JSON.parse(readFileSync(join(pluginRoot, "meta/agdf-plugin.definition.json")));

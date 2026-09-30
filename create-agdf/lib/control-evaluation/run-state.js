@@ -184,6 +184,14 @@ export function analyzeArtefactRoleConsistency(targetDir, runState) {
   }
   for (const [path, roles] of rolesByPath) {
     if (roles.length < 2) continue;
+    // CR and Clean Review are supported names for the same review roles, not separate artefacts.
+    const aliases = new Map([["CR", "Code Review"], ["Clean Review", "Clean Implementation Review"]]);
+    const canonicalRoles = new Set(roles.map((role) => aliases.get(role) ?? role));
+    if (canonicalRoles.size === 1) {
+      const statuses = new Set(roles.map((role) => runState.artefacts.get(role)?.status));
+      if (statuses.size > 1) findings.push({ severity: "block", code: "AGDF_ARTEFACT_ROLE_ALIAS_INVALID", message: `Artefact aliases have conflicting statuses: ${roles.join(", ")}.`, path, next_step: "Use one consistent status for aliases of the same artefact role." });
+      continue;
+    }
     const allowedRoles = new Set(["Brownfield Review", "Verified Change", "OR"]);
     if (modeSliceDecision(runState) !== "verified_change" || roles.some((role) => !allowedRoles.has(role))) {
       findings.push({ severity: "block", code: "AGDF_ARTEFACT_ROLE_ALIAS_INVALID", message: `Artefact path is reused across incompatible roles: ${roles.join(", ")}.`, path, next_step: "Use distinct artefacts or a lifecycle-consistent Verified Change compact record." });

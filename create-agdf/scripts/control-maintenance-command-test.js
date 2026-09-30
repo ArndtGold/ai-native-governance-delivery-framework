@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
 import { join, resolve } from "node:path";
 import { PassThrough } from "node:stream";
 import { parseArgs } from "../lib/cli/parse-args.js";
@@ -9,6 +10,7 @@ import { validateCommandOptions } from "../lib/cli/command-registry.js";
 import { executeControlMaintenance } from "../lib/cli/control-maintenance-command.js";
 import { repository, addRun, treeDigest } from "./control-maintenance-fixtures.js";
 
+const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const base = mkdtempSync(join(tmpdir(), "agdf-maintenance-command-"));
 const options = (...args) => validateCommandOptions(parseArgs(["control-maintenance", ...args]).options);
 try {
@@ -22,7 +24,7 @@ try {
   const beforeA = treeDigest(a), beforeB = treeDigest(b);
   for (const entrypoint of ["create-agdf/bin/create-agdf.js", "create-agdf/bin/agdf-validator.js"]) {
     for (const root of [a, b]) {
-      const child = spawnSync(process.execPath, [resolve(entrypoint), "control-maintenance", "--dir", root, "--json"], { cwd: b, encoding: "utf8", timeout: 10000 });
+      const child = spawnSync(process.execPath, [resolve(repoRoot, entrypoint), "control-maintenance", "--dir", root, "--json"], { cwd: b, encoding: "utf8", timeout: 10000 });
       assert.equal(child.status, root === a ? 2 : 0, child.stderr);
       const report = JSON.parse(child.stdout);
       assert.equal(report.target, root); assert.equal(report.operation, "inspect");
@@ -52,7 +54,7 @@ try {
 
   // Validate actual generated full-runtime execution separately from source CLI behavior.
   for (const [plugin, surfaces] of [["create-agdf/generated/plugins/agdf", ["codex", "claude", "opencode"]], ["create-agdf/generated/plugins/copilot/agdf", ["copilot"]]]) {
-    const pluginRoot = resolve(plugin), entrypoint = join(pluginRoot, "runtime/agdf-local.js");
+    const pluginRoot = resolve(repoRoot, plugin), entrypoint = join(pluginRoot, "runtime/agdf-local.js");
     assert.ok(existsSync(entrypoint));
     const bundledLib = join(pluginRoot, "runtime/create-agdf/lib");
     for (const excluded of ["install-setup", "marketplace"]) assert.equal(existsSync(join(bundledLib, excluded)), false);
@@ -73,7 +75,7 @@ try {
       assert.equal(JSON.parse(child.stdout).compatibility.status, "current");
     }
   }
-  assert.equal(existsSync(resolve("create-agdf/generated/submissions/openai/agdf/runtime/agdf-local.js")), false,
+  assert.equal(existsSync(resolve(repoRoot, "create-agdf/generated/submissions/openai/agdf/runtime/agdf-local.js")), false,
     "reference-only public submission does not pretend to provide a runtime");
   assert.equal(treeDigest(b), beforeB);
   console.log("Control maintenance source/generated command tests passed.");

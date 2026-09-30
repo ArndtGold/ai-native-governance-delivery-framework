@@ -207,16 +207,16 @@ try {
   assert.doesNotMatch(JSON.stringify(restored.report.control.repair), /source_content|candidate_content|"bytes"/u);
 
   const parent = repository("monorepo");
-  const child = repository("monorepo/child");
+  const child = repository("monorepo/ child");
   const nestedArtifact = ".agdf/control/artefacts/nested-run/UR.md";
   for (const project of [parent, child]) mkdirSync(join(project, ".agdf/control/artefacts/nested-run"), { recursive: true });
   writeFileSync(join(parent, nestedArtifact), "Parent project must not be selected\n");
   writeFileSync(join(child, nestedArtifact), "Child project original\n");
   const nestedRun = addRun(child, "nested-run", (content) => content.replace("| UR |  | missing |", `| UR | ${nestedArtifact} | ready |`));
-  git(parent, ["init", "-q"]); git(parent, ["add", ".agdf", "child/.agdf"]);
+  git(parent, ["init", "-q"]); git(parent, ["add", ".agdf", " child/.agdf"]);
   git(parent, ["commit", "-qm", "Separate parent and child originals"]);
   unlinkSync(join(child, nestedArtifact));
-  assert.equal(inspectControlRepair(child).items[0].sources[0].git_path, `child/${nestedArtifact}`);
+  assert.equal(inspectControlRepair(child).items[0].sources[0].git_path, ` child/${nestedArtifact}`);
   assert.equal((await install(child)).report.control.status, "current");
   assert.equal(readFileSync(join(child, nestedArtifact), "utf8"), "Child project original\n");
   assert.equal(readFileSync(join(parent, nestedArtifact), "utf8"), "Parent project must not be selected\n");

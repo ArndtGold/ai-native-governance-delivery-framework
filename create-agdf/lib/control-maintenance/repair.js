@@ -45,9 +45,9 @@ function git(root, args) {
 function gitOriginals(root, path) {
   if (!isSafeControlRelativePath(path)) return [];
   try {
-    directoryIdentity(git(root, ["rev-parse", "--show-toplevel"]).toString().trim());
+    directoryIdentity(git(root, ["rev-parse", "--show-toplevel"]).toString().replace(/\r?\n$/u, ""));
     // Git resolves Windows short/long directory aliases; filesystem-relative paths do not.
-    const prefix = git(root, ["rev-parse", "--show-prefix"]).toString().trim();
+    const prefix = git(root, ["rev-parse", "--show-prefix"]).toString().replace(/\r?\n$/u, "");
     const objectPath = `${prefix}${path}`;
     if (!isSafeControlRelativePath(objectPath)) return [];
     const commits = [...new Set([git(root, ["rev-parse", "HEAD"]).toString().trim(),

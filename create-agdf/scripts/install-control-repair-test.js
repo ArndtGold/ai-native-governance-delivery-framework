@@ -155,6 +155,8 @@ try {
     });
   }
   assert.equal(snapshotItem.kind, "run_snapshot", snapshotDiagnostic);
+  assert.equal(snapshotItem.sources[0].git_path, ".agdf/control/runs/snapshot/RUN_STATE.md",
+    "Git directory aliases must preserve the exact repository object path");
   const snapshotResult = await install(snapshot);
   assert.equal(snapshotResult.report.control.status, "current");
   assert.match(readFileSync(snapshotRun.path, "utf8"), /Describe the trustworthy outcome\./u);

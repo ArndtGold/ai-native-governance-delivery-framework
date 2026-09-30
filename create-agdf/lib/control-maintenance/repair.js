@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { lstatSync, mkdirSync, unlinkSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { dirname, join } from "node:path";
 import { isSafeControlRelativePath } from "../control-state/contained-file.js";
 import { directoryIdentity, regularFileSnapshot } from "../control-state/run-store-inspection.js";
 import { parseRunState } from "../control-state/run-state-parser.js";
@@ -45,9 +45,10 @@ function git(root, args) {
 function gitOriginals(root, path) {
   if (!isSafeControlRelativePath(path)) return [];
   try {
-    const top = directoryIdentity(git(root, ["rev-parse", "--show-toplevel"]).toString().trim()).realpath;
-    const prefix = relative(top, directoryIdentity(root).realpath).replaceAll("\\", "/");
-    const objectPath = prefix ? `${prefix}/${path}` : path;
+    directoryIdentity(git(root, ["rev-parse", "--show-toplevel"]).toString().trim());
+    // Git resolves Windows short/long directory aliases; filesystem-relative paths do not.
+    const prefix = git(root, ["rev-parse", "--show-prefix"]).toString().trim();
+    const objectPath = `${prefix}${path}`;
     if (!isSafeControlRelativePath(objectPath)) return [];
     const commits = [...new Set([git(root, ["rev-parse", "HEAD"]).toString().trim(),
       ...git(root, ["log", "-8", "--format=%H", "--", path]).toString().trim().split(/\r?\n/u)])]

@@ -21,6 +21,8 @@ function git(root, args, { exec = execFileSync } = {}) {
   return String(exec("git", [
     "--git-dir", join(root, ".git"), "--work-tree", root,
     "-c", "core.autocrlf=false", "-c", "core.fsmonitor=false",
+    // Staged repositories are renamed or deleted immediately; no detached Git writer may outlive the transaction.
+    "-c", "maintenance.auto=false", "-c", "gc.auto=0",
     "-c", `core.hooksPath=${join(root, ".git", "agdf-no-hooks")}`, "-c", "commit.gpgsign=false", ...args,
   ], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 30000,
     env: { ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_"))),

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { inspectControlMigration, installationControlTarget, migrateInstallationControl } from "../lib/install-setup/control-migration.js";
 import { selectControlMigration } from "../lib/install-setup/interaction.js";
 import { runInstallSetup } from "../lib/install-setup/service.js";
@@ -196,7 +196,7 @@ try {
   assert.equal(readFileSync(blockedRun.path, "utf8"), blockedRun.content);
   for (const run of batchRuns) {
     assert.equal(runSealState(batch, readFileSync(run.path, "utf8")).status, "valid");
-    const change = grouped.report.control.changes.find((entry) => run.path.includes(`/runs/${entry.run_id}/`));
+    const change = grouped.report.control.changes.find((entry) => entry.run_id === basename(dirname(run.path)));
     assert.equal(JSON.parse(readFileSync(join(batch, change.backup), "utf8")).source_content, run.content);
   }
   const noRepeat = await install(batch, { dirExplicit: false }, {

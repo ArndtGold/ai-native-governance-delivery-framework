@@ -317,8 +317,10 @@ for (const [label, content] of [
   assert.match(content, /AGDF 0\.14\.5 does\s+not include MCP support/, `${label} must keep the 0.14.5 MCP non-support boundary visible`);
   assert.match(content, /unreleased development|development preview/, `${label} must identify MCP commands as unreleased development behavior`);
 }
-assert.match(architectureReadme, /AGDF 0\.14\.5 besitzt keine MCP-Unterstützung/);
-assert.match(architectureReadme, /unveröffentlichte Entwicklungsstand/);
+assert.match(architectureReadme, /Repository-Quelle/, "architecture must identify its source-level scope");
+assert.match(architectureReadme, /Diese Nummer allein\s+belegt weder eine Veröffentlichung/, "source metadata must not imply a published release");
+assert.match(architectureReadme, /noch den Inhalt eines von npm aufgelösten `@latest`-Pakets\s+oder einer geladenen Host-Installation/, "source metadata must not imply registry or installed-host behavior");
+assert.match(architectureReadme, /Quellstand, verteiltes Paket und frische Host-Sitzung\s+benötigen jeweils eigene Nachweise/, "source, distribution and installed-host claims need separate evidence");
 assert.doesNotMatch(architectureReadme, /kanonische Paketversion \*\*0\.14\.5\*\*/);
 
 const backlogTemplate = readFileSync(join(packageRoot, "..", "plugin", "control", "templates", "MASTER_BACKLOG.md"), "utf8");

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import nodePath, { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { npmInvocation } from "../lib/npm-invocation.js";
 import { approvalArgs, commandFixture, invoke, json } from "./support/control-command-fixture.js";
@@ -17,12 +17,26 @@ let referenceSuccess;
 const semanticSuccess = (result) => ({ assurance: result.assurance, gate: result.effect.gate, approval: result.effect.approval,
   artefact_digest: result.effect.artefact_digest, next_gate: result.effect.next_gate_after_approval, next_action: result.effect.allowed_after_approval });
 
+function packageRelativePath(root, path, paths = nodePath) {
+  const rel = paths.relative(root, path);
+  assert.ok(rel && !paths.isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${paths.sep}`), `dependency escapes package: ${path}`);
+  return rel.replaceAll("\\", "/");
+}
+
+for (const [paths, root] of [[nodePath.posix, "/consumer/node_modules/create-agdf"], [nodePath.win32, "D:\\consumer\\node_modules\\create-agdf"]]) {
+  assert.equal(packageRelativePath(root, paths.join(root, "lib", "control-command.js"), paths), "lib/control-command.js");
+  for (const outside of [root, paths.join(root, "..", "create-agdf-other", "lib.js"), paths.join(root, "..", "outside.js")]) {
+    assert.throws(() => packageRelativePath(root, outside, paths), /dependency escapes package/u);
+  }
+}
+assert.throws(() => packageRelativePath("D:\\consumer\\create-agdf", "E:\\foreign\\lib.js", nodePath.win32), /dependency escapes package/u);
+console.log("PASS package containment accepts POSIX/Windows dependencies and rejects sibling, parent and foreign-drive paths");
+
 function checkDependencyClosure(entry, root) {
   const seen = new Set();
   function visit(path) {
     if (seen.has(path)) return;
-    assert.ok(path.startsWith(`${root}/`), `dependency escapes package: ${path}`);
-    const rel = relative(root, path).replaceAll("\\", "/");
+    const rel = packageRelativePath(root, path);
     assert.doesNotMatch(rel, /^(?:lib\/cli\/|lib\/installers\/|lib\/install-setup\/|lib\/mcp-lifecycle\/|bin\/)/u, `public command dependency ${rel}`);
     seen.add(path);
     const source = readFileSync(path, "utf8");
@@ -49,15 +63,8 @@ try {
     cpSync(join(repository, "agdf-mcp-server/node_modules", entry), join(snapshot, "agdf-mcp-server/node_modules", entry), { recursive: true });
   }
   execFileSync(process.execPath, [join(packageRoot, "scripts/sync-package-assets.js")], { cwd: sandbox, stdio: "pipe" });
-  // Verify the pre-existing CLI suite with only its unrelated documentation input restored in
-  // this disposable snapshot. The real workspace failure remains reported separately.
-  const architectureDoc = join(snapshot, "docs/architecture/README.md");
-  const currentDoc = readFileSync(architectureDoc);
-  try {
-    writeFileSync(architectureDoc, execFileSync("git", ["show", "HEAD:docs/architecture/README.md"], { cwd: repository }));
-    execFileSync(process.execPath, [join(packageRoot, "scripts/cli-modularization-test.js")], { cwd: sandbox, stdio: "pipe" });
-    console.log("PASS SCN-024/028 CLI modularization with unchanged HEAD documentation in isolated snapshot; workspace documentation assertion remains a known separate failure");
-  } finally { writeFileSync(architectureDoc, currentDoc); }
+  execFileSync(process.execPath, [join(packageRoot, "scripts/cli-modularization-test.js")], { cwd: sandbox, stdio: "pipe" });
+  console.log("PASS SCN-024/028 CLI modularization against the current source and documentation in isolated snapshot");
   for (const name of ["package-build", "copilot-profile", "release-version-coherence", "package-contents", "local-validator", "plugin-mcp-runtime", "runtime-integrity-layout", "runtime-integrity-negative"]) {
     execFileSync(process.execPath, [join(packageRoot, `scripts/${name}-test.js`)], { cwd: sandbox, stdio: "pipe" });
     console.log(`PASS SCN-029/032 isolated ${name} regression`);
@@ -87,6 +94,8 @@ try {
   const audit = join(consumer, "audit.mjs");
   writeFileSync(audit, `import assert from 'node:assert/strict';
 import fs from 'node:fs'; import cp from 'node:child_process'; import { syncBuiltinESMExports } from 'node:module';
+import nodePath from 'node:path'; import {fileURLToPath} from 'node:url';
+${packageRelativePath.toString()}
 const reads=[]; const originalRead=fs.readFileSync;
 fs.readFileSync=(path,...args)=>{ reads.push(String(path)); return originalRead(path,...args); };
 for(const name of ['writeFileSync','mkdirSync','renameSync','unlinkSync','rmSync']) fs[name]=()=>{throw Error('import write '+name)};
@@ -98,7 +107,8 @@ assert.ok(resolved.startsWith(new URL('./node_modules/create-agdf/',import.meta.
 const module=await import('create-agdf/control-command');
 assert.deepEqual(Object.keys(module).sort(),['CONTROL_COMMAND_SCHEMA_VERSION','recordGateApprovalCommand','resolveControlCommandTarget']);
 assert.equal(printed.length,0); assert.equal(process.exitCode,undefined);
-assert.ok(reads.length>=2); for(const path of reads) assert.ok(path.includes('/node_modules/create-agdf/'),path);
+const packageRoot=fileURLToPath(new URL('./node_modules/create-agdf/',import.meta.url));
+assert.ok(reads.length>=2); for(const path of reads) packageRelativePath(packageRoot,path);
 `);
   invoke(audit, []);
   console.log("PASS SCN-006 external import has only package-owned reads and no target/process/write/print/exit effects");

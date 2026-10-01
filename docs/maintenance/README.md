@@ -12,7 +12,7 @@ Historische Nachweise behalten ihre damals tatsächlich verwendeten Node-Version
 
 ## Gemeinsamer Katalog
 
-`create-agdf/lib/interaction-catalog.js` definiert Setup-Zustände, zulässige Aktionen,
+`packages/core/lib/interaction-catalog.js` definiert Setup-Zustände, zulässige Aktionen,
 Fehlercodes und Codex-Hook-Routing. Ergebnisvalidierung, Recovery-Renderer und CLI-E2E nutzen
 diesen Katalog. Die Runtime-Provenienz schützt ihn mit. Texte bleiben ausschließlich in
 `plugins/agdf/meta/agdf-interaction-locales.json`. Fehlende, zusätzliche oder leere Übersetzungen

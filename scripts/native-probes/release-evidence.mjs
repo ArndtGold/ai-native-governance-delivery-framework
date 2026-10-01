@@ -44,7 +44,7 @@ export function assertReleaseEvidence(observations, { commit, version, policy })
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const policy = JSON.parse(readFileSync(new URL("./codex-release-policy.json", import.meta.url), "utf8"));
-  const version = JSON.parse(readFileSync(new URL("../../create-agdf/package.json", import.meta.url), "utf8")).version;
+  const version = JSON.parse(readFileSync(new URL("../../packages/cli/package.json", import.meta.url), "utf8")).version;
   const args = process.argv.slice(2);
   const files = args[0] === "--directory" && args.length === 2
     ? readdirSync(args[1], { recursive: true }).filter(path => /(?:^|[\\/])observation\.json$/.test(path)).map(path => join(args[1], path)) : args;

@@ -3,15 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:maintenance-contracts": "node scripts/node-support-test.mjs && node create-agdf/scripts/interaction-catalog-test.js && node create-agdf/scripts/payload-budget-test.js && node create-agdf/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
+    "test:maintenance-contracts": "node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
     "check:community-health": "node scripts/check-community-health.mjs",
-    "install:claude": "npm --prefix create-agdf run install:claude",
-    "install:codex": "npm --prefix create-agdf run install:codex",
-    "install:copilot": "npm --prefix create-agdf run install:copilot",
-    "install:opencode": "npm --prefix create-agdf run install:opencode",
+    "install:claude": "npm --prefix packages/cli run install:claude",
+    "install:codex": "npm --prefix packages/cli run install:codex",
+    "install:copilot": "npm --prefix packages/cli run install:copilot",
+    "install:opencode": "npm --prefix packages/cli run install:opencode",
     "test:community-health": "node scripts/community-health-test.mjs",
     "set-version": "node scripts/set-version.mjs",
-    "test:host-compatibility": "node create-agdf/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
+    "test:host-compatibility": "node packages/cli/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
     "compatibility:record": "node scripts/host-compatibility/run.mjs record",
     "compatibility:check": "node scripts/host-compatibility/run.mjs check",
     "native:codex-activation-matrix": "node scripts/native-probes/codex-activation-matrix.mjs",
@@ -21,11 +21,18 @@
     "native:codex-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
     "native:codex-hook-check": "bash scripts/native-probes/codex-macos-hook-check.sh",
     "native:codex-hook-probe": "bash scripts/native-probes/codex-hook-probe-plugin.sh",
-    "native:codex-mcp-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh"
+    "native:codex-mcp-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
+    "build": "node scripts/sync-package-assets.js && node scripts/assemble-npm.mjs",
+    "sync-package-assets": "node scripts/sync-package-assets.js",
+    "pack": "npm run build && node scripts/pack-npm.mjs"
   },
   "devDependencies": {
     "acorn": "8.17.0",
     "ajv": "8.20.0",
     "yaml": "2.9.0"
-  }
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/cli"
+  ]
 }

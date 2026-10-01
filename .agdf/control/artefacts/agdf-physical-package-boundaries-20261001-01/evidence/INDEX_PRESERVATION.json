@@ -1,0 +1,21 @@
+{
+  "initial_binary_sha256": "aecadd08fdeb5468de93156bd16dd7bf49b6d1a7a04815933a3b3e35d53894de",
+  "current_binary_sha256": "06516d2055fdb427e7161138717c48a575a75718357d322b6cbea75736a9c006",
+  "semantic_preserved": "not separately cryptographically proven for the original recovery duplicate",
+  "explanation": "Initial five staged path names remain unchanged; four staged blobs equal their C00 canonical counterparts. The staged recovery duplicate lacks the two pre-existing trusted-recovery lines present in C00 canonical source, so equality with that different canonical file is not an index-drift test. Original per-entry IDs were not separately captured; binary index drift remains an observed restoration conflict. No staging/reset or index restoration was performed.",
+  "comparison_with_different_canonical_source": {
+    "create-agdf/lib/control-state/run-recovery 2.js": {
+      "expected": [
+        "100644",
+        "7fcffee2b5d1cd44e381c8ca7b4355bc725e3fb4",
+        "0"
+      ],
+      "actual": [
+        "100644",
+        "9149d5870c72aeeac6b4b102286c3b06d4a8a28f",
+        "0"
+      ]
+    }
+  },
+  "final_observation": "FINAL_STAGED_ENTRIES.json: five initial staged paths remain; 28 additional documentation deletions later observed and preserved without attribution"
+}

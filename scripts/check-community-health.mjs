@@ -340,7 +340,7 @@ async function validatePolicyInvariants(root, findings) {
     || !includesAny(governance, ["does not indicate", "does not prove"])) {
     findings.push(finding("GOVERNANCE_AUTHORITY_INCOMPLETE", "GOVERNANCE.md", "Governance authority, non-enforcement boundary or succession is missing."));
   }
-  if (!includesAll(contributing, ["No Contributor License Agreement", "DCO", "AI assistance", "Do not submit raw prompts", "create-agdf/generated", "Installed", "not a repository source"])
+  if (!includesAll(contributing, ["No Contributor License Agreement", "DCO", "AI assistance", "Do not submit raw prompts", "packages/cli/generated", "Installed", "not a repository source"])
     || !includesAny(contributing, ["materially", "significant effect"])) {
     findings.push(finding("CONTRIBUTION_CONTRACT_INCOMPLETE", "CONTRIBUTING.md", "Contribution ownership, sign-off or AI disclosure contract is incomplete."));
   }
@@ -430,7 +430,7 @@ async function validateHandbookInvariants(root, findings) {
     "npm install --global @agdf/cli",
     "npm view @agdf/cli version",
     "npm list --global --depth=0 @agdf/cli",
-    "node -p \"require('./agdf/package.json').version\"",
+    "node -p \"require('./packages/cli/distribution/agdf/package.json').version\"",
     "npx --yes @agdf/cli@latest gate-check --run payment-limit-fix",
     "kann hinter dem Stand eines lokalen Repository-Checkouts liegen",
     "agdf gate-check --run payment-limit-fix",
@@ -458,7 +458,7 @@ async function validateHandbookInvariants(root, findings) {
     "npm install --global @agdf/cli",
     "npm view @agdf/cli version",
     "npm list --global --depth=0 @agdf/cli",
-    "node -p \"require('./agdf/package.json').version\"",
+    "node -p \"require('./packages/cli/distribution/agdf/package.json').version\"",
     "npx --yes @agdf/cli@latest gate-check --run payment-limit-fix",
     "may be behind a local repository checkout",
     "agdf gate-check --run payment-limit-fix",

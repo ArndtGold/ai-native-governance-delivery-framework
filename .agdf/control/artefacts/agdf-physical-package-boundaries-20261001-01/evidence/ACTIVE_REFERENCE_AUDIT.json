@@ -1,0 +1,780 @@
+{
+  "old_roots_exist": false,
+  "remaining_references": [
+    {
+      "path": "RELEASE.md",
+      "line": 19,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "while the CLI delegates command execution through the shared `create-agdf/cli` export."
+    },
+    {
+      "path": "docs/architecture/package-structure.md",
+      "line": 51,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "`@agdf/cli`-Wrapper; er importiert `create-agdf/cli`."
+    },
+    {
+      "path": "docs/architecture/package-structure.md",
+      "line": 65,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "Die öffentlichen synchronen `create-agdf/control-command`- und"
+    },
+    {
+      "path": "docs/architecture/package-structure.md",
+      "line": 66,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "`create-agdf/mcp-dispatch-runtime`-Exports bleiben erhalten."
+    },
+    {
+      "path": "docs/architecture/package-structure.md",
+      "line": 111,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "Quellroots `create-agdf/`, `agdf/` und `agdf-mcp-server/` sind entfernt. Historische"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 10,
+      "category": "historical evidence or historical release resolver",
+      "text": "Eine ausnutzbare Schwachstelle wurde auch in Lauf 2 nicht gefunden. Der zweite Lauf ging tiefer, vor allem in `create-agdf/lib` (68 Dateien vollständig gelesen, Installer, Control-State), und hat dabei mehr Befunde gefunden. Neu und am Quelltext bestätigt sind:"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 25,
+      "category": "historical evidence or historical release resolver",
+      "text": "  - `create-agdf/lib`: Control-State, Evaluation, Dispatch, Lifecycle, Installer, Public-Plugin"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 27,
+      "category": "historical evidence or historical release resolver",
+      "text": "- Nicht vollständig gelesen: `create-agdf/scripts/**` (Testskripte), `scripts/check-runtime-integrity.mjs`, `instruction-footprint.mjs`, `INSTALL.md`."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 39,
+      "category": "historical evidence or historical release resolver",
+      "text": "| B2 | mittel | `agdf/package-lock.json` steht auf 0.11.2, `agdf/package.json` auf 0.14.5. Ursache: `version-coherence.js` führt nur die Lockfiles von `agdf-mcp-server` und `pages`. `npm ci` in `agdf/` scheitert voraussichtlich. Die CI merkt es nicht. | `agdf/package-lock.json:3`, `agdf/package.json"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 40,
+      "category": "historical evidence or historical release resolver",
+      "text": "| B3 | mittel (inferred) | Der Publish-Workflow führt an der Wurzel kein `npm ci` aus, die PR-CI schon. `operational-localization-test.js` lädt `acorn` über die Wurzel-`package.json` (devDependency). Kam nach `agdf-v0.14.5` hinzu. Der nächste Release scheitert damit voraussichtlich im Validierungsjo"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 44,
+      "category": "historical evidence or historical release resolver",
+      "text": "| B7 | niedrig | `create-agdf/scripts/codex-hook-observation-test.js` wird von keinem Skript und keinem Workflow aufgerufen. Die Pakete haben kein `test`-Skript. | `create-agdf/package.json`, `package.json` | – |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 50,
+      "category": "historical evidence or historical release resolver",
+      "text": "| D1 | hoch | Die Doku sagt „genau das Werkzeug `agdf_dispatch`“. Der Server liefert seit HEAD zwei Werkzeuge (`agdf_dispatch`, `agdf_inspect`). Hosts, die Werkzeuge freigeben, rechnen damit falsch. | `README.md:36`, `INSTALL.md:108`, `docs/architecture/README.md:87,181`, `agdf-mcp-server/test/proto"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 51,
+      "category": "historical evidence or historical release resolver",
+      "text": "| D2 | hoch | Die Offline-Evals prüfen handgeschriebene Sollwerte: Die Beobachtungen spiegeln die `expected`-Felder. Der Runner setzt den Fingerprint aus `manifest.json` statt aus der Beobachtung und legt keine Arbeitsbereiche an. `INSTALL.md` verspricht „disposable repository fixtures … measured mu"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 62,
+      "category": "historical evidence or historical release resolver",
+      "text": "| P1 | hoch | Der Guard-Block nennt `path: plugin/meta/contracts/request-activation.md`. Das installierte Plugin hat kein Präfix `plugin/`. Der Vertrag verbietet jede Änderung am Block, und der Fingerprint erzwingt das. Jeder der 10 Skills trägt damit einen Pfad, der sich im Plugin nicht auflösen lä"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 63,
+      "category": "historical evidence or historical release resolver",
+      "text": "| P2 | mittel | Generische Verträge und Templates nennen Pfade des AGDF-Repositorys (`create-agdf/lib/**`, `plugin/skills/**`). Sie werden in fremde Zielrepositories ausgeliefert, wo diese Pfade nichts bedeuten. | `plugin/meta/contracts/modes.md:152-158`, `plugin/control/templates/MASTER_BACKLOG.md:"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 66,
+      "category": "historical evidence or historical release resolver",
+      "text": "| P5 | mittel | Hooks im Quellbaum zeigen auf `runtime/agdf-session-check.js`, das dort fehlt. Wird der Quellbaum direkt als Plugin geladen, wirft jede Sitzung `MODULE_NOT_FOUND`. Der Fallback `session-start.sh` meldet Exit 0, ohne etwas zu prüfen. `commandWindows` trägt PowerShell-Logik im JSON und"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 75,
+      "category": "historical evidence or historical release resolver",
+      "text": "| C1 | mittel | Der Closeout schreibt `OR.md` per `writeFileSync`, bevor die versiegelte Run-Revision geschrieben ist. Scheitert der Run-Write (`stale_revision`, Lock), ist ein vorhandenes `OR.md` schon ersetzt. Inhalt und Seal laufen dann auseinander. | `create-agdf/lib/control-state/run-steps.js:1"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2 2.md",
+      "line": 83,
+      "category": "historical evidence or historical release resolver",
+      "text": "| C9 | niedrig (inferred) | Der Worker wird ohne `stdout: true` gestartet. Seine Ausgabe landet auf dem JSON-RPC-Kanal des Elternprozesses, jede `console.log` im Dispatch würde das Protokoll zerstören. Diagnosedetails werden durchgehend verworfen. | `agdf-mcp-server/src/worker.js:34-36,72`, `server."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 10,
+      "category": "historical evidence or historical release resolver",
+      "text": "Eine ausnutzbare Schwachstelle wurde auch in Lauf 2 nicht gefunden. Der zweite Lauf ging tiefer, vor allem in `create-agdf/lib` (68 Dateien vollständig gelesen, Installer, Control-State), und hat dabei mehr Befunde gefunden. Neu und am Quelltext bestätigt sind:"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 25,
+      "category": "historical evidence or historical release resolver",
+      "text": "  - `create-agdf/lib`: Control-State, Evaluation, Dispatch, Lifecycle, Installer, Public-Plugin"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 27,
+      "category": "historical evidence or historical release resolver",
+      "text": "- Nicht vollständig gelesen: `create-agdf/scripts/**` (Testskripte), `scripts/check-runtime-integrity.mjs`, `instruction-footprint.mjs`, `INSTALL.md`."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 39,
+      "category": "historical evidence or historical release resolver",
+      "text": "| B2 | mittel | `agdf/package-lock.json` steht auf 0.11.2, `agdf/package.json` auf 0.14.5. Ursache: `version-coherence.js` führt nur die Lockfiles von `agdf-mcp-server` und `pages`. `npm ci` in `agdf/` scheitert voraussichtlich. Die CI merkt es nicht. | `agdf/package-lock.json:3`, `agdf/package.json"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 40,
+      "category": "historical evidence or historical release resolver",
+      "text": "| B3 | mittel (inferred) | Der Publish-Workflow führt an der Wurzel kein `npm ci` aus, die PR-CI schon. `operational-localization-test.js` lädt `acorn` über die Wurzel-`package.json` (devDependency). Kam nach `agdf-v0.14.5` hinzu. Der nächste Release scheitert damit voraussichtlich im Validierungsjo"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 44,
+      "category": "historical evidence or historical release resolver",
+      "text": "| B7 | niedrig | `create-agdf/scripts/codex-hook-observation-test.js` wird von keinem Skript und keinem Workflow aufgerufen. Die Pakete haben kein `test`-Skript. | `create-agdf/package.json`, `package.json` | – |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 50,
+      "category": "historical evidence or historical release resolver",
+      "text": "| D1 | hoch | Die Doku sagt „genau das Werkzeug `agdf_dispatch`“. Der Server liefert seit HEAD zwei Werkzeuge (`agdf_dispatch`, `agdf_inspect`). Hosts, die Werkzeuge freigeben, rechnen damit falsch. | `README.md:36`, `INSTALL.md:108`, `docs/architecture/README.md:87,181`, `agdf-mcp-server/test/proto"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 51,
+      "category": "historical evidence or historical release resolver",
+      "text": "| D2 | hoch | Die Offline-Evals prüfen handgeschriebene Sollwerte: Die Beobachtungen spiegeln die `expected`-Felder. Der Runner setzt den Fingerprint aus `manifest.json` statt aus der Beobachtung und legt keine Arbeitsbereiche an. `INSTALL.md` verspricht „disposable repository fixtures … measured mu"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 62,
+      "category": "historical evidence or historical release resolver",
+      "text": "| P1 | hoch | Der Guard-Block nennt `path: plugin/meta/contracts/request-activation.md`. Das installierte Plugin hat kein Präfix `plugin/`. Der Vertrag verbietet jede Änderung am Block, und der Fingerprint erzwingt das. Jeder der 10 Skills trägt damit einen Pfad, der sich im Plugin nicht auflösen lä"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 63,
+      "category": "historical evidence or historical release resolver",
+      "text": "| P2 | mittel | Generische Verträge und Templates nennen Pfade des AGDF-Repositorys (`create-agdf/lib/**`, `plugin/skills/**`). Sie werden in fremde Zielrepositories ausgeliefert, wo diese Pfade nichts bedeuten. | `plugin/meta/contracts/modes.md:152-158`, `plugin/control/templates/MASTER_BACKLOG.md:"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 66,
+      "category": "historical evidence or historical release resolver",
+      "text": "| P5 | mittel | Hooks im Quellbaum zeigen auf `runtime/agdf-session-check.js`, das dort fehlt. Wird der Quellbaum direkt als Plugin geladen, wirft jede Sitzung `MODULE_NOT_FOUND`. Der Fallback `session-start.sh` meldet Exit 0, ohne etwas zu prüfen. `commandWindows` trägt PowerShell-Logik im JSON und"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 75,
+      "category": "historical evidence or historical release resolver",
+      "text": "| C1 | mittel | Der Closeout schreibt `OR.md` per `writeFileSync`, bevor die versiegelte Run-Revision geschrieben ist. Scheitert der Run-Write (`stale_revision`, Lock), ist ein vorhandenes `OR.md` schon ersetzt. Inhalt und Seal laufen dann auseinander. | `create-agdf/lib/control-state/run-steps.js:1"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v2.md",
+      "line": 83,
+      "category": "historical evidence or historical release resolver",
+      "text": "| C9 | niedrig (inferred) | Der Worker wird ohne `stdout: true` gestartet. Seine Ausgabe landet auf dem JSON-RPC-Kanal des Elternprozesses, jede `console.log` im Dispatch würde das Protokoll zerstören. Diagnosedetails werden durchgehend verworfen. | `agdf-mcp-server/src/worker.js:34-36,72`, `server."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur 2.md",
+      "line": 41,
+      "category": "historical evidence or historical release resolver",
+      "text": "| `agdf-mcp-server/` | stdio-Transport; jeder Aufruf in eigenem `worker_thread`, Timeout 10 s | eigener Prozess | 224 Zeilen |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur 2.md",
+      "line": 45,
+      "category": "historical evidence or historical release resolver",
+      "text": "| `agdf/` (`@agdf/cli`) | Wrapper aus einer Zeile, `import \"create-agdf/cli\"` | – | 3 Zeilen |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur 2.md",
+      "line": 46,
+      "category": "historical evidence or historical release resolver",
+      "text": "| `create-agdf/generated/` | Payloads für die Hosts; enthält Kopien von `lib/` und dem Server | gitignored, nicht versioniert | 385 Dateien, 3,5 MB |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur 2.md",
+      "line": 49,
+      "category": "historical evidence or historical release resolver",
+      "text": "Insgesamt hat `create-agdf/lib` 169 Dateien mit rund 28.000 Zeilen. Dazu kommen rund 26.000 Zeilen Skripte, überwiegend Tests."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur 2.md",
+      "line": 169,
+      "category": "historical evidence or historical release resolver",
+      "text": "**Aufgabe.** Die Regeln stehen als Markdown im Kontext des Agenten. `create-agdf/lib` erzwingt einen Teil davon."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur.md",
+      "line": 41,
+      "category": "historical evidence or historical release resolver",
+      "text": "| `agdf-mcp-server/` | stdio-Transport; jeder Aufruf in eigenem `worker_thread`, Timeout 10 s | eigener Prozess | 224 Zeilen |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur.md",
+      "line": 45,
+      "category": "historical evidence or historical release resolver",
+      "text": "| `agdf/` (`@agdf/cli`) | Wrapper aus einer Zeile, `import \"create-agdf/cli\"` | – | 3 Zeilen |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur.md",
+      "line": 46,
+      "category": "historical evidence or historical release resolver",
+      "text": "| `create-agdf/generated/` | Payloads für die Hosts; enthält Kopien von `lib/` und dem Server | gitignored, nicht versioniert | 385 Dateien, 3,5 MB |"
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur.md",
+      "line": 49,
+      "category": "historical evidence or historical release resolver",
+      "text": "Insgesamt hat `create-agdf/lib` 169 Dateien mit rund 28.000 Zeilen. Dazu kommen rund 26.000 Zeilen Skripte, überwiegend Tests."
+    },
+    {
+      "path": "docs/reviews/REVIEW_ai-native-governance-delivery-framework_v3_Architektur.md",
+      "line": 169,
+      "category": "historical evidence or historical release resolver",
+      "text": "**Aufgabe.** Die Regeln stehen als Markdown im Kontext des Agenten. `create-agdf/lib` erzwingt einen Teil davon."
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-20260728/PB-001/1.json",
+      "line": 23,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"/meta/**, create-agdf/lib/**, create-agdf/bin/**, and executable code to close under the Trivial Change Boundary.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-20260728/PB-001/2.json",
+      "line": 20,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"README content is outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, create-agdf\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-20260728/PB-002/3.json",
+      "line": 20,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"MASTER_BACKLOG.md fällt nicht unter plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, C\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-20260728/PB-002/3.json",
+      "line": 21,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/bin/** oder ausführbare Codedateien.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-20260728/PB-037/2.json",
+      "line": 20,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"Changes under create-agdf/lib/** or create-agdf/bin/** are excluded from the trivial-change boundary unless the narrowly\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2/PB-001__intake/1.json",
+      "line": 27,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"The classified target is outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, and \","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2/PB-001__intake/2.json",
+      "line": 28,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"The target is clearly outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, create-\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2/PB-002__intake/1.json",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"No evidence suggests changes to plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**,create\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2/PB-002__intake/1.json",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/bin/**, or executable code.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r2/PB-002__intake/3.json",
+      "line": 27,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"MASTER_BACKLOG.md is outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, create-/\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-001__intake/1.json",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/lib/**, create-agdf/bin/**, and executable code paths.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-001__intake/2.json",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"The described change is fully outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**,\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-001__intake/2.json",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/bin/**, and executable code paths.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-001__intake/3.json",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"meta/**, create-agdf/lib/**, create-agdf/bin/**, or executable code.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-002__intake/1.json",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"The named target is outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, create-ag\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-002__intake/1.json",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/bin/**, and executable code paths.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-002__intake/2.json",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"MASTER_BACKLOG.md is outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, create-a\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729-r3/PB-002__intake/3.json",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"MASTER_BACKLOG.md is outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, create-a\""
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729/PB-001__intake/1.json",
+      "line": 28,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/lib/**, create-agdf/bin/**, and executable code paths.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729/PB-001__intake/2.json",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"No evidence indicates impact to plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**,\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729/PB-001__intake/2.json",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \" create-agdf/bin/**, or any executable code file.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729/PB-001__intake/3.json",
+      "line": 27,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"The stated change is fully outside plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, AG\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729/PB-001__intake/3.json",
+      "line": 28,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"create-agdf/bin/**, and other executable-code files.\","
+    },
+    {
+      "path": "evals/proportionality/observations/codex-gpt-5.6-sol-agdf-0.11.4-staged-v2-20260729/PB-002__intake/2.json",
+      "line": 28,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"No executable-code, plugin/skills/**, plugin/control/templates/**, plugin/meta/**, create-agdf/lib/**, or create-agdf/sb\","
+    },
+    {
+      "path": "packages/cli/README.md",
+      "line": 381,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "The additive ESM export `create-agdf/control-command` and `run-approve --operation <uuid>` use"
+    },
+    {
+      "path": "packages/cli/README.md",
+      "line": 390,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "} from \"create-agdf/control-command\";"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/bin/agdf.js",
+      "line": 3,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import \"create-agdf/cli\";"
+    },
+    {
+      "path": "packages/cli/lib/installers/opencode.js",
+      "line": 346,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  const localValidator = `${globalOpenCodeValidatorOwnershipMarker}\\nimport process from \"node:process\";\\nimport { fileURLToPath } from \"node:url\";\\nimport { runLocalValidator } from \"../../node_modules/create-agdf/lib/runtime/local-validator.js\";\\n\\nconst ownedPackageRoot = fileURLToPath(new URL(\"."
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "line": 99,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "fs.readFileSync(new URL('./node_modules/create-agdf/package.json',import.meta.url),'utf8');"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "line": 100,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "const resolved=import.meta.resolve('create-agdf/control-command');"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "line": 101,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "assert.ok(resolved.startsWith(new URL('./node_modules/create-agdf/',import.meta.url).href));"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "line": 102,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "const module=await import('create-agdf/control-command');"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "line": 105,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "const packageRoot=fileURLToPath(new URL('./node_modules/create-agdf/',import.meta.url));"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "line": 112,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { recordGateApprovalCommand, resolveControlCommandTarget } from 'create-agdf/control-command';"
+    },
+    {
+      "path": "packages/cli/scripts/control-maintenance-command-test.js",
+      "line": 59,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    const bundledLib = join(pluginRoot, \"runtime/create-agdf/lib\");"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/opencode.js",
+      "line": 29,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  const cache = join(config, \"node_modules/create-agdf/generated/plugins/agdf\");"
+    },
+    {
+      "path": "packages/cli/scripts/local-validator-test.js",
+      "line": 81,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    entrypoint: \"create-agdf/bin/create-agdf.js\","
+    },
+    {
+      "path": "packages/cli/scripts/mcp-lifecycle-test.js",
+      "line": 44,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "const CREATE_AGDF_ROOT = fileURLToPath(new URL(\"../../../dist/npm/create-agdf/\", import.meta.url));"
+    },
+    {
+      "path": "packages/cli/scripts/opencode-hardening-test.js",
+      "line": 90,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    readOpenCodeConfig: (path) => ({ exists: true, parseError: \"\", config: { plugin: [\"./node_modules/create-agdf/opencode-plugin.js\"] }, path }),"
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 9,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "const packageRoot = fileURLToPath(new URL(\"../../../dist/npm/create-agdf/\", import.meta.url));"
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 48,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"generated/plugins/copilot/agdf/runtime/create-agdf/bin/agdf-validator.js\","
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 49,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"generated/plugins/copilot/agdf/runtime/create-agdf/lib/runtime/validator-application.js\","
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 52,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"generated/plugins/agdf/runtime/create-agdf/bin/agdf-validator.js\","
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 53,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"generated/plugins/agdf/runtime/create-agdf/lib/runtime/validator-application.js\","
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 113,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    assert.ok(files.includes(`${profile}/runtime/create-agdf/lib/host-adapters/${host}/session-command.js`));"
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "line": 118,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "for (const path of files.filter(path => path.includes(\"/runtime/create-agdf/lib/host-adapters/\"))) {"
+    },
+    {
+      "path": "packages/cli/scripts/release-version-coherence-test.js",
+      "line": 87,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "      if (tag === \"agdf-v0.13.8\" && path === \"create-agdf/package.json\") {"
+    },
+    {
+      "path": "packages/cli/scripts/runtime-integrity-layout-test.js",
+      "line": 86,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  const isolatedContract = join(installedPluginRoot, \"runtime/create-agdf/lib/runtime-check-consent/contract.js\");"
+    },
+    {
+      "path": "packages/cli/scripts/runtime-integrity-layout-test.js",
+      "line": 96,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    assert.equal(existsSync(join(installedPluginRoot, \"runtime/create-agdf/lib\", forbidden)), false, `runtime excludes ${forbidden}`);"
+    },
+    {
+      "path": "packages/cli/scripts/smoke-test.js",
+      "line": 163,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  fs.cpSync(path.join(${JSON.stringify(fileURLToPath(new URL(\"../../dist/npm/create-agdf/\", packageRoot)))}, entry), path.join(packageDir, entry), { recursive: true });"
+    },
+    {
+      "path": "packages/cli/scripts/smoke-test.js",
+      "line": 169,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  imports: ${JSON.stringify(JSON.parse(readFileSync(new URL(\"../../dist/npm/create-agdf/package.json\", packageRoot), \"utf8\")).imports)},"
+    },
+    {
+      "path": "packages/mcp-server/src/main.js",
+      "line": 1,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { createMcpDispatchRuntime } from \"create-agdf/mcp-dispatch-runtime\";"
+    },
+    {
+      "path": "packages/mcp-server/src/worker-entry.js",
+      "line": 2,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { createMcpDispatchRuntime } from \"create-agdf/mcp-dispatch-runtime\";"
+    },
+    {
+      "path": "packages/mcp-server/test/contract.test.js",
+      "line": 4,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { SKILL_DISPATCH_FUNCTION_DEFINITION, createMcpDispatchRuntime } from \"create-agdf/mcp-dispatch-runtime\";"
+    },
+    {
+      "path": "packages/mcp-server/test/owned-runtime.js",
+      "line": 13,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "const dispatcherSourceRoot = resolve(fileURLToPath(new URL(\"../../../dist/npm/create-agdf/\", import.meta.url)));"
+    },
+    {
+      "path": "packages/mcp-server/test/protocol.test.js",
+      "line": 3,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from \"create-agdf/mcp-dispatch-runtime\";"
+    },
+    {
+      "path": "packages/mcp-server/test/runtime-fixture.js",
+      "line": 1,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { createMcpDispatchRuntime } from \"create-agdf/mcp-dispatch-runtime\";"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 15,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { createMcpDispatchRuntime } from \"create-agdf/mcp-dispatch-runtime\";"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 38,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  if (specifier === \"create-agdf/mcp-dispatch-runtime\") {"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 39,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    return resolve(repositoryRoot, \"dist/npm/create-agdf/lib/mcp-dispatch-runtime.js\");"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 41,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  if (specifier === \"#agdf-core\") return resolve(repositoryRoot, \"dist/npm/create-agdf/runtime/core/lib/index.js\");"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 42,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  if (specifier.startsWith(\"#agdf-core/\")) return resolve(repositoryRoot, \"dist/npm/create-agdf/runtime/core/lib\", specifier.slice(\"#agdf-core/\".length));"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 77,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "assert.ok([...visited].some(([path]) => path.replaceAll(\"\\\\\", \"/\").endsWith(\"create-agdf/runtime/core/lib/skill-dispatch/service.js\")));"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "line": 78,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "assert.ok([...visited].some(([path]) => path.replaceAll(\"\\\\\", \"/\").endsWith(\"create-agdf/runtime/core/lib/control-inspect/service.js\")), \"the read tool is part of the scanned reachable surface\");"
+    },
+    {
+      "path": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "line": 704,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  if (localRuntimeManifest.entrypoint !== \"create-agdf/bin/agdf-validator.js\") failures.push(\"surface-local runtime manifest must own the focused validator entrypoint\");"
+    },
+    {
+      "path": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "line": 713,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"runtime/create-agdf/lib/runtime/validator-application.js\","
+    },
+    {
+      "path": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "line": 714,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"runtime/create-agdf/lib/runtime/plugin-provenance.js\","
+    },
+    {
+      "path": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "line": 715,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  \"runtime/create-agdf/lib/cli/validation-handlers.js\","
+    },
+    {
+      "path": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "line": 1348,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    for (const required of [\"mcp/agdf-mcp-launch.js\", \"mcp/server/package.json\", \"mcp/server/bin/agdf-mcp.js\", \"runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js\"]) {"
+    },
+    {
+      "path": "scripts/public-plugin/validator.js",
+      "line": 96,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    \"meta/agdf-mcp-capability.json\", \"agdf-mcp-server/\", \"packages/mcp-server/\", \"packages/core/\", \"packages/cli/\", \"bin/agdf-mcp.js\","
+    },
+    {
+      "path": "scripts/release/profile-history.js",
+      "line": 41,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  for (const path of [\"packages/cli/package.json\", \"create-agdf/package.json\"]) {"
+    },
+    {
+      "path": "scripts/release/version-coherence.js",
+      "line": 96,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  jsonVersion(\"packages/cli/generated/plugins/agdf/runtime/create-agdf/package.json\"),"
+    },
+    {
+      "path": "scripts/release/version-coherence.js",
+      "line": 100,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  jsonVersion(\"packages/cli/generated/plugins/copilot/agdf/runtime/create-agdf/package.json\"),"
+    },
+    {
+      "path": "scripts/sync-plugin-mcp.js",
+      "line": 30,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { launchPluginMcpServer } from \"../runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 208,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    source: \"create-agdf/cli\","
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 210,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    entrypoint: \"create-agdf/bin/agdf-validator.js\","
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 214,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  writeFileSync(join(outputRoot, \"agdf-local.js\"), `#!/usr/bin/env node\\n\\n// Generated by scripts/sync-plugin-runtime.js; do not edit.\\nimport { readFileSync } from \"node:fs\";\\nimport process from \"node:process\";\\nimport { fileURLToPath } from \"node:url\";\\nimport { resolvePluginHostEnvironment, run"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 224,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { digestNormalizedPluginSource } from \"./create-agdf/lib/runtime/plugin-provenance.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 225,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { resolvePluginHostEnvironment } from \"./create-agdf/lib/runtime/local-validator.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 226,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { fixedRuntimeCheckCommand, runtimeCheckCapabilityIdentity } from \"./create-agdf/lib/runtime-check-consent/contract.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 227,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { resolveRepositoryContext } from \"./create-agdf/lib/repository-context.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 228,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { createDispatchBinding, unavailableDispatchContext } from \"./create-agdf/lib/skill-dispatch/binding.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 229,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { inspectStartupCompatibility, startupMaintenanceInvocation } from \"./create-agdf/lib/control-maintenance/startup.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 230,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "import { renderStartupControlNotice } from \"./create-agdf/runtime/core/lib/control-maintenance/presentation.js\";"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "line": 381,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "    ...[...expectedPackageFiles].map((path) => `create-agdf/${path}`),"
+    },
+    {
+      "path": "scripts/test-migration-checkpoints.mjs",
+      "line": 14,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "  cpSync(join(repoRoot, 'dist/npm/create-agdf/runtime/core/lib/resources/context.js'), output);"
+    },
+    {
+      "path": "scripts/test-package-consumers.mjs",
+      "line": 61,
+      "category": "supported public API / installed artifact / negative or rollback fixture",
+      "text": "for(const specifier of ['create-agdf','create-agdf/control-command','create-agdf/mcp-dispatch-runtime','create-agdf/opencode-plugin']) await import(specifier);"
+    }
+  ],
+  "classification_limit": "explicit reference inventory for review, not an automatic semantic proof; actual owner graph, docs and workflows reviewed separately",
+  "evidence": [
+    "FINAL_OWNER_MAP.json",
+    "BRIDGE_INVENTORY.json",
+    "tests/host-compatibility.log",
+    "tests/community-health.log"
+  ]
+}

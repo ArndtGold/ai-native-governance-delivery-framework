@@ -24,8 +24,9 @@ identifiers, commands and exact AGDF approval values remain unchanged.
 
 - `plugins/agdf/` and its documented Runtime Contracts are canonical editable sources for plugin
   semantics. The source directory is deliberately runtime-free and is not an installable plugin.
-- `create-agdf/` owns the CLI, installers, packaging and synchronization of derived plugin assets.
-- `create-agdf/generated/` is produced by the existing synchronization and packaging processes and
+- `packages/core/` owns control logic and validators; `packages/cli/` owns commands, installers and host composition.
+- `packages/mcp-server/` owns MCP transport. Root `scripts/` owns shared build and release orchestration; `evals/` owns evaluations.
+- `packages/cli/generated/` is produced by the existing synchronization and packaging processes and
   must not be edited as a primary source.
 - Installed Codex, Claude Code or OpenCode caches are not a repository source and must not be used as
   an implementation path.
@@ -106,8 +107,8 @@ Choose the commands relevant to your scope. Larger repository changes typically 
 
 ```bash
 node plugins/agdf/scripts/check-runtime-integrity.mjs
-npm --prefix create-agdf run smoke-test
-npm --prefix agdf run smoke-test
+npm --prefix packages/cli run smoke-test
+npm --prefix packages/cli/distribution/agdf run smoke-test
 npm --prefix pages run check
 git diff --check
 ```
@@ -115,7 +116,7 @@ git diff --check
 Community-health files are additionally checked with:
 
 ```bash
-npm --prefix create-agdf run release:prepare
+npm run build && npm --prefix packages/cli run release:prepare
 npm run test:community-health
 npm run check:community-health
 ```

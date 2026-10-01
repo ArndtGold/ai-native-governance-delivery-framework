@@ -119,7 +119,7 @@ Mit zunehmender Projektgröße wird deshalb nicht das Speichern von Wissen zum E
 
 **Der Engpass wird Orientierung.**
 
-![Wissen vorhanden, Orientierung fehlt](../assets/wissen-vorhanden-orientierung-fehlt.png)
+![Wissen vorhanden, Orientierung fehlt](assets/wissen-vorhanden-orientierung-fehlt.png)
 
 *Mit wachsendem Projektwissen wird nicht das Speichern von Informationen zum Problem. Die Herausforderung besteht darin,
 relevantes Wissen zum richtigen Zeitpunkt zu finden und richtig einzuordnen.*
@@ -220,7 +220,7 @@ Entscheidend ist der Punkt, an dem Menschen und Agenten nicht mehr zuverlässig 
 
 Dann muss das Delivery-Lagebild mehr leisten als Verlinkung.
 
-![Vom Kontextgraphen zum Delivery-Lagebild](../assets/vom-kontextgraphen-zum-delivery-lagebild.png)
+![Vom Kontextgraphen zum Delivery-Lagebild](assets/vom-kontextgraphen-zum-delivery-lagebild.png)
 
 Es muss Beziehungen sichtbar machen.
 

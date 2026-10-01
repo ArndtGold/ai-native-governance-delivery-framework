@@ -105,7 +105,7 @@ andere Teilfehler bleiben Testfehler. Hook-Ausführung wird dadurch nicht als be
 Lokale Installation mit gemeinsamer Zustimmung:
 
 ```bash
-npm --prefix create-agdf run install:codex -- --accept-plugin-capabilities --json
+npm --prefix packages/cli run install:codex -- --accept-plugin-capabilities --json
 ```
 
 Die Option ist nur für Codex-Installation erlaubt und nicht mit `--runtime-checks manual|cancel`
@@ -137,7 +137,7 @@ Codex vermerkt dort auch die `pluginId`, die `agdf@agdf` lauten muss.
 
 Zusätzlich prüft eine dritte Luna-Sitzung `code-review`: Der Dispatcher muss `skill_continuation`
 mit den Modulen `quality` und `context-graph` samt gültiger Inhaltsprüfsumme liefern. Eine
-Hook-Bindung ist dafür nicht erforderlich. Der Protokolltest `npm --prefix agdf-mcp-server run
+Hook-Bindung ist dafür nicht erforderlich. Der Protokolltest `npm --prefix packages/mcp-server run
 test:continuation` prüft dieselbe Eigenschaft für alle neun Skills mit Fortsetzung und vergleicht
 die gelieferten Texte mit den gepackten Verträgen. Er führt keine Modellbewertung dieser Skills durch.
 

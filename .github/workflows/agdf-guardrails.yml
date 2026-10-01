@@ -60,7 +60,7 @@ jobs:
 
       # Integrity and compatibility checks consume the generated host payloads.
       - name: Prepare and verify release assets
-        run: npm --prefix create-agdf run release:prepare
+        run: npm run build && npm --prefix packages/cli run release:prepare
 
       - name: Verify runtime integrity
         run: node plugins/agdf/scripts/check-runtime-integrity.mjs
@@ -74,37 +74,37 @@ jobs:
         run: npm run test:host-compatibility
 
       - name: Verify built plugin integrity
-        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
 
       - name: Verify release package contents
-        run: npm --prefix create-agdf run test:package-contents
+        run: npm --prefix packages/cli run test:package-contents
 
       - name: Verify @agdf/cli package contents
-        run: npm --prefix agdf run test:package
+        run: npm --prefix packages/cli/distribution/agdf run test:package
 
       - name: Verify control transactions and lock ownership
-        run: npm --prefix create-agdf run test:run-step-transaction && npm --prefix create-agdf run test:run-lock
+        run: npm --prefix packages/cli run test:run-step-transaction && npm --prefix packages/cli run test:run-lock
 
       - name: Verify AGDF delivery-map gate
         if: matrix.repository_checks
-        run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active
+        run: node packages/cli/bin/create-agdf.js delivery-map --dir . --all-active
 
       - name: Verify versioned AGDF skill evaluations
-        run: npm --prefix create-agdf run eval:skills
+        run: npm --prefix packages/cli run eval:skills
 
       # The create-agdf smoke test includes the @agdf/mcp-server tests, which need the MCP SDK.
       - name: Install MCP validation dependencies from checkout
-        working-directory: agdf-mcp-server
+        working-directory: packages/mcp-server
         run: npm ci --ignore-scripts
 
       - name: Verify @agdf/mcp-server package contents
-        run: npm --prefix agdf-mcp-server run test:package
+        run: npm --prefix packages/mcp-server run test:package
 
       - name: Verify create-agdf package
-        run: npm --prefix create-agdf run smoke-test
+        run: npm --prefix packages/cli run smoke-test
 
       - name: Verify agdf CLI package
-        run: npm --prefix agdf run smoke-test
+        run: npm --prefix packages/cli/distribution/agdf run smoke-test
 
       - name: Install Pages dependencies
         if: matrix.repository_checks

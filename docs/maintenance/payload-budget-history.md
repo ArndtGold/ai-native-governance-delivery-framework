@@ -258,7 +258,7 @@ The German AC-006 action was shortened to meet the locale catalogue's 160-charac
 
 ## 2026-09-29 — Read-only MCP inspection route (Slice 1)
 
-Run `agdf-mcp-inspect-slice1-20260929-01` adds the read-only MCP tool `agdf_inspect` beside `agdf_dispatch`. Nine skills name the MCP read route for runtime-contract reads first and keep the schema-2 binding as fallback; `release-or` does the same for its doctor step; `interaction.md` step 3 allows the dispatcher's embedded approval preview before `run-present`; `control-scaffold.md` documents the MCP equivalents of the read-only commands. The reviewed generated Copilot profile bundles the new runtime module `create-agdf/lib/control-inspect/` (three files) and grows from 111 files / 1082032 bytes to 114 files / 1108560 bytes (+26528 bytes, of which 2627 bytes are skill and contract text; 1210 bytes were added by the Code Review fix CR-01, an inspect-shaped oversize fallback). The tool definition itself is capped at 2048 bytes (measured 2023) and is not part of the Copilot profile. The all-profile integrity guard remains enabled.
+Run `agdf-mcp-inspect-slice1-20260929-01` adds the read-only MCP tool `agdf_inspect` beside `agdf_dispatch`. Nine skills name the MCP read route for runtime-contract reads first and keep the schema-2 binding as fallback; `release-or` does the same for its doctor step; `interaction.md` step 3 allows the dispatcher's embedded approval preview before `run-present`; `control-scaffold.md` documents the MCP equivalents of the read-only commands. The reviewed generated Copilot profile bundles the new runtime module `packages/core/lib/control-inspect/` (three files) and grows from 111 files / 1082032 bytes to 114 files / 1108560 bytes (+26528 bytes, of which 2627 bytes are skill and contract text; 1210 bytes were added by the Code Review fix CR-01, an inspect-shaped oversize fallback). The tool definition itself is capped at 2048 bytes (measured 2023) and is not part of the Copilot profile. The all-profile integrity guard remains enabled.
 
 Branch review corrections make both gate-check variants use the CLI's own text printers, so neither returns an unbound approval question. The Copilot MCP configuration now exposes both `agdf_dispatch` and `agdf_inspect`. These corrections add 337 bytes to the generated profile, setting the reviewed ceiling to 114 files / 1108897 bytes. The all-profile integrity guard remains enabled.
 
@@ -366,3 +366,29 @@ The measured Copilot payload grows from 121 files / 1193511 bytes to 130 files /
 (+9 files, +54166 bytes). The baseline is the exact reviewed inventory; file/byte and provenance
 guards remain enabled. Subsequent validation records actual source/generated-runtime evidence;
 this baseline update is not an installed plugin refresh or a fresh host acceptance claim.
+
+## 2026-10-01 — Portable Codex MCP discovery repair
+
+Recognized portable plugins discover root mcp.json; fallback mcpServers cannot replace
+that component. The shared provenance owner renders the portable schema and stdio
+transport, and normalizes only exact owned projections. Historical nonportable
+configuration remains digest-compatible. Current builds prune the old MCP file;
+source/public and Claude profiles retain their boundaries. The existing shared
+owner grows by 276 bytes: 136 files / 1274994 bytes becomes 136 / 1275270.
+The ceiling equals the measured inventory, without additional runtime files or
+headroom. Source/profile/install/negative tests, actual local installation, Codex
+CLI discovery, direct MCP protocol and installed integrity pass. A fresh model
+invocation and refreshed current-chat tool inventory remain unverified.
+
+## 2026-10-01: Physical Core/CLI/MCP boundaries
+
+Run `agdf-physical-package-boundaries-20261001-01` rebuilt the preserved C-00
+source in an isolated checkout: 136 files / 1,275,270 bytes. The new canonical
+Core closure plus explicit resource/provider/CLI composition produces 152 files /
+1,293,465 bytes: 16 files and 18,195 bytes added overall. Modules are moved into
+`runtime/core`; the generated binding descriptor is the sole Core byte exception.
+Contracts remain in the Copilot-owned sibling directory. SDK, installer and
+duplicate contract payloads remain excluded. The guard is unchanged, and the
+baseline records exactly the measured inventory with no unused headroom.
+
+Evidence: `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/profiles/PAYLOAD_DELTA.json`.

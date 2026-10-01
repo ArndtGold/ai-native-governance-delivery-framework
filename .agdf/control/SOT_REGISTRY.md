@@ -4,12 +4,12 @@
 
 | Domain | SoT Document | Status | Owner | Last Verified |
 |---|---|---|---|---|
-| Portable plugin identity/profile projection, repository source root and build-only schema validation | plugins/agdf/meta/agdf-plugin.definition.json; create-agdf/lib/public-plugin/source-root.js; create-agdf/lib/public-plugin/manifest.js; create-agdf/lib/public-plugin/validator.js; create-agdf/scripts/support/portable-schema.js; plugins/agdf/meta/schemas/agent-plugins/1.0.0/ | active | AGDF; Arndt Gold accountable | 2026-10-01 |
-| Shared hook source templates | plugins/agdf/host-templates/shared/hooks/; create-agdf/scripts/sync-package-assets.js | active | AGDF | 2026-10-01 |
+| Portable plugin identity/profile projection, repository source root and build-only schema validation | plugins/agdf/meta/agdf-plugin.definition.json; scripts/public-plugin/source-root.js; scripts/public-plugin/manifest.js; scripts/public-plugin/validator.js; scripts/support/portable-schema.js; plugins/agdf/meta/schemas/agent-plugins/1.0.0/ | active | AGDF; Arndt Gold accountable | 2026-10-01 |
+| Shared hook source templates | plugins/agdf/host-templates/shared/hooks/; scripts/sync-package-assets.js | active | AGDF | 2026-10-01 |
 | Runtime contracts | plugins/agdf/meta/contracts/ | active | AGDF | 2026-07-18 |
-| CLI control checks | create-agdf/lib/control-evaluation/; create-agdf/lib/cli/validation-handlers.js | active | AGDF | 2026-07-18 |
-| Surface-local validator resolution and generation | create-agdf/lib/runtime/; create-agdf/scripts/sync-plugin-runtime.js | active | AGDF | 2026-07-18 |
-| Release-built plugin composition and durable marketplace staging | create-agdf/scripts/sync-package-assets.js; create-agdf/lib/installers/local-marketplace.js; create-agdf/lib/installers/plugin-installers.js; create-agdf/lib/host-adapters/ (native mechanisms) | active | AGDF | 2026-09-05 |
+| Core rule evaluation and CLI composition | packages/core/lib/control-evaluation/; packages/cli/lib/cli/validation-handlers.js | active | AGDF | 2026-07-18 |
+| Surface-local validator resolution and generation | packages/cli/lib/runtime/; scripts/sync-plugin-runtime.js | active | AGDF | 2026-07-18 |
+| Release-built plugin composition and durable marketplace staging | scripts/sync-package-assets.js; packages/cli/lib/installers/local-marketplace.js; packages/cli/lib/installers/plugin-installers.js; packages/cli/lib/host-adapters/ (native mechanisms) | active | AGDF | 2026-09-05 |
 | Control templates | plugins/agdf/control/templates/ | active | AGDF | 2026-07-08 |
 | Skill routing | plugins/agdf/meta/agdf-plugin.definition.json | active | AGDF | 2026-07-18 |
 | Agent Skills conformance baseline and plugin-scoped portability policy | plugins/agdf/meta/agent-skills-conformance.json | active | AGDF | 2026-08-19 |
@@ -18,20 +18,34 @@
 | GitHub repository metadata desired state | .github/repository-metadata.json; assets/github-social-preview.png | active | Arndt Gold | 2026-07-23 |
 | Local plugin identity plus public listing and submission projections | plugins/agdf/meta/agdf-plugin.definition.json; plugins/agdf/submission/openai/ | active | Arndt Gold | 2026-08-18 |
 | Public privacy, terms and support contract | PRIVACY.md; TERMS.md; SUPPORT.md; SECURITY.md; LICENSE; NOTICE; TRADEMARKS.md | active | Arndt Gold | 2026-08-17 |
-| OpenAI candidate build, local/public manifest projection and exact-bundle validation | create-agdf/lib/public-plugin/; create-agdf/scripts/build-public-plugin.js; create-agdf/scripts/public-plugin-test.js | active | AGDF | 2026-08-18 |
+| OpenAI candidate build, local/public manifest projection and exact-bundle validation | scripts/public-plugin/; scripts/build-public-plugin.js; packages/cli/scripts/public-plugin-test.js | active | AGDF | 2026-08-18 |
 | User handbook semantics and translations | docs/handbook/de/ (canonical German); docs/handbook/en/ (derived English); scripts/check-community-health.mjs (parity validation) | active | Arndt Gold | 2026-08-18 |
+
+## Physical Package Ownership
+
+| Responsibility | Canonical owner | Derived consumer |
+|---|---|---|
+| Control state, validators, dispatch/inspect and pure evaluation | packages/core/lib/ | Embedded Core in npm/profile outputs; private source workspace only |
+| Immutable resource context and allowed contract reader | packages/core/lib/resources/; plugins/agdf/meta/ | Generated package resources with explicit binding descriptor |
+| Git, process/runtime probes, locale and host composition | packages/cli/lib/ | create-agdf and focused offline runtime |
+| MCP SDK, worker and stdio adapter | packages/mcp-server/ | @agdf/mcp-server |
+| Build, profile, assembly and release orchestration | scripts/ | dist/npm/; dist/local/<host>/npm/ |
+| Evaluation tooling and corpora | evals/ | Deterministic reports with explicit source fingerprints |
+
+Verified 2026-10-01; authority remains with the existing AGDF contracts. See
+`docs/architecture/package-structure.md` and the physical package-boundaries run.
 
 ## Secondary References
 
 | Reference | Purpose | Limit |
 |---|---|---|
 | docs/compatibility/HOST_COMPATIBILITY.md; evals/host-compatibility/ | Dated repository compatibility evidence derived by scripts/host-compatibility/ | No live installation, capability, approval or runtime authority; exact environment and lane only |
-| README.md; INSTALL.md; create-agdf/README.md | User-facing explanation | Must follow runtime and CLI source files |
+| README.md; INSTALL.md; packages/cli/README.md | User-facing explanation | Must follow runtime and CLI source files |
 | plugins/agdf/meta/agdf-runtime-contract.md | Compatibility manifest for runtime-contract modules | Must not duplicate module content |
-| create-agdf/generated/plugins/agdf/runtime/ | Package-built exact-version validator payload for full plugin surfaces | Derived at sync/prepack/publish; never edited or committed as source runtime |
+| packages/cli/generated/plugins/agdf/runtime/ | Package-built exact-version validator payload for full plugin surfaces | Derived at sync/prepack/publish; never edited or committed as source runtime |
 | AGDF-owned user-data `marketplaces/agdf/` | Durable installed Codex/Claude marketplace | Derived from the released package; exact ownership marker and rollback rules are mandatory |
 | GitHub repository settings and Community Profile | Effective public host state | Must be checked against `.github/repository-metadata.json` and delivered default-branch files; local repository state is not host proof |
-| create-agdf/generated/submissions/openai/agdf/ | Deterministic public plugin candidate, inventory and readiness projection | Derived from canonical owners; repository/bundle evidence only, never portal or publication proof |
+| packages/cli/generated/submissions/openai/agdf/ | Deterministic public plugin candidate, inventory and readiness projection | Derived from canonical owners; repository/bundle evidence only, never portal or publication proof |
 | docs/handbook/README.md; docs/agenten-handbuch/ | Language selection and legacy compatibility navigation | Navigation only; must not own or duplicate handbook semantics |
 
 ## Conflict Rule

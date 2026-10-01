@@ -1,0 +1,3834 @@
+{
+  "vs": "actual C00 source including earlier MCP repair, not HEAD alone",
+  "changes": [
+    {
+      "path": ".github/workflows/agdf-guardrails.yml",
+      "change": "modified",
+      "sha256": "ed229d327e10642d6a397e3c3273ae72c4efb073edb2ba4943d811e9b4ea1d10"
+    },
+    {
+      "path": ".github/workflows/codex-release-e2e.yml",
+      "change": "modified",
+      "sha256": "3f0a3cd3d11b774eecfbbc2153cc8785b432eeff39d79633522ab4fcbde0cc2e"
+    },
+    {
+      "path": ".github/workflows/host-compatibility-evidence.yml",
+      "change": "modified",
+      "sha256": "82b47da896cd7fb74ac1f9566744c786720a8f56b84182ea21a19ec78527b4f1"
+    },
+    {
+      "path": ".github/workflows/publish-agdf.yml",
+      "change": "modified",
+      "sha256": "9c4a10713ae4f0b9a11546126a495e4562172d16202ae59a8fc8a8627d410c41"
+    },
+    {
+      "path": ".gitignore",
+      "change": "modified",
+      "sha256": "f9a3911b9ed83c504dd67ba82d55aff19eb8c9c9c0d16bf8522e03b6bb71dca6"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "change": "modified",
+      "sha256": "be979b87bca3bce2aadcbf3b798e34b2777aa1502c425aebee0db376ae599075"
+    },
+    {
+      "path": "INSTALL.md",
+      "change": "modified",
+      "sha256": "886f17b84c91f84b6f1656142870b221e3e01290e9a51ecda80d8cb92ac863bb"
+    },
+    {
+      "path": "README.md",
+      "change": "modified",
+      "sha256": "27ef30f8a83735263b8347dcbeeb0b2db143dd813bfd53d7698f022580e74ac0"
+    },
+    {
+      "path": "docs/00-manifest.md",
+      "change": "modified",
+      "sha256": "ac62ced24abc9b1da029a0c2a177d6d35f9e906630652351b15b74bf77fb2363"
+    },
+    {
+      "path": "docs/03-artefakte.md",
+      "change": "modified",
+      "sha256": "444dc43d2daec990b39806c5a3c3199d9e8217fa84c5dff6ab2a633ad4478e4b"
+    },
+    {
+      "path": "docs/04-wissen-nutzbar-halten.md",
+      "change": "modified",
+      "sha256": "9c6ace7e63412e44359a8f36b20696ed2b52900a3d943c12ffadd603e98f5065"
+    },
+    {
+      "path": "docs/05-vom-mythos-zur-pruefung.md",
+      "change": "modified",
+      "sha256": "53f435bba30da9fd8ef3cc9cc115ef2a81e651b84f940ebcb843e6d81bdee040"
+    },
+    {
+      "path": "docs/06-vom-notizzettel-zum-delivery-lagebild.md",
+      "change": "modified",
+      "sha256": "ce12f21c8eac24f202761130c712271d6512c9d11a421c020e44dd3f951b453f"
+    },
+    {
+      "path": "docs/07-domain-driven-delivery.md",
+      "change": "modified",
+      "sha256": "b0e17eae4b06907bb221744f327121e66835d9c40ffafea6968e412aa798990d"
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "change": "modified",
+      "sha256": "b260ca8f5b3e563e17b236a8f52d9957abb9fc600dd526df3e607d4dd12a896c"
+    },
+    {
+      "path": "docs/architecture/dispatcher.md",
+      "change": "modified",
+      "sha256": "be74845c68be9316c73a070542b8b0c6136b892428607d46842ab46b60aade11"
+    },
+    {
+      "path": "docs/architecture/mcp-target-architecture.md",
+      "change": "modified",
+      "sha256": "037bc2b09ec04f6b40e5228bc5a1f92b78183e707fe1e8c503e6091fefd40eb6"
+    },
+    {
+      "path": "docs/architecture/package-structure.md",
+      "change": "modified",
+      "sha256": "d63ec106603d4345b7cd00055853f772cfc351758c9f9a6313806b22be4691f9"
+    },
+    {
+      "path": "docs/assets/agdf-von-agentenarbeit-zu-verantwortbarer-auslieferung.png",
+      "change": "added",
+      "sha256": "1ce5a1fc138c63b9667861ef16292cd09e4f69d0ed000e5b143123eca45c89ad"
+    },
+    {
+      "path": "docs/assets/artefakt-gate-tool-prozess.png",
+      "change": "added",
+      "sha256": "5fa40a0076a8c7acdb3fc82ca10f648a10f37187b2c5e65ab6800717b40a4290"
+    },
+    {
+      "path": "docs/assets/brownfield-agentic-delivery-stresstest.png",
+      "change": "added",
+      "sha256": "670b7fb6bbbcb7228078d03e4b1d47cb6efd812b12cb2c5ece036e71c05522d9"
+    },
+    {
+      "path": "docs/assets/brownfield-review-in-g00.png",
+      "change": "added",
+      "sha256": "d63cea44884d1a0cc1344131f037d15b860301e24fae06732753dcbf68c16f4d"
+    },
+    {
+      "path": "docs/assets/brownfield-zu-besseren-projektgedaechnis.png",
+      "change": "added",
+      "sha256": "7809fca161f593386c57da95793e692c72ed5da3fed9da1eea6f084fc9fbff1c"
+    },
+    {
+      "path": "docs/assets/coding-agent-tools-vs-framework.png",
+      "change": "added",
+      "sha256": "ee58974ec960c6ca9e618508e83edb0d0551ca12463ff0f63143684200ef14f3"
+    },
+    {
+      "path": "docs/assets/der-rote-faden-ai-delivery.png",
+      "change": "added",
+      "sha256": "a261e7bd1840a1351dc5c930a4df9cd033bf4929949d25b4b2f3c1de52507817"
+    },
+    {
+      "path": "docs/assets/example-greenfield-to-brownfield-gates.png",
+      "change": "added",
+      "sha256": "bca1e91f4268441e5a168026f98f6f18e14e88efcf0c8e1763296d946cdae3a8"
+    },
+    {
+      "path": "docs/assets/experiment-specforge-ai.png",
+      "change": "added",
+      "sha256": "a9b63f38730fecaedc2d184e255ff7b6e446cee7614e5a5dd8dbe85b199f3e78"
+    },
+    {
+      "path": "docs/assets/github-social-preview.png",
+      "change": "added",
+      "sha256": "3901e7c6b17104cffabb053937d298282315660c2a0de3231ba653467f88bb0d"
+    },
+    {
+      "path": "docs/assets/grundmodell-governance-delivery.png",
+      "change": "added",
+      "sha256": "ad51294d44459bfddfbc16924b7c16528f4097a221d60f9291c265a5c9b7d778"
+    },
+    {
+      "path": "docs/assets/intro.png",
+      "change": "added",
+      "sha256": "e4fdcc9ec54b2b534444b2b3434a6f68fcbc4d2b3eb71246aad9e86f47d0a752"
+    },
+    {
+      "path": "docs/assets/kernaussage-artefakte-grundlage-gates.png",
+      "change": "added",
+      "sha256": "60bdd81784ac60440cc11de64e9e2df67a0f35152b60ef5238a9519de437aa28"
+    },
+    {
+      "path": "docs/assets/komplexitaet-durch-struktur-beherrschbar-machen.png",
+      "change": "added",
+      "sha256": "e1aea158897610bec52c0cf4501262edb627c3663b780f16f81cc4c5b4529b63"
+    },
+    {
+      "path": "docs/assets/kontextgraph-artefakte-beziehungen.png",
+      "change": "added",
+      "sha256": "214550c88234479a6315256458d9db9700ac53192a9d685a179fb74d69e55348"
+    },
+    {
+      "path": "docs/assets/kontextkosten-artefakte-gedaechtnis.png",
+      "change": "added",
+      "sha256": "b7524d21d700dd5b3b23a2f120377ca80cd93a8df643ec656ac16410fbe98cf6"
+    },
+    {
+      "path": "docs/assets/llm-agent-gate-discipline.png",
+      "change": "added",
+      "sha256": "a9d5a1b9e1eaa2e5b8502775a9fe4712790db69ef4a80afd83898a86a1303829"
+    },
+    {
+      "path": "docs/assets/llm_ohne_artefakte.png",
+      "change": "added",
+      "sha256": "75c006caa4eaba9e8f82517a952fce0a3c407914fa6b474417cfa90895a4abfd"
+    },
+    {
+      "path": "docs/assets/logo.xcf",
+      "change": "added",
+      "sha256": "1749ad1b3cce446c47310726dc7b2f77960fe90ccb2bb6dfa92bddc01f9ce6b5"
+    },
+    {
+      "path": "docs/assets/notizzettel-zum-bauplan.png",
+      "change": "added",
+      "sha256": "1bebb2a4b96cd5993b13b66325d0fdfcfcc863ba81f75c48228290712cd57e7d"
+    },
+    {
+      "path": "docs/assets/polierte-oberflaeche-schwaechelnde-grundlage.png",
+      "change": "added",
+      "sha256": "fcab5b184e6c61654de916cb2ecad5b545a970c1499077599618f95fae337c8d"
+    },
+    {
+      "path": "docs/assets/qualitaetsvertraege-vom-raetselraten-zur-pruefung.png",
+      "change": "added",
+      "sha256": "086312b0236bdb0dd7374f8296a795ea6fd6a2e2246720b08a58c922ac16095a"
+    },
+    {
+      "path": "docs/assets/task-review-and-comparison-process-flow.png",
+      "change": "added",
+      "sha256": "ff08d7feeca84f884e338d72025594a1a15515f8f7164c50106fe9bd6e975c72"
+    },
+    {
+      "path": "docs/assets/vom-kontextgraphen-zum-delivery-lagebild.png",
+      "change": "added",
+      "sha256": "3a5d1bdf0e7b15938e57fdba1b8b2ebc62b40dd4831b8623a1653c0dbb4c7494"
+    },
+    {
+      "path": "docs/assets/wissen-gueltig-auffindbar-wiederverwendbar.png",
+      "change": "added",
+      "sha256": "f19385a2193ff0bfb8af5589cce7e9e05dce2ed9443170a70489aff739076ffe"
+    },
+    {
+      "path": "docs/assets/wissen-vorhanden-orientierung-fehlt.png",
+      "change": "added",
+      "sha256": "55ee41952f94a3131df82ae4a7ed2ec9af461d04b6e5ca7804d3805262ad9cbc"
+    },
+    {
+      "path": "docs/compatibility/HOST_COMPATIBILITY.md",
+      "change": "modified",
+      "sha256": "5eb1fa6d0a77db9280d22a5f44d9491df3b52d20857c5f8a786a47bf94749c81"
+    },
+    {
+      "path": "docs/compatibility/evidence/facts.json",
+      "change": "modified",
+      "sha256": "c7efc6096146006fe288a225ef3fcf7bf6cfc123fe4c54b2d192af0e3d48c7c7"
+    },
+    {
+      "path": "docs/compatibility/evidence/snapshot.json",
+      "change": "modified",
+      "sha256": "9305e93f5c77b90e0841f4fd2090a774c8c1521145bb9aeb310c9c20ea22dfe9"
+    },
+    {
+      "path": "docs/examples/sample-banking-flow.md",
+      "change": "added",
+      "sha256": "5f9c453d0db2070e109d4dc6931fe45d1ee3cb023d4c9bd179fddb6f5b5b4604"
+    },
+    {
+      "path": "docs/examples/sample-delivery-flow.md",
+      "change": "added",
+      "sha256": "6d0a735cfdd6c58b0fde0f65334baa98dd59587ef057be975af55368b46db023"
+    },
+    {
+      "path": "docs/handbook/de/06-fehlerbehebung.md",
+      "change": "modified",
+      "sha256": "9e2007dc125607a61069b9782137fc3ed036e84a71f34a84782ae110a9dfd421"
+    },
+    {
+      "path": "docs/handbook/de/README.md",
+      "change": "modified",
+      "sha256": "24dbb11de34e168d0fca8c75959c361b8f97e23ff738856b686c234ad9212128"
+    },
+    {
+      "path": "docs/handbook/en/06-troubleshooting.md",
+      "change": "modified",
+      "sha256": "a3268f29636aa4c116da689c808fd8c91db60a26445cfb05eff03bef0ac90504"
+    },
+    {
+      "path": "docs/handbook/en/README.md",
+      "change": "modified",
+      "sha256": "aba7411db92fa43281e1d8f03a7c43048198cb3add33f9eca5c4a42c9321ad0b"
+    },
+    {
+      "path": "docs/maintenance/README.md",
+      "change": "modified",
+      "sha256": "253a1417f2b944810cfa709af8ca4dc30e7a80c75fe4746204303a644f0b8cb4"
+    },
+    {
+      "path": "docs/maintenance/payload-budget-history.md",
+      "change": "modified",
+      "sha256": "a0f111ece866ef1aa40ee8159f0bb83409f315d6ffe2999bf40e8bc7bd1700e4"
+    },
+    {
+      "path": "evals/fixtures/architecture-impact-examples.md",
+      "change": "modified",
+      "sha256": "e887159aca21eefb947b642addecf36207a0df9efe87a5f7cadf4f3495d8d55b"
+    },
+    {
+      "path": "evals/fixtures/catalog.json",
+      "change": "modified",
+      "sha256": "e2357e6704a00a7aa85755108f8c57599ad4b1720f91034a44512c85890b209b"
+    },
+    {
+      "path": "evals/host-compatibility/manifest.json",
+      "change": "modified",
+      "sha256": "add0ee8e6791aa8a1cd238ce98fe6e3d2991794ec09a8934488e8514f5c16357"
+    },
+    {
+      "path": "evals/host-compatibility/observations/0bcae30f85e3ac7d23088db17b6d17aa312e622565934e228573adf92d27f0db.json",
+      "change": "added",
+      "sha256": "0bcae30f85e3ac7d23088db17b6d17aa312e622565934e228573adf92d27f0db"
+    },
+    {
+      "path": "evals/host-compatibility/observations/389c0d18b17426a05f90d2fb2949e255ac023c368b72275359666bdee5478012.json",
+      "change": "added",
+      "sha256": "389c0d18b17426a05f90d2fb2949e255ac023c368b72275359666bdee5478012"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/blind-prompt.js",
+      "change": "added",
+      "sha256": "a7acc9f4493425d85724389a2f3cc268c9fccf08479210f755640eccb5f6fac8"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/contracts.js",
+      "change": "added",
+      "sha256": "7dbf0c88a0215da9470cb065b1fb7eb7457287fea1cef609a1aa934219bd2952"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/corpus-loader.js",
+      "change": "added",
+      "sha256": "e1bab9cbdbdd1595d68998f5334c2fb57307608db44548a4672809ace0285ea0"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/evaluator.js",
+      "change": "added",
+      "sha256": "01d6c1f32aaf7ead1e2d6ea6134bea240e0bf4fa5378ba9b3711fa33a7ff00fd"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/index.js",
+      "change": "added",
+      "sha256": "aba83cbde3fbce192072520a8303f22f148a237b4eedde83de38206fa4485428"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/live-recorder.js",
+      "change": "added",
+      "sha256": "f6c920bb4fcb8f10d7fac10e5b6b2622995f418e3e1b23ed9472adb32b59b296"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/profiles.js",
+      "change": "added",
+      "sha256": "18d711ecb3f1dde762c06a964a15e3c2427cd350ff0e8300bfcb358046024056"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/report.js",
+      "change": "added",
+      "sha256": "3174e458879110ab62cb494e4e8763f2f9a7ad301ec73af367d3f07f53c46222"
+    },
+    {
+      "path": "evals/lib/proportionality-benchmark/source-fingerprint.js",
+      "change": "added",
+      "sha256": "138140e271a3ca23a05c25ee8e083daf2087ae6d226cb4fdb877819e27d60f2f"
+    },
+    {
+      "path": "evals/lib/request-activation-evals/behavioral.js",
+      "change": "added",
+      "sha256": "d3817dbe6c94f3ff1010cce9f77270c422cd5fcb11aeb26ca48b22353f0ae9f0"
+    },
+    {
+      "path": "evals/lib/request-activation-evals/composed-profile.js",
+      "change": "added",
+      "sha256": "2c4aefec695be27341205a916522c9d85b812097c1e497c8ea880ecd9ba1a960"
+    },
+    {
+      "path": "evals/lib/request-activation-evals/index.js",
+      "change": "added",
+      "sha256": "cb9618c9d84cb7a44428cd3f2657b5d438542f504f0d931c17056c29088bc143"
+    },
+    {
+      "path": "evals/lib/skill-evals/artefact-quality.js",
+      "change": "added",
+      "sha256": "bb4260a081fa8496b1b54d4ec4ca9b49f281755fe9630609065910bdffda17f9"
+    },
+    {
+      "path": "evals/lib/skill-evals/index.js",
+      "change": "added",
+      "sha256": "c86fa82f8b6831e07c100064258b68d2239d5682ec9b02157167b63cc98dbf67"
+    },
+    {
+      "path": "evals/lib/skill-evals/live-recorder.js",
+      "change": "added",
+      "sha256": "6bcc41b85b2e3719ea3fe8bfe740f3b4b28d7ed490871df7a81941da2557e30d"
+    },
+    {
+      "path": "evals/lib/skill-evals/workspace.js",
+      "change": "added",
+      "sha256": "ae13f60fe359b9a6094b301b68ca0e4490357f99b3609e16a96ab4bd9edf2f74"
+    },
+    {
+      "path": "evals/manifest.json",
+      "change": "modified",
+      "sha256": "7af95558cbc698a6f7a8da9b3893ed0e83088ee6782a0736c1dc953070cf87b7"
+    },
+    {
+      "path": "evals/observations/deterministic-replay.json",
+      "change": "modified",
+      "sha256": "c50b83696bef0373af2f28984ffdf102d4d7389c839c3bfe66fd265f4c058de8"
+    },
+    {
+      "path": "evals/request-activation/manifest.json",
+      "change": "modified",
+      "sha256": "5e6069b0fa9859938104c7066d191b62f58f9854bfa92936922ea0a156cc84d4"
+    },
+    {
+      "path": "evals/scripts/record-proportionality-benchmark.js",
+      "change": "added",
+      "sha256": "85e8870bc7565ba7c99c89a5b19795e3db5bc43850327f97a31c3aa96f293d3f"
+    },
+    {
+      "path": "evals/scripts/record-request-activation-evals.js",
+      "change": "added",
+      "sha256": "671bebd634ceb8f39820b5747afeaf134bbb0c4e210b5e1aebf0e85253fbb783"
+    },
+    {
+      "path": "evals/scripts/record-skill-evals.js",
+      "change": "added",
+      "sha256": "f00ca3a64e2a989f605fde5e916ca5b7ede87c26001e36a0f994c8e9d2470f43"
+    },
+    {
+      "path": "evals/scripts/run-proportionality-benchmark.js",
+      "change": "added",
+      "sha256": "4f1e52d7b4eaed470ffaac888f149b9d7ee4246fa96731503e844e7ab3495c3c"
+    },
+    {
+      "path": "evals/scripts/run-request-activation-evals.js",
+      "change": "added",
+      "sha256": "b7ee5385aa3e39de0a208b2db345db50c85918209cb2f486e156321b8f74139a"
+    },
+    {
+      "path": "evals/scripts/run-skill-evals.js",
+      "change": "added",
+      "sha256": "055f084be5948bce3b79a931c4c7a77d326ebcafec44fa56161a59766c0986b1"
+    },
+    {
+      "path": "package-lock.json",
+      "change": "modified",
+      "sha256": "c0099e45af91ef4f586c0b4d202e9f51628d8790e2e4cfc21db91530b3a8b2c8"
+    },
+    {
+      "path": "package.json",
+      "change": "modified",
+      "sha256": "6dbf158ca26f32a293d5fc1562f4072e6f5a5c18421ebc134edbef719950eff2"
+    },
+    {
+      "path": "packages/cli/LICENSE",
+      "change": "added",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "packages/cli/LICENSE 2",
+      "change": "added",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "packages/cli/NOTICE",
+      "change": "added",
+      "sha256": "02b6db380af7d83c6193ff8974147a77509b0b1d46a0216f6dbb82250c65fc78"
+    },
+    {
+      "path": "packages/cli/README.md",
+      "change": "added",
+      "sha256": "8b29be3761f52e60d609c46a1c1e49157028ff667e1ad3ea381443ce5a8a91ee"
+    },
+    {
+      "path": "packages/cli/bin/agdf-validator.js",
+      "change": "added",
+      "sha256": "0d92020ee7b3d4033b24f66be81941814fc773e4f3058e96c66ca2de2e3c61c0"
+    },
+    {
+      "path": "packages/cli/bin/create-agdf.js",
+      "change": "added",
+      "sha256": "33c8e1c8aa360e5e54cae17d6862441e22797be77a8f89fe611b57fa679073a7"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/LICENSE",
+      "change": "added",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/NOTICE",
+      "change": "added",
+      "sha256": "3bfe31e7d558ac011acdfd64a221dd91cddd7a0d41b165a8dad62df6a61e1aad"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/README.md",
+      "change": "added",
+      "sha256": "d172eec6bc081d0c97ab4c327a7fe8de551b40370c37b984b2c5deb9160a2e63"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/bin/agdf.js",
+      "change": "added",
+      "sha256": "36156f8f708dcc8729a71fbea932e15c91f1cce91089ac77ba5f2be5ce66ad0e"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/package-lock.json",
+      "change": "added",
+      "sha256": "31f9d495214ef7ceea89bb530c51d7a32d45d88b6b702bbc3c8a8493f00d74a7"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/package.json",
+      "change": "added",
+      "sha256": "365658087ec3a022640a7aba70b144faebeff83c8f2c4c6bed0ae71e4a1e6656"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/scripts/package-test.js",
+      "change": "added",
+      "sha256": "d8bdb31d1a6a7257ede7eb5bf14cb64b12b352b2047ae1169067f556399c567b"
+    },
+    {
+      "path": "packages/cli/distribution/agdf/scripts/smoke-test.js",
+      "change": "added",
+      "sha256": "d794879a1fa626df0961191bdcba5a8fcd588e5df044281c5f6ce006431af5b7"
+    },
+    {
+      "path": "packages/cli/lib/cli/application.js",
+      "change": "added",
+      "sha256": "3ba3afb02c04c48120d8770b0e82329bd2457710304f090a74f7cd4119db1e91"
+    },
+    {
+      "path": "packages/cli/lib/cli/command-registry.js",
+      "change": "added",
+      "sha256": "3f2e65e79fd178721422c5cba5db270155710f41c15b8b3f9a3f0e92a3568258"
+    },
+    {
+      "path": "packages/cli/lib/cli/contract-command.js",
+      "change": "added",
+      "sha256": "98febc529109992323411a98d2b38ea5273913adfddc617e23f1f5dfd3a85b69"
+    },
+    {
+      "path": "packages/cli/lib/cli/control-maintenance-command.js",
+      "change": "added",
+      "sha256": "9601b8f689964416c336769746a3b3f48c580e35f68468ea59f1c055410615f4"
+    },
+    {
+      "path": "packages/cli/lib/cli/delivery-path-search-command.js",
+      "change": "added",
+      "sha256": "2cb66063212ee965e2894a93def1cf71efd7d8fd83ea09357f68383510210f71"
+    },
+    {
+      "path": "packages/cli/lib/cli/parse-args.js",
+      "change": "added",
+      "sha256": "a934e13bb4de1ef228983ebf81265fbe43118d18fac096351abe49297b37eddb"
+    },
+    {
+      "path": "packages/cli/lib/cli/runtime-context.js",
+      "change": "added",
+      "sha256": "c3dfdcbdbe1e966bb6dfdd3b6b51cc5f52114ac1472e59a753d8ea65b509a4ad"
+    },
+    {
+      "path": "packages/cli/lib/cli/validation-handlers.js",
+      "change": "added",
+      "sha256": "547b66c6ae8451b70cfb36b6754e02e8dd28d0454fd0efaa82d0d7d6647599f7"
+    },
+    {
+      "path": "packages/cli/lib/control-command.js",
+      "change": "added",
+      "sha256": "8a72387a281a688506edab51d830e64170ceeea19c29c30ddb1aeb78f710600c"
+    },
+    {
+      "path": "packages/cli/lib/control-evaluation/git-observation.js",
+      "change": "added",
+      "sha256": "f917979a37a4e6ada9620361a1b48cab6602025f5e01b8ed2aa2a3667cc4fc24"
+    },
+    {
+      "path": "packages/cli/lib/control-maintenance/interaction.js",
+      "change": "added",
+      "sha256": "beb3c0c72611cdeb151e1512d4870b212edc048e9b2dd69fbc63654cbf276ad1"
+    },
+    {
+      "path": "packages/cli/lib/control-maintenance/repair.js",
+      "change": "added",
+      "sha256": "780ca9a152c06a877a9a315659dbf676fb173a2e8994d94f241c36a96cd04d2e"
+    },
+    {
+      "path": "packages/cli/lib/control-maintenance/service.js",
+      "change": "added",
+      "sha256": "b25766bf4320d3fa8773d5b291a03501be4b762a4e9112f78b86216b57ffb5cc"
+    },
+    {
+      "path": "packages/cli/lib/control-maintenance/startup.js",
+      "change": "added",
+      "sha256": "680ad9be0b8c8d52d54ee186f27b9a6e85f50930fc5225e148cab122d1f267e5"
+    },
+    {
+      "path": "packages/cli/lib/control-state/run-recovery.js",
+      "change": "added",
+      "sha256": "56f3cae8ff4e70d7d69337ccf067fa9dd7516f57f83ee6c4733bda6844c89dcc"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/evaluators/claude.js",
+      "change": "added",
+      "sha256": "580b2f8a8e68ec8a70e9314dc0e17d7fdf5e9d68171d282e62803f5e87e05655"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/evaluators/codex.js",
+      "change": "added",
+      "sha256": "bf6cf1a7c446adc9d8908c469a96a1cd487cf4ad55e61ef6a0c902c3a75f8d6c"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/evaluators/opencode.js",
+      "change": "added",
+      "sha256": "a58850265a131a16511e81a6af78075550541969209740f391a8f3bc641d61e2"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/evaluators/prompt.js",
+      "change": "added",
+      "sha256": "d07f0129a150a673d2f8c7a704040b4b0138b032463cd08c9ffd1175b81fdfa0"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/evaluators/protocol.js",
+      "change": "added",
+      "sha256": "3a629b0217807a6b38af485b4b18b42b07230d0bb1738b841f071f3c3894ab9c"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/generators/claude.js",
+      "change": "added",
+      "sha256": "0b3476a4d50d726f5937700e3941d39a71e0c7db15253948adc7c067995294ba"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/generators/codex.js",
+      "change": "added",
+      "sha256": "39d3af5adbf4fe0bbf00a8b56a8e2b66a52b7aa217b0a47c620dbc017069c671"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/generators/protocol.js",
+      "change": "added",
+      "sha256": "cc9a9354a97183501a3fa34a4b5d5ad3c6e7f6fff565a1ec7cd55b84a7fed40c"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/surfaces/capabilities.js",
+      "change": "added",
+      "sha256": "1a05a9607022be003725a99d1468f4775fffbb4f816448dc0fb279212f21213b"
+    },
+    {
+      "path": "packages/cli/lib/delivery-path-search/transports/read-only-guard.js",
+      "change": "added",
+      "sha256": "d1a428f69c8cebcd5c1b850a30c9fbfa171d704e00ad32dd45b02a537fc4f241"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/loaded-sessions.js",
+      "change": "added",
+      "sha256": "421d34b55a5c7214adfe11f3618cd1e686de5f86e767e4ae1103c2334edc7d27"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/marketplace.js",
+      "change": "added",
+      "sha256": "ba16c8322947f0e58618a3cfcf39db73cf6b417ac39b52a3215d3d9d7b4c6136"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/permission-rules.js",
+      "change": "added",
+      "sha256": "099e2d5f8a567b73fd47f5631a60cc2fe26cee5f2f740cbedce6a058468cd010"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/plugin-mcp.js",
+      "change": "added",
+      "sha256": "5b158208e910b84ec414dd879cdc4c20aba8288ae60142c7c8ede0e5717464c5"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/plugin.js",
+      "change": "added",
+      "sha256": "4349643e093dc5bf43c4bd80291c24f1efcc9f43fbe8e67d93a0adb1b8c20075"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/runtime-check.js",
+      "change": "added",
+      "sha256": "fe309c71b70bd88de458393c1dd3e9356b6c31546fa27e21895b4a699e28e0ac"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/session-command.js",
+      "change": "added",
+      "sha256": "fc705975f1378497bae641f9d679ae13ccf7f48032da6e2eb3cb0f7b0927cd35"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/claude/uninstall.js",
+      "change": "added",
+      "sha256": "50242d948f1bbe4d8bb66e8ee949905f520b0809dbbba47fdce88e259a7f3d9d"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/codex/identity.js",
+      "change": "added",
+      "sha256": "b66011d015b3f0e07996f320bdf78079d55bb30cc4eae72fcf6bb1d3d9efc212"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/codex/plugin-mcp.js",
+      "change": "added",
+      "sha256": "a4ac1464f89b01d7d557d38b8134e05c3845d4359df9ef71936266b0ebca880d"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/codex/plugin.js",
+      "change": "added",
+      "sha256": "aa8c1b131b4661c0bcdfd056aa317fbf5f392506a8f95aa91a80e865b634dd62"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/codex/runtime-check.js",
+      "change": "added",
+      "sha256": "bcead3a92db8e3ae12ee8c2770c6c44917bb2a14cb590e170a6fa703904358bb"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/codex/session-command.js",
+      "change": "added",
+      "sha256": "64035f8eb12dd968f4401cbfd91d9a9e34588ca93d64f24af731cf1971267003"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/copilot/plugin.js",
+      "change": "added",
+      "sha256": "2111314a899050559aee5760f310ff953e3205d7339d7525817470f31670e41c"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/copilot/session-command.js",
+      "change": "added",
+      "sha256": "eaf1e9b41afc50941234aee7b7ae9c429edde396612397238ac16db33f79ff87"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/opencode/runtime-check.js",
+      "change": "added",
+      "sha256": "0f79e851c91f17b67765ac69e48dca09574aaaa150902d5efddf42ce7f22ceab"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/opencode/session-command.js",
+      "change": "added",
+      "sha256": "6c93d33e2d6361c4bc929ee755e9d7b992d5f6ae94841c665713e6516d69915b"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/opencode/status.js",
+      "change": "added",
+      "sha256": "0408e60067c6bc99cae1eef63cb1c98b5abee70268fc8c389d5118c08d1a09d0"
+    },
+    {
+      "path": "packages/cli/lib/host-adapters/session-command.js",
+      "change": "added",
+      "sha256": "b85809f049be9d285f3db5c9b23ccc99c735ebf2ac4a40eacae345d382c73010"
+    },
+    {
+      "path": "packages/cli/lib/host-command.js",
+      "change": "added",
+      "sha256": "3794812eee3bac2ebd49c70da27be279ce31c5330ea6d992160aaa5b36a77aa6"
+    },
+    {
+      "path": "packages/cli/lib/install-setup/contract.js",
+      "change": "added",
+      "sha256": "fa78b736dba61f816cd379133984712200aac6b9df9635b8aeae5d9efa8e1cf5"
+    },
+    {
+      "path": "packages/cli/lib/install-setup/control-migration.js",
+      "change": "added",
+      "sha256": "d92a9c9c7d85ecb70da692e0cbd28d71101376870f221a4816d4100d59af1c1e"
+    },
+    {
+      "path": "packages/cli/lib/install-setup/control-repair.js",
+      "change": "added",
+      "sha256": "55154bcdbbbdc5d1771d2d373baba6553ff2691d201a4479498a7d5b513bb89c"
+    },
+    {
+      "path": "packages/cli/lib/install-setup/interaction.js",
+      "change": "added",
+      "sha256": "73d9aeb59d161b0c928b5dd5b12f197371c07c05726a13afcb28ad9de768174c"
+    },
+    {
+      "path": "packages/cli/lib/install-setup/presentation.js",
+      "change": "added",
+      "sha256": "2b5b5dbee985b5bb006cd53650459c7c5b28a98fbe34ea0104eaf40917c1c378"
+    },
+    {
+      "path": "packages/cli/lib/install-setup/service.js",
+      "change": "added",
+      "sha256": "6f736dbb3877fe31178adc4269e911520273038e42db1da0790ee221822dd4d9"
+    },
+    {
+      "path": "packages/cli/lib/installers/claude-cache-recovery.js",
+      "change": "added",
+      "sha256": "2762af266891804cd48ea0d568c3e03ee890017c30a2c2602b2810625a921ee2"
+    },
+    {
+      "path": "packages/cli/lib/installers/copilot-marketplace-transport.js",
+      "change": "added",
+      "sha256": "94150b6858ad346f9319d9a7efd08ae1590c11177964ada3f74b16d7a5809ebd"
+    },
+    {
+      "path": "packages/cli/lib/installers/copilot-precedence.js",
+      "change": "added",
+      "sha256": "5a1cb9a1bf7d160772fe87ceb14f6871d94421aa7249fcb7b89523e3549e5ec6"
+    },
+    {
+      "path": "packages/cli/lib/installers/copilot-settings.js",
+      "change": "added",
+      "sha256": "347b44154c670e37ae1ff14d77ff11df2a5d1c6b8bbcb9152c612f41075a0f4e"
+    },
+    {
+      "path": "packages/cli/lib/installers/copilot-skill-discovery.js",
+      "change": "added",
+      "sha256": "c43849fa0e7e9f582e45ac23697beab46fa58f67d012478e94872d71fed400ab"
+    },
+    {
+      "path": "packages/cli/lib/installers/local-development.js",
+      "change": "added",
+      "sha256": "2ce5440bb014dbdee19acdbfcfb573cd68d459ff82d9fabd0cb4daef96622296"
+    },
+    {
+      "path": "packages/cli/lib/installers/local-marketplace.js",
+      "change": "added",
+      "sha256": "2fa8db4c72b22aac702b73d60ca99e33926a252c86ed4f3f134a19e43becb3b5"
+    },
+    {
+      "path": "packages/cli/lib/installers/npm-invocation.js",
+      "change": "added",
+      "sha256": "7710fa08ce24ecb708b0c8e4793716b616e4fa5712b5438220f3c93bc738acc5"
+    },
+    {
+      "path": "packages/cli/lib/installers/opencode-activation.js",
+      "change": "added",
+      "sha256": "cea852fee63597bc5906e5cf1b71d3fd78fe787b4abf0b41ba41c5ce952d93e2"
+    },
+    {
+      "path": "packages/cli/lib/installers/opencode.js",
+      "change": "added",
+      "sha256": "36612b0d82b36f64208b95fb78a22fc8efeeec54005819ed9dbd81cdf61bf44e"
+    },
+    {
+      "path": "packages/cli/lib/installers/plugin-command.js",
+      "change": "added",
+      "sha256": "b8cbf7fb08746b5d54d2216b9d201b2ec7f0db6686bb56bafdc308747fea925a"
+    },
+    {
+      "path": "packages/cli/lib/installers/plugin-installers.js",
+      "change": "added",
+      "sha256": "2d9b9b9ac3fa69dc5e1057501fecc8dc5ae559d51e00b4b39a96ceeac2573a33"
+    },
+    {
+      "path": "packages/cli/lib/lifecycle/operations.js",
+      "change": "added",
+      "sha256": "055804b817fffcdae9064e6cd295a1b0b75ce4c4204f10320d003fba85db1b03"
+    },
+    {
+      "path": "packages/cli/lib/lifecycle/owned-mutation.js",
+      "change": "added",
+      "sha256": "1ad6b293022fce6adbc13ff920391e9e8f7c66438bc6aab78a7b6a08b625fca2"
+    },
+    {
+      "path": "packages/cli/lib/lifecycle/presentation.js",
+      "change": "added",
+      "sha256": "5039d12749cc690a9788091608a816ba891dcd17ea66a7550a3c43a9c9b52c56"
+    },
+    {
+      "path": "packages/cli/lib/lifecycle/result.js",
+      "change": "added",
+      "sha256": "16c5f406a0fe08e90afb1b70fb95945011553e556ac262e0424b7d7201801ca7"
+    },
+    {
+      "path": "packages/cli/lib/lifecycle/status.js",
+      "change": "added",
+      "sha256": "4af6f4d9366aa07264902ce7b3426a229119574776f3c49ec4054934e0cdc36c"
+    },
+    {
+      "path": "packages/cli/lib/live-agent/read-only-structured.js",
+      "change": "added",
+      "sha256": "00a6fac3f4f2edd6b20907b25fa305b87b65c7f0773e37360a657d8a0e2066fc"
+    },
+    {
+      "path": "packages/cli/lib/mcp-dispatch-runtime.js",
+      "change": "added",
+      "sha256": "9357c9669d32757316f9dea22d2160a7dd5298bf92f19ede249652df4c9d67c9"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/adapter-contract.js",
+      "change": "added",
+      "sha256": "000981e6b3e21a246c4d30d29a56582f3076dcf04f22a2ce3b29d6ddc6c84866"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/adapters/claude.js",
+      "change": "added",
+      "sha256": "daf90cc9e276a167d9e1e5dc7427953df5d5bfe4381cbfa67a6996b0ef3b82d3"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/adapters/codex.js",
+      "change": "added",
+      "sha256": "6fc37aef754b3c97b73eeb2723d522e735725ab593fa8460c4cbbff0f126a7e2"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/adapters/copilot.js",
+      "change": "added",
+      "sha256": "b7698c871c48e282a6fa02790feb22f47b757fa769eea355831ca97e135be76f"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/adapters/file-utils.js",
+      "change": "added",
+      "sha256": "bd6402b3876540a98c13947ff13d64f07f389a9fe12e32b7dd3f84d8943c6abb"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/adapters/opencode.js",
+      "change": "added",
+      "sha256": "3d4cb3d2be01f5a0ecb8f6c3615317dc00667c5f4b6dfb5414a8313dc020a5ee"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/evidence.js",
+      "change": "added",
+      "sha256": "ef9ea353495ebaa052e041e59f1d85ec370bc03fdcd00f7a54f6c3c592ac2a57"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/host-config.js",
+      "change": "added",
+      "sha256": "de8ff16e62a067c2e0ae123427ace250c22b1e2a16ec036be1c10d96a7e2cb4d"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/package.js",
+      "change": "added",
+      "sha256": "adfc9b8abb5f61daab55272cd2f1301bd6b4c337f51e4cf19304cd121fdca9e0"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/plugin-runtime.js",
+      "change": "added",
+      "sha256": "57b5d1c9843a2c0fd61440ddfb96bf41a532bd08ffd31c9bccac8b52e25fbd6b"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/presentation.js",
+      "change": "added",
+      "sha256": "1cb2f0e9c0db585595187a641ae3a34af263913e6679bb7b8c9d4c5794c0b4fd"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/profile-context.js",
+      "change": "added",
+      "sha256": "1b48011d7e6ea1136e0d775613f7a5dcadc0ed78b27ead1a8dc11edc44535e74"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/profile.js",
+      "change": "added",
+      "sha256": "0633b8cfef34f4f7898312fc822c7bc9b7fce7d5c8eb7077d61ff30d4d9aabdc"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/result.js",
+      "change": "added",
+      "sha256": "9737de38f8e9de82c85ec1f60712aa7e210952d0064e8282be72291fc57810d7"
+    },
+    {
+      "path": "packages/cli/lib/mcp-lifecycle/service.js",
+      "change": "added",
+      "sha256": "f265a9ef8a26a5d9d578c2f3926d5808eb3b04a4f214d37ddc9034be38255ab7"
+    },
+    {
+      "path": "packages/cli/lib/npm-invocation.js",
+      "change": "added",
+      "sha256": "958177d886bebb7d2b9a1b55fa46b8f7f1663a2cfdc76969db41868cc66e8c34"
+    },
+    {
+      "path": "packages/cli/lib/repository-context.js",
+      "change": "added",
+      "sha256": "6d27ed2e29278466306bf54316fd3714399b45dabd9bb357bd3118c82016ae82"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/adapters.js",
+      "change": "added",
+      "sha256": "633dae568fd1c9488daa804fcc588144786571358ccd20e67923c87ca6baa63b"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/claude-settings.js",
+      "change": "added",
+      "sha256": "126f54aa727479eb7747ec9e56ba88aa68cf9a606da93d9a3a5e64e56f3481a1"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/codex-hooks.js",
+      "change": "added",
+      "sha256": "5662c0bb234b753df9aad7cba72e45ec010229b137aa766e17841be41d25a440"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/codex-plugin-consent.js",
+      "change": "added",
+      "sha256": "ca4cb2b62fda57a76796b5f79b0fa09b10b528dc4d15f5e614de739522fe5c73"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/contract.js",
+      "change": "added",
+      "sha256": "41842832e785d712cab479dc1b0b1b1590940924f5f5793c4e1a15b0703d2733"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/coordinator.js",
+      "change": "added",
+      "sha256": "2b57291e13058d89296cf59f6e432c9e757b0a2efb21ee486807502ee15b61a5"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/service.js",
+      "change": "added",
+      "sha256": "338f97a741d091db276f04c286b36a89d50f97a4dd23e8434ef496f0be779615"
+    },
+    {
+      "path": "packages/cli/lib/runtime-check-consent/state.js",
+      "change": "added",
+      "sha256": "d92120c519995d543e100582eb0f58309abd6f61d097560d4fa41fda777adfe2"
+    },
+    {
+      "path": "packages/cli/lib/runtime/control-command-service.js",
+      "change": "added",
+      "sha256": "05a0a85077eef1418cbdd1b5d5bedf70bc094291a4ae89d232eb98d750a1c376"
+    },
+    {
+      "path": "packages/cli/lib/runtime/control-context.js",
+      "change": "added",
+      "sha256": "74b7543e826e448e6754a719d15a895be9cfe4a1119eceda016ab8eba2f555c9"
+    },
+    {
+      "path": "packages/cli/lib/runtime/git-history.js",
+      "change": "added",
+      "sha256": "33f00607ab129a66afe80f76c6da7db62035525b78b09a68fa6057d21b8d8556"
+    },
+    {
+      "path": "packages/cli/lib/runtime/git-originals.js",
+      "change": "added",
+      "sha256": "3ccf5805215251f06f14a95a3a1d938e4942b7546ac65dc04300bbcc7be38cce"
+    },
+    {
+      "path": "packages/cli/lib/runtime/local-validator.js",
+      "change": "added",
+      "sha256": "d81697d7200761592a59d3ba8509b860a96b5fce3c0f8ca18a450bd981b883c5"
+    },
+    {
+      "path": "packages/cli/lib/runtime/plugin-provenance.js",
+      "change": "added",
+      "sha256": "3cfa9cfe356c36cb2331a4988eeea93648805360fa505dd9f3e8073d9f3a70b6"
+    },
+    {
+      "path": "packages/cli/lib/runtime/runtime-probe.js",
+      "change": "added",
+      "sha256": "f0c01b171169a3f619392543c1ac9dcb4d7ec66a92fec9306ed0bf2644ad4151"
+    },
+    {
+      "path": "packages/cli/lib/runtime/validator-application.js",
+      "change": "added",
+      "sha256": "913c2823c860acbb14071e7b9ff53848666e2a92073d9a74b391accab6eb3a6e"
+    },
+    {
+      "path": "packages/cli/lib/scaffold/canonical-init.js",
+      "change": "added",
+      "sha256": "09592c968e043c168b0513b33b4c54dcc68cb30c371636a3d2c6f268c92198c7"
+    },
+    {
+      "path": "packages/cli/lib/scaffold/plan.js",
+      "change": "added",
+      "sha256": "7a44a4bcc8a3c8050b87c3ad68f2c16adb860001dbfaf02237e7364564e4ddfa"
+    },
+    {
+      "path": "packages/cli/lib/scaffold/presentation.js",
+      "change": "added",
+      "sha256": "370edd4c58618474389a6a2f148bc253b1e9c52fa609192931df3862e469e233"
+    },
+    {
+      "path": "packages/cli/lib/scaffold/write.js",
+      "change": "added",
+      "sha256": "27a6e8faa6a4a2c25fb8f3aec6a43ec0cd832e41b19f9ad78755b54e894513e4"
+    },
+    {
+      "path": "packages/cli/lib/skill-dispatch/binding.js",
+      "change": "added",
+      "sha256": "2051b5ac592c46faedeb5f415964ea5fe86cbd83729cd2c2cfa76a1f7faf29e1"
+    },
+    {
+      "path": "packages/cli/opencode-plugin.js",
+      "change": "added",
+      "sha256": "17ca66aecd2961a2a2fdc7542e153afb3f2ded8c63a91a858a40938aa9de86aa"
+    },
+    {
+      "path": "packages/cli/package.json",
+      "change": "added",
+      "sha256": "92d918c261ada8754ff57666a8f6d4949c2a8f7bbd34223f62a2f92c5997139a"
+    },
+    {
+      "path": "packages/cli/scripts/agent-skills-conformance-test.js",
+      "change": "added",
+      "sha256": "6e93645f1869ad79411a0ac3e6be763d0d9c009b2b7b175a3af627e3a87e7b41"
+    },
+    {
+      "path": "packages/cli/scripts/canonical-init-test.js",
+      "change": "added",
+      "sha256": "cd3c966cc11edb503e5f1c02bd2b05a357d5ce2dfd052cf2533e3ba203c8a5ec"
+    },
+    {
+      "path": "packages/cli/scripts/claude-cache-recovery-test.js",
+      "change": "added",
+      "sha256": "25028acd3832d6db534e1f194847509592b1ab6a3d46299166a23379b1f6fd72"
+    },
+    {
+      "path": "packages/cli/scripts/claude-plugin-mcp-test.js",
+      "change": "added",
+      "sha256": "4ed0068863a6bafdfbda1cec36f64c18030f9712ad4a2b39e079bbe6f4944d8b"
+    },
+    {
+      "path": "packages/cli/scripts/cli-gate-scenarios-test.js",
+      "change": "added",
+      "sha256": "a02cee7cfef6d4385234579e3affb1a7b2682c21a663101110f9a3818086fec0"
+    },
+    {
+      "path": "packages/cli/scripts/cli-modularization-test.js",
+      "change": "added",
+      "sha256": "20a24944ec9ad8e81088830383f94243ce2c9b56739b49ac799224245056c89f"
+    },
+    {
+      "path": "packages/cli/scripts/codex-hook-observation-test.js",
+      "change": "added",
+      "sha256": "3d05f0df8c2e6624c02c59322e2869b7666530843ea3a3887b4e87f3b958b3e3"
+    },
+    {
+      "path": "packages/cli/scripts/codex-plugin-consent-test.js",
+      "change": "added",
+      "sha256": "c0ee2ed10a49358720817e62cf77ffee13ee9b7e66df4803d35a0c826fe7d36a"
+    },
+    {
+      "path": "packages/cli/scripts/codex-plugin-mcp-test.js",
+      "change": "added",
+      "sha256": "c3a9c5b78f4afc909f542f9b0ad8792e0fa320038a4f9e838011ff13260a08ff"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-package-test.js",
+      "change": "added",
+      "sha256": "054a8deaf80767710b2852cb6cf979c4bf5c7e30b3089b6c782c55ac189cbacd"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-process-test.js",
+      "change": "added",
+      "sha256": "cf3e5556e6d90d9eeb1d7e7e83420b847e6bbd152af8cc3bad651b3f43828cb2"
+    },
+    {
+      "path": "packages/cli/scripts/control-command-test.js",
+      "change": "added",
+      "sha256": "6b25b67119a8af7af5523a3c4b625cc0af9d46b0295754b49e6db202ba6da92d"
+    },
+    {
+      "path": "packages/cli/scripts/control-inspect-test.js",
+      "change": "added",
+      "sha256": "42f2c56448c432d771173d1f2f1e57158b67a7c64b6f3aa8b3068f89612a8fa4"
+    },
+    {
+      "path": "packages/cli/scripts/control-maintenance-command-test.js",
+      "change": "added",
+      "sha256": "eeb257f7f9b3370c059b54fb4ba09533cc39fd65c0f338ff15964cf136619033"
+    },
+    {
+      "path": "packages/cli/scripts/control-maintenance-fixtures.js",
+      "change": "added",
+      "sha256": "8af0730d6f8885f98a3d1dbc5aa1f7b588a352fdf3d7d69030d28f36e9b7d99b"
+    },
+    {
+      "path": "packages/cli/scripts/control-maintenance-test.js",
+      "change": "added",
+      "sha256": "14a628f0d22b49341be6e6b87ae4a48c12e06677d0703f39558f55abcc73b797"
+    },
+    {
+      "path": "packages/cli/scripts/copilot-installer-test.js",
+      "change": "added",
+      "sha256": "0636f5cebe76937fa2f61c3cd2af297c1997a1919a2a7449429ea29ec9774a48"
+    },
+    {
+      "path": "packages/cli/scripts/copilot-profile-test.js",
+      "change": "added",
+      "sha256": "7caf2799402a8d5c0855c3e8d98fa443b4725769cb8688699a9e022b0dc15e7a"
+    },
+    {
+      "path": "packages/cli/scripts/copilot-repository-retention-test.js",
+      "change": "added",
+      "sha256": "1415465c2005cbc72e6cf30b6fd45642ed42452a0dceb586a33690d428ab60bd"
+    },
+    {
+      "path": "packages/cli/scripts/delivery-path-search-generator-test.js",
+      "change": "added",
+      "sha256": "bb10893afc1b153edbd367d3b14feee30309c5f60f1db5305df45f9e0feef918"
+    },
+    {
+      "path": "packages/cli/scripts/delivery-path-search-test.js",
+      "change": "added",
+      "sha256": "bd613b289690fa239fed15d5b0a22f4c9729ae52c546483700cf2da5220b25ea"
+    },
+    {
+      "path": "packages/cli/scripts/delivery-run-assignment-test.js",
+      "change": "added",
+      "sha256": "c7d1a8201370218ed28f6cc2358b42b9d44604619ac1d2ce8f326f09a283840d"
+    },
+    {
+      "path": "packages/cli/scripts/distribution-profile-history-test.js",
+      "change": "added",
+      "sha256": "dbcc6479d3bc0f942bab65fab91053f5bf58b480cbc3521e92e4f7b6c621c71c"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/delivery-path-search-generated.json",
+      "change": "added",
+      "sha256": "6f36f8b533352ca352f8391bccdea4116e5918cdfc221d1ddf8e497909ad58b4"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/delivery-path-search.json",
+      "change": "added",
+      "sha256": "984c1ec7d485626662ec3aac9bd5207b1dc89d1eb0ebb71bd4d9d6438441a980"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/claude.js",
+      "change": "added",
+      "sha256": "688eb94bdad7efbde1deab47281a5c2b2c943f3bfa2a605cdc808157fc658bbe"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/codex.js",
+      "change": "added",
+      "sha256": "b983d05d2cfc478a110701439586af6318afbaa437a958d515f5e7422376ec5c"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/copilot.js",
+      "change": "added",
+      "sha256": "42cfe778e148da01d69c044680ece5593c1d196b98ea9d9e41a2d28000a83e4a"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/discovery.js",
+      "change": "added",
+      "sha256": "6d9adbd1ace9a9cc92cb02a044bcdf7a2eef89cf8c191d6ecb049b496548bb43"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/marketplace.js",
+      "change": "added",
+      "sha256": "2780821ec88f727ce85b1b2a9432bdc3be82a63aa8bdb66d8094a83a9d8b6995"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/opencode-exec.mjs",
+      "change": "added",
+      "sha256": "b560e2e7d2df208a32038b599ec47bafae1cd8d6d88b765f7ede24e61ced5207"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/host-compatibility/opencode.js",
+      "change": "added",
+      "sha256": "8a1fd0f72161f3527f30861b7b7bca6788c948f8150ed4af793675f4f4387e5c"
+    },
+    {
+      "path": "packages/cli/scripts/fixtures/skill-dispatch-language.js",
+      "change": "added",
+      "sha256": "7bcff6154321d0a86736df5125afd10559885f0ede61c55676f24f12200670c1"
+    },
+    {
+      "path": "packages/cli/scripts/gate-check-missing-control-test.js",
+      "change": "added",
+      "sha256": "af07c6e8a8cff628ddd57df4864457287b5b78f415a9331a859a23895cef06d0"
+    },
+    {
+      "path": "packages/cli/scripts/host-command-test.js",
+      "change": "added",
+      "sha256": "2c9dd1793da404fdcfdf8db2cf6234652815dc5c25464380b66cb8ab699b2627"
+    },
+    {
+      "path": "packages/cli/scripts/host-compatibility-test.js",
+      "change": "added",
+      "sha256": "7d3cc58c1943c3cf9d268baa6d81db727ee6d39fe891afd11783234ce00e06b5"
+    },
+    {
+      "path": "packages/cli/scripts/install-control-repair-test.js",
+      "change": "added",
+      "sha256": "5cccb36f23291a93a7f603769af8467d1fa7fea28f52f9969c219779a40279c9"
+    },
+    {
+      "path": "packages/cli/scripts/install-local-plugin.js",
+      "change": "added",
+      "sha256": "4a2410d9530a77769310503e80f90778678f6042f34c5364453afdb898a04a65"
+    },
+    {
+      "path": "packages/cli/scripts/install-setup-contract-test.js",
+      "change": "added",
+      "sha256": "cbf461a3ff3e2f15fc24a65ed7fac633cd3238406edae9a107e880dc2aaa7f94"
+    },
+    {
+      "path": "packages/cli/scripts/install-setup-interaction-test.js",
+      "change": "added",
+      "sha256": "5a48113da3c6a55e96251b145f746f63f69bd2bb9c3704644382c44aa3ef96e1"
+    },
+    {
+      "path": "packages/cli/scripts/install-setup-service-test.js",
+      "change": "added",
+      "sha256": "8c6e82d9f0082e0e810620e2a3d7bc40f7976618a5f0601abdddbc24b187cdfd"
+    },
+    {
+      "path": "packages/cli/scripts/instruction-footprint-test.js",
+      "change": "added",
+      "sha256": "f0621dfb1a476e16be241e16d34158afff98f3c2fe88a1cc1fb9511b21bcd71f"
+    },
+    {
+      "path": "packages/cli/scripts/intake-continuation-test.js",
+      "change": "added",
+      "sha256": "d49b372ec2e22d7878f23145bede2ef183eae3e48264ec8c0da2762bb7312b5b"
+    },
+    {
+      "path": "packages/cli/scripts/interaction-catalog-test.js",
+      "change": "added",
+      "sha256": "c97feff161dbf78ff9c18c742666abcefe64a5413737cb2d89d5e5f2b7cbfe75"
+    },
+    {
+      "path": "packages/cli/scripts/lifecycle-test.js",
+      "change": "added",
+      "sha256": "be3d25e80492bc20609b9102b5cdda57584d46c0ca7f3990033f9fb26c4ce76d"
+    },
+    {
+      "path": "packages/cli/scripts/local-development-install-test.js",
+      "change": "added",
+      "sha256": "31edab70633cc65bc02158562264b1bff55c322a3a26957f386792062a546c24"
+    },
+    {
+      "path": "packages/cli/scripts/local-marketplace-test.js",
+      "change": "added",
+      "sha256": "b4cfb68450bcc98ac0bf3bf5a367a50fbaab152895cab75950ad19e38a8cd2d8"
+    },
+    {
+      "path": "packages/cli/scripts/local-preparation-test.js",
+      "change": "added",
+      "sha256": "9726699b45f6f5fee78f50fe5419e0382f298da220639b6aa26bcdbf999d2860"
+    },
+    {
+      "path": "packages/cli/scripts/local-validator-test.js",
+      "change": "added",
+      "sha256": "fc53f328b3e73d41bb330cf5bb0003607f76404dad907c47e490e5e783d09d92"
+    },
+    {
+      "path": "packages/cli/scripts/mcp-lifecycle-test.js",
+      "change": "added",
+      "sha256": "51547c312352b6317edfce739fd61a7b30d40ea139cee3b7d8ee47df11cb1691"
+    },
+    {
+      "path": "packages/cli/scripts/opencode-hardening-test.js",
+      "change": "added",
+      "sha256": "3ed2fe302b424539266e361af0ebfa5031e0bd7c8853f34f49b3e484b3f0aacf"
+    },
+    {
+      "path": "packages/cli/scripts/operational-localization-test.js",
+      "change": "added",
+      "sha256": "2eb4baa2af91ca113324165a605688de35178df094756e546670601e2ca711de"
+    },
+    {
+      "path": "packages/cli/scripts/package-build-test.js",
+      "change": "added",
+      "sha256": "bd56c60266f12314c6edee88c854df422e3c1a4490b130eedca3d6213d3491c8"
+    },
+    {
+      "path": "packages/cli/scripts/package-contents-test.js",
+      "change": "added",
+      "sha256": "6a7d8633ae81a9c58edcb32a7c05631098a42eff37f9f6ff0726523944e39432"
+    },
+    {
+      "path": "packages/cli/scripts/payload-budget-test.js",
+      "change": "added",
+      "sha256": "69e422bee05c9b084f3fa8e5a98481e2033b14a7d45ddbc4b6584616b6860575"
+    },
+    {
+      "path": "packages/cli/scripts/plugin-mcp-runtime-test.js",
+      "change": "added",
+      "sha256": "acc0209e497056e1fc79eb96d17727e5424b59568df1a50a664f629d94e8bc2e"
+    },
+    {
+      "path": "packages/cli/scripts/portable-plugin-test.js",
+      "change": "added",
+      "sha256": "507656792ccee31a6106c766968deecd9fc5b76bee85b4ab5cd1a8aa6d4a04ea"
+    },
+    {
+      "path": "packages/cli/scripts/prepare-local-plugin.js",
+      "change": "added",
+      "sha256": "6c12911d5194b45c890a0f0f98defe28a76dbda8bcb6cdc5404ed8ad1d34f03d"
+    },
+    {
+      "path": "packages/cli/scripts/proportionality-benchmark-test.js",
+      "change": "added",
+      "sha256": "7af9da861f388fcc82e812caf7e229df5ffc8d148fca5f3d1214e7db134062a7"
+    },
+    {
+      "path": "packages/cli/scripts/public-plugin-test.js",
+      "change": "added",
+      "sha256": "275b61a80de82e99c911b1c6789214e05e3591e1b5c79cafd5ab848a065557fc"
+    },
+    {
+      "path": "packages/cli/scripts/release-bootstrap-smoke-test.js",
+      "change": "added",
+      "sha256": "ce8b40bc454fe5b2c789b4e1db313bd5c644fdeffb54fbe753dbd24878d0d3fe"
+    },
+    {
+      "path": "packages/cli/scripts/release-bump-test.js",
+      "change": "added",
+      "sha256": "9d9f24b3ed935e1c9163e8a4c6dc67f42dfdd1f6c92eb5e0091601914833b847"
+    },
+    {
+      "path": "packages/cli/scripts/release-registry-state-test.js",
+      "change": "added",
+      "sha256": "67a4c116c2f1a3b120ca88a31b1a59ae7d4e715df6004be479c40755687ba804"
+    },
+    {
+      "path": "packages/cli/scripts/release-version-coherence-test.js",
+      "change": "added",
+      "sha256": "cf396228176db167f40a3262d872b833919c545291f02878fce8e1c8d127965b"
+    },
+    {
+      "path": "packages/cli/scripts/release-workflow-contract-test.js",
+      "change": "added",
+      "sha256": "23502b3b0e35b784a3391e268282069da12e93ced451843fc51ac6179cce5772"
+    },
+    {
+      "path": "packages/cli/scripts/request-activation-callback-test.js",
+      "change": "added",
+      "sha256": "ea7b865c5a162e222d7c5863bccbb5d7bd22997836727773960c33bb4755b2b0"
+    },
+    {
+      "path": "packages/cli/scripts/request-activation-evals-test.js",
+      "change": "added",
+      "sha256": "8a0ee09979c41281adad273357352997668153b07430d8c77815a37bea383027"
+    },
+    {
+      "path": "packages/cli/scripts/request-activation-host-schema-test.js",
+      "change": "added",
+      "sha256": "80544aeef92fbb9ec2bacdd9e0a42bf6dd48d61870fb4499a14975652f418a78"
+    },
+    {
+      "path": "packages/cli/scripts/request-activation-test.js",
+      "change": "added",
+      "sha256": "d9fc504b1d87285accc68b9b8d179708dda261cbfea20b3bae79589b12f76b45"
+    },
+    {
+      "path": "packages/cli/scripts/run-recovery-test.js",
+      "change": "added",
+      "sha256": "20a42acba21288349577722efcdd1ebe61c54e22f0ae8347fe66ada5a99a0030"
+    },
+    {
+      "path": "packages/cli/scripts/runtime-check-consent-test.js",
+      "change": "added",
+      "sha256": "b1ca257bbe7b7b26a2d5eae0f2424cc01a5fa10852fb96020b76d7faa2141463"
+    },
+    {
+      "path": "packages/cli/scripts/runtime-integrity-layout-test.js",
+      "change": "added",
+      "sha256": "a13ecd2ce0a4c6e53d37d60549481bd8ddc02783dfdb3f581d89083ebf0becf0"
+    },
+    {
+      "path": "packages/cli/scripts/runtime-integrity-negative-test.js",
+      "change": "added",
+      "sha256": "382894ee32ec807680532870e07808904dafd034076c6e4c8fce9fcabeace668"
+    },
+    {
+      "path": "packages/cli/scripts/skill-dispatch-binding-test.js",
+      "change": "added",
+      "sha256": "b6e2a02ec9363d2ab3d45c677112198d6dbb2f1917608c862e6fd70c21450151"
+    },
+    {
+      "path": "packages/cli/scripts/skill-dispatch-function-contract-test.js",
+      "change": "added",
+      "sha256": "aa7be77dce4861e201a4ed738ef3a0af4d91efea9c2b4fc640843ae54230b15f"
+    },
+    {
+      "path": "packages/cli/scripts/skill-dispatch-test.js",
+      "change": "added",
+      "sha256": "57c51429a76a848bd8ce029a8bcbc2547a1b3357296d35c981c01f185249837c"
+    },
+    {
+      "path": "packages/cli/scripts/skill-evals-test.js",
+      "change": "added",
+      "sha256": "01311f2634a0b2a1c488b79019043c8c5df868a3c3abd90ce23b684c5f6bb11b"
+    },
+    {
+      "path": "packages/cli/scripts/smoke-test.js",
+      "change": "added",
+      "sha256": "0ae85255fcaaeedf4180486b6089ad4f77b23977b84316adbfa4c7eb9a2f401d"
+    },
+    {
+      "path": "packages/cli/scripts/sync-package-assets.js",
+      "change": "added",
+      "sha256": "d7dbc68a4bb81efb953899ae9fbe242b40dc549764616a0c0d5bbac4645d4c41"
+    },
+    {
+      "path": "packages/cli/scripts/sync-plugin-mcp.js",
+      "change": "added",
+      "sha256": "9c564fa2dad0986faf6d0e6b76ace74003abbaa30cea1d2dffc0680bf1a8dd53"
+    },
+    {
+      "path": "packages/cli/scripts/sync-plugin-runtime.js",
+      "change": "added",
+      "sha256": "d9364dde7d1d5d5bc6f56966d74f044f9edd3e5029e532fc876abc886cee28df"
+    },
+    {
+      "path": "packages/cli/scripts/sync-request-activation-projections.js",
+      "change": "added",
+      "sha256": "873f59fd4374554e2163a4540a01a1dd2d0b0bf33c9171be3483eba1cd0357ef"
+    },
+    {
+      "path": "packages/cli/scripts/test-routing.js",
+      "change": "added",
+      "sha256": "064647ac47e325cf97ecb2aa5f49575c1575ec153fc0ef066fbcf29ff1fef7a3"
+    },
+    {
+      "path": "packages/cli/scripts/verified-change-test.js",
+      "change": "added",
+      "sha256": "62bd8a3706b4670bce1a1b1a67a3fc92992899dea6ca4325c32747c3c7540cd4"
+    },
+    {
+      "path": "packages/core/README.md",
+      "change": "added",
+      "sha256": "aec00a8fbb7c93d721b736ee208851b0a1b5fb3573b13639c3f8a887e8681958"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/delivery-map.js",
+      "change": "added",
+      "sha256": "f79ff5d022d7b87cb67487877b2f3d2871d979c7b71f6a77868b3914b6c06e3c"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/doctor.js",
+      "change": "added",
+      "sha256": "a0fd5a469634b7852b2527f9eab0afaa96304687bcdfb3af7f086a5ed87a9a20"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/gate-check.js",
+      "change": "added",
+      "sha256": "d49308390d0515b2e20cb9c7a80b025438e455a7c3ec95f16c35a22be5a736d8"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/gate-policy.js",
+      "change": "added",
+      "sha256": "643d9ad120923cc34b542d79dd94788ccdf2ce5e3c72c8b524d48d9ec5e6acf9"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/parent-reconciliation.js",
+      "change": "added",
+      "sha256": "9715873b770876f6ef8926f8104711254fe844ea0a9632b0e79932f2bf7849b7"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/prd-readiness.js",
+      "change": "added",
+      "sha256": "1718db7ff67e4b06a8a7b9975e431db919b67d02ff4026be02ea4a89f97de90d"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/required-files.js",
+      "change": "added",
+      "sha256": "722ac21c5983b9566363bd0e37d142081a8d6877fcf45fe3d22742e7bd9e9fb5"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/run-state.js",
+      "change": "added",
+      "sha256": "fe89539642171a772a7602da640d06f6fe4918985c5196901104fa6544611946"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/run-step-policy.js",
+      "change": "added",
+      "sha256": "f700a30570fd3134cb0960e44f933225064fa0401d911712b0cbdb01e1feb9df"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/shared.js",
+      "change": "added",
+      "sha256": "297cc02484ebc861ed1ba24da763c71cfa4288cdc6e9b3f0ed6a8f5abf15b9b6"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/traceability-readiness.js",
+      "change": "added",
+      "sha256": "240cea1f3cafcafc776a1168c7974cf0898572a6f341a784a96f4dc4f9aafd44"
+    },
+    {
+      "path": "packages/core/lib/control-evaluation/verified-change.js",
+      "change": "added",
+      "sha256": "523089888af02013bc504aef0276421bff3d2d321be06297bb7a6cdd26a600c0"
+    },
+    {
+      "path": "packages/core/lib/control-inspect/contract.js",
+      "change": "added",
+      "sha256": "080e1eea0558c6651c31fec3ea105c18e49d6dce64cea2224b13a8c19dd0e220"
+    },
+    {
+      "path": "packages/core/lib/control-inspect/selection.js",
+      "change": "added",
+      "sha256": "64d8dfa244d75d7083f5b96816af1af5b4e3caa2a7dff496a30de8357c379fdf"
+    },
+    {
+      "path": "packages/core/lib/control-inspect/service.js",
+      "change": "added",
+      "sha256": "767be62843655849d94c66572b124672a531821e295d0b13521eccc72bedf8e1"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/compatibility.js",
+      "change": "added",
+      "sha256": "6d2b224fdcb233a8ec13047b2cd58235dff8f87f8417ea025231739c2dab2511"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/contract.js",
+      "change": "added",
+      "sha256": "785b343a8a44a5e3bd22499c0401346443e273fdf9598b4784cee9c78c917b6d"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/interaction.js",
+      "change": "added",
+      "sha256": "9d1ed9e49f1ce66e9de30ccaf2a813b7e8a1c4728432f75d4e8016609239b539"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/migration.js",
+      "change": "added",
+      "sha256": "0c5bb18cef422837bf2b4dc10935f7d8300eb4193f4a25f9780831ca3cf67ad7"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/presentation.js",
+      "change": "added",
+      "sha256": "aa70c91e35f118b44fcd7229068512dda3a811db0ddb39312c39654010b18081"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/repair.js",
+      "change": "added",
+      "sha256": "1f134bc6f136f34e2dab82ef9d507beb76684d0aacd2d50b42591f5426f19b1a"
+    },
+    {
+      "path": "packages/core/lib/control-maintenance/service.js",
+      "change": "added",
+      "sha256": "3e1975c5219f1873e975eb8d8252f413387c9ae6c862f4a81f7d2b699cdea2b8"
+    },
+    {
+      "path": "packages/core/lib/control-read-boundary.js",
+      "change": "added",
+      "sha256": "50ee73aa9ea7a5506f3ed98c7da215bea538b2c1914d9c09989512ecaa8e9896"
+    },
+    {
+      "path": "packages/core/lib/control-state/aggregate.js",
+      "change": "added",
+      "sha256": "80b566cac04555ecc24593c81903e8cbe31a4e11e5242f456b39ff01978d4a6f"
+    },
+    {
+      "path": "packages/core/lib/control-state/approval-command-contract.js",
+      "change": "added",
+      "sha256": "f6e56a51f8e1c2d1068af19b865a2949820162224ebccbce4af1a7b434d15b1d"
+    },
+    {
+      "path": "packages/core/lib/control-state/approval-command.js",
+      "change": "added",
+      "sha256": "c7bf6e0e69f4e28c873449d7abeb02280675423ded2033b93ad10952f01c903c"
+    },
+    {
+      "path": "packages/core/lib/control-state/approval-operations.js",
+      "change": "added",
+      "sha256": "9062def1059fe93e6aecd614bb5130fb759541fb793bc11cbf9de655f4c6732b"
+    },
+    {
+      "path": "packages/core/lib/control-state/contained-file.js",
+      "change": "added",
+      "sha256": "cb9ff14cb376372d3901bf020ffcf94651b907c781c148850740ad95e1ad7a20"
+    },
+    {
+      "path": "packages/core/lib/control-state/control-configuration.js",
+      "change": "added",
+      "sha256": "40f1a5675666195bad3118a327a21c377b8ffa641d045fa22ebcebc9d12ec689"
+    },
+    {
+      "path": "packages/core/lib/control-state/gate-approval-validator.js",
+      "change": "added",
+      "sha256": "071ab2bdad6012d1ee6ab4c7f95684e33332a33758d01db46bc2537b9efe0578"
+    },
+    {
+      "path": "packages/core/lib/control-state/index.js",
+      "change": "added",
+      "sha256": "d0970d4f3be3b20318b29e3d0a7c3ab474971a913b75356a505a8827aadfa50e"
+    },
+    {
+      "path": "packages/core/lib/control-state/legacy-migration.js",
+      "change": "added",
+      "sha256": "e4ede072c7ff9018009430f364273c1ef2e21950657ad753c05d104b415380b9"
+    },
+    {
+      "path": "packages/core/lib/control-state/legacy-projection-reader.js",
+      "change": "added",
+      "sha256": "57d46180cae22be63d0b4bbb30c47820b672cd3986b9a77b7d8bb761a477fe66"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-identity.js",
+      "change": "added",
+      "sha256": "f01a5e203755b7f5157087c9d8d15d544e81c43d7249263da7c2354a9cd90bae"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-presentation-render.js",
+      "change": "added",
+      "sha256": "a1686f0e728387f9d327e7e41e13556e1eba99181bcbdb22985b35e02d12e64d"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-presentation.js",
+      "change": "added",
+      "sha256": "05185e9b0be071d16be424a235aa005fb5b8f69989a78c4886f1a192e618f6c1"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-recording.js",
+      "change": "added",
+      "sha256": "4b81a895eee3f6b512b65adc964bf7c41506546b09e88f6b845535b474187bbd"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-recovery.js",
+      "change": "added",
+      "sha256": "50a30ddbdf9e2247597b407d0adf32108c496e6d8e3ad8b929cc850d0d5dfd09"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-revision.js",
+      "change": "added",
+      "sha256": "3986167c95ec9c7437c6b4db2e9878f243f3ad8d7f187a320fa50dcc702aa3b2"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-seal.js",
+      "change": "added",
+      "sha256": "5e9cb6a052f36a8bbfeb85c82676f7990ba6143f801f59392ae62d384ee5176c"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-edits.js",
+      "change": "added",
+      "sha256": "318e894149bfe560d589d4de5303ac1b4ef8ce4cc7db5d62874247029ba90bb3"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-parser.js",
+      "change": "added",
+      "sha256": "fea1e10baa2883aff946b6ac2778053b9af7c9a3827bc6fb445f6841a83821da"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-reader.js",
+      "change": "added",
+      "sha256": "616e734cf7fc522dc787ff0e15cc4ba893e88643effa489b6b9eb407b3560302"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-repository.js",
+      "change": "added",
+      "sha256": "b53cf3cbc0b302f04b48a50fac04ef71301fd8af72b8f1b9f483fb7bc924d91c"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-resolver.js",
+      "change": "added",
+      "sha256": "5a6ddc40ade1b24b71260622b4782fcb4660551d75a6efdfff82f47664675505"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-state-writer.js",
+      "change": "added",
+      "sha256": "3765c5e288213a61b9b9a6f68575fdfddd1ac313f051c44329339594dc58a652"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-step-pending.js",
+      "change": "added",
+      "sha256": "f87a023f7725bc3cccb019e7d6086f9ede0f1544359e949b5e15cb070ef98399"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-step-transaction.js",
+      "change": "added",
+      "sha256": "2c1278eb78641db27d487f350737598c422b806ac5af9a62e30eb87361d4383d"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-steps.js",
+      "change": "added",
+      "sha256": "2be1cf8542a52ad2fa2eabba3d6e862b7a08cc8eaf2ce71809d7c2c62bf5a917"
+    },
+    {
+      "path": "packages/core/lib/control-state/run-store-inspection.js",
+      "change": "added",
+      "sha256": "6fa228971c8cd789ea21b723ca086cd0e08c51ebc1bb2233c79a834995ac8353"
+    },
+    {
+      "path": "packages/core/lib/delivery-path-search/candidate-policy.js",
+      "change": "added",
+      "sha256": "13c897ec73751f82d250faf962f95cff913fb7639e2d5f3ad466d5223876d658"
+    },
+    {
+      "path": "packages/core/lib/delivery-path-search/contracts.js",
+      "change": "added",
+      "sha256": "02ebfb153815d22d2e67debe7d51b09e94416b3f86966c92db4621dfb984a3a8"
+    },
+    {
+      "path": "packages/core/lib/delivery-path-search/persistence.js",
+      "change": "added",
+      "sha256": "9629b8ff1fda2514baf03a99590d52a9379ad2505431634fd6fa953e553af9fd"
+    },
+    {
+      "path": "packages/core/lib/delivery-path-search/scoring.js",
+      "change": "added",
+      "sha256": "e5130d4421e3bcf04a3659513fad2de7e33a949177e57fce2c7a45ed30577694"
+    },
+    {
+      "path": "packages/core/lib/delivery-path-search/search-engine.js",
+      "change": "added",
+      "sha256": "4ac4d4bb11297f684a0161b03bb0d07909ee814e2687026f4d2c8059befb5990"
+    },
+    {
+      "path": "packages/core/lib/delivery-path-search/state-adapter.js",
+      "change": "added",
+      "sha256": "8f7223d79f68c0321c502dab4c4083b08535c67c0e9d6b1420645af06f3f3d13"
+    },
+    {
+      "path": "packages/core/lib/fs-swap.js",
+      "change": "added",
+      "sha256": "b093f02620c132318ebcfdc6f4e992557b1cf37c93ea532cfc86df36f55b8029"
+    },
+    {
+      "path": "packages/core/lib/index.js",
+      "change": "added",
+      "sha256": "1c8d4520bb8888fc7fb72f7fe7c81452a7be77713b0be7eee9d8870a6c862675"
+    },
+    {
+      "path": "packages/core/lib/interaction-catalog-validation.js",
+      "change": "added",
+      "sha256": "8d0249aaf0f69e481975422849fa744601a97ad00e4211ffd5a6d55eb3b0c0c7"
+    },
+    {
+      "path": "packages/core/lib/interaction-catalog.js",
+      "change": "added",
+      "sha256": "e9bd30a79fe76ac53dc3343d849f58156bf4ce1cbf7e5604d89ae05592574596"
+    },
+    {
+      "path": "packages/core/lib/interaction-presentation.js",
+      "change": "added",
+      "sha256": "551b9869b3204981e2e3270e68c6676b0c4472bf323c3b3710bcbdc0309c8122"
+    },
+    {
+      "path": "packages/core/lib/repository-context-reader.js",
+      "change": "added",
+      "sha256": "83f5d3d092cb079421ddd4ac0b2aaaed610abdc17722bbfa2a1b2db389932dc8"
+    },
+    {
+      "path": "packages/core/lib/resources/binding.js",
+      "change": "added",
+      "sha256": "08a30e47aa7da9c10deaa82a51ad619bad5cf7620ccab47a2475e946b268e964"
+    },
+    {
+      "path": "packages/core/lib/resources/context.js",
+      "change": "added",
+      "sha256": "f3b7f091d4cd1f3becd69d90accdfd482ff6c8cc20f5d76eb5aabe62e162f3be"
+    },
+    {
+      "path": "packages/core/lib/resources/contracts.js",
+      "change": "added",
+      "sha256": "3415f51f3568591b5b4a1eaf667630e3e95c21dfbd2734994bcc975f1591b859"
+    },
+    {
+      "path": "packages/core/lib/runtime/distribution-profile-history.js",
+      "change": "added",
+      "sha256": "e8d31599333c95e2f397b3637303713a2a064a95ea464dcab6ad80a2528f68f9"
+    },
+    {
+      "path": "packages/core/lib/runtime/plugin-provenance.js",
+      "change": "added",
+      "sha256": "f63c989abcaaa4eb962c6d7162dd6a7482921b449eb1a80c4973d8aac8b29578"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/binding.js",
+      "change": "added",
+      "sha256": "7ae0c4f9e63bbc69f422d78500c9c13b31ab34ceb9478ee233d47d53b1bf18e2"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/contract.js",
+      "change": "added",
+      "sha256": "709ee03a5be42d8bb273a8c59567fc3e4c3eb7a2aae60734b4395664dabf841f"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/delivery-intake.js",
+      "change": "added",
+      "sha256": "b71ff03716e9b4d42831f37a3ba711d0fbbd487b70b3100528bb9854bc6f9fe8"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/delivery-run-assignment.js",
+      "change": "added",
+      "sha256": "07b895b820461b86d4b61adfdc3b32ea70ac37ec173c6574f8814c5050d62b9e"
+    },
+    {
+      "path": "packages/core/lib/skill-dispatch/service.js",
+      "change": "added",
+      "sha256": "49407261c66cbf2822b72e8c7ec90214889be7c299b249f63cc6961e77ed8514"
+    },
+    {
+      "path": "packages/core/lib/task-target-resolution.js",
+      "change": "added",
+      "sha256": "7da9db9754907a00d811d31184ccb776c9203e91d415e634c2bd56191c9a6ad5"
+    },
+    {
+      "path": "packages/core/package.json",
+      "change": "added",
+      "sha256": "4b88b6063cb5bdf8810f67c322aca8f1757fa6dd4b4d2ab0b3caa97f4ca04fe9"
+    },
+    {
+      "path": "packages/core/test/control-state-test.js",
+      "change": "added",
+      "sha256": "d1aa360bedc1e9ce56340eba97f614b56a436307878299b4d87962626149e342"
+    },
+    {
+      "path": "packages/core/test/delivery-path-search-unit-test.js",
+      "change": "added",
+      "sha256": "2a2ae6eef09e7740b21979b28dd56573fc5d2392662414410caea7b3232047b8"
+    },
+    {
+      "path": "packages/core/test/install-control-migration-test.js",
+      "change": "added",
+      "sha256": "19f9ff51972964000b79af4c50676e922e64dabc32fb26b9b2d4b86b7663a8be"
+    },
+    {
+      "path": "packages/core/test/interaction-presentation-test.js",
+      "change": "added",
+      "sha256": "c6ea3beaa741419664a9550e99aaa498543fcd846ce381e1721687d8edb32c5a"
+    },
+    {
+      "path": "packages/core/test/parent-reconciliation-test.js",
+      "change": "added",
+      "sha256": "887e4fd1eb45b2bf4a50de276b033c45225613f5ae226fef58465d15410d16b3"
+    },
+    {
+      "path": "packages/core/test/prd-readiness-test.js",
+      "change": "added",
+      "sha256": "0ebee28f0912a079fb0caf428e0b30c318c3c89dec316311001ea0a51988d83f"
+    },
+    {
+      "path": "packages/core/test/run-lock-test.js",
+      "change": "added",
+      "sha256": "8704be81398097a112448a9364252c93c4476d93e36e9ded6264708a1a781122"
+    },
+    {
+      "path": "packages/core/test/run-revision-test.js",
+      "change": "added",
+      "sha256": "bace53988deace6c59cfac0c7572c119736e2cf32e0585f41661ac1711213c52"
+    },
+    {
+      "path": "packages/core/test/run-step-transaction-test.js",
+      "change": "added",
+      "sha256": "dc2b60b35df771a4ab0946337f1ba164759a0bb7d8be9a85bee0f5f5057c413a"
+    },
+    {
+      "path": "packages/core/test/run-step-worker.js",
+      "change": "added",
+      "sha256": "92645653e08dc9675395cb70284233de959d64cb791eacbd820dc78ad5146b9e"
+    },
+    {
+      "path": "packages/core/test/task-target-resolution-test.js",
+      "change": "added",
+      "sha256": "acd21671fce6e505a0667b4a7388193948e91ce71c60fe2a76f188e4a644a042"
+    },
+    {
+      "path": "packages/mcp-server/LICENSE",
+      "change": "added",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "packages/mcp-server/NOTICE",
+      "change": "added",
+      "sha256": "2ac5ac67f9a43fd6b1afede71085120f6067450436551cbf8dda58fbdf77f919"
+    },
+    {
+      "path": "packages/mcp-server/README.md",
+      "change": "added",
+      "sha256": "7bd6890ea5b72b4b44343bc5dc5c4a854c8be5d020b0f45877b5a8bd4040c2a7"
+    },
+    {
+      "path": "packages/mcp-server/bin/agdf-mcp.js",
+      "change": "added",
+      "sha256": "f90d9f04cdf4f60c6dc7ff60e1a7d71725751482b80691c4887dccc15116eaba"
+    },
+    {
+      "path": "packages/mcp-server/package-lock.json",
+      "change": "added",
+      "sha256": "0619abd39d906f64823aa04a050c17d8e04179f4265dba10de775098492524ba"
+    },
+    {
+      "path": "packages/mcp-server/package.json",
+      "change": "added",
+      "sha256": "87d895e37648bd8556088351ab5e8806557655c859f320c049b3901109e51cb1"
+    },
+    {
+      "path": "packages/mcp-server/src/main.js",
+      "change": "added",
+      "sha256": "57bd5b5914f4e22b70caf6e68a44b8825d863f81c10b90d2daf41409968f77a7"
+    },
+    {
+      "path": "packages/mcp-server/src/server.js",
+      "change": "added",
+      "sha256": "c647221f3686414459db4ab82d1edd825b6d20dfee6f76d09c1f6ecdf80d3016"
+    },
+    {
+      "path": "packages/mcp-server/src/worker-entry.js",
+      "change": "added",
+      "sha256": "964bef88c0f52612a1613f3ac89e6ac346a0700ad237d72fe5d868e5a243f75e"
+    },
+    {
+      "path": "packages/mcp-server/src/worker.js",
+      "change": "added",
+      "sha256": "ba7344cbbb1b8c59b1a3b0befba2db4ed1915b097aea0d503de2088654c41d93"
+    },
+    {
+      "path": "packages/mcp-server/test/continuation.test.js",
+      "change": "added",
+      "sha256": "e24c1de2c1a2c6b7efc7d72a959c18492d1c556dc31d80df5507519391ef7e80"
+    },
+    {
+      "path": "packages/mcp-server/test/contract.test.js",
+      "change": "added",
+      "sha256": "4490241f5369a5c593c17c02eb5bfcb0a3f2dd95929a367471bedb524e06288a"
+    },
+    {
+      "path": "packages/mcp-server/test/helpers.js",
+      "change": "added",
+      "sha256": "59b477f16ae5cd4e4aefca1047cac4a2233ac7280cad3566f6fcd69fe2743b2f"
+    },
+    {
+      "path": "packages/mcp-server/test/owned-runtime.js",
+      "change": "added",
+      "sha256": "23c163038658412623899d7e9fca3ef2e97fc3154e1d7c052e5307b97c10407e"
+    },
+    {
+      "path": "packages/mcp-server/test/package.test.js",
+      "change": "added",
+      "sha256": "64b836701525dbb1ce57e357eec580f8ff57d5d9f025f84b54ac7d7186541124"
+    },
+    {
+      "path": "packages/mcp-server/test/performance.test.js",
+      "change": "added",
+      "sha256": "1a174f914f44706ce66a223c3b729646422716174542ca9c8e4d4adeebcd1d3a"
+    },
+    {
+      "path": "packages/mcp-server/test/protocol.test.js",
+      "change": "added",
+      "sha256": "48ba97d2cb9b76beefd0724a7797f0b8510d989b6e216f04cb25ce4fa7c8df3d"
+    },
+    {
+      "path": "packages/mcp-server/test/provenance.test.js",
+      "change": "added",
+      "sha256": "297f49e6275ba750b6f81cae73413374458293be90181c11cd1cbe9b58d560d9"
+    },
+    {
+      "path": "packages/mcp-server/test/runtime-fixture.js",
+      "change": "added",
+      "sha256": "94347a8e8264142ed5e718184cbacaae47c394de859bd1a2765898ab19d1842a"
+    },
+    {
+      "path": "packages/mcp-server/test/safety.test.js",
+      "change": "added",
+      "sha256": "72f40c57b8382a963a39568394f7fb1a067cd4814533bc49034a254f538edce0"
+    },
+    {
+      "path": "packages/mcp-server/test/stdio-entry.js",
+      "change": "added",
+      "sha256": "60a6f811568ba4f387d665d7efa0a2840bea3df8d20cc0fece9f7aa40722d817"
+    },
+    {
+      "path": "pages/src/pages/index.astro",
+      "change": "modified",
+      "sha256": "da970cbc22dec54ad086071c1d4058474002037e923c3ba79c5218b30373056b"
+    },
+    {
+      "path": "plugins/agdf/control/templates/MASTER_BACKLOG.md",
+      "change": "modified",
+      "sha256": "76f646cdaeb3b74b9ca27f7b869924022262a0d257c2969add2189ad917594a2"
+    },
+    {
+      "path": "plugins/agdf/meta/agdf-mcp-capability.json",
+      "change": "modified",
+      "sha256": "079ccf17264764bd583de6c868e91143fcb21609ed2564ad531473994aa1ab42"
+    },
+    {
+      "path": "plugins/agdf/meta/contracts/interaction.md",
+      "change": "modified",
+      "sha256": "2cc647ea772ca46ec73e744f168e53f00a9fad015280c7f5dc1b644ede40a453"
+    },
+    {
+      "path": "plugins/agdf/meta/contracts/modes.md",
+      "change": "modified",
+      "sha256": "8d503382536952febd54aa004d1ec38b7296d6b79610172b4ba8ec8dc1bae5cf"
+    },
+    {
+      "path": "plugins/agdf/meta/contracts/task-target-resolution.md",
+      "change": "modified",
+      "sha256": "6903bd0d427c2e57e4aaa24ae9782df454efa6be5ef81d5a2f85bbf8a373d6af"
+    },
+    {
+      "path": "plugins/agdf/meta/copilot-payload-baseline.json",
+      "change": "modified",
+      "sha256": "191cf5110a6b4eb839d9fd9a83876808bbb18c688ef23d6043cefc83ab32cccb"
+    },
+    {
+      "path": "plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "change": "modified",
+      "sha256": "207514eb5a7b63921f3aba49087d97c844afa99066d4b3f9f6567dc8c5c99fd4"
+    },
+    {
+      "path": "scripts/assemble-npm.mjs",
+      "change": "added",
+      "sha256": "ef1b4b81c84be907df76fa3f7edbf64625859b41cb309fbf803ebfe5f7f1eecf"
+    },
+    {
+      "path": "scripts/build-public-plugin.js",
+      "change": "added",
+      "sha256": "fecd5f45e4fbb967168e1ed3fda4d678fc6457302d7bc0f6b1c72d39df88b698"
+    },
+    {
+      "path": "scripts/check-community-health.mjs",
+      "change": "modified",
+      "sha256": "974ddf155974f2d70686dbd0cb7e2fc6b16ce4c8d9283a688ea4ad182f2c85cb"
+    },
+    {
+      "path": "scripts/check-package-boundaries.mjs",
+      "change": "added",
+      "sha256": "1c438928f8ca36389c562f014846cf0b8cd17736643c09c4f7919afd65888eee"
+    },
+    {
+      "path": "scripts/community-health-test.mjs",
+      "change": "modified",
+      "sha256": "d01a11cff641ed25d49c041b3448f917739241650c4498990e4a90e5c33ef0d7"
+    },
+    {
+      "path": "scripts/core-projection.mjs",
+      "change": "added",
+      "sha256": "a30c2b4ea9a1baca73d04c5a463e0685ababb90d21f72dbe315c3a33322c7564"
+    },
+    {
+      "path": "scripts/host-compatibility/run.mjs",
+      "change": "modified",
+      "sha256": "bfc1b2e3590dc543bb75b21b0a88a720ee4b7603fd65d0b2276b744d7b408eb9"
+    },
+    {
+      "path": "scripts/host-compatibility/test.mjs",
+      "change": "modified",
+      "sha256": "3ebb2db759063e7aa6e471a237337c1ab6f62a463a6a3b07ab016ec00d8ae7a1"
+    },
+    {
+      "path": "scripts/native-probes/README.md",
+      "change": "modified",
+      "sha256": "a9220b504e97a1e55022019742814487a35ffa1ef84ba5536e441b6e9ed6bdf3"
+    },
+    {
+      "path": "scripts/native-probes/codex-host-e2e.mjs",
+      "change": "modified",
+      "sha256": "807eba0eee490654154a5836838e4bab5580cb5eed669a8fbe368e5eba2517fb"
+    },
+    {
+      "path": "scripts/native-probes/codex-macos-hook-check.sh",
+      "change": "modified",
+      "sha256": "3f2e9fe5e15524adbc9a10ff1891c9424b2191efc5707a4b7c827645fdb2b8ad"
+    },
+    {
+      "path": "scripts/native-probes/release-evidence.mjs",
+      "change": "modified",
+      "sha256": "dfe392d3185262a2f9c5dca94ff6dcf5c5386ba5898e83e85110ffefefd92823"
+    },
+    {
+      "path": "scripts/node-support-test.mjs",
+      "change": "modified",
+      "sha256": "a9953de7fccd8c00402e79eac2c2fc52378605c5a31dcaade7f03ff239fd3fb4"
+    },
+    {
+      "path": "scripts/pack-npm.mjs",
+      "change": "added",
+      "sha256": "95dc8a0b6d34af71d79a298cd167484625253a26b7a65ef11539c3999c975e1d"
+    },
+    {
+      "path": "scripts/payload-budget.js",
+      "change": "added",
+      "sha256": "db408e03830ba7d53e24c053e31f6b97dcc530e01d0d3df44f5ee884ef81f4f1"
+    },
+    {
+      "path": "scripts/public-plugin/builder.js",
+      "change": "added",
+      "sha256": "ecf1bbcd8885ff794c19063748eba03a36413e37cf659b7e551fe42c05a2d782"
+    },
+    {
+      "path": "scripts/public-plugin/contract.js",
+      "change": "added",
+      "sha256": "ab131d46e75d87c240bbff15ade7faf460132f05656f2032d666c8692e864b62"
+    },
+    {
+      "path": "scripts/public-plugin/copilot-profile.js",
+      "change": "added",
+      "sha256": "75ef47e641c5ab62aafdc72dd519bba2d65eb7bf12123610bcf16834a08c8838"
+    },
+    {
+      "path": "scripts/public-plugin/manifest.js",
+      "change": "added",
+      "sha256": "686f289b26e850f5982c87128edb0dd04dd0be6af471a94001e72b370dd5d398"
+    },
+    {
+      "path": "scripts/public-plugin/report.js",
+      "change": "added",
+      "sha256": "c8100905d435fa8e4cf57291bebd5d8051f864c9e332176d75718a8ebd993e21"
+    },
+    {
+      "path": "scripts/public-plugin/source-root.js",
+      "change": "added",
+      "sha256": "4d61709ceea28366663c6f7089ebdf17845dd3b809fba27390764b9e09f7f312"
+    },
+    {
+      "path": "scripts/public-plugin/validator.js",
+      "change": "added",
+      "sha256": "80b9bedefeb8fb05a28edcb738e25f35c1bb4a608dd354d68834c9468a280398"
+    },
+    {
+      "path": "scripts/release-bump.js",
+      "change": "added",
+      "sha256": "f11e024004d0e25b6e47e5af493a70be4b9ac605084e8fbbf336dd2f2179d2a1"
+    },
+    {
+      "path": "scripts/release-registry-state.mjs",
+      "change": "added",
+      "sha256": "cc82cecf0cd7527c522c8a447565c3924f83348f9ee136f7127cd271b6b9b3a3"
+    },
+    {
+      "path": "scripts/release/profile-history.js",
+      "change": "added",
+      "sha256": "7a8a736171181dc238e7dc4e4c5981920b8655f0aae3750e0220f3f28f44e654"
+    },
+    {
+      "path": "scripts/release/registry-state.js",
+      "change": "added",
+      "sha256": "7225f769b04ac1f23ebdaf7d7bf942e39941357d820ce183ff189bce41b4f9b9"
+    },
+    {
+      "path": "scripts/release/version-bump.js",
+      "change": "added",
+      "sha256": "47c670278c79f90696bdb15c1b47b81ff8ca3790c926a6daf272d544ad4d64e5"
+    },
+    {
+      "path": "scripts/release/version-coherence.js",
+      "change": "added",
+      "sha256": "4f3857e8941a94f8080ae25d5f0e1ebaf057f2b5c7c8d9eea00632f6c8bd65a3"
+    },
+    {
+      "path": "scripts/set-version.mjs",
+      "change": "modified",
+      "sha256": "557d5d97395c3a5890fe1893185993a666204011927adf2e476de544fc27c1f7"
+    },
+    {
+      "path": "scripts/source-pack-guard.mjs",
+      "change": "added",
+      "sha256": "831362f64bfbd90b169897341a90f21d8e3ff25a4a04ae48ff9b5471e1e05400"
+    },
+    {
+      "path": "scripts/support/control-command-child.js",
+      "change": "added",
+      "sha256": "406a4590a9004d827f4d476658f75bf079ef1ec0e989e049389704fc1113860c"
+    },
+    {
+      "path": "scripts/support/control-command-fixture.js",
+      "change": "added",
+      "sha256": "e9fb0dc2772782f5cb2bcd4b27adfb8c49e83cd40f9f25cf61ddb27ae81b16fe"
+    },
+    {
+      "path": "scripts/support/english-locale.js",
+      "change": "added",
+      "sha256": "36b6502448d077c968227dfa1600ab532a689beb01b94c27df636accce0c269c"
+    },
+    {
+      "path": "scripts/support/main-entry.js",
+      "change": "added",
+      "sha256": "590133466b15c66fb606f66053baea5744a7f03d0dab7ef889f898fed9ec86fe"
+    },
+    {
+      "path": "scripts/support/npm-cmd-shim.js",
+      "change": "added",
+      "sha256": "9927332b824562e621e49f4c3baeffd42ac1728d874cbe8854f09e50f228b73e"
+    },
+    {
+      "path": "scripts/support/plugin-mcp-fixture.js",
+      "change": "added",
+      "sha256": "9b62f1641aa63d5ccfed6c16e9de53da3981497c023dbe847d224feef25d4f92"
+    },
+    {
+      "path": "scripts/support/portable-schema.js",
+      "change": "added",
+      "sha256": "a8c64d91e522e7538457c80737ab31fd281923808047f54de3310999beb1f771"
+    },
+    {
+      "path": "scripts/support/source-fixture.js",
+      "change": "added",
+      "sha256": "60d005ce62483bc3b493c596bb71ec71b3e1c733a909e062f9e98b1922499aae"
+    },
+    {
+      "path": "scripts/support/symlinks.js",
+      "change": "added",
+      "sha256": "3634d148f62c76d54072eea31f47280ec4e04d35a8ffd47737f492ef141c7cb9"
+    },
+    {
+      "path": "scripts/sync-package-assets.js",
+      "change": "added",
+      "sha256": "77af9cd10e99aa99f18ad7b9dc047aa3a9a36cfa528f8e2ef14249fea397d45d"
+    },
+    {
+      "path": "scripts/sync-plugin-mcp.js",
+      "change": "added",
+      "sha256": "915d48023690bdfa1a3cf9c8ae952ac9f25698c3cef8c8af4a2e1727f7ac2d82"
+    },
+    {
+      "path": "scripts/sync-plugin-runtime.js",
+      "change": "added",
+      "sha256": "9c3b601958acc41301958a6cd1b09e3f66c95bf1719f5094080603af0fe62014"
+    },
+    {
+      "path": "scripts/sync-request-activation-projections.js",
+      "change": "added",
+      "sha256": "6bf9cb2ef03dfa5284fb2618bec5df17821ebfe51a0c7bf8cac29ee9ff3e97fa"
+    },
+    {
+      "path": "scripts/test-clean-checkout.mjs",
+      "change": "added",
+      "sha256": "a2b38a526e238f62abf4f7732dc6bf623c3093384c79097448b8d70edae4edfb"
+    },
+    {
+      "path": "scripts/test-migration-checkpoints.mjs",
+      "change": "added",
+      "sha256": "574a0671caa6f785c4abe613d469e5804c056a50a8298837097685155fbcd228"
+    },
+    {
+      "path": "scripts/test-package-consumers.mjs",
+      "change": "added",
+      "sha256": "5d8e3b577abc9a83242efddc5474840b121dc98e2fef91364868f530d2cc860c"
+    },
+    {
+      "path": "scripts/test-provider-boundaries.mjs",
+      "change": "added",
+      "sha256": "ead7c46d9f3a6aa538dbfafd46f7c37cc475fd97d8e8d202fbdc1ecf3601ea58"
+    },
+    {
+      "path": "agdf-mcp-server/LICENSE",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/NOTICE",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/README.md",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/bin/agdf-mcp.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/package-lock.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/package.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/src/main.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/src/server.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/src/worker-entry.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/src/worker.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/continuation.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/contract.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/helpers.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/owned-runtime.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/package.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/performance.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/protocol.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/provenance.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/runtime-fixture.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/safety.test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf-mcp-server/test/stdio-entry.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/LICENSE",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/NOTICE",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/README.md",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/bin/agdf.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/package-lock.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/package.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/scripts/package-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "agdf/scripts/smoke-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/agdf-von-agentenarbeit-zu-verantwortbarer-auslieferung.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/artefakt-gate-tool-prozess.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/brownfield-agentic-delivery-stresstest.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/brownfield-review-in-g00.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/brownfield-zu-besseren-projektgedaechnis.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/coding-agent-tools-vs-framework.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/der-rote-faden-ai-delivery.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/example-greenfield-to-brownfield-gates.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/experiment-specforge-ai.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/github-social-preview.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/grundmodell-governance-delivery.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/intro.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/kernaussage-artefakte-grundlage-gates.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/komplexitaet-durch-struktur-beherrschbar-machen.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/kontextgraph-artefakte-beziehungen.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/kontextkosten-artefakte-gedaechtnis.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/llm-agent-gate-discipline.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/llm_ohne_artefakte.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/logo.xcf",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/notizzettel-zum-bauplan.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/polierte-oberflaeche-schwaechelnde-grundlage.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/qualitaetsvertraege-vom-raetselraten-zur-pruefung.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/task-review-and-comparison-process-flow.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/vom-kontextgraphen-zum-delivery-lagebild.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/wissen-gueltig-auffindbar-wiederverwendbar.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "assets/wissen-vorhanden-orientierung-fehlt.png",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/LICENSE",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/LICENSE 2",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/NOTICE",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/README.md",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/bin/agdf-validator.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/bin/create-agdf.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/application.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/command-registry.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/contract-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/control-maintenance-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/delivery-path-search-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/parse-args.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/runtime-context.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/cli/validation-handlers.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/delivery-map.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/doctor.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/gate-check.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/gate-policy.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/git-observation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/parent-reconciliation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/prd-readiness.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/required-files.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/run-state.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/run-step-policy.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/shared.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/traceability-readiness.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-evaluation/verified-change.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-inspect/contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-inspect/selection.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-inspect/service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/compatibility.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/interaction.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/migration.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/repair.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/startup.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-read-boundary.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/aggregate.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/approval-command-contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/approval-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/approval-operations.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/contained-file.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/control-configuration.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/gate-approval-validator.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/index.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/legacy-migration.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/legacy-projection-reader.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-identity.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-presentation-render.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-recording.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-recovery.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-revision.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-seal.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-state-edits.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-state-parser.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-state-reader.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-state-repository.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-state-resolver.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-state-writer.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-step-pending.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-step-transaction.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-steps.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/control-state/run-store-inspection.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/candidate-policy.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/contracts.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/evaluators/claude.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/evaluators/codex.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/evaluators/opencode.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/evaluators/prompt.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/evaluators/protocol.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/generators/claude.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/generators/codex.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/generators/protocol.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/persistence.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/scoring.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/search-engine.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/state-adapter.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/surfaces/capabilities.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/fs-swap.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/loaded-sessions.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/marketplace.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/permission-rules.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/plugin-mcp.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/runtime-check.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/session-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/claude/uninstall.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/codex/identity.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/codex/plugin-mcp.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/codex/plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/codex/runtime-check.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/codex/session-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/copilot/plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/copilot/session-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/opencode/runtime-check.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/opencode/session-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/opencode/status.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-adapters/session-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/host-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/control-migration.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/control-repair.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/interaction.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/claude-cache-recovery.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/copilot-marketplace-transport.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/copilot-precedence.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/copilot-settings.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/copilot-skill-discovery.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/local-development.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/local-marketplace.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/npm-invocation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/opencode-activation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/opencode.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/plugin-command.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/installers/plugin-installers.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/interaction-catalog-validation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/interaction-catalog.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/interaction-presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/lifecycle/operations.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/lifecycle/owned-mutation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/lifecycle/presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/lifecycle/result.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/lifecycle/status.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/live-agent/read-only-structured.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-dispatch-runtime.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/adapter-contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/adapters/claude.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/adapters/codex.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/adapters/copilot.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/adapters/opencode.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/evidence.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/host-config.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/package.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/plugin-runtime.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/profile-context.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/profile.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/result.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/mcp-lifecycle/service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/npm-invocation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/blind-prompt.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/contracts.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/corpus-loader.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/evaluator.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/index.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/live-recorder.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/profiles.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/report.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/proportionality-benchmark/source-fingerprint.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/builder.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/copilot-profile.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/manifest.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/report.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/source-root.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/public-plugin/validator.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/release/profile-history.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/release/registry-state.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/release/version-bump.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/release/version-coherence.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/repository-context-reader.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/repository-context.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/request-activation-evals/behavioral.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/request-activation-evals/composed-profile.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/request-activation-evals/index.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/adapters.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/claude-settings.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/codex-hooks.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/codex-plugin-consent.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/coordinator.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime-check-consent/state.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime/control-command-service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime/control-context.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime/distribution-profile-history.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime/local-validator.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime/plugin-provenance.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/runtime/validator-application.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/scaffold/canonical-init.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/scaffold/plan.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/scaffold/presentation.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/scaffold/write.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-dispatch/binding.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-dispatch/contract.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-dispatch/delivery-intake.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-dispatch/delivery-run-assignment.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-dispatch/service.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-evals/artefact-quality.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-evals/index.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-evals/live-recorder.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/skill-evals/workspace.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/lib/task-target-resolution.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/opencode-plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/package.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/agent-skills-conformance-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/build-public-plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/canonical-init-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/claude-cache-recovery-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/claude-plugin-mcp-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/cli-gate-scenarios-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/cli-modularization-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/codex-hook-observation-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/codex-plugin-consent-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/codex-plugin-mcp-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-command-package-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-command-process-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-command-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-inspect-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-inspect-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-command-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-fixtures.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/control-state-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/copilot-installer-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/copilot-profile-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/copilot-repository-retention-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/delivery-path-search-generator-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/delivery-path-search-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/delivery-path-search-unit-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/delivery-run-assignment-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/distribution-profile-history-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/delivery-path-search-generated.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/delivery-path-search.json",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/claude.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/codex.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/copilot.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/discovery.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/marketplace.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/opencode-exec.mjs",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/host-compatibility/opencode.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/fixtures/skill-dispatch-language.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/gate-check-missing-control-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/host-command-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/host-compatibility-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-control-migration-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-control-migration-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-control-repair-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-control-repair-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-local-plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-setup-contract-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-setup-interaction-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/install-setup-service-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/instruction-footprint-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/intake-continuation-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/interaction-catalog-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/interaction-presentation-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/lifecycle-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/local-development-install-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/local-marketplace-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/local-preparation-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/local-validator-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/mcp-lifecycle-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/opencode-hardening-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/operational-localization-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/package-build-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/package-contents-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/parent-reconciliation-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/payload-budget-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/payload-budget.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/plugin-mcp-runtime-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/portable-plugin-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/prd-readiness-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/prepare-local-plugin.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/proportionality-benchmark-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/public-plugin-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/record-proportionality-benchmark.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/record-request-activation-evals.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/record-skill-evals.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-bootstrap-smoke-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-bump-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-bump.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-registry-state 2.mjs",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-registry-state-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-registry-state-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-registry-state.mjs",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-version-coherence-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-workflow-contract-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/release-workflow-contract-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/request-activation-callback-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/request-activation-evals-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/request-activation-host-schema-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/request-activation-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-lock-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-lock-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-proportionality-benchmark.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-recovery-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-recovery-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-request-activation-evals.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-revision-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-skill-evals.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-step-transaction-test 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-step-transaction-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-step-worker 2.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/run-step-worker.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/runtime-check-consent-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/runtime-integrity-layout-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/runtime-integrity-negative-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/skill-dispatch-binding-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/skill-dispatch-function-contract-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/skill-dispatch-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/skill-evals-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/smoke-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/control-command-child.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/control-command-fixture.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/english-locale.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/npm-cmd-shim.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/plugin-mcp-fixture.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/portable-schema.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/support/symlinks.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/sync-package-assets.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/sync-plugin-mcp.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/sync-plugin-runtime.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/sync-request-activation-projections.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/task-target-resolution-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/test-routing.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "create-agdf/scripts/verified-change-test.js",
+      "change": "removed or moved"
+    },
+    {
+      "path": "examples/sample-banking-flow.md",
+      "change": "removed or moved"
+    },
+    {
+      "path": "examples/sample-delivery-flow.md",
+      "change": "removed or moved"
+    }
+  ],
+  "historical_preservation": {
+    "checked": 1790,
+    "changed": []
+  },
+  "staged_preservation": "INDEX_PRESERVATION.json; initial per-entry original recovery blob proof unavailable",
+  "shared_controls": [
+    "SOT_REGISTRY.md",
+    "CONTEXT_GRAPH.md",
+    "MASTER_BACKLOG.md"
+  ],
+  "no_VCS_action": "no staging/reset/commit/push",
+  "later_index_observation": "FINAL_STAGED_ENTRIES.json; 28 additional documentation deletions outside migration, observed and preserved; original five staged duplicate entries still present"
+}

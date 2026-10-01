@@ -1,0 +1,166 @@
+[
+  {
+    "name": "create-agdf",
+    "manifest": {
+      "name": "create-agdf",
+      "version": "0.14.5",
+      "description": "Install AGDF plugins, bootstrap supported repository surfaces and validate durable governance state.",
+      "type": "module",
+      "engines": {
+        "node": ">=22"
+      },
+      "files": [
+        "bin",
+        "lib",
+        "generated/.agdf",
+        "generated/.agents",
+        "generated/.opencode",
+        "generated/opencode.json",
+        "generated/plugins/agdf",
+        "generated/plugins/copilot/agdf",
+        "generated/submissions/openai/agdf",
+        "opencode-plugin.js",
+        "README.md",
+        "NOTICE",
+        "runtime/core"
+      ],
+      "exports": {
+        ".": "./opencode-plugin.js",
+        "./control-command": "./lib/control-command.js",
+        "./cli": "./bin/create-agdf.js",
+        "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
+        "./opencode-plugin": "./opencode-plugin.js"
+      },
+      "bin": {
+        "create-agdf": "./bin/create-agdf.js"
+      },
+      "scripts": {},
+      "keywords": [
+        "agdf",
+        "copilot",
+        "claude-code",
+        "codex",
+        "opencode",
+        "control",
+        "scaffold",
+        "bootstrap"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "packages/cli"
+      },
+      "homepage": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/tree/main/packages/cli",
+      "imports": {
+        "#agdf-core": "./runtime/core/lib/index.js",
+        "#agdf-core/*": "./runtime/core/lib/*"
+      }
+    },
+    "tarball_sha256": "e8e181d3a0449028f2221f6228d83327bfcc3a3f918e238be1e4f3005a79a7bd"
+  },
+  {
+    "name": "@agdf/cli",
+    "manifest": {
+      "name": "@agdf/cli",
+      "version": "0.14.5",
+      "description": "Primary AGDF CLI for repository-local AI governance, delivery controls and agent setup.",
+      "type": "module",
+      "engines": {
+        "node": ">=22"
+      },
+      "files": [
+        "bin",
+        "README.md",
+        "NOTICE"
+      ],
+      "bin": {
+        "agdf": "./bin/agdf.js"
+      },
+      "scripts": {},
+      "dependencies": {
+        "create-agdf": "0.14.5"
+      },
+      "keywords": [
+        "agdf",
+        "ai-governance",
+        "ai-delivery",
+        "ai-agents",
+        "agentic-coding",
+        "agent-workflows",
+        "governance",
+        "delivery",
+        "delivery-controls",
+        "software-delivery",
+        "ai-native",
+        "codex",
+        "claude-code",
+        "opencode",
+        "copilot",
+        "github-copilot",
+        "npm-create",
+        "release-governance"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "packages/cli/distribution/agdf"
+      },
+      "homepage": "https://agdf.iself.eu"
+    },
+    "tarball_sha256": "c47690de973fd98dbc0652499d158dbc5e09b2687d1994a013e4a8c417a0d4c9"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "manifest": {
+      "name": "@agdf/mcp-server",
+      "version": "0.14.5",
+      "description": "Local read-only MCP adapter for version-matched AGDF skill dispatch.",
+      "type": "module",
+      "files": [
+        "bin",
+        "src",
+        "README.md",
+        "NOTICE"
+      ],
+      "bin": {
+        "agdf-mcp": "./bin/agdf-mcp.js"
+      },
+      "exports": {
+        ".": "./src/server.js"
+      },
+      "scripts": {},
+      "dependencies": {
+        "@modelcontextprotocol/server": "2.0.0",
+        "create-agdf": "0.14.5"
+      },
+      "engines": {
+        "node": ">=22"
+      },
+      "keywords": [
+        "agdf",
+        "mcp",
+        "governance",
+        "coding-agents"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "packages/mcp-server"
+      },
+      "homepage": "https://agdf.iself.eu"
+    },
+    "tarball_sha256": "690e270a5ab0642a0aa7b591d9ff3ed6a72dc065b0364bf14aafc6c8eb3b5c91"
+  }
+]

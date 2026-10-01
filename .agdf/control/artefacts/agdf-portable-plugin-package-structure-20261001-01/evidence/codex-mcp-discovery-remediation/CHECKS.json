@@ -1,0 +1,79 @@
+{
+  "checks": [
+    {
+      "check": "release-prepare",
+      "exit_code": 0,
+      "log": "release-prepare.log"
+    },
+    {
+      "check": "codex-plugin-mcp",
+      "exit_code": 0,
+      "log": "codex-plugin-mcp.log"
+    },
+    {
+      "check": "portable-plugin",
+      "exit_code": 0,
+      "log": "portable-plugin.log"
+    },
+    {
+      "check": "runtime-integrity-layout",
+      "exit_code": 0,
+      "log": "runtime-integrity-layout.log"
+    },
+    {
+      "check": "runtime-integrity-negative",
+      "exit_code": 0,
+      "log": "runtime-integrity-negative.log"
+    },
+    {
+      "check": "local-marketplace",
+      "exit_code": 0,
+      "log": "local-marketplace.log"
+    },
+    {
+      "check": "claude-plugin-mcp",
+      "exit_code": 0,
+      "log": "claude-plugin-mcp.log"
+    },
+    {
+      "check": "copilot-profile",
+      "exit_code": 0,
+      "log": "copilot-profile.log"
+    },
+    {
+      "check": "plugin-mcp-runtime",
+      "exit_code": 0,
+      "log": "plugin-mcp-runtime.log"
+    },
+    {
+      "check": "local-preparation",
+      "exit_code": 0,
+      "log": "local-preparation.log"
+    },
+    {
+      "check": "package-contents",
+      "exit_code": 0,
+      "log": "package-contents.log"
+    },
+    {
+      "check": "local-development-install",
+      "exit_code": 0,
+      "log": "local-development-install.log"
+    },
+    {
+      "check": "install-codex",
+      "exit_code": 0,
+      "log": "install-codex.log"
+    },
+    {
+      "check": "installed-integrity",
+      "exit_code": 0,
+      "log": "installed-integrity.log"
+    }
+  ],
+  "fresh_cli_probe": {
+    "exit_code": 1,
+    "model_invocation": false,
+    "evidence": "fresh-cli-stderr.log"
+  }
+}

@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-portable-plugin-package-structure-20261001-01
 - lifecycle: active
-- revision: 27
-- revision_id: 285b69c8-bafb-4801-8877-9dd8ee3ad4bd
-- content_seal: sha256:5b635320fe6d6c1dfcd411cb2a1fed4ced4b7bdee75d60b52ecad86e50bd2e40
+- revision: 28
+- revision_id: 13dc8826-00a0-4a00-ad96-3f5813a885a3
+- content_seal: sha256:d10a7cde488cd1c5d4b06c4430a7038a25c29ec465e7f24ba9099d184287d4ac
 - approval_seal: sha256:c58db22380725ec72b46ee12a6d6f2fefd262fd0444e5b7b039a035fea408169
-- updated_at: 2026-10-01T13:05:36.763Z
+- updated_at: 2026-10-01T14:28:33.494Z
 - mode: structured_delivery
 - current_gate: QA
 - decision: in_progress
@@ -25,7 +25,7 @@ Deliver a portable AGDF plugin with one canonical identity and explicit plugin, 
 |---|---|
 | What is known? | Code Review decision `pass`. |
 | What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
-| What is missing? | Exact Approval: QA. |
+| What is missing? | Current qa-gate revalidation after MCP discovery repair, then exact Approval: QA. |
 | What is the next allowed action? | Run the QA gate, persist the QA report, and request exact approval: Approval: QA |
 | What is explicitly forbidden right now? | request UAT approval; release; claim delivery readiness before QA approval and report evidence |
 
@@ -55,7 +55,7 @@ Deliver a portable AGDF plugin with one canonical identity and explicit plugin, 
 | CR |  | done | Code Review pass |
 | Clean Implementation Review | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md` | done | pass; existing owners and bounded host/archive bridges |
 | Task Plan Review | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TASK_PLAN_REVIEW.md` | done | pass; 10/10 tasks; TPR-E001 resolved by actual archive/profile evidence |
-| QA | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md` | done | Revision 4 pass; QA-I001 resolved by actual installation and refreshed evidence |
+| QA | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md` | pending | Revision 4 is historical; MCP discovery repair requires qa-gate revalidation; prior report archived |
 
 ## Mode/Slice Decision
 
@@ -90,7 +90,9 @@ Deliver a portable AGDF plugin with one canonical identity and explicit plugin, 
 | Code Review | .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | direct |
 | Code Review | .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | direct |
 
+| Codex portable MCP discovery remediation | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/evidence/codex-mcp-discovery-remediation/REMEDIATION.md`; CHECKS.json; INSTALLED.json; SERVER_PROTOCOL_AFTER.json | root mcp.json discovery fixed; exact measured payload and historical digest compatibility; current source/install evidence; no fresh model invocation or QA approval inferred | direct |
+
 ## Closeout
 
 - next_allowed_action: Run the QA gate, persist the QA report, and request exact approval: Approval: QA
-- quality_outlook: QA pass: QA-I001 resolved; actual Codex installation/installed integrity and affected package tests pass; fresh session unverified; human QA/UAT approvals missing.
+- quality_outlook: MCP discovery repair installed and verified through CLI discovery, direct protocol and installed integrity; affected checks pass. Prior QA snapshot superseded; qa-gate revalidation and human QA/UAT approvals missing. Current chat tools and fresh model invocation remain unverified.

@@ -41,7 +41,7 @@ sichtbar, und wichtige Übergänge benötigen deine bewusste Freigabe.**
 Beginne mit dem [Schnellstart](01-schnellstart.md). Er zeigt den Weg von einem ersten Wunsch über die
 Auswahl des passenden Delivery-Pfads bis zu Qualitätssicherung, Abnahme und Abschluss.
 
-Das [Banking-Beispiel](../../../examples/sample-banking-flow.md) veranschaulicht einen fachlich
+Das [Banking-Beispiel](../../examples/sample-banking-flow.md) veranschaulicht einen fachlich
 kritischen Brownfield-Fall. Es ist ein Domänenbeispiel und kein vollständiges Protokoll aller
 Approval-Interaktionen oder Abschlussaktionen.
 
@@ -66,7 +66,7 @@ Das Handbuch erklärt die Anwendung. Verbindlich bleiben die jeweils aktuellen Q
   Arbeitsstand;
 - [Installation](../../../INSTALL.md) für Codex, Claude Code, GitHub Copilot und OpenCode;
 - der [Control-Scaffold](../../../plugins/agdf/control/README.md) für technische Run-State-Details;
-- die [AGDF CLI README](../../../agdf/README.md) für die Befehlsreferenz;
+- die [AGDF CLI README](../../../packages/cli/distribution/agdf/README.md) für die Befehlsreferenz;
 - [Framework-Überblick](../../01-framework-ueberblick.md) und [Gates](../../02-gates.md) für ergänzende
   Erläuterungen.
 

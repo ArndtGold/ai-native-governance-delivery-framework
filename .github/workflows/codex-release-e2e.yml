@@ -41,12 +41,12 @@ jobs:
       - name: Install dependencies without lifecycle scripts
         run: npm ci --ignore-scripts
       - name: Install MCP dependencies from checkout
-        working-directory: agdf-mcp-server
+        working-directory: packages/mcp-server
         run: npm ci --ignore-scripts
       - name: Install pinned Codex CLI
         run: npm install --global --ignore-scripts "@openai/codex@$(node -p "require('./scripts/native-probes/codex-release-policy.json').codex_version")"
       - name: Verify native command resolution
-        run: node create-agdf/scripts/host-command-test.js
+        run: node packages/cli/scripts/host-command-test.js
       # Trusted release/manual refs only; never invoked from a PR job. No account auth.json in CI.
       # The harness strips credentials before builds/install/removal and passes this key only to
       # codex exec. Raw transcripts and the isolated CODEX_HOME are never uploaded.

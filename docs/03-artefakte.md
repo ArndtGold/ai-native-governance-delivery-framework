@@ -56,7 +56,7 @@ Fachbereichen oder internen Teams führt genau diese Lücke zu Missverständniss
 Wenn ein LLM direkt von der Idee in Code, Konzept oder Entscheidung springt, fehlen oft stabile Zwischenstände: Bedarf,
 Scope, Annahmen, Design, Tests und Nachweise.
 
-![LLM ohne Artefakte vs. mit Artefakten](../assets/llm_ohne_artefakte.png)
+![LLM ohne Artefakte vs. mit Artefakten](assets/llm_ohne_artefakte.png)
 
 Genau hier setzt die Idee dieses Entwurfs an: weg vom flüchtigen Dialog mit dem Modell, hin zu dauerhaften
 Artefakten, die einen prüfbaren Arbeitsstand festhalten.
@@ -97,7 +97,7 @@ Beispiele:
 * `G-02` prüft, ob dieses Design sauber aus dem Produktvertrag abgeleitet ist und noch keine Implementierung
   vorwegnimmt.
 
-![Artefakt-Gate-Tool-Prozess](../assets/artefakt-gate-tool-prozess.png)
+![Artefakt-Gate-Tool-Prozess](assets/artefakt-gate-tool-prozess.png)
 
 Damit bleibt die Trennung klar:
 
@@ -426,7 +426,7 @@ Sie machen sichtbar:
 
 Sie ersetzen keine Gates. Sie liefern die Grundlage, damit wir mit Gates verantwortbar entscheiden können.
 
-![Kernaussage: Artefakte als Grundlage für Gates](../assets/kernaussage-artefakte-grundlage-gates.png)
+![Kernaussage: Artefakte als Grundlage für Gates](assets/kernaussage-artefakte-grundlage-gates.png)
 
 ## Nächster Schritt
 

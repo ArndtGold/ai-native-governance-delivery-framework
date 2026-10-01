@@ -2,7 +2,7 @@
 language: en
 chapter_role: index
 translation_of: ../de/README.md
-source_revision: sha256:b11311c5725184669220240e12fdf69596efe904f8d99ee65ecce4e06ec4cd11
+source_revision: sha256:794be9dbcbb80581c34441d76598732f3cf4f8bdb6ebb12f349d4b5c2ae87e3f
 translation_status: reviewed
 ---
 
@@ -46,7 +46,7 @@ important transitions require your deliberate approval.**
 Begin with the [Quickstart](01-quickstart.md). It takes you from the initial request to the delivery
 path, quality assurance, acceptance and closeout.
 
-The [banking example](../../../examples/sample-banking-flow.md) illustrates a high-stakes Brownfield
+The [banking example](../../examples/sample-banking-flow.md) illustrates a high-stakes Brownfield
 case. It is a domain example, not a complete record of every approval interaction or closeout
 action.
 
@@ -69,7 +69,7 @@ This handbook explains practical use. The following current sources remain autho
 - the selected live run at `.agdf/control/runs/<run_id>/RUN_STATE.md` for current delivery state;
 - [Installation](../../../INSTALL.md) for Codex, Claude Code, GitHub Copilot and OpenCode;
 - the [Control Scaffold](../../../plugins/agdf/control/README.md) for technical run-state details;
-- the [AGDF CLI README](../../../agdf/README.md) for command reference;
+- the [AGDF CLI README](../../../packages/cli/distribution/agdf/README.md) for command reference;
 - the [framework overview](../../01-framework-ueberblick.md) and [gates](../../02-gates.md) for
   additional background.
 

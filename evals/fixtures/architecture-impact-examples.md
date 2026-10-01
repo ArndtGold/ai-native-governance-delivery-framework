@@ -20,13 +20,13 @@ These are bounded evaluation examples, not live host observations or approvals.
 - architecture_relevance: `relevant`
 - architecture_impact: `medium`
 - architecture_reason: An existing CLI consumer needs a temporary compatibility adapter during its migration.
-- architecture_evidence: `create-agdf/bin/create-agdf.js` exposes the CLI boundary; consumer migration plan is linked in the run's SD.
+- architecture_evidence: `packages/cli/bin/create-agdf.js` exposes the CLI boundary; consumer migration plan is linked in the run's SD.
 - architecture_missing_evidence: `none`
 - architecture_next_owner_and_action: Arndt Gold coordinates the example consumer migration and removes the adapter by the review date.
 
 | Finding | Evidence | Risk | Required action |
 |---|---|---|---|
-| trade-off: temporary CLI adapter | `create-agdf/bin/create-agdf.js`; linked SD migration plan | `warn` | Arndt Gold: retain only until the named consumer completes migration. |
+| trade-off: temporary CLI adapter | `packages/cli/bin/create-agdf.js`; linked SD migration plan | `warn` | Arndt Gold: retain only until the named consumer completes migration. |
 
 ### Retained Debt Detail
 

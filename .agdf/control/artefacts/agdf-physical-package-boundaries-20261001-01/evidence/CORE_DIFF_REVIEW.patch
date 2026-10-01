@@ -1,0 +1,668 @@
+--- C00/create-agdf/lib/cli/contract-command.js
++++ packages/core/lib/resources/contracts.js
+@@ -1,49 +1,23 @@
+-import { existsSync, readFileSync } from "node:fs";
+-import { basename, dirname, join } from "node:path";
+-import process from "node:process";
+-import { generatedRoot, pluginDefinition } from "./runtime-context.js";
++import { readFileSync } from "node:fs";
++import { join, basename } from "node:path";
+ import { createHash } from "node:crypto";
+-
+-// MCP serves only the selected skill's allowlisted modules from its own verified package.
+-// No caller-provided path, inherited plugin-root environment or executable is consumed.
+-export function readSkillRuntimeContracts(skillId, { definition = pluginDefinition, packageGeneratedRoot = generatedRoot } = {}) {
+-  const modules = definition.skillSet.find(skill => skill.slug === skillId)?.runtimeContractModules;
++import { resources } from "./context.js";
++export function runtimeContractModules(definition = resources.pluginDefinition) {
++  return definition.runtimeContract.modules.map(path => basename(path, ".md"));
++}
++export function readRuntimeContract(module, { context = resources } = {}) {
++  const modules = runtimeContractModules(context.pluginDefinition);
++  if (!modules.includes(module)) return Object.freeze({ ok: false, reason: "module_unknown", modules });
++  const path = join(context.contractsRoot, `${module}.md`);
++  try { return Object.freeze({ ok: true, module, path, content: readFileSync(path, "utf8") }); }
++  catch { return Object.freeze({ ok: false, reason: "module_unavailable", modules }); }
++}
++export function readSkillRuntimeContracts(skillId, { context = resources } = {}) {
++  const modules = context.pluginDefinition.skillSet.find(skill => skill.slug === skillId)?.runtimeContractModules;
+   if (!Array.isArray(modules) || !modules.length || new Set(modules).size !== modules.length) throw new Error("runtime_contracts_unavailable");
+   return Object.freeze(modules.map(module => {
+-    const result = readRuntimeContract(module, { pluginRoot: null, definition, packageGeneratedRoot });
++    const result = readRuntimeContract(module, { context });
+     if (!result.ok || !result.content.trim()) throw new Error("runtime_contracts_unavailable");
+     return Object.freeze({ module, content: result.content, sha256: createHash("sha256").update(result.content).digest("hex") });
+   }));
+ }
+-
+-export function runtimeContractModules(definition = pluginDefinition) {
+-  return definition.runtimeContract.modules.map((path) => basename(path, ".md"));
+-}
+-
+-// Serves the packaged runtime-contract modules through the validator. Claude Code grants skills no
+-// read access to the plugin directory, so skills read their contracts with this command instead of
+-// the file system. Only modules named by the plugin definition are served.
+-export function readRuntimeContract(module, {
+-  pluginRoot = process.env.AGDF_DISPATCH_PLUGIN_ROOT,
+-  definition = pluginDefinition,
+-  packageGeneratedRoot = generatedRoot,
+-} = {}) {
+-  const modules = runtimeContractModules(definition);
+-  if (!modules.includes(module)) return Object.freeze({ ok: false, reason: "module_unknown", modules });
+-  // Copilot keeps contracts beside its runtime/create-agdf package. Derive this profile
+-  // location from the loaded package, never from a caller path or inherited environment.
+-  const packagedRuntime = dirname(dirname(packageGeneratedRoot));
+-  const ownCopilotContracts = basename(packagedRuntime) === "runtime"
+-      && basename(dirname(packageGeneratedRoot)) === "create-agdf"
+-    ? join(dirname(packagedRuntime), "copilot-skills", "contracts") : null;
+-  const roots = [
+-    ...(pluginRoot ? [join(pluginRoot, "meta", "contracts"), join(pluginRoot, "copilot-skills", "contracts")] : []),
+-    join(packageGeneratedRoot, "plugins", "agdf", "meta", "contracts"),
+-    ...(ownCopilotContracts ? [ownCopilotContracts] : []),
+-  ];
+-  for (const root of roots) {
+-    const path = join(root, `${module}.md`);
+-    if (existsSync(path)) return Object.freeze({ ok: true, module, path, content: readFileSync(path, "utf8") });
+-  }
+-  return Object.freeze({ ok: false, reason: "module_unavailable", modules });
+-}
+--- C00/create-agdf/lib/control-evaluation/delivery-map.js
++++ packages/core/lib/control-evaluation/delivery-map.js
+@@ -1,12 +1,12 @@
+ import { existsSync } from 'node:fs';
+ import { join } from 'node:path';
+-import { aggregate } from '../control-state/aggregate.js';
+-import { resolveRuns } from '../control-state/run-state-resolver.js';
+-import { resolveConfiguredChatLanguage } from '../runtime/control-context.js';
+-import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js';
+-import { gateApprovalStatus, readRunState, resolvedArtefactFile } from './run-state.js';
+-import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from './shared.js';
+-import { evaluateReconciliationState } from './parent-reconciliation.js';
++import { aggregate } from "../control-state/aggregate.js";
++import { resolveRuns } from "../control-state/run-state-resolver.js";
++import { resolveConfiguredChatLanguage } from "../resources/context.js";
++import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
++import { gateApprovalStatus, readRunState, resolvedArtefactFile } from "./run-state.js";
++import { allowNoActiveRuns, filled, isPlaceholderValue, markdownSection, parseBacklogSection, readTargetFile } from "./shared.js";
++import { evaluateReconciliationState } from "./parent-reconciliation.js";
+ 
+ const deliveryRelationships = [
+   { from: "UR", relationship: "approved_by", to: "Approval: UR", requiredBy: "UR" },
+--- C00/create-agdf/lib/control-evaluation/doctor.js
++++ packages/core/lib/control-evaluation/doctor.js
+@@ -1,15 +1,15 @@
+ import { existsSync } from 'node:fs';
+ import { dirname, join } from 'node:path';
+-import { aggregate } from '../control-state/aggregate.js';
+-import { verifyLegacyProjection } from '../control-state/legacy-projection-reader.js';
+-import { resolveRuns } from '../control-state/run-state-resolver.js';
+-import { runSealState } from '../control-state/run-seal.js';
+-import { pendingRunStepIds } from '../control-state/run-step-pending.js';
+-import { doctorRequiredFiles } from './required-files.js';
+-import { analyzeDeliveryMap } from './delivery-map.js';
+-import { evaluateVerifiedChange } from './verified-change.js';
+-import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from './run-state.js';
+-import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseBacklogSection, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from './shared.js';
++import { aggregate } from "../control-state/aggregate.js";
++import { verifyLegacyProjection } from "../control-state/legacy-projection-reader.js";
++import { resolveRuns } from "../control-state/run-state-resolver.js";
++import { runSealState } from "../control-state/run-seal.js";
++import { pendingRunStepIds } from "../control-state/run-step-pending.js";
++import { doctorRequiredFiles } from "./required-files.js";
++import { analyzeDeliveryMap } from "./delivery-map.js";
++import { evaluateVerifiedChange } from "./verified-change.js";
++import { analyzeArtefactRoleConsistency, analyzeDurableGateArtefactConsistency, modeSliceDecision, readRunState, resolvedArtefactFile } from "./run-state.js";
++import { addFinding, allowNoActiveRuns, filled, hasFilledEvidenceRow, hasFilledTableRow, isPlaceholderValue, markdownSection, nonEmptyTableRows, parseBacklogSection, parseQualityContracts, readTargetFile, runSelectionRecovery, tableRows } from "./shared.js";
+ 
+ const RUN_SEAL_FINDINGS = Object.freeze({
+   approvals_changed: {
+--- C00/create-agdf/lib/control-evaluation/gate-check.js
++++ packages/core/lib/control-evaluation/gate-check.js
+@@ -1,14 +1,14 @@
+-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
+-import { interactionLocales, resolveConfiguredChatLanguage } from '../runtime/control-context.js';
+-import { evaluateDoctor } from './doctor.js';
+-import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
+-import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js';
+-import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from './verified-change.js';
+-import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from './run-state.js';
+-import { isPlaceholderValue } from './shared.js';
+-import { renderReviewableApproval } from '../control-state/run-presentation-render.js';
+-import { evaluatePrdReadiness } from './prd-readiness.js';
+-import { evaluateSdTraceability, evaluateTpTraceability } from './traceability-readiness.js';
++import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from "../interaction-presentation.js";
++import { interactionLocales, resolveConfiguredChatLanguage } from "../resources/context.js";
++import { evaluateDoctor } from "./doctor.js";
++import { analyzeDeliveryMap, deriveQualityOutlook } from "./delivery-map.js";
++import { isGateSatisfied, transitionDecisionForRunState } from "./gate-policy.js";
++import { evaluateVerifiedChange, extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
++import { gateApprovalStatus, isInternalStepSatisfied, modeSliceDecision, readArtefactHeading, readRunState, resolvedArtefactFile } from "./run-state.js";
++import { isPlaceholderValue } from "./shared.js";
++import { renderReviewableApproval } from "../control-state/run-presentation-render.js";
++import { evaluatePrdReadiness } from "./prd-readiness.js";
++import { evaluateSdTraceability, evaluateTpTraceability } from "./traceability-readiness.js";
+ 
+ const nextSkillByGate = {
+   UR: "gate-check",
+--- C00/create-agdf/lib/control-evaluation/gate-policy.js
++++ packages/core/lib/control-evaluation/gate-policy.js
+@@ -1,5 +1,5 @@
+-import { extractField, verifiedChangeEscalationTargets } from './verified-change.js';
+-import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from './run-state.js';
++import { extractField, verifiedChangeEscalationTargets } from "./verified-change.js";
++import { gateApprovalStatus, gateArtefactStatus, isDurableGateArtefactSatisfied, isInternalStepSatisfied, modeSliceDecision } from "./run-state.js";
+ 
+ function durableArtefactBlock(gate, nextGate) {
+   const label = gate === "QA" ? "QA report" : `${gate} artefact`;
+--- C00/create-agdf/lib/control-inspect/service.js
++++ packages/core/lib/control-inspect/service.js
+@@ -3,7 +3,7 @@
+ import { buildStatusCard, evaluateGateCheck, postApprovalTransition, printApprovalEnvelope, printGateCheckReport } from "../control-evaluation/gate-check.js";
+ import { evaluateDoctor } from "../control-evaluation/doctor.js";
+ import { evaluateDeliveryMap } from "../control-evaluation/delivery-map.js";
+-import { readRuntimeContract } from "../cli/contract-command.js";
++import { readRuntimeContract } from "../resources/contracts.js";
+ import { renderSkillDispatchInputRecovery, renderSkillDispatchRecovery, renderTaskTargetOrientation } from "../interaction-presentation.js";
+ import { resolveTaskTarget, TaskTargetInputError } from "../task-target-resolution.js";
+ import { SKILL_DISPATCH_PRESENTATION_LANGUAGE_RECOVERY, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
+--- C00/create-agdf/lib/control-maintenance/interaction.js
++++ packages/core/lib/control-maintenance/interaction.js
+@@ -1,6 +1,4 @@
+-import { createInterface } from "node:readline/promises";
+-import process from "node:process";
+-import { interactionLocales } from "../cli/runtime-context.js";
++import { interactionLocales } from "../resources/context.js";
+ import { localePack } from "../interaction-presentation.js";
+ import { renderMaintenanceOffer, renderControlMigrationDecision, renderControlRepairOffer, renderControlRepairPlan } from "./presentation.js";
+ 
+@@ -38,18 +36,6 @@
+   }
+ }
+ 
+-export async function promptControlMigration(plan, {
+-  input = process.stdin, output = process.stdout, registry = interactionLocales, language = "en",
+-} = {}) {
+-  const prompt = createInterface({ input, output });
+-  try {
+-    return await selectControlMigration(plan, { registry, language,
+-      write(value) { output.write(`${value}\n`); },
+-      readChoice({ prompt: question }) { return prompt.question(question); },
+-    });
+-  } finally { prompt.close(); }
+-}
+-
+ export async function selectControlRepair(value, {
+   readChoice, write = () => {}, registry = interactionLocales, language = "en", phase = "offer",
+ } = {}) {
+@@ -69,14 +55,3 @@
+   }
+ }
+ 
+-export async function promptControlRepair(value, {
+-  input = process.stdin, output = process.stdout, registry = interactionLocales, language = "en", phase = "offer",
+-} = {}) {
+-  const prompt = createInterface({ input, output });
+-  try {
+-    return await selectControlRepair(value, { registry, language, phase,
+-      write(text) { output.write(`${text}\n`); },
+-      readChoice({ prompt: question }) { return prompt.question(question); },
+-    });
+-  } finally { prompt.close(); }
+-}
+--- C00/create-agdf/lib/control-maintenance/presentation.js
++++ packages/core/lib/control-maintenance/presentation.js
+@@ -1,4 +1,4 @@
+-import { interactionLocales } from "../cli/runtime-context.js";
++import { interactionLocales } from "../resources/context.js";
+ import { localePack } from "../interaction-presentation.js";
+ import { controlCounts } from "./contract.js";
+ 
+--- C00/create-agdf/lib/control-maintenance/repair.js
++++ packages/core/lib/control-maintenance/repair.js
+@@ -1,5 +1,4 @@
+ import { createHash, randomUUID } from "node:crypto";
+-import { execFileSync } from "node:child_process";
+ import { lstatSync, mkdirSync, unlinkSync } from "node:fs";
+ import { dirname, join } from "node:path";
+ import { isSafeControlRelativePath } from "../control-state/contained-file.js";
+@@ -36,33 +35,15 @@
+   return path;
+ }
+ 
+-function git(root, args) {
+-  return execFileSync("git", args, { cwd: root, stdio: ["ignore", "pipe", "ignore"], timeout: 3000, maxBuffer: 2 * 1024 * 1024 });
+-}
+-
+-// Search only this checkout's current history and the exact referenced path. Git is a source
+-// of original bytes, never proof of a historical approval. Symlink/tree objects are not sources.
+-function gitOriginals(root, path) {
+-  if (!isSafeControlRelativePath(path)) return [];
++function gitOriginals(root, path, readGitOriginals) {
++  if (!isSafeControlRelativePath(path) || typeof readGitOriginals !== "function") return [];
+   try {
+-    directoryIdentity(git(root, ["rev-parse", "--show-toplevel"]).toString().replace(/\r?\n$/u, ""));
+-    // Git resolves Windows short/long directory aliases; filesystem-relative paths do not.
+-    const prefix = git(root, ["rev-parse", "--show-prefix"]).toString().replace(/\r?\n$/u, "");
+-    const objectPath = `${prefix}${path}`;
+-    if (!isSafeControlRelativePath(objectPath)) return [];
+-    const commits = [...new Set([git(root, ["rev-parse", "HEAD"]).toString().trim(),
+-      ...git(root, ["log", "-8", "--format=%H", "--", path]).toString().trim().split(/\r?\n/u)])]
+-      .filter((commit) => /^[0-9a-f]{40,64}$/u.test(commit));
+-    const originals = [];
+-    for (const commit of commits) {
+-      try {
+-        const tree = git(root, ["ls-tree", "--full-tree", "-z", commit, "--", objectPath]).toString();
+-        if (!/^100(?:644|755) blob [0-9a-f]+\t/u.test(tree) || tree.slice(tree.indexOf("\t") + 1, -1) !== objectPath) continue;
+-        const bytes = git(root, ["show", `${commit}:${objectPath}`]);
+-        originals.push({ path, git_path: objectPath, source: "git", commit, digest: textDigest(bytes.toString("utf8")), bytes: bytes.toString("base64") });
+-      } catch { /* Missing or oversized objects require manual recovery. */ }
+-    }
+-    return originals;
++    const entries = readGitOriginals(root, path);
++    if (!Array.isArray(entries) || entries.length > 9) return [];
++    return entries.filter(entry => entry?.path === path && isSafeControlRelativePath(entry.git_path)
++      && entry.source === "git" && /^[0-9a-f]{40,64}$/u.test(entry.commit)
++      && typeof entry.bytes === "string" && entry.bytes.length <= 3 * 1024 * 1024
++      && entry.digest === textDigest(Buffer.from(entry.bytes, "base64").toString("utf8")));
+   } catch { return []; }
+ }
+ 
+@@ -73,7 +54,7 @@
+   return proposed;
+ }
+ 
+-function inspectRunRepair(root, run) {
++function inspectRunRepair(root, run, readGitOriginals) {
+   const relative = `.agdf/control/runs/${run.run_id}/RUN_STATE.md`;
+   const path = checkedPath(root, relative);
+   const content = regularFileSnapshot(path).content.toString("utf8");
+@@ -95,11 +76,11 @@
+       sources: [{ path: relative, source: "recovery_journal", journal: checkpoint.source }] });
+   }
+   if (seal.status === "content_changed") {
+-    const original = gitOriginals(root, relative).find((candidate) => {
++    const original = gitOriginals(root, relative, readGitOriginals).find((candidate) => {
+       const text = Buffer.from(candidate.bytes, "base64").toString("utf8");
+       const state = parseRunState(text, run.run_id);
+       return state.valid && state.meta.lifecycle === "active" && state.meta.revision_id === parsed.meta.revision_id
+-        && runSealState(root, text).status === "valid" && approvalSeal(text) === seal.recorded.approval_seal
++        && runSealState(root, text).status === "valid" && runSealState(root, text).recorded.content_seal === seal.recorded.content_seal && approvalSeal(text) === seal.recorded.approval_seal
+         && listedArtefactPaths(text).every((path) => artefactFileDigest(root, path).startsWith("sha256:"));
+     });
+     if (original) return proposal(root, item, { kind: "run_snapshot", available: true,
+@@ -119,7 +100,7 @@
+         try { lstatSync(target); item.required.push({ code: "AGDF_REPAIR_MANUAL_REQUIRED", path: artifact }); continue; }
+         catch (error) { if (error.code !== "ENOENT") throw error; }
+       }
+-      const original = gitOriginals(root, artifact)[0];
++      const original = gitOriginals(root, artifact, readGitOriginals)[0];
+       if (original) { item.files.push(original); item.sources.push(original); }
+       else item.required.push({ code: "AGDF_REPAIR_ORIGINAL_REQUIRED", path: artifact });
+     }
+@@ -135,13 +116,13 @@
+   return item;
+ }
+ 
+-export function inspectControlRepair(root) {
++export function inspectControlRepair(root, { readGitOriginals } = {}) {
+   const control = inspectControlMigration(root);
+   const items = [];
+   const diagnostics = [...control.diagnostics];
+   // An incomplete inventory or unsafe scaffold cannot authorize repair writes.
+   if (!diagnostics.length) for (const run of control.runs.filter((entry) => entry.status === "repair_required")) {
+-    try { items.push(inspectRunRepair(root, run)); } catch (error) {
++    try { items.push(inspectRunRepair(root, run, readGitOriginals)); } catch (error) {
+       items.push({ run_id: run.run_id, kind: "manual", available: false, files: [], sources: [],
+         required: [{ code: String(error.code ?? error.message), ...(error.path ? { path: error.path } : {}) }] });
+     }
+@@ -157,7 +138,7 @@
+     })) };
+ }
+ 
+-function applyRunRepair(root, item, hooks = {}) {
++function applyRunRepair(root, item, hooks = {}, readGitOriginals) {
+   const relative = `.agdf/control/runs/${item.run_id}/RUN_STATE.md`;
+   const path = checkedPath(root, relative);
+   return withRunLock(path, () => {
+@@ -166,7 +147,7 @@
+     // replace the displayed restoration with another snapshot or a newly found original.
+     const run = inspectControlMigration(root).runs.find((entry) => entry.run_id === item.run_id);
+     if (!run || run.status !== "repair_required") throw new Error("AGDF_STALE_RUN_REVISION");
+-    const current = inspectRunRepair(root, run);
++    const current = inspectRunRepair(root, run, readGitOriginals);
+     if (JSON.stringify(current) !== JSON.stringify(item)) throw new Error("AGDF_STALE_RUN_REVISION");
+     const directory = join(dirname(path), "repair-previews");
+     try { mkdirSync(directory, { mode: 0o700 }); } catch (error) { if (error.code !== "EEXIST") throw error; }
+@@ -222,15 +203,15 @@
+   });
+ }
+ 
+-export async function repairInstallationControl(control, { chooseRepair, confirmRepair, hooks } = {}) {
++export async function repairInstallationControl(control, { chooseRepair, confirmRepair, hooks, readGitOriginals } = {}) {
+   if (control.status !== "repair_required" || typeof chooseRepair !== "function") return control;
+   if (await chooseRepair(structuredClone(control)) !== "start") return control;
+-  const plan = inspectControlRepair(control.target);
++  const plan = inspectControlRepair(control.target, { readGitOriginals });
+   const candidates = plan.items.filter((item) => item.available);
+   let decision = "skip";
+   if (typeof confirmRepair === "function") decision = await confirmRepair(structuredClone(plan));
+   if (decision === "repair") for (const item of candidates) {
+-    try { Object.assign(item, applyRunRepair(control.target, item, hooks)); }
++    try { Object.assign(item, applyRunRepair(control.target, item, hooks, readGitOriginals)); }
+     catch (error) { plan.diagnostics.push({ run_id: item.run_id, code: String(error.code ?? error.message) }); }
+   }
+   const after = inspectControlMigration(control.target);
+--- C00/create-agdf/lib/control-maintenance/service.js
++++ packages/core/lib/control-maintenance/service.js
+@@ -5,7 +5,7 @@
+ import { repairInstallationControl } from "./repair.js";
+ import { maintenanceResult } from "./contract.js";
+ 
+-export async function runControlMaintenance(target, { guided = false, chooseMaintenance, confirmMigration, confirmRepair } = {}) {
++export async function runControlMaintenance(target, { guided = false, chooseMaintenance, confirmMigration, confirmRepair, readGitOriginals } = {}) {
+   if (typeof target !== "string" || !isAbsolute(target)) throw new Error("AGDF_MAINTENANCE_TARGET_REQUIRED");
+   const identity = directoryIdentity(target);
+   const verifyTarget = () => {
+@@ -30,7 +30,7 @@
+   }
+   let after = await migrateInstallationControl(target, { mode: "safe", confirmMigration: reviewed(confirmMigration) });
+   const diagnostics = [...after.diagnostics];
+-  after = await repairInstallationControl(after, { chooseRepair: () => "start", confirmRepair: reviewed(confirmRepair) });
++  after = await repairInstallationControl(after, { chooseRepair: () => "start", confirmRepair: reviewed(confirmRepair), readGitOriginals });
+   const changed = after.changes.length + (after.repair?.items.filter((item) => item.outcome === "repaired").length ?? 0);
+   const outcome = changed ? (after.status === "current" ? "applied" : "partial")
+     : diagnostics.length || after.repair?.status === "needs_input" ? "needs_input" : "deferred";
+--- C00/create-agdf/lib/control-state/run-presentation-render.js
++++ packages/core/lib/control-state/run-presentation-render.js
+@@ -3,7 +3,7 @@
+ import { basename } from "node:path";
+ import { TextDecoder } from "node:util";
+ import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
+-import { interactionLocales } from "../runtime/control-context.js";
++import { interactionLocales } from "../resources/context.js";
+ import { localePack, resolvePresentationLocale } from "../interaction-presentation.js";
+ 
+ // Read-only approval rendering. gate-check (and with it the MCP dispatcher) imports this module;
+--- C00/create-agdf/lib/control-state/run-recovery.js
++++ packages/core/lib/control-state/run-recovery.js
+@@ -1,6 +1,5 @@
+ import { assertRecoveryOperationsTrusted } from "./run-state-writer.js";
+ import { createHash, randomUUID } from "node:crypto";
+-import { execFileSync } from "node:child_process";
+ import {
+   closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, writeFileSync, fsyncSync,
+ } from "node:fs";
+@@ -69,34 +68,21 @@
+   return null;
+ }
+ 
+-function gitHistoryCandidates(root, runId) {
++function gitHistoryCandidates(root, runId, readGitHistory) {
++  if (typeof readGitHistory !== "function") return { status: "unavailable", candidates: [] };
+   const relativePath = `.agdf/control/runs/${runId}/RUN_STATE.md`;
+-  let commits;
+-  try {
+-    commits = execFileSync("git", ["log", "--all", "--follow", "--format=%H", "--", relativePath], {
+-      cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 10000, maxBuffer: 1024 * 1024,
+-    }).trim().split(/\r?\n/u).filter(Boolean).slice(0, 25);
+-  } catch {
+-    return { status: "unavailable", candidates: [] };
+-  }
++  let entries;
++  try { entries = readGitHistory(root, relativePath); } catch { return { status: "unavailable", candidates: [] }; }
++  if (!Array.isArray(entries) || entries.length > 25) return { status: "unavailable", candidates: [] };
+   const candidates = [];
+-  for (const commit of commits) {
+-    try {
+-      const content = execFileSync("git", ["show", `${commit}:${relativePath}`], {
+-        cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 10000, maxBuffer: 1024 * 1024,
+-      });
+-      const parsed = parseRunState(content, runId);
+-      if (!parsed.valid) continue;
+-      const meta = scalarFields(content).values;
+-      const sealPattern = /^sha256:[0-9a-f]{64}$/u;
+-      const sealLinesPresent = sealPattern.test(meta.get("content_seal") ?? "")
+-        && sealPattern.test(meta.get("approval_seal") ?? "");
+-      candidates.push({ commit, revision_id: parsed.meta.revision_id,
+-        content_digest: digestContent(content), seal_lines_present: sealLinesPresent,
+-        approval_provenance: "not_proven_by_git_revision" });
+-    } catch {
+-      // A disappearing or malformed Git object is not a recovery source.
+-    }
++  for (const entry of entries) {
++    if (!entry || entry.path !== relativePath || !/^[0-9a-f]{40,64}$/u.test(entry.commit) || typeof entry.content !== "string" || Buffer.byteLength(entry.content) > 1024 * 1024) continue;
++    const parsed = parseRunState(entry.content, runId);
++    if (!parsed.valid) continue;
++    const meta = scalarFields(entry.content).values;
++    const sealPattern = /^sha256:[0-9a-f]{64}$/u;
++    candidates.push({ commit: entry.commit, revision_id: parsed.meta.revision_id, content_digest: digestContent(entry.content),
++      seal_lines_present: sealPattern.test(meta.get("content_seal") ?? "") && sealPattern.test(meta.get("approval_seal") ?? ""), approval_provenance: "not_proven_by_git_revision" });
+   }
+   return { status: "available", candidates };
+ }
+@@ -146,7 +132,7 @@
+   return transitionDecisionForRunState(state).current_gate;
+ }
+ 
+-export function inspectRunRecovery(root, runId, { inspectHistory = true } = {}) {
++export function inspectRunRecovery(root, runId, { inspectHistory = true, readGitHistory } = {}) {
+   const { path } = safeRunFiles(root, runId);
+   const content = readFileSync(path, "utf8");
+   const state = parseRunState(content, runId);
+@@ -157,7 +143,7 @@
+   assertRecoveryOperationsTrusted(content);
+   if (!["unsealed", "invalid"].includes(seal.status)) throw new Error("AGDF_RUN_RECOVERY_NOT_REQUIRED");
+   const artefacts = artifactSnapshot(root, content);
+-  const gitHistory = inspectHistory ? gitHistoryCandidates(root, runId) : { status: "not_checked", candidates: [] };
++  const gitHistory = inspectHistory ? gitHistoryCandidates(root, runId, readGitHistory) : { status: "not_checked", candidates: [] };
+   return Object.freeze({
+     schema_version: "1", run_id: runId, revision: state.meta.revision,
+     revision_id: state.meta.revision_id, seal_status: seal.status,
+@@ -188,8 +174,8 @@
+   }
+ }
+ 
+-export function previewRunRecovery(root, runId) {
+-  const inspection = inspectRunRecovery(root, runId);
++export function previewRunRecovery(root, runId, options = {}) {
++  const inspection = inspectRunRecovery(root, runId, options);
+   if (inspection.artefacts.some((entry) => entry.status !== "valid" && !entry.planned)) {
+     throw new Error(inspection.artefacts.some((entry) => entry.status === "invalid")
+       ? "AGDF_RECOVERY_ARTEFACT_PATH_INVALID" : "AGDF_RECOVERY_ARTEFACT_MISSING");
+--- C00/create-agdf/lib/runtime/control-context.js
++++ packages/core/lib/resources/context.js
+@@ -1,40 +1,40 @@
+ import { existsSync, readFileSync } from "node:fs";
+-import { dirname, join, resolve } from "node:path";
++import { join } from "node:path";
+ import { fileURLToPath } from "node:url";
+-import {
+-  canonicalizeLanguageTag,
+-  resolvePresentationLocale,
+-} from "../interaction-presentation.js";
++import { canonicalizeLanguageTag, resolvePresentationLocale } from "../interaction-presentation.js";
++import { validateInteractionCatalog } from "../interaction-catalog-validation.js";
++import { packageURL, generatedURL, contractsURL } from "./binding.js";
+ 
+-const __dirname = dirname(fileURLToPath(import.meta.url));
+-
+-export const packageRoot = resolve(__dirname, "../..");
+-export const generatedRoot = join(packageRoot, "generated");
+-
+-const pluginDefinitionPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
+-const interactionLocalesPath = join(generatedRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json");
+-
+-export const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
+-export const interactionLocales = JSON.parse(readFileSync(interactionLocalesPath, "utf8"));
+-
+-export function configuredLanguage(value) {
++function freeze(value) {
++  if (value && typeof value === "object") { for (const entry of Object.values(value)) freeze(entry); Object.freeze(value); }
++  return value;
++}
++export function createResourceContext({ packageURL, generatedURL, contractsURL, expectedVersion } = {}) {
++  if (![packageURL, generatedURL, contractsURL].every(value => value instanceof URL && value.protocol === "file:")) throw new Error("runtime_resources_unavailable");
++  const packageRoot = fileURLToPath(packageURL), generatedRoot = fileURLToPath(generatedURL);
++  expectedVersion ??= JSON.parse(readFileSync(new URL("package.json", packageURL), "utf8")).version;
++  const pluginDefinition = JSON.parse(readFileSync(new URL("plugins/agdf/meta/agdf-plugin.definition.json", generatedURL), "utf8"));
++  const interactionLocales = JSON.parse(readFileSync(new URL("plugins/agdf/meta/agdf-interaction-locales.json", generatedURL), "utf8"));
++  if (typeof expectedVersion !== "string" || !/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/u.test(expectedVersion) || pluginDefinition.version !== expectedVersion
++      || !Array.isArray(pluginDefinition.runtimeContract?.modules) || !pluginDefinition.runtimeContract.modules.length
++      || new Set(pluginDefinition.runtimeContract.modules).size !== pluginDefinition.runtimeContract.modules.length
++      || pluginDefinition.runtimeContract.modules.some(path => !/^meta\/contracts\/[a-z0-9-]+\.md$/u.test(path))
++      || !Array.isArray(pluginDefinition.skillSet) || !interactionLocales.locales?.[interactionLocales.fallbackLocale]) throw new Error("runtime_resources_unavailable");
++  validateInteractionCatalog(interactionLocales);
++  return freeze({ packageRoot, generatedRoot, contractsRoot: fileURLToPath(contractsURL), pluginDefinition, interactionLocales });
++}
++export const resources = createResourceContext({ packageURL, generatedURL, contractsURL });
++export const { packageRoot, generatedRoot, pluginDefinition, interactionLocales } = resources;
++export function configuredLanguage(value, context = resources) {
+   const normalized = canonicalizeLanguageTag(value);
+   if (!normalized) return "";
+   const language = normalized.split("-")[0];
+-  if (interactionLocales.locales[normalized] || interactionLocales.locales[language]) {
+-    return resolvePresentationLocale(interactionLocales, normalized);
+-  }
++  if (context.interactionLocales.locales[normalized] || context.interactionLocales.locales[language]) return resolvePresentationLocale(context.interactionLocales, normalized);
+   return normalized;
+ }
+-
+-export function resolveConfiguredChatLanguage(targetDir) {
++export function resolveConfiguredChatLanguage(targetDir, context = resources) {
+   const configPath = join(targetDir, ".agdf", "control", "config.json");
+-  if (!existsSync(configPath)) return interactionLocales.fallbackLocale;
+-  try {
+-    const config = JSON.parse(readFileSync(configPath, "utf8"));
+-    return resolvePresentationLocale(interactionLocales, config.chat_language);
+-  } catch {
+-    return interactionLocales.fallbackLocale;
+-  }
++  if (!existsSync(configPath)) return context.interactionLocales.fallbackLocale;
++  try { return resolvePresentationLocale(context.interactionLocales, JSON.parse(readFileSync(configPath, "utf8")).chat_language); }
++  catch { return context.interactionLocales.fallbackLocale; }
+ }
+-
+--- C00/create-agdf/lib/runtime/plugin-provenance.js
++++ packages/core/lib/runtime/plugin-provenance.js
+@@ -88,7 +88,7 @@
+   return hash.digest("hex");
+ }
+ 
+-export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
++const LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
+   "package.json",
+   "lib/mcp-dispatch-runtime.js",
+   "lib/control-read-boundary.js",
+@@ -109,6 +109,12 @@
+   "generated/plugins/agdf/meta/contracts",
+ ]);
+ 
++export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
++  "package.json", "lib/mcp-dispatch-runtime.js", "lib/cli/runtime-context.js", "lib/runtime/control-context.js", "lib/cli/contract-command.js", "lib/runtime/plugin-provenance.js", "runtime/core",
++  "generated/plugins/agdf/meta/agdf-plugin.definition.json", "generated/plugins/agdf/meta/agdf-interaction-locales.json", "generated/plugins/agdf/meta/contracts",
++]);
++const dispatcherEntries = root => existsSync(join(root, "runtime", "core")) ? MCP_DISPATCHER_RUNTIME_ENTRIES : LEGACY_MCP_DISPATCHER_RUNTIME_ENTRIES;
++
+ export const MCP_SDK_RUNTIME_ENTRIES = Object.freeze([
+   "node_modules/@modelcontextprotocol/server",
+   "node_modules/@modelcontextprotocol/core",
+@@ -136,7 +142,7 @@
+ }
+ 
+ export function digestMcpDispatcherPackage(root) {
+-  return digestSelectedEntries(root, MCP_DISPATCHER_RUNTIME_ENTRIES);
++  return digestSelectedEntries(root, dispatcherEntries(root));
+ }
+ 
+ export function digestPluginMcpDispatcherSource(root, version) {
+@@ -146,10 +152,11 @@
+     private: true,
+     type: "module",
+     exports: { "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js" },
++    ...(existsSync(join(root, "runtime", "core")) ? { imports: { "#agdf-core": "./runtime/core/lib/index.js", "#agdf-core/*": "./runtime/core/lib/*" } } : {}),
+   }, null, 2)}\n`;
+   return digestSelectedEntries(
+     root,
+-    MCP_DISPATCHER_RUNTIME_ENTRIES.filter((entry) => entry !== "package.json"),
++    dispatcherEntries(root).filter((entry) => entry !== "package.json"),
+     [{ path: "package.json", content: packageJson }],
+   );
+ }
+--- C00/create-agdf/lib/skill-dispatch/binding.js
++++ packages/core/lib/skill-dispatch/binding.js
+@@ -1,19 +1,10 @@
+-import { spawnSync } from "node:child_process";
+ import { statSync } from "node:fs";
+ import { dirname, isAbsolute } from "node:path";
+-import process from "node:process";
+ import { SKILL_DISPATCH_SURFACES, skillDispatchArgumentGrammar } from "./contract.js";
+ 
+ const SURFACES = new Set(SKILL_DISPATCH_SURFACES);
+-const PROBE = 'process.stdout.write("AGDF_RUNTIME_OK:"+process.versions.node)';
+-const RUNTIME_PROBE_TIMEOUT_MS = 5_000;
+ const text = (value) => typeof value === "string" && value.length > 0 && value.length <= 4096 && !/[\r\n\0]/u.test(value);
+ const absolute = (value) => text(value) && isAbsolute(value);
+-
+-export function runtimeEnvironment(versions = process.versions) {
+-  if (!text(versions.node)) throw new Error("unsupported_runtime");
+-  return Object.freeze(versions.electron ? { ELECTRON_RUN_AS_NODE: "1" } : {});
+-}
+ 
+ function fileIdentity(path, stat) {
+   if (!absolute(path)) throw new Error("runtime_unavailable");
+@@ -23,45 +14,6 @@
+     return [s.dev, s.ino, s.size, s.mtimeMs, s.ctimeMs];
+   } catch { throw new Error("runtime_unavailable"); }
+ }
+-
+-export function createRuntimeProbe({ spawn = spawnSync, stat = statSync } = {}) {
+-  let cached;
+-  return ({ executable = process.execPath, versions = process.versions } = {}) => {
+-    const environment = runtimeEnvironment(versions);
+-    // Bootstrap options can execute preload modules before the fixed probe. Never probe
+-    // an inherited module-loading configuration or silently change the advertised tuple.
+-    if (process.env.NODE_OPTIONS || process.env.NODE_PATH) {
+-      cached = null;
+-      throw new Error("runtime_bootstrap_environment_unsupported");
+-    }
+-    const identity = JSON.stringify([executable, fileIdentity(executable, stat), versions.node,
+-      versions.electron ?? null, versions.bun ?? null, environment,
+-      process.env.NODE_OPTIONS ?? null, process.env.NODE_PATH ?? null]);
+-    if (cached?.identity === identity) return cached.launch;
+-    cached = null;
+-    const child = spawn(executable, ["-e", PROBE], {
+-      cwd: dirname(executable), env: { ...process.env, ...environment },
+-      encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], shell: false,
+-      timeout: RUNTIME_PROBE_TIMEOUT_MS, maxBuffer: 4096, windowsHide: true,
+-    });
+-    // Electron may emit OS diagnostics on stderr despite a successful exact probe.
+-    // Nonzero exit, signal, timeout, output overflow and unexpected stdout still fail.
+-    if (child.error || child.status !== 0 || child.signal
+-        || child.stdout !== `AGDF_RUNTIME_OK:${versions.node}`) {
+-      throw new Error("runtime_probe_failed");
+-    }
+-    // Do not cache a tuple whose executable was replaced during the probe.
+-    const after = JSON.stringify([executable, fileIdentity(executable, stat), versions.node,
+-      versions.electron ?? null, versions.bun ?? null, environment,
+-      process.env.NODE_OPTIONS ?? null, process.env.NODE_PATH ?? null]);
+-    if (after !== identity) throw new Error("runtime_identity_changed");
+-    const launch = Object.freeze({ executable, environment });
+-    cached = { identity, launch };
+-    return launch;
+-  };
+-}
+-
+-const probeRuntime = createRuntimeProbe();
+ 
+ export function validateDispatchBinding(binding) {
+   const invalid = () => { throw new Error("invalid_dispatch_binding"); };
+@@ -90,7 +42,8 @@
+ }
+ 
+ export function createDispatchBinding({ validator, surface, expectedVersion, requestActivation, routeSource,
+-  executable = process.execPath, versions = process.versions }, { probe = probeRuntime, stat = statSync } = {}) {
++  executable, versions }, { probe, stat = statSync } = {}) {
++  if (typeof probe !== "function") throw new Error("runtime_unavailable");
+   fileIdentity(validator, stat);
+   const launch = probe({ executable, versions });
+   const binding = {

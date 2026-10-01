@@ -1,0 +1,4062 @@
+{
+  "date": "2026-10-01",
+  "method": "Acorn static imports/export-from and literal dynamic imports; package exports resolved from current manifests; no application execution",
+  "source_files": 203,
+  "local_edges": 583,
+  "dynamic_nonliteral_imports": [
+    {
+      "path": "create-agdf/lib/request-activation-evals/composed-profile.js",
+      "expression": "import(moduleUrl)"
+    }
+  ],
+  "cycles": [],
+  "core_seed_files": 52,
+  "core_transitive_files": 59,
+  "core_to_cli_edges": [
+    {
+      "from": "create-agdf/lib/control-inspect/service.js",
+      "specifier": "../cli/contract-command.js",
+      "target": "create-agdf/lib/cli/contract-command.js"
+    },
+    {
+      "from": "create-agdf/lib/cli/contract-command.js",
+      "specifier": "./runtime-context.js",
+      "target": "create-agdf/lib/cli/runtime-context.js"
+    }
+  ],
+  "graph": {
+    "create-agdf/lib/cli/application.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:readline",
+        "target": null
+      },
+      {
+        "specifier": "node:readline/promises",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/index.js",
+        "target": "create-agdf/lib/control-state/index.js"
+      },
+      {
+        "specifier": "../installers/opencode.js",
+        "target": "create-agdf/lib/installers/opencode.js"
+      },
+      {
+        "specifier": "../installers/plugin-installers.js",
+        "target": "create-agdf/lib/installers/plugin-installers.js"
+      },
+      {
+        "specifier": "../installers/copilot-settings.js",
+        "target": "create-agdf/lib/installers/copilot-settings.js"
+      },
+      {
+        "specifier": "../lifecycle/operations.js",
+        "target": "create-agdf/lib/lifecycle/operations.js"
+      },
+      {
+        "specifier": "../lifecycle/presentation.js",
+        "target": "create-agdf/lib/lifecycle/presentation.js"
+      },
+      {
+        "specifier": "../lifecycle/result.js",
+        "target": "create-agdf/lib/lifecycle/result.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/claude-settings.js",
+        "target": "create-agdf/lib/runtime-check-consent/claude-settings.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/service.js",
+        "target": "create-agdf/lib/runtime-check-consent/service.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/codex-hooks.js",
+        "target": "create-agdf/lib/runtime-check-consent/codex-hooks.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/codex-plugin-consent.js",
+        "target": "create-agdf/lib/runtime-check-consent/codex-plugin-consent.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/adapters.js",
+        "target": "create-agdf/lib/runtime-check-consent/adapters.js"
+      },
+      {
+        "specifier": "../lifecycle/status.js",
+        "target": "create-agdf/lib/lifecycle/status.js"
+      },
+      {
+        "specifier": "../scaffold/plan.js",
+        "target": "create-agdf/lib/scaffold/plan.js"
+      },
+      {
+        "specifier": "../scaffold/canonical-init.js",
+        "target": "create-agdf/lib/scaffold/canonical-init.js"
+      },
+      {
+        "specifier": "../scaffold/presentation.js",
+        "target": "create-agdf/lib/scaffold/presentation.js"
+      },
+      {
+        "specifier": "../scaffold/write.js",
+        "target": "create-agdf/lib/scaffold/write.js"
+      },
+      {
+        "specifier": "./command-registry.js",
+        "target": "create-agdf/lib/cli/command-registry.js"
+      },
+      {
+        "specifier": "./parse-args.js",
+        "target": "create-agdf/lib/cli/parse-args.js"
+      },
+      {
+        "specifier": "./runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "./validation-handlers.js",
+        "target": "create-agdf/lib/cli/validation-handlers.js"
+      },
+      {
+        "specifier": "../mcp-lifecycle/service.js",
+        "target": "create-agdf/lib/mcp-lifecycle/service.js"
+      },
+      {
+        "specifier": "../install-setup/interaction.js",
+        "target": "create-agdf/lib/install-setup/interaction.js"
+      },
+      {
+        "specifier": "../install-setup/presentation.js",
+        "target": "create-agdf/lib/install-setup/presentation.js"
+      },
+      {
+        "specifier": "../install-setup/service.js",
+        "target": "create-agdf/lib/install-setup/service.js"
+      }
+    ],
+    "create-agdf/lib/cli/command-registry.js": [
+      {
+        "specifier": "../task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      },
+      {
+        "specifier": "../skill-dispatch/contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      },
+      {
+        "specifier": "../control-inspect/selection.js",
+        "target": "create-agdf/lib/control-inspect/selection.js"
+      }
+    ],
+    "create-agdf/lib/cli/contract-command.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "./runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/cli/control-maintenance-command.js": [
+      {
+        "specifier": "node:readline/promises",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../control-maintenance/service.js",
+        "target": "create-agdf/lib/control-maintenance/service.js"
+      },
+      {
+        "specifier": "../control-maintenance/contract.js",
+        "target": "create-agdf/lib/control-maintenance/contract.js"
+      },
+      {
+        "specifier": "../control-maintenance/presentation.js",
+        "target": "create-agdf/lib/control-maintenance/presentation.js"
+      },
+      {
+        "specifier": "../control-maintenance/interaction.js",
+        "target": "create-agdf/lib/control-maintenance/interaction.js"
+      }
+    ],
+    "create-agdf/lib/cli/delivery-path-search-command.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "../delivery-path-search/state-adapter.js",
+        "target": "create-agdf/lib/delivery-path-search/state-adapter.js"
+      },
+      {
+        "specifier": "../delivery-path-search/search-engine.js",
+        "target": "create-agdf/lib/delivery-path-search/search-engine.js"
+      },
+      {
+        "specifier": "../delivery-path-search/evaluators/codex.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/codex.js"
+      },
+      {
+        "specifier": "../delivery-path-search/evaluators/claude.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/claude.js"
+      },
+      {
+        "specifier": "../delivery-path-search/evaluators/opencode.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/opencode.js"
+      },
+      {
+        "specifier": "../delivery-path-search/evaluators/protocol.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/protocol.js"
+      },
+      {
+        "specifier": "../delivery-path-search/generators/codex.js",
+        "target": "create-agdf/lib/delivery-path-search/generators/codex.js"
+      },
+      {
+        "specifier": "../delivery-path-search/generators/claude.js",
+        "target": "create-agdf/lib/delivery-path-search/generators/claude.js"
+      },
+      {
+        "specifier": "../delivery-path-search/generators/protocol.js",
+        "target": "create-agdf/lib/delivery-path-search/generators/protocol.js"
+      },
+      {
+        "specifier": "../delivery-path-search/surfaces/capabilities.js",
+        "target": "create-agdf/lib/delivery-path-search/surfaces/capabilities.js"
+      },
+      {
+        "specifier": "../delivery-path-search/persistence.js",
+        "target": "create-agdf/lib/delivery-path-search/persistence.js"
+      }
+    ],
+    "create-agdf/lib/cli/parse-args.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "./runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "./command-registry.js",
+        "target": "create-agdf/lib/cli/command-registry.js"
+      }
+    ],
+    "create-agdf/lib/cli/runtime-context.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "../runtime/control-context.js",
+        "target": "create-agdf/lib/runtime/control-context.js"
+      },
+      {
+        "specifier": "../runtime/control-context.js",
+        "target": "create-agdf/lib/runtime/control-context.js"
+      }
+    ],
+    "create-agdf/lib/cli/validation-handlers.js": [
+      {
+        "specifier": "../control-command.js",
+        "target": "create-agdf/lib/control-command.js"
+      },
+      {
+        "specifier": "../control-state/approval-command-contract.js",
+        "target": "create-agdf/lib/control-state/approval-command-contract.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "./control-maintenance-command.js",
+        "target": "create-agdf/lib/cli/control-maintenance-command.js"
+      },
+      {
+        "specifier": "../control-state/run-state-repository.js",
+        "target": "create-agdf/lib/control-state/run-state-repository.js"
+      },
+      {
+        "specifier": "../control-evaluation/verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      },
+      {
+        "specifier": "../control-state/run-presentation.js",
+        "target": "create-agdf/lib/control-state/run-presentation.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../control-evaluation/delivery-map.js",
+        "target": "create-agdf/lib/control-evaluation/delivery-map.js"
+      },
+      {
+        "specifier": "../control-evaluation/doctor.js",
+        "target": "create-agdf/lib/control-evaluation/doctor.js"
+      },
+      {
+        "specifier": "./delivery-path-search-command.js",
+        "target": "create-agdf/lib/cli/delivery-path-search-command.js"
+      },
+      {
+        "specifier": "../task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "./runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../skill-dispatch/contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      },
+      {
+        "specifier": "../skill-dispatch/service.js",
+        "target": "create-agdf/lib/skill-dispatch/service.js"
+      },
+      {
+        "specifier": "../control-state/run-recording.js",
+        "target": "create-agdf/lib/control-state/run-recording.js"
+      },
+      {
+        "specifier": "../control-state/run-revision.js",
+        "target": "create-agdf/lib/control-state/run-revision.js"
+      },
+      {
+        "specifier": "./contract-command.js",
+        "target": "create-agdf/lib/cli/contract-command.js"
+      },
+      {
+        "specifier": "../control-state/run-steps.js",
+        "target": "create-agdf/lib/control-state/run-steps.js"
+      },
+      {
+        "specifier": "../control-evaluation/run-step-policy.js",
+        "target": "create-agdf/lib/control-evaluation/run-step-policy.js"
+      },
+      {
+        "specifier": "../control-evaluation/git-observation.js",
+        "target": "create-agdf/lib/control-evaluation/git-observation.js"
+      },
+      {
+        "specifier": "../repository-context.js",
+        "target": "create-agdf/lib/repository-context.js"
+      },
+      {
+        "specifier": "../control-state/run-recovery.js",
+        "target": "create-agdf/lib/control-state/run-recovery.js"
+      }
+    ],
+    "create-agdf/lib/control-command.js": [
+      {
+        "specifier": "./control-state/approval-command-contract.js",
+        "target": "create-agdf/lib/control-state/approval-command-contract.js"
+      },
+      {
+        "specifier": "./runtime/control-command-service.js",
+        "target": "create-agdf/lib/runtime/control-command-service.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/delivery-map.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/aggregate.js",
+        "target": "create-agdf/lib/control-state/aggregate.js"
+      },
+      {
+        "specifier": "../control-state/run-state-resolver.js",
+        "target": "create-agdf/lib/control-state/run-state-resolver.js"
+      },
+      {
+        "specifier": "../runtime/control-context.js",
+        "target": "create-agdf/lib/runtime/control-context.js"
+      },
+      {
+        "specifier": "./gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "./shared.js",
+        "target": "create-agdf/lib/control-evaluation/shared.js"
+      },
+      {
+        "specifier": "./parent-reconciliation.js",
+        "target": "create-agdf/lib/control-evaluation/parent-reconciliation.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/doctor.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/aggregate.js",
+        "target": "create-agdf/lib/control-state/aggregate.js"
+      },
+      {
+        "specifier": "../control-state/legacy-projection-reader.js",
+        "target": "create-agdf/lib/control-state/legacy-projection-reader.js"
+      },
+      {
+        "specifier": "../control-state/run-state-resolver.js",
+        "target": "create-agdf/lib/control-state/run-state-resolver.js"
+      },
+      {
+        "specifier": "../control-state/run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-state/run-step-pending.js",
+        "target": "create-agdf/lib/control-state/run-step-pending.js"
+      },
+      {
+        "specifier": "./required-files.js",
+        "target": "create-agdf/lib/control-evaluation/required-files.js"
+      },
+      {
+        "specifier": "./delivery-map.js",
+        "target": "create-agdf/lib/control-evaluation/delivery-map.js"
+      },
+      {
+        "specifier": "./verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "./shared.js",
+        "target": "create-agdf/lib/control-evaluation/shared.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/gate-check.js": [
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "../runtime/control-context.js",
+        "target": "create-agdf/lib/runtime/control-context.js"
+      },
+      {
+        "specifier": "./doctor.js",
+        "target": "create-agdf/lib/control-evaluation/doctor.js"
+      },
+      {
+        "specifier": "./delivery-map.js",
+        "target": "create-agdf/lib/control-evaluation/delivery-map.js"
+      },
+      {
+        "specifier": "./gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "./verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "./shared.js",
+        "target": "create-agdf/lib/control-evaluation/shared.js"
+      },
+      {
+        "specifier": "../control-state/run-presentation-render.js",
+        "target": "create-agdf/lib/control-state/run-presentation-render.js"
+      },
+      {
+        "specifier": "./prd-readiness.js",
+        "target": "create-agdf/lib/control-evaluation/prd-readiness.js"
+      },
+      {
+        "specifier": "./traceability-readiness.js",
+        "target": "create-agdf/lib/control-evaluation/traceability-readiness.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/gate-policy.js": [
+      {
+        "specifier": "./verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/git-observation.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-evaluation/parent-reconciliation.js": [
+      {
+        "specifier": "../control-state/run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/prd-readiness.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "./traceability-readiness.js",
+        "target": "create-agdf/lib/control-evaluation/traceability-readiness.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/required-files.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-evaluation/run-state.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "../control-state/run-state-resolver.js",
+        "target": "create-agdf/lib/control-state/run-state-resolver.js"
+      },
+      {
+        "specifier": "../control-state/run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "./shared.js",
+        "target": "create-agdf/lib/control-evaluation/shared.js"
+      },
+      {
+        "specifier": "./verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      },
+      {
+        "specifier": "../control-state/contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/run-step-policy.js": [
+      {
+        "specifier": "../control-state/run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "./verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/shared.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-evaluation/traceability-readiness.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "./run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      }
+    ],
+    "create-agdf/lib/control-evaluation/verified-change.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "./shared.js",
+        "target": "create-agdf/lib/control-evaluation/shared.js"
+      }
+    ],
+    "create-agdf/lib/control-inspect/contract.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "../task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      },
+      {
+        "specifier": "../skill-dispatch/contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      },
+      {
+        "specifier": "./selection.js",
+        "target": "create-agdf/lib/control-inspect/selection.js"
+      }
+    ],
+    "create-agdf/lib/control-inspect/selection.js": [],
+    "create-agdf/lib/control-inspect/service.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../interaction-catalog.js",
+        "target": "create-agdf/lib/interaction-catalog.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../control-evaluation/doctor.js",
+        "target": "create-agdf/lib/control-evaluation/doctor.js"
+      },
+      {
+        "specifier": "../control-evaluation/delivery-map.js",
+        "target": "create-agdf/lib/control-evaluation/delivery-map.js"
+      },
+      {
+        "specifier": "../cli/contract-command.js",
+        "target": "create-agdf/lib/cli/contract-command.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "../task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      },
+      {
+        "specifier": "../skill-dispatch/contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/control-inspect/contract.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/compatibility.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "../control-state/run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "../control-state/run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-state/run-recovery.js",
+        "target": "create-agdf/lib/control-state/run-recovery.js"
+      },
+      {
+        "specifier": "../control-evaluation/required-files.js",
+        "target": "create-agdf/lib/control-evaluation/required-files.js"
+      },
+      {
+        "specifier": "../control-state/control-configuration.js",
+        "target": "create-agdf/lib/control-state/control-configuration.js"
+      },
+      {
+        "specifier": "../control-state/contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "../control-state/run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/contract.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./compatibility.js",
+        "target": "create-agdf/lib/control-maintenance/compatibility.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/interaction.js": [
+      {
+        "specifier": "node:readline/promises",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "./presentation.js",
+        "target": "create-agdf/lib/control-maintenance/presentation.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/migration.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "../control-state/run-recovery.js",
+        "target": "create-agdf/lib/control-state/run-recovery.js"
+      },
+      {
+        "specifier": "./compatibility.js",
+        "target": "create-agdf/lib/control-maintenance/compatibility.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/presentation.js": [
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/control-maintenance/contract.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/repair.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "../control-state/run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "../control-state/run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "../control-state/run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-state/run-recovery.js",
+        "target": "create-agdf/lib/control-state/run-recovery.js"
+      },
+      {
+        "specifier": "../control-state/run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./compatibility.js",
+        "target": "create-agdf/lib/control-maintenance/compatibility.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/service.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "./compatibility.js",
+        "target": "create-agdf/lib/control-maintenance/compatibility.js"
+      },
+      {
+        "specifier": "./migration.js",
+        "target": "create-agdf/lib/control-maintenance/migration.js"
+      },
+      {
+        "specifier": "./repair.js",
+        "target": "create-agdf/lib/control-maintenance/repair.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/control-maintenance/contract.js"
+      }
+    ],
+    "create-agdf/lib/control-maintenance/startup.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/control-maintenance/contract.js"
+      }
+    ],
+    "create-agdf/lib/control-read-boundary.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-state/aggregate.js": [],
+    "create-agdf/lib/control-state/approval-command-contract.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      }
+    ],
+    "create-agdf/lib/control-state/approval-command.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-recording.js",
+        "target": "create-agdf/lib/control-state/run-recording.js"
+      },
+      {
+        "specifier": "./run-state-edits.js",
+        "target": "create-agdf/lib/control-state/run-state-edits.js"
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "./approval-operations.js",
+        "target": "create-agdf/lib/control-state/approval-operations.js"
+      },
+      {
+        "specifier": "./approval-command-contract.js",
+        "target": "create-agdf/lib/control-state/approval-command-contract.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      }
+    ],
+    "create-agdf/lib/control-state/approval-operations.js": [
+      {
+        "specifier": "node:util",
+        "target": null
+      },
+      {
+        "specifier": "./run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "./approval-command-contract.js",
+        "target": "create-agdf/lib/control-state/approval-command-contract.js"
+      }
+    ],
+    "create-agdf/lib/control-state/contained-file.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-state/control-configuration.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-state/gate-approval-validator.js": [
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      }
+    ],
+    "create-agdf/lib/control-state/index.js": [
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-repository.js",
+        "target": "create-agdf/lib/control-state/run-state-repository.js"
+      },
+      {
+        "specifier": "./run-state-resolver.js",
+        "target": "create-agdf/lib/control-state/run-state-resolver.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./legacy-migration.js",
+        "target": "create-agdf/lib/control-state/legacy-migration.js"
+      },
+      {
+        "specifier": "./aggregate.js",
+        "target": "create-agdf/lib/control-state/aggregate.js"
+      },
+      {
+        "specifier": "./gate-approval-validator.js",
+        "target": "create-agdf/lib/control-state/gate-approval-validator.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./run-recording.js",
+        "target": "create-agdf/lib/control-state/run-recording.js"
+      }
+    ],
+    "create-agdf/lib/control-state/legacy-migration.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-repository.js",
+        "target": "create-agdf/lib/control-state/run-state-repository.js"
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./legacy-projection-reader.js",
+        "target": "create-agdf/lib/control-state/legacy-projection-reader.js"
+      }
+    ],
+    "create-agdf/lib/control-state/legacy-projection-reader.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-identity.js": [],
+    "create-agdf/lib/control-state/run-presentation-render.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:util",
+        "target": null
+      },
+      {
+        "specifier": "../control-evaluation/run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "../runtime/control-context.js",
+        "target": "create-agdf/lib/runtime/control-context.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-presentation.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "./run-state-edits.js",
+        "target": "create-agdf/lib/control-state/run-state-edits.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./run-presentation-render.js",
+        "target": "create-agdf/lib/control-state/run-presentation-render.js"
+      },
+      {
+        "specifier": "./run-presentation-render.js",
+        "target": "create-agdf/lib/control-state/run-presentation-render.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-recording.js": [
+      {
+        "specifier": "./run-presentation.js",
+        "target": "create-agdf/lib/control-state/run-presentation.js"
+      },
+      {
+        "specifier": "./gate-approval-validator.js",
+        "target": "create-agdf/lib/control-state/gate-approval-validator.js"
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-edits.js",
+        "target": "create-agdf/lib/control-state/run-state-edits.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-recovery.js": [
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-evaluation/gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "../control-evaluation/run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "./contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-revision.js": [
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-edits.js",
+        "target": "create-agdf/lib/control-state/run-state-edits.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-seal.js": [
+      {
+        "specifier": "./run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "./approval-operations.js",
+        "target": "create-agdf/lib/control-state/approval-operations.js"
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "./run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-state-edits.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "./run-step-pending.js",
+        "target": "create-agdf/lib/control-state/run-step-pending.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/control-state/run-state-parser.js": [
+      {
+        "specifier": "./approval-operations.js",
+        "target": "create-agdf/lib/control-state/approval-operations.js"
+      },
+      {
+        "specifier": "./run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "./run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-state-reader.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-step-pending.js",
+        "target": "create-agdf/lib/control-state/run-step-pending.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-state-repository.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "./run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-state-resolver.js": [
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-state-writer.js": [
+      {
+        "specifier": "./approval-operations.js",
+        "target": "create-agdf/lib/control-state/approval-operations.js"
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-policy.js",
+        "target": "create-agdf/lib/control-evaluation/gate-policy.js"
+      },
+      {
+        "specifier": "../control-evaluation/run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-step-pending.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-step-transaction.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./run-step-pending.js",
+        "target": "create-agdf/lib/control-state/run-step-pending.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-steps.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "./run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "./run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "./run-state-edits.js",
+        "target": "create-agdf/lib/control-state/run-state-edits.js"
+      },
+      {
+        "specifier": "./run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./run-step-transaction.js",
+        "target": "create-agdf/lib/control-state/run-step-transaction.js"
+      },
+      {
+        "specifier": "./run-step-pending.js",
+        "target": "create-agdf/lib/control-state/run-step-pending.js"
+      }
+    ],
+    "create-agdf/lib/control-state/run-store-inspection.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-evaluation/required-files.js",
+        "target": "create-agdf/lib/control-evaluation/required-files.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/candidate-policy.js": [
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/contracts.js": [],
+    "create-agdf/lib/delivery-path-search/evaluators/claude.js": [
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "../transports/read-only-guard.js",
+        "target": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js"
+      },
+      {
+        "specifier": "./prompt.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/prompt.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/evaluators/codex.js": [
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "../transports/read-only-guard.js",
+        "target": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js"
+      },
+      {
+        "specifier": "./prompt.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/prompt.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/evaluators/opencode.js": [
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "../transports/read-only-guard.js",
+        "target": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js"
+      },
+      {
+        "specifier": "./prompt.js",
+        "target": "create-agdf/lib/delivery-path-search/evaluators/prompt.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/evaluators/prompt.js": [],
+    "create-agdf/lib/delivery-path-search/evaluators/protocol.js": [
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/generators/claude.js": [
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "../transports/read-only-guard.js",
+        "target": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/generators/codex.js": [
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "../transports/read-only-guard.js",
+        "target": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/generators/protocol.js": [
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/persistence.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/scoring.js": [
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/search-engine.js": [
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "./candidate-policy.js",
+        "target": "create-agdf/lib/delivery-path-search/candidate-policy.js"
+      },
+      {
+        "specifier": "./scoring.js",
+        "target": "create-agdf/lib/delivery-path-search/scoring.js"
+      },
+      {
+        "specifier": "./state-adapter.js",
+        "target": "create-agdf/lib/delivery-path-search/state-adapter.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/state-adapter.js": [
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../control-evaluation/run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/surfaces/capabilities.js": [
+      {
+        "specifier": "../contracts.js",
+        "target": "create-agdf/lib/delivery-path-search/contracts.js"
+      }
+    ],
+    "create-agdf/lib/delivery-path-search/transports/read-only-guard.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      }
+    ],
+    "create-agdf/lib/fs-swap.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/host-adapters/claude/loaded-sessions.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "./plugin-mcp.js",
+        "target": "create-agdf/lib/host-adapters/claude/plugin-mcp.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/claude/marketplace.js": [],
+    "create-agdf/lib/host-adapters/claude/permission-rules.js": [],
+    "create-agdf/lib/host-adapters/claude/plugin-mcp.js": [
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../mcp-lifecycle/plugin-runtime.js",
+        "target": "create-agdf/lib/mcp-lifecycle/plugin-runtime.js"
+      },
+      {
+        "specifier": "../../mcp-lifecycle/service.js",
+        "target": "create-agdf/lib/mcp-lifecycle/service.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/claude/plugin.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "../../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "../../installers/claude-cache-recovery.js",
+        "target": "create-agdf/lib/installers/claude-cache-recovery.js"
+      },
+      {
+        "specifier": "./plugin-mcp.js",
+        "target": "create-agdf/lib/host-adapters/claude/plugin-mcp.js"
+      },
+      {
+        "specifier": "./loaded-sessions.js",
+        "target": "create-agdf/lib/host-adapters/claude/loaded-sessions.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/claude/runtime-check.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "./permission-rules.js",
+        "target": "create-agdf/lib/host-adapters/claude/permission-rules.js"
+      },
+      {
+        "specifier": "../../runtime-check-consent/claude-settings.js",
+        "target": "create-agdf/lib/runtime-check-consent/claude-settings.js"
+      },
+      {
+        "specifier": "../../runtime-check-consent/state.js",
+        "target": "create-agdf/lib/runtime-check-consent/state.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/claude/session-command.js": [
+      {
+        "specifier": "../session-command.js",
+        "target": "create-agdf/lib/host-adapters/session-command.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/claude/uninstall.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "../../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "../../runtime-check-consent/claude-settings.js",
+        "target": "create-agdf/lib/runtime-check-consent/claude-settings.js"
+      },
+      {
+        "specifier": "../../runtime-check-consent/state.js",
+        "target": "create-agdf/lib/runtime-check-consent/state.js"
+      },
+      {
+        "specifier": "./plugin.js",
+        "target": "create-agdf/lib/host-adapters/claude/plugin.js"
+      },
+      {
+        "specifier": "./permission-rules.js",
+        "target": "create-agdf/lib/host-adapters/claude/permission-rules.js"
+      },
+      {
+        "specifier": "../../lifecycle/owned-mutation.js",
+        "target": "create-agdf/lib/lifecycle/owned-mutation.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/codex/identity.js": [],
+    "create-agdf/lib/host-adapters/codex/plugin-mcp.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../mcp-lifecycle/service.js",
+        "target": "create-agdf/lib/mcp-lifecycle/service.js"
+      },
+      {
+        "specifier": "../../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/codex/plugin.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      },
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "./identity.js",
+        "target": "create-agdf/lib/host-adapters/codex/identity.js"
+      },
+      {
+        "specifier": "../../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "./plugin-mcp.js",
+        "target": "create-agdf/lib/host-adapters/codex/plugin-mcp.js"
+      },
+      {
+        "specifier": "../../lifecycle/owned-mutation.js",
+        "target": "create-agdf/lib/lifecycle/owned-mutation.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/codex/runtime-check.js": [],
+    "create-agdf/lib/host-adapters/codex/session-command.js": [
+      {
+        "specifier": "../session-command.js",
+        "target": "create-agdf/lib/host-adapters/session-command.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/copilot/plugin.js": [
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "../../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../../installers/plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:url",
+        "target": null
+      },
+      {
+        "specifier": "../../installers/copilot-settings.js",
+        "target": "create-agdf/lib/installers/copilot-settings.js"
+      },
+      {
+        "specifier": "../../installers/copilot-marketplace-transport.js",
+        "target": "create-agdf/lib/installers/copilot-marketplace-transport.js"
+      },
+      {
+        "specifier": "../../installers/copilot-skill-discovery.js",
+        "target": "create-agdf/lib/installers/copilot-skill-discovery.js"
+      },
+      {
+        "specifier": "../../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "../../installers/npm-invocation.js",
+        "target": "create-agdf/lib/installers/npm-invocation.js"
+      },
+      {
+        "specifier": "../../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/copilot/session-command.js": [],
+    "create-agdf/lib/host-adapters/opencode/runtime-check.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../installers/opencode.js",
+        "target": "create-agdf/lib/installers/opencode.js"
+      },
+      {
+        "specifier": "../../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/opencode/session-command.js": [],
+    "create-agdf/lib/host-adapters/opencode/status.js": [
+      {
+        "specifier": "../../installers/opencode.js",
+        "target": "create-agdf/lib/installers/opencode.js"
+      }
+    ],
+    "create-agdf/lib/host-adapters/session-command.js": [],
+    "create-agdf/lib/host-command.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/install-setup/contract.js": [
+      {
+        "specifier": "../interaction-catalog.js",
+        "target": "create-agdf/lib/interaction-catalog.js"
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../lifecycle/result.js",
+        "target": "create-agdf/lib/lifecycle/result.js"
+      },
+      {
+        "specifier": "../mcp-lifecycle/profile.js",
+        "target": "create-agdf/lib/mcp-lifecycle/profile.js"
+      },
+      {
+        "specifier": "./control-migration.js",
+        "target": "create-agdf/lib/install-setup/control-migration.js"
+      }
+    ],
+    "create-agdf/lib/install-setup/control-migration.js": [
+      {
+        "specifier": "../control-maintenance/compatibility.js",
+        "target": "create-agdf/lib/control-maintenance/compatibility.js"
+      },
+      {
+        "specifier": "../control-maintenance/migration.js",
+        "target": "create-agdf/lib/control-maintenance/migration.js"
+      }
+    ],
+    "create-agdf/lib/install-setup/control-repair.js": [
+      {
+        "specifier": "../control-maintenance/repair.js",
+        "target": "create-agdf/lib/control-maintenance/repair.js"
+      }
+    ],
+    "create-agdf/lib/install-setup/interaction.js": [
+      {
+        "specifier": "../control-maintenance/interaction.js",
+        "target": "create-agdf/lib/control-maintenance/interaction.js"
+      },
+      {
+        "specifier": "node:readline/promises",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "./presentation.js",
+        "target": "create-agdf/lib/install-setup/presentation.js"
+      }
+    ],
+    "create-agdf/lib/install-setup/presentation.js": [
+      {
+        "specifier": "../control-maintenance/presentation.js",
+        "target": "create-agdf/lib/control-maintenance/presentation.js"
+      },
+      {
+        "specifier": "../control-maintenance/presentation.js",
+        "target": "create-agdf/lib/control-maintenance/presentation.js"
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      }
+    ],
+    "create-agdf/lib/install-setup/service.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../installers/opencode.js",
+        "target": "create-agdf/lib/installers/opencode.js"
+      },
+      {
+        "specifier": "../lifecycle/status.js",
+        "target": "create-agdf/lib/lifecycle/status.js"
+      },
+      {
+        "specifier": "../mcp-lifecycle/service.js",
+        "target": "create-agdf/lib/mcp-lifecycle/service.js"
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/install-setup/contract.js"
+      },
+      {
+        "specifier": "./control-migration.js",
+        "target": "create-agdf/lib/install-setup/control-migration.js"
+      },
+      {
+        "specifier": "./control-repair.js",
+        "target": "create-agdf/lib/install-setup/control-repair.js"
+      }
+    ],
+    "create-agdf/lib/installers/claude-cache-recovery.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/installers/copilot-marketplace-transport.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:url",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/installers/copilot-precedence.js": [],
+    "create-agdf/lib/installers/copilot-settings.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      },
+      {
+        "specifier": "./copilot-marketplace-transport.js",
+        "target": "create-agdf/lib/installers/copilot-marketplace-transport.js"
+      }
+    ],
+    "create-agdf/lib/installers/copilot-skill-discovery.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      }
+    ],
+    "create-agdf/lib/installers/local-development.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "./npm-invocation.js",
+        "target": "create-agdf/lib/installers/npm-invocation.js"
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      }
+    ],
+    "create-agdf/lib/installers/local-marketplace.js": [
+      {
+        "specifier": "../host-adapters/codex/identity.js",
+        "target": "create-agdf/lib/host-adapters/codex/identity.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/marketplace.js",
+        "target": "create-agdf/lib/host-adapters/claude/marketplace.js"
+      },
+      {
+        "specifier": "../host-adapters/codex/identity.js",
+        "target": "create-agdf/lib/host-adapters/codex/identity.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      },
+      {
+        "specifier": "../control-state/run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./copilot-marketplace-transport.js",
+        "target": "create-agdf/lib/installers/copilot-marketplace-transport.js"
+      },
+      {
+        "specifier": "../runtime/distribution-profile-history.js",
+        "target": "create-agdf/lib/runtime/distribution-profile-history.js"
+      },
+      {
+        "specifier": "../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      }
+    ],
+    "create-agdf/lib/installers/npm-invocation.js": [
+      {
+        "specifier": "../npm-invocation.js",
+        "target": "create-agdf/lib/npm-invocation.js"
+      }
+    ],
+    "create-agdf/lib/installers/opencode-activation.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../control-state/control-configuration.js",
+        "target": "create-agdf/lib/control-state/control-configuration.js"
+      }
+    ],
+    "create-agdf/lib/installers/opencode.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "./opencode-activation.js",
+        "target": "create-agdf/lib/installers/opencode-activation.js"
+      },
+      {
+        "specifier": "../runtime/local-validator.js",
+        "target": "create-agdf/lib/runtime/local-validator.js"
+      },
+      {
+        "specifier": "../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      },
+      {
+        "specifier": "./local-development.js",
+        "target": "create-agdf/lib/installers/local-development.js"
+      },
+      {
+        "specifier": "./npm-invocation.js",
+        "target": "create-agdf/lib/installers/npm-invocation.js"
+      },
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../control-state/run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "../lifecycle/owned-mutation.js",
+        "target": "create-agdf/lib/lifecycle/owned-mutation.js"
+      }
+    ],
+    "create-agdf/lib/installers/plugin-command.js": [],
+    "create-agdf/lib/installers/plugin-installers.js": [
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../host-adapters/codex/plugin.js",
+        "target": "create-agdf/lib/host-adapters/codex/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/plugin.js",
+        "target": "create-agdf/lib/host-adapters/claude/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/copilot/plugin.js",
+        "target": "create-agdf/lib/host-adapters/copilot/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/codex/plugin.js",
+        "target": "create-agdf/lib/host-adapters/codex/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/plugin.js",
+        "target": "create-agdf/lib/host-adapters/claude/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/copilot/plugin.js",
+        "target": "create-agdf/lib/host-adapters/copilot/plugin.js"
+      },
+      {
+        "specifier": "./plugin-command.js",
+        "target": "create-agdf/lib/installers/plugin-command.js"
+      }
+    ],
+    "create-agdf/lib/interaction-catalog-validation.js": [
+      {
+        "specifier": "./interaction-catalog.js",
+        "target": "create-agdf/lib/interaction-catalog.js"
+      }
+    ],
+    "create-agdf/lib/interaction-catalog.js": [],
+    "create-agdf/lib/interaction-presentation.js": [
+      {
+        "specifier": "./control-state/run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "./interaction-catalog.js",
+        "target": "create-agdf/lib/interaction-catalog.js"
+      },
+      {
+        "specifier": "./task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      }
+    ],
+    "create-agdf/lib/lifecycle/operations.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../installers/copilot-settings.js",
+        "target": "create-agdf/lib/installers/copilot-settings.js"
+      },
+      {
+        "specifier": "../installers/opencode.js",
+        "target": "create-agdf/lib/installers/opencode.js"
+      },
+      {
+        "specifier": "../installers/plugin-installers.js",
+        "target": "create-agdf/lib/installers/plugin-installers.js"
+      },
+      {
+        "specifier": "../host-adapters/codex/plugin.js",
+        "target": "create-agdf/lib/host-adapters/codex/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/uninstall.js",
+        "target": "create-agdf/lib/host-adapters/claude/uninstall.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/claude-settings.js",
+        "target": "create-agdf/lib/runtime-check-consent/claude-settings.js"
+      },
+      {
+        "specifier": "../mcp-lifecycle/plugin-runtime.js",
+        "target": "create-agdf/lib/mcp-lifecycle/plugin-runtime.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/codex-plugin-consent.js",
+        "target": "create-agdf/lib/runtime-check-consent/codex-plugin-consent.js"
+      },
+      {
+        "specifier": "../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "../host-adapters/copilot/plugin.js",
+        "target": "create-agdf/lib/host-adapters/copilot/plugin.js"
+      },
+      {
+        "specifier": "../control-state/run-state-writer.js",
+        "target": "create-agdf/lib/control-state/run-state-writer.js"
+      },
+      {
+        "specifier": "./owned-mutation.js",
+        "target": "create-agdf/lib/lifecycle/owned-mutation.js"
+      }
+    ],
+    "create-agdf/lib/lifecycle/owned-mutation.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/lifecycle/presentation.js": [],
+    "create-agdf/lib/lifecycle/result.js": [],
+    "create-agdf/lib/lifecycle/status.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-evaluation/doctor.js",
+        "target": "create-agdf/lib/control-evaluation/doctor.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../installers/opencode.js",
+        "target": "create-agdf/lib/installers/opencode.js"
+      },
+      {
+        "specifier": "../installers/opencode-activation.js",
+        "target": "create-agdf/lib/installers/opencode-activation.js"
+      },
+      {
+        "specifier": "../installers/plugin-installers.js",
+        "target": "create-agdf/lib/installers/plugin-installers.js"
+      },
+      {
+        "specifier": "../host-adapters/codex/plugin.js",
+        "target": "create-agdf/lib/host-adapters/codex/plugin.js"
+      },
+      {
+        "specifier": "../host-adapters/opencode/status.js",
+        "target": "create-agdf/lib/host-adapters/opencode/status.js"
+      },
+      {
+        "specifier": "../runtime-check-consent/service.js",
+        "target": "create-agdf/lib/runtime-check-consent/service.js"
+      },
+      {
+        "specifier": "./result.js",
+        "target": "create-agdf/lib/lifecycle/result.js"
+      },
+      {
+        "specifier": "../control-evaluation/git-observation.js",
+        "target": "create-agdf/lib/control-evaluation/git-observation.js"
+      }
+    ],
+    "create-agdf/lib/live-agent/read-only-structured.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../delivery-path-search/transports/read-only-guard.js",
+        "target": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js"
+      }
+    ],
+    "create-agdf/lib/mcp-dispatch-runtime.js": [
+      {
+        "specifier": "./skill-dispatch/contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./skill-dispatch/service.js",
+        "target": "create-agdf/lib/skill-dispatch/service.js"
+      },
+      {
+        "specifier": "./cli/contract-command.js",
+        "target": "create-agdf/lib/cli/contract-command.js"
+      },
+      {
+        "specifier": "./control-inspect/contract.js",
+        "target": "create-agdf/lib/control-inspect/contract.js"
+      },
+      {
+        "specifier": "./control-inspect/service.js",
+        "target": "create-agdf/lib/control-inspect/service.js"
+      },
+      {
+        "specifier": "./control-read-boundary.js",
+        "target": "create-agdf/lib/control-read-boundary.js"
+      },
+      {
+        "specifier": "./cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "./runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/adapter-contract.js": [
+      {
+        "specifier": "./adapters/claude.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/claude.js"
+      },
+      {
+        "specifier": "./adapters/codex.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/codex.js"
+      },
+      {
+        "specifier": "./adapters/copilot.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/copilot.js"
+      },
+      {
+        "specifier": "./adapters/opencode.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/opencode.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/adapters/claude.js": [
+      {
+        "specifier": "./file-utils.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/adapters/codex.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./file-utils.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/adapters/copilot.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./file-utils.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/adapters/opencode.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./file-utils.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/evidence.js": [],
+    "create-agdf/lib/mcp-lifecycle/host-config.js": [
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./adapter-contract.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapter-contract.js"
+      },
+      {
+        "specifier": "./adapters/codex.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/codex.js"
+      },
+      {
+        "specifier": "./adapters/copilot.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/copilot.js"
+      },
+      {
+        "specifier": "./adapters/opencode.js",
+        "target": "create-agdf/lib/mcp-lifecycle/adapters/opencode.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/package.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      },
+      {
+        "specifier": "../npm-invocation.js",
+        "target": "create-agdf/lib/npm-invocation.js"
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/plugin-runtime.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      },
+      {
+        "specifier": "./package.js",
+        "target": "create-agdf/lib/mcp-lifecycle/package.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/presentation.js": [
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/profile-context.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "./profile.js",
+        "target": "create-agdf/lib/mcp-lifecycle/profile.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/profile.js": [
+      {
+        "specifier": "./evidence.js",
+        "target": "create-agdf/lib/mcp-lifecycle/evidence.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/result.js": [
+      {
+        "specifier": "./profile.js",
+        "target": "create-agdf/lib/mcp-lifecycle/profile.js"
+      }
+    ],
+    "create-agdf/lib/mcp-lifecycle/service.js": [
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "./host-config.js",
+        "target": "create-agdf/lib/mcp-lifecycle/host-config.js"
+      },
+      {
+        "specifier": "./package.js",
+        "target": "create-agdf/lib/mcp-lifecycle/package.js"
+      },
+      {
+        "specifier": "./presentation.js",
+        "target": "create-agdf/lib/mcp-lifecycle/presentation.js"
+      },
+      {
+        "specifier": "./profile-context.js",
+        "target": "create-agdf/lib/mcp-lifecycle/profile-context.js"
+      },
+      {
+        "specifier": "./result.js",
+        "target": "create-agdf/lib/mcp-lifecycle/result.js"
+      }
+    ],
+    "create-agdf/lib/npm-invocation.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/blind-prompt.js": [
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/proportionality-benchmark/contracts.js"
+      },
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/contracts.js": [],
+    "create-agdf/lib/proportionality-benchmark/corpus-loader.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/proportionality-benchmark/contracts.js"
+      },
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/evaluator.js": [
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/proportionality-benchmark/contracts.js"
+      },
+      {
+        "specifier": "./source-fingerprint.js",
+        "target": "create-agdf/lib/proportionality-benchmark/source-fingerprint.js"
+      },
+      {
+        "specifier": "./live-recorder.js",
+        "target": "create-agdf/lib/proportionality-benchmark/live-recorder.js"
+      },
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/index.js": [
+      {
+        "specifier": "./blind-prompt.js",
+        "target": "create-agdf/lib/proportionality-benchmark/blind-prompt.js"
+      },
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/proportionality-benchmark/contracts.js"
+      },
+      {
+        "specifier": "./corpus-loader.js",
+        "target": "create-agdf/lib/proportionality-benchmark/corpus-loader.js"
+      },
+      {
+        "specifier": "./evaluator.js",
+        "target": "create-agdf/lib/proportionality-benchmark/evaluator.js"
+      },
+      {
+        "specifier": "./live-recorder.js",
+        "target": "create-agdf/lib/proportionality-benchmark/live-recorder.js"
+      },
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      },
+      {
+        "specifier": "./report.js",
+        "target": "create-agdf/lib/proportionality-benchmark/report.js"
+      },
+      {
+        "specifier": "./source-fingerprint.js",
+        "target": "create-agdf/lib/proportionality-benchmark/source-fingerprint.js"
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/live-recorder.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../live-agent/read-only-structured.js",
+        "target": "create-agdf/lib/live-agent/read-only-structured.js"
+      },
+      {
+        "specifier": "../skill-evals/workspace.js",
+        "target": "create-agdf/lib/skill-evals/workspace.js"
+      },
+      {
+        "specifier": "./blind-prompt.js",
+        "target": "create-agdf/lib/proportionality-benchmark/blind-prompt.js"
+      },
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/proportionality-benchmark/contracts.js"
+      },
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      },
+      {
+        "specifier": "./source-fingerprint.js",
+        "target": "create-agdf/lib/proportionality-benchmark/source-fingerprint.js"
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/profiles.js": [],
+    "create-agdf/lib/proportionality-benchmark/report.js": [
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      }
+    ],
+    "create-agdf/lib/proportionality-benchmark/source-fingerprint.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./contracts.js",
+        "target": "create-agdf/lib/proportionality-benchmark/contracts.js"
+      },
+      {
+        "specifier": "./profiles.js",
+        "target": "create-agdf/lib/proportionality-benchmark/profiles.js"
+      }
+    ],
+    "create-agdf/lib/public-plugin/builder.js": [
+      {
+        "specifier": "./source-root.js",
+        "target": "create-agdf/lib/public-plugin/source-root.js"
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/public-plugin/contract.js"
+      },
+      {
+        "specifier": "./manifest.js",
+        "target": "create-agdf/lib/public-plugin/manifest.js"
+      },
+      {
+        "specifier": "./report.js",
+        "target": "create-agdf/lib/public-plugin/report.js"
+      },
+      {
+        "specifier": "./validator.js",
+        "target": "create-agdf/lib/public-plugin/validator.js"
+      }
+    ],
+    "create-agdf/lib/public-plugin/contract.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/public-plugin/copilot-profile.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/public-plugin/manifest.js": [],
+    "create-agdf/lib/public-plugin/report.js": [],
+    "create-agdf/lib/public-plugin/source-root.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/public-plugin/validator.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:util",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/public-plugin/contract.js"
+      },
+      {
+        "specifier": "./manifest.js",
+        "target": "create-agdf/lib/public-plugin/manifest.js"
+      }
+    ],
+    "create-agdf/lib/release/profile-history.js": [
+      {
+        "specifier": "../public-plugin/source-root.js",
+        "target": "create-agdf/lib/public-plugin/source-root.js"
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../runtime/distribution-profile-history.js",
+        "target": "create-agdf/lib/runtime/distribution-profile-history.js"
+      }
+    ],
+    "create-agdf/lib/release/registry-state.js": [],
+    "create-agdf/lib/release/version-bump.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../runtime/distribution-profile-history.js",
+        "target": "create-agdf/lib/runtime/distribution-profile-history.js"
+      },
+      {
+        "specifier": "./version-coherence.js",
+        "target": "create-agdf/lib/release/version-coherence.js"
+      }
+    ],
+    "create-agdf/lib/release/version-coherence.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/repository-context-reader.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/repository-context.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/request-activation-evals/behavioral.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "../live-agent/read-only-structured.js",
+        "target": "create-agdf/lib/live-agent/read-only-structured.js"
+      },
+      {
+        "specifier": "./composed-profile.js",
+        "target": "create-agdf/lib/request-activation-evals/composed-profile.js"
+      },
+      {
+        "specifier": "./index.js",
+        "target": "create-agdf/lib/request-activation-evals/index.js"
+      }
+    ],
+    "create-agdf/lib/request-activation-evals/composed-profile.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:url",
+        "target": null
+      },
+      {
+        "specifier": "../skill-dispatch/binding.js",
+        "target": "create-agdf/lib/skill-dispatch/binding.js"
+      }
+    ],
+    "create-agdf/lib/request-activation-evals/index.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../../scripts/sync-request-activation-projections.js",
+        "target": "create-agdf/scripts/sync-request-activation-projections.js"
+      }
+    ],
+    "create-agdf/lib/runtime/control-command-service.js": [
+      {
+        "specifier": "../control-state/approval-command.js",
+        "target": "create-agdf/lib/control-state/approval-command.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../control-evaluation/git-observation.js",
+        "target": "create-agdf/lib/control-evaluation/git-observation.js"
+      },
+      {
+        "specifier": "./control-context.js",
+        "target": "create-agdf/lib/runtime/control-context.js"
+      }
+    ],
+    "create-agdf/lib/runtime/control-context.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:url",
+        "target": null
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      }
+    ],
+    "create-agdf/lib/runtime/distribution-profile-history.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/runtime/local-validator.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      },
+      {
+        "specifier": "../skill-dispatch/binding.js",
+        "target": "create-agdf/lib/skill-dispatch/binding.js"
+      },
+      {
+        "specifier": "./plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      }
+    ],
+    "create-agdf/lib/runtime/plugin-provenance.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/runtime/validator-application.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/validation-handlers.js",
+        "target": "create-agdf/lib/cli/validation-handlers.js"
+      },
+      {
+        "specifier": "../cli/command-registry.js",
+        "target": "create-agdf/lib/cli/command-registry.js"
+      },
+      {
+        "specifier": "../cli/parse-args.js",
+        "target": "create-agdf/lib/cli/parse-args.js"
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/adapters.js": [
+      {
+        "specifier": "../host-adapters/codex/runtime-check.js",
+        "target": "create-agdf/lib/host-adapters/codex/runtime-check.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/permission-rules.js",
+        "target": "create-agdf/lib/host-adapters/claude/permission-rules.js"
+      },
+      {
+        "specifier": "../host-adapters/opencode/runtime-check.js",
+        "target": "create-agdf/lib/host-adapters/opencode/runtime-check.js"
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/claude-settings.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/permission-rules.js",
+        "target": "create-agdf/lib/host-adapters/claude/permission-rules.js"
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/codex-hooks.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/codex-plugin-consent.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../host-command.js",
+        "target": "create-agdf/lib/host-command.js"
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/contract.js": [
+      {
+        "specifier": "../host-adapters/codex/session-command.js",
+        "target": "create-agdf/lib/host-adapters/codex/session-command.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/session-command.js",
+        "target": "create-agdf/lib/host-adapters/claude/session-command.js"
+      },
+      {
+        "specifier": "../host-adapters/copilot/session-command.js",
+        "target": "create-agdf/lib/host-adapters/copilot/session-command.js"
+      },
+      {
+        "specifier": "../host-adapters/opencode/session-command.js",
+        "target": "create-agdf/lib/host-adapters/opencode/session-command.js"
+      },
+      {
+        "specifier": "node:crypto",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/coordinator.js": [],
+    "create-agdf/lib/runtime-check-consent/service.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:url",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../host-adapters/opencode/runtime-check.js",
+        "target": "create-agdf/lib/host-adapters/opencode/runtime-check.js"
+      },
+      {
+        "specifier": "../installers/local-marketplace.js",
+        "target": "create-agdf/lib/installers/local-marketplace.js"
+      },
+      {
+        "specifier": "../runtime/plugin-provenance.js",
+        "target": "create-agdf/lib/runtime/plugin-provenance.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/runtime-check-consent/contract.js"
+      },
+      {
+        "specifier": "./coordinator.js",
+        "target": "create-agdf/lib/runtime-check-consent/coordinator.js"
+      },
+      {
+        "specifier": "../host-adapters/claude/runtime-check.js",
+        "target": "create-agdf/lib/host-adapters/claude/runtime-check.js"
+      },
+      {
+        "specifier": "./state.js",
+        "target": "create-agdf/lib/runtime-check-consent/state.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/runtime-check-consent/contract.js"
+      }
+    ],
+    "create-agdf/lib/runtime-check-consent/state.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      }
+    ],
+    "create-agdf/lib/scaffold/canonical-init.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "../fs-swap.js",
+        "target": "create-agdf/lib/fs-swap.js"
+      }
+    ],
+    "create-agdf/lib/scaffold/plan.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../control-evaluation/required-files.js",
+        "target": "create-agdf/lib/control-evaluation/required-files.js"
+      }
+    ],
+    "create-agdf/lib/scaffold/presentation.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      },
+      {
+        "specifier": "../lifecycle/presentation.js",
+        "target": "create-agdf/lib/lifecycle/presentation.js"
+      },
+      {
+        "specifier": "../lifecycle/result.js",
+        "target": "create-agdf/lib/lifecycle/result.js"
+      }
+    ],
+    "create-agdf/lib/scaffold/write.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../cli/runtime-context.js",
+        "target": "create-agdf/lib/cli/runtime-context.js"
+      }
+    ],
+    "create-agdf/lib/skill-dispatch/binding.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      }
+    ],
+    "create-agdf/lib/skill-dispatch/contract.js": [
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-identity.js",
+        "target": "create-agdf/lib/control-state/run-identity.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "../task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      }
+    ],
+    "create-agdf/lib/skill-dispatch/delivery-intake.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../control-state/run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "../control-state/run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../control-evaluation/verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      }
+    ],
+    "create-agdf/lib/skill-dispatch/delivery-run-assignment.js": [
+      {
+        "specifier": "../control-state/run-state-reader.js",
+        "target": "create-agdf/lib/control-state/run-state-reader.js"
+      },
+      {
+        "specifier": "../control-state/run-store-inspection.js",
+        "target": "create-agdf/lib/control-state/run-store-inspection.js"
+      },
+      {
+        "specifier": "../control-state/run-seal.js",
+        "target": "create-agdf/lib/control-state/run-seal.js"
+      },
+      {
+        "specifier": "../control-state/contained-file.js",
+        "target": "create-agdf/lib/control-state/contained-file.js"
+      },
+      {
+        "specifier": "../control-state/run-state-parser.js",
+        "target": "create-agdf/lib/control-state/run-state-parser.js"
+      },
+      {
+        "specifier": "../control-evaluation/run-state.js",
+        "target": "create-agdf/lib/control-evaluation/run-state.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      }
+    ],
+    "create-agdf/lib/skill-dispatch/service.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../control-evaluation/verified-change.js",
+        "target": "create-agdf/lib/control-evaluation/verified-change.js"
+      },
+      {
+        "specifier": "../interaction-catalog.js",
+        "target": "create-agdf/lib/interaction-catalog.js"
+      },
+      {
+        "specifier": "../control-evaluation/gate-check.js",
+        "target": "create-agdf/lib/control-evaluation/gate-check.js"
+      },
+      {
+        "specifier": "../interaction-presentation.js",
+        "target": "create-agdf/lib/interaction-presentation.js"
+      },
+      {
+        "specifier": "../task-target-resolution.js",
+        "target": "create-agdf/lib/task-target-resolution.js"
+      },
+      {
+        "specifier": "./delivery-intake.js",
+        "target": "create-agdf/lib/skill-dispatch/delivery-intake.js"
+      },
+      {
+        "specifier": "./delivery-run-assignment.js",
+        "target": "create-agdf/lib/skill-dispatch/delivery-run-assignment.js"
+      },
+      {
+        "specifier": "./contract.js",
+        "target": "create-agdf/lib/skill-dispatch/contract.js"
+      }
+    ],
+    "create-agdf/lib/skill-evals/artefact-quality.js": [],
+    "create-agdf/lib/skill-evals/index.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./artefact-quality.js",
+        "target": "create-agdf/lib/skill-evals/artefact-quality.js"
+      }
+    ],
+    "create-agdf/lib/skill-evals/live-recorder.js": [
+      {
+        "specifier": "node:child_process",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "../live-agent/read-only-structured.js",
+        "target": "create-agdf/lib/live-agent/read-only-structured.js"
+      },
+      {
+        "specifier": "./index.js",
+        "target": "create-agdf/lib/skill-evals/index.js"
+      },
+      {
+        "specifier": "./workspace.js",
+        "target": "create-agdf/lib/skill-evals/workspace.js"
+      }
+    ],
+    "create-agdf/lib/skill-evals/workspace.js": [
+      {
+        "specifier": "node:crypto",
+        "target": null
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:os",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      }
+    ],
+    "create-agdf/lib/task-target-resolution.js": [
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:path",
+        "target": null
+      },
+      {
+        "specifier": "./repository-context-reader.js",
+        "target": "create-agdf/lib/repository-context-reader.js"
+      }
+    ],
+    "create-agdf/bin/agdf-validator.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../lib/runtime/validator-application.js",
+        "target": "create-agdf/lib/runtime/validator-application.js"
+      }
+    ],
+    "create-agdf/bin/create-agdf.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../lib/cli/application.js",
+        "target": "create-agdf/lib/cli/application.js"
+      }
+    ],
+    "agdf/bin/agdf.js": [
+      {
+        "specifier": "create-agdf/cli",
+        "target": "create-agdf/bin/create-agdf.js"
+      }
+    ],
+    "agdf-mcp-server/src/main.js": [
+      {
+        "specifier": "create-agdf/mcp-dispatch-runtime",
+        "target": "create-agdf/lib/mcp-dispatch-runtime.js"
+      },
+      {
+        "specifier": "node:fs",
+        "target": null
+      },
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "./server.js",
+        "target": "agdf-mcp-server/src/server.js"
+      }
+    ],
+    "agdf-mcp-server/src/server.js": [
+      {
+        "specifier": "@modelcontextprotocol/server",
+        "target": null
+      },
+      {
+        "specifier": "@modelcontextprotocol/server/stdio",
+        "target": null
+      },
+      {
+        "specifier": "./worker.js",
+        "target": "agdf-mcp-server/src/worker.js"
+      }
+    ],
+    "agdf-mcp-server/src/worker-entry.js": [
+      {
+        "specifier": "node:worker_threads",
+        "target": null
+      },
+      {
+        "specifier": "create-agdf/mcp-dispatch-runtime",
+        "target": "create-agdf/lib/mcp-dispatch-runtime.js"
+      }
+    ],
+    "agdf-mcp-server/src/worker.js": [
+      {
+        "specifier": "node:worker_threads",
+        "target": null
+      }
+    ],
+    "agdf-mcp-server/bin/agdf-mcp.js": [
+      {
+        "specifier": "node:process",
+        "target": null
+      },
+      {
+        "specifier": "../src/main.js",
+        "target": "agdf-mcp-server/src/main.js"
+      }
+    ]
+  }
+}

@@ -45,7 +45,7 @@ const fixturePaths = [
   "NOTICE",
   "plugins/agdf/meta/agdf-runtime-contract.md",
   "plugins/agdf/control/README.md",
-  "agdf/README.md",
+  "packages/cli/distribution/agdf/README.md",
 ];
 
 async function makeFixture() {

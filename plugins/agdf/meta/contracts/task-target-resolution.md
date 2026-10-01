@@ -148,7 +148,7 @@ Never silently expand scope to make the request fit a different project.
 ## Presentation Boundary
 
 `contracts/interaction.md` owns the visible, non-authorizing Task Target Orientation.
-`create-agdf/lib/interaction-presentation.js` owns its rendering. The renderer projects a normalized
+`packages/core/lib/interaction-presentation.js` owns its rendering. The renderer projects a normalized
 result; it must not resolve targets, derive governance or become a state store.
 
 Show orientation when target/context separation is material, when the target changes, or when the

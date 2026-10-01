@@ -3,7 +3,7 @@ import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSyn
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "acorn";
-import { digestNormalizedPluginSource } from "../../create-agdf/lib/runtime/plugin-provenance.js";
+import { digestNormalizedPluginSource } from "../../packages/core/lib/runtime/plugin-provenance.js";
 import { CAPABILITIES, CLAIMS, HOSTS, OUTCOMES, SCENARIOS, canonical, importHistoricalHC, tuple, validateInventory, validateObservation } from "./contract.mjs";
 import { evaluateClaim } from "./evaluate.mjs";
 import { renderComparison } from "./render.mjs";
@@ -50,7 +50,7 @@ function localReferences(source, file) {
     }
   };
   walk(ast);
-  return refs.filter(ref => typeof ref === "string" && ref.startsWith("."));
+  return refs.filter(ref => typeof ref === "string" && (ref.startsWith(".") || ref === "#agdf-core" || ref.startsWith("#agdf-core/")));
 }
 
 export function sourceClosure(root, entries) {
@@ -62,7 +62,14 @@ export function sourceClosure(root, entries) {
     if (lstatSync(path).isDirectory()) return;
     files.add(file);
     if (![".js", ".mjs", ".cjs"].includes(extname(file))) return;
-    for (const ref of localReferences(readFileSync(path, "utf8"), file)) visit(relativePath(root, resolve(dirname(path), ref)));
+    for (const ref of localReferences(readFileSync(path, "utf8"), file)) {
+      if (ref === "#agdf-core" || ref.startsWith("#agdf-core/")) {
+        const core = "packages/core";
+        const manifest = readJson(safePath(root, `${core}/package.json`));
+        const target = ref === "#agdf-core" ? manifest.exports["."] : manifest.exports["./*"].replace("*", ref.slice("#agdf-core/".length));
+        visit(relativePath(root, resolve(root, core, target)));
+      } else visit(relativePath(root, resolve(dirname(path), ref)));
+    }
   };
   entries.forEach(visit);
   return [...files].sort();
@@ -84,7 +91,7 @@ export function sourceSnapshot(root, manifest) {
   const fingerprints = Object.fromEntries(files.map(file => [file, hash(readFileSync(safePath(root, file)))]));
   const definition = readJson(safePath(root, "plugins/agdf/meta/agdf-plugin.definition.json"));
   const payloads = Object.fromEntries(HOSTS.map(host => {
-    const profile = host === "copilot" ? "create-agdf/generated/plugins/copilot/agdf" : "create-agdf/generated/plugins/agdf";
+    const profile = host === "copilot" ? "packages/cli/generated/plugins/copilot/agdf" : "packages/cli/generated/plugins/agdf";
     const payloadRoot = safePath(root, profile);
     return [host, { canonical_version: definition.version, source_digest: digestNormalizedPluginSource(payloadRoot, definition.version), runtime_digest: readJson(join(payloadRoot, "runtime/runtime-manifest.json")).digest }];
   }));
@@ -181,7 +188,7 @@ async function record(root, { runSuite, beforePublish = () => {} } = {}) {
     const allowed = new Set([...owner.files, OWNER, ...manifest.public_evidence.map(path => path.slice(OUTPUT.length + 1))]);
     if (owner.owner !== "agdf-host-compatibility" || filesUnder(output).some(path => !allowed.has(path))) throw new Error("foreign_output_files");
   }
-  const suite = runSuite ?? (await import("../../create-agdf/scripts/host-compatibility-test.js")).runCompatibilitySuite;
+  const suite = runSuite ?? (await import("../../packages/cli/scripts/host-compatibility-test.js")).runCompatibilitySuite;
   const observations = await suite();
   const facts = Object.fromEntries(observations.map(o => [o.id, { expected: o.expected, observed: o.observed, environment: o.environment, facts: o.facts, original: o.original, conformance: o.conformance }]));
   const factsBytes = bytes(facts); const factsDigest = hash(factsBytes);

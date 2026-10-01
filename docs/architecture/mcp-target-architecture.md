@@ -29,11 +29,11 @@ einen begrenzten Fortsetzungsauftrag. Der Inspect-Vertrag bietet lesende Kontrol
 schreibgeschützt.
 
 Die semantischen Eigentümer sind die Verträge in
-[`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) sowie
-[`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) und
-[`selection.js`](../../create-agdf/lib/control-inspect/selection.js). Die MCP-Laufzeit setzt diese
+[`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js) sowie
+[`control-inspect/contract.js`](../../packages/core/lib/control-inspect/contract.js) und
+[`selection.js`](../../packages/core/lib/control-inspect/selection.js). Die MCP-Laufzeit setzt diese
 Definitionen zusammen; der
-[MCP-Server](../../agdf-mcp-server/src/server.js) registriert sie und leitet Aufrufe weiter. Der
+[MCP-Server](../../packages/mcp-server/src/server.js) registriert sie und leitet Aufrufe weiter. Der
 Adapter fügt keine fachliche Gate- oder Freigabelogik hinzu.
 
 Run-Zuordnung, Intake-Schritte, Gate-Artefaktvorbereitung und Präsentationsvorbereitung sind im
@@ -50,11 +50,11 @@ Quellcode-Definition oder Registrierung allein weist diese Eigenschaften nicht n
 | Verantwortung | Kanonischer Eigentümer |
 |---|---|
 | Aktivierung, Zielbindung, Interaktion und Gate-Regeln | [Runtime-Verträge](../../plugins/agdf/meta/contracts/) |
-| Semantik von `agdf_dispatch` | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) und der zugehörige Service |
-| Semantik und Auswahl von `agdf_inspect` | [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) und [`selection.js`](../../create-agdf/lib/control-inspect/selection.js) |
-| Deterministische Gate- und Kontrollauswertung | [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
-| Persistierter Run, Artefakte und Revisionen | [`control-state/`](../../create-agdf/lib/control-state/) |
-| MCP-Transport und Weiterleitung | [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) und [`agdf-mcp-server/`](../../agdf-mcp-server/) |
+| Semantik von `agdf_dispatch` | [`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js) und der zugehörige Service |
+| Semantik und Auswahl von `agdf_inspect` | [`control-inspect/contract.js`](../../packages/core/lib/control-inspect/contract.js) und [`selection.js`](../../packages/core/lib/control-inspect/selection.js) |
+| Deterministische Gate- und Kontrollauswertung | [`control-evaluation/`](../../packages/core/lib/control-evaluation/) |
+| Persistierter Run, Artefakte und Revisionen | [`control-state/`](../../packages/core/lib/control-state/) |
+| MCP-Transport und Weiterleitung | [`mcp-dispatch-runtime.js`](../../packages/cli/lib/mcp-dispatch-runtime.js) und [`packages/mcp-server/`](../../packages/mcp-server/) |
 
 Diese Übersicht ist keine zweite Vertragsquelle. Das bestehende Context-Graph-Thema
 [`CG-MCP-DISPATCH-ADAPTER`](../../.agdf/control/CONTEXT_GRAPH.md#cg-mcp-dispatch-adapter) hält die

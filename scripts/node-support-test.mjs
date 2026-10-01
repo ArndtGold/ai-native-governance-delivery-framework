@@ -6,10 +6,10 @@ import { parse } from "yaml";
 
 const root = new URL("../", import.meta.url);
 const json = path => JSON.parse(readFileSync(new URL(path, root), "utf8"));
-for (const name of ["create-agdf", "agdf", "agdf-mcp-server"]) {
+for (const name of ["packages/core", "packages/cli", "packages/cli/distribution/agdf", "packages/mcp-server"]) {
   assert.equal(json(`${name}/package.json`).engines.node, ">=22");
 }
-assert.equal(json("agdf-mcp-server/package-lock.json").packages[""].engines.node, ">=22");
+assert.equal(json("packages/mcp-server/package-lock.json").packages[""].engines.node, ">=22");
 assert.equal(json("plugins/agdf/meta/agdf-mcp-capability.json").package.node, ">=22");
 
 const actions = {
@@ -35,7 +35,7 @@ assert.deepEqual(guardrails.jobs.verify.strategy.matrix.include.map(row => [row.
 
 // Simulate only the version gate, not execution on another Node runtime.
 for (const version of ["18.20.0", "20.19.0", "21.0.0"]) for (const path of [
-  "create-agdf/bin/create-agdf.js", "agdf-mcp-server/bin/agdf-mcp.js",
+  "packages/cli/bin/create-agdf.js", "packages/mcp-server/bin/agdf-mcp.js",
 ]) {
   const source = `Object.defineProperty(process.versions, "node", {value: ${JSON.stringify(version)}}); await import(${JSON.stringify(new URL(path, root).href)});`;
   const result = spawnSync(process.execPath, ["--input-type=module", "-e", source], {

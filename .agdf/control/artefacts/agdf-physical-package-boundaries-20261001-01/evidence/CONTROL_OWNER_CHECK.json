@@ -1,0 +1,13 @@
+{
+  "writer": "packages/core/lib/control-state/run-state-writer.js",
+  "seal": "packages/core/lib/control-state/run-seal.js",
+  "locks": "packages/core/lib/control-state/run-state-writer.js:withRunLock",
+  "transaction": "packages/core/lib/control-state/run-step-transaction.js",
+  "evidence": [
+    "tests/core-control-state-test.log",
+    "tests/core-run-lock-test.log",
+    "tests/core-run-step-transaction-test.log",
+    "tests/core-run-revision-test.log"
+  ],
+  "derived_closures": "copied same bytes; no independent policy writer"
+}

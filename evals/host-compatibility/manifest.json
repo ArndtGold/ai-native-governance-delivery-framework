@@ -29,16 +29,16 @@
   ],
   "source_entrypoints": {
     "codex": [
-      "create-agdf/scripts/fixtures/host-compatibility/codex.js"
+      "packages/cli/scripts/fixtures/host-compatibility/codex.js"
     ],
     "claude": [
-      "create-agdf/scripts/fixtures/host-compatibility/claude.js"
+      "packages/cli/scripts/fixtures/host-compatibility/claude.js"
     ],
     "copilot": [
-      "create-agdf/scripts/fixtures/host-compatibility/copilot.js"
+      "packages/cli/scripts/fixtures/host-compatibility/copilot.js"
     ],
     "opencode": [
-      "create-agdf/scripts/fixtures/host-compatibility/opencode.js"
+      "packages/cli/scripts/fixtures/host-compatibility/opencode.js"
     ]
   },
   "common_entrypoints": [
@@ -46,17 +46,19 @@
     "scripts/host-compatibility/evaluate.mjs",
     "scripts/host-compatibility/render.mjs",
     "scripts/host-compatibility/run.mjs",
-    "create-agdf/scripts/host-compatibility-test.js"
+    "packages/cli/scripts/host-compatibility-test.js"
   ],
   "extra_sources": [
     "package.json",
     "package-lock.json",
-    "create-agdf/package.json",
+    "packages/cli/package.json",
     "plugins/agdf/meta/agdf-plugin.definition.json",
-    "create-agdf/scripts/sync-plugin-runtime.js",
-    "create-agdf/scripts/sync-package-assets.js",
+    "packages/cli/scripts/sync-plugin-runtime.js",
+    "packages/cli/scripts/sync-package-assets.js",
     "scripts/host-compatibility/test.mjs",
-    "plugins/agdf/meta/copilot-payload-baseline.json"
+    "plugins/agdf/meta/copilot-payload-baseline.json",
+    "packages/core/package.json",
+    "plugins/agdf/meta/agdf-interaction-locales.json"
   ],
   "historical_sources": [
     {
@@ -72,7 +74,7 @@
   ],
   "source_files": {
     "opencode": [
-      "create-agdf/opencode-plugin.js"
+      "packages/cli/opencode-plugin.js"
     ]
   }
 }

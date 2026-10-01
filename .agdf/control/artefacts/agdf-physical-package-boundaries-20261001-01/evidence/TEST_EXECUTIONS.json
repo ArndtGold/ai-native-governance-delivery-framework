@@ -1,0 +1,633 @@
+{
+  "source_binding": "FINAL_SOURCE_BINDING.json",
+  "recorded_at": "2026-10-01T17:52:03.507777+00:00",
+  "platform": "darwin",
+  "node": "v22.22.3",
+  "executed_checks": "FINAL_REGRESSION_MATRIX.json plus actual closure logs in tests/",
+  "log_binding_note": "Earlier matrix per-check command, seconds, exit and log retained. Final closure logs copied after exit0; timestamp is consolidation time, not reconstructed test start time. Exact source binding separates source from derived output.",
+  "scenarios": [
+    {
+      "criterion_id": "AC-001",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-002",
+      "scenario_id": "SCN-001",
+      "status": "done",
+      "expected_result": "Gehashte Modulkarte weist verschobene Kontrollimplementierungen genau einem Core-Sourceowner zu; temporäre Delegationsbrücken sind vollständig erklärt",
+      "planned_evidence": "evidence/stages/C-01_MODULES.json; evidence/stages/C-01_OWNER_CHECK.log",
+      "actual_evidence": [
+        "stages/C-01_MODULES.json",
+        "FINAL_OWNER_MAP.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-001",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-011",
+      "scenario_id": "SCN-002",
+      "status": "done",
+      "expected_result": "Tatsächlicher Endbaum besitzt core/cli/mcp-server; alte aktive Quellroots und sämtliche C-01/C-03-Brücken fehlen",
+      "planned_evidence": "evidence/FINAL_TREE.txt; evidence/FINAL_OWNER_MAP.json; evidence/ACTIVE_PATH_AUDIT.json",
+      "actual_evidence": [
+        "FINAL_TREE.txt",
+        "FINAL_OWNER_MAP.json",
+        "BRIDGE_INVENTORY.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-002",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-002",
+      "scenario_id": "SCN-003",
+      "status": "done",
+      "expected_result": "Gate-, Approval-, Revision-, Seal-, Lock-/Transaktions- und Recoveryfälle verwenden denselben kanonischen Core-Writer; ungebundene/alte Replies werden abgelehnt",
+      "planned_evidence": "evidence/tests/G-CORE.log; evidence/CONTROL_OWNER_CHECK.json",
+      "actual_evidence": [
+        "CONTROL_OWNER_CHECK.json",
+        "tests/core-control-state-test.log",
+        "tests/core-run-revision-test.log",
+        "tests/core-run-step-transaction-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-002",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-005",
+      "scenario_id": "SCN-004",
+      "status": "done",
+      "expected_result": "CLI und MCP ergeben für identische zulässige Target-/Run-/Observerfixtures identische Kontrollreports; Adapterentscheidung bleibt authorizes:false",
+      "planned_evidence": "evidence/tests/G-PARITY.log; evidence/ADAPTER_PARITY.json",
+      "actual_evidence": [
+        "ADAPTER_PARITY.json",
+        "tests/cli-control-inspect-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-002",
+      "task_id": "T-003",
+      "scenario_id": "SCN-005",
+      "status": "done",
+      "expected_result": "Isolierter privater Core lädt seine abgeleiteten Ressourcen außerhalb Checkout ohne CLI/MCP/Installer und liefert korrekte Contract-/Locale-/Gateergebnisse",
+      "planned_evidence": "evidence/tests/core-isolated-resources.log; evidence/CORE_ISOLATION.json",
+      "actual_evidence": [
+        "tests/core-boundaries.log",
+        "profiles/RESOURCE_CLOSURE.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-002",
+      "task_id": "T-003",
+      "scenario_id": "SCN-006",
+      "status": "done",
+      "expected_result": "Fehlender Contract, unzulässiges Modul, ungültige Locale-/Versionsressource oder MCP-Clientpfad führt zur vorhandenen Recovery; kein Checkout-/Env-Fallback",
+      "planned_evidence": "evidence/tests/core-resource-negative.log",
+      "actual_evidence": [
+        "tests/core-boundaries.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-003",
+      "scenario_id": "SCN-007",
+      "status": "done",
+      "expected_result": "Graph und Modulprüfung zeigen keine direkte/transitive Core→CLI/MCP/SDK/Build/Eval-Kante, Paketzyklen oder Prozessstarter; dynamische Auflösung ist erklärt",
+      "planned_evidence": "evidence/FINAL_DEPENDENCIES.json; evidence/tests/core-boundaries.log",
+      "actual_evidence": [
+        "FINAL_DEPENDENCIES.json",
+        "tests/core-boundaries.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-003",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-003",
+      "scenario_id": "SCN-008",
+      "status": "done",
+      "expected_result": "Fehlende/manipulierte Git-/Runtimeproviderdaten verleihen keine positive Eligibility/Approval; Recoverykandidaten bleiben im Core pfad-/snapshotgebunden",
+      "planned_evidence": "evidence/tests/provider-boundaries.log; evidence/tests/G-RECOVERY.log",
+      "actual_evidence": [
+        "tests/provider-boundaries.log",
+        "tests/cli-control-maintenance-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-003",
+      "task_id": "T-004",
+      "scenario_id": "SCN-009",
+      "status": "done",
+      "expected_result": "CLI-Gitbeobachtung, Systemlocale, Runtime-Probe und isolierte Setup-/Hostprovider sind korrekt komponiert; Core enthält deren Prozessimplementierungen nicht",
+      "planned_evidence": "evidence/PROVIDER_MAP.json; evidence/tests/G-CLI-PROVIDERS.log",
+      "actual_evidence": [
+        "PROVIDER_MAP.json",
+        "tests/cli-control-maintenance-test.log",
+        "tests/cli-control-maintenance-test.log",
+        "tests/provider-boundaries.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-004",
+      "scenario_id": "SCN-010",
+      "status": "done",
+      "expected_result": "Alle unterstützten CLI-Befehle, Flags, Exit-/Fehler-/JSON-/EN-/DE-Interaktionsverträge bestehen aus neuer Source-Komposition",
+      "planned_evidence": "evidence/tests/G-CLI.log; evidence/CLI_CONTRACT_DIFF.json",
+      "actual_evidence": [
+        "CLI_CONTRACT_DIFF.json",
+        "tests/cli-cli-modularization-test.log",
+        "tests/core-interaction-presentation-test.log",
+        "tests/cli-cli-gate-scenarios-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-004",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-009",
+      "scenario_id": "SCN-011",
+      "status": "done",
+      "expected_result": "create-agdf- und agdf-bins führen Versions-, Hilfe-, Kontroll- und Setupfixtures aus echten Archiven außerhalb Checkout mit erwarteten Ausgaben aus",
+      "planned_evidence": "evidence/consumers/CLI_ARCHIVE.json; evidence/consumers/cli.log",
+      "actual_evidence": [
+        "ARCHIVE_CONSUMERS.json",
+        "tests/archive-consumers.log",
+        "tests/cli-smoke.log",
+        "tests/wrapper-smoke.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-001",
+      "task_id": "T-005",
+      "scenario_id": "SCN-012",
+      "status": "done",
+      "expected_result": "MCP-Worker/stdio/SDK liegen nur im MCP-Paket; Dispatcher/Inspektion delegieren an Core ohne Rückimport der CLI auf den Adapter",
+      "planned_evidence": "evidence/MCP_OWNER_MAP.json; evidence/tests/G-MCP.log",
+      "actual_evidence": [
+        "MCP_OWNER_MAP.json",
+        "tests/mcp-server-contract.test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-005",
+      "scenario_id": "SCN-013",
+      "status": "done",
+      "expected_result": "initialize/tools-list und reale Toolcalls erhalten Namen/Schemas; falsche Version/Provenance, unsicherer Target und unzulässiger Input werden fail-closed beantwortet",
+      "planned_evidence": "evidence/mcp/PROTOCOL.json; evidence/tests/mcp-contract-protocol-safety-provenance.log",
+      "actual_evidence": [
+        "ARCHIVE_CONSUMERS.json",
+        "tests/mcp-server-protocol.test.log",
+        "tests/mcp-server-safety.test.log",
+        "tests/mcp-server-provenance.test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-005",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-009",
+      "scenario_id": "SCN-014",
+      "status": "done",
+      "expected_result": "Installierter archivbasierter MCP-Consumer führt dispatch/inspect mit matched provenance aus; Busy-/Cancel-/Timeout-/Workerfehler behalten ihr vorhandenes Verhalten",
+      "planned_evidence": "evidence/consumers/MCP_ARCHIVE.json; evidence/tests/mcp-worker-failures.log",
+      "actual_evidence": [
+        "ARCHIVE_CONSUMERS.json",
+        "tests/mcp-server-continuation.test.log",
+        "tests/mcp-server-performance.test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-006",
+      "design_decision_id": "SDD-004",
+      "task_id": "T-006",
+      "scenario_id": "SCN-015",
+      "status": "done",
+      "expected_result": "Core-Source ist private:true; Archiveassembly enthält dieselben Core-Bytes und korrekte interne Aliasauflösung, keine vierte öffentliche Runtimeabhängigkeit",
+      "planned_evidence": "evidence/ASSEMBLY_MAP.json; evidence/tests/assembly-aliases.log",
+      "actual_evidence": [
+        "ASSEMBLY_MAP.json",
+        "tests/archive-consumers.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-006",
+      "design_decision_id": "SDD-004",
+      "task_id": "T-009",
+      "scenario_id": "SCN-016",
+      "status": "done",
+      "expected_result": "Drei echte Archive tragen die bestehenden npm-Namen, Node >=22, exakte gemeinsame Versionen und Dependencies; kein file:/Workspace-/Core-Registrybezug",
+      "planned_evidence": "evidence/PACKED_OUTPUTS.json; evidence/PACKED_MANIFESTS.json",
+      "actual_evidence": [
+        "PACKED_OUTPUTS.json",
+        "PACKED_MANIFESTS.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-006",
+      "design_decision_id": "SDD-005",
+      "task_id": "T-009",
+      "scenario_id": "SCN-017",
+      "status": "done",
+      "expected_result": "Alle bisherigen öffentlichen Exports einschließlich synchronem control-command und mcp-dispatch-runtime sind im externen Consumer importierbar; Import beobachtet kein Ziel/Git",
+      "planned_evidence": "evidence/consumers/PUBLIC_EXPORTS.json; evidence/tests/public-import-boundaries.log",
+      "actual_evidence": [
+        "ARCHIVE_CONSUMERS.json",
+        "tests/archive-consumers.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-002",
+      "task_id": "T-007",
+      "scenario_id": "SCN-018",
+      "status": "done",
+      "expected_result": "Jeder Offline-Consumer besitzt alle benötigten Locale-/Definition-/Contractressourcen aus gebundener Quelle; fehlende oder doppelte Ressource wird erkannt",
+      "planned_evidence": "evidence/profiles/RESOURCE_CLOSURE.json; evidence/tests/offline-resource-negative.log",
+      "actual_evidence": [
+        "profiles/RESOURCE_CLOSURE.json",
+        "tests/core-boundaries.log",
+        "tests/cli-instruction-footprint-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-007",
+      "scenario_id": "SCN-019",
+      "status": "done",
+      "expected_result": "Erzeugte lokale Validatoren führen ihre unterstützten Commands außerhalb Checkout mit blockiertem Netz und ohne npm aus",
+      "planned_evidence": "evidence/consumers/OFFLINE_VALIDATORS.json; evidence/consumers/offline.log",
+      "actual_evidence": [
+        "ARCHIVE_CONSUMERS.json",
+        "tests/archive-consumers.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-007",
+      "scenario_id": "SCN-020",
+      "status": "done",
+      "expected_result": "Copilot-Inventur/Digests und Byte-/Dateibudget stimmen mit tatsächlichen Outputs überein; Installer, SDK und unzulässige doppelte Daten fehlen",
+      "planned_evidence": "evidence/profiles/COPILOT_INVENTORY.json; evidence/profiles/PAYLOAD_DELTA.json; evidence/tests/G-PROFILES.log",
+      "actual_evidence": [
+        "profiles/COPILOT_INVENTORY.json",
+        "profiles/PAYLOAD_DELTA.json",
+        "tests/cli-instruction-footprint-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-007",
+      "design_decision_id": "SDD-006",
+      "task_id": "T-007",
+      "scenario_id": "SCN-021",
+      "status": "done",
+      "expected_result": "Hinzugefügte Installer-/SDK-Datei, falscher Runtimehash oder Überschreitung des unveränderten Guards wird negativ erkannt",
+      "planned_evidence": "evidence/tests/runtime-integrity-negative.log; evidence/tests/copilot-exclusion-negative.log",
+      "actual_evidence": [
+        "tests/cli-payload-budget-test.log",
+        "tests/cli-portable-plugin-test.log",
+        "tests/cli-plugin-mcp-runtime-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-006",
+      "scenario_id": "SCN-022",
+      "status": "done",
+      "expected_result": "Vollständige Source→Outputkarte führt Definition, Skills, Contracts, Templates und Assets auf plugins/agdf zurück; Wiederholungsbuild ist semantisch identisch",
+      "planned_evidence": "evidence/ASSEMBLY_MAP.json; evidence/REPEAT_BUILD_DIFF.json",
+      "actual_evidence": [
+        "ASSEMBLY_MAP.json",
+        "REPEAT_BUILD_DIFF.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-007",
+      "scenario_id": "SCN-023",
+      "status": "done",
+      "expected_result": "Profil-/Bundle-/Installidentität unterscheidet Source- und Runtimehashes korrekt und bleibt zur gemeinsamen Version gebunden",
+      "planned_evidence": "evidence/profiles/PROVENANCE.json; evidence/tests/G-PROVENANCE.log",
+      "actual_evidence": [
+        "profiles/PROVENANCE.json",
+        "tests/cli-plugin-mcp-runtime-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-008",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-007",
+      "scenario_id": "SCN-024",
+      "status": "done",
+      "expected_result": "Veränderter Contract/Skill, geänderter MCP-command/type/env, falsche Root-/Fallbackversion und Marker-/Bundleabweichung werden abgelehnt; historische eigene Normalisierung bleibt kompatibel",
+      "planned_evidence": "evidence/tests/provenance-tamper.log; evidence/tests/codex-plugin-mcp.log",
+      "actual_evidence": [
+        "tests/cli-plugin-mcp-runtime-test.log",
+        "tests/cli-codex-plugin-mcp-test.log",
+        "tests/mcp-server-provenance.test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-009",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-007",
+      "scenario_id": "SCN-025",
+      "status": "done",
+      "expected_result": "Aktuelle Codex-Runtime enthält Root mcp.json mit stdio und installergebundenen Pfaden; alter aktueller mcp/codex.mcp.json fehlt",
+      "planned_evidence": "evidence/profiles/PROFILE_MATRIX.json; evidence/tests/codex-discovery-profile.log",
+      "actual_evidence": [
+        "profiles/PROFILE_MATRIX.json",
+        "tests/cli-codex-plugin-mcp-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-009",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-007",
+      "scenario_id": "SCN-026",
+      "status": "done",
+      "expected_result": "Source/public bleiben ohne aktive MCP/Hooks; Claude verwendet seinen deklarierten Pfad; Copilot/OpenCode entsprechen genau der genehmigten SD-Profilmatrix",
+      "planned_evidence": "evidence/profiles/PROFILE_MATRIX.json; evidence/tests/portable-claude-copilot-opencode.log",
+      "actual_evidence": [
+        "profiles/PROFILE_MATRIX.json",
+        "tests/cli-portable-plugin-test.log",
+        "tests/cli-opencode-hardening-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-009",
+      "design_decision_id": "SDD-007",
+      "task_id": "T-007",
+      "scenario_id": "SCN-027",
+      "status": "done",
+      "expected_result": "Fehlende deklarierte MCP-/Hookdatei, hinzugefügter MCP-Server oder unzulässige public-Runtime wird erkannt; keine dritte Softwaregrenze entfällt als Ausnahme",
+      "planned_evidence": "evidence/tests/profile-negative.log; evidence/FINAL_TREE.txt",
+      "actual_evidence": [
+        "tests/cli-portable-plugin-test.log",
+        "tests/cli-public-plugin-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-010",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-006",
+      "scenario_id": "SCN-028",
+      "status": "done",
+      "expected_result": "Root/Paketbefehle und CI delegieren an genau einen Build-/Releaseowner mit expliziten Roots; Manifestdelegatoren führen keine zweite Logik",
+      "planned_evidence": "evidence/BUILD_ENTRYPOINTS.json; evidence/tests/G-BUILD.log",
+      "actual_evidence": [
+        "BUILD_ENTRYPOINTS.json",
+        "tests/root-maintenance.log",
+        "tests/cli-release-workflow-contract-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-010",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-011",
+      "scenario_id": "SCN-029",
+      "status": "done",
+      "expected_result": "Frisches Quellfixture ohne generated/dist/node_modules erzeugt in dokumentierter Reihenfolge Profile und Archive; negative Voraussetzungen werden erklärt abgelehnt",
+      "planned_evidence": "evidence/CLEAN_CHECKOUT.json; evidence/tests/clean-checkout.log",
+      "actual_evidence": [
+        "CLEAN_CHECKOUT.json",
+        "tests/clean-checkout.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-011",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-010",
+      "scenario_id": "SCN-030",
+      "status": "done",
+      "expected_result": "Isolierter Install/Update/Repair/Disable-/Cachelauf erhält bisherige Datenroots, Ownership, genaue Versionen und idempotente Rückmeldungen",
+      "planned_evidence": "evidence/lifecycle/LIFECYCLE.json; evidence/tests/G-LIFECYCLE.log",
+      "actual_evidence": [
+        "tests/cli-lifecycle-test.log",
+        "tests/cli-local-development-install-test.log",
+        "tests/cli-local-marketplace-test.log",
+        "tests/cli-mcp-lifecycle-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-011",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-010",
+      "scenario_id": "SCN-031",
+      "status": "done",
+      "expected_result": "Consent/Trust bleiben eigenständige Fakten; fehlende Zustimmung/Ownership oder fremde Marker werden nicht durch Sourceumzug aufgehoben",
+      "planned_evidence": "evidence/tests/consent-ownership-negative.log",
+      "actual_evidence": [
+        "tests/cli-lifecycle-test.log",
+        "tests/cli-mcp-lifecycle-test.log",
+        "tests/mcp-server-provenance.test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-011",
+      "design_decision_id": "SDD-009",
+      "task_id": "T-010",
+      "scenario_id": "SCN-032",
+      "status": "done",
+      "expected_result": "Bestehende Run-/Approval-/Sealformate und Recoverylocks bleiben kompatibel; keine automatische Zustands-/Benutzerdateimigration",
+      "planned_evidence": "evidence/lifecycle/STATE_COMPATIBILITY.json; evidence/tests/G-RECOVERY.log",
+      "actual_evidence": [
+        "tests/core-control-state-test.log",
+        "tests/core-run-lock-test.log",
+        "tests/core-run-step-transaction-test.log",
+        "tests/cli-control-maintenance-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-012",
+      "design_decision_id": "SDD-010",
+      "task_id": "T-008",
+      "scenario_id": "SCN-033",
+      "status": "done",
+      "expected_result": "Aktuelle Version-/Releasechecks lesen neue Manifeste, historische Tags ihre damaligen eindeutigen Pfade; frühere Artefakte bleiben unverändert",
+      "planned_evidence": "evidence/HISTORY_RESOLUTION.json; evidence/tests/G-HISTORY.log",
+      "actual_evidence": [
+        "HISTORY_RESOLUTION.json",
+        "tests/cli-release-registry-state-test.log",
+        "tests/cli-release-version-coherence-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-012",
+      "design_decision_id": "SDD-010",
+      "task_id": "T-008",
+      "scenario_id": "SCN-034",
+      "status": "done",
+      "expected_result": "Fehlender oder mehrfacher historischer Owner und widersprüchliche gemeinsame Version blockieren; kein aktueller Altroot-Fallback kaschiert den Fehler",
+      "planned_evidence": "evidence/tests/history-version-negative.log",
+      "actual_evidence": [
+        "tests/cli-release-bump-test.log",
+        "tests/cli-release-version-coherence-test.log",
+        "tests/cli-release-registry-state-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-013",
+      "design_decision_id": "SDD-008",
+      "task_id": "T-008",
+      "scenario_id": "SCN-035",
+      "status": "done",
+      "expected_result": "Aktive Docs/SoT/Graph/CI/Tests/Evals verweisen auf neue Code-/Buildowner; Pflicht-Evaluationsfälle und Locale-Karten bleiben gültig",
+      "planned_evidence": "evidence/ACTIVE_REFERENCE_AUDIT.json; evidence/tests/G-EVALS-DOCS.log",
+      "actual_evidence": [
+        "ACTIVE_REFERENCE_AUDIT.json",
+        "REPLAY_REBINDING.json",
+        "tests/cli-skill-evals-test.log",
+        "tests/host-compatibility.log",
+        "tests/community-health.log",
+        "tests/core-interaction-presentation-test.log"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-013",
+      "design_decision_id": "SDD-010",
+      "task_id": "T-008",
+      "scenario_id": "SCN-036",
+      "status": "done",
+      "expected_result": "Jeder verbleibende Altpfad ist als immutable Geschichte, öffentlicher API-/Installartefaktpfad oder endlich befristete Brücke begründet; C-04 besitzt keine aktiven Ausnahmen",
+      "planned_evidence": "evidence/ACTIVE_REFERENCE_AUDIT.json; evidence/BRIDGE_INVENTORY.json",
+      "actual_evidence": [
+        "ACTIVE_REFERENCE_AUDIT.json",
+        "BRIDGE_INVENTORY.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    },
+    {
+      "criterion_id": "AC-014",
+      "design_decision_id": "SDD-011",
+      "task_id": "T-001",
+      "scenario_id": "SCN-037",
+      "status": "partial",
+      "expected_result": "Fresh pre_implementation_analysis bindet tatsächliche Quellen, Run und Genehmigungen; Fremd-/Indexänderungen samt MCP-Reparatur sind als Anfangsstand erhalten",
+      "planned_evidence": "BROWNFIELD_ANALYSIS.md; evidence/IMPLEMENTATION_BASELINE.json; evidence/UNRELATED_PRESERVATION.json",
+      "actual_evidence": [
+        "IMPLEMENTATION_BASELINE.json",
+        "UNRELATED_PRESERVATION.json",
+        "INDEX_PRESERVATION.json"
+      ],
+      "qualification": "Original index per-entry proof unavailable; names preserved, binary changed; no stage/reset; original intermediate snapshots unavailable."
+    },
+    {
+      "criterion_id": "AC-014",
+      "design_decision_id": "SDD-011",
+      "task_id": "T-010",
+      "scenario_id": "SCN-038",
+      "status": "done",
+      "expected_result": "Fehlerfixture beim Ressourcen-/Assembly-/Cutoverübergang kann auf seinen letzten konsistenten C-xx-Stand zurückgeführt werden; Quellen/Outputs stimmen gemeinsam",
+      "planned_evidence": "evidence/checkpoints/ROLLBACK_FIXTURE.json; evidence/tests/rollback-fixture.log",
+      "actual_evidence": [
+        "checkpoints/ROLLBACK_FIXTURE.json",
+        "tests/rollback-fixture.log",
+        "tests/staged-rehearsal.log"
+      ],
+      "qualification": "Fresh isolated staged rehearsal + real atomic assembly failure; not proof of original C01-C03 timeline."
+    },
+    {
+      "criterion_id": "AC-014",
+      "design_decision_id": "SDD-011",
+      "task_id": "T-011",
+      "scenario_id": "SCN-039",
+      "status": "partial",
+      "expected_result": "Fremder überlappender Post-Hash oder geänderter Index verhindert pauschale Rückführung; finale Diffinventur enthält nur erklärte Taskänderungen",
+      "planned_evidence": "evidence/tests/checkpoint-conflict.log; evidence/FINAL_DIFF_INVENTORY.json",
+      "actual_evidence": [
+        "tests/rollback-fixture.log",
+        "FINAL_DIFF_INVENTORY.json",
+        "INDEX_PRESERVATION.json"
+      ],
+      "qualification": "Original index per-entry proof unavailable; names preserved, binary changed; no stage/reset; original intermediate snapshots unavailable."
+    },
+    {
+      "criterion_id": "AC-015",
+      "design_decision_id": "SDD-012",
+      "task_id": "T-012",
+      "scenario_id": "SCN-040",
+      "status": "done",
+      "expected_result": "CD+Tests sowie Plan-/Clean-/Code-Review führen jede Aufgabe und alle 42 Szenarien auf die aktuelle Inputbindung mit tatsächlichen Ergebnissen zurück",
+      "planned_evidence": "CD_TESTS.md; TASK_PLAN_REVIEW.md; CLEAN_IMPLEMENTATION_REVIEW.md; CODE_REVIEW.md; evidence/TEST_EXECUTIONS.json",
+      "actual_evidence": [
+        "FINAL_SOURCE_BINDING.json",
+        "FINAL_REGRESSION_MATRIX.json"
+      ],
+      "qualification": "Review artifacts required after dispatched reviews; TEST_EXECUTIONS is evidence coverage, not QA approval."
+    },
+    {
+      "criterion_id": "AC-015",
+      "design_decision_id": "SDD-012",
+      "task_id": "T-013",
+      "scenario_id": "SCN-041",
+      "status": "done",
+      "expected_result": "qa-gate berichtet Zielbaum, Kriterien und Profilmatrix vollständig; pass nur bei ausreichenden aktuellen Nachweisen, sonst revise/block mit konkretem Routing",
+      "planned_evidence": "QA_REPORT.md; evidence/FINAL_CRITERIA_MATRIX.json",
+      "actual_evidence": [
+        "FINAL_CRITERIA_MATRIX.json"
+      ],
+      "qualification": "QA may legitimately revise on insufficient evidence; final decision remains qa-gate only."
+    },
+    {
+      "criterion_id": "AC-015",
+      "design_decision_id": "SDD-012",
+      "task_id": "T-013",
+      "scenario_id": "SCN-042",
+      "status": "done",
+      "expected_result": "Abschluss trennt Quellen/Build/Archive/isolierte Installation/echten Host/frische Session; unbeauftragte Hosts und Windows bleiben unverified und es wird keine reale Installation/Veröffentlichung behauptet",
+      "planned_evidence": "QA_REPORT.md; OR.md nach zulässigem Closeout; evidence/EVIDENCE_PLANES.json",
+      "actual_evidence": [
+        "EVIDENCE_PLANES.json"
+      ],
+      "qualification": "Current source / actual tests; evidence plane and scope in referenced reports."
+    }
+  ],
+  "formal_review_evidence": [
+    "../TASK_PLAN_REVIEW.md",
+    "../CLEAN_IMPLEMENTATION_REVIEW.md",
+    "../CODE_REVIEW.md",
+    "../QA_REPORT.md"
+  ]
+}

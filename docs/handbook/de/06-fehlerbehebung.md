@@ -69,7 +69,7 @@ Prüfe veröffentlichte, global installierte und lokale Repository-Version getre
 ```bash
 npm view @agdf/cli version
 npm list --global --depth=0 @agdf/cli
-node -p "require('./agdf/package.json').version"
+node -p "require('./packages/cli/distribution/agdf/package.json').version"
 ```
 
 Die dritte Zeile ist nur im Root-Verzeichnis eines AGDF-Repository-Checkouts sinnvoll. Eine leere

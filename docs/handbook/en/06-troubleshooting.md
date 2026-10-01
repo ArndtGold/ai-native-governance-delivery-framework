@@ -2,7 +2,7 @@
 language: en
 chapter_role: troubleshooting
 translation_of: ../de/06-fehlerbehebung.md
-source_revision: sha256:d92359d35f3906e77dce17e46d60f05aac1842395c63836b32f53a3d6d6e3081
+source_revision: sha256:9e2007dc125607a61069b9782137fc3ed036e84a71f34a84782ae110a9dfd421
 translation_status: reviewed
 ---
 
@@ -73,7 +73,7 @@ Check the published, globally installed and local repository versions separately
 ```bash
 npm view @agdf/cli version
 npm list --global --depth=0 @agdf/cli
-node -p "require('./agdf/package.json').version"
+node -p "require('./packages/cli/distribution/agdf/package.json').version"
 ```
 
 The third line is useful only in the root of an AGDF repository checkout. An empty global npm list

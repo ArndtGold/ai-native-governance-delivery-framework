@@ -45,7 +45,7 @@ observe() {
     const { pathToFileURL } = await import("node:url");
     const { observeCodexHooks } = await import(pathToFileURL(lib).href);
     console.log(JSON.stringify(await observeCodexHooks({ cwd, executable, timeoutMs: 20000 }), null, 2));
-  ' "$REPO/create-agdf/lib/runtime-check-consent/codex-hooks.js" "$TARGET" "$CODEX"
+  ' "$REPO/packages/cli/lib/runtime-check-consent/codex-hooks.js" "$TARGET" "$CODEX"
 }
 trust_of() { node -e 'const o=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));console.log(o.status==="observed"?`${o.hook.trust_status} enabled=${o.hook.enabled} hash=${o.hook.current_hash.slice(0,19)}`:`unavailable (${o.status})`)' "$1" 2>/dev/null || echo "unlesbar"; }
 

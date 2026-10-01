@@ -1,0 +1,38 @@
+{
+  "root_scripts": {
+    "test:maintenance-contracts": "node scripts/node-support-test.mjs && node packages/cli/scripts/interaction-catalog-test.js && node packages/cli/scripts/payload-budget-test.js && node packages/cli/scripts/release-workflow-contract-test.js && node scripts/native-probes/release-evidence-test.mjs && node --test scripts/native-probes/codex-activation-matrix-test.mjs",
+    "check:community-health": "node scripts/check-community-health.mjs",
+    "install:claude": "npm --prefix packages/cli run install:claude",
+    "install:codex": "npm --prefix packages/cli run install:codex",
+    "install:copilot": "npm --prefix packages/cli run install:copilot",
+    "install:opencode": "npm --prefix packages/cli run install:opencode",
+    "test:community-health": "node scripts/community-health-test.mjs",
+    "set-version": "node scripts/set-version.mjs",
+    "test:host-compatibility": "node packages/cli/scripts/host-compatibility-test.js && node scripts/host-compatibility/test.mjs",
+    "compatibility:record": "node scripts/host-compatibility/run.mjs record",
+    "compatibility:check": "node scripts/host-compatibility/run.mjs check",
+    "native:codex-activation-matrix": "node scripts/native-probes/codex-activation-matrix.mjs",
+    "native:claude-e2e": "node scripts/native-probes/claude-host-e2e.mjs",
+    "native:claude-activation-matrix": "node scripts/native-probes/claude-activation-matrix.mjs",
+    "native:codex-e2e": "node scripts/native-probes/codex-host-e2e.mjs",
+    "native:codex-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
+    "native:codex-hook-check": "bash scripts/native-probes/codex-macos-hook-check.sh",
+    "native:codex-hook-probe": "bash scripts/native-probes/codex-hook-probe-plugin.sh",
+    "native:codex-mcp-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
+    "build": "node scripts/sync-package-assets.js && node scripts/assemble-npm.mjs",
+    "sync-package-assets": "node scripts/sync-package-assets.js",
+    "pack": "npm run build && node scripts/pack-npm.mjs"
+  },
+  "owner": "scripts root modules; thin package delegates; isolated imports read-only",
+  "CI": [
+    ".github/workflows/agdf-guardrails.yml",
+    ".github/workflows/publish-agdf.yml",
+    ".github/workflows/codex-release-e2e.yml",
+    ".github/workflows/host-compatibility-evidence.yml"
+  ],
+  "evidence": [
+    "tests/root-maintenance.log",
+    "tests/cli-release-workflow-contract-test.log",
+    "tests/clean-checkout.log"
+  ]
+}

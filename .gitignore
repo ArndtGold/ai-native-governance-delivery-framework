@@ -26,12 +26,15 @@ pages/.astro/
 # Plugin build artifacts
 *.tsbuildinfo
 plugins/agdf/runtime/
-create-agdf/generated*/
-create-agdf/*.tgz
+packages/cli/generated*/
+packages/core/generated/
+packages/cli/runtime/
+dist/
+packages/cli/*.tgz
 
 # Locally generated project-level MCP registrations
-/create-agdf/.codex/config.toml
-/create-agdf/.github/mcp.json
+/packages/cli/.codex/config.toml
+/packages/cli/.github/mcp.json
 
 # Local results of the native probes in scripts/native-probes
 probe-results/

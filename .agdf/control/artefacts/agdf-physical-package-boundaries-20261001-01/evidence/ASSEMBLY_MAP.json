@@ -1,0 +1,42 @@
+{
+  "packages": {
+    "owner": "agdf:npm-assembly",
+    "version": "0.14.5",
+    "packages": [
+      {
+        "name": "create-agdf",
+        "version": "0.14.5",
+        "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+        "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+      },
+      {
+        "name": "@agdf/cli",
+        "version": "0.14.5",
+        "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+        "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+      },
+      {
+        "name": "@agdf/mcp-server",
+        "version": "0.14.5",
+        "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+        "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+      }
+    ]
+  },
+  "canonical_content": [
+    "plugins/agdf/meta/agdf-plugin.definition.json",
+    "plugins/agdf/meta/contracts",
+    "plugins/agdf/skills",
+    "plugins/agdf/control/templates",
+    "plugins/agdf/assets"
+  ],
+  "core_resources": "packages/core/generated (derived private standalone resource copy)",
+  "consumer_core": "create-agdf/runtime/core copied canonical Core bytes, resources/binding.js only explicit descriptor exception",
+  "output_owner": "scripts/sync-package-assets.js + scripts/assemble-npm.mjs",
+  "profile_composition": "scripts/sync-plugin-runtime.js + scripts/sync-plugin-mcp.js; one provenance implementation in Core",
+  "evidence": [
+    "tests/archive-consumers.log",
+    "tests/clean-checkout.log",
+    "profiles/PAYLOAD_DELTA.json"
+  ]
+}

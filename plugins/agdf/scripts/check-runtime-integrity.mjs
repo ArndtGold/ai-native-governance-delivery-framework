@@ -47,8 +47,8 @@ function hasPluginLayout(root, { source = false } = {}) {
 function hasSourceLayout(root) {
   return hasPluginLayout(join(root, "plugins", "agdf"), { source: true })
     && [
-      "agdf/package.json",
-      "create-agdf/package.json",
+      "packages/cli/distribution/agdf/package.json",
+      "packages/cli/package.json",
       "pages/package.json",
       "LICENSE",
     ].every((path) => isFile(join(root, path)));
@@ -120,13 +120,13 @@ const runtimeContractPath = join(pluginRoot, "meta", "agdf-runtime-contract.md")
 const contractsDir = join(pluginRoot, "meta", "contracts");
 const requestActivationContractPath = join(contractsDir, "request-activation.md");
 const commandRegistryPath = sourceMode
-  ? join(repoRoot, "create-agdf", "lib", "cli", "command-registry.js")
+  ? join(repoRoot, "packages", "cli", "lib", "cli", "command-registry.js")
   : join(pluginRoot, "runtime", "create-agdf", "lib", "cli", "command-registry.js");
 const skillDispatchFunctionContractPath = sourceMode
-  ? join(repoRoot, "create-agdf", "lib", "skill-dispatch", "contract.js")
-  : join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "contract.js");
+  ? join(repoRoot, "packages", "core", "lib", "skill-dispatch", "contract.js")
+  : join(pluginRoot, "runtime", "create-agdf", "runtime", "core", "lib", "skill-dispatch", "contract.js");
 const runtimeCheckContractPath = sourceMode
-  ? join(repoRoot, "create-agdf", "lib", "runtime-check-consent", "contract.js")
+  ? join(repoRoot, "packages", "cli", "lib", "runtime-check-consent", "contract.js")
   : join(pluginRoot, "runtime", "create-agdf", "lib", "runtime-check-consent", "contract.js");
 const interactionLocalesPath = join(pluginRoot, "meta", "agdf-interaction-locales.json");
 const gateCheckSkillPath = join(pluginRoot, "skills", "gate-check", "SKILL.md");
@@ -139,16 +139,16 @@ const hooksConfigPath = join(sharedHookRoot, "hooks.json");
 const sessionStartHookPath = join(sharedHookRoot, "session-start.sh");
 const codexComposerIconPath = join(pluginRoot, "assets", "agdf-icon.svg");
 const codexLogoPath = join(pluginRoot, "assets", "agdf-logo.svg");
-const agdfPackagePath = sourceMode ? join(repoRoot, "agdf", "package.json") : null;
-const createAgdfPackagePath = sourceMode ? join(repoRoot, "create-agdf", "package.json") : null;
+const agdfPackagePath = sourceMode ? join(repoRoot, "packages", "cli", "distribution", "agdf", "package.json") : null;
+const createAgdfPackagePath = sourceMode ? join(repoRoot, "packages", "cli", "package.json") : null;
 const pagesPackagePath = sourceMode ? join(repoRoot, "pages", "package.json") : null;
 const pagesSiteDataPath = sourceMode ? join(repoRoot, "pages", "src", "data", "site.ts") : null;
 const pagesSkillsPath = sourceMode ? join(repoRoot, "pages", "src", "data", "skills.ts") : null;
 const pagesIndexPath = sourceMode ? join(repoRoot, "pages", "src", "pages", "index.astro") : null;
-const syncPackageAssetsPath = sourceMode ? join(repoRoot, "create-agdf", "scripts", "sync-package-assets.js") : null;
-const syncPluginRuntimePath = sourceMode ? join(repoRoot, "create-agdf", "scripts", "sync-plugin-runtime.js") : null;
-const createAgdfOpenCodeInstallerPath = sourceMode ? join(repoRoot, "create-agdf", "lib", "installers", "opencode.js") : null;
-const openCodeNpmPluginPath = sourceMode ? join(repoRoot, "create-agdf", "opencode-plugin.js") : null;
+const syncPackageAssetsPath = sourceMode ? join(repoRoot, "scripts", "sync-package-assets.js") : null;
+const syncPluginRuntimePath = sourceMode ? join(repoRoot, "scripts", "sync-plugin-runtime.js") : null;
+const createAgdfOpenCodeInstallerPath = sourceMode ? join(repoRoot, "packages", "cli", "lib", "installers", "opencode.js") : null;
+const openCodeNpmPluginPath = sourceMode ? join(repoRoot, "packages", "cli", "opencode-plugin.js") : null;
 const activeRunStatePath = sourceMode ? join(repoRoot, ".agdf", "control", "AGDF_RUN.md") : null;
 const rootLicensePath = sourceMode ? join(repoRoot, "LICENSE") : null;
 const pluginLicensePath = join(pluginRoot, "LICENSE");
@@ -494,22 +494,30 @@ function expectedSkillDescription(skill, suffix) {
   return `Use this skill for this scope: ${skill.useFor}. Boundary: ${skill.boundary}. ${suffix}`;
 }
 
-// Mirrors create-agdf/lib/runtime/plugin-provenance.js: the installer writes absolute paths into the
+// Mirrors packages/core/lib/runtime/plugin-provenance.js: the installer writes absolute paths into the
 // Codex MCP declaration, and provenance digests the template for any config of the owned shape.
-const CODEX_MCP_TEMPLATE = `${JSON.stringify({ mcpServers: { agdf: { command: "node",
-  args: ["{{AGDF_PLUGIN_ROOT}}/mcp/agdf-mcp-launch.js", "--surface", "codex", "--data", "{{AGDF_MCP_DATA}}"] } } }, null, 2)}\n`;
-function codexMcpShape(content) {
+function codexMcpTemplate({ pluginRoot = "{{AGDF_PLUGIN_ROOT}}", dataRoot = "{{AGDF_MCP_DATA}}", portable = true } = {}) {
+  return `${JSON.stringify({
+    ...(portable ? { $schema: "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json" } : {}),
+    mcpServers: { agdf: { ...(portable ? { type: "stdio" } : {}), command: "node",
+      args: [`${pluginRoot.replaceAll("\\", "/")}/mcp/agdf-mcp-launch.js`, "--surface", "codex", "--data", dataRoot.replaceAll("\\", "/")] } },
+  }, null, 2)}\n`;
+}
+function normalizeCodexPluginMcpConfig(content) {
   try {
     const config = JSON.parse(String(content));
     const args = config.mcpServers?.agdf?.args;
-    return Object.keys(config).length === 1 && Object.keys(config.mcpServers ?? {}).length === 1
-      && config.mcpServers.agdf.command === "node" && Array.isArray(args) && args.length === 5
-      && args[0].endsWith("/mcp/agdf-mcp-launch.js") && args[1] === "--surface" && args[2] === "codex"
-      && args[3] === "--data" && typeof args[4] === "string" && args[4].length > 0;
-  } catch { return false; }
+    if (Array.isArray(args) && args.length === 5 && typeof args[0] === "string"
+        && args[0].endsWith("/mcp/agdf-mcp-launch.js") && typeof args[4] === "string" && args[4]) {
+      const portable = Object.hasOwn(config, "$schema");
+      const expected = codexMcpTemplate({ pluginRoot: args[0].slice(0, -"/mcp/agdf-mcp-launch.js".length), dataRoot: args[4], portable });
+      if (JSON.stringify(config) === JSON.stringify(JSON.parse(expected))) return codexMcpTemplate({ portable });
+    }
+  } catch {}
+  return content;
 }
-function normalizeCodexPluginMcpConfig(content) {
-  return codexMcpShape(content) ? CODEX_MCP_TEMPLATE : content;
+function codexMcpShape(content) {
+  return normalizeCodexPluginMcpConfig(content) === codexMcpTemplate();
 }
 
 function digestPluginSource(root, canonicalVersion) {
@@ -532,7 +540,7 @@ function digestPluginSource(root, canonicalVersion) {
     const content = (normalizedPath === ".codex-plugin/plugin.json"
         || (normalizedPath === "plugin.json" && readJson(path, "Root plugin manifest").$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"))
       ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
-      : normalizedPath === "mcp/codex.mcp.json"
+      : ["mcp.json", "mcp/codex.mcp.json"].includes(normalizedPath)
         ? normalizeCodexPluginMcpConfig(readFileSync(path, "utf8"))
         : readFileSync(path);
     hash.update(normalizedPath);
@@ -659,8 +667,8 @@ if (sourceMode) {
   assertFile(localRuntimeManifestPath, "surface-local runtime manifest");
   assertFile(localRuntimeEntrypointPath, "surface-local runtime entrypoint");
   assertFile(automaticRuntimeCheckPath, "argument-free automatic runtime-check entrypoint");
-  assertFile(join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "contract.js"), "skill dispatch contract");
-  assertFile(join(pluginRoot, "runtime", "create-agdf", "lib", "skill-dispatch", "service.js"), "skill dispatch service");
+  assertFile(join(pluginRoot, "runtime", "create-agdf", "runtime", "core", "lib", "skill-dispatch", "contract.js"), "skill dispatch contract");
+  assertFile(join(pluginRoot, "runtime", "create-agdf", "runtime", "core", "lib", "skill-dispatch", "service.js"), "skill dispatch service");
 }
 assertFile(agentRouterPath, "canonical AGDF agent router");
 assertFile(codexPluginPath, "Codex plugin manifest");
@@ -1006,7 +1014,7 @@ if (gateCheckSkill.includes("## Task Target Orientation Template")
 if (gateCheckSkill.includes("## Scope Classification Card Template") || gateCheckSkill.includes("| Classification | Mode | Boundary |")) {
   failures.push("gate-check must not maintain a skill-local scope classification card template");
 }
-const interactionPresentationPath = join(pluginRoot, "..", "create-agdf", "lib", "interaction-presentation.js");
+const interactionPresentationPath = sourceMode ? join(repoRoot, "packages", "core", "lib", "interaction-presentation.js") : join(pluginRoot, "runtime", "create-agdf", "runtime", "core", "lib", "interaction-presentation.js");
 if (sourceMode && isFile(interactionPresentationPath)) {
   const interactionPresentation = read(interactionPresentationPath);
   if (!interactionPresentation.includes("export function renderScopeClassificationCard")) {
@@ -1287,13 +1295,13 @@ if (codexPlugin && pluginDefinition) {
   if (JSON.stringify(codexPlugin.keywords) !== JSON.stringify(pluginDefinition.keywords)) failures.push("Codex plugin manifest keywords must match canonical AGDF plugin definition");
   if (codexPlugin.author?.name !== pluginDefinition.author?.name || codexPlugin.author?.url !== pluginDefinition.author?.url) failures.push("Codex plugin manifest author must match canonical AGDF plugin definition");
   if (codexPlugin.skills !== pluginDefinition.codex?.skills) failures.push("Codex plugin manifest must point skills to canonical AGDF skills path");
-  // Claude Code loads a plugin-root .mcp.json automatically; each host gets its own file under mcp/.
-  if (isFile(join(pluginRoot, ".mcp.json"))) failures.push("plugin root must not contain .mcp.json; host MCP declarations live under mcp/");
+  // Claude auto-loads .mcp.json; portable Codex uses mcp.json, Claude its declared file under mcp/.
+  if (isFile(join(pluginRoot, ".mcp.json"))) failures.push("plugin root must not contain .mcp.json; Codex uses mcp.json and Claude its declared file");
   if (sourceMode) {
     if (codexPlugin.mcpServers !== undefined) failures.push("source Codex plugin manifest must not declare MCP servers");
   } else {
-    const codexMcpPath = join(pluginRoot, "mcp", "codex.mcp.json");
-    if (codexPlugin.mcpServers !== "./mcp/codex.mcp.json") failures.push("runtime Codex plugin manifest must declare the plugin-local MCP server file");
+    const codexMcpPath = join(pluginRoot, "mcp.json");
+    if (codexPlugin.mcpServers !== "./mcp.json") failures.push("runtime Codex plugin manifest must declare the plugin-local MCP server file");
     if (!isFile(codexMcpPath) || !codexMcpShape(readFileSync(codexMcpPath, "utf8"))) {
       failures.push("runtime Codex MCP config must start only the plugin-local AGDF MCP launcher with an absolute data root");
     }
@@ -1488,7 +1496,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     }, {
       requestActivationIdentity: expectedIdentity,
       executeAutomaticRuntimeCheck: () => ({ effective: false, reason: "integrity_fixture", ran: false, output: "" }),
-      validatorPath: join(repoRoot, "create-agdf", "bin", "agdf-validator.js"),
+      validatorPath: join(repoRoot, "packages", "cli", "bin", "agdf-validator.js"),
     });
     const expectedHookKeys = [
       "event",
@@ -1523,7 +1531,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     }, {
       requestActivationIdentity: expectedIdentity,
       executeAutomaticRuntimeCheck: () => ({ effective: false, reason: "integrity_fixture", ran: false, output: "" }),
-      validatorPath: join(repoRoot, "create-agdf", "bin", "agdf-validator.js"),
+      validatorPath: join(repoRoot, "packages", "cli", "bin", "agdf-validator.js"),
     });
     const activeSystemOutput = { system: [] };
     await activeHooks["experimental.chat.system.transform"]({}, activeSystemOutput);
@@ -1531,7 +1539,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
     const activeCompactionOutput = { context: [] };
     await activeHooks["experimental.session.compacting"]({}, activeCompactionOutput);
     await activeHooks["experimental.session.compacting"]({}, activeCompactionOutput);
-    const eagerPath = join(repoRoot, "create-agdf", "generated", ".opencode", pluginDefinition.opencode.instructionsFileName);
+    const eagerPath = join(repoRoot, "packages", "cli", "generated", ".opencode", pluginDefinition.opencode.instructionsFileName);
     if (activeSystemOutput.system.length !== 1 || activeCompactionOutput.context.length !== 1 || !isFile(eagerPath)) {
       failures.push("active OpenCode hooks must expose one idempotent dynamic context and one kernel-only compaction block");
     } else {
@@ -1656,7 +1664,7 @@ if (isFile(sessionStartHookPath)) {
 }
 
 const footprintSessionEntrypoint = sourceMode
-  ? join(repoRoot, "create-agdf", "generated", "plugins", "agdf", "runtime", "agdf-session-check.js")
+  ? join(repoRoot, "packages", "cli", "generated", "plugins", "agdf", "runtime", "agdf-session-check.js")
   : automaticRuntimeCheckPath;
 if (pluginDefinition && canonicalRequestActivationGuard && isFile(footprintSessionEntrypoint)) {
   const records = [];

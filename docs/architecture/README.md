@@ -18,8 +18,8 @@ beantwortet vier Fragen:
 
 **Stand: 1. Oktober 2026, Repository-Quelle.** Beschrieben sind die im Quellstand vorhandenen
 Skills, Dispatcher, MCP-Werkzeuge und Installations-/Lifecycle-Services. Die Paketmetadaten von
-[`create-agdf`](../../create-agdf/package.json) und
-[`@agdf/mcp-server`](../../agdf-mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
+[`create-agdf`](../../packages/cli/package.json) und
+[`@agdf/mcp-server`](../../packages/mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
 belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets
 oder einer geladenen Host-Installation. Quellstand, verteiltes Paket und frische Host-Sitzung
 benötigen jeweils eigene Nachweise; historische Host-Beobachtungen stehen in Abschnitt 7.
@@ -119,18 +119,18 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Bereich | Aufgabe | Maßgebliche Quelle |
 |---|---|---|
 | Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugins/agdf/meta/contracts/`](../../plugins/agdf/meta/contracts/), [`plugins/agdf/skills/`](../../plugins/agdf/skills/) |
-| Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) |
-| Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js), [Use-Case-Katalog](dispatcher.md) |
-| MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |
-| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |
-| MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) |
-| MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) |
-| Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../create-agdf/lib/mcp-lifecycle/package.js) |
-| Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
-| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../create-agdf/lib/control-state/) |
-| Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../create-agdf/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../create-agdf/lib/mcp-lifecycle/presentation.js) |
-| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Sie bleibt vom MCP-Lebenszyklus getrennt. | [`installers/`](../../create-agdf/lib/installers/), [`host-adapters/`](../../create-agdf/lib/host-adapters/) |
-| Geführte Installation | Liest Plugin- und MCP-Zustand, erfasst eine bewusste Setup-Auswahl und komponiert die getrennten Lebenszyklen in sicherer Reihenfolge. | [`install-setup/`](../../create-agdf/lib/install-setup/), [`cli/application.js`](../../create-agdf/lib/cli/application.js) |
+| Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../packages/core/lib/control-inspect/contract.js) |
+| Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../packages/core/lib/skill-dispatch/service.js), [Use-Case-Katalog](dispatcher.md) |
+| MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`packages/mcp-server/`](../../packages/mcp-server/), [`mcp-dispatch-runtime.js`](../../packages/cli/lib/mcp-dispatch-runtime.js) |
+| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../packages/cli/lib/mcp-lifecycle/profile.js) |
+| MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../packages/cli/lib/mcp-lifecycle/service.js) |
+| MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../packages/cli/lib/mcp-lifecycle/adapters/) |
+| Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../packages/cli/lib/mcp-lifecycle/package.js) |
+| Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../packages/core/lib/control-evaluation/) |
+| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../packages/core/lib/control-state/) |
+| Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../packages/core/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../packages/cli/lib/mcp-lifecycle/presentation.js) |
+| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Sie bleibt vom MCP-Lebenszyklus getrennt. | [`installers/`](../../packages/cli/lib/installers/), [`host-adapters/`](../../packages/cli/lib/host-adapters/) |
+| Geführte Installation | Liest Plugin- und MCP-Zustand, erfasst eine bewusste Setup-Auswahl und komponiert die getrennten Lebenszyklen in sicherer Reihenfolge. | [`install-setup/`](../../packages/cli/lib/install-setup/), [`cli/application.js`](../../packages/cli/lib/cli/application.js) |
 
 Die wichtigste Eigentumsregel lautet: **Die vollständige Bedeutung von `agdf_dispatch` existiert nur
 einmal.** Das Fähigkeitsprofil und die Host-Adapter dürfen den Tool-Namen referenzieren. Sie dürfen
@@ -157,7 +157,7 @@ die CLI darf einen von ihr selbst erkannten Systemwert wie `de_DE.UTF-8` über e
 Adapter in einen gültigen Tag umwandeln.
 
 Die Bedeutung dieses Parameters gehört zur semantischen Funktionsbeschreibung in
-[`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js). Alle ausführbaren
+[`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js). Alle ausführbaren
 Skills projizieren dieselbe Beschreibung. Der Renderer erzeugt anschließend die vollständige Karte
 aus genau einem Locale-Paket. Der Dispatcher reicht das normalisierte Locale auch an die
 Gate-Auswertung und eine folgende Skill-Ausführung weiter. Der Host gibt die Karte unverändert aus. Eine freie Übersetzung durch
@@ -389,7 +389,7 @@ Registrierung mehr auf sie verweist.
 | Menschliche Freigabe | Eine bewusste Antwort wird gegen Run, Gate, Revision und Artefakt geprüft. | Eine allgemeine Werkzeug- oder Dateizugriffsberechtigung. |
 | Technische Durchsetzung | Ein Host-Mechanismus kann eine Aktion auf seinem erfassten Pfad stoppen. | Eine vollständige Sperre aller Werkzeuge, Unteragenten oder externen Prozesse. |
 
-Die [Freigabeprüfung](../../create-agdf/lib/control-state/gate-approval-validator.js) verlangt eine
+Die [Freigabeprüfung](../../packages/core/lib/control-state/gate-approval-validator.js) verlangt eine
 bewusste Nutzereingabe mit `Approval: <Gate>` sowie unveränderte Run-, Gate- und Revisionsidentität.
 Plugin-Installation, MCP-Registrierung, `tools/list`, `tools/call`, Prozessberechtigung und ein
 erfolgreicher Test sind dafür keine Ersatzsignale.
@@ -406,8 +406,8 @@ keine zusätzlichen Zustände erfinden.
 *Abbildung 5: Quelle, Paket, Installation, Registrierung und geladene Sitzung benötigen eigene
 Nachweise. [Diagrammquelle](diagrams/04-distribution.dot).*
 
-[`sync-package-assets.js`](../../create-agdf/scripts/sync-package-assets.js) und
-[`sync-plugin-runtime.js`](../../create-agdf/scripts/sync-plugin-runtime.js) erzeugen verteilbare
+[`sync-package-assets.js`](../../scripts/sync-package-assets.js) und
+[`sync-plugin-runtime.js`](../../scripts/sync-plugin-runtime.js) erzeugen verteilbare
 Inhalte aus den Repository-Quellen. Generierte Dateien sind abgeleitete Build-Ergebnisse und werden
 nicht als eigenständige semantische Eigentümer gepflegt.
 
@@ -501,41 +501,41 @@ Fehler- oder Cleanup-Signal.
 ## 8. Orientierung im Quellcode
 
 Für den Dispatcher beginnt der [zentrale Katalog](dispatcher.md#quellen-und-verifikation) beim
-Werkzeugvertrag und [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js).
-[`delivery-run-assignment.js`](../../create-agdf/lib/skill-dispatch/delivery-run-assignment.js)
-liefert Zuordnungsbelege, [`delivery-intake.js`](../../create-agdf/lib/skill-dispatch/delivery-intake.js)
-die gebundenen Intake-Schritte. [`control-evaluation/gate-check.js`](../../create-agdf/lib/control-evaluation/gate-check.js)
-besitzt die Gate-Auswertung; [`control-state/run-presentation.js`](../../create-agdf/lib/control-state/run-presentation.js)
+Werkzeugvertrag und [`skill-dispatch/service.js`](../../packages/core/lib/skill-dispatch/service.js).
+[`delivery-run-assignment.js`](../../packages/core/lib/skill-dispatch/delivery-run-assignment.js)
+liefert Zuordnungsbelege, [`delivery-intake.js`](../../packages/core/lib/skill-dispatch/delivery-intake.js)
+die gebundenen Intake-Schritte. [`control-evaluation/gate-check.js`](../../packages/core/lib/control-evaluation/gate-check.js)
+besitzt die Gate-Auswertung; [`control-state/run-presentation.js`](../../packages/core/lib/control-state/run-presentation.js)
 die separate Präsentationsbindung. Die zugehörigen Tests sind im Katalog verlinkt.
 
 Wer den MCP-Pfad erstmals untersucht, kann in dieser Reihenfolge lesen:
 
 1. [`plugins/agdf/meta/agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json) zeigt den
    öffentlichen Fähigkeits- und Lifecycle-Vertrag.
-2. [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) besitzt die
+2. [`skill-dispatch/contract.js`](../../packages/core/lib/skill-dispatch/contract.js) besitzt die
    vollständige Semantik von `agdf_dispatch`.
-3. [`agdf-mcp-server/`](../../agdf-mcp-server/) stellt diese Semantik über MCP und `stdio` bereit.
-4. [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) orchestriert
+3. [`packages/mcp-server/`](../../packages/mcp-server/) stellt diese Semantik über MCP und `stdio` bereit.
+4. [`mcp-lifecycle/service.js`](../../packages/cli/lib/mcp-lifecycle/service.js) orchestriert
    `status`, `enable` und `disable`.
-5. [`mcp-lifecycle/adapter-contract.js`](../../create-agdf/lib/mcp-lifecycle/adapter-contract.js)
+5. [`mcp-lifecycle/adapter-contract.js`](../../packages/cli/lib/mcp-lifecycle/adapter-contract.js)
    definiert die gemeinsame Adaptergrenze.
-6. [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) enthält nur die
+6. [`mcp-lifecycle/adapters/`](../../packages/cli/lib/mcp-lifecycle/adapters/) enthält nur die
    hostabhängigen Konfigurations- und Probewege.
-7. [`mcp-lifecycle/result.js`](../../create-agdf/lib/mcp-lifecycle/result.js) und
-   [`presentation.js`](../../create-agdf/lib/mcp-lifecycle/presentation.js) erzeugen das gemeinsame
+7. [`mcp-lifecycle/result.js`](../../packages/cli/lib/mcp-lifecycle/result.js) und
+   [`presentation.js`](../../packages/cli/lib/mcp-lifecycle/presentation.js) erzeugen das gemeinsame
    Ergebnis und seine menschliche Darstellung.
-8. [`mcp-lifecycle/evidence.js`](../../create-agdf/lib/mcp-lifecycle/evidence.js) prüft, ob eine
+8. [`mcp-lifecycle/evidence.js`](../../packages/cli/lib/mcp-lifecycle/evidence.js) prüft, ob eine
    Host-Qualifikation vollständig genug für die behauptete Fähigkeit ist.
 
-Für Plugin-Installation und Host-Payloads bleiben [`installers/`](../../create-agdf/lib/installers/)
-und [`host-adapters/`](../../create-agdf/lib/host-adapters/) zuständig. Diese Module sind keine
+Für Plugin-Installation und Host-Payloads bleiben [`installers/`](../../packages/cli/lib/installers/)
+und [`host-adapters/`](../../packages/cli/lib/host-adapters/) zuständig. Diese Module sind keine
 zweite MCP-Lifecycle-Implementierung.
 
-Der geführte Installationsweg beginnt in [`install-setup/contract.js`](../../create-agdf/lib/install-setup/contract.js).
-[`interaction.js`](../../create-agdf/lib/install-setup/interaction.js) besitzt die bewusste Auswahl,
-[`service.js`](../../create-agdf/lib/install-setup/service.js) die Reihenfolge und
-[`presentation.js`](../../create-agdf/lib/install-setup/presentation.js) die einsprachige Ausgabe.
-[`cli/application.js`](../../create-agdf/lib/cli/application.js) bindet ausschließlich die
+Der geführte Installationsweg beginnt in [`install-setup/contract.js`](../../packages/cli/lib/install-setup/contract.js).
+[`interaction.js`](../../packages/cli/lib/install-setup/interaction.js) besitzt die bewusste Auswahl,
+[`service.js`](../../packages/cli/lib/install-setup/service.js) die Reihenfolge und
+[`presentation.js`](../../packages/cli/lib/install-setup/presentation.js) die einsprachige Ausgabe.
+[`cli/application.js`](../../packages/cli/lib/cli/application.js) bindet ausschließlich die
 vorhandenen Plugin-, Consent- und MCP-Eigentümer ein.
 
 ## 9. Architekturentscheidungen, Grenzen und Pflege
@@ -556,7 +556,7 @@ Weiterführende Entscheidungen und offene Lieferstände stehen im
 [Master Backlog](../../.agdf/control/MASTER_BACKLOG.md). Bedienungsabläufe erklärt das
 [Handbuch](../handbook/de/README.md), Installationsschritte die
 [Installationsanleitung](../../INSTALL.md), Befehle die
-[CLI-Dokumentation](../../create-agdf/README.md).
+[CLI-Dokumentation](../../packages/cli/README.md).
 
 Diese Übersicht muss aktualisiert werden, wenn sich Zuständigkeiten, Aufrufreihenfolgen,
 Persistenzorte, Host-Quellen, Distributionsprofile, Ergebniszustände oder Nachweisgrenzen ändern.

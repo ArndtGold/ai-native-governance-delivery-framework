@@ -1,0 +1,442 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { generatedRoot, packageRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
+import { digestNormalizedPluginSource } from "#agdf-core/runtime/plugin-provenance.js";
+import { runtimeCheckCapabilityIdentity, validateRuntimeCheckCapability } from "../lib/runtime-check-consent/contract.js";
+import {
+  codexRuntimeCheckEvidence,
+  openCodeRuntimeCheckEvidence,
+  ownedRuntimeCheckRules,
+  revokeClaudeExactRule,
+} from "../lib/runtime-check-consent/adapters.js";
+import { consentDisclosure, resolveRuntimeCheckDecision } from "../lib/runtime-check-consent/coordinator.js";
+import { revokeClaudeRuntimeRule } from "../lib/runtime-check-consent/claude-settings.js";
+import { executeOpenCodeAutomaticRuntimeCheck, fixedRuntimeCheckCommand, persistInstallConsent, retainCurrentInstallConsent, runtimeCheckStatus, setRuntimeChecksManual } from "../lib/runtime-check-consent/service.js";
+import {
+  createRuntimeCheckReceipt,
+  deriveRuntimeCheckState,
+  readRuntimeCheckReceipt,
+  writeRuntimeCheckReceipt,
+} from "../lib/runtime-check-consent/state.js";
+import { syncPluginRuntime } from "../../../scripts/sync-plugin-runtime.js";
+import "./codex-hook-observation-test.js";
+
+const capability = validateRuntimeCheckCapability(pluginDefinition.automaticRuntimeChecks);
+assert.throws(() => validateRuntimeCheckCapability({ ...capability, operations: [...capability.operations, "write"] }), /closed operation/);
+assert.throws(() => validateRuntimeCheckCapability({ ...capability, constraints: { ...capability.constraints, network: "allowed" } }), /read-only/);
+
+const identityInput = { capability, surface: "claude", runtimeDigest: "a".repeat(64), sourceDigest: "b".repeat(64), command: "node /exact/check.js" };
+const identity = runtimeCheckCapabilityIdentity(identityInput);
+assert.match(identity, /^[a-f0-9]{64}$/);
+for (const mutation of [
+  { runtimeDigest: "c".repeat(64) }, { sourceDigest: "d".repeat(64) }, { command: "node /other/check.js" },
+  { capability: { ...capability, adapterContractVersion: 2 } },
+]) assert.notEqual(runtimeCheckCapabilityIdentity({ ...identityInput, ...mutation }), identity);
+
+assert.equal(resolveRuntimeCheckDecision({ explicitValue: "enable" }), "enable");
+assert.equal(resolveRuntimeCheckDecision({ interactive: false }), "manual");
+assert.equal(resolveRuntimeCheckDecision({ interactive: true, ask: () => "" }), "cancel");
+assert.throws(() => resolveRuntimeCheckDecision({ explicitValue: "yes" }), /DECISION_INVALID/);
+assert.equal(consentDisclosure("claude").network, "none");
+const sharedHookCommand = fixedRuntimeCheckCommand("codex", "/ignored", "darwin");
+assert.equal(sharedHookCommand, "node \"${CLAUDE_PLUGIN_ROOT}/runtime/agdf-session-check.js\"",
+  "the shared hooks.json command must use only the placeholder Claude Code resolves for PowerShell as well");
+assert.doesNotMatch(sharedHookCommand, /\$\{[A-Za-z_]+:[-=?+]/u, "Claude Code runs hooks.json through PowerShell on native Windows; POSIX parameter expansion does not parse there");
+if (process.platform === "win32") {
+  // Claude Code rewrites ${CLAUDE_PLUGIN_ROOT} to ${env:CLAUDE_PLUGIN_ROOT} before handing the command to PowerShell.
+  const claudeView = sharedHookCommand.replaceAll("${CLAUDE_PLUGIN_ROOT}", "${env:CLAUDE_PLUGIN_ROOT}");
+  const parse = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command",
+    `[void][ScriptBlock]::Create('${claudeView.replaceAll("'", "''")}')`], { encoding: "utf8" });
+  assert.equal(parse.status, 0, `the shared hooks.json command must parse in PowerShell: ${parse.stderr}`);
+}
+assert.equal(fixedRuntimeCheckCommand("claude", "/ignored", "darwin"), "node \"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/runtime/agdf-session-check.js\"");
+const codexWindowsCommand = fixedRuntimeCheckCommand("codex", "C:\\ignored", "win32");
+const claudeWindowsCommand = fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32");
+assert.equal(codexWindowsCommand, "node \"$(if ([Environment]::GetEnvironmentVariable('PLUGIN_ROOT')) { [Environment]::GetEnvironmentVariable('PLUGIN_ROOT') } else { [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT') })\\runtime\\agdf-session-check.js\"");
+assert.equal(claudeWindowsCommand, "node \"$(if ([Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT')) { [Environment]::GetEnvironmentVariable('CLAUDE_PLUGIN_ROOT') } else { [Environment]::GetEnvironmentVariable('PLUGIN_ROOT') })\\runtime\\agdf-session-check.js\"");
+assert.doesNotMatch(codexWindowsCommand, /GetEnvironmentVariable\('PLUGIN_ROOT'\) \+ GetEnvironmentVariable/u);
+assert.doesNotMatch(claudeWindowsCommand, /GetEnvironmentVariable\('CLAUDE_PLUGIN_ROOT'\) \+ GetEnvironmentVariable/u);
+assert.equal(fixedRuntimeCheckCommand("copilot", "/ignored", "darwin"), 'node "${PLUGIN_ROOT}/runtime/agdf-session-check.js"');
+assert.equal(consentDisclosure("copilot").permission_owner, "GitHub Copilot plugin hook review");
+assert.equal(consentDisclosure("claude").revocation, "claude plugin disable agdf@agdf",
+  "Claude Code runs plugin hooks whenever the plugin is enabled, so disabling the plugin is the only revocation");
+assert.equal(consentDisclosure("claude").permission_owner, "Claude Code plugin enablement");
+assert.match(consentDisclosure("codex").revocation, /runtime-checks manual --surface codex/);
+
+const root = mkdtempSync(join(tmpdir(), "agdf-runtime-check-consent-"));
+try {
+  const receipt = createRuntimeCheckReceipt({ surface: "claude", decision: "enable", capabilityIdentity: identity, command: identityInput.command });
+  const path = writeRuntimeCheckReceipt(root, receipt);
+  assert.deepEqual(readRuntimeCheckReceipt(root, "claude").receipt, receipt);
+  assert.equal(readRuntimeCheckReceipt(root, "codex").status, "receipt_missing");
+  assert.equal(deriveRuntimeCheckState({ receiptResult: readRuntimeCheckReceipt(root, "claude"), surface: "claude", capabilityIdentity: identity, hostEvidence: { status: "decision_required" } }).effective, "decision_required");
+  assert.equal(deriveRuntimeCheckState({ receiptResult: readRuntimeCheckReceipt(root, "claude"), surface: "claude", capabilityIdentity: identity, hostEvidence: { status: "enabled", capability_identity: identity } }).effective, "enabled");
+  assert.equal(deriveRuntimeCheckState({ receiptResult: readRuntimeCheckReceipt(root, "claude"), surface: "claude", capabilityIdentity: `${identity.slice(0, -1)}0`, hostEvidence: {} }).effective, "renewal_required");
+  writeFileSync(path, "{}\n");
+  assert.equal(readRuntimeCheckReceipt(root, "claude").status, "receipt_unowned");
+} finally {
+  rmSync(root, { recursive: true, force: true });
+}
+
+const retainedRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-check-retained-"));
+try {
+  const generatedPluginRoot = join(generatedRoot, "plugins", "agdf");
+  const manifest = JSON.parse(readFileSync(join(generatedPluginRoot, "runtime", "runtime-manifest.json"), "utf8"));
+  const sourceDigest = digestNormalizedPluginSource(generatedPluginRoot, pluginDefinition.version);
+  const command = fixedRuntimeCheckCommand("codex", generatedPluginRoot, "darwin");
+  const capabilityIdentity = runtimeCheckCapabilityIdentity({ capability, surface: "codex", runtimeDigest: manifest.digest, sourceDigest, command });
+  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "codex", decision: "enable", capabilityIdentity, command }));
+  assert.deepEqual(retainCurrentInstallConsent("codex", retainedRoot, "darwin")?.decision, "enable");
+  assert.equal(runtimeCheckStatus(retainedRoot, "codex", "darwin").effective, "decision_required");
+  assert.equal(runtimeCheckStatus(retainedRoot, "codex", "win32").effective, "renewal_required");
+  const claudeCommand = fixedRuntimeCheckCommand("claude", generatedPluginRoot, "darwin");
+  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "claude", decision: "enable",
+    capabilityIdentity: runtimeCheckCapabilityIdentity({ capability, surface: "claude", runtimeDigest: manifest.digest, sourceDigest, command: claudeCommand }),
+    command: claudeCommand }));
+  assert.equal(retainCurrentInstallConsent("claude", retainedRoot, "darwin"), null, "Claude consent is plugin enablement, never a retained receipt");
+  const claudeStatus = runtimeCheckStatus(retainedRoot, "claude", "win32");
+  assert.equal(claudeStatus.effective, "enabled");
+  assert.equal(claudeStatus.reason, "host_plugin_enablement");
+  assert.equal(claudeStatus.verification, "host_managed");
+  assert.equal(retainCurrentInstallConsent("opencode", retainedRoot, "darwin"), null);
+  const copilotCommand = fixedRuntimeCheckCommand("copilot", generatedPluginRoot, "darwin");
+  const copilotIdentity = runtimeCheckCapabilityIdentity({ capability, surface: "copilot", runtimeDigest: manifest.digest, sourceDigest, command: copilotCommand });
+  writeRuntimeCheckReceipt(retainedRoot, createRuntimeCheckReceipt({ surface: "copilot", decision: "enable", capabilityIdentity: copilotIdentity, command: copilotCommand }));
+  assert.equal(retainCurrentInstallConsent("copilot", retainedRoot, "win32")?.decision, "enable", "Copilot hook command identity is platform independent");
+} finally {
+  rmSync(retainedRoot, { recursive: true, force: true });
+}
+
+// Earlier releases wrote one of these exact rules; they are only recognised for migration and uninstall.
+const bashRule = 'Bash(node "${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT}}/runtime/agdf-session-check.js")';
+const powerShellRule = `PowerShell(${fixedRuntimeCheckCommand("claude", "C:\\ignored", "win32")})`;
+const original = { permissions: { allow: ["Read(/safe)", bashRule], deny: ["Bash(rm *)"] }, user: { retained: true } };
+assert.deepEqual(ownedRuntimeCheckRules(original), [bashRule]);
+assert.deepEqual(ownedRuntimeCheckRules({ permissions: { allow: [powerShellRule, "Bash(node /other/check.js)"] } }), [powerShellRule]);
+assert.deepEqual(revokeClaudeExactRule(original, bashRule).permissions.allow, ["Read(/safe)"]);
+assert.deepEqual(original.permissions.allow, ["Read(/safe)", bashRule], "revocation must not mutate its input");
+
+const settingsRoot = mkdtempSync(join(tmpdir(), "agdf-claude-settings-"));
+try {
+  const settingsPath = join(settingsRoot, "settings.json");
+  writeFileSync(settingsPath, `${JSON.stringify(original)}\n`);
+  revokeClaudeRuntimeRule({ path: settingsPath, rule: bashRule });
+  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")).permissions.allow, ["Read(/safe)"]);
+  assert.deepEqual(revokeClaudeExactRule({ permissions: { allow: [bashRule] }, theme: "dark" }, bashRule), { theme: "dark" },
+    "a permissions block emptied by revocation is removed");
+  assert.deepEqual(revokeClaudeExactRule({ permissions: { allow: [bashRule], deny: ["Bash(rm:*)"] } }, bashRule), { permissions: { deny: ["Bash(rm:*)"] } },
+    "other permission keys survive revocation");
+
+  // Claude install consent writes nothing and migrates the legacy rule and receipt away.
+  const consentRoot = join(settingsRoot, "data");
+  writeFileSync(settingsPath, `${JSON.stringify(original)}\n`);
+  writeRuntimeCheckReceipt(consentRoot, createRuntimeCheckReceipt({
+    surface: "claude", decision: "enable", capabilityIdentity: identity, command: identityInput.command,
+  }));
+  const consentState = persistInstallConsent({
+    surface: "claude",
+    decision: "enable",
+    installed: { pluginRoot: "/installed", digest: "a".repeat(64), sourceDigest: "b".repeat(64) },
+    dataRoot: consentRoot,
+    platform: "darwin",
+    claudeSettingsPath: settingsPath,
+  });
+  assert.equal(consentState.effective, "enabled");
+  assert.equal(consentState.reason, "host_plugin_enablement");
+  assert.equal(consentState.mutation, "legacy_rule_or_receipt_removed");
+  assert.deepEqual(JSON.parse(readFileSync(settingsPath, "utf8")), { permissions: { allow: ["Read(/safe)"], deny: ["Bash(rm *)"] }, user: { retained: true } });
+  assert.equal(readRuntimeCheckReceipt(consentRoot, "claude").status, "receipt_missing", "the legacy Claude receipt must be removed");
+  const repeated = persistInstallConsent({ surface: "claude", decision: "manual", installed: null, dataRoot: consentRoot, claudeSettingsPath: settingsPath });
+  assert.deepEqual([repeated.requested, repeated.effective, repeated.mutation], ["manual", "enabled", "none"],
+    "a manual request cannot stop a Claude plugin hook and writes nothing");
+  const claudeManual = setRuntimeChecksManual({ dataRoot: consentRoot, surface: "claude", platform: "darwin", claudeSettingsPath: settingsPath });
+  assert.equal(claudeManual.effective, "unavailable");
+  assert.equal(claudeManual.reason, "unsupported_host_capability");
+  assert.match(claudeManual.next_action, /claude plugin disable agdf@agdf/);
+
+  writeRuntimeCheckReceipt(consentRoot, createRuntimeCheckReceipt({
+    surface: "opencode",
+    decision: "enable",
+    capabilityIdentity: "c".repeat(64),
+    command: "node /installed/runtime/agdf-session-check.js",
+  }));
+  const openCodeManual = setRuntimeChecksManual({ dataRoot: consentRoot, surface: "opencode", platform: "darwin" });
+  assert.equal(openCodeManual.effective, "manual");
+  assert.equal(openCodeManual.mutation, "receipt_updated");
+
+  const failingRoot = join(settingsRoot, "failing-data");
+  const failingRuntimeChecks = join(failingRoot, "runtime-checks");
+  mkdirSync(failingRoot);
+  writeFileSync(failingRuntimeChecks, "blocks-directory\n");
+  assert.throws(() => persistInstallConsent({
+    surface: "codex",
+    decision: "enable",
+    installed: { pluginRoot: "/installed", digest: "a".repeat(64), sourceDigest: "b".repeat(64) },
+    dataRoot: failingRoot,
+    platform: "darwin",
+  }));
+} finally {
+  rmSync(settingsRoot, { recursive: true, force: true });
+}
+
+assert.equal(codexRuntimeCheckEvidence({ capabilityIdentity: identity, observedIdentity: identity, hookEnabled: true }).status, "enabled");
+assert.equal(codexRuntimeCheckEvidence({ capabilityIdentity: identity, observedIdentity: "old", hookEnabled: true }).status, "renewal_required");
+assert.equal(openCodeRuntimeCheckEvidence({ capabilityIdentity: identity, observedIdentity: identity, packageLoadable: true, hookObserved: false }).status, "degraded");
+
+const automaticOutput = "AGDF active.\n\nAGDF automatic runtime check: status=pass findings=0.";
+const automaticCheck = executeOpenCodeAutomaticRuntimeCheck({
+  directory: process.cwd(),
+  packageRoot: process.cwd(),
+  statusResolver: () => ({ requested: "enabled", effective: "decision_required", reason: "host_permission_unverified", capability_identity: identity }),
+  entrypointExists: () => true,
+  executable: "fixture-node",
+  run(file, args, options) {
+    assert.equal(file, "fixture-node");
+    assert.equal(args.length, 1);
+    assert.equal(options.cwd, process.cwd());
+    assert.equal(options.env.AGDF_SURFACE, "opencode");
+    assert.deepEqual(options.stdio, ["ignore", "pipe", "pipe"]);
+    return { status: 0, stdout: automaticOutput, stderr: "" };
+  },
+});
+assert.equal(automaticCheck.effective, "enabled");
+assert.equal(automaticCheck.verification, "host_observed");
+assert.equal(automaticCheck.ran, true);
+assert.match(automaticCheck.output, /automatic runtime check/);
+const manualAutomaticCheck = executeOpenCodeAutomaticRuntimeCheck({
+  statusResolver: () => ({ requested: "manual", effective: "manual", reason: "consent_not_provided" }),
+  run() { throw new Error("manual mode must not execute"); },
+});
+assert.equal(manualAutomaticCheck.ran, false);
+
+const runtimeProjectionTemp = mkdtempSync(join(tmpdir(), "agdf-runtime-projection-"));
+const projectedPluginRoot = join(runtimeProjectionTemp, "agdf");
+cpSync(join(packageRoot, "../..", "plugins", "agdf"), projectedPluginRoot, { recursive: true });
+cpSync(join(packageRoot, "../..", "plugins", "agdf", "host-templates", "shared", "hooks"), join(projectedPluginRoot, "hooks"), { recursive: true });
+syncPluginRuntime({ outputRoot: join(projectedPluginRoot, "runtime") });
+const generatedEntrypoint = join(projectedPluginRoot, "runtime", "agdf-session-check.js");
+const generatedSessionCheck = readFileSync(generatedEntrypoint, "utf8");
+assert.match(generatedSessionCheck, /process\.argv\.length !== 2/);
+assert.match(generatedSessionCheck, /receipt\?\.requested_state === "enabled"/);
+assert.doesNotMatch(generatedSessionCheck, /writeFile|appendFile|fetch\(|https?:\/\//);
+const activationContract = readFileSync(join(packageRoot, "../..", "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+const activationStart = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->";
+const activationEnd = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->";
+const activationKernel = activationContract.slice(
+  activationContract.indexOf(activationStart),
+  activationContract.indexOf(activationEnd) + activationEnd.length,
+);
+
+function parseSessionStartContext(rawContext) {
+  const context = rawContext.replace(/\n$/, "");
+  const bindingPrefix = "\n\nAGDF dispatcher binding: ";
+  const bindingStart = context.indexOf(bindingPrefix);
+  assert.ok(bindingStart > 0, "SessionStart context must contain exactly one dispatcher binding after the kernel");
+  const factsPrefix = "\n\nAGDF runtime facts: ";
+  const factsStart = context.indexOf(factsPrefix, bindingStart + bindingPrefix.length);
+  const bindingJson = context.slice(
+    bindingStart + bindingPrefix.length,
+    factsStart < 0 ? context.length : factsStart,
+  );
+  return {
+    kernel: context.slice(0, bindingStart),
+    binding: JSON.parse(bindingJson),
+    facts: factsStart < 0 ? null : JSON.parse(context.slice(factsStart + factsPrefix.length)),
+    supplement: factsStart < 0 ? "" : context.slice(factsStart + 2),
+  };
+}
+
+const entrypointDataRoot = mkdtempSync(join(tmpdir(), "agdf-entrypoint-consent-"));
+try {
+  const withoutConsent = spawnSync(process.execPath, [generatedEntrypoint], {
+    cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "codex" },
+  });
+  assert.equal(withoutConsent.status, 0, withoutConsent.stderr);
+  const base = parseSessionStartContext(withoutConsent.stdout);
+  assert.equal(base.kernel, activationKernel, "SessionStart must embed the canonical kernel byte-for-byte exactly once");
+  assert.equal(base.facts, null, "runtime facts require exact automatic-check consent");
+  assert.deepEqual(Object.keys(base.binding), ["schema_version", "executable", "argv_prefix", "environment", "arguments", "expected_version", "request_activation", "route_source_after_activation", "authorizes"]);
+  assert.equal(base.binding.schema_version, "2");
+  assert.deepEqual(base.binding.environment, {});
+  assert.match(base.binding.arguments, /--working-directory <absolute-path>/);
+  assert.doesNotMatch(base.binding.arguments, /--cwd/);
+  assert.deepEqual(base.binding.argv_prefix.slice(1), ["skill-dispatch", "--json", "--surface", "codex"]);
+  assert.deepEqual(base.binding.request_activation, {
+    owner: "request_activation_contract",
+    policy_version: 1,
+    guard_fingerprint: "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
+  });
+  assert.deepEqual(base.binding.route_source_after_activation, {
+    relative_to: "validator_directory",
+    path: "../meta/contracts/request-activation.md",
+  });
+  const routeSourcePath = resolve(dirname(base.binding.argv_prefix[0]), base.binding.route_source_after_activation.path);
+  assert.equal(realpathSync(routeSourcePath), realpathSync(join(projectedPluginRoot, "meta", "contracts", "request-activation.md")));
+  assert.equal(readFileSync(routeSourcePath, "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n"), activationContract);
+  assert.equal(base.binding.authorizes, false);
+  const jsonEscaped = (value) => JSON.stringify(value).slice(1, -1);
+  const normalizedBase = withoutConsent.stdout
+    .replaceAll(jsonEscaped(base.binding.executable), "<executable>")
+    .replaceAll(jsonEscaped(base.binding.argv_prefix[0]), "<validator>")
+    .replaceAll(base.binding.executable, "<executable>")
+    .replaceAll(base.binding.argv_prefix[0], "<validator>");
+  assert.ok(Buffer.byteLength(normalizedBase, "utf8") <= 1900, "normalized SessionStart base must stay within budget");
+  assert.equal(withoutConsent.stdout.split(activationStart).length - 1, 1);
+  assert.equal(withoutConsent.stdout.split("AGDF dispatcher binding:").length - 1, 1);
+  assert.doesNotMatch(withoutConsent.stdout, /AGDF runtime facts:|Automatic repository checks|Project config:|Language policy:|Source of truth:|Obey result\.host_action/);
+
+  // Codex supplies the Claude compatibility aliases as well as its native plugin variables.
+  // Do not force AGDF_SURFACE: that would hide native host-detection regressions.
+  const nativeEnv = { ...process.env, AGDF_DATA_DIR: entrypointDataRoot };
+  for (const key of ["AGDF_SURFACE", "PLUGIN_ROOT", "PLUGIN_DATA", "CLAUDE_PLUGIN_ROOT", "CLAUDE_PLUGIN_DATA", "COPILOT_PLUGIN_DATA"]) delete nativeEnv[key];
+  for (const [expectedSurface, hostEnv] of [
+    ["codex", { PLUGIN_ROOT: projectedPluginRoot, PLUGIN_DATA: entrypointDataRoot, CLAUDE_PLUGIN_ROOT: projectedPluginRoot, CLAUDE_PLUGIN_DATA: entrypointDataRoot }],
+    ["claude", { CLAUDE_PLUGIN_ROOT: projectedPluginRoot }],
+    ["copilot", { PLUGIN_ROOT: projectedPluginRoot, COPILOT_PLUGIN_DATA: entrypointDataRoot }],
+    ["claude", { AGDF_SURFACE: "claude", PLUGIN_ROOT: projectedPluginRoot, CLAUDE_PLUGIN_ROOT: projectedPluginRoot }],
+  ]) {
+    const result = spawnSync(process.execPath, [generatedEntrypoint], {
+      cwd: process.cwd(), encoding: "utf8", env: { ...nativeEnv, ...hostEnv },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const context = expectedSurface === "copilot" ? JSON.parse(result.stdout).additionalContext : result.stdout;
+    assert.equal(parseSessionStartContext(context).binding.argv_prefix.at(-1), expectedSurface);
+  }
+
+  const wrapperOutput = spawnSync("bash", [join(projectedPluginRoot, "hooks", "session-start.sh")], {
+    cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "codex" },
+  });
+  assert.equal(wrapperOutput.status, 0, wrapperOutput.stderr);
+  assert.equal(wrapperOutput.stdout, withoutConsent.stdout, "SessionStart shell helper must be a policy-free transport wrapper");
+  const sourceWrapperOutput = spawnSync("bash", [join(packageRoot, "../..", "plugins", "agdf", "host-templates", "shared", "hooks", "session-start.sh")], {
+    cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_SURFACE: "source" },
+  });
+  assert.equal(sourceWrapperOutput.status, 0, sourceWrapperOutput.stderr);
+  assert.equal(sourceWrapperOutput.stdout, "AGDF SessionStart transport unavailable: generated runtime entrypoint not found.\n");
+  writeRuntimeCheckReceipt(entrypointDataRoot, createRuntimeCheckReceipt({
+    surface: "codex",
+    decision: "enable",
+    capabilityIdentity: runtimeCheckCapabilityIdentity({
+      capability,
+      surface: "codex",
+      runtimeDigest: JSON.parse(readFileSync(join(projectedPluginRoot, "runtime", "runtime-manifest.json"), "utf8")).digest,
+      sourceDigest: digestNormalizedPluginSource(projectedPluginRoot, pluginDefinition.version),
+      command: fixedRuntimeCheckCommand("codex", projectedPluginRoot, process.platform),
+    }),
+    command: fixedRuntimeCheckCommand("codex", projectedPluginRoot, process.platform),
+  }));
+  const withConsent = spawnSync(process.execPath, [generatedEntrypoint], {
+    cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "codex" },
+  });
+  assert.equal(withConsent.status, 0, withConsent.stderr);
+  const consented = parseSessionStartContext(withConsent.stdout);
+  assert.equal(consented.kernel, activationKernel);
+  assert.deepEqual(consented.binding, base.binding);
+  assert.deepEqual(consented.facts, {
+    context_state: "repo_less",
+    working_directory: "unavailable",
+    automatic_check: { status: "skipped", findings: 0 },
+    config: "unavailable",
+  });
+  assert.ok(Buffer.byteLength(consented.supplement, "utf8") <= 320, "runtime-check supplement must stay within budget");
+  assert.doesNotMatch(withConsent.stdout, /AGDF automatic runtime check:|AGDF host context:|Project config:|Language policy:|Source of truth:/);
+
+  const copilotCommand = fixedRuntimeCheckCommand("copilot", projectedPluginRoot, process.platform);
+  writeRuntimeCheckReceipt(entrypointDataRoot, createRuntimeCheckReceipt({
+    surface: "copilot",
+    decision: "enable",
+    capabilityIdentity: runtimeCheckCapabilityIdentity({
+      capability,
+      surface: "copilot",
+      runtimeDigest: JSON.parse(readFileSync(join(projectedPluginRoot, "runtime", "runtime-manifest.json"), "utf8")).digest,
+      sourceDigest: digestNormalizedPluginSource(projectedPluginRoot, pluginDefinition.version),
+      command: copilotCommand,
+    }),
+    command: copilotCommand,
+  }));
+  const withCopilotConsent = spawnSync(process.execPath, [generatedEntrypoint], {
+    cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "copilot" },
+  });
+  assert.equal(withCopilotConsent.status, 0, withCopilotConsent.stderr);
+  const copilotOutput = JSON.parse(withCopilotConsent.stdout);
+  assert.deepEqual(Object.keys(copilotOutput), ["additionalContext"]);
+  const copilotContext = parseSessionStartContext(copilotOutput.additionalContext);
+  assert.equal(copilotContext.kernel, activationKernel);
+  assert.equal(copilotContext.binding.argv_prefix.at(-1), "copilot");
+  const copilotRouteSourcePath = resolve(
+    dirname(copilotContext.binding.argv_prefix[0]),
+    copilotContext.binding.route_source_after_activation.path,
+  );
+  assert.equal(readFileSync(copilotRouteSourcePath, "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n"), activationContract);
+  assert.deepEqual(copilotContext.facts, consented.facts);
+  assert.ok(Buffer.byteLength(copilotContext.supplement, "utf8") <= 320);
+
+  const foreignHookCwd = mkdtempSync(join(tmpdir(), "agdf-copilot-hook-cwd-"));
+  try {
+    const withEventCwd = spawnSync(process.execPath, [generatedEntrypoint], {
+      cwd: foreignHookCwd,
+      encoding: "utf8",
+      input: JSON.stringify({
+        sessionId: "session-fixture",
+        timestamp: Date.now(),
+        cwd: process.cwd(),
+        source: "new",
+      }),
+      env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "copilot" },
+    });
+    assert.equal(withEventCwd.status, 0, withEventCwd.stderr);
+    const eventCwdOutput = JSON.parse(withEventCwd.stdout);
+    const eventCwdContext = parseSessionStartContext(eventCwdOutput.additionalContext);
+    assert.equal(eventCwdContext.kernel, activationKernel);
+    assert.equal(eventCwdContext.facts.context_state, "repository_bound");
+    assert.equal(eventCwdContext.facts.working_directory, process.cwd());
+    assert.equal(eventCwdContext.facts.config, "valid");
+    assert.deepEqual(eventCwdContext.facts.languages, { artifact: "en", chat: "de", runtime: "en" });
+    assert.equal(typeof eventCwdContext.facts.automatic_check.status, "string");
+    assert.equal(typeof eventCwdContext.facts.automatic_check.findings, "number");
+    const { repository_control: repositoryControl, ...originalFacts } = eventCwdContext.facts;
+    const normalizedSupplement = `AGDF runtime facts: ${JSON.stringify(originalFacts)}`.replaceAll(process.cwd(), "<working-directory>");
+    assert.ok(Buffer.byteLength(normalizedSupplement, "utf8") <= 320);
+    assert.equal(repositoryControl.target, realpathSync(resolve(packageRoot, "../..")));
+    // This real repository can exhaust the shared startup deadline. Deterministic
+    // complete-state coverage belongs to repository-control-startup-test.js.
+    assert.ok(["complete", "unavailable"].includes(repositoryControl.inspection_state));
+    if (repositoryControl.inspection_state === "unavailable") {
+      assert.equal(repositoryControl.status, "unavailable");
+      assert.equal(repositoryControl.counts, null);
+      assert.ok(repositoryControl.invocation.argv.includes("--guided"));
+      assert.equal(repositoryControl.invocation.argv[3], repositoryControl.target);
+    } else {
+      assert.ok(["absent", "current", "migration_required", "repair_required", "unsupported"].includes(repositoryControl.status));
+      assert.equal(typeof repositoryControl.counts.migration, "number");
+    }
+    assert.equal(repositoryControl.authorizes, false);
+    const { invocation, notice, ...compatibilityFacts } = repositoryControl;
+    assert.ok(Buffer.byteLength(JSON.stringify(compatibilityFacts).replaceAll(repositoryControl.target, "<repository>"), "utf8") <= 320,
+      "separate current compatibility facts remain bounded independently of the existing supplement");
+    assert.doesNotMatch(eventCwdOutput.additionalContext, /Verified repository root:|Project config:|Language policy:/);
+
+    const malformedInput = spawnSync(process.execPath, [generatedEntrypoint], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      input: JSON.stringify({ cwd: "relative/path" }),
+      env: { ...process.env, AGDF_DATA_DIR: entrypointDataRoot, AGDF_SURFACE: "copilot" },
+    });
+    assert.equal(malformedInput.status, 0, malformedInput.stderr);
+    const malformedOutput = JSON.parse(malformedInput.stdout);
+    const malformedContext = parseSessionStartContext(malformedOutput.additionalContext);
+    assert.equal(malformedContext.facts.context_state, "repo_less");
+    assert.equal(malformedContext.facts.working_directory, "unavailable");
+    assert.equal(malformedContext.facts.config, "unavailable");
+  } finally {
+    rmSync(foreignHookCwd, { recursive: true, force: true });
+  }
+} finally {
+  rmSync(entrypointDataRoot, { recursive: true, force: true });
+  rmSync(runtimeProjectionTemp, { recursive: true, force: true });
+}
+
+console.log("Runtime-check consent tests passed");

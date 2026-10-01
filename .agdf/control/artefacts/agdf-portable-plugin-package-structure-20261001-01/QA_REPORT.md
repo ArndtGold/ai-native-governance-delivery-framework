@@ -1,14 +1,18 @@
 # QA Report: Portable AGDF Plugin Package Structure
 
-Status: pass
-Decision: pass
+Status: pending
+Decision: pending
 Revision: 4
 Date: 2026-10-01
 Run: agdf-portable-plugin-package-structure-20261001-01
 Owner: qa-gate (sole Quality Readiness decision owner)
 Binding: named QA continuation; revision 26 / 9651f34d-54dd-4bd9-925b-416fa6e8cf3b; same target; QA; doctor pass.
 
-## QA Gate
+## Snapshot superseded by discovery repair
+
+Revision 4 below records the earlier source/install snapshot only. A subsequent native discovery defect (QA-I002) showed that the recognized portable root ignored the fallback MCP declaration. The repaired source and local installation are evidenced in `evidence/codex-mcp-discovery-remediation/REMEDIATION.md`. Its current Quality Readiness decision is pending qa-gate revalidation; the earlier pass is not current acceptance for this new diff. No QA approval exists. The original report is preserved unchanged in that evidence directory.
+
+## Historical QA Gate
 
 - decision: pass
 - evidence: unchanged approved UR/PRD/SD/TP; prior staged migration and duplicate cleanup evidence; fresh CD_TESTS and Code/Clean/TP Review Revision 3; eight passing package/runtime verification groups, normal real three-package archives and unpacked integrity/inventory/resource/entrypoint checks, current compatibility 56/0 and community-health pass; authorized npm run install:codex exits 0 and independent installed/enabled list plus installed integrity pass.

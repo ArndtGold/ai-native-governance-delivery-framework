@@ -153,8 +153,8 @@ Graph Impact, Knowledge Persistence Decision, Closeout):
 - `plugins/agdf/skills/**`
 - `plugins/agdf/control/templates/**`
 - `plugins/agdf/meta/**`
-- `create-agdf/lib/**`
-- `create-agdf/bin/**`
+- `packages/cli/lib/**`
+- `packages/cli/bin/**`
 - any other executable code file, in any language, anywhere in the repository
 
 A `MASTER_BACKLOG.md` entry is required only when the change is otherwise a "Relevant Run" below. A

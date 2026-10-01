@@ -31,17 +31,17 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Verify release workflow contract
-        run: npm --prefix create-agdf run test:release-workflows
+        run: npm --prefix packages/cli run test:release-workflows
 
       - name: Verify release tag matches package versions
         shell: bash
         run: |
           TAG_NAME="${GITHUB_REF_NAME}"
-          CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./create-agdf/package.json', 'utf8')).version")"
-          MCP_SERVER_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf-mcp-server/package.json', 'utf8')).version")"
-          MCP_CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf-mcp-server/package.json', 'utf8')).dependencies['create-agdf']")"
-          AGDF_CLI_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version")"
-          AGDF_CLI_CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).dependencies['create-agdf']")"
+          CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/package.json', 'utf8')).version")"
+          MCP_SERVER_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/mcp-server/package.json', 'utf8')).version")"
+          MCP_CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/mcp-server/package.json', 'utf8')).dependencies['create-agdf']")"
+          AGDF_CLI_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).version")"
+          AGDF_CLI_CREATE_AGDF_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).dependencies['create-agdf']")"
           EXPECTED_TAG="agdf-v${CREATE_AGDF_VERSION}"
 
           if [ "${TAG_NAME}" != "${EXPECTED_TAG}" ]; then
@@ -73,38 +73,38 @@ jobs:
         run: node plugins/agdf/scripts/check-runtime-integrity.mjs
 
       - name: Prepare and verify release assets
-        run: npm --prefix create-agdf run release:prepare
+        run: npm run build && npm --prefix packages/cli run release:prepare
 
       - name: Verify built plugin integrity
-        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
 
       - name: Verify versioned AGDF skill evaluations
-        run: npm --prefix create-agdf run eval:skills
+        run: npm --prefix packages/cli run eval:skills
 
       - name: Verify registry-state classification
-        run: npm --prefix create-agdf run test:release-registry-state
+        run: npm --prefix packages/cli run test:release-registry-state
 
       - name: Install MCP validation dependencies from checkout
-        working-directory: agdf-mcp-server
+        working-directory: packages/mcp-server
         run: npm ci --ignore-scripts
 
       - name: Run create-agdf smoke test
-        run: npm --prefix create-agdf run smoke-test
+        run: npm --prefix packages/cli run smoke-test
 
       - name: Run @agdf/mcp-server tests
-        run: npm --prefix agdf-mcp-server test
+        run: npm --prefix packages/mcp-server test
 
       - name: Run @agdf/cli smoke test
-        run: npm --prefix agdf run smoke-test
+        run: npm --prefix packages/cli/distribution/agdf run smoke-test
 
       - name: Verify create-agdf package contents
-        run: npm --prefix create-agdf run test:package-contents
+        run: npm --prefix packages/cli run test:package-contents
 
       - name: Verify @agdf/cli package contents
-        run: npm --prefix agdf run test:package
+        run: npm --prefix packages/cli/distribution/agdf run test:package
 
       - name: Verify @agdf/mcp-server package contents
-        run: npm --prefix agdf-mcp-server run test:package
+        run: npm --prefix packages/mcp-server run test:package
 
   publish:
     runs-on: ubuntu-latest
@@ -137,19 +137,19 @@ jobs:
           test -n "$NODE_AUTH_TOKEN" || { echo "NPM_TOKEN is required for the coupled AGDF publish" >&2; exit 1; }
 
       - name: Check exact registry versions before publishing
-        run: node create-agdf/scripts/release-registry-state.mjs --preflight
+        run: node scripts/release-registry-state.mjs --preflight
 
       - name: Prepare and verify release assets
-        run: npm --prefix create-agdf run release:prepare
+        run: npm run build && npm --prefix packages/cli run release:prepare
 
       - name: Verify built plugin integrity
-        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/create-agdf/generated/plugins/agdf" node create-agdf/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
+        run: AGDF_RUNTIME_INTEGRITY_ROOT="$GITHUB_WORKSPACE/packages/cli/generated/plugins/agdf" node packages/cli/generated/plugins/agdf/scripts/check-runtime-integrity.mjs
 
       - name: Verify create-agdf package contents
-        run: npm --prefix create-agdf run test:package-contents
+        run: npm --prefix packages/cli run test:package-contents
 
       - name: Publish create-agdf to npm
-        working-directory: create-agdf
+        working-directory: dist/npm/create-agdf
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance
@@ -157,7 +157,7 @@ jobs:
       - name: Wait for create-agdf readiness
         shell: bash
         run: |
-          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./create-agdf/package.json', 'utf8')).version")"
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/package.json', 'utf8')).version")"
           MAX_ATTEMPTS=20
           SLEEP_SECONDS=15
           NPM_ERROR_LOG="$(mktemp)"
@@ -193,13 +193,13 @@ jobs:
           wait_for_npm_package "create-agdf"
 
       - name: Install and verify @agdf/mcp-server against published create-agdf
-        working-directory: agdf-mcp-server
+        working-directory: packages/mcp-server
         run: |
           npm install --package-lock=false --ignore-scripts --no-audit --no-fund
           npm test
 
       - name: Publish @agdf/mcp-server to npm
-        working-directory: agdf-mcp-server
+        working-directory: dist/npm/agdf-mcp-server
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
@@ -207,7 +207,7 @@ jobs:
       - name: Wait for @agdf/mcp-server readiness
         shell: bash
         run: |
-          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf-mcp-server/package.json', 'utf8')).version")"
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/mcp-server/package.json', 'utf8')).version")"
           MAX_ATTEMPTS=20
           SLEEP_SECONDS=15
           NPM_ERROR_LOG="$(mktemp)"
@@ -233,7 +233,7 @@ jobs:
           fi
 
       - name: Publish @agdf/cli to npm
-        working-directory: agdf
+        working-directory: dist/npm/agdf
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
@@ -241,7 +241,7 @@ jobs:
       - name: Wait for @agdf/cli readiness
         shell: bash
         run: |
-          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version")"
+          VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).version")"
           MAX_ATTEMPTS=20
           SLEEP_SECONDS=15
           NPM_ERROR_LOG="$(mktemp)"
@@ -303,11 +303,11 @@ jobs:
           fi
 
       - name: Run clean public bootstrap smoke test
-        run: AGDF_EXPECTED_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version")" node ./create-agdf/scripts/release-bootstrap-smoke-test.js
+        run: AGDF_EXPECTED_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./packages/cli/distribution/agdf/package.json', 'utf8')).version")" node ./packages/cli/scripts/release-bootstrap-smoke-test.js
 
       - name: Confirm all exact registry versions
-        run: node create-agdf/scripts/release-registry-state.mjs --complete
+        run: node scripts/release-registry-state.mjs --complete
 
       - name: Report exact registry state after failure
         if: failure()
-        run: node create-agdf/scripts/release-registry-state.mjs --report
+        run: node scripts/release-registry-state.mjs --report

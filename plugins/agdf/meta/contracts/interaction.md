@@ -440,7 +440,7 @@ status projection; this branch must not create a second status-card or narration
 Task-target semantics and ordering live in `task-target-resolution.md`. When target/context
 separation is material, a confirmed target changes, or resolution is unresolved, the agent consumes
 the canonical `task_target_orientation.markdown` verbatim from `renderTaskTargetOrientation` in
-`create-agdf/lib/interaction-presentation.js`.
+`packages/core/lib/interaction-presentation.js`.
 
 The projection may show the primary target, governance target, evidence sources and working
 directory for a resolved result. For an unresolved result it shows the localized reason and required
@@ -465,7 +465,7 @@ skill-local target-orientation template.
 When `gate-check` classifies a fresh scope as an ungated `quick_task` with a resolved Trivial
 Change Boundary result,
 the agent consumes the canonical `scope_classification.markdown` verbatim from
-`renderScopeClassificationCard` in `create-agdf/lib/interaction-presentation.js`. The card is a
+`renderScopeClassificationCard` in `packages/core/lib/interaction-presentation.js`. The card is a
 compact, localized, non-authorizing projection of the classification: mode, boundary result,
 UR-trigger evaluation, one currently-allowed line, one remains-forbidden line, escalation triggers
 and the challenge path. It carries `authorizes: false` and never renders approval controls.

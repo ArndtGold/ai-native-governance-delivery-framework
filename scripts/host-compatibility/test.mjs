@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { copyFixtureDependencies } from "../support/source-fixture.js";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -7,8 +8,8 @@ import { CAPABILITIES, HOSTS, SCENARIOS, SCENARIO_SPECS, canonical, importHistor
 import { evaluateClaim } from "./evaluate.mjs";
 import { checkComparison, comparison, hash, MANIFEST_PATH, recordComparison, safePath, sourceClosure, sourceSnapshot } from "./run.mjs";
 import { renderComparison } from "./render.mjs";
-import { environment } from "../../create-agdf/scripts/host-compatibility-test.js";
-import { inspectPluginSurface } from "../../create-agdf/lib/installers/plugin-installers.js";
+import { environment } from "../../packages/cli/scripts/host-compatibility-test.js";
+import { inspectPluginSurface } from "../../packages/cli/lib/installers/plugin-installers.js";
 
 const root = process.cwd();
 const manifest = JSON.parse(readFileSync(join(root, MANIFEST_PATH)));
@@ -103,7 +104,8 @@ const temp = mkdtempSync(join(tmpdir(), "agdf-compatibility-evidence-test-"));
 try {
   const source = sourceSnapshot(root, manifest);
   for (const path of Object.keys(source.files)) { mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path)); }
-  for (const path of ["create-agdf/generated/plugins/agdf", "create-agdf/generated/plugins/copilot/agdf", ".agdf/control/artefacts/agdf-live-host-conformance-matrix"]) {
+  copyFixtureDependencies(temp);
+  for (const path of ["packages/core/generated", "packages/cli/generated/plugins/agdf", "packages/cli/generated/plugins/copilot/agdf", ".agdf/control/artefacts/agdf-live-host-conformance-matrix"]) {
     mkdirSync(dirname(join(temp, path)), { recursive: true }); cpSync(join(root, path), join(temp, path), { recursive: true });
   }
   // Approved public evidence is an input too, even when it does not supply native comparison rows.
@@ -122,7 +124,7 @@ try {
     assert.deepEqual(sourceClosure(temp, ["a.mjs"]), ["a.mjs", "b.mjs"]);
     writeFileSync(join(temp, "b.mjs"), 'import(variable);'); assert.throws(() => sourceClosure(temp, ["a.mjs"]), /unresolved_dynamic_import/);
   });
-  const changed = "create-agdf/lib/host-adapters/codex/plugin.js"; const original = readFileSync(join(temp, changed), "utf8");
+  const changed = "packages/cli/lib/host-adapters/codex/plugin.js"; const original = readFileSync(join(temp, changed), "utf8");
   const baseline = sourceSnapshot(temp, manifest);
   check("representative real host-local command change is isolated", () => {
     writeFileSync(join(temp, changed), original.replace('["plugin", "remove", "agdf@agdf"]','["plugin", "remove", "agdf@agdf", "--fixture"]'));
@@ -130,7 +132,7 @@ try {
     for (const host of ["claude", "copilot", "opencode"]) assert.equal(after.by_host[host], baseline.by_host[host]);
   });
   const changedCodex = await import(pathToFileURL(join(temp, changed)));
-  const unchangedClaude = await import(pathToFileURL(join(temp, "create-agdf/lib/host-adapters/claude/plugin.js")));
+  const unchangedClaude = await import(pathToFileURL(join(temp, "packages/cli/lib/host-adapters/claude/plugin.js")));
   check("production adapter executes the isolated change", () => { assert.equal(changedCodex.uninstallCommand().args.at(-1), "--fixture"); assert.deepEqual(unchangedClaude.uninstallCommand().args, ["plugin", "uninstall", "agdf@agdf", "--scope", "user"]); });
   writeFileSync(join(temp, changed), original);
   const synthetic = () => HOSTS.flatMap(host => SCENARIOS.map(scenario => {

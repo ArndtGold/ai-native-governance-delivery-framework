@@ -22,7 +22,7 @@ Sie beantworten aber nicht automatisch die Steuerungsfrage.
 
 ## Eine Analogie
 
-![Komplexitaet durch Struktur beherrschbar machen](../assets/komplexitaet-durch-struktur-beherrschbar-machen.png)
+![Komplexitaet durch Struktur beherrschbar machen](assets/komplexitaet-durch-struktur-beherrschbar-machen.png)
 
 Komplexe Systeme werden oft nicht dadurch beherrschbar, dass immer mehr Informationen gesammelt werden.
 

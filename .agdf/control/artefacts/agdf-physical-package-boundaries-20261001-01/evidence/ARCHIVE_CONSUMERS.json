@@ -1,0 +1,285 @@
+{
+  "node": "v22.22.3",
+  "platform": "darwin",
+  "archive_packages": [
+    {
+      "name": "create-agdf",
+      "manifest": {
+        "name": "create-agdf",
+        "version": "0.14.5",
+        "description": "Install AGDF plugins, bootstrap supported repository surfaces and validate durable governance state.",
+        "type": "module",
+        "engines": {
+          "node": ">=22"
+        },
+        "files": [
+          "bin",
+          "lib",
+          "generated/.agdf",
+          "generated/.agents",
+          "generated/.opencode",
+          "generated/opencode.json",
+          "generated/plugins/agdf",
+          "generated/plugins/copilot/agdf",
+          "generated/submissions/openai/agdf",
+          "opencode-plugin.js",
+          "README.md",
+          "NOTICE",
+          "runtime/core"
+        ],
+        "exports": {
+          ".": "./opencode-plugin.js",
+          "./control-command": "./lib/control-command.js",
+          "./cli": "./bin/create-agdf.js",
+          "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
+          "./opencode-plugin": "./opencode-plugin.js"
+        },
+        "bin": {
+          "create-agdf": "./bin/create-agdf.js"
+        },
+        "scripts": {},
+        "keywords": [
+          "agdf",
+          "copilot",
+          "claude-code",
+          "codex",
+          "opencode",
+          "control",
+          "scaffold",
+          "bootstrap"
+        ],
+        "license": "Apache-2.0",
+        "publishConfig": {
+          "access": "public"
+        },
+        "repository": {
+          "type": "git",
+          "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+          "directory": "packages/cli"
+        },
+        "homepage": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/tree/main/packages/cli",
+        "imports": {
+          "#agdf-core": "./runtime/core/lib/index.js",
+          "#agdf-core/*": "./runtime/core/lib/*"
+        }
+      },
+      "tarball_sha256": "e8e181d3a0449028f2221f6228d83327bfcc3a3f918e238be1e4f3005a79a7bd"
+    },
+    {
+      "name": "@agdf/cli",
+      "manifest": {
+        "name": "@agdf/cli",
+        "version": "0.14.5",
+        "description": "Primary AGDF CLI for repository-local AI governance, delivery controls and agent setup.",
+        "type": "module",
+        "engines": {
+          "node": ">=22"
+        },
+        "files": [
+          "bin",
+          "README.md",
+          "NOTICE"
+        ],
+        "bin": {
+          "agdf": "./bin/agdf.js"
+        },
+        "scripts": {},
+        "dependencies": {
+          "create-agdf": "0.14.5"
+        },
+        "keywords": [
+          "agdf",
+          "ai-governance",
+          "ai-delivery",
+          "ai-agents",
+          "agentic-coding",
+          "agent-workflows",
+          "governance",
+          "delivery",
+          "delivery-controls",
+          "software-delivery",
+          "ai-native",
+          "codex",
+          "claude-code",
+          "opencode",
+          "copilot",
+          "github-copilot",
+          "npm-create",
+          "release-governance"
+        ],
+        "license": "Apache-2.0",
+        "publishConfig": {
+          "access": "public"
+        },
+        "repository": {
+          "type": "git",
+          "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+          "directory": "packages/cli/distribution/agdf"
+        },
+        "homepage": "https://agdf.iself.eu"
+      },
+      "tarball_sha256": "c47690de973fd98dbc0652499d158dbc5e09b2687d1994a013e4a8c417a0d4c9"
+    },
+    {
+      "name": "@agdf/mcp-server",
+      "manifest": {
+        "name": "@agdf/mcp-server",
+        "version": "0.14.5",
+        "description": "Local read-only MCP adapter for version-matched AGDF skill dispatch.",
+        "type": "module",
+        "files": [
+          "bin",
+          "src",
+          "README.md",
+          "NOTICE"
+        ],
+        "bin": {
+          "agdf-mcp": "./bin/agdf-mcp.js"
+        },
+        "exports": {
+          ".": "./src/server.js"
+        },
+        "scripts": {},
+        "dependencies": {
+          "@modelcontextprotocol/server": "2.0.0",
+          "create-agdf": "0.14.5"
+        },
+        "engines": {
+          "node": ">=22"
+        },
+        "keywords": [
+          "agdf",
+          "mcp",
+          "governance",
+          "coding-agents"
+        ],
+        "license": "Apache-2.0",
+        "publishConfig": {
+          "access": "public"
+        },
+        "repository": {
+          "type": "git",
+          "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+          "directory": "packages/mcp-server"
+        },
+        "homepage": "https://agdf.iself.eu"
+      },
+      "tarball_sha256": "690e270a5ab0642a0aa7b591d9ff3ed6a72dc065b0364bf14aafc6c8eb3b5c91"
+    }
+  ],
+  "cli": [
+    {
+      "name": "create-agdf",
+      "version": "pass",
+      "help": "pass"
+    },
+    {
+      "name": "agdf",
+      "version": "pass",
+      "help": "pass"
+    },
+    {
+      "command": "init/doctor",
+      "isolated_target": true,
+      "report": {
+        "schema_version": "1",
+        "status": "block",
+        "checked_at": "2026-10-01T17:44:23.837Z",
+        "target_dir": "/private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-mcp-owned-SRUUhS/archive-target",
+        "summary": {
+          "findings": 3,
+          "block": 1,
+          "revise": 0,
+          "warn": 2
+        },
+        "parent_reconciliation": {
+          "outcome": "not_applicable",
+          "target_run_id": "",
+          "disposition": "not_applicable",
+          "evidence": "",
+          "missing_evidence": "none",
+          "next_action": "none"
+        },
+        "programme_aggregation": {
+          "applicable": false,
+          "startable": false,
+          "final_ready": false,
+          "acceptance_ref": "",
+          "evidence": [],
+          "missing_evidence": [],
+          "next_action": "none"
+        },
+        "findings": [
+          {
+            "severity": "block",
+            "code": "AGDF_ACTIVE_RUN_MISSING",
+            "message": "Run selection failed: AGDF_ACTIVE_RUN_MISSING",
+            "path": ".agdf/control/AGDF_RUN.md",
+            "next_step": "Pass --run <run_id> or set AGDF_RUN_ID to select the intended run, or use --all-active to evaluate every active run independently."
+          },
+          {
+            "severity": "warn",
+            "code": "AGDF_BACKLOG_POINTER_EMPTY",
+            "message": "MASTER_BACKLOG.md does not contain an active or planned work pointer.",
+            "path": ".agdf/control/MASTER_BACKLOG.md",
+            "next_step": "Add the active item or document that no governed delivery item is active."
+          },
+          {
+            "severity": "warn",
+            "code": "AGDF_CONTEXT_GRAPH_TEMPLATE_NODE",
+            "message": "CONTEXT_GRAPH.md still contains the example node.",
+            "path": ".agdf/control/CONTEXT_GRAPH.md",
+            "next_step": "Remove the example or replace it with an evidenced node that has an exit criterion."
+          }
+        ]
+      }
+    }
+  ],
+  "exports": [
+    ".",
+    "./control-command",
+    "./mcp-dispatch-runtime",
+    "./opencode-plugin",
+    "./cli (--version/--help)"
+  ],
+  "offline": [
+    {
+      "profile": "agdf",
+      "network_and_non_node_processes_blocked": true,
+      "quality": "pass",
+      "invalid_module": "rejected"
+    },
+    {
+      "profile": "copilot/agdf",
+      "network_and_non_node_processes_blocked": true,
+      "quality": "pass",
+      "invalid_module": "rejected"
+    }
+  ],
+  "mcp": [
+    {
+      "protocol": "2025-11-25",
+      "names": [
+        "agdf_dispatch",
+        "agdf_inspect"
+      ],
+      "dispatch": "target_unresolved",
+      "inspect": "target_unresolved",
+      "bound_inspect": "inspect_result",
+      "cli_report_parity": "pass",
+      "provenance": "matched"
+    },
+    {
+      "protocol": "2026-07-28",
+      "names": [
+        "agdf_dispatch",
+        "agdf_inspect"
+      ],
+      "dispatch": "target_unresolved",
+      "inspect": "target_unresolved",
+      "bound_inspect": "inspect_result",
+      "cli_report_parity": "pass",
+      "provenance": "matched"
+    }
+  ]
+}

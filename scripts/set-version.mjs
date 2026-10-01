@@ -2,7 +2,7 @@
 
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runReleaseBumpCommand } from "../create-agdf/scripts/release-bump.js";
+import { runReleaseBumpCommand } from "./release-bump.js";
 
 const repoRoot = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
 

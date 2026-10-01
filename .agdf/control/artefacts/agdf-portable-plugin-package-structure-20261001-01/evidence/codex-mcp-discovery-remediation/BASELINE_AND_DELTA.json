@@ -1,0 +1,196 @@
+{
+  "observed_at": "2026-10-01T14:08:55.445457+00:00",
+  "issue": "Portable root recognized, legacy overlay MCP component ignored; root mcp.json absent",
+  "codex_cli": "0.157.1",
+  "plugin_before": "0.14.5+codex.local-d4ca33a48e88",
+  "mcp_before": [
+    {
+      "name": "code-review",
+      "enabled": false,
+      "disabled_reason": null,
+      "transport": {
+        "type": "stdio",
+        "command": "/bin/sh",
+        "args": [
+          "-c",
+          "exec \"$CODEX_MCP_NODE_PATH\" ./server.mjs \"$@\"",
+          "--"
+        ],
+        "env": null,
+        "env_vars": [
+          "PATH",
+          "GH_CONFIG_DIR",
+          "GH_ENTERPRISE_TOKEN",
+          "GH_HOST",
+          "GH_TOKEN",
+          "GITHUB_TOKEN",
+          "CODEX_API_KEY",
+          "CODEX_API_BASE_URL",
+          "CODEX_API_ENDPOINT",
+          "CODEX_HOME",
+          "CODEX_CLI_PATH",
+          "CODEX_MCP_NODE_PATH",
+          "CODEX_MANAGED_PACKAGE_ROOT",
+          "GITHUB_PROVIDER_URL",
+          "GITHUB_READ_INDEX",
+          "HTTP_PROXY",
+          "HTTPS_PROXY",
+          "ALL_PROXY",
+          "NO_PROXY",
+          "SSL_CERT_FILE",
+          "NODE_EXTRA_CA_CERTS"
+        ],
+        "cwd": "/Users/arndtgold/.codex/plugins/cache/openai-bundled/code-review/26.928.21956/."
+      },
+      "startup_timeout_sec": null,
+      "tool_timeout_sec": 120.0,
+      "auth_status": "unsupported"
+    },
+    {
+      "name": "codex_app",
+      "enabled": false,
+      "disabled_reason": null,
+      "transport": {
+        "type": "stdio",
+        "command": "/Users/arndtgold/.codex/plugins/cache/openai-bundled/codex-app-tools/0.1.5/scripts/launch_codex_app_tools_mcp",
+        "args": [
+          "./server.mjs"
+        ],
+        "env": {},
+        "env_vars": [
+          "CODEX_APP_TOOLS_PIPE_PATH",
+          "CODEX_MCP_NODE_PATH",
+          "CODEX_BROWSER_USE_NODE_PATH",
+          "CODEX_ELECTRON_RESOURCES_PATH",
+          "CODEX_CLI_PATH",
+          "XDG_CACHE_HOME",
+          "HOME",
+          "USERPROFILE",
+          "LOCALAPPDATA",
+          "PATH"
+        ],
+        "cwd": "/Users/arndtgold/.codex/plugins/cache/openai-bundled/codex-app-tools/0.1.5"
+      },
+      "startup_timeout_sec": 10.0,
+      "tool_timeout_sec": 3600.0,
+      "auth_status": "unsupported"
+    },
+    {
+      "name": "cua_repl",
+      "enabled": true,
+      "disabled_reason": null,
+      "transport": {
+        "type": "stdio",
+        "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+        "args": [
+          "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua-repl/bin/cua-repl.mjs"
+        ],
+        "env": {
+          "NODE_REPL_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+          "NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER": "Control the in-app browser in conjunction with the Browser Plugin.",
+          "CODEX_HOME": "/Users/arndtgold/.codex",
+          "NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME": "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative.",
+          "NODE_REPL_NODE_MODULE_DIRS": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules",
+          "BROWSER_USE_AVAILABLE_BACKENDS": "chrome,iab,mcpapps",
+          "CUA_REPL_NODE_REPL_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+          "NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS": "1000",
+          "BROWSER_USE_TINYSKY_ENABLED": "1",
+          "BROWSER_USE_CODEX_APP_BUILD_FLAVOR": "prod",
+          "BROWSER_USE_CODEX_APP_VERSION": "26.928.21956",
+          "NODE_REPL_TRUSTED_SERVICES": "{\"browser\":\"@oai/browser-desktop/service\"}",
+          "NODE_REPL_TRUSTED_CODE_PATHS": "/Users/arndtgold/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules",
+          "CODEX_CLI_PATH": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex",
+          "CUA_REPL_ENABLED_SURFACES": "browser"
+        },
+        "env_vars": [],
+        "cwd": null
+      },
+      "startup_timeout_sec": 120.0,
+      "tool_timeout_sec": null,
+      "auth_status": "unsupported"
+    },
+    {
+      "name": "node_repl",
+      "enabled": true,
+      "disabled_reason": null,
+      "transport": {
+        "type": "stdio",
+        "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+        "args": [],
+        "env": {
+          "NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS": "1000",
+          "NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME": "",
+          "BROWSER_USE_CODEX_APP_BUILD_FLAVOR": "prod",
+          "NODE_REPL_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+          "NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER": "",
+          "BROWSER_USE_CODEX_APP_VERSION": "26.928.21956",
+          "NODE_REPL_NODE_MODULE_DIRS": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules",
+          "BROWSER_USE_AVAILABLE_BACKENDS": "chrome,iab,mcpapps",
+          "BROWSER_USE_TINYSKY_ENABLED": "1",
+          "NODE_REPL_TRUSTED_SERVICES": "{\"browser\":\"/Users/arndtgold/.codex/plugins/cache/openai-bundled/browser/26.928.21956/scripts/browser-service.mjs\"}",
+          "CODEX_HOME": "/Users/arndtgold/.codex",
+          "CODEX_CLI_PATH": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex",
+          "NODE_REPL_TRUSTED_CODE_PATHS": "/Users/arndtgold/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+        },
+        "env_vars": [],
+        "cwd": null
+      },
+      "startup_timeout_sec": 120.0,
+      "tool_timeout_sec": null,
+      "auth_status": "unsupported"
+    },
+    {
+      "name": "openaiDeveloperDocs",
+      "enabled": true,
+      "disabled_reason": null,
+      "transport": {
+        "type": "streamable_http",
+        "url": "https://developers.openai.com/mcp",
+        "bearer_token_env_var": null,
+        "http_headers": null,
+        "env_http_headers": null,
+        "http_headers_helper": null
+      },
+      "startup_timeout_sec": null,
+      "tool_timeout_sec": null,
+      "auth_status": "unknown"
+    },
+    {
+      "name": "playwright",
+      "enabled": true,
+      "disabled_reason": null,
+      "transport": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest"
+        ],
+        "env": null,
+        "env_vars": [],
+        "cwd": null
+      },
+      "startup_timeout_sec": null,
+      "tool_timeout_sec": null,
+      "auth_status": "unsupported"
+    }
+  ],
+  "shared_owner_delta": {
+    "path": "create-agdf/lib/runtime/plugin-provenance.js",
+    "old_bytes": 19107,
+    "new_bytes": 19383,
+    "delta_bytes": 276,
+    "old_sha256": "b9e167ef4c7871d10eb3bd9dd58292d4624d16cd369b703820691fe86432c96a",
+    "new_sha256": "5ebe0ca2dcfdb6f677f0b59ef85b9e6ce8e6abe17074788fb4d1f355d6b72e3b"
+  },
+  "copilot": {
+    "files_before": 136,
+    "files_after": 136,
+    "bytes_before": 1274994,
+    "bytes_after": 1275270,
+    "delta_bytes": 276,
+    "additional_files": 0,
+    "headroom": 0,
+    "excluded_installers_and_mcp_sdk": "unchanged"
+  },
+  "legacy_installed_digest_retained": "d4ca33a48e88b2d73164ba355acbb0a543b383456db83988e22a09249a537ae3"
+}

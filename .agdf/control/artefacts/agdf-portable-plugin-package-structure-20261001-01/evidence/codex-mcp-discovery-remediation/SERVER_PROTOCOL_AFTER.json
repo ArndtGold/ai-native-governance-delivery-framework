@@ -1,0 +1,53 @@
+{
+  "plane": "direct_stdio_protocol; not fresh Codex model",
+  "tools": [
+    "agdf_dispatch",
+    "agdf_inspect"
+  ],
+  "outcome": "inspect_result",
+  "report": {
+    "schema_version": "1",
+    "status": "warn",
+    "checked_at": "2026-10-01T14:16:25.527Z",
+    "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "summary": {
+      "findings": 1,
+      "block": 0,
+      "revise": 0,
+      "warn": 1
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": [
+      {
+        "severity": "warn",
+        "code": "AGDF_CONTEXT_GRAPH_GATE_EFFECT",
+        "message": "Context Graph impact is update_existing_node with gate effect warning.",
+        "path": ".agdf/control/runs/agdf-physical-package-boundaries-20261001-01/RUN_STATE.md",
+        "next_step": "Resolve Context Graph action: update."
+      }
+    ]
+  },
+  "runtime": {
+    "machine_validation": "local_exact_version_digest",
+    "expected_version": "0.14.5",
+    "plugin_root": "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin/mcp/0.14.5/node_modules/create-agdf",
+    "runtime_digest": "e2182c80834722edf154313263957ca8a3b4f70d1747126a895c7eb30d68ab23",
+    "provenance_status": "matched"
+  }
+}

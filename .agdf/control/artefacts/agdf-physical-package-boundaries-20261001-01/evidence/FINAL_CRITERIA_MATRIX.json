@@ -1,0 +1,281 @@
+{
+  "reference": "approved unchanged PRD/SD/TP; criteria-chain-v1",
+  "criteria": [
+    {
+      "criterion_id": "AC-001",
+      "status": "done",
+      "scenarios": [
+        "SCN-001",
+        "SCN-002"
+      ],
+      "evidence": [
+        "stages/C-01_MODULES.json",
+        "FINAL_OWNER_MAP.json",
+        "FINAL_TREE.txt",
+        "FINAL_OWNER_MAP.json",
+        "BRIDGE_INVENTORY.json"
+      ]
+    },
+    {
+      "criterion_id": "AC-002",
+      "status": "done",
+      "scenarios": [
+        "SCN-003",
+        "SCN-004"
+      ],
+      "evidence": [
+        "CONTROL_OWNER_CHECK.json",
+        "tests/core-control-state-test.log",
+        "tests/core-run-revision-test.log",
+        "tests/core-run-step-transaction-test.log",
+        "ADAPTER_PARITY.json",
+        "tests/cli-control-inspect-test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-003",
+      "status": "done",
+      "scenarios": [
+        "SCN-005",
+        "SCN-006",
+        "SCN-007",
+        "SCN-008"
+      ],
+      "evidence": [
+        "tests/core-boundaries.log",
+        "profiles/RESOURCE_CLOSURE.json",
+        "tests/core-boundaries.log",
+        "FINAL_DEPENDENCIES.json",
+        "tests/core-boundaries.log",
+        "tests/provider-boundaries.log",
+        "tests/cli-control-maintenance-test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-004",
+      "status": "done",
+      "scenarios": [
+        "SCN-009",
+        "SCN-010",
+        "SCN-011"
+      ],
+      "evidence": [
+        "PROVIDER_MAP.json",
+        "tests/cli-control-maintenance-test.log",
+        "tests/cli-control-maintenance-test.log",
+        "CLI_CONTRACT_DIFF.json",
+        "tests/cli-cli-modularization-test.log",
+        "tests/core-interaction-presentation-test.log",
+        "tests/cli-cli-gate-scenarios-test.log",
+        "ARCHIVE_CONSUMERS.json",
+        "tests/archive-consumers.log",
+        "tests/cli-smoke.log",
+        "tests/wrapper-smoke.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-005",
+      "status": "done",
+      "scenarios": [
+        "SCN-012",
+        "SCN-013",
+        "SCN-014"
+      ],
+      "evidence": [
+        "MCP_OWNER_MAP.json",
+        "tests/mcp-server-contract.test.log",
+        "ARCHIVE_CONSUMERS.json",
+        "tests/mcp-server-protocol.test.log",
+        "tests/mcp-server-safety.test.log",
+        "tests/mcp-server-provenance.test.log",
+        "ARCHIVE_CONSUMERS.json",
+        "tests/mcp-server-continuation.test.log",
+        "tests/mcp-server-performance.test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-006",
+      "status": "done",
+      "scenarios": [
+        "SCN-015",
+        "SCN-016",
+        "SCN-017"
+      ],
+      "evidence": [
+        "ASSEMBLY_MAP.json",
+        "tests/archive-consumers.log",
+        "PACKED_OUTPUTS.json",
+        "PACKED_MANIFESTS.json",
+        "ARCHIVE_CONSUMERS.json",
+        "tests/archive-consumers.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-007",
+      "status": "done",
+      "scenarios": [
+        "SCN-018",
+        "SCN-019",
+        "SCN-020",
+        "SCN-021"
+      ],
+      "evidence": [
+        "profiles/RESOURCE_CLOSURE.json",
+        "tests/core-boundaries.log",
+        "tests/cli-instruction-footprint-test.log",
+        "ARCHIVE_CONSUMERS.json",
+        "tests/archive-consumers.log",
+        "profiles/COPILOT_INVENTORY.json",
+        "profiles/PAYLOAD_DELTA.json",
+        "tests/cli-instruction-footprint-test.log",
+        "tests/cli-payload-budget-test.log",
+        "tests/cli-portable-plugin-test.log",
+        "tests/cli-plugin-mcp-runtime-test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-008",
+      "status": "done",
+      "scenarios": [
+        "SCN-022",
+        "SCN-023",
+        "SCN-024"
+      ],
+      "evidence": [
+        "ASSEMBLY_MAP.json",
+        "REPEAT_BUILD_DIFF.json",
+        "profiles/PROVENANCE.json",
+        "tests/cli-plugin-mcp-runtime-test.log",
+        "tests/cli-plugin-mcp-runtime-test.log",
+        "tests/cli-codex-plugin-mcp-test.log",
+        "tests/mcp-server-provenance.test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-009",
+      "status": "done",
+      "scenarios": [
+        "SCN-025",
+        "SCN-026",
+        "SCN-027"
+      ],
+      "evidence": [
+        "profiles/PROFILE_MATRIX.json",
+        "tests/cli-codex-plugin-mcp-test.log",
+        "profiles/PROFILE_MATRIX.json",
+        "tests/cli-portable-plugin-test.log",
+        "tests/cli-opencode-hardening-test.log",
+        "tests/cli-portable-plugin-test.log",
+        "tests/cli-public-plugin-test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-010",
+      "status": "done",
+      "scenarios": [
+        "SCN-028",
+        "SCN-029"
+      ],
+      "evidence": [
+        "BUILD_ENTRYPOINTS.json",
+        "tests/root-maintenance.log",
+        "tests/cli-release-workflow-contract-test.log",
+        "CLEAN_CHECKOUT.json",
+        "tests/clean-checkout.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-011",
+      "status": "done",
+      "scenarios": [
+        "SCN-030",
+        "SCN-031",
+        "SCN-032"
+      ],
+      "evidence": [
+        "tests/cli-lifecycle-test.log",
+        "tests/cli-local-development-install-test.log",
+        "tests/cli-local-marketplace-test.log",
+        "tests/cli-mcp-lifecycle-test.log",
+        "tests/cli-lifecycle-test.log",
+        "tests/cli-mcp-lifecycle-test.log",
+        "tests/mcp-server-provenance.test.log",
+        "tests/core-control-state-test.log",
+        "tests/core-run-lock-test.log",
+        "tests/core-run-step-transaction-test.log",
+        "tests/cli-control-maintenance-test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-012",
+      "status": "done",
+      "scenarios": [
+        "SCN-033",
+        "SCN-034"
+      ],
+      "evidence": [
+        "HISTORY_RESOLUTION.json",
+        "tests/cli-release-registry-state-test.log",
+        "tests/cli-release-version-coherence-test.log",
+        "tests/cli-release-bump-test.log",
+        "tests/cli-release-version-coherence-test.log",
+        "tests/cli-release-registry-state-test.log"
+      ]
+    },
+    {
+      "criterion_id": "AC-013",
+      "status": "done",
+      "scenarios": [
+        "SCN-035",
+        "SCN-036"
+      ],
+      "evidence": [
+        "ACTIVE_REFERENCE_AUDIT.json",
+        "REPLAY_REBINDING.json",
+        "tests/cli-skill-evals-test.log",
+        "tests/host-compatibility.log",
+        "tests/community-health.log",
+        "tests/core-interaction-presentation-test.log",
+        "ACTIVE_REFERENCE_AUDIT.json",
+        "BRIDGE_INVENTORY.json"
+      ]
+    },
+    {
+      "criterion_id": "AC-014",
+      "status": "partial",
+      "scenarios": [
+        "SCN-037",
+        "SCN-038",
+        "SCN-039"
+      ],
+      "evidence": [
+        "IMPLEMENTATION_BASELINE.json",
+        "UNRELATED_PRESERVATION.json",
+        "INDEX_PRESERVATION.json",
+        "checkpoints/ROLLBACK_FIXTURE.json",
+        "tests/rollback-fixture.log",
+        "tests/staged-rehearsal.log",
+        "tests/rollback-fixture.log",
+        "FINAL_DIFF_INVENTORY.json",
+        "INDEX_PRESERVATION.json"
+      ]
+    },
+    {
+      "criterion_id": "AC-015",
+      "status": "done for current QA/review gate; future approvals and OR conditional",
+      "scenarios": [
+        "SCN-040",
+        "SCN-041",
+        "SCN-042"
+      ],
+      "evidence": [
+        "FINAL_SOURCE_BINDING.json",
+        "FINAL_REGRESSION_MATRIX.json",
+        "FINAL_CRITERIA_MATRIX.json",
+        "EVIDENCE_PLANES.json"
+      ]
+    }
+  ],
+  "QA": "QA_REPORT.md: revise; two original historical evidence obligations remain open",
+  "conditional_later_gates": "QA/UAT approvals and OR/Closeout remain pending and cannot be inferred"
+}

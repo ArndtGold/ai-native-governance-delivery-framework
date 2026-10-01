@@ -1,0 +1,53 @@
+{
+  "profiles": [
+    {
+      "profile": "source",
+      "root": "plugins/agdf",
+      "configs": {
+        "plugin.json": "d508184e85bc760d06d9646f7a2183bb7bbe89758b7bf9524f83083e6baaa20b",
+        ".claude-plugin/plugin.json": "bb4918cf50543e46fb09dc1181a22a0ff342f7581769a1ec3b2a60ab57f52d59",
+        "host-templates/shared/hooks/hooks.json": "9c6d619e68f8972c00a63bda2e38033a9ff13f7a52d8c1ce0acf164918986b3d",
+        ".codex-plugin/plugin.json": "62b314e0e60c02ff76d173ee2c402a8d5761977c8815e6f41fb374be43bcb195"
+      }
+    },
+    {
+      "profile": "runtime",
+      "root": "packages/cli/generated/plugins/agdf",
+      "configs": {
+        "plugin.json": "e22e45bb75b22fc24ac5fec8f9ca39ad34d16cd2c772bc4bf34bfc1bd036ce7f",
+        "mcp.json": "b8e29ab55f8c1545d79d63f016b6a7fbcb0a5cbcc582b488223ae809c8f2b054",
+        "runtime/runtime-manifest.json": "b2f6fae7c146b719d3bb4946cec226caa102847471a1c7eef38091c8dc448abc",
+        "mcp/claude.mcp.json": "39d86210ee865cdd0c4a901c8be0d7527120816fdfe27be5e8b14c2f42a164de",
+        "hooks/hooks.json": "9c6d619e68f8972c00a63bda2e38033a9ff13f7a52d8c1ce0acf164918986b3d",
+        ".claude-plugin/plugin.json": "1cf815a9dc577bfeb923f99dfa1b3d5b45e4d96cf4ec511a9810c89aae31741a",
+        ".codex-plugin/plugin.json": "9798a402a29b3f918013c5f0a8c67f242b2a2d93720b2e839841732280a28f70"
+      }
+    },
+    {
+      "profile": "public",
+      "root": "packages/cli/generated/submissions/openai/agdf",
+      "configs": {
+        "plugin.json": "0ca39eb9b12a2f127141d137128ca898b311729ea97b137c92f5cfa7058d97f2",
+        ".codex-plugin/plugin.json": "07f168dc1acc3b17f05981f6307332f73679c23a896222774b4d7ef5a313f8da"
+      }
+    },
+    {
+      "profile": "copilot",
+      "root": "packages/cli/generated/plugins/copilot/agdf",
+      "configs": {
+        "plugin.json": "608ced3e8ebddddb4fc1065f7055007b204cafde4915441dafa7a2f769ba88d8",
+        "runtime/runtime-manifest.json": "01cb84c56b075eab5fabf8b0423ac364f220ab99c3a5a54f6ac0e63bc7657bd1"
+      }
+    }
+  ],
+  "source_public": "skills-only; no active hooks/MCP",
+  "codex": "root mcp.json stdio and installer-bound runtime paths",
+  "claude": "declared profile MCP path",
+  "copilot": "offline focused closure, sibling contracts",
+  "opencode": "generated/.opencode + generated/opencode.json; composed CLI plugin",
+  "evidence": [
+    "tests/cli-portable-plugin-test.log",
+    "tests/cli-codex-plugin-mcp-test.log",
+    "tests/cli-opencode-hardening-test.log"
+  ]
+}

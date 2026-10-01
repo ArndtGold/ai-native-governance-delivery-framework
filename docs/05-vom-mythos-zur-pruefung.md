@@ -52,7 +52,7 @@ Solange Menschen jeden Schritt bewusst ausführen, können viele dieser Regeln t
 
 **Bei KI-Agenten verschiebt sich diese Lage.**
 
-![Polierte Oberfläche bei schwächelnder Grundlage](../assets/polierte-oberflaeche-schwaechelnde-grundlage.png)
+![Polierte Oberfläche bei schwächelnder Grundlage](assets/polierte-oberflaeche-schwaechelnde-grundlage.png)
 
 Wer einmal einen umfangreichen Systemprompt eines modernen Agentensystems gelesen hat, versteht: Die Hersteller wissen sehr genau,
 dass praktische KI-Leistung nicht allein aus dem Modell entsteht.
@@ -454,7 +454,7 @@ Ohne diese Trennung entsteht schnell Botsitting:
 
 Dabei lesen wir häufig lange Agenten-Zusammenfassungen, suchen fehlende Nachweise und prüfen im Kopf nach, ob die Arbeit wirklich belastbar ist.
 
-![Qualitätsverträge reduzieren Botsitting](../assets/qualitaetsvertraege-vom-raetselraten-zur-pruefung.png)
+![Qualitätsverträge reduzieren Botsitting](assets/qualitaetsvertraege-vom-raetselraten-zur-pruefung.png)
 
 *Qualitätsverträge machen sichtbar, was geprüft wurde, welche Nachweise vorliegen und welche Entscheidung noch offen ist.*
 

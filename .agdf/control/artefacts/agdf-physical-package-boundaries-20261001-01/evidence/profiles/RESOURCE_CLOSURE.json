@@ -1,0 +1,23 @@
+{
+  "definition_contract_locale_owner": "plugins/agdf/meta",
+  "offline_profiles": [
+    {
+      "profile": "agdf",
+      "network_and_non_node_processes_blocked": true,
+      "quality": "pass",
+      "invalid_module": "rejected"
+    },
+    {
+      "profile": "copilot/agdf",
+      "network_and_non_node_processes_blocked": true,
+      "quality": "pass",
+      "invalid_module": "rejected"
+    }
+  ],
+  "core_binding": "explicit packageURLs, version and declared contract allowlist",
+  "evidence": [
+    "tests/core-boundaries.log",
+    "tests/archive-consumers.log",
+    "tests/cli-instruction-footprint-test.log"
+  ]
+}

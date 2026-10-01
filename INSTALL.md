@@ -359,7 +359,7 @@ the runtime-check receipt. A project-scope registration from an earlier release 
 
 Codex starts plugin MCP servers only from absolute paths and passes the server neither a plugin root
 nor a data directory (native probe, Codex 0.145 and 0.157). The runtime plugin therefore declares
-the server in `mcp/codex.mcp.json`, and the AGDF installer writes the absolute launcher path in the
+the server in portable root `mcp.json` with a `stdio` transport, and the AGDF installer writes the absolute launcher path in the
 AGDF marketplace and an AGDF-owned data directory into it; provenance digests the file's template.
 
 - `codex plugin remove agdf@agdf` removes the MCP declaration with the plugin. AGDF writes no
@@ -1075,7 +1075,7 @@ For this repository itself:
 
 ```bash
 node plugins/agdf/scripts/check-runtime-integrity.mjs
-npm --prefix create-agdf run eval:skills
+npm --prefix packages/cli run eval:skills
 ```
 
 The versioned corpus under `evals/` uses schema version `1` and an independently versioned
@@ -1104,8 +1104,8 @@ Then recompute and deliberately update the matching fingerprints in each reviewe
 Live-host evidence is a separate, opt-in recording lane:
 
 ```bash
-npm --prefix create-agdf run eval:skills:record -- --surface codex --case gate-check-normal
-npm --prefix create-agdf run eval:skills:record -- --surface claude --case gate-check-normal --persist
+npm --prefix packages/cli run eval:skills:record -- --surface codex --case gate-check-normal
+npm --prefix packages/cli run eval:skills:record -- --surface claude --case gate-check-normal --persist
 ```
 
 The recorder executes the selected skill in a disposable fixture workspace with bounded, read-only

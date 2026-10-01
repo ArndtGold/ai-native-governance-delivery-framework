@@ -1,0 +1,69 @@
+{
+  "observed_at": "2026-10-01T14:27:38.907430+00:00",
+  "plugin": {
+    "pluginId": "agdf@agdf",
+    "name": "agdf",
+    "marketplaceName": "agdf",
+    "version": "0.14.5+codex.local-c34709e47444",
+    "installed": true,
+    "enabled": true,
+    "source": {
+      "source": "local",
+      "path": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf"
+    },
+    "marketplaceSource": {
+      "sourceType": "local",
+      "source": "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf"
+    },
+    "installPolicy": "AVAILABLE",
+    "authPolicy": "ON_INSTALL"
+  },
+  "mcp": {
+    "name": "agdf",
+    "enabled": true,
+    "disabled_reason": null,
+    "transport": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+        "--surface",
+        "codex",
+        "--data",
+        "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin"
+      ],
+      "env": {
+        "PLUGIN_DATA": "/Users/arndtgold/.codex/plugins/data/agent-plugins/cf139a7f18701470bced4ffa355d2265c2051fc72106d421d5044847779f22bd",
+        "PLUGIN_ROOT": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-c34709e47444"
+      },
+      "env_vars": [],
+      "cwd": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-c34709e47444"
+    },
+    "startup_timeout_sec": null,
+    "tool_timeout_sec": null,
+    "auth_status": "unsupported"
+  },
+  "root_version": "0.14.5+codex.local-c34709e47444",
+  "fallback_version": "0.14.5+codex.local-c34709e47444",
+  "mcp_config": {
+    "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+    "mcpServers": {
+      "agdf": {
+        "type": "stdio",
+        "command": "node",
+        "args": [
+          "/Users/arndtgold/Library/Application Support/agdf/marketplaces/agdf/plugins/agdf/mcp/agdf-mcp-launch.js",
+          "--surface",
+          "codex",
+          "--data",
+          "/Users/arndtgold/Library/Application Support/agdf/mcp/codex-plugin"
+        ]
+      }
+    }
+  },
+  "legacy_mcp_absent": true,
+  "integrity": "pass",
+  "current_chat_agdf_tools": false,
+  "fresh_model_invocation": "not_verified",
+  "fresh_cli_probe_failure": "Unsupported configured gpt-6.1-sol model for ChatGPT-account CLI; an invalid one-off quoted plugin override also occurred. No production model or tool policy changed."
+}

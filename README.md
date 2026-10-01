@@ -1,4 +1,4 @@
-![Intro : AI-native Governance & Delivery Framework](assets/intro.png)
+![Intro : AI-native Governance & Delivery Framework](docs/assets/intro.png)
 
 # AI native Governance and Delivery Framework
 
@@ -75,7 +75,7 @@ seinen vorhandenen Repository-Opt-out. Für Claude Code und OpenCode wird kein u
 Disable-Pfad angeboten.
 
 Beginne mit dem [Coding Agent Handbuch](docs/handbook/README.md), wähle dort Deutsch oder Englisch
-und nutze den [Banking Flow](examples/sample-banking-flow.md) als vollständiges Beispiel für eine
+und nutze den [Banking Flow](docs/examples/sample-banking-flow.md) als vollständiges Beispiel für eine
 strukturierte Auslieferung.
 
 AGDF ist ein unabhängiges Projekt und kein verbindlicher Standard. Die installierbare Runtime ersetzt weder Produktverantwortung noch Engineering, Security, Test oder Abnahmeentscheidungen.
@@ -142,7 +142,7 @@ Wenn du schnell verstehen willst, worum es geht:
 
 1. Lies die Kernaussage im [Manifest](docs/00-manifest.md).
 2. Schau dir den Ablauf in [Gates](docs/02-gates.md) an.
-3. Lies das [Beispiel für einen kleinen Brownfield Change](examples/sample-delivery-flow.md).
+3. Lies das [Beispiel für einen kleinen Brownfield Change](docs/examples/sample-delivery-flow.md).
 
 Danach solltest du beantworten können:
 

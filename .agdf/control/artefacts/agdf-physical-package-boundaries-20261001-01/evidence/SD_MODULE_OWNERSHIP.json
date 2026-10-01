@@ -1,0 +1,1451 @@
+{
+  "observed_at": "2026-10-01T14:35:28.632470+00:00",
+  "git_head": "bf563e4257466984835792d7305698328679b113",
+  "evidence_plane": "source inventory and planned design; no source migration or passing dependency proof",
+  "source_module_count": 203,
+  "owner_counts": {
+    "cli": 100,
+    "core_and_cli": 2,
+    "core": 69,
+    "evals": 16,
+    "scripts": 11,
+    "mcp-server": 5
+  },
+  "modules": [
+    {
+      "source": "create-agdf/lib/cli/application.js",
+      "sha256": "dc4a4e093a9c407bdfd3ba27e32768aef8f5674932bd84e27e818e2529659a5e",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/application.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/cli/command-registry.js",
+      "sha256": "87bd914444a0ff4960af99143e6aac422c4b18cfb9c7806a65a4f5e2ed4c9962",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/command-registry.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/cli/contract-command.js",
+      "sha256": "5a8ffd5fa8c11bfd0ad023aabc8d77317c2bd7417d18c289dbc4d0ee0973a6e5",
+      "design_owner": "core_and_cli",
+      "planned_target": "packages/core/lib/resources/contracts.js",
+      "split_or_dependency_action": [
+        "Core allowlisted readSkillRuntimeContracts/readRuntimeContract; CLI thin command adapter and existing explicit override composition"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/cli/control-maintenance-command.js",
+      "sha256": "adc95f96ddb4b9db21c5a9f4e919d827d321cdd6c205fe00712644e97aed0012",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/control-maintenance-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/cli/delivery-path-search-command.js",
+      "sha256": "cd7b9545e9629db6f6834db30669cede62161810f324a35cde322875864ca22c",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/delivery-path-search-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/cli/parse-args.js",
+      "sha256": "a934e13bb4de1ef228983ebf81265fbe43118d18fac096351abe49297b37eddb",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/parse-args.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/cli/runtime-context.js",
+      "sha256": "426a31fa6d205f1d1ffb81374373ec979af57afa25a796a499914660ae8a88e5",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/runtime-context.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/cli/validation-handlers.js",
+      "sha256": "ed8454bc82422c6ed79ad59b0ae64368d191fb3bcead56942a142105c72924ce",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/cli/validation-handlers.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-command.js",
+      "sha256": "361af3893cbce3cdbdc8e35c3ac3f4bef86f89a5f1c02606ee6186ebbc57a70f",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/control-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/delivery-map.js",
+      "sha256": "08383b883f50241c240289fec4712d13b1f6836efa8873597368735210b45355",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/delivery-map.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/doctor.js",
+      "sha256": "16346ee6c99eecfd74316d26b26c06bb9ac1c3acaf9de8298a50249656a235f4",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/doctor.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/gate-check.js",
+      "sha256": "51ecddd2283c497f8054dcd54d63612b5c4e5fd88622f876e27cd3c6a7ceeff9",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/gate-check.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/gate-policy.js",
+      "sha256": "515651a5e47a7ef1ccb2d12a4fc5b0b847be2d617c9be0ae317db8819bae5a02",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/gate-policy.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/git-observation.js",
+      "sha256": "f917979a37a4e6ada9620361a1b48cab6602025f5e01b8ed2aa2a3667cc4fc24",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/control-evaluation/git-observation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/parent-reconciliation.js",
+      "sha256": "9715873b770876f6ef8926f8104711254fe844ea0a9632b0e79932f2bf7849b7",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/parent-reconciliation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/prd-readiness.js",
+      "sha256": "1718db7ff67e4b06a8a7b9975e431db919b67d02ff4026be02ea4a89f97de90d",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/prd-readiness.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/required-files.js",
+      "sha256": "722ac21c5983b9566363bd0e37d142081a8d6877fcf45fe3d22742e7bd9e9fb5",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/required-files.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/run-state.js",
+      "sha256": "fe89539642171a772a7602da640d06f6fe4918985c5196901104fa6544611946",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/run-state.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/run-step-policy.js",
+      "sha256": "f700a30570fd3134cb0960e44f933225064fa0401d911712b0cbdb01e1feb9df",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/run-step-policy.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/shared.js",
+      "sha256": "297cc02484ebc861ed1ba24da763c71cfa4288cdc6e9b3f0ed6a8f5abf15b9b6",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/shared.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/traceability-readiness.js",
+      "sha256": "240cea1f3cafcafc776a1168c7974cf0898572a6f341a784a96f4dc4f9aafd44",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/traceability-readiness.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-evaluation/verified-change.js",
+      "sha256": "523089888af02013bc504aef0276421bff3d2d321be06297bb7a6cdd26a600c0",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-evaluation/verified-change.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-inspect/contract.js",
+      "sha256": "080e1eea0558c6651c31fec3ea105c18e49d6dce64cea2224b13a8c19dd0e220",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-inspect/contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-inspect/selection.js",
+      "sha256": "64d8dfa244d75d7083f5b96816af1af5b4e3caa2a7dff496a30de8357c379fdf",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-inspect/selection.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-inspect/service.js",
+      "sha256": "5c621852b7cbd86208af41cf11d1909271d73f67506d6243c12552e980587fe3",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-inspect/service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/compatibility.js",
+      "sha256": "6d2b224fdcb233a8ec13047b2cd58235dff8f87f8417ea025231739c2dab2511",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/compatibility.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/contract.js",
+      "sha256": "785b343a8a44a5e3bd22499c0401346443e273fdf9598b4784cee9c78c917b6d",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/interaction.js",
+      "sha256": "a3c06f3f5379ddb1922c4d3c7dc01a5f8004b4a11da33c080e2893ffc76d8ce5",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/interaction.js",
+      "split_or_dependency_action": [
+        "Replace CLI runtime-context import with explicit Core resource context; interactive command IO remains CLI"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/migration.js",
+      "sha256": "0c5bb18cef422837bf2b4dc10935f7d8300eb4193f4a25f9780831ca3cf67ad7",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/migration.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/presentation.js",
+      "sha256": "5ef1446a34c95742fa068b5a56eba020e4d72437a0560e4b9220fcccd77a38c0",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/presentation.js",
+      "split_or_dependency_action": [
+        "Replace CLI runtime-context import with explicit Core resource context; interactive command IO remains CLI"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/repair.js",
+      "sha256": "2869fda5a54db2286b46c8290e67b8cb55cf222c6f91c240ef7a5e6dd1e80394",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/repair.js",
+      "split_or_dependency_action": [
+        "Recovery/repair validation and canonical writes stay Core; subprocess history acquisition moves CLI Git provider"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/service.js",
+      "sha256": "b8c962110a35acb24be35a9e049e20acc73cd2158c9390a1f78483462ea74f57",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-maintenance/service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-maintenance/startup.js",
+      "sha256": "ed97f874de0ec559608672ecab6977a02a5abc8eb67a05cd701408a61d81ea52",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/control-maintenance/startup.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-read-boundary.js",
+      "sha256": "50ee73aa9ea7a5506f3ed98c7da215bea538b2c1914d9c09989512ecaa8e9896",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-read-boundary.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/aggregate.js",
+      "sha256": "80b566cac04555ecc24593c81903e8cbe31a4e11e5242f456b39ff01978d4a6f",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/aggregate.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/approval-command-contract.js",
+      "sha256": "f6e56a51f8e1c2d1068af19b865a2949820162224ebccbce4af1a7b434d15b1d",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/approval-command-contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/approval-command.js",
+      "sha256": "c7bf6e0e69f4e28c873449d7abeb02280675423ded2033b93ad10952f01c903c",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/approval-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/approval-operations.js",
+      "sha256": "9062def1059fe93e6aecd614bb5130fb759541fb793bc11cbf9de655f4c6732b",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/approval-operations.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/contained-file.js",
+      "sha256": "cb9ff14cb376372d3901bf020ffcf94651b907c781c148850740ad95e1ad7a20",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/contained-file.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/control-configuration.js",
+      "sha256": "40f1a5675666195bad3118a327a21c377b8ffa641d045fa22ebcebc9d12ec689",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/control-configuration.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/gate-approval-validator.js",
+      "sha256": "071ab2bdad6012d1ee6ab4c7f95684e33332a33758d01db46bc2537b9efe0578",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/gate-approval-validator.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/index.js",
+      "sha256": "d0970d4f3be3b20318b29e3d0a7c3ab474971a913b75356a505a8827aadfa50e",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/index.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/legacy-migration.js",
+      "sha256": "e4ede072c7ff9018009430f364273c1ef2e21950657ad753c05d104b415380b9",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/legacy-migration.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/legacy-projection-reader.js",
+      "sha256": "57d46180cae22be63d0b4bbb30c47820b672cd3986b9a77b7d8bb761a477fe66",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/legacy-projection-reader.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-identity.js",
+      "sha256": "f01a5e203755b7f5157087c9d8d15d544e81c43d7249263da7c2354a9cd90bae",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-identity.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-presentation-render.js",
+      "sha256": "1d52bcaf0e32c9f203b27de11e1db5f6fbe48803a0eafbfb3c8af9ace1f84f01",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-presentation-render.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-presentation.js",
+      "sha256": "05185e9b0be071d16be424a235aa005fb5b8f69989a78c4886f1a192e618f6c1",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-presentation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-recording.js",
+      "sha256": "4b81a895eee3f6b512b65adc964bf7c41506546b09e88f6b845535b474187bbd",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-recording.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-recovery.js",
+      "sha256": "641b6cc76eea9f4d7dcea2a49e666703b0fd333ddd5a9867a8746710bcf1ef31",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-recovery.js",
+      "split_or_dependency_action": [
+        "Recovery/repair validation and canonical writes stay Core; subprocess history acquisition moves CLI Git provider"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-revision.js",
+      "sha256": "3986167c95ec9c7437c6b4db2e9878f243f3ad8d7f187a320fa50dcc702aa3b2",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-revision.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-seal.js",
+      "sha256": "5e9cb6a052f36a8bbfeb85c82676f7990ba6143f801f59392ae62d384ee5176c",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-seal.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-state-edits.js",
+      "sha256": "318e894149bfe560d589d4de5303ac1b4ef8ce4cc7db5d62874247029ba90bb3",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-state-edits.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-state-parser.js",
+      "sha256": "fea1e10baa2883aff946b6ac2778053b9af7c9a3827bc6fb445f6841a83821da",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-state-parser.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-state-reader.js",
+      "sha256": "616e734cf7fc522dc787ff0e15cc4ba893e88643effa489b6b9eb407b3560302",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-state-reader.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-state-repository.js",
+      "sha256": "b53cf3cbc0b302f04b48a50fac04ef71301fd8af72b8f1b9f483fb7bc924d91c",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-state-repository.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-state-resolver.js",
+      "sha256": "5a6ddc40ade1b24b71260622b4782fcb4660551d75a6efdfff82f47664675505",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-state-resolver.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-state-writer.js",
+      "sha256": "3765c5e288213a61b9b9a6f68575fdfddd1ac313f051c44329339594dc58a652",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-state-writer.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-step-pending.js",
+      "sha256": "f87a023f7725bc3cccb019e7d6086f9ede0f1544359e949b5e15cb070ef98399",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-step-pending.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-step-transaction.js",
+      "sha256": "2c1278eb78641db27d487f350737598c422b806ac5af9a62e30eb87361d4383d",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-step-transaction.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-steps.js",
+      "sha256": "2be1cf8542a52ad2fa2eabba3d6e862b7a08cc8eaf2ce71809d7c2c62bf5a917",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-steps.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/control-state/run-store-inspection.js",
+      "sha256": "6fa228971c8cd789ea21b723ca086cd0e08c51ebc1bb2233c79a834995ac8353",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/control-state/run-store-inspection.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/candidate-policy.js",
+      "sha256": "13c897ec73751f82d250faf962f95cff913fb7639e2d5f3ad466d5223876d658",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/delivery-path-search/candidate-policy.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/contracts.js",
+      "sha256": "02ebfb153815d22d2e67debe7d51b09e94416b3f86966c92db4621dfb984a3a8",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/delivery-path-search/contracts.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/evaluators/claude.js",
+      "sha256": "70e6ecb73f3675aa37093d3327da366b3d83b87e5e53ba093914f9b757d70b2e",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/evaluators/claude.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/evaluators/codex.js",
+      "sha256": "d05180b8534aa1b1c0e022a2f4419db746dc32de5f01f0cbbf8f6503fb8e0bbe",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/evaluators/codex.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/evaluators/opencode.js",
+      "sha256": "da22284bcca9d743852bd7944417710b1e6462b2073ed4a95f8245fe3d40144e",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/evaluators/opencode.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/evaluators/prompt.js",
+      "sha256": "d07f0129a150a673d2f8c7a704040b4b0138b032463cd08c9ffd1175b81fdfa0",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/evaluators/prompt.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/evaluators/protocol.js",
+      "sha256": "4557a15194dec766aa6c3d5feb5529b52fc978a7dab3f3e7b67c14c1a02eda5e",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/evaluators/protocol.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/generators/claude.js",
+      "sha256": "2c0d6d4d1d119f4806593b8714334811aec3f9fc4b4420b11f3816c356750908",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/generators/claude.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/generators/codex.js",
+      "sha256": "238e13f04e7156a20c34726f5dcf0e102ba793a279c97f85691b85134776079f",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/generators/codex.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/generators/protocol.js",
+      "sha256": "aa114ec57d5dc67927acade959828d4cd3b71652c6c76c6c55f60a9360bf6533",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/generators/protocol.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/persistence.js",
+      "sha256": "9629b8ff1fda2514baf03a99590d52a9379ad2505431634fd6fa953e553af9fd",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/delivery-path-search/persistence.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/scoring.js",
+      "sha256": "e5130d4421e3bcf04a3659513fad2de7e33a949177e57fce2c7a45ed30577694",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/delivery-path-search/scoring.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/search-engine.js",
+      "sha256": "4ac4d4bb11297f684a0161b03bb0d07909ee814e2687026f4d2c8059befb5990",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/delivery-path-search/search-engine.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/state-adapter.js",
+      "sha256": "8f7223d79f68c0321c502dab4c4083b08535c67c0e9d6b1420645af06f3f3d13",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/delivery-path-search/state-adapter.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/surfaces/capabilities.js",
+      "sha256": "aca49ae6ee903382d1db69ceba7963243d1fdff65d5e1390f06f0c6c8ee7f5d9",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/surfaces/capabilities.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/delivery-path-search/transports/read-only-guard.js",
+      "sha256": "d1a428f69c8cebcd5c1b850a30c9fbfa171d704e00ad32dd45b02a537fc4f241",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/delivery-path-search/transports/read-only-guard.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/fs-swap.js",
+      "sha256": "b093f02620c132318ebcfdc6f4e992557b1cf37c93ea532cfc86df36f55b8029",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/fs-swap.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/loaded-sessions.js",
+      "sha256": "421d34b55a5c7214adfe11f3618cd1e686de5f86e767e4ae1103c2334edc7d27",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/loaded-sessions.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/marketplace.js",
+      "sha256": "ba16c8322947f0e58618a3cfcf39db73cf6b417ac39b52a3215d3d9d7b4c6136",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/marketplace.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/permission-rules.js",
+      "sha256": "099e2d5f8a567b73fd47f5631a60cc2fe26cee5f2f740cbedce6a058468cd010",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/permission-rules.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/plugin-mcp.js",
+      "sha256": "5b158208e910b84ec414dd879cdc4c20aba8288ae60142c7c8ede0e5717464c5",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/plugin-mcp.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/plugin.js",
+      "sha256": "4349643e093dc5bf43c4bd80291c24f1efcc9f43fbe8e67d93a0adb1b8c20075",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/plugin.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/runtime-check.js",
+      "sha256": "fe309c71b70bd88de458393c1dd3e9356b6c31546fa27e21895b4a699e28e0ac",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/runtime-check.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/session-command.js",
+      "sha256": "fc705975f1378497bae641f9d679ae13ccf7f48032da6e2eb3cb0f7b0927cd35",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/session-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/claude/uninstall.js",
+      "sha256": "50242d948f1bbe4d8bb66e8ee949905f520b0809dbbba47fdce88e259a7f3d9d",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/claude/uninstall.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/codex/identity.js",
+      "sha256": "b66011d015b3f0e07996f320bdf78079d55bb30cc4eae72fcf6bb1d3d9efc212",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/codex/identity.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/codex/plugin-mcp.js",
+      "sha256": "4dc62161a1abfb564f8d224f453b792f075f9da7f4e002dbf15f8388f2d54e59",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/codex/plugin-mcp.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/codex/plugin.js",
+      "sha256": "3cdb93e41759794225e9cb7481eb462a3f040b5f9b433658184dce6b043c21aa",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/codex/plugin.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/codex/runtime-check.js",
+      "sha256": "bcead3a92db8e3ae12ee8c2770c6c44917bb2a14cb590e170a6fa703904358bb",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/codex/runtime-check.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/codex/session-command.js",
+      "sha256": "64035f8eb12dd968f4401cbfd91d9a9e34588ca93d64f24af731cf1971267003",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/codex/session-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/copilot/plugin.js",
+      "sha256": "2111314a899050559aee5760f310ff953e3205d7339d7525817470f31670e41c",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/copilot/plugin.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/copilot/session-command.js",
+      "sha256": "eaf1e9b41afc50941234aee7b7ae9c429edde396612397238ac16db33f79ff87",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/copilot/session-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/opencode/runtime-check.js",
+      "sha256": "0f79e851c91f17b67765ac69e48dca09574aaaa150902d5efddf42ce7f22ceab",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/opencode/runtime-check.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/opencode/session-command.js",
+      "sha256": "6c93d33e2d6361c4bc929ee755e9d7b992d5f6ae94841c665713e6516d69915b",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/opencode/session-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/opencode/status.js",
+      "sha256": "0408e60067c6bc99cae1eef63cb1c98b5abee70268fc8c389d5118c08d1a09d0",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/opencode/status.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-adapters/session-command.js",
+      "sha256": "b85809f049be9d285f3db5c9b23ccc99c735ebf2ac4a40eacae345d382c73010",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-adapters/session-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/host-command.js",
+      "sha256": "3794812eee3bac2ebd49c70da27be279ce31c5330ea6d992160aaa5b36a77aa6",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/host-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/install-setup/contract.js",
+      "sha256": "fa248e1dc26ce046457b3211e7294d347c5a5eb2476ea4d3b4a5740f53aa4d44",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/install-setup/contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/install-setup/control-migration.js",
+      "sha256": "5d0fddd3177afd90c06671d41c5b01c0fa84a24a75524bd170721cd5e16f2e5f",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/install-setup/control-migration.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/install-setup/control-repair.js",
+      "sha256": "55154bcdbbbdc5d1771d2d373baba6553ff2691d201a4479498a7d5b513bb89c",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/install-setup/control-repair.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/install-setup/interaction.js",
+      "sha256": "255319d90bf2c0b251e6d9eccd4137392da2685342fc5b28e5c6dbffbc15e319",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/install-setup/interaction.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/install-setup/presentation.js",
+      "sha256": "32e87561ff9a9e6edf0dcf2d333fa96615a99658b53e9668b2694e99a41dd12f",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/install-setup/presentation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/install-setup/service.js",
+      "sha256": "6f736dbb3877fe31178adc4269e911520273038e42db1da0790ee221822dd4d9",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/install-setup/service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/claude-cache-recovery.js",
+      "sha256": "2762af266891804cd48ea0d568c3e03ee890017c30a2c2602b2810625a921ee2",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/claude-cache-recovery.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/copilot-marketplace-transport.js",
+      "sha256": "94150b6858ad346f9319d9a7efd08ae1590c11177964ada3f74b16d7a5809ebd",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/copilot-marketplace-transport.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/copilot-precedence.js",
+      "sha256": "5a1cb9a1bf7d160772fe87ceb14f6871d94421aa7249fcb7b89523e3549e5ec6",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/copilot-precedence.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/copilot-settings.js",
+      "sha256": "e15a0bd7ec7617e1c9e55bdfc069224a137ba5a2597e4067d0c040824aa15a31",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/copilot-settings.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/copilot-skill-discovery.js",
+      "sha256": "1f3fa9891a585c794389e1fbdc1d1c8909a92d97d90ac0d6182f37d09e7bcf7b",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/copilot-skill-discovery.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/local-development.js",
+      "sha256": "1c775cc17aa0a37f91d5ad94bdf7c9cac290ce12f42ee8b46eb2eb42d5b1de39",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/local-development.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/local-marketplace.js",
+      "sha256": "b2251984e4f2f01d47da344b0f6f359689fe5da59540b4be6395c8fb08577ff1",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/local-marketplace.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/npm-invocation.js",
+      "sha256": "7710fa08ce24ecb708b0c8e4793716b616e4fa5712b5438220f3c93bc738acc5",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/npm-invocation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/opencode-activation.js",
+      "sha256": "acac9917c03fb69bab598c426170277bfc970f47e496e224a0ed507a896ea867",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/opencode-activation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/opencode.js",
+      "sha256": "783eb8d2ae747539a49f7674e6d2b856ce2d0d695b33682dc7f9e88508271638",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/opencode.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/plugin-command.js",
+      "sha256": "b8cbf7fb08746b5d54d2216b9d201b2ec7f0db6686bb56bafdc308747fea925a",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/plugin-command.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/installers/plugin-installers.js",
+      "sha256": "2d9b9b9ac3fa69dc5e1057501fecc8dc5ae559d51e00b4b39a96ceeac2573a33",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/installers/plugin-installers.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/interaction-catalog-validation.js",
+      "sha256": "8d0249aaf0f69e481975422849fa744601a97ad00e4211ffd5a6d55eb3b0c0c7",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/interaction-catalog-validation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/interaction-catalog.js",
+      "sha256": "e9bd30a79fe76ac53dc3343d849f58156bf4ce1cbf7e5604d89ae05592574596",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/interaction-catalog.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/interaction-presentation.js",
+      "sha256": "551b9869b3204981e2e3270e68c6676b0c4472bf323c3b3710bcbdc0309c8122",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/interaction-presentation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/lifecycle/operations.js",
+      "sha256": "d2013ea2bde642e7027ba800dcc206809ddb51cbeba22f546545790484c3db1a",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/lifecycle/operations.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/lifecycle/owned-mutation.js",
+      "sha256": "1ad6b293022fce6adbc13ff920391e9e8f7c66438bc6aab78a7b6a08b625fca2",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/lifecycle/owned-mutation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/lifecycle/presentation.js",
+      "sha256": "5039d12749cc690a9788091608a816ba891dcd17ea66a7550a3c43a9c9b52c56",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/lifecycle/presentation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/lifecycle/result.js",
+      "sha256": "16c5f406a0fe08e90afb1b70fb95945011553e556ac262e0424b7d7201801ca7",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/lifecycle/result.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/lifecycle/status.js",
+      "sha256": "7cbe2ccb328383e35a16e00ec48bfb97ad2b418f381c079cfbeeb6f7c84247de",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/lifecycle/status.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/live-agent/read-only-structured.js",
+      "sha256": "00a6fac3f4f2edd6b20907b25fa305b87b65c7f0773e37360a657d8a0e2066fc",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/live-agent/read-only-structured.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-dispatch-runtime.js",
+      "sha256": "7f74ff9405701248823a3f39a122a09ccd6344bae8f674f7fc9397144f67c5ee",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-dispatch-runtime.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/adapter-contract.js",
+      "sha256": "000981e6b3e21a246c4d30d29a56582f3076dcf04f22a2ce3b29d6ddc6c84866",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/adapter-contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/adapters/claude.js",
+      "sha256": "daf90cc9e276a167d9e1e5dc7427953df5d5bfe4381cbfa67a6996b0ef3b82d3",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/adapters/claude.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/adapters/codex.js",
+      "sha256": "6fc37aef754b3c97b73eeb2723d522e735725ab593fa8460c4cbbff0f126a7e2",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/adapters/codex.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/adapters/copilot.js",
+      "sha256": "b7698c871c48e282a6fa02790feb22f47b757fa769eea355831ca97e135be76f",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/adapters/copilot.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/adapters/file-utils.js",
+      "sha256": "0c4e9d7156085740af0191e0939e8dce51d9c42b23c6af74ab22eda4b0cd6485",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/adapters/file-utils.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/adapters/opencode.js",
+      "sha256": "3d4cb3d2be01f5a0ecb8f6c3615317dc00667c5f4b6dfb5414a8313dc020a5ee",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/adapters/opencode.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/evidence.js",
+      "sha256": "ef9ea353495ebaa052e041e59f1d85ec370bc03fdcd00f7a54f6c3c592ac2a57",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/evidence.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/host-config.js",
+      "sha256": "de8ff16e62a067c2e0ae123427ace250c22b1e2a16ec036be1c10d96a7e2cb4d",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/host-config.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/package.js",
+      "sha256": "5945c8af06e4d379844e4260f467a763d8697036daa44c4251e5e3c7050783f1",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/package.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/plugin-runtime.js",
+      "sha256": "818336562b42a3ba31439d391046650fd44f84c27d8e90b9dad276452b6e0522",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/plugin-runtime.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/presentation.js",
+      "sha256": "0e425d45ffe73466777a6fc899eec59f6a8fa38e5320bbf4532249d96e9fa00f",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/presentation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/profile-context.js",
+      "sha256": "1b48011d7e6ea1136e0d775613f7a5dcadc0ed78b27ead1a8dc11edc44535e74",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/profile-context.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/profile.js",
+      "sha256": "3f3e87755cef53e500ffed9c333f7eba3f3986a8b4f624d912ff51ec17059796",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/profile.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/result.js",
+      "sha256": "9737de38f8e9de82c85ec1f60712aa7e210952d0064e8282be72291fc57810d7",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/result.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/mcp-lifecycle/service.js",
+      "sha256": "f265a9ef8a26a5d9d578c2f3926d5808eb3b04a4f214d37ddc9034be38255ab7",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/mcp-lifecycle/service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/npm-invocation.js",
+      "sha256": "958177d886bebb7d2b9a1b55fa46b8f7f1663a2cfdc76969db41868cc66e8c34",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/npm-invocation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/blind-prompt.js",
+      "sha256": "a7acc9f4493425d85724389a2f3cc268c9fccf08479210f755640eccb5f6fac8",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/blind-prompt.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/contracts.js",
+      "sha256": "7dbf0c88a0215da9470cb065b1fb7eb7457287fea1cef609a1aa934219bd2952",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/contracts.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/corpus-loader.js",
+      "sha256": "e1bab9cbdbdd1595d68998f5334c2fb57307608db44548a4672809ace0285ea0",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/corpus-loader.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/evaluator.js",
+      "sha256": "01d6c1f32aaf7ead1e2d6ea6134bea240e0bf4fa5378ba9b3711fa33a7ff00fd",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/evaluator.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/index.js",
+      "sha256": "aba83cbde3fbce192072520a8303f22f148a237b4eedde83de38206fa4485428",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/index.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/live-recorder.js",
+      "sha256": "cdadda7cd655ed08d8f9fd566810204858cb3581e6a1989ad06d436696f04c8b",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/live-recorder.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/profiles.js",
+      "sha256": "18d711ecb3f1dde762c06a964a15e3c2427cd350ff0e8300bfcb358046024056",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/profiles.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/report.js",
+      "sha256": "3174e458879110ab62cb494e4e8763f2f9a7ad301ec73af367d3f07f53c46222",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/report.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/proportionality-benchmark/source-fingerprint.js",
+      "sha256": "1cc8cc26a0f8d68c0c503a0bfc1961c5757f2482af1835d90d708622b722673c",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/proportionality-benchmark/source-fingerprint.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/builder.js",
+      "sha256": "4b3b36ee9ec7585e680b70d519562624bc98c0740fd8ef2e7bf27322d9d90b9d",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/builder.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/contract.js",
+      "sha256": "ab131d46e75d87c240bbff15ade7faf460132f05656f2032d666c8692e864b62",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/copilot-profile.js",
+      "sha256": "75ef47e641c5ab62aafdc72dd519bba2d65eb7bf12123610bcf16834a08c8838",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/copilot-profile.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/manifest.js",
+      "sha256": "686f289b26e850f5982c87128edb0dd04dd0be6af471a94001e72b370dd5d398",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/manifest.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/report.js",
+      "sha256": "c8100905d435fa8e4cf57291bebd5d8051f864c9e332176d75718a8ebd993e21",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/report.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/source-root.js",
+      "sha256": "4d61709ceea28366663c6f7089ebdf17845dd3b809fba27390764b9e09f7f312",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/source-root.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/public-plugin/validator.js",
+      "sha256": "dc3f83e250ce91ccd4bc0184ce53be7c61486d5c5b8ffb8e80fea70d924d05ab",
+      "design_owner": "scripts",
+      "planned_target": "scripts/public-plugin/validator.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/release/profile-history.js",
+      "sha256": "15c9ee69d1f51632279889e678c8b13667a9132f620f8f7a7d0a564b1152ac08",
+      "design_owner": "scripts",
+      "planned_target": "scripts/release/profile-history.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/release/registry-state.js",
+      "sha256": "7225f769b04ac1f23ebdaf7d7bf942e39941357d820ce183ff189bce41b4f9b9",
+      "design_owner": "scripts",
+      "planned_target": "scripts/release/registry-state.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/release/version-bump.js",
+      "sha256": "7647cf08e9966dc05e76e9722c275d2c0fbf368f904d788b998ee5e7c5002003",
+      "design_owner": "scripts",
+      "planned_target": "scripts/release/version-bump.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/release/version-coherence.js",
+      "sha256": "feac2a71b9e0ed311ef6ff12617b7a6e573519fa4c6af14fa703dd879c9ac427",
+      "design_owner": "scripts",
+      "planned_target": "scripts/release/version-coherence.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/repository-context-reader.js",
+      "sha256": "83f5d3d092cb079421ddd4ac0b2aaaed610abdc17722bbfa2a1b2db389932dc8",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/repository-context-reader.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/repository-context.js",
+      "sha256": "6d27ed2e29278466306bf54316fd3714399b45dabd9bb357bd3118c82016ae82",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/repository-context.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/request-activation-evals/behavioral.js",
+      "sha256": "55a237efe3f3799d048166ad65625f94dd9810e09c2ca3735f363bd43fc2dee6",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/request-activation-evals/behavioral.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/request-activation-evals/composed-profile.js",
+      "sha256": "9ae4a6947146c293290cc673b0fd1eb1a82103d43abe9d2522efeac01d086ee5",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/request-activation-evals/composed-profile.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/request-activation-evals/index.js",
+      "sha256": "2feac348705caf1f147e5b3b506f77435c4ac79fa354242eeac7adf6b85b3265",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/request-activation-evals/index.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime/control-command-service.js",
+      "sha256": "4a8ea7644a11e0e705080deb6d747daf612570d953951c940cc2650a8f79eca8",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime/control-command-service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime/control-context.js",
+      "sha256": "563b5577b8674f43f0de23d52377adab2846980f13418719d9000a0c7be47665",
+      "design_owner": "core_and_cli",
+      "planned_target": "packages/core/lib/resources/context.js",
+      "split_or_dependency_action": [
+        "Core resource validation/factory; CLI package root and packaged provider composition"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/runtime/distribution-profile-history.js",
+      "sha256": "e8d31599333c95e2f397b3637303713a2a064a95ea464dcab6ad80a2528f68f9",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/runtime/distribution-profile-history.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime/local-validator.js",
+      "sha256": "ee9a56fb3f8f2f52d37cd23fe9d79a7f94dfb29b7d79a34c673a787c792fca18",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime/local-validator.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime/plugin-provenance.js",
+      "sha256": "5ebe0ca2dcfdb6f677f0b59ef85b9e6ce8e6abe17074788fb4d1f355d6b72e3b",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/runtime/plugin-provenance.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime/validator-application.js",
+      "sha256": "913c2823c860acbb14071e7b9ff53848666e2a92073d9a74b391accab6eb3a6e",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime/validator-application.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/adapters.js",
+      "sha256": "633dae568fd1c9488daa804fcc588144786571358ccd20e67923c87ca6baa63b",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/adapters.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/claude-settings.js",
+      "sha256": "45125df36cbe4e05b871d826e1bbfc0f1105ab0ec81e46927dc7c0b56207a8c3",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/claude-settings.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/codex-hooks.js",
+      "sha256": "5662c0bb234b753df9aad7cba72e45ec010229b137aa766e17841be41d25a440",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/codex-hooks.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/codex-plugin-consent.js",
+      "sha256": "ca4cb2b62fda57a76796b5f79b0fa09b10b528dc4d15f5e614de739522fe5c73",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/codex-plugin-consent.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/contract.js",
+      "sha256": "41842832e785d712cab479dc1b0b1b1590940924f5f5793c4e1a15b0703d2733",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/coordinator.js",
+      "sha256": "2b57291e13058d89296cf59f6e432c9e757b0a2efb21ee486807502ee15b61a5",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/coordinator.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/service.js",
+      "sha256": "a4e22740c3a5942fd0c944b6e1d2cf0faa9e395494fef7f282ced7cb8a17b88b",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/runtime-check-consent/state.js",
+      "sha256": "3783be20f2a16e5e0a06eb54165056d5f882f9169ee8308de2d5671d2cc50145",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/runtime-check-consent/state.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/scaffold/canonical-init.js",
+      "sha256": "e75082e10a89280694432ab5e8301ce8c2be7d6aaa0aab3ba5c6abb7df610e14",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/scaffold/canonical-init.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/scaffold/plan.js",
+      "sha256": "0e90bf3782cf16392cf136e259d97f046b073bf3cb50221aa898c64cd9d52f89",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/scaffold/plan.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/scaffold/presentation.js",
+      "sha256": "370edd4c58618474389a6a2f148bc253b1e9c52fa609192931df3862e469e233",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/scaffold/presentation.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/scaffold/write.js",
+      "sha256": "27a6e8faa6a4a2c25fb8f3aec6a43ec0cd832e41b19f9ad78755b54e894513e4",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/lib/scaffold/write.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-dispatch/binding.js",
+      "sha256": "c17f3b107927e21c0db86ef0f12a99378cadd3179e1ed9c792c9f1e0fe75af1e",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/skill-dispatch/binding.js",
+      "split_or_dependency_action": [
+        "Pure grammar/binding validation stays Core; executable probe/environment/process launch moves packages/cli/lib/runtime/runtime-probe.js"
+      ]
+    },
+    {
+      "source": "create-agdf/lib/skill-dispatch/contract.js",
+      "sha256": "709ee03a5be42d8bb273a8c59567fc3e4c3eb7a2aae60734b4395664dabf841f",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/skill-dispatch/contract.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-dispatch/delivery-intake.js",
+      "sha256": "b71ff03716e9b4d42831f37a3ba711d0fbbd487b70b3100528bb9854bc6f9fe8",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/skill-dispatch/delivery-intake.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-dispatch/delivery-run-assignment.js",
+      "sha256": "07b895b820461b86d4b61adfdc3b32ea70ac37ec173c6574f8814c5050d62b9e",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/skill-dispatch/delivery-run-assignment.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-dispatch/service.js",
+      "sha256": "49407261c66cbf2822b72e8c7ec90214889be7c299b249f63cc6961e77ed8514",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/skill-dispatch/service.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-evals/artefact-quality.js",
+      "sha256": "bb4260a081fa8496b1b54d4ec4ca9b49f281755fe9630609065910bdffda17f9",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/skill-evals/artefact-quality.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-evals/index.js",
+      "sha256": "c86fa82f8b6831e07c100064258b68d2239d5682ec9b02157167b63cc98dbf67",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/skill-evals/index.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-evals/live-recorder.js",
+      "sha256": "de2e97c48d12d5dce03b43a51ca65c18525d8895621313ebbb2d2f4af8ca2612",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/skill-evals/live-recorder.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/skill-evals/workspace.js",
+      "sha256": "ae13f60fe359b9a6094b301b68ca0e4490357f99b3609e16a96ab4bd9edf2f74",
+      "design_owner": "evals",
+      "planned_target": "evals/lib/skill-evals/workspace.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/lib/task-target-resolution.js",
+      "sha256": "7da9db9754907a00d811d31184ccb776c9203e91d415e634c2bd56191c9a6ad5",
+      "design_owner": "core",
+      "planned_target": "packages/core/lib/task-target-resolution.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "agdf-mcp-server/src/main.js",
+      "sha256": "57bd5b5914f4e22b70caf6e68a44b8825d863f81c10b90d2daf41409968f77a7",
+      "design_owner": "mcp-server",
+      "planned_target": "packages/mcp-server/src/main.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "agdf-mcp-server/src/server.js",
+      "sha256": "c647221f3686414459db4ab82d1edd825b6d20dfee6f76d09c1f6ecdf80d3016",
+      "design_owner": "mcp-server",
+      "planned_target": "packages/mcp-server/src/server.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "agdf-mcp-server/src/worker-entry.js",
+      "sha256": "964bef88c0f52612a1613f3ac89e6ac346a0700ad237d72fe5d868e5a243f75e",
+      "design_owner": "mcp-server",
+      "planned_target": "packages/mcp-server/src/worker-entry.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "agdf-mcp-server/src/worker.js",
+      "sha256": "ba7344cbbb1b8c59b1a3b0befba2db4ed1915b097aea0d503de2088654c41d93",
+      "design_owner": "mcp-server",
+      "planned_target": "packages/mcp-server/src/worker.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "agdf-mcp-server/bin/agdf-mcp.js",
+      "sha256": "f90d9f04cdf4f60c6dc7ff60e1a7d71725751482b80691c4887dccc15116eaba",
+      "design_owner": "mcp-server",
+      "planned_target": "packages/mcp-server/bin/agdf-mcp.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/bin/agdf-validator.js",
+      "sha256": "0d92020ee7b3d4033b24f66be81941814fc773e4f3058e96c66ca2de2e3c61c0",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/bin/agdf-validator.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "create-agdf/bin/create-agdf.js",
+      "sha256": "33c8e1c8aa360e5e54cae17d6862441e22797be77a8f89fe611b57fa679073a7",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/bin/create-agdf.js",
+      "split_or_dependency_action": []
+    },
+    {
+      "source": "agdf/bin/agdf.js",
+      "sha256": "36156f8f708dcc8729a71fbea932e15c91f1cce91089ac77ba5f2be5ce66ad0e",
+      "design_owner": "cli",
+      "planned_target": "packages/cli/distribution/agdf/bin/agdf.js",
+      "split_or_dependency_action": []
+    }
+  ]
+}

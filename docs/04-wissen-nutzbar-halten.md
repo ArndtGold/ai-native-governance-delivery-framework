@@ -40,14 +40,14 @@ Schwieriger wird es zu verstehen:
 * Welche Auswirkungen hat eine Änderung?
 * Welche Nachweise stützen den aktuellen Stand?
 
-![Kontextkosten, Artefakte und Gedächtnis](../assets/kontextkosten-artefakte-gedaechtnis.png)
+![Kontextkosten, Artefakte und Gedächtnis](assets/kontextkosten-artefakte-gedaechtnis.png)
 
 Hersteller investieren (natürlich nicht umsonst) deshalb sichtbar in Memory, Projektwissen und Kontextverdichtung.
 
 Das bestätigt die praktische Beobachtung: Mehr Kontext allein löst das Problem nicht. **Wertvoll wird KI erst,** wenn
 vorhandenes Wissen gültig, auffindbar und wiederverwendbar bleibt.
 
-![Wissen gültig, auffindbar und wiederverwendbar halten](../assets/wissen-gueltig-auffindbar-wiederverwendbar.png)
+![Wissen gültig, auffindbar und wiederverwendbar halten](assets/wissen-gueltig-auffindbar-wiederverwendbar.png)
 
 Einige Unternehmen schalten solche Memory-Funktionen bewusst ab oder begrenzen sie. Gründe können Kosten, Datenschutz,
 fehlende Steuerung oder fehlende Kontrolle über gespeichertes Wissen sein.
@@ -136,7 +136,7 @@ Die Herausforderung besteht dann nicht mehr darin, einzelne Informationen zu spe
 Die größere Herausforderung besteht darin, vorhandenes Wissen richtig einzuordnen und seine Zusammenhänge
 nachvollziehbar zu halten.
 
-![Kontextgraph: Artefakte und Beziehungen](../assets/kontextgraph-artefakte-beziehungen.png)
+![Kontextgraph: Artefakte und Beziehungen](assets/kontextgraph-artefakte-beziehungen.png)
 
 Ein Kontextgraph macht diese Zusammenhänge sichtbar.
 
@@ -176,7 +176,7 @@ einzuordnen.
 
 **Nach einer Brownfield-Analyse sollte der Kontextgraph aktualisiert werden.**
 
-![Mit Brownfield zu besserem Projektgedächtnis](../assets/brownfield-zu-besseren-projektgedaechnis.png)
+![Mit Brownfield zu besserem Projektgedächtnis](assets/brownfield-zu-besseren-projektgedaechnis.png)
 
 Neue Erkenntnisse werden nicht automatisch Teil des Projektgedächtnisses.
 

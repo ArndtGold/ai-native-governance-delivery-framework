@@ -21,8 +21,8 @@ import { homedir } from "node:os";
 import { delimiter, dirname, isAbsolute, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { spawnHostSync } from "../../create-agdf/lib/host-command.js";
-import { CODEX_HOOK_STATES } from "../../create-agdf/lib/interaction-catalog.js";
+import { spawnHostSync } from "../../packages/cli/lib/host-command.js";
+import { CODEX_HOOK_STATES } from "../../packages/core/lib/interaction-catalog.js";
 
 const SERVER = "agdf";
 const TOOL = "agdf_dispatch";

@@ -1,0 +1,17 @@
+{
+  "source_modules": 73,
+  "core_dependencies": {},
+  "cycles": "none",
+  "core_backimports": "none",
+  "core_process_network_implementations": "none",
+  "evidence": "tests/core-boundaries.log",
+  "composition": "CLI → Core; MCP → public CLI dispatcher composition → Core; root scripts → source owners; private Core → node builtins/internal modules only",
+  "development_alias": {
+    "#agdf-core": "@agdf/core",
+    "#agdf-core/*": "@agdf/core/*"
+  },
+  "published_alias": {
+    "#agdf-core": "./runtime/core/lib/index.js",
+    "#agdf-core/*": "./runtime/core/lib/*"
+  }
+}

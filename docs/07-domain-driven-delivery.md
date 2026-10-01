@@ -148,7 +148,7 @@ Ein Notizzettel kann Arbeit auslösen.
 
 Ein Bauplan kann Arbeit erklären.
 
-![Vom Notizzettel zum Bauplan](../assets/notizzettel-zum-bauplan.png)
+![Vom Notizzettel zum Bauplan](assets/notizzettel-zum-bauplan.png)
 
 _Für KI-Agenten ist das entscheidend._
 
@@ -471,4 +471,4 @@ Dieser Bauplan zeigt, ob ein Agent fachlich richtig arbeitet oder nur plausibel 
 Die wichtigsten Begriffe sind im [Glossar](glossar.md) kurz abgegrenzt.
 
 Ein einfaches Beispiel für diese Denkweise zeigt
-der [KI-gestützte Lieferprozess in einem Bankenumfeld](../examples/sample-banking-flow.md).
+der [KI-gestützte Lieferprozess in einem Bankenumfeld](examples/sample-banking-flow.md).

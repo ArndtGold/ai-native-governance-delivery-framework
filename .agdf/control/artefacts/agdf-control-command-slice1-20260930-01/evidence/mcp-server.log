@@ -1,0 +1,23 @@
+npm notice run @agdf/mcp-server@0.14.5 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:continuation
+npm notice run node ./test/continuation.test.js
+All nine MCP skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.14.5 test:protocol
+npm notice run node ./test/protocol.test.js
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:safety
+npm notice run node ./test/safety.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:provenance
+npm notice run node ./test/provenance.test.js
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[543.462,525.469,536.24,504.072,505.525,516.212,569.439,634.061,512.774,503.659,501.002,499.004,496.146,501.093,508.409,501.321,496.408,502.443,498.919,500.44],"cold_p95_ms":569.439,"warm_dispatch_ms":[363.706,352.509,340.483,340.193,354.773,339.14,340.184,345.216,343.293,343.855,344.003,341.176,336.45,341.069,341.409,340.034,339.603,338.074,407.854,420.153],"warm_p95_ms":407.854}
+npm notice run @agdf/mcp-server@0.14.5 test:package
+npm notice run node ./test/package.test.js
+AGDF MCP package boundary tests passed.

@@ -12,11 +12,11 @@ Verfügbarkeit noch die Bedeutung bestehender Werkzeuge.
 - **`open`:** braucht eine eigene Entscheidung oder belastbare Evidenz.
 
 Die Aussagen zu implementiertem Verhalten beziehen sich auf die Repository-Quellen, die am
-29.09.2026 geprüft wurden. Sie sind keine Aussage über eine veröffentlichte Version oder eine gerade
-geladene Host-Sitzung. Die bestehende [Architekturübersicht](README.md) dokumentiert ihren
-Entwicklungsstand vom 09.09.2026 und hält ausdrücklich fest, dass AGDF 0.14.5 keine MCP-Unterstützung
-besitzt. Diese Zielarchitektur löst eine mögliche Abweichung zwischen historischem Überblick,
-aktuellem Quellstand, Release und Host nicht auf; dafür bleibt der jeweilige Nachweis maßgeblich.
+30.09.2026 geprüft wurden. Sie sind keine Aussage über eine veröffentlichte Version oder eine gerade
+geladene Host-Sitzung. Die [Architekturübersicht](README.md) und der
+[Dispatcher-Use-Case-Katalog](dispatcher.md) beschreiben diesen Quellstand. Paketmetadaten,
+veröffentlichtes Paket und geladene Host-Sitzung benötigen jeweils eigene Nachweise. Die Kandidaten
+in diesem Dokument erweitern das implementierte Verhalten nicht.
 
 ## Ausgangspunkt: heutige Grenze
 
@@ -35,6 +35,11 @@ Die semantischen Eigentümer sind die Verträge in
 Definitionen zusammen; der
 [MCP-Server](../../agdf-mcp-server/src/server.js) registriert sie und leitet Aufrufe weiter. Der
 Adapter fügt keine fachliche Gate- oder Freigabelogik hinzu.
+
+Run-Zuordnung, Intake-Schritte, Gate-Artefaktvorbereitung und Präsentationsvorbereitung sind im
+[aktuellen Dispatcher-Katalog](dispatcher.md#use-case-katalog) erläutert. Der Dispatcher gibt
+begrenzt gebundene Aufträge zurück; der Agent führt die Schritte über bestehende Skills und Writer
+aus. Daraus folgt keine allgemeine MCP-Schreib- oder Approval-API für das hier diskutierte Zielbild.
 
 **Offen:** Ob und in welchen Releases diese Quellverträge als MCP-Werkzeuge verfügbar sind, muss
 separat anhand des Pakets, der Installation und der jeweiligen Host-Sitzung belegt werden. Eine

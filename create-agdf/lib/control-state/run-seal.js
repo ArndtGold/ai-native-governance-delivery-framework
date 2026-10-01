@@ -1,3 +1,5 @@
+import { APPROVAL_GATES } from "./run-identity.js";
+import { approvalOperationsRecord, readApprovalOperations } from "./approval-operations.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
@@ -7,7 +9,7 @@ import { containedRegularFile, isSafeControlRelativePath } from "./contained-fil
 // The seal makes unrecorded edits visible: content_seal covers the run state and every file listed
 // under Artefacts, approval_seal covers only the recorded gate approvals. It detects changes made
 // outside run-update, run-revise and run-approve; it is not a signature and does not resist deliberate tampering.
-export const APPROVAL_GATES = Object.freeze(["UR", "PRD", "SD", "TP", "QA", "UAT"]);
+export { APPROVAL_GATES } from "./run-identity.js";
 export const APPROVAL_SECTIONS = Object.freeze(["Approvals", "Gate Checklist"]);
 const SEAL_PATTERN = /^sha256:[0-9a-f]{64}$/u;
 const REVISION_META_LINE = /^- (?:revision|revision_id|content_seal|approval_seal):/u;
@@ -97,7 +99,10 @@ export function approvalRecord(content) {
 }
 
 export function approvalSeal(content) {
-  return sha256(["agdf-approval-seal/1", approvalRecord(content)].join("\n"));
+  const operations = approvalOperationsRecord(content);
+  return sha256(operations === null
+    ? ["agdf-approval-seal/1", approvalRecord(content)].join("\n")
+    : ["agdf-approval-seal/2", approvalRecord(content), operations].join("\n"));
 }
 
 export function computeRunSeals(root, content, { selfReferenceDigest = "self" } = {}) {
@@ -136,6 +141,7 @@ export function runSealState(root, content) {
   if (!SEAL_PATTERN.test(recorded.content_seal ?? "") || !SEAL_PATTERN.test(recorded.approval_seal ?? "")) {
     return Object.freeze({ status: "invalid", recorded });
   }
+  if (!readApprovalOperations(text).valid) return Object.freeze({ status: "invalid", recorded });
   const actual = computeRunSeals(root, text);
   const status = actual.approval_seal !== recorded.approval_seal
     ? "approvals_changed"

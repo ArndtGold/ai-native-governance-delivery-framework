@@ -13,17 +13,13 @@ beantwortet vier Fragen:
 3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?
 4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?
 
-**Stand: 9. September 2026.** Beschrieben ist der unveröffentlichte Entwicklungsstand für die
-nächste AGDF-Version auf Basis von **AGDF 0.14.5**, dem Repository-Ausgangsstand
-`5397df666b6e6384a13ba84325c78e70e639627c` und den Runs
-[`agdf-cross-host-mcp-integration`](../../.agdf/control/runs/agdf-cross-host-mcp-integration/RUN_STATE.md)
-und [`agdf-guided-mcp-activation`](../../.agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md).
-**AGDF 0.14.5 besitzt keine MCP-Unterstützung.** Der MCP-Server, die MCP-Lifecycle-Befehle und die
-geführte MCP-Aktivierung gehören erst zur derzeit entwickelten Folgeversion. Deren Versionsnummer
-ist in dieser Dokumentation nicht vorweggenommen. Befehle mit `mcp`, `--with-mcp` oder
-`--mcp-scope` sind bis zur Veröffentlichung Zielbild und Entwicklungsbeispiele. Sie beschreiben
-weder AGDF 0.14.5 noch automatisch den aktuell von npm aufgelösten `@latest`-Stand. Dieser
-Entwicklungsstand ist außerdem keine Aussage über eine aktuell in einem Host geladene Installation.
+**Stand: 30. September 2026, Repository-Quelle.** Beschrieben sind die im Quellstand vorhandenen
+Skills, Dispatcher, MCP-Werkzeuge und Installations-/Lifecycle-Services. Die Paketmetadaten von
+[`create-agdf`](../../create-agdf/package.json) und
+[`@agdf/mcp-server`](../../agdf-mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
+belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets
+oder einer geladenen Host-Installation. Quellstand, verteiltes Paket und frische Host-Sitzung
+benötigen jeweils eigene Nachweise; historische Host-Beobachtungen stehen in Abschnitt 7.
 
 Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Die
 verbindliche technische Ausgestaltung des MCP-Lebenszyklus steht im
@@ -33,6 +29,10 @@ geführte Komposition mit der Plugin-Installation steht im
 sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im
 [Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Architekturübersicht
 erklärt die Zusammenhänge. Sie erzeugt keine eigenen Regeln.
+
+Der [Dispatcher-Katalog](dispatcher.md) beschreibt das aktuelle Routing mit Zuständigkeiten,
+Use Cases, Ergebnisbehandlung und konkreten Quell-/Test-Einstiegen. Er ist der zentrale Leseeinstieg
+für Run-Zuordnung, begrenzte Fortsetzungen und die Übergabe zur menschlichen Entscheidung.
 
 Ein **nicht-normativer Diskussionsvorschlag** für mögliche fachliche MCP-Schnittstellen steht in
 der [Zielarchitektur Fachlicher MCP-Schnittstellen](mcp-target-architecture.md). Er ergänzt diese
@@ -56,7 +56,9 @@ Integration mit. MCP stellt einen ausführbaren, typisierten Werkzeugaufruf bere
 denselben Dispatcher erreichen. Weder Installation noch Registrierung erteilen eine AGDF-Freigabe.
 
 ```text
-Nutzer -> Coding-Agent -> Skill oder agdf_dispatch -> Dispatcher -> Ziel- und Gate-Prüfung
+Nutzer -> Coding-Agent -> Skill oder agdf_dispatch -> Dispatcher
+  -> Zielbindung -> bei Intake: Run-Zuordnung -> Gate-Auswertung
+  -> terminale Antwort ODER begrenzter Auftrag an den Agenten
 
 Separat:
 @agdf/cli -> mcp status | enable | disable -> Host-Konfiguration -> lokale MCP-Laufzeit
@@ -67,10 +69,11 @@ Separat:
 - [Systemkontext](#1-systemkontext): Wo AGDF sitzt und wer handelt.
 - [Bausteine](#2-bausteine-und-verantwortlichkeiten): Welche Quelle welche Bedeutung besitzt.
 - [Aufrufwege und Setup](#3-zwei-wege-zum-gemeinsamen-dispatcher): Wie Skill und MCP zusammenlaufen und wie der geführte CLI-Weg beide Installationszustände verbindet.
+- [Dispatcher und Use Cases](dispatcher.md): Was bei Intake, Run-Zuordnung, Gate-Artefaktvorbereitung, Skill-Fortsetzung und Freigabevorbereitung geschieht.
 - [MCP-Lebenszyklus](#4-der-mcp-lebenszyklus): Wie Registrierung, Laufzeit und Entfernung funktionieren.
 - [Entscheidungsbefugnis](#5-regel-prüfung-und-durchsetzung): Was eine technische Aktion nicht autorisiert.
 - [Verteilung](#6-vom-quellstand-zur-geladenen-sitzung): Warum Quelle, Paket und Host getrennt geprüft werden.
-- [Nachweise](#7-protokoll-host-und-abnahmenachweise): Welche Evidenz eine Unterstützungszusage trägt.
+- [Nachweise](#7-protokoll--host--und-abnahmenachweise): Welche Evidenz eine Unterstützungszusage trägt.
 - [Codeorientierung](#8-orientierung-im-quellcode): Wo Einsteiger die maßgeblichen Module finden.
 - [Entscheidungen und Pflege](#9-architekturentscheidungen-grenzen-und-pflege): Welche Gründe die Struktur bestimmen.
 
@@ -114,13 +117,14 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 |---|---|---|
 | Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugin/meta/contracts/`](../../plugin/meta/contracts/), [`plugin/skills/`](../../plugin/skills/) |
 | Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) |
-| Dispatch | Prüft Eingaben, bindet das Ziel und liefert ein terminales Kontrollergebnis oder einen begrenzten Fortsetzungsauftrag. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js) |
-| MCP-Server | Übersetzt MCP `tools/list` und `tools/call` in den vorhandenen Dispatch-Aufruf. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |
+| Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js), [Use-Case-Katalog](dispatcher.md) |
+| MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |
 | MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |
 | MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) |
 | MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) |
 | Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../create-agdf/lib/mcp-lifecycle/package.js) |
-| Kontrollzustand und Prüfung | Lesen und validieren Run, Artefakte, Freigaben und Voraussetzungen. | [`control-state/`](../../create-agdf/lib/control-state/), [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
+| Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |
+| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../create-agdf/lib/control-state/) |
 | Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../create-agdf/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../create-agdf/lib/mcp-lifecycle/presentation.js) |
 | Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Sie bleibt vom MCP-Lebenszyklus getrennt. | [`installers/`](../../create-agdf/lib/installers/), [`host-adapters/`](../../create-agdf/lib/host-adapters/) |
 | Geführte Installation | Liest Plugin- und MCP-Zustand, erfasst eine bewusste Setup-Auswahl und komponiert die getrennten Lebenszyklen in sicherer Reihenfolge. | [`install-setup/`](../../create-agdf/lib/install-setup/), [`cli/application.js`](../../create-agdf/lib/cli/application.js) |
@@ -167,9 +171,10 @@ Gate-Auswertung und gemeinsame Ergebnisdarstellung bleiben außerhalb des Adapte
 
 ## 3. Zwei Wege zum gemeinsamen Dispatcher
 
-![Aufruffluss: Eine aktivierte Nutzeranfrage kann über Skill-Bindung oder MCP-Werkzeugaufruf denselben semantischen Vertrag und Dispatcher erreichen. Zielauflösung und Gate-Auswertung bleiben gemeinsam.](diagrams/03-dispatch.svg)
+![Aufruffluss: Skill und MCP erreichen denselben Dispatcher. Nach Zielbindung und gegebenenfalls Run-Zuordnung folgen Gate-Auswertung, terminale Antwort oder begrenzte Agentenfortsetzung einschließlich Präsentationsvorbereitung.](diagrams/03-dispatch.svg)
 
-*Abbildung 3: Zwei Einstiegspunkte, ein semantischer Vertrag und ein Dispatcher.
+*Abbildung 3: Logischer Dispatch-Ablauf mit getrennten Verantwortlichkeiten. Die Fortsetzungen
+setzen die im [Katalog](dispatcher.md) beschriebenen Eingaben und Kontrollbedingungen voraus.
 [Diagrammquelle](diagrams/03-dispatch.dot).*
 
 ### 3.1 Agentennativer Skill-Weg
@@ -209,8 +214,9 @@ Jedes Dispatcher-Ergebnis trägt `authorizes: false`. Ein Ergebnis kann zeigen, 
 blockiert ist. Es kann keine menschliche Freigabe erzeugen. Ein terminales Ergebnis wird vom Host
 als gesamte Antwort unverändert dargestellt und beendet diesen Dispatch-Aufruf. Der Host darf davor
 oder danach keine Frage, Erklärung, Übersetzung oder weitere Aktion ergänzen. Ein
-Fortsetzungsauftrag bindet genau einen Skill und ein Ziel, er erteilt aber ebenfalls keine
-Gate-Freigabe.
+Fortsetzungsauftrag liefert entweder einen benannten Skill oder konkrete Intake-/Präsentationsschritte
+für das gebundene Ziel. Der Agent führt diese separat aus; der Dispatcher schreibt keinen
+Kontrollzustand und erteilt keine Gate-Freigabe.
 
 Bei einem Umsetzungsauftrag ohne bestätigte Run-Bindung liefert der erste Intake-Dispatch
 `resolve_delivery_run`, bevor ein einzelnes Gate ausgewertet wird. Der Coding-Agent vergleicht
@@ -221,18 +227,18 @@ Ein einzelner aktiver Run oder sein Zeitstempel beweist keine Zuordnung. Der Dis
 Integrität und Revision erneut; fehlerhafte Daten werden nicht als fehlender Treffer ausgelegt.
 Die Zuordnung erzeugt weder ein weiteres Skill-Gate noch eine zweite persistierte Run-Liste.
 
-| Situation beim Umsetzungsauftrag | Verhalten |
-| --- | --- |
-| Eindeutige Fortsetzung innerhalb eines bestehenden UR | Bestehenden Run mit der gelesenen Revision fortsetzen |
-| Eigenständiger Auftrag, kein passender aktiver Umfang | Run-ID intern vergeben, neuen Run erzeugen und UR zur Freigabe vorbereiten |
-| Mehrere plausible Umfänge oder unklare Fortsetzung | Eine fachliche Frage zum gewünschten Umfang stellen |
-| Revision seit der Zuordnung geändert | Kandidaten aktualisieren und den Umfang erneut vergleichen |
-| Run-Daten unvollständig oder Integrität verletzt | Konkreten technischen Befund melden; Zuordnung bleibt blockiert |
-
 Die fachliche Entscheidung bleibt beim Coding-Agenten. Der Laufzeitcode prüft deren technische
 Bindung; er beweist keine semantische Übereinstimmung und übernimmt keine frühere Freigabe.
 Statusabfragen nutzen weiterhin die eigene Run-Auswahlkarte. CLI-Fallback und MCP liefern bei
 Skill-Fortsetzungen die registrierten Verträge aus dem eigenen Paket.
+
+Der [Use-Case-Katalog](dispatcher.md#use-case-katalog) führt die Fälle zentral zusammen. Er
+unterscheidet die drei `gate-check`-Absichten: Kontrollstatus ohne Fortsetzungsoption,
+Delivery-Einstieg mit `intake` und gebundene Fortsetzung mit `continue_delivery`. Für das aktuelle
+Gate kann der Evaluator `prepare_gate_artifact` liefern; erst nach Erstellung und erneuter Prüfung
+folgt gegebenenfalls `presentation_required`. Der Agent ruft dann den separaten Writer `run-present`
+auf, zeigt dessen gebundenen Text unverändert und wartet auf eine neue menschliche Antwort.
+Eine Dispatcher-Vorschau allein bindet weder die Präsentation noch die Freigabe.
 
 Wenn das Zielprojekt feststeht, aber mehrere aktive Runs möglich sind, ermittelt der
 Gate-Evaluator einmal die vollständige kanonische Kandidatenliste. Der Dispatcher übergibt diese
@@ -464,8 +470,9 @@ Sitzungsvariante, Betriebssystem und Architektur, Scope und Konfigurationsquelle
 Dispatcher- und SDK-Version, Einstiegspunkt sowie Discovery-, Dispatch-, Fehler- und
 Cleanup-Nachweis. Fehlt ein Pflichtfeld, bleibt die Fähigkeit `unverified`.
 
-Der [direkte Nachweis dieses Runs](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md)
-enthält vier begrenzte macOS-Beobachtungen:
+Der [direkte Nachweis des Runs `agdf-cross-host-mcp-integration`](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/DIRECT_HOST_EVIDENCE.md)
+enthält vier begrenzte macOS-Beobachtungen. Die folgende Tabelle fasst diese historische Evidenz
+zusammen; sie ist keine aktuelle Bestandsaufnahme aller Installationen:
 
 | Host | Direkt beobachtet | Offene Grenze |
 |---|---|---|
@@ -474,19 +481,29 @@ enthält vier begrenzte macOS-Beobachtungen:
 | Claude Code 2.1.193 | Registrierung, native Rücklesung und Entfernung. | Authentifizierung scheiterte vor Discovery und Aufruf. |
 | GitHub Copilot Desktop 1.1.15 | Projektdatei, Lifecycle-Status und Entfernung. | Kein aufrufbarer CLI- oder automatisierbarer frischer Desktop-Client. |
 
-Alle vier exakten Tupel bleiben deshalb `unverified`. Die erfolgreichen Teilbeobachtungen werden
+Alle vier exakten Tupel sind in dieser Evidenz deshalb `unverified`. Die erfolgreichen Teilbeobachtungen werden
 nicht zu einer allgemeinen Cross-Host-Unterstützungszusage hochgestuft.
 
-Für die neue geführte Einrichtung liegen zunächst Repository-, Paket- und Protokolltests vor. Eine
-reale Installation, die sichtbare Auswahl, ein vollständiger Neustart und eine neue Host-Sitzung
-werden im Run `agdf-guided-mcp-activation` getrennt protokolliert. Bis diese direkte Matrix
-ausgeführt ist, bleibt ihre Host-Evidenz `unverified`.
+Für die geführte Einrichtung werden Repository-, Paket- und Protokolltests sowie direkte
+Beobachtungen im Run
+[`agdf-guided-mcp-activation`](../../.agdf/control/runs/agdf-guided-mcp-activation/RUN_STATE.md)
+getrennt protokolliert. Eine reale Installation, sichtbare Auswahl, vollständiger Neustart und eine
+neue Host-Sitzung benötigen ihre eigenen Nachweise. Der aktuelle Evidenzstand ist dort zu prüfen;
+das Datum dieser Architekturübersicht aktualisiert keine Host-Qualifikation.
 
 Die menschliche UAT bewertet, ob Status, Aktivierung, Neustart-Hinweis, Recovery und Deaktivierung
 verständlich und erwartbar sind. Sie ersetzt weder einen fehlenden Host-Aufruf noch ein fehlendes
 Fehler- oder Cleanup-Signal.
 
 ## 8. Orientierung im Quellcode
+
+Für den Dispatcher beginnt der [zentrale Katalog](dispatcher.md#quellen-und-verifikation) beim
+Werkzeugvertrag und [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js).
+[`delivery-run-assignment.js`](../../create-agdf/lib/skill-dispatch/delivery-run-assignment.js)
+liefert Zuordnungsbelege, [`delivery-intake.js`](../../create-agdf/lib/skill-dispatch/delivery-intake.js)
+die gebundenen Intake-Schritte. [`control-evaluation/gate-check.js`](../../create-agdf/lib/control-evaluation/gate-check.js)
+besitzt die Gate-Auswertung; [`control-state/run-presentation.js`](../../create-agdf/lib/control-state/run-presentation.js)
+die separate Präsentationsbindung. Die zugehörigen Tests sind im Katalog verlinkt.
 
 Wer den MCP-Pfad erstmals untersucht, kann in dieser Reihenfolge lesen:
 

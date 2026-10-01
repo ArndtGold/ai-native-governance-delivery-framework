@@ -1,5 +1,6 @@
 export const RUN_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/;
 export const REVISION_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const APPROVAL_GATES = Object.freeze(["UR", "PRD", "SD", "TP", "QA", "UAT"]);
 
 export function validateRunIdentity({ runId, revisionId } = {}) {
   const findings = [];

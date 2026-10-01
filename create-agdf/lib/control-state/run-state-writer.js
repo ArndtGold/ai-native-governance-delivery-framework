@@ -1,3 +1,4 @@
+import { assertApprovalOperationsChange, readApprovalOperations, validApprovalReceipt } from "./approval-operations.js";
 import { randomUUID } from "node:crypto";
 import {
   closeSync,
@@ -36,7 +37,7 @@ function stampRunActivity(content, updatedAt = new Date().toISOString()) {
   return content.replace(/(^## Run Meta\s*\n(?:.*\n)*?- revision_id:.*$)/mu, `$1\n- updated_at: ${updatedAt}`);
 }
 
-export function atomicWrite(path, content) {
+export function atomicWrite(path, content, { checkpoint = () => {} } = {}) {
   let previousMode;
   if (existsSync(path)) {
     const destination = lstatSync(path);
@@ -56,15 +57,21 @@ export function atomicWrite(path, content) {
 
   try {
     descriptor = openSync(temp, "wx", 0o600);
+    checkpoint("temp_opened");
     writeFileSync(descriptor, content, "utf8");
+    checkpoint("temp_written");
     if (previousMode !== undefined && process.platform !== "win32") fchmodSync(descriptor, previousMode);
     fsyncSync(descriptor);
+    checkpoint("after_file_sync");
     closeSync(descriptor);
     descriptor = undefined;
 
     // Windows scanners briefly lock fresh files; the same bounded retry as the marketplace swap.
+    checkpoint("before_rename");
     renameSyncWithRetry(temp, path);
+    checkpoint("after_rename");
     fsyncDirectory(dirname(path));
+    checkpoint("after_directory_sync");
   } catch (error) {
     if (descriptor !== undefined) closeSync(descriptor);
     try {
@@ -85,14 +92,14 @@ function lockError(path) {
   return error;
 }
 
-function ownerIsProvenGone(owner) {
+function ownerState(owner) {
   if (!owner || !Number.isSafeInteger(owner.pid) || owner.pid <= 0
-      || typeof owner.token !== "string" || !/^[0-9a-f-]{36}$/iu.test(owner.token)) return false;
+      || typeof owner.token !== "string" || !/^[0-9a-f-]{36}$/iu.test(owner.token)) return "unknown";
   try {
     process.kill(owner.pid, 0);
-    return false;
+    return "live";
   } catch (error) {
-    return error?.code === "ESRCH";
+    return error?.code === "ESRCH" ? "gone" : "unknown";
   }
 }
 
@@ -114,8 +121,13 @@ function reclaimAbandonedLock(path) {
       throw error;
     }
     let owner;
-    try { owner = JSON.parse(original); } catch { throw lockError(path); }
-    if (!ownerIsProvenGone(owner)) throw lockError(path);
+    try { owner = JSON.parse(original); } catch { owner = null; }
+    const status = ownerState(owner);
+    if (status !== "gone") {
+      const error = lockError(path);
+      error.lock_owner_status = status;
+      throw error;
+    }
     if (!lstatSync(path).isFile() || readFileSync(path, "utf8") !== original) throw lockError(path);
     unlinkSync(path);
     fsyncDirectory(dirname(path));
@@ -125,7 +137,7 @@ function reclaimAbandonedLock(path) {
   }
 }
 
-export function withOwnedFileLock(path, work) {
+export function withOwnedFileLock(path, work, { checkpoint = () => {} } = {}) {
   const lockPath = `${path}.lock`;
   let lockDescriptor;
   try {
@@ -147,7 +159,10 @@ export function withOwnedFileLock(path, work) {
     writeFileSync(lockDescriptor, `${JSON.stringify(owner)}\n`, "utf8");
     fsyncSync(lockDescriptor);
     ownerWritten = true;
-    return work(owner);
+    checkpoint("lock_acquired");
+    const result = work(owner);
+    checkpoint("before_lock_release");
+    return result;
   } finally {
     closeSync(lockDescriptor);
     // A changed lock does not belong to this invocation and must never be removed by it.
@@ -160,14 +175,15 @@ export function withOwnedFileLock(path, work) {
     } catch (error) {
       if (error?.code !== "ENOENT" && error instanceof SyntaxError === false) throw error;
     }
+    checkpoint("after_lock_release");
   }
 }
 
-export function withRunLock(path, work) {
-  return withOwnedFileLock(path, work);
+export function withRunLock(path, work, options) {
+  return withOwnedFileLock(path, work, options);
 }
 
-export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite } = {}) {
+export function writeRunLocked(path, content, expectedRevisionId, { allowApprovalChange = false, allowContentChange = false, allowPendingTransaction = false, nextRevisionId = randomUUID(), expectedContent, validateBeforeWrite, appendedReceipt, checkpoint } = {}) {
   const root = runRootFromStatePath(path);
   if (!allowPendingTransaction && existsSync(join(dirname(path), "RUN_STEP_PENDING.json"))) {
     throw new Error("AGDF_RUN_STEP_RECOVERY_REQUIRED");
@@ -187,6 +203,15 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
       throw new Error("AGDF_RUN_APPROVALS_UNRECORDED");
     }
 
+    assertApprovalOperationsChange(currentContent, content, appendedReceipt);
+    if (appendedReceipt && (!allowApprovalChange || !validApprovalReceipt(appendedReceipt)
+        || appendedReceipt.binding.run_id !== current.meta.run_id
+        || appendedReceipt.effect.previous_revision_id !== expectedRevisionId
+        || appendedReceipt.effect.resulting_revision_id !== nextRevisionId
+        || appendedReceipt.effect.revision !== Number(current.meta.revision) + 1
+        || parseControlState(content, { userGates: APPROVAL_GATES }).approvals.get(appendedReceipt.binding.gate)?.status !== "approved")) {
+      throw new Error("AGDF_APPROVAL_OPERATIONS_INVALID");
+    }
     if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
     validateBeforeWrite?.();
     const next = sealRunState(root, stampRunActivity(canonicalRunText(content))
@@ -200,7 +225,7 @@ export function writeRunLocked(path, content, expectedRevisionId, { allowApprova
       throw new Error("AGDF_RUN_STATE_INVALID");
     }
 
-    atomicWrite(path, next);
+    atomicWrite(path, next, { checkpoint });
     return candidate;
 }
 
@@ -276,6 +301,8 @@ export function writeRunRecoveryLocked(path, candidateContent, {
   if (current.meta.revision_id !== expectedRevisionId || currentContent !== expectedContent) {
     throw new Error("AGDF_STALE_RUN_REVISION");
   }
+  assertRecoveryOperationsTrusted(currentContent);
+  assertApprovalOperationsChange(currentContent, candidateContent);
   const currentSeal = runSealState(root, currentContent);
   if (!["unsealed", "invalid"].includes(currentSeal.status)) {
     throw new Error("AGDF_RUN_RECOVERY_NOT_REQUIRED");
@@ -296,4 +323,22 @@ export function writeRunRecoveryLocked(path, candidateContent, {
 
 export function writeRun(path, content, expectedRevisionId, options = {}) {
   return withRunLock(path, () => writeRunLocked(path, content, expectedRevisionId, options));
+}
+
+// A retry acknowledges the existing canonical revision without writing another one.
+export function flushRunCommit(path) {
+  const descriptor = openSync(path, "r");
+  try {
+    const file = lstatSync(path);
+    if (file.isSymbolicLink() || !file.isFile()) throw new Error("AGDF_RUN_PATH_INVALID");
+    fsyncSync(descriptor);
+  } finally { closeSync(descriptor); }
+  fsyncDirectory(dirname(path));
+}
+
+export function assertRecoveryOperationsTrusted(content) {
+  const operations = readApprovalOperations(content);
+  if (!operations.valid || (operations.present && parseRunState(content).meta.approval_seal !== approvalSeal(content))) {
+    throw new Error("AGDF_APPROVAL_OPERATIONS_UNTRUSTED");
+  }
 }

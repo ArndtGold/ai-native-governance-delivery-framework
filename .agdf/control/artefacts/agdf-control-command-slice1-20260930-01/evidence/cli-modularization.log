@@ -1,0 +1,270 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /AGDF 0\.14\.5 besitzt keine MCP-Unterstützung/. Input:
+
+'# Technische Architektur von AGDF\n' +
+  '\n' +
+  'AGDF verbindet Anweisungen für Coding-Agenten, lokal ausführbare Prüfungen und einen dauerhaften\n' +
+  'Kontrollzustand im Projekt. Der Agent arbeitet weiterhin in Codex, Claude Code, OpenCode oder GitHub\n' +
+  'Copilot. AGDF liefert ihm einen gemeinsamen Governance-Pfad und kann diesen Pfad zusätzlich über\n' +
+  'einen lokalen MCP-Server als Werkzeug bereitstellen.\n' +
+  '\n' +
+  'Diese Dokumentation erklärt die vorhandene Implementierung für Einsteiger und Maintainer. Sie\n' +
+  'beantwortet vier Fragen:\n' +
+  '\n' +
+  '1. Welche Teile laufen im Coding-Agenten und welche gehören zu AGDF?\n' +
+  '2. Wie gelangt ein Nutzerwunsch über einen Skill oder MCP zum gleichen Dispatcher?\n' +
+  '3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?\n' +
+  '4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?\n' +
+  '\n' +
+  '**Stand: 30. September 2026, Repository-Quelle.** Beschrieben sind die im Quellstand vorhandenen\n' +
+  'Skills, Dispatcher, MCP-Werkzeuge und Installations-/Lifecycle-Services. Die Paketmetadaten von\n' +
+  '[`create-agdf`](../../create-agdf/package.json) und\n' +
+  '[`@agdf/mcp-server`](../../agdf-mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein\n' +
+  'belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets\n' +
+  'oder einer geladenen Host-Installation. Quellstand, verteiltes Paket und frische Host-Sitzung\n' +
+  'benötigen jeweils eigene Nachweise; historische Host-Beobachtungen stehen in Abschnitt 7.\n' +
+  '\n' +
+  'Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Die\n' +
+  'verbindliche technische Ausgestaltung des MCP-Lebenszyklus steht im\n' +
+  '[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md). Seine\n' +
+  'geführte Komposition mit der Plugin-Installation steht im\n' +
+  '[Setup-Solution-Design](../../.agdf/control/artefacts/agdf-guided-mcp-activation/SD.md). Zuständigkeiten\n' +
+  'sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im\n' +
+  '[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Architekturübersicht\n' +
+  'erklärt die Zusammenhänge. Sie erzeugt keine eigenen Regeln.\n' +
+  '\n' +
+  'Der [Dispatcher-Katalog](dispatcher.md) beschreibt das aktuelle Routing mit Zuständigkeiten,\n' +
+  'Use Cases, Ergebnisbehandlung und konkreten Quell-/Test-Einstiegen. Er ist der zentrale Leseeinstieg\n' +
+  'für Run-Zuordnung, begrenzte Fortsetzungen und die Übergabe zur menschlichen Entscheidung.\n' +
+  '\n' +
+  'Ein **nicht-normativer Diskussionsvorschlag** für mögliche fachliche MCP-Schnittstellen steht in\n' +
+  'der [Zielarchitektur Fachlicher MCP-Schnittstellen](mcp-target-architecture.md). Er ergänzt diese\n' +
+  'Übersicht um Kandidaten und offene Fragen; die oben verlinkten Verträge und Quell-Owner bleiben für\n' +
+  'das aktuelle Verhalten maßgeblich.\n' +
+  '\n' +
+  '## Der kürzeste Einstieg\n' +
+  '\n' +
+  'Für das Verständnis helfen fünf Begriffe:\n' +
+  '\n' +
+  '| Begriff | Einfache Bedeutung |\n' +
+  '|---|---|\n' +
+  '| **Host** | Das Programm, in dem der Coding-Agent läuft, zum Beispiel Codex oder Claude Code. Der Host besitzt Modellzugriff, Werkzeuge, Berechtigungen und Sitzungen. |\n' +
+  '| **Plugin oder Skills** | Anweisungen und Host-Integration, die dem Agenten sagen, wann und wie AGDF anzuwenden ist. |\n' +
+  '| **MCP-Server** | Ein lokaler Prozess, der dem Host `agdf_dispatch` und `agdf_inspect` über den standardisierten MCP-Transport `stdio` anbietet. In Codex lautet die Server-ID `agdf`; `codex_app` gehört zur separaten Codex-App-Integration. |\n' +
+  '| **MCP-Lebenszyklus** | Die AGDF-Befehle `mcp status`, `mcp enable` und `mcp disable`. Sie lesen oder ändern ausschließlich die native MCP-Konfiguration des ausgewählten Hosts. |\n' +
+  '| **Kontrollzustand** | Der ausgewählte Run mit Scope, Artefakten, Nachweisen und Freigaben unter `.agdf/control/`. |\n' +
+  '\n' +
+  'Plugin und MCP erfüllen verschiedene Aufgaben. Das Plugin bringt Anweisungen und hostabhängige\n' +
+  'Integration mit. MCP stellt einen ausführbaren, typisierten Werkzeugaufruf bereit. Beide Wege können\n' +
+  'denselben Dispatcher erreichen. Weder Installation noch Registrierung erteilen eine AGDF-Freigabe.\n' +
+  '\n' +
+  '```text\n' +
+  'Nutzer -> Coding-Agent -> Skill oder agdf_dispatch -> Dispatcher\n' +
+  '  -> Zielbindung -> bei Intake: Run-Zuordnung -> Gate-Auswertung\n' +
+  '  -> terminale Antwort ODER begrenzter Auftrag an den Agenten\n' +
+  '\n' +
+  'Separat:\n' +
+  '@agdf/cli -> mcp status | enable | disable -> Host-Konfiguration -> lokale MCP-Laufzeit\n' +
+  '```\n' +
+  '\n' +
+  '## Leseweg\n' +
+  '\n' +
+  '- [Systemkontext](#1-systemkontext): Wo AGDF sitzt und wer handelt.\n' +
+  '- [Bausteine](#2-bausteine-und-verantwortlichkeiten): Welche Quelle welche Bedeutung besitzt.\n' +
+  '- [Aufrufwege und Setup](#3-zwei-wege-zum-gemeinsamen-dispatcher): Wie Skill und MCP zusammenlaufen und wie der geführte CLI-Weg beide Installationszustände verbindet.\n' +
+  '- [Dispatcher und Use Cases](dispatcher.md): Was bei Intake, Run-Zuordnung, Gate-Artefaktvorbereitung, Skill-Fortsetzung und Freigabevorbereitung geschieht.\n' +
+  '- [MCP-Lebenszyklus](#4-der-mcp-lebenszyklus): Wie Registrierung, Laufzeit und Entfernung funktionieren.\n' +
+  '- [Entscheidungsbefugnis](#5-regel-prüfung-und-durchsetzung): Was eine technische Aktion nicht autorisiert.\n' +
+  '- [Verteilung](#6-vom-quellstand-zur-geladenen-sitzung): Warum Quelle, Paket und Host getrennt geprüft werden.\n' +
+  '- [Nachweise](#7-protokoll--host--und-abnahmenachweise): Welche Evidenz eine Unterstützungszusage trägt.\n' +
+  '- [Codeorientierung](#8-orientierung-im-quellcode): Wo Einsteiger die maßgeblichen Module finden.\n' +
+  '- [Entscheidungen und Pflege](#9-architekturentscheidungen-grenzen-und-pflege): Welche Gründe die Struktur bestimmen.\n' +
+  '\n' +
+  '## 1. Systemkontext\n' +
+  '\n' +
+  '![Systemkontext: Der Mensch beauftragt den Agenten. Skills und die beiden MCP-Werkzeuge verbinden den Host mit AGDF-Kontrollfunktionen. Der MCP-Lebenszyklus verwaltet die native Registrierung und Laufzeit.](diagrams/01-context.svg)\n' +
+  '\n' +
+  '*Abbildung 1: Logische Systemgrenze. Die Pfeile zeigen Aufrufe und Datenbeziehungen. Der MCP-Server\n' +
+  'ist ein lokaler `stdio`-Prozess und kein entfernter AGDF-Dienst.\n' +
+  '[Diagrammquelle](diagrams/01-context.dot).*\n' +
+  '\n' +
+  'Der **Mensch** bestimmt Ziel und Scope und erteilt die erforderlichen Freigaben. Der **Host** führt\n' +
+  'den Coding-Agenten aus. Er entscheidet, welche Werkzeuge sichtbar sind, welche Prozesse gestartet\n' +
+  'werden dürfen und welche Sitzung neu geladen werden muss.\n' +
+  '\n' +
+  'AGDF hat zwei Verbindungen zum Host:\n' +
+  '\n' +
+  '1. **Anweisungsweg:** Plugin und Skills erklären dem Agenten Aktivierung, Arbeitsweise und Grenzen.\n' +
+  '2. **Werkzeugweg:** Der lokale MCP-Server stellt zwei Werkzeuge bereit: `agdf_dispatch` für den Skill-Dispatcher und `agdf_inspect` für lesende Kontrollabfragen.\n' +
+  '\n' +
+  'Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`.\n' +
+  'Ein Run beschreibt genau einen abgegrenzten Arbeitsumfang. Sein kanonischer Zustand liegt unter\n' +
+  '`runs/<run_id>/RUN_STATE.md`, zugehörige Artefakte unter `artefacts/<run_id>/`.\n' +
+  '\n' +
+  'Der MCP-Lebenszyklus steht neben diesen Aufrufwegen. Er registriert den Server in der nativen\n' +
+  'Host-Konfiguration und verwaltet die lokale Laufzeit. Er entscheidet nicht, ob eine Nutzeranfrage\n' +
+  'AGDF aktiviert, welches Projekt das Governance-Ziel ist oder ob ein Gate freigegeben wurde.\n' +
+  '\n' +
+  'Git, Tests und CI können Ergebnisse belegen und Änderungen ausliefern. Ihr erfolgreicher Abschluss\n' +
+  'erteilt keine AGDF-Freigabe. Ebenso besitzt AGDF keine allgemeine Kontrolle über jeden Dateizugriff,\n' +
+  'jeden Unteragenten oder jeden Prozess des Hosts.\n' +
+  '\n' +
+  '## 2. Bausteine und Verantwortlichkeiten\n' +
+  '\n' +
+  '![Bausteine: Skill-Bindung und MCP-Server führen zum gemeinsamen semantischen Vertrag und Dispatcher. Der getrennte MCP-Lebenszyklus verwendet Profil, Service, Host-Adapter und gemeinsame Laufzeit.](diagrams/02-components.svg)\n' +
+  '\n' +
+  '*Abbildung 2: Die Architektur hat gemeinsame semantische Eigentümer und dünne Host-Adapter.\n' +
+  '[Diagrammquelle](diagrams/02-components.dot).*\n' +
+  '\n' +
+  '| Bereich | Aufgabe | Maßgebliche Quelle |\n' +
+  '|---|---|---|\n' +
+  '| Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugin/meta/contracts/`](../../plugin/meta/contracts/), [`plugin/skills/`](../../plugin/skills/) |\n' +
+  '| Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) |\n' +
+  '| Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js), [Use-Case-Katalog](dispatcher.md) |\n' +
+  '| MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |\n' +
+  '| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |\n' +
+  '| MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) |\n' +
+  '| MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) |\n' +
+  '| Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../create-agdf/lib/mcp-lifecycle/package.js) |\n' +
+  '| Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |\n' +
+  '| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../create-agdf/l'... 31056 more characters
+
+    at file:///Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/scripts/cli-modularization-test.js:320:8 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '# Technische Architektur von AGDF\n' +
+    '\n' +
+    'AGDF verbindet Anweisungen für Coding-Agenten, lokal ausführbare Prüfungen und einen dauerhaften\n' +
+    'Kontrollzustand im Projekt. Der Agent arbeitet weiterhin in Codex, Claude Code, OpenCode oder GitHub\n' +
+    'Copilot. AGDF liefert ihm einen gemeinsamen Governance-Pfad und kann diesen Pfad zusätzlich über\n' +
+    'einen lokalen MCP-Server als Werkzeug bereitstellen.\n' +
+    '\n' +
+    'Diese Dokumentation erklärt die vorhandene Implementierung für Einsteiger und Maintainer. Sie\n' +
+    'beantwortet vier Fragen:\n' +
+    '\n' +
+    '1. Welche Teile laufen im Coding-Agenten und welche gehören zu AGDF?\n' +
+    '2. Wie gelangt ein Nutzerwunsch über einen Skill oder MCP zum gleichen Dispatcher?\n' +
+    '3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?\n' +
+    '4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?\n' +
+    '\n' +
+    '**Stand: 30. September 2026, Repository-Quelle.** Beschrieben sind die im Quellstand vorhandenen\n' +
+    'Skills, Dispatcher, MCP-Werkzeuge und Installations-/Lifecycle-Services. Die Paketmetadaten von\n' +
+    '[`create-agdf`](../../create-agdf/package.json) und\n' +
+    '[`@agdf/mcp-server`](../../agdf-mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein\n' +
+    'belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `@latest`-Pakets\n' +
+    'oder einer geladenen Host-Installation. Quellstand, verteiltes Paket und frische Host-Sitzung\n' +
+    'benötigen jeweils eigene Nachweise; historische Host-Beobachtungen stehen in Abschnitt 7.\n' +
+    '\n' +
+    'Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Die\n' +
+    'verbindliche technische Ausgestaltung des MCP-Lebenszyklus steht im\n' +
+    '[Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md). Seine\n' +
+    'geführte Komposition mit der Plugin-Installation steht im\n' +
+    '[Setup-Solution-Design](../../.agdf/control/artefacts/agdf-guided-mcp-activation/SD.md). Zuständigkeiten\n' +
+    'sind im [Source-of-Truth-Register](../../.agdf/control/SOT_REGISTRY.md) und im\n' +
+    '[Context Graph](../../.agdf/control/CONTEXT_GRAPH.md) festgehalten. Diese Architekturübersicht\n' +
+    'erklärt die Zusammenhänge. Sie erzeugt keine eigenen Regeln.\n' +
+    '\n' +
+    'Der [Dispatcher-Katalog](dispatcher.md) beschreibt das aktuelle Routing mit Zuständigkeiten,\n' +
+    'Use Cases, Ergebnisbehandlung und konkreten Quell-/Test-Einstiegen. Er ist der zentrale Leseeinstieg\n' +
+    'für Run-Zuordnung, begrenzte Fortsetzungen und die Übergabe zur menschlichen Entscheidung.\n' +
+    '\n' +
+    'Ein **nicht-normativer Diskussionsvorschlag** für mögliche fachliche MCP-Schnittstellen steht in\n' +
+    'der [Zielarchitektur Fachlicher MCP-Schnittstellen](mcp-target-architecture.md). Er ergänzt diese\n' +
+    'Übersicht um Kandidaten und offene Fragen; die oben verlinkten Verträge und Quell-Owner bleiben für\n' +
+    'das aktuelle Verhalten maßgeblich.\n' +
+    '\n' +
+    '## Der kürzeste Einstieg\n' +
+    '\n' +
+    'Für das Verständnis helfen fünf Begriffe:\n' +
+    '\n' +
+    '| Begriff | Einfache Bedeutung |\n' +
+    '|---|---|\n' +
+    '| **Host** | Das Programm, in dem der Coding-Agent läuft, zum Beispiel Codex oder Claude Code. Der Host besitzt Modellzugriff, Werkzeuge, Berechtigungen und Sitzungen. |\n' +
+    '| **Plugin oder Skills** | Anweisungen und Host-Integration, die dem Agenten sagen, wann und wie AGDF anzuwenden ist. |\n' +
+    '| **MCP-Server** | Ein lokaler Prozess, der dem Host `agdf_dispatch` und `agdf_inspect` über den standardisierten MCP-Transport `stdio` anbietet. In Codex lautet die Server-ID `agdf`; `codex_app` gehört zur separaten Codex-App-Integration. |\n' +
+    '| **MCP-Lebenszyklus** | Die AGDF-Befehle `mcp status`, `mcp enable` und `mcp disable`. Sie lesen oder ändern ausschließlich die native MCP-Konfiguration des ausgewählten Hosts. |\n' +
+    '| **Kontrollzustand** | Der ausgewählte Run mit Scope, Artefakten, Nachweisen und Freigaben unter `.agdf/control/`. |\n' +
+    '\n' +
+    'Plugin und MCP erfüllen verschiedene Aufgaben. Das Plugin bringt Anweisungen und hostabhängige\n' +
+    'Integration mit. MCP stellt einen ausführbaren, typisierten Werkzeugaufruf bereit. Beide Wege können\n' +
+    'denselben Dispatcher erreichen. Weder Installation noch Registrierung erteilen eine AGDF-Freigabe.\n' +
+    '\n' +
+    '```text\n' +
+    'Nutzer -> Coding-Agent -> Skill oder agdf_dispatch -> Dispatcher\n' +
+    '  -> Zielbindung -> bei Intake: Run-Zuordnung -> Gate-Auswertung\n' +
+    '  -> terminale Antwort ODER begrenzter Auftrag an den Agenten\n' +
+    '\n' +
+    'Separat:\n' +
+    '@agdf/cli -> mcp status | enable | disable -> Host-Konfiguration -> lokale MCP-Laufzeit\n' +
+    '```\n' +
+    '\n' +
+    '## Leseweg\n' +
+    '\n' +
+    '- [Systemkontext](#1-systemkontext): Wo AGDF sitzt und wer handelt.\n' +
+    '- [Bausteine](#2-bausteine-und-verantwortlichkeiten): Welche Quelle welche Bedeutung besitzt.\n' +
+    '- [Aufrufwege und Setup](#3-zwei-wege-zum-gemeinsamen-dispatcher): Wie Skill und MCP zusammenlaufen und wie der geführte CLI-Weg beide Installationszustände verbindet.\n' +
+    '- [Dispatcher und Use Cases](dispatcher.md): Was bei Intake, Run-Zuordnung, Gate-Artefaktvorbereitung, Skill-Fortsetzung und Freigabevorbereitung geschieht.\n' +
+    '- [MCP-Lebenszyklus](#4-der-mcp-lebenszyklus): Wie Registrierung, Laufzeit und Entfernung funktionieren.\n' +
+    '- [Entscheidungsbefugnis](#5-regel-prüfung-und-durchsetzung): Was eine technische Aktion nicht autorisiert.\n' +
+    '- [Verteilung](#6-vom-quellstand-zur-geladenen-sitzung): Warum Quelle, Paket und Host getrennt geprüft werden.\n' +
+    '- [Nachweise](#7-protokoll--host--und-abnahmenachweise): Welche Evidenz eine Unterstützungszusage trägt.\n' +
+    '- [Codeorientierung](#8-orientierung-im-quellcode): Wo Einsteiger die maßgeblichen Module finden.\n' +
+    '- [Entscheidungen und Pflege](#9-architekturentscheidungen-grenzen-und-pflege): Welche Gründe die Struktur bestimmen.\n' +
+    '\n' +
+    '## 1. Systemkontext\n' +
+    '\n' +
+    '![Systemkontext: Der Mensch beauftragt den Agenten. Skills und die beiden MCP-Werkzeuge verbinden den Host mit AGDF-Kontrollfunktionen. Der MCP-Lebenszyklus verwaltet die native Registrierung und Laufzeit.](diagrams/01-context.svg)\n' +
+    '\n' +
+    '*Abbildung 1: Logische Systemgrenze. Die Pfeile zeigen Aufrufe und Datenbeziehungen. Der MCP-Server\n' +
+    'ist ein lokaler `stdio`-Prozess und kein entfernter AGDF-Dienst.\n' +
+    '[Diagrammquelle](diagrams/01-context.dot).*\n' +
+    '\n' +
+    'Der **Mensch** bestimmt Ziel und Scope und erteilt die erforderlichen Freigaben. Der **Host** führt\n' +
+    'den Coding-Agenten aus. Er entscheidet, welche Werkzeuge sichtbar sind, welche Prozesse gestartet\n' +
+    'werden dürfen und welche Sitzung neu geladen werden muss.\n' +
+    '\n' +
+    'AGDF hat zwei Verbindungen zum Host:\n' +
+    '\n' +
+    '1. **Anweisungsweg:** Plugin und Skills erklären dem Agenten Aktivierung, Arbeitsweise und Grenzen.\n' +
+    '2. **Werkzeugweg:** Der lokale MCP-Server stellt zwei Werkzeuge bereit: `agdf_dispatch` für den Skill-Dispatcher und `agdf_inspect` für lesende Kontrollabfragen.\n' +
+    '\n' +
+    'Das **Zielprojekt** enthält den bearbeiteten Code und den Kontrollzustand unter `.agdf/control/`.\n' +
+    'Ein Run beschreibt genau einen abgegrenzten Arbeitsumfang. Sein kanonischer Zustand liegt unter\n' +
+    '`runs/<run_id>/RUN_STATE.md`, zugehörige Artefakte unter `artefacts/<run_id>/`.\n' +
+    '\n' +
+    'Der MCP-Lebenszyklus steht neben diesen Aufrufwegen. Er registriert den Server in der nativen\n' +
+    'Host-Konfiguration und verwaltet die lokale Laufzeit. Er entscheidet nicht, ob eine Nutzeranfrage\n' +
+    'AGDF aktiviert, welches Projekt das Governance-Ziel ist oder ob ein Gate freigegeben wurde.\n' +
+    '\n' +
+    'Git, Tests und CI können Ergebnisse belegen und Änderungen ausliefern. Ihr erfolgreicher Abschluss\n' +
+    'erteilt keine AGDF-Freigabe. Ebenso besitzt AGDF keine allgemeine Kontrolle über jeden Dateizugriff,\n' +
+    'jeden Unteragenten oder jeden Prozess des Hosts.\n' +
+    '\n' +
+    '## 2. Bausteine und Verantwortlichkeiten\n' +
+    '\n' +
+    '![Bausteine: Skill-Bindung und MCP-Server führen zum gemeinsamen semantischen Vertrag und Dispatcher. Der getrennte MCP-Lebenszyklus verwendet Profil, Service, Host-Adapter und gemeinsame Laufzeit.](diagrams/02-components.svg)\n' +
+    '\n' +
+    '*Abbildung 2: Die Architektur hat gemeinsame semantische Eigentümer und dünne Host-Adapter.\n' +
+    '[Diagrammquelle](diagrams/02-components.dot).*\n' +
+    '\n' +
+    '| Bereich | Aufgabe | Maßgebliche Quelle |\n' +
+    '|---|---|---|\n' +
+    '| Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugin/meta/contracts/`](../../plugin/meta/contracts/), [`plugin/skills/`](../../plugin/skills/) |\n' +
+    '| Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) |\n' +
+    '| Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js), [Use-Case-Katalog](dispatcher.md) |\n' +
+    '| MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |\n' +
+    '| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |\n' +
+    '| MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) |\n' +
+    '| MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) |\n' +
+    '| Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../create-agdf/lib/mcp-lifecycle/package.js) |\n' +
+    '| Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |\n' +
+    '| Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../create-agdf/l'... 31056 more characters,
+  expected: /AGDF 0\.14\.5 besitzt keine MCP-Unterstützung/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

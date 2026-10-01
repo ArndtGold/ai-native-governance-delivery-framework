@@ -1,5 +1,5 @@
 import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
-import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
+import { interactionLocales, resolveConfiguredChatLanguage } from '../runtime/control-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
 import { isGateSatisfied, transitionDecisionForRunState } from './gate-policy.js';

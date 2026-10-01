@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { TextDecoder } from "node:util";
 import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
-import { interactionLocales } from "../cli/runtime-context.js";
+import { interactionLocales } from "../runtime/control-context.js";
 import { localePack, resolvePresentationLocale } from "../interaction-presentation.js";
 
 // Read-only approval rendering. gate-check (and with it the MCP dispatcher) imports this module;

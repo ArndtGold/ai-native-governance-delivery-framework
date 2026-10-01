@@ -50,6 +50,7 @@ export function parseArgs(argv, dependencies = {}) {
   let intakeMode;
   let continueDelivery = false;
   let presentationId;
+  let operationId, assurance;
   let fixture;
   let persist = false;
   let model;
@@ -179,6 +180,14 @@ export function parseArgs(argv, dependencies = {}) {
       if (arg === "--gate") gate = next;
       else if (arg === "--revision") revisionId = next;
       else response = next;
+      i += 1;
+      continue;
+    }
+
+    if (arg === "--operation" || arg === "--assurance") {
+      const value = requiredValue(args, i, arg);
+      if (arg === "--operation") operationId = value;
+      else assurance = value;
       i += 1;
       continue;
     }
@@ -313,6 +322,8 @@ export function parseArgs(argv, dependencies = {}) {
       intakeMode,
       continueDelivery,
       presentationId,
+      ...(operationId !== undefined ? { operationId } : {}),
+      ...(assurance !== undefined ? { assurance } : {}),
       fixture: fixture ? resolve(cwd, fixture) : null,
       persist,
       model,

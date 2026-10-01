@@ -113,6 +113,9 @@ export function validateCommandOptions(options) {
   }
   if (options.skillId && options.target !== "skill-dispatch") throw new Error("--skill is supported only by skill-dispatch");
   if ((options.intakeMode || options.continueDelivery) && options.target !== "skill-dispatch") throw new Error("delivery modes are supported only by skill-dispatch");
+  if ((options.operationId !== undefined || options.assurance !== undefined) && options.target !== "run-approve") {
+    throw new Error("--operation and --assurance are supported only by run-approve");
+  }
   if (options.presentationId && options.target !== "run-approve") throw new Error("--presentation is supported only by run-approve");
   if (options.target === "run-present" && (!options.runId || !options.gate || !options.revisionId)) throw new Error("run-present requires --run, --gate and --revision");
   if (options.intake && options.target !== "skill-dispatch") throw new Error("--intake is supported only by skill-dispatch");
@@ -297,6 +300,8 @@ Options:
                  Select one canonical skill for skill-dispatch
   --intake-mode <new|resume>  Explicit new scope or bound intake recovery; requires --intake and --run
   --continue-delivery  Bound internal continuation; excludes intake and read-only status
+  --operation <uuid>     Explicit idempotent run-approve command identity
+  --assurance <lane>     Only cooperative_local is supported; no independent human proof
   --presentation <uuid>  Previously prepared run-present binding required for run-approve
   --intake       Declare the governed delivery intake (delivery.start) for a gate-check skill-dispatch
   --target-candidate <absolute-path>

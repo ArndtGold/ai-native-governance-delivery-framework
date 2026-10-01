@@ -1,3 +1,4 @@
+import { readApprovalOperations } from "./approval-operations.js";
 import { REVISION_ID_PATTERN, RUN_ID_PATTERN } from "./run-identity.js";
 
 export { RUN_ID_PATTERN } from "./run-identity.js";
@@ -46,6 +47,21 @@ export function parseRunState(content, expected) {
   }
   if (!REVISION_ID_PATTERN.test(values.get("revision_id") ?? ""))
     findings.push({ code: "AGDF_RUN_REVISION_ID_INVALID" });
+  const operations = readApprovalOperations(content);
+  const effectIds = new Set(), effectRevisions = new Set();
+  let lastEffectRevision = 0;
+  const invalidHistory = operations.receipts.some((receipt) => {
+    const invalid = effectIds.has(receipt.effect.resulting_revision_id) || effectRevisions.has(receipt.effect.revision)
+      || receipt.effect.revision <= lastEffectRevision;
+    effectIds.add(receipt.effect.resulting_revision_id); effectRevisions.add(receipt.effect.revision);
+    lastEffectRevision = receipt.effect.revision;
+    return invalid;
+  });
+  if (!operations.valid || invalidHistory || operations.receipts.some((receipt) => receipt.binding.run_id !== id
+      || receipt.effect.revision > Number(values.get("revision"))
+      || (receipt.effect.revision === Number(values.get("revision")) && receipt.effect.resulting_revision_id !== values.get("revision_id")))) {
+    findings.push({ code: "AGDF_APPROVAL_OPERATIONS_INVALID" });
+  }
   return {
     content,
     meta: Object.fromEntries(values),

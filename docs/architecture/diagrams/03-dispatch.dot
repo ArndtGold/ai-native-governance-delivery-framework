@@ -1,47 +1,62 @@
 digraph dispatch {
-  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.48, fontname="Helvetica", label="03  /  DISPATCH UND LESENDE KONTROLLE", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.4, ranksep=0.48, fontname="Helvetica", label="03  /  DISPATCH, RUN-ZUORDNUNG UND FORTSETZUNG", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
   node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.19,0.12", penwidth=1.3];
   edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
 
   request [label="Aktueller Nutzerwunsch", fillcolor="#F3F6F8", color="#97A6B3"];
-  activation [label="Agent bewertet Anwendbarkeit\nnach Request-Activation-Vertrag", fillcolor="#FFF2CF", color="#BF9840"];
-  normal [label="Normale Hilfe oder Klärung\nkein AGDF-Dispatch", fillcolor="#F3F6F8", color="#97A6B3"];
-  route [label="Verfügbarer Aufrufweg?", shape=diamond, style=filled, fontsize=13, margin=0.12];
-  skill [label="Skill-Weg\ngeprüfte Runtime-Bindung"];
-  list [label="MCP-Weg\ntools/list zeigt Dispatch + Inspect"];
-  call [label="tools/call\nSkill + expliziter Zielkontext"];
-  inspect [label="tools/call agdf_inspect\nlesende Kontrolloperation"];
-  contract [label="Ein kanonischer Tool-Vertrag\nBeschreibung · Eingabe · Ausgabe", fillcolor="#FFF2CF", color="#BF9840"];
-  dispatcher [label="Ein Skill-Dispatcher\nprüft Eingabe und bindet Ziel"];
-  evaluation [label="Gemeinsame Ziel- und Gate-Auswertung"];
-  outcome [label="Ergebnistyp?", shape=diamond, style=filled, fontsize=13, margin=0.12];
-  terminal [label="Terminales Kontrollergebnis\nunverändert zeigen und Aufruf beenden", fillcolor="#E5F0FC", color="#5284AD"];
-  continuation [label="Begrenzter Fortsetzungsauftrag\nein Skill + ein Ziel", fillcolor="#E5F0FC", color="#5284AD"];
-  recovery [label="Sicher anhalten\nEingabe, Ziel oder Auswertung ungültig", fillcolor="#FCE8E4", color="#B5675A"];
-  note [label="Alle Ergebnisse: authorizes = false\nMCP-Registrierung und Tool-Berechtigung sind keine Gate-Freigabe.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
+  activation [label="Agent: Anwendbarkeit beurteilen\nRequest-Activation-Vertrag", fillcolor="#FFF2CF", color="#BF9840"];
+  normal [label="Normale Hilfe / Opt-out / Klärung\nkein anfragebedingter Dispatch", fillcolor="#F3F6F8", color="#97A6B3"];
+  skill [label="Skill-Weg\ngeprüfte Runtime-Bindung", fillcolor="#EEE7FC", color="#8268AF"];
+  mcp [label="MCP-Weg\ntools/list · tools/call", fillcolor="#EEE7FC", color="#8268AF"];
+  inspect [label="agdf_inspect: eigener lesender Service\ngemeinsame Kontrollevaluatoren"];
+  inspect_result [label="Inspect-Ergebnis\nkeine Delivery-Fortsetzung", fillcolor="#E5F0FC", color="#5284AD"];
+  contract [label="Kanonischer agdf_dispatch-Vertrag\nEingabe · Ausgabe · Host-Aktion", fillcolor="#FFF2CF", color="#BF9840"];
+  dispatcher [label="Dispatcher: Eingabe validieren\nund Governance-Ziel binden"];
+  assignment [label="Run-Zuordnungsbelege liefern\nresolve_delivery_run\nnoch keine einzelne Gate-Auswertung"];
+  scope [label="Agent: vollständige URs vergleichen\neindeutig: neuer / bestehender Run\nmehrdeutig: fachliche Frage", fillcolor="#EEE7FC", color="#8268AF"];
+  evaluation [label="Gemeinsamer Gate-Evaluator\naktueller Zustand · nächste Operation"];
+  recovery [label="Terminal: Befund / Recovery\nungültige Eingabe, offenes Ziel, Integritäts-\noder Auswertungsfehler", fillcolor="#FCE8E4", color="#B5675A"];
+  terminal [label="Terminal: control_result\nkanonischen Text unverändert zeigen\nund diesen Aufruf beenden", fillcolor="#E5F0FC", color="#5284AD"];
+  work [label="Dispatcher: begrenzten Auftrag liefern\nrun_missing / ur_missing oder Skill\nBrownfield · aktuelles Gate-Artefakt · QA · OR"];
+  execute [label="Agent: gelieferte Schritte / Skill ausführen\nSchreibschritte über separate kanonische Writer\nkeine Freigabe daraus ableiten", fillcolor="#EEE7FC", color="#8268AF"];
+  presentation [label="Dispatcher: presentation_required\nlesende Vorschau + run-present-Schritt"];
+  present [label="Agent: run-present aufrufen\nWriter bindet Präsentation an Run / Gate / Revision\nzurückgegebenen Text unverändert zeigen", fillcolor="#E5F0FC", color="#5284AD"];
+  wait [label="STOP: neue bewusste Antwort abwarten\nMensch entscheidet\nFreigabe ist ein separater Vorgang", fillcolor="#F3F6F8", color="#97A6B3"];
+  redispatch [label="Agent: erneut denselben Dispatcher aufrufen\naktuelle Bindung / vom Writer gelieferte Revision\nnur wie im Fortsetzungsvertrag vorgesehen", fillcolor="#EEE7FC", color="#8268AF"];
+  note [label="Jedes Dispatcher-Ergebnis: authorizes = false\nDispatcher führt Skills und Writer nicht selbst aus.\nFortsetzungen gelten nur unter den Bedingungen des Use-Case-Katalogs.", shape=plaintext, fillcolor="white", fontcolor="#354D61", fontsize=13];
 
   request -> activation;
-  activation -> normal [label="nicht anwendbar / unklar"];
-  activation -> route [label="anwendbar"];
-  route -> skill [label="Skill"];
-  route -> list [label="MCP"];
-  list -> call;
-  list -> inspect;
+  activation -> normal [label="kein Dispatch"];
+  activation -> skill [label="Skill-Weg"];
+  activation -> mcp [label="MCP-Weg"];
   skill -> contract;
-  call -> contract;
-  inspect -> evaluation [label="bestehender Evaluator"];
+  mcp -> contract [label="agdf_dispatch"];
+  mcp -> inspect [label="agdf_inspect"];
+  inspect -> inspect_result;
   contract -> dispatcher;
   dispatcher -> recovery [label="Fehler / Ziel offen"];
-  dispatcher -> evaluation [label="Ziel aufgelöst"];
-  evaluation -> recovery [label="Auswertungsfehler"];
-  evaluation -> outcome;
-  outcome -> terminal [label="Kontrolle"];
-  outcome -> continuation [label="Fortsetzung"];
+  dispatcher -> assignment [label="Intake: Run offen\noder Revision veraltet"];
+  dispatcher -> evaluation [label="Bindung für Auswertung vorhanden"];
+  assignment -> scope;
+  assignment -> recovery [label="Bestand ungültig", style=dashed, constraint=false];
+  scope -> redispatch [label="eindeutig zugeordnet"];
+  evaluation -> recovery [label="Fehler", style=dashed, constraint=false];
+  evaluation -> terminal [label="Kontrollanzeige / Halt"];
+  evaluation -> work [label="zulässige Fortsetzung"];
+  evaluation -> presentation [label="Gate entscheidungsbereit\n+ Intake / Fortsetzung"];
+  work -> execute;
+  execute -> redispatch [label="wenn Vertrag erneute Prüfung verlangt"];
+  presentation -> present;
+  present -> wait;
+  redispatch -> dispatcher [style=dashed, constraint=false, label="neuer Aufruf"];
   terminal -> note [style=invis];
-  continuation -> note [style=invis];
+  redispatch -> note [style=invis];
+  wait -> note [style=invis];
 
-  {rank=same; activation; normal;}
-  {rank=same; skill; list;}
-  {rank=same; evaluation; recovery;}
-  {rank=same; terminal; continuation;}
+  {rank=same; normal; skill; mcp;}
+  {rank=same; contract; inspect;}
+  {rank=same; assignment; evaluation; recovery;}
+  {rank=same; scope; terminal; work; presentation;}
+  {rank=same; execute; present;}
+  {rank=same; redispatch; wait;}
 }

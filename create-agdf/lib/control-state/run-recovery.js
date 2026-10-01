@@ -1,3 +1,4 @@
+import { assertRecoveryOperationsTrusted } from "./run-state-writer.js";
 import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
@@ -153,6 +154,7 @@ export function inspectRunRecovery(root, runId, { inspectHistory = true } = {}) 
   if (state.meta.lifecycle !== "active") throw new Error("AGDF_RECOVERY_LIFECYCLE_UNSUPPORTED");
   if (duplicateArtefactRowTypes(content).length) throw new Error("AGDF_ARTEFACT_ROW_DUPLICATE");
   const seal = runSealState(root, content);
+  assertRecoveryOperationsTrusted(content);
   if (!["unsealed", "invalid"].includes(seal.status)) throw new Error("AGDF_RUN_RECOVERY_NOT_REQUIRED");
   const artefacts = artifactSnapshot(root, content);
   const gitHistory = inspectHistory ? gitHistoryCandidates(root, runId) : { status: "not_checked", candidates: [] };

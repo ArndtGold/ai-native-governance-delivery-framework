@@ -376,6 +376,77 @@ seal detects unrecorded edits; it is not a signature. Normal write commands reje
 lines. Restore a trusted sealed revision before recording changes; `run-migrate` remains the explicit
 path for legacy control state and does not infer approvals.
 
+### Explicit local approval command (development)
+
+The additive ESM export `create-agdf/control-command` and `run-approve --operation <uuid>` use
+one shared approval path. Importing the export reads package-owned metadata; it does not select a
+target, launch Git, initialize a host, print, exit or write. Existing package exports are unchanged.
+
+```js
+import {
+  CONTROL_COMMAND_SCHEMA_VERSION,
+  resolveControlCommandTarget,
+  recordGateApprovalCommand,
+} from "create-agdf/control-command";
+
+const { root, target_id } = resolveControlCommandTarget("/absolute/path/to/repository");
+const result = recordGateApprovalCommand(root, {
+  schema_version: CONTROL_COMMAND_SCHEMA_VERSION,
+  action: "record_gate_approval",
+  target_id,
+  run_id: runId,
+  gate: "UR",
+  expected_revision_id: presentedRevisionId,
+  presentation_id: presentedPresentationId,
+  response: verbatimDeliberateReply,
+  operation_id: operationId, // a UUID retained with this exact request across retries
+  assurance: "cooperative_local",
+});
+```
+
+The command is closed: these fields are required and unknown fields are rejected. The caller
+forwards the deliberate reply for the current durable presentation. Validation preserves existing
+reply semantics, including surrounding-whitespace handling; request identity retains the original
+response bytes. Neither caller roles, a presentation ID, a digest nor a successful tool call prove
+that a human saw or approved the presentation. Every result reports cooperative assurance and
+`independent_human_proof: unavailable`; stronger authority requests are rejected without mutation.
+The canonical realpath target ID is a local binding, not a portable repository identity or token.
+
+```bash
+agdf run-approve --dir /absolute/path/to/repository --run <run_id> --gate UR \
+  --revision <revision_id> --presentation <presentation_id> --response "Approval: UR" \
+  --operation <uuid> --assurance cooperative_local
+```
+
+Omitting `--assurance` defaults to the same visible cooperative lane. Without `--operation`, the
+existing CLI result/rejection semantics remain, with additive assurance and no receipt backfill.
+Both `--operation` and `--assurance` are restricted to `run-approve`.
+
+The Run contains the append-only `Approval Operations` receipt and approval in one atomically
+replaced, sealed revision. The service holds the owned Run lock across validation and commit.
+An identical operation UUID and request returns `already_applied` without another revision;
+a changed payload with the same UUID returns `operation_payload_conflict`. Receipt-bearing Runs
+require this upgraded runtime. Legacy Runs retain byte-identical approval-seal semantics.
+Other writers, PRD supersession and bounded recovery preserve existing receipts. Recovery can
+preserve receipt history only while its recorded approval seal still verifies; it clears effective
+approvals rather than adopting a historical receipt as a new decision.
+
+Results separate `binding`, request identity, historical `effect`, observed `current` state,
+`assurance` and commit/durability `observations`. `accepted` and `already_applied` are the only
+successful command outcomes. `rejected` requires correcting the request or preparing a new current
+presentation/reply. `retryable_failure` permits an identical retry after the live lock or transient
+pre-commit failure resolves. `recovery_required` means the canonical effect or acknowledgement
+cannot safely be concluded. After an interruption, retain and retry the identical command; a
+valid canonical receipt is acknowledged with file/directory synchronization, without writing a
+revision. Windows reports directory synchronization as unavailable. A replay after later changes
+returns the old effect alongside current state and never restores an effective approval.
+
+MCP exposes no mutating approval tool. This lane is cooperative local calling, not authenticated
+human attestation or protection against arbitrary writes by an operating-system user. Qualification
+of source, packed external consumers, generated validators, installed hosts and native platforms
+must remain separate. The command test scripts use disposable targets and private fault harnesses;
+they do not install or publish the package.
+
 ### Advanced / Compatibility
 
 Backward-compatible scaffold usage:

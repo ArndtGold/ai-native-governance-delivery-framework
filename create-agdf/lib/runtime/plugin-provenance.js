@@ -95,6 +95,7 @@ export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "lib/control-evaluation",
   "lib/control-state",
   "lib/cli/runtime-context.js",
+  "lib/runtime/control-context.js",
   "lib/cli/contract-command.js",
   "lib/runtime/plugin-provenance.js",
   "lib/task-target-resolution.js",

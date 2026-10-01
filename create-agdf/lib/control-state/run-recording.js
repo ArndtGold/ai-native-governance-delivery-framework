@@ -108,7 +108,7 @@ export function recordRunRevision(root, { runId, revisionId }) {
 
 // run-approve: persist one exact gate reply for the revision the user was shown. The CLI cannot
 // observe the conversation; callers pass only the user's verbatim reply to the presented gate.
-export function approveRunGate(root, { runId, gate, revisionId, response, presentationId, date = new Date().toISOString().slice(0, 10) }, { evaluateGateCheck }) {
+export function prepareGateApproval(root, { runId, gate, revisionId, response, presentationId, date = new Date().toISOString().slice(0, 10) }, { evaluateGateCheck }) {
   if (!APPROVAL_GATES.includes(gate)) return rejected(runId, "gate_invalid");
   const run = readRun(root, runId);
   if (run.rejection) return run.rejection;
@@ -183,13 +183,21 @@ export function approveRunGate(root, { runId, gate, revisionId, response, presen
   for (const [key, value] of controlRows) {
     next = upsertTableRow(next, "Current Control State", 0, key, [key, value]) ?? next;
   }
-  const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
-    allowApprovalChange: true,
+  return { run, next, after, digest, presentation,
     validateBeforeWrite: () => {
       const current = validateRunPresentation(root, { runId, gate, revisionId, presentationId }, { evaluateGateCheck });
       if (current.reason || current.digest !== presentation.digest) throw new Error("AGDF_STALE_RUN_REVISION");
     },
-    expectedContent: run.content,
+  };
+}
+
+export function approveRunGate(root, input, dependencies) {
+  const prepared = prepareGateApproval(root, input, dependencies);
+  if (prepared.outcome === "rejected") return prepared;
+  const { run, next, after, validateBeforeWrite } = prepared;
+  const { runId, gate, revisionId } = input;
+  const written = guardedWrite(runId, () => writeRun(run.path, next, revisionId, {
+    allowApprovalChange: true, validateBeforeWrite, expectedContent: run.content,
   }));
   if (written.rejection) return written.rejection;
   return Object.freeze({

@@ -1,3 +1,5 @@
+import { recordGateApprovalCommand, resolveControlCommandTarget } from "../control-command.js";
+import { COOPERATIVE_ASSURANCE } from "../control-state/approval-command-contract.js";
 import { readFileSync } from "node:fs";
 import { executeControlMaintenance } from "./control-maintenance-command.js";
 import { createRun } from "../control-state/run-state-repository.js";
@@ -155,15 +157,27 @@ export function createValidationHandlers(io = console) {
       return result.outcome === "rejected" ? 2 : 0;
     }],
     ["run-approve", (options) => {
-      const result = approveRunGate(options.dir, {
+      let result;
+      if (options.assurance !== undefined && options.assurance !== "cooperative_local") {
+        result = { schema_version: "1", outcome: "rejected", run_id: options.runId,
+          reason: "unsupported_authority", assurance: COOPERATIVE_ASSURANCE };
+      } else if (options.operationId !== undefined) {
+        result = recordGateApprovalCommand(options.dir, {
+          schema_version: "1", action: "record_gate_approval",
+          target_id: resolveControlCommandTarget(options.dir).target_id, run_id: options.runId,
+          gate: options.gate, expected_revision_id: options.revisionId,
+          presentation_id: options.presentationId, response: options.response,
+          operation_id: options.operationId, assurance: options.assurance ?? "cooperative_local",
+        });
+      } else result = { ...approveRunGate(options.dir, {
         runId: options.runId,
         gate: options.gate,
         revisionId: options.revisionId,
         response: options.response,
         presentationId: options.presentationId,
-      }, { evaluateGateCheck: evaluateGateWithCliGit });
+      }, { evaluateGateCheck: evaluateGateWithCliGit }), assurance: COOPERATIVE_ASSURANCE };
       io.log(JSON.stringify(result, null, 2));
-      return result.outcome === "rejected" ? 2 : 0;
+      return ["approved", "accepted", "already_applied"].includes(result.outcome) ? 0 : 2;
     }],
     ["run-recovery", (options) => {
       try {

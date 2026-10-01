@@ -150,6 +150,9 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
   const runtimeEntries = [
     "bin/agdf-validator.js",
     "lib/runtime/local-validator.js",
+    "lib/control-command.js",
+    "lib/runtime/control-command-service.js",
+    "lib/runtime/control-context.js",
     "lib/runtime/plugin-provenance.js",
     "lib/host-command.js",
     // Run creation and run-state writes retry Windows rename locks through it.

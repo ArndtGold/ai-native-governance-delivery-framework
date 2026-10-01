@@ -1,0 +1,38 @@
+
+> create-agdf@0.14.5 test:local-development-install
+> npm run release:prepare && node ./scripts/local-development-install-test.js
+
+
+> create-agdf@0.14.5 release:prepare
+> npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+
+
+> create-agdf@0.14.5 sync-package-assets
+> node ./scripts/sync-package-assets.js
+
+
+> create-agdf@0.14.5 test:distribution-profile-history
+> node ./scripts/distribution-profile-history-test.js
+
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+
+> create-agdf@0.14.5 test:release-bump
+> node ./scripts/release-bump-test.js
+
+Release bump passed (18 transactional files; repair, forward, review, rollback and recovery)
+
+> create-agdf@0.14.5 test:release-version-coherence
+> node ./scripts/release-version-coherence-test.js
+
+Release version coherence passed (47 surfaces at 0.14.5; 8 profile snapshots)
+
+> create-agdf@0.14.5 test:public-plugin
+> node ./scripts/public-plugin-test.js
+
+Public plugin tests passed (51 inventoried candidate files; digest b0470effc6ad8f3c553eca2a841b57824bc8c0f805d1a13b9ce0d4d3d1091b6e)
+
+> create-agdf@0.14.5 test:portable-plugin
+> node ./scripts/portable-plugin-test.js
+
+Portable plugin schema/profile/resource/selection/retry tests passed; digest b0470effc6ad8f3c553eca2a841b57824bc8c0f805d1a13b9ce0d4d3d1091b6e
+Local development install tests passed

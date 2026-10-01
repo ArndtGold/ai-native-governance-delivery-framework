@@ -43,7 +43,7 @@ for (const requiredMeaning of [
   "entire assistant response must consist only of host_action.text",
   "Add no question, explanation, heading, citation, link or other surrounding text",
   "follow its continuation instruction using only the returned target and control",
-  "For intake_continuation, run continuation.steps in order",
+  "For intake_continuation phase resolve_delivery_run",
 ]) assert.match(definition.description, new RegExp(requiredMeaning.replaceAll(".", "\\."), "u"));
 assert.equal(renderSkillDispatchTerminalProjection(), SKILL_DISPATCH_TERMINAL_RESPONSE_DESCRIPTION);
 assert.equal(definition.outputSchema.properties.control.description, SKILL_DISPATCH_QA_CANDIDATES_DESCRIPTION);
@@ -53,7 +53,7 @@ assert.equal(Object.isFrozen(definition), true);
 assert.equal(Object.isFrozen(schema), true);
 assert.deepEqual(schema.required, ["skill_id", "presentation_language", "working_directory"]);
 assert.deepEqual(Object.keys(schema.properties), [
-  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "intake", "intake_mode", "continue_delivery",
+  "skill_id", "presentation_language", "working_directory", "target_source", "primary_target", "run_id", "expected_revision_id", "intake", "intake_mode", "continue_delivery",
 ]);
 assert.equal(schema.properties.intake.type, "boolean");
 assert.equal(schema.properties.intake.description, SKILL_DISPATCH_INTAKE_DESCRIPTION);
@@ -87,7 +87,8 @@ assert.match(schema.properties.presentation_language.description, /mixed or ambi
 assert.match(schema.properties.presentation_language.description, /valid unsupported tag/u);
 assert.match(schema.properties.presentation_language.description, /Missing or invalid input fails before governance evaluation/u);
 assert.match(schema.properties.primary_target.description, /Never derive it from working_directory alone/u);
-assert.match(schema.properties.run_id.description, /explicit request or unambiguous bound continuation/u);
+assert.match(schema.properties.run_id.description, /unequivocal same-scope assignment/u);
+assert.match(schema.properties.expected_revision_id.description, /resolve_delivery_run/u);
 assert.match(schema.properties.continue_delivery.description, /implementation-preparation Brownfield Analysis after TP approval/u);
 assert.match(schema.properties.continue_delivery.description, /OR closeout after UAT approval/u);
 assert.match(schema.properties.continue_delivery.description, /only with skill_id gate-check/u);
@@ -141,6 +142,14 @@ assert.equal(parseSkillDispatchFunctionArguments({
 const transportContext = { surface: "codex", expectedVersion: pluginDefinition.version, skillSet: pluginDefinition.skillSet, interactionLocales: JSON.parse(readFileSync(join(repoRoot, "plugin/meta/agdf-interaction-locales.json"), "utf8")) };
 const deliveryInput = { skill_id: "gate-check", presentation_language: "de", working_directory: "/tmp/agdf", run_id: "bound-run" };
 const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
+const expectedRevision = "12345678-1234-4123-8123-123456789abc";
+assert.equal(normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput,
+  intake: true, intake_mode: "resume", expected_revision_id: expectedRevision }, transportContext), registry).expected_revision_id, expectedRevision);
+for (const fields of [
+  { expected_revision_id: expectedRevision },
+  { intake: true, intake_mode: "new", expected_revision_id: expectedRevision },
+  { intake: true, intake_mode: "resume", expected_revision_id: "malformed" },
+]) assert.throws(() => normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput, ...fields }, transportContext), registry));
 for (const fields of [{ intake: true, intake_mode: "new" }, { intake: true, intake_mode: "resume" }, { continue_delivery: true }]) {
   const normalized = normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput, ...fields }, transportContext), registry);
   for (const [key, value] of Object.entries(fields)) assert.equal(normalized[key], value);
@@ -206,7 +215,7 @@ assert.throws(
 assert.equal(registryArgumentGrammar(), skillDispatchArgumentGrammar());
 assert.equal(resolveCommand("skill-dispatch").usages.local[0], ` ${skillDispatchCommandGrammar()}`);
 assert.match(skillDispatchArgumentGrammar(), /--language <language-tag>/u);
-assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>]] [--continue-delivery]"));
+assert.ok(skillDispatchArgumentGrammar().endsWith(" [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]"));
 assert.match(skillDispatchArgumentGrammar(), new RegExp(`<${TASK_TARGET_SOURCES.join("\\|")}>`, "u"));
 
 const languageProjection = renderSkillDispatchLanguageProjection();
@@ -233,3 +242,21 @@ for (const skill of pluginDefinition.skillSet) {
 }
 
 console.log("Skill dispatch semantic function contract tests passed");
+
+// agdf_inspect: one read tool with an operation enum, capped definition size, non-authorizing output.
+const { CONTROL_INSPECT_FUNCTION_DEFINITION, CONTROL_INSPECT_MAX_DEFINITION_BYTES, controlInspectDefinitionBytes } = await import("../lib/control-inspect/contract.js");
+assert.deepEqual(Object.keys(CONTROL_INSPECT_FUNCTION_DEFINITION), ["name", "description", "annotations", "inputSchema", "outputSchema"]);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.name, "agdf_inspect");
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations, definition.annotations);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.required, ["operation", "presentation_language", "working_directory"]);
+assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.operation.enum, ["doctor", "gate-check", "delivery-map", "contract"]);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.terminal.const, true);
+assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Never writes, selects a run or grants approval/u);
+assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /verified_change git observation is unavailable/u);
+assert.match(definition.outputSchema.properties.presentation.description, /approval_preview/u);
+assert.match(definition.outputSchema.properties.presentation.description, /only after its presentation_id exists/u);
+console.log("agdf_inspect function contract pins passed.");

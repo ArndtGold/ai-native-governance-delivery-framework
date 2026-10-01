@@ -28,11 +28,11 @@ export const INSTRUCTION_FOOTPRINT_SURFACE_IDS = Object.freeze([
 // or terminal-dispatch wording into a second semantic owner. Object-key order is intentionally
 // irrelevant to the schema digest. A semantic change requires an explicitly reviewed validator
 // update, not a silent limit increase, condition weakening or dispatch rewrite.
-const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "6f47e205a8ec606515e1de9618b71e2e0dbb0fd0fa15ae5d13eebe64b08546c4";
+const AUTHORIZED_SCHEMA_V1_FINGERPRINT = "21ed53bd49c3bd785e03c475f4ca6f5ec6bcac47bdc09238182a7126b90a2f1a";
 const AUTHORIZED_TERMINAL_DISPATCH_FINGERPRINT = "a6c88ba3da4a022d0910f59b0bbf1d88726dcbc8077bba0ae6bd00b3bfd9b9e0";
 const AUTHORIZED_OPENCODE_EAGER_FINGERPRINTS = Object.freeze({
-  canonical: "c76252c6a68ac8a636c9b2a9a8d429ab9b4436e2a1f04b3cb5c74886b85df6d1",
-  global: "bed67e381876fd16ad3a74f013e7c1722f3ac7db43ae6537c041829d4b415fdc",
+  canonical: "f4241ee566b2e2528a6c031281135561b411ac14602958bfdc3219a28db52f3f",
+  global: "166e07d217fd8d8e7f6734c0c8e509e59b09d24828a5dd6132f546b55d99629c",
 });
 const TERMINAL_DISPATCH_ANCHOR = "For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim.";
 const GLOBAL_TERMINAL_DISPATCH_ANCHOR = TERMINAL_DISPATCH_ANCHOR;
@@ -353,6 +353,9 @@ function derivedDynamicValues(surfaceId, content) {
     if (isAbsoluteInstructionPath(facts?.working_directory)) {
       values.workingDirectory = facts.working_directory;
     }
+    const invocation = facts?.repository_control?.invocation;
+    if (isAbsoluteInstructionPath(invocation?.executable)) values.executable = invocation.executable;
+    if (isAbsoluteInstructionPath(invocation?.argv?.[0])) values.validator = invocation.argv[0];
   }
   return values;
 }
@@ -519,7 +522,37 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
       const lines = content.split("\n").filter(Boolean);
       const facts = lines.length === 1 ? parsePrefixedJsonLine(lines[0], RUNTIME_FACTS_PREFIX) : null;
       const required = ["context_state", "working_directory", "automatic_check", "config"];
-      const allowed = new Set([...required, "languages"]);
+      const allowed = new Set([...required, "languages", "repository_control"]);
+      const control = facts?.repository_control;
+      const controlKeys = ["target", "inspection_state", "status", "counts", "authorizes"];
+      const invocation = control?.invocation;
+      const controlValid = !Object.hasOwn(facts ?? {}, "repository_control") || (
+        control && typeof control === "object" && !Array.isArray(control)
+        && controlKeys.every((key) => Object.hasOwn(control, key))
+        && Object.keys(control).every((key) => [...controlKeys, "invocation", "notice"].includes(key))
+        && isAbsoluteInstructionPath(control.target)
+        && typeof facts.working_directory === "string"
+        && (control.target === facts.working_directory
+          || facts.working_directory?.startsWith(`${control.target}/`)
+          || facts.working_directory?.startsWith(`${control.target}\\`))
+        && ["complete", "unavailable"].includes(control.inspection_state)
+        && typeof control.status === "string" && control.status.length > 0
+        && control.authorizes === false
+        && (control.inspection_state === "unavailable" ? control.counts === null : (
+          control.counts && Object.keys(control.counts).sort().join(",") === "historical,migration,repair"
+          && Object.values(control.counts).every((count) => Number.isSafeInteger(count) && count >= 0)
+        ))
+        && (!Object.hasOwn(control, "notice") || (typeof control.notice === "string" && invocation))
+        && (!Object.hasOwn(control, "invocation") || (
+          invocation && Object.keys(invocation).sort().join(",") === "argv,authorizes,executable"
+          && isAbsoluteInstructionPath(invocation.executable) && invocation.authorizes === false
+          && Array.isArray(invocation.argv) && invocation.argv.length === 7
+          && isAbsoluteInstructionPath(invocation.argv[0])
+          && invocation.argv[1] === "control-maintenance" && invocation.argv[2] === "--dir"
+          && invocation.argv[3] === control.target && invocation.argv[4] === "--guided"
+          && invocation.argv[5] === "--language" && /^[A-Za-z0-9-]{1,24}$/u.test(invocation.argv[6])
+        ))
+      );
       if (
         !facts
         || typeof facts !== "object"
@@ -529,6 +562,7 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
         || typeof facts.context_state !== "string"
         || typeof facts.working_directory !== "string"
         || typeof facts.config !== "string"
+        || !controlValid
         || !facts.automatic_check
         || typeof facts.automatic_check !== "object"
         || Array.isArray(facts.automatic_check)
@@ -753,6 +787,7 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
       const expectedResources = [
         "task-target-resolution.md",
         "gate-transition.md",
+        "gate-artifact-preparation.md",
         "interaction.md",
         "control-scaffold.md",
         "modes.md",
@@ -764,7 +799,7 @@ function validateSurfaceStructure({ surfaceId, record, canonicalKernel, expected
       if (JSON.stringify(declaredResources) !== JSON.stringify(expectedResources) || resourcesOutsideFallback.length !== 0) {
         failures.push(failure(
           "AGDF_INSTRUCTION_FOOTPRINT_GATE_RESOURCES_INVALID",
-          `${surfaceId}/${instanceId} must load exactly six focused contracts only through its declared fallback`,
+          `${surfaceId}/${instanceId} must load exactly ${expectedResources.length} focused contracts only through its declared fallback`,
           surfaceId,
           instanceId,
         ));
@@ -805,7 +840,7 @@ export function validateInstructionFootprintProfile({
       const identity = requestActivationKernelIdentity(normalizedKernel);
       if (
         identity.owner !== "request_activation_contract"
-        || identity.path !== "plugin/meta/contracts/request-activation.md"
+        || identity.path !== "meta/contracts/request-activation.md"
         || identity.policy_version !== 1
         || identity.guard_fingerprint !== canonicalFingerprint
       ) {

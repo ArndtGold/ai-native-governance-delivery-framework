@@ -1438,7 +1438,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
   }
   for (const required of [
     'identity?.owner !== "request_activation_contract"',
-    'identity?.path !== "plugin/meta/contracts/request-activation.md"',
+    'identity?.path !== "meta/contracts/request-activation.md"',
     "identity?.policy_version !== 1",
     "fingerprint mismatch",
     "const activeContext = () =>",
@@ -1466,7 +1466,7 @@ if (sourceMode && isFile(openCodeNpmPluginPath)) {
   try {
     const expectedIdentity = {
       owner: "request_activation_contract",
-      path: "plugin/meta/contracts/request-activation.md",
+      path: "meta/contracts/request-activation.md",
       policy_version: 1,
       guard_fingerprint: canonicalGuardFingerprint,
     };
@@ -1969,11 +1969,13 @@ for (const skill of expectedSkills) {
   }
   for (const required of [
     "## Executable Dispatch",
-    `--skill ${skill}`,
     "`terminal: true`",
     "`dispatcher_unavailable`",
   ]) {
     if (!skillMd.includes(required)) failures.push(`${skill} executable dispatch boundary missing: ${required}`);
+  }
+  if (!skillMd.includes(`--skill ${skill}`) && !skillMd.includes(`\`skill_id: ${skill}\``)) {
+    failures.push(`${skill} executable dispatch boundary missing: canonical skill identifier`);
   }
   if (skill === "gate-check") {
     for (const required of [

@@ -2,6 +2,7 @@ import { INSTALL_SETUP_STATES, INSTALL_ACTIONS, INSTALL_FAILURE_PHASES, INSTALL_
 import { isAbsolute } from "node:path";
 import { assertLifecycleResult } from "../lifecycle/result.js";
 import { mcpCapabilityProfileContract } from "../mcp-lifecycle/profile.js";
+import { assertControlMigration, uncheckedControl } from "./control-migration.js";
 
 const SURFACES = new Set(mcpCapabilityProfileContract.surfaces);
 const SETUP_REQUESTS = new Set(["plugin_only", "full", "cancel"]);
@@ -123,11 +124,13 @@ export function codexPendingHookAction(runtimeChecks) {
   return codexHookState(runtimeChecks?.verification).action;
 }
 
-export function deriveInstallSetupState({ setup_request: setupRequest, surface, plugin, runtime_checks: runtimeChecks, mcp, failure }) {
+export function deriveInstallSetupState({ setup_request: setupRequest, surface, plugin, runtime_checks: runtimeChecks, mcp, failure, control }) {
   if (setupRequest === "cancel") return "cancelled";
   if (plugin?.status === "not_run" && ["cancel", "cancelled"].includes(runtimeCheckState(runtimeChecks))) return "cancelled";
   if (!pluginVerified(plugin)) return "failed";
   if (failure?.phase === "runtime_check_permission") return "partial";
+  if (!failure && control?.status === "repair_required") return "control_repair_required";
+  if (!failure && control?.status === "migration_required") return "control_migration_required";
   const state = mcpState(mcp);
   if (setupRequest === "plugin_only") {
     if (state === "plugin_managed" && !failure && codexHookReviewPending(surface, runtimeChecks)) {
@@ -154,7 +157,7 @@ export function createInstallSetupPreflight(input = {}) {
   exactKeys(input, [
     "surface", "version", "interaction", "plugin", "mcp_by_scope", "target", "target_source",
     "invocation_directory_source", "requested_scope", "effective_scope", "plugin_configuration", "local_execution",
-    "package_acquisition_required", "removal_overview", "full_available", "full_block_reason", "authorizes",
+    "package_acquisition_required", "removal_overview", "full_available", "full_block_reason", "control", "authorizes",
   ], "AGDF_INSTALL_SETUP_PREFLIGHT_INVALID");
   const target = input.target ?? null;
   const requestedScope = input.requested_scope ?? null;
@@ -162,6 +165,7 @@ export function createInstallSetupPreflight(input = {}) {
   const pluginConfiguration = input.plugin_configuration ?? null;
   const invocationDirectorySource = input.invocation_directory_source ?? "none";
   const fullBlockReason = input.full_block_reason ?? "none";
+  const control = assertControlMigration(input.control ?? uncheckedControl());
   const scopeStateValid = (state) => plainObject(state)
     && Object.keys(state).every((key) => [
       "status", "capability", "selected_status", "effective_source", "registration_path",
@@ -217,6 +221,7 @@ export function createInstallSetupPreflight(input = {}) {
     removal_overview: input.removal_overview,
     full_available: input.full_available,
     full_block_reason: fullBlockReason,
+    control,
     authorizes: false,
   });
 }
@@ -225,12 +230,13 @@ export function createInstallSetupResult(input = {}) {
   exactKeys(input, [
     "result", "setup_request", "effective_state", "surface", "target", "target_source",
     "invocation_directory_source", "requested_scope", "effective_scope", "plugin", "runtime_checks", "mcp", "discovery",
-    "restart", "failure", "next_action", "authorizes",
+    "restart", "failure", "next_action", "control", "authorizes",
   ], "AGDF_INSTALL_SETUP_RESULT_INVALID");
   const target = input.target ?? null;
   const requestedScope = input.requested_scope ?? null;
   const effectiveScope = input.effective_scope ?? null;
   const invocationDirectorySource = input.invocation_directory_source ?? "none";
+  const control = assertControlMigration(input.control ?? uncheckedControl());
   if (!SETUP_REQUESTS.has(input.setup_request) || !SURFACES.has(input.surface)
       || !(target === null || (typeof target === "string" && isAbsolute(target)))
       || !TARGET_SOURCES.has(input.target_source)
@@ -293,6 +299,7 @@ export function createInstallSetupResult(input = {}) {
     restart: input.restart,
     failure: input.failure ?? null,
     next_action: input.next_action,
+    control,
     authorizes: false,
   });
 }

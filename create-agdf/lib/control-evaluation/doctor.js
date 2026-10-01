@@ -4,6 +4,7 @@ import { aggregate } from '../control-state/aggregate.js';
 import { verifyLegacyProjection } from '../control-state/legacy-projection-reader.js';
 import { resolveRuns } from '../control-state/run-state-resolver.js';
 import { runSealState } from '../control-state/run-seal.js';
+import { pendingRunStepIds } from '../control-state/run-step-pending.js';
 import { doctorRequiredFiles } from './required-files.js';
 import { analyzeDeliveryMap } from './delivery-map.js';
 import { evaluateVerifiedChange } from './verified-change.js';
@@ -24,7 +25,12 @@ const RUN_SEAL_FINDINGS = Object.freeze({
   invalid: {
     code: "AGDF_RUN_SEAL_INVALID",
     message: "The run seal lines are missing or malformed.",
-    next_step: "Restore both seal lines, or remove both and record a new sealed revision with run-update.",
+    next_step: "Restore the last sealed revision from trusted history and inspect changes before run-update; do not remove seal lines to bypass approval checks.",
+  },
+  unsealed: {
+    code: "AGDF_RUN_SEAL_INVALID",
+    message: "The run has no seal and cannot be changed by normal write commands.",
+    next_step: "Restore a trusted sealed revision or use the explicit legacy migration path; do not infer approvals from this file.",
   },
 });
 
@@ -66,6 +72,16 @@ export function evaluateDoctor(targetDir, selection = {}, dependencies = {}) {
     };
   }
   const findings = [];
+  for (const pendingId of pendingRunStepIds(targetDir)) {
+    addFinding(
+      findings,
+      "block",
+      "AGDF_RUN_STEP_RECOVERY_REQUIRED",
+      `A run-step transaction for ${pendingId} is incomplete; shared Backlog pointers may be in transition.`,
+      join(".agdf", "control", "runs", pendingId, "RUN_STEP_PENDING.json"),
+      "Retry the exact run-step for the pending run to recover it, or inspect conflicting bytes before manual repair.",
+    );
+  }
   let reconciliation;
   const hasCanonicalRuns = existsSync(join(targetDir, ".agdf", "control", "runs"));
   if (hasCanonicalRuns) {

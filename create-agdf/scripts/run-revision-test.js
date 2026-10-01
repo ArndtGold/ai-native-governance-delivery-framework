@@ -3,8 +3,10 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { recordRunRevision } from "../lib/control-state/run-recording.js";
 import { reopenPrdRevision } from "../lib/control-state/run-revision.js";
+import { sealRunState } from "../lib/control-state/run-seal.js";
+import { recordRunRevision } from "../lib/control-state/run-recording.js";
+import { writeRun } from "../lib/control-state/run-state-writer.js";
 
 // run-revise is the one bounded path that removes a recorded approval: PRD, at SD, before any
 // later artefact is linked or approved. Everything else must be rejected without a write.
@@ -77,9 +79,8 @@ ${sdLinked ? `| SD | .agdf/control/artefacts/${runId}/SD.md | draft | ready |\n`
 
 - next_allowed_action: Draft the SD.
 `);
-  const sealed = recordRunRevision(root, { runId, revisionId: "33333333-3333-4333-8333-000000000001" });
-  assert.equal(sealed.outcome, "updated", JSON.stringify(sealed));
-  return sealed.revision_id;
+  writeFileSync(statePath, sealRunState(root, readFileSync(statePath, "utf8")));
+  return "33333333-3333-4333-8333-000000000001";
 }
 
 try {
@@ -116,6 +117,20 @@ try {
   writeFileSync(join(artefacts, "PRD.md"), "# PRD changed outside run-update\n");
   assert.equal(reopenPrdRevision(root, { runId, revisionId: tampered }).reason, "seal_invalid",
     "an artefact edited outside the run commands blocks the revision");
+
+  for (const missing of ["content_seal", "approval_seal", "both"]) {
+    reset();
+    const revisionId = fixture();
+    const valid = readFileSync(statePath, "utf8");
+    const stripped = valid.split("\n").filter((line) => !(
+      (missing === "both" || missing === "content_seal") && line.startsWith("- content_seal:")
+      || (missing === "both" || missing === "approval_seal") && line.startsWith("- approval_seal:")
+    )).join("\n");
+    writeFileSync(statePath, stripped);
+    assert.equal(recordRunRevision(root, { runId, revisionId }).reason, "seal_invalid", missing);
+    assert.throws(() => writeRun(statePath, stripped, revisionId), /AGDF_RUN_SEAL_INVALID/, missing);
+    assert.equal(readFileSync(statePath, "utf8"), stripped, missing);
+  }
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

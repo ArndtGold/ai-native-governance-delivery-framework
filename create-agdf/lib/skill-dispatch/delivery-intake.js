@@ -12,8 +12,8 @@ export const quoteDispatchArgument = (value) => "'" + String(value).replaceAll("
 
 const UR_TEMPLATE = ".agdf/control/templates/artefacts/UR.md";
 
-// Intake bookkeeping the agent finishes without a user decision after authorized setup: no active
-// run yet, or a run whose UR revision is not persisted. Every other state stays terminal.
+// Run assignment precedes this phase. Bookkeeping addresses one concrete new or resumed run;
+// candidate count never establishes the original request's scope.
 export function deliveryIntakePhase(targetDir, control, input = {}) {
   const blockers = (control?.doctor_report?.findings ?? []).filter((finding) => finding.severity === "block");
   if (input.intake_mode === "new") {
@@ -26,10 +26,6 @@ export function deliveryIntakePhase(targetDir, control, input = {}) {
     if (exists) throw new Error("AGDF_RUN_COLLISION");
     return Object.freeze({ phase: "run_missing", run_id: input.run_id, revision_id: null });
   }
-  if (control?.blocking_reason === "AGDF_ACTIVE_RUN_MISSING"
-      && blockers.every((finding) => finding.code === "AGDF_ACTIVE_RUN_MISSING")) {
-    return Object.freeze({ phase: "run_missing", run_id: null, revision_id: null });
-  }
   const runState = control?.status_card?.runState;
   if (control?.status === "open" && control.current_gate === "UR" && control.missing_approval === "Approval: UR"
       && !control.approval_presentation && runState && !isDurableApprovalArtefactPresent(targetDir, runState, "UR")) {
@@ -41,16 +37,26 @@ export function deliveryIntakePhase(targetDir, control, input = {}) {
 }
 
 export function deliveryIntakeSteps(governanceTarget, intake) {
-  const runId = intake.run_id ?? "<run_id>";
-  const revisionId = intake.revision_id ?? "<revision_id from run-create>";
+  const runId = intake.run_id;
+  if (!runId) throw new Error("AGDF_INTAKE_RUN_BINDING_REQUIRED");
   const dir = `--dir ${quoteDispatchArgument(governanceTarget)}`;
+  if (intake.phase === "run_missing") {
+    return Object.freeze([
+      Object.freeze({
+        id: "create_run",
+        command: `run-create ${dir} --run ${runId}`,
+        argv: ["run-create", "--dir", governanceTarget, "--run", runId],
+        rule: "Create this exact run; use its returned revision_id for the following resume dispatch.",
+      }),
+      Object.freeze({
+        id: "dispatch_again",
+        rule: `Dispatch gate-check with intake: true, intake_mode: resume, run_id: ${runId} and expected_revision_id from run-create. Its next continuation supplies the concrete UR steps.`,
+      }),
+    ]);
+  }
+  const revisionId = intake.revision_id;
+  if (!revisionId) throw new Error("AGDF_INTAKE_REVISION_BINDING_REQUIRED");
   return Object.freeze([
-    ...(intake.phase === "run_missing" ? [{
-      id: "create_run",
-      command: `run-create ${dir} --run ${runId}`,
-      argv: ["run-create", "--dir", governanceTarget, "--run", runId],
-      rule: "Choose one new lowercase run id for the requested change; the output names its revision_id.",
-    }] : []),
     {
       id: "write_ur",
       path: `.agdf/control/artefacts/${runId}/UR.md`,
@@ -64,7 +70,7 @@ export function deliveryIntakeSteps(governanceTarget, intake) {
     },
     {
       id: "dispatch_again",
-      rule: `Dispatch gate-check again with intake, intake_mode resume and run_id ${runId}; that result decides the response.`,
+      rule: `Dispatch gate-check again with intake, intake_mode resume and run_id ${runId}, using expected_revision_id from run-step; that result decides the response.`,
     },
   ].map((step) => Object.freeze(step)));
 }

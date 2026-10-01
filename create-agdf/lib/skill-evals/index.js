@@ -90,13 +90,16 @@ export function runSkillEvals(repoRoot, { corpusDir = "evals" } = {}) {
   const requiredClasses = manifest.required_case_classes;
   const currentFingerprints = Object.fromEntries(pluginDefinition.skillSet.map((skill) => [skill.slug, fingerprintSkillCases(repoRoot, pluginDefinition, skill.slug, cases)]));
   const coverageFailures = [];
+  for (const [skill, fingerprint] of Object.entries(currentFingerprints)) {
+    if (manifest.source_fingerprints?.[skill] !== fingerprint) coverageFailures.push(`${skill}:manifest_fingerprint_stale`);
+  }
   for (const skill of pluginDefinition.skillSet) for (const kind of requiredClasses) if (!cases.some((item) => item.target_skill === skill.slug && item.case_class === kind)) coverageFailures.push(`${skill.slug}:${kind}`);
   const results = cases.map((testCase) => {
     const observation = observations.get(testCase.case_id);
     if (!observation) return { case_id: testCase.case_id, target_skill: testCase.target_skill, status: "block", failures: [fail(FAILURE.stale, "required observation missing")] };
     const qualityProfile = fixtures.artefact_quality?.profiles?.[testCase.case_class];
     const artefactContent = observation.artefact_content ?? fixtures.artefact_quality?.contents?.[testCase.case_class];
-    return gradeCase({ ...testCase, quality_profile: qualityProfile }, { ...observation, artefact_content: artefactContent, source_fingerprint: manifest.source_fingerprints?.[testCase.target_skill] }, currentFingerprints[testCase.target_skill]);
+    return gradeCase({ ...testCase, quality_profile: qualityProfile }, { ...observation, artefact_content: artefactContent }, currentFingerprints[testCase.target_skill]);
   });
   if (coverageFailures.length) results.unshift({ case_id: "coverage", status: "block", failures: [fail(FAILURE.coverage, coverageFailures.join(", "))] });
   const passed = results.filter((item) => item.status === "pass").length;

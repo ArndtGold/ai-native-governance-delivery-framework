@@ -110,7 +110,7 @@ Initialize a control scaffold only when durable AGDF control state is explicitly
 Helper commands are deterministic proof and automation interfaces, not the normal-work ritual:
 
 - `init` creates the machine-readable control scaffold.
-- `doctor --json` checks whether `.agdf/control/` is consistent and actionable; it is not the reviewer.
+- `doctor --json` checks whether `.agdf/control/` is consistent and actionable; it is not the reviewer. On a host that lists the AGDF MCP server, the read-only tool `agdf_inspect` (`operation: doctor | gate-check | delivery-map | contract`) returns the same `--json` object and canonical Markdown without a shell; the shell binding stays the fallback. It never writes control state or prepares an approval binding.
 - `gate-check --json` reports reproducible gate state; it does not replace the gate-check skill judgement.
 - `gate-check --approval-envelope` prints a read-only summary and link to the current artefact. The agent uses `run-present` before asking for an exact gate approval.
 - `delivery-map --json` reports the delivery picture for CI, PRs, regression checks and audit trails.

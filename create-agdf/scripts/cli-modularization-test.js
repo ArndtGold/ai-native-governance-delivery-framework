@@ -12,7 +12,7 @@ import {
   validateCommandOptions,
 } from "../lib/cli/command-registry.js";
 import { CliUsageError, parseArgs } from "../lib/cli/parse-args.js";
-import { askRuntimeCheckDecisionByKey, failureEvidenceEntries, runCli } from "../lib/cli/application.js";
+import { askRuntimeCheckDecisionByKey, failureEvidenceEntries, runCli as runApplicationCli } from "../lib/cli/application.js";
 import { runValidatorCli } from "../lib/runtime/validator-application.js";
 import { readRuntimeContract, runtimeContractModules } from "../lib/cli/contract-command.js";
 import { generatedRoot, pluginDefinition } from "../lib/cli/runtime-context.js";
@@ -24,6 +24,13 @@ import { createMcpLifecycleResult } from "../lib/mcp-lifecycle/result.js";
 // Installer paths default to the real Claude home and AGDF data root; keep this test out of both.
 process.env.CLAUDE_CONFIG_DIR = mkdtempSync(join(tmpdir(), "agdf-test-claude-home-"));
 process.env.AGDF_DATA_DIR ??= mkdtempSync(join(tmpdir(), "agdf-test-data-"));
+const installationCwd = mkdtempSync(join(tmpdir(), "agdf-cli-install-workspace-"));
+function runCli(argv, adapters = {}) {
+  // Host-operation fixtures must not depend on the production checkout's control compatibility.
+  const parser = ["codex", "claude", "copilot", "opencode"].includes(argv[0])
+    ? { cwd: installationCwd, ...adapters.parser } : adapters.parser;
+  return runApplicationCli(argv, { ...adapters, parser });
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
@@ -31,8 +38,8 @@ const expectedCommands = [
   "codex", "codex-repo", "claude", "copilot", "opencode", "opencode-status",
   "status", "runtime-checks", "mcp", "disable", "uninstall",
   "opencode-repo", "init", "config", "target-check", "skill-dispatch", "doctor", "gate-check",
-  "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
-  "run-migrate", "run-render-legacy",
+  "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve",
+  "run-migrate", "run-recovery", "run-render-legacy",
 ];
 
 assert.deepEqual(supportedCommandNames(), expectedCommands);
@@ -43,7 +50,7 @@ const usage = renderUsage();
 for (const command of expectedCommands) assert.match(usage, new RegExp(`(?:^|\\s)${command.replaceAll("-", "\\-")}(?:\\s|$)`));
 assert.match(usage, /Bootstrap and lifecycle commands:/);
 assert.doesNotMatch(usage, /@agdf\/cli@latest (?:doctor|gate-check|delivery-map|delivery-path-search|run-create|run-update|run-approve|run-migrate|run-render-legacy)/);
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(usage, new RegExp(`agdf ${command}`), `help must route repeated ${command} use to the local command`);
 }
 assert.match(usage, /Advanced \/ Compatibility/);
@@ -88,6 +95,9 @@ assert.deepEqual(parsed.options, {
   response: undefined,
   contractModule: undefined,
   runStep: undefined,
+  recoveryAction: undefined,
+  recoveryPreviewId: undefined,
+  recoveryConfirmation: undefined,
   stepFields: {},
   allActive: false,
   scope: undefined,
@@ -99,6 +109,8 @@ assert.deepEqual(parsed.options, {
   mcpAction: undefined,
   mcpScope: undefined,
   setupRequest: undefined,
+  controlDir: undefined,
+  controlMigration: undefined,
   generatorModel: "g",
   maxGeneratedCandidates: 3,
   generationTimeoutMs: 12000,
@@ -213,7 +225,7 @@ assert.throws(() => validateCommandOptions({ target: "run-update", runId: "run-a
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-update", runId: "run-a", revisionId: "rev" }));
 assert.throws(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev" }), /run-approve requires --run, --gate, --revision and --response/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-approve", runId: "run-a", gate: "UR", revisionId: "rev", response: "Approval: UR" }));
-assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-revise, run-present, run-approve and run-step/);
+assert.throws(() => validateCommandOptions({ target: "gate-check", revisionId: "rev" }), /--revision is supported only by run-update, run-revise, run-present, run-approve, run-step and skill-dispatch/);
 assert.throws(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev" }), /run-step requires --run, --revision and --step/);
 assert.throws(() => validateCommandOptions({ target: "doctor", stepFields: { route: "quick_task" } }), /step fields are supported only by run-step/);
 assert.doesNotThrow(() => validateCommandOptions({ target: "run-step", runId: "run-a", revisionId: "rev", runStep: "route", stepFields: { route: "quick_task" } }));
@@ -270,7 +282,7 @@ assert.doesNotMatch(bin, /function (parseArgs|evaluateDoctor|evaluateGateCheck|e
 assert.ok(bin.split("\n").length < 20, "the executable must remain a thin composition root");
 
 const packageReadme = readFileSync(join(packageRoot, "README.md"), "utf8");
-for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
+for (const command of ["doctor", "gate-check", "delivery-map", "delivery-path-search", "contract", "control-maintenance", "run-present", "run-create", "run-update", "run-revise", "run-step", "run-approve", "run-migrate", "run-render-legacy"]) {
   assert.match(packageReadme,new RegExp(`agdf ${command}`), `package README must route ${command} locally`);
   assert.doesNotMatch(packageReadme, new RegExp(`@agdf/cli@latest ${command}`), `package README must not require registry access for ${command}`);
 }
@@ -783,4 +795,5 @@ assert.deepEqual(failureEvidenceEntries({ claude_cache_recovery: "unavailable", 
 assert.deepEqual(failureEvidenceEntries(["a", { b: 1 }]), ["a", '{"b":1}']);
 assert.deepEqual(failureEvidenceEntries("plain"), ["plain"]);
 
+rmSync(installationCwd, { recursive: true, force: true });
 console.log("cli modularization tests passed");

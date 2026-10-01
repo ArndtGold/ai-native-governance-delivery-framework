@@ -266,7 +266,7 @@ try {
   assert.deepEqual(base.binding.request_activation, {
     owner: "request_activation_contract",
     policy_version: 1,
-    guard_fingerprint: "sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999",
+    guard_fingerprint: "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc",
   });
   assert.deepEqual(base.binding.route_source_after_activation, {
     relative_to: "validator_directory",
@@ -396,8 +396,26 @@ try {
     assert.deepEqual(eventCwdContext.facts.languages, { artifact: "en", chat: "de", runtime: "en" });
     assert.equal(typeof eventCwdContext.facts.automatic_check.status, "string");
     assert.equal(typeof eventCwdContext.facts.automatic_check.findings, "number");
-    const normalizedSupplement = eventCwdContext.supplement.replaceAll(process.cwd(), "<working-directory>");
+    const { repository_control: repositoryControl, ...originalFacts } = eventCwdContext.facts;
+    const normalizedSupplement = `AGDF runtime facts: ${JSON.stringify(originalFacts)}`.replaceAll(process.cwd(), "<working-directory>");
     assert.ok(Buffer.byteLength(normalizedSupplement, "utf8") <= 320);
+    assert.equal(repositoryControl.target, realpathSync(resolve(packageRoot, "..")));
+    // This real repository can exhaust the shared startup deadline. Deterministic
+    // complete-state coverage belongs to repository-control-startup-test.js.
+    assert.ok(["complete", "unavailable"].includes(repositoryControl.inspection_state));
+    if (repositoryControl.inspection_state === "unavailable") {
+      assert.equal(repositoryControl.status, "unavailable");
+      assert.equal(repositoryControl.counts, null);
+      assert.ok(repositoryControl.invocation.argv.includes("--guided"));
+      assert.equal(repositoryControl.invocation.argv[3], repositoryControl.target);
+    } else {
+      assert.ok(["absent", "current", "migration_required", "repair_required", "unsupported"].includes(repositoryControl.status));
+      assert.equal(typeof repositoryControl.counts.migration, "number");
+    }
+    assert.equal(repositoryControl.authorizes, false);
+    const { invocation, notice, ...compatibilityFacts } = repositoryControl;
+    assert.ok(Buffer.byteLength(JSON.stringify(compatibilityFacts).replaceAll(repositoryControl.target, "<repository>"), "utf8") <= 320,
+      "separate current compatibility facts remain bounded independently of the existing supplement");
     assert.doesNotMatch(eventCwdOutput.additionalContext, /Verified repository root:|Project config:|Language policy:/);
 
     const malformedInput = spawnSync(process.execPath, [generatedEntrypoint], {

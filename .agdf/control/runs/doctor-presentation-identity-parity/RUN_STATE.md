@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: doctor-presentation-identity-parity
 - lifecycle: active
-- revision: 16
-- revision_id: d7f79b27-a7d7-491d-9314-576f32ec2af5
+- revision: 18
+- revision_id: 277ccc54-3b5d-443a-bc07-665000ec4ddb
+- content_seal: sha256:c5fbf8193049b8702af9710c7fe2aeff0512619a496fa3258f05e54829d7e245
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T09:20:27.159Z
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: UR
 - decision: in_progress
 - owner: agent
 
@@ -23,24 +26,24 @@ presentable and an undeliverable card names its concrete defect.
 
 | Question | Answer |
 |---|---|
-| What is known? | Code inspection confirms the gap: `evaluateDoctor` checks neither `run_id` format nor `revision_id`; `buildApprovalOrientationSnapshot`/`validateApprovalOrientationSnapshot` require both; `renderApprovalOrientationSnapshot`/`renderOperationalStatusCard` discard validation errors and return bare `null`. |
-| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA` accepted on 2026-09-01; Brownfield Review selected `structured_slice`. |
-| What is missing? | Bounded UAT observation, then exact `Approval: UAT`. |
-| What is the next allowed action? | Perform the bounded UAT observation (fresh doctor and gate-check against a defective legacy state), then request exact `Approval: UAT`. |
-| What is explicitly forbidden right now? | QA or release claims before evidence; commit, push, PR without explicit instruction. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
+| UR | missing |  |
 | Brownfield Review | done | `.agdf/control/artefacts/doctor-presentation-identity-parity/BROWNFIELD_REVIEW.md` 2026-09-01; existing-owner inventory, compact-path evaluation and Structured Depth Evidence complete. |
 | Mode/Slice Decision | structured_slice | Bounded single-outcome parity fix inside `create-agdf/lib/**` with complete in-repo consumer inventory and deterministic tests; `quick_task` and `verified_change` ineligible (excluded code paths, multiple owner files, gate-verdict behavior impact); no evidenced full-depth trigger; primary_reason_code `bounded_structured_slice`; evidence in Brownfield Review §Structured Depth Evidence. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| QA | approved | Exact `Approval: QA` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation; QA report revision 1 pass. |
-| UAT | open | |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -113,5 +116,5 @@ Perform the bounded UAT observation: in a fresh evaluation, run doctor and gate-
 defective legacy state (invalid `run_id`, missing `revision_id`) and against a healthy canonical run,
 record the observed outputs, then request exact `Approval: UAT` before delivery closeout.
 
-- next_allowed_action: Perform the bounded UAT observation, then request exact `Approval: UAT`.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: All four quality dimensions pass on the repository evidence plane; remaining openness is live-host rendering of the extended fallback lines and the disclosed pre-existing native-Windows suite failures.

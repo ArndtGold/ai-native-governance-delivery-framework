@@ -104,9 +104,11 @@ native MCP registration path and effective source.
 
 ### Optional local MCP dispatcher (unreleased development preview)
 
-The optional MCP path registers one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode. It exposes
-exactly `agdf_dispatch`, backed by the same canonical semantic definition and dispatcher as the CLI.
-The tool is read-only, offline while serving and non-authorizing. Host permission, registration and
+The optional MCP path registers one local STDIO server for Codex, Claude Code, GitHub Copilot or OpenCode.
+MCP tools: `agdf_dispatch`, `agdf_inspect`.
+Dispatch uses the same canonical semantic definition and
+dispatcher as the CLI; inspect exposes read-only doctor, gate-check, delivery-map and contract operations.
+Both tools are read-only, offline while serving and non-authorizing. Host permission, registration and
 successful execution never count as `Approval: <GateName>`. The process inherits the launching
 host user's operating-system identity and filesystem permissions; AGDF does not claim an operating-
 system sandbox.
@@ -1079,23 +1081,25 @@ npm --prefix create-agdf run eval:skills
 The versioned corpus under `evals/` uses schema version `1` and an independently versioned
 `corpus_version`. It covers every canonical skill with normal, boundary and adversarial cases.
 
-The offline command creates disposable repository fixtures and grades:
+The offline command grades checked-in, curated replay observations against:
 
 - routing, gate and approval boundaries;
 - required and forbidden actions;
-- measured mutation limits;
+- declared mutation paths in those observations;
 - artefact content against deterministic Quality Contract assertions.
 
 CI and publish validation require 100% for every deterministic threshold. Missing, stale, malformed
 or unknown required evidence fails closed.
 
-Checked-in `deterministic_replay` observations are fingerprint-bound regression evidence. They do
-not prove that a live Codex, Claude Code or another host executed the cases during the current CI
-job.
+Each `deterministic_replay` observation records its own source fingerprint. The runner compares it
+with the current skill, router, case and fixture sources and independently checks the manifest
+fingerprint. These observations are hand-authored regression examples, often aligned with the case
+expectations. A passing offline result does not prove that a host executed the cases, that any
+repository mutation was measured, or that the behavior occurs in a fresh session.
 
 Refresh a replay only after reviewing the changed skill, routing, contract, case and fixture owners.
-Then recompute and deliberately update the matching fingerprint in `evals/manifest.json`. The runner
-never rewrites observations or goldens.
+Then recompute and deliberately update the matching fingerprints in each reviewed observation and
+`evals/manifest.json`. The runner never rewrites observations or goldens.
 
 Live-host evidence is a separate, opt-in recording lane:
 

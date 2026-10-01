@@ -1,5 +1,8 @@
 name: Publish AGDF packages
 
+permissions:
+  contents: read
+
 on:
   push:
     tags:
@@ -14,15 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify release workflow contract
+        run: npm --prefix create-agdf run test:release-workflows
 
       - name: Verify release tag matches package versions
         shell: bash
@@ -72,9 +81,12 @@ jobs:
       - name: Verify versioned AGDF skill evaluations
         run: npm --prefix create-agdf run eval:skills
 
+      - name: Verify registry-state classification
+        run: npm --prefix create-agdf run test:release-registry-state
+
       - name: Install MCP validation dependencies from checkout
         working-directory: agdf-mcp-server
-        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
+        run: npm ci --ignore-scripts
 
       - name: Run create-agdf smoke test
         run: npm --prefix create-agdf run smoke-test
@@ -89,8 +101,7 @@ jobs:
         run: npm --prefix create-agdf run test:package-contents
 
       - name: Verify @agdf/cli package contents
-        working-directory: agdf
-        run: npm pack --dry-run
+        run: npm --prefix agdf run test:package
 
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix agdf-mcp-server run test:package
@@ -105,15 +116,28 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      - name: Install checkout dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Require publish credential
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        shell: bash
+        run: |
+          test -n "$NODE_AUTH_TOKEN" || { echo "NPM_TOKEN is required for the coupled AGDF publish" >&2; exit 1; }
+
+      - name: Check exact registry versions before publishing
+        run: node create-agdf/scripts/release-registry-state.mjs --preflight
 
       - name: Prepare and verify release assets
         run: npm --prefix create-agdf run release:prepare
@@ -280,3 +304,10 @@ jobs:
 
       - name: Run clean public bootstrap smoke test
         run: AGDF_EXPECTED_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('./agdf/package.json', 'utf8')).version")" node ./create-agdf/scripts/release-bootstrap-smoke-test.js
+
+      - name: Confirm all exact registry versions
+        run: node create-agdf/scripts/release-registry-state.mjs --complete
+
+      - name: Report exact registry state after failure
+        if: failure()
+        run: node create-agdf/scripts/release-registry-state.mjs --report

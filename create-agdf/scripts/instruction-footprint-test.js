@@ -393,10 +393,28 @@ function runNegativeFixtures(valid) {
   const longSupplement = `AGDF runtime facts: ${JSON.stringify({
     context_state: "repository_bound",
     working_directory: "unavailable",
-    automatic_check: { status: "x".repeat(330), findings: 0 },
+    automatic_check: { status: "x".repeat(budget("runtimeCheckSupplement")), findings: 0 },
     config: "valid",
   })}`;
   expectSingleFailure("runtime supplement overflow", "runtimeCheckSupplement", [{ id: "overflow", content: longSupplement }]);
+
+  const runtimeFacts = JSON.parse(valid.surfaces.runtimeCheckSupplement[0].content.slice("AGDF runtime facts: ".length));
+  const withControl = (control) => [{ id: "repository-control", content: `AGDF runtime facts: ${JSON.stringify({ ...runtimeFacts, repository_control: control })}` }];
+  const control = { target: runtimeFacts.working_directory, inspection_state: "complete", status: "current", counts: { migration: 0, repair: 0, historical: 1 }, authorizes: false };
+  assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: withControl(control), canonicalKernel: valid.canonicalKernel }).status, "pass");
+  const withReentry = { ...control, status: "migration_required", notice: "Repository migration available.", invocation: { executable: process.execPath, argv: [join(repoRoot, "plugin/scripts/agdf-local.js"), "control-maintenance", "--dir", control.target, "--guided", "--language", "de"], authorizes: false } };
+  assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: withControl(withReentry), canonicalKernel: valid.canonicalKernel }).status, "pass");
+  for (const [target, workingDirectory] of [["/repo", "/repo/nested"], ["C:\\repo", "C:\\repo\\nested"]]) {
+    const content = `AGDF runtime facts: ${JSON.stringify({ ...runtimeFacts, working_directory: workingDirectory, repository_control: { ...control, target } })}`;
+    assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: [{ id: "nested-repository", content }], canonicalKernel: valid.canonicalKernel }).status, "pass");
+  }
+  for (const invalid of [
+    { ...control, authorizes: true },
+    { ...control, target: "/different/repository" },
+    { ...control, counts: { ...control.counts, repair: -1 } },
+    { ...control, policy: "implementation permitted" },
+    { ...control, invocation: { executable: process.execPath, argv: ["arbitrary-command"], authorizes: false } },
+  ]) expectSingleFailure("invalid repository control facts", "runtimeCheckSupplement", withControl(invalid), "AGDF_INSTRUCTION_FOOTPRINT_RUNTIME_FACTS_INVALID");
 
   const validEager = valid.surfaces.openCodeEagerInstructions[0].content;
   expectSingleFailure("OpenCode eager overflow", "openCodeEagerInstructions", [{ id: "overflow", content: padPastBudget(validEager, budget("openCodeEagerInstructions")) }]);

@@ -42,6 +42,18 @@ assert.throws(
   }),
   (error) => error.code === "AGDF_RELEASE_VERSION_SKEW",
 );
+for (const relativePath of [
+  "agdf/package-lock.json",
+  "agdf-mcp-server/package-lock.json",
+]) {
+  assert.throws(
+    () => assertReleaseVersionCoherence({ evidence: {
+      expectedVersion: evidence.expectedVersion,
+      entries: [{ relativePath, actualVersion: "0.0.0" }],
+    } }),
+    (error) => error.code === "AGDF_RELEASE_VERSION_SKEW" && error.message.includes(relativePath),
+  );
+}
 
 assertReleaseVersionCoherence({ evidence });
 const historyEvidence = assertDistributionProfileHistory({ repoRoot });

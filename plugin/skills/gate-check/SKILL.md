@@ -7,16 +7,15 @@ description: "Use this skill for this scope: any requested build or code/file ch
 
 ## Purpose
 
-After positive Request Activation, return the earliest gate or internal step through canonical owners.
-This non-authorizing bootstrap creates no parallel policy.
+After Request Activation, dispatch the earliest canonical gate or internal step; non-authorizing.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation
 
 - `owner`: `request_activation_contract`
-- `path`: `plugin/meta/contracts/request-activation.md`
+- `path`: `meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
+- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`
 
 Decide effect from loaded instructions before AGDF action.
 
@@ -31,32 +30,32 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Route Boundary
 
-Use only the selected catalog operation:
+Selected operation:
 
-- `skill.gate-check`: dispatch first, with `intake` for a change; no prior repository/control inspection.
-- `delivery.start`: resolve target once for draft/setup. Unresolved target: canonical orientation and stop.
-  Inspect only `absent | candidate_present`. If absent, perform authorized setup and persist UR before
-  approval. If present, dispatch intake for the same target; dispatcher evaluates control. Stop on
-  mismatch. Cwd selects no target; create no legacy live run or proxy operation.
+- `skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.
+- `delivery.start`: resolve target once; unresolved: orient and stop. Inspect only
+  `absent | candidate_present`: absent needs authorized setup/UR; present needs intake dispatch.
+  Stop on mismatch; no legacy live run or proxy.
 
-New scope: `intake: true`, `intake_mode: new`, unused `run_id`; never reuse a run.
-Resume bound intake with `intake_mode: resume`. After a recorded approval use `continue_delivery: true`
-for that run, never for status. Execute Brownfield/routing; stop on an unchanged blocker. If a
-continuation names another skill, invoke it without `continue_delivery`; use that flag only on the
-next bound `gate-check` dispatch.
-For `presentation_required`, run the supplied `run-present`, show its exact text, wait for a NEW reply,
-and retain `presentation_id` for `run-approve --presentation`. Never bind an earlier reply retroactively.
+Unbound implementation request: dispatch intake without `run_id`. At `resolve_delivery_run`, read
+candidate URs and compare original request scope. One unequivocal match: resume its ID with
+`expected_revision_id`; clear independent scope: choose an unused ID and start new. Recency, one
+candidate, shared files and `AGDF_RUN_ID` cannot bind scope. Only genuine overlap needs a question
+about the work; never start by asking users for Run IDs. Inventory failure blocks assignment.
+Use returned revisions after `run-create` and `run-step`; new scope starts at durable UR approval.
+After `run-approve` returns `outcome: approved`, redispatch the same target/run immediately with
+`continue_delivery: true`. `control.gate_route` identifies the current gate and responsible skills;
+invoke `continuation.skill_id`. Stop at the next user decision or blocker.
 
 ## Executable Dispatch
 
-If listed, use the AGDF MCP tool `agdf_dispatch` (e.g. `mcp__agdf__agdf_dispatch`; load it if
-deferred; no search): `skill_id` `gate-check`, `presentation_language`, `working_directory` and, if set,
-`target_source`/`primary_target` and `run_id`. Only if it is unlisted or fails, use binding schema 2
-(`executable`, child-only `environment`, immutable `argv_prefix`) per `arguments`: `--skill gate-check`,
-`--language`, absolute `--working-directory`, shell values quoted as data.
+Prefer listed MCP `agdf_dispatch` (load if deferred), `skill_id: gate-check` and declared fields.
+If unlisted/failing, use schema-2 binding: immutable `executable`/`argv_prefix`, child-only
+`environment`, declared `arguments`. Quote shell data; CLI revision uses `--revision`.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
-Bind existing runs only from explicit selection or unambiguous continuation. Never construct or repair a runtime.
+Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope
+assignment. Never construct or repair a runtime.
 
 For a result with `terminal: true`, the entire assistant response must consist only of host_action.text, copied verbatim. Add no question, explanation, heading, citation, link or other surrounding text; do not translate or reformat it; invoke no later tool and stop.
 `gate-check` has deterministic-control dispatch. A read-only status request returns an artefact
@@ -72,10 +71,13 @@ Only explicit trusted `instruction_only` runtime evidence enables fallback. Load
 
 - `../../meta/contracts/task-target-resolution.md`
 - `../../meta/contracts/gate-transition.md`
+- `../../meta/contracts/gate-artifact-preparation.md`
 - `../../meta/contracts/interaction.md`
 - `../../meta/contracts/control-scaffold.md`
 - `../../meta/contracts/modes.md`
 - `../../meta/contracts/quality.md`
 
-Apply them directly without recreating their tables, presentations, setup flow or approval rules;
-the fallback stays non-authorizing and fail-closed.
+Apply directly; do not duplicate tables or procedures. Fallback grants no authority.
+
+For `prepare_gate_artifact`, follow its runtime contract with the supplied gate and bound paths;
+canonical evaluation owns eligibility.

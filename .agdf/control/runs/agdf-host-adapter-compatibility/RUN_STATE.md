@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-host-adapter-compatibility
 - lifecycle: active
-- revision: 11
-- revision_id: cc024643-aacb-431c-a9da-93bbf1ead2b1
+- revision: 12
+- revision_id: 8ab37cfd-11a9-4578-b12c-89d4cacc09f3
+- content_seal: sha256:1a5526640b33b37bc8c23d5c3367d3b53e80fab1ef4aa1d7cc3779c9e0f8c2d0
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:09.420Z
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: UR
 - decision: in_progress
 - owner: agent
 
@@ -22,11 +25,11 @@ for the exact host environment and execution path.
 
 | Question | Answer |
 |---|---|
-| What is known? | The compatibility evidence was refreshed on 2026-09-09: 56 scenarios, 64 evidence checks, release preparation and 30 verification groups pass against the current 110-file source/payload snapshot. QA Report Revision 3 passes with 12/12 tasks covered. |
-| What is approved? | UR, PRD, SD and TP Revision 1, plus QA Report Revision 3 after exact Approval: QA and same-run/gate/revision revalidation on 2026-09-09. |
-| What is missing? | Human UAT of the supplied compatibility report and its relevant workflow. Native host/session and GitHub-hosted Ubuntu evidence remain explicitly unverified within the approved deterministic slice. |
-| What is the next allowed action? | Review UAT_PREPARATION.md and the exact compatibility report, then request Approval: UAT. |
-| What is explicitly forbidden right now? | UAT acceptance and VCS/release/site delivery without the required subsequent approvals; unsupported native capability claims and unrelated scope changes. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -45,12 +48,12 @@ for the exact host environment and execution path.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-09-05 after version-matched gate-check confirmed run agdf-host-adapter-compatibility, gate UR, durable UR Revision 1 and revision identity 03fc3c7b-9776-48b9-bf2c-55c238a63b1e. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-09-05 after the version-matched validator confirmed run agdf-host-adapter-compatibility, gate PRD, durable PRD Revision 1 and revision identity 30df3462-9235-4495-a2e5-02a6eb858be9. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-09-05 after the version-matched validator confirmed run agdf-host-adapter-compatibility, gate SD, durable SD Revision 1 and revision identity 7cf5934a-35d0-4d91-a43c-3f5e1bc03e97. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-09-05 after version-matched same-run/gate/revision revalidation of durable TP Revision 1 and revision identity d2803cf5-c221-4243-9ced-71a24f88dcad. |
-| QA | approved | Exact `Approval: QA` accepted on 2026-09-09T08:46:43.047Z for QA Report Revision 3 after same-run/gate/revision revalidation of revision 9 (f13a6fb9-e77b-4e5c-b55c-a88fe8280820). QA SHA-256 ffec24638b226d873563f3fb19d95e9103674e8bf273dbab1989286c09c26768; source fingerprint dc967b46e93bf214abe12d61c18101cc798e68da9faf1690166d9025b01bb734. See evidence/QA_APPROVAL_20260909.json. |
-| UAT | missing | Human review is pending. UAT_PREPARATION.md binds the review to QA Report Revision 3 and the current comparison snapshot. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -147,7 +150,7 @@ for the exact host environment and execution path.
 
 ## Closeout
 
-- next_allowed_action: Request exact approval: Approval: UAT before delivery handoff.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: The current deterministic comparison and affected regressions pass with all twelve tasks covered. Source drift has been resolved for the refreshed snapshot; native host/session support and human UAT remain separate and unverified.
 
 ## Prior Run Pointers

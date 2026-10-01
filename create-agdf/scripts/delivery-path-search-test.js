@@ -9,6 +9,7 @@ import { fixtureEvaluator } from "../lib/delivery-path-search/evaluators/protoco
 import { fixtureGenerator } from "../lib/delivery-path-search/generators/protocol.js";
 import { persistSearchResult } from "../lib/delivery-path-search/persistence.js";
 import { searchInputFromControl } from "../lib/delivery-path-search/state-adapter.js";
+import { sealRunState } from "../lib/control-state/run-seal.js";
 
 const baseInput = {
   contract_version: "1",
@@ -193,7 +194,7 @@ try {
 |---:|---|---|---|---|---|---|
 | 1 | \`canonical-search\` | Canonical search fixture | In Progress | [UR](artefacts/canonical-search/UR.md) · [Brownfield](artefacts/canonical-search/BROWNFIELD_REVIEW.md) · [PRD](artefacts/canonical-search/PRD.md) · [SD](artefacts/canonical-search/SD.md) · [TP](artefacts/canonical-search/TP.md) | [TP](artefacts/canonical-search/TP.md) | Implement approved tasks |
 `);
-  writeFileSync(join(canonicalRoot, ".agdf", "control", "runs", "canonical-search", "RUN_STATE.md"), `# AGDF Run State
+  writeFileSync(join(canonicalRoot, ".agdf", "control", "runs", "canonical-search", "RUN_STATE.md"), sealRunState(canonicalRoot, `# AGDF Run State
 
 ## Run Meta
 
@@ -274,7 +275,7 @@ Verify canonical actions without a persisted Run Status Card.
 ## Closeout
 
 - next_allowed_action: Implement approved tasks.
-`);
+`));
   const canonicalInput = searchInputFromControl(canonicalRoot, { scopeKey: "canonical-search" });
   assert.equal(canonicalInput.scope_key, "canonical-search");
   assert.equal(canonicalInput.scope_revision, "11111111-1111-4111-8111-111111111111");

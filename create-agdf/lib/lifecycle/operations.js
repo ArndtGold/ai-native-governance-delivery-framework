@@ -1,7 +1,7 @@
 import process from "node:process";
 import { execFileSync } from "node:child_process";
 import { execHostFileSync } from "../host-command.js";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
   applyCopilotRepositoryDisable,
@@ -21,6 +21,8 @@ import { inspectPluginMcpDataRoot } from "../mcp-lifecycle/plugin-runtime.js";
 import { CODEX_DISPATCH_POLICY_KEY } from "../runtime-check-consent/codex-plugin-consent.js";
 import { defaultAgdfDataRoot } from "../installers/local-marketplace.js";
 import { uninstallCommand as copilotUninstallCommand } from "../host-adapters/copilot/plugin.js";
+import { atomicWrite } from "../control-state/run-state-writer.js";
+import { assertOwnedDirectory, assertUnchangedOwnedFile, directoryIdentity } from "./owned-mutation.js";
 
 export function planRepositoryDisable(targetDir, surface, { shared = false, exec = execFileSync } = {}) {
   if (surface === "copilot") {
@@ -78,7 +80,7 @@ export function planGlobalUninstall(surface, { configDir, ...claudeOptions } = {
   const state = inspectPluginMcpDataRoot(runtimeRoot);
   return Object.freeze({
     ...plan,
-    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot }] : []),
+    mutations: Object.freeze([...plan.mutations, ...(state === "owned" ? [{ kind: "remove_tree", path: runtimeRoot, expectedIdentity: directoryIdentity(runtimeRoot) }] : []),
       // The installer's tool approval lives in the Codex user config; it is revoked through Codex after removal.
       { kind: "codex_tool_policy", key: CODEX_DISPATCH_POLICY_KEY }]),
     retained: Object.freeze([...plan.retained, ...(state === "foreign" ? [`Codex plugin MCP runtime with unowned content: ${runtimeRoot}`] : [])]),
@@ -101,16 +103,19 @@ export function applyLifecyclePlan(plan, { exec = execHostFileSync, applyCopilot
   for (const mutation of plan.mutations) {
     try {
       if (mutation.kind === "write") {
+        assertUnchangedOwnedFile(mutation.path, mutation.expectedSnapshot);
         mkdirSync(dirname(mutation.path), { recursive: true });
-        writeFileSync(mutation.path, mutation.content, "utf8");
+        atomicWrite(mutation.path, mutation.content);
         completed.push({ kind: "write", path: mutation.path });
       } else if (mutation.kind === "copilot_settings") {
         const result = applyCopilotSettings(mutation.settings);
         completed.push({ kind: "copilot_settings", path: mutation.path, status: result.status });
       } else if (mutation.kind === "remove") {
+        assertUnchangedOwnedFile(mutation.path, mutation.expectedSnapshot);
         rmSync(mutation.path);
         completed.push({ kind: "remove", path: mutation.path });
       } else if (mutation.kind === "remove_tree") {
+        assertOwnedDirectory(mutation.path, mutation.expectedIdentity, inspectPluginMcpDataRoot);
         rmSync(mutation.path, { recursive: true, force: true });
         completed.push({ kind: "remove_tree", path: mutation.path });
       } else if (mutation.kind === "claude_permission_rules") {

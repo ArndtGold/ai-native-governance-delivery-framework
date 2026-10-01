@@ -1,11 +1,11 @@
 # Privacy
 
-Last updated: 2026-08-17
+Last updated: 2026-09-29
 
-AI Governance & Delivery Framework (AGDF) is an independent open-source project. The initial public
-AGDF plugin is a Skills-only distribution. It does not include an AGDF-operated MCP server, hosted
-backend, user account, telemetry service or analytics service. The project does not receive your
-prompts, conversations, repository contents or plugin usage through an AGDF service.
+AI Governance & Delivery Framework (AGDF) is an independent open-source project. Its distribution
+includes plugins, a CLI and a locally run MCP server. AGDF does not operate a hosted backend, user
+account, telemetry service or analytics service. The project does not receive your prompts,
+conversations, repository contents or plugin usage through an AGDF-operated service.
 
 ## Processing by OpenAI and other platforms
 
@@ -17,9 +17,17 @@ of the host you choose before providing personal, confidential or regulated info
 ## Local and repository access
 
 AGDF skills may guide an authorized coding agent to read or change files, run commands and create
-delivery artefacts in the repository or workspace you make available. The host, its tools and
+delivery artefacts in the repository or workspace you make available. Local hooks may inspect
+installation and repository control state at session start. The local MCP server can read repository
+control files and return dispatch or inspection results to the connected host; its tools are
+read-only and non-authorizing. Explicit CLI lifecycle and installer commands can create or change
+local control files, plugin registrations and AGDF-owned installation files. The host, its tools and
 permissions, and your explicit approvals determine what the agent can access. AGDF does not
 independently transmit that material to an AGDF-operated service.
+
+Running an `npx` command such as `npx --yes @agdf/cli@latest` asks npm to obtain packages from its
+registry. npm and the selected host may process technical request information under their own
+policies. Using a local already installed runtime does not require that package acquisition step.
 
 Repository artefacts can contain requirements, decisions and evidence. Do not place secrets,
 credentials, identity documents, sensitive personal data or Persona verification material in those

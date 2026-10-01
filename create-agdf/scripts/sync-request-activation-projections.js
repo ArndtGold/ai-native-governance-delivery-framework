@@ -205,10 +205,13 @@ function validateExistingGuardProjection(guardBlock, label) {
     requestActivationHeading,
     "",
     "- `owner`: `request_activation_contract`",
-    "- `path`: `plugin/meta/contracts/request-activation.md`",
+    "- `path`: `meta/contracts/request-activation.md`",
     "- `policy_version`: `1`",
   ];
-  if (!expectedHeader.every((line, index) => lines[index] === line)
+  const legacyHeader = [...expectedHeader];
+  legacyHeader[4] = "- `path`: `plugin/meta/contracts/request-activation.md`";
+  if (!(expectedHeader.every((line, index) => lines[index] === line)
+      || legacyHeader.every((line, index) => lines[index] === line))
       || !/^- `guard_fingerprint`: `sha256:[0-9a-f]{64}`$/.test(lines[6] ?? "")
       || lines[7] !== ""
       || lines.at(-1) !== REQUEST_ACTIVATION_MARKERS.guardEnd) {

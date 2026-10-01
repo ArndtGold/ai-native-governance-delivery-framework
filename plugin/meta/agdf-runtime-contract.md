@@ -8,6 +8,7 @@ This manifest indexes the thematic runtime-contract modules used by AGDF skills 
 | Request Activation | `contracts/request-activation.md` | Canonical focused module; follow the linked source for semantics. |
 | Task Target Resolution | `contracts/task-target-resolution.md` | Canonical focused module; follow the linked source for semantics. |
 | Gate Transition | `contracts/gate-transition.md` | Canonical focused module; follow the linked source for semantics. |
+| Gate Artifact Preparation | `contracts/gate-artifact-preparation.md` | Canonical focused module; follow the linked source for semantics. |
 | Interaction | `contracts/interaction.md` | Canonical focused module; follow the linked source for semantics. |
 | Modes | `contracts/modes.md` | Canonical focused module; follow the linked source for semantics. |
 | Quality | `contracts/quality.md` | Canonical focused module; follow the linked source for semantics. |

@@ -3,8 +3,9 @@ import { createTestRuntime } from "./runtime-fixture.js";
 
 const runtime = createTestRuntime();
 const executor = Object.freeze({
-  async execute(argumentsValue) {
-    return runtime.execute(runtime.parse(argumentsValue));
+  async execute(argumentsValue, { toolName } = {}) {
+    const tool = runtime.tool(toolName ?? runtime.definition.name);
+    return tool.execute(tool.parse(argumentsValue));
   },
   async close() {},
 });

@@ -9,7 +9,7 @@ digraph context {
   subgraph cluster_agdf {
     label="AGDF  /  lokale logische Systemgrenze"; labelloc=b; fontsize=15; color="#2D8B7B"; style=rounded; margin=22;
     guidance [label="Plugin und Skills\nAnweisungsweg", fillcolor="#FFF2CF", color="#BF9840"];
-    mcp [label="Lokaler MCP-Server\nagdf_dispatch über stdio", fillcolor="#DDF4EE", color="#2D8B7B"];
+    mcp [label="Lokaler MCP-Server\nDispatch + Inspect über stdio", fillcolor="#DDF4EE", color="#2D8B7B"];
     dispatch [label="Gemeinsamer Dispatcher\nZiel · Run · Gate"];
     lifecycle [label="MCP-Lebenszyklus\nstatus · enable · disable"];
   }

@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { isAbsolute, posix, relative, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { containedRegularFile, isSafeControlRelativePath } from "../control-state/contained-file.js";
 import { cleanStatusCell, isPlaceholderValue } from "./shared.js";
 
 export function extractField(content, field) {
@@ -17,21 +17,19 @@ export function parseVerifiedChangePathList(value) {
 }
 
 export function isSafeRepoRelativePath(value) {
-  if (!value || value === "none" || value.startsWith("/") || value.includes("\\")) return false;
-  const normalized = posix.normalize(value);
-  return normalized !== "." && normalized !== ".." && !normalized.startsWith("../") && normalized === value;
+  return isSafeControlRelativePath(value);
 }
 
 export function readVerifiedChangeRecord(targetDir, runState) {
   const artefact = runState.artefacts.get("Verified Change");
   if (!artefact?.path || isPlaceholderValue(artefact.path)) return { status: "missing", path: "", content: "" };
   if (!isSafeRepoRelativePath(artefact.path)) return { status: "invalid", path: artefact.path, content: "", error: "record_path_invalid" };
-  const absolutePath = resolve(targetDir, artefact.path);
-  const relativePath = relative(resolve(targetDir), absolutePath);
-  if (isAbsolute(relativePath) || relativePath === ".." || relativePath.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`) || !existsSync(absolutePath)) {
+  const result = containedRegularFile(targetDir, artefact.path);
+  if (result.status !== "valid") {
+    if (result.status === "invalid") return { status: "invalid", path: artefact.path, content: "", error: "record_path_invalid" };
     return { status: "missing", path: artefact.path, content: "", error: "record_missing" };
   }
-  return { status: "present", path: artefact.path, content: readFileSync(absolutePath, "utf8") };
+  return { status: "present", path: artefact.path, content: readFileSync(result.path, "utf8") };
 }
 
 export function evaluateVerifiedChange(targetDir, runState, dependencies = {}) {

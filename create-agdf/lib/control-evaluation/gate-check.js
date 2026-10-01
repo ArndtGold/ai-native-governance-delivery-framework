@@ -1,4 +1,4 @@
-import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
+import { attachApprovalOrientationSnapshot, buildArtefactRefs, buildQualityReadiness, gateTitle, isOperationalValueRenderable, localePack, renderApprovalOrientationSnapshot, renderControlSetupOrientation, renderOperationalStatusCard, renderRunResolutionCard, resolveHumanRunTitle, resolvePresentationLocale, validateApprovalOrientationPreconditions, validateApprovalOrientationSnapshot, validateOperationalStatusCardPreconditions } from '../interaction-presentation.js';
 import { interactionLocales, resolveConfiguredChatLanguage } from '../cli/runtime-context.js';
 import { evaluateDoctor } from './doctor.js';
 import { analyzeDeliveryMap, deriveQualityOutlook } from './delivery-map.js';
@@ -26,6 +26,34 @@ const nextSkillByGate = {
   UAT: "delivery-closeout",
   OR: "release-or",
 };
+
+const gateArtifactPreparationPlans = Object.freeze({
+  PRD: Object.freeze({ file: "PRD.md", sources: ["UR.md", "BROWNFIELD_REVIEW.md"] }),
+  SD: Object.freeze({ file: "SD.md", sources: ["PRD.md"], requireUnpassedRelationship: true }),
+  TP: Object.freeze({ file: "TP.md", sources: ["PRD.md", "SD.md"], requireUnpassedRelationship: true }),
+});
+
+function requiredGateArtifactPreparation({ status, currentGate, missingApproval,
+  modeDecision, approvalPresentation, presentationDiagnostics, deliveryMap, runId }) {
+  const plan = gateArtifactPreparationPlans[currentGate];
+  if (!plan || status !== "open" || missingApproval !== `Approval: ${currentGate}`
+      || !["structured_slice", "structured_delivery"].includes(modeDecision)
+      || approvalPresentation || presentationDiagnostics?.approval_presentation_errors?.length
+      || !runId) return null;
+
+  if (plan.requireUnpassedRelationship
+      && (deliveryMap.relationships ?? []).find((relationship) => relationship.from === currentGate)?.status === "pass") {
+    return null;
+  }
+
+  return Object.freeze({
+    type: "prepare_gate_artifact",
+    gate: currentGate,
+    skill_id: "gate-check",
+    artifact_path: `.agdf/control/artefacts/${runId}/${plan.file}`,
+    source_artifacts: Object.freeze(plan.sources.map((source) => `.agdf/control/artefacts/${runId}/${source}`)),
+  });
+}
 
 export function postApprovalTransition(missingApproval, runState = null) {
   if (missingApproval === "Approval: UR" && runState
@@ -430,11 +458,18 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     enumerable: false,
   });
   const revisionId = extractField(runState.content ?? "", "revision_id");
+  const runResolutionPresentation = runState.resolution_error?.startsWith("AGDF_ACTIVE_RUN_AMBIGUOUS:")
+    ? renderRunResolutionCard({ candidates: runState.candidate_runs, presentationLanguage: presentationLocale }, { registry: interactionLocales })
+    : runState.resolution_error === "AGDF_ACTIVE_RUN_MISSING"
+      ? renderRunResolutionCard({ noActiveRun: true, presentationLanguage: presentationLocale }, { registry: interactionLocales })
+      : null;
   const statusPresentation = controlSetupRequired
     ? renderControlSetupOrientation({ target: targetDir }, {
         registry: interactionLocales,
         requestedLocale: presentationLocale,
       })
+    : runResolutionPresentation
+      ? runResolutionPresentation
     : renderOperationalStatusCard(statusCard, {
         registry: interactionLocales,
         humanPresentation,
@@ -516,6 +551,17 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     }
   }
 
+  const nextOperation = requiredGateArtifactPreparation({
+    status,
+    currentGate,
+    missingApproval,
+    modeDecision: modeSliceDecision(runState),
+    approvalPresentation,
+    presentationDiagnostics,
+    deliveryMap,
+    runId: statusCard.run_id,
+  });
+
   return {
     schema_version: "1",
     status,
@@ -539,6 +585,7 @@ export function evaluateGateCheck(targetDir, selection = {}, dependencies = {}) 
     status_card: statusCard,
     status_presentation: statusPresentation,
     approval_presentation: approvalPresentation,
+    next_operation: nextOperation,
     ...(Object.keys(presentationDiagnostics).length ? { presentation_diagnostics: presentationDiagnostics } : {}),
     delivery_map: {
       relationships: deliveryMap.relationships,

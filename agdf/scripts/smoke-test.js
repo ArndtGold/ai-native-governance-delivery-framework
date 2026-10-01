@@ -1,17 +1,17 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
+import { npmExecutable } from "../../create-agdf/lib/npm-invocation.js";
 
 const packageRoot = new URL("..", import.meta.url);
 const repoRoot = new URL("..", packageRoot);
 const createAgdfPackageRoot = fileURLToPath(new URL("./create-agdf", repoRoot));
 const packageJsonPath = fileURLToPath(new URL("./package.json", packageRoot));
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-const npmCommand = process.platform === "win32" ? process.execPath : "npm";
-const npmPrefixArgs = process.platform === "win32" ? [join(dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js")] : [];
+const { executable: npmCommand, prefix: npmPrefixArgs } = npmExecutable();
 
 if (packageJson.name !== "@agdf/cli") {
   throw new Error("The primary CLI package must be named @agdf/cli.");

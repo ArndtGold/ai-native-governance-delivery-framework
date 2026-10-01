@@ -19,8 +19,9 @@ for (const document of Object.values(documents)) {
 }
 
 const privacy = prose("PRIVACY.md");
-assert.match(privacy, /Skills-only distribution/);
-assert.match(privacy, /does not include an AGDF-operated MCP server/);
+assert.match(privacy, /plugins, a CLI and a locally run MCP server/);
+assert.match(privacy, /does not operate a hosted backend, user account, telemetry service or analytics service/);
+assert.match(privacy, /its tools are read-only and non-authorizing/);
 assert.match(privacy, /does not receive your prompts, conversations, repository contents or plugin usage/);
 assert.match(privacy, /OpenAI and other platforms/);
 assert.match(privacy, /Do not place secrets, credentials, identity documents/);

@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-proportionality-benchmark
 - lifecycle: active
-- revision: 11
-- revision_id: 2141d853-c776-463c-8fe1-67575427379a
+- revision: 12
+- revision_id: 0bc1f587-bb7a-49d6-8d62-0059143eb7d5
+- content_seal: sha256:e76db4e79cb0190c1d27eeefc4818d924e0d1b49382ca637c75b7e32c6c21b5e
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:11.214Z
 - mode: structured_delivery
-- current_gate: QA
+- current_gate: UR
 - decision: blocked
 - owner: user / agent
 
@@ -21,11 +24,11 @@ prüfen und Über-/Unter-Governance messen, ohne Gate- oder Evidenzschutz abzusc
 
 | Question | Answer |
 |---|---|
-| What is known? | TP 18/18 ist ausgeführt; Implementierung, Smoke und Reviews bestehen; frische Serie v2 umfasst 120/120 Observationen, aber 27/40 Fälle sind ambiguous. |
-| What is approved? | Child-UR, PRD Revision 2, SD Revision 2 und TP Revision 2 sind genehmigt; Brownfield, TP Review, Clean Review und Code Review bestehen. |
-| What is missing? | Eine separat genehmigte Protokoll-Remediation; QA kann bei geltender TP-Stop-Bedingung nicht freigegeben werden. |
-| What is the next allowed action? | Im Parent ist ein separater Protokoll-Child gerechtfertigt; dieser Mess-Run bleibt unverändert blockiert. |
-| What is explicitly forbidden right now? | `Approval: QA`, Nachoptimierung oder Wiederholung gültiger Ergebnisse im selben Run, UAT, VCS und Release. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -41,12 +44,12 @@ prüfen und Über-/Unter-Governance messen, ohne Gate- oder Evidenzschutz abzusc
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exaktes `Approval: UR` am 2026-07-28 nach Revalidierung von Run, Gate, Revision 1 und dauerhaftem Artefakt. |
-| PRD | approved | Exaktes `Approval: PRD` am 2026-07-28 nach Revalidierung von Run, Gate, Revision 6 und dauerhaftem Artefakt Revision 2. |
-| SD | approved | Exaktes `Approval: SD` am 2026-07-28 nach Revalidierung von Run, Gate, Revision 7 und dauerhaftem Artefakt Revision 2. |
-| TP | approved | Exaktes `Approval: TP` am 2026-07-28 nach Revalidierung von Run, Gate, Revision 8 und dauerhaftem Artefakt Revision 2. |
-| QA | blocked | `QA_REPORT.md` entscheidet `block`: 27/40 frische Fälle ambiguous; Freigabe ist nicht anforderbar. |
-| UAT | missing | Nicht zulässig. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -145,5 +148,5 @@ prüfen und Über-/Unter-Governance messen, ohne Gate- oder Evidenzschutz abzusc
 
 - delivered: Child-UR/PRD/SD/TP genehmigt; Brownfield pass; TP 18/18; Implementierung, vollständiger Smoke, frische 120er-Serie, deterministischer Bericht und Pflichtreviews abgeschlossen.
 - intentionally_not_delivered: QA-Pass, UAT, Remediation der 27 Ambiguitätsfälle, VCS und Release.
-- next_allowed_action: Diesen Run unverändert blockiert erhalten; Protokoll-Remediation nur in einem neuen Child mit eigener UR; kein `Approval: QA`.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Deterministische Istmessung muss Gate-Schutz stärker gewichten als Interaktionsreduktion und darf keine zweite Routing-Autorität schaffen.

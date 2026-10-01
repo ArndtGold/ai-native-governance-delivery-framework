@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: cross-surface-plugin-opt-out
 - lifecycle: active
-- revision: 9
-- revision_id: E661CAC5-0660-4036-8246-3E36898489C8
+- revision: 12
+- revision_id: 03a2db80-4237-408a-88f4-d51b99614bc0
+- content_seal: sha256:b9ca9f4aab5e8bdbca2d9c72d428b1d26bec65920080899fbcffc86d642457e1
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T17:22:21.552Z
 - mode: `structured_delivery`
-- current_gate: `QA`
+- current_gate: UR
 - decision: `revise`
 - owner: Arndt Gold
 
@@ -21,11 +24,11 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 
 | Question | Answer |
 |---|---|
-| What is known? | Personal and shared Copilot repository opt-out are implemented through one safe settings/lifecycle path. Focused, package and broad component evidence pass; the combined aggregate remains blocked by named foreign release and gate-validation fixtures. |
-| What is approved? | UR revision 2 plus PRD, SD and TP revision 1 are approved after same-run, same-gate and revision revalidation. |
-| What is missing? | One clean full smoke and skill-evaluation pass after the foreign baseline is reconciled. |
-| What is the next allowed action? | Resolve the release/gate-validation baseline in its owning run, then rerun full smoke and skill evaluations for this run. |
-| What is explicitly forbidden right now? | `Approval: QA` request, UAT, release claims and automatic VCS actions while QA is `revise`. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -40,12 +43,12 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `approved` | Exact `Approval: UR` accepted for revision 2 on 2026-09-01 after same-run, same-gate and revision revalidation. |
-| PRD | `approved` | Exact `Approval: PRD` accepted for revision 1 on 2026-09-02 after same-run, same-gate and revision revalidation. |
-| SD | `approved` | Exact `Approval: SD` accepted for revision 1 on 2026-09-02 after same-run, same-gate and revision revalidation. |
-| TP | `approved` | Exact `Approval: TP` accepted for revision 1 on 2026-09-02 after same-run, same-gate and revision revalidation. |
-| QA | `missing` | Not allowed before implementation and mandatory reviews. |
-| UAT | `missing` | Not allowed before QA pass and approval. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -62,7 +65,7 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 | TP Review | `.agdf/control/artefacts/cross-surface-plugin-opt-out/TASK_PLAN_REVIEW.md` | `revise` | 11/12 tasks fully done; `CSO-T11` remains partial. |
 | Clean Review | `.agdf/control/artefacts/cross-surface-plugin-opt-out/CLEAN_IMPLEMENTATION_REVIEW.md` | `pass` | One primary settings/lifecycle solution without fallback or parallel owner. |
 | CR | `.agdf/control/artefacts/cross-surface-plugin-opt-out/CODE_REVIEW.md` | `pass` | No scoped code finding remains. |
-| QA | `.agdf/control/artefacts/cross-surface-plugin-opt-out/QA_REPORT.md` | `revise` | Open aggregate evidence gap prevents QA pass and approval request. |
+| QA | `.agdf/control/artefacts/cross-surface-plugin-opt-out/QA_REPORT.md` | `revise` | Historical QA remains revise; aggregate CI revalidation below changes neither current UR gate nor approvals. |
 
 ## Mode / Slice Decision
 
@@ -113,13 +116,13 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 | Official Copilot instructions reference | `https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions` | Independent loading of `AGENTS.md` and other custom instructions | direct |
 | Scoped implementation evidence | `.agdf/control/artefacts/cross-surface-plugin-opt-out/CD_TESTS.md` | CLI, settings, lifecycle, retention, documentation and test results | strong |
 | Mandatory reviews and QA | `TASK_PLAN_REVIEW.md`; `CLEAN_IMPLEMENTATION_REVIEW.md`; `CODE_REVIEW.md`; `QA_REPORT.md` | 11/12 coverage, clean solution, scoped code pass and QA revise | strong |
+| Aggregate CI revalidation, 2026-09-30 | `create-agdf` smoke-test command sequence (all component commands plus integration and routing); `eval:skills`; `agdf` package and packed CLI smoke; Pages checks; host compatibility and community health | Isolated checkout of `d076d3d` plus the reviewed CI repair: all component and integration tests pass, 90/90 deterministic replay cases and 56/56 compatibility fixtures; fixes cover Windows npm invocation, review aliases, startup facts and stale fixtures. Native-host UAT and gate approvals are separate. | strong |
 
 ## Missing Evidence
 
 | Missing evidence | Impact | Required next step |
 |---|---|---|
 | Direct fresh-session behavior for repository-disabled Copilot AGDF | `warn` | Keep as later host evidence; do not infer from repository fixtures. |
-| Clean aggregate evidence on the combined active worktree | `revise` | Reconcile foreign release/gate-validation fixtures, then rerun smoke and skill evaluations. |
 
 ## Risks
 
@@ -150,5 +153,5 @@ including a repository-local GitHub Copilot opt-out and an honest independent-in
 - not_delivered: QA pass or approval, fresh-host UAT, VCS, release and publication.
 - verification_performed: CLI, lifecycle, real-Git retention, strict JSON/path/atomicity fixtures, Runtime Integrity, package contents/build, broad component regressions, routing and diff checks; complete smoke attempted.
 - unverified: Effective repository-disabled Copilot behavior in a fresh host session and managed-policy precedence.
-- next_allowed_action: Reconcile the named foreign aggregate baseline in its owning run, then rerun full smoke and skill evaluations; do not request QA approval before pass.
-- quality_outlook: Scoped implementation is clean and well covered, but QA correctly remains revise until combined-worktree aggregate evidence is green.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
+- quality_outlook: Aggregate source/fixture evidence was revalidated on 2026-09-30. Historical QA remains revise, current approvals remain missing, and fresh-host UAT remains unverified.

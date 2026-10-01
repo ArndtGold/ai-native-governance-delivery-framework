@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { parse } from "yaml";
 import { assertReleaseEvidence, REQUIRED_STEPS } from "./release-evidence.mjs";
 const policy = JSON.parse(readFileSync(new URL("./codex-release-policy.json", import.meta.url), "utf8"));
@@ -22,11 +22,11 @@ for (const mutate of [rows => rows.pop(), rows => rows[0].steps.pop(), rows => r
   const damaged = structuredClone(observations); mutate(damaged);
   assert.throws(() => assertReleaseEvidence(damaged, options));
 }
-for (const file of ["publish-agdf.yml", "publish-create-agdf.yml"]) {
-  const workflow = parse(readFileSync(new URL(`../../.github/workflows/${file}`, import.meta.url), "utf8"));
-  assert.ok(workflow.jobs.publish.needs.includes("codex-e2e"));
-  assert.equal(workflow.jobs["codex-e2e"].uses, "./.github/workflows/codex-release-e2e.yml");
-}
+assert.equal(existsSync(new URL("../../.github/workflows/publish-create-agdf.yml", import.meta.url)), false);
+const publish = parse(readFileSync(new URL("../../.github/workflows/publish-agdf.yml", import.meta.url), "utf8"));
+assert.deepEqual(publish.on.push.tags, ["agdf-v*"]);
+assert.ok(publish.jobs.publish.needs.includes("codex-e2e"));
+assert.equal(publish.jobs["codex-e2e"].uses, "./.github/workflows/codex-release-e2e.yml");
 const workflow = parse(readFileSync(new URL("../../.github/workflows/codex-release-e2e.yml", import.meta.url), "utf8"));
 assert.deepEqual(workflow.jobs.native.strategy.matrix.include.map(row => row.platform), policy.platforms);
 assert.ok(!workflow.on.pull_request && !workflow.on.pull_request_target);

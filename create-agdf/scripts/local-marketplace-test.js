@@ -518,8 +518,54 @@ try {
   const modifiedPlugin = join(fixtureRoot, "modified-plugin");
   cpSync(builtPluginRoot, modifiedPlugin, { recursive: true });
   writeFileSync(join(modifiedPlugin, "distribution-test.txt"), "new build\n");
+  const postCommitRoot = join(fixtureRoot, "post-commit-data");
+  prepareLocalMarketplace({ dataRoot: postCommitRoot, builtPluginRoot }).commit();
+  const postCommitUpdate = prepareLocalMarketplace({
+    dataRoot: postCommitRoot,
+    builtPluginRoot: modifiedPlugin,
+    cleanupBackup() {
+      const error = new Error("injected backup cleanup failure");
+      error.code = "EBUSY";
+      throw error;
+    },
+  });
+  assert.throws(() => postCommitUpdate.commit(), /injected backup cleanup failure/);
+  assert.equal(readFileSync(join(postCommitUpdate.root, "plugins", "agdf", "distribution-test.txt"), "utf8"), "new build\n");
+  assert.equal(existsSync(`${postCommitUpdate.root}.backup`), true);
+  assert.equal(json(`${postCommitUpdate.root}.transaction.json`).phase, "committed");
+  const committedPayload = join(postCommitUpdate.root, "plugins", "agdf", "distribution-test.txt");
+  writeFileSync(committedPayload, "foreign replacement\n");
+  assert.throws(() => prepareLocalMarketplace({ dataRoot: postCommitRoot, builtPluginRoot: modifiedPlugin }),
+    /stable payload changed/);
+  assert.equal(existsSync(`${postCommitUpdate.root}.backup`), true, "an ambiguous committed payload must retain its recovery backup");
+  writeFileSync(committedPayload, "new build\n");
+  const originalBackup = `${postCommitUpdate.root}.backup`;
+  const heldBackup = `${originalBackup}.held`;
+  renameSync(originalBackup, heldBackup);
+  cpSync(heldBackup, originalBackup, { recursive: true });
+  assert.throws(() => prepareLocalMarketplace({ dataRoot: postCommitRoot, builtPluginRoot: modifiedPlugin }),
+    /backup identity changed/, "a replaced but AGDF-marked backup must not be deleted");
+  assert.equal(existsSync(originalBackup), true);
+  rmSync(originalBackup, { recursive: true });
+  renameSync(heldBackup, originalBackup);
+  const recoveredCommit = prepareLocalMarketplace({ dataRoot: postCommitRoot, builtPluginRoot: modifiedPlugin });
+  assert.equal(recoveredCommit.changed, false, "post-commit cleanup failure must preserve the committed build");
+  assert.equal(readFileSync(join(recoveredCommit.root, "plugins", "agdf", "distribution-test.txt"), "utf8"), "new build\n");
+  assert.equal(existsSync(`${postCommitUpdate.root}.backup`), false);
+  assert.equal(existsSync(`${postCommitUpdate.root}.transaction.json`), false);
+  recoveredCommit.commit();
   const interruptedSwap = prepareLocalMarketplace({ dataRoot, builtPluginRoot: modifiedPlugin });
   assert.equal(interruptedSwap.changed, true);
+  const interruptedBackup = `${interruptedSwap.root}.backup`;
+  renameSync(interruptedBackup, `${interruptedBackup}.held`);
+  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }),
+    /prior backup missing/, "a missing prior backup must block recovery without deleting the new stable payload");
+  assert.equal(readFileSync(join(interruptedSwap.root, "plugins", "agdf", "distribution-test.txt"), "utf8"), "new build\n");
+  renameSync(`${interruptedBackup}.held`, interruptedBackup);
+  const preparedPayload = join(interruptedSwap.root, "plugins", "agdf", "distribution-test.txt");
+  writeFileSync(preparedPayload, "foreign replacement\n");
+  assert.throws(() => prepareLocalMarketplace({ dataRoot, builtPluginRoot }), /stable payload changed/);
+  writeFileSync(preparedPayload, "new build\n");
   const recoveredSwap = prepareLocalMarketplace({ dataRoot, builtPluginRoot });
   assert.equal(recoveredSwap.changed, false, "an uncommitted swapped root must restore its backup on the next run");
   assert.throws(() => readFileSync(join(recoveredSwap.root, "plugins", "agdf", "distribution-test.txt")), /ENOENT/);

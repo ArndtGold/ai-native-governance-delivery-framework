@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: agdf-npm-package-payload-cleanup
 - lifecycle: active
-- revision: 2
-- revision_id: EB46B69A-B780-4F5F-AB9C-EC91D7222749
+- revision: 3
+- revision_id: 03ee638e-095a-4dd0-ab8f-27d7bd49a4ac
+- content_seal: sha256:419cf700f5024e2ebda7c61b03e557ba7d0481d11f240d4adb4d806e54a0ce83
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:09.726Z
 - started_at: 2026-08-30
 - mode: `structured_delivery`
-- current_gate: `PRD`
+- current_gate: UR
 - decision: `in_progress`
 - owner: Arndt Gold
 
@@ -22,11 +25,11 @@ review or temporary build artefacts that installed consumers do not need.
 
 | Question | Answer |
 |---|---|
-| What is known? | Existing package, generator, submission, installer, validator and test owners are mapped. Submission generation is a maintainer concern; the public tarball is a four-host compatibility and release contract. |
-| What is approved? | UR revision 1 was approved with exact `Approval: UR` on 2026-08-30. Brownfield Review passed and selected `structured_delivery`. |
-| What is missing? | Review of PRD revision 1 and exact `Approval: PRD`. |
-| What is the next allowed action? | Review or refine the PRD and request the exact PRD approval. |
-| What is explicitly forbidden right now? | Solution Design, Task Plan, package implementation, test-contract changes, QA, release and VCS actions. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -57,12 +60,12 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `approved` | `Approval: UR` recorded 2026-08-30 for revision 1 |
-| PRD | `missing` | none |
-| SD | `missing` | none |
-| TP | `missing` | none |
-| QA | `missing` | none |
-| UAT | `missing` | none |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -148,5 +151,5 @@ Valid approval format for new runs: `Approval: <GateName>`.
 - not_delivered: Solution Design, Task Plan, package changes, test changes, QA, UAT, release and VCS actions.
 - verification_performed: Exact same-run/gate/revision revalidation; package, generator, public-candidate, installer, runtime and test owner inspection; measured npm dry-run inventory; Structured Depth evaluation.
 - unverified: Final non-submission metadata classification, selected technical publish mechanism, clean-client completeness and resulting package size.
-- next_allowed_action: Review PRD revision 1 and provide exact `Approval: PRD`, request revision or decline.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Keep one semantic publish inventory and prove each exclusion against every supported lifecycle.

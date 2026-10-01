@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: delivery-path-search-control-input-integrity
 - lifecycle: active
-- revision: 9
-- revision_id: 53E352A3-9863-42FD-ADDF-5FE96314B3C4
+- revision: 10
+- revision_id: 2fa5f304-207a-4673-af01-a7e9a2ebe79d
+- content_seal: sha256:273c2c4169db9005df69ccf047c99fea807a4c8b8368891478696b37c35534ad
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:14.159Z
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: UR
 - decision: in_progress
 - owner: user / agent
 
@@ -21,11 +24,11 @@ from an evidence-backed no-safe-recommendation result.
 
 | Question | Answer |
 |---|---|
-| What is known? | The root cause is corrected and the generated plugin is installed in Codex as verified `0.14.2+codex.local-bf61ec5e26c9`; a fresh task is still required to prove session pickup and exercise the skill. |
-| What is approved? | Durable UR, PRD, SD, TP and QA are approved; Brownfield Analysis, CD+Tests and all mandatory reviews pass; QA report decision is `pass`. |
-| What is missing? | Fresh-task pickup and Delivery Path Search example evidence, exact `Approval: UAT` and any later delivery action. |
-| What is the next allowed action? | Restart Codex, open a fresh task and exercise `agdf:delivery-path-search` against a fitting canonical run before requesting UAT approval. |
-| What is explicitly forbidden right now? | UAT acceptance before installed-host evidence, release, commit, push, PR and other unrequested delivery actions. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -41,12 +44,12 @@ from an evidence-backed no-safe-recommendation result.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact user approval accepted on 2026-08-30 after same-run, same-gate and revision-1 revalidation. |
-| PRD | approved | Exact user approval accepted on 2026-08-30 after same-run, PRD-gate and revision-2 revalidation. |
-| SD | approved | Exact user approval accepted on 2026-08-30 after same-run, SD-gate and revision-3 revalidation. |
-| TP | approved | Exact user approval accepted on 2026-08-30 after same-run, TP-gate and revision-4 revalidation. |
-| QA | approved | Exact user approval accepted on 2026-08-30 after same-run, QA-gate and revision-6 revalidation. |
-| UAT | missing | Exact approval remains open. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -139,5 +142,5 @@ from an evidence-backed no-safe-recommendation result.
 
 ## Closeout
 
-- next_allowed_action: Restart Codex, open a fresh task and exercise `agdf:delivery-path-search` against a fitting canonical run before requesting UAT approval.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Preserve the explicit source/package/installed-host evidence boundary during QA acceptance and later UAT.

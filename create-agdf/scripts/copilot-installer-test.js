@@ -77,6 +77,20 @@ try {
   assert.ok(legacy.install().evidence.includes('directory_marketplace_registration_migrated'));
   assert.equal(json(legacy.settingsPath).extraKnownMarketplaces.agdf.source.source, 'git');
 
+  // Observe actual Git child processes: automatic maintenance must not outlive
+  // the owned staging tree that the installer immediately swaps or removes.
+  const tracePath = join(fixture, 'transport-events.jsonl');
+  const traced = prepareCopilotMarketplace({ dataRoot: join(fixture, 'traced-transport'), builtPluginRoot: built,
+    transportAdapters: { exec(executable, args, options) {
+      return execFileSync(executable, args, { ...options, env: { ...options.env, GIT_TRACE2_EVENT: tracePath } });
+    } } });
+  traced.commit();
+  const childProcesses = readFileSync(tracePath, 'utf8').trim().split('\n').map(line => JSON.parse(line))
+    .filter(event => event.event === 'child_start');
+  assert.equal(childProcesses.some(event => event.argv?.some(arg => arg === 'maintenance' || arg === 'gc')), false,
+    'Git transport must not spawn automatic maintenance on a transient marketplace tree');
+  assert.equal(existsSync(`${canonical}.stage`), false, 'same-version update must leave no stale staging tree');
+
   const sourceDigest = digestPluginSource(built, pluginDefinition.version);
   for (const [kind, modify, expected] of [
     ['missing', values => values.slice(1), /missing/],

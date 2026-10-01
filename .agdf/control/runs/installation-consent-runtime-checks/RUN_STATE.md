@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: installation-consent-runtime-checks
 - lifecycle: active
-- revision: 23
-- revision_id: EB495140-3FFE-4A58-A419-7E3874D1499E
+- revision: 24
+- revision_id: d27d6b43-bbf5-40a4-b2eb-465643e77219
+- content_seal: sha256:317fab5aadb28e7650663ca8d9447fee4fcfab8abc76e961bc1dbeeba323a266
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:15.294Z
 - started_at: 2026-08-27
 - mode: `structured_delivery`
-- current_gate: `QA`
+- current_gate: UR
 - decision: `revise`
 - owner: Arndt Gold
 
@@ -36,11 +39,11 @@ native-Windows combinations without weakening host security or AGDF gate authori
 
 | Question | Answer |
 |---|---|
-| What is known? | Every interactive install or update presents a versioned beginner-first automatic, manual or cancel decision. A previous choice is intent, never effective host permission; manual mode stays usable and invalid input recovers visibly. Material consent facts stay visible, technical details open through D, and the result has verified version, one compact state and one next action. |
-| What is approved? | UR Revision 2, PRD Revision 2, SD Revision 3 and TP Revision 2 are approved through exact same-run, same-gate and revision-matched approvals; Brownfield Analysis Revision 3 passed. |
-| What is missing? | Revised live installer rendering on Codex, Claude Code and OpenCode; Codex execution cycle after observed native trust; native Windows; rendered public candidate; remaining conflict/rollback evidence. |
-| What is the next allowed action? | Collect separately authorized direct-host evidence without inferred parity. |
-| What is explicitly forbidden right now? | QA pass or approval request, UAT, publication, release and VCS actions. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -71,12 +74,12 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `approved` | Exact `Approval: UR` from Arndt Gold on 2026-08-27 for UR Revision 2 |
-| PRD | `approved` | Exact `Approval: PRD` from Arndt Gold on 2026-08-27 for PRD Revision 2 |
-| SD | `approved` | Exact `Approval: SD` from Arndt Gold on 2026-08-27 for SD Revision 3 |
-| TP | `approved` | Exact `Approval: TP` from Arndt Gold on 2026-08-27 for TP Revision 2 |
-| QA | `missing` | none |
-| UAT | `missing` | none |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -185,5 +188,5 @@ Keep the active work item traceable. A gate may open only when the previous gate
 - not_delivered: QA pass, revised direct-host rendering, Codex enabled cycle after observed current native trust, native Windows, rendered public candidate, UAT, VCS, publication and release.
 - verification_performed: Source-matched 0.13.7 focused and final aggregate tests; target/installed/update version, truthful previous intent, post-install permission wording, manual help, progress, invalid-input recovery, D details, compact/default and verbose diagnostic regressions; 66/66 skill cases; 313-file package; 43-file public candidate; Runtime Integrity; doctor/gate-check; `git diff --check`.
 - unverified: revised real-host interaction, Codex enabled/change/disable cycle, native-Windows cells, rendered listing, induced managed conflict/rollback and online dependency audit.
-- next_allowed_action: Collect separately authorized direct-host evidence without inferred parity.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Preserve transparency at every interactive update without causing repeated native host trust prompts for unchanged capability identity.

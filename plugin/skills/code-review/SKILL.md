@@ -17,7 +17,7 @@ It answers:
 - whether Brownfield, TP, or clean-review follow-up remains open
 
 ## Runtime Contract
-After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without a binding, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
+After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use the MCP tool `agdf_inspect` (`operation: contract`, `module: <name>`) when the host lists it; otherwise a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without either, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
 
 - `../../meta/contracts/quality.md`
 - `../../meta/contracts/context-graph.md`
@@ -28,9 +28,9 @@ After `skill_continuation`, consume the modules below from `continuation.runtime
 ## Request Activation
 
 - `owner`: `request_activation_contract`
-- `path`: `plugin/meta/contracts/request-activation.md`
+- `path`: `meta/contracts/request-activation.md`
 - `policy_version`: `1`
-- `guard_fingerprint`: `sha256:6c997fe93ac33eba14a81d50a8136909bdf13fde42298002d7727d09ec62a999`
+- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`
 
 Decide effect from loaded instructions before AGDF action.
 

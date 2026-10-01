@@ -1,0 +1,63 @@
+
+Kompatibilität des Kontrollbestands
+Repository: /private/tmp/agdf-installed-live-20260930-PXiuyz/D repair
+Kontrollbestand: Reparatur erforderlich
+1 Runs benötigen eine Reparatur und bleiben unverändert.
+Details oder control-maintenance --dir <absolutes-repository> --details zeigt Runs und Diagnosen.
+[1] Migration und Reparatur starten
+[2] Später
+[3] Details anzeigen
+Auswahl (leer = später): 1
+
+Kontrollbestand reparieren
+Repository: /private/tmp/agdf-installed-live-20260930-PXiuyz/D repair
+Für 1 Runs liegt ein belegbarer Reparaturvorschlag vor.
+Vor der Reparatur werden der aktuelle Zustand und die ausgewählten Originale in einem privaten Reparaturjournal gesichert.
+Bei unversiegelten Runs setzt die Wiederherstellung fehlender Artefakte unbelegte Freigaben zurück. Diese Runs beginnen wieder bei UR.
+lost: Originalartefakte in Git gefunden
+[1] Vorgeschlagene Reparaturen anwenden
+[2] Später
+[3] Details anzeigen
+Auswahl (leer = später): 3
+
+Kontrollbestand reparieren
+Repository: /private/tmp/agdf-installed-live-20260930-PXiuyz/D repair
+Für 1 Runs liegt ein belegbarer Reparaturvorschlag vor.
+Vor der Reparatur werden der aktuelle Zustand und die ausgewählten Originale in einem privaten Reparaturjournal gesichert.
+Bei unversiegelten Runs setzt die Wiederherstellung fehlender Artefakte unbelegte Freigaben zurück. Diese Runs beginnen wieder bei UR.
+lost: Originalartefakte in Git gefunden
+  .agdf/control/artefacts/lost/UR.md: git 5fcb1d034384fbddd1d9f2dd3bf75161afd3e660
+- | What is known? | New run created. |
+- | What is approved? | Nothing yet. |
+- | What is missing? | Durable UR and exact approval. |
+- | What is the next allowed action? | Draft the UR. |
+- | What is explicitly forbidden right now? | Later artefacts and implementation. |
+- 
+- ## Approvals
+- 
+- | Gate | Status | Evidence |
+- |---|---|---|
+- | UR | approved | Approval: UR  |
++ | What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
++ | What is approved? | Nothing yet. |
++ | What is missing? | Exact Approval: UR. |
++ | What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
++ | What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
++ 
++ ## Approvals
++ 
++ | Gate | Status | Evidence |
++ |---|---|---|
++ | UR | missing |  |
+[1] Vorgeschlagene Reparaturen anwenden
+[2] Später
+[3] Details anzeigen
+Auswahl (leer = später): 1
+
+
+Kompatibilität des Kontrollbestands
+Repository: /private/tmp/agdf-installed-live-20260930-PXiuyz/D repair
+Kontrollbestand: kompatibel
+Reparierte Runs: 1
+Repository-Wartung: angewendet
+

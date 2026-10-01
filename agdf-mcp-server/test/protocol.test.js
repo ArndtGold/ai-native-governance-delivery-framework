@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { SKILL_DISPATCH_FUNCTION_DEFINITION } from "create-agdf/mcp-dispatch-runtime";
+import { readFileSync } from "node:fs";
+import { CONTROL_INSPECT_FUNCTION_DEFINITION, SKILL_DISPATCH_FUNCTION_DEFINITION } from "create-agdf/mcp-dispatch-runtime";
 import {
   INVALID_PRESENTATION_LANGUAGE_CASES,
   VALID_PRESENTATION_LANGUAGE_CASES,
@@ -13,7 +14,30 @@ for (const modern of [false, true]) {
     assert.equal(client.getNegotiatedProtocolVersion(), protocol);
     assert.equal(client.getProtocolEra(), modern ? "modern" : "legacy");
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 1);
+    assert.equal(tools.length, 2);
+    assert.deepEqual(tools.map((tool) => tool.name), ["agdf_dispatch", "agdf_inspect"]);
+    for (const [label, path] of [
+      ["repository README", "../../README.md"],
+      ["installation guide", "../../INSTALL.md"],
+      ["architecture guide", "../../docs/architecture/README.md"],
+      ["create-agdf README", "../../create-agdf/README.md"],
+      ["MCP README", "../README.md"],
+    ]) {
+      const document = readFileSync(new URL(path, import.meta.url), "utf8");
+      const declared = document.match(/^(?:MCP-Werkzeuge|MCP tools): ([^\n]+)$/m);
+      assert.ok(declared, `${label}: missing MCP tool inventory`);
+      assert.deepEqual([...declared[1].matchAll(/`(agdf_[a-z]+)`/g)].map((match) => match[1]), tools.map((tool) => tool.name), `${label}: MCP tool inventory differs from tools/list`);
+    }
+    assert.equal(tools[1].description, CONTROL_INSPECT_FUNCTION_DEFINITION.description);
+    assert.deepEqual(tools[1].inputSchema, CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+    const inspectUnresolved = await client.callTool({ name: "agdf_inspect", arguments: { operation: "doctor", presentation_language: "de", working_directory: "/tmp" } });
+    assert.equal(inspectUnresolved.isError, undefined, `${protocol}:inspect`);
+    assert.equal(inspectUnresolved.structuredContent.outcome, "target_unresolved");
+    assert.equal(inspectUnresolved.structuredContent.authorizes, false);
+    assert.equal(inspectUnresolved.structuredContent.report, null);
+    const inspectRejected = await client.callTool({ name: "agdf_inspect", arguments: { operation: "run-approve", presentation_language: "de", working_directory: "/tmp" } });
+    assert.equal(inspectRejected.isError, true, `${protocol}:inspect schema rejects write-shaped operations`);
+    assert.equal(inspectRejected.structuredContent, undefined);
     assert.equal(tools[0].name, "agdf_dispatch");
     assert.equal(tools[0].description, SKILL_DISPATCH_FUNCTION_DEFINITION.description);
     assert.deepEqual(tools[0].inputSchema, SKILL_DISPATCH_FUNCTION_DEFINITION.inputSchema);

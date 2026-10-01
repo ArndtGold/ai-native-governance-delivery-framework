@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: pre-decision-status-card-visibility
 - lifecycle: active
-- revision: 12
-- revision_id: ed6136d7-da71-477b-b098-20d67d33be14
+- revision: 14
+- revision_id: f37acf39-e457-4888-b92a-e916841b3022
+- content_seal: sha256:896f8d372411d906768e5caadee2341d76cb21aeca14cc60196f8938c6409b80
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T09:20:27.490Z
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: UR
 - decision: in_progress
 - owner: agent
 
@@ -22,11 +25,11 @@ forbidden, blocker, quality outlook) without weakening exactly-once or non-autho
 
 | Question | Answer |
 |---|---|
-| What is known? | The approved envelope change is implemented in commit `072213c`; canonical source and freshly generated Codex/Copilot surfaces contain the full-card sequence; TP Review, Clean Review, Code Review and QA revision 1 pass on the repository evidence plane; the previously inspected Claude and GitHub Copilot installations still showed older content. |
-| What is approved? | `Approval: UR`, `Approval: PRD`, `Approval: SD`, `Approval: TP` and `Approval: QA` accepted on 2026-09-01; Brownfield Review selected `structured_slice`. |
-| What is missing? | Refreshed installed-host and fresh-session UAT evidence for Claude and GitHub Copilot, followed by exact `Approval: UAT`. |
-| What is the next allowed action? | Prepare the bounded UAT and, only after explicit host-lifecycle instruction, refresh the intended Claude and GitHub Copilot installations and collect fresh-session evidence. |
-| What is explicitly forbidden right now? | Host installation changes without explicit instruction; UAT approval, release and installed-host success claims before fresh-session evidence; commit, push or PR without explicit instruction. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -45,14 +48,14 @@ forbidden, blocker, quality outlook) without weakening exactly-once or non-autho
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
+| UR | missing |  |
 | Brownfield Review | done | `.agdf/control/artefacts/pre-decision-status-card-visibility/BROWNFIELD_REVIEW.md` 2026-09-01; owner inventory, first-visible-line conflict named, compact-path evaluation and Structured Depth Evidence complete. |
 | Mode/Slice Decision | structured_slice | Bounded presentation-sequence change across contract, skill text, envelope code and tests with all consumers in-repo; compact paths ineligible (excluded paths, multiple owners, user-visible behavior); no full-depth trigger; primary_reason_code `bounded_structured_slice`. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-09-01 via native gate question for revision 1 after same-run, same-gate, revision and durable-artefact revalidation. A premature `Approval: PRD` given before the artefact existed had been rejected fail-closed. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-09-01 via native gate question after same-run, same-gate, revision and durable-artefact revalidation. |
-| QA | approved | Exact `Approval: QA` accepted on 2026-09-01 after same-run, same-gate, revision `0adecabc-abd8-4ed0-bcfd-1539047c7599` and durable QA artefact revalidation. |
-| UAT | open | |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -140,5 +143,5 @@ promoted to a passing UAT claim.
 
 Prepare refreshed installed-host and fresh-session UAT evidence for Claude and GitHub Copilot.
 
-- next_allowed_action: Prepare the bounded UAT and request explicit instruction before changing either host installation.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Repository implementation, generated surfaces, mandatory reviews and QA approval pass; refreshed installed-host rendering remains required before any UAT decision.

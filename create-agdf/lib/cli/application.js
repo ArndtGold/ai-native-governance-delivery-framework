@@ -45,7 +45,7 @@ import { CliUsageError, parseArgs } from "./parse-args.js";
 import { pluginDefinition } from "./runtime-context.js";
 import { createValidationHandlers } from "./validation-handlers.js";
 import { printMcpLifecycleResult, runMcpLifecycle } from "../mcp-lifecycle/service.js";
-import { promptInstallScope, promptInstallSetup } from "../install-setup/interaction.js";
+import { promptControlMigration, promptControlRepair, promptInstallScope, promptInstallSetup } from "../install-setup/interaction.js";
 import {
   printInstallSetupResult,
   renderInstallProgress,
@@ -67,6 +67,9 @@ function createHandlers({
   askInstallSetupDecision,
   askInstallSetupScope,
   askRuntimeCheckDecision,
+  askControlMigration,
+  askControlRepair,
+  askControlRepairConfirmation,
   inspectPluginInstallation,
   interactive,
   observeCodexHookTrust = observeCodexHooks,
@@ -102,6 +105,9 @@ function createHandlers({
     askInstallSetupDecision,
     askInstallSetupScope,
     askRuntimeCheckDecision,
+    askControlMigration,
+    askControlRepair,
+    askControlRepairConfirmation,
     observeRuntimeChecks,
     approveCodexPluginDispatcher,
     evaluateOpenCodeGlobal,
@@ -417,8 +423,17 @@ async function runGuidedInstall(options, dependencies) {
         }
         return finalized;
       },
+      confirmControlMigration: dependencies.askControlMigration
+        ? (plan) => dependencies.askControlMigration(plan)
+        : (plan) => promptControlMigration(plan, { language }),
+      chooseControlRepair: dependencies.askControlRepair
+        ? (control) => dependencies.askControlRepair(control)
+        : (control) => promptControlRepair(control, { language }),
+      confirmControlRepair: dependencies.askControlRepairConfirmation
+        ? (plan) => dependencies.askControlRepairConfirmation(plan)
+        : (plan) => promptControlRepair(plan, { language, phase: "plan" }),
     });
-    printInstallSetupResult(outcome.report, { json: options.json, io: dependencies.io, language });
+    printInstallSetupResult(outcome.report, { json: options.json, verbose: options.verbose, io: dependencies.io, language });
     printLoadedSessionsNotice(outcome.plugin_payload?.installed ?? {}, options, dependencies.io, language);
     printVerboseHostOutput(outcome.plugin_payload?.installed ?? {}, options, dependencies.io);
     printVerboseFailure(outcome.report, options, dependencies.io);
@@ -991,6 +1006,9 @@ export async function runCli(argv = process.argv.slice(2), adapters = {}) {
     askRuntimeCheckDecision: adapters.askRuntimeCheckDecision ?? defaultAskRuntimeCheckDecision,
     askInstallSetupDecision: adapters.askInstallSetupDecision,
     askInstallSetupScope: adapters.askInstallSetupScope,
+    askControlMigration: adapters.askControlMigration,
+    askControlRepair: adapters.askControlRepair,
+    askControlRepairConfirmation: adapters.askControlRepairConfirmation,
     inspectPluginInstallation: adapters.inspectPluginInstallation,
     interactive: adapters.interactive ?? (Boolean(process.stdin.isTTY) && Boolean(process.stdout.isTTY)),
     observeCodexHookTrust: adapters.observeCodexHookTrust,

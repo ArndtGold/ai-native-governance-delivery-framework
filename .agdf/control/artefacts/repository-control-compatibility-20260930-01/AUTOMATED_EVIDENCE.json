@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-30",
+  "lane": "source/generated-runtime/fixture; not fresh installed host",
+  "node": "22.22.3",
+  "suites": [
+    {
+      "suite": "cli-modularization",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/cli-modularization-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/cli-modularization.log",
+      "output_sha256": "d352854f752de9931b8f24cdfe9efba40a61bbf8933b576a56e648a181ee284a"
+    },
+    {
+      "suite": "codex-plugin-consent",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/codex-plugin-consent-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/codex-plugin-consent.log",
+      "output_sha256": "1ab9ba8178e599040b733bc9b1e86f57f6ccfdc613f06da24acfa969e61c0a1f"
+    },
+    {
+      "suite": "control-maintenance-command",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/control-maintenance-command-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/control-maintenance-command.log",
+      "output_sha256": "990658d8c8b00c708191149514ba1d07278cd2374a31d62aeba4f47e1fb4e40e"
+    },
+    {
+      "suite": "control-maintenance",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/control-maintenance-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/control-maintenance.log",
+      "output_sha256": "e4b99c9a33a0ba13f3dc326045ecca2b57c01c9a635482590634b0498b6ae3b5"
+    },
+    {
+      "suite": "control-state",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/control-state-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/control-state.log",
+      "output_sha256": "957adad5c423b7327e0e0ca229dc638cc5f9d821b60acf17f8550274c094eb42"
+    },
+    {
+      "suite": "copilot-profile",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/copilot-profile-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/copilot-profile.log",
+      "output_sha256": "e94dd11c5922a481583b7f930f32a2dccee4da9c29b8839afd462cc441d10b41"
+    },
+    {
+      "suite": "install-control-migration",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/install-control-migration-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/install-control-migration.log",
+      "output_sha256": "a9919ce7f5af4169586beacaf7957b8ce5aefa6b8e8f075b8af5088eca7407b0"
+    },
+    {
+      "suite": "install-control-repair",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/install-control-repair-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/install-control-repair.log",
+      "output_sha256": "3041644846a3594d9e9883f096d7b864ed4a7f9859fd6a2f562d76631518bfb1"
+    },
+    {
+      "suite": "install-setup-contract",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/install-setup-contract-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/install-setup-contract.log",
+      "output_sha256": "62e9042d807993b2d9ba50d7eccb81acf1f238785a16d17ac28548966d6064d7"
+    },
+    {
+      "suite": "install-setup-interaction",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/install-setup-interaction-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/install-setup-interaction.log",
+      "output_sha256": "98129976a5ec002374a09311646568095a95fc75a6644484671438ebe9aa4906"
+    },
+    {
+      "suite": "install-setup-service",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/install-setup-service-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/install-setup-service.log",
+      "output_sha256": "74c2f54fc574a3a7162ccb976d753a3ba27ed2b07e5e87882262a006f83a6e00"
+    },
+    {
+      "suite": "local-validator",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/local-validator-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/local-validator.log",
+      "output_sha256": "82085b005cfadd85ce303e25c8732c54aee497cf05c0db47328c15f24b385ece"
+    },
+    {
+      "suite": "opencode-hardening",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/opencode-hardening-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/opencode-hardening.log",
+      "output_sha256": "6f13dfa1b7ac9d30e14d656f8368eea18fce07c7acdc4a25ef717490ea01fb87"
+    },
+    {
+      "suite": "operational-localization",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/operational-localization-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/operational-localization.log",
+      "output_sha256": "4ea1eb21105dd543808782cef6cac83e7ed87977c6be4cd3bb7a20552d05ecae"
+    },
+    {
+      "suite": "package-build",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/package-build-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/package-build.log",
+      "output_sha256": "5f22a908a8b5d72c0be70743cff8d9ecdf4fffe352cd11b5e94456a97f938e5e"
+    },
+    {
+      "suite": "package-contents",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/package-contents-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/package-contents.log",
+      "output_sha256": "4ad47a7055116c0878ccddbdd860415fd2c34b6441d057cfe947d020a58a8bf4"
+    },
+    {
+      "suite": "payload-budget",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/payload-budget-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/payload-budget.log",
+      "output_sha256": "48b9438216b24b6ded9b488d0d63cc40ca511a90dac7d335a90d0c87741370bb"
+    },
+    {
+      "suite": "public-plugin",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/public-plugin-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/public-plugin.log",
+      "output_sha256": "9b67790b31cb36ba5de27de3bfa1e1a1d9e53e2e24156b01950b409230a47259"
+    },
+    {
+      "suite": "repository-control-startup",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/repository-control-startup-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/repository-control-startup.log",
+      "output_sha256": "6e3a46b61310ec566e534d3ac66e1bde71ac63988b2a6fbf1221ddce43726774"
+    },
+    {
+      "suite": "request-activation-callback",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/request-activation-callback-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/request-activation-callback.log",
+      "output_sha256": "73c4f062254fae7e5ea0ef0cbcf0533711a85fcdb6f9b8e8deefea247c00669a"
+    },
+    {
+      "suite": "request-activation-host-schema",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/request-activation-host-schema-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/request-activation-host-schema.log",
+      "output_sha256": "ca50368e8075331776a92587daa8b44fa4945713bee19e775b6cb447fb44448e"
+    },
+    {
+      "suite": "run-lock",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/run-lock-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/run-lock.log",
+      "output_sha256": "84a6ca2a16705e46ad12519a8375be9b29676c7712e2ac00ecf4910fdc8543ff"
+    },
+    {
+      "suite": "run-recovery",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/run-recovery-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/run-recovery.log",
+      "output_sha256": "ae262996b60490dd7bf6e4515e784bc04816a76ed0824d3eb5c75cd647d58285"
+    },
+    {
+      "suite": "run-revision",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/run-revision-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/run-revision.log",
+      "output_sha256": "8cbafcb0f3b7349a31331b10aa429d16392fe9a75c0bd72f2d752e9dda18e3ba"
+    },
+    {
+      "suite": "run-step-transaction",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/run-step-transaction-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/run-step-transaction.log",
+      "output_sha256": "cf02d5b534bfa0a1fffd4927cce765d0cf87e97faf5c9be0c60adf890ba3cb13"
+    },
+    {
+      "suite": "runtime-check-consent",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/runtime-check-consent-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/runtime-check-consent.log",
+      "output_sha256": "d0fc971bed44719e6fb6150ba90ce7a73f3b3cb74c0b4f8cbf030ffe8994e3c2"
+    },
+    {
+      "suite": "runtime-integrity-layout",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/runtime-integrity-layout-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/runtime-integrity-layout.log",
+      "output_sha256": "84bca9030b6851241c59fa34e9bb21c6757f9b465678ecf0efa5e34d526b5b18"
+    },
+    {
+      "suite": "runtime-integrity-negative",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/runtime-integrity-negative-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/runtime-integrity-negative.log",
+      "output_sha256": "fc3a0db4c0c835400b36622bba138c44f24cecca8dc07fd2e76bc6b4eef8a37f"
+    },
+    {
+      "suite": "task-target-resolution",
+      "command": [
+        "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "create-agdf/scripts/task-target-resolution-test.js"
+      ],
+      "exit_code": 0,
+      "evidence": "test-evidence/task-target-resolution.log",
+      "output_sha256": "992a34fb143a28e9caf9a66e769793fed09cce62c5b106793f571672e49f3732"
+    }
+  ],
+  "scoped_source": [
+    {
+      "path": "create-agdf/README.md",
+      "baseline_sha256": "209c3ff675811239b7096563727f96f9a6622e827462a6dedbb98e6fe8c64e01",
+      "candidate_sha256": "ab8dd96b508bc5df4e13b5d0d463588a3472d64f07fe8a011b0271a1e4584ebb"
+    },
+    {
+      "path": "create-agdf/lib/cli/command-registry.js",
+      "baseline_sha256": "3d5cf9d46ee18a8f79eac93adf23d2dac9185a3b8f8b22359a1f13d17507d9ad",
+      "candidate_sha256": "39fb667909a6b51117ce665aba5722e981457aaa7f64865e99a72c81bf797ed0"
+    },
+    {
+      "path": "create-agdf/lib/cli/control-maintenance-command.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "adc95f96ddb4b9db21c5a9f4e919d827d321cdd6c205fe00712644e97aed0012"
+    },
+    {
+      "path": "create-agdf/lib/cli/parse-args.js",
+      "baseline_sha256": "3b595a57b934097c64cd380d4a018027e58f5befb08632bc8b56edc3c2012ea3",
+      "candidate_sha256": "8c403ee2f11bafe9b9f1e730fdcfe8a0f85eab4be3a2632fa34600f6945288f3"
+    },
+    {
+      "path": "create-agdf/lib/cli/validation-handlers.js",
+      "baseline_sha256": "79af6794f9990865142f3f63e4dbae466090aafcc91fc66574a4140b6cf64dbe",
+      "candidate_sha256": "be4bc68a0325ca6e6cdeaba73d5b3b769b6d21b9cd0738a59aca6fbc104e42af"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/compatibility.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "6d2b224fdcb233a8ec13047b2cd58235dff8f87f8417ea025231739c2dab2511"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/contract.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "785b343a8a44a5e3bd22499c0401346443e273fdf9598b4784cee9c78c917b6d"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/interaction.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "a3c06f3f5379ddb1922c4d3c7dc01a5f8004b4a11da33c080e2893ffc76d8ce5"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/migration.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "0c5bb18cef422837bf2b4dc10935f7d8300eb4193f4a25f9780831ca3cf67ad7"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/presentation.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "5ef1446a34c95742fa068b5a56eba020e4d72437a0560e4b9220fcccd77a38c0"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/repair.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "7bc0673a0081696f4faadcc004d920ad79c63457a1eac41523a3cd3d5e1115e5"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/service.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "b8c962110a35acb24be35a9e049e20acc73cd2158c9390a1f78483462ea74f57"
+    },
+    {
+      "path": "create-agdf/lib/control-maintenance/startup.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "ed97f874de0ec559608672ecab6977a02a5abc8eb67a05cd701408a61d81ea52"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/control-migration.js",
+      "baseline_sha256": "9e9b702e8b58569b81fc579aea2afdd3cdea46d06a248a47651b38b6f85975c6",
+      "candidate_sha256": "5d0fddd3177afd90c06671d41c5b01c0fa84a24a75524bd170721cd5e16f2e5f"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/control-repair.js",
+      "baseline_sha256": "7d9a05e3c9ad931807e7324a85bb4e8dac843d5e550bf063026f6ea30e54a7e9",
+      "candidate_sha256": "55154bcdbbbdc5d1771d2d373baba6553ff2691d201a4479498a7d5b513bb89c"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/interaction.js",
+      "baseline_sha256": "ba99d7ae9432803d996dceb87dc9289aabe669a948c77ac994393547ab76521f",
+      "candidate_sha256": "255319d90bf2c0b251e6d9eccd4137392da2685342fc5b28e5c6dbffbc15e319"
+    },
+    {
+      "path": "create-agdf/lib/install-setup/presentation.js",
+      "baseline_sha256": "be2fca9310b436347658f360c45f46a89e65c59ce213dc086b60900d1732836f",
+      "candidate_sha256": "32e87561ff9a9e6edf0dcf2d333fa96615a99658b53e9668b2694e99a41dd12f"
+    },
+    {
+      "path": "create-agdf/lib/runtime/validator-application.js",
+      "baseline_sha256": "338dc3c636e0801fcaf1d7d5b922f289cabb9496ea9f290c8a0f65a066eceee8",
+      "candidate_sha256": "913c2823c860acbb14071e7b9ff53848666e2a92073d9a74b391accab6eb3a6e"
+    },
+    {
+      "path": "create-agdf/package.json",
+      "baseline_sha256": "a7af7fe6c4b1cb73422f81ef6d5583dd2ce701641fab3da1d2330c1e1bd68142",
+      "candidate_sha256": "b330c28959ed152d34db451e957de1790097d0bce519828c2c2e4e34fa9845dc"
+    },
+    {
+      "path": "create-agdf/scripts/cli-modularization-test.js",
+      "baseline_sha256": "3760668c562cfa58f931d1d67ee25245a85137670e96f92260cbbc6b216eeded",
+      "candidate_sha256": "b294c18616acbca6e8a0ea1ba40dfc3b314dc5faf020f5e877a18adc84d52c0e"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-command-test.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "abc4659c204c788ca91a0901bf57e6e3ef5546390f63b41a8e295f4bcb34e6a0"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-fixtures.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "62a14459f966d8559424b774f13d7349f5be43b414b774384482672e9face32d"
+    },
+    {
+      "path": "create-agdf/scripts/control-maintenance-test.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "7005c140bd712c53bb5e751a23279f93497105c58b3bf286744338bb4f2c3d70"
+    },
+    {
+      "path": "create-agdf/scripts/install-control-migration-test.js",
+      "baseline_sha256": "9128b81f86b99b519287d060bd673ae9b7d5b2fbce9de293af9c00ec473d4cde",
+      "candidate_sha256": "35f3cec32e98719e959ddc3c8d49f659b8ffd367d41e09b5c5cc1a3d78a69ff9"
+    },
+    {
+      "path": "create-agdf/scripts/repository-control-startup-test.js",
+      "baseline_sha256": null,
+      "candidate_sha256": "e27f9d63568a1e2940305af47b049ebf253a6112e47414f5763eb543cfca864b"
+    },
+    {
+      "path": "create-agdf/scripts/runtime-check-consent-test.js",
+      "baseline_sha256": "af6944e0fd9dbdb4fb06f270547889c23fb0883c4d34a4ffd14319cbe935d8a5",
+      "candidate_sha256": "2698423fbb8b0409f17219588136c7fc2e3883fb4066d34d6b4e11ea265565d9"
+    },
+    {
+      "path": "create-agdf/scripts/sync-plugin-runtime.js",
+      "baseline_sha256": "613cb1209347ef2a5e6331dfb00cd337feb33b7289a4844ba345db8c3bbbd407",
+      "candidate_sha256": "045a23217ec6b81b5a62a1aab81ae8a0d143f3cb154a89c3e94febd32dfe525e"
+    },
+    {
+      "path": "docs/maintenance/payload-budget-history.md",
+      "baseline_sha256": "d5a7db260855fbed53020e243816d6b2680658e03d96255c8cdfc4dbac6ccb71",
+      "candidate_sha256": "8d2f03ffe48f8b374d5f3de1b1e09ecfa8bc1c0e5639563c109e01b1b7b0ccd1"
+    },
+    {
+      "path": "plugin/meta/agdf-interaction-locales.json",
+      "baseline_sha256": "cee4fa1640fdb4c4751a9439f1ff474190e8c49e3808be009bef50776a240099",
+      "candidate_sha256": "f13ed8971b3b312673e1007724506e33bef69a8ae8bf17b71403e80e4020acbd"
+    },
+    {
+      "path": "plugin/meta/copilot-payload-baseline.json",
+      "baseline_sha256": "c9093ea6c179dfc35fd130f0156d2bf52fea0de670d68d435e84101e1918e4a8",
+      "candidate_sha256": "2cee4123bfe6599452cc83bb9aa4cd1dd2dde709e8665d6248580df8c9020f17"
+    }
+  ],
+  "candidate": {
+    "candidate": {
+      "plugin_root": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/create-agdf/generated/plugins/agdf",
+      "version": "0.14.5",
+      "runtime_digest": "acd594ce75a4fb117ebaba1f9fc583fd310c32e913520afa2a6c6fbc14635eb5",
+      "source_digest": "4176140780668f64208d517f9dec5f345e380b54168bd713d93cee7ad2588348"
+    },
+    "installed": {
+      "plugin_root": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-75179ca731a2",
+      "version": "0.14.5+codex.local-75179ca731a2",
+      "runtime_digest": "454f6b7cd3aa7f9ca3125b8de46ca62590168f7872c6df2343e60820dc15f1ea",
+      "source_digest": "75179ca731a28bc5cb5ab7d3f16a9c1c7422590fc15bc6767085e31f65322912"
+    }
+  },
+  "payload": {
+    "before": {
+      "files": 121,
+      "bytes": 1193511
+    },
+    "after": {
+      "files": 130,
+      "bytes": 1247677
+    }
+  },
+  "staged_diff_preserved": true
+}

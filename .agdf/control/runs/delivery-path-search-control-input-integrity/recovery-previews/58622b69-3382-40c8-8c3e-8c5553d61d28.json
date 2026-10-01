@@ -1,0 +1,145 @@
+{
+  "schema_version": "1",
+  "preview_format_version": 2,
+  "preview_id": "58622b69-3382-40c8-8c3e-8c5553d61d28",
+  "run_id": "delivery-path-search-control-input-integrity",
+  "created_at": "2026-09-30T08:31:14.159Z",
+  "source_revision_id": "53E352A3-9863-42FD-ADDF-5FE96314B3C4",
+  "source_content_digest": "sha256:3294771aa7c26bf367bed30636ab3bd0918537b2874c84b111283c3970d55e62",
+  "source_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: delivery-path-search-control-input-integrity\n- lifecycle: active\n- revision: 9\n- revision_id: 53E352A3-9863-42FD-ADDF-5FE96314B3C4\n- mode: structured_delivery\n- current_gate: UAT\n- decision: in_progress\n- owner: user / agent\n\n## Objective\n\nMake Delivery Path Search derive canonical gate actions and distinguish missing or empty search input\nfrom an evidence-backed no-safe-recommendation result.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | The root cause is corrected and the generated plugin is installed in Codex as verified `0.14.2+codex.local-bf61ec5e26c9`; a fresh task is still required to prove session pickup and exercise the skill. |\n| What is approved? | Durable UR, PRD, SD, TP and QA are approved; Brownfield Analysis, CD+Tests and all mandatory reviews pass; QA report decision is `pass`. |\n| What is missing? | Fresh-task pickup and Delivery Path Search example evidence, exact `Approval: UAT` and any later delivery action. |\n| What is the next allowed action? | Restart Codex, open a fresh task and exercise `agdf:delivery-path-search` against a fitting canonical run before requesting UAT approval. |\n| What is explicitly forbidden right now? | UAT acceptance before installed-host evidence, release, commit, push, PR and other unrequested delivery actions. |\n\n## Source And Scope State\n\n- primary_target: Delivery Path Search control-input and empty-candidate outcome integrity\n- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- evidence_sources: current repository source, the reproduced zero-candidate CLI result and canonical AGDF control contracts\n- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- scope_stability: explicit continuation of the diagnosed Delivery Path Search defect\n- competing_scope_lines: Product Maturity Roadmap and previous Delivery Path Search feature runs remain separate\n- excluded_mutation_targets: runtime implementation, generated projections, installed plugins, unrelated runs, VCS and release\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | Exact user approval accepted on 2026-08-30 after same-run, same-gate and revision-1 revalidation. |\n| PRD | approved | Exact user approval accepted on 2026-08-30 after same-run, PRD-gate and revision-2 revalidation. |\n| SD | approved | Exact user approval accepted on 2026-08-30 after same-run, SD-gate and revision-3 revalidation. |\n| TP | approved | Exact user approval accepted on 2026-08-30 after same-run, TP-gate and revision-4 revalidation. |\n| QA | approved | Exact user approval accepted on 2026-08-30 after same-run, QA-gate and revision-6 revalidation. |\n| UAT | missing | Exact approval remains open. |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/UR.md` | approved | Bounded defect and product-contract scope. |\n| Brownfield Review | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_REVIEW.md` | done | Brownfield, medium UX impact, structured delivery. |\n| UX Intent Definition | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/UX_INTENT_DEFINITION.md` | ready | Input, candidate, evaluation, visible status and recovery semantics. |\n| Verified Change |  | missing | Brownfield Review decides eligibility. |\n| PRD | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/PRD.md` | approved | DPSI-01 through DPSI-10 approved. |\n| SD | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/SD.md` | approved | Canonical snapshot, phased outcomes, provenance and compatibility design. |\n| TP | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/TP.md` | approved | DPSI-T01 through DPSI-T13 map implementation, tests and distribution evidence. |\n| Brownfield Analysis | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_ANALYSIS.md` | done | `pre_implementation_analysis` pass; existing owners and acyclic minimal path confirmed. |\n| CD+Tests | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CD_TESTS.md` | done | DPSI-T01 through DPSI-T13 implemented; focused and aggregate evidence passes. |\n| TP Review | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/TP_REVIEW.md` | pass | 13/13 fully_done; 10/10 UX rows fulfilled. |\n| Clean Implementation Review | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Clean canonical primary solution; no parallel policy owner. |\n| CR | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CODE_REVIEW.md` | done | Code Review decision pass; no findings. |\n| QA | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/QA_REPORT.md` | pass | qa-gate decision pass; exact QA approval accepted after revision-6 revalidation. |\n| UAT | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/UAT_REPORT.md` | in_progress | Updated local installation verified; fresh-task pickup and skill example remain open. |\n\n## Mode/Slice Decision\n\n- decision: structured_delivery\n- required_next_gate: PRD\n- scope_reason: `external_contract_depth`; public CLI/JSON outcomes and generated runtime consumers require coordinated compatibility evidence, so `structured_slice` is rejected.\n- evidence: `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | defines | Delivery Path Search control-input integrity | Reproduced empty action and zero-evaluation outcome. |\n| UR | approved_by | `Approval: UR` | Exact approval accepted on 2026-08-30 after revision-1 revalidation. |\n| Brownfield Review | derived_from | UR | Existing owners, reuse path, UX impact and structured depth are evidenced. |\n| PRD | derived_from | UR | DPSI-01 through DPSI-10 operationalize the approved outcome. |\n| PRD | approved_by | `Approval: PRD` | Exact approval accepted on 2026-08-30 after revision-2 revalidation. |\n| SD | derived_from | PRD | AD-01 through AD-09 define canonical reuse, phase semantics, provenance, compatibility and evidence boundaries. |\n| SD | approved_by | `Approval: SD` | Exact approval accepted on 2026-08-30 after revision-3 revalidation. |\n| TP | derived_from | SD | DPSI-T01 through DPSI-T13 implement every approved design obligation and map DPSI-01 through DPSI-10 to executable evidence. |\n| TP | approved_by | `Approval: TP` | Exact approval accepted on 2026-08-30 after revision-4 revalidation. |\n| Brownfield Analysis | prepares | TP | Pass; existing control-evaluation, run-state, search, CLI, persistence, contract and test owners support bounded CD+Tests without a parallel rule model. |\n| CD+Tests | implements | TP | DPSI-T01 through DPSI-T13 and all mapped tests are complete. |\n| TP Review | verifies | TP | 13/13 tasks fully_done and 10/10 UX Intent Fidelity rows fulfilled. |\n| Clean Implementation Review | verifies | CD+Tests | Pass; canonical primary solution with no workaround or parallel structure. |\n| CR | reviews | CD+Tests | Pass; no open code finding. |\n| QA_REPORT | tests | TP | qa-gate pass is supported by Brownfield, CD+Tests, mandatory reviews, package evidence and full smoke. |\n| QA_REPORT | approved_by | `Approval: QA` | Exact approval accepted on 2026-08-30 after same-run, QA-gate and revision-6 revalidation. |\n| UAT_REPORT | derived_from | QA_REPORT | Bounded acceptance surface preserves source/package versus installed-host evidence limits. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Empty action source | `create-agdf/lib/delivery-path-search/state-adapter.js` | Reads allowed actions only from a persisted Run Status Card | direct |\n| Empty candidate construction | `create-agdf/lib/delivery-path-search/candidate-policy.js` | Empty allowed actions create zero baseline candidates | direct |\n| Misleading terminal result | `create-agdf/lib/delivery-path-search/search-engine.js` and reproduced CLI output | Zero evaluations can become `no_safe_recommendation` | direct |\n| Canonical action projection | `create-agdf/lib/control-evaluation/gate-check.js` | Gate check already derives the selected run's allowed actions | direct |\n| Pre-implementation Brownfield Analysis | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_ANALYSIS.md` | Existing owners, acyclic dependency direction, compatibility, regression and scope-isolation boundaries | direct |\n| CD+Tests | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CD_TESTS.md` | 13/13 tasks, focused tests, generated/package checks and aggregate smoke | direct |\n| Mandatory reviews | TP Review, Clean Implementation Review and Code Review artefacts | Plan coverage, solution integrity and actual diff quality | direct |\n| QA report | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/QA_REPORT.md` | qa-gate pass with explicit evidence limits | direct |\n\n## Missing Evidence\n\n- Fresh-task Codex pickup and Delivery Path Search example evidence.\n- UAT acceptance after the installed-host check.\n\n## Risks\n\n| Risk | Evidence | Severity | Required action |\n|---|---|---|---|\n| A second gate-policy owner is created inside Delivery Path Search | Current adapter reconstructs only part of control state | block | Reuse canonical evaluated actions. |\n| Existing consumers mistake a new typed outcome for a recommendation | Public JSON behavior may change | revise | Decide compatibility and tests before implementation. |\n| A selected run is used to answer an unrelated product question | Reproduced invocation used the Product Maturity Roadmap for a new idea | revise | Add explicit scope-fit evidence and recovery behavior. |\n\n## Knowledge Persistence Decision\n\n- memory_target: context_graph\n- memory_reason: The existing Delivery Path Search node needs one durable input-integrity and recommendation-provenance invariant.\n- memory_refs: `CG-DELIVERY-PATH-SEARCH`\n\n## Context Graph Impact\n\n- context_graph_impact: update_existing_node\n- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`; `CG-RUN-STATUS-CARD`; `CG-RUN-SCOPED-CONTROL-STATE`\n- context_graph_reconciliation: resolved\n- context_graph_required_action: none\n- context_graph_gate_effect: none\n- context_graph_evidence: `CG-DELIVERY-PATH-SEARCH` records that missing canonical input and zero valid evaluations cannot be presented or persisted as recommendation conclusions.\n\n## Closeout\n\n- next_allowed_action: Restart Codex, open a fresh task and exercise `agdf:delivery-path-search` against a fitting canonical run before requesting UAT approval.\n- quality_outlook: Preserve the explicit source/package/installed-host evidence boundary during QA acceptance and later UAT.\n",
+  "source_artefacts": [
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/UR.md",
+      "status": "valid",
+      "digest": "sha256:5d27d5cdb76ee02036a83af5a1f530e59840a514877668efd30c4585b3e52e0c"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:bffa8164f3278c68c1804eb53626eda3a5793ab4878997f563f3a46fb65aef25"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/UX_INTENT_DEFINITION.md",
+      "status": "valid",
+      "digest": "sha256:16c9f94733d4f3e735bd169d0e8a8e6df82de62d861fb441f10b3db3c78c5288"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/PRD.md",
+      "status": "valid",
+      "digest": "sha256:c461df4ae49de36554fbd8d39121be9ebe47746931dcaeca6c3cf2de5d357314"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/SD.md",
+      "status": "valid",
+      "digest": "sha256:ec64948151132504c395f6897591350557d21a691101ec6c3a667cf60f88f640"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/TP.md",
+      "status": "valid",
+      "digest": "sha256:701f7979ff880c0bf85b465133135388a929a93f9ce25a6ea343a412576cbfc8"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_ANALYSIS.md",
+      "status": "valid",
+      "digest": "sha256:20ccde9130e38257a24df1778c3d17f74b726f73373c425d492355ff7fd365d0"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/CD_TESTS.md",
+      "status": "valid",
+      "digest": "sha256:b8f7d5dedbb9fce5e2476b8d57dad85a33af9ec13bfcf7c9a7a3ce3fd83b92e6"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/TP_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:1202c58d2fd111cb877be02747bdbedd8e88da2d03ce743c9beba523f5da94b4"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/CLEAN_IMPLEMENTATION_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:e2fa8feffd60335108de4765aa805533e93ec9a0d6272f1dffcd223b06ee6b0a"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/CODE_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:203b50ac83d843073675d2ec9cdcc6f71420669fe68f7daed474cfcb8f44d029"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:ad3701c4fd93283b96016d20fccd9a3e1db2bb9fc7381a2501a3aabbc21f0bac"
+    },
+    {
+      "path": ".agdf/control/artefacts/delivery-path-search-control-input-integrity/UAT_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:07827deb45a8066d84547b0a577b11509e523277653ebc592124c7893aad21eb"
+    }
+  ],
+  "git_history": {
+    "status": "available",
+    "candidates": [
+      {
+        "commit": "86fba116522d4d8001599d0d46857b34f8446945",
+        "revision_id": "53E352A3-9863-42FD-ADDF-5FE96314B3C4",
+        "content_digest": "sha256:3294771aa7c26bf367bed30636ab3bd0918537b2874c84b111283c3970d55e62",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      }
+    ]
+  },
+  "prior_approvals": [
+    {
+      "section": "Approvals",
+      "gate": "UR",
+      "status": "approved",
+      "evidence": "Exact user approval accepted on 2026-08-30 after same-run, same-gate and revision-1 revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "PRD",
+      "status": "approved",
+      "evidence": "Exact user approval accepted on 2026-08-30 after same-run, PRD-gate and revision-2 revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "SD",
+      "status": "approved",
+      "evidence": "Exact user approval accepted on 2026-08-30 after same-run, SD-gate and revision-3 revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "TP",
+      "status": "approved",
+      "evidence": "Exact user approval accepted on 2026-08-30 after same-run, TP-gate and revision-4 revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "QA",
+      "status": "approved",
+      "evidence": "Exact user approval accepted on 2026-08-30 after same-run, QA-gate and revision-6 revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "UAT",
+      "status": "missing",
+      "evidence": "Exact approval remains open."
+    }
+  ],
+  "approval_provenance": "no_independent_provenance",
+  "approvals_to_invalidate": [
+    "UR",
+    "PRD",
+    "SD",
+    "TP",
+    "QA",
+    "UAT"
+  ],
+  "next_gate": "UR",
+  "next_revision_id": "2fa5f304-207a-4673-af01-a7e9a2ebe79d",
+  "candidate_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: delivery-path-search-control-input-integrity\n- lifecycle: active\n- revision: 9\n- revision_id: 53E352A3-9863-42FD-ADDF-5FE96314B3C4\n- mode: structured_delivery\n- current_gate: UR\n- decision: in_progress\n- owner: user / agent\n\n## Objective\n\nMake Delivery Path Search derive canonical gate actions and distinguish missing or empty search input\nfrom an evidence-backed no-safe-recommendation result.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |\n| What is approved? | Nothing yet. |\n| What is missing? | Exact Approval: UR. |\n| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |\n| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |\n\n## Source And Scope State\n\n- primary_target: Delivery Path Search control-input and empty-candidate outcome integrity\n- governance_target: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- evidence_sources: current repository source, the reproduced zero-candidate CLI result and canonical AGDF control contracts\n- working_directory: `/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework`\n- scope_stability: explicit continuation of the diagnosed Delivery Path Search defect\n- competing_scope_lines: Product Maturity Roadmap and previous Delivery Path Search feature runs remain separate\n- excluded_mutation_targets: runtime implementation, generated projections, installed plugins, unrelated runs, VCS and release\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/UR.md` | approved | Bounded defect and product-contract scope. |\n| Brownfield Review | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_REVIEW.md` | done | Brownfield, medium UX impact, structured delivery. |\n| UX Intent Definition | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/UX_INTENT_DEFINITION.md` | ready | Input, candidate, evaluation, visible status and recovery semantics. |\n| Verified Change |  | missing | Brownfield Review decides eligibility. |\n| PRD | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/PRD.md` | approved | DPSI-01 through DPSI-10 approved. |\n| SD | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/SD.md` | approved | Canonical snapshot, phased outcomes, provenance and compatibility design. |\n| TP | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/TP.md` | approved | DPSI-T01 through DPSI-T13 map implementation, tests and distribution evidence. |\n| Brownfield Analysis | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_ANALYSIS.md` | done | `pre_implementation_analysis` pass; existing owners and acyclic minimal path confirmed. |\n| CD+Tests | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CD_TESTS.md` | done | DPSI-T01 through DPSI-T13 implemented; focused and aggregate evidence passes. |\n| TP Review | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/TP_REVIEW.md` | pass | 13/13 fully_done; 10/10 UX rows fulfilled. |\n| Clean Implementation Review | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Clean canonical primary solution; no parallel policy owner. |\n| CR | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CODE_REVIEW.md` | done | Code Review decision pass; no findings. |\n| QA | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/QA_REPORT.md` | pass | qa-gate decision pass; exact QA approval accepted after revision-6 revalidation. |\n| UAT | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/UAT_REPORT.md` | in_progress | Updated local installation verified; fresh-task pickup and skill example remain open. |\n\n## Mode/Slice Decision\n\n- decision: structured_delivery\n- required_next_gate: PRD\n- scope_reason: `external_contract_depth`; public CLI/JSON outcomes and generated runtime consumers require coordinated compatibility evidence, so `structured_slice` is rejected.\n- evidence: `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_REVIEW.md`\n\n## Artefact Chain\n\n| From | Relationship | To | Evidence |\n|---|---|---|---|\n| UR | defines | Delivery Path Search control-input integrity | Reproduced empty action and zero-evaluation outcome. |\n| UR | approved_by | `Approval: UR` | Exact approval accepted on 2026-08-30 after revision-1 revalidation. |\n| Brownfield Review | derived_from | UR | Existing owners, reuse path, UX impact and structured depth are evidenced. |\n| PRD | derived_from | UR | DPSI-01 through DPSI-10 operationalize the approved outcome. |\n| PRD | approved_by | `Approval: PRD` | Exact approval accepted on 2026-08-30 after revision-2 revalidation. |\n| SD | derived_from | PRD | AD-01 through AD-09 define canonical reuse, phase semantics, provenance, compatibility and evidence boundaries. |\n| SD | approved_by | `Approval: SD` | Exact approval accepted on 2026-08-30 after revision-3 revalidation. |\n| TP | derived_from | SD | DPSI-T01 through DPSI-T13 implement every approved design obligation and map DPSI-01 through DPSI-10 to executable evidence. |\n| TP | approved_by | `Approval: TP` | Exact approval accepted on 2026-08-30 after revision-4 revalidation. |\n| Brownfield Analysis | prepares | TP | Pass; existing control-evaluation, run-state, search, CLI, persistence, contract and test owners support bounded CD+Tests without a parallel rule model. |\n| CD+Tests | implements | TP | DPSI-T01 through DPSI-T13 and all mapped tests are complete. |\n| TP Review | verifies | TP | 13/13 tasks fully_done and 10/10 UX Intent Fidelity rows fulfilled. |\n| Clean Implementation Review | verifies | CD+Tests | Pass; canonical primary solution with no workaround or parallel structure. |\n| CR | reviews | CD+Tests | Pass; no open code finding. |\n| QA_REPORT | tests | TP | qa-gate pass is supported by Brownfield, CD+Tests, mandatory reviews, package evidence and full smoke. |\n| QA_REPORT | approved_by | `Approval: QA` | Exact approval accepted on 2026-08-30 after same-run, QA-gate and revision-6 revalidation. |\n| UAT_REPORT | derived_from | QA_REPORT | Bounded acceptance surface preserves source/package versus installed-host evidence limits. |\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Empty action source | `create-agdf/lib/delivery-path-search/state-adapter.js` | Reads allowed actions only from a persisted Run Status Card | direct |\n| Empty candidate construction | `create-agdf/lib/delivery-path-search/candidate-policy.js` | Empty allowed actions create zero baseline candidates | direct |\n| Misleading terminal result | `create-agdf/lib/delivery-path-search/search-engine.js` and reproduced CLI output | Zero evaluations can become `no_safe_recommendation` | direct |\n| Canonical action projection | `create-agdf/lib/control-evaluation/gate-check.js` | Gate check already derives the selected run's allowed actions | direct |\n| Pre-implementation Brownfield Analysis | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/BROWNFIELD_ANALYSIS.md` | Existing owners, acyclic dependency direction, compatibility, regression and scope-isolation boundaries | direct |\n| CD+Tests | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/CD_TESTS.md` | 13/13 tasks, focused tests, generated/package checks and aggregate smoke | direct |\n| Mandatory reviews | TP Review, Clean Implementation Review and Code Review artefacts | Plan coverage, solution integrity and actual diff quality | direct |\n| QA report | `.agdf/control/artefacts/delivery-path-search-control-input-integrity/QA_REPORT.md` | qa-gate pass with explicit evidence limits | direct |\n\n## Missing Evidence\n\n- Fresh-task Codex pickup and Delivery Path Search example evidence.\n- UAT acceptance after the installed-host check.\n\n## Risks\n\n| Risk | Evidence | Severity | Required action |\n|---|---|---|---|\n| A second gate-policy owner is created inside Delivery Path Search | Current adapter reconstructs only part of control state | block | Reuse canonical evaluated actions. |\n| Existing consumers mistake a new typed outcome for a recommendation | Public JSON behavior may change | revise | Decide compatibility and tests before implementation. |\n| A selected run is used to answer an unrelated product question | Reproduced invocation used the Product Maturity Roadmap for a new idea | revise | Add explicit scope-fit evidence and recovery behavior. |\n\n## Knowledge Persistence Decision\n\n- memory_target: context_graph\n- memory_reason: The existing Delivery Path Search node needs one durable input-integrity and recommendation-provenance invariant.\n- memory_refs: `CG-DELIVERY-PATH-SEARCH`\n\n## Context Graph Impact\n\n- context_graph_impact: update_existing_node\n- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`; `CG-RUN-STATUS-CARD`; `CG-RUN-SCOPED-CONTROL-STATE`\n- context_graph_reconciliation: resolved\n- context_graph_required_action: none\n- context_graph_gate_effect: none\n- context_graph_evidence: `CG-DELIVERY-PATH-SEARCH` records that missing canonical input and zero valid evaluations cannot be presented or persisted as recommendation conclusions.\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook: Preserve the explicit source/package/installed-host evidence boundary during QA acceptance and later UAT.\n",
+  "candidate_digest": "sha256:dbdb2c1d43abdb7e3eefcb2e5921a5d8f58d3f13821fd9e8b356e1a996d1d1a9",
+  "phase": "committed",
+  "preview_digest": "sha256:9de875e8fa2bdb60c99c78463391e2474e5ac19fff9efddd6151bc984ad3b95e",
+  "confirmation": "RECOVER delivery-path-search-control-input-integrity 58622b69-3382-40c8-8c3e-8c5553d61d28 sha256:9de875e8fa2bdb60c99c78463391e2474e5ac19fff9efddd6151bc984ad3b95e",
+  "result_digest": "sha256:f96f0f979ebd9c580bbf236d12a0f59c564f2eb58c9a8f4ff632dc491c527622",
+  "result_revision_id": "2fa5f304-207a-4673-af01-a7e9a2ebe79d"
+}

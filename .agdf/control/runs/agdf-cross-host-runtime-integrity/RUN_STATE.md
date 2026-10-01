@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-cross-host-runtime-integrity
 - lifecycle: active
-- revision: 20
-- revision_id: d42b9b9b-ec7e-4b21-9245-0930bee26fca
+- revision: 21
+- revision_id: bdafbcfa-a238-47e0-ac20-d81e79b08f38
+- content_seal: sha256:317219f49b514fabbfc6ecab9bd661e7059bdac599d6dfb867dbbc1d5c68ca19
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T10:44:37.671Z
 - mode: structured_delivery
-- current_gate: QA
+- current_gate: UR
 - decision: in_progress
 - owner: agent
 
@@ -23,11 +26,11 @@ complete installation.
 
 | Question | Answer |
 |---|---|
-| What is known? | CRI-13 through CRI-15 are complete. The exact public 0.13.6 bootstrap, repository implementation, focused tests, full smoke, Clean Review and Code Review pass. QA Revision 5 remains revise only because direct native-Windows CRI-H05 evidence is absent. |
-| What is approved? | UR Revision 1, PRD Revision 3, SD Revision 3 and TP Revision 3 are approved. TP Revision 2 remains historical approved evidence only. |
-| What is missing? | Direct native-Windows CRI-H05 execution, then refreshed TP Review and QA. |
-| What is the next allowed action? | Execute the complete local-marketplace suite and owned pre-provenance rebuild, host-failure rollback and commit probe on native Windows; attach direct evidence and rerun QA. |
-| What is explicitly forbidden right now? | QA pass or approval, UAT, release, publication and VCS delivery actions before CRI-TPR-02 is resolved. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -46,12 +49,12 @@ complete installation.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` provided on 2026-08-25 after same-run, same-gate and revision-1 revalidation. |
-| PRD | approved | Exact `Approval: PRD` provided on 2026-08-25 after same-run, same-gate and revision-3 revalidation. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-08-26 after same-run, same-gate and run-revision-15 revalidation. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-08-26 after same-run, same-gate and run-revision-16 revalidation; Revision 2 remains historical approved evidence only. |
-| QA | revise | QA Report Revision 5 also resolves the release-bootstrap dist-tag cache race and retains one open native-Windows evidence gap, CRI-TPR-02. |
-| UAT | missing | Blocked by QA revise. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -163,5 +166,5 @@ complete installation.
 
 ## Closeout
 
-- next_allowed_action: Execute CRI-H05 on native Windows, attach direct evidence and rerun TP Review and QA.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Preserve fail-closed provenance while making supported reinstall recovery deterministic and native-Windows-testable.

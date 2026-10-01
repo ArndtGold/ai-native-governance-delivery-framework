@@ -12,8 +12,12 @@ try {
   } else if (runtime.trustedContext.expectedVersion !== workerData.expectedVersion) {
     send({ type: "failure", code: "runtime_version_mismatch" });
   } else {
-    const input = runtime.parse(workerData.argumentsValue);
-    send({ type: "result", result: runtime.execute(input) });
+    const tool = workerData.toolName ? runtime.tool(workerData.toolName) : runtime.tool(runtime.definition.name);
+    if (!tool) {
+      send({ type: "failure", code: "dispatch_worker_failed" });
+    } else {
+      send({ type: "result", result: tool.execute(tool.parse(workerData.argumentsValue)) });
+    }
   }
 } catch {
   send({ type: "failure", code: "dispatch_worker_failed" });

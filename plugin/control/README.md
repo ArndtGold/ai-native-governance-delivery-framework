@@ -77,13 +77,22 @@ agdf gate-check --json
 ## Operating Rules
 
 - Canonical mutable state is isolated per run at `runs/<run_id>/RUN_STATE.md`. Run discovery is
-  derived; do not maintain a writable active-run index. Select explicitly with `--run` or
-  `AGDF_RUN_ID` when more than one run is active.
+  derived; do not maintain a writable active-run index. When several runs are active, discovery
+  presents the most recently updated run first and lists the others, but requires an explicit run
+  selection for read-only status or explicit run-selection requests. Implementation intake first
+  provides canonical UR evidence to the coding agent for scope assignment, even with one active
+  run: resume one same-scope continuation, start a new UR run for an independent scope, or clarify
+  genuinely overlapping work. If no active run exists during a status request, ask whether to start
+  one or do something else. Status never creates a run. `updated_at` is recorded with
+  every canonical run write; older runs use file modification time until their next recorded update.
 - Migrate legacy state explicitly with `run-migrate`; read-only commands never migrate. A retained
   `AGDF_RUN.md` is migration input or a non-authoritative projection, not a second writable owner.
 - A run created by `run-create` is sealed. Record every change to it or to a listed artefact with
   `run-update`, and record exact gate replies only with `run-approve`; an unrecorded edit blocks
   `doctor` and `gate-check` until it is recorded.
+  If a run lists its own `RUN_STATE.md`, the seal covers its body directly and uses a self-reference
+  marker for that artefact entry. This avoids circular on-disk hashing; references to other runs
+  remain fully hashed. Old self-reference failures require a verified restoration, never a blind re-seal.
 - Record the standard small-path steps with one `run-step` call each instead of editing the run state
   and `MASTER_BACKLOG.md` by hand: `--step ur --title` after writing `artefacts/<run_id>/UR.md`;
   `--step route --route <mode> --reason --evidence` after writing `BROWNFIELD_REVIEW.md`;
@@ -105,3 +114,12 @@ agdf gate-check --json
   merge or pull, rerun `doctor` and `gate-check` for the selected run.
 
 Do not duplicate full product documentation in this scaffold. Link to the authoritative artefact instead.
+
+## Planned outputs during recovery
+
+A missing file explicitly declared `missing` or `pending` under the selected run's own
+`.agdf/control/artefacts/<run_id>/` directory is a planned output, not lost completed evidence.
+Recovery retains its path and absence in the integrity snapshot and leaves its status pending.
+It does not create evidence or approve a gate. Completed or ready evidence, unsafe paths and
+descriptive placeholders still require repair. Creating a planned file after a recovery preview
+invalidates that preview; creating it after recovery changes the seal until a canonical update.

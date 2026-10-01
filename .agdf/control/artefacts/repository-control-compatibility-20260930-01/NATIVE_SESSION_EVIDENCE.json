@@ -1,0 +1,771 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-30",
+  "transport": "local native Codex CLI app-server 0.157.1 stdio",
+  "client": "agdf_live_probe",
+  "ephemeral": true,
+  "automatic_startup": "real host SessionStart emitted on first turn; no direct hook invocation",
+  "model_execution": "startup context captured; turns deliberately interrupted before a model answer; no tools executed",
+  "user_authorization": "User Leg,los continues requested native fresh-session live test",
+  "permission_mutation": false,
+  "receipt_sha256": "1f2c75281f465c772dc8dbaf850338b6be6e1716e4d577041325f6f65b695e12",
+  "installed_version": "0.14.5+codex.local-417614078066",
+  "records": [
+    {
+      "thread_id": "01a0f29f-18be-76b1-8860-1538a0463e40",
+      "turn_id": "01a0f29f-1af9-7dc3-bcc1-c85966bd539a",
+      "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original",
+      "status": "repair_required",
+      "duration_ms": 2016,
+      "native_context": {
+        "context_state": "repository_bound",
+        "working_directory": "/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original",
+        "automatic_check": {
+          "status": "block",
+          "findings": 3
+        },
+        "config": "valid",
+        "languages": {
+          "artifact": "en",
+          "chat": "de",
+          "runtime": "en"
+        },
+        "repository_control": {
+          "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original",
+          "inspection_state": "complete",
+          "status": "repair_required",
+          "counts": {
+            "migration": 0,
+            "repair": 1,
+            "historical": 0
+          },
+          "authorizes": false,
+          "invocation": {
+            "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+            "argv": [
+              "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js",
+              "control-maintenance",
+              "--dir",
+              "/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original",
+              "--guided",
+              "--language",
+              "de"
+            ],
+            "authorizes": false
+          },
+          "notice": "Repository-Wartung\nRepository: /private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original\nKontrollbestand: Reparatur erforderlich\n0 Runs k\u00f6nnen gemeinsam migriert werden.\n1 Runs ben\u00f6tigen eine Reparatur und bleiben unver\u00e4ndert.\nDirekter Runtime-Aufruf:\n'/usr/local/Cellar/node@22/22.22.3/bin/node' '/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js' 'control-maintenance' '--dir' '/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original' '--guided' '--language' 'de'"
+        }
+      },
+      "binding": {
+        "schema_version": "2",
+        "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "argv_prefix": [
+          "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js",
+          "skill-dispatch",
+          "--json",
+          "--surface",
+          "codex"
+        ],
+        "environment": {},
+        "arguments": "--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]",
+        "expected_version": "0.14.5",
+        "request_activation": {
+          "owner": "request_activation_contract",
+          "policy_version": 1,
+          "guard_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc"
+        },
+        "route_source_after_activation": {
+          "relative_to": "validator_directory",
+          "path": "../meta/contracts/request-activation.md"
+        },
+        "authorizes": false
+      },
+      "hooks_inventory": {
+        "cwd": "/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original",
+        "hooks": [
+          {
+            "key": "agdf@agdf:hooks/hooks.json:session_start:0:0",
+            "eventName": "sessionStart",
+            "handlerType": "command",
+            "command": "node \"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-session-check.js\"",
+            "async": false,
+            "matcher": null,
+            "timeoutSec": 600,
+            "statusMessage": "Checking AGDF runtime state...",
+            "additionalContextLimit": null,
+            "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+            "source": "plugin",
+            "pluginId": "agdf@agdf",
+            "displayOrder": 0,
+            "enabled": true,
+            "isManaged": false,
+            "currentHash": "sha256:d641a20512cc1f7d78a1bd91f8294f42d68e35151567d2a15fb353cd01703e8f",
+            "trustStatus": "trusted"
+          }
+        ],
+        "warnings": [],
+        "errors": []
+      },
+      "native_events": [
+        {
+          "method": "hook/started",
+          "params": {
+            "threadId": "01a0f29f-18be-76b1-8860-1538a0463e40",
+            "turnId": "01a0f29f-1af9-7dc3-bcc1-c85966bd539a",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "running",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776911,
+              "completedAt": null,
+              "durationMs": null,
+              "entries": []
+            }
+          },
+          "emittedAtMs": 1790776911305
+        },
+        {
+          "method": "hook/completed",
+          "params": {
+            "threadId": "01a0f29f-18be-76b1-8860-1538a0463e40",
+            "turnId": "01a0f29f-1af9-7dc3-bcc1-c85966bd539a",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "completed",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776911,
+              "completedAt": 1790776913,
+              "durationMs": 2016,
+              "entries": [
+                {
+                  "kind": "context",
+                  "text": "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->\n## Request Activation\n\n- `owner`: `request_activation_contract`\n- `path`: `meta/contracts/request-activation.md`\n- `policy_version`: `1`\n- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`\n\nDecide effect from loaded instructions before AGDF action.\n\nAbstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.\n\nActivate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.\n\nInvocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.\n\nThen pick one catalog route; non-authorizing, downstream checks remain.\n<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->\n\nAGDF dispatcher binding: {\"schema_version\":\"2\",\"executable\":\"/usr/local/Cellar/node@22/22.22.3/bin/node\",\"argv_prefix\":[\"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js\",\"skill-dispatch\",\"--json\",\"--surface\",\"codex\"],\"environment\":{},\"arguments\":\"--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]\",\"expected_version\":\"0.14.5\",\"request_activation\":{\"owner\":\"request_activation_contract\",\"policy_version\":1,\"guard_fingerprint\":\"sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc\"},\"route_source_after_activation\":{\"relative_to\":\"validator_directory\",\"path\":\"../meta/contracts/request-activation.md\"},\"authorizes\":false}\n\nAGDF runtime facts: {\"context_state\":\"repository_bound\",\"working_directory\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original\",\"automatic_check\":{\"status\":\"block\",\"findings\":3},\"config\":\"valid\",\"languages\":{\"artifact\":\"en\",\"chat\":\"de\",\"runtime\":\"en\"},\"repository_control\":{\"target\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original\",\"inspection_state\":\"complete\",\"status\":\"repair_required\",\"counts\":{\"migration\":0,\"repair\":1,\"historical\":0},\"authorizes\":false,\"invocation\":{\"executable\":\"/usr/local/Cellar/node@22/22.22.3/bin/node\",\"argv\":[\"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js\",\"control-maintenance\",\"--dir\",\"/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original\",\"--guided\",\"--language\",\"de\"],\"authorizes\":false},\"notice\":\"Repository-Wartung\\nRepository: /private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original\\nKontrollbestand: Reparatur erforderlich\\n0 Runs k\u00f6nnen gemeinsam migriert werden.\\n1 Runs ben\u00f6tigen eine Reparatur und bleiben unver\u00e4ndert.\\nDirekter Runtime-Aufruf:\\n'/usr/local/Cellar/node@22/22.22.3/bin/node' '/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js' 'control-maintenance' '--dir' '/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original' '--guided' '--language' 'de'\"}}"
+                }
+              ]
+            }
+          },
+          "emittedAtMs": 1790776913324
+        }
+      ],
+      "turn_events": [
+        {
+          "method": "turn/started",
+          "params": {
+            "threadId": "01a0f29f-18be-76b1-8860-1538a0463e40",
+            "turn": {
+              "id": "01a0f29f-1af9-7dc3-bcc1-c85966bd539a",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": 1790776908,
+              "completedAt": null,
+              "durationMs": null
+            }
+          },
+          "emittedAtMs": 1790776908658
+        },
+        {
+          "method": "turn/completed",
+          "params": {
+            "threadId": "01a0f29f-18be-76b1-8860-1538a0463e40",
+            "turn": {
+              "id": "01a0f29f-1af9-7dc3-bcc1-c85966bd539a",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "interrupted",
+              "error": null,
+              "startedAt": 1790776908,
+              "completedAt": 1790776913,
+              "durationMs": 5027
+            }
+          },
+          "emittedAtMs": 1790776913593
+        }
+      ]
+    },
+    {
+      "thread_id": "01a0f29f-2ed5-7f50-b0b6-93dab4e4f0ad",
+      "turn_id": "01a0f29f-2f92-7821-83e2-94e3e3e22b50",
+      "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/B current",
+      "status": "current",
+      "duration_ms": 1975,
+      "native_context": {
+        "context_state": "repository_bound",
+        "working_directory": "/private/tmp/agdf-installed-live-20260930-PXiuyz/B current",
+        "automatic_check": {
+          "status": "warn",
+          "findings": 2
+        },
+        "config": "valid",
+        "languages": {
+          "artifact": "en",
+          "chat": "de",
+          "runtime": "en"
+        },
+        "repository_control": {
+          "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/B current",
+          "inspection_state": "complete",
+          "status": "current",
+          "counts": {
+            "migration": 0,
+            "repair": 0,
+            "historical": 0
+          },
+          "authorizes": false
+        }
+      },
+      "binding": {
+        "schema_version": "2",
+        "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "argv_prefix": [
+          "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js",
+          "skill-dispatch",
+          "--json",
+          "--surface",
+          "codex"
+        ],
+        "environment": {},
+        "arguments": "--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]",
+        "expected_version": "0.14.5",
+        "request_activation": {
+          "owner": "request_activation_contract",
+          "policy_version": 1,
+          "guard_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc"
+        },
+        "route_source_after_activation": {
+          "relative_to": "validator_directory",
+          "path": "../meta/contracts/request-activation.md"
+        },
+        "authorizes": false
+      },
+      "hooks_inventory": {
+        "cwd": "/private/tmp/agdf-installed-live-20260930-PXiuyz/B current",
+        "hooks": [
+          {
+            "key": "agdf@agdf:hooks/hooks.json:session_start:0:0",
+            "eventName": "sessionStart",
+            "handlerType": "command",
+            "command": "node \"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-session-check.js\"",
+            "async": false,
+            "matcher": null,
+            "timeoutSec": 600,
+            "statusMessage": "Checking AGDF runtime state...",
+            "additionalContextLimit": null,
+            "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+            "source": "plugin",
+            "pluginId": "agdf@agdf",
+            "displayOrder": 0,
+            "enabled": true,
+            "isManaged": false,
+            "currentHash": "sha256:d641a20512cc1f7d78a1bd91f8294f42d68e35151567d2a15fb353cd01703e8f",
+            "trustStatus": "trusted"
+          }
+        ],
+        "warnings": [],
+        "errors": []
+      },
+      "native_events": [
+        {
+          "method": "hook/started",
+          "params": {
+            "threadId": "01a0f29f-2ed5-7f50-b0b6-93dab4e4f0ad",
+            "turnId": "01a0f29f-2f92-7821-83e2-94e3e3e22b50",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "running",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776916,
+              "completedAt": null,
+              "durationMs": null,
+              "entries": []
+            }
+          },
+          "emittedAtMs": 1790776916563
+        },
+        {
+          "method": "hook/completed",
+          "params": {
+            "threadId": "01a0f29f-2ed5-7f50-b0b6-93dab4e4f0ad",
+            "turnId": "01a0f29f-2f92-7821-83e2-94e3e3e22b50",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "completed",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776916,
+              "completedAt": 1790776918,
+              "durationMs": 1975,
+              "entries": [
+                {
+                  "kind": "context",
+                  "text": "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->\n## Request Activation\n\n- `owner`: `request_activation_contract`\n- `path`: `meta/contracts/request-activation.md`\n- `policy_version`: `1`\n- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`\n\nDecide effect from loaded instructions before AGDF action.\n\nAbstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.\n\nActivate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.\n\nInvocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.\n\nThen pick one catalog route; non-authorizing, downstream checks remain.\n<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->\n\nAGDF dispatcher binding: {\"schema_version\":\"2\",\"executable\":\"/usr/local/Cellar/node@22/22.22.3/bin/node\",\"argv_prefix\":[\"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js\",\"skill-dispatch\",\"--json\",\"--surface\",\"codex\"],\"environment\":{},\"arguments\":\"--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]\",\"expected_version\":\"0.14.5\",\"request_activation\":{\"owner\":\"request_activation_contract\",\"policy_version\":1,\"guard_fingerprint\":\"sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc\"},\"route_source_after_activation\":{\"relative_to\":\"validator_directory\",\"path\":\"../meta/contracts/request-activation.md\"},\"authorizes\":false}\n\nAGDF runtime facts: {\"context_state\":\"repository_bound\",\"working_directory\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/B current\",\"automatic_check\":{\"status\":\"warn\",\"findings\":2},\"config\":\"valid\",\"languages\":{\"artifact\":\"en\",\"chat\":\"de\",\"runtime\":\"en\"},\"repository_control\":{\"target\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/B current\",\"inspection_state\":\"complete\",\"status\":\"current\",\"counts\":{\"migration\":0,\"repair\":0,\"historical\":0},\"authorizes\":false}}"
+                }
+              ]
+            }
+          },
+          "emittedAtMs": 1790776918533
+        }
+      ],
+      "turn_events": [
+        {
+          "method": "turn/started",
+          "params": {
+            "threadId": "01a0f29f-2ed5-7f50-b0b6-93dab4e4f0ad",
+            "turn": {
+              "id": "01a0f29f-2f92-7821-83e2-94e3e3e22b50",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": 1790776913,
+              "completedAt": null,
+              "durationMs": null
+            }
+          },
+          "emittedAtMs": 1790776913818
+        },
+        {
+          "method": "turn/completed",
+          "params": {
+            "threadId": "01a0f29f-2ed5-7f50-b0b6-93dab4e4f0ad",
+            "turn": {
+              "id": "01a0f29f-2f92-7821-83e2-94e3e3e22b50",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "interrupted",
+              "error": null,
+              "startedAt": 1790776913,
+              "completedAt": 1790776918,
+              "durationMs": 4925
+            }
+          },
+          "emittedAtMs": 1790776918743
+        }
+      ]
+    },
+    {
+      "thread_id": "01a0f2a0-3482-79b3-9f4d-da20b2480a83",
+      "turn_id": "01a0f2a0-35d7-7503-b44f-ca9abc1e5ce9",
+      "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy",
+      "status": "migration_required",
+      "duration_ms": 2058,
+      "native_context": {
+        "context_state": "repository_bound",
+        "working_directory": "/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy",
+        "automatic_check": {
+          "status": "block",
+          "findings": 3
+        },
+        "config": "valid",
+        "languages": {
+          "artifact": "en",
+          "chat": "de",
+          "runtime": "en"
+        },
+        "repository_control": {
+          "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy",
+          "inspection_state": "complete",
+          "status": "migration_required",
+          "counts": {
+            "migration": 1,
+            "repair": 0,
+            "historical": 0
+          },
+          "authorizes": false,
+          "invocation": {
+            "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+            "argv": [
+              "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js",
+              "control-maintenance",
+              "--dir",
+              "/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy",
+              "--guided",
+              "--language",
+              "de"
+            ],
+            "authorizes": false
+          },
+          "notice": "Repository-Wartung\nRepository: /private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy\nKontrollbestand: Migration erforderlich\n1 Runs k\u00f6nnen gemeinsam migriert werden.\n0 Runs ben\u00f6tigen eine Reparatur und bleiben unver\u00e4ndert.\nDirekter Runtime-Aufruf:\n'/usr/local/Cellar/node@22/22.22.3/bin/node' '/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js' 'control-maintenance' '--dir' '/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy' '--guided' '--language' 'de'"
+        }
+      },
+      "binding": {
+        "schema_version": "2",
+        "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "argv_prefix": [
+          "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js",
+          "skill-dispatch",
+          "--json",
+          "--surface",
+          "codex"
+        ],
+        "environment": {},
+        "arguments": "--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]",
+        "expected_version": "0.14.5",
+        "request_activation": {
+          "owner": "request_activation_contract",
+          "policy_version": 1,
+          "guard_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc"
+        },
+        "route_source_after_activation": {
+          "relative_to": "validator_directory",
+          "path": "../meta/contracts/request-activation.md"
+        },
+        "authorizes": false
+      },
+      "hooks_inventory": {
+        "cwd": "/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy",
+        "hooks": [
+          {
+            "key": "agdf@agdf:hooks/hooks.json:session_start:0:0",
+            "eventName": "sessionStart",
+            "handlerType": "command",
+            "command": "node \"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-session-check.js\"",
+            "async": false,
+            "matcher": null,
+            "timeoutSec": 600,
+            "statusMessage": "Checking AGDF runtime state...",
+            "additionalContextLimit": null,
+            "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+            "source": "plugin",
+            "pluginId": "agdf@agdf",
+            "displayOrder": 0,
+            "enabled": true,
+            "isManaged": false,
+            "currentHash": "sha256:d641a20512cc1f7d78a1bd91f8294f42d68e35151567d2a15fb353cd01703e8f",
+            "trustStatus": "trusted"
+          }
+        ],
+        "warnings": [],
+        "errors": []
+      },
+      "native_events": [
+        {
+          "method": "hook/started",
+          "params": {
+            "threadId": "01a0f2a0-3482-79b3-9f4d-da20b2480a83",
+            "turnId": "01a0f2a0-35d7-7503-b44f-ca9abc1e5ce9",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "running",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776983,
+              "completedAt": null,
+              "durationMs": null,
+              "entries": []
+            }
+          },
+          "emittedAtMs": 1790776983610
+        },
+        {
+          "method": "hook/completed",
+          "params": {
+            "threadId": "01a0f2a0-3482-79b3-9f4d-da20b2480a83",
+            "turnId": "01a0f2a0-35d7-7503-b44f-ca9abc1e5ce9",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "completed",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776983,
+              "completedAt": 1790776985,
+              "durationMs": 2058,
+              "entries": [
+                {
+                  "kind": "context",
+                  "text": "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->\n## Request Activation\n\n- `owner`: `request_activation_contract`\n- `path`: `meta/contracts/request-activation.md`\n- `policy_version`: `1`\n- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`\n\nDecide effect from loaded instructions before AGDF action.\n\nAbstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.\n\nActivate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.\n\nInvocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.\n\nThen pick one catalog route; non-authorizing, downstream checks remain.\n<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->\n\nAGDF dispatcher binding: {\"schema_version\":\"2\",\"executable\":\"/usr/local/Cellar/node@22/22.22.3/bin/node\",\"argv_prefix\":[\"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js\",\"skill-dispatch\",\"--json\",\"--surface\",\"codex\"],\"environment\":{},\"arguments\":\"--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]\",\"expected_version\":\"0.14.5\",\"request_activation\":{\"owner\":\"request_activation_contract\",\"policy_version\":1,\"guard_fingerprint\":\"sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc\"},\"route_source_after_activation\":{\"relative_to\":\"validator_directory\",\"path\":\"../meta/contracts/request-activation.md\"},\"authorizes\":false}\n\nAGDF runtime facts: {\"context_state\":\"repository_bound\",\"working_directory\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy\",\"automatic_check\":{\"status\":\"block\",\"findings\":3},\"config\":\"valid\",\"languages\":{\"artifact\":\"en\",\"chat\":\"de\",\"runtime\":\"en\"},\"repository_control\":{\"target\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy\",\"inspection_state\":\"complete\",\"status\":\"migration_required\",\"counts\":{\"migration\":1,\"repair\":0,\"historical\":0},\"authorizes\":false,\"invocation\":{\"executable\":\"/usr/local/Cellar/node@22/22.22.3/bin/node\",\"argv\":[\"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js\",\"control-maintenance\",\"--dir\",\"/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy\",\"--guided\",\"--language\",\"de\"],\"authorizes\":false},\"notice\":\"Repository-Wartung\\nRepository: /private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy\\nKontrollbestand: Migration erforderlich\\n1 Runs k\u00f6nnen gemeinsam migriert werden.\\n0 Runs ben\u00f6tigen eine Reparatur und bleiben unver\u00e4ndert.\\nDirekter Runtime-Aufruf:\\n'/usr/local/Cellar/node@22/22.22.3/bin/node' '/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js' 'control-maintenance' '--dir' '/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy' '--guided' '--language' 'de'\"}}"
+                }
+              ]
+            }
+          },
+          "emittedAtMs": 1790776985672
+        }
+      ],
+      "turn_events": [
+        {
+          "method": "turn/started",
+          "params": {
+            "threadId": "01a0f2a0-3482-79b3-9f4d-da20b2480a83",
+            "turn": {
+              "id": "01a0f2a0-35d7-7503-b44f-ca9abc1e5ce9",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": 1790776980,
+              "completedAt": null,
+              "durationMs": null
+            }
+          },
+          "emittedAtMs": 1790776980979
+        },
+        {
+          "method": "turn/completed",
+          "params": {
+            "threadId": "01a0f2a0-3482-79b3-9f4d-da20b2480a83",
+            "turn": {
+              "id": "01a0f2a0-35d7-7503-b44f-ca9abc1e5ce9",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "interrupted",
+              "error": null,
+              "startedAt": 1790776980,
+              "completedAt": 1790776985,
+              "durationMs": 4955
+            }
+          },
+          "emittedAtMs": 1790776985930
+        }
+      ]
+    },
+    {
+      "thread_id": "01a0f2a0-4957-7471-be61-a3e1b5559aa9",
+      "turn_id": "01a0f2a0-4a07-7491-9c33-f2b6bd01da4e",
+      "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent",
+      "status": "absent",
+      "duration_ms": 1925,
+      "native_context": {
+        "context_state": "repository_bound",
+        "working_directory": "/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent",
+        "automatic_check": {
+          "status": "unknown",
+          "findings": 0
+        },
+        "config": "missing",
+        "repository_control": {
+          "target": "/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent",
+          "inspection_state": "complete",
+          "status": "absent",
+          "counts": {
+            "migration": 0,
+            "repair": 0,
+            "historical": 0
+          },
+          "authorizes": false
+        }
+      },
+      "binding": {
+        "schema_version": "2",
+        "executable": "/usr/local/Cellar/node@22/22.22.3/bin/node",
+        "argv_prefix": [
+          "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js",
+          "skill-dispatch",
+          "--json",
+          "--surface",
+          "codex"
+        ],
+        "environment": {},
+        "arguments": "--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]",
+        "expected_version": "0.14.5",
+        "request_activation": {
+          "owner": "request_activation_contract",
+          "policy_version": 1,
+          "guard_fingerprint": "sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc"
+        },
+        "route_source_after_activation": {
+          "relative_to": "validator_directory",
+          "path": "../meta/contracts/request-activation.md"
+        },
+        "authorizes": false
+      },
+      "hooks_inventory": {
+        "cwd": "/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent",
+        "hooks": [
+          {
+            "key": "agdf@agdf:hooks/hooks.json:session_start:0:0",
+            "eventName": "sessionStart",
+            "handlerType": "command",
+            "command": "node \"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-session-check.js\"",
+            "async": false,
+            "matcher": null,
+            "timeoutSec": 600,
+            "statusMessage": "Checking AGDF runtime state...",
+            "additionalContextLimit": null,
+            "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+            "source": "plugin",
+            "pluginId": "agdf@agdf",
+            "displayOrder": 0,
+            "enabled": true,
+            "isManaged": false,
+            "currentHash": "sha256:d641a20512cc1f7d78a1bd91f8294f42d68e35151567d2a15fb353cd01703e8f",
+            "trustStatus": "trusted"
+          }
+        ],
+        "warnings": [],
+        "errors": []
+      },
+      "native_events": [
+        {
+          "method": "hook/started",
+          "params": {
+            "threadId": "01a0f2a0-4957-7471-be61-a3e1b5559aa9",
+            "turnId": "01a0f2a0-4a07-7491-9c33-f2b6bd01da4e",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "running",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776989,
+              "completedAt": null,
+              "durationMs": null,
+              "entries": []
+            }
+          },
+          "emittedAtMs": 1790776989253
+        },
+        {
+          "method": "hook/completed",
+          "params": {
+            "threadId": "01a0f2a0-4957-7471-be61-a3e1b5559aa9",
+            "turnId": "01a0f2a0-4a07-7491-9c33-f2b6bd01da4e",
+            "run": {
+              "id": "session-start:0:/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "eventName": "sessionStart",
+              "handlerType": "command",
+              "executionMode": "sync",
+              "scope": "thread",
+              "sourcePath": "/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/hooks/hooks.json",
+              "source": "plugin",
+              "displayOrder": 0,
+              "status": "completed",
+              "statusMessage": "Checking AGDF runtime state...",
+              "startedAt": 1790776989,
+              "completedAt": 1790776991,
+              "durationMs": 1925,
+              "entries": [
+                {
+                  "kind": "context",
+                  "text": "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->\n## Request Activation\n\n- `owner`: `request_activation_contract`\n- `path`: `meta/contracts/request-activation.md`\n- `policy_version`: `1`\n- `guard_fingerprint`: `sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc`\n\nDecide effect from loaded instructions before AGDF action.\n\nAbstain silently (no AGDF call) for assessment/explanation/comparison/recommendation/review/diagnosis/advice; hypothetical/example/error/code/quoted/negated delivery language; AGDF as subject; or a read-only constraint absent other delivery. Ambiguity is read-only: answer or ask one neutral question.\n\nActivate for any requested file/code change however small, a binding gate artefact, explicit AGDF/control-lifecycle operation or unambiguous active-run action; delivery wins mixed intent.\n\nInvocation proof: explicit user text/trusted ephemeral action, not discovery/selection, skill load, hooks, cwd, repo/control or prior runs.\n\nThen pick one catalog route; non-authorizing, downstream checks remain.\n<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->\n\nAGDF dispatcher binding: {\"schema_version\":\"2\",\"executable\":\"/usr/local/Cellar/node@22/22.22.3/bin/node\",\"argv_prefix\":[\"/Users/arndtgold/.codex/plugins/cache/agdf/agdf/0.14.5+codex.local-417614078066/runtime/agdf-local.js\",\"skill-dispatch\",\"--json\",\"--surface\",\"codex\"],\"environment\":{},\"arguments\":\"--skill <skill-id> --language <language-tag> --working-directory <absolute-path> [--target-source <explicit_target|continued_target|current_repository> --primary-target <absolute-path>] [--run <run_id>] [--intake [--intake-mode <new|resume>] [--revision <uuid>]] [--continue-delivery]\",\"expected_version\":\"0.14.5\",\"request_activation\":{\"owner\":\"request_activation_contract\",\"policy_version\":1,\"guard_fingerprint\":\"sha256:af2f01f9e18a3ba1c520faf0691aa1cd4a4299bdfa027cf83651c5d14319bfdc\"},\"route_source_after_activation\":{\"relative_to\":\"validator_directory\",\"path\":\"../meta/contracts/request-activation.md\"},\"authorizes\":false}\n\nAGDF runtime facts: {\"context_state\":\"repository_bound\",\"working_directory\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent\",\"automatic_check\":{\"status\":\"unknown\",\"findings\":0},\"config\":\"missing\",\"repository_control\":{\"target\":\"/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent\",\"inspection_state\":\"complete\",\"status\":\"absent\",\"counts\":{\"migration\":0,\"repair\":0,\"historical\":0},\"authorizes\":false}}"
+                }
+              ]
+            }
+          },
+          "emittedAtMs": 1790776991174
+        }
+      ],
+      "turn_events": [
+        {
+          "method": "turn/started",
+          "params": {
+            "threadId": "01a0f2a0-4957-7471-be61-a3e1b5559aa9",
+            "turn": {
+              "id": "01a0f2a0-4a07-7491-9c33-f2b6bd01da4e",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": 1790776986,
+              "completedAt": null,
+              "durationMs": null
+            }
+          },
+          "emittedAtMs": 1790776986148
+        },
+        {
+          "method": "turn/completed",
+          "params": {
+            "threadId": "01a0f2a0-4957-7471-be61-a3e1b5559aa9",
+            "turn": {
+              "id": "01a0f2a0-4a07-7491-9c33-f2b6bd01da4e",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "interrupted",
+              "error": null,
+              "startedAt": 1790776986,
+              "completedAt": 1790776991,
+              "durationMs": 5334
+            }
+          },
+          "emittedAtMs": 1790776991464
+        }
+      ]
+    }
+  ],
+  "fixture_before_after": [
+    {
+      "root": "/private/tmp/agdf-installed-live-20260930-PXiuyz/E missing original",
+      "before": "77f08408dc77310245df93681e866df97f2c83c05532cd7a30b7c7a94d5b667b",
+      "after": "77f08408dc77310245df93681e866df97f2c83c05532cd7a30b7c7a94d5b667b",
+      "unchanged": true
+    },
+    {
+      "root": "/private/tmp/agdf-installed-live-20260930-PXiuyz/B current",
+      "before": "de5c4ef2da985a17f36ff36e1525ce7034bfeefe3469f20e9f0e64bca17c2d8c",
+      "after": "de5c4ef2da985a17f36ff36e1525ce7034bfeefe3469f20e9f0e64bca17c2d8c",
+      "unchanged": true
+    },
+    {
+      "root": "/private/tmp/agdf-installed-live-20260930-PXiuyz/F native legacy",
+      "before": "b745301ebf6488b99d7cd8f39a74dd71836826fb614e29e6699d20aad3d97e2b",
+      "after": "b745301ebf6488b99d7cd8f39a74dd71836826fb614e29e6699d20aad3d97e2b",
+      "unchanged": true
+    },
+    {
+      "root": "/private/tmp/agdf-installed-live-20260930-PXiuyz/C absent",
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    }
+  ],
+  "verification": {
+    "source_files_unchanged": 30,
+    "retained_passing_suite_logs": 29,
+    "other_run_files_unchanged": 156,
+    "original_staged_diff_unchanged": true
+  },
+  "limits": [
+    "No desktop graphical restart or completed model answer was observed.",
+    "No human QA/UAT approval; other hosts/native Windows not observed."
+  ],
+  "initial_attempts": [
+    "Sandbox-only server could not open real Codex state database; no native event or mutation resulted.",
+    "Ephemeral thread/start alone emitted no SessionStart. Native first-turn startup supplied the observed events.",
+    "Host-state access escalation approved; no config, trust or receipt changes."
+  ]
+}

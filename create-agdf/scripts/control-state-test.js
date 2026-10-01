@@ -268,6 +268,8 @@ try {
 - next_allowed_action: Resolve QA findings.
 - quality_outlook: QA revise.
 `);
+  const qaRunPath = join(qaReviseRoot, ".agdf", "control", "runs", "qa-revise", "RUN_STATE.md");
+  writeFileSync(qaRunPath, sealRunState(qaReviseRoot, readFileSync(qaRunPath, "utf8")));
   const qaReviseGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
   assert.equal(qaReviseGateCheck.status, 0, qaReviseGateCheck.stderr);
   const qaReviseReport = JSON.parse(qaReviseGateCheck.stdout);
@@ -276,16 +278,18 @@ try {
   assert.equal(qaReviseReport.missing_approval, "none");
   assert.ok(qaReviseReport.allowed.every((action) => !action.includes("approval")));
   assert.ok(qaReviseReport.forbidden.includes("request QA approval"));
+  // QA revise gives the agent an explicit remediation action and does not request a user gate approval.
   assert.equal(qaReviseReport.status_card.user_action_required, "no");
+  assert.equal(qaReviseReport.status_card.internal_next_step, "Resolve QA findings.");
   assert.equal(qaReviseReport.status_card.next_gate_after_approval, "none");
   assert.equal(Object.hasOwn(qaReviseReport.status_card, "approvalOrientation"), false, "approval orientation must not change public JSON keys");
 
   const qaBlockRunPath = join(qaReviseRoot, ".agdf", "control", "runs", "qa-revise", "RUN_STATE.md");
   writeFileSync(
     qaBlockRunPath,
-    readFileSync(qaBlockRunPath, "utf8")
+    sealRunState(qaReviseRoot, readFileSync(qaBlockRunPath, "utf8")
       .replace("| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | revise | QA revision required |", "| QA | .agdf/control/artefacts/qa-revise/QA_REPORT.md | block | QA blocked |")
-      .replace("- next_allowed_action: Resolve QA findings.", "- next_allowed_action: Route blocking QA findings."),
+      .replace("- next_allowed_action: Resolve QA findings.", "- next_allowed_action: Route blocking QA findings.")),
   );
   const qaBlockGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
   assert.equal(qaBlockGateCheck.status, 2, qaBlockGateCheck.stderr);
@@ -300,12 +304,14 @@ try {
   assert.ok(qaBlockReport.forbidden.includes("request UAT approval"));
   assert.equal(qaBlockReport.interaction_kind, "blocked");
   assert.equal(qaBlockReport.approval_presentation, null);
+  // QA block routes the finding to its owner without creating a new user gate approval.
   assert.equal(qaBlockReport.status_card.user_action_required, "no");
+  assert.equal(qaBlockReport.status_card.internal_next_step, "Route blocking QA findings.");
   assert.equal(qaBlockReport.status_card.next_gate_after_approval, "none");
 
   writeFileSync(
     qaBlockRunPath,
-    readFileSync(qaBlockRunPath, "utf8").replace("| QA | missing |  |", "| QA | approved | Approval: QA |"),
+    sealRunState(qaReviseRoot, readFileSync(qaBlockRunPath, "utf8").replace("| QA | missing |  |", "| QA | approved | Approval: QA |")),
   );
   const approvedQaBlockGateCheck = spawnSync(process.execPath, [cli, "gate-check", "--dir", qaReviseRoot, "--run", "qa-revise", "--json"], { encoding: "utf8" });
   assert.equal(approvedQaBlockGateCheck.status, 2, approvedQaBlockGateCheck.stderr);
@@ -327,11 +333,11 @@ try {
     const artefactDir = join(readyRoot, ".agdf", "control", "artefacts", runId);
     mkdirSync(artefactDir, { recursive: true });
     const approvalDocs = {
-      "UR.md": "# UR\n\n## 1. Problem\nUsers need a clear gate summary.\n\n## 2. Goal\nReview the exact linked document.\n\n## 3. Scope\nAdd a concise summary before approval.\n\n## 5. Acceptance Signals\n| ID | Result |\n|---|---|\n| UR-01 | Summary matches this revision. |\n\n## 7. Risks And Unknowns\nWhether the link opens in each host.\n",
+      "UR.md": "# UR\n\n## 1. Problem\nUsers need a clear gate summary.\n\n## 2. Goal\nReview the exact linked document.\n\n## 3. Scope\nAdd a concise summary before approval.\n\n## 5. Acceptance Signals\n| ID | Result |\n|---|---|\n| UR-01 | Summary matches this revision. |\n\n## 7. Risks And Unknowns\nWhether the link opens in each host.\n## AGDF Approval Summary (de; source=en)\n- Problem: Nutzer brauchen eine klare Gate-Zusammenfassung.\n- Ziel: Das exakt verlinkte Dokument prüfen.\n- Umfang: Eine knappe Zusammenfassung vor der Freigabe ergänzen.\n",
       "PRD.md": "# PRD\n\nOwner: Product Owner\n\n## 1. Product Scope\nAfter an approved UR and a completed Brownfield Review that selects structured_delivery or structured_slice, prepare and persist a reviewable PRD before presenting the next user decision card. The PRD card must link the exact draft and summarize its intent.\n\n## 2. UX Intent And Success\n- primary_user_intent: inspect the product requirements before deciding whether to approve them\n- success_signal: the next PRD card links a durable draft and includes a concise relevant summary\n- primary_decision_or_action: approve, request revision, or decline the PRD\n\n## 5. Acceptance Criteria\n- criterion_id: PRD-CARD-001; working_mode: structured_delivery; source_state: UR approved, Brownfield Review done, PRD absent; trigger/action: continue the same run; expected effective state: a PRD draft is persisted before the next user card; visible feedback: no PRD approval card is shown while the draft is absent; observable success: the PRD artefact exists and is recorded in the run.\n- criterion_id: PRD-CARD-002; working_mode: structured_delivery; source_state: PRD draft persisted; trigger/action: prepare the PRD decision card; expected effective state: the card is bound to the exact PRD and revision; visible feedback: a concise summary and clickable PRD link appear before the approval choice; observable success: the card and linked artefact identify the same run and revision.\n\n## 6. Non-Goals\nDo not replace the source document.\n\n## 10. Risks And Open Questions\nConfirm host links.\n\n## Approval Decisions\n\n| Decision | Timing | Status | Resolution | Owner |\n|---|---|---|---|---|\n| Card link target | before_prd | resolved | Link the exact PRD revision. | Product Owner |\n\n## AGDF Approval Summary (de; source=en)\n- Nutzerziel: Die Produktanforderungen vor der Entscheidung über ihre Freigabe prüfen.\n- Umfang: Ein dauerhaftes PRD mit klarer Absicht und passendem Entscheidungslink vorlegen.\n- Entscheidungen:\n  - Card link target (geklärt): Die exakt geprüfte PRD-Revision verlinken.\n- Abnahmekriterien:\n  - PRD-CARD-001: Das PRD wird gespeichert und im Run erfasst, bevor eine Freigabekarte erscheint.\n  - PRD-CARD-002: Karte und Link verweisen auf denselben Run und dieselbe Revision.\n",
-      "SD.md": "# SD\n\n## 1. Solution Overview\nRender deterministic summaries from the source artefact.\n\n## 2. Ownership And Source Of Truth\nThe artefact remains authoritative.\n\n## 3. Architecture Decisions\nBind summary and link to the revision digest.\n\n## 4. Integration Points\nrun-present produces the review text.\n\n## 7. Risks And Open Questions\nHost path support.\n",
-      "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n",
-      "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: revise until live-tested.\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n",
+      "SD.md": "# SD\n\n## 1. Solution Overview\nRender deterministic summaries from the source artefact.\n\n## 2. Ownership And Source Of Truth\nThe artefact remains authoritative.\n\n## 3. Architecture Decisions\nBind summary and link to the revision digest.\n\n## 4. Integration Points\nrun-present produces the review text.\n\n## 7. Risks And Open Questions\nHost path support.\n## AGDF Approval Summary (de; source=en)\n- Lösung: Deterministische Zusammenfassungen aus dem Quellartefakt rendern.\n- Verantwortung: Das Artefakt bleibt maßgeblich.\n- Entscheidungen: Zusammenfassung und Link an den Revisions-Digest binden.\n",
+      "TP.md": "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render summary | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun source and packaged runtime tests.\n\n## 4. Out Of Scope\nChange approval authority.\n\n## 5. Risks And Blockers\nHost-specific path rendering.\n## AGDF Approval Summary (de; source=en)\n- Aufgaben: T1 Zusammenfassung rendern (PRD-01, Unit-Test).\n- Risiken: Host-spezifische Pfaddarstellung.\n",
+      "QA_REPORT.md": "# QA Report\n\n## 1. QA Decision\nDecision: revise until live-tested.\n\n## 2. TP Coverage\nSummary and digest are tested.\n\n## 3. Evidence\nSource and packaged runtime tests passed.\n\n## 4. Missing Evidence\nFresh host interaction.\n\n## 5. Risks\nPaths vary by host.\n\n## 6. Required Next Step\nRun the live host test.\n## AGDF Approval Summary (de; source=en)\n- Entscheidung: Überarbeiten bis zum Live-Test.\n- Nachweise: Quell- und Paket-Runtime-Tests bestanden.\n- Lücken: Frische Host-Interaktion fehlt.\n",
     };
     for (const name of ["UR.md", "PRD.md", "SD.md", "TP.md", "QA_REPORT.md", "BROWNFIELD_REVIEW.md", "BROWNFIELD_ANALYSIS.md", "CD_TESTS.md", "CODE_REVIEW.md"]) {
       writeFileSync(join(artefactDir, name), approvalDocs[name] ?? `# ${name}\n`);
@@ -405,6 +411,8 @@ ${approvals}
 
 - next_allowed_action: Request exact Approval: ${gate}.
 `);
+    const readyRunPath = join(readyRoot, ".agdf", "control", "runs", runId, "RUN_STATE.md");
+    writeFileSync(readyRunPath, sealRunState(readyRoot, readFileSync(readyRunPath, "utf8")));
     const ready = spawnSync(process.execPath, [cli, "gate-check", "--dir", readyRoot, "--run", runId, "--json"], { encoding: "utf8" });
     assert.equal(ready.status, 0, `${gate}: ${ready.stderr}${ready.stdout.slice(0, 1500)}`);
     const report = JSON.parse(ready.stdout);
@@ -415,7 +423,7 @@ ${approvals}
     assert.ok(report.approval_presentation, `${gate}: ${JSON.stringify(report.presentation_diagnostics)}`);
     assert.equal(report.native_attempt_required, false, "report-only evaluation has no verified host adapter capability");
     const sealed = recordRunRevision(readyRoot, { runId, revisionId: report.approval_presentation.revision_id });
-    assert.equal(sealed.outcome, "updated");
+    assert.equal(sealed.outcome, "unchanged");
     // The wording below is English; pin it so the check does not follow the machine locale.
     const prepared = prepareRunPresentation(readyRoot, { runId, gate, revisionId: sealed.revision_id, language: "en" }, { evaluateGateCheck });
     assert.equal(prepared.outcome, "prepared", `${gate} must prepare: ${JSON.stringify(prepared)}`);
@@ -538,10 +546,11 @@ ${approvals}
       assert.equal(rejectedDuplicate.reason, "artefact_row_duplicate");
       assert.deepEqual(rejectedDuplicate.artefact_types, ["PRD"]);
       assert.match(rejectedDuplicate.recovery, /Keep one Artefacts row per type/u);
-      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_ARTEFACT_ROW_DUPLICATE/u);
+      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_RUN_SEAL_INVALID/u);
       assert.equal(readFileSync(statePath, "utf8"), duplicate, "rejected writes must preserve the run");
       writeFileSync(statePath, sealRunState(duplicateRoot, duplicate), "utf8");
       assert.equal(runSealState(duplicateRoot, readFileSync(statePath, "utf8")).status, "valid");
+      assert.throws(() => writeRun(statePath, duplicate, revisionId), /AGDF_ARTEFACT_ROW_DUPLICATE/u);
       assert.equal(recordRunRevision(duplicateRoot, { runId: "duplicate-prd", revisionId }).reason,
         "artefact_row_duplicate", "a legacy sealed duplicate is not an unchanged success");
       const doctor = evaluateDoctor(duplicateRoot, { runId: "duplicate-prd" });
@@ -996,8 +1005,8 @@ ${approvals}
 
       const gateResult = spawnSync(process.execPath, [cli, "gate-check", "--dir", identityRoot, "--json"], { encoding: "utf8" });
       const gateReport = JSON.parse(gateResult.stdout);
-      assert.ok(["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID"].includes(gateReport.blocking_reason), "IPP-3: gate-check names the identity defect instead of silently dropping the card");
-      assert.match(gateReport.next_allowed_action, /run-migrate|Fill the current UR control state/, "IPP-3: gate-check names a concrete repair action");
+      assert.ok(["AGDF_RUN_ID_INVALID", "AGDF_RUN_REVISION_ID_INVALID", "AGDF_RUN_SEAL_INVALID"].includes(gateReport.blocking_reason), "IPP-3: gate-check blocks an unsealed legacy identity instead of silently dropping the card");
+      assert.match(gateReport.next_allowed_action, /run-migrate|legacy migration|Fill the current UR control state/, "IPP-3: gate-check names a concrete repair action");
     } finally {
       rmSync(identityRoot, { recursive: true, force: true });
     }

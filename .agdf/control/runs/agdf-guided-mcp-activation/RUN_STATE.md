@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: agdf-guided-mcp-activation
 - lifecycle: active
-- revision: 23
-- revision_id: A1DB491D-EF88-492A-AE1A-4FAF1DBC56A7
+- revision: 24
+- revision_id: 01ea5b38-2dd0-4154-bad5-1efbcbce836b
+- content_seal: sha256:5f4babaace6a7c909a8fac8c461d348c0f51a5cc0025eb90b7fcdbc48ac1bbaa
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T10:44:38.051Z
 - started_at: 2026-09-08
 - mode: structured_delivery
-- current_gate: UAT
+- current_gate: UR
 - decision: in_progress
 - owner: Arndt Gold
 
@@ -23,11 +26,11 @@ effective state truthfully and never infers technical or governance consent.
 
 | Question | Answer |
 |---|---|
-| What is known? | TP Revision 2 is implemented. CD+Tests Revision 5, Task Plan Review Revision 4, Clean Implementation Review Revision 4 and Code Review Revision 5 pass for GMA-01 through GMA-28 and AC-01 through AC-13. The Context Graph is reconciled. |
-| What is approved? | UR, PRD Revision 2, SD Revision 2, TP Revision 2 and QA Report Revision 4 are approved. Brownfield Review selected `structured_delivery`; the updated pre-implementation Brownfield Analysis and QA decision are `pass`. |
-| What is missing? | Direct multi-host, fresh-session, native Windows and human UAT evidence remain unverified. Exact `Approval: UAT` is missing and cannot be requested until the applicable UAT evidence is complete. |
-| What is the next allowed action? | Execute the prepared UAT cases within existing host authorization and record direct host and human evidence separately. |
-| What is explicitly forbidden right now? | A UAT pass or approval without direct evidence, release, push, pull request and commit without their required authority. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -60,15 +63,15 @@ effective state truthfully and never infers technical or governance consent.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-09-08 against run revision `d202cadb-bfed-40f0-8735-b2170a37adcc`. |
+| UR | missing |  |
 | Brownfield Review | done | `.agdf/control/artefacts/agdf-guided-mcp-activation/BROWNFIELD_REVIEW.md`; Structured Delivery selected. |
 | Mode/Slice Decision | structured_delivery | Public CLI, runtime, recovery and cross-host triggers are directly evidenced. |
 | UX Intent Definition | ready | `.agdf/control/artefacts/agdf-guided-mcp-activation/UX_INTENT_DEFINITION.md`; no open product question blocks PRD drafting. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-09-09 against run revision `6B78B39F-4844-4823-B9A9-B134316D2C59`. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-09-09 against run revision `D6E900DA-A645-4CB9-A505-5DEF352E125D`. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-09-09 against run revision `E40A4773-D868-46B2-BFCD-35E295A40FBC`. |
-| QA | approved | Exact `Approval: QA` accepted on 2026-09-09 against run revision `AF703D59-0686-4024-864D-4D7DDF15C36C`; QA Report Revision 4 decision is `pass`. |
-| UAT | current | Direct host and human acceptance evidence must be recorded before an exact `Approval: UAT` may be requested. |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -85,7 +88,7 @@ effective state truthfully and never infers technical or governance consent.
 | Task Plan Review | `.agdf/control/artefacts/agdf-guided-mcp-activation/TASK_PLAN_REVIEW.md` | done | Revision 4; decision `pass`; 28/28 tasks fully_done and 13/13 criteria done. |
 | Clean Implementation Review | `.agdf/control/artefacts/agdf-guided-mcp-activation/CLEAN_IMPLEMENTATION_REVIEW.md` | done | Revision 4; decision `pass`; existing setup, MCP, consent, locale and wrapper owners remain singular. |
 | Code Review | `.agdf/control/artefacts/agdf-guided-mcp-activation/CODE_REVIEW.md` | done | Revision 5; decision `pass`; GMA-UAT-04 and GMA-UAT-05 are resolved with current tests. |
-| CR | three linked review artefacts | done | Current reviews apply to approved PRD, SD and TP Revision 2. |
+| CR | `.agdf/control/artefacts/agdf-guided-mcp-activation/CODE_REVIEW.md` | done | Code Review; Task Plan Review and Clean Implementation Review are separately linked above. |
 | QA | `.agdf/control/artefacts/agdf-guided-mcp-activation/QA_REPORT.md` | pass | Revision 4 decision `pass` was approved exactly against the revalidated QA revision. |
 | UAT Preparation | `.agdf/control/artefacts/agdf-guided-mcp-activation/UAT_PREPARATION.md` | ready | Revision 4 lists the current nine human and four direct-host evidence lanes without claiming execution. |
 | UAT |  | current | Direct evidence collection is allowed; no UAT decision or approval exists yet. |
@@ -186,5 +189,5 @@ effective state truthfully and never infers technical or governance consent.
 
 ## Closeout
 
-- next_allowed_action: Execute the prepared direct host and human UAT cases within existing authorization and record each evidence lane separately.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: QA Report Revision 4 is approved with a `pass`; direct host and human UAT evidence remain explicitly separate and pending.

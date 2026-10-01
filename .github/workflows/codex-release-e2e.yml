@@ -30,19 +30,19 @@ jobs:
     steps:
       - name: Require a trusted release or manual invocation
         run: |
-          if [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" && "$GITHUB_REF" != refs/tags/agdf-v* && "$GITHUB_REF" != refs/tags/create-agdf-v* ]]; then
+          if [[ "$GITHUB_EVENT_NAME" != "workflow_dispatch" && "$GITHUB_REF" != refs/tags/agdf-v* ]]; then
             echo "Native credential-bearing tests require a release tag or reviewed manual invocation" >&2
             exit 1
           fi
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
       - name: Install dependencies without lifecycle scripts
         run: npm ci --ignore-scripts
       - name: Install MCP dependencies from checkout
         working-directory: agdf-mcp-server
-        run: npm install --package-lock=false --ignore-scripts --no-audit --no-fund --no-save ../create-agdf
+        run: npm ci --ignore-scripts
       - name: Install pinned Codex CLI
         run: npm install --global --ignore-scripts "@openai/codex@$(node -p "require('./scripts/native-probes/codex-release-policy.json').codex_version")"
       - name: Verify native command resolution
@@ -58,7 +58,7 @@ jobs:
           node scripts/native-probes/codex-host-e2e.mjs --model "$(node -p "require('./scripts/native-probes/codex-release-policy.json').model")"
       - name: Preserve bounded evidence only
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: codex-release-${{ matrix.platform }}
           if-no-files-found: error
@@ -72,11 +72,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           pattern: codex-release-*
           path: .release-evidence

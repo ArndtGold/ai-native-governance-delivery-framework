@@ -90,6 +90,7 @@ export const MCP_DISPATCHER_RUNTIME_ENTRIES = Object.freeze([
   "package.json",
   "lib/mcp-dispatch-runtime.js",
   "lib/control-read-boundary.js",
+  "lib/control-inspect",
   "lib/skill-dispatch",
   "lib/control-evaluation",
   "lib/control-state",

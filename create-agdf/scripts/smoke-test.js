@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { withWindowsCmdShim } from "./support/npm-cmd-shim.js";
+import { runRootFromStatePath, sealRunState } from "../lib/control-state/run-seal.js";
 
 const packageRoot = new URL("..", import.meta.url);
 const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
@@ -35,6 +36,10 @@ function runJson(args) {
     if (error.stdout) return JSON.parse(error.stdout.toString());
     throw error;
   }
+}
+
+function sealFixtureRun(path) {
+  writeFileSync(path, sealRunState(runRootFromStatePath(path), readFileSync(path, "utf8")), "utf8");
 }
 
 function makeFakeExecutable(tempDir, name, source) {
@@ -1140,18 +1145,24 @@ smokePhase("gate check status card");
   const tempDir = mkdtempSync(join(tmpdir(), "create-agdf-gate-check-status-card-"));
 
   try {
-    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir], { stdio: "pipe" });
+    // Explicit English keeps this check independent of the machine locale.
+    execFileSync(process.execPath, [binPath, "init", "--dir", tempDir, "--language", "en"], { stdio: "pipe" });
+    execFileSync(process.execPath, [binPath, "run-create", "--dir", tempDir, "--run", "status-card"], { stdio: "pipe" });
+    // The missing-run route now renders assignment orientation. Use an explicitly bound
+    // run with an unrecorded edit to exercise the blocked status-card and exit code.
+    const runPath = join(tempDir, ".agdf", "control", "runs", "status-card", "RUN_STATE.md");
+    writeFileSync(runPath, `${readFileSync(runPath, "utf8")}\nUnrecorded fixture edit.\n`, "utf8");
     let failed = false;
     try {
-      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--status-card"], { encoding: "utf8", stdio: "pipe" });
+      execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "status-card", "--status-card"], { encoding: "utf8", stdio: "pipe" });
     } catch (error) {
       failed = true;
       const output = error.stdout.toString();
       if (!output.includes("## AGDF status-card")
         || !output.includes("| Status | blocked |")
         || !output.includes("| Current gate | User requirements (`UR`) |")
-        || !output.includes("| Next step |")) {
-        throw new Error("gate-check --status-card should print compact status-card fields.");
+        || !output.includes("| I am continuing |")) {
+        throw new Error("gate-check --status-card should print compact status-card fields, including the actor row.");
       }
       if (output.includes("doctor_report") || output.includes("delivery_map")) {
         throw new Error("gate-check --status-card must not print the full JSON report.");
@@ -1334,8 +1345,11 @@ smokePhase("status card tp transition");
 
 - next_allowed_action: Request exact TP approval.
 `, "utf8");
-    writeFileSync(join(tempDir, "TP.md"), "TP fixture artefact.\n", "utf8");
-    const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json"]);
+    sealFixtureRun(runPath);
+    // The approval summary renderer needs reviewable TP content (tasks and risks), not a placeholder.
+    writeFileSync(join(tempDir, "TP.md"), "# TP\n\n## 1. Task List\n| task_id | Task | Acceptance mapping | Evidence required |\n|---|---|---|---|\n| T1 | Render the TP fixture | PRD-01 | Unit test |\n\n## 2. Test Plan\nRun the fixture checks.\n\n## 5. Risks And Blockers\nFixture-only risk.\n", "utf8");
+    sealFixtureRun(runPath);
+    const report = runJson(["gate-check", "--dir", tempDir, "--run", "tp-transition", "--json", "--language", "en"]);
     if (report.current_gate !== "TP" || report.status_card?.run_id !== "tp-transition" || report.status_card?.internal_next_step !== "pre-implementation Brownfield Analysis" || report.status_card?.next_user_gate !== "none" || report.status_card?.user_action_required !== "no") {
       throw new Error(`TP approval status card must distinguish Brownfield Analysis from a user gate: ${JSON.stringify(report.status_card)}`);
     }
@@ -1386,14 +1400,15 @@ smokePhase("status card tp transition");
 
   for (const path of transitionSkillPaths) {
     const content = readFileSync(path, "utf8");
-    if (!content.includes("This non-authorizing bootstrap creates no parallel policy.")
-      || !content.includes("`skill.gate-check`: dispatch first, with `intake` for a change; no prior repository/control inspection.")
-      || !content.includes("`delivery.start`: resolve target once for draft/setup. Unresolved target: canonical orientation and stop.")
+    if (!content.includes("Dispatch is non-authorizing.")
+      || !content.includes("`skill.gate-check`: dispatch first; changes use `intake`. No prior repository/control inspection.")
+      || !content.includes("`delivery.start`: resolve target once; unresolved: orient and stop.")
       || !content.includes("For a result with `terminal: true`")
       || !content.includes("the entire assistant response must consist only of host_action.text, copied verbatim")
       || !content.includes("Add no question, explanation, heading, citation, link or other surrounding text")
       || !content.includes("Only explicit trusted `instruction_only` runtime evidence enables fallback.")
-      || !content.includes("Never bind an earlier reply retroactively.")
+      || !content.includes("Existing run binding requires explicit selection, confirmed continuation or unequivocal UR scope")
+      || !content.includes("`expected_revision_id`")
       || !content.includes("`continue_delivery: true`")
       || (content.match(/interaction\.md/g) ?? []).length !== 1
       || content.includes("Consume the canonical `approval_presentation` verbatim")
@@ -1409,7 +1424,8 @@ smokePhase("status card tp transition");
     if (!content.includes("## Gate Transition Card")
       || !content.includes("answers exactly three user questions")
       || !content.includes("Run Status Card remains the operational,")
-      || !content.includes("must not be a Markdown table or dashboard")) {
+      || !content.includes("must not be a Markdown table or dashboard")
+      || !content.includes("never bind an earlier reply to a subsequently prepared revision.")) {
       throw new Error(`Generated runtime contract must preserve the transition-card and status-projection boundary: ${path}`);
     }
   }
@@ -1478,6 +1494,7 @@ smokePhase("gate check implicit consent");
 
 - next_allowed_action: Request exact UR approval.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(
       process.execPath,
@@ -1608,6 +1625,7 @@ ${internalRows}
 
 - next_allowed_action: ${testCase.next}
 `, "utf8");
+      sealFixtureRun(runPath);
       const report = runJson(["gate-check", "--dir", tempDir, "--run", runId, "--json"]);
       if (report.current_gate !== testCase.gate
         || report.missing_approval !== testCase.missing
@@ -1701,6 +1719,7 @@ smokePhase("QA and UAT gate scenarios");
 
 - next_allowed_action: Request Approval: UAT before delivery handoff.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "qa-passed-run", "--json"], { encoding: "utf8" }));
     if (gateCheckReport.current_gate !== "UAT") {
@@ -1797,6 +1816,7 @@ smokePhase("doctor qa status mismatch");
 |---|---|---|---|
 | QA report | .agdf/control/artefacts/qa-status-mismatch/QA_REPORT.md | QA | direct |
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const doctorReport = runJson(["doctor", "--dir", tempDir, "--run", "qa-status-mismatch", "--json"]);
     if (doctorReport.status !== "revise") {
@@ -1943,6 +1963,7 @@ smokePhase("gate check ur triage");
 
 - next_allowed_action: Run Brownfield Review after G-00.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2038,6 +2059,7 @@ smokePhase("gate-check presentation scenarios");
 
 - next_allowed_action: Draft PRD.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2151,6 +2173,7 @@ smokePhase("Mode and slice decision scenarios");
 
 - next_allowed_action: Decide process size.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2171,8 +2194,8 @@ smokePhase("Mode and slice decision scenarios");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
-        || !statusCardOutput.includes("| Missing approval | none |") || !statusCardOutput.includes("| Next step |")) {
-      throw new Error("Internal-step status card should show its next step without implying approval authority.");
+        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:I am continuing|No reply needed|Your turn) |/u.test(statusCardOutput)) {
+      throw new Error("Internal-step status card should show its actor and next step without implying approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -2245,6 +2268,7 @@ smokePhase("gate check or handoff");
 
 - next_allowed_action: Produce delivery closeout.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckReport = JSON.parse(execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--json"], { encoding: "utf8" }));
     if (gateCheckReport.current_gate !== "OR" || gateCheckReport.missing_approval !== "none") {
@@ -2255,8 +2279,8 @@ smokePhase("gate check or handoff");
     }
     const statusCardOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "or-run", "--status-card"], { encoding: "utf8" });
     if (statusCardOutput.includes("| Next gate after approval |") || statusCardOutput.includes("| Allowed after approval |")
-        || !statusCardOutput.includes("| Missing approval | none |") || !statusCardOutput.includes("| Next step |")) {
-      throw new Error("OR handoff status card should show its next step without implying approval authority.");
+        || !statusCardOutput.includes("| Missing approval | none |") || !/| (?:I am continuing|No reply needed|Your turn) |/u.test(statusCardOutput)) {
+      throw new Error("OR handoff status card should show its actor and next step without implying approval authority.");
     }
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
@@ -2333,6 +2357,7 @@ smokePhase("gate check mode slice incomplete");
 
 - next_allowed_action: Record Mode/Slice Decision with evidence.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const gateCheckOutput = execFileSync(process.execPath, [binPath, "gate-check", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const gateCheckReport = JSON.parse(gateCheckOutput);
@@ -2446,6 +2471,7 @@ smokePhase("delivery map chain");
 
 - next_allowed_action: Fill Artefact Chain evidence.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     const deliveryMapOutput = execFileSync(process.execPath, [binPath, "delivery-map", "--dir", tempDir, "--run", "test-run", "--json"], { encoding: "utf8" });
     const deliveryMapReport = JSON.parse(deliveryMapOutput);
@@ -2720,6 +2746,7 @@ smokePhase("gate check missing ur artifact");
 
 - next_allowed_action: Persist UR.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     let failed = false;
     try {
@@ -2813,6 +2840,7 @@ smokePhase("missing artefact and package compatibility scenarios");
 
 - next_allowed_action: Persist PRD.
 `, "utf8");
+    sealFixtureRun(runPath);
 
     let failed = false;
     try {
@@ -2972,6 +3000,7 @@ ${missingCase.chain.join("\n")}
 
 - next_allowed_action: ${missingCase.nextAction}
 `, "utf8");
+    sealFixtureRun(runPath);
 
     let failed = false;
     try {

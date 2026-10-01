@@ -4,8 +4,8 @@ import { DispatchExecutionError, createWorkerDispatchExecutor } from "./worker.j
 
 export const SERVER_NAME = "agdf-mcp";
 
-function toolResult(runtime, result) {
-  const text = runtime.serialize(result);
+function toolResult(runtime, result, serialize = runtime.serialize) {
+  const text = serialize(result);
   return {
     content: [{ type: "text", text }],
     structuredContent: JSON.parse(text),
@@ -19,33 +19,39 @@ export function buildAgdfServer({ runtime, executor } = {}) {
   if (runtime.trustedContext?.provenanceStatus !== "matched") {
     throw new TypeError("AGDF MCP owned runtime is required");
   }
-  const definition = runtime.definition;
+  const tools = runtime.tools ?? [{ name: runtime.definition.name, definition: runtime.definition, parse: runtime.parse, execute: runtime.execute }];
   const dispatchExecutor = executor ?? {
-    execute: async (argumentsValue) => runtime.execute(runtime.parse(argumentsValue)),
+    execute: async (argumentsValue, { toolName } = {}) => {
+      const tool = tools.find((entry) => entry.name === (toolName ?? runtime.definition.name));
+      if (!tool) throw new DispatchExecutionError("dispatch_worker_failed");
+      return tool.execute(tool.parse(argumentsValue));
+    },
     close: async () => {},
   };
   const server = new McpServer(
     { name: SERVER_NAME, version: runtime.trustedContext.expectedVersion },
     { capabilities: { tools: {} } },
   );
-  server.registerTool(
-    definition.name,
-    {
-      description: definition.description,
-      annotations: definition.annotations,
-      inputSchema: fromJsonSchema(definition.inputSchema),
-      outputSchema: fromJsonSchema(definition.outputSchema),
-    },
-    async (argumentsValue, context) => {
-      try {
-        const result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal });
-        return toolResult(runtime, result);
-      } catch (error) {
-        const code = error instanceof DispatchExecutionError ? error.code : "dispatch_worker_failed";
-        return toolResult(runtime, runtime.failure(code));
-      }
-    },
-  );
+  for (const { name, definition, serialize } of tools) {
+    server.registerTool(
+      name,
+      {
+        description: definition.description,
+        annotations: definition.annotations,
+        inputSchema: fromJsonSchema(definition.inputSchema),
+        outputSchema: fromJsonSchema(definition.outputSchema),
+      },
+      async (argumentsValue, context) => {
+        try {
+          const result = await dispatchExecutor.execute(argumentsValue, { signal: context.signal, toolName: name });
+          return toolResult(runtime, result, serialize ?? runtime.serialize);
+        } catch (error) {
+          const code = error instanceof DispatchExecutionError ? error.code : "dispatch_worker_failed";
+          return toolResult(runtime, runtime.failure(code, name), serialize ?? runtime.serialize);
+        }
+      },
+    );
+  }
   return Object.assign(server, {
     closeAgdfRuntime: () => dispatchExecutor.close(),
   });

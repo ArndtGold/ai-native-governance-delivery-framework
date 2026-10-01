@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import process from "node:process";
 import { parseControlState } from "../control-state/run-state-parser.js";
 import { resolveRuns } from "../control-state/run-state-resolver.js";
@@ -7,6 +7,7 @@ import { validateRunIdentity } from "../control-state/run-identity.js";
 import { buildRunCandidates } from "../interaction-presentation.js";
 import { cleanStatusCell, filled, isPlaceholderValue, readTargetFile } from "./shared.js";
 import { extractField, isSafeRepoRelativePath, readVerifiedChangeRecord } from "./verified-change.js";
+import { containedRegularFile } from "../control-state/contained-file.js";
 
 export const userGateOrder = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 export const durableGateArtefacts = new Set(["UR", "PRD", "SD", "TP", "QA"]);
@@ -15,15 +16,9 @@ export const closeoutArtefacts = new Set(["OR"]);
 
 export function resolvedArtefactFile(targetDir, rawPath) {
   const normalizedPath = String(rawPath ?? "").replace(/^`|`$/g, "").trim();
-  if (!normalizedPath || isAbsolute(normalizedPath) || normalizedPath.includes("<") || normalizedPath.includes(">")) return "";
-  const absolutePath = resolve(targetDir, normalizedPath);
-  if (relative(targetDir, absolutePath).startsWith("..") || !existsSync(absolutePath)) return "";
-  try {
-    const realPath = realpathSync(absolutePath);
-    return relative(realpathSync(targetDir), realPath).startsWith("..") || !statSync(realPath).isFile() ? "" : realPath;
-  } catch {
-    return "";
-  }
+  if (normalizedPath.includes("<") || normalizedPath.includes(">")) return "";
+  const result = containedRegularFile(targetDir, normalizedPath);
+  return result.status === "valid" ? result.path : "";
 }
 
 export function readArtefactHeading(targetDir, artefact) {
@@ -45,7 +40,7 @@ export function readRunState(targetDir, selection = {}) {
     try {
       const selected = resolveRuns(targetDir, {
         runIdArg: selection.runId,
-        runIdEnv: process.env.AGDF_RUN_ID,
+        runIdEnv: selection.ignoreRunIdEnv ? undefined : process.env.AGDF_RUN_ID,
       });
       runPath = selected.run.path.startsWith(targetDir)
         ? selected.run.path.slice(targetDir.length + 1)
@@ -189,6 +184,14 @@ export function analyzeArtefactRoleConsistency(targetDir, runState) {
   }
   for (const [path, roles] of rolesByPath) {
     if (roles.length < 2) continue;
+    // CR and Clean Review are supported names for the same review roles, not separate artefacts.
+    const aliases = new Map([["CR", "Code Review"], ["Clean Review", "Clean Implementation Review"]]);
+    const canonicalRoles = new Set(roles.map((role) => aliases.get(role) ?? role));
+    if (canonicalRoles.size === 1) {
+      const statuses = new Set(roles.map((role) => runState.artefacts.get(role)?.status));
+      if (statuses.size > 1) findings.push({ severity: "block", code: "AGDF_ARTEFACT_ROLE_ALIAS_INVALID", message: `Artefact aliases have conflicting statuses: ${roles.join(", ")}.`, path, next_step: "Use one consistent status for aliases of the same artefact role." });
+      continue;
+    }
     const allowedRoles = new Set(["Brownfield Review", "Verified Change", "OR"]);
     if (modeSliceDecision(runState) !== "verified_change" || roles.some((role) => !allowedRoles.has(role))) {
       findings.push({ severity: "block", code: "AGDF_ARTEFACT_ROLE_ALIAS_INVALID", message: `Artefact path is reused across incompatible roles: ${roles.join(", ")}.`, path, next_step: "Use distinct artefacts or a lifecycle-consistent Verified Change compact record." });

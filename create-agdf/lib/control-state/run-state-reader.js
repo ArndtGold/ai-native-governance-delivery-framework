@@ -1,6 +1,7 @@
 import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseRunState, RUN_ID_PATTERN } from "./run-state-parser.js";
+import { pendingRunStepPath } from "./run-step-pending.js";
 
 function invalidRun(runId, path) {
   return {
@@ -37,12 +38,18 @@ export function discoverRuns(root) {
         return invalidRun(id, path);
       }
 
+      if (existsSync(pendingRunStepPath(root, id))) {
+        return { ...invalidRun(id, path), findings: [{ code: "AGDF_RUN_STEP_RECOVERY_REQUIRED", path: pendingRunStepPath(root, id) }] };
+      }
+
       const stateStats = lstatSync(path);
       if (stateStats.isSymbolicLink() || !stateStats.isFile()) return invalidRun(id, path);
+      const parsed = parseRunState(readFileSync(path, "utf8"), id);
       return {
         run_id: id,
         path,
-        ...parseRunState(readFileSync(path, "utf8"), id),
+        ...parsed,
+        last_updated_at: parsed.meta.updated_at || stateStats.mtime.toISOString(),
       };
     });
 }

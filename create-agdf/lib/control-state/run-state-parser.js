@@ -14,7 +14,7 @@ export function scalarFields(content) {
   const values = new Map(),
     duplicates = [];
   const runMeta = content.match(/(?:^|\n)## Run Meta\s*\n([\s\S]*?)(?=\n## |$)/)?.[1] ?? "";
-  for (const [, k, v] of runMeta.matchAll(/^- ([a-z_]+):\s*(.*?)\s*$/gm)) {
+  for (const [, k, v] of runMeta.matchAll(/^- ([a-z_]+):[ \t]*(.*?)[ \t]*$/gm)) {
     if (values.has(k)) duplicates.push(k);
     else values.set(k, v.replace(/^`|`$/g, ""));
   }
@@ -39,6 +39,11 @@ export function parseRunState(content, expected) {
     findings.push({ code: "AGDF_RUN_LIFECYCLE_INVALID" });
   if (!/^[1-9]\d*$/.test(values.get("revision") ?? ""))
     findings.push({ code: "AGDF_RUN_REVISION_INVALID" });
+  const updatedAt = values.get("updated_at");
+  if (updatedAt && (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/u.test(updatedAt)
+      || Number.isNaN(Date.parse(updatedAt)))) {
+    findings.push({ code: "AGDF_RUN_UPDATED_AT_INVALID" });
+  }
   if (!REVISION_ID_PATTERN.test(values.get("revision_id") ?? ""))
     findings.push({ code: "AGDF_RUN_REVISION_ID_INVALID" });
   return {

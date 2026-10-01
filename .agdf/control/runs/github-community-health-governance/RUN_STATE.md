@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: github-community-health-governance
 - lifecycle: active
-- revision: 1
-- revision_id: 9995e0ce-42a6-4538-8c0f-d2dd9592854a
+- revision: 2
+- revision_id: ec8f97b8-0a6b-4cbb-8e0f-ab8af6e3a035
+- content_seal: sha256:ad67a873b6e28706a63f76ad7f5c0502e7cf08ed5ab3d545261efe173ba441dd
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:14.803Z
 - mode: structured_delivery
-- current_gate: QA
+- current_gate: UR
 - decision: revise
 - owner: agent
 
@@ -20,11 +23,11 @@ Establish a truthful, project-appropriate and GitHub-recognized community health
 
 | Question | Answer |
 |---|---|
-| What is known? | GitHub currently recognizes README and License; the repository lacks the remaining project-specific community health surfaces and repository metadata is incomplete. |
-| What is approved? | UR, PRD, SD and TP. Brownfield Analysis passed; repository implementation, Clean Review and Code Review pass. |
-| What is missing? | TPR-001: authenticated browser access for T17 GitHub settings mutation/read-back. TPR-002: post-delivery recognition requires later VCS authority. |
-| What is the next allowed action? | Sign in to GitHub in the in-app browser, execute T17, then rerun QA. |
-| What is explicitly forbidden right now? | QA approval request, UAT, VCS delivery, release and publish actions; claiming host settings before authenticated read-back. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -39,10 +42,10 @@ Establish a truthful, project-appropriate and GitHub-recognized community health
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact user response `Approval: UR` on 2026-07-23 |
-| PRD | approved | Exact user response `Approval: PRD` on 2026-07-23 |
-| SD | approved | Exact user response `Approval: SD` on 2026-07-23 |
-| TP | approved | Exact user response `Approval: TP` on 2026-07-23 |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
 | QA | missing |  |
 | UAT | missing |  |
 
@@ -140,5 +143,5 @@ Establish a truthful, project-appropriate and GitHub-recognized community health
 
 ## Closeout
 
-- next_allowed_action: Sign in to GitHub in the in-app browser, execute T17, then rerun QA.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Reuse existing product, runtime and release owners while making externally visible policy truthful and maintainable.

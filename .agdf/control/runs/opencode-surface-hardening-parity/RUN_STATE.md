@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: opencode-surface-hardening-parity
 - lifecycle: active
-- revision: 16
-- revision_id: 324e06ae-eafa-479b-a26d-5610963df90d
+- revision: 17
+- revision_id: ccc8818d-0d2e-4de6-81e1-7ad524fff351
+- content_seal: sha256:a6dfd0cfee8453ec14402870e01eee63f943bc37edcaeb42dc2ff7cf60042f72
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T10:44:38.704Z
 - mode: structured_delivery
-- current_gate: QA
+- current_gate: UR
 - decision: revise
 - owner: agent
 
@@ -21,22 +24,22 @@ preflight-gated executable Delivery Path Search evaluator without overstating ho
 
 | Question | Answer |
 |---|---|
-| What is known? | OHP-11 is implemented in the existing installer: exact-version alignment, matching no-op, mandatory post-probe, partial recovery and read-only status tests pass. The live host and SDK both report 1.18.3 with supported hook declarations. |
-| What is approved? | UR, PRD, SD and TP revision 2 are approved; Brownfield Analysis revision 2 passes and authorizes OHP-11 implementation. |
-| What is missing? | Only OHP-10's authenticated contract-valid live evaluator response; the available host previously returned HTTP 401 `No provider available`. |
-| What is the next allowed action? | Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation and rerun QA. |
-| What is explicitly forbidden right now? | QA approval, UAT, release and VCS actions while TPR-01 remains open. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Approvals
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exact `Approval: UR` accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented. |
-| PRD | approved | Exact `Approval: PRD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |
-| SD | approved | Exact `Approval: SD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |
-| TP | approved | Exact `Approval: TP` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |
-| QA | missing | none |
-| UAT | missing | none |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -113,5 +116,5 @@ preflight-gated executable Delivery Path Search evaluator without overstating ho
 
 ## Closeout
 
-- next_allowed_action: Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation and rerun QA.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: OHP-11 implementation, deterministic evidence, solution integrity and code quality pass; QA remains revise only on the pre-existing authenticated evaluator evidence obligation.

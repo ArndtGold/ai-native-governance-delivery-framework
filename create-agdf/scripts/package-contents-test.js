@@ -28,6 +28,10 @@ const packageReport = Array.isArray(rawReport) ? rawReport[0] : rawReport[packag
 const files = packageReport?.files?.map((entry) => entry.path) ?? [];
 const pluginDefinition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
 const required = [
+  "LICENSE",
+  "NOTICE",
+  "bin/create-agdf.js",
+  "package.json",
   "generated/.opencode/AGDF.md",
   "generated/.opencode/agdf-agent-router.md",
   "generated/plugins/agdf/.codex-plugin/plugin.json",

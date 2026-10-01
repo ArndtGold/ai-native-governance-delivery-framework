@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: legacy-profile-upgrade-recovery
 - lifecycle: active
-- revision: 41
-- revision_id: 10B14394-2D95-49D0-9A8B-41939DF1081C
+- revision: 42
+- revision_id: 2fa3ac8d-f920-4872-8d7e-62c4e05b98c3
+- content_seal: sha256:4f21139ea31f555677826f0ba4e18d8c8a35b8b3a37aa8ecfc4dac5eeba14b7d
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:15.700Z
 - started_at: 2026-09-01
 - mode: `structured_delivery`
-- current_gate: `QA`
+- current_gate: UR
 - decision: `revise`
 - owner: Arndt Gold
 
@@ -22,11 +25,11 @@ preserving fail-closed provenance and bounded Windows cache recovery.
 
 | Question | Answer |
 |---|---|
-| What is known? | One immutable snapshot now binds normalized source identity, Codex local version, staged bytes and provenance inside the existing marketplace owner. Focused installer, marketplace, lifecycle, release and source Runtime Integrity evidence passes. |
-| What is approved? | UR, PRD Revision 4, SD Revision 5 and TP Revision 9 are approved. |
-| What is missing? | Complete green create-agdf smoke and affected remote GitHub Actions evidence under TPR-5-01. |
-| What is the next allowed action? | Reconcile the separately owned runtime-packaging aggregate baseline, then rerun complete smoke and remote CI evidence. |
-| What is explicitly forbidden right now? | QA approval request while TPR-5-01 is open, UAT approval, real host/cache mutation, publication, release and automatic VCS actions. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -57,12 +60,12 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `approved` | Exact `Approval: UR` accepted on 2026-09-01 after same-run, same-gate and revision revalidation. |
-| PRD | `approved` | Exact `Approval: PRD` accepted for durable Revision 4 after same-run, same-gate and revision revalidation. |
-| SD | `approved` | Exact `Approval: SD` accepted for durable Revision 5 on 2026-09-02 after same-run, SD-gate and revision_id `0BF255D2-4F89-4C2C-B179-88A13E4A32E0` revalidation. |
-| TP | `approved` | Exact `Approval: TP` accepted for durable Revision 9 on 2026-09-02 after same-run, TP-gate and revision_id `2B83E2C1-3523-4D19-AD03-C1DD27F42B67` revalidation. |
-| QA | `open` | Revision 5 decides `revise`; no approval may be requested while TPR-5-01 is open. |
-| UAT | `missing` | none |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -206,5 +209,5 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 ## Closeout
 
-- next_allowed_action: Reconcile the separately owned runtime-packaging baseline, rerun complete smoke and then obtain affected remote GitHub Actions evidence.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Remove duplicate digest ownership while retaining strict source-bound local provenance and the existing marketplace transaction authority.

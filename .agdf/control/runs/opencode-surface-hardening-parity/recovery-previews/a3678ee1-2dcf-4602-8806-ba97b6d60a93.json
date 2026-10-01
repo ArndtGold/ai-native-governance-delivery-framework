@@ -1,0 +1,153 @@
+{
+  "schema_version": "1",
+  "preview_format_version": 2,
+  "preview_id": "a3678ee1-2dcf-4602-8806-ba97b6d60a93",
+  "run_id": "opencode-surface-hardening-parity",
+  "created_at": "2026-09-30T10:44:38.704Z",
+  "source_revision_id": "324e06ae-eafa-479b-a26d-5610963df90d",
+  "source_content_digest": "sha256:32e6b8d3be3127af97bd0ac3e0b391829dda059e1fa5c7d0be17873e45a7573c",
+  "source_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: opencode-surface-hardening-parity\n- lifecycle: active\n- revision: 16\n- revision_id: 324e06ae-eafa-479b-a26d-5610963df90d\n- mode: structured_delivery\n- current_gate: QA\n- decision: revise\n- owner: agent\n\n## Objective\n\nMake OpenCode degradation observable when experimental hook declarations disappear, and add a\npreflight-gated executable Delivery Path Search evaluator without overstating host evidence.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | OHP-11 is implemented in the existing installer: exact-version alignment, matching no-op, mandatory post-probe, partial recovery and read-only status tests pass. The live host and SDK both report 1.18.3 with supported hook declarations. |\n| What is approved? | UR, PRD, SD and TP revision 2 are approved; Brownfield Analysis revision 2 passes and authorizes OHP-11 implementation. |\n| What is missing? | Only OHP-10's authenticated contract-valid live evaluator response; the available host previously returned HTTP 401 `No provider available`. |\n| What is the next allowed action? | Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation and rerun QA. |\n| What is explicitly forbidden right now? | QA approval, UAT, release and VCS actions while TPR-01 remains open. |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | approved | Exact `Approval: UR` accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented. |\n| PRD | approved | Exact `Approval: PRD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |\n| SD | approved | Exact `Approval: SD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |\n| TP | approved | Exact `Approval: TP` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation. |\n| QA | missing | none |\n| UAT | missing | none |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md` | approved | Revision 2 adds automatic exact-version SDK alignment to the approved install scope. |\n| Brownfield Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md` | done | Revision 2 reuses the existing npm/install/status owners and retains a structured slice with medium UI/UX impact. |\n| UX Intent Definition | `.agdf/control/artefacts/opencode-surface-hardening-parity/UX_INTENT_DEFINITION.md` | ready | Revision 2 defines aligned, unchanged, unavailable, failed and read-only status states as PRD input. |\n| Verified Change | `.agdf/control/artefacts/opencode-surface-hardening-parity/VERIFIED_CHANGE.md` | missing | Mode is not selected before Brownfield Review. |\n| PRD | `.agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md` | approved | Revision 2 adds fail-safe, non-interactive exact-host-version SDK alignment and keeps status read-only. |\n| SD | `.agdf/control/artefacts/opencode-surface-hardening-parity/SD.md` | approved | Revision 2 keeps one installer owner, defines exact registry targeting, typed alignment outcomes, mandatory post-verification and partial recovery. |\n| TP | `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md` | approved | Revision 2 adds OHP-11 for exact SDK alignment, complete negative coverage, post-verification and status read-only regression proof. |\n| Brownfield Analysis | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_ANALYSIS.md` | done | Revision 2 confirms one installer/probe/lifecycle path, clean code paths and the OHP-11 reuse/test order. |\n| CD+Tests | `.agdf/control/artefacts/opencode-surface-hardening-parity/CD_TESTS.md` | done | Revision 2 adds fully tested OHP-11 alignment behavior; complete smoke, package and Runtime Integrity checks pass. |\n| TP Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/TASK_PLAN_REVIEW.md` | revise | 10/11 tasks fully done; only OHP-10 is partial because live authentication is unavailable. |\n| Clean Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 2 confirms one package owner, no rollback loop, no status mutation and no policy fork. |\n| CR | `.agdf/control/artefacts/opencode-surface-hardening-parity/CODE_REVIEW.md` | done | Revision 2 passes after exact-target, timeout, post-probe, failure and lifecycle review. |\n| QA | `.agdf/control/artefacts/opencode-surface-hardening-parity/QA_REPORT.md` | revise | OHP-11 is green; open TPR-01 still prevents QA pass. |\n\n## Mode/Slice Decision\n\n- decision: `structured_slice`\n- required_next_gate: `PRD`\n- scope_reason: The slice changes OpenCode CLI/runtime behavior, visible status and recovery semantics, permission evidence and several canonical owners, while reusing existing lifecycle, plugin, evaluator, capability and test seams.\n- evidence: `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md`\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Durable UR draft | `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md` | Proposed problem, goal, scope, non-goals and acceptance signals. | direct |\n| Existing OpenCode activation run | `.agdf/control/runs/opencode-single-install-activation/RUN_STATE.md` | Existing global runtime, plugin-hook and activation ownership requiring Brownfield Review. | direct |\n| Runtime contract | `plugin/meta/contracts/control-scaffold.md` | Shared Delivery Path Search enforcement vocabulary and cross-surface contract boundary. | direct |\n\n## Artefact Chain\n\n| From | Relationship | To | Status | Evidence |\n|---|---|---|---|---|\n| UR | approved_by | `Approval: UR` | approved | Exact approval accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented. |\n| Brownfield Review | sizes | `structured_slice` | done | Revision 2 evidences the existing npm/install/status owners; medium UI/UX impact is resolved by UX Intent Definition revision 2. |\n| PRD | derived_from | UR | ready | Revision 2 incorporates automatic exact-version alignment, read-only status and fail-safe recovery. |\n| PRD | approved_by | `Approval: PRD` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |\n| SD | derived_from | PRD | ready | Revision 2 adds exact install-time SDK alignment while preserving read-only status, warning-only divergence and fail-closed evaluator boundaries. |\n| SD | approved_by | `Approval: SD` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |\n| TP | derived_from | SD | ready | Revision 2 preserves OHP-01 through OHP-10 and adds OHP-11 for the approved exact install-time SDK alignment design. |\n| TP | approved_by | `Approval: TP` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |\n| Brownfield Analysis | prepares | OHP-11 | done | Revision 2 evidences the existing installer, read-only probe, lifecycle projection, clean paths and regression surface. |\n| CD+Tests | implements | OHP-01 through OHP-11 | partial | OHP-01 through OHP-09 and OHP-11 are complete; OHP-10 lacks only an authenticated evaluator payload. |\n| TP Review | verifies | TP | revise | 10/11 fully done; TPR-01 routes the remaining live evidence to `evidence_obligation`. |\n| Clean Review | verifies | solution integrity | pass | One installer/probe/lifecycle path; no rollback loop, status mutation or policy fork. |\n| Code Review | verifies | implementation diff | pass | No open code finding remains after revision-2 alignment review. |\n| QA | consumes | reviews and evidence | revise | OHP-11 passes; TPR-01 remains the sole open finding. |\n\n## Missing Evidence\n\n- One authenticated, bounded OpenCode evaluator result with contract-valid output and zero mutation.\n\n## Risks\n\n- Live `tool_enforced` availability must remain unclaimed until TPR-01 is resolved.\n- Experimental hook declaration evidence remains distinct from observed hook execution.\n- Install-time SDK alignment must target only the exact detected host version and must not turn\n  read-only status into a mutating path.\n\n## Context Graph\n\n- context_graph_impact: `update_existing_node`\n- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`\n- context_graph_reconciliation: `resolved`\n- context_graph_required_action: `update`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: The node records OpenCode's instruction-only baseline, invocation-scoped\n  conditional enforcement and unresolved live evidence boundary.\n\n## Closeout\n\n- next_allowed_action: Configure an authenticated OpenCode provider, rerun one bounded evaluator invocation and rerun QA.\n- quality_outlook: OHP-11 implementation, deterministic evidence, solution integrity and code quality pass; QA remains revise only on the pre-existing authenticated evaluator evidence obligation.\n",
+  "source_artefacts": [
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/UR.md",
+      "status": "valid",
+      "digest": "sha256:785221d7caae7907a3db5338bf263e8efbe98eacfcefda171d30faa0d64ad1ca"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:62be500e08aafe859cbe192f04c7a83ed373dba36adadeff0a5c14cffe16818f"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/UX_INTENT_DEFINITION.md",
+      "status": "valid",
+      "digest": "sha256:a7b1ddbbf161db66928899f646a9d22eb74e4aeedd4099e9b90262c6b3abe706"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/VERIFIED_CHANGE.md",
+      "status": "missing",
+      "digest": "missing",
+      "planned": true
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md",
+      "status": "valid",
+      "digest": "sha256:52b92b63546359b03feda61f5a55b91af7cdd6c1f533215b9407835bfd98cf85"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/SD.md",
+      "status": "valid",
+      "digest": "sha256:abc413a5c0b16543e0ee0f5dbadd578f458865b64b288c08a40c3d47b5be5292"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/TP.md",
+      "status": "valid",
+      "digest": "sha256:0d865a1a638d151730e55b692d2ced4377e730d22e3909a900e462e24c4325d9"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_ANALYSIS.md",
+      "status": "valid",
+      "digest": "sha256:f99c355bb3c5b8acb15941237cd13b545998a170f88bed905a794aa9897447c3"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/CD_TESTS.md",
+      "status": "valid",
+      "digest": "sha256:e8288447a19e27d7bffa2280bd3ba96d0360c61d7552e15db15aff10929047de"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/TASK_PLAN_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:91129762d53d3f60035edddffd7222ac0b593e66ccf6c6695bd7b553673d9565"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/CLEAN_IMPLEMENTATION_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:293876f649962554f05a0a732bf1f86af2fd452dc767bf3fa2b1b20711aeff66"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/CODE_REVIEW.md",
+      "status": "valid",
+      "digest": "sha256:99b784a3f0a35daf200432bedc1f30e55cb3d35690d29aa995102a8d41555536"
+    },
+    {
+      "path": ".agdf/control/artefacts/opencode-surface-hardening-parity/QA_REPORT.md",
+      "status": "valid",
+      "digest": "sha256:31f690b3a7ab68f1c9e32b0d7b8430e7591081dab056471c54f94f811c13e83d"
+    }
+  ],
+  "git_history": {
+    "status": "available",
+    "candidates": [
+      {
+        "commit": "7ca208896afd3466d396c2df653807008bd6b158",
+        "revision_id": "324e06ae-eafa-479b-a26d-5610963df90d",
+        "content_digest": "sha256:32e6b8d3be3127af97bd0ac3e0b391829dda059e1fa5c7d0be17873e45a7573c",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      },
+      {
+        "commit": "1f3eadb6b57afaf8f04716e4a782832cdc4ab506",
+        "revision_id": "c1ba5ce0-5ec7-4c83-9554-a81496fa59e6",
+        "content_digest": "sha256:9743477b806c3888719f024e2ccfa277b5fc7bc2ff07d8f19f119bc973396f10",
+        "seal_lines_present": false,
+        "approval_provenance": "not_proven_by_git_revision"
+      }
+    ]
+  },
+  "prior_approvals": [
+    {
+      "section": "Approvals",
+      "gate": "UR",
+      "status": "approved",
+      "evidence": "Exact `Approval: UR` accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented."
+    },
+    {
+      "section": "Approvals",
+      "gate": "PRD",
+      "status": "approved",
+      "evidence": "Exact `Approval: PRD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "SD",
+      "status": "approved",
+      "evidence": "Exact `Approval: SD` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "TP",
+      "status": "approved",
+      "evidence": "Exact `Approval: TP` accepted on 2026-07-23 for revision 2 after same-run, same-revision and durable-artefact revalidation."
+    },
+    {
+      "section": "Approvals",
+      "gate": "QA",
+      "status": "missing",
+      "evidence": "none"
+    },
+    {
+      "section": "Approvals",
+      "gate": "UAT",
+      "status": "missing",
+      "evidence": "none"
+    }
+  ],
+  "approval_provenance": "no_independent_provenance",
+  "approvals_to_invalidate": [
+    "UR",
+    "PRD",
+    "SD",
+    "TP",
+    "QA",
+    "UAT"
+  ],
+  "next_gate": "UR",
+  "next_revision_id": "ccc8818d-0d2e-4de6-81e1-7ad524fff351",
+  "candidate_content": "# AGDF Run State\n\n## Run Meta\n\n- control_state_version: 2\n- run_id: opencode-surface-hardening-parity\n- lifecycle: active\n- revision: 16\n- revision_id: 324e06ae-eafa-479b-a26d-5610963df90d\n- mode: structured_delivery\n- current_gate: UR\n- decision: revise\n- owner: agent\n\n## Objective\n\nMake OpenCode degradation observable when experimental hook declarations disappear, and add a\npreflight-gated executable Delivery Path Search evaluator without overstating host evidence.\n\n## Current Control State\n\n| Question | Answer |\n|---|---|\n| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |\n| What is approved? | Nothing yet. |\n| What is missing? | Exact Approval: UR. |\n| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |\n| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |\n\n## Approvals\n\n| Gate | Status | Evidence |\n|---|---|---|\n| UR | missing |  |\n| PRD | missing |  |\n| SD | missing |  |\n| TP | missing |  |\n| QA | missing |  |\n| UAT | missing |  |\n\n## Artefacts\n\n| Type | Path | Status | Notes |\n|---|---|---|---|\n| UR | `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md` | approved | Revision 2 adds automatic exact-version SDK alignment to the approved install scope. |\n| Brownfield Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md` | done | Revision 2 reuses the existing npm/install/status owners and retains a structured slice with medium UI/UX impact. |\n| UX Intent Definition | `.agdf/control/artefacts/opencode-surface-hardening-parity/UX_INTENT_DEFINITION.md` | ready | Revision 2 defines aligned, unchanged, unavailable, failed and read-only status states as PRD input. |\n| Verified Change | `.agdf/control/artefacts/opencode-surface-hardening-parity/VERIFIED_CHANGE.md` | missing | Mode is not selected before Brownfield Review. |\n| PRD | `.agdf/control/artefacts/opencode-surface-hardening-parity/PRD.md` | approved | Revision 2 adds fail-safe, non-interactive exact-host-version SDK alignment and keeps status read-only. |\n| SD | `.agdf/control/artefacts/opencode-surface-hardening-parity/SD.md` | approved | Revision 2 keeps one installer owner, defines exact registry targeting, typed alignment outcomes, mandatory post-verification and partial recovery. |\n| TP | `.agdf/control/artefacts/opencode-surface-hardening-parity/TP.md` | approved | Revision 2 adds OHP-11 for exact SDK alignment, complete negative coverage, post-verification and status read-only regression proof. |\n| Brownfield Analysis | `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_ANALYSIS.md` | done | Revision 2 confirms one installer/probe/lifecycle path, clean code paths and the OHP-11 reuse/test order. |\n| CD+Tests | `.agdf/control/artefacts/opencode-surface-hardening-parity/CD_TESTS.md` | done | Revision 2 adds fully tested OHP-11 alignment behavior; complete smoke, package and Runtime Integrity checks pass. |\n| TP Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/TASK_PLAN_REVIEW.md` | revise | 10/11 tasks fully done; only OHP-10 is partial because live authentication is unavailable. |\n| Clean Review | `.agdf/control/artefacts/opencode-surface-hardening-parity/CLEAN_IMPLEMENTATION_REVIEW.md` | pass | Revision 2 confirms one package owner, no rollback loop, no status mutation and no policy fork. |\n| CR | `.agdf/control/artefacts/opencode-surface-hardening-parity/CODE_REVIEW.md` | done | Revision 2 passes after exact-target, timeout, post-probe, failure and lifecycle review. |\n| QA | `.agdf/control/artefacts/opencode-surface-hardening-parity/QA_REPORT.md` | revise | OHP-11 is green; open TPR-01 still prevents QA pass. |\n\n## Mode/Slice Decision\n\n- decision: `structured_slice`\n- required_next_gate: `PRD`\n- scope_reason: The slice changes OpenCode CLI/runtime behavior, visible status and recovery semantics, permission evidence and several canonical owners, while reusing existing lifecycle, plugin, evaluator, capability and test seams.\n- evidence: `.agdf/control/artefacts/opencode-surface-hardening-parity/BROWNFIELD_REVIEW.md`\n\n## Evidence\n\n| Evidence | Source | Covers | Strength |\n|---|---|---|---|\n| Durable UR draft | `.agdf/control/artefacts/opencode-surface-hardening-parity/UR.md` | Proposed problem, goal, scope, non-goals and acceptance signals. | direct |\n| Existing OpenCode activation run | `.agdf/control/runs/opencode-single-install-activation/RUN_STATE.md` | Existing global runtime, plugin-hook and activation ownership requiring Brownfield Review. | direct |\n| Runtime contract | `plugin/meta/contracts/control-scaffold.md` | Shared Delivery Path Search enforcement vocabulary and cross-surface contract boundary. | direct |\n\n## Artefact Chain\n\n| From | Relationship | To | Status | Evidence |\n|---|---|---|---|---|\n| UR | approved_by | `Approval: UR` | approved | Exact approval accepted on 2026-07-23 for revision 2 after the automatic-alignment delta was presented. |\n| Brownfield Review | sizes | `structured_slice` | done | Revision 2 evidences the existing npm/install/status owners; medium UI/UX impact is resolved by UX Intent Definition revision 2. |\n| PRD | derived_from | UR | ready | Revision 2 incorporates automatic exact-version alignment, read-only status and fail-safe recovery. |\n| PRD | approved_by | `Approval: PRD` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |\n| SD | derived_from | PRD | ready | Revision 2 adds exact install-time SDK alignment while preserving read-only status, warning-only divergence and fail-closed evaluator boundaries. |\n| SD | approved_by | `Approval: SD` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |\n| TP | derived_from | SD | ready | Revision 2 preserves OHP-01 through OHP-10 and adds OHP-11 for the approved exact install-time SDK alignment design. |\n| TP | approved_by | `Approval: TP` | approved | Exact approval accepted on 2026-07-23 for revision 2 after selected-run, same-gate, revision and durable-artefact revalidation. |\n| Brownfield Analysis | prepares | OHP-11 | done | Revision 2 evidences the existing installer, read-only probe, lifecycle projection, clean paths and regression surface. |\n| CD+Tests | implements | OHP-01 through OHP-11 | partial | OHP-01 through OHP-09 and OHP-11 are complete; OHP-10 lacks only an authenticated evaluator payload. |\n| TP Review | verifies | TP | revise | 10/11 fully done; TPR-01 routes the remaining live evidence to `evidence_obligation`. |\n| Clean Review | verifies | solution integrity | pass | One installer/probe/lifecycle path; no rollback loop, status mutation or policy fork. |\n| Code Review | verifies | implementation diff | pass | No open code finding remains after revision-2 alignment review. |\n| QA | consumes | reviews and evidence | revise | OHP-11 passes; TPR-01 remains the sole open finding. |\n\n## Missing Evidence\n\n- One authenticated, bounded OpenCode evaluator result with contract-valid output and zero mutation.\n\n## Risks\n\n- Live `tool_enforced` availability must remain unclaimed until TPR-01 is resolved.\n- Experimental hook declaration evidence remains distinct from observed hook execution.\n- Install-time SDK alignment must target only the exact detected host version and must not turn\n  read-only status into a mutating path.\n\n## Context Graph\n\n- context_graph_impact: `update_existing_node`\n- context_graph_refs: `CG-DELIVERY-PATH-SEARCH`\n- context_graph_reconciliation: `resolved`\n- context_graph_required_action: `update`\n- context_graph_gate_effect: `none`\n- context_graph_evidence: The node records OpenCode's instruction-only baseline, invocation-scoped\n  conditional enforcement and unresolved live evidence boundary.\n\n## Closeout\n\n- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.\n- quality_outlook: OHP-11 implementation, deterministic evidence, solution integrity and code quality pass; QA remains revise only on the pre-existing authenticated evaluator evidence obligation.\n",
+  "candidate_digest": "sha256:e9dd51e3f26139d13e987c8dd75034eb10a7a1a93aa610820d9267a76805486c",
+  "phase": "committed",
+  "preview_digest": "sha256:ea2c4121e8a0badcbe5b3fce315e19918f21e3a63ea1c5a6728388e804925347",
+  "confirmation": "RECOVER opencode-surface-hardening-parity a3678ee1-2dcf-4602-8806-ba97b6d60a93 sha256:ea2c4121e8a0badcbe5b3fce315e19918f21e3a63ea1c5a6728388e804925347",
+  "result_digest": "sha256:43a4f23252bb1aa0227104422f6ee6a57ba28a4a2c8763f2c5d51b8a1ac17321",
+  "result_revision_id": "ccc8818d-0d2e-4de6-81e1-7ad524fff351"
+}

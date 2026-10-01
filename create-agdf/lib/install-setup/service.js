@@ -4,6 +4,8 @@ import { inspectGlobalInstallationStatus } from "../lifecycle/status.js";
 import { runMcpLifecycle } from "../mcp-lifecycle/service.js";
 import { pluginDefinition } from "../cli/runtime-context.js";
 import { codexHookReviewPending, codexPendingHookAction, createInstallSetupPreflight, createInstallSetupResult } from "./contract.js";
+import { inspectControlMigration, installationControlTarget, migrateInstallationControl } from "./control-migration.js";
+import { repairInstallationControl } from "./control-repair.js";
 
 const SURFACES = new Set(["codex", "claude", "copilot", "opencode"]);
 const SCOPE_DECISIONS = new Set(["project", "user", "back", "cancel"]);
@@ -168,6 +170,7 @@ export function inspectInstallSetup({ options, interactive = false, env = proces
     removal_overview: `npx --yes @agdf/cli@latest uninstall --surface ${options.target} --scope global`,
     full_available: fullAvailable,
     full_block_reason: blockReason,
+    control: inspectControlMigration(installationControlTarget(options).root),
     authorizes: false,
   });
   PREFLIGHT_MCP_REPORTS.set(preflight, Object.freeze({ ...reports }));
@@ -245,7 +248,7 @@ function pluginFailurePhase(report) {
   return "plugin_operation";
 }
 
-function completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport }) {
+function completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport, control }) {
   const full = selection === "full";
   const reports = PREFLIGHT_MCP_REPORTS.get(preflight) ?? {};
   // The Claude plugin declares its own MCP server, so plugin-only already includes it there.
@@ -286,6 +289,8 @@ function completedResult({ selection, selectedScope, preflight, pluginReport, ru
     nextAction = codexPendingHookAction(runtimeChecks?.state ?? runtimeChecks);
   }
   const target = full ? preflight.target : null;
+  if (!failure && control?.status === "migration_required") nextAction = "migrate_control";
+  if (!failure && control?.status === "repair_required") nextAction = "repair_control";
   const targetSource = full
     ? preflight.target_source === "interactive_invocation_cwd_proposal" ? "interactive_invocation_cwd_selection" : preflight.target_source
     : "none";
@@ -307,6 +312,7 @@ function completedResult({ selection, selectedScope, preflight, pluginReport, ru
     restart: { required: pluginHealthy(pluginReport), reasons: pluginHealthy(pluginReport) ? reasons : [] },
     failure,
     next_action: { code: nextAction, parameters: {}, text: null },
+    control,
     authorizes: false,
   });
 }
@@ -321,6 +327,9 @@ export async function runInstallSetup({ options, interactive = false, env = proc
   installPlugin,
   createPluginFailure,
   finalizeRuntimeChecks,
+  confirmControlMigration,
+  chooseControlRepair,
+  confirmControlRepair,
 } = {}) {
   if (!SURFACES.has(options?.target) || typeof installPlugin !== "function") {
     throw new Error("AGDF_INSTALL_SETUP_INPUT_INVALID");
@@ -415,6 +424,17 @@ export async function runInstallSetup({ options, interactive = false, env = proc
       exec,
     });
   }
-  const report = completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport });
+  const controlTarget = installationControlTarget(options);
+  const batchConfirmation = effectiveInteractive ? confirmControlMigration : undefined;
+  let control = pluginHealthy(pluginReport)
+    ? await migrateInstallationControl(controlTarget.root, {
+      mode: options.controlMigration === "inspect" || (!controlTarget.writable && !batchConfirmation) ? "inspect" : "safe",
+      confirmMigration: batchConfirmation,
+    })
+    : preflight.control;
+  if (pluginHealthy(pluginReport) && effectiveInteractive && options.controlMigration !== "inspect") {
+    control = await repairInstallationControl(control, { chooseRepair: chooseControlRepair, confirmRepair: confirmControlRepair });
+  }
+  const report = completedResult({ selection, selectedScope, preflight, pluginReport, runtimeChecks, mcpReport, control });
   return Object.freeze({ report, preflight, plugin_payload: pluginPayload ?? null });
 }

@@ -1,3 +1,4 @@
+export { selectControlMigration, promptControlMigration, selectControlRepair, promptControlRepair } from "../control-maintenance/interaction.js";
 import { createInterface } from "node:readline/promises";
 import process from "node:process";
 import { interactionLocales } from "../cli/runtime-context.js";
@@ -21,6 +22,7 @@ const CHOICES = Object.freeze({
   c: "cancel",
   cancel: "cancel",
 });
+
 const SCOPE_CHOICES = Object.freeze({
   "1": "project",
   p: "project",

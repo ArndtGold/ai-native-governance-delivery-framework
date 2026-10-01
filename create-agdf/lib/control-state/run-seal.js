@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
-import { readFileSync, realpathSync, statSync } from "node:fs";
-import { basename, dirname, isAbsolute, relative, resolve, sep } from "node:path";
+import { readFileSync } from "node:fs";
+import { basename, dirname } from "node:path";
 import { normalizeLineEndings, parseArtefactPathCell, scalarFields, sectionTableRows } from "./run-state-parser.js";
+import { containedRegularFile, isSafeControlRelativePath } from "./contained-file.js";
 
 // The seal makes unrecorded edits visible: content_seal covers the run state and every file listed
 // under Artefacts, approval_seal covers only the recorded gate approvals. It detects changes made
@@ -13,7 +14,6 @@ const REVISION_META_LINE = /^- (?:revision|revision_id|content_seal|approval_sea
 const SEAL_META_LINE = /^- (?:content_seal|approval_seal):/u;
 
 const sha256 = (text) => `sha256:${createHash("sha256").update(text, "utf8").digest("hex")}`;
-const escapes = (path) => !path || path === ".." || path.startsWith(`..${sep}`) || isAbsolute(path);
 
 export function canonicalRunText(content) {
   return normalizeLineEndings(String(content ?? "")).replace(/^﻿/u, "");
@@ -51,20 +51,12 @@ export function runRootFromStatePath(path) {
 
 export function artefactFileDigest(root, rawPath) {
   const path = String(rawPath ?? "").trim();
-  if (!path || isAbsolute(path)) return "unresolved";
-  const target = resolve(root, path);
-  if (escapes(relative(root, target))) return "unresolved";
-  let realTarget;
-  try {
-    realTarget = realpathSync(target);
-  } catch {
-    return "missing";
-  }
-  if (escapes(relative(realpathSync(root), realTarget)) || !statSync(realTarget).isFile()) return "unresolved";
-  return sha256(canonicalRunText(readFileSync(realTarget, "utf8")));
+  const result = containedRegularFile(root, path);
+  if (result.status !== "valid") return result.status === "missing" ? "missing" : "unresolved";
+  return sha256(canonicalRunText(readFileSync(result.path, "utf8")));
 }
 
-function listedArtefactPaths(text) {
+export function listedArtefactPaths(text) {
   const paths = [];
   for (const [, cell = ""] of sectionTableRows(text, "Artefacts")) {
     const parsed = parseArtefactPathCell(cell);
@@ -73,6 +65,22 @@ function listedArtefactPaths(text) {
     paths.push(path);
   }
   return paths;
+}
+
+// A declared future output is not lost evidence. Keep its path in the seal/snapshot so
+// creating or changing it remains visible; only recovery's existence check may defer it.
+export function pendingArtefactPaths(text) {
+  const rows = sectionTableRows(text, "Artefacts");
+  const runId = scalarFields(text).values.get("run_id");
+  return listedArtefactPaths(text).filter((path) => {
+    if (!path.startsWith(`.agdf/control/artefacts/${runId}/`) || !isSafeControlRelativePath(path)) return false;
+    const references = rows.filter(([, cell = ""]) => {
+      const parsed = parseArtefactPathCell(cell);
+      return parsed.format !== "invalid" && parsed.path === path;
+    });
+    return references.length > 0 && references.every(([, , status = ""]) =>
+      ["missing", "pending"].includes(status.replace(/^`|`$/gu, "").trim()));
+  });
 }
 
 export function approvalRecord(content) {
@@ -92,9 +100,13 @@ export function approvalSeal(content) {
   return sha256(["agdf-approval-seal/1", approvalRecord(content)].join("\n"));
 }
 
-export function computeRunSeals(root, content) {
+export function computeRunSeals(root, content, { selfReferenceDigest = "self" } = {}) {
   const text = canonicalRunText(content);
-  const artefacts = listedArtefactPaths(text).map((path) => `${path}\t${artefactFileDigest(root, path)}`);
+  const runId = scalarFields(text).values.get("run_id");
+  const selfPath = `.agdf/control/runs/${runId}/RUN_STATE.md`;
+  // The run body is already covered above. Hashing its on-disk copy as an artefact creates
+  // a circular dependency and invalidates the seal immediately after every atomic write.
+  const artefacts = listedArtefactPaths(text).map((path) => `${path}\t${path === selfPath ? selfReferenceDigest : artefactFileDigest(root, path)}`);
   return Object.freeze({
     content_seal: sha256(["agdf-run-seal/1", withoutMetaLines(text, REVISION_META_LINE), "\0artefacts", ...artefacts].join("\n")),
     approval_seal: approvalSeal(text),

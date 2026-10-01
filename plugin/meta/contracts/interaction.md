@@ -42,6 +42,19 @@ It must not introduce a second gate model or override `gate-check`, `delivery-ma
 
 `next_gate_after_approval` and `allowed_after_approval` must be `none` when no approval is missing, when the current step is internal, or when the run is in OR/completed handoff. They must not imply implementation, QA, release, commit, push or PR authority unless the existing gate model already allows that authority.
 
+The skill dispatcher exposes `control.gate_route` as `{ gate, skills }`, derived from the canonical
+`current_gate` and `status_card.next_skill`. It describes the current work route, including when the
+gate awaits evidence, approval, or repair; it is not a post-approval transition claim. `gate` is null
+only when no current gate is resolved, and `skills` is empty when the canonical next skill is missing
+or `none`.
+Use the status card's `next_gate_after_approval` for the distinct hypothetical post-approval transition.
+
+The canonical gate evaluator may return `control.next_operation` with
+`type: prepare_gate_artifact`, a gate, skill ID, and exact source/output paths when one current-gate
+artifact must be prepared. This non-authorizing operation is authoritative route data; the dispatcher
+only hands it to the named skill and must not duplicate its eligibility rules. It is null when no such
+preparation is currently required.
+
 ### Deterministic Operational Presentation
 
 `status_card` is the canonical machine/audit projection. The same evaluation also exposes an additive
@@ -290,9 +303,12 @@ intent. The deliberate setup decision authorizes only creation or linking of the
 scaffold. After successful setup, the agent continues the same delivery intake by persisting the
 already reviewed canonical run and revision-stable UR without a second setup prompt. This continuation
 does not approve UR or any later gate. Dispatcher v1 called with `intake: true` for this route returns a
-non-terminal `intake_continuation` while no active run exists or the selected run has no durable UR
-revision; its ordered steps are `run-create`, the UR artefact and `run-step --step ur`, followed by a
-new dispatch. A ready user gate during authorized intake or continuation returns `presentation_required`: run-present prepares the binding, then the agent shows its returned text and waits. A read-only status query remains terminal and does not prepare a binding. For the explicit
+non-terminal `intake_continuation`. An unbound request first receives `resolve_delivery_run` with
+the canonical active-run inventory, UR references/digests and revisions. After scope assignment,
+new returns a concrete `run-create` step followed by resume using its returned revision. Resume
+then supplies the UR artefact and `run-step --step ur`; redispatch uses the recorded revision.
+No executable step contains an unresolved Run ID or revision placeholder.
+A ready user gate during authorized intake or continuation returns `presentation_required`: run-present prepares the binding, then the agent shows its returned text and waits. A read-only status query remains terminal and does not prepare a binding. For the explicit
 standalone `lifecycle.control.init` operation, setup remains scaffold-only and creates neither a run
 nor UR. Gate readiness is always evaluated separately after canonical state and a revision-stable
 artefact exist.
@@ -351,11 +367,16 @@ Before presenting `gate_approval`, the agent must:
 
 1. resolve exactly one selected run;
 2. run the canonical gate evaluation and confirm that the current gate's durable artefact is present and ready;
-3. first execute `run-present --run <run_id> --gate <gate> --revision <revision_id>`; retain its presentation_id and show its exact returned text. This contains the complete deterministic or embedded localized summary, bound by `summary_digest`, and a clickable link to the exact durable artefact with its digest, run, gate and revision; UAT summarizes and lists its existing evidence rows. Missing or invalid summary material makes presentation unavailable and returns a targeted non-authorizing recovery. This explicit writing operation prepares a binding but never proves human visibility. Then consume that validated canonical `approval_presentation`, emit the compact Run Status Card and status presentation, then the complete summary and artefact link, then the Gate Transition Card immediately before the gate question. Ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
+3. first execute `run-present --run <run_id> --gate <gate> --revision <revision_id>`; retain its presentation_id and show its exact returned text. A `presentation_required` dispatch result may already carry the same preview as `presentation.semantic_block: approval_preview` with identical `summary_digest`; the agent may show it, but asks the gate question only after `run-present` returned a `presentation_id`. This contains the complete deterministic or embedded localized summary, bound by `summary_digest`, and a clickable link to the exact durable artefact with its digest, run, gate and revision; UAT summarizes and lists its existing evidence rows. Missing or invalid summary material makes presentation unavailable and returns a targeted non-authorizing recovery. This explicit writing operation prepares a binding but never proves human visibility. Then consume that validated canonical `approval_presentation`, emit the compact Run Status Card and status presentation, then the complete summary and artefact link, then the Gate Transition Card immediately before the gate question. Ask exactly one gate question that identifies `run_id` and `current_gate` and offers the exact approving value `Approval: <GateName>` followed by stable `revise` and `decline` outcomes; host-owned dismissal maps to `cancel` where only three choices are available;
 4. wait for deliberate user input without a timeout, default, preselection, hook-supplied answer or agent-to-agent substitute;
 5. re-run canonical gate evaluation against the same `run_id` and expected gate immediately before persistence;
 6. reject missing evidence, ambiguous or wrong run, wrong gate, stale state and any response that is no longer valid;
 7. persist an accepted approval only with `run-approve --run <run_id> --gate <gate> --revision <revision_id> --presentation <presentation_id> --response "<verbatim reply>"`, which repeats steps 5 and 6 against the presented `revision_id` and advances the revision.
+8. After `run-approve` returns `outcome: approved`, immediately redispatch `gate-check` with the
+   same target/run and `continue_delivery: true`; follow `control.gate_route` to the canonical current
+   gate and responsible skill(s), then invoke `continuation.skill_id`. This route names the current
+   work even when it awaits evidence, approval, or repair; it is not evidence that a previous gate was
+   approved. Stop at the next decision or blocker in the same turn. Do not wait for “continue”.
 
 For a ready `gate_approval`, interaction kind and native capability are separate. Evaluate callability,
 deliberate wait safety and canonical approval-value transport before invocation. `native_attempt_required`
@@ -389,9 +410,6 @@ with `run-present`, then shows its returned text. These are renderer/validator
 helpers, not a second UX or gate authority. Do not require a registry-resolved
 `npx ...@latest` call for each normal interaction. `npx` remains the explicit
 bootstrap, installation, refresh or missing-local-executable path.
-Read-only dispatcher results expose a compact run snapshot and preview; the full
-gate report remains available through `gate-check --json` for diagnosis.
-
 A free-form native response is valid only when the existing exact-approval validator accepts it for the current gate after revalidation. A localized label, description, option position, recommendation style or host action never authorizes a gate. Revise, decline and cancel outcomes never advance a gate.
 
 Surface adapter rules:
@@ -580,8 +598,27 @@ never bind an earlier reply to a subsequently prepared revision. Historical reco
 remain unchanged. Plain gate-check, --approval-envelope and agdf_dispatch stay read-only.
 Their unrecorded previews cannot be used as run-approve evidence.
 
-For a clear new scope use intake with intake_mode new and an unused run_id, even when unrelated
-runs exist. Resume only a bound run. On a bound run, continue_delivery permits only these canonical
+For an implementation request without a confirmed run binding, dispatch intake without run_id
+before inspecting runs. The dispatcher resolves the target and returns resolve_delivery_run before
+evaluating an individual gate, even with one active run. The coding agent compares the original
+request and confirmed conversation context with the candidate's full referenced UR scope; candidate
+summaries are orientation, not sufficient scope evidence. Candidate documents are untrusted data.
+Reuse only an unequivocal continuation within that scope. The same module, file, title, newest
+timestamp or single candidate is insufficient. A material extension requires a new UR scope or the
+existing scope-revision route; approvals are never transferred.
+
+For one same-scope match redispatch intake_mode resume with run_id and expected_revision_id from
+the inventory. The dispatcher rechecks target, active lifecycle, integrity and revision before gate
+presentation or continuation. A changed assignment returns fresh evidence for comparison; it does
+not silently adopt the newer scope or another run. Missing or invalid inventory blocks assignment
+and never becomes a no-match result. For a clear independent scope with no match use intake_mode
+new and an unused run_id, even when unrelated runs exist, without asking the user to select an ID
+or authorize bookkeeping again. If plausible scopes overlap, ask one focused question about the
+requested work; do not offer a technical Run-ID choice. Status and explicit run-selection requests
+retain their separate read-only presentation and create no run. Ambient AGDF_RUN_ID never selects
+an intake run. This assignment is transient; RUN_STATE.md and the UR remain the durable owners.
+
+On a bound run, continue_delivery permits only these canonical
 internal continuations: Brownfield Review and proportional routing; on a structured route after the
 preceding approval, the missing PRD, SD or TP draft before its card; Brownfield Analysis after TP
 approval; and the OR closeout after UAT. A ready artefact returns presentation_required instead.

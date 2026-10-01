@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,6 +40,7 @@ import { localMarketplaceRoot } from "../lib/installers/local-marketplace.js";
 import { ownedRuntimeCheckRules } from "../lib/host-adapters/claude/uninstall.js";
 import { fixedRuntimeCheckCommand } from "../lib/runtime-check-consent/contract.js";
 import { createRuntimeCheckReceipt, writeRuntimeCheckReceipt } from "../lib/runtime-check-consent/state.js";
+import { directoryIdentity, ownedFileSnapshot } from "../lib/lifecycle/owned-mutation.js";
 
 function mcpLifecycleFixture({ action, surface, scope, target, result = action === "disable" ? "disabled" : "not_configured", registration } = {}) {
   const registrationStatus = registration ?? (result === "disabled" || result === "not_configured" ? "absent" : "matched");
@@ -1278,5 +1279,81 @@ assert.deepEqual(inactiveSystem.system, []);
 const inactiveEnvironment = { env: {} };
 await inactiveHooks["shell.env"]({}, inactiveEnvironment);
 assert.equal(inactiveEnvironment.env.AGDF_PLUGIN_ACTIVE, "0");
+
+const ownershipRoot = mkdtempSync(join(tmpdir(), "agdf-apply-ownership-"));
+const privateConfig = join(ownershipRoot, "private-config.json");
+writeFileSync(privateConfig, "old private config\n");
+if (process.platform !== "win32") chmodSync(privateConfig, 0o600);
+const privateWrite = applyLifecyclePlan({ mutations: [{ kind: "write", path: privateConfig,
+  content: "new private config\n", expectedSnapshot: ownedFileSnapshot(privateConfig) }], retained: [] });
+assert.equal(privateWrite.status, "success");
+assert.equal(readFileSync(privateConfig, "utf8"), "new private config\n");
+if (process.platform !== "win32") assert.equal(statSync(privateConfig).mode & 0o777, 0o600);
+const changingConfig = join(ownershipRoot, "opencode.json");
+writeFileSync(changingConfig, "old complete config\n");
+const plannedSnapshot = ownedFileSnapshot(changingConfig);
+const exactFile = lstatSync(changingConfig, { bigint: true });
+assert.equal(plannedSnapshot.file, `${exactFile.dev}:${exactFile.ino}`);
+writeFileSync(changingConfig, "foreign replacement\n");
+const writeConflict = applyLifecyclePlan({ mutations: [{ kind: "write", path: changingConfig,
+  content: "new complete config\n", expectedSnapshot: plannedSnapshot }], retained: [] });
+assert.equal(writeConflict.status, "failed");
+assert.match(writeConflict.error.message, /AGDF_OWNERSHIP_CONFLICT/);
+assert.equal(readFileSync(changingConfig, "utf8"), "foreign replacement\n");
+const removeConflict = applyLifecyclePlan({ mutations: [{ kind: "remove", path: changingConfig,
+  expectedSnapshot: plannedSnapshot }], retained: [] });
+assert.equal(removeConflict.status, "failed");
+assert.equal(readFileSync(changingConfig, "utf8"), "foreign replacement\n");
+writeFileSync(changingConfig, "same bytes\n");
+const sameBytesSnapshot = ownedFileSnapshot(changingConfig);
+const replacementFile = join(ownershipRoot, "replacement.json");
+writeFileSync(replacementFile, "same bytes\n");
+renameSync(replacementFile, changingConfig);
+const sameBytesSwap = applyLifecyclePlan({ mutations: [{ kind: "write", path: changingConfig,
+  content: "new complete config\n", expectedSnapshot: sameBytesSnapshot }], retained: [] });
+assert.equal(sameBytesSwap.status, "failed");
+assert.equal(readFileSync(changingConfig, "utf8"), "same bytes\n");
+
+const plannedConfigDir = join(ownershipRoot, "new-config");
+const foreignConfigDir = join(ownershipRoot, "foreign-config");
+mkdirSync(plannedConfigDir);
+mkdirSync(foreignConfigDir);
+const plannedNewConfig = join(plannedConfigDir, "config.json");
+const plannedNewSnapshot = ownedFileSnapshot(plannedNewConfig);
+assert.equal(plannedNewSnapshot.digest, null);
+rmSync(plannedConfigDir, { recursive: true });
+linkDirectory(foreignConfigDir, plannedConfigDir);
+const redirectedWrite = applyLifecyclePlan({ mutations: [{ kind: "write", path: plannedNewConfig,
+  content: "AGDF config\n", expectedSnapshot: plannedNewSnapshot }], retained: [] });
+assert.equal(redirectedWrite.status, "failed");
+assert.match(redirectedWrite.error.message, /AGDF_OWNERSHIP_CONFLICT/);
+assert.equal(existsSync(join(foreignConfigDir, "config.json")), false);
+const replacedConfigDir = join(ownershipRoot, "replaced-config");
+const replacementConfigDir = join(ownershipRoot, "replacement-config");
+mkdirSync(replacedConfigDir);
+mkdirSync(replacementConfigDir);
+const replacedConfig = join(replacedConfigDir, "config.json");
+const replacedSnapshot = ownedFileSnapshot(replacedConfig);
+// NTFS file IDs can exceed Number's exact integer range. Keep the full identity.
+const exactParent = lstatSync(replacedConfigDir, { bigint: true });
+assert.equal(replacedSnapshot.parent, `${exactParent.dev}:${exactParent.ino}`);
+assert.equal(directoryIdentity(replacedConfigDir), replacedSnapshot.parent);
+assert.notEqual(directoryIdentity(replacementConfigDir), replacedSnapshot.parent);
+rmSync(replacedConfigDir, { recursive: true });
+renameSync(replacementConfigDir, replacedConfigDir);
+const regularDirectorySwap = applyLifecyclePlan({ mutations: [{ kind: "write", path: replacedConfig,
+  content: "AGDF config\n", expectedSnapshot: replacedSnapshot }], retained: [] });
+assert.equal(regularDirectorySwap.status, "failed");
+assert.equal(existsSync(replacedConfig), false);
+
+const runtimeTree = join(ownershipRoot, "runtime");
+mkdirSync(runtimeTree);
+const plannedIdentity = directoryIdentity(runtimeTree);
+writeFileSync(join(runtimeTree, "foreign.txt"), "not AGDF owned\n");
+const treeConflict = applyLifecyclePlan({ mutations: [{ kind: "remove_tree", path: runtimeTree,
+  expectedIdentity: plannedIdentity }], retained: [] });
+assert.equal(treeConflict.status, "failed");
+assert.equal(existsSync(join(runtimeTree, "foreign.txt")), true);
+rmSync(ownershipRoot, { recursive: true, force: true });
 
 console.log("lifecycle tests passed");

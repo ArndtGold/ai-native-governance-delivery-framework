@@ -73,6 +73,7 @@ for (const [path, content] of visited) {
   }
 }
 assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/lib/skill-dispatch/service.js")));
+assert.ok([...visited].some(([path]) => path.replaceAll("\\", "/").endsWith("create-agdf/lib/control-inspect/service.js")), "the read tool is part of the scanned reachable surface");
 
 class SilentWorker extends EventEmitter {
   constructor() {
@@ -143,6 +144,17 @@ try {
   const outside = join(outsideRoot, "outside-secret.txt");
   writeFileSync(outside, "MCP_BOUNDARY_SECRET");
   if (tryLinkFile(outside, join(escapedTarget, ".agdf", "control", "escape.md"), "mcp-safety-test")) {
+    const inspectTool = runtime.tool("agdf_inspect");
+    const guardedInspect = inspectTool.execute(inspectTool.parse({
+      operation: "doctor",
+      presentation_language: "en",
+      working_directory: escapedTarget,
+      target_source: "explicit_target",
+      primary_target: escapedTarget,
+    }));
+    assert.equal(guardedInspect.outcome, "evaluator_error");
+    assert.deepEqual(guardedInspect.diagnostics, [{ code: "inspect_control_evaluation_failed" }]);
+    assert.equal(JSON.stringify(guardedInspect).includes("MCP_BOUNDARY_SECRET"), false);
     const guarded = runtime.execute(runtime.parse({
       skill_id: "gate-check",
       presentation_language: "en",

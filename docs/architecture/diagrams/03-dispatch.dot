@@ -1,5 +1,5 @@
 digraph dispatch {
-  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.48, fontname="Helvetica", label="03  /  ZWEI WEGE ZUM GEMEINSAMEN DISPATCHER", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.48, fontname="Helvetica", label="03  /  DISPATCH UND LESENDE KONTROLLE", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
   node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.19,0.12", penwidth=1.3];
   edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
 
@@ -8,8 +8,9 @@ digraph dispatch {
   normal [label="Normale Hilfe oder Klärung\nkein AGDF-Dispatch", fillcolor="#F3F6F8", color="#97A6B3"];
   route [label="Verfügbarer Aufrufweg?", shape=diamond, style=filled, fontsize=13, margin=0.12];
   skill [label="Skill-Weg\ngeprüfte Runtime-Bindung"];
-  list [label="MCP-Weg\ntools/list zeigt agdf_dispatch"];
+  list [label="MCP-Weg\ntools/list zeigt Dispatch + Inspect"];
   call [label="tools/call\nSkill + expliziter Zielkontext"];
+  inspect [label="tools/call agdf_inspect\nlesende Kontrolloperation"];
   contract [label="Ein kanonischer Tool-Vertrag\nBeschreibung · Eingabe · Ausgabe", fillcolor="#FFF2CF", color="#BF9840"];
   dispatcher [label="Ein Skill-Dispatcher\nprüft Eingabe und bindet Ziel"];
   evaluation [label="Gemeinsame Ziel- und Gate-Auswertung"];
@@ -25,8 +26,10 @@ digraph dispatch {
   route -> skill [label="Skill"];
   route -> list [label="MCP"];
   list -> call;
+  list -> inspect;
   skill -> contract;
   call -> contract;
+  inspect -> evaluation [label="bestehender Evaluator"];
   contract -> dispatcher;
   dispatcher -> recovery [label="Fehler / Ziel offen"];
   dispatcher -> evaluation [label="Ziel aufgelöst"];

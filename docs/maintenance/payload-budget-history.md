@@ -255,3 +255,114 @@ The host-evidence blocker now asks the user to keep AC-006 open or start a separ
 The localized AC-006 choice now states that host changes are outside this TP and offers the user a separate scope update. This copy-only clarification adds 96 bytes; final measured profile is 111 files / 1082170 bytes, with the all-profile integrity guard enabled.
 
 The German AC-006 action was shortened to meet the locale catalogue's 160-character limit while preserving the explicit choice and TP boundary. This reduces the profile by 138 bytes; the final baseline is reset to the exact 111-file / 1082032-byte inventory, with all integrity checks enabled.
+
+## 2026-09-29 — Read-only MCP inspection route (Slice 1)
+
+Run `agdf-mcp-inspect-slice1-20260929-01` adds the read-only MCP tool `agdf_inspect` beside `agdf_dispatch`. Nine skills name the MCP read route for runtime-contract reads first and keep the schema-2 binding as fallback; `release-or` does the same for its doctor step; `interaction.md` step 3 allows the dispatcher's embedded approval preview before `run-present`; `control-scaffold.md` documents the MCP equivalents of the read-only commands. The reviewed generated Copilot profile bundles the new runtime module `create-agdf/lib/control-inspect/` (three files) and grows from 111 files / 1082032 bytes to 114 files / 1108560 bytes (+26528 bytes, of which 2627 bytes are skill and contract text; 1210 bytes were added by the Code Review fix CR-01, an inspect-shaped oversize fallback). The tool definition itself is capped at 2048 bytes (measured 2023) and is not part of the Copilot profile. The all-profile integrity guard remains enabled.
+
+Branch review corrections make both gate-check variants use the CLI's own text printers, so neither returns an unbound approval question. The Copilot MCP configuration now exposes both `agdf_dispatch` and `agdf_inspect`. These corrections add 337 bytes to the generated profile, setting the reviewed ceiling to 114 files / 1108897 bytes. The all-profile integrity guard remains enabled.
+
+## 2026-09-29 — Control recovery and contained-file validation
+
+Run `agdf-review-remediation-20260929-01` adds three validator runtime leaves for a durable run-step transaction journal, a pure pending-run read path and shared contained-file validation. The read path was split to keep MCP inspection free of filesystem mutation imports. The generated Copilot profile grows from 114 files / 1108897 bytes to 117 files / 1122887 bytes (+3 files, +13990 bytes). This records the size of these approved control-path changes; the separate package-payload cleanup run retains ownership of broader runtime inclusion and exclusion decisions. The all-profile integrity guard remains enabled.
+
+Final review tightened marketplace recovery against replaced backups and missing prior backups and removed a locale-dependent precheck from `run-approve`, retaining the missing-artefact diagnostic. The measured profile is 117 files / 1123051 bytes (+164 bytes from the preceding review ceiling). The separate package-payload cleanup run still owns broader payload selection, and the all-profile integrity guard remains enabled.
+
+The operational-localization suite then caught stale seal-repair copy. Both locales now point invalid and unsealed runs to the trusted restoration path; removing seal lines is no longer presented as a repair. This adds 900 bytes, yielding 117 files / 1123951 bytes. The all-profile integrity guard remains enabled.
+
+The same suite required localized pending-run recovery guidance. After shortening the German seal copy to its budget and adding the pending-run text, the reviewed inventory is 117 files / 1124539 bytes (+588 bytes from the preceding observation). The all-profile integrity guard remains enabled.
+
+A final control-state regression covers an already listed OR artefact. The transaction now validates the prior seal before staging and rechecks all other listed artefacts before accepting the intended OR change. This adds 622 bytes, yielding 117 files / 1125161 bytes. The all-profile integrity guard remains enabled.
+
+Code Review found that atomic replacement of an existing private host file could widen its permissions. The shared writer now creates a private temporary file and preserves the previous POSIX mode before rename. This adds 192 runtime bytes, yielding 117 files / 1125353 bytes. Plan-time parent/file snapshots and the focused mode and ownership regressions were also checked; broader payload selection remains with `agdf-npm-package-payload-cleanup`.
+
+## 2026-09-29 — Explicit canonical run recovery
+
+The approved `restore-unsealed-active-run-records-20260929-01` TP adds an explicit local recovery CLI to the offline validator runtime. It inspects one named active unsealed run, reports Git history candidates without treating them as approval provenance, creates a digest-bound preview, invalidates approvals without independent provenance, updates the derived run projection, and applies only after the exact preview confirmation through the existing locked writer. Writer capability checks, symlink denial, preview tamper detection, post-rename journal resumption and final review hardening for Git seal lines and Run ID/path binding are included. The measured Copilot profile grows from 117 files / 1125353 bytes to 118 files / 1147829 bytes (+1 file, +22476 bytes). This narrow allowance is for the recovery command and its safety checks; the all-profile integrity guard remains enabled.
+
+## 2026-09-29 — Current-gate skill routing
+
+The dispatcher exposes the canonical current gate together with its responsible skill as `control.gate_route`; this is routing information for the current work and does not claim that a preceding gate was approved. After `run-approve` succeeds, gate-check is redispatched for the same target/run without an extra user prompt. The prior next-gate implementation measured 118 files / 1147829 bytes to 118 files / 1148215 bytes (+386 bytes); this entry is retained as the measurement of that superseded form pending a fresh payload inventory.
+
+## 2026-09-30 — Canonical gate-artifact operation
+
+The canonical gate evaluator now emits `prepare_gate_artifact` with the current gate and bound artefact/source paths; the dispatcher consumes this action through one continuation builder, with PRD/SD/TP procedure in a focused runtime-contract module. The measured Copilot profile grows from 118 files / 1148215 bytes to 119 files / 1150068 bytes (+1 file, +1853 bytes). The all-profile integrity guard remains enabled.
+
+## 2026-09-30 — Active-run resolution UX
+
+Canonical run writes now stamp `updated_at`; ambiguous run selection presents the newest active run first, its gate and timestamp, and every alternative while requiring an explicit Run ID. A missing active run asks whether to start one or take another action and does not create it. The reviewed Copilot profile grows from 119 files / 1150068 bytes to 119 files / 1155898 bytes (+5830 bytes). The all-profile integrity guard remains enabled.
+
+## 2026-09-30 — Delivery request assignment before gate evaluation
+
+Unbound implementation intake now returns a non-authorizing `resolve_delivery_run` phase with canonical active-run evidence and referenced UR scope. The coding agent either resumes one unequivocal scope match with its expected revision, starts an independent scope at a new UR, or asks a business-scope question when ambiguity remains. The runtime rechecks lifecycle, integrity and revision, including changes during gate evaluation; inventory errors cannot imply a new scope. Concrete create/resume steps replace unresolved bookkeeping IDs. CLI continuations now carry the same registered contracts as MCP, including the Copilot profile's owned contract path. The gate-check skill was compacted within its existing instruction ceiling; the fallback structure guard now includes the already registered gate-artifact-preparation contract. Legacy timestamp fallback and single-line metadata parsing remain compatible. The measured Copilot profile grows from 119 files / 1155898 bytes to 120 files / 1168286 bytes (+1 file, +12388 bytes). The baseline equals the measured inventory; all-profile integrity checks remain enabled. These are source, packaged-runtime and temporary-host-fixture checks, not fresh installed model-session evidence.
+
+## 2026-09-30 — Installation-time control compatibility and migration
+
+Install/update now reports repository control compatibility independently of plugin installation,
+uses the canonical recovery writer for explicitly selected safe migrations, and presents historical
+approval resets for exact per-run confirmation. Configuration validation is shared with OpenCode;
+recovery binds one timestamp to preview and write so interrupted transactions resume at the same
+revision. The generated Copilot runtime measures 121 files / 1181437 bytes, compared with the
+preceding 120 files / 1168286 bytes (+1 file, +13151 bytes). The additional runtime file is shared
+control-configuration validation; localized installation/recovery copy is bundled twice by the
+existing profile. The baseline equals this measured inventory. Inventory, digest and all-profile
+integrity checks remain enabled. This is source/package evidence, not a deployed plugin refresh.
+
+## 2026-09-30 — One installation migration decision
+
+Interactive installation now summarizes eligible and repair-only runs and offers one migration
+choice for the displayed repository. Details are optional; exact per-run recovery confirmations
+remain internal to the canonical writer. Read-only source snapshots bind the common choice before
+any journal is created; deferral creates no journals, and concurrent changes stop only the affected
+run. Noninteractive setup still never resets historical approvals. Replacing the earlier per-run
+and repository-confirmation copy with compact EN/DE batch copy yields 121 files / 1182527 bytes,
+compared with 121 files / 1181437 bytes (+1090 bytes). The baseline equals the measured inventory;
+all payload integrity guards remain enabled. This is source/package and temporary installer-fixture
+evidence, not a refreshed installed plugin or a production migration.
+
+## 2026-09-30 — Guided installation repair and self-reference seal correction
+
+Interactive installation offers 1/2/3 to search original records, defer, or inspect details after
+migration leaves repair cases. Read-only proposals search validated private recovery checkpoints
+and exact paths in the checkout's Git history; applying a displayed proposal retains the current
+record and selected originals in a private journal and uses canonical locked writers. Missing
+originals and placeholder references remain required input, and Git cannot attest approvals.
+The run seal now represents its own already-covered state file with a self-reference marker rather
+than recursively hashing its previous on-disk bytes. A validated recovery checkpoint can prove and
+repair exactly that old writer result; arbitrary changes are not accepted. Other referenced run
+files and artefacts remain hashed. The measured Copilot inventory is 121 files / 1192265 bytes,
+compared with 121 files / 1182527 bytes (+9738 bytes). The growth is localized copy and the canonical
+hashing/checkpoint validation changes; installer-only modules do not enter the validator runtime.
+The baseline equals the measured inventory, and all integrity guards remain enabled. Validation
+uses temporary Git repositories, fault injection, the installer CLI and EN/DE rendering. The real
+repository was inspected read-only; no installed plugin refresh or production repair is claimed.
+
+## 2026-09-30 — Planned output compatibility in recovery
+
+Recovery now distinguishes absent outputs explicitly declared `missing` or `pending` in the
+selected run's own artefact directory from lost completed evidence. Their absence remains part
+of the bound snapshot and seal; output creation invalidates a preview or changes the seal.
+Existing evidence and unsafe paths still block, including dangling symlinks. The symlink-component
+check is shared by contained-path inspection consumers. No output or approval is fabricated.
+The measured Copilot payload remains 121 files and grows from 1192265 to 1193511 bytes (+1246).
+The exact reviewed baseline retains the inventory and integrity guards. Recovery, installer and
+negative fixtures cover pending outputs, missing completed evidence, conflicting changes and
+symlinks. In the actual repository, three false missing-output repair cases and one descriptive
+review reference were corrected with original snapshots, canonical recovery and approval reset.
+The stale existing legacy projection was regenerated for its already recorded canonical run.
+Repository compatibility is current; outstanding delivery and host evidence is separate. These
+changes do not claim a refreshed installed runtime or implement the separate per-repository
+startup notice and maintenance entry point.
+
+## 2026-09-30 — Direct repository maintenance runtime
+
+The reviewed dependency closure adds eight shared maintenance modules and one dedicated CLI
+adapter to the full-runtime profile: compatibility, migration, repair, contract, service,
+presentation, interaction and bounded startup projection. Existing installer functions become
+compatibility exports; canonical seals, recovery transactions, locks and approval reset remain
+their existing owners. No installer, marketplace, MCP configuration or consent mutation service
+enters the validator bundle. Shared maintenance copy is carried by the existing locale assets.
+The measured Copilot payload grows from 121 files / 1193511 bytes to 130 files / 1247677 bytes
+(+9 files, +54166 bytes). The baseline is the exact reviewed inventory; file/byte and provenance
+guards remain enabled. Subsequent validation records actual source/generated-runtime evidence;
+this baseline update is not an installed plugin refresh or a fresh host acceptance claim.

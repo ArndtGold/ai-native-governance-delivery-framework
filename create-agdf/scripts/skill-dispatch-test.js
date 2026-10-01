@@ -235,7 +235,123 @@ assert.deepEqual(continuation.host_action, {
   bound_to_target: true,
 });
 
-let intakeState = { phase: "run_missing", run_id: null, revision_id: null };
+const pendingQaFindings = [
+  { severity: "block", code: "QA_BLOCKER", path: "QA_REPORT.md", next_step: "Repair the QA evidence." },
+  { severity: "block", code: "QA_BLOCKER", path: "RUN_STATE.md", next_step: "Repair the QA evidence." },
+  { severity: "revise", code: "QA_REVIEW", path: "CR.md", next_step: "Resolve the review finding." },
+  ...Array.from({ length: 7 }, (_, index) => ({ severity: "warn", code: `WARN_${index}`, path: `evidence/${index}.md`, next_step: "Review if relevant." })),
+];
+const pendingQa = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    ...gateReport,
+    status: "blocked",
+    approval_presentation: null,
+    doctor_status: "block",
+    doctor_report: {
+      status: "block",
+      checked_at: "2026-09-29T12:00:00.000Z",
+      summary: { findings: 10, block: 2, revise: 1, warn: 7 },
+      findings: pendingQaFindings,
+    },
+    status_card: {
+      ...gateReport.status_card,
+      run_id: "delivery-run",
+      presentation_language: "de",
+      next_skill: "qa-gate",
+      runState: { content: "- revision_id: qa-revision" },
+    },
+  }),
+  readSkillRuntimeContracts: skillId => [`contracts:${skillId}`],
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(pendingQa.outcome, "skill_continuation", JSON.stringify(pendingQa));
+assert.equal(pendingQa.continuation.skill_id, "qa-gate");
+assert.equal(pendingQa.continuation.run_id, "delivery-run");
+assert.equal(pendingQa.continuation.revision_id, "qa-revision");
+assert.equal(pendingQa.continuation.presentation_language, "de");
+assert.deepEqual(pendingQa.control.gate_route, { gate: "QA", skills: ["qa-gate"] });
+assert.deepEqual(pendingQa.continuation.runtime_contracts, ["contracts:qa-gate"]);
+
+const codeReviewDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    ...gateReport,
+    current_gate: "CR",
+    missing_approval: "none",
+    next_allowed_action: "Complete the code review.",
+    approval_presentation: null,
+    status_card: {
+      ...gateReport.status_card,
+      current_gate: "CR",
+      next_skill: "code-review",
+      run_id: "delivery-run",
+      presentation_language: "de",
+      runState: { content: "- revision_id: cr-revision" },
+    },
+  }),
+  readSkillRuntimeContracts: skillId => [`contracts:${skillId}`],
+  env: {},
+})({ ...base, skillSet: pluginDefinition.skillSet, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(codeReviewDispatch.outcome, "skill_continuation");
+assert.deepEqual(codeReviewDispatch.control.gate_route, { gate: "CR", skills: ["code-review"] });
+assert.equal(codeReviewDispatch.continuation.skill_id, "code-review");
+assert.equal(codeReviewDispatch.continuation.revision_id, "cr-revision");
+assert.deepEqual(codeReviewDispatch.continuation.runtime_contracts, ["contracts:code-review"]);
+
+const uatDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    ...gateReport,
+    current_gate: "UAT",
+    missing_approval: "Approval: UAT",
+    next_allowed_action: "Prepare UAT evidence.",
+    approval_presentation: null,
+    status_card: {
+      ...gateReport.status_card,
+      current_gate: "UAT",
+      next_skill: "delivery-closeout",
+      run_id: "delivery-run",
+      presentation_language: "de",
+      runState: { content: "- revision_id: uat-revision" },
+    },
+  }),
+  readSkillRuntimeContracts: skillId => [`contracts:${skillId}`],
+  env: {},
+})({ ...base, skillSet: pluginDefinition.skillSet, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(uatDispatch.outcome, "skill_continuation");
+assert.deepEqual(uatDispatch.control.gate_route, { gate: "UAT", skills: ["delivery-closeout"] });
+assert.equal(uatDispatch.continuation.skill_id, "delivery-closeout");
+assert.equal(uatDispatch.continuation.revision_id, "uat-revision");
+assert.deepEqual(uatDispatch.continuation.runtime_contracts, ["contracts:delivery-closeout"]);
+
+const qaRevise = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({
+    ...gateReport,
+    status: "open",
+    missing_approval: "none",
+    next_allowed_action: "Revise the QA evidence.",
+    approval_presentation: null,
+    status_presentation: { markdown: "QA needs revision.", authorizes: false },
+    status_card: {
+      ...gateReport.status_card,
+      next_skill: "qa-gate",
+      run_id: "delivery-run",
+      presentation_language: "de",
+      runState: { content: "- revision_id: qa-revision" },
+    },
+  }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.deepEqual(qaRevise.control.gate_route, { gate: "QA", skills: ["qa-gate"] });
+assert.equal(qaRevise.outcome, "control_result");
+
+let intakeState = { phase: "run_missing", run_id: "delivery-run", revision_id: null };
 const intakeCalls = [];
 const intakeDispatch = createSkillDispatchService({
   resolveTaskTarget: () => resolved,
@@ -244,7 +360,7 @@ const intakeDispatch = createSkillDispatchService({
   deliveryIntakePhase: (target, control) => { intakeCalls.push({ target, control }); return intakeState; },
   env: {},
 });
-const intakeInput = { ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", intake: true };
+const intakeInput = { ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", intake: true, runId: "delivery-run" };
 const runMissing = intakeDispatch(intakeInput);
 assert.equal(runMissing.outcome, "intake_continuation");
 assert.equal(runMissing.terminal, false);
@@ -254,10 +370,9 @@ assert.deepEqual(runMissing.host_action, { mode: "continue_delivery_intake", sou
 assert.equal(runMissing.continuation.operation_id, "delivery.start");
 assert.equal(runMissing.continuation.phase, "run_missing");
 assert.equal(runMissing.continuation.governance_target, "/tmp/agdf-repo");
-assert.deepEqual(runMissing.continuation.steps.map((step) => step.id), ["create_run", "write_ur", "record_ur", "dispatch_again"]);
-assert.equal(runMissing.continuation.steps[0].command, "run-create --dir '/tmp/agdf-repo' --run <run_id>");
-assert.deepEqual(runMissing.continuation.steps[0].argv, ["run-create", "--dir", "/tmp/agdf-repo", "--run", "<run_id>"]);
-assert.equal(runMissing.continuation.steps[1].template, ".agdf/control/templates/artefacts/UR.md");
+assert.deepEqual(runMissing.continuation.steps.map((step) => step.id), ["create_run", "dispatch_again"]);
+assert.equal(runMissing.continuation.steps[0].command, "run-create --dir '/tmp/agdf-repo' --run delivery-run");
+assert.deepEqual(runMissing.continuation.steps[0].argv, ["run-create", "--dir", "/tmp/agdf-repo", "--run", "delivery-run"]);
 assert.match(runMissing.continuation.instruction, /approve no gate and authorize no implementation/u);
 assert.equal(Object.isFrozen(runMissing.continuation), true);
 assert.equal(Object.isFrozen(runMissing.continuation.steps[0]), true);
@@ -297,6 +412,11 @@ const sdContinuationDispatch = createSkillDispatchService({
     missing_approval: "Approval: SD",
     revision_id: "approved-prd-revision",
     status_card: { run_id: "delivery-run", mode_slice_decision: structuredRoute },
+    next_operation: {
+      type: "prepare_gate_artifact", gate: "SD", skill_id: "gate-check",
+      artifact_path: ".agdf/control/artefacts/delivery-run/SD.md",
+      source_artifacts: [".agdf/control/artefacts/delivery-run/PRD.md"],
+    },
     delivery_map: { relationships: [{ from: "SD", relationship: "derived_from", to: "PRD", status: "missing" }] },
     approval_presentation: null,
   }),
@@ -316,9 +436,7 @@ assert.equal(sdContinuation.continuation.phase, "required_gate_artifact");
 assert.equal(sdContinuation.continuation.gate, "SD");
 assert.equal(sdContinuation.continuation.artifact_path, ".agdf/control/artefacts/delivery-run/SD.md");
 assert.deepEqual(sdContinuation.continuation.source_artifacts, [".agdf/control/artefacts/delivery-run/PRD.md"]);
-assert.match(sdContinuation.continuation.instruction, /approved PRD and its resolved Approval Decisions before presenting the next user card/u);
-assert.match(sdContinuation.continuation.instruction, /do not reopen answered product questions in SD/u);
-assert.match(sdContinuation.continuation.instruction, /Do not create the Task\/Test Plan or implement code/u);
+assert.match(sdContinuation.continuation.instruction, /gate-artifact-preparation runtime contract/u);
 assert.equal(sdContinuation.host_action.mode, "continue_named_skill");
 assert.equal(sdContinuation.authorizes, false);
 const tpContinuationDispatch = createSkillDispatchService({
@@ -331,6 +449,14 @@ const tpContinuationDispatch = createSkillDispatchService({
     missing_approval: "Approval: TP",
     revision_id: "approved-sd-revision",
     status_card: { run_id: "delivery-run", mode_slice_decision: structuredRoute },
+    next_operation: {
+      type: "prepare_gate_artifact", gate: "TP", skill_id: "gate-check",
+      artifact_path: ".agdf/control/artefacts/delivery-run/TP.md",
+      source_artifacts: [
+        ".agdf/control/artefacts/delivery-run/PRD.md",
+        ".agdf/control/artefacts/delivery-run/SD.md",
+      ],
+    },
     delivery_map: { relationships: [{ from: "TP", relationship: "derived_from", to: "SD", status: "missing" }] },
     approval_presentation: null,
   }),
@@ -353,8 +479,7 @@ assert.deepEqual(tpContinuation.continuation.source_artifacts, [
   ".agdf/control/artefacts/delivery-run/PRD.md",
   ".agdf/control/artefacts/delivery-run/SD.md",
 ]);
-assert.match(tpContinuation.continuation.instruction, /approved PRD and Solution Design before presenting the next user card/u);
-assert.match(tpContinuation.continuation.instruction, /Do not implement code/u);
+assert.match(tpContinuation.continuation.instruction, /gate-artifact-preparation runtime contract/u);
 assert.equal(tpContinuation.host_action.mode, "continue_named_skill");
 assert.equal(tpContinuation.authorizes, false);
 const runtimeContractReads = [];
@@ -674,7 +799,7 @@ const intakeFailure = (error, language = "de-DE") => createSkillDispatchService(
   evaluateGateCheck: () => gateReport,
   deliveryIntakePhase: () => { throw error; },
   env: {},
-})({ ...base, presentationLanguage: language, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", intake: true });
+})({ ...base, presentationLanguage: language, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", intake: true, runId: "delivery-run" });
 const collision = intakeFailure(new Error("AGDF_RUN_COLLISION"));
 assert.equal(collision.diagnostics[0].code, "AGDF_RUN_COLLISION");
 assert.match(collision.recovery.action, /Run-ID ist bereits belegt/u, "a regional German tag gets the German recovery");
@@ -703,3 +828,31 @@ assert.equal(brownfieldContractsMissing.outcome, "evaluator_error");
 assert.equal(brownfieldContractsMissing.diagnostics[0].code, "dispatch_runtime_contracts_unavailable");
 
 console.log("skill dispatch tests passed");
+
+// SDD-003: presentation_required carries gate-check's read-only preview; run-present stays the binding step.
+const previewDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, current_gate: "UR", missing_approval: "Approval: UR",
+    approval_presentation: { ...approvalPresentation, artefact_digest: "sha256:a", summary_digest: "sha256:s" } }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(previewDispatch.outcome, "intake_continuation");
+assert.equal(previewDispatch.continuation.phase, "presentation_required");
+assert.equal(previewDispatch.terminal, false);
+assert.deepEqual(previewDispatch.host_action, { mode: "continue_delivery_intake", source: "continuation.steps", bound_to_target: true });
+assert.deepEqual(previewDispatch.presentation, {
+  schema_version: "1", semantic_block: "approval_preview", run_id: "delivery-run", revision_id: "approval-revision", current_gate: "UR",
+  presentation_language: "de", markdown: "review summary and linked artefact", artefact_digest: "sha256:a", summary_digest: "sha256:s", authorizes: false,
+});
+assert.equal(previewDispatch.continuation.steps[0].argv[0], "run-present");
+const noPreviewDispatch = createSkillDispatchService({
+  resolveTaskTarget: () => resolved,
+  renderTaskTargetOrientation: () => orientation,
+  evaluateGateCheck: () => ({ ...gateReport, current_gate: "UR", missing_approval: "Approval: UR",
+    approval_presentation: { ...approvalPresentation, preview_markdown: "" } }),
+  env: {},
+})({ ...base, skillId: "gate-check", targetSource: "continued_target", primaryTarget: "/tmp/agdf-repo", runId: "delivery-run", continueDelivery: true });
+assert.equal(noPreviewDispatch.continuation.phase, "presentation_required");
+assert.equal(noPreviewDispatch.presentation, null, "without a rendered preview the field stays null");
+console.log("presentation_required preview tests passed.");

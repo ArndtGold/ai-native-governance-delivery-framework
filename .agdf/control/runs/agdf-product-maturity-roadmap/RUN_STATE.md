@@ -5,10 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-product-maturity-roadmap
 - lifecycle: active
-- revision: 48
-- revision_id: 5af25162-0b2a-452e-89ed-d3b3b19ad762
+- revision: 49
+- revision_id: eb4ce093-db17-4daa-9261-c1a798243e9c
+- content_seal: sha256:f05908b714bc4f670fd5daa28ecb764c52606b50359d8091afea309543df1a7b
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:10.860Z
 - mode: structured_delivery
-- current_gate: CD+Tests
+- current_gate: UR
 - decision: in_progress
 - owner: user / agent
 
@@ -22,11 +25,11 @@ einfachere Nutzerinteraktion.
 
 | Question | Answer |
 |---|---|
-| What is known? | QA Transition, Structured Depth, Benchmark v3, Task Target Resolution, Lean Interaction Ownership and Single Install Activation are completed with accepted ORs. RMP-10 Revision 4 records PMR-1 and PMR-5 as `satisfied_with_limits`; no residual Unified Journey product gap is evidenced, the Parent-owned PMR-6 direct-UAT protocol is ready, and the user confirmed that no independent participants are currently available. |
-| What is approved? | Roadmap-UR, PRD, SD und TP sind durch exakte Freigaben vom 2026-07-28 genehmigt; Pre-Implementation Brownfield Analysis entscheidet `pass`. |
-| What is missing? | At least four independent participants and eight valid blinded understandability observations for PMR-6; authenticated OpenCode parity evidence; completion of RMP-10 and later RMP-12 reviews/QA/UAT. |
-| What is the next allowed action? | Wait until at least four independent participants are available, then execute the eight observations in `UNDERSTANDABILITY_UAT_PROTOCOL.md`; keep RMP-12 closed. |
-| What is explicitly forbidden right now? | Simulated or agent substitutes for participants, a speculative Unified Journey child, final RMP-10/Parent QA claims, Parent runtime/plugin code, approval inheritance and automatic VCS actions. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -42,12 +45,12 @@ einfachere Nutzerinteraktion.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | approved | Exaktes `Approval: UR` am 2026-07-28 nach Run-, Ziel- und Scope-Revalidierung. |
-| PRD | approved | Exaktes `Approval: PRD` am 2026-07-28 nach same-run, same-gate, revision-4 und durable-artefact revalidation. |
-| SD | approved | Exaktes `Approval: SD` am 2026-07-28 nach same-run, same-gate, revision-5 und durable-artefact revalidation. |
-| TP | approved | Exaktes `Approval: TP` am 2026-07-28 nach same-run, same-gate, revision-6 und durable-artefact revalidation. |
-| QA | missing | Nicht zulässig. |
-| UAT | missing | Nicht zulässig. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -218,5 +221,5 @@ einfachere Nutzerinteraktion.
 
 - delivered: approved Parent UR/PRD/SD/TP; RMP-01 through RMP-08; completed QA Transition, Structured Depth, Benchmark v3, Task Target, Interaction Ownership and Single Install outcomes; RMP-10 Revision 3 with PMR-1/PMR-5 satisfied-with-limits; Parent-owned PMR-6 eight-scenario UAT protocol ready without a product Child.
 - intentionally_not_delivered: speculative Unified Journey scope, final RMP-10 acceptance, RMP-12 reviews/QA/UAT, VCS and release.
-- next_allowed_action: Wait until at least four independent participants are available, then execute the eight observations in `UNDERSTANDABILITY_UAT_PROTOCOL.md`; keep RMP-12 closed.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Preserve canonical owner boundaries and add direct understandability UAT before claiming the simpler Journey is mature.

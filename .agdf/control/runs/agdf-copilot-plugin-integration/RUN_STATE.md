@@ -5,11 +5,14 @@
 - control_state_version: 2
 - run_id: agdf-copilot-plugin-integration
 - lifecycle: active
-- revision: 40
-- revision_id: 0F76B326-6783-4469-A9E2-38BA35209C31
+- revision: 41
+- revision_id: bccd00e6-7e35-4f24-945d-51000cbedc81
+- content_seal: sha256:7507c58d2133da3e4f9c6f23904ce15c4ab1941f13a572d7b3aba5bcc7acf215
+- approval_seal: sha256:1a12f3626da09769bb507d5e9b17ea96172d8ee951f7c05ca7c39d37db56a2ea
+- updated_at: 2026-09-30T08:31:08.942Z
 - started_at: 2026-08-28
 - mode: `structured_delivery`
-- current_gate: `QA`
+- current_gate: UR
 - decision: `revise`
 - owner: Arndt Gold
 
@@ -22,11 +25,11 @@ repository-owned governance, exact approval authority and honest host-evidence b
 
 | Question | Answer |
 |---|---|
-| What is known? | The latest loaded Copilot `qa-gate` observation still rendered English in a German conversation and a later model translation altered the canonical card. The common function description, binding grammar and all ten executable skills now carry the same current-conversation language rule. Supported regional variants normalize to `de` or `en`; unsupported tags render through the complete English pack; a missing value remains invalid before dispatch. The resolved language reaches target rendering, gate evaluation and skill continuation. One uninterrupted final smoke passes with 83/83 evals and 467 package files. Generated, staged and installed `qa-gate`, runtime and locale bytes match; refreshed AGDF 0.14.5 directly renders complete English and German target and selected-run cards without diagnostics. |
-| What is approved? | UR revision 2, PRD revision 3, SD revision 4 and TP revision 4 are approved. Earlier QA approvals are historical only. |
-| What is missing? | A fully restarted Copilot session proving that `qa-gate` selects `de` from the German conversation before dispatch; repository-bound and optional consented SessionStart observations remain separate. |
-| What is the next allowed action? | Fully quit and reopen GitHub Copilot, start a new German repo-less session and invoke `agdf-qa-gate`. |
-| What is explicitly forbidden right now? | QA pass or approval request, UAT approval, publication, release and automatic VCS actions. |
+| What is known? | Recovery reset approvals without independent provenance; the ordinary approval sequence resumes. |
+| What is approved? | Nothing yet. |
+| What is missing? | Exact Approval: UR. |
+| What is the next allowed action? | Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR. |
+| What is explicitly forbidden right now? | create later-gate artefacts beyond the current allowed gate; run Brownfield Analysis as implementation preparation; implement code; claim QA or release readiness |
 
 ## Source And Scope State
 
@@ -57,12 +60,12 @@ Valid approval format for new runs: `Approval: <GateName>`.
 
 | Gate | Status | Evidence |
 |---|---|---|
-| UR | `approved` | Exact `Approval: UR` accepted for durable revision 2 on 2026-08-28 after revalidation. |
-| PRD | `approved` | Exact `Approval: PRD` accepted for revision 3 on 2026-08-30 after same-run, same-gate and revision revalidation. |
-| SD | `approved` | Exact `Approval: SD` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation. |
-| TP | `approved` | Exact `Approval: TP` accepted for revision 4 on 2026-09-03 after same-target, same-run, same-gate and revision revalidation. |
-| QA | `revise` | Revision 16 consumes the complete missing, unsupported and regional language correction and retains the fresh loaded-host evidence obligation; no approval is requested. |
-| UAT | `revise` | Target and concise-output behavior pass, but the latest `qa-gate` session remains English; corrected installed behavior is not yet observed after restart. |
+| UR | missing |  |
+| PRD | missing |  |
+| SD | missing |  |
+| TP | missing |  |
+| QA | missing |  |
+| UAT | missing |  |
 
 ## Artefacts
 
@@ -248,7 +251,7 @@ Valid approval format for new runs: `Approval: <GateName>`.
 - not_delivered: Refreshed loaded German `qa-gate` and repository-bound Copilot evidence, QA pass/approval, UAT approval, public Marketplace publication, cross-platform parity, VCS and release.
 - verification_performed: User-provided loaded-host negative evidence, function/binding/projection and selected-run presentation tests, 83/83 deterministic skill evals, package/runtime/installer suites, exact generated-staged-installed `qa-gate` and locale identity, German installed target/status output and refreshed Copilot 0.14.5 installation.
 - unverified: Corrected loaded German `qa-gate` behavior after full restart, repository-bound Copilot behavior and native Linux/Windows parity.
-- next_allowed_action: Fully restart Copilot, start a new repo-less German GeneralChat and invoke `agdf-qa-gate`; capture the repository-bound path separately afterward.
+- next_allowed_action: Fill the current UR control state, persist the UR draft, and request exact approval: Approval: UR.
 - quality_outlook: Prove that the loaded host derives language from the current conversation and transmits the canonical card verbatim.
 
 ## 2026-09-05 Installer Correction Closeout

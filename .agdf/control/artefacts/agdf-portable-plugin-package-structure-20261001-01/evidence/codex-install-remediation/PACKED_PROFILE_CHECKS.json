@@ -1,0 +1,42 @@
+{
+  "copilot": {
+    "files": 136,
+    "bytes": 1274994
+  },
+  "copilot_inventory_hashes": "all matched",
+  "duplicate_modules": "absent",
+  "build_only_templates": "absent",
+  "packages": [
+    {
+      "name": "create-agdf",
+      "version": "0.14.5",
+      "exports": {
+        ".": "./opencode-plugin.js",
+        "./control-command": "./lib/control-command.js",
+        "./cli": "./bin/create-agdf.js",
+        "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
+        "./opencode-plugin": "./opencode-plugin.js"
+      },
+      "dependencies": null
+    },
+    {
+      "name": "@agdf/cli",
+      "version": "0.14.5",
+      "exports": null,
+      "dependencies": {
+        "create-agdf": "0.14.5"
+      }
+    },
+    {
+      "name": "@agdf/mcp-server",
+      "version": "0.14.5",
+      "exports": {
+        ".": "./src/server.js"
+      },
+      "dependencies": {
+        "@modelcontextprotocol/server": "2.0.0",
+        "create-agdf": "0.14.5"
+      }
+    }
+  ]
+}

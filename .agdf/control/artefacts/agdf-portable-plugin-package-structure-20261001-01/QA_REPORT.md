@@ -1,38 +1,42 @@
 # QA Report: Portable AGDF Plugin Package Structure
 
-Status: revise
-Decision: revise
-Revision: 3
+Status: pass
+Decision: pass
+Revision: 4
 Date: 2026-10-01
 Run: agdf-portable-plugin-package-structure-20261001-01
 Owner: qa-gate (sole Quality Readiness decision owner)
-Binding: same selected target; revision 20 / d1618497-589b-40ab-9b78-03153250c83c; named QA continuation; canonical gate QA; doctor pass; no run ambiguity.
+Binding: named QA continuation; revision 26 / 9651f34d-54dd-4bd9-925b-416fa6e8cf3b; same target; QA; doctor pass.
 
 ## QA Gate
 
-- decision: revise
-- evidence: approved UR/PRD/SD/TP; staged Brownfield, schema/profile/path/rollback/adapter/protocol/documentation evidence; refreshed CD_TESTS, CODE_REVIEW, CLEAN_IMPLEMENTATION_REVIEW and TASK_PLAN_REVIEW. Duplicate-remediation CLEANUP.json and INVARIANTS.json preserve canonical source/approval hashes; ten fresh verification groups (eight affected package/runtime groups plus Compatibility recording/community-health); exact normal three-package archives and unpacked resource/profile checks pass.
-- missing_evidence: none required for this approved scope. Native four-host recognition, Windows observations and whole-root smoke remain explicitly unverified/not claimed under the existing evidence boundaries. The unrelated deleted startup test and other supplemental files remain outside the authorized five-module remediation.
-- risks: repository/package/deterministic fixture evidence does not establish fresh-host support or active installation. No publication or VCS action is authorized by this report.
-- required_next_step: human review of QA Report Revision 2; obtain exact QA approval before UAT.
-- impact_codes: none newly applicable; no parallel status-card decision model.
+- decision: pass
+- evidence: unchanged approved UR/PRD/SD/TP; prior staged migration and duplicate cleanup evidence; fresh CD_TESTS and Code/Clean/TP Review Revision 3; eight passing package/runtime verification groups, normal real three-package archives and unpacked integrity/inventory/resource/entrypoint checks, current compatibility 56/0 and community-health pass; authorized npm run install:codex exits 0 and independent installed/enabled list plus installed integrity pass.
+- missing_evidence: none required for the approved package/correction scope. Fresh session/model behavior, hooks discovery/trust/execution, other native hosts, Windows and unrelated whole-root smoke remain unverified and are not claimed.
+- risks: native local installation/registration is evidence for that operation; it does not establish a restarted live host session. The installer requires host restart/fresh session. No publication or VCS operation is authorized by this report.
+- required_next_step: human review of QA Report Revision 4; prepare its presentation binding before requesting exact Approval: QA.
+- impact_codes: none newly applicable; control authority and status-card decision model unchanged.
 
 ## Consumed quality evidence
 
 | Dimension | Result | Evidence |
 |---|---|---|
-| Plan coverage | pass | Task Plan Review Revision 2: 10/10 fully_done; actual SCN-020 passes; native SCN-017 explicitly unverified as planned |
-| Solution integrity | pass | Clean Review Revision 2: canonical source retained, ordinary generators prune derived copies, no exclusion/budget/validator workaround |
-| Code quality | pass | Code Review Revision 2: four identical supplemental files and one older weaker recovery copy removed; canonical originals unchanged; affected recovery and real packed-command tests pass |
-| QA decision | pass | sole qa-gate: TPR-E001 is resolved by normal actual prepack/archives/profile evidence; no applicable open normalized finding |
+| Plan coverage | pass | 10/10 tasks fulfilled; T-003/T-006/T-008 compatibility/provenance correction; user additionally authorized active installation; fresh affected checks/archive proof |
+| Solution integrity | pass | existing marketplace/provenance/integrity owners fix production root selection; no parallel source/acceptance/control owner or validator bypass |
+| Code quality | pass | exact correction diff reviewed; source hashes unchanged despite externally created commits; root/fallback identity enforced; non-version fields remain hash-bound; idempotence/recovery/negative fixtures pass |
+| QA decision | pass | sole qa-gate; QA-I001 resolved by actual installed local identity and fresh evidence; prior CR-R001 and TPR-E001 remain resolved without reclassification |
 
-Actual create-agdf archive has 642 files, @agdf/cli 5, @agdf/mcp-server 9. All 15 supplemental distributed paths are absent. Actual Copilot profile is 136 files / 1274662 bytes, exactly the unchanged limit. Versions, exports and dependency identities remain stable; build-only hook templates and schema engine are excluded. Package inspection used normal npm pack with scripts enabled, including real successful create-agdf prepack.
+## Normalized Findings
 
-The user explicitly authorized correction of the five named baseline files with “fix it” and “leg los”. Canonical run-recovery retains assertRecoveryOperationsTrusted; its removed copy lacked that import/call and contained no unique required behavior. Original copies are recoverable from the task-owned backup. Approved product/design/plan artefacts are unchanged.
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| QA-I001 | implementation_gap | CD+Tests | resolved | evidence/codex-install-remediation/INSTALLED.json; CHECKS.json; PACKED_OUTPUTS.json; installed root/fallback 0.14.5+codex.local-d4ca33a48e88; actual installed integrity passes | retain corrected production projection and regression evidence |
 
-The current Compatibility owner re-recorded 56 scenarios with no failures after the source fingerprint changed. Community-health then passed. Older revise reports and archive evidence are preserved under evidence/duplicate-remediation/PRIOR_* and the original evidence files; fresh acceptance links the new subdirectory only. The temporary archive-capture helper was corrected for lifecycle output before JSON, then normal pack repeated successfully.
+Canonical generated/public/package and Claude versions remain 0.14.5. Normal archives contain 642/5/9 files, all exports and dependencies resolve, no removed supplemental module or build-only hook template appears. Copilot inventory hashes/sizes match actual unpacked contents: 136 files / 1274994 bytes. Its existing shared provenance owner grows by exactly 332 bytes; the recorded ceiling adds only that measured delta, no duplicate files/headroom. Prior duplicate-remediation results remain valid for their earlier snapshot.
 
-Normalized findings are consumed without reclassification: CR-R001 implementation_gap/CD+Tests remains resolved by migrated-source proof; TPR-E001 evidence_gap/evidence_obligation is now resolved by fresh actual evidence. No QA/UAT human approval, OR, active installation, fresh native invocation, publication, commit, index update or push is inferred.
+Prior QA pass and newly observed native failure are preserved in evidence/codex-install-remediation/PRIOR_QA_REPORT.md and QA_REPORT_REVISE.md. Archive reporting needed a task-owned npm cache and Python 3.9 extraction/JSON decoding adjustments; normal production packing succeeded. These reporting corrections are distinct from the fixed native installation defect.
+
+No QA/UAT approval, OR, release or fresh-model-session acceptance is inferred.
 
 ## Context Graph reconciliation
 
@@ -41,17 +45,7 @@ Normalized findings are consumed without reclassification: CR-R001 implementatio
 - context_graph_reconciliation: resolved
 - context_graph_required_action: none
 - context_graph_gate_effect: none
-- context_graph_evidence: migration node/source refs and previous reviewed documentation remain correct; supplemental file removal adds no new source owner or durable architecture decision.
+- context_graph_evidence: reusable local_portable_version_projection_20261001 invariant added to existing distribution node, docs/architecture/package-structure.md updated, current compatibility/community-health pass.
 - memory_target: scope_artifact
-- memory_reason: cleanup authorization, removed/retained hashes, package tuples and prior revise evidence are run-specific.
-- memory_refs: evidence/duplicate-remediation/; this report.
-
-## New native installation finding (supersedes the preceding pass)
-
-User explicitly authorized npm run install:codex and its correction with fix it / leg los und fix it. The real installation failed with exit 1: expected 0.14.5+codex.local-38324453ebf0, observed 0.14.5. The new portable root manifest retains the canonical version while the local installer projects only the Codex fallback version. Earlier fixture evidence did not exercise actual root-manifest version selection. No human QA approval exists.
-
-| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
-|---|---|---|---|---|---|
-| QA-I001 | implementation_gap | CD+Tests | open | actual Codex plugin add/list version mismatch; local-marketplace.js projects only .codex-plugin/plugin.json | Synchronize owned local root/fallback versions, preserve normalized provenance, add regression and rerun authorized local install. |
-
-Current QA decision: revise. Required next step: correct QA-I001 inside approved compatibility/provenance tasks T-003/T-006/T-008; refresh affected reviews and QA evidence before requesting QA approval. Source/package public versions and host authority remain unchanged.
+- memory_reason: exact installation/cache/archive tuples and new failure/correction logs are run-specific.
+- memory_refs: evidence/codex-install-remediation/; this report.

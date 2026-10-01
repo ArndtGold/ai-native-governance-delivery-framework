@@ -5,13 +5,13 @@
 - control_state_version: 2
 - run_id: agdf-portable-plugin-package-structure-20261001-01
 - lifecycle: active
-- revision: 23
-- revision_id: c8e65e2c-8901-49b2-b2d7-c7f081100f05
-- content_seal: sha256:fc9be0a576a47a02eabfc419fd95b5b386e6a8cb4286dd7f88623cc296c5f86e
+- revision: 27
+- revision_id: 285b69c8-bafb-4801-8877-9dd8ee3ad4bd
+- content_seal: sha256:5b635320fe6d6c1dfcd411cb2a1fed4ced4b7bdee75d60b52ecad86e50bd2e40
 - approval_seal: sha256:c58db22380725ec72b46ee12a6d6f2fefd262fd0444e5b7b039a035fea408169
-- updated_at: 2026-10-01T12:43:28.150Z
+- updated_at: 2026-10-01T13:05:36.763Z
 - mode: structured_delivery
-- current_gate: CD+Tests
+- current_gate: QA
 - decision: in_progress
 - owner: agent
 
@@ -23,11 +23,11 @@ Deliver a portable AGDF plugin with one canonical identity and explicit plugin, 
 
 | Question | Answer |
 |---|---|
-| What is known? | Authorized five-module cleanup and actual package/profile evidence pass; Code/Clean/TP Review pass; qa-gate Revision 2 pass. |
+| What is known? | Code Review decision `pass`. |
 | What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
-| What is missing? | Human Approval: QA; no required package evidence remains open. |
-| What is the next allowed action? | Review the persisted QA Report Revision 2; bind its presentation before any QA approval question. |
-| What is explicitly forbidden right now? | UAT before human QA approval; release; automatic VCS actions; unrelated cleanup beyond the five authorized paths. |
+| What is missing? | Exact Approval: QA. |
+| What is the next allowed action? | Run the QA gate, persist the QA report, and request exact approval: Approval: QA |
+| What is explicitly forbidden right now? | request UAT approval; release; claim delivery readiness before QA approval and report evidence |
 
 ## Approvals
 
@@ -51,11 +51,11 @@ Deliver a portable AGDF plugin with one canonical identity and explicit plugin, 
 | SD | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/SD.md` | approved | criteria-chain-v1; SDD-001 through SDD-008 |
 | TP | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TP.md` | approved | criteria-chain-v1; T-001 through T-010; SCN-001 through SCN-021 |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_ANALYSIS.md` | done | pre_implementation_analysis; pass; baseline/shared-owner evidence captured |
-| CD+Tests | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CD_TESTS.md` | draft | Revision 2; normal actual package/prepack evidence pass; duplicate cleanup explicitly authorized |
-| CR | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md` | draft | Revision 2 pass; canonical cleanup retained and actual pack proof |
+| CD+Tests | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CD_TESTS.md` | done | Revision 3; actual corrected archives, regressions and user-authorized Codex install pass |
+| CR |  | done | Code Review pass |
 | Clean Implementation Review | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md` | done | pass; existing owners and bounded host/archive bridges |
 | Task Plan Review | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TASK_PLAN_REVIEW.md` | done | pass; 10/10 tasks; TPR-E001 resolved by actual archive/profile evidence |
-| QA | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md` | done | Revision 3 revise; native local version projection failure QA-I001 |
+| QA | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md` | done | Revision 4 pass; QA-I001 resolved by actual installation and refreshed evidence |
 
 ## Mode/Slice Decision
 
@@ -84,12 +84,13 @@ Deliver a portable AGDF plugin with one canonical identity and explicit plugin, 
 | Implementation-preparation Brownfield Analysis | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_ANALYSIS.md`; evidence/BASELINE.md; evidence/OWNER_COORDINATION.md | Approved TP reuse path, exact input hashes, current shared-owner revisions and unrelated dirty payload interference | source inspection; no implementation/package/host result |
 | Code Review | .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | direct |
 
-| Post-implementation quality evidence | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CD_TESTS.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TASK_PLAN_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md` | staged migration and refreshed QA pass; TPR-E001 resolved in Revision 2 | direct |
+| Post-implementation quality evidence | `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CD_TESTS.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TASK_PLAN_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md` | staged migration and refreshed QA pass; TPR-E001 remains resolved; QA-I001 resolved in QA Revision 4 | direct |
 
 | Authorized duplicate remediation | user “fix it” / “leg los”; evidence/duplicate-remediation/CLEANUP.json; normal pack/archive/profile evidence | five source copies removed, ten derived copies pruned, canonical originals preserved; TPR-E001 resolved | direct |
+| Code Review | .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | direct |
 | Code Review | .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md | direct |
 
 ## Closeout
 
-- next_allowed_action: Correct QA-I001 local Codex root/fallback version projection, then refresh tests and QA.
-- quality_outlook: QA revise: actual local Codex install exposes QA-I001; correction and refreshed evidence required; no QA/UAT approval.
+- next_allowed_action: Run the QA gate, persist the QA report, and request exact approval: Approval: QA
+- quality_outlook: QA pass: QA-I001 resolved; actual Codex installation/installed integrity and affected package tests pass; fresh session unverified; human QA/UAT approvals missing.

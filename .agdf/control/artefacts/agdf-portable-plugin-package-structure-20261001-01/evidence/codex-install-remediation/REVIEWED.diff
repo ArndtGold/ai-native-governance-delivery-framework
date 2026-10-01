@@ -1,0 +1,100 @@
+commit 8becf229efc0395d32c45e44f78033d0541c3854
+Author: arndtgold <arndt.gold@web.de>
+Date:   Thu Oct 1 14:56:51 2026 +0200
+
+    feat(plugin): add portable plugin manifest and improve version validation
+    
+    - Introduced INVARIANTS.json to track plugin artifacts and their integrity.
+    - Updated local-marketplace.js to read and validate the portable plugin version.
+    - Enhanced error handling for version mismatches in local development tests.
+
+diff --git a/create-agdf/lib/installers/local-marketplace.js b/create-agdf/lib/installers/local-marketplace.js
+index ab33795..2ca9102 100644
+--- a/create-agdf/lib/installers/local-marketplace.js
++++ b/create-agdf/lib/installers/local-marketplace.js
+@@ -248,6 +248,8 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
+   const codex = copilotProfile ? null : readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "built Codex plugin manifest");
+   const claude = copilotProfile ? null : readJson(join(pluginRoot, ".claude-plugin", "plugin.json"), "built Claude plugin manifest");
+   const copilot = copilotProfile ? readJson(join(pluginRoot, "plugin.json"), "built Copilot plugin manifest") : null;
++  const portablePath = join(pluginRoot, "plugin.json");
++  const portable = !copilotProfile && existsSync(portablePath) ? readJson(portablePath, "built portable plugin manifest") : null;
+   for (const required of [
+     ...(copilotProfile ? [join(pluginRoot, "plugin.json"), join(pluginRoot, ".agdf-payload-inventory.json")] : [
+       join(pluginRoot, ".codex-plugin", "plugin.json"),
+@@ -289,6 +291,9 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
+   if (!copilotProfile && codex.version !== expectedCodexInstallVersion) {
+     throw new Error(`Built Codex plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${codex.version}`);
+   }
++  if (portable && portable.version !== expectedCodexInstallVersion) {
++    throw new Error(`Built portable plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${portable.version}`);
++  }
+   if (!copilotProfile && claude.version !== expectedVersion) {
+     throw new Error(`Built Claude plugin version mismatch: expected ${expectedVersion}, observed ${claude.version}`);
+   }
+@@ -582,6 +587,10 @@ function prepareLocalMarketplaceFromSource({
+     if (!copilotProfile && codexInstallVersion !== expectedVersion) {
+       const codexManifestPath = join(stagedPluginRoot, ".codex-plugin", "plugin.json");
+       writeJson(codexManifestPath, { ...readJson(codexManifestPath, "built Codex plugin manifest"), version: codexInstallVersion });
++      const portableManifestPath = join(stagedPluginRoot, "plugin.json");
++      if (existsSync(portableManifestPath)) {
++        writeJson(portableManifestPath, { ...readJson(portableManifestPath, "built portable plugin manifest"), version: codexInstallVersion });
++      }
+     }
+     const runtimeManifest = readJson(join(stagedPluginRoot, "runtime", "runtime-manifest.json"), "built runtime manifest");
+     writeJson(join(stagedPluginRoot, INSTALLATION_PROVENANCE_FILE), {
+diff --git a/create-agdf/lib/runtime/plugin-provenance.js b/create-agdf/lib/runtime/plugin-provenance.js
+index 15add5a..9cc8646 100644
+--- a/create-agdf/lib/runtime/plugin-provenance.js
++++ b/create-agdf/lib/runtime/plugin-provenance.js
+@@ -218,7 +218,8 @@ export function digestNormalizedPluginSource(root, canonicalVersion) {
+     const normalizedPath = relative(root, path).replaceAll("\\", "/");
+     if ([INSTALLATION_PROVENANCE_FILE, LEGACY_LOCAL_INSTALL_FILE].includes(normalizedPath)) continue;
+     let content = readFileSync(path);
+-    if (normalizedPath === ".codex-plugin/plugin.json") {
++    if (normalizedPath === ".codex-plugin/plugin.json"
++        || (normalizedPath === "plugin.json" && readJson(path)?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")) {
+       const manifest = readJson(path);
+       if (!manifest) throw new Error(`Invalid Codex plugin manifest: ${path}`);
+       content = `${JSON.stringify({ ...manifest, version: canonicalVersion }, null, 2)}\n`;
+@@ -377,6 +378,7 @@ export function inspectInstallationProvenance(pluginRoot, {
+   }
+   const profile = currentProfile.status === "matched" ? currentProfile : historicalProfile;
+   const marker = readJson(markerPath);
++  const portable = readJson(join(pluginRoot, "plugin.json"));
+   if (!marker
+       || marker.schema_version !== 1
+       || marker.owner !== "create-agdf"
+@@ -384,6 +386,7 @@ export function inspectInstallationProvenance(pluginRoot, {
+       || marker.marketplace_id !== profile.contract.marketplaceIdentities.durable
+       || marker.canonical_version !== definition.version
+       || marker.codex_install_version !== pluginVersion
++      || (portable?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json" && portable.version !== pluginVersion)
+       || marker.runtime_digest !== runtimeManifest?.digest
+       || (profileId === "copilot-runtime-plugin" && marker.inventory_digest !== inventoryDigest)
+       || !/^[a-f0-9]{64}$/.test(marker.source_digest ?? "")) {
+diff --git a/plugins/agdf/scripts/check-runtime-integrity.mjs b/plugins/agdf/scripts/check-runtime-integrity.mjs
+index 0eb5c2c..1f40734 100644
+--- a/plugins/agdf/scripts/check-runtime-integrity.mjs
++++ b/plugins/agdf/scripts/check-runtime-integrity.mjs
+@@ -529,7 +529,8 @@ function digestPluginSource(root, canonicalVersion) {
+   for (const path of files) {
+     const normalizedPath = relative(root, path).replaceAll("\\", "/");
+     if ([".agdf-installation.json", ".agdf-local-install.json"].includes(normalizedPath)) continue;
+-    const content = normalizedPath === ".codex-plugin/plugin.json"
++    const content = (normalizedPath === ".codex-plugin/plugin.json"
++        || (normalizedPath === "plugin.json" && readJson(path, "Root plugin manifest").$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"))
+       ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
+       : normalizedPath === "mcp/codex.mcp.json"
+         ? normalizeCodexPluginMcpConfig(readFileSync(path, "utf8"))
+@@ -1260,6 +1261,11 @@ if (isFile(pagesSiteDataPath)) {
+ if (codexPlugin && pluginDefinition) {
+   if (codexPlugin.name !== pluginDefinition.id) failures.push("Codex plugin manifest name must match canonical AGDF plugin definition");
+   const expectedInstallVersion = installationProvenance?.codex_install_version ?? pluginDefinition.version;
++  const portablePlugin = isFile(copilotPluginPath) ? readJson(copilotPluginPath, "Root plugin manifest") : null;
++  if (portablePlugin?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
++      && portablePlugin.version !== expectedInstallVersion) {
++    failures.push("Portable plugin manifest version must match the owned Codex installation version");
++  }
+   const validInstalledProjection = !sourceMode
+     && installationProvenance?.schema_version === 1
+     && installationProvenance?.owner === "create-agdf"

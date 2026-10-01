@@ -1,20 +1,24 @@
-# CD+Tests: Portable plugin package structure — evidence refresh
+# CD+Tests — portable package and local Codex installation
 
 Run: agdf-portable-plugin-package-structure-20261001-01
 Date: 2026-10-01
-Revision: 2
-Status: execution completed; actual-package evidence gap resolved.
+Revision: 3
+Status: done
 
-Approved TP stages A/B are implemented with existing source/package/runtime owners. The user subsequently authorized remediation of the five identified supplemental control modules with “fix it” and “leg los”. Four copies were identical; the fifth lacked the canonical recovery trust-check import/call. Canonical originals are byte-for-byte unchanged; original copies are preserved in a task-owned backup. Other duplicates and startup-test deletion remain outside this correction.
+Approved UR/PRD/SD/TP bytes are unchanged. Prior staged migration and duplicate-cleanup evidence remains under evidence/ and evidence/duplicate-remediation/. This correction addresses QA-I001 within T-003/T-006/T-008; the user additionally authorized the active Codex installation and its correction.
 
-## Actual verification
+Existing local marketplace owner now projects the same source-derived install identity into portable root and Codex fallback. Shared provenance and standalone integrity normalize only owned version fields, enforce exact root identity, and retain hashing of every other field. Canonical generated/public/package and Claude versions remain 0.14.5. Three older version fixtures now include the root manifest; assertions and rollback checks were retained.
 
-[evidence/duplicate-remediation/CLEANUP.json](evidence/duplicate-remediation/CLEANUP.json) binds removed and retained files to SHA-256. Normal release:prepare, Copilot profile, run recovery, create-agdf package contents/control-command-package, CLI package/smoke and MCP package tests all pass (eight recorded groups; the control-command-package group also runs its existing eight isolated regressions). The actual Copilot profile is exactly 136 files / 1274662 bytes, matching the unchanged baseline. No added headroom, file exclusion or weakened validation.
+## Fresh verification
 
-[Actual archives](evidence/duplicate-remediation/PACKED_OUTPUTS.json) use normal npm pack with scripts enabled and successful create-agdf prepack: create-agdf 642 files, @agdf/cli 5, @agdf/mcp-server 9. All five source copies and their ten distributed runtime copies are absent. All three identities, versions, exports and dependency bindings match the prior supported packages. Build-only templates and schema-engine dependencies remain excluded. [Unpacked profiles](evidence/duplicate-remediation/PACKED_PROFILE_CHECKS.json) pass runtime/public schema/resource and actual Copilot budget checks.
+Eight package/runtime groups pass: local-development-install (includes release preparation), local-marketplace, runtime-integrity-layout, runtime-integrity-negative, codex-plugin-mcp, copilot-profile, local-preparation, package-contents. Root-version drift and root-description tampering fail integrity as required; same-source installation remains idempotent.
 
-The earlier stage, source, schema, rollback, adapter, protocol and documentation evidence remains valid for unchanged owned sources. PRIOR_CD_TESTS and PRIOR_* review reports preserve original failed actual-package evidence. The native lanes remain explicitly unverified under approved SCN-017; no fresh host, Windows, active install, publication or VCS action is claimed. The deleted unrelated startup test means no whole root smoke-test is claimed; the selected affected and packed-consumer checks passed.
+Actual normal npm pack with scripts enabled produced all three 0.14.5 archives: 642/5/9 files. Unpacked root/fallback versions match canonical 0.14.5; unpacked shared-runtime integrity passes; every actual Copilot inventory size/hash matches (136 files / 1274994 bytes). No removed supplemental module/build-only templates appear; package exports and exact dependencies resolve.
 
-TPR-E001 may now be resolved by Task Plan Review using the fresh actual package evidence; sole qa-gate owns the refreshed decision. No human approval is inferred.
+The shared provenance module grows by exactly 332 bytes; the measured Copilot baseline records only that addition, retaining 136 files and no spare headroom. Prior duplicate cleanup did not relax its limit.
 
-The Compatibility report was re-recorded after the source fingerprint changed (56 scenarios pass); current community-health passes. Sole QA Report Revision 2 now consumes the resolved TPR-E001 and decides pass. Human QA/UAT approvals remain absent.
+npm run install:codex exits 0. Codex plugin list independently reports installed/enabled 0.14.5+codex.local-d4ca33a48e88. Actual installed root/fallback versions match and installed runtime integrity passes (10 skills / 16 control files). Host discovery, hook trust/execution and fresh model/session behavior remain unverified; installer requires restart/fresh session.
+
+Evidence: evidence/codex-install-remediation/{CHECKS,INSTALLED,INVARIANTS,PACKED_OUTPUTS,PACKED_PROFILE_CHECKS}.json and logs. Temporary archive tooling used a task-owned npm cache after a sandbox cache-write failure and adjusted extraction/JSON decoding for Python 3.9/npm lifecycle output; production packing succeeded. Externally created commits 8becf22 and 3abf3b4 were observed, without VCS actions by this execution; correction source hashes still match the successful verification snapshot.
+
+Required next step: mandatory refreshed Code Review, Clean Review, TP Review and sole qa-gate. No QA/UAT approval, publication or fresh-host claim inferred.

@@ -157,6 +157,8 @@ try {
   });
   assert.equal(projected.codexInstallVersion, localVersion);
   assert.equal(json(join(projected.pluginRoot, ".codex-plugin", "plugin.json")).version, localVersion);
+  assert.equal(json(join(projected.pluginRoot, "plugin.json")).version, localVersion, "Codex selects the portable root version before the fallback");
+  assert.equal(json(join(builtPluginRoot, "plugin.json")).version, pluginDefinition.version, "local projection must not change generated package identity");
   assert.equal(json(join(projected.pluginRoot, ".claude-plugin", "plugin.json")).version, pluginDefinition.version);
   assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).source_digest, sourceDigest);
   assert.equal(json(join(projected.pluginRoot, ".agdf-installation.json")).profile_id, "runtime-plugin");
@@ -176,6 +178,18 @@ try {
   });
   assert.equal(installedIntegrity.status, 0, `${installedIntegrity.stdout}\n${installedIntegrity.stderr}`);
   assert.match(installedIntegrity.stdout, /mode=installed/);
+
+  const localPortablePath = join(projected.pluginRoot, "plugin.json");
+  const localPortableManifest = readFileSync(localPortablePath, "utf8");
+  for (const mutation of [
+    { ...JSON.parse(localPortableManifest), version: pluginDefinition.version },
+    { ...JSON.parse(localPortableManifest), description: "tampered root description" },
+  ]) {
+    writeFileSync(localPortablePath, `${JSON.stringify(mutation, null, 2)}\n`);
+    const integrity = spawnSync(process.execPath, [join(projected.pluginRoot, "scripts", "check-runtime-integrity.mjs")], { encoding: "utf8" });
+    assert.notEqual(integrity.status, 0, "root version drift and non-version tampering must fail integrity");
+  }
+  writeFileSync(localPortablePath, localPortableManifest);
 
   const localMarkerPath = join(projected.pluginRoot, ".agdf-installation.json");
   const localCodexManifestPath = join(projected.pluginRoot, ".codex-plugin", "plugin.json");
@@ -224,7 +238,7 @@ try {
       if (args.join(" ") === "plugin marketplace list --json") {
         return JSON.stringify({ marketplaces: [{ name: "agdf", marketplaceSource: { sourceType: "local", source: projected.root } }] });
       }
-      if (args.join(" ") === "plugin list") return `agdf@agdf ${localVersion}\n`;
+      if (args.join(" ") === "plugin list") return `agdf@agdf ${json(join(projected.pluginRoot, "plugin.json")).version}\n`;
       return "";
     },
   });

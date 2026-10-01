@@ -4,6 +4,8 @@
 
 ### CG-PUBLIC-PLUGIN-DISTRIBUTION
 
+- local_portable_version_projection_20261001: Codex reads identity/version from portable root plugin.json before its fallback. The existing local marketplace owner projects the same content-derived install version into both manifests, while canonical package/Claude versions remain unchanged. Provenance normalizes only owned version fields and validates the exact installed root version; other content remains hash-bound. Ref: docs/architecture/package-structure.md; .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/evidence/codex-install-remediation/.
+
 - portable_package_migration_20261001: Canonical source moved to plugins/agdf; portable root identity and OpenAI inline settings are projected from the definition. Local runtime omits inline settings and retains a complete Codex fallback with hooks/MCP. Shared hook templates are build-only under host-templates/shared/hooks; no new public MCP capability or npm/core package. Build checkpoints and actual/archive/native evidence stay separate. Refs: docs/architecture/package-structure.md; .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_ANALYSIS.md; .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/evidence/STAGE_B_RETRY_RESULTS.json.
 
 - situation: AGDF needs a public OpenAI directory distribution whose repository candidate, shared ChatGPT/Codex capability claims, verified-publisher prerequisite, portal lifecycle and effective listing state cannot be represented honestly as one package or release flag.

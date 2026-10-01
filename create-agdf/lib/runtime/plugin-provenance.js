@@ -218,7 +218,8 @@ export function digestNormalizedPluginSource(root, canonicalVersion) {
     const normalizedPath = relative(root, path).replaceAll("\\", "/");
     if ([INSTALLATION_PROVENANCE_FILE, LEGACY_LOCAL_INSTALL_FILE].includes(normalizedPath)) continue;
     let content = readFileSync(path);
-    if (normalizedPath === ".codex-plugin/plugin.json") {
+    if (normalizedPath === ".codex-plugin/plugin.json"
+        || (normalizedPath === "plugin.json" && readJson(path)?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")) {
       const manifest = readJson(path);
       if (!manifest) throw new Error(`Invalid Codex plugin manifest: ${path}`);
       content = `${JSON.stringify({ ...manifest, version: canonicalVersion }, null, 2)}\n`;
@@ -377,6 +378,7 @@ export function inspectInstallationProvenance(pluginRoot, {
   }
   const profile = currentProfile.status === "matched" ? currentProfile : historicalProfile;
   const marker = readJson(markerPath);
+  const portable = readJson(join(pluginRoot, "plugin.json"));
   if (!marker
       || marker.schema_version !== 1
       || marker.owner !== "create-agdf"
@@ -384,6 +386,7 @@ export function inspectInstallationProvenance(pluginRoot, {
       || marker.marketplace_id !== profile.contract.marketplaceIdentities.durable
       || marker.canonical_version !== definition.version
       || marker.codex_install_version !== pluginVersion
+      || (portable?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json" && portable.version !== pluginVersion)
       || marker.runtime_digest !== runtimeManifest?.digest
       || (profileId === "copilot-runtime-plugin" && marker.inventory_digest !== inventoryDigest)
       || !/^[a-f0-9]{64}$/.test(marker.source_digest ?? "")) {

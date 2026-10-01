@@ -213,6 +213,7 @@ try {
     );
     for (const manifestPath of [
       join(historicalPluginRoot, "runtime", "runtime-manifest.json"),
+      join(historicalPluginRoot, "plugin.json"),
       join(historicalPluginRoot, ".codex-plugin", "plugin.json"),
       join(historicalPluginRoot, ".claude-plugin", "plugin.json"),
     ]) {
@@ -289,6 +290,7 @@ try {
     );
     for (const manifestPath of [
       join(currentShapeInitial.pluginRoot, "runtime", "runtime-manifest.json"),
+      join(currentShapeInitial.pluginRoot, "plugin.json"),
       join(currentShapeInitial.pluginRoot, ".codex-plugin", "plugin.json"),
       join(currentShapeInitial.pluginRoot, ".claude-plugin", "plugin.json"),
     ]) {
@@ -498,6 +500,7 @@ try {
   const legacyRuntimePath = join(legacyPlugin, "runtime", "runtime-manifest.json");
   writeFileSync(legacyRuntimePath, `${JSON.stringify({ ...json(legacyRuntimePath), version: legacyVersion }, null, 2)}\n`);
   for (const manifestPath of [
+    join(legacyPlugin, "plugin.json"),
     join(legacyPlugin, ".codex-plugin", "plugin.json"),
     join(legacyPlugin, ".claude-plugin", "plugin.json"),
   ]) {

@@ -1,8 +1,8 @@
 # QA Report: Portable AGDF Plugin Package Structure
 
-Status: revise
-Decision: revise
-Revision: 3
+Status: pass
+Decision: pass
+Revision: 2
 Date: 2026-10-01
 Run: agdf-portable-plugin-package-structure-20261001-01
 Owner: qa-gate (sole Quality Readiness decision owner)
@@ -10,7 +10,7 @@ Binding: same selected target; revision 20 / d1618497-589b-40ab-9b78-03153250c83
 
 ## QA Gate
 
-- decision: revise
+- decision: pass
 - evidence: approved UR/PRD/SD/TP; staged Brownfield, schema/profile/path/rollback/adapter/protocol/documentation evidence; refreshed CD_TESTS, CODE_REVIEW, CLEAN_IMPLEMENTATION_REVIEW and TASK_PLAN_REVIEW. Duplicate-remediation CLEANUP.json and INVARIANTS.json preserve canonical source/approval hashes; ten fresh verification groups (eight affected package/runtime groups plus Compatibility recording/community-health); exact normal three-package archives and unpacked resource/profile checks pass.
 - missing_evidence: none required for this approved scope. Native four-host recognition, Windows observations and whole-root smoke remain explicitly unverified/not claimed under the existing evidence boundaries. The unrelated deleted startup test and other supplemental files remain outside the authorized five-module remediation.
 - risks: repository/package/deterministic fixture evidence does not establish fresh-host support or active installation. No publication or VCS action is authorized by this report.
@@ -45,13 +45,3 @@ Normalized findings are consumed without reclassification: CR-R001 implementatio
 - memory_target: scope_artifact
 - memory_reason: cleanup authorization, removed/retained hashes, package tuples and prior revise evidence are run-specific.
 - memory_refs: evidence/duplicate-remediation/; this report.
-
-## New native installation finding (supersedes the preceding pass)
-
-User explicitly authorized npm run install:codex and its correction with fix it / leg los und fix it. The real installation failed with exit 1: expected 0.14.5+codex.local-38324453ebf0, observed 0.14.5. The new portable root manifest retains the canonical version while the local installer projects only the Codex fallback version. Earlier fixture evidence did not exercise actual root-manifest version selection. No human QA approval exists.
-
-| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
-|---|---|---|---|---|---|
-| QA-I001 | implementation_gap | CD+Tests | open | actual Codex plugin add/list version mismatch; local-marketplace.js projects only .codex-plugin/plugin.json | Synchronize owned local root/fallback versions, preserve normalized provenance, add regression and rerun authorized local install. |
-
-Current QA decision: revise. Required next step: correct QA-I001 inside approved compatibility/provenance tasks T-003/T-006/T-008; refresh affected reviews and QA evidence before requesting QA approval. Source/package public versions and host authority remain unchanged.

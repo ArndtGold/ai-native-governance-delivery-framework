@@ -56,6 +56,12 @@ erfolgreicher Prüfung. Bei Fehlern bleibt der bisherige Kandidat erhalten. Für
 Hosts erzeugt `prepare-local-plugin.js <host>` nur die erforderlichen Profile; Installation
 und Recovery laufen weiter über die vorhandenen Installations-Owner.
 
+Bei einer lokalen Codex-Installation tragen Root-`plugin.json` und Codex-Fallback
+dieselbe aus dem Quellinhalt abgeleitete Kennung `+codex.local-…`. Die kanonische
+Paketversion und das Claude-Manifest behalten ihre Release-Version. Provenance
+normalisiert ausschließlich die beiden projizierten Versionsfelder; eine abweichende
+Installationskennung oder andere Inhaltsänderung schlägt weiterhin fehl.
+
 Die Ausgaben bleiben unter `create-agdf/generated/`: gemeinsames Runtime-Plugin,
 Copilot-Profil, OpenCode-Konfiguration und öffentlicher Kandidat. Ein gültiger Build
 beweist noch keine Installation oder Host-Erkennung. Tatsächliche npm-Tarballs,

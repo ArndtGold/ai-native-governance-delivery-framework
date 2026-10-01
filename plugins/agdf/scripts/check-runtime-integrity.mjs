@@ -529,7 +529,8 @@ function digestPluginSource(root, canonicalVersion) {
   for (const path of files) {
     const normalizedPath = relative(root, path).replaceAll("\\", "/");
     if ([".agdf-installation.json", ".agdf-local-install.json"].includes(normalizedPath)) continue;
-    const content = normalizedPath === ".codex-plugin/plugin.json"
+    const content = (normalizedPath === ".codex-plugin/plugin.json"
+        || (normalizedPath === "plugin.json" && readJson(path, "Root plugin manifest").$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"))
       ? `${JSON.stringify({ ...readJson(path, "Codex plugin manifest"), version: canonicalVersion }, null, 2)}\n`
       : normalizedPath === "mcp/codex.mcp.json"
         ? normalizeCodexPluginMcpConfig(readFileSync(path, "utf8"))
@@ -1260,6 +1261,11 @@ if (isFile(pagesSiteDataPath)) {
 if (codexPlugin && pluginDefinition) {
   if (codexPlugin.name !== pluginDefinition.id) failures.push("Codex plugin manifest name must match canonical AGDF plugin definition");
   const expectedInstallVersion = installationProvenance?.codex_install_version ?? pluginDefinition.version;
+  const portablePlugin = isFile(copilotPluginPath) ? readJson(copilotPluginPath, "Root plugin manifest") : null;
+  if (portablePlugin?.$schema === "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+      && portablePlugin.version !== expectedInstallVersion) {
+    failures.push("Portable plugin manifest version must match the owned Codex installation version");
+  }
   const validInstalledProjection = !sourceMode
     && installationProvenance?.schema_version === 1
     && installationProvenance?.owner === "create-agdf"

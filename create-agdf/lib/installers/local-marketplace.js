@@ -248,6 +248,8 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
   const codex = copilotProfile ? null : readJson(join(pluginRoot, ".codex-plugin", "plugin.json"), "built Codex plugin manifest");
   const claude = copilotProfile ? null : readJson(join(pluginRoot, ".claude-plugin", "plugin.json"), "built Claude plugin manifest");
   const copilot = copilotProfile ? readJson(join(pluginRoot, "plugin.json"), "built Copilot plugin manifest") : null;
+  const portablePath = join(pluginRoot, "plugin.json");
+  const portable = !copilotProfile && existsSync(portablePath) ? readJson(portablePath, "built portable plugin manifest") : null;
   for (const required of [
     ...(copilotProfile ? [join(pluginRoot, "plugin.json"), join(pluginRoot, ".agdf-payload-inventory.json")] : [
       join(pluginRoot, ".codex-plugin", "plugin.json"),
@@ -288,6 +290,9 @@ function validateBuiltPlugin(pluginRoot, expectedVersion, expectedCodexInstallVe
   }
   if (!copilotProfile && codex.version !== expectedCodexInstallVersion) {
     throw new Error(`Built Codex plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${codex.version}`);
+  }
+  if (portable && portable.version !== expectedCodexInstallVersion) {
+    throw new Error(`Built portable plugin version mismatch: expected ${expectedCodexInstallVersion}, observed ${portable.version}`);
   }
   if (!copilotProfile && claude.version !== expectedVersion) {
     throw new Error(`Built Claude plugin version mismatch: expected ${expectedVersion}, observed ${claude.version}`);
@@ -582,6 +587,10 @@ function prepareLocalMarketplaceFromSource({
     if (!copilotProfile && codexInstallVersion !== expectedVersion) {
       const codexManifestPath = join(stagedPluginRoot, ".codex-plugin", "plugin.json");
       writeJson(codexManifestPath, { ...readJson(codexManifestPath, "built Codex plugin manifest"), version: codexInstallVersion });
+      const portableManifestPath = join(stagedPluginRoot, "plugin.json");
+      if (existsSync(portableManifestPath)) {
+        writeJson(portableManifestPath, { ...readJson(portableManifestPath, "built portable plugin manifest"), version: codexInstallVersion });
+      }
     }
     const runtimeManifest = readJson(join(stagedPluginRoot, "runtime", "runtime-manifest.json"), "built runtime manifest");
     writeJson(join(stagedPluginRoot, INSTALLATION_PROVENANCE_FILE), {

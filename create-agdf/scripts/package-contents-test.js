@@ -26,7 +26,7 @@ assert.ok(reportStarts.length, "npm pack must emit a JSON report after prepack o
 const rawReport = JSON.parse(packOutput.slice(reportStarts.at(-1).index));
 const packageReport = Array.isArray(rawReport) ? rawReport[0] : rawReport[packageManifest.name];
 const files = packageReport?.files?.map((entry) => entry.path) ?? [];
-const pluginDefinition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
+const pluginDefinition = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url), "utf8"));
 const required = [
   "LICENSE",
   "NOTICE",
@@ -35,6 +35,7 @@ const required = [
   "generated/.opencode/AGDF.md",
   "generated/.opencode/agdf-agent-router.md",
   "generated/plugins/agdf/.codex-plugin/plugin.json",
+  "generated/plugins/agdf/plugin.json",
   "generated/plugins/agdf/.claude-plugin/plugin.json",
   "generated/plugins/copilot/agdf/plugin.json",
   "generated/plugins/copilot/agdf/hooks/copilot-hooks.json",
@@ -58,6 +59,7 @@ const required = [
   "generated/plugins/agdf/skills/ux-intent-definition/help.md",
   "generated/plugins/agdf/control/templates/artefacts/UX_INTENT_DEFINITION.md",
   "generated/submissions/openai/agdf/.codex-plugin/plugin.json",
+  "generated/submissions/openai/agdf/plugin.json",
   "generated/submissions/openai/agdf/submission/openai/inventory.json",
   "generated/submissions/openai/agdf/submission/openai/readiness.json",
   "generated/submissions/openai/agdf/submission/openai/readiness.md",
@@ -66,7 +68,7 @@ for (const path of required) {
   assert.equal(files.filter((candidate) => candidate === path).length, 1, `package must contain ${path} exactly once`);
 }
 for (const excluded of [
-  "generated/plugins/agdf/plugin.json",
+  "generated/plugins/agdf/host-templates/shared/hooks/hooks.json",
   "generated/plugins/agdf/hooks/copilot-hooks.json",
   "generated/plugins/agdf/copilot-skills/agdf-gate-check/SKILL.md",
 ]) assert.equal(files.includes(excluded), false, `shared plugin package must exclude Copilot-only path ${excluded}`);
@@ -104,7 +106,7 @@ for (const [name, target] of Object.entries(packageManifest.exports ?? {})) {
   assert.equal(typeof target, "string", `export ${name} must be a direct string target`);
   assert.equal(files.includes(target.replace(/^\.\//, "")), true, `declared export ${name} must exist in packed files`);
 }
-assert.equal(files.some((path) => path.startsWith("plugin/runtime/")), false, "package must not leak a source plugin runtime path");
+assert.equal(files.some((path) => path.startsWith("plugins/agdf/runtime/")), false, "package must not leak a source plugin runtime path");
 for (const host of ["codex", "claude", "copilot", "opencode"]) {
   assert.ok(files.includes(`lib/host-adapters/${host}/session-command.js`));
   for (const profile of ["generated/plugins/agdf", "generated/plugins/copilot/agdf"]) {

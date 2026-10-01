@@ -202,14 +202,14 @@ export async function composeRequestActivationProfile({ repoRoot, manifest, prof
     throw new Error(`unsupported request activation profile surface: ${profileSurface || "missing"}`);
   }
   const config = loadRequestActivationComposedProfileConfig(repoRoot, manifest);
-  const definition = readJson(repositoryPath(repoRoot, "plugin/meta/agdf-plugin.definition.json"));
+  const definition = readJson(repositoryPath(repoRoot, "plugins/agdf/meta/agdf-plugin.definition.json"));
   const skills = Array.isArray(definition.skillSet) ? definition.skillSet : [];
   const registry = new Set(skills.map(({ slug }) => slug));
   if (typeof instructionSkill !== "string" || !registry.has(instructionSkill)) {
     throw new Error(`unknown composed-profile instruction skill: ${instructionSkill || "missing"}`);
   }
   const profile = config.profiles[profileSurface];
-  const contract = readSource(repoRoot, "plugin/meta/contracts/request-activation.md");
+  const contract = readSource(repoRoot, "plugins/agdf/meta/contracts/request-activation.md");
   const canonicalKernel = extractKernel(contract, "canonical Request Activation Contract");
   const sandbox = mkdtempSync(join(tmpdir(), `agdf-${profileSurface}-composed-profile-`));
   try {

@@ -323,7 +323,7 @@ assert.match(architectureReadme, /noch den Inhalt eines von npm aufgelösten `@l
 assert.match(architectureReadme, /Quellstand, verteiltes Paket und frische Host-Sitzung\s+benötigen jeweils eigene Nachweise/, "source, distribution and installed-host claims need separate evidence");
 assert.doesNotMatch(architectureReadme, /kanonische Paketversion \*\*0\.14\.5\*\*/);
 
-const backlogTemplate = readFileSync(join(packageRoot, "..", "plugin", "control", "templates", "MASTER_BACKLOG.md"), "utf8");
+const backlogTemplate = readFileSync(join(packageRoot, "..", "plugins", "agdf", "control", "templates", "MASTER_BACKLOG.md"), "utf8");
 assert.match(backlogTemplate, /create-agdf\/lib\/control-evaluation\/shared\.js/);
 assert.doesNotMatch(backlogTemplate, /create-agdf\/bin\/create-agdf\.js/);
 

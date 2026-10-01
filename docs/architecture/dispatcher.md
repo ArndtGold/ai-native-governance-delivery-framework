@@ -13,7 +13,7 @@ Die Use-Case-Kennungen unten dienen der Orientierung in dieser Dokumentation. Si
 Runtime-Kennungen und definieren keine zusätzliche Policy. Maßgeblich bleiben der
 [Werkzeugvertrag](../../create-agdf/lib/skill-dispatch/contract.js), der
 [Dispatch-Service](../../create-agdf/lib/skill-dispatch/service.js) und die
-[Runtime-Verträge](../../plugin/meta/contracts/).
+[Runtime-Verträge](../../plugins/agdf/meta/contracts/).
 
 ## Zuständigkeiten und Aufrufwege
 
@@ -133,9 +133,9 @@ Evaluator-Operation, kein siebter oder achter Ergebnistyp.
 | Thema | Maßgebliche Implementierung / Vertrag | Bestehender Test-Einstieg |
 |---|---|---|
 | Eingabe, Ergebnisse, Host-Aktion und Routing | [Vertrag](../../create-agdf/lib/skill-dispatch/contract.js), [Service](../../create-agdf/lib/skill-dispatch/service.js) | [Dispatch-Tests](../../create-agdf/scripts/skill-dispatch-test.js), [Funktionsvertrag](../../create-agdf/scripts/skill-dispatch-function-contract-test.js) |
-| Aktivierung und Interaktion | [Request Activation](../../plugin/meta/contracts/request-activation.md), [Interaktion](../../plugin/meta/contracts/interaction.md) | [Dispatch-Tests](../../create-agdf/scripts/skill-dispatch-test.js) für Runtime-Verhalten; die anfragebezogene Aktivierung durch den Agenten braucht eigene Host-Evidenz. |
+| Aktivierung und Interaktion | [Request Activation](../../plugins/agdf/meta/contracts/request-activation.md), [Interaktion](../../plugins/agdf/meta/contracts/interaction.md) | [Dispatch-Tests](../../create-agdf/scripts/skill-dispatch-test.js) für Runtime-Verhalten; die anfragebezogene Aktivierung durch den Agenten braucht eigene Host-Evidenz. |
 | Run-Zuordnung und Intake | [Zuordnung](../../create-agdf/lib/skill-dispatch/delivery-run-assignment.js), [Intake](../../create-agdf/lib/skill-dispatch/delivery-intake.js) | [Zuordnungs-Tests](../../create-agdf/scripts/delivery-run-assignment-test.js) |
-| Gate-Routing und Artefaktvorbereitung | [Gate-Evaluator](../../create-agdf/lib/control-evaluation/gate-check.js), [Vorbereitungsvertrag](../../plugin/meta/contracts/gate-artifact-preparation.md), [Gate-Übergang](../../plugin/meta/contracts/gate-transition.md) | [Dispatch-Tests](../../create-agdf/scripts/skill-dispatch-test.js) |
+| Gate-Routing und Artefaktvorbereitung | [Gate-Evaluator](../../create-agdf/lib/control-evaluation/gate-check.js), [Vorbereitungsvertrag](../../plugins/agdf/meta/contracts/gate-artifact-preparation.md), [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md) | [Dispatch-Tests](../../create-agdf/scripts/skill-dispatch-test.js) |
 | Präsentationsbindung und Freigabeprüfung | [Präsentations-Writer](../../create-agdf/lib/control-state/run-presentation.js), [Approval-Validator](../../create-agdf/lib/control-state/gate-approval-validator.js) | [Dispatch-Tests](../../create-agdf/scripts/skill-dispatch-test.js) für die Übergabe an den Writer |
 | MCP-Projektion | [MCP-Laufzeit](../../create-agdf/lib/mcp-dispatch-runtime.js), [Server](../../agdf-mcp-server/src/server.js) | [Protokoll](../../agdf-mcp-server/test/protocol.test.js), [Fortsetzungen](../../agdf-mcp-server/test/continuation.test.js) |
 

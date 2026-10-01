@@ -31,7 +31,7 @@ function fail(code, message) { return { status: "block", code, message }; }
 
 export function fingerprintCase(repoRoot, pluginDefinition, testCase) {
   const skill = pluginDefinition.skillSet.find((item) => item.slug === testCase.target_skill);
-  const sources = ["evals/fixtures/catalog.json", "plugin/meta/agdf-agent-router.md", `plugin/skills/${testCase.target_skill}/SKILL.md`, ...(testCase.relevant_sources ?? [])];
+  const sources = ["evals/fixtures/catalog.json", "plugins/agdf/meta/agdf-agent-router.md", `plugins/agdf/skills/${testCase.target_skill}/SKILL.md`, ...(testCase.relevant_sources ?? [])];
   const hash = createHash("sha256");
   hash.update(JSON.stringify(stable({ case: testCase, routing: skill })));
   for (const source of [...new Set(sources)].sort()) hash.update(source).update(readFileSync(safePath(repoRoot, source)));
@@ -68,7 +68,7 @@ export function runSkillEvals(repoRoot, { corpusDir = "evals" } = {}) {
   if (manifest.schema_version !== 1) throw Object.assign(new Error("unsupported eval manifest schema"), { code: FAILURE.schema });
   const thresholdFamilies = ["coverage", "routing", "gate", "actions", "mutation", "artefact_quality"];
   if (thresholdFamilies.some((name) => manifest.thresholds?.[name] !== 1)) throw Object.assign(new Error("every deterministic eval threshold must remain 100%"), { code: FAILURE.schema });
-  const pluginDefinition = readJson(safePath(repoRoot, "plugin/meta/agdf-plugin.definition.json"));
+  const pluginDefinition = readJson(safePath(repoRoot, "plugins/agdf/meta/agdf-plugin.definition.json"));
   const caseDir = safePath(root, "cases");
   const cases = readdirSync(caseDir).filter((name) => name.endsWith(".json")).sort().flatMap((name) => readJson(safePath(caseDir, name)));
   const fixtures = readJson(safePath(root, "fixtures/catalog.json"));

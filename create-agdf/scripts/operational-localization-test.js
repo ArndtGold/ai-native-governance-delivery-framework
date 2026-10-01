@@ -12,7 +12,7 @@ import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 
 const packageRoot = join(import.meta.dirname, "..");
 const repositoryRoot = join(packageRoot, "..");
-const registry = JSON.parse(readFileSync(join(repositoryRoot, "plugin", "meta", "agdf-interaction-locales.json"), "utf8"));
+const registry = JSON.parse(readFileSync(join(repositoryRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 const locales = Object.keys(registry.locales);
 const unrenderable = (value) => locales.filter((locale) => !isOperationalValueRenderable(value, { registry, requestedLocale: locale }));
 

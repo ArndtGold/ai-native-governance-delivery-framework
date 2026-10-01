@@ -2,7 +2,7 @@
 language: en
 chapter_role: gates_and_approvals
 translation_of: ../de/02-gates-und-freigaben.md
-source_revision: sha256:7d4216d704cc894d4aee7dd2d31b7935ae56b4f44fe9a65ef98a6faab212bba4
+source_revision: sha256:77ad2f2319a783c793071b851c813a0c46fadbfe7ebe7ce82a4337bfc00438c0
 translation_status: reviewed
 ---
 
@@ -50,7 +50,7 @@ evaluates the current state and names the next permitted step.
 | `Approval: UAT` | Orchestration Report and Delivery Closeout may be prepared. Git and release actions still require separate instructions. |
 
 The authoritative transition logic is in the
-[Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md).
+[Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md).
 
 ## Exact approval
 

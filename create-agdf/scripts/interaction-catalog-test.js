@@ -4,7 +4,7 @@ import { validateInteractionCatalog } from "../lib/interaction-catalog-validatio
 import { DISPATCH_RECOVERY_CODES, INSTALL_SETUP_STATES, CODEX_HOOK_STATES, codexHookState } from "../lib/interaction-catalog.js";
 import { renderSkillDispatchRecovery } from "../lib/interaction-presentation.js";
 
-const registry = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
+const registry = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
 assert.equal(validateInteractionCatalog(registry), true);
 const service = readFileSync(new URL("../lib/skill-dispatch/service.js", import.meta.url), "utf8");
 assert.doesNotMatch(service, /runDispatchStage\("/);

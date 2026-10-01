@@ -51,7 +51,7 @@ import { runSelectionRecovery } from "../lib/control-evaluation/shared.js";
 import { deriveQualityOutlook } from "../lib/control-evaluation/delivery-map.js";
 
 const registry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "generated", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
-const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "agdf-interaction-locales.json"), "utf8"));
+const sourceRegistry = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "plugins", "agdf", "meta", "agdf-interaction-locales.json"), "utf8"));
 
 assert.deepEqual(validateLocaleRegistry(registry), { valid: true, errors: [] });
 assert.deepEqual(validateLocaleRegistry(sourceRegistry), { valid: true, errors: [] });
@@ -635,8 +635,8 @@ assert.equal(nativeAttempt.outcome, "attempted_not_applied");
 const decoratedPreflight = evaluateNativeApprovalCapability({ staticCapability: { approvalValueTransport: "decorated_label_only", waitSafety: "deliberate_no_auto_resolution" } });
 assert.equal(registry.locales.en.primary.readOnlyOrientationDescription, "Read-only check — no new AGDF run and no approval required.");
 assert.equal(registry.locales.de.primary.readOnlyOrientationDescription, "Read-only Prüfung – kein neuer AGDF-Run und keine Freigabe erforderlich.");
-const interactionContract = readFileSync(join(import.meta.dirname, "..", "..", "plugin", "meta", "contracts", "interaction.md"), "utf8");
-const gateCheckSkill = readFileSync(join(import.meta.dirname, "..", "..", "plugin", "skills", "gate-check", "SKILL.md"), "utf8");
+const interactionContract = readFileSync(join(import.meta.dirname, "..", "..", "plugins", "agdf", "meta", "contracts", "interaction.md"), "utf8");
+const gateCheckSkill = readFileSync(join(import.meta.dirname, "..", "..", "plugins", "agdf", "skills", "gate-check", "SKILL.md"), "utf8");
 assert.equal((interactionContract.match(/^### Post-activation read-only request orientation$/gm) ?? []).length, 1);
 assert.match(interactionContract, /Silent Request Activation abstention for an ordinary read-only request renders no AGDF orientation/);
 assert.match(interactionContract, /interaction_kind: clarification \| tool_permission \| gate_approval \| control_setup \| blocked \| status/);

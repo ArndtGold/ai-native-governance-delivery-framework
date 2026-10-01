@@ -12,10 +12,12 @@ import {
   renderCopilotPluginManifest,
 } from "../lib/public-plugin/manifest.js";
 import { inventory, validateCandidate } from "../lib/public-plugin/validator.js";
+import { createPortableSchemaValidator } from "./support/portable-schema.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
-const pluginRoot = join(repoRoot, "plugin");
+const validateSchema = createPortableSchemaValidator(repoRoot);
+const pluginRoot = join(repoRoot, "plugins", "agdf");
 const outputRoot = join(packageRoot, "generated", "submissions", "openai", "agdf");
 const generatedHostRegistrations = ["create-agdf/.codex/config.toml", "create-agdf/.github/mcp.json"];
 const trackedHostRegistrations = execFileSync("git", ["ls-files", "--", ...generatedHostRegistrations], {
@@ -92,7 +94,8 @@ assert.equal(localClaudeManifest.description, expectedLongDescription);
 assert.equal(localManifest.interface.defaultPrompt.length, 3);
 assert.equal(localManifest.interface.supportURL, undefined, "Codex manifest must omit unsupported supportURL metadata");
 assert.equal(localManifest.hooks, undefined, "Codex manifest must rely on default hooks/hooks.json discovery");
-assert.equal(existsSync(join(pluginRoot, definition.codex.hooks)), true, "default Codex hook file must remain present");
+assert.equal(existsSync(join(pluginRoot, definition.codex.hooks)), false, "source must not auto-discover runtime hooks");
+assert.equal(existsSync(join(pluginRoot, "host-templates", "shared", definition.codex.hooks)), true, "canonical build-only hook template must remain present");
 
 const copilotManifest = JSON.parse(renderCopilotPluginManifest(definition));
 assert.equal(copilotManifest.name, "agdf");
@@ -104,9 +107,9 @@ assert.equal(Object.hasOwn(copilotManifest, "lspServers"), false);
 assert.throws(() => renderCopilotPluginManifest({ ...definition, id: "AGDF" }), /kebab-case name/);
 assert.throws(() => renderCopilotPluginManifest({ ...definition, copilot: { ...definition.copilot, skills: "../skills" } }), /relative POSIX path/);
 
-const first = buildPublicPluginCandidate({ repoRoot, outputRoot });
+const first = buildPublicPluginCandidate({ repoRoot, outputRoot, validateSchema });
 const firstInventory = inventory(outputRoot);
-const second = buildPublicPluginCandidate({ repoRoot, outputRoot });
+const second = buildPublicPluginCandidate({ repoRoot, outputRoot, validateSchema });
 assert.equal(second.digest, first.digest, "two candidate builds must have identical semantic digest");
 assert.deepEqual(inventory(outputRoot), firstInventory, "two candidate builds must be content-equivalent");
 const { manifest, files } = validateCandidate(outputRoot);

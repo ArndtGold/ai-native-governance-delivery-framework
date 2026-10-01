@@ -1,0 +1,54 @@
+[
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "create-agdf",
+      "run",
+      "test:package-contents"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 0,
+    "elapsed_s": 64.14,
+    "log": "fixture-create-agdf-test-package-contents.log"
+  },
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "agdf",
+      "run",
+      "smoke-test"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 0,
+    "elapsed_s": 65.6,
+    "log": "fixture-agdf-smoke-test.log"
+  },
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "create-agdf",
+      "run",
+      "test:control-command-package"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 1,
+    "elapsed_s": 12.08,
+    "log": "fixture-create-agdf-test-control-command-package.log"
+  },
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "create-agdf",
+      "run",
+      "test:local-development-install"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 0,
+    "elapsed_s": 86.62,
+    "log": "fixture-create-agdf-test-local-development-install.log"
+  }
+]

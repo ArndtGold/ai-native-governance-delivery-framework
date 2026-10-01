@@ -1,0 +1,286 @@
+[
+  {
+    "profile": "source",
+    "manifests": {
+      "plugin.json": {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ],
+        "extensions": {
+          "com.openai": {
+            "skills": "./skills/",
+            "interface": {
+              "displayName": "AI Governance & Delivery Framework",
+              "shortDescription": "Control layer for governed AI-assisted delivery.",
+              "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
+              "developerName": "Arndt Gold",
+              "category": "Productivity",
+              "capabilities": [
+                "Read",
+                "Write"
+              ],
+              "websiteURL": "https://agdf.iself.eu",
+              "privacyPolicyURL": "https://agdf.iself.eu/privacy",
+              "termsOfServiceURL": "https://agdf.iself.eu/terms",
+              "composerIcon": "./assets/agdf-icon.svg",
+              "logo": "./assets/agdf-logo.svg",
+              "defaultPrompt": [
+                "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
+                "Start this request under AGDF governance.",
+                "Close this delivery run with an auditable AGDF report."
+              ],
+              "brandColor": "#14B8A6"
+            }
+          }
+        }
+      },
+      ".codex-plugin/plugin.json": {
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ],
+        "skills": "./skills/",
+        "interface": {
+          "displayName": "AI Governance & Delivery Framework",
+          "shortDescription": "Control layer for governed AI-assisted delivery.",
+          "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
+          "developerName": "Arndt Gold",
+          "category": "Productivity",
+          "capabilities": [
+            "Read",
+            "Write"
+          ],
+          "websiteURL": "https://agdf.iself.eu",
+          "privacyPolicyURL": "https://agdf.iself.eu/privacy",
+          "termsOfServiceURL": "https://agdf.iself.eu/terms",
+          "composerIcon": "./assets/agdf-icon.svg",
+          "logo": "./assets/agdf-logo.svg",
+          "defaultPrompt": [
+            "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
+            "Start this request under AGDF governance.",
+            "Close this delivery run with an auditable AGDF report."
+          ],
+          "brandColor": "#14B8A6"
+        }
+      }
+    }
+  },
+  {
+    "profile": "public",
+    "manifests": {
+      "plugin.json": {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ],
+        "extensions": {
+          "com.openai": {
+            "skills": "./skills/",
+            "interface": {
+              "displayName": "AGDF",
+              "shortDescription": "Governed AI delivery controls",
+              "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
+              "developerName": "Arndt Gold",
+              "category": "Productivity",
+              "capabilities": [
+                "Read",
+                "Write"
+              ],
+              "websiteURL": "https://agdf.iself.eu",
+              "privacyPolicyURL": "https://agdf.iself.eu/privacy",
+              "termsOfServiceURL": "https://agdf.iself.eu/terms",
+              "composerIcon": "./assets/agdf-icon.svg",
+              "logo": "./assets/agdf-logo.svg",
+              "defaultPrompt": [
+                "Assess whether AGDF fits this work and recommend the lightest safe delivery path.",
+                "Start this request under AGDF governance.",
+                "Review the active AGDF run and explain the next allowed step."
+              ],
+              "brandColor": "#14B8A6"
+            }
+          }
+        }
+      },
+      ".codex-plugin/plugin.json": {
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ],
+        "skills": "./skills/",
+        "interface": {
+          "displayName": "AGDF",
+          "shortDescription": "Governed AI delivery controls",
+          "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
+          "developerName": "Arndt Gold",
+          "category": "Productivity",
+          "capabilities": [
+            "Read",
+            "Write"
+          ],
+          "websiteURL": "https://agdf.iself.eu",
+          "privacyPolicyURL": "https://agdf.iself.eu/privacy",
+          "termsOfServiceURL": "https://agdf.iself.eu/terms",
+          "composerIcon": "./assets/agdf-icon.svg",
+          "logo": "./assets/agdf-logo.svg",
+          "defaultPrompt": [
+            "Assess whether AGDF fits this work and recommend the lightest safe delivery path.",
+            "Start this request under AGDF governance.",
+            "Review the active AGDF run and explain the next allowed step."
+          ],
+          "brandColor": "#14B8A6"
+        }
+      }
+    }
+  },
+  {
+    "profile": "runtime",
+    "manifests": {
+      "plugin.json": {
+        "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ]
+      },
+      ".codex-plugin/plugin.json": {
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ],
+        "skills": "./skills/",
+        "hooks": "./hooks/hooks.json",
+        "mcpServers": "./mcp/codex.mcp.json",
+        "interface": {
+          "displayName": "AI Governance & Delivery Framework",
+          "shortDescription": "Control layer for governed AI-assisted delivery.",
+          "longDescription": "AI Governance & Delivery Framework (AGDF) is a governance framework for agentic work. Its first implementation provides a control layer for governed AI-assisted software delivery. It combines workflow skills, explicit gates, control templates and machine-readable repository checks to keep work aligned with approved scope and make evidence a prerequisite for consequential gate transitions. Supported workflows include brownfield analysis, task-plan review, QA decisions, durable run state and auditable delivery closeout. AGDF is an independent open-source project, not a security sandbox, compliance certification or autonomous release system.",
+          "developerName": "Arndt Gold",
+          "category": "Productivity",
+          "capabilities": [
+            "Read",
+            "Write"
+          ],
+          "websiteURL": "https://agdf.iself.eu",
+          "privacyPolicyURL": "https://agdf.iself.eu/privacy",
+          "termsOfServiceURL": "https://agdf.iself.eu/terms",
+          "composerIcon": "./assets/agdf-icon.svg",
+          "logo": "./assets/agdf-logo.svg",
+          "defaultPrompt": [
+            "Assess whether AGDF fits this request and recommend the lightest safe path before proposing implementation.",
+            "Start this request under AGDF governance.",
+            "Close this delivery run with an auditable AGDF report."
+          ],
+          "brandColor": "#14B8A6"
+        }
+      }
+    }
+  },
+  {
+    "profile": "copilot",
+    "manifests": {
+      "plugin.json": {
+        "name": "agdf",
+        "version": "0.14.5",
+        "description": "Control layer for governed AI-assisted delivery.",
+        "author": {
+          "name": "Arndt Gold",
+          "url": "https://agdf.iself.eu"
+        },
+        "homepage": "https://agdf.iself.eu",
+        "repository": "https://github.com/arndtgold/ai-native-governance-delivery-framework",
+        "license": "Apache-2.0",
+        "keywords": [
+          "agentic",
+          "governance",
+          "delivery",
+          "ai-native",
+          "brownfield"
+        ],
+        "category": "Productivity",
+        "skills": "copilot-skills/",
+        "hooks": "hooks/copilot-hooks.json"
+      }
+    }
+  }
+]

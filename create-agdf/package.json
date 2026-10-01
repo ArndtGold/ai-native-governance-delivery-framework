@@ -50,7 +50,7 @@
     "test:release-bump": "node ./scripts/release-bump-test.js",
     "test:distribution-profile-history": "node ./scripts/distribution-profile-history-test.js",
     "test:public-plugin": "node ./scripts/public-plugin-test.js",
-    "release:prepare": "npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin",
+    "release:prepare": "npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin",
     "test:delivery-path-search": "node ./scripts/delivery-path-search-test.js",
     "test:delivery-path-search-unit": "node ./scripts/delivery-path-search-unit-test.js",
     "test:delivery-path-search-generator": "node ./scripts/delivery-path-search-generator-test.js",
@@ -115,7 +115,8 @@
     "test:copilot-installer": "node ./scripts/copilot-installer-test.js",
     "test:install-control-migration": "node ./scripts/install-control-migration-test.js",
     "test:install-control-repair": "node scripts/install-control-repair-test.js",
-    "test:control-maintenance": "node ./scripts/control-maintenance-test.js && node ./scripts/control-maintenance-command-test.js && node ./scripts/repository-control-startup-test.js"
+    "test:control-maintenance": "node ./scripts/control-maintenance-test.js && node ./scripts/control-maintenance-command-test.js && node ./scripts/repository-control-startup-test.js",
+    "test:portable-plugin": "node ./scripts/portable-plugin-test.js"
   },
   "keywords": [
     "agdf",

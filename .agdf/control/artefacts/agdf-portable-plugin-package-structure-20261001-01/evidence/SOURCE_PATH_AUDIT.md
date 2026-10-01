@@ -1,0 +1,3 @@
+# Current source audit
+
+One canonical plugins/agdf directory, no old plugin directory or source symlink. Shared locator serves repository consumers; installed roots retain separate resolution. Audited source/build/version/conformance/fixtures/workflows, Pages imports and OpenCode source fallback. Remaining old literals belong to immutable tag/catalogue reads (exactly-one-owner check), host command grammar, temporary host fixture names or dated evidence. CURRENT_SOURCE_REFERENCES.txt records final rg output; OWNED_CHANGE_INVENTORY.json records baseline-to-owned-file hashes. Historical approved artefacts were not rewritten.

@@ -1,3 +1,4 @@
+import { getPluginSourceRoot } from "../lib/public-plugin/source-root.js";
 import { createHash } from "node:crypto";
 import { chmodSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
@@ -10,7 +11,7 @@ import {
 const scriptsRoot = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(scriptsRoot, "..");
 const repoRoot = resolve(packageRoot, "..");
-const sourcePluginRoot = join(repoRoot, "plugin");
+const sourcePluginRoot = getPluginSourceRoot(repoRoot);
 
 function countOccurrences(content, needle) {
   return content.split(needle).length - 1;
@@ -141,7 +142,7 @@ export function syncPluginRuntime({ outputRoot, claudeMcp = false } = {}) {
   const bundledPackageRoot = join(outputRoot, "create-agdf");
   const expectedPackageFiles = new Set();
   const packageManifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8"));
-  const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+  const pluginDefinition = JSON.parse(readFileSync(join(getPluginSourceRoot(repoRoot), "meta", "agdf-plugin.definition.json"), "utf8"));
   const activationKernel = requestActivationKernel();
   if (packageManifest.version !== pluginDefinition.version) {
     throw new Error(`Refusing runtime sync with version skew: create-agdf ${packageManifest.version}, plugin ${pluginDefinition.version}`);

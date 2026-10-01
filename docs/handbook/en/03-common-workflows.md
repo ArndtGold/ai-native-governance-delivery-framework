@@ -2,7 +2,7 @@
 language: en
 chapter_role: common_workflows
 translation_of: ../de/03-typische-arbeitsablaeufe.md
-source_revision: sha256:d192c294c2a64e9e41660e7a32f7545fbdfe3cbdebab09572ab102ec68c71f79
+source_revision: sha256:9956c0ed377b3ef822483e0a12717dcd40200166ace61916a253b160f77822ca
 translation_status: reviewed
 ---
 
@@ -156,7 +156,7 @@ agent output is being treated as a reliable delivery decision.
 | Premature handoff | A commit, pull request or publication begins while gate state, risks or acceptance remain open. | Close the open decisions, then perform only the explicitly requested delivery step. |
 
 These patterns are indicators, not new gates or modes. The
-[Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md) determines which rule is authoritative.
+[Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md) determines which rule is authoritative.
 
 ## Good work requests
 

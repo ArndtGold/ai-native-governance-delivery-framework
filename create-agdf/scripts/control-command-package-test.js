@@ -52,12 +52,13 @@ function checkDependencyClosure(entry, root) {
 
 try {
   mkdirSync(snapshot); mkdirSync(consumer, { recursive: true });
-  for (const name of ["create-agdf", "plugin", "agdf", "agdf-mcp-server", "pages", ".agdf", ".agents", ".claude-plugin", ".github", "LICENSE", "NOTICE", "README.md", "INSTALL.md", "docs"]) {
+  for (const name of ["create-agdf", "plugins", "agdf", "agdf-mcp-server", "pages", ".agdf", ".agents", ".claude-plugin", ".github", "LICENSE", "NOTICE", "README.md", "INSTALL.md", "docs"]) {
     const source = join(repository, name);
     if (!existsSync(source)) continue;
     cpSync(source, join(snapshot, name), { recursive: true,
       filter: (path) => !["node_modules", ".git", "generated", "dist", ".astro"].includes(path.split(/[\\/]/u).at(-1)) });
   }
+  cpSync(join(repository, "node_modules"), join(snapshot, "node_modules"), { recursive: true });
   cpSync(join(repository, ".git"), join(snapshot, ".git"), { recursive: true });
   for (const entry of ["@modelcontextprotocol/server", "@modelcontextprotocol/core", "zod"]) {
     cpSync(join(repository, "agdf-mcp-server/node_modules", entry), join(snapshot, "agdf-mcp-server/node_modules", entry), { recursive: true });

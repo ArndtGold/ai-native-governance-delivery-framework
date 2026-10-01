@@ -12,7 +12,7 @@ const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const cases = readdirSync(join(repoRoot, "evals", "cases")).filter((name) => name.endsWith(".json")).sort().flatMap((name) => JSON.parse(readFileSync(join(repoRoot, "evals", "cases", name), "utf8")));
 const testCase = cases.find((item) => item.case_id === caseId);
 if (!testCase) throw new Error(`unknown eval case: ${caseId}`);
-const definition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+const definition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
 const catalog = JSON.parse(readFileSync(join(repoRoot, "evals", "fixtures", "catalog.json"), "utf8"));
 const fingerprint = fingerprintSkillCases(repoRoot, definition, testCase.target_skill, cases);
 const persistPath = process.argv.includes("--persist") ? join(repoRoot, "evals", "observations", "live", surface, `${caseId}.json`) : undefined;

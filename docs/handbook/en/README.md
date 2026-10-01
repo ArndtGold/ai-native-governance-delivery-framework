@@ -2,7 +2,7 @@
 language: en
 chapter_role: index
 translation_of: ../de/README.md
-source_revision: sha256:a79bcea722e73a88058104ef89693636bc7e5b6af9ee6c82da0e2d5080f0a6d7
+source_revision: sha256:b11311c5725184669220240e12fdf69596efe904f8d99ee65ecce4e06ec4cd11
 translation_status: reviewed
 ---
 
@@ -64,11 +64,11 @@ Continue with the chapter that matches your question:
 
 This handbook explains practical use. The following current sources remain authoritative:
 
-- the [Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md) for normative gate, mode and
+- the [Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md) for normative gate, mode and
   authority rules;
 - the selected live run at `.agdf/control/runs/<run_id>/RUN_STATE.md` for current delivery state;
 - [Installation](../../../INSTALL.md) for Codex, Claude Code, GitHub Copilot and OpenCode;
-- the [Control Scaffold](../../../plugin/control/README.md) for technical run-state details;
+- the [Control Scaffold](../../../plugins/agdf/control/README.md) for technical run-state details;
 - the [AGDF CLI README](../../../agdf/README.md) for command reference;
 - the [framework overview](../../01-framework-ueberblick.md) and [gates](../../02-gates.md) for
   additional background.

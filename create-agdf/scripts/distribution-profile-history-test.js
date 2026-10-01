@@ -11,8 +11,8 @@ import { SUPPORTED_PROFILE_RELEASES } from "../lib/release/profile-history.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
-const catalogue = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "distribution-profile-history.json"), "utf8"));
-const currentDefinition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+const catalogue = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "distribution-profile-history.json"), "utf8"));
+const currentDefinition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
 const versions = Object.keys(catalogue.releases);
 const unsupportedFutureVersion = `${Number(currentDefinition.version.split(".")[0]) + 1}.0.0`;
 

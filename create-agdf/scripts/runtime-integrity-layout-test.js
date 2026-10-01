@@ -10,10 +10,10 @@ import {
   DISPATCHER_BINDING_PREFIX,
   REQUEST_ACTIVATION_MARKERS,
   validateInstructionFootprintProfile,
-} from "../../plugin/scripts/instruction-footprint.mjs";
+} from "../../plugins/agdf/scripts/instruction-footprint.mjs";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
-const sourcePluginRoot = join(repoRoot, "plugin");
+const sourcePluginRoot = join(repoRoot, "plugins", "agdf");
 const generatedPluginRoot = join(repoRoot, "create-agdf", "generated", "plugins", "agdf");
 const sourceIntegrityScript = join(sourcePluginRoot, "scripts", "check-runtime-integrity.mjs");
 const sourceAgentSkillsScript = join(sourcePluginRoot, "scripts", "agent-skills-conformance.mjs");
@@ -168,7 +168,7 @@ try {
   assert.equal(missingRuntimeHook.stdout.split(REQUEST_ACTIVATION_MARKERS.start).length - 1, 1, "unavailability does not remove the passive activation boundary");
   renameSync(missingRuntimeEntrypoint, runtimeEntrypoint);
 
-  const sourceHook = spawnSync("bash", [join(sourcePluginRoot, "hooks", "session-start.sh")], {
+  const sourceHook = spawnSync("bash", [join(sourcePluginRoot, "host-templates", "shared", "hooks", "session-start.sh")], {
     cwd: repoRoot,
     encoding: "utf8",
     env: { ...process.env, AGDF_DATA_DIR: join(fixtureRoot, "no-consent"), AGDF_SURFACE: "source" },

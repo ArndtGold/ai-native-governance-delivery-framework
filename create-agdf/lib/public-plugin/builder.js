@@ -1,11 +1,12 @@
+import { getPluginSourceRoot } from "./source-root.js";
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { renameSyncWithRetry } from "../fs-swap.js";
 import { assertPublicPluginContract, loadJson } from "./contract.js";
-import { renderCodexPluginManifest } from "./manifest.js";
+import { renderCodexPluginManifest, renderPortablePluginManifest } from "./manifest.js";
 import { createReadinessReport, renderReadinessReport } from "./report.js";
-import { inventory, validateCandidate } from "./validator.js";
+import { inventory, validateCandidate, validatePortableProfile } from "./validator.js";
 
 function write(path, content) {
   mkdirSync(dirname(path), { recursive: true });
@@ -16,7 +17,8 @@ function json(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-export function buildPublicPluginCandidate({ repoRoot, outputRoot }) {
+export function buildPublicPluginCandidate({ repoRoot, outputRoot, validateSchema }) {
+  if (typeof validateSchema !== "function") throw new Error("AGDF_PORTABLE_SCHEMA_TOOL_REQUIRED: candidate readiness requires schema validation");
   repoRoot = resolve(repoRoot);
   outputRoot = resolve(outputRoot);
   const expectedParent = resolve(repoRoot, "create-agdf", "generated", "submissions", "openai");
@@ -24,7 +26,7 @@ export function buildPublicPluginCandidate({ repoRoot, outputRoot }) {
   mkdirSync(expectedParent, { recursive: true });
   const temporaryRoot = mkdtempSync(join(expectedParent, ".agdf-build-"));
   try {
-    const pluginRoot = join(repoRoot, "plugin");
+    const pluginRoot = getPluginSourceRoot(repoRoot);
     const definition = loadJson(join(pluginRoot, "meta", "agdf-plugin.definition.json"));
     const capabilityMatrix = loadJson(join(pluginRoot, "submission", "openai", "capability-matrix.json"));
     const reviewerCases = loadJson(join(pluginRoot, "submission", "openai", "reviewer-cases.json"));
@@ -32,6 +34,7 @@ export function buildPublicPluginCandidate({ repoRoot, outputRoot }) {
     assertPublicPluginContract({ definition, capabilityMatrix, reviewerCases, releaseNotes });
 
     write(join(temporaryRoot, ".codex-plugin", "plugin.json"), renderCodexPluginManifest(definition, { publicCandidate: true }));
+    write(join(temporaryRoot, "plugin.json"), renderPortablePluginManifest(definition, { publicCandidate: true }));
     for (const directory of ["skills", "meta", "assets"]) cpSync(join(pluginRoot, directory), join(temporaryRoot, directory), { recursive: true });
     rmSync(join(temporaryRoot, "meta", "agdf-mcp-capability.json"), { force: true });
     cpSync(join(pluginRoot, "submission", "openai"), join(temporaryRoot, "submission", "openai"), { recursive: true });
@@ -56,6 +59,7 @@ export function buildPublicPluginCandidate({ repoRoot, outputRoot }) {
       availability: definition.publicDistribution.availability,
     };
     write(join(temporaryRoot, "submission", "openai", "listing.json"), json(listing));
+    validatePortableProfile(temporaryRoot, { profile: "public", validateSchema });
     validateCandidate(temporaryRoot);
     const entries = inventory(temporaryRoot, { exclude: ["submission/openai/inventory.json", "submission/openai/readiness.json"] });
     const digest = createHash("sha256").update(json(entries)).digest("hex");

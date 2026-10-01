@@ -120,10 +120,10 @@ assert.match(humanLines.join("\n"), /Reconcile Child child in Parent parent/);
 assert.doesNotMatch(humanLines.join("\n"), /Approval:/);
 
 const repoRoot = join(import.meta.dirname, "..", "..");
-const closeoutContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "closeout.md"), "utf8");
-const releaseSkill = readFileSync(join(repoRoot, "plugin", "skills", "release-or", "SKILL.md"), "utf8");
-const deliverySkill = readFileSync(join(repoRoot, "plugin", "skills", "delivery-closeout", "SKILL.md"), "utf8");
-const orTemplate = readFileSync(join(repoRoot, "plugin", "control", "templates", "artefacts", "OR.md"), "utf8");
+const closeoutContract = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "closeout.md"), "utf8");
+const releaseSkill = readFileSync(join(repoRoot, "plugins", "agdf", "skills", "release-or", "SKILL.md"), "utf8");
+const deliverySkill = readFileSync(join(repoRoot, "plugins", "agdf", "skills", "delivery-closeout", "SKILL.md"), "utf8");
+const orTemplate = readFileSync(join(repoRoot, "plugins", "agdf", "control", "templates", "artefacts", "OR.md"), "utf8");
 assert.match(closeoutContract, /never grants, revokes or\s+blocks Child gates, QA, UAT, OR completion/);
 assert.match(closeoutContract, /Delivery Map is the single deterministic evaluator/);
 assert.match(releaseSkill, /report that evaluated object without\s+rediscovering or reclassifying/);

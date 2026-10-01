@@ -37,7 +37,7 @@ assert.ok(Buffer.byteLength(`<!-- AGDF-GLOBAL-INSTRUCTIONS -->\n${globalOpenCode
 assert.match(globalOpenCodeBootstrap, /agdf-global-gate-check/);
 assert.match(globalOpenCodeBootstrap, /\.\/node_modules\/create-agdf\/generated\/\.opencode\/agdf-agent-router\.md/);
 assert.doesNotMatch(globalOpenCodeBootstrap, /the sibling `agdf-agent-router\.md`|AGDF dispatcher binding:/);
-const fullOpenCodeRouter = toOpenCodeInstructionsRouter(readFileSync(new URL("../../plugin/meta/agdf-agent-router.md", import.meta.url), "utf8"));
+const fullOpenCodeRouter = toOpenCodeInstructionsRouter(readFileSync(new URL("../../plugins/agdf/meta/agdf-agent-router.md", import.meta.url), "utf8"));
 assert.match(fullOpenCodeRouter, /^## Task Target Resolution$/m);
 assert.match(fullOpenCodeRouter, /^## Mode Selection$/m);
 
@@ -534,7 +534,7 @@ process.stdout.write(JSON.stringify({ type: "text", part: { type: "text", text: 
     await activePlugin["experimental.chat.system.transform"]({}, systemOutput);
     assert.equal(systemOutput.system.length, 1, "active system transform must be content-idempotent");
 
-    const contract = readFileSync(new URL("../../plugin/meta/contracts/request-activation.md", import.meta.url), "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+    const contract = readFileSync(new URL("../../plugins/agdf/meta/contracts/request-activation.md", import.meta.url), "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
     const kernelStart = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->";
     const kernelEnd = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->";
     const activationKernel = contract.slice(contract.indexOf(kernelStart), contract.indexOf(kernelEnd) + kernelEnd.length);

@@ -1,0 +1,66 @@
+
+> create-agdf@0.14.5 test:agent-skills-conformance
+> node ./scripts/agent-skills-conformance-test.js
+
+node:internal/errors:983
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /usr/local/Cellar/node@22/22.22.3/bin/node /private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/create-agdf/scripts/sync-package-assets.js
+file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/create-agdf/lib/public-plugin/copilot-profile.js:122
+    throw new Error(`AGDF_COPILOT_PAYLOAD_GROWTH: observed ${stats.files} files/${stats.bytes} bytes; baseline ${baseline.max_files}/${baseline.max_bytes}`);
+          ^
+
+Error: AGDF_COPILOT_PAYLOAD_GROWTH: observed 136 files/1274662 bytes; baseline 136/1274608
+    at validateCopilotPayload (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/create-agdf/lib/public-plugin/copilot-profile.js:122:11)
+    at syncPackageAssets (file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/create-agdf/scripts/sync-package-assets.js:643:5)
+    at file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/create-agdf/scripts/sync-package-assets.js:665:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.22.3
+
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:916:11)
+    at execFileSync (node:child_process:952:15)
+    at file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/create-agdf/scripts/agent-skills-conformance-test.js:229:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    Buffer(0) [Uint8Array] [],
+    Buffer(1171) [Uint8Array] [
+      102, 105, 108, 101,  58,  47,  47,  47, 112, 114, 105, 118,
+       97, 116, 101,  47, 118,  97, 114,  47, 102, 111, 108, 100,
+      101, 114, 115,  47, 119, 110,  47, 112, 100,  98, 106, 119,
+      116, 118, 100,  51, 102, 120,  48, 116,  51,  56, 110, 119,
+       99, 113, 114, 114, 112, 110,  99,  48,  48,  48,  48, 103,
+      112,  47,  84,  47,  97, 103, 100, 102,  45, 112, 111, 114,
+      116,  97,  98, 108, 101,  45, 115, 116,  97, 103, 101,  45,
+       98,  45, 118,  50, 100, 107, 115,  50, 110,  56,  47,  99,
+      114, 101,  97, 116,
+      ... 1071 more items
+    ]
+  ],
+  pid: 52948,
+  stdout: Buffer(0) [Uint8Array] [],
+  stderr: Buffer(1171) [Uint8Array] [
+    102, 105, 108, 101,  58,  47,  47,  47, 112, 114, 105, 118,
+     97, 116, 101,  47, 118,  97, 114,  47, 102, 111, 108, 100,
+    101, 114, 115,  47, 119, 110,  47, 112, 100,  98, 106, 119,
+    116, 118, 100,  51, 102, 120,  48, 116,  51,  56, 110, 119,
+     99, 113, 114, 114, 112, 110,  99,  48,  48,  48,  48, 103,
+    112,  47,  84,  47,  97, 103, 100, 102,  45, 112, 111, 114,
+    116,  97,  98, 108, 101,  45, 115, 116,  97, 103, 101,  45,
+     98,  45, 118,  50, 100, 107, 115,  50, 110,  56,  47,  99,
+    114, 101,  97, 116,
+    ... 1071 more items
+  ]
+}
+
+Node.js v22.22.3

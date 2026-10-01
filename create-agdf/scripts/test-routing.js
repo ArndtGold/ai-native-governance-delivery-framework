@@ -6,7 +6,7 @@ const packageRoot = new URL("..", import.meta.url);
 const repoRoot = new URL("..", packageRoot);
 const generatedPluginRoot = fileURLToPath(new URL("./generated/plugins/agdf/", packageRoot));
 const generatedCopilotPluginRoot = fileURLToPath(new URL("./generated/plugins/copilot/agdf/", packageRoot));
-const pluginDefinitionPath = fileURLToPath(new URL("./plugin/meta/agdf-plugin.definition.json", repoRoot));
+const pluginDefinitionPath = join(getPluginSourceRoot(fileURLToPath(repoRoot)), "meta", "agdf-plugin.definition.json");
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 
 function skillName(surface, slug) {
@@ -56,3 +56,4 @@ function assertFile(path, label) {
 
   console.log("AGDF routing render test passed for plugin-only Copilot skills");
 }
+import { getPluginSourceRoot } from "../lib/public-plugin/source-root.js";

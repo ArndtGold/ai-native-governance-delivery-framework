@@ -43,7 +43,7 @@ import { transitionDecisionForRunState } from "../lib/control-evaluation/gate-po
 import { normalizeBacklogStatus } from "../lib/control-evaluation/shared.js";
 import { buildBreadcrumb, buildTransitionNarration, collapseInternalState } from "../lib/interaction-presentation.js";
 
-const pluginRoot = join(import.meta.dirname, "..", "..", "plugin");
+const pluginRoot = join(import.meta.dirname, "..", "..", "plugins", "agdf");
 const localeRegistry = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-interaction-locales.json"), "utf8"));
 
 const root = mkdtempSync(join(tmpdir(), "agdf-control-state-"));

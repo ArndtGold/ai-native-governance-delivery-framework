@@ -18,7 +18,7 @@ import {
 } from "../runtime/distribution-profile-history.js";
 import { WRITABLE_RELEASE_VERSION_SURFACES } from "./version-coherence.js";
 
-const HISTORY_PATH = "plugin/meta/distribution-profile-history.json";
+const HISTORY_PATH = "plugins/agdf/meta/distribution-profile-history.json";
 const JOURNAL_PATH = ".agdf/release-bump-transaction.json";
 const COMMITTED_PATH = ".agdf/release-bump-transaction.committed.json";
 const JOURNAL_SCHEMA_VERSION = 1;
@@ -216,7 +216,7 @@ export function planReleaseVersionBump({
     originalContents.set(relativePath, readRequired(fs, repoRoot, relativePath));
   }
 
-  const definitionPath = "plugin/meta/agdf-plugin.definition.json";
+  const definitionPath = "plugins/agdf/meta/agdf-plugin.definition.json";
   const currentDefinition = JSON.parse(originalContents.get(definitionPath));
   const currentVersion = currentDefinition.version;
   parseSemver(currentVersion);

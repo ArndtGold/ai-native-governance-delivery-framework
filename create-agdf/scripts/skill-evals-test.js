@@ -15,7 +15,7 @@ assert.equal(report.status, "pass");
 assert.equal(report.canonical_skills, 10);
 assert.ok(report.cases >= 83);
 assert.match(report.evidence_boundary, /not live host/);
-const definition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url)));
+const definition = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));
 const casesUrl = new URL("../../evals/cases/", import.meta.url);
 const allCases = readdirSync(casesUrl)
   .filter((name) => name.endsWith(".json"))

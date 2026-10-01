@@ -7,13 +7,13 @@ These are bounded evaluation examples, not live host observations or approvals.
 - architecture_relevance: `relevant`
 - architecture_impact: `high`
 - architecture_reason: Moving a policy decision from the canonical runtime to a host adapter would create a second authority.
-- architecture_evidence: `plugin/meta/contracts/quality.md` owns the normalized gap route; `plugin/skills/qa-gate/SKILL.md` consumes it.
+- architecture_evidence: `plugins/agdf/meta/contracts/quality.md` owns the normalized gap route; `plugins/agdf/skills/qa-gate/SKILL.md` consumes it.
 - architecture_missing_evidence: `none`
 - architecture_next_owner_and_action: SD owner keeps policy in the canonical contract and specifies adapter behavior there.
 
 | Finding | Evidence | Risk | Required action |
 |---|---|---|---|
-| problem: duplicate policy authority | `plugin/meta/contracts/quality.md`; host adapter proposal | `block` | SD owner: remove the parallel host decision before Mode/Slice selection. |
+| problem: duplicate policy authority | `plugins/agdf/meta/contracts/quality.md`; host adapter proposal | `block` | SD owner: remove the parallel host decision before Mode/Slice selection. |
 
 ## Intentional, bounded trade-off
 
@@ -43,7 +43,7 @@ unresolved; the reviewer must not call the debt accepted.
 
 - architecture_relevance: `architecture-not-applicable`
 - architecture_impact: `none`
-- architecture_reason: A wording-only change in `plugin/control/templates/artefacts/BROWNFIELD_REVIEW.md` stays with the existing template owner and changes no interface, state authority, runtime path or policy.
+- architecture_reason: A wording-only change in `plugins/agdf/control/templates/artefacts/BROWNFIELD_REVIEW.md` stays with the existing template owner and changes no interface, state authority, runtime path or policy.
 - architecture_evidence: The diff is confined to that template's explanatory prose; the existing owner and consumers are unchanged.
 - architecture_missing_evidence: `none`
 - architecture_next_owner_and_action: Template owner continues the existing Mode/Slice route.

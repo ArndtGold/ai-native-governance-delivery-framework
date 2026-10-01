@@ -25,6 +25,7 @@ const fixturePaths = [
   "docs/agenten-handbuch",
   "docs/handbook",
   "docs/compatibility",
+  "docs/architecture/package-structure.md",
   "docs/00-manifest.md",
   "docs/01-framework-ueberblick.md",
   "docs/02-gates.md",
@@ -42,8 +43,8 @@ const fixturePaths = [
   "TRADEMARKS.md",
   "LICENSE",
   "NOTICE",
-  "plugin/meta/agdf-runtime-contract.md",
-  "plugin/control/README.md",
+  "plugins/agdf/meta/agdf-runtime-contract.md",
+  "plugins/agdf/control/README.md",
   "agdf/README.md",
 ];
 

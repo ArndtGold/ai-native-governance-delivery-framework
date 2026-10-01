@@ -10,7 +10,7 @@ import { initializeCanonicalControl } from "../lib/scaffold/canonical-init.js";
 import { generatedFilesForTarget } from "../lib/scaffold/plan.js";
 import { runCli } from "../lib/cli/application.js";
 
-const canonicalLocales = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
+const canonicalLocales = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
 for (const key of Object.keys(interactionLocales)) delete interactionLocales[key];
 Object.assign(interactionLocales, canonicalLocales);
 

@@ -9,7 +9,8 @@ const repo = fileURLToPath(new URL("../..", import.meta.url));
 const fixture = realpathSync(mkdtempSync(join(tmpdir(), "agdf-local-preparation-")));
 const run = (script, ...args) => spawnSync(process.execPath, [join(fixture, "create-agdf", "scripts", script), ...args], { encoding: "utf8" });
 try {
-  cpSync(join(repo, "plugin"), join(fixture, "plugin"), { recursive: true });
+  cpSync(join(repo, "plugins", "agdf"), join(fixture, "plugins", "agdf"), { recursive: true });
+  cpSync(join(repo, "node_modules"), join(fixture, "node_modules"), { recursive: true });
   cpSync(join(repo, "LICENSE"), join(fixture, "LICENSE"));
   mkdirSync(join(fixture, "create-agdf"));
   for (const entry of ["scripts", "lib", "bin", "package.json", "NOTICE"]) {
@@ -19,7 +20,7 @@ try {
   for (const entry of ["bin", "src", "package.json", "README.md", "NOTICE"]) {
     cpSync(join(repo, "agdf-mcp-server", entry), join(fixture, "agdf-mcp-server", entry), { recursive: true });
   }
-  const baselinePath = join(fixture, "plugin", "meta", "copilot-payload-baseline.json");
+  const baselinePath = join(fixture, "plugins", "agdf", "meta", "copilot-payload-baseline.json");
   const baseline = JSON.parse(readFileSync(baselinePath, "utf8"));
   baseline.max_bytes = 1;
   writeFileSync(baselinePath, JSON.stringify(baseline));

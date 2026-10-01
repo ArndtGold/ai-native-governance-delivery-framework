@@ -5,11 +5,11 @@ import { stable } from "./contracts.js";
 import { getProfileDefinition } from "./profiles.js";
 
 export const BEHAVIOR_SOURCES = Object.freeze([
-  "plugin/meta/agdf-agent-router.md",
-  "plugin/meta/contracts/modes.md",
-  "plugin/meta/contracts/gate-transition.md",
-  "plugin/meta/contracts/interaction.md",
-  "plugin/skills/gate-check/SKILL.md",
+  "plugins/agdf/meta/agdf-agent-router.md",
+  "plugins/agdf/meta/contracts/modes.md",
+  "plugins/agdf/meta/contracts/gate-transition.md",
+  "plugins/agdf/meta/contracts/interaction.md",
+  "plugins/agdf/skills/gate-check/SKILL.md",
 ]);
 export const IMPLEMENTATION_SOURCES = Object.freeze([
   "create-agdf/lib/live-agent/read-only-structured.js",

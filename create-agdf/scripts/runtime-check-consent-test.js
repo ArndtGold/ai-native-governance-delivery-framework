@@ -214,14 +214,15 @@ assert.equal(manualAutomaticCheck.ran, false);
 
 const runtimeProjectionTemp = mkdtempSync(join(tmpdir(), "agdf-runtime-projection-"));
 const projectedPluginRoot = join(runtimeProjectionTemp, "agdf");
-cpSync(join(packageRoot, "..", "plugin"), projectedPluginRoot, { recursive: true });
+cpSync(join(packageRoot, "..", "plugins", "agdf"), projectedPluginRoot, { recursive: true });
+cpSync(join(packageRoot, "..", "plugins", "agdf", "host-templates", "shared", "hooks"), join(projectedPluginRoot, "hooks"), { recursive: true });
 syncPluginRuntime({ outputRoot: join(projectedPluginRoot, "runtime") });
 const generatedEntrypoint = join(projectedPluginRoot, "runtime", "agdf-session-check.js");
 const generatedSessionCheck = readFileSync(generatedEntrypoint, "utf8");
 assert.match(generatedSessionCheck, /process\.argv\.length !== 2/);
 assert.match(generatedSessionCheck, /receipt\?\.requested_state === "enabled"/);
 assert.doesNotMatch(generatedSessionCheck, /writeFile|appendFile|fetch\(|https?:\/\//);
-const activationContract = readFileSync(join(packageRoot, "..", "plugin", "meta", "contracts", "request-activation.md"), "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+const activationContract = readFileSync(join(packageRoot, "..", "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
 const activationStart = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->";
 const activationEnd = "<!-- AGDF-REQUEST-ACTIVATION-GUARD:END -->";
 const activationKernel = activationContract.slice(
@@ -310,7 +311,7 @@ try {
   });
   assert.equal(wrapperOutput.status, 0, wrapperOutput.stderr);
   assert.equal(wrapperOutput.stdout, withoutConsent.stdout, "SessionStart shell helper must be a policy-free transport wrapper");
-  const sourceWrapperOutput = spawnSync("bash", [join(packageRoot, "..", "plugin", "hooks", "session-start.sh")], {
+  const sourceWrapperOutput = spawnSync("bash", [join(packageRoot, "..", "plugins", "agdf", "host-templates", "shared", "hooks", "session-start.sh")], {
     cwd: process.cwd(), encoding: "utf8", env: { ...process.env, AGDF_SURFACE: "source" },
   });
   assert.equal(sourceWrapperOutput.status, 0, sourceWrapperOutput.stderr);

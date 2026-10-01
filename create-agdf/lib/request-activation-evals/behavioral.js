@@ -165,7 +165,7 @@ export async function runRequestActivationBehavioralEvaluation({
   const selected = caseId ? eligible.filter((testCase) => testCase.case_id === caseId) : eligible;
   if (selected.length === 0) throw new Error(`unknown request activation case: ${caseId}`);
   const contract = resolved.inputMode === "canonical_contract"
-    ? readFileSync(join(repoRoot, "plugin", "meta", "contracts", "request-activation.md"), "utf8")
+    ? readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8")
     : null;
   const compositions = new Map();
   const results = [];

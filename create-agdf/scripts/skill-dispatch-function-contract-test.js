@@ -25,7 +25,7 @@ import { TASK_TARGET_SOURCES } from "../lib/task-target-resolution.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
-const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+const pluginDefinition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
 const definition = SKILL_DISPATCH_FUNCTION_DEFINITION;
 const schema = definition.inputSchema;
 
@@ -139,7 +139,7 @@ assert.equal(parseSkillDispatchFunctionArguments({
   skillSet: pluginDefinition.skillSet,
   interactionLocales: {},
 }).intake, true);
-const transportContext = { surface: "codex", expectedVersion: pluginDefinition.version, skillSet: pluginDefinition.skillSet, interactionLocales: JSON.parse(readFileSync(join(repoRoot, "plugin/meta/agdf-interaction-locales.json"), "utf8")) };
+const transportContext = { surface: "codex", expectedVersion: pluginDefinition.version, skillSet: pluginDefinition.skillSet, interactionLocales: JSON.parse(readFileSync(join(repoRoot, "plugins/agdf/meta/agdf-interaction-locales.json"), "utf8")) };
 const deliveryInput = { skill_id: "gate-check", presentation_language: "de", working_directory: "/tmp/agdf", run_id: "bound-run" };
 const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
 const expectedRevision = "12345678-1234-4123-8123-123456789abc";
@@ -224,7 +224,7 @@ const terminalProjection = renderSkillDispatchTerminalProjection();
 const qaCandidatesProjection = renderSkillDispatchQaCandidatesProjection();
 for (const source of TASK_TARGET_SOURCES) assert.ok(projection.includes(`\`${source}\``));
 for (const skill of pluginDefinition.skillSet) {
-  const skillPath = join(repoRoot, "plugin", "skills", skill.slug, "SKILL.md");
+  const skillPath = join(repoRoot, "plugins", "agdf", "skills", skill.slug, "SKILL.md");
   const content = readFileSync(skillPath, "utf8");
   const languageStart = content.indexOf(languageProjection);
   assert.ok(languageStart >= 0, `${skill.slug} must contain the canonical presentation-language projection`);

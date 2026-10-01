@@ -1,4 +1,4 @@
-import pluginDefinition from "../../../plugin/meta/agdf-plugin.definition.json";
+import pluginDefinition from "../../../plugins/agdf/meta/agdf-plugin.definition.json";
 
 type EvaluationCase = {
   case_id: string;

@@ -35,7 +35,7 @@ this check.
 The script checks that `create-agdf@<version>`, `@agdf/mcp-server@<version>` and
 `@agdf/cli@<version>` are not already published,
 then updates the coupled package, plugin, site and OpenAI submission-source versions together with the
-exact `plugin/meta/distribution-profile-history.json` release record. Do not edit these release
+exact `plugins/agdf/meta/distribution-profile-history.json` release record. Do not edit these release
 surfaces individually.
 
 When the complete `distributionProfiles` contract is unchanged, the command reuses its existing
@@ -57,7 +57,7 @@ Run the validation printed by the script before tagging:
 npm --prefix create-agdf run smoke-test
 npm --prefix agdf-mcp-server test
 npm --prefix agdf run smoke-test
-node plugin/scripts/check-runtime-integrity.mjs
+node plugins/agdf/scripts/check-runtime-integrity.mjs
 npm --prefix pages run build
 ```
 

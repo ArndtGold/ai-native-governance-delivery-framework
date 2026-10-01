@@ -82,7 +82,7 @@ export function sourceSnapshot(root, manifest) {
   const files = [...new Set([...common, ...Object.values(hostFiles).flat()])].sort();
   if (files.some(file => file.startsWith(`${OUTPUT}/`) || file.startsWith(`${OBSERVATIONS}/`) || file.startsWith(".agdf/control/"))) throw new Error("self_invalidating_source_set");
   const fingerprints = Object.fromEntries(files.map(file => [file, hash(readFileSync(safePath(root, file)))]));
-  const definition = readJson(safePath(root, "plugin/meta/agdf-plugin.definition.json"));
+  const definition = readJson(safePath(root, "plugins/agdf/meta/agdf-plugin.definition.json"));
   const payloads = Object.fromEntries(HOSTS.map(host => {
     const profile = host === "copilot" ? "create-agdf/generated/plugins/copilot/agdf" : "create-agdf/generated/plugins/agdf";
     const payloadRoot = safePath(root, profile);

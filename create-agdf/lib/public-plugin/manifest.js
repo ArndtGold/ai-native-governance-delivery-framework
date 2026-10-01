@@ -33,7 +33,7 @@ export function createCodexPluginManifest(definition, { publicCandidate = false,
     license: definition.license,
     keywords: definition.keywords,
     skills: definition.codex.skills,
-    ...(runtimeProfile && !publicCandidate ? { mcpServers: CODEX_RUNTIME_MCP_SERVERS } : {}),
+    ...(runtimeProfile && !publicCandidate ? { hooks: `./${definition.codex.hooks}`, mcpServers: CODEX_RUNTIME_MCP_SERVERS } : {}),
     interface: {
       displayName: pluginInterface.displayName,
       shortDescription: pluginInterface.shortDescription,
@@ -55,6 +55,29 @@ export function createCodexPluginManifest(definition, { publicCandidate = false,
 
 export function renderCodexPluginManifest(definition, options) {
   return `${JSON.stringify(createCodexPluginManifest(definition, options), null, 2)}\n`;
+}
+
+export const PORTABLE_PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
+
+// Portable clients discover skills/ by convention. OpenAI's inline extension replaces
+// the complete fallback object; runtime profiles therefore keep all host settings there.
+export function createPortablePluginManifest(definition, { publicCandidate = false, runtimeProfile = false } = {}) {
+  const host = createCodexPluginManifest(definition, { publicCandidate });
+  const { name, version, description, author, homepage, repository, license, keywords } = host;
+  return {
+    $schema: PORTABLE_PLUGIN_SCHEMA,
+    name, version, description, author, homepage, repository, license, keywords,
+    ...(!runtimeProfile ? { extensions: { "com.openai": { skills: host.skills, interface: host.interface } } } : {}),
+  };
+}
+
+export function renderPortablePluginManifest(definition, options) {
+  return `${JSON.stringify(createPortablePluginManifest(definition, options), null, 2)}\n`;
+}
+
+export function selectOpenAISettings(portable, fallback) {
+  return Object.hasOwn(portable.extensions ?? {}, "com.openai")
+    ? portable.extensions["com.openai"] : fallback;
 }
 
 // The runtime plugin declares the plugin-local AGDF MCP server; the source plugin ships no runtime.

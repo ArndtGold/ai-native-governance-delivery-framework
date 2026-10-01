@@ -1,0 +1,212 @@
+[
+  {
+    "criterion_id": "AC-001",
+    "design_decision_id": "SDD-002",
+    "task_id": "T-003",
+    "scenario_id": "SCN-001",
+    "expected_result": "Source/public root fields and inline presentation match the definition; runtime root omits inline settings and preserves complete fallback",
+    "evidence": "evidence/MANIFEST_MATRIX.json; projector/profile assertions in public-plugin-test.js",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-001",
+    "design_decision_id": "SDD-005",
+    "task_id": "T-002",
+    "scenario_id": "SCN-002",
+    "expected_result": "Pinned plugin/MCP schemas compile with draft-2020-12; valid fixtures pass and unsupported root fields or missing transport type fail",
+    "evidence": "evidence/SCHEMA_INPUTS.json; evidence/SCHEMA_CHECKS.md; new build/test schema scenarios",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-002",
+    "design_decision_id": "SDD-003",
+    "task_id": "T-004",
+    "scenario_id": "SCN-003",
+    "expected_result": "Runtime hooks materialize at expected paths; source/public root hook, MCP and app files and all distributed host templates are absent",
+    "evidence": "evidence/PROFILE_INVENTORIES.json; extended public-plugin/profile mutation assertions",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-002",
+    "design_decision_id": "SDD-005",
+    "task_id": "T-004",
+    "scenario_id": "SCN-004",
+    "expected_result": "Actual-output validation rejects missing, case-mismatched, escaping and inappropriate resources with a failed validation result",
+    "evidence": "evidence/PATH_NEGATIVE_CHECKS.md; existing validator tests extended with actual-output mutations",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-003",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-005",
+    "scenario_id": "SCN-005",
+    "expected_result": "Only plugins/agdf owns canonical content; active source consumers resolve the locator/new paths; no old mirror or symlink exists",
+    "evidence": "evidence/SOURCE_PATH_AUDIT.md; source-root fixture checks and file inventory",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-003",
+    "design_decision_id": "SDD-002",
+    "task_id": "T-006",
+    "scenario_id": "SCN-006",
+    "expected_result": "Repeated generation from identical canonical inputs yields identical manifest/profile content and unchanged identity",
+    "evidence": "evidence/REPRODUCIBILITY.json; projector and public-plugin regression results",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-004",
+    "design_decision_id": "SDD-004",
+    "task_id": "T-006",
+    "scenario_id": "SCN-007",
+    "expected_result": "Three npm names, public exports and exact create-agdf dependencies remain identical; no fourth published package or runtime schema-engine dependency appears",
+    "evidence": "evidence/PACKAGE_BOUNDARIES.json; CLI/MCP package tests and dependency inventory",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-005",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-005",
+    "scenario_id": "SCN-008",
+    "expected_result": "After root move, source integrity, skill conformance, request-activation generation, version/release checks and CI paths resolve the new source root",
+    "evidence": "evidence/MILESTONE_B.md; source conformance/version/workflow test logs",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-005",
+    "design_decision_id": "SDD-006",
+    "task_id": "T-004",
+    "scenario_id": "SCN-009",
+    "expected_result": "Milestone A passes before parent root relocation; injected invalid profile prevents readiness and correction enables repeat validation",
+    "evidence": "evidence/MILESTONE_A.md; build/profile mutation-and-retry result",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-005",
+    "design_decision_id": "SDD-006",
+    "task_id": "T-005",
+    "scenario_id": "SCN-010",
+    "expected_result": "Task-owned Stage B failure/rollback fixture restores Stage A inputs without altering unrelated sentinel changes or installed/control paths",
+    "evidence": "evidence/ROLLBACK_CHECKS.md; staged migration fixture",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-005",
+    "design_decision_id": "SDD-006",
+    "task_id": "T-008",
+    "scenario_id": "SCN-011",
+    "expected_result": "Four deterministic host paths preserve commands, installed destinations and defined update/recovery behavior",
+    "evidence": "evidence/ADAPTER_REGRESSIONS.md; host compatibility/local-development installer tests",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-006",
+    "design_decision_id": "SDD-002",
+    "task_id": "T-003",
+    "scenario_id": "SCN-012",
+    "expected_result": "Inline settings replace rather than merge an intentionally contradictory overlay; runtime fallback still includes hooks and host MCP paths",
+    "evidence": "evidence/OVERLAY_SELECTION.md; effective-settings negative fixture",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-006",
+    "design_decision_id": "SDD-003",
+    "task_id": "T-004",
+    "scenario_id": "SCN-013",
+    "expected_result": "Injecting portable or legacy MCP, hook or app discovery into public skills-only output fails its profile check; Copilot/OpenCode formats remain unchanged",
+    "evidence": "evidence/PROFILE_NEGATIVE_CHECKS.md; public-plugin and Copilot/OpenCode checks",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-007",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-006",
+    "scenario_id": "SCN-014",
+    "expected_result": "Target/run, gate and revision binding remain fail-closed; modified manifested payload changes provenance; consent/trust negatives remain rejected",
+    "evidence": "evidence/AUTHORITY_REGRESSIONS.md; run/control/dispatch/provenance/consent suite results",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-007",
+    "design_decision_id": "SDD-007",
+    "task_id": "T-008",
+    "scenario_id": "SCN-015",
+    "expected_result": "Installer-completed absolute Codex MCP paths normalize only the owned shape; altered launcher/identity/hook configuration fails integrity",
+    "evidence": "evidence/PROVENANCE_CHECKS.md; Codex/Claude MCP and runtime-integrity negative tests",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-008",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-009",
+    "scenario_id": "SCN-016",
+    "expected_result": "Evidence report labels source, exact package, installed fixture and fresh-host observations independently with tuple/digest/date; missing native observations are unverified",
+    "evidence": "evidence/EVIDENCE_MATRIX.md; existing readiness/host-evidence report inspection",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-008",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-009",
+    "scenario_id": "SCN-017",
+    "expected_result": "When isolated native prerequisites are available, discovery, one bound dispatch, defined failure and cleanup are observed; otherwise lane is explicitly unverified without claiming host acceptance",
+    "evidence": "evidence/NATIVE_HOST_OBSERVATIONS.md; isolated existing native-probe outputs or prerequisite record",
+    "status": "done",
+    "qualification": "SCN-017 records permitted unverified native lanes."
+  },
+  {
+    "criterion_id": "AC-009",
+    "design_decision_id": "SDD-001",
+    "task_id": "T-007",
+    "scenario_id": "SCN-018",
+    "expected_result": "Current navigation resolves canonical relocated components and valid build/profile commands; registry and curated node refs agree with source",
+    "evidence": "evidence/DOCUMENTATION_CHECKS.md; community-health/link checks and five-component walkthrough",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-009",
+    "design_decision_id": "SDD-008",
+    "task_id": "T-007",
+    "scenario_id": "SCN-019",
+    "expected_result": "Documentation and recovery walkthrough distinguish desired, generated, validated, installed and recognized states and link existing repair/retry paths",
+    "evidence": "evidence/MAINTAINER_WALKTHROUGH.md; handbook parity and report inspection",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  },
+  {
+    "criterion_id": "AC-002",
+    "design_decision_id": "SDD-005",
+    "task_id": "T-006",
+    "scenario_id": "SCN-020",
+    "expected_result": "Unpacked actual npm tarball contains all declared resources for each shipped profile, no build-only templates/tooling and no unresolved references",
+    "evidence": "evidence/PACKED_OUTPUTS.json; all three package-content tests and unpacked-resource checks",
+    "status": "partial",
+    "qualification": "Actual workspace duplicate-payload failure prevents complete package acceptance."
+  },
+  {
+    "criterion_id": "AC-005",
+    "design_decision_id": "SDD-006",
+    "task_id": "T-001",
+    "scenario_id": "SCN-021",
+    "expected_result": "Current baseline/related-run ownership is recorded; known unrelated deleted and duplicate paths are preserved or explicitly identified as interfering",
+    "evidence": "evidence/BASELINE.md; evidence/OWNER_COORDINATION.md; implementation-preparation Brownfield Analysis",
+    "status": "done",
+    "qualification": "Scope-specific captured evidence; see named report and TEST_INDEX."
+  }
+]

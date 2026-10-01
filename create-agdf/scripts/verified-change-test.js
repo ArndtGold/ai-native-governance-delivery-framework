@@ -146,8 +146,8 @@ try {
   assert.equal(resolvedArtefactFile(root, "contained.md"), realpathSync(join(root, "contained.md")));
   assert.match(artefactFileDigest(root, "contained.md"), /^sha256:[0-9a-f]{64}$/u);
 
-  const agentRouter = readFileSync(join(repoRoot, "plugin", "meta", "agdf-agent-router.md"), "utf8");
-  const runtimeContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "modes.md"), "utf8");
+  const agentRouter = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-agent-router.md"), "utf8");
+  const runtimeContract = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "modes.md"), "utf8");
   assert.match(agentRouter, /Use Verified Change only after approved UR and Brownfield Review/);
   assert.match(agentRouter, /missing or ambiguous record condition escalates to the declared structured target/);
   assert.match(runtimeContract, /`verified_change` is a compact, fail-closed path/);
@@ -302,7 +302,7 @@ try {
   assert.equal(check.report.status, "open");
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_VALIDATION_EVIDENCE_MISSING"));
 
-  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", derivedPaths: "plugin/.codex-plugin/plugin.json", propagationCommand: "npm run sync", validationStatus: "pass", propagationStatus: "pending" }));
+  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ status: "executed", derivedPaths: "plugins/agdf/.codex-plugin/plugin.json", propagationCommand: "npm run sync", validationStatus: "pass", propagationStatus: "pending" }));
   check = run();
   assert.equal(check.report.status, "open");
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_PROPAGATION_EVIDENCE_MISSING"));
@@ -347,7 +347,7 @@ try {
   assert.ok(check.report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_EXECUTION_SCOPE_INVALID"));
   write(runStatePath, runState());
 
-  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ owner: "README.md, plugin/meta/agdf-runtime-contract.md" }));
+  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ owner: "README.md, plugins/agdf/meta/agdf-runtime-contract.md" }));
   check = run();
   assert.equal(check.report.status, "open");
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_OWNER_INVALID"));
@@ -362,7 +362,7 @@ try {
   assert.equal(check.report.status, "open");
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_IMPACTS_INVALID"));
 
-  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ derivedPaths: "plugin/.codex-plugin/plugin.json" }));
+  write(".agdf/control/artefacts/example/VERIFIED_CHANGE.md", record({ derivedPaths: "plugins/agdf/.codex-plugin/plugin.json" }));
   check = run();
   assert.equal(check.report.status, "open");
   assert.ok(check.report.doctor_report.findings.some((finding) => finding.code === "AGDF_VERIFIED_CHANGE_PROPAGATION_MISSING"));

@@ -150,7 +150,7 @@ Agentenausgabe wie eine belastbare Delivery-Entscheidung behandelt wird.
 | Verfrühter Handoff | Commit, Pull Request oder Veröffentlichung beginnt, obwohl Gate-Status, Risiken oder Abnahme noch offen sind. | Offene Entscheidungen schließen und erst danach den ausdrücklich beauftragten Delivery-Schritt ausführen. |
 
 Diese Muster sind Hinweise, keine neuen Gates oder Modi. Welche Regel verbindlich gilt, bestimmt der
-[Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md).
+[Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md).
 
 ## Gute Arbeitsaufträge
 

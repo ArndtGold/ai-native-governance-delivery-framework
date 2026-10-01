@@ -1,5 +1,8 @@
 # Technische Architektur von AGDF
 
+Die [Paket- und Quellstruktur](package-structure.md) beschreibt den kanonischen
+Plugin-Ordner, die fünf Zuständigkeiten und die erzeugten Hostprofile.
+
 AGDF verbindet Anweisungen für Coding-Agenten, lokal ausführbare Prüfungen und einen dauerhaften
 Kontrollzustand im Projekt. Der Agent arbeitet weiterhin in Codex, Claude Code, OpenCode oder GitHub
 Copilot. AGDF liefert ihm einen gemeinsamen Governance-Pfad und kann diesen Pfad zusätzlich über
@@ -13,7 +16,7 @@ beantwortet vier Fragen:
 3. Wie wird MCP für einen Host eingerichtet und wieder vollständig entfernt?
 4. Welche Nachweise erlauben welche Aussage über die Unterstützung eines Hosts?
 
-**Stand: 30. September 2026, Repository-Quelle.** Beschrieben sind die im Quellstand vorhandenen
+**Stand: 1. Oktober 2026, Repository-Quelle.** Beschrieben sind die im Quellstand vorhandenen
 Skills, Dispatcher, MCP-Werkzeuge und Installations-/Lifecycle-Services. Die Paketmetadaten von
 [`create-agdf`](../../create-agdf/package.json) und
 [`@agdf/mcp-server`](../../agdf-mcp-server/package.json) tragen `0.14.5`. Diese Nummer allein
@@ -21,7 +24,7 @@ belegt weder eine Veröffentlichung noch den Inhalt eines von npm aufgelösten `
 oder einer geladenen Host-Installation. Quellstand, verteiltes Paket und frische Host-Sitzung
 benötigen jeweils eigene Nachweise; historische Host-Beobachtungen stehen in Abschnitt 7.
 
-Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugin/meta/contracts/). Die
+Die normativen Regeln bleiben in den [Runtime-Verträgen](../../plugins/agdf/meta/contracts/). Die
 verbindliche technische Ausgestaltung des MCP-Lebenszyklus steht im
 [Solution Design](../../.agdf/control/artefacts/agdf-cross-host-mcp-integration/SD.md). Seine
 geführte Komposition mit der Plugin-Installation steht im
@@ -115,11 +118,11 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 
 | Bereich | Aufgabe | Maßgebliche Quelle |
 |---|---|---|
-| Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugin/meta/contracts/`](../../plugin/meta/contracts/), [`plugin/skills/`](../../plugin/skills/) |
+| Verträge und Skills | Beschreiben Aktivierung, Arbeitsweise, Grenzen und erforderliche Nachweise. | [`plugins/agdf/meta/contracts/`](../../plugins/agdf/meta/contracts/), [`plugins/agdf/skills/`](../../plugins/agdf/skills/) |
 | Tool-Semantik | Besitzt Namen, Beschreibungen, Eingabe- und Ausgabeschemas sowie Annotationen beider Werkzeuge. | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js), [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) |
 | Dispatch | Prüft Eingaben, bindet das Ziel, beschafft Run-Zuordnungsbelege und liefert ein terminales Ergebnis oder einen begrenzten Auftrag. Führt Skills und Writer nicht selbst aus. | [`skill-dispatch/service.js`](../../create-agdf/lib/skill-dispatch/service.js), [Use-Case-Katalog](dispatcher.md) |
 | MCP-Server | Projiziert die kanonischen Verträge in `tools/list` und leitet `tools/call` an Dispatch oder Inspect weiter. | [`agdf-mcp-server/`](../../agdf-mcp-server/), [`mcp-dispatch-runtime.js`](../../create-agdf/lib/mcp-dispatch-runtime.js) |
-| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |
+| MCP-Fähigkeitsprofil | Definiert Version, Hosts, Scopes, Zustandsvokabular, Laufzeitidentität und Qualifikationsfelder. | [`agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json), [`mcp-lifecycle/profile.js`](../../create-agdf/lib/mcp-lifecycle/profile.js) |
 | MCP-Lebenszyklus | Orchestriert Status, Aktivierung, Deaktivierung, Migration, Referenzen und Rollback. | [`mcp-lifecycle/service.js`](../../create-agdf/lib/mcp-lifecycle/service.js) |
 | MCP-Host-Adapter | Lesen und ändern ausschließlich die native Konfiguration eines Hosts. | [`mcp-lifecycle/adapters/`](../../create-agdf/lib/mcp-lifecycle/adapters/) |
 | Gemeinsame MCP-Laufzeit | Hält die exakte Server- und Dispatcher-Version sowie Referenzen aller Registrierungen im gleichen Bereich. | [`mcp-lifecycle/package.js`](../../create-agdf/lib/mcp-lifecycle/package.js) |
@@ -180,7 +183,7 @@ setzen die im [Katalog](dispatcher.md) beschriebenen Eingaben und Kontrollbeding
 ### 3.1 Agentennativer Skill-Weg
 
 Der Agent beurteilt anhand des
-[Aktivierungsvertrags](../../plugin/meta/contracts/request-activation.md), ob der Nutzer gerade eine
+[Aktivierungsvertrags](../../plugins/agdf/meta/contracts/request-activation.md), ob der Nutzer gerade eine
 AGDF-relevante Umsetzung beauftragt. Eine Erklärung oder reine Diagnose aktiviert keinen
 Delivery-Prozess. Bei positiver Aktivierung verwendet der Agent eine geprüfte Skill-Bindung mit
 Programm, Validatorpfad, Host und erwarteter Version.
@@ -507,7 +510,7 @@ die separate Präsentationsbindung. Die zugehörigen Tests sind im Katalog verli
 
 Wer den MCP-Pfad erstmals untersucht, kann in dieser Reihenfolge lesen:
 
-1. [`plugin/meta/agdf-mcp-capability.json`](../../plugin/meta/agdf-mcp-capability.json) zeigt den
+1. [`plugins/agdf/meta/agdf-mcp-capability.json`](../../plugins/agdf/meta/agdf-mcp-capability.json) zeigt den
    öffentlichen Fähigkeits- und Lifecycle-Vertrag.
 2. [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) besitzt die
    vollständige Semantik von `agdf_dispatch`.

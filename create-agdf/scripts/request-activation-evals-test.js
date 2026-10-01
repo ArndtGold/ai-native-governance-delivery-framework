@@ -125,7 +125,7 @@ assert.throws(
   /only codex or claude/,
 );
 
-const canonicalContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "request-activation.md"), "utf8");
+const canonicalContract = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8");
 const compositionFingerprints = new Map();
 for (const profileSurface of ["codex", "claude", "copilot", "opencode"]) {
   const composition = await composeRequestActivationProfile({
@@ -197,7 +197,7 @@ assert.equal(hostMatrix.evidence_plane, "fresh_loaded_host");
 assert.equal(hostMatrix.status, "unavailable");
 assert.deepEqual(hostMatrix.hosts.map(({ host }) => host).sort(), ["claude_code", "codex", "github_copilot", "opencode"]);
 const canonicalGuardFingerprint = /- `guard_fingerprint`: `(sha256:[0-9a-f]{64})`/.exec(
-  readFileSync(join(repoRoot, "plugin", "meta", "contracts", "request-activation.md"), "utf8"),
+  readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8"),
 )?.[1];
 assert.equal(hostMatrix.request_activation.guard_fingerprint, canonicalGuardFingerprint, "host matrix must bind to the current canonical guard even while observations are unavailable");
 for (const host of hostMatrix.hosts) {

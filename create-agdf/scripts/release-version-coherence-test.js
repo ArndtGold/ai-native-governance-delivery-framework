@@ -11,9 +11,9 @@ import { canonicalDistributionProfileEntryDigest } from "../lib/runtime/distribu
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
 const evidence = collectReleaseVersionEvidence({ repoRoot });
-const historyPath = resolve(repoRoot, "plugin", "meta", "distribution-profile-history.json");
+const historyPath = resolve(repoRoot, "plugins", "agdf", "meta", "distribution-profile-history.json");
 const catalogueContent = readFileSync(historyPath, "utf8");
-const currentDefinition = JSON.parse(readFileSync(resolve(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+const currentDefinition = JSON.parse(readFileSync(resolve(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
 const generatedContents = Object.fromEntries([
   "create-agdf/generated/plugins/agdf/meta/distribution-profile-history.json",
   "create-agdf/generated/plugins/copilot/agdf/meta/distribution-profile-history.json",
@@ -98,10 +98,18 @@ assert.doesNotThrow(() => assertDistributionProfileHistory({
   tagExists: (tag) => tag !== `agdf-v${currentDefinition.version}`,
 }));
 const currentTagFiles = {
-  "plugin/meta/agdf-plugin.definition.json": `${JSON.stringify(currentDefinition)}\n`,
+  "plugins/agdf/meta/agdf-plugin.definition.json": `${JSON.stringify(currentDefinition)}\n`,
   "create-agdf/package.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
-  "plugin/.codex-plugin/plugin.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
+  "plugins/agdf/.codex-plugin/plugin.json": `${JSON.stringify({ version: currentDefinition.version })}\n`,
 };
+assert.throws(() => assertDistributionProfileHistory({
+  ...commonHistoryOptions,
+  tagExists: () => true,
+  readTagFile(tag, path) {
+    if (tag === `agdf-v${currentDefinition.version}`) return currentTagFiles[path.replace(/^plugin\//u, "plugins/agdf/")];
+    return readTagFile(tag, path);
+  },
+}), (error) => error.code === "profile_history_tag_mismatch", "two source roots in one tag must not silently select an owner");
 assert.doesNotThrow(() => assertDistributionProfileHistory({
   ...commonHistoryOptions,
   tagExists: () => true,

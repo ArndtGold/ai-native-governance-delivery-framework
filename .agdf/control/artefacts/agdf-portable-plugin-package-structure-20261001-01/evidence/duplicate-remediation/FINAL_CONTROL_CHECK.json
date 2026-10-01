@@ -1,0 +1,324 @@
+{
+  "schema_version": "1",
+  "status": "open",
+  "current_gate": "QA",
+  "blocking_reason": "none",
+  "missing_approval": "Approval: QA",
+  "next_gate_after_approval": "UAT",
+  "allowed_after_approval": "Request UAT when QA has passed; release remains gated.",
+  "allowed": [
+    "run QA gate",
+    "persist or refine the QA report"
+  ],
+  "forbidden": [
+    "request UAT approval",
+    "release",
+    "claim delivery readiness before QA approval and report evidence"
+  ],
+  "next_allowed_action": "Review QA Report Revision 2; prepare its binding before requesting exact Approval: QA.",
+  "doctor_status": "pass",
+  "doctor_summary": {
+    "findings": 0,
+    "block": 0,
+    "revise": 0,
+    "warn": 0
+  },
+  "evidence_refs": [
+    {
+      "evidence": "Run creation",
+      "source": "run-create",
+      "covers": "Control initialization",
+      "strength": "direct"
+    },
+    {
+      "evidence": "UR draft",
+      "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/UR.md`",
+      "covers": "problem, goal, scope and acceptance signals",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Brownfield Review",
+      "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_REVIEW.md`",
+      "covers": "Mode/Slice Decision `structured_delivery`",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Implementation-preparation Brownfield Analysis",
+      "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_ANALYSIS.md`; evidence/BASELINE.md; evidence/OWNER_COORDINATION.md",
+      "covers": "Approved TP reuse path, exact input hashes, current shared-owner revisions and unrelated dirty payload interference",
+      "strength": "source inspection; no implementation/package/host result"
+    },
+    {
+      "evidence": "Code Review",
+      "source": ".agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+      "covers": "decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Post-implementation quality evidence",
+      "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CD_TESTS.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TASK_PLAN_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md`",
+      "covers": "staged migration and refreshed QA pass; TPR-E001 resolved in Revision 2",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Authorized duplicate remediation",
+      "source": "user \u201cfix it\u201d / \u201cleg los\u201d; evidence/duplicate-remediation/CLEANUP.json; normal pack/archive/profile evidence",
+      "covers": "five source copies removed, ten derived copies pruned, canonical originals preserved; TPR-E001 resolved",
+      "strength": "direct"
+    },
+    {
+      "evidence": "Code Review",
+      "source": ".agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+      "covers": "decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+      "strength": "direct"
+    }
+  ],
+  "quality_outlook": "QA pass for approved scope; all 10 tasks fully_done; native lanes explicitly unverified; human QA/UAT approvals missing.",
+  "interaction_kind": "status",
+  "native_attempt_required": false,
+  "candidate_runs": [],
+  "status_card": {
+    "run_id": "agdf-portable-plugin-package-structure-20261001-01",
+    "presentation_language": "de",
+    "mode": "structured_delivery",
+    "lifecycle": "active",
+    "delivery_state": "active",
+    "status": "open",
+    "current_gate": "QA",
+    "mode_slice_decision": "structured_delivery",
+    "breadcrumb": [
+      {
+        "gate": "UR",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "PRD",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "SD",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "TP",
+        "status": "fulfilled"
+      },
+      {
+        "gate": "QA",
+        "status": "current"
+      },
+      {
+        "gate": "UAT",
+        "status": "open"
+      }
+    ],
+    "allowed_now": [
+      "run QA gate",
+      "persist or refine the QA report"
+    ],
+    "forbidden_now": [
+      "request UAT approval",
+      "release",
+      "claim delivery readiness before QA approval and report evidence"
+    ],
+    "blocking_condition": "none",
+    "missing_approval": "none",
+    "next_gate_after_approval": "none",
+    "allowed_after_approval": "none",
+    "user_visible_outcome_after_approval": "none",
+    "internal_next_step": "none",
+    "next_user_gate": "none",
+    "user_action_required": "yes",
+    "prd_readiness_items": [],
+    "traceability_gaps": [],
+    "blocking_details": [],
+    "evidence": [
+      {
+        "evidence": "Run creation",
+        "source": "run-create",
+        "covers": "Control initialization",
+        "strength": "direct"
+      },
+      {
+        "evidence": "UR draft",
+        "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/UR.md`",
+        "covers": "problem, goal, scope and acceptance signals",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Brownfield Review",
+        "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_REVIEW.md`",
+        "covers": "Mode/Slice Decision `structured_delivery`",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Implementation-preparation Brownfield Analysis",
+        "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_ANALYSIS.md`; evidence/BASELINE.md; evidence/OWNER_COORDINATION.md",
+        "covers": "Approved TP reuse path, exact input hashes, current shared-owner revisions and unrelated dirty payload interference",
+        "strength": "source inspection; no implementation/package/host result"
+      },
+      {
+        "evidence": "Code Review",
+        "source": ".agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+        "covers": "decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Post-implementation quality evidence",
+        "source": "`.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CD_TESTS.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/TASK_PLAN_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md`; `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/QA_REPORT.md`",
+        "covers": "staged migration and refreshed QA pass; TPR-E001 resolved in Revision 2",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Authorized duplicate remediation",
+        "source": "user \u201cfix it\u201d / \u201cleg los\u201d; evidence/duplicate-remediation/CLEANUP.json; normal pack/archive/profile evidence",
+        "covers": "five source copies removed, ten derived copies pruned, canonical originals preserved; TPR-E001 resolved",
+        "strength": "direct"
+      },
+      {
+        "evidence": "Code Review",
+        "source": ".agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+        "covers": "decision pass: .agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/CODE_REVIEW.md",
+        "strength": "direct"
+      }
+    ],
+    "next_skill": "qa-gate",
+    "next_step": "I cannot safely identify the selected run's next action. Please clarify the intended next action for this run.",
+    "quality_outlook": "No additional quality follow-up identified from the current control state.",
+    "interaction_kind": "status",
+    "native_attempt_required": false,
+    "native_preflight_outcome": "not_applicable",
+    "native_preflight_reason": "none"
+  },
+  "status_presentation": {
+    "schema_version": "1",
+    "semantic_block": "run_status_card",
+    "run_id": "agdf-portable-plugin-package-structure-20261001-01",
+    "revision_id": "d9334b3c-d45a-466b-a79d-6b5fbe408c38",
+    "current_gate": "QA",
+    "presentation_language": "de",
+    "markdown": "## AGDF-Statuskarte\n\n| Statusfeld | Wert |\n|---|---|\n| Ausgew\u00e4hlter Run | QA Report: Portable AGDF Plugin Package Structure \u00b7 `agdf-portable-plugin-package-structure-20261001-01` |\n| Pfad | \u2713 UR \u00b7 \u2713 PRD \u00b7 \u2713 SD \u00b7 \u2713 TP \u00b7 \u25cf QA \u00b7 \u25cb UAT |\n| Status | offen |\n| Aktuelles Gate | Qualit\u00e4tssicherung (`QA`) |\n| Jetzt erlaubt | das QA-Gate durchf\u00fchren<br>den QA-Bericht dauerhaft festhalten oder \u00fcberarbeiten |\n| Aktuell verboten | die UAT-Freigabe anfordern<br>ver\u00f6ffentlichen<br>Lieferbereitschaft vor QA-Freigabe und Berichtsnachweis behaupten |\n| Du bist dran | Ich kann die n\u00e4chste Aktion des ausgew\u00e4hlten Runs nicht sicher bestimmen. Bitte kl\u00e4re, was f\u00fcr diesen Run als N\u00e4chstes geschehen soll. |\n| Fehlende Freigabe | keine |",
+    "authorizes": false
+  },
+  "approval_presentation": null,
+  "next_operation": null,
+  "delivery_map": {
+    "relationships": [
+      {
+        "from": "UR",
+        "relationship": "approved_by",
+        "to": "Approval: UR",
+        "required": true,
+        "status": "pass",
+        "evidence": "`Approval: UR` \u00b7 2026-10-01 \u00b7 revision 2 \u00b7 `.agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/UR.md` sha256:75f03105a573b05d \u00b7 presentation a589b32d-e03f-44e1-852a-b1ec5606b68a sha256:a58021d6e4fc88548a1bedc6ba5d17e8260b703ce6bac055359833a876c19404"
+      },
+      {
+        "from": "PRD",
+        "relationship": "derived_from",
+        "to": "UR",
+        "required": true,
+        "status": "pass",
+        "evidence": "Approved UR plus completed Brownfield Review; stable criteria AC-001 through AC-009"
+      },
+      {
+        "from": "SD",
+        "relationship": "derived_from",
+        "to": "PRD",
+        "required": true,
+        "status": "pass",
+        "evidence": "Approved PRD with AC-001 through AC-009 mapped once; SDD-001 through SDD-008"
+      },
+      {
+        "from": "TP",
+        "relationship": "derived_from",
+        "to": "SD",
+        "required": true,
+        "status": "pass",
+        "evidence": "Approved SDD-001 through SDD-008 and AC-001 through AC-009 mapped to tasks and scenarios"
+      },
+      {
+        "from": "QA_REPORT",
+        "relationship": "tests",
+        "to": "TP",
+        "required": false,
+        "status": "missing",
+        "evidence": ""
+      }
+    ],
+    "mode_slice_decision": {
+      "decision": "structured_delivery",
+      "required_next_gate": "PRD",
+      "scope_reason": "external_contract_depth: portable root identity and component discovery change distributed integration contracts; release_cross_host_depth also applies. Reject structured_slice because full_depth_impacts_absent fails for the first format milestone; Quick/Verified routes cannot cover this external contract change.",
+      "evidence": ".agdf/control/artefacts/agdf-portable-plugin-package-structure-20261001-01/BROWNFIELD_REVIEW.md"
+    },
+    "context_graph": {
+      "impact": "",
+      "refs": "",
+      "required_action": "",
+      "gate_effect": "",
+      "evidence": ""
+    },
+    "source_scope": {
+      "normative_instruction_source": "",
+      "multi_scope_state": "",
+      "active_scope_evidence": "",
+      "competing_scope_lines": "",
+      "branch_workspace_evidence": "",
+      "branch_workspace_scope_effect": ""
+    },
+    "memory": {
+      "target": "",
+      "reason": "",
+      "refs": ""
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": []
+  },
+  "verified_change": null,
+  "doctor_report": {
+    "schema_version": "1",
+    "status": "pass",
+    "checked_at": "2026-10-01T12:18:36.765Z",
+    "target_dir": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework",
+    "summary": {
+      "findings": 0,
+      "block": 0,
+      "revise": 0,
+      "warn": 0
+    },
+    "parent_reconciliation": {
+      "outcome": "not_applicable",
+      "target_run_id": "",
+      "disposition": "not_applicable",
+      "evidence": "",
+      "missing_evidence": "none",
+      "next_action": "none"
+    },
+    "programme_aggregation": {
+      "applicable": false,
+      "startable": false,
+      "final_ready": false,
+      "acceptance_ref": "",
+      "evidence": [],
+      "missing_evidence": [],
+      "next_action": "none"
+    },
+    "findings": []
+  }
+}

@@ -10,7 +10,7 @@ const root = new URL("../", import.meta.url);
 const manifest = JSON.parse(readFileSync(new URL("package.json", root), "utf8"));
 const lock = JSON.parse(readFileSync(new URL("package-lock.json", root), "utf8"));
 const dispatcherManifest = JSON.parse(readFileSync(new URL("../../create-agdf/package.json", import.meta.url), "utf8"));
-const capability = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-mcp-capability.json", import.meta.url), "utf8"));
+const capability = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-mcp-capability.json", import.meta.url), "utf8"));
 
 assert.equal(manifest.name, "@agdf/mcp-server");
 assert.equal(manifest.version, dispatcherManifest.version);

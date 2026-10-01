@@ -42,7 +42,7 @@ const root = mkdtempSync(join(tmpdir(), "agdf-local-validator-"));
 try {
   assert.throws(() => syncPluginRuntime(), /requires an explicit outputRoot/);
   assert.throws(() => syncPluginRuntime({ outputRoot: "relative-runtime" }), /must be absolute/);
-  assert.throws(() => syncPluginRuntime({ outputRoot: join(fileURLToPath(new URL("../..", import.meta.url)), "plugin", "runtime") }), /must not write into the source plugin/);
+  assert.throws(() => syncPluginRuntime({ outputRoot: join(fileURLToPath(new URL("../..", import.meta.url)), "plugins", "agdf", "runtime") }), /must not write into the source plugin/);
 
   const repositoryRoot = join(root, "generated-repository");
   const pluginRoot = join(repositoryRoot, "plugins", "agdf");

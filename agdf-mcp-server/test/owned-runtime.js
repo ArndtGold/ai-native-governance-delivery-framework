@@ -39,7 +39,7 @@ export function createOwnedRuntimeFixture() {
   });
   for (const name of ["agdf-plugin.definition.json", "agdf-interaction-locales.json"]) {
     cpSync(
-      join(repositoryRoot, "plugin", "meta", name),
+      join(repositoryRoot, "plugins", "agdf", "meta", name),
       join(dispatcherRoot, "generated", "plugins", "agdf", "meta", name),
     );
   }

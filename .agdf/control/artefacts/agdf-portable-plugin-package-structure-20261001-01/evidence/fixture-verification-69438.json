@@ -1,0 +1,54 @@
+[
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "create-agdf",
+      "run",
+      "test:request-activation"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 0,
+    "elapsed_s": 25.69,
+    "log": "fixture-create-agdf-test-request-activation.log"
+  },
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "create-agdf",
+      "run",
+      "test:package-contents"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 1,
+    "elapsed_s": 14.12,
+    "log": "fixture-create-agdf-test-package-contents.log"
+  },
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "agdf",
+      "run",
+      "test:package"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 0,
+    "elapsed_s": 2.76,
+    "log": "fixture-agdf-test-package.log"
+  },
+  {
+    "command": [
+      "npm",
+      "--prefix",
+      "agdf",
+      "run",
+      "smoke-test"
+    ],
+    "cwd": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8",
+    "exit_code": 1,
+    "elapsed_s": 15.22,
+    "log": "fixture-agdf-smoke-test.log"
+  }
+]

@@ -329,9 +329,9 @@ export function validateRequestActivationCorpus(repoRoot, options = {}) {
   const callbacks = new Set(manifest.callback_vocabulary ?? []);
   if (callbacks.size !== (manifest.callback_vocabulary ?? []).length || callbacks.size === 0) failures.push(failure("MANIFEST_SCHEMA", "callback vocabulary must be non-empty and unique"));
 
-  const definition = readJson(safePath(repoRoot, "plugin/meta/agdf-plugin.definition.json"));
+  const definition = readJson(safePath(repoRoot, "plugins/agdf/meta/agdf-plugin.definition.json"));
   const skillSlugs = new Set((definition.skillSet ?? []).map(({ slug }) => slug));
-  const contractContent = normalized(readFileSync(safePath(repoRoot, "plugin/meta/contracts/request-activation.md"), "utf8"));
+  const contractContent = normalized(readFileSync(safePath(repoRoot, "plugins/agdf/meta/contracts/request-activation.md"), "utf8"));
   const catalog = parseRequestActivationOperationCatalog(contractContent);
   const operationIds = new Set(catalog.operations.map(({ operation_id: operationId }) => operationId));
 

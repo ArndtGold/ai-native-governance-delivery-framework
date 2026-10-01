@@ -502,7 +502,7 @@ The `codex` and `claude` commands install the complete shared plugin built into 
 `create-agdf` package. The `copilot` command installs a dedicated generated profile containing only
 the Copilot manifest, prefixed skills, hook, required contracts and exact-version runtime. Every profile
 is rendered from the same canonical sources. The installers atomically stage their profile under an AGDF-owned user-data marketplace, register
-that stable local source with the host and verify the exposed version. Source `plugin/` therefore
+that stable local source with the host and verify the exposed version. Source `plugins/agdf/` therefore
 contains no generated runtime bytes and the source checkout exposes no installable root marketplace.
 
 Repository lifecycle support is deliberately asymmetric:
@@ -720,11 +720,11 @@ Together, `init`, `doctor` and `gate-check --json` turn AGDF from an instruction
 
 The repository-facing AGDF sources are maintained in:
 
-- `plugin/meta/agdf-agent-router.md`
-- `plugin/meta/agdf-plugin.definition.json`
-- `plugin/skills/`
-- `plugin/meta/agdf-runtime-contract.md`
-- `plugin/control/`
+- `plugins/agdf/meta/agdf-agent-router.md`
+- `plugins/agdf/meta/agdf-plugin.definition.json`
+- `plugins/agdf/skills/`
+- `plugins/agdf/meta/agdf-runtime-contract.md`
+- `plugins/agdf/control/`
 
 Skill routing is rendered from `skillSet.slug`, `useFor`, `boundary` and the target surface `skillPrefix`; it is not maintained as separate Codex, Claude Code and Copilot routing tables.
 

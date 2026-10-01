@@ -9,8 +9,8 @@ import { validateCopilotPayload } from "../lib/public-plugin/copilot-profile.js"
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = dirname(packageRoot);
 const generatedRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
-const definition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
-const baseline = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "copilot-payload-baseline.json"), "utf8"));
+const definition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
+const baseline = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "copilot-payload-baseline.json"), "utf8"));
 const expectedSkills = definition.skillSet.map(({ slug }) => slug);
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-copilot-profile-"));
 const sha256 = (content) => createHash("sha256").update(content).digest("hex");
@@ -51,7 +51,7 @@ try {
   assert.deepEqual(Object.keys(hooks.hooks), ["sessionStart"], "Copilot profile must expose only the existing sessionStart hook");
   assert.equal(hooks.hooks.sessionStart.length, 1, "Copilot profile must expose one passive sessionStart command");
   assert.equal(JSON.stringify(hooks).includes("tool.execute.before"), false, "Copilot profile must not add a prompt or pre-tool classifier hook");
-  const canonicalContract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "request-activation.md"), "utf8");
+  const canonicalContract = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8");
   const fingerprint = /- `guard_fingerprint`: `(sha256:[0-9a-f]{64})`/.exec(canonicalContract)?.[1];
   assert.ok(fingerprint, "canonical Request Activation fingerprint must be available");
   for (const slug of expectedSkills) {

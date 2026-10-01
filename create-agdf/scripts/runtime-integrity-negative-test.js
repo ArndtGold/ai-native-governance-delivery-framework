@@ -8,33 +8,33 @@ import { linkDirectory } from "./support/symlinks.js";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-runtime-integrity-"));
-const integrityScript = join(fixtureRoot, "plugin", "scripts", "check-runtime-integrity.mjs");
-const templatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "VERIFIED_CHANGE.md");
-const brownfieldTemplatePath = join(fixtureRoot, "plugin", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md");
-const pluginDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
-const requestActivationContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "request-activation.md");
-const interactionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "interaction.md");
-const taskTargetContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "task-target-resolution.md");
-const modesContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "modes.md");
-const gateTransitionContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "gate-transition.md");
-const qualityContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "quality.md");
-const gateCheckPath = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
-const brownfieldSkillPath = join(fixtureRoot, "plugin", "skills", "brownfield-analysis", "SKILL.md");
-const cleanReviewPath = join(fixtureRoot, "plugin", "skills", "clean-implementation-review", "SKILL.md");
-const qaGatePath = join(fixtureRoot, "plugin", "skills", "qa-gate", "SKILL.md");
-const releaseOrPath = join(fixtureRoot, "plugin", "skills", "release-or", "SKILL.md");
-const interactionLocalesPath = join(fixtureRoot, "plugin", "meta", "agdf-interaction-locales.json");
-const agentSkillsPolicyPath = join(fixtureRoot, "plugin", "meta", "agent-skills-conformance.json");
-const agentSkillsValidatorPath = join(fixtureRoot, "plugin", "scripts", "agent-skills-conformance.mjs");
-const instructionFootprintValidatorPath = join(fixtureRoot, "plugin", "scripts", "instruction-footprint.mjs");
+const integrityScript = join(fixtureRoot, "plugins", "agdf", "scripts", "check-runtime-integrity.mjs");
+const templatePath = join(fixtureRoot, "plugins", "agdf", "control", "templates", "artefacts", "VERIFIED_CHANGE.md");
+const brownfieldTemplatePath = join(fixtureRoot, "plugins", "agdf", "control", "templates", "artefacts", "BROWNFIELD_REVIEW.md");
+const pluginDefinitionPath = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
+const requestActivationContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md");
+const interactionContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "interaction.md");
+const taskTargetContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "task-target-resolution.md");
+const modesContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "modes.md");
+const gateTransitionContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "gate-transition.md");
+const qualityContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "quality.md");
+const gateCheckPath = join(fixtureRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md");
+const brownfieldSkillPath = join(fixtureRoot, "plugins", "agdf", "skills", "brownfield-analysis", "SKILL.md");
+const cleanReviewPath = join(fixtureRoot, "plugins", "agdf", "skills", "clean-implementation-review", "SKILL.md");
+const qaGatePath = join(fixtureRoot, "plugins", "agdf", "skills", "qa-gate", "SKILL.md");
+const releaseOrPath = join(fixtureRoot, "plugins", "agdf", "skills", "release-or", "SKILL.md");
+const interactionLocalesPath = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-interaction-locales.json");
+const agentSkillsPolicyPath = join(fixtureRoot, "plugins", "agdf", "meta", "agent-skills-conformance.json");
+const agentSkillsValidatorPath = join(fixtureRoot, "plugins", "agdf", "scripts", "agent-skills-conformance.mjs");
+const instructionFootprintValidatorPath = join(fixtureRoot, "plugins", "agdf", "scripts", "instruction-footprint.mjs");
 
 function copyPluginFixture() {
-  const source = join(repoRoot, "plugin");
-  cpSync(source, join(fixtureRoot, "plugin"), {
+  const source = join(repoRoot, "plugins", "agdf");
+  cpSync(source, join(fixtureRoot, "plugins", "agdf"), {
     recursive: true,
     filter: (path) => path !== join(source, "runtime") && !path.startsWith(`${join(source, "runtime")}/`),
   });
-  linkDirectory(join(source, "runtime"), join(fixtureRoot, "plugin", "runtime"));
+  linkDirectory(join(source, "runtime"), join(fixtureRoot, "plugins", "agdf", "runtime"));
 }
 
 function makeFixture() {
@@ -56,7 +56,7 @@ function materializeCreateAgdfFixture() {
 }
 
 function resetPluginFixture() {
-  rmSync(join(fixtureRoot, "plugin"), { recursive: true, force: true });
+  rmSync(join(fixtureRoot, "plugins", "agdf"), { recursive: true, force: true });
   copyPluginFixture();
 }
 
@@ -100,9 +100,9 @@ try {
   expectIntegrityFailure(/distribution profiles must match the runtime integrity contract/);
 
   resetPluginFixture();
-  unlinkSync(join(fixtureRoot, "plugin", "runtime"));
-  mkdirSync(join(fixtureRoot, "plugin", "runtime"));
-  writeFileSync(join(fixtureRoot, "plugin", "runtime", "runtime-manifest.json"), "{}\n");
+  unlinkSync(join(fixtureRoot, "plugins", "agdf", "runtime"));
+  mkdirSync(join(fixtureRoot, "plugins", "agdf", "runtime"));
+  writeFileSync(join(fixtureRoot, "plugins", "agdf", "runtime", "runtime-manifest.json"), "{}\n");
   expectIntegrityFailure(/source plugin must not contain generated runtime/);
 
   resetPluginFixture();
@@ -127,7 +127,7 @@ try {
 
   resetPluginFixture();
   unlinkSync(templatePath);
-  expectIntegrityFailure(/plugin\/control\/templates\/artefacts\/VERIFIED_CHANGE\.md missing/);
+  expectIntegrityFailure(/plugins\/agdf\/control\/templates\/artefacts\/VERIFIED_CHANGE\.md missing/);
 
   resetPluginFixture();
   const template = readFileSync(templatePath, "utf8").replace("canonical_owner", "canonical_owner_removed");

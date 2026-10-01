@@ -12,7 +12,7 @@ const binPath = fileURLToPath(new URL("./bin/create-agdf.js", packageRoot));
 const packageJsonPath = fileURLToPath(new URL("./package.json", packageRoot));
 const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
 const generatedRoot = fileURLToPath(new URL("./generated/", packageRoot));
-const pluginDefinitionPath = fileURLToPath(new URL("../plugin/meta/agdf-plugin.definition.json", packageRoot));
+const pluginDefinitionPath = fileURLToPath(new URL("../plugins/agdf/meta/agdf-plugin.definition.json", packageRoot));
 const pluginDefinition = JSON.parse(readFileSync(pluginDefinitionPath, "utf8"));
 const codexSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.codex.skillPrefix}${skill.slug}`);
 const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => `${pluginDefinition.opencode.skillPrefix}${skill.slug}`);
@@ -221,7 +221,7 @@ if (!helpOutput.includes("Bootstrap and lifecycle commands:") || !helpOutput.inc
   const guardrailsWorkflowPath = fileURLToPath(new URL("../.github/workflows/agdf-guardrails.yml", packageRoot));
   const guardrailsWorkflow = readFileSync(guardrailsWorkflowPath, "utf8");
   const syncMarker = "run: npm --prefix create-agdf run release:prepare";
-  const runtimeIntegrityMarker = "run: node plugin/scripts/check-runtime-integrity.mjs";
+  const runtimeIntegrityMarker = "run: node plugins/agdf/scripts/check-runtime-integrity.mjs";
   const communityHealthMarker = "run: npm run test:community-health && npm run check:community-health";
   const deliveryMapMarker = "run: node create-agdf/bin/create-agdf.js delivery-map --dir . --all-active";
   if (!guardrailsWorkflow.includes(syncMarker) || !guardrailsWorkflow.includes(runtimeIntegrityMarker)

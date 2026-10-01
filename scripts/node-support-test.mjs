@@ -10,7 +10,7 @@ for (const name of ["create-agdf", "agdf", "agdf-mcp-server"]) {
   assert.equal(json(`${name}/package.json`).engines.node, ">=22");
 }
 assert.equal(json("agdf-mcp-server/package-lock.json").packages[""].engines.node, ">=22");
-assert.equal(json("plugin/meta/agdf-mcp-capability.json").package.node, ">=22");
+assert.equal(json("plugins/agdf/meta/agdf-mcp-capability.json").package.node, ">=22");
 
 const actions = {
   "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",

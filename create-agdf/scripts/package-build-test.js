@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const scriptPath = fileURLToPath(new URL("./sync-package-assets.js", import.meta.url));
 const packageRoot = dirname(dirname(scriptPath));
 const repoRoot = dirname(packageRoot);
-const sourcePluginRoot = join(repoRoot, "plugin");
+const sourcePluginRoot = join(repoRoot, "plugins", "agdf");
 const generatedPluginRoot = join(packageRoot, "generated", "plugins", "agdf");
 const generatedCopilotPluginRoot = join(packageRoot, "generated", "plugins", "copilot", "agdf");
 const generatedOpenCodeRoot = join(packageRoot, "generated", ".opencode");

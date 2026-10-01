@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-01",
+  "authorization": "User fix it, followed by leg los: reconcile and remove the five identified duplicate modules; preserve canonical trust check.",
+  "run_id": "agdf-portable-plugin-package-structure-20261001-01",
+  "binding_revision_id": "263f7585-9ed1-4051-83dd-a8e7fb767352",
+  "gate_check": "same-run canonical CLI: doctor pass; QA revise permits correction and refreshed evidence",
+  "recovery_difference": "Copy lacks import/call of assertRecoveryOperationsTrusted; canonical is retained unchanged.",
+  "files": [
+    {
+      "removed_path": "create-agdf/lib/control-state/contained-file 2.js",
+      "copy_sha256": "cb9ff14cb376372d3901bf020ffcf94651b907c781c148850740ad95e1ad7a20",
+      "canonical_path": "create-agdf/lib/control-state/contained-file.js",
+      "canonical_sha256": "cb9ff14cb376372d3901bf020ffcf94651b907c781c148850740ad95e1ad7a20",
+      "identical": true,
+      "backup": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-duplicate-remediation-backup-4xtnhd1o/contained-file 2.js"
+    },
+    {
+      "removed_path": "create-agdf/lib/control-state/control-configuration 2.js",
+      "copy_sha256": "40f1a5675666195bad3118a327a21c377b8ffa641d045fa22ebcebc9d12ec689",
+      "canonical_path": "create-agdf/lib/control-state/control-configuration.js",
+      "canonical_sha256": "40f1a5675666195bad3118a327a21c377b8ffa641d045fa22ebcebc9d12ec689",
+      "identical": true,
+      "backup": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-duplicate-remediation-backup-4xtnhd1o/control-configuration 2.js"
+    },
+    {
+      "removed_path": "create-agdf/lib/control-state/run-recovery 2.js",
+      "copy_sha256": "c46df84fdf100822aaac6fc86aac0bfec41ac39aa67dcfaf3c99840447d1a3f4",
+      "canonical_path": "create-agdf/lib/control-state/run-recovery.js",
+      "canonical_sha256": "641b6cc76eea9f4d7dcea2a49e666703b0fd333ddd5a9867a8746710bcf1ef31",
+      "identical": false,
+      "backup": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-duplicate-remediation-backup-4xtnhd1o/run-recovery 2.js"
+    },
+    {
+      "removed_path": "create-agdf/lib/control-state/run-step-pending 2.js",
+      "copy_sha256": "f87a023f7725bc3cccb019e7d6086f9ede0f1544359e949b5e15cb070ef98399",
+      "canonical_path": "create-agdf/lib/control-state/run-step-pending.js",
+      "canonical_sha256": "f87a023f7725bc3cccb019e7d6086f9ede0f1544359e949b5e15cb070ef98399",
+      "identical": true,
+      "backup": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-duplicate-remediation-backup-4xtnhd1o/run-step-pending 2.js"
+    },
+    {
+      "removed_path": "create-agdf/lib/control-state/run-step-transaction 2.js",
+      "copy_sha256": "2c1278eb78641db27d487f350737598c422b806ac5af9a62e30eb87361d4383d",
+      "canonical_path": "create-agdf/lib/control-state/run-step-transaction.js",
+      "canonical_sha256": "2c1278eb78641db27d487f350737598c422b806ac5af9a62e30eb87361d4383d",
+      "identical": true,
+      "backup": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-duplicate-remediation-backup-4xtnhd1o/run-step-transaction 2.js"
+    }
+  ],
+  "other_duplicate_paths": "Untouched; not part of these five identified runtime modules.",
+  "active_install_or_git_mutation": false
+}

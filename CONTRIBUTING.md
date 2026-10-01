@@ -22,7 +22,7 @@ identifiers, commands and exact AGDF approval values remain unchanged.
 
 ## Canonical and derived paths
 
-- `plugin/` and its documented Runtime Contracts are canonical editable sources for plugin
+- `plugins/agdf/` and its documented Runtime Contracts are canonical editable sources for plugin
   semantics. The source directory is deliberately runtime-free and is not an installable plugin.
 - `create-agdf/` owns the CLI, installers, packaging and synchronization of derived plugin assets.
 - `create-agdf/generated/` is produced by the existing synchronization and packaging processes and
@@ -78,7 +78,7 @@ directory. It resolves the real path before host-specific preparation. If `INIT_
 working directory is validated the same way. Invalid invocation context stops with
 `AGDF_LOCAL_INVOCATION_DIRECTORY_INVALID` before generated files or host configuration can change.
 
-Do not register the repository root or `plugin/` directly as a Codex or Claude marketplace. The
+Do not register the repository root or `plugins/agdf/` directly as a Codex or Claude marketplace. The
 commands above build one complete runtime-bearing plugin, stage it in the AGDF-owned durable
 marketplace and attach installation provenance before invoking the host CLI.
 
@@ -105,7 +105,7 @@ the `npx --yes @agdf/cli@latest ...` path documented in [INSTALL.md](INSTALL.md)
 Choose the commands relevant to your scope. Larger repository changes typically include:
 
 ```bash
-node plugin/scripts/check-runtime-integrity.mjs
+node plugins/agdf/scripts/check-runtime-integrity.mjs
 npm --prefix create-agdf run smoke-test
 npm --prefix agdf run smoke-test
 npm --prefix pages run check

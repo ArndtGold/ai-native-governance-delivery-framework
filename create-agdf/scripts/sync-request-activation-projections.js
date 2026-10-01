@@ -1,3 +1,4 @@
+import { getPluginSourceRoot } from "../lib/public-plugin/source-root.js";
 import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
@@ -209,7 +210,7 @@ function validateExistingGuardProjection(guardBlock, label) {
     "- `policy_version`: `1`",
   ];
   const legacyHeader = [...expectedHeader];
-  legacyHeader[4] = "- `path`: `plugin/meta/contracts/request-activation.md`";
+  legacyHeader[4] = "- `path`: `plugins/agdf/meta/contracts/request-activation.md`";
   if (!(expectedHeader.every((line, index) => lines[index] === line)
       || legacyHeader.every((line, index) => lines[index] === line))
       || !/^- `guard_fingerprint`: `sha256:[0-9a-f]{64}`$/.test(lines[6] ?? "")
@@ -555,7 +556,7 @@ function planFile(plans, path, current, desired) {
 export function syncRequestActivationProjections({ repoRoot = defaultRepoRoot, mode } = {}) {
   if (!new Set(["write", "check"]).has(mode)) throw new Error("mode must be write or check");
   repoRoot = resolve(repoRoot);
-  const pluginRoot = join(repoRoot, "plugin");
+  const pluginRoot = getPluginSourceRoot(repoRoot);
   const definitionPath = assertSafeExistingFile(
     repoRoot,
     join(pluginRoot, "meta", "agdf-plugin.definition.json"),

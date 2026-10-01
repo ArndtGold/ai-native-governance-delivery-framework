@@ -63,8 +63,8 @@ export async function recordLiveCase({ repoRoot, testCase, catalog, fingerprint,
   let observation;
   let executionError;
   try {
-    const skillSource = readFileSync(join(repoRoot, "plugin", "skills", testCase.target_skill, "SKILL.md"), "utf8");
-    const routingSource = readFileSync(join(repoRoot, "plugin", "meta", "agdf-agent-router.md"), "utf8");
+    const skillSource = readFileSync(join(repoRoot, "plugins", "agdf", "skills", testCase.target_skill, "SKILL.md"), "utf8");
+    const routingSource = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-agent-router.md"), "utf8");
     const raw = await execute({ surface, cwd: fixtureRoot, prompt: promptFor(skillSource, routingSource, testCase, catalog.repositories[testCase.repository_fixture], workspaceEvidence(fixtureRoot)), model, timeoutMs });
     observation = parseObject(raw);
   } catch (error) { executionError = error; }

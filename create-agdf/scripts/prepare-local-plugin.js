@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { syncPackageAssets } from "./sync-package-assets.js";
+import { getPluginSourceRoot } from "../lib/public-plugin/source-root.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -11,7 +12,7 @@ export function prepareLocalPlugin(surface) {
     throw new Error(`Unsupported AGDF local install surface: ${surface || "missing"}`);
   }
   const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
-  const definition = readJson(join(packageRoot, "..", "plugin", "meta", "agdf-plugin.definition.json"));
+  const definition = readJson(join(getPluginSourceRoot(resolve(packageRoot, "..")), "meta", "agdf-plugin.definition.json"));
   if (readJson(join(packageRoot, "package.json")).version !== definition.version) {
     throw new Error("AGDF local package and plugin versions differ.");
   }

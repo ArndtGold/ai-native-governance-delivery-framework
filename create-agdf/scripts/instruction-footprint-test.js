@@ -30,13 +30,13 @@ import {
   requestActivationKernelFingerprint,
   validateInstructionFootprintDefinition,
   validateInstructionFootprintProfile,
-} from "../../plugin/scripts/instruction-footprint.mjs";
+} from "../../plugins/agdf/scripts/instruction-footprint.mjs";
 import { syncPackageAssets } from "./sync-package-assets.js";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repoRoot = resolve(packageRoot, "..");
 const generatedRoot = join(packageRoot, "generated");
-const sourcePluginRoot = join(repoRoot, "plugin");
+const sourcePluginRoot = join(repoRoot, "plugins", "agdf");
 const sourceDefinition = JSON.parse(readFileSync(join(sourcePluginRoot, "meta", "agdf-plugin.definition.json"), "utf8"));
 const footprintDefinition = sourceDefinition.instructionFootprint;
 const temporaryRoots = [];
@@ -402,7 +402,7 @@ function runNegativeFixtures(valid) {
   const withControl = (control) => [{ id: "repository-control", content: `AGDF runtime facts: ${JSON.stringify({ ...runtimeFacts, repository_control: control })}` }];
   const control = { target: runtimeFacts.working_directory, inspection_state: "complete", status: "current", counts: { migration: 0, repair: 0, historical: 1 }, authorizes: false };
   assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: withControl(control), canonicalKernel: valid.canonicalKernel }).status, "pass");
-  const withReentry = { ...control, status: "migration_required", notice: "Repository migration available.", invocation: { executable: process.execPath, argv: [join(repoRoot, "plugin/scripts/agdf-local.js"), "control-maintenance", "--dir", control.target, "--guided", "--language", "de"], authorizes: false } };
+  const withReentry = { ...control, status: "migration_required", notice: "Repository migration available.", invocation: { executable: process.execPath, argv: [join(repoRoot, "plugins/agdf/scripts/agdf-local.js"), "control-maintenance", "--dir", control.target, "--guided", "--language", "de"], authorizes: false } };
   assert.equal(validateSingle({ surfaceId: "runtimeCheckSupplement", records: withControl(withReentry), canonicalKernel: valid.canonicalKernel }).status, "pass");
   for (const [target, workingDirectory] of [["/repo", "/repo/nested"], ["C:\\repo", "C:\\repo\\nested"]]) {
     const content = `AGDF runtime facts: ${JSON.stringify({ ...runtimeFacts, working_directory: workingDirectory, repository_control: { ...control, target } })}`;

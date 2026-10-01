@@ -60,12 +60,12 @@ Danach kannst du gezielt weiterlesen:
 
 Das Handbuch erklärt die Anwendung. Verbindlich bleiben die jeweils aktuellen Quellen:
 
-- der [Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md) für normative Gate-, Mode- und
+- der [Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md) für normative Gate-, Mode- und
   Autoritätsregeln;
 - der live ausgewählte Run unter `.agdf/control/runs/<run_id>/RUN_STATE.md` für den aktuellen
   Arbeitsstand;
 - [Installation](../../../INSTALL.md) für Codex, Claude Code, GitHub Copilot und OpenCode;
-- der [Control-Scaffold](../../../plugin/control/README.md) für technische Run-State-Details;
+- der [Control-Scaffold](../../../plugins/agdf/control/README.md) für technische Run-State-Details;
 - die [AGDF CLI README](../../../agdf/README.md) für die Befehlsreferenz;
 - [Framework-Überblick](../../01-framework-ueberblick.md) und [Gates](../../02-gates.md) für ergänzende
   Erläuterungen.

@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
-import { lstatSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { isDeepStrictEqual } from "node:util";
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { LISTING_LIMITS, unicodeLength } from "./contract.js";
+import { createCodexPluginManifest, createPortablePluginManifest, selectOpenAISettings } from "./manifest.js";
 
 function inside(root, candidate) {
   const rel = relative(root, candidate);
@@ -12,6 +14,7 @@ function hasExactCase(root, target) {
   const rel = relative(root, target);
   let current = root;
   for (const segment of rel.split(sep)) {
+    if (!statSync(current).isDirectory()) return false;
     if (!readdirSync(current).includes(segment)) return false;
     current = join(current, segment);
   }
@@ -63,9 +66,10 @@ function assertReferencedSkillResources(root) {
 
 export function validateCandidate(root) {
   root = realpathSync(resolve(root));
+  validatePortableProfile(root, { profile: "public" });
   const manifestPath = join(root, ".codex-plugin", "plugin.json");
   const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (manifest.hooks || manifest.mcp || manifest.app) throw new Error("AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: Skills-only candidate must not declare hooks, MCP or app configuration");
+  if (["hooks", "mcp", "mcpServers", "app"].some((key) => Object.hasOwn(manifest, key))) throw new Error("AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: Skills-only candidate must not declare hooks, MCP or app configuration");
   declaredPath(root, manifest.skills, "skills", { directory: true });
   declaredPath(root, manifest.interface?.composerIcon, "composerIcon");
   declaredPath(root, manifest.interface?.logo, "logo");
@@ -93,6 +97,44 @@ export function validateCandidate(root) {
     if (files.some((file) => file === forbidden || file.startsWith(forbidden))) throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: forbidden candidate content ${forbidden}`);
   }
   return { manifest, files };
+}
+
+export function validatePortableProfile(root, { profile, validateSchema } = {}) {
+  if (!["source", "public", "runtime"].includes(profile)) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: unknown profile");
+  root = realpathSync(resolve(root));
+  const files = listCandidateFiles(root); // Reject resource/metadata symlinks before reading them.
+  const portable = JSON.parse(readFileSync(join(root, "plugin.json"), "utf8"));
+  if (validateSchema) validateSchema("plugin", portable);
+  const fallback = JSON.parse(readFileSync(join(root, ".codex-plugin", "plugin.json"), "utf8"));
+  const definition = JSON.parse(readFileSync(join(root, "meta", "agdf-plugin.definition.json"), "utf8"));
+  if (portable.name !== definition.id || portable.version !== definition.version || fallback.name !== portable.name || fallback.version !== portable.version) {
+    throw new Error("AGDF_PUBLIC_PLUGIN_VERSION_DRIFT: portable/fallback identity differs from definition");
+  }
+  const inline = Object.hasOwn(portable.extensions ?? {}, "com.openai");
+  if (inline === (profile === "runtime")) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: inline/fallback selection differs from profile");
+  const settings = selectOpenAISettings(portable, fallback);
+  declaredPath(root, settings.skills, "effective skills", { directory: true });
+  declaredPath(root, settings.interface?.composerIcon, "effective composerIcon");
+  declaredPath(root, settings.interface?.logo, "effective logo");
+  assertReferencedSkillResources(root);
+  if (files.some((path) => path.startsWith("host-templates/")) && profile !== "source") throw new Error("AGDF_PORTABLE_PROFILE_INVALID: distributed host templates");
+  if (profile === "runtime") {
+    declaredPath(root, settings.hooks, "effective hooks");
+    declaredPath(root, settings.mcpServers, "effective MCP");
+    for (const path of ["mcp/claude.mcp.json", "mcp/agdf-mcp-launch.js", "runtime/agdf-session-check.js"]) declaredPath(root, `./${path}`, path);
+    if (!isDeepStrictEqual(fallback, createCodexPluginManifest(definition, { runtimeProfile: true }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: runtime fallback differs from canonical projection");
+  } else {
+    const claudePath = join(root, ".claude-plugin", "plugin.json");
+    const hosts = [settings, fallback, ...(existsSync(claudePath) ? [JSON.parse(readFileSync(claudePath, "utf8"))] : [])];
+    for (const host of hosts) {
+      if (["hooks", "mcp", "mcpServers", "app"].some((key) => Object.hasOwn(host, key))) throw new Error("AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: optional capability in skills-only profile");
+    }
+    for (const path of ["hooks", "mcp", "mcp.json", ".mcp.json", "app.json", ".app.json", ".agdf/control", "node_modules"]) {
+      if (existsSync(join(root, path))) throw new Error(`AGDF_PUBLIC_PLUGIN_CONTRACT_INVALID: optional discovery/content ${path}`);
+    }
+  }
+  if (!isDeepStrictEqual(portable, createPortablePluginManifest(definition, { publicCandidate: profile === "public", runtimeProfile: profile === "runtime" }))) throw new Error("AGDF_PORTABLE_PROFILE_INVALID: portable identity/settings differ from canonical projection");
+  return { portable, settings, files };
 }
 
 export function inventory(root, { exclude = [] } = {}) {

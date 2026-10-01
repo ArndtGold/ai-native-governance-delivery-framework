@@ -49,7 +49,7 @@ Quellcode-Definition oder Registrierung allein weist diese Eigenschaften nicht n
 
 | Verantwortung | Kanonischer Eigentümer |
 |---|---|
-| Aktivierung, Zielbindung, Interaktion und Gate-Regeln | [Runtime-Verträge](../../plugin/meta/contracts/) |
+| Aktivierung, Zielbindung, Interaktion und Gate-Regeln | [Runtime-Verträge](../../plugins/agdf/meta/contracts/) |
 | Semantik von `agdf_dispatch` | [`skill-dispatch/contract.js`](../../create-agdf/lib/skill-dispatch/contract.js) und der zugehörige Service |
 | Semantik und Auswahl von `agdf_inspect` | [`control-inspect/contract.js`](../../create-agdf/lib/control-inspect/contract.js) und [`selection.js`](../../create-agdf/lib/control-inspect/selection.js) |
 | Deterministische Gate- und Kontrollauswertung | [`control-evaluation/`](../../create-agdf/lib/control-evaluation/) |

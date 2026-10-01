@@ -387,7 +387,7 @@ AGDF supports four usage surfaces:
 
 Codex, Claude Code and GitHub Copilot consume AGDF as installable generated plugin runtimes. All profiles are
 rendered from the same canonical sources, but the Copilot package does not carry Codex or Claude components. The repository
-`plugin/` directory is the canonical runtime-free source and is not registered directly.
+`plugins/agdf/` directory is the canonical runtime-free source and is not registered directly.
 OpenCode consumes AGDF through AGENTS-style instructions, generated native skills, explicit permissions and npm plugin hooks.
 
 Codex is the primary plugin-packaging surface for AGDF.
@@ -485,7 +485,7 @@ AGDF is an independent project and is not affiliated with, endorsed by, or spons
 
 AGDF is a control-first plugin.
 The skills steer agent behavior during a run.
-The `plugin/control/` scaffold provides durable repository artefacts for run state, backlog
+The `plugins/agdf/control/` scaffold provides durable repository artefacts for run state, backlog
 pointers, source-of-truth ownership, Context Graph knowledge and quality contracts.
 
 ## Skill identity model
@@ -518,7 +518,7 @@ The prefix is generated from the shared AGDF skill definition model and must not
 The routing table is calculated from:
 
 ```text
-plugin/meta/agdf-plugin.definition.json
+plugins/agdf/meta/agdf-plugin.definition.json
 ```
 
 using:
@@ -530,7 +530,7 @@ surface.skillPrefix + skillSet.slug
 The shared router source is:
 
 ```text
-plugin/meta/agdf-agent-router.md
+plugins/agdf/meta/agdf-agent-router.md
 ```
 
 Copilot plugin skills are rendered from the same source with Copilot skill prefixes.
@@ -557,31 +557,31 @@ node` (macOS), `sudo apt install nodejs npm` (Debian/Ubuntu), or the LTS install
 ## Codex
 
 AGDF is delivered to Codex and Claude Code from one complete generated plugin bundle. The paths
-below are canonical source projections that are copied into that bundle; the repository `plugin/`
+below are canonical source projections that are copied into that bundle; the repository `plugins/agdf/`
 directory itself is not an installable runtime.
 
 Codex uses:
 
 ```text
-plugin/.codex-plugin/plugin.json
+plugins/agdf/.codex-plugin/plugin.json
 ```
 
 as the plugin manifest and loads the shared AGDF skills from:
 
 ```text
-plugin/skills/
+plugins/agdf/skills/
 ```
 
 Codex also discovers the default lifecycle hook configuration when the plugin bundle includes:
 
 ```text
-plugin/hooks/hooks.json
+plugins/agdf/hooks/hooks.json
 ```
 
 The AGDF `SessionStart` hook activates a compact runtime reminder and references:
 
 ```text
-plugin/meta/agdf-agent-router.md
+plugins/agdf/meta/agdf-agent-router.md
 ```
 
 plus the compact AGDF constitution, so individual skills do not have to carry the whole control
@@ -594,10 +594,10 @@ Codex does not need a generated repository `AGENTS.md` to recognize AGDF plugin 
 The Codex plugin runtime provides the discovery surface:
 
 ```text
-plugin/.codex-plugin/plugin.json
-plugin/skills/*/SKILL.md
-plugin/meta/agdf-agent-router.md
-plugin/hooks/hooks.json
+plugins/agdf/.codex-plugin/plugin.json
+plugins/agdf/skills/*/SKILL.md
+plugins/agdf/meta/agdf-agent-router.md
+plugins/agdf/hooks/hooks.json
 ```
 
 At runtime:
@@ -630,7 +630,7 @@ Then restart Codex in that repository, open `/plugins`, select `This repository`
 The global command stages the complete release-built plugin, including its exact-version local
 validator, in an AGDF-owned user-data directory. It then registers that durable local marketplace
 with Codex and verifies the installed plugin version. The Git checkout remains a runtime-free source
-tree; `plugin/runtime/` is not committed.
+tree; `plugins/agdf/runtime/` is not committed.
 
 If an existing `agdf` marketplace points exactly to the former AGDF GitHub repository, rerunning the
 command migrates it to the durable local marketplace. A same-name foreign or unreadable marketplace
@@ -909,14 +909,14 @@ In GitHub Actions they would only affect the temporary runner and would not inst
 
 Use GitHub Actions for:
 
-- validating `plugin/.codex-plugin/plugin.json`
-- validating `plugin/.claude-plugin/plugin.json`
+- validating `plugins/agdf/.codex-plugin/plugin.json`
+- validating `plugins/agdf/.claude-plugin/plugin.json`
 - validating that the source checkout exposes neither root marketplace
 - validating the generated runtime-complete repository marketplace
-- running `node plugin/scripts/check-runtime-integrity.mjs`
+- running `node plugins/agdf/scripts/check-runtime-integrity.mjs`
 - publishing `create-agdf`
 - validating generated Copilot- and OpenCode-facing files
-- validating that generated skill references match `plugin/meta/agdf-plugin.definition.json`
+- validating that generated skill references match `plugins/agdf/meta/agdf-plugin.definition.json`
 
 Use the documented CLI commands on the target developer machine or workspace setup path to install AGDF into Codex or Claude Code.
 
@@ -983,7 +983,7 @@ or, when invoked as a slash command inside the plugin surface:
 The shared router source is:
 
 ```text
-plugin/meta/agdf-agent-router.md
+plugins/agdf/meta/agdf-agent-router.md
 ```
 
 Copilot-facing `AGENTS.md` content is rendered from the same source with Copilot skill prefixes.
@@ -991,7 +991,7 @@ Copilot-facing `AGENTS.md` content is rendered from the same source with Copilot
 The routing table itself is calculated from:
 
 ```text
-plugin/meta/agdf-plugin.definition.json
+plugins/agdf/meta/agdf-plugin.definition.json
 ```
 
 using:
@@ -1008,10 +1008,10 @@ the Copilot plugin. These surfaces consume AGDF through the installable generate
 For Codex, the plugin manifest is:
 
 ```text
-plugin/.codex-plugin/plugin.json
+plugins/agdf/.codex-plugin/plugin.json
 ```
 
-For Claude Code, the generated complete bundle uses the same canonical `plugin/` source projection.
+For Claude Code, the generated complete bundle uses the same canonical `plugins/agdf/` source projection.
 The source directory itself is not registered as an installable plugin package.
 
 GitHub Copilot discovers its dedicated generated profile through the root `plugin.json`. Its manifest points
@@ -1074,7 +1074,7 @@ Run an AGDF gate check for this request.
 For this repository itself:
 
 ```bash
-node plugin/scripts/check-runtime-integrity.mjs
+node plugins/agdf/scripts/check-runtime-integrity.mjs
 npm --prefix create-agdf run eval:skills
 ```
 

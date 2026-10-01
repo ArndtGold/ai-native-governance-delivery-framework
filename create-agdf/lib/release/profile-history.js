@@ -1,3 +1,4 @@
+import { getPluginSourceRoot, PLUGIN_SOURCE_RELATIVE } from "../public-plugin/source-root.js";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -15,7 +16,7 @@ export const SUPPORTED_PROFILE_RELEASES = Object.freeze([
   "0.14.3",
 ]);
 
-const HISTORY_PATH = "plugin/meta/distribution-profile-history.json";
+const HISTORY_PATH = "plugins/agdf/meta/distribution-profile-history.json";
 const GENERATED_HISTORY_PATHS = [
   "create-agdf/generated/plugins/agdf/meta/distribution-profile-history.json",
   "create-agdf/generated/plugins/copilot/agdf/meta/distribution-profile-history.json",
@@ -58,15 +59,29 @@ function defaultTagExists(repoRoot) {
   };
 }
 
+// Tags before the source migration keep their original paths. Resolve exactly one
+// tagged source owner; this is archive compatibility, never a live old-root fallback.
+function readTaggedPluginFile(tag, path, readTagFile) {
+  const found = [];
+  for (const root of [PLUGIN_SOURCE_RELATIVE, "plugin"]) {
+    try {
+      const value = readTagFile(tag, `${root}/${path}`);
+      if (typeof value === "string") found.push(value);
+    } catch { /* Absent path at this immutable tag. */ }
+  }
+  if (found.length !== 1) fail("profile_history_tag_mismatch", `${tag} must have exactly one tagged source root for ${path}`);
+  return found[0];
+}
+
 function assertTagRecord(catalogue, version, readTagFile) {
   const tag = `agdf-v${version}`;
   let definition;
   let packageManifest;
   let codexManifest;
   try {
-    definition = parseJson(readTagFile(tag, "plugin/meta/agdf-plugin.definition.json"), "profile_history_tag_mismatch", `${tag} definition`);
+    definition = parseJson(readTaggedPluginFile(tag, "meta/agdf-plugin.definition.json", readTagFile), "profile_history_tag_mismatch", `${tag} definition`);
     packageManifest = parseJson(readTagFile(tag, "create-agdf/package.json"), "profile_history_tag_mismatch", `${tag} package`);
-    codexManifest = parseJson(readTagFile(tag, "plugin/.codex-plugin/plugin.json"), "profile_history_tag_mismatch", `${tag} Codex manifest`);
+    codexManifest = parseJson(readTaggedPluginFile(tag, ".codex-plugin/plugin.json", readTagFile), "profile_history_tag_mismatch", `${tag} Codex manifest`);
   } catch (error) {
     if (error.code === "profile_history_tag_mismatch") throw error;
     fail("profile_history_tag_mismatch", `${tag} evidence is unavailable`);
@@ -116,24 +131,23 @@ function baselineFromRepository(repoRoot) {
   } catch {
     fail("profile_history_continuity_break", "merge-base evidence is unavailable");
   }
+  let matchingPaths;
   try {
-    return execFileSync(
+    matchingPaths = execFileSync(
       "git",
-      ["show", `${mergeBase}:${HISTORY_PATH}`],
+      ["ls-tree", "--name-only", mergeBase, "--", HISTORY_PATH, "plugin/meta/distribution-profile-history.json"],
       { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-    );
+    ).trim().split(/\r?\n/u).filter(Boolean);
   } catch {
-    let matchingPaths;
-    try {
-      matchingPaths = execFileSync(
-        "git",
-        ["ls-tree", "--name-only", mergeBase, "--", HISTORY_PATH],
-        { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
-      ).trim();
-    } catch {
-      fail("profile_history_continuity_break", "baseline tree evidence is unavailable");
-    }
-    if (matchingPaths === "") return null;
+    fail("profile_history_continuity_break", "baseline tree evidence is unavailable");
+  }
+  if (!matchingPaths.length) return null;
+  if (matchingPaths.length !== 1) fail("profile_history_continuity_break", "baseline has competing source catalogues");
+  try {
+    return execFileSync("git", ["show", `${mergeBase}:${matchingPaths[0]}`], {
+      cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
     fail("profile_history_continuity_break", "baseline catalogue cannot be read");
   }
 }
@@ -176,7 +190,7 @@ export function assertDistributionProfileHistory({
     fail("profile_history_invalid", "catalogue schema or digest validation failed");
   }
 
-  currentDefinition ??= JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
+  currentDefinition ??= JSON.parse(readFileSync(join(getPluginSourceRoot(repoRoot), "meta", "agdf-plugin.definition.json"), "utf8"));
   const current = classifyHistoricalDistributionProfile({
     catalogue,
     version: currentDefinition.version,

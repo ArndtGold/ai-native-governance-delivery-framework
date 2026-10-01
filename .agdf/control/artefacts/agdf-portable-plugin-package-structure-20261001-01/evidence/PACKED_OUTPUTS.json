@@ -1,0 +1,594 @@
+[
+  {
+    "lane": "isolated_fixture",
+    "date": "2026-10-01",
+    "package": "create-agdf",
+    "version": "0.14.5",
+    "archive": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-isolated_fixture-packs-3i3hsjbe/create-agdf-0.14.5.tgz",
+    "sha256": "428859ff5bc72a04b3a823225e2b120303b07b88337745cb050a3e562341bc3d",
+    "unpacked_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-isolated_fixture-packs-3i3hsjbe/create-agdf/package",
+    "file_count": 642,
+    "manifest": {
+      "name": "create-agdf",
+      "version": "0.14.5",
+      "description": "Install AGDF plugins, bootstrap supported repository surfaces and validate durable governance state.",
+      "type": "module",
+      "engines": {
+        "node": ">=22"
+      },
+      "files": [
+        "bin",
+        "lib",
+        "generated/.agdf",
+        "generated/.agents",
+        "generated/.opencode",
+        "generated/opencode.json",
+        "generated/plugins/agdf",
+        "generated/plugins/copilot/agdf",
+        "generated/submissions/openai/agdf",
+        "opencode-plugin.js",
+        "README.md",
+        "NOTICE"
+      ],
+      "exports": {
+        ".": "./opencode-plugin.js",
+        "./control-command": "./lib/control-command.js",
+        "./cli": "./bin/create-agdf.js",
+        "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
+        "./opencode-plugin": "./opencode-plugin.js"
+      },
+      "bin": {
+        "create-agdf": "./bin/create-agdf.js"
+      },
+      "scripts": {
+        "sync-package-assets": "node ./scripts/sync-package-assets.js",
+        "build:public-plugin": "node ./scripts/build-public-plugin.js",
+        "install:claude": "node ./scripts/install-local-plugin.js claude",
+        "install:codex": "node ./scripts/install-local-plugin.js codex",
+        "install:copilot": "node ./scripts/install-local-plugin.js copilot",
+        "install:opencode": "node ./scripts/install-local-plugin.js opencode",
+        "test:release-version-coherence": "node ./scripts/release-version-coherence-test.js",
+        "test:release-registry-state": "node ./scripts/release-registry-state-test.js",
+        "test:release-workflows": "node ./scripts/release-workflow-contract-test.js",
+        "test:run-step-transaction": "node ./scripts/run-step-transaction-test.js",
+        "test:run-recovery": "node ./scripts/run-recovery-test.js",
+        "test:control-command": "node ./scripts/control-command-test.js",
+        "test:control-command-process": "node ./scripts/control-command-process-test.js",
+        "test:control-command-package": "node ./scripts/control-command-package-test.js",
+        "test:run-lock": "node ./scripts/run-lock-test.js",
+        "release:bump": "node ./scripts/release-bump.js",
+        "test:release-bump": "node ./scripts/release-bump-test.js",
+        "test:distribution-profile-history": "node ./scripts/distribution-profile-history-test.js",
+        "test:public-plugin": "node ./scripts/public-plugin-test.js",
+        "release:prepare": "npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin",
+        "test:delivery-path-search": "node ./scripts/delivery-path-search-test.js",
+        "test:delivery-path-search-unit": "node ./scripts/delivery-path-search-unit-test.js",
+        "test:delivery-path-search-generator": "node ./scripts/delivery-path-search-generator-test.js",
+        "test:opencode-hardening": "node ./scripts/opencode-hardening-test.js",
+        "test:runtime-check-consent": "node ./scripts/runtime-check-consent-test.js && node ./scripts/codex-plugin-consent-test.js",
+        "test:cli-modularization": "node ./scripts/cli-modularization-test.js",
+        "test:install-setup-contract": "node ./scripts/install-setup-contract-test.js",
+        "test:interaction-catalog": "node ./scripts/interaction-catalog-test.js",
+        "test:payload-budget": "node ./scripts/payload-budget-test.js",
+        "payload:budget": "node ./scripts/payload-budget.js",
+        "test:install-setup-interaction": "node ./scripts/install-setup-interaction-test.js",
+        "test:install-setup-service": "node ./scripts/install-setup-service-test.js",
+        "test:local-validator": "node ./scripts/local-validator-test.js",
+        "test:local-marketplace": "node ./scripts/local-marketplace-test.js",
+        "test:claude-cache-recovery": "node ./scripts/claude-cache-recovery-test.js",
+        "test:copilot-profile": "node ./scripts/copilot-profile-test.js",
+        "test:local-preparation": "node ./scripts/local-preparation-test.js",
+        "test:local-development-install": "npm run release:prepare && node ./scripts/local-development-install-test.js",
+        "test:package-contents": "node ./scripts/package-contents-test.js",
+        "test:package-build": "node ./scripts/package-build-test.js",
+        "test:lifecycle": "node ./scripts/lifecycle-test.js",
+        "test:copilot-repository-retention": "node ./scripts/copilot-repository-retention-test.js",
+        "test:control-state": "node ./scripts/control-state-test.js",
+        "test:prd-readiness": "node ./scripts/prd-readiness-test.js",
+        "test:run-revision": "node ./scripts/run-revision-test.js",
+        "test:cli-gates": "node ./scripts/cli-gate-scenarios-test.js",
+        "test:intake-continuation": "node ./scripts/intake-continuation-test.js",
+        "test:parent-reconciliation": "node ./scripts/parent-reconciliation-test.js",
+        "test:interaction-presentation": "node ./scripts/interaction-presentation-test.js",
+        "test:operational-localization": "node ./scripts/operational-localization-test.js",
+        "test:request-activation-callbacks": "node ./scripts/request-activation-callback-test.js",
+        "test:request-activation-host-schema": "node ./scripts/request-activation-host-schema-test.js",
+        "test:instruction-footprint": "node ./scripts/instruction-footprint-test.js",
+        "test:request-activation": "npm run test:instruction-footprint && node ./scripts/request-activation-test.js && node ./scripts/request-activation-evals-test.js && npm run test:request-activation-callbacks && npm run test:request-activation-host-schema",
+        "test:gate-check-missing-control": "node ./scripts/gate-check-missing-control-test.js",
+        "test:canonical-init": "node ./scripts/canonical-init-test.js",
+        "test:task-target-resolution": "node ./scripts/task-target-resolution-test.js",
+        "test:skill-dispatch": "node ./scripts/skill-dispatch-function-contract-test.js && node ./scripts/skill-dispatch-test.js && node ./scripts/skill-dispatch-binding-test.js && node ./scripts/delivery-run-assignment-test.js",
+        "test:control-inspect": "node ./scripts/control-inspect-test.js",
+        "test:host-command": "node ./scripts/host-command-test.js",
+        "test:mcp-lifecycle": "node ./scripts/mcp-lifecycle-test.js",
+        "test:plugin-mcp-runtime": "node ./scripts/plugin-mcp-runtime-test.js",
+        "test:claude-plugin-mcp": "node ./scripts/claude-plugin-mcp-test.js",
+        "test:codex-plugin-mcp": "node ./scripts/codex-plugin-mcp-test.js",
+        "test:mcp-server": "npm --prefix ../agdf-mcp-server test",
+        "test:verified-change": "node ./scripts/verified-change-test.js",
+        "test:runtime-integrity-layout": "node ./scripts/runtime-integrity-layout-test.js",
+        "test:runtime-integrity-negative": "node ./scripts/runtime-integrity-negative-test.js",
+        "test:agent-skills-conformance": "node ./scripts/agent-skills-conformance-test.js",
+        "test:skill-evals": "node ./scripts/skill-evals-test.js",
+        "eval:skills": "node ./scripts/run-skill-evals.js",
+        "eval:skills:record": "node ./scripts/record-skill-evals.js",
+        "eval:request-activation": "node ./scripts/run-request-activation-evals.js",
+        "eval:request-activation:record": "node ./scripts/record-request-activation-evals.js",
+        "eval:proportionality:record": "node ./scripts/record-proportionality-benchmark.js",
+        "eval:proportionality": "node ./scripts/run-proportionality-benchmark.js",
+        "test:proportionality": "node ./scripts/proportionality-benchmark-test.js",
+        "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
+        "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
+        "smoke-test": "npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+        "prepack": "npm run release:prepare",
+        "test:copilot-installer": "node ./scripts/copilot-installer-test.js",
+        "test:install-control-migration": "node ./scripts/install-control-migration-test.js",
+        "test:install-control-repair": "node scripts/install-control-repair-test.js",
+        "test:control-maintenance": "node ./scripts/control-maintenance-test.js && node ./scripts/control-maintenance-command-test.js && node ./scripts/repository-control-startup-test.js",
+        "test:portable-plugin": "node ./scripts/portable-plugin-test.js"
+      },
+      "keywords": [
+        "agdf",
+        "copilot",
+        "claude-code",
+        "codex",
+        "opencode",
+        "control",
+        "scaffold",
+        "bootstrap"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "create-agdf"
+      },
+      "homepage": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/tree/main/create-agdf"
+    },
+    "baseline_duplicate_files": [],
+    "build_only_templates_or_engine_absent": true,
+    "pack_scripts": "Explicitly skipped after separate build/test verification; actual workspace prepack remains blocked by duplicate-payload guard."
+  },
+  {
+    "lane": "isolated_fixture",
+    "date": "2026-10-01",
+    "package": "@agdf/cli",
+    "version": "0.14.5",
+    "archive": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-isolated_fixture-packs-3i3hsjbe/agdf-cli-0.14.5.tgz",
+    "sha256": "08aa700a62b9ae0a17d15d7f928063bcf74ca4f3f4ef37f1f537989785be749d",
+    "unpacked_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-isolated_fixture-packs-3i3hsjbe/agdf/package",
+    "file_count": 5,
+    "manifest": {
+      "name": "@agdf/cli",
+      "version": "0.14.5",
+      "description": "Primary AGDF CLI for repository-local AI governance, delivery controls and agent setup.",
+      "type": "module",
+      "engines": {
+        "node": ">=22"
+      },
+      "files": [
+        "bin",
+        "README.md",
+        "NOTICE"
+      ],
+      "bin": {
+        "agdf": "./bin/agdf.js"
+      },
+      "scripts": {
+        "smoke-test": "node ./scripts/smoke-test.js",
+        "test:package": "node ./scripts/package-test.js"
+      },
+      "dependencies": {
+        "create-agdf": "0.14.5"
+      },
+      "keywords": [
+        "agdf",
+        "ai-governance",
+        "ai-delivery",
+        "ai-agents",
+        "agentic-coding",
+        "agent-workflows",
+        "governance",
+        "delivery",
+        "delivery-controls",
+        "software-delivery",
+        "ai-native",
+        "codex",
+        "claude-code",
+        "opencode",
+        "copilot",
+        "github-copilot",
+        "npm-create",
+        "release-governance"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "agdf"
+      },
+      "homepage": "https://agdf.iself.eu"
+    },
+    "baseline_duplicate_files": [],
+    "build_only_templates_or_engine_absent": true,
+    "pack_scripts": "Explicitly skipped after separate build/test verification; actual workspace prepack remains blocked by duplicate-payload guard."
+  },
+  {
+    "lane": "isolated_fixture",
+    "date": "2026-10-01",
+    "package": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "archive": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-isolated_fixture-packs-3i3hsjbe/agdf-mcp-server-0.14.5.tgz",
+    "sha256": "5abcabfa464fa707f5b61269cd4f20c653d262adc0601921258d1d74b1bd507d",
+    "unpacked_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-isolated_fixture-packs-3i3hsjbe/agdf-mcp-server/package",
+    "file_count": 9,
+    "manifest": {
+      "name": "@agdf/mcp-server",
+      "version": "0.14.5",
+      "description": "Local read-only MCP adapter for version-matched AGDF skill dispatch.",
+      "type": "module",
+      "files": [
+        "bin",
+        "src",
+        "README.md",
+        "NOTICE"
+      ],
+      "bin": {
+        "agdf-mcp": "./bin/agdf-mcp.js"
+      },
+      "exports": {
+        ".": "./src/server.js"
+      },
+      "scripts": {
+        "test:contract": "node ./test/contract.test.js",
+        "test:continuation": "node ./test/continuation.test.js",
+        "test:protocol": "node ./test/protocol.test.js",
+        "test:safety": "node ./test/safety.test.js",
+        "test:provenance": "node ./test/provenance.test.js",
+        "test:performance": "node ./test/performance.test.js",
+        "test:package": "node ./test/package.test.js",
+        "test": "npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package"
+      },
+      "dependencies": {
+        "@modelcontextprotocol/server": "2.0.0",
+        "create-agdf": "0.14.5"
+      },
+      "devDependencies": {
+        "@modelcontextprotocol/client": "2.0.0"
+      },
+      "engines": {
+        "node": ">=22"
+      },
+      "keywords": [
+        "agdf",
+        "mcp",
+        "governance",
+        "coding-agents"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "agdf-mcp-server"
+      },
+      "homepage": "https://agdf.iself.eu"
+    },
+    "baseline_duplicate_files": [],
+    "build_only_templates_or_engine_absent": true,
+    "pack_scripts": "Explicitly skipped after separate build/test verification; actual workspace prepack remains blocked by duplicate-payload guard."
+  },
+  {
+    "lane": "actual_workspace",
+    "date": "2026-10-01",
+    "package": "create-agdf",
+    "version": "0.14.5",
+    "archive": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-actual_workspace-packs-j1yuog09/create-agdf-0.14.5.tgz",
+    "sha256": "9fd9e7b3a40c0071a937fed96424a2dd71258f721bb28fe55b68a5b53621f409",
+    "unpacked_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-actual_workspace-packs-j1yuog09/create-agdf/package",
+    "file_count": 657,
+    "manifest": {
+      "name": "create-agdf",
+      "version": "0.14.5",
+      "description": "Install AGDF plugins, bootstrap supported repository surfaces and validate durable governance state.",
+      "type": "module",
+      "engines": {
+        "node": ">=22"
+      },
+      "files": [
+        "bin",
+        "lib",
+        "generated/.agdf",
+        "generated/.agents",
+        "generated/.opencode",
+        "generated/opencode.json",
+        "generated/plugins/agdf",
+        "generated/plugins/copilot/agdf",
+        "generated/submissions/openai/agdf",
+        "opencode-plugin.js",
+        "README.md",
+        "NOTICE"
+      ],
+      "exports": {
+        ".": "./opencode-plugin.js",
+        "./control-command": "./lib/control-command.js",
+        "./cli": "./bin/create-agdf.js",
+        "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
+        "./opencode-plugin": "./opencode-plugin.js"
+      },
+      "bin": {
+        "create-agdf": "./bin/create-agdf.js"
+      },
+      "scripts": {
+        "sync-package-assets": "node ./scripts/sync-package-assets.js",
+        "build:public-plugin": "node ./scripts/build-public-plugin.js",
+        "install:claude": "node ./scripts/install-local-plugin.js claude",
+        "install:codex": "node ./scripts/install-local-plugin.js codex",
+        "install:copilot": "node ./scripts/install-local-plugin.js copilot",
+        "install:opencode": "node ./scripts/install-local-plugin.js opencode",
+        "test:release-version-coherence": "node ./scripts/release-version-coherence-test.js",
+        "test:release-registry-state": "node ./scripts/release-registry-state-test.js",
+        "test:release-workflows": "node ./scripts/release-workflow-contract-test.js",
+        "test:run-step-transaction": "node ./scripts/run-step-transaction-test.js",
+        "test:run-recovery": "node ./scripts/run-recovery-test.js",
+        "test:control-command": "node ./scripts/control-command-test.js",
+        "test:control-command-process": "node ./scripts/control-command-process-test.js",
+        "test:control-command-package": "node ./scripts/control-command-package-test.js",
+        "test:run-lock": "node ./scripts/run-lock-test.js",
+        "release:bump": "node ./scripts/release-bump.js",
+        "test:release-bump": "node ./scripts/release-bump-test.js",
+        "test:distribution-profile-history": "node ./scripts/distribution-profile-history-test.js",
+        "test:public-plugin": "node ./scripts/public-plugin-test.js",
+        "release:prepare": "npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin",
+        "test:delivery-path-search": "node ./scripts/delivery-path-search-test.js",
+        "test:delivery-path-search-unit": "node ./scripts/delivery-path-search-unit-test.js",
+        "test:delivery-path-search-generator": "node ./scripts/delivery-path-search-generator-test.js",
+        "test:opencode-hardening": "node ./scripts/opencode-hardening-test.js",
+        "test:runtime-check-consent": "node ./scripts/runtime-check-consent-test.js && node ./scripts/codex-plugin-consent-test.js",
+        "test:cli-modularization": "node ./scripts/cli-modularization-test.js",
+        "test:install-setup-contract": "node ./scripts/install-setup-contract-test.js",
+        "test:interaction-catalog": "node ./scripts/interaction-catalog-test.js",
+        "test:payload-budget": "node ./scripts/payload-budget-test.js",
+        "payload:budget": "node ./scripts/payload-budget.js",
+        "test:install-setup-interaction": "node ./scripts/install-setup-interaction-test.js",
+        "test:install-setup-service": "node ./scripts/install-setup-service-test.js",
+        "test:local-validator": "node ./scripts/local-validator-test.js",
+        "test:local-marketplace": "node ./scripts/local-marketplace-test.js",
+        "test:claude-cache-recovery": "node ./scripts/claude-cache-recovery-test.js",
+        "test:copilot-profile": "node ./scripts/copilot-profile-test.js",
+        "test:local-preparation": "node ./scripts/local-preparation-test.js",
+        "test:local-development-install": "npm run release:prepare && node ./scripts/local-development-install-test.js",
+        "test:package-contents": "node ./scripts/package-contents-test.js",
+        "test:package-build": "node ./scripts/package-build-test.js",
+        "test:lifecycle": "node ./scripts/lifecycle-test.js",
+        "test:copilot-repository-retention": "node ./scripts/copilot-repository-retention-test.js",
+        "test:control-state": "node ./scripts/control-state-test.js",
+        "test:prd-readiness": "node ./scripts/prd-readiness-test.js",
+        "test:run-revision": "node ./scripts/run-revision-test.js",
+        "test:cli-gates": "node ./scripts/cli-gate-scenarios-test.js",
+        "test:intake-continuation": "node ./scripts/intake-continuation-test.js",
+        "test:parent-reconciliation": "node ./scripts/parent-reconciliation-test.js",
+        "test:interaction-presentation": "node ./scripts/interaction-presentation-test.js",
+        "test:operational-localization": "node ./scripts/operational-localization-test.js",
+        "test:request-activation-callbacks": "node ./scripts/request-activation-callback-test.js",
+        "test:request-activation-host-schema": "node ./scripts/request-activation-host-schema-test.js",
+        "test:instruction-footprint": "node ./scripts/instruction-footprint-test.js",
+        "test:request-activation": "npm run test:instruction-footprint && node ./scripts/request-activation-test.js && node ./scripts/request-activation-evals-test.js && npm run test:request-activation-callbacks && npm run test:request-activation-host-schema",
+        "test:gate-check-missing-control": "node ./scripts/gate-check-missing-control-test.js",
+        "test:canonical-init": "node ./scripts/canonical-init-test.js",
+        "test:task-target-resolution": "node ./scripts/task-target-resolution-test.js",
+        "test:skill-dispatch": "node ./scripts/skill-dispatch-function-contract-test.js && node ./scripts/skill-dispatch-test.js && node ./scripts/skill-dispatch-binding-test.js && node ./scripts/delivery-run-assignment-test.js",
+        "test:control-inspect": "node ./scripts/control-inspect-test.js",
+        "test:host-command": "node ./scripts/host-command-test.js",
+        "test:mcp-lifecycle": "node ./scripts/mcp-lifecycle-test.js",
+        "test:plugin-mcp-runtime": "node ./scripts/plugin-mcp-runtime-test.js",
+        "test:claude-plugin-mcp": "node ./scripts/claude-plugin-mcp-test.js",
+        "test:codex-plugin-mcp": "node ./scripts/codex-plugin-mcp-test.js",
+        "test:mcp-server": "npm --prefix ../agdf-mcp-server test",
+        "test:verified-change": "node ./scripts/verified-change-test.js",
+        "test:runtime-integrity-layout": "node ./scripts/runtime-integrity-layout-test.js",
+        "test:runtime-integrity-negative": "node ./scripts/runtime-integrity-negative-test.js",
+        "test:agent-skills-conformance": "node ./scripts/agent-skills-conformance-test.js",
+        "test:skill-evals": "node ./scripts/skill-evals-test.js",
+        "eval:skills": "node ./scripts/run-skill-evals.js",
+        "eval:skills:record": "node ./scripts/record-skill-evals.js",
+        "eval:request-activation": "node ./scripts/run-request-activation-evals.js",
+        "eval:request-activation:record": "node ./scripts/record-request-activation-evals.js",
+        "eval:proportionality:record": "node ./scripts/record-proportionality-benchmark.js",
+        "eval:proportionality": "node ./scripts/run-proportionality-benchmark.js",
+        "test:proportionality": "node ./scripts/proportionality-benchmark-test.js",
+        "test:release-bootstrap": "node ./scripts/release-bootstrap-smoke-test.js",
+        "test:routing": "npm run sync-package-assets && node ./scripts/test-routing.js",
+        "smoke-test": "npm run release:prepare && npm run test:release-workflows && npm run test:release-registry-state && npm run test:instruction-footprint && npm run test:request-activation && npm run test:gate-check-missing-control && npm run test:canonical-init && npm run test:cli-modularization && npm run test:install-setup-contract && npm run test:install-setup-interaction && npm run test:install-setup-service && npm run test:install-control-migration && npm run test:install-control-repair && npm run test:control-maintenance && npm run test:runtime-check-consent && npm run test:task-target-resolution && npm run test:skill-dispatch && npm run test:control-inspect && npm run test:host-command && npm run test:mcp-lifecycle && npm run test:plugin-mcp-runtime && npm run test:claude-plugin-mcp && npm run test:codex-plugin-mcp && npm run test:mcp-server && npm run test:local-validator && npm run test:local-marketplace && npm run test:claude-cache-recovery && npm run test:copilot-profile && npm run test:copilot-installer && npm run test:local-preparation && npm run test:local-development-install && npm run test:package-build && npm run test:package-contents && npm run test:lifecycle && npm run test:copilot-repository-retention && npm run test:control-command && npm run test:control-command-process && npm run test:control-command-package && npm run test:cli-gates && npm run test:control-state && npm run test:run-step-transaction && npm run test:run-recovery && npm run test:run-lock && npm run test:prd-readiness && npm run test:run-revision && npm run test:intake-continuation && npm run test:parent-reconciliation && npm run test:interaction-presentation && npm run test:operational-localization && npm run test:verified-change && npm run test:runtime-integrity-layout && npm run test:runtime-integrity-negative && npm run test:agent-skills-conformance && npm run test:skill-evals && npm run eval:skills && npm run test:proportionality && npm run test:delivery-path-search && npm run test:delivery-path-search-unit && npm run test:delivery-path-search-generator && npm run test:opencode-hardening && node ./scripts/smoke-test.js && node ./scripts/test-routing.js",
+        "prepack": "npm run release:prepare",
+        "test:copilot-installer": "node ./scripts/copilot-installer-test.js",
+        "test:install-control-migration": "node ./scripts/install-control-migration-test.js",
+        "test:install-control-repair": "node scripts/install-control-repair-test.js",
+        "test:control-maintenance": "node ./scripts/control-maintenance-test.js && node ./scripts/control-maintenance-command-test.js && node ./scripts/repository-control-startup-test.js",
+        "test:portable-plugin": "node ./scripts/portable-plugin-test.js"
+      },
+      "keywords": [
+        "agdf",
+        "copilot",
+        "claude-code",
+        "codex",
+        "opencode",
+        "control",
+        "scaffold",
+        "bootstrap"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "create-agdf"
+      },
+      "homepage": "https://github.com/ArndtGold/ai-native-governance-delivery-framework/tree/main/create-agdf"
+    },
+    "baseline_duplicate_files": [
+      "generated/plugins/agdf/runtime/create-agdf/lib/control-state/contained-file 2.js",
+      "generated/plugins/agdf/runtime/create-agdf/lib/control-state/control-configuration 2.js",
+      "generated/plugins/agdf/runtime/create-agdf/lib/control-state/run-recovery 2.js",
+      "generated/plugins/agdf/runtime/create-agdf/lib/control-state/run-step-pending 2.js",
+      "generated/plugins/agdf/runtime/create-agdf/lib/control-state/run-step-transaction 2.js",
+      "generated/plugins/copilot/agdf/runtime/create-agdf/lib/control-state/contained-file 2.js",
+      "generated/plugins/copilot/agdf/runtime/create-agdf/lib/control-state/control-configuration 2.js",
+      "generated/plugins/copilot/agdf/runtime/create-agdf/lib/control-state/run-recovery 2.js",
+      "generated/plugins/copilot/agdf/runtime/create-agdf/lib/control-state/run-step-pending 2.js",
+      "generated/plugins/copilot/agdf/runtime/create-agdf/lib/control-state/run-step-transaction 2.js",
+      "lib/control-state/contained-file 2.js",
+      "lib/control-state/control-configuration 2.js",
+      "lib/control-state/run-recovery 2.js",
+      "lib/control-state/run-step-pending 2.js",
+      "lib/control-state/run-step-transaction 2.js"
+    ],
+    "build_only_templates_or_engine_absent": true,
+    "pack_scripts": "Explicitly skipped after separate build/test verification; actual workspace prepack remains blocked by duplicate-payload guard."
+  },
+  {
+    "lane": "actual_workspace",
+    "date": "2026-10-01",
+    "package": "@agdf/cli",
+    "version": "0.14.5",
+    "archive": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-actual_workspace-packs-j1yuog09/agdf-cli-0.14.5.tgz",
+    "sha256": "08aa700a62b9ae0a17d15d7f928063bcf74ca4f3f4ef37f1f537989785be749d",
+    "unpacked_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-actual_workspace-packs-j1yuog09/agdf/package",
+    "file_count": 5,
+    "manifest": {
+      "name": "@agdf/cli",
+      "version": "0.14.5",
+      "description": "Primary AGDF CLI for repository-local AI governance, delivery controls and agent setup.",
+      "type": "module",
+      "engines": {
+        "node": ">=22"
+      },
+      "files": [
+        "bin",
+        "README.md",
+        "NOTICE"
+      ],
+      "bin": {
+        "agdf": "./bin/agdf.js"
+      },
+      "scripts": {
+        "smoke-test": "node ./scripts/smoke-test.js",
+        "test:package": "node ./scripts/package-test.js"
+      },
+      "dependencies": {
+        "create-agdf": "0.14.5"
+      },
+      "keywords": [
+        "agdf",
+        "ai-governance",
+        "ai-delivery",
+        "ai-agents",
+        "agentic-coding",
+        "agent-workflows",
+        "governance",
+        "delivery",
+        "delivery-controls",
+        "software-delivery",
+        "ai-native",
+        "codex",
+        "claude-code",
+        "opencode",
+        "copilot",
+        "github-copilot",
+        "npm-create",
+        "release-governance"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "agdf"
+      },
+      "homepage": "https://agdf.iself.eu"
+    },
+    "baseline_duplicate_files": [],
+    "build_only_templates_or_engine_absent": true,
+    "pack_scripts": "Explicitly skipped after separate build/test verification; actual workspace prepack remains blocked by duplicate-payload guard."
+  },
+  {
+    "lane": "actual_workspace",
+    "date": "2026-10-01",
+    "package": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "archive": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-actual_workspace-packs-j1yuog09/agdf-mcp-server-0.14.5.tgz",
+    "sha256": "5abcabfa464fa707f5b61269cd4f20c653d262adc0601921258d1d74b1bd507d",
+    "unpacked_root": "/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-actual_workspace-packs-j1yuog09/agdf-mcp-server/package",
+    "file_count": 9,
+    "manifest": {
+      "name": "@agdf/mcp-server",
+      "version": "0.14.5",
+      "description": "Local read-only MCP adapter for version-matched AGDF skill dispatch.",
+      "type": "module",
+      "files": [
+        "bin",
+        "src",
+        "README.md",
+        "NOTICE"
+      ],
+      "bin": {
+        "agdf-mcp": "./bin/agdf-mcp.js"
+      },
+      "exports": {
+        ".": "./src/server.js"
+      },
+      "scripts": {
+        "test:contract": "node ./test/contract.test.js",
+        "test:continuation": "node ./test/continuation.test.js",
+        "test:protocol": "node ./test/protocol.test.js",
+        "test:safety": "node ./test/safety.test.js",
+        "test:provenance": "node ./test/provenance.test.js",
+        "test:performance": "node ./test/performance.test.js",
+        "test:package": "node ./test/package.test.js",
+        "test": "npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package"
+      },
+      "dependencies": {
+        "@modelcontextprotocol/server": "2.0.0",
+        "create-agdf": "0.14.5"
+      },
+      "devDependencies": {
+        "@modelcontextprotocol/client": "2.0.0"
+      },
+      "engines": {
+        "node": ">=22"
+      },
+      "keywords": [
+        "agdf",
+        "mcp",
+        "governance",
+        "coding-agents"
+      ],
+      "license": "Apache-2.0",
+      "publishConfig": {
+        "access": "public"
+      },
+      "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArndtGold/ai-native-governance-delivery-framework.git",
+        "directory": "agdf-mcp-server"
+      },
+      "homepage": "https://agdf.iself.eu"
+    },
+    "baseline_duplicate_files": [],
+    "build_only_templates_or_engine_absent": true,
+    "pack_scripts": "Explicitly skipped after separate build/test verification; actual workspace prepack remains blocked by duplicate-payload guard."
+  }
+]

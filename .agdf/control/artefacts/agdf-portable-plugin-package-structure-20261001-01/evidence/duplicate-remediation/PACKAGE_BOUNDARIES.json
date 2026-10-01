@@ -1,0 +1,45 @@
+[
+  {
+    "package": "create-agdf",
+    "version": "0.14.5",
+    "exports": {
+      ".": "./opencode-plugin.js",
+      "./control-command": "./lib/control-command.js",
+      "./cli": "./bin/create-agdf.js",
+      "./mcp-dispatch-runtime": "./lib/mcp-dispatch-runtime.js",
+      "./opencode-plugin": "./opencode-plugin.js"
+    },
+    "bin": {
+      "create-agdf": "./bin/create-agdf.js"
+    },
+    "dependencies": {},
+    "sha256": "428859ff5bc72a04b3a823225e2b120303b07b88337745cb050a3e562341bc3d"
+  },
+  {
+    "package": "@agdf/cli",
+    "version": "0.14.5",
+    "exports": {},
+    "bin": {
+      "agdf": "./bin/agdf.js"
+    },
+    "dependencies": {
+      "create-agdf": "0.14.5"
+    },
+    "sha256": "08aa700a62b9ae0a17d15d7f928063bcf74ca4f3f4ef37f1f537989785be749d"
+  },
+  {
+    "package": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "exports": {
+      ".": "./src/server.js"
+    },
+    "bin": {
+      "agdf-mcp": "./bin/agdf-mcp.js"
+    },
+    "dependencies": {
+      "@modelcontextprotocol/server": "2.0.0",
+      "create-agdf": "0.14.5"
+    },
+    "sha256": "5abcabfa464fa707f5b61269cd4f20c653d262adc0601921258d1d74b1bd507d"
+  }
+]

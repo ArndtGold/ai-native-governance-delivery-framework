@@ -12,12 +12,12 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { validateAgentSkillsConformance } from "../../plugin/scripts/agent-skills-conformance.mjs";
+import { validateAgentSkillsConformance } from "../../plugins/agdf/scripts/agent-skills-conformance.mjs";
 import { tryLinkFile } from "./support/symlinks.js";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
-const pluginRoot = join(repoRoot, "plugin");
+const pluginRoot = join(repoRoot, "plugins", "agdf");
 const pluginDefinition = JSON.parse(readFileSync(join(pluginRoot, "meta", "agdf-plugin.definition.json"), "utf8"));
 const policySource = join(pluginRoot, "meta", "agent-skills-conformance.json");
 const syncScript = join(packageRoot, "scripts", "sync-package-assets.js");

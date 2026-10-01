@@ -1,0 +1,49 @@
+
+> @agdf/mcp-server@0.14.5 test
+> npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package
+
+
+> @agdf/mcp-server@0.14.5 test:contract
+> node ./test/contract.test.js
+
+AGDF MCP semantic contract tests passed.
+
+> @agdf/mcp-server@0.14.5 test:continuation
+> node ./test/continuation.test.js
+
+All nine MCP skill continuations supply exact packaged contracts without a hook binding.
+
+> @agdf/mcp-server@0.14.5 test:protocol
+> node ./test/protocol.test.js
+
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+
+> @agdf/mcp-server@0.14.5 test:safety
+> node ./test/safety.test.js
+
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+
+> @agdf/mcp-server@0.14.5 test:provenance
+> node ./test/provenance.test.js
+
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+
+> @agdf/mcp-server@0.14.5 test:performance
+> node ./test/performance.test.js
+
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[590.429,574.662,576.462,566.902,570.257,566.691,585.342,570.464,586.909,644.201,945.089,1239.768,813.465,1549.336,567.659,613.116,570.543,575.743,604.816,1822.016],"cold_p95_ms":1549.336,"warm_dispatch_ms":[410.997,407.385,566.402,1480.683,387.312,382.196,390.189,398.712,387.686,374.991,396.334,382.178,373.108,394.485,379.339,376.706,391.972,394.004,410.673,375.751],"warm_p95_ms":566.402}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: cold tools/list p95 exceeded 1500 ms: 1549.335556
+    at file:///private/var/folders/wn/pdbjwtvd3fx0t38nwcqrrpnc0000gp/T/agdf-portable-stage-b-v2dks2n8/agdf-mcp-server/test/performance.test.js:49:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.3

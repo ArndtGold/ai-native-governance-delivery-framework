@@ -1,0 +1,3 @@
+# Maintainer walkthrough
+
+Change canonical definition/content, install root build dependencies, run release:prepare, validate generated profile/output, inspect exact npm archives, then use existing installer/recovery owners. Generation, validation, fixture installation and native recognition are separate states. Architecture guide and INSTALL.md keep commands/current roots; no release or active installation occurred. Public invalid-build/atomic-retry and bounded rollback fixtures prove the described recovery path. Actual workspace full generation is currently rejected by existing Copilot payload guard, not represented as passing.

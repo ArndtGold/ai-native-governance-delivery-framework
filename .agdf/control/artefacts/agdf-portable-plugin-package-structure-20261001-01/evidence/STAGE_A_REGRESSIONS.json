@@ -1,0 +1,17 @@
+[
+  {
+    "command": "npm --prefix create-agdf run test:distribution-profile-history",
+    "exit_code": 0,
+    "log": "test-distribution-profile-history-stage-a.log"
+  },
+  {
+    "command": "npm --prefix create-agdf run test:copilot-profile",
+    "exit_code": 1,
+    "log": "test-copilot-profile-stage-a.log"
+  },
+  {
+    "command": "npm --prefix create-agdf run test:opencode-hardening",
+    "exit_code": 0,
+    "log": "test-opencode-hardening-stage-a.log"
+  }
+]

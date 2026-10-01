@@ -82,7 +82,7 @@ export function runReleaseBumpCommand({
   output("  npm --prefix create-agdf run smoke-test");
   output("  npm --prefix agdf-mcp-server test");
   output("  npm --prefix agdf run smoke-test");
-  output("  node plugin/scripts/check-runtime-integrity.mjs");
+  output("  node plugins/agdf/scripts/check-runtime-integrity.mjs");
   output("  npm --prefix pages run build");
   output(`Release tag after validation and commit: agdf-v${nextVersion}`);
   return plan;

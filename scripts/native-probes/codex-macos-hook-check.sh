@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Native check on macOS: does the shared AGDF SessionStart hook (plugin/hooks/hooks.json) start under Codex
+# Native check on macOS: does the shared AGDF SessionStart hook (plugins/agdf/host-templates/shared/hooks/hooks.json) start under Codex
 # with the command introduced in 4e414ab? Evidence comes from Codex's own hook metadata (app-server
 # hooks/list) and the session rollout, not from a model self-report.
 #
@@ -54,7 +54,7 @@ trust_of() { node -e 'const o=JSON.parse(require("fs").readFileSync(process.argv
 command -v node >/dev/null || { echo "node fehlt."; exit 2; }
 command -v "$CODEX" >/dev/null 2>&1 || [ -x "$CODEX" ] || { echo "Codex nicht gefunden: $CODEX (CODEX_BIN setzen)."; exit 2; }
 git -C "$REPO" merge-base --is-ancestor 4e414ab HEAD 2>/dev/null || { echo "Der Checkout enthält 4e414ab nicht. Erst 'git pull'."; exit 2; }
-[ "$(hook_command "$REPO/plugin/hooks/hooks.json")" = "$EXPECTED" ] || { echo "plugin/hooks/hooks.json enthält nicht die erwartete Hook-Zeile."; exit 2; }
+[ "$(hook_command "$REPO/plugins/agdf/host-templates/shared/hooks/hooks.json")" = "$EXPECTED" ] || { echo "plugins/agdf/host-templates/shared/hooks/hooks.json enthält nicht die erwartete Hook-Zeile."; exit 2; }
 
 say "AGDF Codex-Hook-Check ($STAMP)"
 say "Ergebnisse: $OUT_REL/"

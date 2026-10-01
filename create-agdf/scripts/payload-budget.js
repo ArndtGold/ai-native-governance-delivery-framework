@@ -34,9 +34,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     options[key.slice(2)] = key === "--reason" ? args[++i] : Number(args[++i]);
   }
   const repoRoot = fileURLToPath(new URL("../../", import.meta.url));
-  const path = resolve(repoRoot, "plugin/meta/copilot-payload-baseline.json");
+  const path = resolve(repoRoot, "plugins/agdf/meta/copilot-payload-baseline.json");
   const baseline = JSON.parse(readFileSync(path, "utf8"));
-  const definition = JSON.parse(readFileSync(resolve(repoRoot, "plugin/meta/agdf-plugin.definition.json"), "utf8"));
+  const definition = JSON.parse(readFileSync(resolve(repoRoot, "plugins/agdf/meta/agdf-plugin.definition.json"), "utf8"));
   // Only the size ceiling is suspended for reporting. Digest, source, inventory, profile and version
   // checks remain mandatory. Normal builds never pass checkBudget:false.
   const { inventory, stats } = validateCopilotPayload({ repoRoot,

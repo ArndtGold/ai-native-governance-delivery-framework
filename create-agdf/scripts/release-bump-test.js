@@ -25,7 +25,7 @@ import { runReleaseBumpCommand } from "./release-bump.js";
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "..");
 const currentVersion = JSON.parse(
-  readFileSync(join(repoRoot, "plugin/meta/agdf-plugin.definition.json"), "utf8"),
+  readFileSync(join(repoRoot, "plugins/agdf/meta/agdf-plugin.definition.json"), "utf8"),
 ).version;
 const currentVersionMatch = currentVersion.match(/^(\d+)\.(\d+)\.(\d+)(?:-|$)/);
 assert.ok(currentVersionMatch, `repository version must be semver, got ${currentVersion}`);
@@ -40,7 +40,7 @@ function fixture() {
     mkdirSync(dirname(join(root, relativePath)), { recursive: true });
     cpSync(join(repoRoot, relativePath), join(root, relativePath));
   }
-  const cataloguePath = join(root, "plugin/meta/distribution-profile-history.json");
+  const cataloguePath = join(root, "plugins/agdf/meta/distribution-profile-history.json");
   const catalogue = JSON.parse(readFileSync(cataloguePath, "utf8"));
   delete catalogue.releases[currentVersion];
   writeFileSync(cataloguePath, `${JSON.stringify(catalogue, null, 2)}\n`);
@@ -61,7 +61,7 @@ function digest(content) {
 }
 
 function readCatalogue(root) {
-  return JSON.parse(readFileSync(join(root, "plugin/meta/distribution-profile-history.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, "plugins/agdf/meta/distribution-profile-history.json"), "utf8"));
 }
 
 function executeFixtureBump(options) {
@@ -106,7 +106,7 @@ try {
   const repairPlan = executeFixtureBump({ repoRoot: repairRoot, nextVersion: currentVersion });
   assert.equal(repairPlan.mode, "reconcile_current");
   assert.ok(readCatalogue(repairRoot).releases[currentVersion]);
-  for (const path of releaseBumpTargetPaths().filter((path) => path !== "plugin/meta/distribution-profile-history.json")) {
+  for (const path of releaseBumpTargetPaths().filter((path) => path !== "plugins/agdf/meta/distribution-profile-history.json")) {
     assert.equal(readFileSync(join(repairRoot, path), "utf8"), beforeRepair[path]);
   }
   for (const surface of WRITABLE_RELEASE_VERSION_SURFACES) {
@@ -136,7 +136,7 @@ try {
 
   const changedRoot = fixture();
   executeFixtureBump({ repoRoot: changedRoot, nextVersion: currentVersion });
-  const changedDefinitionPath = join(changedRoot, "plugin/meta/agdf-plugin.definition.json");
+  const changedDefinitionPath = join(changedRoot, "plugins/agdf/meta/agdf-plugin.definition.json");
   const changedDefinition = JSON.parse(readFileSync(changedDefinitionPath, "utf8"));
   changedDefinition.distributionProfiles.profiles["future-profile"] = {
     runtime: "absent",

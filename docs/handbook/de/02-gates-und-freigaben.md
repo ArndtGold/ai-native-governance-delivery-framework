@@ -43,7 +43,7 @@ Nachweise vor, bewertet den aktuellen Zustand und nennt den nächsten erlaubten 
 | `Approval: UAT` | Orchestration Report und Delivery Closeout dürfen vorbereitet werden. Git- und Release-Aktionen bleiben separat beauftragt. |
 
 Die verbindliche Übergangslogik steht im
-[Runtime Contract](../../../plugin/meta/agdf-runtime-contract.md).
+[Runtime Contract](../../../plugins/agdf/meta/agdf-runtime-contract.md).
 
 ## Exakte Freigabe
 

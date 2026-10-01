@@ -1,0 +1,104 @@
+scripts/native-probes/claude-host-e2e.mjs:130:  const uninstall = run("claude", ["plugin", "uninstall", "agdf@agdf"]);
+scripts/native-probes/codex-activation-matrix.mjs:171:  const marketplaceAdd = runSync(codex, ["plugin", "marketplace", "add", marketplaceRoot, "--json"], { env: installerEnv, cwd: repo });
+scripts/native-probes/codex-activation-matrix.mjs:173:  const pluginAdd = runSync(codex, ["plugin", "add", "agdf@agdf", "--json"], { env: installerEnv, cwd: repo });
+create-agdf/lib/installers/copilot-precedence.js:19:      effective_source: projectMatch ? "project" : personalMatch ? "personal" : "plugin",
+create-agdf/lib/installers/copilot-precedence.js:30:    precedence: Object.freeze(["project", "personal", "plugin"]),
+create-agdf/lib/installers/local-marketplace.js:338:  const copilot = copilotProfile ? readJson(join(root, ".github", "plugin", "marketplace.json"), "Copilot local marketplace manifest") : null;
+create-agdf/lib/installers/local-marketplace.js:603:      writeJson(join(stageRoot, ".github", "plugin", "marketplace.json"), copilotMarketplace(targetDefinition));
+create-agdf/lib/installers/copilot-skill-discovery.js:12:    if (matches.length !== 1 || matches[0].source !== "plugin" || matches[0].enabled !== true) {
+create-agdf/scripts/lifecycle-test.js:248:}), /exact planned effect install_or_update_global_plugin/);
+create-agdf/scripts/lifecycle-test.js:534:assert.deepEqual(calls, [["codex", ["plugin", "remove", "agdf@agdf"]]]);
+create-agdf/scripts/lifecycle-test.js:550:assert.deepEqual(copilotUninstall.mutations[0], { kind: "command", executable: "copilot", args: ["plugin", "uninstall", "agdf"] });
+create-agdf/scripts/fixtures/host-compatibility/copilot.js:10:export const skills = root => pluginDefinition.skillSet.map(({ slug }) => ({ name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(root, "copilot-skills", `agdf-${slug}`) }));
+create-agdf/scripts/sync-plugin-runtime.js:316:      env: { ...process.env, AGDF_SURFACE: process.env.AGDF_SURFACE || "plugin" },
+create-agdf/scripts/sync-plugin-runtime.js:359:      validator, env: { ...process.env, AGDF_SURFACE: process.env.AGDF_SURFACE || "plugin" }, deadline });
+scripts/host-compatibility/test.mjs:38:    const result = inspectPluginSurface(surface, (executable, args) => { assert.equal(executable, "codex"); assert.deepEqual(args, ["plugin", "list"]); return "agdf@agdf 0.14.5\n"; });
+scripts/host-compatibility/test.mjs:128:    writeFileSync(join(temp, changed), original.replace('["plugin", "remove", "agdf@agdf"]','["plugin", "remove", "agdf@agdf", "--fixture"]'));
+scripts/host-compatibility/test.mjs:134:  check("production adapter executes the isolated change", () => { assert.equal(changedCodex.uninstallCommand().args.at(-1), "--fixture"); assert.deepEqual(unchangedClaude.uninstallCommand().args, ["plugin", "uninstall", "agdf@agdf", "--scope", "user"]); });
+create-agdf/scripts/local-validator-test.js:37:assert.deepEqual(resolvePluginHostEnvironment({}, { defaultSurface: "plugin" }), {
+create-agdf/scripts/local-validator-test.js:38:  surface: "plugin", expectedPluginRoot: undefined,
+create-agdf/scripts/local-validator-test.js:45:  assert.throws(() => syncPluginRuntime({ outputRoot: join(fileURLToPath(new URL("../..", import.meta.url)), "plugins", "agdf", "runtime") }), /must not write into the source plugin/);
+create-agdf/scripts/copilot-repository-retention-test.js:54:          name: `agdf-${slug}`, source: "plugin", enabled: true, path: join(builtPluginRoot, "copilot-skills", `agdf-${slug}`),
+create-agdf/scripts/copilot-repository-retention-test.js:56:        if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+create-agdf/scripts/agent-skills-conformance-test.js:232:  ["plugin", join(generatedRoot, "plugins", "agdf"), join(generatedRoot, "plugins", "agdf")],
+create-agdf/scripts/portable-plugin-test.js:14:assert.equal(existsSync(join(repoRoot, "plugin")), false, "old canonical mirror must be absent");
+create-agdf/scripts/local-development-install-test.js:43:    name: `agdf-${slug}`, source: "plugin", enabled: true,
+create-agdf/scripts/local-development-install-test.js:355:      if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+create-agdf/scripts/local-development-install-test.js:364:  assert.equal(packagedCalls.some(({ args }) => args.includes(`--package=${COPILOT_CLI_NPM_PACKAGE}`) && args.at(-2) === "plugin" && args.at(-1) === "list"), true);
+create-agdf/scripts/local-development-install-test.js:375:      if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+create-agdf/scripts/local-development-install-test.js:479:  assert.equal(diagnoseCopilotSkillPrecedence({ declaredPluginSkills: ["agdf-gate-check"] }).skills[0].effective_source, "plugin");
+create-agdf/scripts/local-development-install-test.js:544:      if (args.at(-2) === "plugin" && args.at(-1) === "list") {
+create-agdf/scripts/copilot-installer-test.js:101:    ['mixed-roots', values => [skills(updatedPayload)[0], ...values.slice(1)], /different plugin/],
+create-agdf/scripts/plugin-mcp-runtime-test.js:13:  const updateablePluginRoot = join(root, "plugin");
+create-agdf/scripts/codex-hook-observation-test.js:11:  eventName: "sessionStart", source: "plugin", handlerType: "command",
+create-agdf/scripts/local-marketplace-test.js:132:  assert.equal(json(join(copilotProjection.root, ".github", "plugin", "marketplace.json")).plugins[0].version, pluginDefinition.version);
+create-agdf/lib/release/profile-history.js:66:  for (const root of [PLUGIN_SOURCE_RELATIVE, "plugin"]) {
+create-agdf/lib/release/profile-history.js:110:      parseJson(readTagFile(tag, "plugin/meta/agdf-plugin.definition.json"), "profile_history_tag_mismatch", `${tag} definition`).version,
+create-agdf/lib/release/profile-history.js:112:      parseJson(readTagFile(tag, "plugin/.codex-plugin/plugin.json"), "profile_history_tag_mismatch", `${tag} Codex manifest`).version,
+create-agdf/lib/release/profile-history.js:138:      ["ls-tree", "--name-only", mergeBase, "--", HISTORY_PATH, "plugin/meta/distribution-profile-history.json"],
+create-agdf/scripts/smoke-test.js:122:  const sdkDir = path.join(prefix, "node_modules", "@opencode-ai", "plugin");
+create-agdf/scripts/smoke-test.js:171:const sdkDir = path.join(prefix, "node_modules", "@opencode-ai", "plugin");
+create-agdf/scripts/smoke-test.js:509:  const openCodeSdkFixture = join(openCodeConfigTempDir, "node_modules", "@opencode-ai", "plugin");
+create-agdf/lib/runtime-check-consent/codex-hooks.js:21:  if (hook.source !== "plugin" || hook.handlerType !== "command"
+create-agdf/scripts/cli-modularization-test.js:444:    ["codex", ["plugin", "marketplace", "list", "--json"]],
+create-agdf/scripts/cli-modularization-test.js:445:    ["codex", ["plugin", "marketplace", "add", fakeMarketplaceRoot, "--json"]],
+create-agdf/scripts/cli-modularization-test.js:446:    ["codex", ["plugin", "add", "agdf@agdf", "--json"]],
+create-agdf/scripts/cli-modularization-test.js:447:    ["codex", ["plugin", "list"]],
+create-agdf/scripts/cli-modularization-test.js:461:  assert.match(quiet.out[0], /Effective state: plugin ready, MCP included in the plugin/);
+create-agdf/scripts/cli-modularization-test.js:737:    ["plugin", "uninstall", "agdf@agdf", "--keep-data"],
+create-agdf/scripts/cli-modularization-test.js:738:    ["plugin", "install", "agdf@agdf"],
+create-agdf/lib/runtime/local-validator.js:30:const PLUGIN_HOST_SURFACES = new Set(["codex", "claude", "copilot", "opencode", "plugin"]);
+create-agdf/lib/runtime/local-validator.js:32:export function resolvePluginHostEnvironment(env = process.env, { defaultSurface = "plugin" } = {}) {
+create-agdf/lib/runtime/local-validator.js:33:  const fallbackSurface = PLUGIN_HOST_SURFACES.has(defaultSurface) ? defaultSurface : "plugin";
+create-agdf/lib/runtime/local-validator.js:41:    : ["codex", "copilot", "plugin"].includes(surface)
+create-agdf/lib/install-setup/contract.js:158:    "surface", "version", "interaction", "plugin", "mcp_by_scope", "target", "target_source",
+create-agdf/lib/install-setup/contract.js:232:    "invocation_directory_source", "requested_scope", "effective_scope", "plugin", "runtime_checks", "mcp", "discovery",
+create-agdf/lib/host-adapters/codex/plugin.js:28:    const marketplaceOutput = runPluginPhase(exec, "codex", ["plugin", "marketplace", "list", "--json"], "marketplace", captureOptions());
+create-agdf/lib/host-adapters/codex/plugin.js:30:    nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "add", "agdf@agdf", "--json"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/codex/plugin.js:31:    const listOutput = runPluginPhase(exec, "codex", ["plugin", "list"], "verification", captureOptions());
+create-agdf/lib/host-adapters/codex/plugin.js:80:    nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "marketplace", "remove", "agdf", "--json"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/codex/plugin.js:82:    nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "marketplace", "add", root, "--json"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/codex/plugin.js:87:    nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "marketplace", "remove", "agdf", "--json"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/codex/plugin.js:91:    nativeOutput.push(runPluginPhase(exec, "codex", ["plugin", "marketplace", "add", root, "--json"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/codex/plugin.js:101:      ? attempt(["plugin", "marketplace", "remove", "agdf", "--json"])
+create-agdf/lib/host-adapters/codex/plugin.js:105:      attempt(["plugin", "marketplace", "add", migration.source || transaction.root, "--json"]);
+create-agdf/lib/host-adapters/codex/plugin.js:110:  if (migration?.addedLocal) attempt(["plugin", "marketplace", "remove", "agdf", "--json"]);
+create-agdf/lib/host-adapters/codex/plugin.js:111:  if (migration?.removedLegacy && migration.source) attempt(["plugin", "marketplace", "add", migration.source, "--json"]);
+create-agdf/lib/host-adapters/codex/plugin.js:117:  return inspectPluginList({ surface, exec, executable: "codex", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
+create-agdf/lib/host-adapters/codex/plugin.js:134:export const uninstallCommand = () => ({ executable: "codex", args: ["plugin", "remove", "agdf@agdf"] });
+create-agdf/lib/host-adapters/claude/uninstall.js:15:const MARKETPLACE_LIST = ["plugin", "marketplace", "list", "--json"];
+create-agdf/lib/host-adapters/claude/uninstall.js:16:const MARKETPLACE_REMOVE = ["plugin", "marketplace", "remove", "agdf", "--scope", "user"];
+create-agdf/scripts/opencode-hardening-test.js:46:  const sdkRoot = join(temp, "node_modules", "@opencode-ai", "plugin");
+create-agdf/lib/host-adapters/claude/plugin.js:35:    const marketplaceOutput = runPluginPhase(exec, "claude", ["plugin", "marketplace", "list", "--json"], "marketplace", captureOptions());
+create-agdf/lib/host-adapters/claude/plugin.js:37:    nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "marketplace", "update", "agdf"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/claude/plugin.js:38:    const beforeList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", captureOptions());
+create-agdf/lib/host-adapters/claude/plugin.js:44:      nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "uninstall", "agdf@agdf", "--keep-data"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/claude/plugin.js:49:      nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/claude/plugin.js:65:        nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/claude/plugin.js:75:    const afterList = runPluginPhase(exec, "claude", ["plugin", "list"], "verification", captureOptions());
+create-agdf/lib/host-adapters/claude/plugin.js:131:    nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "marketplace", "remove", "agdf", "--scope", "user"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/claude/plugin.js:135:    nativeOutput.push(runPluginPhase(exec, "claude", ["plugin", "marketplace", "add", root, "--scope", "user"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/claude/plugin.js:143:  if (migration?.addedLocal) attempt(["plugin", "marketplace", "remove", "agdf", "--scope", "user"]);
+create-agdf/lib/host-adapters/claude/plugin.js:144:  if (migration?.removedLegacy && migration.source) attempt(["plugin", "marketplace", "add", migration.source, "--scope", "user"]);
+create-agdf/lib/host-adapters/claude/plugin.js:145:  if (pluginInstalled) attempt(["plugin", "uninstall", "agdf@agdf", "--keep-data"]);
+create-agdf/lib/host-adapters/claude/plugin.js:147:  if (previousPluginRemoved && filesystemRestored) attempt(["plugin", "install", "agdf@agdf"]);
+create-agdf/lib/host-adapters/claude/plugin.js:152:  return inspectPluginList({ surface: "claude", exec, executable: "claude", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
+create-agdf/lib/host-adapters/claude/plugin.js:157:export const uninstallCommand = () => ({ executable: "claude", args: ["plugin", "uninstall", "agdf@agdf", "--scope", "user"] });
+create-agdf/lib/host-adapters/copilot/plugin.js:32:    before = activeExec("copilot", ["plugin", "list"], captureOptions());
+create-agdf/lib/host-adapters/copilot/plugin.js:36:      throw lifecycleAdapterError("verification", commandErrorText(error), { executable: "copilot", args: ["plugin", "list"] });
+create-agdf/lib/host-adapters/copilot/plugin.js:41:      before = activeExec("copilot", ["plugin", "list"], captureOptions());
+create-agdf/lib/host-adapters/copilot/plugin.js:68:    const marketplaceOutput = runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "list"], "marketplace", captureOptions());
+create-agdf/lib/host-adapters/copilot/plugin.js:89:      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "uninstall", "agdf@agdf"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:94:      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "marketplace", "remove", "agdf"], "marketplace", captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:102:      nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "uninstall", "agdf"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:105:    nativeOutput.push(runPluginPhase(activeExec, "copilot", ["plugin", "install", "agdf@agdf"], "plugin_operation", captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:107:    const after = runPluginPhase(activeExec, "copilot", ["plugin", "list"], "verification", captureOptions());
+create-agdf/lib/host-adapters/copilot/plugin.js:133:    if (installedNewPlugin) recover("new_plugin_cleanup", () => activeExec("copilot", ["plugin", "uninstall", "agdf@agdf"], captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:139:      recover("marketplace_registration_recovery", () => activeExec("copilot", ["plugin", "marketplace", "add", marketplace.source], captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:141:    if (marketplacePluginRemoved) recover("marketplace_plugin_recovery", () => activeExec("copilot", ["plugin", "install", "agdf@agdf"], captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:142:    if (directRemoved) recover("direct_install_recovery", () => activeExec("copilot", ["plugin", "install", effectivePluginRoot], captureOptions()));
+create-agdf/lib/host-adapters/copilot/plugin.js:184:    const nativeOutput = runPluginPhase(exec, "copilot", ["plugin", operation, "agdf"], "plugin_operation", captureOptions());
+create-agdf/lib/host-adapters/copilot/plugin.js:185:    const listOutput = runPluginPhase(exec, "copilot", ["plugin", "list"], "verification", captureOptions());
+create-agdf/lib/host-adapters/copilot/plugin.js:213:  return inspectPluginList({ surface: "copilot", exec, executable: "copilot", args: ["plugin", "list"], expectedVersion: pluginDefinition.version,
+create-agdf/lib/host-adapters/copilot/plugin.js:218:export const uninstallCommand = () => ({ executable: "copilot", args: ["plugin", "uninstall", "agdf"] });
+create-agdf/lib/public-plugin/validator.js:107:  if (validateSchema) validateSchema("plugin", portable);

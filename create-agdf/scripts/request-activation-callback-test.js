@@ -6,8 +6,8 @@ import { parseRequestActivationOperationCatalog } from "./sync-request-activatio
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const manifest = JSON.parse(readFileSync(join(repoRoot, "evals", "request-activation", "manifest.json"), "utf8"));
-const definition = JSON.parse(readFileSync(join(repoRoot, "plugin", "meta", "agdf-plugin.definition.json"), "utf8"));
-const contract = readFileSync(join(repoRoot, "plugin", "meta", "contracts", "request-activation.md"), "utf8");
+const definition = JSON.parse(readFileSync(join(repoRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json"), "utf8"));
+const contract = readFileSync(join(repoRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md"), "utf8");
 const catalog = parseRequestActivationOperationCatalog(contract);
 const callbacks = manifest.callback_vocabulary;
 const callbackSet = new Set(callbacks);

@@ -24,7 +24,7 @@ import {
 import { syncPackageAssets, toOpenCodeInstructionsRouter } from "./sync-package-assets.js";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
-const pluginRoot = join(repoRoot, "plugin");
+const pluginRoot = join(repoRoot, "plugins", "agdf");
 const definitionPath = join(pluginRoot, "meta", "agdf-plugin.definition.json");
 const contractPath = join(pluginRoot, "meta", "contracts", "request-activation.md");
 const taskTargetContractPath = join(pluginRoot, "meta", "contracts", "task-target-resolution.md");
@@ -72,8 +72,8 @@ function stripMarkers(content, start, end) {
 
 function copyProjectionFixture() {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "agdf-request-activation-projection-"));
-  cpSync(join(pluginRoot, "meta"), join(fixtureRoot, "plugin", "meta"), { recursive: true });
-  cpSync(join(pluginRoot, "skills"), join(fixtureRoot, "plugin", "skills"), { recursive: true });
+  cpSync(join(pluginRoot, "meta"), join(fixtureRoot, "plugins", "agdf", "meta"), { recursive: true });
+  cpSync(join(pluginRoot, "skills"), join(fixtureRoot, "plugins", "agdf", "skills"), { recursive: true });
   cpSync(
     join(repoRoot, "create-agdf", "lib", "cli", "command-registry.js"),
     join(fixtureRoot, "create-agdf", "lib", "cli", "command-registry.js"),
@@ -310,7 +310,7 @@ for (const skill of definition.skillSet) {
 {
   const fixtureRoot = copyProjectionFixture();
   try {
-    const path = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md");
     write(path, stripMarkers(
       read(path),
       REQUEST_ACTIVATION_MARKERS.guardStart,
@@ -330,8 +330,8 @@ for (const skill of definition.skillSet) {
 {
   const fixtureRoot = copyProjectionFixture();
   try {
-    const fixtureRouterPath = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
-    const fixtureManifestPath = join(fixtureRoot, "plugin", "meta", "agdf-runtime-contract.md");
+    const fixtureRouterPath = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
+    const fixtureManifestPath = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-runtime-contract.md");
     let fixtureRouter = removeBlock(
       read(fixtureRouterPath),
       REQUEST_ACTIVATION_MARKERS.guardStart,
@@ -352,7 +352,7 @@ for (const skill of definition.skillSet) {
       ),
     );
     for (const skill of definition.skillSet) {
-      const skillPath = join(fixtureRoot, "plugin", "skills", skill.slug, "SKILL.md");
+      const skillPath = join(fixtureRoot, "plugins", "agdf", "skills", skill.slug, "SKILL.md");
       write(skillPath, removeBlock(
         read(skillPath),
         REQUEST_ACTIVATION_MARKERS.guardStart,
@@ -376,38 +376,38 @@ for (const skill of definition.skillSet) {
 
 for (const breakFixture of [
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, read(path).replace(REQUEST_ACTIVATION_MARKERS.guardStart, ""));
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, read(path).replace(REQUEST_ACTIVATION_MARKERS.guardEnd, ""));
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, `${read(path)}\n${REQUEST_ACTIVATION_MARKERS.guardStart}\n`);
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, `${read(path)}\n${REQUEST_ACTIVATION_MARKERS.guardEnd}\n`);
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, read(path)
       .replace(REQUEST_ACTIVATION_MARKERS.guardStart, "<!-- AGDF-REQUEST-ACTIVATION-GUARD:TEMP -->")
       .replace(REQUEST_ACTIVATION_MARKERS.guardEnd, REQUEST_ACTIVATION_MARKERS.guardStart)
       .replace("<!-- AGDF-REQUEST-ACTIVATION-GUARD:TEMP -->", REQUEST_ACTIVATION_MARKERS.guardEnd));
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, read(path).replace("Decide effect from loaded instructions", "Decide the effect from loaded instructions"));
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "meta", "agdf-agent-router.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-agent-router.md");
     write(path, read(path).replace(fingerprint, `sha256:${"f".repeat(64)}`));
   },
   (fixtureRoot) => {
-    const path = join(fixtureRoot, "plugin", "skills", "gate-check", "SKILL.md");
+    const path = join(fixtureRoot, "plugins", "agdf", "skills", "gate-check", "SKILL.md");
     const withoutGuard = removeBlock(read(path), REQUEST_ACTIVATION_MARKERS.guardStart, REQUEST_ACTIVATION_MARKERS.guardEnd);
     write(path, withoutGuard.replace("## Executable Dispatch", "## Executable Dispatch\n\n## Executable Dispatch"));
   },
@@ -432,7 +432,7 @@ for (const [from, to, expected] of [
 ]) {
   const fixtureRoot = copyProjectionFixture();
   try {
-    const fixtureContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "request-activation.md");
+    const fixtureContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md");
     write(fixtureContractPath, read(fixtureContractPath).replace(from, to));
     assert.throws(() => syncRequestActivationProjections({ repoRoot: fixtureRoot, mode: "check" }), expected);
   } finally {
@@ -443,7 +443,7 @@ for (const [from, to, expected] of [
 for (const unsafeSlug of ["../outside", "skill/name", "skill\\name", "/absolute-skill"]) {
   const fixtureRoot = copyProjectionFixture();
   try {
-    const fixtureDefinitionPath = join(fixtureRoot, "plugin", "meta", "agdf-plugin.definition.json");
+    const fixtureDefinitionPath = join(fixtureRoot, "plugins", "agdf", "meta", "agdf-plugin.definition.json");
     const fixtureDefinition = JSON.parse(read(fixtureDefinitionPath));
     fixtureDefinition.skillSet[0].slug = unsafeSlug;
     write(fixtureDefinitionPath, `${JSON.stringify(fixtureDefinition, null, 2)}\n`);
@@ -462,7 +462,7 @@ for (const unsafeSlug of ["../outside", "skill/name", "skill\\name", "/absolute-
   const fixtureRoot = copyProjectionFixture();
   const externalSkillRoot = mkdtempSync(join(tmpdir(), "agdf-request-activation-external-skill-"));
   try {
-    const fixtureSkillRoot = join(fixtureRoot, "plugin", "skills", "gate-check");
+    const fixtureSkillRoot = join(fixtureRoot, "plugins", "agdf", "skills", "gate-check");
     write(join(externalSkillRoot, "SKILL.md"), read(join(fixtureSkillRoot, "SKILL.md")));
     rmSync(fixtureSkillRoot, { recursive: true, force: true });
     let symlinkCreated = false;
@@ -490,7 +490,7 @@ for (const unsafeSlug of ["../outside", "skill/name", "skill\\name", "/absolute-
 {
   const fixtureRoot = copyProjectionFixture();
   try {
-    const fixtureContractPath = join(fixtureRoot, "plugin", "meta", "contracts", "request-activation.md");
+    const fixtureContractPath = join(fixtureRoot, "plugins", "agdf", "meta", "contracts", "request-activation.md");
     const fixtureRegistryPath = join(fixtureRoot, "create-agdf", "lib", "cli", "command-registry.js");
     write(
       fixtureContractPath,

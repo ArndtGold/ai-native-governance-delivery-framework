@@ -12,7 +12,7 @@ import {
   renderInstallSetupText,
 } from "../lib/install-setup/presentation.js";
 
-const registry = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
+const registry = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-interaction-locales.json", import.meta.url), "utf8"));
 
 function preflight(overrides = {}) {
   return createInstallSetupPreflight({

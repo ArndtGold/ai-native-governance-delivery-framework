@@ -149,7 +149,7 @@ export const landingPage = {
         },
         links: [
             { label: "Inspect the source", href: site.repo },
-            { label: "Read the technical contracts", href: `${site.repo}/tree/main/plugin/meta/contracts` },
+            { label: "Read the technical contracts", href: `${site.repo}/tree/main/plugins/agdf/meta/contracts` },
             { label: "See current releases", href: `${site.repo}/releases` },
             { label: "Compare host compatibility evidence", href: repoDocument("docs/compatibility/HOST_COMPATIBILITY.md") },
         ],

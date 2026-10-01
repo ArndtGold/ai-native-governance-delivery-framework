@@ -61,7 +61,7 @@ function contractFromRequestActivationContent(rawContent) {
 function readRequestActivationContract() {
   const candidates = [
     new URL("./generated/.opencode/contracts/request-activation.md", import.meta.url),
-    new URL("../plugin/meta/contracts/request-activation.md", import.meta.url),
+    new URL("../plugins/agdf/meta/contracts/request-activation.md", import.meta.url),
   ];
   for (const candidate of candidates) {
     if (existsSync(candidate)) return contractFromRequestActivationContent(readFileSync(candidate, "utf8"));

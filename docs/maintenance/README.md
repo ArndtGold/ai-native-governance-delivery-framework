@@ -15,7 +15,7 @@ Historische Nachweise behalten ihre damals tatsächlich verwendeten Node-Version
 `create-agdf/lib/interaction-catalog.js` definiert Setup-Zustände, zulässige Aktionen,
 Fehlercodes und Codex-Hook-Routing. Ergebnisvalidierung, Recovery-Renderer und CLI-E2E nutzen
 diesen Katalog. Die Runtime-Provenienz schützt ihn mit. Texte bleiben ausschließlich in
-`plugin/meta/agdf-interaction-locales.json`. Fehlende, zusätzliche oder leere Übersetzungen
+`plugins/agdf/meta/agdf-interaction-locales.json`. Fehlende, zusätzliche oder leere Übersetzungen
 stoppen den Paketbau vor der Projektion. Test: `npm run test:maintenance-contracts`.
 Der Umfang ist Installation und Dispatcher-Recovery, nicht sämtliche Governance-Domänen.
 

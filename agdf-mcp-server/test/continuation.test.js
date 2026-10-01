@@ -6,7 +6,7 @@ import { readSkillRuntimeContracts } from "../../create-agdf/lib/cli/contract-co
 import { createOwnedRuntimeFixture } from "./owned-runtime.js";
 import { withStdioClient } from "./helpers.js";
 
-const definition = JSON.parse(readFileSync(new URL("../../plugin/meta/agdf-plugin.definition.json", import.meta.url)));
+const definition = JSON.parse(readFileSync(new URL("../../plugins/agdf/meta/agdf-plugin.definition.json", import.meta.url)));
 const fixture = createOwnedRuntimeFixture();
 try {
   // A real stdio server, with no SessionStart hook or executable binding.
@@ -23,7 +23,7 @@ try {
       assert.equal(result.terminal, false);
       const contracts = result.continuation.runtime_contracts;
       assert.deepEqual(contracts.map(c => c.module), skill.runtimeContractModules);
-      const source = readFileSync(new URL(`../../plugin/skills/${skill.slug}/SKILL.md`, import.meta.url), "utf8");
+      const source = readFileSync(new URL(`../../plugins/agdf/skills/${skill.slug}/SKILL.md`, import.meta.url), "utf8");
       const section = source.split("## Runtime Contract\n")[1].split("`instruction_only`")[0];
       assert.ok(section.includes("`continuation.runtime_contracts`"), `${skill.slug}: MCP-first contract consumption`);
       assert.ok(!section.includes("not from the file system"), `${skill.slug}: stale hook-only contract instruction`);

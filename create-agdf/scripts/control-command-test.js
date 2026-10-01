@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { randomUUID, createHash } from "node:crypto";
 import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -24,6 +25,35 @@ const { root, command, runPath } = fixture;
 const original = readFileSync(runPath, "utf8");
 const unchanged = () => assert.equal(readFileSync(runPath, "utf8"), original);
 try {
+  scenario("SCN-016 Windows replay flush uses a writable handle without changing canonical bytes", () => {
+    const probe = spawnSync(process.execPath, ["--input-type=module", "-e", `
+      import assert from 'node:assert/strict';
+      import fs from 'node:fs';
+      import { syncBuiltinESMExports } from 'node:module';
+      import { flushRunCommit } from ${JSON.stringify(new URL("../lib/control-state/run-state-writer.js", import.meta.url).href)};
+      const path = process.argv[1];
+      const before = fs.readFileSync(path);
+      const modifiedAt = fs.statSync(path).mtimeMs;
+      const open = fs.openSync;
+      let opened = 0;
+      fs.openSync = (candidate, flags, ...args) => {
+        assert.equal(candidate, path);
+        assert.equal(flags, 'r+', 'Windows flush requires write access without truncation');
+        opened++;
+        return open(candidate, flags, ...args);
+      };
+      syncBuiltinESMExports();
+      Object.defineProperty(process, 'platform', { value: 'win32' });
+      flushRunCommit(path);
+      assert.equal(opened, 1);
+      fs.openSync = open;
+      syncBuiltinESMExports();
+      assert.deepEqual(fs.readFileSync(path), before);
+      assert.equal(fs.statSync(path).mtimeMs, modifiedAt);
+    `, runPath], { encoding: "utf8" });
+    assert.equal(probe.status, 0, `${probe.stdout}\n${probe.stderr}`);
+    unchanged();
+  });
   scenario("SCN-002/009 closed schema and unsupported authority, zero mutation", () => {
     for (const extra of [{ role: "user" }, { seen: true }, { trusted: true }, { tool_provenance: "human" }]) {
       assert.equal(recordGateApprovalCommand(root, { ...command, ...extra }).reason, "command_schema_invalid"); unchanged(); console.log(`PASS SCN-002 undeclared ${JSON.stringify(extra)}`);

@@ -97,18 +97,19 @@ import fs from 'node:fs'; import cp from 'node:child_process'; import { syncBuil
 import nodePath from 'node:path'; import {fileURLToPath} from 'node:url';
 ${packageRelativePath.toString()}
 const reads=[]; const originalRead=fs.readFileSync;
-fs.readFileSync=(path,...args)=>{ reads.push(String(path)); return originalRead(path,...args); };
+fs.readFileSync=(path,...args)=>{ reads.push(path instanceof URL ? fileURLToPath(path) : String(path)); return originalRead(path,...args); };
 for(const name of ['writeFileSync','mkdirSync','renameSync','unlinkSync','rmSync']) fs[name]=()=>{throw Error('import write '+name)};
 for(const name of ['execFileSync','spawnSync','spawn','execFile']) cp[name]=()=>{throw Error('import process '+name)};
 const printed=[]; console.log=(...x)=>printed.push(x); console.error=(...x)=>printed.push(x);
 process.exit=()=>{throw Error('import exit')}; syncBuiltinESMExports();
+fs.readFileSync(new URL('./node_modules/create-agdf/package.json',import.meta.url),'utf8');
 const resolved=import.meta.resolve('create-agdf/control-command');
 assert.ok(resolved.startsWith(new URL('./node_modules/create-agdf/',import.meta.url).href));
 const module=await import('create-agdf/control-command');
 assert.deepEqual(Object.keys(module).sort(),['CONTROL_COMMAND_SCHEMA_VERSION','recordGateApprovalCommand','resolveControlCommandTarget']);
 assert.equal(printed.length,0); assert.equal(process.exitCode,undefined);
 const packageRoot=fileURLToPath(new URL('./node_modules/create-agdf/',import.meta.url));
-assert.ok(reads.length>=2); for(const path of reads) packageRelativePath(packageRoot,path);
+assert.ok(reads.length>=3); for(const path of reads) packageRelativePath(packageRoot,path);
 `);
   invoke(audit, []);
   console.log("PASS SCN-006 external import has only package-owned reads and no target/process/write/print/exit effects");

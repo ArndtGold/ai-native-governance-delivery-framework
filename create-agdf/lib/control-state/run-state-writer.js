@@ -327,7 +327,9 @@ export function writeRun(path, content, expectedRevisionId, options = {}) {
 
 // A retry acknowledges the existing canonical revision without writing another one.
 export function flushRunCommit(path) {
-  const descriptor = openSync(path, "r");
+  // Windows FlushFileBuffers requires a writable handle. r+ opens the existing
+  // canonical file without truncating it; replay still writes no new revision.
+  const descriptor = openSync(path, process.platform === "win32" ? "r+" : "r");
   try {
     const file = lstatSync(path);
     if (file.isSymbolicLink() || !file.isFile()) throw new Error("AGDF_RUN_PATH_INVALID");

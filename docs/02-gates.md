@@ -114,21 +114,39 @@ Brownfield verlangt aber eine bewusste Entscheidung, wie bestehende Struktur ver
 
 ## Ablauf
 
-Der typische Ablauf ist:
+Der vollständige Ablauf ist:
 
-1. G-00 User Requirement
-2. Brownfield Review, falls bestehender Kontext betroffen sein kann
-3. G-01 Product Requirements Doc
-4. G-02 Solution Design
-5. G-03 Task und Test Plan
-6. Brownfield Analyse pro Aufgabe, falls bestehender Kontext betroffen ist
-7. G-04 Implementation Entry
-8. Umsetzungsnachweise
-9. Task Plan Review
-10. QA Gate
+1. G-00 User Requirement (UR). Freigabe: Mensch.
+2. Brownfield Review mit Mode/Slice Decision. Kommt immer nach dem UR und wählt den Weg.
+3. UX Intent Definition. Nur wenn der Auftrag die Bedienung deutlich betrifft. Das bewertet der Brownfield Review.
+4. G-01 Product Requirements Doc (PRD). Freigabe: Mensch.
+5. G-02 Solution Design (SD). Freigabe: Mensch.
+6. G-03 Task und Test Plan (TP). Freigabe: Mensch.
+7. Brownfield Analyse. Ist sie bestanden, ist G-04 Implementation Entry erfüllt und die Umsetzung darf beginnen.
+8. Umsetzung und Tests (CD+Tests) mit Umsetzungsnachweisen.
+9. Task Plan Review, Clean Implementation Review und Code Review.
+10. QA Gate. `qa-gate` bewertet, die Freigabe erteilt der Mensch.
+11. UAT. Freigabe: Mensch.
+12. OR, der Abschlussbericht.
 
-Nicht jeder Schritt ist immer ein eigenes Haupt-Gate.
-Brownfield Review, Brownfield Analyse pro Aufgabe, Umsetzungsnachweise und Task Plan Review sind aber wichtige Prüfstationen.
+Nur die Schritte mit „Freigabe: Mensch“ sind Gates, die ein Mensch freigeben muss.
+Die anderen Schritte führt der Agent aus und hält das Ergebnis fest.
+Sie sind trotzdem Pflicht. Nur die UX Intent Definition hängt von einer Bedingung ab.
+
+Das ist der strukturierte Weg.
+Für kleine Änderungen wählt die Mode/Slice Decision einen kurzen Weg: Quick Task oder Verified Change.
+Dann entfallen PRD, SD, TP, Brownfield Analyse, die Reviews, QA und UAT.
+Der kurze Weg endet mit einem kurzen Abschluss.
+Verified Change kann in den strukturierten Weg wechseln, wenn sich die Änderung als größer herausstellt.
+Ist der Weg nicht klar genug, stoppt die Arbeit, bis die Lücke geklärt ist.
+
+Das folgende Bild zeigt den Ablauf so, wie die Software ihn umsetzt. Es unterscheidet, wer bei
+welchem Schritt entscheidet, und zeigt die kurzen Wege für kleine Änderungen.
+
+![Ablauf von UR bis OR: Gates mit Freigabe durch den Menschen, Pflichtschritte des Agenten, die bedingte UX Intent Definition und die kurzen Wege Quick Task und Verified Change](architecture/diagrams/07-gate-steps.svg)
+
+*Erklärung der Schrittarten im [Dispatcher-Dokument](architecture/dispatcher.md#schrittklassen).
+[Diagrammquelle](architecture/diagrams/07-gate-steps.dot).*
 
 ## G-00 User Requirement
 
@@ -150,8 +168,9 @@ revise, wenn Ziel, Nutzer, Kontext oder Ergebnis noch zu unklar sind.
 block, wenn Ziele sich widersprechen, Verantwortung unklar ist oder eine wichtige Richtungsentscheidung fehlt.
 
 Nächster Schritt:
-Bei pass folgt ein Brownfield Review, wenn bestehender Kontext betroffen sein kann.
-Sonst kann das PRD vorbereitet werden.
+Bei pass folgt immer der Brownfield Review.
+Er wählt den Weg und entscheidet, ob vor dem PRD noch eine UX Intent Definition nötig ist.
+Ist kein bestehender Kontext betroffen, hält der Review das fest (`not_applicable`).
 
 ## Brownfield Review nach G-00
 
@@ -235,7 +254,8 @@ block, wenn PRD oder Design fehlen, Akzeptanzkriterien nicht prüfbar sind oder 
 
 ## Brownfield Analyse pro Aufgabe
 
-Diese Prüfung liegt vor G-04, wenn bestehender Code oder bestehende Systeme betroffen sind.
+Diese Prüfung kommt auf dem strukturierten Weg immer nach der Freigabe des TP und vor G-04.
+Sie gilt für den ganzen freigegebenen Plan und prüft darin jede Aufgabe einzeln.
 
 Sie fragt pro Aufgabe:
 
@@ -264,7 +284,7 @@ pass, wenn:
 
 - PRD, Design und Task und Test Plan vorliegen.
 - Das PRD freigegeben ist.
-- Brownfield geklärt ist, falls relevant.
+- Die Brownfield Analyse bestanden ist.
 - Klar ist, was umgesetzt werden darf.
 - Klar ist, was nicht umgesetzt werden darf.
 - Klar ist, welche Nachweise nach der Umsetzung erwartet werden.

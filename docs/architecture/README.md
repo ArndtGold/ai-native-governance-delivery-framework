@@ -129,7 +129,8 @@ jeden Unteragenten oder jeden Prozess des Hosts.
 | Kontrollauswertung | Liest und validiert Runs, Artefakte und Voraussetzungen; bestimmt Gate-Routing und nächste Operation. | [`control-evaluation/`](../../packages/core/lib/control-evaluation/) |
 | Kontrollzustand und Writer | Besitzen kanonischen Run-Zustand, Revisionen, Artefaktbezüge, Präsentationsbindungen und Freigabeprüfung. Änderungen erfolgen über separate Writer-Aufrufe. | [`control-state/`](../../packages/core/lib/control-state/) |
 | Darstellung | Erzeugt menschliche Texte aus stabilen Codes. | [`interaction-presentation.js`](../../packages/core/lib/interaction-presentation.js), [`mcp-lifecycle/presentation.js`](../../packages/cli/lib/mcp-lifecycle/presentation.js) |
-| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Sie bleibt vom MCP-Lebenszyklus getrennt. | [`installers/`](../../packages/cli/lib/installers/), [`host-adapters/`](../../packages/cli/lib/host-adapters/) |
+| Plugin-Installation | Installiert Skills, Hooks und Host-Payloads. Für Claude Code und Codex enthält das Laufzeit-Plugin zusätzlich die AGDF-MCP-Deklaration und startet den Server selbst; für OpenCode und GitHub Copilot bleibt MCP ein getrennter Lebenszyklus. | [`installers/`](../../packages/cli/lib/installers/), [`host-adapters/`](../../packages/cli/lib/host-adapters/) |
+| Plugin-MCP-Laufzeit | Startet den gebündelten Server über einen Launcher, bezieht beim ersten Bedarf das gepinnte MCP-SDK von npm und hält die Laufzeit in einem hosteigenen Datenverzeichnis. | [`mcp-lifecycle/plugin-runtime.js`](../../packages/cli/lib/mcp-lifecycle/plugin-runtime.js), [`sync-plugin-mcp.js`](../../scripts/sync-plugin-mcp.js) |
 | Geführte Installation | Liest Plugin- und MCP-Zustand, erfasst eine bewusste Setup-Auswahl und komponiert die getrennten Lebenszyklen in sicherer Reihenfolge. | [`install-setup/`](../../packages/cli/lib/install-setup/), [`cli/application.js`](../../packages/cli/lib/cli/application.js) |
 
 Die wichtigste Eigentumsregel lautet: **Die vollständige Bedeutung von `agdf_dispatch` existiert nur
@@ -179,6 +180,10 @@ Gate-Auswertung und gemeinsame Ergebnisdarstellung bleiben außerhalb des Adapte
 *Abbildung 3: Logischer Dispatch-Ablauf mit getrennten Verantwortlichkeiten. Die Fortsetzungen
 setzen die im [Katalog](dispatcher.md) beschriebenen Eingaben und Kontrollbedingungen voraus.
 [Diagrammquelle](diagrams/03-dispatch.dot).*
+
+Welche Schritte ein Run durchläuft und wer bei jedem Schritt entscheidet, zeigt das Diagramm
+[Gates und Schrittarten](diagrams/07-gate-steps.svg). Die Erklärung steht im Abschnitt
+[Schrittklassen](dispatcher.md#schrittklassen) des Dispatcher-Dokuments.
 
 ### 3.1 Agentennativer Skill-Weg
 
@@ -307,14 +312,22 @@ normalen OpenCode-Standard. Marketplace- und Host-UI-Wege ohne CLI-Callback blei
 *Abbildung 4: Reversibler Lebenszyklus mit explizitem Scope und referenzgezählter Laufzeit.
 [Diagrammquelle](diagrams/06-mcp-lifecycle.dot).*
 
-Der geplante öffentliche Einstieg der nächsten MCP-fähigen AGDF-Version ist für alle vier Hosts
-gleich. Diese Befehle gehören nicht zu AGDF 0.14.5:
+AGDF 0.14.5 enthält die `mcp`-Befehle in der CLI
+([`command-registry.js`](../../packages/cli/lib/cli/command-registry.js)). Der Einstieg ist für alle
+vier Hosts gleich:
 
 ```bash
 npx --yes @agdf/cli@latest mcp status  --surface <codex|claude|opencode|copilot> --dir <projekt>
 npx --yes @agdf/cli@latest mcp enable  --surface <codex|claude|opencode|copilot> --dir <projekt>
 npx --yes @agdf/cli@latest mcp disable --surface <codex|claude|opencode|copilot> --dir <projekt>
 ```
+
+Für Claude Code und Codex startet das Laufzeit-Plugin den Server selbst (siehe
+[Abschnitt 6.1](#61-plugin-mcp-für-claude-code-und-codex)). Eine zusätzliche Host-Registrierung würde
+ihn doppeln und die Plugin-Entfernung überleben. `enable` endet für diese beiden Hosts deshalb ohne
+Änderung mit `<host>_plugin_managed`
+([`service.js`](../../packages/cli/lib/mcp-lifecycle/service.js)). `status` und `disable` bleiben
+verfügbar, um Registrierungen früherer Versionen zu prüfen und zu entfernen.
 
 Der Projektbereich ist Standard. Der Benutzerbereich muss mit `--scope user` ausdrücklich gewählt
 werden. Das angegebene `--dir` ist das technische Lifecycle-Ziel. Es ersetzt keine semantische
@@ -344,8 +357,8 @@ Die vier Adapter verwenden ihre jeweiligen nativen Quellen:
 
 | Host | Projekt | Benutzer | Besonderheit |
 |---|---|---|---|
-| Codex | `.codex/config.toml` | `$CODEX_HOME/config.toml` | Projekt- und Benutzerquelle werden getrennt geprüft. |
-| Claude Code | nativer Scope `local` | nativer Scope `user` | Registrierung erfolgt über die native Claude-MCP-Schnittstelle. |
+| Codex | `.codex/config.toml` | `$CODEX_HOME/config.toml` | Projekt- und Benutzerquelle werden getrennt geprüft. Seit dem Plugin-MCP nur noch für `status` und `disable` früherer Registrierungen. |
+| Claude Code | nativer Scope `local` | nativer Scope `user` | Zugriff über die native Claude-MCP-Schnittstelle. Seit dem Plugin-MCP nur noch für `status` und `disable` früherer Registrierungen. |
 | OpenCode | `opencode.json` | `$OPENCODE_CONFIG_DIR/opencode.json` | 1.x verwendet `mcp.agdf`, 2.x `mcp.servers.agdf`. |
 | GitHub Copilot | `.github/mcp.json` | `~/.copilot/mcp-config.json` | Eine Projektdatei `.mcp.json` besitzt höhere Priorität und kann die verwaltete Quelle blockieren. |
 
@@ -401,7 +414,7 @@ keine zusätzlichen Zustände erfinden.
 
 ## 6. Vom Quellstand zur geladenen Sitzung
 
-![Verteilung: Kanonische Quellen werden getrennt zu Plugin-Payload und MCP-Paket. Plugin-Installation und MCP-Registrierung sind unabhängige Hostzustände. Erst eine frische Sitzung kann geladenes Verhalten zeigen.](diagrams/04-distribution.svg)
+![Verteilung: Kanonische Quellen werden zu Plugin-Payload und MCP-Paket. Für Claude Code und Codex bündelt das Laufzeit-Plugin den MCP-Server, der beim ersten Start das gepinnte SDK von npm bezieht. Für OpenCode und GitHub Copilot sind Plugin-Installation und MCP-Registrierung unabhängige Hostzustände. Erst eine frische Sitzung kann geladenes Verhalten zeigen.](diagrams/04-distribution.svg)
 
 *Abbildung 5: Quelle, Paket, Installation, Registrierung und geladene Sitzung benötigen eigene
 Nachweise. [Diagrammquelle](diagrams/04-distribution.dot).*
@@ -411,17 +424,22 @@ Nachweise. [Diagrammquelle](diagrams/04-distribution.dot).*
 Inhalte aus den Repository-Quellen. Generierte Dateien sind abgeleitete Build-Ergebnisse und werden
 nicht als eigenständige semantische Eigentümer gepflegt.
 
-Aus den Quellen entstehen zwei getrennte Lieferpfade:
+Aus den Quellen entstehen drei Lieferpfade:
 
 1. **Plugin-Pfad:** Skills, Verträge, Hooks und Host-Metadaten werden erzeugt, paketiert und durch
    den jeweiligen Plugin-Installer installiert.
-2. **MCP-Pfad:** Das Paket `@agdf/mcp-server` und die passende `create-agdf`-Laufzeit werden
-   vorbereitet. Der Lifecycle-Service registriert den Einstieg anschließend in einer nativen
-   Host-Konfiguration.
+2. **Plugin-MCP-Pfad (Claude Code, Codex):** Das Laufzeit-Plugin enthält Server, Dispatcher und
+   Launcher. Der Host startet den Server aus der Plugin-Deklaration. Details stehen in
+   [Abschnitt 6.1](#61-plugin-mcp-für-claude-code-und-codex).
+3. **Registrierter MCP-Pfad (OpenCode, GitHub Copilot):** Das Paket `@agdf/mcp-server` und die
+   passende `create-agdf`-Laufzeit werden vorbereitet. Der Lifecycle-Service registriert den
+   Einstieg anschließend in einer nativen Host-Konfiguration.
 
-Ein Plugin darf auf `mcp status` oder `mcp enable` hinweisen. Ein reiner Host- oder
-Marketplace-Installationsweg aktiviert MCP nicht. Der geführte CLI-Weg darf MCP erst nach der
-ausdrücklichen vollständigen Auswahl und einer erfolgreichen Plugin-Prüfung aktivieren.
+Für OpenCode und GitHub Copilot darf ein Plugin auf `mcp status` oder `mcp enable` hinweisen. Ein
+reiner Host- oder Marketplace-Installationsweg aktiviert dort kein MCP. Der geführte CLI-Weg darf MCP
+erst nach der ausdrücklichen vollständigen Auswahl und einer erfolgreichen Plugin-Prüfung aktivieren.
+Für Claude Code und Codex aktiviert die Installation des Laufzeit-Plugins dagegen auch den
+AGDF-MCP-Server.
 Der öffentliche OpenAI-Kandidat bleibt ein Skills-only-Payload ohne MCP-Laufzeit und
 Lifecycle-Metadaten.
 
@@ -430,7 +448,53 @@ erzeugtes Payload, Paket, installierten Root, native Registrierung, geladene Sit
 Verhalten. Nach Installation oder Registrierung ist ein vollständiger Host-Neustart mit einer neuen
 Sitzung erforderlich. Eine wiederhergestellte alte Sitzung kann weiterhin veraltete Inhalte halten.
 
-### 6.1 Wie der Plugin-Root gewählt wird
+### 6.1 Plugin-MCP für Claude Code und Codex
+
+Das Laufzeit-Plugin enthält unter `mcp/` den Launcher `agdf-mcp-launch.js`, eine Kopie von
+`@agdf/mcp-server` und die passende Dispatcher-Laufzeit
+([`sync-plugin-mcp.js`](../../scripts/sync-plugin-mcp.js)). Die Hosts finden den Server über
+unterschiedliche Deklarationen:
+
+| Host | Deklaration | Laufzeitort |
+|---|---|---|
+| Claude Code | `mcpServers: ./mcp/claude.mcp.json` im Plugin-Manifest | `${CLAUDE_PLUGIN_DATA}`, standardmäßig `~/.claude/plugins/data/agdf-agdf`. Claude Code löscht das Verzeichnis bei der Deinstallation. |
+| Codex | `mcp.json` im Plugin-Root; der Installer schreibt die absoluten Pfade | Ein AGDF-eigenes Datenverzeichnis (`--data`). `codex plugin remove` löscht es nicht; die AGDF-Deinstallation entfernt es nur, wenn es ausschließlich eigene Laufzeiten enthält. |
+
+Der Installer versucht, die Laufzeit vorzubereiten (`--prepare`). Gelingt das nicht, meldet er
+`<host>_plugin_mcp:deferred_to_first_start`
+([`host-adapters/claude/plugin-mcp.js`](../../packages/cli/lib/host-adapters/claude/plugin-mcp.js),
+[`host-adapters/codex/plugin-mcp.js`](../../packages/cli/lib/host-adapters/codex/plugin-mcp.js)).
+Server und Dispatcher stammen aus dem Plugin. Nur das SDK bezieht der Launcher einmalig von npm.
+Das Plugin liefert dafür unter `mcp/sdk/` ein Laufzeit-Lockfile mit `package.json` und einen
+Soll-Digest (`expected-sdk.json`). Der Launcher installiert per
+`npm ci --ignore-scripts --omit=dev` in ein Stage-Verzeichnis; npm prüft dabei jedes Paket gegen den
+gesperrten Integritäts-Hash. Vor der Übernahme muss der Stage genau die gesperrten Pakete enthalten
+(`AGDF_MCP_SDK_PACKAGE_SET_MISMATCH`) und sein SDK-Digest dem Sollwert entsprechen
+(`AGDF_MCP_SDK_DIGEST_MISMATCH`). Bei jedem Start vergleicht der Launcher eine vorhandene Laufzeit
+erneut mit dem Sollwert und bereitet sie bei Abweichung neu vor
+([`plugin-runtime.js`](../../packages/cli/lib/mcp-lifecycle/plugin-runtime.js),
+[`package.js`](../../packages/cli/lib/mcp-lifecycle/package.js)).
+
+Lockfile und Sollwert erzeugt [`sync-plugin-mcp.js`](../../scripts/sync-plugin-mcp.js) aus
+`packages/mcp-server/package-lock.json` und der committeten Datei
+`packages/mcp-server/sdk-runtime-digest.json`. Diese Datei schreibt `npm run mcp:sdk-digest` nach
+einem SDK-Update; ein Test vergleicht sie mit dem installierten, geprüften Baum.
+
+Mit `AGDF_MCP_ALLOW_UNVERIFIED_SDK=1` lässt sich die Prüfung bewusst abschalten, etwa für einen
+Registry-Mirror mit abweichenden Paketen. Der Launcher installiert dann ohne Lockfile, vermerkt
+`sdk_verification: unverified_override` im Laufzeit-Marker und meldet
+`AGDF_MCP_SDK_UNVERIFIED_OVERRIDE` bei Vorbereitung und jedem Start. Ohne die Variable wird eine so
+installierte Laufzeit beim nächsten Start ersetzt.
+
+Der registrierte MCP-Weg für OpenCode und GitHub Copilot (`mcp enable`) installiert
+`@agdf/mcp-server` weiterhin ohne Lockfile und Sollwert. Diese Lücke ist als eigene Folgearbeit
+offen.
+
+Daraus folgt: Die Vorbereitung durch den Installer oder der erste Serverstart benötigen Zugang zur
+npm-Registry, gegebenenfalls über den in npm konfigurierten Proxy. Ohne diesen Zugang startet der
+Plugin-MCP nicht; Skills und Hooks des Plugins bleiben davon unberührt. Die Bedienung beschreibt [INSTALL.md](../../INSTALL.md#claude-code-and-codex-mcp-lives-in-the-plugin).
+
+### 6.2 Wie der Plugin-Root gewählt wird
 
 Codex und Claude Code können dem gestarteten Plugin-Prozess beide bekannten Root-Variablen
 mitgeben. AGDF darf daraus keinen gemeinsamen Pfad zusammensetzen. Der aktive Host bestimmt die
@@ -573,7 +637,7 @@ getrennte Remote-Dienste oder formale C4-Container darzustellen.
 Die Abbildungen liegen als SVG-Dateien vor. Ihre Graphviz-DOT-Quellen liegen jeweils daneben. Alle
 wesentlichen Aussagen stehen zusätzlich im Text. Farben unterstützen die Orientierung: Violett
 steht für den Host, Gelb für Anweisungen oder Verträge, Grün für gemeinsame AGDF-Funktionen und Blau
-für Zustand oder Nachweise.
+für Zustand oder Nachweise, Grau für externe Quellen wie die npm-Registry.
 
 Nach einer Änderung lässt sich eine Grafik beispielsweise so neu erzeugen:
 

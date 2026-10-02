@@ -17,7 +17,7 @@ try {
   const root = join(temporary, "project");
   mkdirSync(root);
   execFileSync("git", ["init", "-q", root]);
-  execFileSync(process.execPath, [sourceCli, "init", "--dir", root], { stdio: "pipe" });
+  execFileSync(process.execPath, [sourceCli, "init", "--dir", root, "--language", "en"], { stdio: "pipe" });
   const env = { ...process.env, AGDF_SURFACE: "codex", PLUGIN_ROOT: plugin };
   delete env.AGDF_RUN_ID;
   const call = (...args) => {

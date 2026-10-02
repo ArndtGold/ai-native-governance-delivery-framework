@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, existsSync } from "node:fs";
+import { cpSync, existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { pluginDefinition } from "../../packages/cli/lib/cli/runtime-context.js";
@@ -12,11 +12,20 @@ export const version = pluginDefinition.version;
 const sdkSource = join(packageRoot, "..", "mcp-server", "node_modules");
 assert.ok(existsSync(join(pluginRoot, "mcp", "agdf-mcp-launch.js")), "run sync-package-assets before this test");
 
-// Replaces `npm install @modelcontextprotocol/server@2.0.0` by copying the pinned SDK closure.
+// Replaces `npm ci` against the shipped mcp/sdk lock (or, under the override, `npm install
+// @modelcontextprotocol/server@2.0.0`) by copying the pinned SDK closure.
 export const npmCalls = [];
 export const offlineNpm = (_executable, args, options) => {
-  npmCalls.push(args.at(-1));
-  assert.equal(args.at(-1), "@modelcontextprotocol/server@2.0.0", "only the pinned SDK is acquired from npm");
+  const command = args.includes("ci") ? "ci" : args.at(-1);
+  npmCalls.push(command);
+  assert.ok(args.includes("--ignore-scripts"), "npm never runs install scripts");
+  if (command === "ci") {
+    assert.ok(args.includes("--omit=dev"), "the locked install omits dev dependencies");
+    assert.equal(readFileSync(join(options.cwd, "package-lock.json"), "utf8"),
+      readFileSync(join(pluginRoot, "mcp", "sdk", "package-lock.json"), "utf8"), "npm ci uses the lock shipped with the plugin");
+  } else {
+    assert.equal(command, "@modelcontextprotocol/server@2.0.0", "only the pinned SDK is acquired from npm");
+  }
   for (const entry of ["@modelcontextprotocol/server", "@modelcontextprotocol/core", "zod"]) {
     cpSync(join(sdkSource, entry), join(options.cwd, "node_modules", entry), { recursive: true });
   }

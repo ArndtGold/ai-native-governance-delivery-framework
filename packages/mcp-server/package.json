@@ -23,7 +23,8 @@
     "test:provenance": "node ./test/provenance.test.js",
     "test:performance": "node ./test/performance.test.js",
     "test:package": "node ./test/package.test.js",
-    "test": "npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package"
+    "test": "npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest",
+    "test:sdk-digest": "node ./test/sdk-digest.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",

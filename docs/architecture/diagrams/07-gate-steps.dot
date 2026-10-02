@@ -1,0 +1,60 @@
+digraph gate_steps {
+  graph [rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.45, ranksep=0.42, fontname="Helvetica", label="07  /  GATES UND SCHRITTARTEN", labelloc=t, labeljust=l, fontsize=22, fontcolor="#17324D"];
+  node [shape=box, style="rounded,filled", color="#2D8B7B", fillcolor="#DDF4EE", fontname="Helvetica", fontsize=14, margin="0.19,0.12", penwidth=1.3];
+  edge [color="#52667A", arrowsize=0.75, fontname="Helvetica", fontsize=11, fontcolor="#354D61"];
+
+  // Gate mit Freigabe: blau, dicker Rand
+  ur [label="UR\nFreigabe: Mensch", fillcolor="#E5F0FC", color="#5284AD", penwidth=2.4];
+  prd [label="PRD\nFreigabe: Mensch", fillcolor="#E5F0FC", color="#5284AD", penwidth=2.4];
+  sd [label="SD\nFreigabe: Mensch", fillcolor="#E5F0FC", color="#5284AD", penwidth=2.4];
+  tp [label="TP\nFreigabe: Mensch", fillcolor="#E5F0FC", color="#5284AD", penwidth=2.4];
+  qa [label="QA\nqa-gate bewertet · Freigabe: Mensch", fillcolor="#E5F0FC", color="#5284AD", penwidth=2.4];
+  uat [label="UAT\nFreigabe: Mensch", fillcolor="#E5F0FC", color="#5284AD", penwidth=2.4];
+
+  // Pflichtschritt: grün
+  review [label="Brownfield Review\nmit Mode/Slice Decision"];
+  analysis [label="Brownfield Analysis"];
+  cdtests [label="CD+Tests\nUmsetzung und Tests"];
+  reviews [label="Task Plan Review ·Clean Implementation Review\nCode Review"];
+  or [label="OR\nAbschlussbericht"];
+
+  // Bedingter Schritt: gelb, gestrichelt
+  ux [label="UX Intent Definition\nnur wenn die Bedingung zutrifft\nbei blocked bleibt das PRD unfertig", style="rounded,filled,dashed", fillcolor="#FFF2CF", color="#BF9840", penwidth=1.6];
+
+  // Kurze Wege und Stopp: grau / rot
+  quick [label="Quick Task\nkleine Änderung + Prüfungen", fillcolor="#F3F6F8", color="#97A6B3"];
+  verified [label="Verified Change\nmaschinell geprüfter Kurzweg", fillcolor="#F3F6F8", color="#97A6B3"];
+  block [label="Stopp\nWeg ist nicht klar genug", fillcolor="#FCE8E4", color="#B5675A"];
+
+  legend [shape=plaintext, style="", label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="6" CELLPADDING="7">
+      <TR><TD BGCOLOR="#E5F0FC" COLOR="#5284AD">Gate mit Freigabe: nur der Mensch gibt frei</TD></TR>
+      <TR><TD BGCOLOR="#DDF4EE" COLOR="#2D8B7B">Pflichtschritt: der Agent führt aus und hält fest</TD></TR>
+      <TR><TD BGCOLOR="#FFF2CF" COLOR="#BF9840" STYLE="dashed">Bedingter Schritt: nur wenn die Bedingung zutrifft</TD></TR>
+      <TR><TD BGCOLOR="#F3F6F8" COLOR="#97A6B3">Kurzer Weg: von der Mode/Slice Decision gewählt</TD></TR>
+      <TR><TD BGCOLOR="#FCE8E4" COLOR="#B5675A">Stopp: es geht erst weiter, wenn die Lücke geklärt ist</TD></TR>
+    </TABLE>
+  >, fontsize=13, fontcolor="#354D61"];
+
+  ur -> review;
+  review -> quick [label="quick_task"];
+  review -> verified [label="verified_change"];
+  review -> block [label="block"];
+  review -> ux [label="strukturierter Weg\nui_ux_impact medium / high\n(low: nur bei unklarer UX)", style=dashed, color="#BF9840", fontcolor="#8A6A25"];
+  review -> prd [label="strukturierter Weg\nui_ux_impact none / low"];
+  ux -> prd [label="ready"];
+  verified -> prd [label="Eskalation", style=dashed, constraint=false];
+  prd -> sd;
+  sd -> tp;
+  tp -> analysis;
+  analysis -> cdtests;
+  cdtests -> reviews;
+  reviews -> qa;
+  qa -> uat [label="pass"];
+  uat -> or;
+  quick -> or [label="OR-lite", style=dashed];
+  verified -> or [label="Mini-Abschluss", style=dashed];
+  or -> legend [style=invis];
+
+  {rank=same; quick; verified; block; ux;}
+}

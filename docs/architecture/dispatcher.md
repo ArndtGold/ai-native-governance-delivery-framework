@@ -1,6 +1,6 @@
 # Dispatcher: Architektur und Use Cases
 
-**Stand: 30. September 2026, Repository-Quelle.** Dieses Dokument erklärt den implementierten
+**Stand: 2. Oktober 2026, Repository-Quelle.** Dieses Dokument erklärt den implementierten
 Dispatcher. Es belegt weder die Veröffentlichung eines Pakets noch das Verhalten einer geladenen
 Host-Sitzung. Die [Architekturübersicht](README.md) ordnet ihn in das Gesamtsystem ein.
 
@@ -67,6 +67,75 @@ Die Ausgabefelder haben unterschiedliche Aufgaben:
 | `control.missing_approval` | Noch ausstehende menschliche Freigabe. |
 | `continuation.phase` | Anlass der begrenzten Fortsetzung; kein zusätzlicher Ergebnistyp. |
 | `host_action` | Verbindliche Behandlung des Ergebnisses durch den Aufrufer. |
+
+## Schrittklassen
+
+Ein Run besteht aus drei Arten von Schritten. Sie unterscheiden sich darin, wer entscheidet.
+
+| Art | Schritte | Wer entscheidet |
+|---|---|---|
+| **Gate mit Freigabe** | UR, PRD, SD, TP, QA, UAT | Nur der Mensch. |
+| **Pflichtschritt** | Brownfield Review mit Mode/Slice Decision, Brownfield Analysis, CD+Tests, Task Plan Review, Clean Implementation Review, Code Review, OR | Der Agent. Er führt den Schritt aus und hält das Ergebnis fest. |
+| **Bedingter Schritt** | UX Intent Definition | Der Agent, aber nur wenn die Bedingung zutrifft. |
+
+![Ablauf von UR bis OR mit den drei Schrittarten und den kurzen Wegen Quick Task und Verified Change](diagrams/07-gate-steps.svg)
+
+*Die Mode/Slice Decision wählt den Weg. Nur der strukturierte Weg führt durch PRD, SD, TP,
+Brownfield Analysis, die Reviews, QA und UAT. Quick Task und Verified Change enden mit einem kurzen
+Abschluss. Verified Change kann in den strukturierten Weg wechseln.
+[Diagrammquelle](diagrams/07-gate-steps.dot).*
+
+Die fachliche Beschreibung jedes Schritts steht in [02 - Gates](../02-gates.md). Dort heißen UR,
+PRD, SD und TP auch G-00 bis G-03.
+
+**Gate mit Freigabe.** Der Agent bereitet die Entscheidung vor und zeigt sie mit `run-present` an.
+Danach wartet er auf eine neue Antwort des Menschen. Erst diese Antwort gibt das Gate frei. Der
+Skill `qa-gate` bewertet die Qualität mit `pass`, `revise` oder `block`. Die Freigabe `Approval: QA`
+erteilt trotzdem der Mensch. Im Dispatcher: UC-D10, UC-D11 und UC-D13.
+
+**Pflichtschritt.** Der Agent muss den Schritt ausführen. Er gibt damit nichts frei und erhält
+keine Erlaubnis zur Umsetzung. Danach prüft der Dispatcher den Run erneut. Wann ein Pflichtschritt
+dran ist:
+
+- Brownfield Review: immer nach der Freigabe des UR.
+- Brownfield Analysis: nach der Freigabe des TP. Ist sie bestanden, darf die Umsetzung beginnen
+  (in 02 - Gates: G-04 Implementation Entry).
+- CD+Tests, danach Task Plan Review, Clean Implementation Review und Code Review: vor QA.
+- OR: nach der Freigabe der UAT.
+
+Im Dispatcher: UC-D09, UC-D12 und UC-D14.
+
+**Bedingter Schritt.** Der Brownfield Review bewertet, wie stark der Auftrag die Bedienung betrifft
+(`ui_ux_impact`):
+
+- `medium` oder `high`: Die UX Intent Definition ist Pflicht, bevor das PRD als fertig gelten darf.
+- `low`: Sie ist nur Pflicht, wenn für das PRD noch unklar ist, wie sich die Bedienung verhalten soll.
+- `none`: Der Schritt entfällt.
+
+Die UX Intent Definition endet mit `ready`, `blocked` oder `not_applicable`. Sie gibt nichts frei.
+Bei `blocked` darf das PRD nicht als fertig gelten. Der Dispatcher hat für diesen Schritt keinen
+eigenen Fall.
+
+Welche Schritte zu welcher Art gehören, steht im Code: `userGateOrder`, `internalStepArtefacts` und
+`closeoutArtefacts` in [`run-state.js`](../../packages/core/lib/control-evaluation/run-state.js).
+Die Regeln, wann ein Schritt nötig ist, stehen im
+[Gate-Übergangsvertrag](../../plugins/agdf/meta/contracts/gate-transition.md).
+
+### Bekannte Grenze: Bedingte Schritte prüft nur der Agent
+
+Die Regel für die UX Intent Definition prüft keine Software. Weder Gate-Evaluator noch Dispatcher
+lesen `ui_ux_impact`. Ob das PRD bei `medium` oder `high` ohne UX Intent Definition unfertig
+bleibt, hängt davon ab, dass der Agent den Vertrag befolgt.
+
+Eine Sperre durch Software gibt es erst bei QA: QA kann nicht bestehen, wenn die UX-Anforderungen
+nicht vollständig umgesetzt sind oder Befunde offen sind. Ein Fehler fällt also auf, aber erst spät.
+
+Diese Grenze ist bewusst so entschieden. Der Run `prd-ux-intent-requirements` hat keinen eigenen
+Evaluator eingeführt ([SD](../../.agdf/control/artefacts/prd-ux-intent-requirements/SD.md)) und
+das Risiko im [OR](../../.agdf/control/artefacts/prd-ux-intent-requirements/OR.md) festgehalten.
+Soll die Software die Regel selbst prüfen, braucht es einen eigenen Run. Dann würde der
+Gate-Evaluator die Bedingung auswerten und den Schritt als `next_operation` melden. Der Dispatcher
+würde ihn wie jeden anderen Pflichtschritt weitergeben.
 
 ## Use-Case-Katalog
 
@@ -135,6 +204,7 @@ Evaluator-Operation, kein siebter oder achter Ergebnistyp.
 | Eingabe, Ergebnisse, Host-Aktion und Routing | [Vertrag](../../packages/core/lib/skill-dispatch/contract.js), [Service](../../packages/core/lib/skill-dispatch/service.js) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js), [Funktionsvertrag](../../packages/cli/scripts/skill-dispatch-function-contract-test.js) |
 | Aktivierung und Interaktion | [Request Activation](../../plugins/agdf/meta/contracts/request-activation.md), [Interaktion](../../plugins/agdf/meta/contracts/interaction.md) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js) für Runtime-Verhalten; die anfragebezogene Aktivierung durch den Agenten braucht eigene Host-Evidenz. |
 | Run-Zuordnung und Intake | [Zuordnung](../../packages/core/lib/skill-dispatch/delivery-run-assignment.js), [Intake](../../packages/core/lib/skill-dispatch/delivery-intake.js) | [Zuordnungs-Tests](../../packages/cli/scripts/delivery-run-assignment-test.js) |
+| Schrittklassen und Regeln für bedingte Schritte | [Run-Zustand](../../packages/core/lib/control-evaluation/run-state.js), [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md) | Bedingte Schritte: keine Prüfung durch Software, siehe [bekannte Grenze](#bekannte-grenze-bedingte-schritte-prüft-nur-der-agent) |
 | Gate-Routing und Artefaktvorbereitung | [Gate-Evaluator](../../packages/core/lib/control-evaluation/gate-check.js), [Vorbereitungsvertrag](../../plugins/agdf/meta/contracts/gate-artifact-preparation.md), [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js) |
 | Präsentationsbindung und Freigabeprüfung | [Präsentations-Writer](../../packages/core/lib/control-state/run-presentation.js), [Approval-Validator](../../packages/core/lib/control-state/gate-approval-validator.js) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js) für die Übergabe an den Writer |
 | MCP-Projektion | [MCP-Laufzeit](../../packages/cli/lib/mcp-dispatch-runtime.js), [Server](../../packages/mcp-server/src/server.js) | [Protokoll](../../packages/mcp-server/test/protocol.test.js), [Fortsetzungen](../../packages/mcp-server/test/continuation.test.js) |

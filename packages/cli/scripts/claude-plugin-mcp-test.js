@@ -32,7 +32,7 @@ try {
   delete env.CLAUDE_PLUGIN_DATA;
   const missingData = spawnSync(process.execPath, [launcher], { encoding: "utf8", env });
   assert.equal(missingData.status, 1);
-  assert.equal(missingData.stderr.trim(), "AGDF_MCP_PLUGIN_DATA_MISSING");
+  assert.match(missingData.stderr.trim(), /^AGDF_MCP_PLUGIN_DATA_MISSING: .+. Reinstall the AGDF plugin and restart.$/u, "one line with code, cause and recovery");
   const extraArgument = spawnSync(process.execPath, [launcher, "--surface", "claude"], { encoding: "utf8", env: { ...process.env, CLAUDE_PLUGIN_DATA: dataRoot } });
   assert.equal(extraArgument.stderr.trim(), "AGDF_MCP_ARGUMENTS_INVALID");
 

@@ -6,6 +6,7 @@ import {
   mkdirSync,
   mkdtempSync,
   realpathSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -127,9 +128,44 @@ export function inspectMcpServerPackage({ dataRoot, expectedVersion } = {}) {
       nodeExecutable: typeof marker.node_executable === "string" ? marker.node_executable : null,
       references: Object.freeze(Array.isArray(marker.references) ? marker.references : []),
       markerSchemaVersion: marker.schema_version,
+      sdkVerification: typeof marker.sdk_verification === "string" ? marker.sdk_verification : null,
     });
   } catch {
     return Object.freeze({ status: "mismatch", root, entrypoint: null, digest: null });
+  }
+}
+
+// Names of all packages installed under root/node_modules, scoped included; npm's dot entries
+// (.bin, .package-lock.json) are bookkeeping, not packages.
+function installedPackageNames(root) {
+  const modules = join(root, "node_modules");
+  const names = [];
+  for (const name of readdirSync(modules)) {
+    if (name.startsWith(".")) continue;
+    if (name.startsWith("@")) {
+      for (const scoped of readdirSync(join(modules, name))) if (!scoped.startsWith(".")) names.push(`${name}/${scoped}`);
+    } else {
+      names.push(name);
+    }
+  }
+  return names.sort();
+}
+
+// The plugin ships the server and dispatcher itself; everything else in the stage must be the locked SDK.
+const PLUGIN_SHIPPED_PACKAGES = Object.freeze(["@agdf/mcp-server", "create-agdf"]);
+
+function verifyStageSdk({ stage, expectedSdk }) {
+  const locked = Array.isArray(expectedSdk.packages) ? expectedSdk.packages : [];
+  const expectedNames = [...locked.map((entry) => entry.name), ...PLUGIN_SHIPPED_PACKAGES].sort();
+  const versionsMatch = locked.every((entry) => {
+    try { return readJson(join(stage, "node_modules", entry.name, "package.json"), "").version === entry.version; }
+    catch { return false; }
+  });
+  if (!locked.length || JSON.stringify(installedPackageNames(stage)) !== JSON.stringify(expectedNames) || !versionsMatch) {
+    throw new Error("AGDF_MCP_SDK_PACKAGE_SET_MISMATCH");
+  }
+  if (typeof expectedSdk.sdk_digest !== "string" || digestMcpSdkRuntime(stage) !== expectedSdk.sdk_digest) {
+    throw new Error("AGDF_MCP_SDK_DIGEST_MISMATCH");
   }
 }
 
@@ -145,6 +181,11 @@ export function prepareMcpServerPackage({
   // Fills stage/node_modules; the plugin-local runtime installs only the SDK from npm and copies the
   // server and dispatcher it ships. Validation, digests and the owned marker stay shared.
   acquire = null,
+  // { packages: [{ name, version }], sdk_digest }: the exact SDK tree a stage must contain before it is
+  // committed. Omitted by the registered MCP path, which keeps its previous checks.
+  expectedSdk = null,
+  // Recorded in the marker as sdk_verification when set ("verified" | "unverified_override").
+  sdkVerification = null,
 } = {}) {
   if (!dataRoot || !expectedVersion || typeof packageSpec !== "string" || !packageSpec.trim()
       || (dispatcherPackageSpec !== null && (typeof dispatcherPackageSpec !== "string" || !dispatcherPackageSpec.trim()))) {
@@ -171,7 +212,13 @@ export function prepareMcpServerPackage({
       try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
       catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
     };
-    if (acquire) acquire({ stage, install });
+    // Installs exactly the stage's package-lock.json; npm verifies every tarball against its integrity.
+    const installLocked = () => {
+      const invocation = npmInvocation(["ci", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev"], { execPath, ...npmOptions });
+      try { exec(invocation.executable, invocation.args, { cwd: stage, stdio: "pipe" }); }
+      catch { throw new Error("AGDF_MCP_PACKAGE_ACQUISITION_FAILED"); }
+    };
+    if (acquire) acquire({ stage, install, installLocked });
     else install([packageSpec, ...(dispatcherPackageSpec ? [dispatcherPackageSpec] : [])]);
     const packageRoot = join(stage, "node_modules", "@agdf", "mcp-server");
     const dispatcherRoot = join(stage, "node_modules", "create-agdf");
@@ -202,6 +249,8 @@ export function prepareMcpServerPackage({
     if (!existsSync(entrypoint) || !lstatSync(entrypoint).isFile() || lstatSync(entrypoint).isSymbolicLink()) {
       throw new Error("AGDF_MCP_SERVER_ENTRYPOINT_INVALID");
     }
+    // The exact package set is checked before any digest walks the tree.
+    if (expectedSdk) verifyStageSdk({ stage, expectedSdk });
     const serverDigest = digestDirectory(packageRoot);
     const dispatcherDigest = digestMcpDispatcherPackage(dispatcherRoot);
     const sdkDigest = digestMcpSdkRuntime(stage);
@@ -212,6 +261,7 @@ export function prepareMcpServerPackage({
       server_digest: serverDigest,
       dispatcher_digest: dispatcherDigest,
       sdk_digest: sdkDigest,
+      ...(sdkVerification ? { sdk_verification: sdkVerification } : {}),
       node_executable: execPath,
       references: [],
     }, null, 2)}\n`, "utf8");

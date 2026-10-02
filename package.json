@@ -24,7 +24,8 @@
     "native:codex-mcp-probe": "bash scripts/native-probes/codex-plugin-mcp-probe.sh",
     "build": "node scripts/sync-package-assets.js && node scripts/assemble-npm.mjs",
     "sync-package-assets": "node scripts/sync-package-assets.js",
-    "pack": "npm run build && node scripts/pack-npm.mjs"
+    "pack": "npm run build && node scripts/pack-npm.mjs",
+    "mcp:sdk-digest": "node scripts/write-mcp-sdk-digest.mjs"
   },
   "devDependencies": {
     "acorn": "8.17.0",

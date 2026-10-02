@@ -68,7 +68,7 @@ try {
     ensure(input) { ensured.push(input); return { status: "matched", version, root: "/r", changed: false }; },
   });
   assert.equal(prepared.status, "matched");
-  assert.deepEqual(ensured, [{ pluginRoot, dataRoot: args[4] }]);
+  assert.deepEqual(ensured, [{ pluginRoot, dataRoot: args[4], env: {} }]);
 
   // The installer prewarm reuses exactly the installed declaration.
   const prewarm = [];

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { TextDecoder } from "node:util";
 import { resolvedArtefactFile } from "../control-evaluation/run-state.js";
-import { interactionLocales } from "../resources/context.js";
+import { interactionLocales, resolveConfiguredArtifactLanguage } from "../resources/context.js";
 import { localePack, resolvePresentationLocale } from "../interaction-presentation.js";
 
 // Read-only approval rendering. gate-check (and with it the MCP dispatcher) imports this module;
@@ -187,16 +187,14 @@ function sectionBody(markdown, pattern, contentPattern = null, maxItems = 3) {
   return [];
 }
 
-function artifactSummary(gate, markdown, { runId, revisionId, language }) {
+function artifactSummary(gate, markdown, { runId, revisionId, language, sourceLanguage }) {
   const locale = resolvePresentationLocale(interactionLocales, language);
   const pack = localePack(interactionLocales, locale);
   const german = locale.split("-")[0] === "de";
   const source = substantiveMarkdown(markdown);
-  const sourceLanguage = detectSourceLanguage(source);
-  if (!sourceLanguage) throw new Error("approval_summary_source_language_unknown");
   const presentationLanguage = locale.split("-")[0];
   const sourceLanguageNote = sourceLanguage !== presentationLanguage
-    ? `- ${pack.statusCard.sourceLanguage}: ${pack.statusCard[sourceLanguage === "en" ? "languageEnglish" : "languageGerman"]} · ${pack.statusCard.originalLanguageExcerpts}`
+    ? `- ${pack.statusCard.sourceLanguage}: ${pack.statusCard[{ en: "languageEnglish", de: "languageGerman" }[sourceLanguage]] ?? sourceLanguage} · ${pack.statusCard.originalLanguageExcerpts}`
     : "";
   const items = [];
   if (sourceLanguage !== presentationLanguage) {
@@ -243,20 +241,6 @@ function artifactSummary(gate, markdown, { runId, revisionId, language }) {
   return { markdown: summary, digest: hash(summary) };
 }
 
-function detectSourceLanguage(markdown) {
-  const text = ` ${compactSummaryText(markdown).toLowerCase()} `;
-  const markers = {
-    en: ["the", "and", "before", "after", "this", "user", "users", "review", "draft", "scope", "success", "approval", "linked", "must", "should", "with", "from", "for"],
-    de: ["der", "die", "das", "und", "vor", "nach", "diese", "dieser", "du", "nutzer", "prüfen", "entwurf", "umfang", "erfolg", "freigabe", "mit", "für", "aus", "wird", "soll", "darf"],
-  };
-  const score = Object.fromEntries(Object.entries(markers).map(([language, words]) => [language,
-    words.reduce((count, word) => count + (text.match(new RegExp(`\\b${word}\\b`, "gu"))?.length ?? 0), 0),
-  ]));
-  if (score.en >= 3 && score.en >= score.de + 3) return "en";
-  if (score.de >= 3 && score.de >= score.en + 3) return "de";
-  return "";
-}
-
 export function renderReviewableApproval(root, report, { runId, gate, revisionId }, runState) {
   const p = report.approval_presentation;
   if (!p) return null;
@@ -285,13 +269,13 @@ export function renderReviewableApproval(root, report, { runId, gate, revisionId
     try { contentText = new TextDecoder("utf-8", { fatal: true }).decode(content); }
     catch { throw new Error("approval_artefact_encoding_invalid"); }
     let summary;
+    const sourceLanguage = resolveConfiguredArtifactLanguage(root);
     try {
-      summary = artifactSummary(gate, contentText, { runId, revisionId, language: p.presentation_language });
+      summary = artifactSummary(gate, contentText, { runId, revisionId, language: p.presentation_language, sourceLanguage });
     } catch (error) {
       if (String(error?.message ?? "").startsWith("approval_summary_")) {
         const locale = resolvePresentationLocale(interactionLocales, p.presentation_language);
         const pack = localePack(interactionLocales, locale);
-        const sourceLanguage = detectSourceLanguage(substantiveMarkdown(contentText)) || "unknown";
         const languageName = pack.statusCard[locale.split("-")[0] === "de" ? "languageGerman" : "languageEnglish"];
         const artifactLabel = german ? "Artefakt" : "Artefact";
         const requiredHeading = `AGDF Approval Summary (${locale}; source=${sourceLanguage})`;

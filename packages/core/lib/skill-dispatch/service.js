@@ -13,12 +13,15 @@ const milliseconds = (start, end) => Number(end - start) / 1_000_000;
 const round = (value) => Math.round(Math.max(0, value) * 1000) / 1000;
 
 class SkillDispatchRuntimeError extends Error {
-  constructor(code) {
+  constructor(code, details = "") {
     super(code);
     this.name = "SkillDispatchRuntimeError";
     this.code = code;
+    this.details = details;
   }
 }
+
+const presentationRecovery = (control) => String(control?.presentation_diagnostics?.approval_presentation_recovery ?? "").trim();
 
 function runDispatchStage(code, callback) {
   try {
@@ -420,7 +423,7 @@ export function createSkillDispatchService(dependencies = {}) {
       if (control.status_card?.interaction_kind === "gate_approval"
           && isReadyUserGateApproval({ status: control.status, currentGate: control.current_gate, missingApproval: control.missing_approval })
           && !control.approval_presentation?.markdown) {
-        throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
+        throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
       }
       const nextSkillId = control.status_card?.next_skill;
       const routeNextSkill = input.continue_delivery && !control.approval_presentation?.markdown
@@ -461,7 +464,7 @@ export function createSkillDispatchService(dependencies = {}) {
           ? { markdown: control.approval_presentation.preview_markdown, authorizes: false }
           : control.status_presentation;
         if (!presentation) {
-          throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed);
+          throw new SkillDispatchRuntimeError(DISPATCH_RECOVERY.control_presentation_failed, presentationRecovery(control));
         }
         const result = baseResult({ outcome: "control_result", terminal: true, skill, runtime, timing });
         result.target = target;
@@ -505,7 +508,7 @@ export function createSkillDispatchService(dependencies = {}) {
         recoveryAction = null;
       }
       result.recovery = {
-        action: recoveryAction ?? "Repair the installed locale registry and retry once.",
+        action: [recoveryAction ?? "Repair the installed locale registry and retry once.", error?.details].filter(Boolean).join("\n\n"),
       };
       result.diagnostics = [{ code: `dispatch_${recoveryCode}` }];
       timing.total_ms = round(milliseconds(started, now()));

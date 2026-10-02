@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { mcpPackageConstants } from "../lib/mcp-lifecycle/package.js";
-import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, parseLauncherArguments } from "../lib/mcp-lifecycle/plugin-runtime.js";
+import { ensurePluginMcpRuntime, inspectPluginMcpDataRoot, launchPluginMcpServer, launcherFailureLine, parseLauncherArguments } from "../lib/mcp-lifecycle/plugin-runtime.js";
 import { npmCalls, offlineNpm, pluginRoot, version } from "../../../scripts/support/plugin-mcp-fixture.js";
 
 // Shared plugin-local MCP runtime used by every host whose runtime plugin declares the server itself.
@@ -87,6 +87,94 @@ assert.deepEqual(parseLauncherArguments(["--surface", "codex", "--data", absolut
 assert.deepEqual(parseLauncherArguments(["--surface", "codex", "--data", absolute, "--prepare"], {}), { surface: "codex", dataRoot: absolute, prepareOnly: true });
 for (const invalid of [["--surface", "claude"], ["--surface", "codex", "--data", "relative"], ["--surface", "codex"], ["--unknown"]]) {
   assert.equal(parseLauncherArguments(invalid, {}), null, invalid.join(" "));
+}
+
+// The SDK is installed only as the locked tree shipped with the plugin and must match its expected digest.
+const sdkRoot = mkdtempSync(join(tmpdir(), "agdf-plugin-mcp-sdk-"));
+try {
+  const markerOf = (runtime) => JSON.parse(readFileSync(join(runtime.root, mcpPackageConstants.marker), "utf8"));
+  const runtimeAt = (dataRoot) => join(dataRoot, "mcp", version);
+  const variant = (mutate) => (executable, args, options) => {
+    const result = offlineNpm(executable, args, options);
+    mutate(join(options.cwd, "node_modules"));
+    return result;
+  };
+
+  // SCN-001: a fresh preparation runs `npm ci` against the shipped lock and records a verified runtime.
+  npmCalls.length = 0;
+  const fresh = ensurePluginMcpRuntime({ pluginRoot, dataRoot: join(sdkRoot, "fresh"), exec: offlineNpm, env: {} });
+  assert.deepEqual(npmCalls, ["ci"]);
+  assert.equal(markerOf(fresh).sdk_verification, "verified");
+  assert.equal(fresh.sdkDigest, JSON.parse(readFileSync(join(pluginRoot, "mcp", "sdk", "expected-sdk.json"), "utf8")).sdk_digest);
+
+  // SCN-002 to SCN-004: an extra or missing package, or changed content, is refused and nothing is committed.
+  for (const [name, mutate, code] of [
+    ["extra", (modules) => cpSync(join(modules, "zod"), join(modules, "left-pad"), { recursive: true }), /AGDF_MCP_SDK_PACKAGE_SET_MISMATCH/],
+    ["missing", (modules) => rmSync(join(modules, "zod"), { recursive: true, force: true }), /AGDF_MCP_SDK_PACKAGE_SET_MISMATCH/],
+    ["changed", (modules) => writeFileSync(join(modules, "zod", "package.json"), `${readFileSync(join(modules, "zod", "package.json"), "utf8")}\n`), /AGDF_MCP_SDK_DIGEST_MISMATCH/],
+  ]) {
+    const dataRoot = join(sdkRoot, name);
+    assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot, exec: variant(mutate), env: {} }), code, name);
+    assert.equal(existsSync(runtimeAt(dataRoot)), false, `${name}: no runtime is committed`);
+  }
+
+  // SCN-005: an npm integrity or network failure leaves no committed runtime.
+  const failed = join(sdkRoot, "integrity");
+  assert.throws(() => ensurePluginMcpRuntime({ pluginRoot, dataRoot: failed, exec() { throw new Error("EINTEGRITY"); }, env: {} }), /AGDF_MCP_PACKAGE_ACQUISITION_FAILED/);
+  assert.equal(existsSync(runtimeAt(failed)), false);
+
+  // SCN-006 and SCN-007: a matching runtime is reused offline; a tampered SDK file forces one locked reinstall.
+  const reusedRoot = join(sdkRoot, "fresh");
+  assert.equal(ensurePluginMcpRuntime({ pluginRoot, dataRoot: reusedRoot, exec() { throw new Error("no npm for a verified runtime"); }, env: {} }).changed, false);
+  const zodPackage = join(runtimeAt(reusedRoot), "node_modules", "zod", "package.json");
+  writeFileSync(zodPackage, `${readFileSync(zodPackage, "utf8")}\n`);
+  npmCalls.length = 0;
+  const replaced = ensurePluginMcpRuntime({ pluginRoot, dataRoot: reusedRoot, exec: offlineNpm, env: {} });
+  assert.equal(replaced.changed, true);
+  assert.deepEqual(npmCalls, ["ci"]);
+
+  // SCN-008: the explicit override installs without verification, is recorded and announced on stderr.
+  const overrideRoot = join(sdkRoot, "override");
+  const overrideEnv = { AGDF_MCP_ALLOW_UNVERIFIED_SDK: "1", CLAUDE_PLUGIN_DATA: overrideRoot };
+  npmCalls.length = 0;
+  const unverified = ensurePluginMcpRuntime({ pluginRoot, dataRoot: overrideRoot, exec: variant(() => {}), env: overrideEnv });
+  assert.deepEqual(npmCalls, ["@modelcontextprotocol/server@2.0.0"]);
+  assert.equal(markerOf(unverified).sdk_verification, "unverified_override");
+  const warnings = [];
+  await launchPluginMcpServer({
+    pluginRoot, argv: ["--prepare"], env: overrideEnv, stdout: { write() {} }, stderr: { write(text) { warnings.push(text); } },
+    ensure: (input) => ensurePluginMcpRuntime({ ...input, exec: offlineNpm }),
+  });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /^AGDF_MCP_SDK_UNVERIFIED_OVERRIDE: AGDF_MCP_ALLOW_UNVERIFIED_SDK=1 is set/u);
+  // The warning also appears when a verified runtime is merely reused under the override.
+  const reuseWarnings = [];
+  await launchPluginMcpServer({
+    pluginRoot, argv: ["--prepare"], env: overrideEnv, stdout: { write() {} }, stderr: { write(text) { reuseWarnings.push(text); } },
+    ensure: () => ({ status: "matched", version, root: "/r", changed: false, sdkVerification: "verified" }),
+  });
+  assert.equal(reuseWarnings.length, 1);
+
+  // SCN-009: without the override the unverified runtime is replaced by a verified one.
+  npmCalls.length = 0;
+  const reverified = ensurePluginMcpRuntime({ pluginRoot, dataRoot: overrideRoot, exec: offlineNpm, env: {} });
+  assert.deepEqual(npmCalls, ["ci"]);
+  assert.equal(markerOf(reverified).sdk_verification, "verified");
+
+  // SCN-012: a refused start prints one line with stable code, cause and one recovery action.
+  const failures = [];
+  const refused = await launchPluginMcpServer({
+    pluginRoot, argv: [], env: { CLAUDE_PLUGIN_DATA: join(sdkRoot, "refused") }, stdout: { write() {} },
+    stderr: { write(text) { failures.push(text); } },
+    ensure() { throw new Error("AGDF_MCP_SDK_DIGEST_MISMATCH"); },
+  });
+  process.exitCode = 0;
+  assert.equal(refused, null);
+  assert.equal(failures.length, 1);
+  assert.match(failures[0], /^AGDF_MCP_SDK_DIGEST_MISMATCH: .+\. Check your npm registry or mirror and restart; to accept an unverified SDK deliberately, set AGDF_MCP_ALLOW_UNVERIFIED_SDK=1\.\n$/u);
+  assert.match(launcherFailureLine("AGDF_MCP_RUNTIME_UNOWNED"), /^AGDF_MCP_RUNTIME_UNOWNED: .+\. Move the directory away and restart\.$/u);
+} finally {
+  rmSync(sdkRoot, { recursive: true, force: true });
 }
 
 console.log("Plugin MCP runtime tests passed");

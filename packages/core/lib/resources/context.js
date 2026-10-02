@@ -38,3 +38,8 @@ export function resolveConfiguredChatLanguage(targetDir, context = resources) {
   try { return resolvePresentationLocale(context.interactionLocales, JSON.parse(readFileSync(configPath, "utf8")).chat_language); }
   catch { return context.interactionLocales.fallbackLocale; }
 }
+// Missing or invalid config means English artefacts.
+export function resolveConfiguredArtifactLanguage(targetDir) {
+  try { return canonicalizeLanguageTag(JSON.parse(readFileSync(join(targetDir, ".agdf", "control", "config.json"), "utf8")).artifact_language).split("-")[0] || "en"; }
+  catch { return "en"; }
+}

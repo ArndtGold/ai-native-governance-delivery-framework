@@ -1345,7 +1345,7 @@ if (claudePlugin && pluginDefinition) {
     if (!isFile(mcpConfigPath) || JSON.stringify(readJson(mcpConfigPath, "Claude MCP config")) !== JSON.stringify(expectedMcpConfig)) {
       failures.push("runtime Claude MCP config must start only the plugin-local AGDF MCP launcher");
     }
-    for (const required of ["mcp/agdf-mcp-launch.js", "mcp/server/package.json", "mcp/server/bin/agdf-mcp.js", "runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js"]) {
+    for (const required of ["mcp/agdf-mcp-launch.js", "mcp/sdk/package.json", "mcp/sdk/package-lock.json", "mcp/sdk/expected-sdk.json", "mcp/server/package.json", "mcp/server/bin/agdf-mcp.js", "runtime/create-agdf/lib/mcp-lifecycle/plugin-runtime.js"]) {
       assertFile(join(pluginRoot, required), `plugin-local Claude MCP runtime file ${required}`);
     }
   }

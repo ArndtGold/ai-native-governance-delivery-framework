@@ -70,3 +70,16 @@ The test harness comparison initially used an unselected run and a noncanonical 
 - missing_evidence: Fresh remote matrix, live host behavior and original TPR-E001/E002 remain unverified/open; existing ignored workspace payload drift is separately documented.
 - risks: npm installs a local directory snapshot rather than a build-aware link; the positive and negative ordering contract now guards both sides of this boundary.
 - required_next_step: Record CR, rerun qa-gate without waiving original obligations, and verify new CI.
+
+## Windows archive diff review — 2026-10-02
+
+- decision: pass
+- binding: dispatcher revision 29 / 4152a430-724b-46d3-82c5-74b64dc6a38d; baseline 7ecc77f
+- reviewed_scope: Both source tar callers; cwd/basename extraction, cross-drive archive handling, disposable fixture copy and original extraction layout.
+- findings: CI-009 resolved implementation_gap / CD+Tests. Source-wide tar search found only these two callers.
+- evidence: Actual Windows remote-host parsing failure; complete real control-package and three archive consumer reruns, with unchanged runtime payload/archive content semantics.
+- missing_evidence: Corrected native Windows job remains pending; original TPR-E001/E002 unchanged.
+- risks: Existing tar executable requirement retained; relative argv removes drive-letter parsing without platform-specific options.
+- required_next_step: Canonical CR record and qa-gate refresh; verify new matrix.
+
+Peer destination separators are normalized to forward slashes for GNU/MSYS tar; actual updated three-archive consumers reran successfully. Current RESULTS.json binds the final source bytes.

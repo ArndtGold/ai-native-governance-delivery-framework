@@ -1,0 +1,29 @@
+{
+  "baseline_commit": "7ecc77fb8e5c8722865978f1b43cbaafc791ba62",
+  "binding_revision_id": "4152a430-724b-46d3-82c5-74b64dc6a38d",
+  "node": "22.22.3",
+  "platform": "darwin",
+  "checks": [
+    {
+      "log": "package.log",
+      "exit_code": 0
+    },
+    {
+      "log": "pack.log",
+      "exit_code": 0
+    },
+    {
+      "log": "consumers.log",
+      "exit_code": 0
+    }
+  ],
+  "source_sha256": {
+    "packages/cli/scripts/control-command-package-test.js": "450d7799249e7d806eabe15309f152b60bad386aec5fcc6f4c52134065cfea0c",
+    "scripts/test-package-consumers.mjs": "9c0a44f2aa567aab545df2b68d962e9c33e1a96ad5e4c05a53baa3863c20f38b"
+  },
+  "verification": "Updated source copied to the actual locked-install fixture; existing control-command package suite and three-archive consumer suite rerun. No replacement full npm smoke invocation was needed for these test-only extraction edits.",
+  "limits": [
+    "Corrected Windows execution awaits next push.",
+    "Original TPR-E001/E002 and shared workspace ignored generated drift remain unchanged."
+  ]
+}

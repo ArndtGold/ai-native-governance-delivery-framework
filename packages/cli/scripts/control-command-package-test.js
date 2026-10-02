@@ -70,7 +70,8 @@ try {
   assert.ok(report.filename.endsWith(".tgz"));
   const tarballDigest = createHash("sha256").update(readFileSync(join(sandbox, report.filename))).digest("hex");
   const extract = join(sandbox, "extract"); mkdirSync(extract);
-  execFileSync("tar", ["-xzf", join(sandbox, report.filename), "-C", extract]);
+  // GNU tar treats drive-letter archive names as remote hosts; use local relative paths.
+  execFileSync("tar", ["-xzf", report.filename, "-C", "extract"], { cwd: sandbox });
   mkdirSync(dirname(externalPackage), { recursive: true });
   cpSync(join(extract, "package"), externalPackage, { recursive: true });
   const manifest = JSON.parse(readFileSync(join(externalPackage, "package.json"), "utf8"));

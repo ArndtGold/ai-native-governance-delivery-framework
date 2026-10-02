@@ -119,3 +119,18 @@ Binding: qa-gate skill_continuation; revision 28 / fd5569ef-94dd-44df-be46-2a1be
 Decisive reason: Original mandatory checkpoint/index proof obligations remain open. Permissible next step: reconcile those obligations against original evidence or the documented authoritative deviation process; do not request Approval: QA from revise.
 
 CI-008 is consumed unchanged as resolved implementation_gap / CD+Tests. Real early installation reproduces the remote ENOENT, then preparation-before-install fixes it. The complete npm smoke command, wrapper, community and 56-case compatibility check pass in the fresh source installation. Current shared-workspace ignored generated payload drift is separately documented as a verification limitation; fresh source fingerprints/snapshot pass. The next corrected GitHub matrix is pending at this recording. TPR-E001/E002 remain evidence_gap / evidence_obligation / open; no historical evidence or approval is transferred. Existing Context Graph/SoT reconciliation remains resolved. User-authorized source commit/push grants no QA/UAT/release authority.
+
+## Windows tar QA refresh — 2026-10-02
+
+Binding: qa-gate skill_continuation; revision 32 / bf3f9479-cd98-4cb7-8766-1ed19fafff58.
+
+| Quality dimension | Current evidence |
+|---|---|
+| Plan coverage | 11/13 fully_done; TPR-E001/E002 remain open |
+| Solution integrity | pass for scoped relative archive extraction; existing owner/tool retained |
+| Code quality | pass; two source callers reviewed and canonical CR recorded |
+| QA decision | revise; qa-gate sole decision owner |
+
+Decisive reason: original mandatory historical checkpoint/index evidence remains missing. Permissible next step: reconcile TPR-E001/E002 against original proof or the documented authoritative deviation process; do not request Approval: QA from revise.
+
+CI-009 is consumed unchanged as resolved implementation_gap / CD+Tests. Complete real control-package and all three archive-consumer suites pass locally. The prior 7ecc77f remote Linux22/Linux24 and compatibility recording passed; Windows failed on GNU tar interpreting C: as a remote host, and corrected execution awaits the next push. The two source callers now use relative local archive paths; no OS test skip, runtime dependency, owner or fallback was added. Existing ignored shared-workspace generated drift is unchanged and remains unclaimed. TPR-E001/E002 stay evidence_gap / evidence_obligation / open. Existing Context Graph/SoT reconciliation remains resolved. Source commit/push grants no QA/UAT/release approval.

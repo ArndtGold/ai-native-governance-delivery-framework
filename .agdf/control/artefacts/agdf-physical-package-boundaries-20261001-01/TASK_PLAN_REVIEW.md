@@ -82,3 +82,7 @@ Dispatcher revision 23 / 6b7e8c86-5608-495e-afc2-28d0b84a7eaf. T-008/T-012 curre
 ## Real dependency installation plan evidence refresh — 2026-10-02
 
 Dispatcher revision 26 / 2f7a1a4b-19f9-4d87-9150-6f09b86a580e. T-008/T-012 consumer evidence now includes actual registry-backed locked installs and a complete npm smoke exit 0. The earlier dependency-copy fixture proof did not cover this install-before-build failure. CI-008 is resolved implementation_gap / CD+Tests; corrected remote execution remains pending. Coverage remains 11/13 fully_done; T-001/T-011 remain partial and TPR-E001/E002 remain evidence_gap / evidence_obligation / open. The fresh proof does not recreate historical checkpoints or original index identities.
+
+## Windows archive plan evidence refresh — 2026-10-02
+
+Dispatcher revision 29 / 4152a430-724b-46d3-82c5-74b64dc6a38d. T-009/T-012 actual archive consumer evidence is refreshed in CI_REPAIR.md. CI-009 is resolved implementation_gap / CD+Tests; corrected Windows result remains pending. Plan coverage remains 11/13 fully_done; T-001/T-011 partial. TPR-E001/E002 remain evidence_gap / evidence_obligation / open; current Windows or archive evidence cannot satisfy missing original checkpoint/index proof.

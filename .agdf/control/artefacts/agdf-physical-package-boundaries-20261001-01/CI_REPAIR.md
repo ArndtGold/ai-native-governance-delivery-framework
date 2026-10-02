@@ -71,3 +71,17 @@ The current shared workspace's existing ignored generated runtime contains extra
 | CI-008 | implementation_gap | CD+Tests | resolved | Actual early/corrected npm installations, matching ENOENT negative, complete npm smoke exit 0, workflow early-install negative | Verify corrected Ubuntu22/Ubuntu24/Windows jobs after push. |
 
 Original approvals remain unchanged; the five unrelated staged duplicate entries are byte-identical. TPR-E001/E002 remain open and QA remains revise. A green build does not authorize QA/UAT/release.
+
+## Windows GNU tar repair — 2026-10-02
+
+The 7ecc77f Guardrails run 36976437462 completed successfully on Ubuntu Node22 and Node24. Compatibility recording also passed without evidence changes. Windows passed MCP loading and the complete process interruption suite, then failed in control-command-package-test.js:73: GNU tar interpreted the absolute C: archive argument as a remote host (Cannot connect to C: resolve failed).
+
+The existing control package test now extracts its actual npm tarball by basename from cwd sandbox, with relative extract destination. A search of all source tar invocations found the same absolute archive pattern in scripts/test-package-consumers.mjs; it now copies each real archive to the disposable consumer root and extracts by basename with a relative target. Relative arguments work across GNU/BSD tar and avoid cross-drive pathname syntax. No platform skip, --force-local-only fallback, alternate archive engine or runtime dependency was introduced.
+
+Updated source was copied into the actual locked-install fixture. The complete control-command-package test passed, including the 659-file real archive, pure external import, command/replay and generated resource closure. Normal packing plus all three archive consumers passed Core byte identity, CLI/bootstrap, exports, offline guards and both MCP protocols. Exact logs/source hashes are in evidence/ci-windows-tar-20261002/RESULTS.json. The two preceding Linux CI passes and whole local npm smoke remain historical verified evidence; this test-only change reran affected suites rather than claiming a new full npm invocation. Corrected Windows execution remains pending until the next push.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CI-009 | implementation_gap | CD+Tests | resolved | Actual Windows tar remote-host error; relative argv/cwd diff in both callers; real package and three archive tests pass | Verify the corrected Windows matrix job after push. |
+
+Original UR/PRD/SD/TP bytes and staged duplicate entries remain unchanged. QA remains revise on TPR-E001/E002; no historical proof obligation, QA/UAT/release approval or live-host result is inferred.

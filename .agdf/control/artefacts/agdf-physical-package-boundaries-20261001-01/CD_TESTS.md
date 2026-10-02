@@ -103,3 +103,7 @@ CI_REPAIR.md and evidence/ci-prerequisites-20261002/RESULTS.json bind the actual
 ## Actual npm installation coverage — 2026-10-02
 
 CI_REPAIR.md / evidence/ci-local-dependency-20261002/RESULTS.json records the real early/corrected locked installations, exact ENOENT negative and the complete npm smoke command exit 0. CLI wrapper, fresh community and compatibility checks pass. The shared workspace generated-output drift is separately retained as exit 1; no corresponding source drift was found. Corrected remote matrix awaits push.
+
+## Windows archive consumer follow-up — 2026-10-02
+
+CI_REPAIR.md and evidence/ci-windows-tar-20261002/RESULTS.json bind the actual GNU tar drive-letter error, both corrected consumers and passing real package/three-archive suites. Previous 7ecc77f remote Linux22/Linux24 and compatibility recording passed; corrected Windows confirmation awaits push. No repeated full npm result is invented.

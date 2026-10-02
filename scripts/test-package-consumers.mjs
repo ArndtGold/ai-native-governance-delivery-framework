@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { repoRoot, coreRoot } from './core-projection.mjs';
 import { createOwnedRuntimeFixture } from '../packages/mcp-server/test/owned-runtime.js';
@@ -22,7 +22,9 @@ try {
     const archivePath = join(repoRoot, 'dist/tarballs', archive);
     assert.ok(existsSync(archivePath), 'normal npm pack must run before consumers');
     rmSync(target, { recursive: true, force: true }); mkdirSync(target, { recursive: true });
-    execFileSync('tar', ['-xzf', archivePath, '--strip-components=1', '-C', target]);
+    // Keep GNU tar away from drive-letter archive names, which denote remote hosts.
+    cpSync(archivePath, join(fixture.root, archive));
+    execFileSync('tar', ['-xzf', archive, '--strip-components=1', '-C', relative(fixture.root, target).replaceAll('\\', '/')], { cwd: fixture.root });
     const manifest = JSON.parse(readFileSync(join(target, 'package.json')));
     assert.equal(manifest.name, expected); assert.equal(manifest.version, version); assert.equal(manifest.engines.node, '>=22');
     assert.equal(Object.keys(manifest.devDependencies ?? {}).length, 0);

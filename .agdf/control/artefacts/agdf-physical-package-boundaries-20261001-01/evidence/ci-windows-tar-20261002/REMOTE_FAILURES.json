@@ -1,0 +1,28 @@
+{
+  "run": 36976437462,
+  "commit": "7ecc77fb8e5c8722865978f1b43cbaafc791ba62",
+  "jobs": [
+    {
+      "id": 110741179984,
+      "name": "Ubuntu Node24",
+      "conclusion": "success"
+    },
+    {
+      "id": 110741180082,
+      "name": "Ubuntu Node22",
+      "conclusion": "success"
+    },
+    {
+      "id": 110741180124,
+      "name": "Windows Node22",
+      "conclusion": "failure",
+      "stage": "test:control-command-package",
+      "error": "tar (child): Cannot connect to C: resolve failed",
+      "archive_argument": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\agdf-command-package-ec3WyI\\create-agdf-0.14.5.tgz",
+      "source_line": "packages/cli/scripts/control-command-package-test.js:73"
+    }
+  ],
+  "compatibility_run": 36976437476,
+  "record": "success",
+  "publish": "skipped (no evidence change)"
+}

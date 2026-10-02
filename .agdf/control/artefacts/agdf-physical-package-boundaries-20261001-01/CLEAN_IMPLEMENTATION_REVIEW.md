@@ -62,3 +62,14 @@ Exact payload delta is explained and reflected without headroom; negative exclus
 - evidence: Real npm directory copies and exact matching negative; complete npm smoke exit 0; missing/late/early workflow negatives.
 - exit_criteria: Local real-install path verified; fresh remote confirmation remains pending. Existing ignored workspace output drift is an explicit verification limitation, not concealed by a payload claim.
 - required_next_step: qa-gate consumes unchanged original TPR-E001/E002.
+
+## Windows archive integrity review — 2026-10-02
+
+- decision: pass
+- binding: dispatcher revision 29 / 4152a430-724b-46d3-82c5-74b64dc6a38d
+- primary_solution: Invoke the existing tar with relative local archive and destination names from the owning disposable fixture.
+- fallbacks: none; no Windows skip or GNU-only option added.
+- parallel_structures: none; the peer archive copy is disposable test input, removed by the existing fixture owner.
+- evidence: Real 659-file package and all three archive consumers pass; source-wide tar caller audit complete.
+- exit_criteria: Affected local suites pass; fresh Windows matrix remains pending.
+- required_next_step: qa-gate consumes original TPR-E001/E002 unchanged.

@@ -37,7 +37,7 @@ export function validateDispatchBinding(binding) {
   const route = binding.route_source_after_activation;
   if (binding.route_source_after_activation !== undefined && (!route || Object.keys(route).sort().join() !== "path,relative_to"
       || route.relative_to !== "validator_directory"
-      || !["../meta/contracts/request-activation.md", "../copilot-skills/contracts/request-activation.md"].includes(route.path))) invalid();
+      || !["../meta/contracts/request-activation.md", "../skills/contracts/request-activation.md"].includes(route.path))) invalid();
   return binding;
 }
 

@@ -387,7 +387,7 @@ function validateBindingJson(content, canonicalKernel, expectedVersion, surfaceI
       && binding.route_source_after_activation.relative_to === "validator_directory"
       && [
         "../meta/contracts/request-activation.md",
-        "../copilot-skills/contracts/request-activation.md",
+        "../skills/contracts/request-activation.md",
       ].includes(binding.route_source_after_activation.path));
   let computedFingerprint = null;
   try {

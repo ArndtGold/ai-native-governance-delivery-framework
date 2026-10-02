@@ -1429,7 +1429,7 @@ if (isFile(syncPluginRuntimePath)) {
     "guard_fingerprint: activationKernel.identity.guard_fingerprint",
     "routeSource:",
     "../meta/contracts/request-activation.md",
-    "../copilot-skills/contracts/request-activation.md",
+    "../skills/contracts/request-activation.md",
     "const bindingContext =",
     "AGDF dispatcher binding:",
     "const baseContext = [activationKernel, bindingContext].join",

@@ -116,6 +116,23 @@ The repository install covers the Core/CLI workspace. The separate MCP lock supp
 also copied by host-compatibility fixtures and used by the CLI smoke suite. Its development
 lock packs `file:../cli`, which must already contain the generated plugin payload at installation.
 
+### Updating the MCP SDK
+
+`packages/mcp-server/package-lock.json` is the reviewed SDK tree that the Claude Code and Codex
+plugins install. `packages/mcp-server/sdk-runtime-digest.json` holds its expected digest; the build
+derives `mcp/sdk/` in the plugin payload from both files. After changing the SDK version or its lock:
+
+```bash
+npm --prefix packages/mcp-server ci --ignore-scripts
+npm run mcp:sdk-digest
+npm run build
+npm --prefix packages/mcp-server run test:sdk-digest
+```
+
+Commit the lockfile and `sdk-runtime-digest.json` together. The build refuses a digest file whose
+package list no longer matches the lock, and `test:sdk-digest` fails when the committed digest does not
+match the installed tree. Never edit the digest by hand.
+
 Choose the commands relevant to your scope. Larger repository changes typically include:
 
 ```bash

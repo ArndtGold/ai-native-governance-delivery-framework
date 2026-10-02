@@ -121,21 +121,70 @@ Welche Schritte zu welcher Art gehören, steht im Code: `userGateOrder`, `intern
 Die Regeln, wann ein Schritt nötig ist, stehen im
 [Gate-Übergangsvertrag](../../plugins/agdf/meta/contracts/gate-transition.md).
 
-### Bekannte Grenze: Bedingte Schritte prüft nur der Agent
+## Bekannte Grenzen: Wo der Agent sich selbst kontrolliert
 
-Die Regel für die UX Intent Definition prüft keine Software. Weder Gate-Evaluator noch Dispatcher
-lesen `ui_ux_impact`. Ob das PRD bei `medium` oder `high` ohne UX Intent Definition unfertig
-bleibt, hängt davon ab, dass der Agent den Vertrag befolgt.
+AGDF trennt Freigabe und Ausführung. An drei Stellen bewertet der Agent aber selbst, wie streng er
+kontrolliert wird. Diese Stellen sind hier offen benannt. Sie sind eine fachliche Bewertung und
+keine neue Regel. Jede Änderung daran braucht einen eigenen Run.
+
+### 1. Der Agent wählt den Weg selbst
+
+**Heute:** Der Agent trifft die Mode/Slice Decision im Brownfield Review. Der Mensch bestätigt
+den Weg nicht eigens; der [Gate-Übergangsvertrag](../../plugins/agdf/meta/contracts/gate-transition.md)
+verlangt ausdrücklich keine zweite Entscheidung. Für Verified Change prüft die Software die
+Voraussetzungen ([`verified-change.js`](../../packages/core/lib/control-evaluation/verified-change.js)).
+Für Quick Task prüft sie nichts: Steht `quick_task` im Run, erlaubt der Evaluator die Umsetzung
+([`gate-policy.js`](../../packages/core/lib/control-evaluation/gate-policy.js)).
+
+**Warum das wichtig ist:** Der Agent entscheidet damit, ob PRD, SD, TP, Reviews, QA und UAT
+stattfinden. Der Kontrollierte wählt also die Tiefe seiner Kontrolle. Im Änderungsmanagement nach
+ITIL sind Standardänderungen deshalb ein vorab freigegebener Katalog und keine Einzelfallentscheidung.
+
+**Mögliche Abhilfe:** Den gewählten Weg auf der nächsten Freigabekarte zeigen, oder Quick Task wie
+Verified Change an Bedingungen knüpfen, die die Software prüft.
+
+### 2. Die Prüfer sind nicht unabhängig
+
+**Heute:** Task Plan Review, Clean Implementation Review und Code Review führt meist derselbe
+Agent aus, der auch umgesetzt hat. Kein Vertrag verlangt einen getrennten Prüfer, einen frischen
+Kontext oder ein anderes Modell.
+
+**Warum das wichtig ist:** QA stützt sich auf diese drei Reviews. Ein Modell findet seine eigenen
+Annahmen selten. In regulierten Bereichen ist eine unabhängige Prüfung deshalb Pflicht, etwa nach
+dem Vier-Augen-Prinzip oder der Luftfahrtnorm DO-178C.
+
+**Mögliche Abhilfe:** Die Reviews von einem eigenen Prüfer-Agenten mit frischem Kontext oder einem
+anderen Modell ausführen lassen und das im Nachweis festhalten.
+
+### 3. Bedingte Prüfungen prüft nur der Agent
+
+**Heute:** Die Regel für die UX Intent Definition prüft keine Software. Weder Gate-Evaluator noch
+Dispatcher lesen `ui_ux_impact`. Ob das PRD bei `medium` oder `high` ohne UX Intent Definition
+unfertig bleibt, hängt davon ab, dass der Agent den Vertrag befolgt. Dasselbe gilt für die
+Architecture Impact. Sie ist kein eigener Schritt, sondern ein Teil des Brownfield Review: Der
+Agent hält dort fest, ob Modulgrenzen, Schnittstellen, Datenhoheit, Kompatibilität, Laufzeit oder
+Sicherheit betroffen sind ([`brownfield-analysis`](../../plugins/agdf/skills/brownfield-analysis/SKILL.md)).
+Auch das liest keine Software.
 
 Eine Sperre durch Software gibt es erst bei QA: QA kann nicht bestehen, wenn die UX-Anforderungen
 nicht vollständig umgesetzt sind oder Befunde offen sind. Ein Fehler fällt also auf, aber erst spät.
 
-Diese Grenze ist bewusst so entschieden. Der Run `prd-ux-intent-requirements` hat keinen eigenen
-Evaluator eingeführt ([SD](../../.agdf/control/artefacts/prd-ux-intent-requirements/SD.md)) und
-das Risiko im [OR](../../.agdf/control/artefacts/prd-ux-intent-requirements/OR.md) festgehalten.
-Soll die Software die Regel selbst prüfen, braucht es einen eigenen Run. Dann würde der
-Gate-Evaluator die Bedingung auswerten und den Schritt als `next_operation` melden. Der Dispatcher
-würde ihn wie jeden anderen Pflichtschritt weitergeben.
+Für die UX Intent Definition ist das bewusst so entschieden. Der Run `prd-ux-intent-requirements`
+hat keinen eigenen Evaluator eingeführt ([SD](../../.agdf/control/artefacts/prd-ux-intent-requirements/SD.md))
+und das Risiko im [OR](../../.agdf/control/artefacts/prd-ux-intent-requirements/OR.md) festgehalten.
+
+**Warum das wichtig ist:** Jede neue Bedingung, etwa zu Sicherheit oder Datenschutz, würde sonst
+wieder nur als Text im Vertrag stehen.
+
+**Mögliche Abhilfe:** Ein allgemeines Muster für bedingte Schritte: Der Gate-Evaluator liest die
+Bedingung aus dem Brownfield Review und meldet den Schritt als `next_operation`. Der Dispatcher
+gibt ihn dann wie jeden anderen Pflichtschritt weiter.
+
+### Gemeinsame Richtung
+
+Am stärksten ist eine Kontrolle, die nicht vom Agenten abhängt. Eine Ergänzung außerhalb des
+Agenten wäre eine verpflichtende CI-Prüfung: Sie lehnt einen Merge ab, solange der zugehörige Run
+keine gültige UAT-Freigabe hat. Ob es eine solche Prüfung schon gibt, belegt dieses Dokument nicht.
 
 ## Use-Case-Katalog
 
@@ -204,7 +253,7 @@ Evaluator-Operation, kein siebter oder achter Ergebnistyp.
 | Eingabe, Ergebnisse, Host-Aktion und Routing | [Vertrag](../../packages/core/lib/skill-dispatch/contract.js), [Service](../../packages/core/lib/skill-dispatch/service.js) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js), [Funktionsvertrag](../../packages/cli/scripts/skill-dispatch-function-contract-test.js) |
 | Aktivierung und Interaktion | [Request Activation](../../plugins/agdf/meta/contracts/request-activation.md), [Interaktion](../../plugins/agdf/meta/contracts/interaction.md) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js) für Runtime-Verhalten; die anfragebezogene Aktivierung durch den Agenten braucht eigene Host-Evidenz. |
 | Run-Zuordnung und Intake | [Zuordnung](../../packages/core/lib/skill-dispatch/delivery-run-assignment.js), [Intake](../../packages/core/lib/skill-dispatch/delivery-intake.js) | [Zuordnungs-Tests](../../packages/cli/scripts/delivery-run-assignment-test.js) |
-| Schrittklassen und Regeln für bedingte Schritte | [Run-Zustand](../../packages/core/lib/control-evaluation/run-state.js), [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md) | Bedingte Schritte: keine Prüfung durch Software, siehe [bekannte Grenze](#bekannte-grenze-bedingte-schritte-prüft-nur-der-agent) |
+| Schrittklassen und Regeln für bedingte Schritte | [Run-Zustand](../../packages/core/lib/control-evaluation/run-state.js), [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md) | Bedingte Schritte, Wegwahl und Reviews: keine Prüfung durch Software, siehe [bekannte Grenzen](#bekannte-grenzen-wo-der-agent-sich-selbst-kontrolliert) |
 | Gate-Routing und Artefaktvorbereitung | [Gate-Evaluator](../../packages/core/lib/control-evaluation/gate-check.js), [Vorbereitungsvertrag](../../plugins/agdf/meta/contracts/gate-artifact-preparation.md), [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js) |
 | Präsentationsbindung und Freigabeprüfung | [Präsentations-Writer](../../packages/core/lib/control-state/run-presentation.js), [Approval-Validator](../../packages/core/lib/control-state/gate-approval-validator.js) | [Dispatch-Tests](../../packages/cli/scripts/skill-dispatch-test.js) für die Übergabe an den Writer |
 | MCP-Projektion | [MCP-Laufzeit](../../packages/cli/lib/mcp-dispatch-runtime.js), [Server](../../packages/mcp-server/src/server.js) | [Protokoll](../../packages/mcp-server/test/protocol.test.js), [Fortsetzungen](../../packages/mcp-server/test/continuation.test.js) |

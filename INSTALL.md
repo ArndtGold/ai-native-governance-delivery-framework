@@ -341,8 +341,9 @@ plugin owns. `claude plugin uninstall agdf@agdf` therefore removes AGDF complete
   the plugin. AGDF writes no `claude mcp add` registration.
 - Its runtime lives in Claude's plugin data directory, `${CLAUDE_PLUGIN_DATA}`
   (`~/.claude/plugins/data/agdf-agdf`), which Claude deletes on uninstall. The plugin ships the server
-  and dispatcher; only the pinned `@modelcontextprotocol/server@2.0.0` SDK is installed from npm once,
-  either by the AGDF installer or on the first server start. Updates keep the data directory and retire
+  and dispatcher; only the MCP SDK is installed from npm once, from a lockfile shipped with the
+  plugin, either by the AGDF installer or on the first server start (see
+  [Verified SDK installation](#verified-sdk-installation)). Updates keep the data directory and retire
   runtimes of other versions.
 - The session check is a plugin hook, which Claude runs without a permission rule. Enabling the plugin
   is the consent; `claude plugin disable agdf@agdf` turns it off.
@@ -372,6 +373,40 @@ AGDF marketplace and an AGDF-owned data directory into it; provenance digests th
 
 Installing or updating through `npx --yes @agdf/cli@latest codex` also retires a user-scope `agdf`
 registration from earlier releases, which would share the plugin server's name.
+
+#### Verified SDK installation
+
+Both plugins ship the reviewed MCP SDK dependency tree under `mcp/sdk/`: a lockfile and the expected
+digest of the installed packages. Preparing the plugin MCP runtime therefore needs access to the npm
+registry once and works as follows:
+
+- The launcher runs `npm ci --ignore-scripts --omit=dev` against the shipped lockfile. npm checks every
+  package against its locked integrity hash; no install scripts run.
+- Before the runtime is used, it must contain exactly the locked packages
+  (`@modelcontextprotocol/server`, `@modelcontextprotocol/core`, `zod`) and match the expected digest.
+- On every start, an existing runtime is compared with the expected digest again and replaced when it
+  differs.
+
+A configured registry mirror or proxy works when it serves the same package contents as the npm
+registry. When preparation fails, the MCP server does not start; the plugin's skills and hooks keep
+working. The installer output or the host's MCP log shows one line with the cause and the next step:
+
+| Message | Meaning | What to do |
+|---|---|---|
+| `AGDF_MCP_PACKAGE_ACQUISITION_FAILED` | npm could not install the locked SDK: no network, registry unreachable or an integrity check failed | Check network, proxy and npm registry settings, then restart the host. |
+| `AGDF_MCP_SDK_PACKAGE_SET_MISMATCH` | The installed SDK packages differ from the shipped lockfile | Check whether your registry or mirror serves different packages, then restart. |
+| `AGDF_MCP_SDK_DIGEST_MISMATCH` | The installed SDK content differs from the version shipped with the plugin | Same as above; a runtime changed after installation is replaced on the next start. |
+| `AGDF_MCP_RUNTIME_UNOWNED` | The runtime directory exists but was not created by AGDF | Move the directory away and restart. |
+| `AGDF_MCP_PLUGIN_RUNTIME_INVALID` | The installed plugin is incomplete | Reinstall the AGDF plugin and restart. |
+
+If your environment deliberately serves different packages and you accept the risk, set
+`AGDF_MCP_ALLOW_UNVERIFIED_SDK=1` in the environment the host starts the MCP server with. The launcher
+then installs the SDK without the lockfile and without the digest check, records the runtime as
+`unverified_override` and prints `AGDF_MCP_SDK_UNVERIFIED_OVERRIDE` on every start. Remove the variable
+and restart the host to replace that runtime with a verified one.
+
+The MCP server registered for OpenCode and GitHub Copilot through `mcp enable` is still installed from
+npm without this lockfile and digest check.
 
 ## Optional advanced planning and runtime reference
 

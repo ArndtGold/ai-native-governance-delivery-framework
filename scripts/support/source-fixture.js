@@ -5,7 +5,7 @@ const repository = fileURLToPath(new URL('../../', import.meta.url));
 export function copySourceFixture(target, { git = false, dependencies = true } = {}) {
   mkdirSync(target, { recursive: true });
   const excluded = new Set(['node_modules', '.git', 'generated', 'dist', '.astro']);
-  for (const name of ['packages', 'scripts', 'evals', 'plugins', 'pages', '.agdf', '.agents', '.claude-plugin', '.github', 'LICENSE', 'NOTICE', 'README.md', 'INSTALL.md', 'docs', 'package.json', 'package-lock.json']) {
+  for (const name of ['packages', 'scripts', 'evals', 'plugins', 'pages', '.agdf', '.agents', '.claude-plugin', '.github', 'LICENSE', 'NOTICE', 'README.md', 'INSTALL.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md', 'SECURITY.md', 'SUPPORT.md', 'GOVERNANCE.md', 'PRIVACY.md', 'TERMS.md', 'TRADEMARKS.md', 'docs', 'package.json', 'package-lock.json']) {
     if (existsSync(join(repository, name))) cpSync(join(repository, name), join(target, name), { recursive: true,
       filter: source => !excluded.has(source.split(/[/\\]/u).at(-1)) && !source.replaceAll('\\', '/').includes('/packages/cli/runtime') });
   }

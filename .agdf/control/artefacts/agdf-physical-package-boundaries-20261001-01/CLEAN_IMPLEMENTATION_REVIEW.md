@@ -28,3 +28,15 @@ Exact payload delta is explained and reflected without headroom; negative exclus
 - context_graph_evidence: .agdf/control/CONTEXT_GRAPH.md; .agdf/control/SOT_REGISTRY.md; docs/architecture/package-structure.md
 - memory_target: scope_artifact
 - memory_reason: Findings and test observations are bound to this run; architecture owners are already curated in existing registry/nodes.
+
+
+## CI repair follow-up — 2026-10-02
+
+- decision: pass
+- primary_solution: Correct existing consumers to their actual owners and restore deleted mandatory test/navigation files.
+- evidence: CI_REPAIR.md and recorded positive/negative checks.
+- fallbacks_retained: none added.
+- parallel_structure_risk: none; compatibility redirects contain navigation only and remain required by existing SoT; no copied image/runtime source.
+- brownfield_fit: Existing npm script, documentation and Astro public boundaries retained.
+- missing_evidence: native repaired remote run is not claimed; TPR-E001/E002 remain open in plan review.
+- required_next_step: qa-gate consumes current correction evidence and unchanged original plan gaps.

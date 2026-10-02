@@ -68,3 +68,24 @@ Source, actual builds, archives, isolated lifecycle and real local MCP protocol 
 The decision is revise because open mandatory evidence obligations remain, not because a failing package/build or missing current source owner is hidden. Neither this report nor a structural/code pass waives the approved plan.
 
 Final index observation: evidence/FINAL_STAGED_ENTRIES.json records the original five staged duplicate paths plus 28 additionally observed staged documentation deletions. No staging/reset was performed by this migration; attribution is unavailable and the live index is preserved. This observation is not a migration-owned deletion or proof of the original per-entry index identity. Current source/approved artefact SHA256 bindings remain unchanged.
+
+
+## CI repair QA follow-up — 2026-10-02
+
+- decision: revise
+- decision_owner: qa-gate
+- evidence: CI_REPAIR.md; evidence/ci-repair-20261002/RESULTS.json; current CD+Tests, Code Review, Clean Implementation Review and TP Review addenda.
+- current_correction: CI-001..005 are resolved implementation_gap to CD+Tests, consumed without reclassification. Canonical documentation paths, restored startup suite and legacy navigation, translation source binding, Pages logo URL and terminal routing root are repaired.
+- verification: 14 successful current command groups plus the original complete npm run that passed its entire prefix/direct CLI and failed at final routing; that changed terminal npm stage and fresh-source check passed after repair. The original exit 1 remains explicit. No final full-command exit-zero or repaired remote matrix claim.
+- missing_evidence: TPR-E001/E002 remain open evidence_gap to evidence_obligation; no authoritative waiver or original proof has been supplied. Repaired native Linux/Windows/Node24 and a final GitHub run remain unverified.
+- risks: local targeted repair evidence cannot be presented as GitHub-hosted success.
+- required_next_step: Reconcile original TPR-E001/E002 against original evidence or an explicit authoritative deviation decision; do not request Approval: QA from revise.
+
+| Quality dimension | Current evidence |
+|---|---|
+| Plan coverage | 11/13 fully_done; original TPR-E001/E002 open |
+| Solution integrity | pass; restored existing owners and required coverage/navigation |
+| Code quality | pass; actual CI correction diff reviewed |
+| QA decision | revise; qa-gate sole decision owner |
+
+Current CI repair adds no new source owner or product behavior. Its knowledge stays in scope_artifact; existing run Context Graph/SoT reconciliation remains resolved.

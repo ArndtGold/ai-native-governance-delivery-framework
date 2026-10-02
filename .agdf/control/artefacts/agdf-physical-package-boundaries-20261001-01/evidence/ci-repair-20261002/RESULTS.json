@@ -1,0 +1,137 @@
+{
+  "client_date": "2026-10-02",
+  "node": "v22.22.3",
+  "base_commit": "89e87cbf0d294d8e7b17ab959ceea7ca0f9d6415",
+  "index_digest": "6512013e213aa0a979e7223882631b6a9774d4c6eeb47cc97d2a35dc3b789f92",
+  "checks": [
+    {
+      "name": "build",
+      "command": "npm run build && npm --prefix packages/cli run release:prepare",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/build.log"
+    },
+    {
+      "name": "community-test",
+      "command": "npm run test:community-health",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/community-test.log"
+    },
+    {
+      "name": "community-check",
+      "command": "npm run check:community-health",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/community-check.log"
+    },
+    {
+      "name": "maintenance",
+      "command": "npm --prefix packages/cli run test:control-maintenance",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/maintenance.log"
+    },
+    {
+      "name": "clean-checkout",
+      "command": "node scripts/test-clean-checkout.mjs",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/clean-checkout.log"
+    },
+    {
+      "name": "entrypoint-negative",
+      "command": "Remove startup entrypoint in isolated fixture; npm entrypoint contract must reject; restore original file",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/entrypoint-negative.log"
+    },
+    {
+      "name": "contracts",
+      "command": "npm run test:maintenance-contracts",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/contracts.log"
+    },
+    {
+      "name": "host-compatibility",
+      "command": "npm run test:host-compatibility",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/host-compatibility.log"
+    },
+    {
+      "name": "compatibility-check",
+      "command": "node scripts/host-compatibility/run.mjs check",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/compatibility-check.log"
+    },
+    {
+      "name": "integrity",
+      "command": "node plugins/agdf/scripts/check-runtime-integrity.mjs",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/integrity.log"
+    },
+    {
+      "name": "wrapper-smoke",
+      "command": "npm --prefix packages/cli/distribution/agdf run smoke-test",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/wrapper-smoke.log"
+    },
+    {
+      "name": "pages",
+      "command": "npm --prefix pages run check && npm --prefix pages run test:landing && npm --prefix pages run test:public-documents",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/pages.log"
+    },
+    {
+      "name": "fresh-build",
+      "command": "npm --prefix /tmp/agdf-ci-fresh-20261002 run build",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/fresh-build.log"
+    },
+    {
+      "name": "full-smoke",
+      "command": "npm --prefix /tmp/agdf-ci-fresh-20261002/packages/cli run smoke-test (all prerequisite stages and direct CLI pass; final routing path failed before final correction)",
+      "exit_code": 1,
+      "status": "all unchanged prefix stages passed; final failure repaired and verified by routing check",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/full-smoke.log"
+    },
+    {
+      "name": "routing",
+      "command": "npm --prefix /tmp/agdf-ci-fresh-20261002/packages/cli run test:routing (after terminal-stage path correction)",
+      "exit_code": 0,
+      "status": "pass",
+      "log": ".agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/routing.log"
+    }
+  ],
+  "source_files": {
+    ".github/repository-metadata.json": "0925066be22e84fcb0703ae73a13c6335f25950e6da8ebad1e3ef8b521980395",
+    "docs/agenten-handbuch/01-schnellstart.md": "326b7dbc379d62af47b28676d7efb30fe9f75ed8798f5e0e0b314b4756c071f5",
+    "docs/agenten-handbuch/02-gates-und-freigaben.md": "604e38e755b9435f77b985efe723d578d50fa9ad5ef20ca29b773390107712e6",
+    "docs/agenten-handbuch/03-typische-arbeitsablaeufe.md": "35f95f3343c8802a5556fe616548a5ed0f242ffaff55df5d996d9236b0c78fc8",
+    "docs/agenten-handbuch/04-mehrere-runs.md": "3b6a46d85fe578f35bbe0aa56efb468a8902d8f67e44911bcfb3d4bdf14d2a48",
+    "docs/agenten-handbuch/05-abschluss-und-auslieferung.md": "3c5633751dbcf6237c56b21166392c939f26a30b126cef93ca84ef934b15d1c7",
+    "docs/agenten-handbuch/06-fehlerbehebung.md": "efa027b0ea4972d886a331fe15e3b4b8461dd8da00206e613665485b03db5a66",
+    "docs/agenten-handbuch/README.md": "c8178c218ebfcdc76b4fcea256b0e7fb546ed53002089b47a331c11f1e8f4d54",
+    "docs/handbook/en/README.md": "9e510d80604ce1b5846c7b5aa94098569ad6107d466fe5164e16e4054b7262ea",
+    "packages/cli/scripts/release-workflow-contract-test.js": "53edf348afdc8b03c21cd836a7fd82fccfe112ab3cf98950bf9928560c80352c",
+    "packages/cli/scripts/repository-control-startup-test.js": "c928a17f80e0640a4cbe5eea0359710ade91757a9a517e80486c401c61e148b5",
+    "packages/cli/scripts/test-routing.js": "78261ea8d71e6f1a360bb18a31b8620b1aa5bbec5b95f5da159b9c7f0b735c06",
+    "pages/src/pages/index.astro": "39c5b56d2951a1d74b1a524b9cf69a3fb3a7e52edf50bdb2889da0d4309520af",
+    "scripts/check-community-health.mjs": "a5c9fbd1bda8f4f607c86ef78fdcd1d9076c7fe451f3a63fb7bb0b2d1e9402ed",
+    "scripts/community-health-test.mjs": "8442a7a082c60f25e3acb3b633a5a120b73aa8e7a34109c367d89d2fbe7be6f0",
+    "scripts/support/source-fixture.js": "a43fe41351c884417433240e1eeed5aee85d3ef7fb6154e43bf7dadcc413fe0f",
+    "scripts/test-clean-checkout.mjs": "6e4249ad32043948e779ffc3fa8e5e67315379d6ce733757931d9d9de46d5540"
+  },
+  "evidence_planes": {
+    "fresh_cli": "Full current-source fixture without initial generated/dist; copied installed lock-bound dependencies and Git history; root build then exact npm smoke chain through a failure at final routing. Only the terminal routing test changed afterward and its npm stage passed. Fresh-source check rerun with corrected routing; Pages URL correction verified through Pages commands.",
+    "remote_ci": "Original failed jobs read; repaired commit not pushed or remotely rerun.",
+    "native_platforms": "Local macOS Node 22.22.3; no repaired Windows/Linux/Node24 run claimed."
+  }
+}

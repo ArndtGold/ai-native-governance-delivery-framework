@@ -1,0 +1,41 @@
+npm notice run build
+npm notice run node scripts/sync-package-assets.js && node scripts/assemble-npm.mjs
+[
+  {
+    "name": "create-agdf",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/create-agdf"
+  },
+  {
+    "name": "@agdf/cli",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/cli/distribution/agdf",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf"
+  },
+  {
+    "name": "@agdf/mcp-server",
+    "version": "0.14.5",
+    "source": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/packages/mcp-server",
+    "output": "/Users/arndtgold/Documents/GitHub/ai-native-governance-delivery-framework/dist/npm/agdf-mcp-server"
+  }
+]
+npm notice run create-agdf@0.14.5 release:prepare
+npm notice run npm run sync-package-assets && npm run test:distribution-profile-history && npm run test:release-bump && npm run test:release-version-coherence && npm run test:public-plugin && npm run test:portable-plugin
+npm notice run create-agdf@0.14.5 sync-package-assets
+npm notice run node ../../scripts/sync-package-assets.js
+npm notice run create-agdf@0.14.5 test:distribution-profile-history
+npm notice run node scripts/distribution-profile-history-test.js
+Distribution profile history passed (8 exact releases, malformed and closed-policy matrices)
+npm notice run create-agdf@0.14.5 test:release-bump
+npm notice run node scripts/release-bump-test.js
+Release bump passed (20 transactional files; repair, forward, review, rollback and recovery)
+npm notice run create-agdf@0.14.5 test:release-version-coherence
+npm notice run node scripts/release-version-coherence-test.js
+Release version coherence passed (50 surfaces at 0.14.5; 8 profile snapshots)
+npm notice run create-agdf@0.14.5 test:public-plugin
+npm notice run node scripts/public-plugin-test.js
+Public plugin tests passed (51 inventoried candidate files; digest c2b27087678d01df3e04421ce5b4bf2b23d6019fd97e84e2f01860327e607a09)
+npm notice run create-agdf@0.14.5 test:portable-plugin
+npm notice run node scripts/portable-plugin-test.js
+Portable plugin schema/profile/resource/selection/retry tests passed; digest c2b27087678d01df3e04421ce5b4bf2b23d6019fd97e84e2f01860327e607a09

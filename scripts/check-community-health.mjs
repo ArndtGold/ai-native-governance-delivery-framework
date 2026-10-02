@@ -24,7 +24,7 @@ const EXPECTED_METADATA = Object.freeze({
     "github-copilot",
     "npm",
   ],
-  social_preview_source: "assets/github-social-preview.png",
+  social_preview_source: "docs/assets/github-social-preview.png",
   expected_features: {
     issues: true,
     discussions: true,
@@ -47,7 +47,7 @@ const REQUIRED_FILES = Object.freeze([
   ".github/ISSUE_TEMPLATE/config.yml",
   ".github/pull_request_template.md",
   ".github/repository-metadata.json",
-  "assets/github-social-preview.png",
+  "docs/assets/github-social-preview.png",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
   "docs/handbook/README.md",

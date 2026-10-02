@@ -2,7 +2,7 @@
 language: en
 chapter_role: index
 translation_of: ../de/README.md
-source_revision: sha256:794be9dbcbb80581c34441d76598732f3cf4f8bdb6ebb12f349d4b5c2ae87e3f
+source_revision: sha256:24dbb11de34e168d0fca8c75959c361b8f97e23ff738856b686c234ad9212128
 translation_status: reviewed
 ---
 

@@ -17,5 +17,10 @@ try {
   invoke('scripts/sync-package-assets.js'); invoke('scripts/assemble-npm.mjs');
   assert.equal(JSON.parse(readFileSync(join(root, 'dist/npm/assembly.json'))).version, JSON.parse(readFileSync(join(root, 'packages/core/package.json'))).version);
   invoke('scripts/check-package-boundaries.mjs');
-  console.log('Fresh current source: no initial generated/dist/node_modules; exact bundled dependencies; complete profile/assembly build and isolated Core checks passed.');
+  invoke('packages/cli/scripts/release-workflow-contract-test.js');
+  invoke('scripts/community-health-test.mjs');
+  invoke('scripts/check-community-health.mjs');
+  invoke('packages/cli/scripts/repository-control-startup-test.js');
+  invoke('packages/cli/scripts/test-routing.js');
+  console.log('Fresh current source: no initial generated/dist/node_modules; exact bundled dependencies; complete profile/assembly build, isolated Core, npm entrypoints, community and startup checks passed.');
 } finally { rmSync(root, { recursive: true, force: true }); }

@@ -5,6 +5,15 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
 
+// Validate the actual npm entrypoints, including suites not reached by individual probes.
+const packageRoot = new URL("../", import.meta.url);
+const packageManifest = JSON.parse(readFileSync(new URL("package.json", packageRoot), "utf8"));
+for (const [name, command] of Object.entries(packageManifest.scripts)) {
+  for (const [, entrypoint] of command.matchAll(/\bnode\s+((?:\.\/)?(?:scripts\/|\.\.\/)[^\s&]+)/gu)) {
+    assert.ok(existsSync(new URL(entrypoint, packageRoot)), `${name} references missing npm entrypoint ${entrypoint}`);
+  }
+}
+
 const root = new URL("../../../.github/workflows/", import.meta.url);
 const read = (name) => readFileSync(new URL(name, root), "utf8");
 const publishText = read("publish-agdf.yml");

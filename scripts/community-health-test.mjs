@@ -17,8 +17,8 @@ const fixturePaths = [
   "SUPPORT.md",
   "GOVERNANCE.md",
   ".github",
-  "assets/github-social-preview.png",
-  "assets/intro.png",
+  "docs/assets/github-social-preview.png",
+  "docs/assets/intro.png",
   ".agdf/control/SOT_REGISTRY.md",
   ".agdf/control/CONTEXT_GRAPH.md",
   ".agdf/control/artefacts/agdf-request-activation-boundary/INSTRUCTION_FOOTPRINT_AUDIT.md",
@@ -35,8 +35,8 @@ const fixturePaths = [
   "docs/06-vom-notizzettel-zum-delivery-lagebild.md",
   "docs/07-domain-driven-delivery.md",
   "docs/glossar.md",
-  "examples/sample-banking-flow.md",
-  "examples/sample-delivery-flow.md",
+  "docs/examples/sample-banking-flow.md",
+  "docs/examples/sample-delivery-flow.md",
   "INSTALL.md",
   "PRIVACY.md",
   "TERMS.md",
@@ -136,7 +136,7 @@ await withFixture(
 );
 
 await withFixture(
-  (root) => fs.writeFile(path.join(root, "assets/github-social-preview.png"), Buffer.from("not a png")),
+  (root) => fs.writeFile(path.join(root, "docs/assets/github-social-preview.png"), Buffer.from("not a png")),
   "SOCIAL_PREVIEW_INVALID",
 );
 

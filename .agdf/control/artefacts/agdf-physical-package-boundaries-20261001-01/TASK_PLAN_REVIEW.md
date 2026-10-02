@@ -66,3 +66,11 @@ The missing priorities in these procedural evidence obligations are not fabricat
 QA execution supplement: the bound qa-gate continuation at revision 17 produced QA_REPORT.md with revise. T-013 is fulfilled for the current permitted quality assessment; no conditional future approval or OR was performed. T-001/T-011 and their findings remain unchanged.
 
 Final index observation: evidence/FINAL_STAGED_ENTRIES.json records the original five staged duplicate paths plus 28 additionally observed staged documentation deletions. No staging/reset was performed by this migration; attribution is unavailable and the live index is preserved. This observation is not a migration-owned deletion or proof of the original per-entry index identity. Current source/approved artefact SHA256 bindings remain unchanged.
+
+
+## CI repair follow-up — 2026-10-02
+
+Current correction evidence: CI_REPAIR.md and RESULTS.json. T-008 consumers and normative navigation/source binding repaired; T-010 bounded startup/consent coverage restored; T-011 fresh current-source verification now explicitly covers npm entrypoints, community and startup; T-012 actual repair diff reviewed. Relevant scenarios SCN-028/029/035/040 refreshed with current evidence. T-001 and T-011 remain partially_done on TPR-E001/E002, not waived by green tests; overall 11/13 tasks fully_done, 2 partially_done. No approved acceptance or plan change.
+
+All five CI findings are consumed as resolved implementation_gap to CD+Tests from CI_REPAIR.md; original TPR-E001/E002 remain evidence_gap to evidence_obligation, open.
+- required_next_step: Reconcile original TPR-E001/E002 before QA can pass.

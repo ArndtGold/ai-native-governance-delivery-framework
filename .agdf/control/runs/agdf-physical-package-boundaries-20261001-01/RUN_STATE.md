@@ -5,11 +5,11 @@
 - control_state_version: 2
 - run_id: agdf-physical-package-boundaries-20261001-01
 - lifecycle: active
-- revision: 19
-- revision_id: caf1c3b5-e77e-469e-8748-593eb6d0b9b1
-- content_seal: sha256:511e9b85690d005abda4280c346e827034866c00f90d77344b430bfd67777fbf
+- revision: 23
+- revision_id: 6b7e8c86-5608-495e-afc2-28d0b84a7eaf
+- content_seal: sha256:7694ae5af829e69f7b027e93d0cd55b7b6970dd30ff8ce38519946add799efb1
 - approval_seal: sha256:5022f0aa795629895ec393d2aa0196365a580111a785e3edb28bbc44e3aa8194
-- updated_at: 2026-10-01T18:04:21.603Z
+- updated_at: 2026-10-02T05:52:32.121Z
 - mode: structured_delivery
 - current_gate: QA
 - decision: revise
@@ -23,9 +23,9 @@ Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, ka
 
 | Question | Answer |
 |---|---|
-| What is known? | Physical source cutover and current verification complete; Code/Clean reviews pass; QA revise on original checkpoint/index proof gaps. |
+| What is known? | CI-001..005 repaired and locally verified; Code/Clean reviews pass; overall QA revise on original TPR-E001/E002 evidence obligations. |
 | What is approved? | Approval: UR, Approval: PRD, Approval: SD, Approval: TP |
-| What is missing? | Authoritative reconciliation of TPR-E001/E002; no QA approval can be requested from revise. |
+| What is missing? | Authoritative reconciliation of original TPR-E001/E002; repaired GitHub matrix run is unverified. No QA approval can be requested from revise. |
 | What is the next allowed action? | Resolve the QA revise findings, refresh CD+Tests and reviews, then rerun QA. Do not request Approval: QA from a revise report. |
 | What is explicitly forbidden right now? | request QA approval; request UAT approval; release; claim delivery readiness |
 
@@ -51,11 +51,11 @@ Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, ka
 | SD | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/SD.md` | approved | criteria-chain-v1; SDD-001–012; AC-001–015 vollständig zugeordnet; optionale Profilabweichungen ausdrücklich vorgelegt |
 | TP | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/TP.md` | approved | criteria-chain-v1; T-001–013; SCN-001–042; alle AC-/SDD-Zuordnungen vollständig |
 | Brownfield Analysis | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/BROWNFIELD_ANALYSIS.md` | done | pre_implementation_analysis; pass; source/index/checkpoint boundary and existing owners bound |
-| CD+Tests | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CD_TESTS.md | done | Actual source/build/archive/regression evidence; historical checkpoint/index proof gaps explicit. |
-| CR | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | done | Code Review pass recorded through run-step; no final QA decision |
-| QA | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/QA_REPORT.md | revise | qa-gate sole decision owner; TPR-E001/E002 original evidence obligations remain open. |
-| TP Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/TASK_PLAN_REVIEW.md | done | revise evidence dimension; TPR-E001/E002 open |
-| Clean Implementation Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md | done | pass structural evidence; TP obligations unchanged |
+| CD+Tests | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CD_TESTS.md | done | CI_REPAIR.md: npm prefix through direct CLI passed; terminal routing repaired and verified; fresh-source, community, startup and Pages pass. Full original npm exit 1 retained. |
+| CR | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | done | Actual CI repair diff reviewed and canonical run-step review pass recorded; CI-001..005 resolved. |
+| QA | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/QA_REPORT.md | revise | CI-001..005 repaired and verified locally; original TPR-E001/E002 remain open. qa-gate sole decision owner. |
+| TP Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/TASK_PLAN_REVIEW.md | done | Current consumer and test evidence refreshed; 11/13 fully_done; TPR-E001/E002 remain open evidence obligations. |
+| Clean Implementation Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CLEAN_IMPLEMENTATION_REVIEW.md | done | pass: existing canonical paths, restored mandatory coverage/navigation; no runtime or asset copies. |
 | Evidence Reconciliation | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/EVIDENCE_RECONCILIATION.md | draft | Concrete proposed deviation decision; no waiver or approval recorded. |
 
 ## Mode/Slice Decision
@@ -91,6 +91,8 @@ Physische Core-/CLI-/MCP-Paketstruktur mit eindeutigen Verantwortungsgrenzen, ka
 
 | Implementation preparation | `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/BROWNFIELD_ANALYSIS.md`; evidence/IMPLEMENTATION_BASELINE.json; evidence/checkpoints/C-00.json | approved TP reuse path, unchanged 203-module source map, actual source backup and preserved index | direct |
 | Code Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | decision pass: CODE_REVIEW.md; actual C00 diff, Core owner graph, three archive consumers and 82 final regressions; TPR evidence obligations remain open | direct |
+| Code Review | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CODE_REVIEW.md | decision pass: CI-001 through CI-005 resolved; actual repair diff reviewed; npm prefix, corrected terminal routing, fresh-source, community, startup and Pages evidence in CI_REPAIR.md. | direct |
+| CI repair 2026-10-02 | .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/CI_REPAIR.md; .agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/ci-repair-20261002/RESULTS.json | CI consumer/test path repairs; fresh-source and local npm stages; original remote failure and full npm exit preserved | direct |
 
 ## Context Graph Impact
 

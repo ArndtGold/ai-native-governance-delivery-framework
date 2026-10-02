@@ -90,3 +90,8 @@ Der tatsächliche C00-Quellstand mit bereits vorhandener MCP-Reparatur ist gesic
 - memory_target: scope_artifact
 - memory_reason: Current migration/test evidence is run-bound; source ownership is curated in existing SoT/Graph owners.
 - required_next_step: Reconcile the two open evidence obligations using EVIDENCE_RECONCILIATION.md; QA remains revise.
+
+
+## CI repair follow-up — 2026-10-02
+
+CI repair evidence: CI_REPAIR.md and evidence/ci-repair-20261002/RESULTS.json. Current affected checks pass, including the full npm prefix through direct CLI and the corrected terminal npm routing stage; the original full command exit 1 is preserved. Earlier individual-file evidence is not proof of that chain. Runtime behavior and approved scope remain unchanged; restored tests/navigation and canonical paths repair omitted migration consumers. Historical TPR-E001/E002 remain open.

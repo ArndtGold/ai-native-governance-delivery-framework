@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = new URL("..", import.meta.url);
-const repoRoot = new URL("..", packageRoot);
+const repoRoot = new URL("../..", packageRoot);
 const generatedPluginRoot = fileURLToPath(new URL("./generated/plugins/agdf/", packageRoot));
 const generatedCopilotPluginRoot = fileURLToPath(new URL("./generated/plugins/copilot/agdf/", packageRoot));
 const pluginDefinitionPath = join(getPluginSourceRoot(fileURLToPath(repoRoot)), "meta", "agdf-plugin.definition.json");

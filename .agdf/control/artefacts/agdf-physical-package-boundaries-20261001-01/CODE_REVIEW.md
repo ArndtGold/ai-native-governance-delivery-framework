@@ -40,3 +40,12 @@ The test harness comparison initially used an unselected run and a noncanonical 
 - context_graph_evidence: .agdf/control/CONTEXT_GRAPH.md; .agdf/control/SOT_REGISTRY.md; docs/architecture/package-structure.md
 - memory_target: scope_artifact
 - memory_reason: Findings and test observations are bound to this run; architecture owners are already curated in existing registry/nodes.
+
+
+## CI repair follow-up — 2026-10-02
+
+- decision: pass
+- reviewed_scope: Actual CI repair diff across metadata, community checks/fixtures, restored startup suite and compatibility navigation, handbook source hash, npm entrypoint contract, routing root and Pages logo URLs.
+- evidence: CI_REPAIR.md; evidence/ci-repair-20261002/RESULTS.json and logs. CI-001..005 are resolved implementation_gap findings; no concrete defect remains in reviewed diff.
+- risks: repaired remote platforms remain unverified; original TP evidence obligations are unchanged.
+- required_next_step: Consume unchanged TPR-E001/E002 in qa-gate.

@@ -314,7 +314,7 @@ for (const [label, content] of [
   ["package README", packageReadme],
   ["MCP README", mcpReadme],
 ]) {
-  assert.match(content, /AGDF 0\.14\.5 does\s+not include MCP support/, `${label} must keep the 0.14.5 MCP non-support boundary visible`);
+  assert.match(content, /AGDF 0\.14\.5 (?:package\s+)?does\s+not include MCP support/, `${label} must keep the 0.14.5 MCP non-support boundary visible`);
   assert.match(content, /unreleased development|development preview/, `${label} must identify MCP commands as unreleased development behavior`);
 }
 assert.match(architectureReadme, /Repository-Quelle/, "architecture must identify its source-level scope");

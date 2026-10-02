@@ -138,7 +138,8 @@ export function renderSkillDispatchInputRecovery({ field, allowedValues = [] } =
   requestedLocale,
 } = {}) {
   if (typeof field !== "string" || !/^[a-z_]{1,64}$/u.test(field)) return null;
-  if (!Array.isArray(allowedValues) || allowedValues.some((value) => typeof value !== "string" || !/^[a-z_]{1,64}$/u.test(value))) return null;
+  const allowedValuePattern = field === "skill_id" ? /^[a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?$/u : /^[a-z_]{1,64}$/u;
+  if (!Array.isArray(allowedValues) || allowedValues.some((value) => typeof value !== "string" || value.length > 64 || !allowedValuePattern.test(value))) return null;
   let pack;
   try {
     pack = localePack(registry, requestedLocale)?.skillDispatch;

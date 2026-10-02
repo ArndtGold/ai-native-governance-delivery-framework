@@ -23,7 +23,9 @@ Therefore plugin skill names are intentionally unprefixed:
 - `delivery-closeout`
 
 Do not duplicate the plugin namespace in Codex or Claude Code plugin skill names.
-That `agdf-` prefix is reserved for GitHub Copilot repository skills, where no plugin namespace exists.
+Copilot and local OpenCode skills use `agdf-`; global OpenCode skills use `agdf-global-`.
+The dispatcher resolves exact host names from the shared catalog to stable canonical IDs.
+Technical `skill_id`, `--skill` and contract references always use canonical IDs.
 
 <!-- AGDF-REQUEST-ACTIVATION-GUARD:START -->
 ## Request Activation

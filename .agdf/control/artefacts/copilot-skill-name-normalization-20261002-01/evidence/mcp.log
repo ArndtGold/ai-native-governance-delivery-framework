@@ -1,0 +1,27 @@
+npm notice run @agdf/mcp-server@0.14.5 test
+npm notice run npm run test:contract && npm run test:continuation && npm run test:protocol && npm run test:safety && npm run test:provenance && npm run test:performance && npm run test:package && npm run test:sdk-digest
+npm notice run @agdf/mcp-server@0.14.5 test:contract
+npm notice run node ./test/contract.test.js
+AGDF MCP semantic contract tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:continuation
+npm notice run node ./test/continuation.test.js
+All nine MCP skill continuations supply exact packaged contracts without a hook binding.
+npm notice run @agdf/mcp-server@0.14.5 test:protocol
+npm notice run node ./test/protocol.test.js && node ./test/skill-names.test.js
+AGDF MCP 2025-11-25 and 2026-07-28 separate language-matrix protocol tests passed.
+CLI/MCP host skill name parity passed
+npm notice run @agdf/mcp-server@0.14.5 test:safety
+npm notice run node ./test/safety.test.js
+AGDF MCP isolation, timeout, cancellation and static safety tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:provenance
+npm notice run node ./test/provenance.test.js
+AGDF MCP owned-runtime provenance, shutdown and tamper tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:performance
+npm notice run node ./test/performance.test.js
+{"node":"v22.22.3","platform":"darwin-x64","runs":20,"cold_tools_list_ms":[539.786,529.536,531.531,512.909,511.028,518.539,512.52,517.944,505.491,506.68,514.021,517.737,512.863,521.366,538.955,530.228,580.539,548.438,548.693,525.498],"cold_p95_ms":548.693,"warm_dispatch_ms":[403.645,371.396,378.713,392.233,375.431,377.534,370.52,356.883,364.059,361.604,357.965,355.182,357.129,357.526,352.601,381.342,376.333,359.035,359.621,360.203],"warm_p95_ms":392.233}
+npm notice run @agdf/mcp-server@0.14.5 test:package
+npm notice run node ./test/package.test.js
+AGDF MCP package boundary tests passed.
+npm notice run @agdf/mcp-server@0.14.5 test:sdk-digest
+npm notice run node ./test/sdk-digest.test.js
+MCP SDK digest tests passed

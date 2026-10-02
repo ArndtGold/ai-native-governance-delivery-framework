@@ -45,7 +45,7 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
     type: "object", additionalProperties: false,
     required: ["skill_id", "presentation_language", "working_directory"],
     properties: {
-      skill_id: { type: "string", minLength: 1, maxLength: 240, description: "Canonical AGDF skill slug from the active route." },
+      skill_id: { type: "string", minLength: 1, maxLength: 240, description: "Canonical AGDF skill slug or exact catalog-registered skill name for the calling host; normalized internally to the stable canonical ID." },
       presentation_language: {
         type: "string", minLength: 1, maxLength: 64,
         pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE,
@@ -190,12 +190,14 @@ export function buildSkillDispatchRegistry(skillSet) {
   return registry;
 }
 
-export function normalizeSkillDispatchInput(input, registry) {
-  const skillId = requireText(input.skillId, "skill_id");
-  const skill = registry.get(skillId);
-  if (!skill) throw new SkillDispatchInputError("skill_id", `Unknown AGDF skill: ${skillId}`);
+export function normalizeSkillDispatchInput(input, registry, pluginDefinition) {
+  const requestedSkill = requireText(input.skillId, "skill_id");
   const surface = requireText(input.surface, "surface");
   if (!SURFACES.has(surface)) throw new SkillDispatchInputError("surface", `Unsupported surface: ${surface}`);
+  const names = pluginDefinition ? buildSkillNameCatalog(pluginDefinition, surface).names : new Map([...registry.keys()].map(id => [id, id]));
+  const skillId = names.get(requestedSkill);
+  const skill = registry.get(skillId);
+  if (!skill) throw new SkillDispatchInputError("skill_id", `Unknown AGDF skill: ${requestedSkill}`, { allowedValues: [...names.keys()] });
   let requestedPresentationLanguage;
   try {
     requestedPresentationLanguage = requireText(input.presentationLanguage, "presentation_language", 64);
@@ -319,4 +321,65 @@ export function serializeSkillDispatchResult(result, { outputTooLargeRecovery = 
     timing: result.timing ?? emptySkillDispatchTiming(),
     diagnostics: [{ code: "dispatch_output_too_large" }],
   }, null, 2);
+}
+
+// Derived host names only; the plugin definition remains the sole skill inventory.
+const SLUG = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u;
+export const SKILL_NAME_PATTERN = /^[a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)?$/u;
+
+function slug(value) {
+  if (typeof value !== "string" || value.length > 64 || !SLUG.test(value)) throw new Error("Invalid skill name definition");
+  return value;
+}
+
+export function buildSkillNameCatalog(definition, surface) {
+  if (!SURFACES.has(surface) || !definition || !Array.isArray(definition.skillSet) || !definition.skillSet.length) throw new Error("Invalid skill name catalog");
+  const id = slug(definition.id);
+  const profile = definition[surface];
+  if (!profile || typeof profile.skillPrefix !== "string" || (profile.skillPrefix && !/^[a-z][a-z0-9-]*-$/u.test(profile.skillPrefix))) throw new Error("Invalid host skill prefix");
+  if (surface === "opencode" && (typeof profile.globalSkillPrefix !== "string" || !/^[a-z][a-z0-9-]*-$/u.test(profile.globalSkillPrefix))) throw new Error("Invalid global skill prefix");
+  const names = new Map();
+  const skills = new Map();
+  const add = (name, canonicalId) => {
+    if (name.length > 64 || !SKILL_NAME_PATTERN.test(name)) throw new Error("Invalid projected skill name");
+    if (names.has(name) && names.get(name) !== canonicalId) throw new Error(`Ambiguous host skill name: ${name}`);
+    names.set(name, canonicalId);
+  };
+  for (const skill of definition.skillSet) {
+    const canonicalId = slug(skill?.slug);
+    if (skills.has(canonicalId)) throw new Error(`Duplicate skill slug: ${canonicalId}`);
+    const localName = `${profile.skillPrefix}${canonicalId}`;
+    const globalName = surface === "opencode" ? `${profile.globalSkillPrefix}${canonicalId}` : localName;
+    add(canonicalId, canonicalId);
+    add(localName, canonicalId);
+    add(globalName, canonicalId);
+    if (surface === "codex" || surface === "claude") add(`${id}:${localName}`, canonicalId);
+    skills.set(canonicalId, Object.freeze({ canonicalId, localName, globalName }));
+  }
+  return { names, skills };
+}
+
+export function hostSkillName(definition, surface, canonicalId, { global = false } = {}) {
+  const entry = buildSkillNameCatalog(definition, surface).skills.get(canonicalId);
+  if (!entry) throw new Error(`Unknown canonical skill: ${canonicalId}`);
+  return global ? entry.globalName : entry.localName;
+}
+
+// Only identity, explicit slash invocations and already projected host references.
+// Bare canonical IDs in backticks, CLI arguments and filesystem paths are untouched.
+export function projectHostSkillNames(content, definition, surface, { global = false } = {}) {
+  const { skills } = buildSkillNameCatalog(definition, surface);
+  let next = content.replace(/^---\r?\n[\s\S]*?\r?\n---(?=\r?\n|$)/u, header => header.replace(/^name: ([a-z][a-z0-9-]*)[ \t]*$/gmu, (line, name) => {
+    const entry = [...skills.values()].find(item => item.canonicalId === name || item.localName === name);
+    return entry ? `name: ${global ? entry.globalName : entry.localName}` : line;
+  }));
+  for (const entry of skills.values()) {
+    const target = global ? entry.globalName : entry.localName;
+    next = next.replaceAll(`\`/${entry.canonicalId}\``, `\`/${target}\``);
+    if (global && entry.localName !== entry.canonicalId) {
+      next = next.replaceAll(`\`${entry.localName}\``, `\`${target}\``)
+        .replaceAll(`\`/${entry.localName}\``, `\`/${target}\``);
+    }
+  }
+  return next;
 }

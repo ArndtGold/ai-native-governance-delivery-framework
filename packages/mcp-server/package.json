@@ -18,7 +18,7 @@
   "scripts": {
     "test:contract": "node ./test/contract.test.js",
     "test:continuation": "node ./test/continuation.test.js",
-    "test:protocol": "node ./test/protocol.test.js",
+    "test:protocol": "node ./test/protocol.test.js && node ./test/skill-names.test.js",
     "test:safety": "node ./test/safety.test.js",
     "test:provenance": "node ./test/provenance.test.js",
     "test:performance": "node ./test/performance.test.js",

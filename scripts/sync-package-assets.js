@@ -1,4 +1,5 @@
 import { isMainEntry } from "./support/main-entry.js";
+import { hostSkillName, projectHostSkillNames } from "../packages/core/lib/skill-dispatch/contract.js";
 import { projectCore, projectPrivateCoreResources } from "./core-projection.mjs";
 import { getPluginSourceRoot } from "./public-plugin/source-root.js";
 import { createHash } from "node:crypto";
@@ -208,45 +209,23 @@ function syncPluginDirectory(sourceRoot, targetRoot) {
 }
 
 function sourceSkillName(skillSlug) {
-  return `${pluginDefinition.codex.skillPrefix}${skillSlug}`;
+  return hostSkillName(pluginDefinition, "codex", skillSlug);
 }
 
 function copilotSkillName(skillSlug) {
-  return `${pluginDefinition.copilot.skillPrefix}${skillSlug}`;
+  return hostSkillName(pluginDefinition, "copilot", skillSlug);
 }
 
 function openCodeSkillName(skillSlug) {
-  return `${pluginDefinition.opencode.skillPrefix}${skillSlug}`;
+  return hostSkillName(pluginDefinition, "opencode", skillSlug);
 }
 
 function toCopilotSkillContent(content) {
-  let next = content;
-  for (const skill of pluginDefinition.skillSet) {
-    const sourceName = sourceSkillName(skill.slug);
-    const targetName = copilotSkillName(skill.slug);
-    if (sourceName === targetName) continue;
-
-    next = next
-      .replaceAll(`name: ${sourceName}`, `name: ${targetName}`)
-      .replaceAll(`\`${sourceName}\``, `\`${targetName}\``)
-      .replaceAll(`/${sourceName}`, `/${targetName}`);
-  }
-  return next;
+  return projectHostSkillNames(content, pluginDefinition, "copilot");
 }
 
 function toOpenCodeSkillContent(content) {
-  let next = content;
-  for (const skill of pluginDefinition.skillSet) {
-    const sourceName = sourceSkillName(skill.slug);
-    const targetName = openCodeSkillName(skill.slug);
-    if (sourceName === targetName) continue;
-
-    next = next
-      .replaceAll(`name: ${sourceName}`, `name: ${targetName}`)
-      .replaceAll(`\`${sourceName}\``, `\`${targetName}\``)
-      .replaceAll(`/${sourceName}`, `/${targetName}`);
-  }
-  return next;
+  return projectHostSkillNames(content, pluginDefinition, "opencode");
 }
 
 function replaceUniqueRouterSection(content, startHeading, endHeading, replacement) {

@@ -190,7 +190,7 @@ export function createSkillDispatchService(dependencies = {}) {
       : runtimeEvidence(rawInput.expectedVersion, env);
     let input;
     try {
-      input = normalizeSkillDispatchInput(rawInput, buildSkillDispatchRegistry(rawInput.skillSet));
+      input = normalizeSkillDispatchInput(rawInput, buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet), dependencies.pluginDefinition);
     } catch (error) {
       timing.input_ms = round(milliseconds(started, now()));
       timing.total_ms = timing.input_ms;
@@ -429,7 +429,7 @@ export function createSkillDispatchService(dependencies = {}) {
       const routeNextSkill = input.continue_delivery && !control.approval_presentation?.markdown
         && nextSkillId && nextSkillId !== "none"
         && (control.current_gate !== "QA" || control.missing_approval === "Approval: QA");
-      if (routeNextSkill) skill = buildSkillDispatchRegistry(rawInput.skillSet).get(nextSkillId) ?? skill;
+      if (routeNextSkill) skill = buildSkillDispatchRegistry(dependencies.pluginDefinition?.skillSet ?? rawInput.skillSet).get(nextSkillId) ?? skill;
       if ((input.intake || input.continue_delivery)
           && control.approval_presentation?.markdown) {
         const result = baseResult({ outcome: "intake_continuation", terminal: false, skill, runtime, timing });

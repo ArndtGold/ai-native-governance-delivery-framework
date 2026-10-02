@@ -6,7 +6,7 @@ export { createResourceContext, resources } from "./resources/context.js";
 export function createCoreServices({ resources: context = resources, observers = {}, runtimeBinding } = {}) {
   const contracts = { readRuntimeContract: module => readRuntimeContract(module, { context }), readSkillRuntimeContracts: skill => readSkillRuntimeContracts(skill, { context }) };
   return Object.freeze({ ...contracts, resources: context, runtimeBinding,
-    dispatch: createSkillDispatchService({ ...observers, ...contracts }),
+    dispatch: createSkillDispatchService({ ...observers, ...contracts, pluginDefinition: context.pluginDefinition }),
     inspect: createControlInspectService({ ...observers, ...contracts }),
   });
 }

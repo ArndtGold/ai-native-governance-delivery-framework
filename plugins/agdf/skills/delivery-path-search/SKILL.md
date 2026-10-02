@@ -13,7 +13,7 @@ The search is advisory and read-only. Canonical AGDF `gate-check` remains the on
 
 ## Runtime Contract
 
-After `skill_continuation`, consume the modules below from `continuation.runtime_contracts` when supplied by MCP. No hook binding or shell invocation is needed for these reads. If that field is absent, use the MCP tool `agdf_inspect` (`operation: contract`, `module: <name>`) when the host lists it; otherwise a supplied schema-2 binding (`executable` and `argv_prefix[0]`, then `contract --module <name>`). Without either, read the referenced bundled files directly. If neither route can provide a required module, report the missing contract and stop; never infer an executable or search for another runtime.
+Use `continuation.runtime_contracts` after `skill_continuation`. If absent: listed MCP `agdf_inspect` (`operation: contract`, `module: <name>`); else supplied schema-2 executable/argv_prefix[0] `contract --module <name>`; else bundled files below. MCP reads need no hook or shell. Missing module: stop; never infer/search for runtime.
 
 - `../../meta/contracts/control-scaffold.md`
 - `../../meta/contracts/gate-transition.md`
@@ -42,8 +42,8 @@ Then pick one catalog route; non-authorizing, downstream checks remain.
 
 ## Executable Dispatch
 
-Dispatch through the AGDF MCP tool `agdf_dispatch` only when the host lists it (hosts add a prefix such as `mcp__agdf__agdf_dispatch`; load a listed deferred tool first and never search for an unlisted one): `skill_id` `delivery-path-search`, `presentation_language`, `working_directory`, and only when set the `target_source`/`primary_target` pair and `run_id`.
-Otherwise, or when that call fails, use supplied binding schema 2 only: executable, child-only environment and immutable argv_prefix, following binding.arguments exactly with `--skill delivery-path-search`, language and working directory.
+Use listed MCP `agdf_dispatch` (load deferred; host prefix allowed): `skill_id` `delivery-path-search`, `presentation_language`, `working_directory`, and only bound `target_source`/`primary_target` and `run_id`. Never search unlisted tools.
+If absent/failing: supplied schema-2 executable, child-only environment, immutable argv_prefix, declared arguments; `--skill delivery-path-search`, language and working directory.
 For `--language`: Required presentation language for the latest natural-language user request as one well-formed BCP 47 tag. If the request explicitly asks for a response language, use that tag; otherwise use the dominant request language. Use en when mixed or ambiguous. A valid unsupported tag renders through the complete English pack. Missing or invalid input fails before governance evaluation.
 `target_source`: `explicit_target` if request names `primary_target`; `continued_target` if it unambiguously continues confirmed target; `current_repository` if request names this/current repo with one matching repo active. Otherwise omit the pair; cwd has no target authority.
 Quote shell values as data.

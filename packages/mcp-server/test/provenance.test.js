@@ -54,7 +54,8 @@ try {
     assert.equal(semanticInvalid.structuredContent.authorizes, false);
     assert.equal(semanticInvalid.structuredContent.diagnostics[0].code, "dispatch_input_invalid");
     assert.equal(semanticInvalid.structuredContent.diagnostics[0].field, "skill_id");
-    assert.equal(semanticInvalid.structuredContent.host_action.text, "Ungültige Dispatcher-Eingabe für skill_id. Korrigieren und einmal erneut versuchen.");
+    assert.equal(semanticInvalid.structuredContent.host_action.text, `Ungültiger Wert für skill_id. Erlaubt: ${semanticInvalid.structuredContent.diagnostics[0].allowed_values.join(", ")}. Korrigieren und einmal erneut versuchen.`);
+    assert.ok(semanticInvalid.structuredContent.diagnostics[0].allowed_values.includes("agdf:gate-check"));
   });
 
   const closedInput = spawn(fixture.command, fixture.args, {

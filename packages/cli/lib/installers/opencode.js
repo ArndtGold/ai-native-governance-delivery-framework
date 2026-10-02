@@ -7,6 +7,7 @@ import { generatedRoot, pluginDefinition } from "../cli/runtime-context.js";
 import { evaluateOpenCodeRepositoryActivation } from "./opencode-activation.js";
 import { resolveLocalValidator } from "../runtime/local-validator.js";
 import { digestDirectory } from "#agdf-core/runtime/plugin-provenance.js";
+import { hostSkillName, projectHostSkillNames } from "#agdf-core/skill-dispatch/contract.js";
 import { validateLocalOpenCodePackageSource } from "./local-development.js";
 import { npmInvocation } from "./npm-invocation.js";
 import { execHostFileSync } from "../host-command.js";
@@ -31,8 +32,8 @@ function runtimeContractModuleNames(definition) {
 }
 
 const contractModules = runtimeContractModuleNames(pluginDefinition);
-const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => pluginDefinition.opencode.skillPrefix + skill.slug);
-const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => pluginDefinition.opencode.globalSkillPrefix + skill.slug);
+const openCodeSkillNames = pluginDefinition.skillSet.map((skill) => hostSkillName(pluginDefinition, "opencode", skill.slug));
+const globalOpenCodeSkillNames = pluginDefinition.skillSet.map((skill) => hostSkillName(pluginDefinition, "opencode", skill.slug, { global: true }));
 const globalOpenCodeSkillOwnershipMarker = "<!-- AGDF-GLOBAL-SKILL: ";
 const globalOpenCodeInstructionsOwnershipMarker = "<!-- AGDF-GLOBAL-INSTRUCTIONS -->";
 const globalOpenCodeRuntimeContractOwnershipMarker = "<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->";
@@ -284,13 +285,7 @@ function globalOpenCodeActivationGuard() {
 }
 
 function toGlobalOpenCodeContent(content) {
-  let next = content;
-  for (const skill of pluginDefinition.skillSet) {
-    const localName = `${pluginDefinition.opencode.skillPrefix}${skill.slug}`;
-    const globalName = `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`;
-    next = next.replaceAll(localName, globalName);
-  }
-  return next;
+  return projectHostSkillNames(content, pluginDefinition, "opencode", { global: true });
 }
 
 export function toGlobalOpenCodeInstructionsBootstrap(content) {
@@ -1058,7 +1053,7 @@ function openCodeOwnedGlobalFiles(configDir) {
     files.push({ path: join(configDir, "contracts", moduleName), owned: firstLine("<!-- AGDF-GLOBAL-RUNTIME-CONTRACT -->") });
   }
   for (const skill of pluginDefinition.skillSet) {
-    const name = `${pluginDefinition.opencode.globalSkillPrefix}${skill.slug}`;
+    const name = hostSkillName(pluginDefinition, "opencode", skill.slug, { global: true });
     const marker = `<!-- AGDF-GLOBAL-SKILL: ${name} -->`;
     files.push({ path: join(configDir, "skills", name, "SKILL.md"), owned: afterFrontmatter(marker) });
   }

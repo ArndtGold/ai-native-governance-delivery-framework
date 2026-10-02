@@ -42,6 +42,36 @@ und Repository-Migration gehören zu getrennten Services; sie sind keine Dispatc
 
 ## Bindung vor Fortsetzung
 
+### Sichtbarer Skillname und stabile AGDF-ID
+
+Der aus der [Plugin-Definition](../../plugins/agdf/meta/agdf-plugin.definition.json)
+berechnete [Namenskatalog](../../packages/core/lib/skill-dispatch/contract.js) ordnet
+exakt registrierte Hostnamen demselben kanonischen Skill-Katalogeintrag zu. Die
+Produktionsinstanz erhält diese Definition aus ihrem bestehenden Resource Context;
+das Modell kann keine Aliasliste oder Präfixregel übergeben.
+
+| Oberfläche | Gültige Beispiele | Interne ID |
+|---|---|---|
+| Codex / Claude Code | `gate-check`, `agdf:gate-check` | `gate-check` |
+| Copilot | `gate-check`, `agdf-gate-check` | `gate-check` |
+| OpenCode lokal / global | `gate-check`, `agdf-gate-check`, `agdf-global-gate-check` | `gate-check` |
+
+Die Beispiele werden für alle registrierten Skills aus ihren Slugs, der Plugin-ID
+und den vorhandenen Hostpräfixen abgeleitet. Die aufrufende Oberfläche bestimmt die
+erlaubten Formen; MCP bindet sie über den vertrauenswürdigen Runtime-Kontext.
+Unbekannte Namen, fremde Formen und Alias-/ID-Kollisionen scheitern vor Ziel- oder
+Kontrollevaluierung. Es gibt keine heuristische Präfixentfernung. Die Recovery nennt
+gültige Eingaben aus dem aktiven Katalog, sofern dieser eindeutig ist.
+
+Ergebnisse, Fortsetzungen, `skill_id`, CLI `--skill` und technische Contractreferenzen
+tragen ausschließlich die stabile kanonische ID. Hostgeneratoren und globale Adapter
+verwenden dieselbe Ableitung für Frontmatter und explizite sichtbare Aufrufreferenzen;
+sie benennen keine bloßen ID-Erwähnungen oder Pfadsubstrings pauschal um.
+Eine Namensauflösung ersetzt keine Ziel-, Run- oder Freigabebindung.
+
+Die Tests belegen Quellcode-, Protokoll- und Paketverhalten. Installation und eine
+frisch geladene Host-/Modellsitzung sind davon getrennte Nachweise.
+
 `working_directory` ist Aufrufkontext. Das Governance-Ziel benötigt eine belegte Herkunft aus
 `explicit_target`, `continued_target` oder `current_repository`. Eine Belegquelle oder ein zufällig
 gefundenes Repository wird dadurch nicht zum Ziel. Die Gesprächssprache wird explizit als

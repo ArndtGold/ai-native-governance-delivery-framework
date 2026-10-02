@@ -73,7 +73,7 @@ function validateDispatcherBinding(content, surface, label) {
       || binding.route_source_after_activation.relative_to !== "validator_directory"
       || ![
         "../meta/contracts/request-activation.md",
-        "../copilot-skills/contracts/request-activation.md",
+        "../skills/contracts/request-activation.md",
       ].includes(binding.route_source_after_activation.path))) {
     throw new Error(`${label} dispatcher binding has no exact post-activation route source`);
   }

@@ -1,0 +1,246 @@
+{
+  "date": "2026-10-02",
+  "type": "document/source structural verification; no runtime enforcement test",
+  "concept_path": "docs/architecture/agent-control-concept.md",
+  "concept_sha256": "0a0dfd1b444023d19209c769e68a1aacf449e035391e0cdca4525c593ac35349",
+  "checks": [
+    {
+      "check": "criterion coverage",
+      "result": "pass",
+      "evidence": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "AC-009"
+      ]
+    },
+    {
+      "check": "design decision coverage",
+      "result": "pass",
+      "evidence": [
+        "SDD-001",
+        "SDD-002",
+        "SDD-003",
+        "SDD-004",
+        "SDD-005",
+        "SDD-006",
+        "SDD-007",
+        "SDD-008",
+        "SDD-009"
+      ]
+    },
+    {
+      "check": "concept sections",
+      "result": "pass",
+      "evidence": "sections 1-11"
+    },
+    {
+      "check": "required walkthroughs",
+      "result": "pass",
+      "evidence": [
+        "SC-NORMAL",
+        "SC-BYPASS",
+        "SC-STALE",
+        "SC-WRONG",
+        "SC-REPLAY",
+        "SC-CONCURRENT",
+        "SC-NEGATIVE",
+        "SC-RESTART",
+        "SC-TRANSPORT",
+        "SC-CAPABILITY",
+        "SC-EVIDENCE",
+        "SC-TAMPER",
+        "SC-ROUTE"
+      ]
+    },
+    {
+      "check": "UR signal coverage",
+      "result": "pass",
+      "evidence": [
+        "UR-S1",
+        "UR-S2",
+        "UR-S3",
+        "UR-S4",
+        "UR-S5",
+        "UR-S6",
+        "UR-S7"
+      ]
+    },
+    {
+      "check": "control catalogue",
+      "result": "pass",
+      "evidence": [
+        "C-01",
+        "C-02",
+        "C-03",
+        "C-04",
+        "C-05",
+        "C-06",
+        "C-07",
+        "C-08",
+        "C-09",
+        "C-10",
+        "C-11",
+        "C-12",
+        "C-13"
+      ]
+    },
+    {
+      "check": "operation catalogue",
+      "result": "pass",
+      "evidence": [
+        "OP-01",
+        "OP-02",
+        "OP-03",
+        "OP-04",
+        "OP-05",
+        "OP-06",
+        "OP-07",
+        "OP-08",
+        "OP-09",
+        "OP-10"
+      ]
+    },
+    {
+      "check": "no unfinished placeholders",
+      "result": "pass",
+      "evidence": "no unfinished markers"
+    },
+    {
+      "check": "referenced source existence",
+      "result": "pass",
+      "evidence": [
+        "packages/core/lib/skill-dispatch",
+        "docs/architecture/dispatcher.md",
+        "plugins/agdf/meta/contracts/request-activation.md",
+        "plugins/agdf/meta/contracts/task-target-resolution.md",
+        "packages/core/lib/control-evaluation/gate-policy.js",
+        "packages/core/lib/control-evaluation/verified-change.js",
+        "packages/core/lib/control-state/run-seal.js",
+        "packages/core/lib/control-state/run-state-writer.js",
+        "packages/core/lib/control-state/run-presentation.js",
+        "packages/core/lib/control-state/gate-approval-validator.js",
+        "packages/core/lib/interaction-presentation.js",
+        "packages/core/lib/control-state/approval-command.js",
+        "packages/core/lib/control-state/approval-command-contract.js",
+        "packages/mcp-server/src/server.js",
+        "packages/cli/lib/mcp-dispatch-runtime.js",
+        "plugins/agdf/host-templates",
+        "packages/cli/lib/host-adapters"
+      ]
+    },
+    {
+      "check": "TP verification references",
+      "result": "pass",
+      "evidence": {
+        "rows": 22,
+        "scenario_ids": [
+          "SCN-001",
+          "SCN-002",
+          "SCN-003",
+          "SCN-004",
+          "SCN-005",
+          "SCN-006",
+          "SCN-007",
+          "SCN-008",
+          "SCN-009",
+          "SCN-010",
+          "SCN-011",
+          "SCN-012",
+          "SCN-013",
+          "SCN-014",
+          "SCN-015",
+          "SCN-016",
+          "SCN-017",
+          "SCN-018",
+          "SCN-019",
+          "SCN-020",
+          "SCN-021",
+          "SCN-022"
+        ]
+      }
+    },
+    {
+      "check": "approved artefacts unchanged",
+      "result": "pass",
+      "evidence": {
+        "UR.md": "7b8ac86901af2f701926a678adb94a8ff426ac3435708fc4bbff9b577fdbcafb",
+        "PRD.md": "3fb1e765debfc306707d2e5d51db6cfbcb34277cf407cdf05ea2b6680c566643",
+        "SD.md": "a4ab2b44b994bbff0218faae62361dfd033df8cd8d9e4377e109bf8789e69a33",
+        "TP.md": "f0df7c35d30032d52d7bd34571cab639b7aaf1af26eec9ee821b6c29981ef85d"
+      }
+    },
+    {
+      "check": "bounded production scope",
+      "result": "pass",
+      "evidence": {
+        "paths": [
+          ".agdf/control/MASTER_BACKLOG.md",
+          "docs/architecture/README.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/BROWNFIELD_ANALYSIS.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/BROWNFIELD_REVIEW.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CD_TESTS.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CLEAN_IMPLEMENTATION_REVIEW.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CODE_REVIEW.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CONCEPT.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CONCEPT_CHECKS.json",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/PRD.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/QA_REPORT.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/SD.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/TP.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/TP_REVIEW.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/UR.md",
+          ".agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/UX_INTENT_DEFINITION.md",
+          ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/RUN_STATE.md",
+          ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/presentations/2a58c581-d089-4117-9527-94ff8a0465a8.json",
+          ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/presentations/57d23755-6f24-461e-8975-cdeb607a2949.json",
+          ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/presentations/9a116b8b-4db6-4951-8a9d-c9baf2960814.json",
+          ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/presentations/b211dcec-207e-455f-9799-295b442d9845.json",
+          ".agdf/control/runs/agent-control-dispatcher-mcp-concept-20261002-01/presentations/e7a78017-ca78-4269-b683-a4bae340495f.json",
+          "docs/architecture/agent-control-concept.md"
+        ],
+        "outside": []
+      }
+    },
+    {
+      "check": "source baseline unchanged",
+      "result": "pass",
+      "evidence": "a6ba40c64a77bbb490519e978a5a30cd73be2d1a"
+    },
+    {
+      "check": "local links docs/architecture/agent-control-concept.md",
+      "result": "pass",
+      "evidence": {
+        "checked": 6,
+        "missing": []
+      }
+    },
+    {
+      "check": "local links docs/architecture/README.md",
+      "result": "pass",
+      "evidence": {
+        "checked": 94,
+        "missing": []
+      }
+    },
+    {
+      "check": "local links .agdf/control/artefacts/agent-control-dispatcher-mcp-concept-20261002-01/CONCEPT.md",
+      "result": "pass",
+      "evidence": {
+        "checked": 1,
+        "missing": []
+      }
+    },
+    {
+      "check": "single canonical concept",
+      "result": "pass",
+      "evidence": "run file is only a link to the canonical document"
+    }
+  ],
+  "result": "pass"
+}

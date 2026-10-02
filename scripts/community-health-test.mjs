@@ -25,7 +25,7 @@ const fixturePaths = [
   "docs/agenten-handbuch",
   "docs/handbook",
   "docs/compatibility",
-  "docs/architecture/package-structure.md",
+  "docs/architecture",
   "docs/00-manifest.md",
   "docs/01-framework-ueberblick.md",
   "docs/02-gates.md",

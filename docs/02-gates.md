@@ -145,7 +145,7 @@ welchem Schritt entscheidet, und zeigt die kurzen Wege für kleine Änderungen.
 
 ![Ablauf von UR bis OR: Gates mit Freigabe durch den Menschen, Pflichtschritte des Agenten, die bedingte UX Intent Definition und die kurzen Wege Quick Task und Verified Change](architecture/diagrams/07-gate-steps.svg)
 
-*Erklärung der Schrittarten im [Dispatcher-Dokument](architecture/dispatcher.md#schrittklassen).
+*Erklärung der Schrittarten im [Dispatcher-Dokument](architecture/02-dispatcher.md#schrittklassen).
 [Diagrammquelle](architecture/diagrams/07-gate-steps.dot).*
 
 ## G-00 User Requirement

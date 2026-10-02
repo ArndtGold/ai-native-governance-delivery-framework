@@ -33,7 +33,7 @@
 | Evaluation tooling and corpora | evals/ | Deterministic reports with explicit source fingerprints |
 
 Verified 2026-10-01; authority remains with the existing AGDF contracts. See
-`docs/architecture/package-structure.md` and the physical package-boundaries run.
+`docs/architecture/05-paketstruktur.md` and the physical package-boundaries run.
 
 ## Secondary References
 

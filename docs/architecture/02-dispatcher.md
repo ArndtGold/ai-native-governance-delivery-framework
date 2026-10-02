@@ -2,7 +2,10 @@
 
 **Stand: 2. Oktober 2026, Repository-Quelle.** Dieses Dokument erklärt den implementierten
 Dispatcher. Es belegt weder die Veröffentlichung eines Pakets noch das Verhalten einer geladenen
-Host-Sitzung. Die [Architekturübersicht](README.md) ordnet ihn in das Gesamtsystem ein.
+Host-Sitzung. Der [Architektur-Einstieg](README.md) zeigt den durchgehenden Arbeitsablauf;
+die [Bestandsbeschreibung](01-systemarchitektur.md) ordnet den Dispatcher in die Bausteine und
+Aufrufwege ein. Dieses Dokument vertieft diesen Teil der bestehenden Architektur.
+Weiterentwicklung, Kontrollkatalog und Roadmap stehen im [gemeinsamen Zielbild](03-agentenkontrolle-zielbild.md).
 
 Der Dispatcher verbindet einen konkreten Agentenauftrag mit einem Zielprojekt, dem erforderlichen
 Kontrollkontext und dem nächsten begrenzten Arbeitsschritt. Er führt diesen Arbeitsschritt nicht
@@ -89,7 +92,8 @@ Die fachliche Beschreibung jedes Schritts steht in [02 - Gates](../02-gates.md).
 PRD, SD und TP auch G-00 bis G-03.
 
 **Gate mit Freigabe.** Der Agent bereitet die Entscheidung vor und zeigt sie mit `run-present` an.
-Danach wartet er auf eine neue Antwort des Menschen. Erst diese Antwort gibt das Gate frei. Der
+`run-present` speichert die vorbereitete Bindung; die Vorschau des Evaluators ist dagegen lesend.
+Danach wartet der Agent auf eine neue Antwort des Menschen. Erst diese Antwort gibt das Gate frei. Der
 Skill `qa-gate` bewertet die Qualität mit `pass`, `revise` oder `block`. Die Freigabe `Approval: QA`
 erteilt trotzdem der Mensch. Im Dispatcher: UC-D10, UC-D11 und UC-D13.
 
@@ -123,68 +127,22 @@ Die Regeln, wann ein Schritt nötig ist, stehen im
 
 ## Bekannte Grenzen: Wo der Agent sich selbst kontrolliert
 
-AGDF trennt Freigabe und Ausführung. An drei Stellen bewertet der Agent aber selbst, wie streng er
-kontrolliert wird. Diese Stellen sind hier offen benannt. Sie sind eine fachliche Bewertung und
-keine neue Regel. Jede Änderung daran braucht einen eigenen Run.
+Die folgenden Grenzen erklären das aktuelle Routing. Sie werden im
+[Kontrollkatalog](03-agentenkontrolle-zielbild.md#4-kontrollkatalog-und-bindung-konkreter-aktionen)
+als C-05 bis C-09 aufgegriffen. Lösungsmechanismen und Abhängigkeiten stehen dort und in der
+[gemeinsamen Roadmap](03-agentenkontrolle-zielbild.md#10-abgleich-der-umfänge-und-umsetzungsroadmap).
 
-### 1. Der Agent wählt den Weg selbst
+| Grenze im bestehenden Ablauf | Maßgebliche Quelle | Verbindung zum Zielbild |
+|---|---|---|
+| Der Agent trifft die Mode/Slice Decision. Der Evaluator verarbeitet die gespeicherte Quick-Task-Entscheidung; Verified Change hat zusätzliche Eignungsprüfungen. | [Gate-Übergang](../../plugins/agdf/meta/contracts/gate-transition.md), [Gate-Policy](../../packages/core/lib/control-evaluation/gate-policy.js), [Verified Change](../../packages/core/lib/control-evaluation/verified-change.js) | C-07: Grundlagen eines leichteren Ablaufs prüfen; R-01 |
+| Reviews können vom umsetzenden Agenten stammen. Ein aufgezeichnetes Reviewergebnis allein belegt keine unabhängige Prüfung. | [Qualitätsvertrag](../../plugins/agdf/meta/contracts/quality.md) | C-08/C-09: tatsächliche Ergebnisse und Unabhängigkeit belegen; R-03 |
+| Die bedingte UX Intent Definition und die Bewertung der Architecture Impact verlangen fachliche Einordnung durch den Agenten; universelle technische Durchsetzung ist nicht nachgewiesen. | [Brownfield-Vertrag](../../plugins/agdf/skills/brownfield-analysis/SKILL.md), [UX-Solution-Design](../../.agdf/control/artefacts/prd-ux-intent-requirements/SD.md), [dokumentiertes Risiko](../../.agdf/control/artefacts/prd-ux-intent-requirements/OR.md) | C-07: bedingte Anforderungen prüfen; R-01 |
+| Direkte Werkzeuge des Hosts können außerhalb des Dispatcher-Pfads wirken. | [Bestandsbeschreibung der Durchsetzungsgrenzen](01-systemarchitektur.md#5-regel-prüfung-und-durchsetzung) | C-05: tatsächliche Aktionswege kontrollieren; R-02 |
 
-**Heute:** Der Agent trifft die Mode/Slice Decision im Brownfield Review. Der Mensch bestätigt
-den Weg nicht eigens; der [Gate-Übergangsvertrag](../../plugins/agdf/meta/contracts/gate-transition.md)
-verlangt ausdrücklich keine zweite Entscheidung. Für Verified Change prüft die Software die
-Voraussetzungen ([`verified-change.js`](../../packages/core/lib/control-evaluation/verified-change.js)).
-Für Quick Task prüft sie nichts: Steht `quick_task` im Run, erlaubt der Evaluator die Umsetzung
-([`gate-policy.js`](../../packages/core/lib/control-evaluation/gate-policy.js)).
-
-**Warum das wichtig ist:** Der Agent entscheidet damit, ob PRD, SD, TP, Reviews, QA und UAT
-stattfinden. Der Kontrollierte wählt also die Tiefe seiner Kontrolle. Im Änderungsmanagement nach
-ITIL sind Standardänderungen deshalb ein vorab freigegebener Katalog und keine Einzelfallentscheidung.
-
-**Mögliche Abhilfe:** Den gewählten Weg auf der nächsten Freigabekarte zeigen, oder Quick Task wie
-Verified Change an Bedingungen knüpfen, die die Software prüft.
-
-### 2. Die Prüfer sind nicht unabhängig
-
-**Heute:** Task Plan Review, Clean Implementation Review und Code Review führt meist derselbe
-Agent aus, der auch umgesetzt hat. Kein Vertrag verlangt einen getrennten Prüfer, einen frischen
-Kontext oder ein anderes Modell.
-
-**Warum das wichtig ist:** QA stützt sich auf diese drei Reviews. Ein Modell findet seine eigenen
-Annahmen selten. In regulierten Bereichen ist eine unabhängige Prüfung deshalb Pflicht, etwa nach
-dem Vier-Augen-Prinzip oder der Luftfahrtnorm DO-178C.
-
-**Mögliche Abhilfe:** Die Reviews von einem eigenen Prüfer-Agenten mit frischem Kontext oder einem
-anderen Modell ausführen lassen und das im Nachweis festhalten.
-
-### 3. Bedingte Prüfungen prüft nur der Agent
-
-**Heute:** Die Regel für die UX Intent Definition prüft keine Software. Weder Gate-Evaluator noch
-Dispatcher lesen `ui_ux_impact`. Ob das PRD bei `medium` oder `high` ohne UX Intent Definition
-unfertig bleibt, hängt davon ab, dass der Agent den Vertrag befolgt. Dasselbe gilt für die
-Architecture Impact. Sie ist kein eigener Schritt, sondern ein Teil des Brownfield Review: Der
-Agent hält dort fest, ob Modulgrenzen, Schnittstellen, Datenhoheit, Kompatibilität, Laufzeit oder
-Sicherheit betroffen sind ([`brownfield-analysis`](../../plugins/agdf/skills/brownfield-analysis/SKILL.md)).
-Auch das liest keine Software.
-
-Eine Sperre durch Software gibt es erst bei QA: QA kann nicht bestehen, wenn die UX-Anforderungen
-nicht vollständig umgesetzt sind oder Befunde offen sind. Ein Fehler fällt also auf, aber erst spät.
-
-Für die UX Intent Definition ist das bewusst so entschieden. Der Run `prd-ux-intent-requirements`
-hat keinen eigenen Evaluator eingeführt ([SD](../../.agdf/control/artefacts/prd-ux-intent-requirements/SD.md))
-und das Risiko im [OR](../../.agdf/control/artefacts/prd-ux-intent-requirements/OR.md) festgehalten.
-
-**Warum das wichtig ist:** Jede neue Bedingung, etwa zu Sicherheit oder Datenschutz, würde sonst
-wieder nur als Text im Vertrag stehen.
-
-**Mögliche Abhilfe:** Ein allgemeines Muster für bedingte Schritte: Der Gate-Evaluator liest die
-Bedingung aus dem Brownfield Review und meldet den Schritt als `next_operation`. Der Dispatcher
-gibt ihn dann wie jeden anderen Pflichtschritt weiter.
-
-### Gemeinsame Richtung
-
-Am stärksten ist eine Kontrolle, die nicht vom Agenten abhängt. Eine Ergänzung außerhalb des
-Agenten wäre eine verpflichtende CI-Prüfung: Sie lehnt einen Merge ab, solange der zugehörige Run
-keine gültige UAT-Freigabe hat. Ob es eine solche Prüfung schon gibt, belegt dieses Dokument nicht.
+Die QA-Bewertung verlangt vollständige Anforderungen und behandelte Befunde. Daraus folgt keine
+universelle technische Erkennung einer ausgelassenen Prüfung. Ebenso bietet ein Reviewer mit neuem
+Kontext eine zusätzliche Perspektive, aber allein noch keine unabhängige Vertrauensgrenze. Diese
+Unterscheidungen erläutert die [Ergebnisprüfung im Zielbild](03-agentenkontrolle-zielbild.md#6-prüfung-der-tatsächlichen-arbeit-und-unabhängigkeit).
 
 ## Use-Case-Katalog
 

@@ -1,0 +1,22 @@
+# UX Intent Definition: Joint Agent Control Concept
+
+- decision: ready
+- blocking_reason: none
+- primary_user_intent: Understand and deliberately control what the coding agent may do and verify what it actually did.
+- success_signal: A reviewer can trace a proposed action and its result through scope, authority, evidence and enforcement limits without inferring permission from UI or agent prose.
+- primary_decision_or_action: Approve, request revision or decline a clearly bound decision; identify and act on a deviation or missing guarantee.
+- working_modes: Scope/intake clarification; work permitted; waiting for human decision; evidence review; blocked or interrupted; completed/handoff. These are analytical journey states, not a new runtime state machine.
+- effective_state_by_mode: Clarification has no unresolved-target execution authority; work permitted is bounded by canonical evaluation; waiting has no advance without a valid new decision; review has no self-declared final acceptance; blocked/interrupted has no presumed continuation; completed uses persisted closeout evidence.
+- visible_state_types: Current permitted action; pending human decision; agent progress or claim; verification evidence; blocker; stale snapshot; unsupported enforcement; completion. Progress and claims must not be shown as verified results.
+- effective_state_authority_by_mode: Existing canonical control owners determine operational authority in every mode; the human supplies required deliberate decisions. Host tool permissions remain a separate constraint. The target concept cannot retrospectively change current permission.
+- primary_state_presentation_owner_by_mode: One common semantic decision/status presentation for every mode, rendered by the host using its supported capabilities. Host controls change appearance, not authority.
+- activation_paths: Explicit request with target/scope assignment; bound continuation; new deliberate approval after presentation. Mere discovery, event receipt or a selected display label grants no authority.
+- blockers: Missing target/scope, stale artefact, invalid decision binding, missing evidence, unsupported required guarantee and recoverable transport failure. Each needs a visible reason and one safe next action.
+- recovery_paths: Clarify scope; prepare and show fresh revision then wait for a new response; repair evidence; choose an explicitly supported lower assurance profile or block dependent actions; retry transient failure after revalidation. The concept must explain these choices without granting them automatically.
+- relevant_state_transitions: Request to clarification or bounded work; prepared decision to accepted/revise/decline/cancel; work to evidence review; any invalidating change to stale/blocked; transient failure to retry after revalidation; validated result to closeout. Each proposed transition must state trigger, effective authority, feedback, failure and next action.
+- proposed_prd_acceptance_criteria: Concept includes user journeys, distinguishes effective state from status/progress/claims, binds decisions to their exact subject, and defines visible blockers and recovery with host-independent semantics.
+- open_product_questions: none preventing a concept PRD. The target architecture and attainable enforcement levels are explicit SD decisions; no runtime prevention promise is implied.
+- affected_outputs: PRD requirements and later concept's human-control journeys, host matrix and validation scenarios.
+- evidence: Approved UR; BROWNFIELD_REVIEW.md; plugins/agdf/meta/contracts/interaction.md; packages/core/lib/control-state/run-presentation.js.
+- missing_evidence: Actual host/tool prevention and independently attested human responses are not established; the concept must classify those gaps instead of asserting support.
+- required_next_step: Incorporate the observable intent and uncertainty rules into the concept PRD. This analysis adds no gate or implementation authority.

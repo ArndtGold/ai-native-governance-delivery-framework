@@ -1,5 +1,11 @@
 # Paketstruktur und verbindliche Zuständigkeiten
 
+Diese Referenz ordnet die im [Architektur-Einstieg](README.md) beschriebenen Verantwortlichkeiten
+konkreten Quell-, Build- und Auslieferungsgrenzen zu. Für das Zusammenwirken der Bausteine siehe
+[Bestehende Systemarchitektur](01-systemarchitektur.md#2-bausteine-und-verantwortlichkeiten).
+Die vorgeschlagene Weiterentwicklung steht im [gemeinsamen Zielbild](03-agentenkontrolle-zielbild.md);
+der folgende Baum beschreibt die bestehende Struktur.
+
 Der Repository-Baum trennt installierbare Plugin-Inhalte, ausführbare Software und
 Build-/Release-Komposition:
 
@@ -98,7 +104,7 @@ keine fremden Hostausgaben. Diese Ausgaben werden ebenfalls atomar ersetzt.
 | Source/public | Keine aktive MCP-/Hook-Laufzeit; öffentliche Skills-only-Ausgabe |
 | Codex-Runtime | Root `mcp.json` mit `type: stdio`; Installer bindet absolute Plugin-/Datenpfade; Hooks bleiben deklarierte Fallback-Komposition |
 | Claude-Runtime | `mcp/claude.mcp.json`, eigener Launcher und deklarierte Hooks |
-| Copilot-Runtime | Agent Plugins 1.0, fokussierter Offline-Validator, Contracts unter `skills/contracts`, Copilot-Hook unter `com.github.copilot/hooks` und pluginverwalteter MCP-Server mit gelocktem SDK |
+| Copilot-Runtime | Fokussierter Offline-Validator, Contracts unter `copilot-skills/contracts`; keine Installer-/SDK-/MCP-Payload |
 | OpenCode | Eigene Konfigurationskomposition und das installierte `create-agdf`-Paket |
 
 Source-, Runtime- und Installationsdigests haben unterschiedliche Aufgaben.

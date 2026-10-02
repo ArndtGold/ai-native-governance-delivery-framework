@@ -12,4 +12,4 @@ with resources and observers without a mutable global registry.
 
 This package is private. Root assembly embeds `lib/` into the existing public
 `create-agdf` product, with a generated resource descriptor and internal aliases.
-See [package architecture](../../docs/architecture/package-structure.md).
+See [package architecture](../../docs/architecture/05-paketstruktur.md).

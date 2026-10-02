@@ -231,8 +231,9 @@ Empfohlene Reihenfolge:
 8. [07 - Domain Driven Delivery](docs/07-domain-driven-delivery.md)
 9. [Glossar](docs/glossar.md)
 
-Für die Implementierung führt der [Architektur-Einstieg im Überblick](docs/01-framework-ueberblick.md#technische-architektur)
-zur technischen Architekturdokumentation mit fünf Diagrammen und Verweisen auf die maßgeblichen Quellen.
+Der [Architektur-Einstieg](docs/architecture/README.md) erklärt den gemeinsamen Arbeitsablauf
+und führt zur bestehenden Systemarchitektur, zum Dispatcher und zum vorgeschlagenen Zielbild.
+Paketstruktur, Diagramme und Quellenreferenzen vertiefen die jeweiligen Bausteine.
 
 ## Projektstruktur
 
@@ -250,7 +251,12 @@ zur technischen Architekturdokumentation mit fünf Diagrammen und Verweisen auf 
 │  ├─ 06-vom-notizzettel-zum-delivery-lagebild.md
 │  ├─ 07-domain-driven-delivery.md
 │  ├─ architecture/
-│  │  ├─ README.md  (technische Architektur und Quellen)
+│  │  ├─ README.md  (Architektur-Einstieg und Leseweg)
+│  │  ├─ 01-systemarchitektur.md  (bestehendes System)
+│  │  ├─ 02-dispatcher.md  (Ablaufreferenz)
+│  │  ├─ 03-agentenkontrolle-zielbild.md  (gemeinsames Zielbild)
+│  │  ├─ 04-mcp-schnittstellen.md  (ergänzende MCP-Fragen)
+│  │  ├─ 05-paketstruktur.md  (Quell- und Paketgrenzen)
 │  │  └─ diagrams/  (SVG-Abbildungen und DOT-Quellen)
 │  ├─ handbook/
 │  │  ├─ README.md
@@ -314,4 +320,4 @@ AGDF(TM) und AI Governance & Delivery Framework(TM) sind Marken von Arndt Gold.
 Die Nutzung von Name, Logo und Projektmarken ist in [TRADEMARKS.md](TRADEMARKS.md) beschrieben.
 Weitere Hinweise stehen in [NOTICE](NOTICE).
 
-The [package and source layout](docs/architecture/package-structure.md) explains `plugins/agdf/`, the existing npm packages and generated host profiles.
+The [package and source layout](docs/architecture/05-paketstruktur.md) explains `plugins/agdf/`, the existing npm packages and generated host profiles.

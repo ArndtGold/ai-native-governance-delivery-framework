@@ -58,7 +58,7 @@ function baseResult({ outcome, operation, runtime, timing }) {
     schema_version: CONTROL_INSPECT_SCHEMA_VERSION,
     contract_version: CONTROL_INSPECT_CONTRACT_VERSION,
     outcome,
-    terminal: true,
+    terminal: outcome !== "inspect_result",
     authorizes: false,
     operation: operation ?? null,
     runtime,

@@ -1,3 +1,4 @@
+import Ajv2020 from "ajv/dist/2020.js";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -143,6 +144,19 @@ const transportContext = { surface: "codex", expectedVersion: pluginDefinition.v
 const deliveryInput = { skill_id: "gate-check", presentation_language: "de", working_directory: "/tmp/agdf", run_id: "bound-run" };
 const registry = buildSkillDispatchRegistry(pluginDefinition.skillSet);
 const expectedRevision = "12345678-1234-4123-8123-123456789abc";
+const validateDispatch = new Ajv2020({ strict: false }).compile(schema);
+for (const intake of [undefined, false, true]) for (const mode of [undefined, "new", "resume"])
+for (const continuation of [undefined, false, true]) for (const run of [undefined, "bound-run"])
+for (const revision of [undefined, expectedRevision]) {
+  const args = { skill_id: "gate-check", presentation_language: "de", working_directory: "/tmp/agdf",
+    ...(intake !== undefined ? { intake } : {}), ...(mode !== undefined ? { intake_mode: mode } : {}),
+    ...(continuation !== undefined ? { continue_delivery: continuation } : {}),
+    ...(run !== undefined ? { run_id: run } : {}), ...(revision !== undefined ? { expected_revision_id: revision } : {}) };
+  let accepted = true;
+  try { normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments(args, transportContext), registry); } catch { accepted = false; }
+  assert.equal(validateDispatch(args), accepted, JSON.stringify(args));
+}
+
 assert.equal(normalizeSkillDispatchInput(parseSkillDispatchFunctionArguments({ ...deliveryInput,
   intake: true, intake_mode: "resume", expected_revision_id: expectedRevision }, transportContext), registry).expected_revision_id, expectedRevision);
 for (const fields of [
@@ -253,7 +267,7 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.additionalProperties, false);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.presentation_language.pattern, schema.properties.presentation_language.pattern);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
-assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.terminal.const, true);
+assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.terminal.type, "boolean");
 assert.ok(controlInspectDefinitionBytes() <= CONTROL_INSPECT_MAX_DEFINITION_BYTES, `agdf_inspect definition exceeds ${CONTROL_INSPECT_MAX_DEFINITION_BYTES} bytes`);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /Never writes, selects a run or grants approval/u);
 assert.match(CONTROL_INSPECT_FUNCTION_DEFINITION.description, /verified_change git observation is unavailable/u);

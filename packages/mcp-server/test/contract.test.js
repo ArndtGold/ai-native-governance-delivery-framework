@@ -1,3 +1,7 @@
+import { mkdtempSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
@@ -63,8 +67,66 @@ for (const row of INVALID_PRESENTATION_LANGUAGE_CASES) {
 }
 assert.equal(calls, 1, "invalid presentation language must not reach the dispatcher executor");
 
+
+for (const fields of [
+  { intake: true, continue_delivery: true, run_id: "bound-run" },
+  { intake_mode: "resume", run_id: "bound-run" },
+  { expected_revision_id: "12345678-1234-4123-8123-123456789abc" },
+  { continue_delivery: true },
+]) {
+  const rejected = await client.callTool({ name: "agdf_dispatch", arguments: { ...unresolvedArguments, ...fields } });
+  assert.equal(rejected.isError, true, JSON.stringify(fields));
+  assert.equal(calls, 1, "invalid dispatch dependencies must not reach executor");
+}
+
+const inspectBase = { operation: "doctor", presentation_language: "de", working_directory: "/tmp" };
+for (const selection of [
+  { operation: "gate-check", variant: "status-card", all_active: true },
+  { operation: "doctor", variant: "status-card" },
+  { operation: "doctor", module: "quality" },
+  { operation: "contract" },
+]) {
+  const before = calls;
+  const rejected = await client.callTool({ name: "agdf_inspect", arguments: { ...inspectBase, ...selection } });
+  assert.equal(rejected.isError, true, JSON.stringify(selection));
+  assert.equal(calls, before, "invalid operation dependencies must not reach executor");
+}
+for (const selection of [
+  { operation: "doctor", all_active: true },
+  { operation: "delivery-map", all_active: true },
+  { operation: "gate-check", variant: "status-card", all_active: false },
+  { operation: "contract", module: "quality", all_active: false },
+]) {
+  const before = calls;
+  const accepted = await client.callTool({ name: "agdf_inspect", arguments: { ...inspectBase, ...selection } });
+  assert.equal(accepted.isError, undefined, JSON.stringify(selection));
+  assert.equal(accepted.structuredContent.authorizes, false);
+  assert.equal(accepted.structuredContent.terminal, true, "unresolved targets stop");
+  assert.equal(accepted.structuredContent.host_action.mode, "transmit_presentation_verbatim_and_stop");
+  assert.equal(calls, before + 1);
+}
+const inspectRepository = mkdtempSync(join(tmpdir(), "agdf-inspect-result-contract-"));
+try {
+  execFileSync("git", ["init", "--quiet", inspectRepository]);
+  const success = await client.callTool({ name: "agdf_inspect", arguments: {
+    ...inspectBase, working_directory: inspectRepository,
+    target_source: "explicit_target", primary_target: inspectRepository,
+  } });
+  assert.equal(success.isError, undefined);
+  assert.equal(success.structuredContent.outcome, "inspect_result");
+  assert.equal(success.structuredContent.terminal, false);
+  assert.equal(success.structuredContent.host_action.mode, "consume_report_and_continue");
+  assert.equal(success.structuredContent.host_action.source, "report");
+  assert.equal(success.structuredContent.host_action.allow_surrounding_text, true);
+  assert.equal(success.structuredContent.recovery, null);
+  assert.equal(typeof success.structuredContent.report, "object");
+} finally {
+  rmSync(inspectRepository, { recursive: true, force: true });
+}
+const completedCalls = calls;
+
 await assert.rejects(client.callTool({ name: "unknown_tool", arguments: {} }));
-assert.equal(calls, 1, "unknown tools must not reach the dispatcher executor");
+assert.equal(calls, completedCalls, "unknown tools must not reach the dispatcher executor");
 
 await client.close();
 await server.closeAgdfRuntime();

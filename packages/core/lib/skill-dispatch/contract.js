@@ -64,6 +64,14 @@ export const SKILL_DISPATCH_FUNCTION_DEFINITION = deepFreeze({
       continue_delivery: { type: "boolean", description: "Set only with skill_id gate-check for an authorized bound delivery continuation, including after a valid UR, PRD, SD, TP or UAT approval. Requires run_id; incompatible with intake. Never set on a returned judgement skill or for status or advice. Allows canonical Brownfield Review / Mode-Slice recovery, implementation-preparation Brownfield Analysis after TP approval, missing PRD/SD/TP preparation before approval cards, and OR closeout after UAT approval." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
+    dependentSchemas: {
+      intake_mode: { required: ["intake", "run_id"], properties: { intake: { const: true } } },
+      expected_revision_id: { required: ["intake", "intake_mode", "run_id"], properties: { intake: { const: true }, intake_mode: { const: "resume" } } },
+    },
+    allOf: [{
+      if: { required: ["continue_delivery"], properties: { continue_delivery: { const: true } } },
+      then: { required: ["run_id"], properties: { intake: { const: false } }, not: { required: ["intake_mode"] } },
+    }],
   },
   outputSchema: {
     type: "object",

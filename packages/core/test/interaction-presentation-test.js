@@ -1301,6 +1301,12 @@ assert.ok(continuedTarget.markdown.includes("Ziel gewechselt"), "changed target 
 assert.equal(continuedTarget.presentation_language, "de");
 
 for (const reasonCode of [
+  "working_directory_invalid",
+  "continued_target_changed",
+  "target_path_relative",
+  "target_not_in_repository",
+  "current_repository_root_required",
+  "current_repository_context_mismatch",
   "multiple_plausible_targets",
   "target_content_mismatch",
   "target_unavailable",

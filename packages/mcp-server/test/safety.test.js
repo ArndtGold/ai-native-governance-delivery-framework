@@ -184,7 +184,7 @@ try {
     primary_target: fakeRepository,
   }));
   assert.equal(rejected.outcome, "target_unresolved");
-  assert.equal(rejected.target.reason_code, "target_content_mismatch");
+  assert.equal(rejected.target.reason_code, "target_not_in_repository");
 } finally {
   rmSync(fakeRepository, { recursive: true, force: true });
 }

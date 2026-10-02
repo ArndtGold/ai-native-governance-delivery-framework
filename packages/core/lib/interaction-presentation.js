@@ -1,6 +1,6 @@
 import { RUN_ID_PATTERN } from "./control-state/run-identity.js";
 import { DISPATCH_RECOVERY_CODES } from "./interaction-catalog.js";
-import { TASK_TARGET_SOURCES } from "./task-target-resolution.js";
+import { TASK_TARGET_SOURCES, TASK_TARGET_UNRESOLVED_REASONS } from "./task-target-resolution.js";
 
 const REQUIRED_GATES = ["UR", "PRD", "SD", "TP", "QA", "UAT"];
 const ARTEFACT_ORDER = ["UR", "PRD", "SD", "TP"];
@@ -699,13 +699,7 @@ export function renderTaskTargetOrientation(resolution, {
     : null;
 
   const resolvedReasons = new Set(["explicit_target", "continued_target"]);
-  const unresolvedReasons = new Set([
-    "multiple_plausible_targets",
-    "target_content_mismatch",
-    "target_unavailable",
-    "no_reliable_target",
-    "target_source_invalid",
-  ]);
+  const unresolvedReasons = new Set(TASK_TARGET_UNRESOLVED_REASONS);
 
   if (!["resolved", "unresolved"].includes(resolutionState)) return null;
   if (!workingDirectory || evidenceSources === null) return null;

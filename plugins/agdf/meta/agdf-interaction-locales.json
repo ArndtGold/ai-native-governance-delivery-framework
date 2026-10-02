@@ -750,7 +750,13 @@
           "target_content_mismatch": "Requested change mismatches target",
           "target_unavailable": "Named target is unavailable",
           "no_reliable_target": "No reliable work target",
-          "target_source_invalid": "Invalid target source"
+          "target_source_invalid": "Invalid target source",
+          "working_directory_invalid": "Invalid working directory",
+          "continued_target_changed": "Continued target replaced",
+          "target_path_relative": "Relative target path",
+          "target_not_in_repository": "No verified repository",
+          "current_repository_root_required": "Repository root required",
+          "current_repository_context_mismatch": "Repository context mismatch"
         },
         "nextActions": {
           "multiple_plausible_targets": "Choose one exact target by full path, Git URL or existing run ID.",
@@ -758,7 +764,13 @@
           "target_unavailable": "Give a corrected full path, Git URL or existing run ID.",
           "no_reliable_target": "Name one exact target by full path, Git URL or existing run ID.",
           "target_source_invalid": "Use a supported target_source and provide a full path, Git URL or existing run ID.",
-          "examples": "Use a real value, e.g. `/Users/alex/work/project`, `https://github.com/org/project`, or `run-project-20260928`."
+          "examples": "Use a real value, e.g. `/Users/alex/work/project`, `https://github.com/org/project`, or `run-project-20260928`.",
+          "working_directory_invalid": "Provide an accessible absolute working directory.",
+          "continued_target_changed": "Classify the replacement as explicit_target.",
+          "target_path_relative": "Provide the absolute path of the requested target.",
+          "target_not_in_repository": "Provide a target inside the Git repository to inspect.",
+          "current_repository_root_required": "Provide the verified repository root for current_repository.",
+          "current_repository_context_mismatch": "Use current_repository only with a working directory inside that repository."
         }
       },
       "internalStateLabels": {
@@ -1819,7 +1831,13 @@
           "target_content_mismatch": "Änderung passt nicht zum Zielinhalt",
           "target_unavailable": "Benanntes Ziel ist nicht verfügbar",
           "no_reliable_target": "Kein belastbares Arbeitsziel",
-          "target_source_invalid": "Ungültige Zielquelle"
+          "target_source_invalid": "Ungültige Zielquelle",
+          "working_directory_invalid": "Ungültiger Arbeitsordner",
+          "continued_target_changed": "Fortsetzungsziel ersetzt",
+          "target_path_relative": "Relativer Zielpfad",
+          "target_not_in_repository": "Kein verifiziertes Repository",
+          "current_repository_root_required": "Repository-Wurzel erforderlich",
+          "current_repository_context_mismatch": "Repository-Kontext passt nicht"
         },
         "nextActions": {
           "multiple_plausible_targets": "Ein exaktes Ziel mit vollständigem Pfad, Git-URL oder vorhandener Run-ID auswählen.",
@@ -1827,7 +1845,13 @@
           "target_unavailable": "Einen korrigierten vollständigen Pfad, eine Git-URL oder vorhandene Run-ID angeben.",
           "no_reliable_target": "Ein exaktes Ziel mit vollständigem Pfad, Git-URL oder vorhandener Run-ID benennen.",
           "target_source_invalid": "Einen erlaubten target_source-Wert und den vollständigen Pfad, die Git-URL oder Run-ID angeben.",
-          "examples": "Nenne einen echten Wert, z. B. `/Users/alex/work/project`, `https://github.com/org/project` oder `run-project-20260928`."
+          "examples": "Nenne einen echten Wert, z. B. `/Users/alex/work/project`, `https://github.com/org/project` oder `run-project-20260928`.",
+          "working_directory_invalid": "Nenne einen zugänglichen Arbeitsordner mit absolutem Pfad.",
+          "continued_target_changed": "Ordne das neue Ziel als explicit_target ein.",
+          "target_path_relative": "Nenne den absoluten Pfad des gewünschten Ziels.",
+          "target_not_in_repository": "Nenne ein Ziel innerhalb des zu prüfenden Git-Repositorys.",
+          "current_repository_root_required": "Nenne für current_repository die verifizierte Repository-Wurzel.",
+          "current_repository_context_mismatch": "Verwende current_repository nur mit einem Arbeitsordner innerhalb dieses Repositorys."
         }
       },
       "internalStateLabels": {

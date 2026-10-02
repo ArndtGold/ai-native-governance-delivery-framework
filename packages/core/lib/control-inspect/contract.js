@@ -7,12 +7,12 @@ import {
 } from "../interaction-presentation.js";
 import { normalizeTaskTargetSource, TASK_TARGET_SOURCES } from "../task-target-resolution.js";
 import { SKILL_DISPATCH_MAX_OUTPUT_BYTES, SkillDispatchInputError, emptySkillDispatchTiming } from "../skill-dispatch/contract.js";
-import { CONTROL_INSPECT_OPERATIONS, GATE_CHECK_VARIANTS, ReadSelectionError, validateReadSelection } from "./selection.js";
+import { ALL_ACTIVE_OPERATIONS, VARIANT_OPERATION, MODULE_OPERATION, CONTROL_INSPECT_OPERATIONS, GATE_CHECK_VARIANTS, ReadSelectionError, validateReadSelection } from "./selection.js";
 
 export const CONTROL_INSPECT_SCHEMA_VERSION = "1";
 export const CONTROL_INSPECT_CONTRACT_VERSION = 1;
 // Every byte of this definition is loaded into every session on every host (SDD-005).
-export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 2048;
+export const CONTROL_INSPECT_MAX_DEFINITION_BYTES = 5000;
 
 function deepFreeze(value) {
   if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
@@ -22,33 +22,84 @@ function deepFreeze(value) {
 
 export const CONTROL_INSPECT_FUNCTION_DEFINITION = deepFreeze({
   name: "agdf_inspect",
-  description: "Read-only AGDF control inspection of one target: doctor, gate-check (variant status-card|approval-envelope), delivery-map or contract (module). report equals the CLI --json object; presentation.markdown is the canonical Markdown. Never writes, selects a run or grants approval; verified_change git observation is unavailable.",
+  description: "Read-only AGDF control inspection: inventory doctor/delivery-map; gate-check status; contract module. report equals CLI --json; presentation.markdown is canonical Markdown. Never writes, selects a run or grants approval; verified_change git observation is unavailable. cwd is not target; language: latest BCP 47, en if mixed.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: {
     type: "object", additionalProperties: false,
     required: ["operation", "presentation_language", "working_directory"],
     properties: {
-      operation: { type: "string", enum: [...CONTROL_INSPECT_OPERATIONS] },
-      presentation_language: { type: "string", minLength: 1, maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE, description: "BCP 47 tag of the latest user request; en when mixed." },
-      working_directory: { type: "string", minLength: 1, maxLength: 4096, description: "Absolute path; never target authority." },
-      target_source: { type: "string", enum: [...TASK_TARGET_SOURCES], description: "As in agdf_dispatch." },
+      operation: { enum: [...CONTROL_INSPECT_OPERATIONS] },
+      presentation_language: { type: "string", minLength: 1, maxLength: 64, pattern: PRESENTATION_LANGUAGE_TAG_PATTERN_SOURCE },
+      working_directory: { type: "string", minLength: 1, maxLength: 4096 },
+      target_source: { enum: [...TASK_TARGET_SOURCES] },
       primary_target: { type: "string", minLength: 1, maxLength: 4096 },
       run_id: { type: "string", pattern: RUN_ID_PATTERN.source },
-      variant: { type: "string", enum: [...GATE_CHECK_VARIANTS] },
-      module: { type: "string", minLength: 1, maxLength: 64 },
-      all_active: { type: "boolean" },
+      variant: { enum: [...GATE_CHECK_VARIANTS], description: "gate-check only." },
+      module: { type: "string", minLength: 1, maxLength: 64, description: "Required for contract only." },
+      all_active: { type: "boolean", description: "True: doctor/delivery-map only." },
     },
     dependentRequired: { target_source: ["primary_target"], primary_target: ["target_source"] },
+    dependentSchemas: {
+      variant: { properties: { operation: { const: VARIANT_OPERATION } } },
+      module: { properties: { operation: { const: MODULE_OPERATION } } },
+    },
+    allOf: [
+      { anyOf: [{ properties: { all_active: { const: false } } }, { properties: { operation: { enum: [...ALL_ACTIVE_OPERATIONS] } } }] },
+      { if: { properties: { operation: { const: MODULE_OPERATION } } }, then: { required: ["module"] } },
+    ],
   },
   outputSchema: {
     type: "object",
-    required: ["outcome", "terminal", "authorizes", "operation", "report", "presentation", "host_action"],
+    required: ["outcome", "terminal", "authorizes", "operation", "report", "presentation", "host_action", "target", "recovery"],
     properties: {
       schema_version: { const: "1" }, contract_version: { const: 1 },
       outcome: { enum: ["inspect_result", "target_unresolved", "invalid_input", "evaluator_error"] },
-      terminal: { const: true }, authorizes: { const: false },
-      operation: {}, runtime: {}, target: {}, report: {}, presentation: {}, recovery: {}, host_action: {}, timing: {}, diagnostics: {},
+      terminal: { type: "boolean" }, authorizes: { const: false },
+      operation: { type: ["string", "null"] },
+      runtime: { type: "object" }, target: { type: ["object", "null"] },
+      report: { type: ["object", "null"] },
+      presentation: { type: ["object", "null"], required: ["markdown"], properties: { markdown: { type: "string" } } },
+      recovery: { type: ["object", "null"], required: ["action"], properties: { action: { type: "string", minLength: 1 } } },
+      host_action: {
+        type: "object",
+        required: ["mode", "source", "allow_surrounding_text", "may_request_run_or_evidence"],
+        properties: {
+          mode: { enum: ["consume_report_and_continue", "transmit_presentation_verbatim_and_stop", "transmit_recovery_verbatim_and_stop"] },
+          source: { enum: ["report", "presentation.markdown", "recovery.action"] },
+          text: { type: "string", minLength: 1 }, allow_surrounding_text: { type: "boolean" }, may_request_run_or_evidence: { const: false },
+        },
+        allOf: [{ if: { properties: { mode: { enum: ["transmit_presentation_verbatim_and_stop", "transmit_recovery_verbatim_and_stop"] } } }, then: { required: ["text"], properties: { allow_surrounding_text: { const: false } } } }],
+      },
+      timing: { type: "object" }, diagnostics: { type: "array", items: { type: "object" } },
     },
+    oneOf: [
+      {
+        properties: {
+          outcome: { const: "inspect_result" }, terminal: { const: false },
+          operation: { enum: [...CONTROL_INSPECT_OPERATIONS] },
+          report: { type: "object" }, target: { type: "object", required: ["resolution_state"], properties: { resolution_state: { const: "resolved" } } }, recovery: { type: "null" },
+          host_action: { properties: { mode: { const: "consume_report_and_continue" }, source: { enum: ["report", "presentation.markdown"] }, allow_surrounding_text: { const: true } } },
+        },
+        if: { properties: { host_action: { properties: { source: { const: "presentation.markdown" } } } } },
+        then: { properties: { presentation: { type: "object", properties: { markdown: { minLength: 1 } } }, host_action: { required: ["text"] } } },
+        else: { properties: { presentation: { anyOf: [{ type: "null" }, { type: "object", properties: { markdown: { const: "" } } }] }, host_action: { not: { required: ["text"] } } } },
+      },
+      {
+        properties: {
+          outcome: { const: "target_unresolved" }, terminal: { const: true }, report: { type: "null" },
+          target: { type: "object", required: ["resolution_state"], properties: { resolution_state: { const: "unresolved" } } }, recovery: { type: "object" },
+          presentation: { type: "object", properties: { markdown: { minLength: 1 } } },
+          host_action: { properties: { mode: { const: "transmit_presentation_verbatim_and_stop" }, source: { const: "presentation.markdown" } } },
+        },
+      },
+      {
+        properties: {
+          outcome: { enum: ["invalid_input", "evaluator_error"] }, terminal: { const: true },
+          report: { type: "null" }, presentation: { type: "null" }, recovery: { type: "object" },
+          host_action: { properties: { mode: { const: "transmit_recovery_verbatim_and_stop" }, source: { const: "recovery.action" } } },
+        },
+      },
+    ],
   },
 });
 

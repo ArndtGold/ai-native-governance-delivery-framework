@@ -40,6 +40,17 @@ Der agentennative Skill-Weg und MCP `agdf_dispatch` erreichen denselben Dispatch
 Kontrollevaluatoren. Inspect führt keine Delivery-Fortsetzung aus. Installation, MCP-Registrierung
 und Repository-Migration gehören zu getrennten Services; sie sind keine Dispatcher-Freigaben.
 
+### Operationsabhängige Inspect-Eingaben
+
+`agdf_inspect` veröffentlicht die bestehenden Auswahlregeln auch als JSON-Schema:
+`all_active: true` gilt nur für `doctor` und `delivery-map`; `variant` nur für
+`gate-check`; `module` ausschließlich und verpflichtend für `contract`.
+`all_active: false` bleibt bei allen Operationen zulässig. Für ein Inventar aller
+aktiven Runs wird `doctor` oder `delivery-map` gewählt. Ein `gate-check` wird nicht
+automatisch umgedeutet. Schemawidrige Kombinationen erreichen den MCP-Executor
+nicht; direkte Core-/CLI-Aufrufe behalten die gemeinsame Auswahlvalidierung.
+Diese Grenze belegt keine fehlerfreie Operationswahl eines frisch geladenen Modells.
+
 ## Bindung vor Fortsetzung
 
 ### Sichtbarer Skillname und stabile AGDF-ID
@@ -254,3 +265,17 @@ Fall bereits in jeder Host-/Modellkombination beobachtet wurde.
 Bei Änderungen an Ergebnisfeldern, Routing, Phasen oder Writer-Grenzen sind Katalog,
 [Übersicht](README.md) und DOT/SVG gemeinsam zu prüfen. Die fachliche Regel bleibt bei ihrem
 verlinkten Owner; dieses Dokument erklärt ihre Wirkung.
+
+### Validierte Transportverträge und Zieldiagnosen
+
+Der Dispatcher veröffentlicht die Abhängigkeiten von `intake_mode`, `expected_revision_id` und `continue_delivery` im Eingabeschema. Eine Revision benötigt `intake: true`, `intake_mode: resume` und `run_id`; eine aktive Fortsetzung benötigt `run_id` und schließt Intake aus. Explizites `false` bleibt zulässig. Die katalogbasierte Skill-Auflösung und die Laufzeitprüfung bleiben maßgeblich für die Skill-Berechtigung dieser Optionen.
+
+Inspect-Ausgaben typisieren Bericht, Präsentation, Recovery und Host-Aktion. Präsentationen enthalten Markdown, Recovery enthält einen Handlungstext; terminale Übermittlungsaktionen benötigen Text und verbieten Begleittext. Operationsspezifische Berichtsinhalte bleiben beim jeweiligen Evaluator.
+
+Die Zielauflösung meldet ungültige Arbeitsordner, relative Zielpfade, Ziele außerhalb eines verifizierten Repositorys, ersetzte Fortsetzungsziele sowie falsche Wurzel- und Kontextbindungen separat. Jede Diagnose besitzt eine deutsche und englische Rückmeldung. Der bisherige Grund `target_content_mismatch` bleibt für ältere Ergebnisse darstellbar. Keine Diagnose leitet ein Ziel aus dem Arbeitsordner ab oder erteilt eine Freigabe.
+
+### Inspect-Ergebnis und Stop-Semantik
+
+Ein erfolgreiches `inspect_result` hat `terminal: false` und `consume_report_and_continue`: Der Host verarbeitet den Bericht und kann die Antwort formulieren. Zielklärungen und Fehler haben `terminal: true` und eine passende Übermittlungsaktion; deren Text wird unverändert ausgegeben, anschließend endet die Antwort.
+
+Das Ausgabeschema bindet Erfolg an einen Bericht, eine bekannte Operation und ein Ziel ohne Recovery. Zielklärungen benötigen eine Präsentation, Fehler eine Recovery. Host-Modus, Quelle, Begleittext und Stop-Flag müssen zur Ergebnisart passen. Die Textgleichheit zwischen Host-Aktion und ihrer Quelle erzeugt der gemeinsame Laufzeit-Owner; JSON Schema prüft die Struktur, nicht die Gleichheit zweier dynamischer Texte.

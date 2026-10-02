@@ -392,3 +392,11 @@ duplicate contract payloads remain excluded. The guard is unchanged, and the
 baseline records exactly the measured inventory with no unused headroom.
 
 Evidence: `.agdf/control/artefacts/agdf-physical-package-boundaries-20261001-01/evidence/profiles/PAYLOAD_DELTA.json`.
+
+### Transport contract hardening (2026-10-02)
+
+Conditional dispatcher inputs, typed inspect output and distinct localized target diagnoses grow the generated Copilot payload by 6324 bytes to 179 files / 1482964 bytes. The file ceiling is unchanged and the byte ceiling matches the measured inventory. The inspect tool definition is 3267 bytes; its bounded ceiling is now 3300 bytes to carry the output validation. Existing payload and definition guards remain enabled.
+
+### Inspect outcome invariants (2026-10-02)
+
+Success is non-terminal; unresolved and error results stop. Outcome-dependent output validation grows the existing generated runtime to 179 files / 1484993 bytes. No files are added and the payload ceiling matches the inventory. The inspect definition is 4986 bytes with a 5000-byte ceiling.

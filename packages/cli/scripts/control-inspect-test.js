@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import Ajv2020 from "ajv/dist/2020.js";
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -21,6 +22,7 @@ import { interactionLocales, pluginDefinition } from "../lib/cli/runtime-context
 import { INVALID_PRESENTATION_LANGUAGE_CASES, VALID_PRESENTATION_LANGUAGE_CASES } from "./fixtures/skill-dispatch-language.js";
 
 const cli = join(dirname(fileURLToPath(import.meta.url)), "..", "bin", "create-agdf.js");
+const validateOutput = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema);
 const trustedContext = { surface: "claude", expectedVersion: pluginDefinition.version, interactionLocales };
 
 // SDD-005: the definition is loaded into every session on every host.
@@ -31,6 +33,32 @@ assert.deepEqual(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema.properties.oper
 assert.deepEqual([...CONTROL_INSPECT_OPERATIONS], ["doctor", "gate-check", "delivery-map", "contract"]);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.annotations.readOnlyHint, true);
 assert.equal(CONTROL_INSPECT_FUNCTION_DEFINITION.outputSchema.properties.authorizes.const, false);
+
+// Published operation dependencies agree with the shared runtime policy.
+const validateInspectSchema = new Ajv2020({ strict: false }).compile(CONTROL_INSPECT_FUNCTION_DEFINITION.inputSchema);
+for (const operation of CONTROL_INSPECT_OPERATIONS) {
+  for (const allActive of [undefined, false, true]) {
+    for (const variant of [undefined, "status-card", "approval-envelope"]) {
+      for (const contractModule of [undefined, "quality"]) {
+        const args = { operation, presentation_language: "de", working_directory: "/tmp",
+          ...(allActive !== undefined ? { all_active: allActive } : {}),
+          ...(variant !== undefined ? { variant } : {}),
+          ...(contractModule !== undefined ? { module: contractModule } : {}) };
+        let accepted = true;
+        try { validateReadSelection({ operation, allActive, variant, contractModule }); } catch { accepted = false; }
+        assert.equal(validateInspectSchema(args), accepted, JSON.stringify(args));
+      }
+    }
+  }
+}
+let invalidTargetCalls = 0;
+const earlyInspect = createControlInspectService({ resolveTaskTarget: () => { invalidTargetCalls++; throw new Error("invalid selection reached target"); }, env: {} });
+const observedInvalid = earlyInspect({ operation: "gate-check", variant: "status-card", allActive: true,
+  presentationLanguage: "de", workingDirectory: "/tmp", interactionLocales, expectedVersion: pluginDefinition.version });
+assert.equal(observedInvalid.outcome, "invalid_input");
+assert.equal(observedInvalid.authorizes, false);
+assert.equal(invalidTargetCalls, 0);
+assert.match(observedInvalid.recovery.action, /doctor and delivery-map/);
 
 // SDD-002: one rule set for CLI and MCP, identical wording.
 const sharedCases = [
@@ -130,7 +158,8 @@ try {
       const result = inspect({ ...base, operation, presentationLanguage: language, runId: extra.allActive ? undefined : "inspect-run", ...extra });
       assert.equal(result.outcome, "inspect_result", `${language} ${operation} ${JSON.stringify(extra)}: ${JSON.stringify(result.diagnostics)} ${result.recovery?.action ?? ""}`);
       assert.equal(result.authorizes, false);
-      assert.equal(result.terminal, true);
+      assert.equal(validateOutput(result), true, JSON.stringify(validateOutput.errors));
+      assert.equal(result.terminal, false);
       const expected = cliJson(operation === "gate-check" ? [...cliArgs, "--language", language] : cliArgs, root);
       assert.equal(stable(result.report), stable(expected), `${language} ${operation} ${JSON.stringify(extra)} report parity`);
       if (operation === "gate-check") {
@@ -150,6 +179,8 @@ try {
     for (const module of pluginDefinition.runtimeContract.modules.map((path) => path.split("/").pop().replace(/\.md$/u, ""))) {
       const result = inspect({ ...base, operation: "contract", presentationLanguage: language, contractModule: module });
       assert.equal(result.outcome, "inspect_result", `${language} contract ${module}: ${JSON.stringify(result.diagnostics)}`);
+      assert.equal(result.terminal, false);
+      assert.equal(validateOutput(result), true, JSON.stringify(validateOutput.errors));
       const run = spawnSync(process.execPath, [cli, "contract", "--module", module, "--json"], { encoding: "utf8" });
       assert.equal(run.status, 0, run.stderr);
       assert.equal(JSON.stringify(result.report), JSON.stringify(JSON.parse(run.stdout)), `${language} contract ${module} parity`);
@@ -236,6 +267,38 @@ try {
   assert.equal(inspectFailure.outcome, "evaluator_error");
   assert.equal(inspectFailure.authorizes, false);
   assert.equal(Object.hasOwn(inspectFailure, "report"), true, "inspect failures use the inspect result shape");
+  for (const output of [viaRuntime, oversize, inspectFailure]) {
+    assert.equal(validateOutput(output), true, JSON.stringify(validateOutput.errors));
+    for (const field of ["report", "presentation", "host_action", "recovery", "runtime", "target", "timing", "diagnostics"]) {
+      assert.equal(validateOutput({ ...output, [field]: 42 }), false, `${field} rejects primitive output`);
+    }
+  }
+  for (const mutation of [{ markdown: 42 }, {}]) assert.equal(validateOutput({ ...viaRuntime, presentation: mutation }), false);
+  for (const mutation of [{ action: 42 }, {}]) assert.equal(validateOutput({ ...inspectFailure, recovery: mutation }), false);
+  assert.equal(validateOutput({ ...inspectFailure, host_action: { ...inspectFailure.host_action, text: 42 } }), false);
+
+  const unresolvedOutput = inspect({ ...base, presentationLanguage: "en", operation: "doctor", primaryTarget: undefined, targetSource: undefined });
+  assert.equal(unresolvedOutput.outcome, "target_unresolved");
+  const invalidOutput = inspect({ ...base, presentationLanguage: "en", operation: "unsupported" });
+  for (const output of [viaRuntime, unresolvedOutput, invalidOutput, inspectFailure, oversize]) {
+    assert.equal(validateOutput(output), true, JSON.stringify(validateOutput.errors));
+    assert.equal(output.terminal, output.outcome !== "inspect_result");
+    if (output.host_action.source === "presentation.markdown") assert.equal(output.host_action.text, output.presentation.markdown);
+    if (output.host_action.source === "recovery.action") assert.equal(output.host_action.text, output.recovery.action);
+    for (const patch of [
+      { terminal: !output.terminal },
+      { host_action: { ...output.host_action, source: output.host_action.source === "report" ? "recovery.action" : "report" } },
+      { host_action: { ...output.host_action, mode: output.terminal ? "consume_report_and_continue" : "transmit_recovery_verbatim_and_stop" } },
+    ]) assert.equal(validateOutput({ ...output, ...patch }), false, JSON.stringify(patch));
+  }
+  for (const patch of [
+    { report: null }, { recovery: { action: "unexpected" } },
+    { target: { ...viaRuntime.target, resolution_state: "unresolved" } },
+    { host_action: { ...viaRuntime.host_action, source: "presentation.markdown", text: "missing presentation" } },
+    { presentation: { markdown: "unbound presentation" } },
+  ]) assert.equal(validateOutput({ ...viaRuntime, ...patch }), false, JSON.stringify(patch));
+  assert.equal(validateOutput({ ...unresolvedOutput, presentation: null }), false);
+  assert.equal(validateOutput({ ...inspectFailure, recovery: null }), false);
   assert.equal(runtime.tool("agdf_write"), null);
 } finally {
   rmSync(root, { recursive: true, force: true });

@@ -4,6 +4,8 @@ import { resolveRepositoryContextByMarker } from "./repository-context-reader.js
 
 export const TASK_TARGET_SOURCES = Object.freeze(["explicit_target", "continued_target", "current_repository"]);
 
+export const TASK_TARGET_UNRESOLVED_REASONS = Object.freeze(["multiple_plausible_targets", "target_content_mismatch", "target_unavailable", "no_reliable_target", "target_source_invalid", "working_directory_invalid", "continued_target_changed", "target_path_relative", "target_not_in_repository", "current_repository_root_required", "current_repository_context_mismatch"]);
+
 const TARGET_SOURCES = new Set(TASK_TARGET_SOURCES);
 
 export class TaskTargetInputError extends Error {
@@ -98,7 +100,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
   }
 
   if (!workingDirectory) {
-    return unresolved("target_content_mismatch", {
+    return unresolved("working_directory_invalid", {
       workingDirectory: rawWorkingDirectory || "unavailable",
       evidenceSources,
       targetSource: normalizedTargetSource,
@@ -122,7 +124,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
     });
   }
   if (targetSource === "continued_target" && input.targetChanged === true) {
-    return unresolved("target_content_mismatch", {
+    return unresolved("continued_target_changed", {
       workingDirectory,
       evidenceSources,
       targetSource: normalizedTargetSource,
@@ -130,7 +132,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
     });
   }
   if (!isAbsolute(rawTarget)) {
-    return unresolved("target_content_mismatch", {
+    return unresolved("target_path_relative", {
       workingDirectory,
       evidenceSources,
       targetSource: normalizedTargetSource,
@@ -157,7 +159,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
   }
   const governanceTarget = repositoryRoot(primaryTarget, resolveRepositoryContext);
   if (!governanceTarget) {
-    return unresolved("target_content_mismatch", {
+    return unresolved("target_not_in_repository", {
       workingDirectory,
       evidenceSources,
       targetSource: normalizedTargetSource,
@@ -165,7 +167,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
     });
   }
   if (targetSource === "current_repository" && primaryTarget !== governanceTarget) {
-    return unresolved("target_content_mismatch", {
+    return unresolved("current_repository_root_required", {
       workingDirectory,
       evidenceSources,
       targetSource: normalizedTargetSource,
@@ -175,7 +177,7 @@ export function resolveTaskTarget(input = {}, dependencies = {}) {
   if (targetSource === "current_repository") {
     const workingContext = resolveRepositoryContext(workingDirectory);
     if (workingContext.context_state !== "repository_bound" || workingContext.repository_root !== governanceTarget) {
-      return unresolved("target_content_mismatch", {
+      return unresolved("current_repository_context_mismatch", {
         workingDirectory,
         evidenceSources,
         targetSource: normalizedTargetSource,

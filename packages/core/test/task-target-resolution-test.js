@@ -46,7 +46,7 @@ try {
     targetSource: "explicit_target",
     primaryTarget: repo,
   });
-  assert.equal(missingContext.reason_code, "target_content_mismatch");
+  assert.equal(missingContext.reason_code, "working_directory_invalid");
   assert.equal(missingContext.target_source, "explicit_target");
 
   const multiple = resolveTaskTarget({
@@ -62,10 +62,10 @@ try {
   assert.equal(unavailable.target_source, "explicit_target");
 
   const relative = resolveTaskTarget({ ...base, targetSource: "explicit_target", primaryTarget: "repo" });
-  assert.equal(relative.reason_code, "target_content_mismatch");
+  assert.equal(relative.reason_code, "target_path_relative");
 
   const nonRepository = resolveTaskTarget({ ...base, targetSource: "explicit_target", primaryTarget: chat });
-  assert.equal(nonRepository.reason_code, "target_content_mismatch");
+  assert.equal(nonRepository.reason_code, "target_not_in_repository");
 
   const explicit = resolveTaskTarget({
     ...base,
@@ -86,7 +86,7 @@ try {
   assert.equal(continued.reason_code, "continued_target");
 
   const staleContinued = resolveTaskTarget({ ...base, targetSource: "continued_target", primaryTarget: repo, targetChanged: true });
-  assert.equal(staleContinued.reason_code, "target_content_mismatch");
+  assert.equal(staleContinued.reason_code, "continued_target_changed");
   assert.equal(staleContinued.resolution_state, "unresolved");
 
   const current = resolveTaskTarget({ workingDirectory: join(repo, "src"), targetSource: "current_repository", primaryTarget: repo });
@@ -94,11 +94,11 @@ try {
   assert.equal(current.target_source, "current_repository");
 
   const repoLessCurrent = resolveTaskTarget({ ...base, targetSource: "current_repository", primaryTarget: repo });
-  assert.equal(repoLessCurrent.reason_code, "target_content_mismatch");
+  assert.equal(repoLessCurrent.reason_code, "current_repository_context_mismatch");
   assert.equal(repoLessCurrent.resolution_state, "unresolved");
 
   const currentFile = resolveTaskTarget({ ...base, targetSource: "current_repository", primaryTarget: file });
-  assert.equal(currentFile.reason_code, "target_content_mismatch");
+  assert.equal(currentFile.reason_code, "current_repository_root_required");
 
   const output = [];
   const exitCode = await runValidatorCli([

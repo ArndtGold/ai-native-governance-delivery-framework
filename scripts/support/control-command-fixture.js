@@ -26,6 +26,10 @@ export function commandFixture({ cli = sourceCli, base = tmpdir(), runId = "comm
     assert.equal(spawnSync("git", ["init", "-q"], { cwd: root }).status, 0);
     invoke(cli, ["init", "--dir", root, "--language", "de"]);
     invoke(cli, ["config", "--dir", root, "--language", "de"]);
+    // The fixture UR below is English with a German approval summary: artefacts en, chat de. The
+    // summary source language comes from artifact_language, so it must match the artefact text.
+    const configPath = join(root, ".agdf/control/config.json");
+    writeFileSync(configPath, `${JSON.stringify({ ...JSON.parse(readFileSync(configPath, "utf8")), artifact_language: "en" }, null, 2)}\n`);
     const revision = invoke(cli, ["run-create", "--dir", root, "--run", runId]).match(/^revision_id: (\S+)$/mu)[1];
     const urPath = join(root, ".agdf/control/artefacts", runId, "UR.md");
     mkdirSync(dirname(urPath), { recursive: true });
@@ -33,7 +37,8 @@ export function commandFixture({ cli = sourceCli, base = tmpdir(), runId = "comm
     const recorded = json(cli, ["run-step", "--dir", root, "--run", runId, "--revision", revision,
       "--step", "ur", "--title", "Command test"]);
     const beforePresentation = readFileSync(runPath, "utf8");
-    const presentation = json(cli, ["run-present", "--dir", root, "--run", runId, "--gate", "UR", "--revision", recorded.revision_id]);
+    // Explicit language: without it run-present follows the system locale, which differs between CI hosts.
+    const presentation = json(cli, ["run-present", "--dir", root, "--run", runId, "--gate", "UR", "--revision", recorded.revision_id, "--language", "de"]);
     assert.equal(readFileSync(runPath, "utf8"), beforePresentation, "presentation must not mutate the revision");
     return { root, runId, runPath, urPath, presentation, command: {
       schema_version: "1", action: "record_gate_approval", target_id: resolveControlCommandTarget(root).target_id,

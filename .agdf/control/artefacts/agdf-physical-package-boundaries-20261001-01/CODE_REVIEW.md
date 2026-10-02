@@ -49,3 +49,13 @@ The test harness comparison initially used an unselected run and a noncanonical 
 - evidence: CI_REPAIR.md; evidence/ci-repair-20261002/RESULTS.json and logs. CI-001..005 are resolved implementation_gap findings; no concrete defect remains in reviewed diff.
 - risks: repaired remote platforms remain unverified; original TP evidence obligations are unchanged.
 - required_next_step: Consume unchanged TPR-E001/E002 in qa-gate.
+
+## CI prerequisites diff review — 2026-10-02
+
+- decision: pass
+- binding: baseline 31602aa; dispatcher revision 23 / 6b7e8c86-5608-495e-afc2-28d0b84a7eaf
+- reviewed_scope: Both workflow dependency steps, actual negative contract matrices, contributor prerequisites and the real legacy process preload argv.
+- evidence: CI_REPAIR.md; evidence/ci-prerequisites-20261002/RESULTS.json; actual five-file source diff. CI-006/007 are resolved implementation_gap findings routed to CD+Tests.
+- missing_evidence: Corrected remote Windows execution remains unverified; original TPR-E001/E002 unchanged.
+- risks: Platform confirmation awaits next pushed commit; the live staged duplicates stay excluded.
+- required_next_step: Record current CR and consume the same open TP evidence obligations in qa-gate.

@@ -36,3 +36,20 @@ Dependency files were copied from the installed locked workspace into the fresh 
 - context_graph_required_action: none
 - context_graph_gate_effect: none
 - required_next_step: Reconcile TPR-E001/E002 against original evidence or an explicit authoritative deviation decision; do not request QA approval from revise.
+
+## Workflow prerequisites and Windows preload follow-up — 2026-10-02
+
+Baseline 31602aac23850bc1421c5568faa68d8bcbb917b3 was committed and pushed at the user's explicit request. Fresh remote Guardrails Node24 passed. Ubuntu Node22 and the evidence-recording job failed because full-source fixtures copy MCP dependencies before the workflows installed them. Windows reached the process interruption suite, then its legacy preload exited before the checkpoint.
+
+Moved the existing locked MCP installation ahead of all source fixtures in Guardrails and added the same prerequisite to evidence recording. The release-workflow contract now rejects both a missing and a late installation in each job. Documented the two dependency sets in CONTRIBUTING.md. Source-fixture dependency checks remain strict.
+
+The Windows legacy preload now uses pathToFileURL(preload).href for --import. A raw drive-path negative probe reproduces ERR_UNSUPPORTED_ESM_URL_SCHEME (d:) locally; the complete process suite, including both real legacy interruption cases and final-checkpoint validation, passes with the file URL on macOS Node22. Actual corrected Windows execution remains unverified until the next push. Node's ESM documentation recommends pathToFileURL for path imports: https://nodejs.org/api/esm.html#file-urls.
+
+Current workflow contract, host fixture contract, full build/release preparation, compatibility check (56/56), community check and process suite pass locally. Exact logs, source hashes, remote failures and exits are in evidence/ci-prerequisites-20261002/RESULTS.json. An initial compatibility recording attempted before complete release preparation failed; the attempt and diagnostic are preserved in the same evidence folder. The already committed compatibility snapshot matches after canonical preparation, so no snapshot/facts/observation publication was replaced.
+
+| finding_id | gap_type | routing_target | gap_status | evidence | required_next_step |
+|---|---|---|---|---|---|
+| CI-006 | implementation_gap | CD+Tests | resolved | Workflow ordering diff; contract missing/late negative cases; fixture.log | Preserve locked MCP install before source fixtures in both jobs. |
+| CI-007 | implementation_gap | CD+Tests | resolved | file URL preload; process.log; windows-path-probe.log | Run the corrected Windows job on the next push. |
+
+The five unrelated staged duplicate entries remain byte-identical. TPR-E001/E002 remain open; QA remains revise. This source push grants no QA/UAT/release approval. Earlier no-commit/no-push statements describe the evidence at their original recording time.

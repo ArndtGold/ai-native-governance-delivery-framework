@@ -52,6 +52,11 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --ignore-scripts
 
+      # Full-source fixtures and the CLI smoke suite consume the locked MCP SDK too.
+      - name: Install MCP validation dependencies from checkout
+        working-directory: packages/mcp-server
+        run: npm ci --ignore-scripts
+
       - name: Verify maintenance and release-evidence contracts
         run: npm run test:maintenance-contracts
 
@@ -91,11 +96,6 @@ jobs:
 
       - name: Verify versioned AGDF skill evaluations
         run: npm --prefix packages/cli run eval:skills
-
-      # The create-agdf smoke test includes the @agdf/mcp-server tests, which need the MCP SDK.
-      - name: Install MCP validation dependencies from checkout
-        working-directory: packages/mcp-server
-        run: npm ci --ignore-scripts
 
       - name: Verify @agdf/mcp-server package contents
         run: npm --prefix packages/mcp-server run test:package

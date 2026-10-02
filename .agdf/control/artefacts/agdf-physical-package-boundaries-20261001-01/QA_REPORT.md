@@ -89,3 +89,18 @@ Final index observation: evidence/FINAL_STAGED_ENTRIES.json records the original
 | QA decision | revise; qa-gate sole decision owner |
 
 Current CI repair adds no new source owner or product behavior. Its knowledge stays in scope_artifact; existing run Context Graph/SoT reconciliation remains resolved.
+
+## Workflow prerequisite QA refresh — 2026-10-02
+
+Binding: qa-gate skill_continuation; revision 25 / a510d21d-8757-49a5-b343-a2a110dc3a54.
+
+| Quality dimension | Current evidence |
+|---|---|
+| Plan coverage | 11/13 fully_done; original TPR-E001/E002 open |
+| Solution integrity | pass; existing locks/fixtures retained; standard file-URL preload |
+| Code quality | pass; actual scoped diff and canonical CR recording |
+| QA decision | revise; qa-gate sole decision owner |
+
+Decisive reason: original checkpoint/index evidence obligations remain open. Permissible next step: reconcile those obligations against original proof or the documented authoritative deviation process; do not request Approval: QA from revise.
+
+CI-006/007 are consumed unchanged as resolved implementation_gap findings routed to CD+Tests; their actual evidence is CI_REPAIR.md and evidence/ci-prerequisites-20261002/RESULTS.json. Baseline 31602aa remote Node24 passed; Ubuntu Node22/evidence recording failed on missing MCP fixture dependencies and Windows failed at the raw-path legacy preload. The follow-up source repairs pass current local checks; corrected remote jobs await push. No full replacement npm smoke or corrected Windows success is claimed. TPR-E001/E002 remain evidence_gap / evidence_obligation / open. Existing Context Graph/SoT reconciliation remains resolved; this scope adds no product owner. The explicitly requested commit/push does not authorize QA/UAT/release.

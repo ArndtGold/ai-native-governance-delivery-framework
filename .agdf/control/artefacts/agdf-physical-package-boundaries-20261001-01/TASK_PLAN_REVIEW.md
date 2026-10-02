@@ -74,3 +74,7 @@ Current correction evidence: CI_REPAIR.md and RESULTS.json. T-008 consumers and 
 
 All five CI findings are consumed as resolved implementation_gap to CD+Tests from CI_REPAIR.md; original TPR-E001/E002 remain evidence_gap to evidence_obligation, open.
 - required_next_step: Reconcile original TPR-E001/E002 before QA can pass.
+
+## CI prerequisites plan evidence refresh — 2026-10-02
+
+Dispatcher revision 23 / 6b7e8c86-5608-495e-afc2-28d0b84a7eaf. T-008/T-012 current CI consumer/review evidence extends to the locked MCP prerequisite and actual legacy preload cases in CI_REPAIR.md. Coverage remains 11/13 fully_done; T-001/T-011 remain partial. TPR-E001/E002 classifications, routing and open status are unchanged. CI-006/007 are resolved implementation_gap findings routed to CD+Tests, with corrected remote execution still pending. No historical obligation is satisfied by the fresh test or current index proof.

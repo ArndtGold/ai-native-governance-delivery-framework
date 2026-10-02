@@ -1,0 +1,26 @@
+{
+  "commit": "31602aac23850bc1421c5568faa68d8bcbb917b3",
+  "guardrails_run": 36972082369,
+  "jobs": [
+    {
+      "id": 110727963376,
+      "platform": "Ubuntu Node24",
+      "conclusion": "success"
+    },
+    {
+      "id": 110727963641,
+      "platform": "Ubuntu Node22",
+      "conclusion": "failure",
+      "error": "ENOENT packages/mcp-server/node_modules in copyFixtureDependencies"
+    },
+    {
+      "id": 110727963586,
+      "platform": "Windows Node22",
+      "conclusion": "failure",
+      "error": "control-command-process-test.js:122 child exited before checkpoint; raw Windows --import preload path"
+    }
+  ],
+  "evidence_run": 36972082218,
+  "evidence_job": 110727963136,
+  "evidence_failure": "ENOENT packages/mcp-server/node_modules in copyFixtureDependencies"
+}

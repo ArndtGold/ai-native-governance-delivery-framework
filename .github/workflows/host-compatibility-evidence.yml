@@ -30,6 +30,9 @@ jobs:
           cache: npm
       - name: Install repository dependencies
         run: npm ci --ignore-scripts
+      - name: Install MCP validation dependencies from checkout
+        working-directory: packages/mcp-server
+        run: npm ci --ignore-scripts
       - name: Prepare release payloads
         run: npm run build && npm --prefix packages/cli run release:prepare
       - name: Refresh only stale source evidence

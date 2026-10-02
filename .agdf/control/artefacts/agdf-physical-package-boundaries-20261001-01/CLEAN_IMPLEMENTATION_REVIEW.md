@@ -40,3 +40,14 @@ Exact payload delta is explained and reflected without headroom; negative exclus
 - brownfield_fit: Existing npm script, documentation and Astro public boundaries retained.
 - missing_evidence: native repaired remote run is not claimed; TPR-E001/E002 remain open in plan review.
 - required_next_step: qa-gate consumes current correction evidence and unchanged original plan gaps.
+
+## CI prerequisites integrity review — 2026-10-02
+
+- decision: pass
+- binding: dispatcher revision 23 / 6b7e8c86-5608-495e-afc2-28d0b84a7eaf
+- primary_solution: Install the existing separate MCP lock before its source-fixture consumers; convert native preload paths through the standard Node URL API.
+- fallbacks: none added; strict fixture dependency checks preserved.
+- parallel_structures: none added; existing workflows, source fixture owner and process suite retained.
+- evidence: CI_REPAIR.md and evidence/ci-prerequisites-20261002/RESULTS.json. CI-006/007 resolved through CD+Tests.
+- exit_criteria: Negative missing/late dependency cases and real legacy interruption suite pass; remote platform confirmation remains outstanding.
+- required_next_step: qa-gate consumes unchanged TPR-E001/E002.

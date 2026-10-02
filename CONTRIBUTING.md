@@ -103,6 +103,16 @@ the `npx --yes @agdf/cli@latest ...` path documented in [INSTALL.md](INSTALL.md)
 
 ## Local validation
 
+Install both dependency sets before running full-source fixture checks:
+
+```bash
+npm ci --ignore-scripts
+npm --prefix packages/mcp-server ci --ignore-scripts
+```
+
+The repository install covers the Core/CLI workspace. The separate MCP lock supplies the SDK
+also copied by host-compatibility fixtures and used by the CLI smoke suite.
+
 Choose the commands relevant to your scope. Larger repository changes typically include:
 
 ```bash

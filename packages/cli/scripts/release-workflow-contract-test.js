@@ -25,6 +25,20 @@ const publish = YAML.parse(publishText);
 const guardrails = YAML.parse(guardrailsText);
 const native = YAML.parse(nativeText);
 const evidence = YAML.parse(evidenceText);
+function assertFixtureDependencies(steps) {
+  const installs = steps.map((step, index) => ({ step, index })).filter(({ step }) =>
+    step['working-directory'] === 'packages/mcp-server' && step.run === 'npm ci --ignore-scripts');
+  const fixture = steps.findIndex(step => String(step.run ?? '').includes('test:host-compatibility'));
+  assert.equal(installs.length, 1, 'source fixtures require one locked MCP dependency installation');
+  assert.ok(fixture >= 0 && installs[0].index < fixture, 'MCP dependencies must be installed before host compatibility fixtures');
+}
+for (const steps of [guardrails.jobs.verify.steps, evidence.jobs.record.steps]) {
+  assertFixtureDependencies(steps);
+  const missing = steps.filter(step => step['working-directory'] !== 'packages/mcp-server');
+  assert.throws(() => assertFixtureDependencies(missing), /one locked MCP dependency installation/);
+  const late = [...missing, steps.find(step => step['working-directory'] === 'packages/mcp-server')];
+  assert.throws(() => assertFixtureDependencies(late), /before host compatibility fixtures/);
+}
 assert.deepEqual(publish.on.push.tags, ["agdf-v*"]);
 assert.deepEqual(guardrails.on.push.branches, ["main"]);
 assert.deepEqual(guardrails.permissions, { contents: "read" });

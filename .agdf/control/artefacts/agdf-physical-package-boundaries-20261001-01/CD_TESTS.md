@@ -95,3 +95,7 @@ Der tatsächliche C00-Quellstand mit bereits vorhandener MCP-Reparatur ist gesic
 ## CI repair follow-up — 2026-10-02
 
 CI repair evidence: CI_REPAIR.md and evidence/ci-repair-20261002/RESULTS.json. Current affected checks pass, including the full npm prefix through direct CLI and the corrected terminal npm routing stage; the original full command exit 1 is preserved. Earlier individual-file evidence is not proof of that chain. Runtime behavior and approved scope remain unchanged; restored tests/navigation and canonical paths repair omitted migration consumers. Historical TPR-E001/E002 remain open.
+
+## CI prerequisites follow-up — 2026-10-02
+
+CI_REPAIR.md and evidence/ci-prerequisites-20261002/RESULTS.json bind the actual workflow prerequisites and file-URL preload repairs. Contract negatives, host fixtures, build/release preparation, 56 compatibility cases, community health and the complete process interruption suite pass locally. Remote baseline Node24 passed; corrected Ubuntu/Windows/evidence jobs await the next push. Historical failed attempts remain recorded.

@@ -3,7 +3,7 @@ import { fork, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { json, invoke } from "../../../scripts/support/control-command-fixture.js";
 import { recordGateApprovalCommand } from "../lib/control-command.js";
 import { readApprovalOperations } from "#agdf-core/control-state/approval-operations.js";
@@ -117,7 +117,7 @@ for (const point of ["before_rename", "after_rename"]) {
 +`.replace(/^\+/gmu, ""));
     const legacyArgs = approvalArgs(fixture).slice(0, -4);
     const before = readFileSync(fixture.runPath, "utf8");
-    child = spawn(process.execPath, ["--import", preload, sourceCli, ...legacyArgs], { stdio: ["ignore", "pipe", "pipe"] });
+    child = spawn(process.execPath, ["--import", pathToFileURL(preload).href, sourceCli, ...legacyArgs], { stdio: ["ignore", "pipe", "pipe"] });
     const exited = new Promise((resolve) => child.once("exit", (code, signal) => resolve({ code, signal })));
     await markerReady(child, marker); child.kill("SIGKILL"); assert.equal((await exited).signal, "SIGKILL");
     const interrupted = readFileSync(fixture.runPath, "utf8");

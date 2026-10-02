@@ -1,0 +1,56 @@
+{
+  "baseline_commit": "31602aac23850bc1421c5568faa68d8bcbb917b3",
+  "binding_revision_id": "6b7e8c86-5608-495e-afc2-28d0b84a7eaf",
+  "source_sha256": {
+    ".github/workflows/agdf-guardrails.yml": "4ab22b81fb9c1e1104214868a51c22c2e234d7adfe8f42460efa928c1e841f92",
+    ".github/workflows/host-compatibility-evidence.yml": "1a28bd5c9cc89d9dd12c2a631553c7455c4f3234de21e39cdb8e4d3bfd685de5",
+    "CONTRIBUTING.md": "d6863361176eee0963dbd151b6f05af75d862fa11edc38dada97c56e77644c76",
+    "packages/cli/scripts/release-workflow-contract-test.js": "9b27336f87cb5d704a6e75feced358f6d39de707f7d048117f4db657b2ea318d",
+    "packages/cli/scripts/control-command-process-test.js": "112792914c1815c315f1e7906960ef932eea8e844c2b8dbde613a6b544e93b35"
+  },
+  "checks": [
+    {
+      "log": "contract.log",
+      "exit_code": 0
+    },
+    {
+      "log": "fixture.log",
+      "exit_code": 0
+    },
+    {
+      "log": "build.log",
+      "exit_code": 0
+    },
+    {
+      "log": "prepare.log",
+      "exit_code": 0
+    },
+    {
+      "log": "check.log",
+      "exit_code": 0
+    },
+    {
+      "log": "community.log",
+      "exit_code": 0
+    },
+    {
+      "log": "process.log",
+      "exit_code": 0
+    },
+    {
+      "log": "record.log",
+      "exit_code": 1
+    },
+    {
+      "log": "windows-path-probe.log",
+      "exit_code": 1
+    }
+  ],
+  "limits": [
+    "Process tests ran on macOS Node22; corrected Windows job has not run.",
+    "Windows-path negative probe expected exit1 and reproduced d: ESM URL rejection.",
+    "Initial compatibility recording failed before full release preparation; existing snapshot passes after canonical preparation. No evidence output replaced.",
+    "Original migration checkpoint/index gaps remain open."
+  ],
+  "staged_duplicate_entries_preserved": true
+}
